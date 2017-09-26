@@ -3,6 +3,15 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from xarray import DataArray, Dataset
 
 
+class DataPoint(object):
+    """A DataPoint represents one value, usually a recording from one neuron or node,
+    in response to one presentation of a stimulus.  """
+    def __init__(self, value, neuroid, presentation):
+        self.value = value
+        self.neuroid = neuroid
+        self.presentation = presentation
+
+
 class DataAssembly(object):
     """A DataAssembly represents a set of data a researcher wishes to work with for
     an analysis or benchmarking task.  """

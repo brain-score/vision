@@ -8,15 +8,16 @@ test_mkgu
 Tests for `mkgu` module.
 """
 
+import os
 import pytest
 import numpy as np
+import mkgu
 from mkgu import assemblies
 from mkgu import metrics
 import pandas as pd
 import xarray as xr
 from pytest import approx
 
-from mkgu import mkgu
 
 
 @pytest.fixture
@@ -36,8 +37,7 @@ def test_content(response):
 
 
 def test_nr_assembly_ctor():
-    my_assembly = assemblies.NeuronRecordingAssembly(name="HvMWithDiscfade")
-
+    assy_hvm = mkgu.get_assembly(name="HvMWithDiscfade")
 
 def test_load():
     print(os.getcwd())
@@ -48,10 +48,19 @@ def test_load():
 
 def test_hvm_it_rdm():
     loaded = np.load("it_rdm.p", encoding="latin1")
-    assy_hvm = assemblies.NeuronRecordingAssembly(name="HvMWithDiscfade")
+
+    assy_hvm = mkgu.get_assembly(name="HvMWithDiscfade")
+    hvm_it_v6 = assy_hvm.sel(var="V6").sel(region="IT")
+    hvm_it_v6.coords["cat_obj"] = hvm_it_v6.coords["category"] + hvm_it_v6.coords["obj"]
+    hvm_it_v6_obj = hvm_it_v6.groupby("cat_obj").mean(dim="presentation").squeeze("time_bin").T
+
+    assert hvm_it_v6_obj.shape == (64, 168)
+
     rdm_hvm = metrics.RDM()
-    bmk_hvm = metrics.Benchmark(rdm_hvm, assy_hvm)
+    bmk_hvm = metrics.Benchmark(rdm_hvm, hvm_it_v6_obj)
     rdm = bmk_hvm.calculate()
-    assert np.array_equal(rdm, loaded)
+
+    assert rdm.shape == (64, 64)
+    assert rdm == approx(loaded, abs=1e-6)
 
 

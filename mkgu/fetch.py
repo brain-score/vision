@@ -30,23 +30,65 @@ class Lookup(object):
     def __init__(self):
         pass
 
+    def lookup_assembly(self, name):
+        pass
+
 
 class SQLiteLookup(Lookup):
     """A Lookup that uses a local SQLite file.  """
+    sql_lookup_assy = """SELECT 
+    a.id as a_id, a.name 
+    FROM
+    assembly a
+    WHERE
+    a.name = ?
+    """
+
+    sql_get_assy = """SELECT 
+    a.id as a_id, a.name, a_s.id as a_s_id, a_s.role, s.id as s_id, s.type, s.location 
+    FROM
+    assembly a
+    JOIN assembly_store a_s ON a.id = a_s.assembly_id
+    JOIN store s ON a_s.store_id = s.id
+    WHERE
+    a.name = ?
+    """
+
     def __init__(self, db_file="lookup.db"):
         self.db_file = db_file
 
     def get_connection(self):
         if not hasattr(self, '_connection'):
             self._connection = sqlite3.connect(self.db_file)
+            self._connection.row_factory = sqlite3.Row
         return self._connection
 
     def lookup_assembly(self, name):
-        pass
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute(self.sql_lookup_assy, (name,))
+        assy_result = cursor.fetchone()
+        assy = AssemblyRecord(assy_result["a_id"], assy_result["name"], [])
+        cursor.execute(self.sql_get_assy, (name,))
+        result = cursor.fetchall()
+        stores = []
+        for r in result:
+            s = Store(r["s_id"], r["type"], r["location"])
+            a_s =
+
+
+lookup_types = {
+    "SQLite": SQLiteLookup
+}
+
+
+def get_lookup(type="SQLite"):
+    return lookup_types[type]()
 
 
 class AssemblyRecord(object):
-    """An AssemblyRecord stores information about the canonical location where the data for a DataAssembly is stored.  """
+    """An AssemblyRecord stores information about the canonical location where the data
+    for a DataAssembly is stored.  """
     def __init__(self, db_id, name, stores):
         self.db_id = db_id
         self.name = name

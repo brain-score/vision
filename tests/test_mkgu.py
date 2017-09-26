@@ -12,7 +12,7 @@ import os
 import pytest
 import numpy as np
 import mkgu
-from mkgu import assemblies
+from mkgu import assemblies, fetch
 from mkgu import metrics
 import pandas as pd
 import xarray as xr
@@ -62,5 +62,17 @@ def test_hvm_it_rdm():
 
     assert rdm.shape == (64, 64)
     assert rdm == approx(loaded, abs=1e-6)
+
+
+def test_lookup():
+    assy = fetch.get_lookup().lookup_assembly("HvM")
+    assert assy.name == "HvM"
+    store = assy.stores.values()[0]
+    assert store.role == "HvM"
+    assert store.store.type == "S3"
+    assert store.store.location == "https://s3.amazonaws.com/mkgu-dicarlolab-hvm/hvm_neuronal_features.nc"
+
+
+
 
 

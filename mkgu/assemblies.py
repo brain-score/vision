@@ -2,6 +2,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from xarray import DataArray, Dataset
 
+from mkgu import fetch
+
 
 class DataPoint(object):
     """A DataPoint represents one value, usually a recording from one neuron or node,
@@ -35,7 +37,7 @@ class DataAssembly(object):
 
     @classmethod
     def get_assembly(cls, name):
-        pass
+        assy = fetch.get_lookup().lookup_assembly(name)
 
 
 class BehavioralAssembly(DataAssembly):

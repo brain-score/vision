@@ -70,11 +70,13 @@ class SQLiteLookup(Lookup):
         assy_result = cursor.fetchone()
         assy = AssemblyRecord(assy_result["a_id"], assy_result["name"], [])
         cursor.execute(self.sql_get_assy, (name,))
-        result = cursor.fetchall()
-        stores = []
-        for r in result:
-            s = Store(r["s_id"], r["type"], r["location"])
-            a_s =
+        assy_store_result = cursor.fetchall()
+        for r in assy_store_result:
+            s = Store(r["s_id"], r["type"], r["location"], [assy])
+            role = r["role"]
+            a_s = AssemblyStoreMap(r["a_s_id"], role, s, assy)
+            assy.stores[role] = a_s
+        return assy
 
 
 lookup_types = {
@@ -89,7 +91,7 @@ def get_lookup(type="SQLite"):
 class AssemblyRecord(object):
     """An AssemblyRecord stores information about the canonical location where the data
     for a DataAssembly is stored.  """
-    def __init__(self, db_id, name, stores):
+    def __init__(self, db_id, name, stores={}):
         self.db_id = db_id
         self.name = name
         self.stores = stores
@@ -106,10 +108,11 @@ class AssemblyStoreMap(object):
 
 class Store(object):
     """A Store stores the location of a DataAssembly data file.  """
-    def __init__(self, db_id, type, location):
+    def __init__(self, db_id, type, location, assemblies=[]):
         self.db_id = db_id
         self.type = type
         self.location = location
+        self.assemblies = assemblies
 
 
 def download_boto(url, credentials=(None,), output_filename=None, sha1=None):

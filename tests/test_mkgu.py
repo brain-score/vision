@@ -67,10 +67,16 @@ def test_hvm_it_rdm():
 def test_lookup():
     assy = fetch.get_lookup().lookup_assembly("HvM")
     assert assy.name == "HvM"
-    store = assy.stores.values()[0]
+    store = list(assy.stores.values())[0]
     assert store.role == "HvM"
     assert store.store.type == "S3"
     assert store.store.location == "https://s3.amazonaws.com/mkgu-dicarlolab-hvm/hvm_neuronal_features.nc"
+
+
+def test_lookup_bad():
+    with pytest.raises(mkgu.fetch.AssemblyLookupError) as err:
+        fetch.get_lookup().lookup_assembly("BadName")
+
 
 
 

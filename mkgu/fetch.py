@@ -5,6 +5,7 @@ import sqlite3
 from urllib.parse import urlparse
 
 import boto as boto
+import os
 
 
 class Fetcher(object):
@@ -54,7 +55,9 @@ class SQLiteLookup(Lookup):
     a.name = ?
     """
 
-    def __init__(self, db_file="lookup.db"):
+    def __init__(self, db_file=None):
+        if db_file is None:
+            db_file = os.path.join(os.path.dirname(__file__), "lookup.db")
         self.db_file = db_file
 
     def get_connection(self):
@@ -68,19 +71,36 @@ class SQLiteLookup(Lookup):
         cursor = conn.cursor()
         cursor.execute(self.sql_lookup_assy, (name,))
         assy_result = cursor.fetchone()
-        assy = AssemblyRecord(assy_result["a_id"], assy_result["name"], [])
-        cursor.execute(self.sql_get_assy, (name,))
-        assy_store_result = cursor.fetchall()
-        for r in assy_store_result:
-            s = Store(r["s_id"], r["type"], r["location"], [assy])
-            role = r["role"]
-            a_s = AssemblyStoreMap(r["a_s_id"], role, s, assy)
-            assy.stores[role] = a_s
-        return assy
+        if assy_result:
+            assy = AssemblyRecord(assy_result["a_id"], assy_result["name"])
+            cursor.execute(self.sql_get_assy, (name,))
+            assy_store_result = cursor.fetchall()
+            for r in assy_store_result:
+                s = Store(r["s_id"], r["type"], r["location"], [assy])
+                role = r["role"]
+                a_s = AssemblyStoreMap(r["a_s_id"], role, s, assy)
+                assy.stores[role] = a_s
+            return assy
+        else:
+            raise AssemblyLookupError("A DataAssembly named " + name + " was not found.")
+
+
+class PostgreSQLLookup(Lookup):
+    """A Lookup that uses a Postgres database.  """
+    def __init__(self):
+        pass
+
+
+class WebServiceLookup(Lookup):
+    """A Lookup that uses a web service.  """
+    def __init__(self):
+        pass
 
 
 lookup_types = {
-    "SQLite": SQLiteLookup
+    "SQLite": SQLiteLookup,
+    "PostgreSQL": PostgreSQLLookup,
+    "WebService": WebServiceLookup
 }
 
 
@@ -91,9 +111,11 @@ def get_lookup(type="SQLite"):
 class AssemblyRecord(object):
     """An AssemblyRecord stores information about the canonical location where the data
     for a DataAssembly is stored.  """
-    def __init__(self, db_id, name, stores={}):
+    def __init__(self, db_id, name, stores=None):
         self.db_id = db_id
         self.name = name
+        if stores is None:
+            stores = {}
         self.stores = stores
 
 
@@ -108,10 +130,12 @@ class AssemblyStoreMap(object):
 
 class Store(object):
     """A Store stores the location of a DataAssembly data file.  """
-    def __init__(self, db_id, type, location, assemblies=[]):
+    def __init__(self, db_id, type, location, assemblies=None):
         self.db_id = db_id
         self.type = type
         self.location = location
+        if assemblies is None:
+            assemblies = []
         self.assemblies = assemblies
 
 
@@ -137,4 +161,9 @@ def verify_sha1(filename, sha1):
     if sha1 != hashlib.sha1(data).hexdigest():
         raise IOError("File '%s': invalid SHA-1 hash! You may want to delete "
                       "this corrupted file..." % filename)
+
+
+class AssemblyLookupError(Exception):
+    pass
+
 

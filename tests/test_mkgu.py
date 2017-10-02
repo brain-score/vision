@@ -18,6 +18,7 @@ import pandas as pd
 import xarray as xr
 from pytest import approx
 
+_hvm_s3_url = "https://s3.amazonaws.com/mkgu-dicarlolab-hvm/hvm_neuronal_features.nc"
 
 
 @pytest.fixture
@@ -49,7 +50,7 @@ def test_load():
 def test_hvm_it_rdm():
     loaded = np.load("it_rdm.p", encoding="latin1")
 
-    assy_hvm = mkgu.get_assembly(name="HvMWithDiscfade")
+    assy_hvm = mkgu.get_assembly(name="HvM")
     hvm_it_v6 = assy_hvm.sel(var="V6").sel(region="IT")
     hvm_it_v6.coords["cat_obj"] = hvm_it_v6.coords["category"] + hvm_it_v6.coords["obj"]
     hvm_it_v6_obj = hvm_it_v6.groupby("cat_obj").mean(dim="presentation").squeeze("time_bin").T
@@ -70,15 +71,19 @@ def test_lookup():
     store = list(assy.stores.values())[0]
     assert store.role == "HvM"
     assert store.store.type == "S3"
-    assert store.store.location == "https://s3.amazonaws.com/mkgu-dicarlolab-hvm/hvm_neuronal_features.nc"
+    assert store.store.location == _hvm_s3_url
 
 
-def test_lookup_bad():
+def test_lookup_bad_name():
     with pytest.raises(mkgu.fetch.AssemblyLookupError) as err:
         fetch.get_lookup().lookup_assembly("BadName")
 
 
-
+def test_fetch():
+    local_paths = fetch.fetch_assembly("HvM")
+    assert len(local_paths) == 1
+    print(local_paths["HvM"])
+    assert os.path.exists(local_paths["HvM"])
 
 
 

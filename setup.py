@@ -24,7 +24,7 @@ setup(
     long_description=readme + '\n\n' + history,
     author="Jon Prescott-Roy",
     author_email='jjpr@mit.edu',
-    url='https://github.com/jjpr-mit/mkgu',
+    url='https://github.com/dicarlolab/mkgu',
     packages=[
         'mkgu',
     ],

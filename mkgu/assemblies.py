@@ -24,21 +24,6 @@ class DataAssembly(object):
     def __getattr__(self, attr):
         return getattr(self.xr_data, attr)
 
-    def __setattr__(self, attr, val):
-        if attr == 'xr_data':
-            object.__setattr__(self, attr, val)
-        return setattr(self.xr_data, attr, val)
-
-    def coords_for_dim(self, dim):
-        return [x[0] for x in self.coords.variables.items() if x[1].dims == (dim,)]
-
-    def gather_indexes(self):
-        return self.set_index(append=True, **{dim: self.coords_for_dim(self, dim) for dim in self.dims})
-
-    @classmethod
-    def get_assembly(cls, name):
-        assy = fetch.get_lookup().lookup_assembly(name)
-
 
 class BehavioralAssembly(DataAssembly):
     """A BehavioralAssembly is a DataAssembly containing behavioral data.  """

@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-
+import numpy as np
 
 class Metric(object):
     """A Metric contains a chain of numerical operations to be applied to a set of
@@ -29,5 +29,5 @@ class RDM(Metric):
         super(RDM, self).__init__(**kwargs)
 
     def apply(self, assembly):
-        return 0
+        return np.corrcoef(assembly)
 

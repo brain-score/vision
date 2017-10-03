@@ -27,7 +27,7 @@ def response():
     See more at: http://doc.pytest.org/en/latest/fixture.html
     """
     # import requests
-    # return requests.get('https://github.com/jjpr-mit/mkgu')
+    # return requests.get('https://github.com/dicarlolab/mkgu')
 
 
 def test_content(response):
@@ -51,7 +51,7 @@ def test_hvm_it_rdm():
     loaded = np.load("it_rdm.p", encoding="latin1")
 
     assy_hvm = mkgu.get_assembly(name="HvM")
-    hvm_it_v6 = assy_hvm.sel(var="V6").sel(region="IT")
+    hvm_it_v6 = assy_hvm.dataset_hvm.sel(var="V6").sel(region="IT")
     hvm_it_v6.coords["cat_obj"] = hvm_it_v6.coords["category"] + hvm_it_v6.coords["obj"]
     hvm_it_v6_obj = hvm_it_v6.groupby("cat_obj").mean(dim="presentation").squeeze("time_bin").T
 
@@ -63,6 +63,12 @@ def test_hvm_it_rdm():
 
     assert rdm.shape == (64, 64)
     assert rdm == approx(loaded, abs=1e-6)
+
+
+def test_load():
+    assy_hvm = mkgu.get_assembly(name="HvM")
+    assert assy_hvm.dataset_hvm.shape == (296, 268800, 1)
+    print(assy_hvm)
 
 
 def test_lookup():
@@ -80,7 +86,8 @@ def test_lookup_bad_name():
 
 
 def test_fetch():
-    local_paths = fetch.fetch_assembly("HvM")
+    assy_record = fetch.get_lookup().lookup_assembly("HvM")
+    local_paths = fetch.fetch_assembly(assy_record)
     assert len(local_paths) == 1
     print(local_paths["HvM"])
     assert os.path.exists(local_paths["HvM"])

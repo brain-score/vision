@@ -11,8 +11,10 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
     "numpy",
+    "scipy",
     "pandas",
     "xarray",
+    "scikit-learn",
     "six",
     "requests",
     "boto3",

@@ -40,6 +40,7 @@ def test_content(response):
 def test_nr_assembly_ctor():
     assy_hvm = mkgu.get_assembly(name="HvMWithDiscfade")
 
+
 def test_load():
     print(os.getcwd())
     it_rdm = np.load("it_rdm.p", encoding="latin1")
@@ -48,7 +49,7 @@ def test_load():
 
 
 def test_hvm_it_rdm():
-    loaded = np.load("it_rdm.p", encoding="latin1")
+    loaded = np.load(os.path.join(os.curdir, "tests", "it_rdm.p"), encoding="latin1")
 
     assy_hvm = mkgu.get_assembly(name="HvM")
     hvm_it_v6 = assy_hvm.dataset_hvm.sel(var="V6").sel(region="IT")

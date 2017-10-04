@@ -15,10 +15,12 @@ requirements = [
     "xarray",
     "six",
     "requests",
-    "boto3"
+    "boto3",
+    "netcdf4"
 ]
 
 test_requirements = [
+    "pytest"
     # TODO: put package test requirements here
 ]
 

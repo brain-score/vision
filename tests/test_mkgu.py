@@ -49,7 +49,7 @@ def test_load():
 
 
 def test_hvm_it_rdm():
-    loaded = np.load(os.path.join(os.curdir, "tests", "it_rdm.p"), encoding="latin1")
+    loaded = np.load(os.path.join(os.path.dirname(__file__), "it_rdm.p"), encoding="latin1")
 
     assy_hvm = mkgu.get_assembly(name="HvM")
     hvm_it_v6 = assy_hvm.dataset_hvm.sel(var="V6").sel(region="IT")

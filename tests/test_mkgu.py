@@ -69,6 +69,12 @@ def test_repr():
     print(repr_hvm)
 
 
+def test_getitem():
+    assy_hvm = mkgu.get_assembly(name="HvM")
+    single = assy_hvm[0, 0, 0]
+    assert type(single) is type(assy_hvm)
+    assert single.values == approx(0.808021)
+
 
 def test_lookup():
     assy = fetch.get_lookup().lookup_assembly("HvM")

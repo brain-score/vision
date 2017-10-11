@@ -18,7 +18,7 @@ import pandas as pd
 import xarray as xr
 from pytest import approx
 
-_hvm_s3_url = "https://s3.amazonaws.com/mkgu-dicarlolab-hvm/hvm_neuronal_features.nc"
+_hvm_s3_url = "https://mkgu-dicarlolab-hvm.s3.amazonaws.com/hvm_neuronal_features.nc"
 
 
 @pytest.fixture
@@ -38,10 +38,10 @@ def test_content(response):
 
 
 def test_nr_assembly_ctor():
-    assy_hvm = mkgu.get_assembly(name="HvMWithDiscfade")
+    assy_hvm = mkgu.get_assembly(name="HvM")
 
 
-def test_load():
+def test_np_load():
     print(os.getcwd())
     it_rdm = np.load("it_rdm.p", encoding="latin1")
     print(it_rdm)
@@ -49,11 +49,12 @@ def test_load():
 
 
 def test_hvm_it_rdm():
-    loaded = np.load(os.path.join(os.curdir, "tests", "it_rdm.p"), encoding="latin1")
+    loaded = np.load(os.path.join(os.path.dirname(__file__), "it_rdm.p"), encoding="latin1")
 
     assy_hvm = mkgu.get_assembly(name="HvM")
-    hvm_it_v6 = assy_hvm.dataset_hvm.sel(var="V6").sel(region="IT")
+    hvm_it_v6 = assy_hvm.sel(var="V6").sel(region="IT")
     hvm_it_v6.coords["cat_obj"] = hvm_it_v6.coords["category"] + hvm_it_v6.coords["obj"]
+    hvm_it_v6.load()
     hvm_it_v6_obj = hvm_it_v6.groupby("cat_obj").mean(dim="presentation").squeeze("time_bin").T
 
     assert hvm_it_v6_obj.shape == (64, 168)
@@ -68,7 +69,7 @@ def test_hvm_it_rdm():
 
 def test_load():
     assy_hvm = mkgu.get_assembly(name="HvM")
-    assert assy_hvm.dataset_hvm.shape == (296, 268800, 1)
+    assert assy_hvm.shape == (296, 268800, 1)
     print(assy_hvm)
 
 

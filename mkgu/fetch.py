@@ -198,14 +198,15 @@ class Loader(object):
         return [x[0] for x in xr_data.coords.variables.items() if x[1].dims == (dim,)]
 
     def gather_indexes(self, xr_data):
-        return xr_data.set_index(append=True, inplace=True, **{dim: self.coords_for_dim(xr_data, dim) for dim in xr_data.dims})
+        xr_data.set_index(append=True, inplace=True, **{dim: self.coords_for_dim(xr_data, dim) for dim in xr_data.dims})
+        return xr_data
 
     def load(self):
-        datasets = []
+        data_arrays = []
         for role, path in self.local_paths.items():
-            tmp_ds = xr.open_dataset(path)
-            datasets.append(self.gather_indexes(tmp_ds))
-        merged = xr.merge(datasets)
+            tmp_da = xr.open_dataarray(path)
+            data_arrays.append(self.gather_indexes(tmp_da))
+        merged = xr.concat(data_arrays, dim="presentation")
         cls = getattr(assemblies, self.assy_record.cls)
         result = cls(name=self.assy_record.name, xr_data=merged)
         return result

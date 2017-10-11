@@ -52,7 +52,7 @@ def test_hvm_it_rdm():
     loaded = np.load(os.path.join(os.path.dirname(__file__), "it_rdm.p"), encoding="latin1")
 
     assy_hvm = mkgu.get_assembly(name="HvM")
-    hvm_it_v6 = assy_hvm.dataset_hvm.sel(var="V6").sel(region="IT")
+    hvm_it_v6 = assy_hvm.sel(var="V6").sel(region="IT")
     hvm_it_v6.coords["cat_obj"] = hvm_it_v6.coords["category"] + hvm_it_v6.coords["obj"]
     hvm_it_v6.load()
     hvm_it_v6_obj = hvm_it_v6.groupby("cat_obj").mean(dim="presentation").squeeze("time_bin").T

@@ -17,12 +17,29 @@ class DataPoint(object):
 class DataAssembly(object):
     """A DataAssembly represents a set of data a researcher wishes to work with for
     an analysis or benchmarking task.  """
-    def __init__(self, name="HvM", xr_data=None):
+    def __init__(self, name=None, xr_data=None):
         self.name = name
         self.xr_data = xr_data
 
+    def __getitem__(self, item):
+        result = self.xr_data[item]
+        if isinstance(result, type(self.xr_data)):
+            result = self.__class__(xr_data=result)
+        return result
+
     def __getattr__(self, attr):
-        return getattr(self.xr_data, attr)
+        result = getattr(self.xr_data, attr)
+        if callable(result):
+            result = self.wrap_xr(result)
+        return result
+
+    def wrap_xr(self, func):
+        def wrapper(*args, **kwargs):
+            result = func(*args, **kwargs)
+            if isinstance(result, type(self.xr_data)):
+                result = self.__class__(xr_data=result)
+            return result
+        return wrapper
 
 
 class BehavioralAssembly(DataAssembly):

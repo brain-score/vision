@@ -33,6 +33,9 @@ class DataAssembly(object):
             result = self.wrap_xr(result)
         return result
 
+    def __repr__(self):
+        return repr(self.xr_data)
+
     def wrap_xr(self, func):
         def wrapper(*args, **kwargs):
             result = func(*args, **kwargs)

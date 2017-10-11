@@ -21,24 +21,9 @@ from pytest import approx
 _hvm_s3_url = "https://mkgu-dicarlolab-hvm.s3.amazonaws.com/hvm_neuronal_features.nc"
 
 
-@pytest.fixture
-def response():
-    """Sample pytest fixture.
-    See more at: http://doc.pytest.org/en/latest/fixture.html
-    """
-    # import requests
-    # return requests.get('https://github.com/dicarlolab/mkgu')
-
-
-def test_content(response):
-    """Sample pytest test function with the pytest fixture as an argument.
-    """
-    # from bs4 import BeautifulSoup
-    # assert 'GitHub' in BeautifulSoup(response.content).title.string
-
-
 def test_nr_assembly_ctor():
     assy_hvm = mkgu.get_assembly(name="HvM")
+    assert isinstance(assy_hvm, mkgu.assemblies.DataAssembly)
 
 
 def test_np_load():
@@ -71,6 +56,18 @@ def test_load():
     assy_hvm = mkgu.get_assembly(name="HvM")
     assert assy_hvm.shape == (296, 268800, 1)
     print(assy_hvm)
+
+
+def test_repr():
+    assy_hvm = mkgu.get_assembly(name="HvM")
+    repr_hvm = repr(assy_hvm)
+    assert "neuroid" in repr_hvm
+    assert "presentation" in repr_hvm
+    assert "296" in repr_hvm
+    assert "268800" in repr_hvm
+    assert "animal" in repr_hvm
+    print(repr_hvm)
+
 
 
 def test_lookup():

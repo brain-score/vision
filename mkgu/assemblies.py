@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from xarray import DataArray, Dataset
+from xarray.core.groupby import GroupBy
 
 from mkgu import fetch
 
@@ -29,6 +30,8 @@ class DataAssembly(object):
 
     def __getattr__(self, attr):
         result = getattr(self.xr_data, attr)
+        if isinstance(result, type(self.xr_data)):
+            result = self.__class__(xr_data=result)
         if callable(result):
             result = self.wrap_xr(result)
         return result
@@ -41,6 +44,8 @@ class DataAssembly(object):
             result = func(*args, **kwargs)
             if isinstance(result, type(self.xr_data)):
                 result = self.__class__(xr_data=result)
+            elif isinstance(result, GroupBy):
+                result = GroupByWrapper(groupby=result, assy=self)
             return result
         return wrapper
 
@@ -70,6 +75,39 @@ class ModelFeaturesAssembly(NeuroidAssembly):
     def __init__(self, **kwargs):
         super(ModelFeaturesAssembly, self).__init__(**kwargs)
 
+
+class GroupByWrapper(object):
+    """Wraps an xarray GroupBy object so that its methods return DataAssembly objects when appropriate.   """
+    def __init__(self, groupby, assy):
+        self.groupby = groupby
+        self.assy = assy
+
+    def __getitem__(self, item):
+        result = self.groupby[item]
+        if isinstance(result, type(self.assy.xr_data)):
+            result = self.assy.__class__(xr_data=result)
+        elif isinstance(result, GroupBy):
+            result = self.__class__(groupby=result, assy=self.assy)
+        return result
+
+    def __getattr__(self, attr):
+        result = getattr(self.groupby, attr)
+        if callable(result):
+            result = self.wrap_groupby(result)
+        return result
+
+    def __repr__(self):
+        return repr(self.groupby)
+
+    def wrap_groupby(self, func):
+        def wrapper(*args, **kwargs):
+            result = func(*args, **kwargs)
+            if isinstance(result, type(self.assy.xr_data)):
+                result = self.assy.__class__(xr_data=result)
+            elif isinstance(result, GroupBy):
+                result = self.__class__(groupby=result, assy=self.assy)
+            return result
+        return wrapper
 
 
 

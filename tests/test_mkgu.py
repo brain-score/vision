@@ -98,4 +98,28 @@ def test_fetch():
     assert os.path.exists(local_paths["HvM"])
 
 
+def test_wrap():
+    assy_hvm = mkgu.get_assembly(name="HvM")
+    hvm_v6 = assy_hvm.sel(var="V6")
+    assert isinstance(hvm_v6, assemblies.NeuronRecordingAssembly)
+
+    hvm_it_v6 = hvm_v6.sel(region="IT")
+    assert isinstance(hvm_it_v6, assemblies.NeuronRecordingAssembly)
+
+    hvm_it_v6.coords["cat_obj"] = hvm_it_v6.coords["category"] + hvm_it_v6.coords["obj"]
+    hvm_it_v6.load()
+    hvm_it_v6_grp = hvm_it_v6.groupby("cat_obj")
+    assert isinstance(hvm_it_v6_grp, assemblies.GroupByWrapper)
+
+    hvm_it_v6_obj = hvm_it_v6_grp.mean(dim="presentation")
+    assert isinstance(hvm_it_v6_obj, assemblies.NeuronRecordingAssembly)
+
+    hvm_it_v6_sqz = hvm_it_v6_obj.squeeze("time_bin")
+    assert isinstance(hvm_it_v6_sqz, assemblies.NeuronRecordingAssembly)
+
+    hvm_it_v6_t = hvm_it_v6_sqz.T
+    assert isinstance(hvm_it_v6_t, assemblies.NeuronRecordingAssembly)
+
+
+
 

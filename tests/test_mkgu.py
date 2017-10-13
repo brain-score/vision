@@ -109,7 +109,7 @@ def test_wrap():
     hvm_it_v6.coords["cat_obj"] = hvm_it_v6.coords["category"] + hvm_it_v6.coords["obj"]
     hvm_it_v6.load()
     hvm_it_v6_grp = hvm_it_v6.groupby("cat_obj")
-    assert isinstance(hvm_it_v6_grp, assemblies.GroupByWrapper)
+    assert isinstance(hvm_it_v6_grp, xr.core.groupby.GroupBy)
 
     hvm_it_v6_obj = hvm_it_v6_grp.mean(dim="presentation")
     assert isinstance(hvm_it_v6_obj, assemblies.NeuronRecordingAssembly)

@@ -1,15 +1,15 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import os
 import hashlib
+import os
 import sqlite3
 
 import boto3
 import xarray as xr
 from six.moves.urllib.parse import urlparse
-import requests
 
 from mkgu import assemblies
+from mkgu.assemblies import gather_indexes
 
 _local_data_path = os.path.expanduser("~/.mkgu/data")
 
@@ -194,18 +194,11 @@ class Loader(object):
         self.assy_record = assy_record
         self.local_paths = local_paths
 
-    def coords_for_dim(self, xr_data, dim):
-        return [x[0] for x in xr_data.coords.variables.items() if x[1].dims == (dim,)]
-
-    def gather_indexes(self, xr_data):
-        xr_data.set_index(append=True, inplace=True, **{dim: self.coords_for_dim(xr_data, dim) for dim in xr_data.dims})
-        return xr_data
-
     def load(self):
         data_arrays = []
         for role, path in self.local_paths.items():
             tmp_da = xr.open_dataarray(path)
-            data_arrays.append(self.gather_indexes(tmp_da))
+            data_arrays.append(gather_indexes(tmp_da))
         merged = xr.concat(data_arrays, dim="presentation")
         class_object = getattr(assemblies, self.assy_record.cls)
         result = class_object(data=merged)

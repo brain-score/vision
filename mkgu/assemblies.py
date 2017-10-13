@@ -47,3 +47,12 @@ class ModelFeaturesAssembly(NeuroidAssembly):
     a machine learning model.  """
     def __init__(self, *args, **kwargs):
         super(ModelFeaturesAssembly, self).__init__(*args, **kwargs)
+
+
+def coords_for_dim(xr_data, dim):
+    return [x[0] for x in xr_data.coords.variables.items() if x[1].dims == (dim,)]
+
+
+def gather_indexes(xr_data):
+    xr_data.set_index(append=True, inplace=True, **{dim: coords_for_dim(xr_data, dim) for dim in xr_data.dims})
+    return xr_data

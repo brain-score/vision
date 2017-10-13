@@ -208,7 +208,7 @@ class Loader(object):
             data_arrays.append(self.gather_indexes(tmp_da))
         merged = xr.concat(data_arrays, dim="presentation")
         class_object = getattr(assemblies, self.assy_record.cls)
-        result = class_object(name=self.assy_record.name, xr_data=merged)
+        result = class_object(data=merged)
         return result
 
 

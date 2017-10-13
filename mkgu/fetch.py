@@ -92,17 +92,17 @@ class Lookup(object):
 
 class SQLiteLookup(Lookup):
     """A Lookup that uses a local SQLite file.  """
-    sql_lookup_assy = """SELECT 
-    a.id as a_id, a.name, a.class 
+    sql_lookup_assy = """SELECT
+    a.id as a_id, a.name, a.class
     FROM
     assembly a
     WHERE
     a.name = ?
     """
 
-    sql_get_assy = """SELECT 
-    a.id as a_id, a.name, a.class, a_s.id as a_s_id, a_s.role, 
-    s.id as s_id, s.type, s.location 
+    sql_get_assy = """SELECT
+    a.id as a_id, a.name, a.class, a_s.id as a_s_id, a_s.role,
+    s.id as s_id, s.type, s.location
     FROM
     assembly a
     JOIN assembly_store a_s ON a.id = a_s.assembly_id
@@ -205,10 +205,11 @@ class Loader(object):
         data_arrays = []
         for role, path in self.local_paths.items():
             tmp_da = xr.open_dataarray(path)
+            # tmp_da = Assembly(tmp_da)
             data_arrays.append(self.gather_indexes(tmp_da))
         merged = xr.concat(data_arrays, dim="presentation")
-        cls = getattr(assemblies, self.assy_record.cls)
-        result = cls(name=self.assy_record.name, xr_data=merged)
+        class_object = getattr(assemblies, self.assy_record.cls)
+        result = class_object(merged, name=self.assy_record.name)
         return result
 
 

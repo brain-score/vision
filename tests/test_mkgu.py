@@ -108,8 +108,9 @@ def test_wrap():
 
     hvm_it_v6.coords["cat_obj"] = hvm_it_v6.coords["category"] + hvm_it_v6.coords["obj"]
     hvm_it_v6.load()
-    hvm_it_v6_grp = hvm_it_v6.groupby("cat_obj")
-    assert isinstance(hvm_it_v6_grp, xr.core.groupby.GroupBy)
+    hvm_it_v6_grp = hvm_it_v6.multi_groupby(["category", "obj"])
+    assert not isinstance(hvm_it_v6_grp, xr.core.groupby.GroupBy)
+    assert isinstance(hvm_it_v6_grp, assemblies.GroupbyBridge)
 
     hvm_it_v6_obj = hvm_it_v6_grp.mean(dim="presentation")
     assert isinstance(hvm_it_v6_obj, assemblies.NeuronRecordingAssembly)
@@ -119,6 +120,16 @@ def test_wrap():
 
     hvm_it_v6_t = hvm_it_v6_sqz.T
     assert isinstance(hvm_it_v6_t, assemblies.NeuronRecordingAssembly)
+
+
+def test_multi_group():
+    assy_hvm = mkgu.get_assembly(name="HvM")
+    hvm_it_v6 = assy_hvm.sel(var="V6").sel(region="IT")
+    hvm_it_v6.load()
+    hvm_it_v6_obj = hvm_it_v6.multi_groupby(["category", "obj"]).mean(dim="presentation")
+    assert "category" in hvm_it_v6_obj.indexes["presentation"].names
+    assert "obj" in hvm_it_v6_obj.indexes["presentation"].names
+
 
 
 

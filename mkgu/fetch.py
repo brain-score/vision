@@ -198,7 +198,7 @@ class Loader(object):
         data_arrays = []
         for role, path in self.local_paths.items():
             tmp_da = xr.open_dataarray(path)
-            data_arrays.append(gather_indexes(tmp_da))
+            data_arrays.append(tmp_da)
         merged = xr.concat(data_arrays, dim="presentation")
         class_object = getattr(assemblies, self.assy_record.cls)
         result = class_object(data=merged)

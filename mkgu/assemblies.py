@@ -4,6 +4,7 @@ import functools
 import operator
 
 import numpy as np
+import xarray as xr
 from xarray import DataArray, Dataset
 from xarray.core.groupby import GroupBy
 
@@ -25,6 +26,7 @@ class DataAssembly(DataArray):
 
     def __init__(self, *args, **kwargs):
         super(DataAssembly, self).__init__(*args, **kwargs)
+        gather_indexes(self)
 
     def multi_groupby(self, group_coord_names, *args, **kwargs):
         delimiter = "|"
@@ -77,12 +79,25 @@ class ModelFeaturesAssembly(NeuroidAssembly):
         super(ModelFeaturesAssembly, self).__init__(*args, **kwargs)
 
 
-def coords_for_dim(xr_data, dim):
-    return [x[0] for x in xr_data.coords.variables.items() if x[1].dims == (dim,)]
+def coords_for_dim(xr_data, dim, exclude_indexes=True):
+    result = []
+    for x in xr_data.coords.variables.items():
+        only_this_dim = x[1].dims == (dim,)
+        exclude_because_index = exclude_indexes and isinstance(x[1], xr.IndexVariable)
+        if only_this_dim and not exclude_because_index:
+            result.append(x[0])
+    return result
 
 
 def gather_indexes(xr_data):
-    xr_data.set_index(append=True, inplace=True, **{dim: coords_for_dim(xr_data, dim) for dim in xr_data.dims})
+    """This is only necessary as long as xarray cannot persist MultiIndex to netCDF.  """
+    coords_d = {}
+    for dim in xr_data.dims:
+        coords = coords_for_dim(xr_data, dim)
+        if coords:
+            coords_d[dim] = coords
+    if coords_d:
+        xr_data.set_index(append=True, inplace=True, **coords_d)
     return xr_data
 
 

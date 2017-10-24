@@ -29,6 +29,8 @@ class DataAssembly(DataArray):
         gather_indexes(self)
 
     def multi_groupby(self, group_coord_names, *args, **kwargs):
+        if not isinstance(group_coord_names, (tuple, list)):
+            group_coord_names = [group_coord_names]
         delimiter = "|"
         multi_group_name = "multi_group"
         dim = self._dim_of_group_coords(group_coord_names)

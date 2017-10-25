@@ -2,7 +2,7 @@ name: mkgu
 channels:
 - defaults
 dependencies:
-- appnope=0.1.0=py36_0
+#- appnope=0.1.0=py36_0
 - bleach=1.5.0=py36_0
 - boto3=1.4.5=py36_0
 - botocore=1.5.92=py36_0

@@ -143,6 +143,11 @@ def coords_reset(da, dim, keeper):
     return da.reset_index(drops, drop=True).set_index(keeper)
 
 
+def make_assy_file_name(data_dir, da_name):
+    basename = "hvm_temporal_" + da_name + ".nc"
+    return os.path.join(data_dir, basename)
+
+
 # func to get index level names
 def levels_for_index(xr_data, index):
     return xr_data.indexes[index].names
@@ -155,6 +160,26 @@ def all_index_levels(xr_data):
 
 def save_netcdf(assy, filename):
     flatten_multiindexes(assy).to_netcdf(filename)
+
+
+def build_assys(mats, for_jjpr_dir):
+    assys = {}
+    for mat_name in mats:
+        mat = mats[mat_name]
+        if "orig_elecs" in mat:
+            assys[mat_name[:-4]] = build_assy(mat, mat_name, for_jjpr_dir)
+    return assys
+
+
+def write_assys_to_disk(assys, data_dir):
+    for da_name in assys:
+        hvm_temporal_subset = assys[da_name]
+        hvm_temporal_subset_filename = make_assy_file_name(data_dir, da_name)
+        save_netcdf(hvm_temporal_subset, hvm_temporal_subset_filename)
+
+
+def load_assy_from_disk(assy_file_name):
+    return mkgu.assemblies.NeuronRecordingAssembly(xr.open_dataarray(assy_file_name))
 
 
 presentation_groups = ["image_id", "image_file_name"]
@@ -274,7 +299,7 @@ def get_coords_stimulus(mat):
     return coords_stimulus
 
 
-def scratch(for_jonas_dir, for_jjpr_dir):
+def scratch_build_assy(for_jonas_dir, for_jjpr_dir):
     for_jonas_dir_ls = [os.path.join(for_jonas_dir, x) for x in os.listdir(for_jonas_dir)]
 
     for_jjpr_dir_ls = [os.path.join(for_jjpr_dir, x) for x in os.listdir(for_jjpr_dir)]
@@ -289,12 +314,21 @@ def scratch(for_jonas_dir, for_jjpr_dir):
     print(hvm_temporal_subset)
 
 
+def scratch_test_neuroid_ids():
+    data_dir = "/braintree/home/jjpr/dev/scratch/mkgu_scratch/data"
+    da_name = "Chabo_IT_A_HVM6"
+    assy_file_name = make_assy_file_name(data_dir, da_name)
+    assy = load_assy_from_disk(assy_file_name)
+    print(assy)
+
+
 def main():
     for_jonas_dir = "/braintree/data2/active/common/for_jonas"
 
     for_jjpr_dir = "/braintree/data2/active/common/for_jjpr"
 
-    scratch(for_jonas_dir, for_jjpr_dir)
+    # scratch_build_assy(for_jonas_dir, for_jjpr_dir)
+    scratch_test_neuroid_ids()
     # run_whole_notebook(for_jonas_dir, for_jjpr_dir)
     print("Current directory:  " + os.getcwd())
     pass

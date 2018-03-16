@@ -13,7 +13,6 @@ import pytest
 import numpy as np
 import mkgu
 from mkgu import assemblies, fetch
-from mkgu import metrics
 import pandas as pd
 import xarray as xr
 from pytest import approx
@@ -31,24 +30,6 @@ def test_np_load():
     it_rdm = np.load("it_rdm.p", encoding="latin1")
     print(it_rdm)
     assert it_rdm.shape == (64, 64)
-
-
-def test_hvm_it_rdm():
-    loaded = np.load(os.path.join(os.path.dirname(__file__), "it_rdm.p"), encoding="latin1")
-
-    assy_hvm = mkgu.get_assembly(name="HvM")
-    hvm_it_v6 = assy_hvm.sel(var="V6").sel(region="IT")
-    hvm_it_v6.load()
-    hvm_it_v6_obj = hvm_it_v6.multi_groupby(["category", "obj"]).mean(dim="presentation").squeeze("time_bin").T
-
-    assert hvm_it_v6_obj.shape == (64, 168)
-
-    rdm_hvm = metrics.RDM()
-    bmk_hvm = metrics.Benchmark(rdm_hvm, hvm_it_v6_obj)
-    rdm = bmk_hvm.calculate()
-
-    assert rdm.shape == (64, 64)
-    assert rdm == approx(loaded, abs=1e-6)
 
 
 def test_load():
@@ -128,8 +109,3 @@ def test_multi_group():
     hvm_it_v6_obj = hvm_it_v6.multi_groupby(["category", "obj"]).mean(dim="presentation")
     assert "category" in hvm_it_v6_obj.indexes["presentation"].names
     assert "obj" in hvm_it_v6_obj.indexes["presentation"].names
-
-
-
-
-

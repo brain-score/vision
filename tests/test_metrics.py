@@ -14,6 +14,7 @@ import numpy as np
 from pytest import approx
 
 import mkgu
+from mkgu.metrics.neural_fit import NeuralFitMetric
 from mkgu.metrics.rdm import RSA, RDMMetric
 
 
@@ -35,6 +36,13 @@ def test_rdm_metric():
     hvm = _load_hvm()
     rdm_metric = RDMMetric()
     score = rdm_metric.apply(hvm, hvm)
+    assert score == 1.
+
+
+def test_neural_fit_metric():
+    hvm = _load_hvm()
+    neural_fit_metric = NeuralFitMetric()
+    score = neural_fit_metric.apply(hvm, hvm)
     assert score == 1.
 
 

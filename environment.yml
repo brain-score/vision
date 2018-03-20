@@ -9,6 +9,8 @@ dependencies:
 - requests
 - boto3
 - netcdf4
+- scipy
+- scikit-learn
 - pytest
 - jupyter
 - pip:

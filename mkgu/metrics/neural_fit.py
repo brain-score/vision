@@ -6,16 +6,14 @@ from sklearn.cross_decomposition import PLSRegression
 from sklearn.decomposition import PCA
 from sklearn.model_selection import StratifiedShuffleSplit
 
-from mkgu.metrics import Metric, Similarity
+from mkgu.metrics import Metric, Similarity, Characterization
 
 
 class NeuralFitMetric(Metric):
-    """
-    Yamins & Hong et al., 2014 https://doi.org/10.1073/pnas.1403112111
-    """
-
-    def __init__(self):
-        super(NeuralFitMetric, self).__init__(similarity=NeuralFitSimilarity())
+    def __init__(self, pca_components):
+        characterization = PCANeuroidCharacterization(pca_components) if pca_components is not None else None
+        super(NeuralFitMetric, self).__init__(characterization=characterization,
+                                              similarity=NeuralFitSimilarity())
 
 
 class NeuralFitSimilarity(Similarity):
@@ -23,17 +21,13 @@ class NeuralFitSimilarity(Similarity):
     Yamins & Hong et al., 2014 https://doi.org/10.1073/pnas.1403112111
     """
 
-    def __init__(self, pca_components=1000, num_splits=10, test_size=.25, regression_components=25):
+    def __init__(self, num_splits=10, test_size=.25, regression_components=25):
         super(NeuralFitSimilarity, self).__init__()
-        self._pca = PCA(n_components=pca_components)
         self._split_strategy = StratifiedShuffleSplit(n_splits=num_splits, test_size=test_size)
         self._regression = PLSRegression(n_components=regression_components, scale=False)
-        self._logger = logging.getLogger(__name__)
+        self._logger = logging.getLogger(self.__class__.__name__)
 
     def apply(self, source_assembly, target_assembly):
-        source_assembly = self._preprocess_assembly(source_assembly)
-        target_assembly = self._preprocess_assembly(target_assembly)
-
         assert all(source_assembly.obj == target_assembly.obj)
         object_labels = np.unique(source_assembly.obj)
 
@@ -52,7 +46,13 @@ class NeuralFitSimilarity(Similarity):
 
         return np.mean(correlations)
 
-    def _preprocess_assembly(self, assembly):
+
+class PCANeuroidCharacterization(Characterization):
+    def __init__(self, max_components):
+        self._pca = PCA(n_components=max_components)
+        self._logger = logging.getLogger(self.__class__.__name__)
+
+    def apply(self, assembly):
         assert len(assembly.neuroid.shape) == 1
         if assembly.neuroid.shape[0] <= self._pca.n_components:
             return assembly

@@ -39,9 +39,16 @@ def test_rdm_metric():
     assert score == 1.
 
 
-def test_neural_fit_metric():
+def test_neural_fit_metric_nopca():
     hvm = _load_hvm()
-    neural_fit_metric = NeuralFitMetric()
+    neural_fit_metric = NeuralFitMetric(pca_components=None)
+    score = neural_fit_metric.apply(hvm, hvm)
+    assert score == 1.
+
+
+def test_neural_fit_metric_pca100():
+    hvm = _load_hvm()
+    neural_fit_metric = NeuralFitMetric(pca_components=100)
     score = neural_fit_metric.apply(hvm, hvm)
     assert score == 1.
 

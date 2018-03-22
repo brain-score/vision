@@ -1,13 +1,15 @@
+import functools
+
+import xarray as xr
+
 import mkgu
 from mkgu.metrics import Benchmark
 from mkgu.metrics.neural_fit import NeuralFitMetric
 from mkgu.metrics.rdm import RDMMetric
 
-import xarray as xr
-
 metrics = {
     'rdm': RDMMetric,
-    'neural_fit': NeuralFitMetric
+    'neural_fit': functools.partial(NeuralFitMetric, pca_components=1000)
 }
 
 

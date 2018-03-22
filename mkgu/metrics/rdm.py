@@ -23,7 +23,7 @@ class RSA(Characterization):
     def __init__(self, **kwargs):
         super(RSA, self).__init__(**kwargs)
 
-    def apply(self, assembly):
+    def __call__(self, assembly):
         return np.corrcoef(assembly)
 
 
@@ -34,8 +34,8 @@ class RDM(RSA):
     Kriegeskorte et al., 2008 https://doi.org/10.3389/neuro.06.004.2008
     """
 
-    def apply(self, assembly):
-        return 1 - super(RDM, self).apply(assembly)
+    def __call__(self, assembly):
+        return 1 - super(RDM, self).__call__(assembly)
 
 
 class RDMCorrelationCoefficient(Similarity):
@@ -45,7 +45,7 @@ class RDMCorrelationCoefficient(Similarity):
     Kriegeskorte et al., 2008 https://doi.org/10.3389/neuro.06.004.2008
     """
 
-    def apply(self, assembly1, assembly2):
+    def __call__(self, assembly1, assembly2):
         corr = np.corrcoef(self._preprocess_assembly(assembly1), self._preprocess_assembly(assembly2))
         assert len(corr.shape) == 2 and corr.shape[0] == 2 and corr.shape[1] == 2
         assert all(np.diag(corr) == 1)

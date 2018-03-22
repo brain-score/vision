@@ -26,7 +26,7 @@ def test_hvm_it_rdm():
     assert hvm_it_v6_obj.shape == (64, 168)
 
     rsa_characterization = RSA()
-    rsa = rsa_characterization.apply(hvm_it_v6_obj)
+    rsa = rsa_characterization(hvm_it_v6_obj)
 
     assert rsa.shape == (64, 64)
     assert rsa == approx(loaded, abs=1e-6)
@@ -35,21 +35,21 @@ def test_hvm_it_rdm():
 def test_rdm_metric():
     hvm = _load_hvm()
     rdm_metric = RDMMetric()
-    score = rdm_metric.apply(hvm, hvm)
+    score = rdm_metric(hvm, hvm)
     assert score == 1.
 
 
 def test_neural_fit_metric_nopca():
     hvm = _load_hvm()
     neural_fit_metric = NeuralFitMetric(pca_components=None)
-    score = neural_fit_metric.apply(hvm, hvm)
+    score = neural_fit_metric(hvm, hvm)
     assert score == 1.
 
 
 def test_neural_fit_metric_pca100():
     hvm = _load_hvm()
     neural_fit_metric = NeuralFitMetric(pca_components=100)
-    score = neural_fit_metric.apply(hvm, hvm)
+    score = neural_fit_metric(hvm, hvm)
     assert score == 1.
 
 

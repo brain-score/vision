@@ -20,4 +20,4 @@ def load(data_name, metric_name):
     data.load()  # TODO: should load lazy
     # TODO: everything above this line needs work
     metric = metrics[metric_name]()
-    return Benchmark(assembly=data, metric=metric)
+    return Benchmark(target_assembly=data, metric=metric)

@@ -60,7 +60,8 @@ class PCANeuroidCharacterization(Characterization):
         self._logger.debug('PCA from {} to {}'.format(assembly.neuroid.shape[0], self._pca.n_components))
         transformed_values = self._pca.fit_transform(assembly)
 
-        coords = {dim: assembly[dim] if dim != 'neuroid' else assembly.neuroid[:self._pca.n_components]
+        coords = {dim if dim != 'neuroid' else 'neuroid_components':
+                      assembly[dim] if dim != 'neuroid' else assembly.neuroid[:self._pca.n_components]
                   for dim in assembly.coords}
         return mkgu.assemblies.NeuroidAssembly(transformed_values, coords=coords, dims=assembly.dims)
 

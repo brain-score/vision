@@ -21,7 +21,7 @@ from mkgu.metrics.rdm import RSA, RDMMetric
 def test_hvm_it_rdm():
     loaded = np.load(os.path.join(os.path.dirname(__file__), "it_rdm.p"), encoding="latin1")
 
-    hvm_it_v6_obj = _load_hvm()
+    hvm_it_v6_obj = _load_hvm(group=lambda hvm: hvm.multi_groupby(["category", "obj"]))
 
     assert hvm_it_v6_obj.shape == (64, 168)
 
@@ -33,7 +33,7 @@ def test_hvm_it_rdm():
 
 
 def test_rdm_metric():
-    hvm = _load_hvm()
+    hvm = _load_hvm(group=lambda hvm: hvm.multi_groupby(["category", "obj"]))
     rdm_metric = RDMMetric()
     score = rdm_metric.apply(hvm, hvm)
     assert score == 1.
@@ -43,7 +43,7 @@ def test_neural_fit_metric_nopca():
     hvm = _load_hvm()
     neural_fit_metric = NeuralFitMetric(pca_components=None)
     score = neural_fit_metric.apply(hvm, hvm)
-    assert score == 1.
+    assert 0.75 < score < 0.8
 
 
 def test_neural_fit_metric_pca100():
@@ -53,9 +53,10 @@ def test_neural_fit_metric_pca100():
     assert score == 1.
 
 
-def _load_hvm():
+def _load_hvm(group=lambda hvm: hvm.multi_groupby(['obj', 'id'])):
     assy_hvm = mkgu.get_assembly(name="HvM")
     hvm_it_v6 = assy_hvm.sel(var="V6").sel(region="IT")
     hvm_it_v6.load()
-    hvm_it_v6_obj = hvm_it_v6.multi_groupby(["category", "obj"]).mean(dim="presentation").squeeze("time_bin").T
-    return hvm_it_v6_obj
+    hvm_it_v6 = group(hvm_it_v6)
+    hvm_it_v6 = hvm_it_v6.mean(dim="presentation").squeeze("time_bin").T
+    return hvm_it_v6

@@ -29,19 +29,19 @@ class NeuralFitSimilarity(Similarity):
 
     def apply(self, source_assembly, target_assembly):
         assert all(source_assembly.obj == target_assembly.obj)
-        object_labels = np.unique(source_assembly.obj)
+        object_labels = source_assembly.obj
 
         correlations = []
-        for split_iterator, (train_idx, test_idx) in enumerate(
-                self._split_strategy.split(source_assembly, object_labels)):
+        for split_iterator, (train_indices, test_indices) in enumerate(
+                self._split_strategy.split(np.zeros(len(object_labels)), object_labels.values)):
             # fit
             self._logger.debug('Fitting split {}/{}'.format(split_iterator + 1, self._split_strategy.n_splits))
-            self._regression.fit(source_assembly[train_idx], target_assembly[train_idx])
-            predicted_responses = self._regression.predict(source_assembly[test_idx])
+            self._regression.fit(source_assembly[train_indices], target_assembly[train_indices])
+            predicted_responses = self._regression.predict(source_assembly[test_indices])
 
             # correlate
             self._logger.debug('Correlating split {}/{}'.format(split_iterator + 1, self._split_strategy.n_splits))
-            rs = pearsonr_matrix(target_assembly[test_idx], predicted_responses)
+            rs = pearsonr_matrix(target_assembly[test_indices].values, predicted_responses)
             correlations.append(rs)
 
         return np.mean(correlations)

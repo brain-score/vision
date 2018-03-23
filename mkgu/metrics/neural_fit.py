@@ -6,6 +6,7 @@ from sklearn.cross_decomposition import PLSRegression
 from sklearn.decomposition import PCA
 from sklearn.model_selection import StratifiedShuffleSplit
 
+import mkgu
 from mkgu.metrics import Metric, Similarity, Characterization
 
 
@@ -29,19 +30,19 @@ class NeuralFitSimilarity(Similarity):
 
     def __call__(self, source_assembly, target_assembly):
         assert all(source_assembly.obj == target_assembly.obj)
-        object_labels = np.unique(source_assembly.obj)
+        object_labels = source_assembly.obj
 
         correlations = []
-        for split_iterator, (train_idx, test_idx) in enumerate(
-                self._split_strategy.split(source_assembly, object_labels)):
+        for split_iterator, (train_indices, test_indices) in enumerate(
+                self._split_strategy.split(np.zeros(len(object_labels)), object_labels.values)):
             # fit
             self._logger.debug('Fitting split {}/{}'.format(split_iterator + 1, self._split_strategy.n_splits))
-            self._regression.fit(source_assembly[train_idx], target_assembly[train_idx])
-            predicted_responses = self._regression.predict(source_assembly[test_idx])
+            self._regression.fit(source_assembly[train_indices], target_assembly[train_indices])
+            predicted_responses = self._regression.predict(source_assembly[test_indices])
 
             # correlate
             self._logger.debug('Correlating split {}/{}'.format(split_iterator + 1, self._split_strategy.n_splits))
-            rs = pearsonr_matrix(target_assembly[test_idx], predicted_responses)
+            rs = pearsonr_matrix(target_assembly[test_indices].values, predicted_responses)
             correlations.append(rs)
 
         return np.mean(correlations)
@@ -57,7 +58,11 @@ class PCANeuroidCharacterization(Characterization):
         if assembly.neuroid.shape[0] <= self._pca.n_components:
             return assembly
         self._logger.debug('PCA from {} to {}'.format(assembly.neuroid.shape[0], self._pca.n_components))
-        return self._pca.fit_transform(assembly)
+        transformed_values = self._pca.fit_transform(assembly)
+
+        coords = {dim: assembly[dim] if dim != 'neuroid' else assembly.neuroid[:self._pca.n_components]
+                  for dim in assembly.coords}
+        return mkgu.assemblies.NeuroidAssembly(transformed_values, coords=coords, dims=assembly.dims)
 
 
 def pearsonr_matrix(data1, data2, axis=1):

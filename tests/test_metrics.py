@@ -27,7 +27,7 @@ def test_hvm_it_rdm():
     assert hvm_it_v6_obj.shape == (64, 168)
 
     rsa_characterization = RSA()
-    rsa = rsa_characterization.apply(hvm_it_v6_obj)
+    rsa = rsa_characterization(hvm_it_v6_obj)
 
     assert rsa.shape == (64, 64)
     assert rsa == approx(loaded, abs=1e-6)
@@ -36,21 +36,21 @@ def test_hvm_it_rdm():
 def test_rdm_metric():
     hvm = _load_hvm(group=lambda hvm: hvm.multi_groupby(["category", "obj"]))
     rdm_metric = RDMMetric()
-    score = rdm_metric.apply(hvm, hvm)
+    score = rdm_metric(hvm, hvm)
     assert score == 1.
 
 
 def test_pca_characterization_noop():
     hvm = _load_hvm()
     pca = PCANeuroidCharacterization(max_components=1000)
-    hvm_ = pca.apply(hvm)
+    hvm_ = pca(hvm)
     xarray.testing.assert_equal(hvm, hvm_)
 
 
 def test_pca_characterization_100():
     hvm = _load_hvm()
     pca = PCANeuroidCharacterization(max_components=100)
-    hvm_ = pca.apply(hvm)
+    hvm_ = pca(hvm)
     assert isinstance(hvm_, mkgu.assemblies.NeuroidAssembly)
     np.testing.assert_array_equal([hvm.shape[0], 100], hvm_.shape)
 
@@ -58,14 +58,14 @@ def test_pca_characterization_100():
 def test_neural_fit_metric_nopca():
     hvm = _load_hvm()
     neural_fit_metric = NeuralFitMetric(pca_components=None)
-    score = neural_fit_metric.apply(hvm, hvm)
+    score = neural_fit_metric(hvm, hvm)
     assert 0.75 < score < 0.8
 
 
 def test_neural_fit_metric_pca100():
     hvm = _load_hvm()
     neural_fit_metric = NeuralFitMetric(pca_components=100)
-    score = neural_fit_metric.apply(hvm, hvm)
+    score = neural_fit_metric(hvm, hvm)
     assert 0.10 < score < 0.15
 
 

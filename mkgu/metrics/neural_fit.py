@@ -28,7 +28,7 @@ class NeuralFitSimilarity(Similarity):
         self._regression = PLSRegression(n_components=regression_components, scale=False)
         self._logger = logging.getLogger(self.__class__.__name__)
 
-    def apply(self, source_assembly, target_assembly):
+    def __call__(self, source_assembly, target_assembly):
         assert all(source_assembly.obj == target_assembly.obj)
         object_labels = source_assembly.obj
 
@@ -53,7 +53,7 @@ class PCANeuroidCharacterization(Characterization):
         self._pca = PCA(n_components=max_components)
         self._logger = logging.getLogger(self.__class__.__name__)
 
-    def apply(self, assembly):
+    def __call__(self, assembly):
         assert len(assembly.neuroid.shape) == 1
         if assembly.neuroid.shape[0] <= self._pca.n_components:
             return assembly

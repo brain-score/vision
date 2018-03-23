@@ -17,7 +17,7 @@ def test_score_precomputed_alexnet_activations():
     scores = None
     for layer in np.unique(activations['layers']):
         layer_activations = activations[activations['layers'] == layer]
-        layer_scores = benchmark.apply(layer_activations)
+        layer_scores = benchmark(layer_activations)
         layer_scores['layer'] = [layer] * len(layer_scores)
         if scores is None:
             scores = layer_scores

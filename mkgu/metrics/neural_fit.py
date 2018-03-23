@@ -6,6 +6,7 @@ from sklearn.cross_decomposition import PLSRegression
 from sklearn.decomposition import PCA
 from sklearn.model_selection import StratifiedShuffleSplit
 
+import mkgu
 from mkgu.metrics import Metric, Similarity, Characterization
 
 
@@ -57,7 +58,11 @@ class PCANeuroidCharacterization(Characterization):
         if assembly.neuroid.shape[0] <= self._pca.n_components:
             return assembly
         self._logger.debug('PCA from {} to {}'.format(assembly.neuroid.shape[0], self._pca.n_components))
-        return self._pca.fit_transform(assembly)
+        transformed_values = self._pca.fit_transform(assembly)
+
+        coords = {dim: assembly[dim] if dim != 'neuroid' else assembly.neuroid[:self._pca.n_components]
+                  for dim in assembly.coords}
+        return mkgu.assemblies.NeuroidAssembly(transformed_values, coords=coords, dims=assembly.dims)
 
 
 def pearsonr_matrix(data1, data2, axis=1):

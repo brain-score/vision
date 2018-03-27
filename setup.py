@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
@@ -32,9 +32,7 @@ setup(
     author="Jon Prescott-Roy",
     author_email='jjpr@mit.edu',
     url='https://github.com/dicarlolab/mkgu',
-    packages=[
-        'mkgu',
-    ],
+    packages=find_packages(),
     package_dir={'mkgu':
                  'mkgu'},
     include_package_data=True,

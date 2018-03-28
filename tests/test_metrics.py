@@ -29,8 +29,9 @@ def test_hvm_it_rdm():
     rsa_characterization = RSA()
     rsa = rsa_characterization(hvm_it_v6_obj)
 
+    assert isinstance(rsa, mkgu.assemblies.DataAssembly)
     assert rsa.shape == (64, 64)
-    assert rsa == approx(loaded, abs=1e-6)
+    assert rsa.values == approx(loaded, abs=1e-6)
 
 
 def test_rdm_metric():

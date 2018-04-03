@@ -20,17 +20,24 @@ from mkgu.metrics.rdm import RSA, RDMMetric
 
 
 def test_hvm_it_rdm():
-    loaded = np.load(os.path.join(os.path.dirname(__file__), "it_rdm.p"), encoding="latin1")
-
     hvm_it_v6_obj = _load_hvm(group=lambda hvm: hvm.multi_groupby(["category", "obj"]))
-
     assert hvm_it_v6_obj.shape == (64, 168)
+    _test_hvm_it_rdm(hvm_it_v6_obj)
 
+
+def test_hvm_it_rdm_T():
+    hvm_it_v6_obj = _load_hvm(group=lambda hvm: hvm.multi_groupby(["category", "obj"])).T
+    assert hvm_it_v6_obj.shape == (168, 64)
+    _test_hvm_it_rdm(hvm_it_v6_obj)
+
+
+def _test_hvm_it_rdm(hvm_it_v6_obj):
+    loaded = np.load(os.path.join(os.path.dirname(__file__), "it_rdm.p"), encoding="latin1")
     rsa_characterization = RSA()
     rsa = rsa_characterization(hvm_it_v6_obj)
-
-    assert rsa.shape == (64, 64)
-    assert rsa == approx(loaded, abs=1e-6)
+    assert list(rsa.shape) == [64, 64]
+    assert list(rsa.dims) == ['presentation', 'presentation']
+    assert rsa.values == approx(loaded, abs=1e-6)
 
 
 def test_rdm_metric():

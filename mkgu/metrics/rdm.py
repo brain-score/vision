@@ -1,5 +1,6 @@
 import numpy as np
 
+import mkgu
 from mkgu.metrics import Characterization, Metric, Similarity
 
 
@@ -20,11 +21,12 @@ class RSA(Characterization):
     Kriegeskorte et al., 2008 https://doi.org/10.3389/neuro.06.004.2008
     """
 
-    def __init__(self, **kwargs):
-        super(RSA, self).__init__(**kwargs)
-
     def __call__(self, assembly):
-        return np.corrcoef(assembly)
+        correlations = np.corrcoef(assembly) if assembly.dims[-1] == 'neuroid' else np.corrcoef(assembly.T).T
+        coords = {coord: coord_value for coord, coord_value in assembly.coords.items() if coord != 'neuroid'}
+        dims = [dim if dim != 'neuroid' else assembly.dims[(i - 1) % len(assembly.dims)]
+                for i, dim in enumerate(assembly.dims)]
+        return mkgu.assemblies.NeuroidAssembly(correlations, coords=coords, dims=dims)
 
 
 class RDM(RSA):

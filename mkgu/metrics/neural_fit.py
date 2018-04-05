@@ -29,7 +29,10 @@ class NeuralFitSimilarity(Similarity):
         self._logger = logging.getLogger(self.__class__.__name__)
 
     def __call__(self, source_assembly, target_assembly):
-        assert all(source_assembly.obj == target_assembly.obj)
+        assert source_assembly.shape[0] == target_assembly.shape[0]  # same stimuli
+        source_assembly = source_assembly.sortby(source_assembly.id)
+        target_assembly = target_assembly.sortby(target_assembly.id)
+        np.testing.assert_array_equal(target_assembly.obj.values, source_assembly.obj.values)
         object_labels = source_assembly.obj
 
         correlations = []
@@ -39,7 +42,6 @@ class NeuralFitSimilarity(Similarity):
             self._logger.debug('Fitting split {}/{}'.format(split_iterator + 1, self._split_strategy.n_splits))
             self._regression.fit(source_assembly[train_indices], target_assembly[train_indices])
             predicted_responses = self._regression.predict(source_assembly[test_indices])
-
             # correlate
             self._logger.debug('Correlating split {}/{}'.format(split_iterator + 1, self._split_strategy.n_splits))
             rs = pearsonr_matrix(target_assembly[test_indices].values, predicted_responses)
@@ -60,9 +62,9 @@ class PCANeuroidCharacterization(Characterization):
         self._logger.debug('PCA from {} to {}'.format(assembly.neuroid.shape[0], self._pca.n_components))
         transformed_values = self._pca.fit_transform(assembly)
 
-        coords = {dim if dim != 'neuroid' else 'neuroid_components':
-                      assembly[dim] if dim != 'neuroid' else assembly.neuroid[:self._pca.n_components]
-                  for dim in assembly.coords}
+        coords = {coord if coord != 'neuroid' else 'neuroid_components':
+                      assembly[coord] if coord != 'neuroid' else assembly.neuroid[:self._pca.n_components]
+                  for coord in assembly.coords}
         return mkgu.assemblies.NeuroidAssembly(transformed_values, coords=coords, dims=assembly.dims)
 
 

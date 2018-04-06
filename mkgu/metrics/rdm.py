@@ -48,7 +48,8 @@ class RDMCorrelationCoefficient(Similarity):
     """
 
     def __call__(self, assembly1, assembly2):
-        corr = np.corrcoef(self._preprocess_assembly(assembly1), self._preprocess_assembly(assembly2))
+        triu1, triu2 = self._preprocess_assembly(assembly1), self._preprocess_assembly(assembly2)
+        corr = np.corrcoef(triu1, triu2)
         assert len(corr.shape) == 2 and corr.shape[0] == 2 and corr.shape[1] == 2
         assert all(np.diag(corr) == 1)
         assert corr[0, 1] == corr[1, 0]
@@ -59,4 +60,4 @@ class RDMCorrelationCoefficient(Similarity):
         assert assembly.shape[0] == assembly.shape[1]
         assert np.allclose(np.diag(assembly), np.zeros((assembly.shape[0],)), atol=1e-10)
         triangular_indices = np.triu_indices(assembly.shape[0], k=-1)
-        return assembly[triangular_indices]
+        return assembly.values[triangular_indices]

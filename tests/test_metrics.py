@@ -63,17 +63,11 @@ class TestPCA(object):
 
 
 class TestNeuralFit(object):
-    def test_nopca(self):
+    def test_equal(self):
         hvm = _load_hvm()
-        neural_fit_metric = NeuralFitMetric(pca_components=None)
+        neural_fit_metric = NeuralFitMetric()
         score = neural_fit_metric(hvm, hvm)
-        assert 0.75 < score < 0.8
-
-    def test_pca100(self):
-        hvm = _load_hvm()
-        neural_fit_metric = NeuralFitMetric(pca_components=100)
-        score = neural_fit_metric(hvm, hvm)
-        assert 0.10 < score < 0.15
+        assert score > 0.75
 
 
 def _load_hvm(group=lambda hvm: hvm.multi_groupby(['obj', 'id'])):

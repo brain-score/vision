@@ -19,61 +19,61 @@ from mkgu.metrics.neural_fit import NeuralFitMetric, PCANeuroidCharacterization
 from mkgu.metrics.rdm import RSA, RDMMetric
 
 
-def test_hvm_it_rdm():
-    hvm_it_v6_obj = _load_hvm(group=lambda hvm: hvm.multi_groupby(["category", "obj"]))
-    assert hvm_it_v6_obj.shape == (64, 168)
-    _test_hvm_it_rdm(hvm_it_v6_obj)
+class TestRDM(object):
+    def test_hvm(self):
+        hvm_it_v6_obj = _load_hvm(group=lambda hvm: hvm.multi_groupby(["category", "obj"]))
+        assert hvm_it_v6_obj.shape == (64, 168)
+        self._test_hvm(hvm_it_v6_obj)
+
+    def test_hvm_T(self):
+        hvm_it_v6_obj = _load_hvm(group=lambda hvm: hvm.multi_groupby(["category", "obj"])).T
+        assert hvm_it_v6_obj.shape == (168, 64)
+        self._test_hvm(hvm_it_v6_obj)
+
+    def _test_hvm(self, hvm_it_v6_obj):
+        loaded = np.load(os.path.join(os.path.dirname(__file__), "it_rdm.p"), encoding="latin1")
+        rsa_characterization = RSA()
+        rsa = rsa_characterization(hvm_it_v6_obj)
+        assert list(rsa.shape) == [64, 64]
+        assert list(rsa.dims) == ['presentation', 'presentation']
+        assert rsa.values == approx(loaded, abs=1e-6)
 
 
-def test_hvm_it_rdm_T():
-    hvm_it_v6_obj = _load_hvm(group=lambda hvm: hvm.multi_groupby(["category", "obj"])).T
-    assert hvm_it_v6_obj.shape == (168, 64)
-    _test_hvm_it_rdm(hvm_it_v6_obj)
+class TestRDMMetric(object):
+    def test_equal(self):
+        hvm = _load_hvm(group=lambda hvm: hvm.multi_groupby(["category", "obj"]))
+        rdm_metric = RDMMetric()
+        score = rdm_metric(hvm, hvm)
+        assert score == 1.
 
 
-def _test_hvm_it_rdm(hvm_it_v6_obj):
-    loaded = np.load(os.path.join(os.path.dirname(__file__), "it_rdm.p"), encoding="latin1")
-    rsa_characterization = RSA()
-    rsa = rsa_characterization(hvm_it_v6_obj)
-    assert list(rsa.shape) == [64, 64]
-    assert list(rsa.dims) == ['presentation', 'presentation']
-    assert rsa.values == approx(loaded, abs=1e-6)
+class TestPCA(object):
+    def test_noop(self):
+        hvm = _load_hvm()
+        pca = PCANeuroidCharacterization(max_components=1000)
+        hvm_ = pca(hvm)
+        xarray.testing.assert_equal(hvm, hvm_)
+
+    def test_100(self):
+        hvm = _load_hvm()
+        pca = PCANeuroidCharacterization(max_components=100)
+        hvm_ = pca(hvm)
+        assert isinstance(hvm_, mkgu.assemblies.NeuroidAssembly)
+        np.testing.assert_array_equal([hvm.shape[0], 100], hvm_.shape)
 
 
-def test_rdm_metric():
-    hvm = _load_hvm(group=lambda hvm: hvm.multi_groupby(["category", "obj"]))
-    rdm_metric = RDMMetric()
-    score = rdm_metric(hvm, hvm)
-    assert score == 1.
+class TestNeuralFit(object):
+    def test_nopca(self):
+        hvm = _load_hvm()
+        neural_fit_metric = NeuralFitMetric(pca_components=None)
+        score = neural_fit_metric(hvm, hvm)
+        assert 0.75 < score < 0.8
 
-
-def test_pca_characterization_noop():
-    hvm = _load_hvm()
-    pca = PCANeuroidCharacterization(max_components=1000)
-    hvm_ = pca(hvm)
-    xarray.testing.assert_equal(hvm, hvm_)
-
-
-def test_pca_characterization_100():
-    hvm = _load_hvm()
-    pca = PCANeuroidCharacterization(max_components=100)
-    hvm_ = pca(hvm)
-    assert isinstance(hvm_, mkgu.assemblies.NeuroidAssembly)
-    np.testing.assert_array_equal([hvm.shape[0], 100], hvm_.shape)
-
-
-def test_neural_fit_metric_nopca():
-    hvm = _load_hvm()
-    neural_fit_metric = NeuralFitMetric(pca_components=None)
-    score = neural_fit_metric(hvm, hvm)
-    assert 0.75 < score < 0.8
-
-
-def test_neural_fit_metric_pca100():
-    hvm = _load_hvm()
-    neural_fit_metric = NeuralFitMetric(pca_components=100)
-    score = neural_fit_metric(hvm, hvm)
-    assert 0.10 < score < 0.15
+    def test_pca100(self):
+        hvm = _load_hvm()
+        neural_fit_metric = NeuralFitMetric(pca_components=100)
+        score = neural_fit_metric(hvm, hvm)
+        assert 0.10 < score < 0.15
 
 
 def _load_hvm(group=lambda hvm: hvm.multi_groupby(['obj', 'id'])):

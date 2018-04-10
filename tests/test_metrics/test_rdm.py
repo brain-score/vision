@@ -35,7 +35,7 @@ class TestRDMSimilarity(object):
         rdm = NeuroidAssembly(rdm, coords={'presentation': list(range(100))}, dims=['presentation', 'presentation'])
         similarity = RDMCorrelationCoefficient()
         score = similarity(rdm, rdm)
-        assert score == 1.
+        assert score == approx(1.)
 
     def test_equal5(self):
         rdm = np.random.rand(5, 5)  # not mirrored across diagonal, but fine for unit test
@@ -43,7 +43,16 @@ class TestRDMSimilarity(object):
         rdm = NeuroidAssembly(rdm, coords={'presentation': list(range(5))}, dims=['presentation', 'presentation'])
         similarity = RDMCorrelationCoefficient()
         score = similarity(rdm, rdm)
-        assert score == 1.
+        assert score == approx(1.)
+
+    def test_two_presentation_dims(self):
+        rdm = np.random.rand(5, 5)
+        np.fill_diagonal(rdm, 0)
+        rdm = NeuroidAssembly(rdm, coords={'presentation_left': list(range(5)), 'presentation_right': list(range(5))},
+                              dims=['presentation_left', 'presentation_right'])
+        similarity = RDMCorrelationCoefficient()
+        score = similarity(rdm, rdm, rdm_dim=['presentation_left', 'presentation_right'])
+        assert score == approx(1.)
 
     def test_equal_3d(self):
         values = np.random.rand(5, 5, 3)
@@ -73,4 +82,4 @@ class TestRDMMetric(object):
         hvm = load_hvm(group=lambda hvm: hvm.multi_groupby(["category", "obj"]))
         rdm_metric = RDMMetric()
         score = rdm_metric(hvm, hvm)
-        assert score == 1.
+        assert score == approx(1.)

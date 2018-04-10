@@ -29,14 +29,6 @@ class TestRDM(object):
 
 
 class TestRDMSimilarity(object):
-    def test_equal100(self):
-        rdm = np.random.rand(100, 100)  # not mirrored across diagonal, but fine for unit test
-        np.fill_diagonal(rdm, 0)
-        rdm = NeuroidAssembly(rdm, coords={'presentation': list(range(100))}, dims=['presentation', 'presentation'])
-        similarity = RDMCorrelationCoefficient()
-        score = similarity(rdm, rdm)
-        assert score == approx(1.)
-
     def test_equal5(self):
         rdm = np.random.rand(5, 5)  # not mirrored across diagonal, but fine for unit test
         np.fill_diagonal(rdm, 0)
@@ -45,13 +37,12 @@ class TestRDMSimilarity(object):
         score = similarity(rdm, rdm)
         assert score == approx(1.)
 
-    def test_two_presentation_dims(self):
-        rdm = np.random.rand(5, 5)
+    def test_equal100(self):
+        rdm = np.random.rand(100, 100)  # not mirrored across diagonal, but fine for unit test
         np.fill_diagonal(rdm, 0)
-        rdm = NeuroidAssembly(rdm, coords={'presentation_left': list(range(5)), 'presentation_right': list(range(5))},
-                              dims=['presentation_left', 'presentation_right'])
+        rdm = NeuroidAssembly(rdm, coords={'presentation': list(range(100))}, dims=['presentation', 'presentation'])
         similarity = RDMCorrelationCoefficient()
-        score = similarity(rdm, rdm, rdm_dim=['presentation_left', 'presentation_right'])
+        score = similarity(rdm, rdm)
         assert score == approx(1.)
 
     def test_equal_3d(self):
@@ -60,6 +51,17 @@ class TestRDMSimilarity(object):
         values[diag_indices] = 0
         assembly = NeuroidAssembly(values, coords={'presentation': list(range(5)), '3rd_dim': list(range(3))},
                                    dims=['presentation', 'presentation', '3rd_dim'])
+        similarity = RDMCorrelationCoefficient()
+        scores = similarity(assembly, assembly)
+        np.testing.assert_almost_equal(scores.values, [1., 1., 1.])
+
+    def test_equal_3d_presentation_last(self):
+        values = np.random.rand(5, 5, 3)
+        diag_indices = np.diag_indices(5)
+        values[diag_indices] = 0
+        values = values.T
+        assembly = NeuroidAssembly(values, coords={'presentation': list(range(5)), '3rd_dim': list(range(3))},
+                                   dims=['3rd_dim', 'presentation', 'presentation'])
         similarity = RDMCorrelationCoefficient()
         scores = similarity(assembly, assembly)
         np.testing.assert_almost_equal(scores.values, [1., 1., 1.])

@@ -57,14 +57,23 @@ class RDMCorrelationCoefficient(Similarity):
             either with a string for a repeated dimension or with a list for two different dimension names
         :return: mkgu.assemblies.DataAssembly
         """
+        # get upper triangulars
         assert isinstance(rdm_dim, str) or len(rdm_dim) == 2
         joint_dim = '{}-{}'.format(*rdm_dim if not isinstance(rdm_dim, str) else (rdm_dim, rdm_dim))
         triu1 = self._preprocess_assembly(assembly1, rdm_dim=rdm_dim, joint_dim=joint_dim)
         triu2 = self._preprocess_assembly(assembly2, rdm_dim=rdm_dim, joint_dim=joint_dim)
         assert triu1.dims == triu2.dims
         assert triu1.shape == triu2.shape
-        indices = [[slice(None)] + list(combination) for combination in
-                   itertools.product(*[list(range(len(triu1[dim]))) for dim in triu1.dims[1:]])]
+        joint_dim_index = np.where(np.array(triu1.dims) == joint_dim)[0][0]
+
+        # compute correlations
+        def insert_rdm_slice(combination):
+            combination.insert(joint_dim_index, slice(None))
+            return combination
+
+        indices = [insert_rdm_slice(list(combination)) for combination in
+                   itertools.product(*[list(range(len(triu1[dim])))
+                                       for dim in filter(lambda dim: dim != joint_dim, triu1.dims)])]
 
         def _corr(vals1, vals2):
             corr = np.corrcoef(vals1, vals2)
@@ -72,35 +81,35 @@ class RDMCorrelationCoefficient(Similarity):
             np.testing.assert_almost_equal(np.diag(corr), [1, 1])
             return corr[0, 1]
 
-        corrs = np.array([_corr(triu1.values[ids], triu2.values[ids]) for ids in indices]).reshape(triu1.shape[1:])
+        corrs = np.array([_corr(triu1.values[ids], triu2.values[ids]) for ids in indices])
+        corrs = corrs.reshape(triu1.shape[:joint_dim_index] + triu1.shape[joint_dim_index+1:])
+
+        # package in assembly
         coords = {coord: values for coord, values in triu1.coords.items() if coord is not joint_dim}
-        return DataAssembly(corrs, coords=coords, dims=triu1.dims[1:])
+        dims = list(triu1.dims)
+        dims.remove(joint_dim)
+        return DataAssembly(corrs, coords=coords, dims=dims)
 
     def _preprocess_assembly(self, assembly, rdm_dim, joint_dim):
-        if isinstance(rdm_dim, str):
-            rdm_dim = [rdm_dim, rdm_dim]
-        else:
-            assert assembly[rdm_dim[0]].shape == assembly[rdm_dim[1]].shape
-        assert all([_rdm_dim in assembly.dims for _rdm_dim in rdm_dim])
-        rdm_dim_indices = np.array([np.where(np.array(assembly.dims) == _rdm_dim)[0]
-                                    for _rdm_dim in np.unique(rdm_dim)]).flatten()
-        adjacent_dims = set(assembly.dims) - set(rdm_dim)
+        rdm_dim_indices, = np.where(np.array(assembly.dims) == rdm_dim)
+        adjacent_dims = list(filter(lambda dim: dim != rdm_dim, assembly.dims))
         assert len(rdm_dim_indices) == 2
-        self._assert_diagonal_zero(assembly, rdm_dim_indices,
-                                   diag_dimensions=list(adjacent_dims) + np.unique(rdm_dim).tolist())
+        self._assert_diagonal_zero(assembly, rdm_dim_indices, diag_dimensions=list(adjacent_dims) + [rdm_dim])
 
         # get upper triangulars
-        triangular_indices = np.triu_indices(assembly[rdm_dim[0]].shape[0], k=1)
-        indices = [slice(None) if i not in rdm_dim_indices else triangular_indices[rdm_dim_indices[i]]
+        triangular_indices = np.triu_indices(assembly[rdm_dim].shape[0], k=1)
+        indices = [slice(None) if i not in rdm_dim_indices else triangular_indices[np.where(rdm_dim_indices == i)[0][0]]
                    for i in range(len(assembly.dims))]
         triu = assembly.values[indices]
 
         # package in assembly again
-        coords = {coord: assembly[coord] for coord in assembly.coords if coord not in rdm_dim}
-        coords[joint_dim] = ['{}-{}'.format(assembly[rdm_dim[0]][i1].values, assembly[rdm_dim[1]][i2].values)
+        coords = {coord: assembly[coord] for coord in assembly.coords if coord != rdm_dim}
+        coords[joint_dim] = ['{}-{}'.format(*assembly[rdm_dim][[i1, i2]].values)
                              # ^ hack around xarray not allowing 2D coords
                              for i1, i2 in zip(*triangular_indices)]
-        triu_dims = [joint_dim] + list(adjacent_dims)
+        triu_dims = list(assembly.dims)
+        triu_dims.remove(rdm_dim)
+        triu_dims = [dim if dim != rdm_dim else joint_dim for dim in triu_dims]
         return DataAssembly(triu, coords=coords, dims=triu_dims)
 
     def _assert_diagonal_zero(self, assembly, rdm_dim_indices, diag_dimensions):

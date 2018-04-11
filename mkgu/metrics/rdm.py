@@ -53,7 +53,7 @@ class RDMCorrelationCoefficient(Similarity):
         """
         :param mkgu.assemblies.NeuroidAssembly assembly1:
         :param mkgu.assemblies.NeuroidAssembly assembly2:
-        :param Union[str, list] rdm_dim: indicate the dimension along which the RDM/RSA was computed,
+        :param str rdm_dim: indicate the dimension along which the RDM/RSA was computed,
             either with a string for a repeated dimension or with a list for two different dimension names
         :return: mkgu.assemblies.DataAssembly
         """
@@ -62,18 +62,22 @@ class RDMCorrelationCoefficient(Similarity):
         joint_dim = '{}-{}'.format(*rdm_dim if not isinstance(rdm_dim, str) else (rdm_dim, rdm_dim))
         triu1 = self._preprocess_assembly(assembly1, rdm_dim=rdm_dim, joint_dim=joint_dim)
         triu2 = self._preprocess_assembly(assembly2, rdm_dim=rdm_dim, joint_dim=joint_dim)
-        assert triu1.dims == triu2.dims
-        assert triu1.shape == triu2.shape
-        joint_dim_index = np.where(np.array(triu1.dims) == joint_dim)[0][0]
+        assert len(set(triu1.dims).intersection(set(triu2.dims))) == 1, \
+            "Only joint dim {} should be shared".format(joint_dim)
 
         # compute correlations
-        def insert_rdm_slice(combination):
-            combination.insert(joint_dim_index, slice(None))
-            return combination
+        def iter_indices(triu):
+            joint_dim_index = np.where(np.array(triu.dims) == joint_dim)[0][0]
 
-        indices = [insert_rdm_slice(list(combination)) for combination in
-                   itertools.product(*[list(range(len(triu1[dim])))
-                                       for dim in filter(lambda dim: dim != joint_dim, triu1.dims)])]
+            def insert_rdm_slice(combination):
+                combination.insert(joint_dim_index, slice(None))
+                return combination
+
+            return [insert_rdm_slice(list(combination)) for combination in
+                    itertools.product(*[list(range(len(triu[dim])))
+                                        for dim in filter(lambda dim: dim != joint_dim, triu.dims)])]
+
+        indices1, indices2 = iter_indices(triu1), iter_indices(triu2)
 
         def _corr(vals1, vals2):
             corr = np.corrcoef(vals1, vals2)
@@ -81,14 +85,16 @@ class RDMCorrelationCoefficient(Similarity):
             np.testing.assert_almost_equal(np.diag(corr), [1, 1])
             return corr[0, 1]
 
-        corrs = np.array([_corr(triu1.values[ids], triu2.values[ids]) for ids in indices])
-        corrs = corrs.reshape(triu1.shape[:joint_dim_index] + triu1.shape[joint_dim_index+1:])
+        corrs = np.array([_corr(triu1.values[ids1], triu2.values[ids2])
+                          for ids1, ids2 in itertools.product(indices1, indices2)])
 
         # package in assembly
-        coords = {coord: values for coord, values in triu1.coords.items() if coord is not joint_dim}
-        dims = list(triu1.dims)
-        dims.remove(joint_dim)
-        return DataAssembly(corrs, coords=coords, dims=dims)
+        coords = {**{coord: values for coord, values in triu1.coords.items() if coord is not joint_dim},
+                  **{coord: values for coord, values in triu2.coords.items() if coord is not joint_dim}}
+        dims = {**{dim: triu1[dim].shape for dim in triu1.dims}, **{dim: triu2[dim].shape for dim in triu2.dims}}
+        del dims[joint_dim]
+        corrs = corrs.reshape(list(itertools.chain(*dims.values())))
+        return DataAssembly(corrs, coords=coords, dims=dims.keys())
 
     def _preprocess_assembly(self, assembly, rdm_dim, joint_dim):
         rdm_dim_indices, = np.where(np.array(assembly.dims) == rdm_dim)

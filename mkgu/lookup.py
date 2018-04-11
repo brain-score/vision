@@ -57,8 +57,8 @@ class AssemblyStoreModel(peewee.Model):
 
 class AssemblyStoreMap(peewee.Model):
     """An AssemblyStoreMap links an AssemblyRecord to an AssemblyStore.  """
-    assembly_model = peewee.ForeignKeyField(AssemblyModel, backref="assembly_models")
-    assembly_store_model = peewee.ForeignKeyField(AssemblyStoreModel, backref="assembly_store_models")
+    assembly_model = peewee.ForeignKeyField(AssemblyModel, backref="assembly_store_maps")
+    assembly_store_model = peewee.ForeignKeyField(AssemblyStoreModel, backref="assembly_store_maps")
 
     class Meta:
         database = pwdb

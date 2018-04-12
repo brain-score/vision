@@ -1,7 +1,6 @@
 import os
-import sqlite3
-
 import peewee
+
 
 pwdb = peewee.SqliteDatabase(os.path.join(os.path.dirname(__file__), "lookup.db"))
 
@@ -46,6 +45,7 @@ class AssemblyModel(peewee.Model):
     class Meta:
         database = pwdb
 
+
 class AssemblyStoreModel(peewee.Model):
     """An AssemblyStoreModel stores the location of a DataAssembly data file.  """
     assembly_type = peewee.CharField()
@@ -55,6 +55,7 @@ class AssemblyStoreModel(peewee.Model):
     class Meta:
         database = pwdb
 
+
 class AssemblyStoreMap(peewee.Model):
     """An AssemblyStoreMap links an AssemblyRecord to an AssemblyStore.  """
     assembly_model = peewee.ForeignKeyField(AssemblyModel, backref="assembly_store_maps")
@@ -62,6 +63,7 @@ class AssemblyStoreMap(peewee.Model):
 
     class Meta:
         database = pwdb
+
 
 class AssemblyLookupError(Exception):
     pass

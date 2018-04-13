@@ -21,7 +21,11 @@ class SQLiteLookup(Lookup):
 
     def lookup_assembly(self, name):
         pwdb.connect(reuse_if_open=True)
-        return AssemblyModel.get(AssemblyModel.name == name)
+        try:
+            assy = AssemblyModel.get(AssemblyModel.name == name)
+        except AssemblyModel.DoesNotExist as e:
+            raise AssemblyLookupError("A DataAssembly named " + name + " was not found.")
+        return assy
 
 
 class PostgreSQLLookup(Lookup):

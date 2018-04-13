@@ -17,7 +17,7 @@ assy = AssemblyModel(name="dicarlo.Hong2011", assembly_class="NeuronRecordingAss
 assy.save()
 
 
-assy_store_map = AssemblyStoreMap(assembly_model=assy, assembly_store_model=store)
+assy_store_map = AssemblyStoreMap(assembly_model=assy, assembly_store_model=store, role="dicarlo.Hong2011")
 assy_store_map.save()
 
 

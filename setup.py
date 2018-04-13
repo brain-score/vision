@@ -16,7 +16,8 @@ requirements = [
     "six",
     "requests",
     "boto3",
-    "netcdf4"
+    "netcdf4",
+    "peewee"
 ]
 
 test_requirements = [

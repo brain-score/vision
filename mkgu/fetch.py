@@ -84,8 +84,8 @@ class Loader(object):
     """
     Loads a DataAssembly from files.
     """
-    def __init__(self, assy_record, local_paths):
-        self.assy_record = assy_record
+    def __init__(self, assy_model, local_paths):
+        self.assy_model = assy_model
         self.local_paths = local_paths
 
     def load(self):
@@ -94,7 +94,7 @@ class Loader(object):
             tmp_da = xr.open_dataarray(path)
             data_arrays.append(tmp_da)
         merged = xr.concat(data_arrays, dim="presentation")
-        class_object = getattr(assemblies, self.assy_record.cls)
+        class_object = getattr(assemblies, self.assy_model.assembly_class)
         result = class_object(data=merged)
         return result
 
@@ -114,18 +114,20 @@ def get_fetcher(type="S3", location=None, assembly_name=None):
     return _fetcher_types[type](location, assembly_name)
 
 
-def fetch_assembly(assy_record):
+def fetch_assembly(assy_model):
     local_paths = {}
-    for s in assy_record.stores.values():
-        fetcher = get_fetcher(type=s.store.type, location=s.store.location, assembly_name=assy_record.name)
+    for s in assy_model.assembly_store_maps:
+        fetcher = get_fetcher(type=s.assembly_store_model.location_type,
+                              location=s.assembly_store_model.location,
+                              assembly_name=assy_model.name)
         local_paths[s.role] = fetcher.fetch()
     return local_paths
 
 
 def get_assembly(name):
-    assy_record = get_lookup().lookup_assembly(name)
-    local_paths = fetch_assembly(assy_record)
-    loader = Loader(assy_record, local_paths)
+    assy_model = get_lookup().lookup_assembly(name)
+    local_paths = fetch_assembly(assy_model)
+    loader = Loader(assy_model, local_paths)
     return loader.load()
 
 

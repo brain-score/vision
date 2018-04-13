@@ -12,6 +12,7 @@ import os
 import pytest
 import numpy as np
 import mkgu
+import mkgu.lookup
 from mkgu import assemblies, fetch
 import pandas as pd
 import xarray as xr
@@ -33,7 +34,7 @@ def test_np_load():
 
 
 def test_load():
-    assy_hvm = mkgu.get_assembly(name="HvM")
+    assy_hvm = mkgu.get_assembly(name="dicarlo.Hong2011")
     assert assy_hvm.shape == (296, 268800, 1)
     print(assy_hvm)
 
@@ -57,7 +58,7 @@ def test_getitem():
 
 
 def test_lookup():
-    assy = fetch.get_lookup().lookup_assembly("HvM")
+    assy = mkgu.lookup.get_lookup().lookup_assembly("HvM")
     assert assy.name == "HvM"
     store = list(assy.stores.values())[0]
     assert store.role == "HvM"
@@ -66,12 +67,12 @@ def test_lookup():
 
 
 def test_lookup_bad_name():
-    with pytest.raises(mkgu.fetch.AssemblyLookupError) as err:
-        fetch.get_lookup().lookup_assembly("BadName")
+    with pytest.raises(mkgu.lookup.AssemblyLookupError) as err:
+        mkgu.lookup.get_lookup().lookup_assembly("BadName")
 
 
 def test_fetch():
-    assy_record = fetch.get_lookup().lookup_assembly("HvM")
+    assy_record = mkgu.lookup.get_lookup().lookup_assembly("HvM")
     local_paths = fetch.fetch_assembly(assy_record)
     assert len(local_paths) == 1
     print(local_paths["HvM"])

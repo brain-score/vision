@@ -1,24 +1,9 @@
 import pandas as pd
-from mkgu.lookup import pwdb, AssemblyModel, AssemblyStoreMap, AssemblyStoreModel
+from mkgu.assemblies import pwdb, AssemblyModel, AssemblyStoreMap, AssemblyStoreModel
 from mkgu.stimuli import ImageModel, StimulusSetModel, ImageStoreModel, StimulusSetImageMap, ImageStoreMap
 
 
 pwdb.connect(reuse_if_open=True)
-pwdb.create_tables(models=[AssemblyModel, AssemblyStoreMap, AssemblyStoreModel])
-
-
-store = AssemblyStoreModel(assembly_type="netCDF",
-                           location_type="S3",
-                           location="https://mkgu-dicarlolab-hvm.s3.amazonaws.com/hvm_neuronal_features.nc")
-store.save()
-
-
-assy = AssemblyModel(name="dicarlo.Hong2011", assembly_class="NeuronRecordingAssembly")
-assy.save()
-
-
-assy_store_map = AssemblyStoreMap(assembly_model=assy, assembly_store_model=store, role="dicarlo.Hong2011")
-assy_store_map.save()
 
 
 pwdb.create_tables(models=[ImageModel, StimulusSetModel, ImageStoreModel, StimulusSetImageMap, ImageStoreMap])
@@ -59,6 +44,24 @@ for image in df_images.itertuples():
     pw_image.save()
     pw_stimulus_set_image_map.save()
     pw_image_image_store_map.save()
+
+
+pwdb.create_tables(models=[AssemblyModel, AssemblyStoreMap, AssemblyStoreModel])
+
+
+store = AssemblyStoreModel(assembly_type="netCDF",
+                           location_type="S3",
+                           location="https://mkgu-dicarlolab-hvm.s3.amazonaws.com/hvm_neuronal_features.nc")
+store.save()
+
+
+assy = AssemblyModel(name="dicarlo.Hong2011", assembly_class="NeuronRecordingAssembly",
+                     stimulus_set=hvm_images)
+assy.save()
+
+
+assy_store_map = AssemblyStoreMap(assembly_model=assy, assembly_store_model=store, role="dicarlo.Hong2011")
+assy_store_map.save()
 
 
 

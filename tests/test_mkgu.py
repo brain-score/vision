@@ -58,7 +58,7 @@ def test_getitem():
 
 
 def test_lookup():
-    assy = mkgu.lookup.get_lookup().lookup_assembly("dicarlo.Hong2011")
+    assy = mkgu.assemblies.lookup_assembly("dicarlo.Hong2011")
     assert assy.name == "dicarlo.Hong2011"
     store = assy.assembly_store_maps[0]
     assert store.role == "dicarlo.Hong2011"
@@ -67,12 +67,12 @@ def test_lookup():
 
 
 def test_lookup_bad_name():
-    with pytest.raises(mkgu.lookup.AssemblyLookupError) as err:
-        mkgu.lookup.get_lookup().lookup_assembly("BadName")
+    with pytest.raises(mkgu.assemblies.AssemblyLookupError) as err:
+        mkgu.assemblies.lookup_assembly("BadName")
 
 
 def test_fetch():
-    assy_record = mkgu.lookup.get_lookup().lookup_assembly("dicarlo.Hong2011")
+    assy_record = mkgu.assemblies.lookup_assembly("dicarlo.Hong2011")
     local_paths = fetch.fetch_assembly(assy_record)
     assert len(local_paths) == 1
     print(local_paths["dicarlo.Hong2011"])

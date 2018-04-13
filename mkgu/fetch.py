@@ -8,7 +8,6 @@ import xarray as xr
 from six.moves.urllib.parse import urlparse
 
 from mkgu import assemblies
-from mkgu.lookup import get_lookup
 
 _local_data_path = os.path.expanduser("~/.mkgu/data")
 
@@ -125,7 +124,7 @@ def fetch_assembly(assy_model):
 
 
 def get_assembly(name):
-    assy_model = get_lookup().lookup_assembly(name)
+    assy_model = assemblies.lookup_assembly(name)
     local_paths = fetch_assembly(assy_model)
     loader = Loader(assy_model, local_paths)
     return loader.load()

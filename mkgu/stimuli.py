@@ -1,8 +1,13 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import pandas as pd
 import peewee
 
 from mkgu.lookup import pwdb
+
+
+class StimulusSet(object):
+    pass
 
 
 class ImageModel(peewee.Model):
@@ -59,3 +64,11 @@ class ImageStoreMap(peewee.Model):
     class Meta:
         database = pwdb
 
+
+def get_stimulus_set(name):
+    pw_query = ImageModel.select()\
+        .join(StimulusSetImageMap)\
+        .join(StimulusSetModel)\
+        .where(StimulusSetModel.name == name)
+    df_reconstructed = pd.DataFrame(list(pw_query.dicts()))
+    return df_reconstructed

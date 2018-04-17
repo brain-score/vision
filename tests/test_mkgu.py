@@ -13,7 +13,7 @@ import pytest
 import numpy as np
 import mkgu
 import mkgu.lookup
-from mkgu import assemblies, fetch
+from mkgu import assemblies, fetch, stimuli
 import pandas as pd
 import xarray as xr
 from pytest import approx
@@ -110,3 +110,10 @@ def test_multi_group():
     hvm_it_v6_obj = hvm_it_v6.multi_groupby(["category", "obj"]).mean(dim="presentation")
     assert "category" in hvm_it_v6_obj.indexes["presentation"].names
     assert "obj" in hvm_it_v6_obj.indexes["presentation"].names
+
+
+def test_get_stimulus_set():
+    df = stimuli.get_stimulus_set("dicarlo.hvm")
+    assert "hash_id" in df.columns
+    assert df.shape == (5760, 17)
+

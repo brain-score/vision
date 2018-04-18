@@ -2,6 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import functools
 import operator
+from collections import OrderedDict
 
 import numpy as np
 import peewee
@@ -77,12 +78,12 @@ class ModelFeaturesAssembly(NeuroidAssembly):
 
 
 def coords_for_dim(xr_data, dim, exclude_indexes=True):
-    result = []
-    for x in xr_data.coords.variables.items():
-        only_this_dim = x[1].dims == (dim,)
-        exclude_because_index = exclude_indexes and isinstance(x[1], xr.IndexVariable)
+    result = OrderedDict()
+    for key, value in xr_data.coords.variables.items():
+        only_this_dim = value.dims == (dim,)
+        exclude_because_index = exclude_indexes and isinstance(value, xr.IndexVariable)
         if only_this_dim and not exclude_because_index:
-            result.append(x[0])
+            result[key] = value
     return result
 
 
@@ -92,7 +93,7 @@ def gather_indexes(xr_data):
     for dim in xr_data.dims:
         coords = coords_for_dim(xr_data, dim)
         if coords:
-            coords_d[dim] = coords
+            coords_d[dim] = coords.keys()
     if coords_d:
         xr_data.set_index(append=True, inplace=True, **coords_d)
     return xr_data

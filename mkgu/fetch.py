@@ -2,12 +2,14 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import hashlib
 import os
+import pandas as pd
 import peewee
 import boto3
 import xarray as xr
 from six.moves.urllib.parse import urlparse
 
-from mkgu import assemblies
+from mkgu import assemblies, stimuli
+from mkgu.assemblies import coords_for_dim
 
 _local_data_path = os.path.expanduser("~/.mkgu/data")
 
@@ -92,10 +94,24 @@ class Loader(object):
         for role, path in self.local_paths.items():
             tmp_da = xr.open_dataarray(path)
             data_arrays.append(tmp_da)
-        merged = xr.concat(data_arrays, dim="presentation")
+        concatenated = xr.concat(data_arrays, dim="presentation")
+        stimulus_set_name = self.assy_model.stimulus_set.name
+        stimulus_set = stimuli.get_stimulus_set(stimulus_set_name)
+        merged = self.merge(concatenated, stimulus_set)
         class_object = getattr(assemblies, self.assy_model.assembly_class)
         result = class_object(data=merged)
+        result.attrs["stimulus_set_name"] = stimulus_set_name
+        result.attrs["stimulus_set"] = stimulus_set
         return result
+
+    def merge(self, assy, stimulus_set):
+        axis_name = "presentation"
+        df_of_coords = pd.DataFrame(coords_for_dim(assy, axis_name))
+        merged = df_of_coords.merge(stimulus_set, left_on="image_id", right_on="hash_id", how="left")
+        for col in stimulus_set.columns:
+            assy[col] = (axis_name, merged[col])
+            # assy.set_index(append=True, inplace=True, **{axis_name: [col]})
+        return assy
 
 
 class AssemblyFetchError(Exception):

@@ -81,15 +81,15 @@ def test_fetch():
 
 def test_wrap():
     assy_hvm = mkgu.get_assembly(name="dicarlo.Hong2011")
-    hvm_v6 = assy_hvm.sel(var="V6")
+    hvm_v6 = assy_hvm.sel(variation=6)
     assert isinstance(hvm_v6, assemblies.NeuronRecordingAssembly)
 
     hvm_it_v6 = hvm_v6.sel(region="IT")
     assert isinstance(hvm_it_v6, assemblies.NeuronRecordingAssembly)
 
-    hvm_it_v6.coords["cat_obj"] = hvm_it_v6.coords["category"] + hvm_it_v6.coords["obj"]
+    hvm_it_v6.coords["cat_obj"] = hvm_it_v6.coords["category_name"] + hvm_it_v6.coords["object_name"]
     hvm_it_v6.load()
-    hvm_it_v6_grp = hvm_it_v6.multi_groupby(["category", "obj"])
+    hvm_it_v6_grp = hvm_it_v6.multi_groupby(["category_name", "object_name"])
     assert not isinstance(hvm_it_v6_grp, xr.core.groupby.GroupBy)
     assert isinstance(hvm_it_v6_grp, assemblies.GroupbyBridge)
 
@@ -105,11 +105,11 @@ def test_wrap():
 
 def test_multi_group():
     assy_hvm = mkgu.get_assembly(name="dicarlo.Hong2011")
-    hvm_it_v6 = assy_hvm.sel(var="V6").sel(region="IT")
+    hvm_it_v6 = assy_hvm.sel(variation=6).sel(region="IT")
     hvm_it_v6.load()
-    hvm_it_v6_obj = hvm_it_v6.multi_groupby(["category", "obj"]).mean(dim="presentation")
-    assert "category" in hvm_it_v6_obj.indexes["presentation"].names
-    assert "obj" in hvm_it_v6_obj.indexes["presentation"].names
+    hvm_it_v6_obj = hvm_it_v6.multi_groupby(["category_name", "object_name"]).mean(dim="presentation")
+    assert "category_name" in hvm_it_v6_obj.indexes["presentation"].names
+    assert "object_name" in hvm_it_v6_obj.indexes["presentation"].names
 
 
 def test_get_stimulus_set():

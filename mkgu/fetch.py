@@ -158,11 +158,11 @@ def fetch_stimulus_set(stimulus_set_model):
                               assembly_name=stimulus_set_model.name)
         fetched = fetcher.fetch()
         containing_dir = os.path.dirname(fetched)
-        zip_ref = zipfile.ZipFile(fetched, 'r')
-        zip_ref.extractall(containing_dir)
-        zip_ref.close()
+        with zipfile.ZipFile(fetched, 'r') as zip_file:
+            if not all(map(lambda x: os.path.exists(os.path.join(containing_dir, x)), zip_file.namelist())):
+                zip_file.extractall(containing_dir)
         local_paths[s.location] = containing_dir
-    for image_map in stimulus_set_model.stimulus_set_image_maps:
+    for image_map in stimulus_set_model.stimulus_set_image_maps.prefetch(ImageModel, ImageStoreMap, ImageStoreModel):
         store_map = image_map.image.image_image_store_maps[0]
         local_path_base = local_paths[store_map.image_store.location]
         image_path = os.path.join(local_path_base, store_map.path, image_map.image.image_file_name)

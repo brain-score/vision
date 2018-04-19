@@ -10,6 +10,9 @@ class StimulusSet(pd.DataFrame):
     _internal_names = pd.DataFrame._internal_names + ["image_paths", "get_image"]
     _internal_names_set = set(_internal_names)
 
+    def get_image(self, image_id):
+        return self.image_paths[image_id]
+
 
 class ImageModel(peewee.Model):
     hash_id = peewee.CharField()

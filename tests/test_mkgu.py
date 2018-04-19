@@ -120,4 +120,6 @@ def test_get_stimulus_set():
     assert "hash_id" in stimulus_set.columns
     assert stimulus_set.shape == (5760, 17)
     assert os.path.exists(stimulus_set.image_paths[random.choice(stimulus_set["hash_id"])])
+    image_path = stimulus_set.get_image(random.choice(stimulus_set["hash_id"]))
+    assert os.path.exists(image_path)
 

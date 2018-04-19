@@ -12,7 +12,7 @@ from six.moves.urllib.parse import urlparse
 
 from mkgu import assemblies, stimuli
 from mkgu.assemblies import coords_for_dim
-from mkgu.stimuli import StimulusSetModel, ImageModel, ImageStoreModel, StimulusSetImageMap, ImageStoreMap
+from mkgu.stimuli import StimulusSetModel, ImageModel, ImageStoreModel, StimulusSetImageMap, ImageStoreMap, StimulusSet
 
 _local_data_path = os.path.expanduser("~/.mkgu/data")
 
@@ -185,4 +185,6 @@ def get_stimulus_set(name):
         .join(StimulusSetModel)\
         .where(StimulusSetModel.name == name)
     df_reconstructed = pd.DataFrame(list(pw_query.dicts()))
-    return (df_reconstructed, image_paths)
+    stimulus_set = StimulusSet(df_reconstructed)
+    stimulus_set.image_paths = image_paths
+    return stimulus_set

@@ -116,8 +116,8 @@ def test_multi_group():
 
 
 def test_get_stimulus_set():
-    df, image_paths = mkgu.fetch.get_stimulus_set("dicarlo.hvm")
-    assert "hash_id" in df.columns
-    assert df.shape == (5760, 17)
-    assert os.path.exists(image_paths[random.choice(df["hash_id"])])
+    stimulus_set = mkgu.get_stimulus_set("dicarlo.hvm")
+    assert "hash_id" in stimulus_set.columns
+    assert stimulus_set.shape == (5760, 17)
+    assert os.path.exists(stimulus_set.image_paths[random.choice(stimulus_set["hash_id"])])
 

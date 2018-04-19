@@ -6,8 +6,9 @@ import peewee
 from mkgu.lookup import pwdb
 
 
-class StimulusSet(object):
-    pass
+class StimulusSet(pd.DataFrame):
+    _internal_names = pd.DataFrame._internal_names + ['get_image']
+    _internal_names_set = set(_internal_names)
 
 
 class ImageModel(peewee.Model):
@@ -65,10 +66,3 @@ class ImageStoreMap(peewee.Model):
         database = pwdb
 
 
-def get_stimulus_set(name):
-    pw_query = ImageModel.select()\
-        .join(StimulusSetImageMap)\
-        .join(StimulusSetModel)\
-        .where(StimulusSetModel.name == name)
-    df_reconstructed = pd.DataFrame(list(pw_query.dicts()))
-    return df_reconstructed

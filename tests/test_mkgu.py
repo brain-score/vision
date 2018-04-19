@@ -9,9 +9,12 @@ Tests for `mkgu` module.
 """
 
 import os
+import random
+
 import pytest
 import numpy as np
 import mkgu
+import mkgu.fetch
 import mkgu.lookup
 from mkgu import assemblies, fetch, stimuli
 import pandas as pd
@@ -113,7 +116,8 @@ def test_multi_group():
 
 
 def test_get_stimulus_set():
-    df = stimuli.get_stimulus_set("dicarlo.hvm")
+    df, image_paths = mkgu.fetch.get_stimulus_set("dicarlo.hvm")
     assert "hash_id" in df.columns
     assert df.shape == (5760, 17)
+    assert os.path.exists(image_paths[random.choice(df["hash_id"])])
 

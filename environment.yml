@@ -11,6 +11,7 @@ dependencies:
 - netcdf4
 - scipy
 - scikit-learn
+- networkx
 - pytest
 - jupyter
 - pip:

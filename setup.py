@@ -17,7 +17,8 @@ requirements = [
     "requests",
     "boto3",
     "netcdf4",
-    "peewee"
+    "peewee",
+    "networkx",
 ]
 
 test_requirements = [

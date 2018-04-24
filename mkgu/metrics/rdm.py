@@ -59,11 +59,13 @@ class RDMCorrelationCoefficient(Similarity):
         """
         # get upper triangulars
         assert isinstance(rdm_dim, str) or len(rdm_dim) == 2
+        assert len(assembly1[rdm_dim]) == len(assembly2[rdm_dim])
         joint_dim = '{}-{}'.format(*rdm_dim if not isinstance(rdm_dim, str) else (rdm_dim, rdm_dim))
         triu1 = self._preprocess_assembly(assembly1, rdm_dim=rdm_dim, joint_dim=joint_dim)
         triu2 = self._preprocess_assembly(assembly2, rdm_dim=rdm_dim, joint_dim=joint_dim)
         assert len(set(triu1.dims).intersection(set(triu2.dims))) == 1, \
             "Only joint dim {} should be shared".format(joint_dim)
+        assert len(triu1[joint_dim]) == len(triu2[joint_dim])
 
         # compute correlations
         def iter_indices(triu):

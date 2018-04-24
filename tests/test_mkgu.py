@@ -9,14 +9,17 @@ Tests for `mkgu` module.
 """
 
 import os
-import pytest
+import random
+
 import numpy as np
-import mkgu
-import mkgu.lookup
-from mkgu import assemblies, fetch, stimuli
-import pandas as pd
+import pytest
 import xarray as xr
 from pytest import approx
+
+import mkgu
+import mkgu.fetch
+import mkgu.lookup
+from mkgu import assemblies, fetch
 
 _hvm_s3_url = "https://mkgu-dicarlolab-hvm.s3.amazonaws.com/hvm_neuronal_features.nc"
 
@@ -113,7 +116,19 @@ def test_multi_group():
 
 
 def test_get_stimulus_set():
-    df = stimuli.get_stimulus_set("dicarlo.hvm")
-    assert "hash_id" in df.columns
-    assert df.shape == (5760, 17)
+    stimulus_set = mkgu.get_stimulus_set("dicarlo.hvm")
+    assert "hash_id" in stimulus_set.columns
+    assert stimulus_set.shape == (5760, 17)
+    assert os.path.exists(stimulus_set.image_paths[random.choice(stimulus_set["hash_id"])])
+    for hash_id in stimulus_set['hash_id']:
+        image_path = stimulus_set.get_image(hash_id)
+        assert os.path.exists(image_path)
 
+
+def test_stimulus_set_from_assembly():
+    assy_hvm = mkgu.get_assembly(name="dicarlo.Hong2011")
+    stimulus_set = assy_hvm.attrs["stimulus_set"]
+    assert stimulus_set.shape[0] == np.unique(assy_hvm["image_id"]).shape[0]
+    for hash_id in stimulus_set['hash_id']:
+        image_path = stimulus_set.get_image(hash_id)
+        assert os.path.exists(image_path)

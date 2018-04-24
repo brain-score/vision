@@ -2,6 +2,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import hashlib
 import os
+import zipfile
+
 import pandas as pd
 import peewee
 import boto3
@@ -10,6 +12,7 @@ from six.moves.urllib.parse import urlparse
 
 from mkgu import assemblies, stimuli
 from mkgu.assemblies import coords_for_dim
+from mkgu.stimuli import StimulusSetModel, ImageModel, ImageStoreModel, StimulusSetImageMap, ImageStoreMap, StimulusSet
 
 _local_data_path = os.path.expanduser("~/.mkgu/data")
 
@@ -81,7 +84,7 @@ class LocalFetcher(Fetcher):
         super(LocalFetcher, self).__init__(location, assembly_name)
 
 
-class Loader(object):
+class AssemblyLoader(object):
     """
     Loads a DataAssembly from files.
     """
@@ -96,7 +99,7 @@ class Loader(object):
             data_arrays.append(tmp_da)
         concatenated = xr.concat(data_arrays, dim="presentation")
         stimulus_set_name = self.assy_model.stimulus_set.name
-        stimulus_set = stimuli.get_stimulus_set(stimulus_set_name)
+        stimulus_set = get_stimulus_set(stimulus_set_name)
         merged = self.merge(concatenated, stimulus_set)
         class_object = getattr(assemblies, self.assy_model.assembly_class)
         result = class_object(data=merged)
@@ -139,10 +142,49 @@ def fetch_assembly(assy_model):
     return local_paths
 
 
+def fetch_stimulus_set(stimulus_set_model):
+    local_paths = {}
+    image_paths = {}
+    pw_query_stores_for_set = ImageStoreModel.select() \
+        .join(ImageStoreMap) \
+        .join(ImageModel) \
+        .join(StimulusSetImageMap) \
+        .join(StimulusSetModel) \
+        .where(StimulusSetModel.name == stimulus_set_model.name) \
+        .distinct()
+    for s in pw_query_stores_for_set:
+        fetcher = get_fetcher(type=s.location_type,
+                              location=s.location,
+                              assembly_name=stimulus_set_model.name)
+        fetched = fetcher.fetch()
+        containing_dir = os.path.dirname(fetched)
+        with zipfile.ZipFile(fetched, 'r') as zip_file:
+            if not all(map(lambda x: os.path.exists(os.path.join(containing_dir, x)), zip_file.namelist())):
+                zip_file.extractall(containing_dir)
+        local_paths[s.location] = containing_dir
+    for image_map in stimulus_set_model.stimulus_set_image_maps.prefetch(ImageModel, ImageStoreMap, ImageStoreModel):
+        store_map = image_map.image.image_image_store_maps[0]
+        local_path_base = local_paths[store_map.image_store.location]
+        image_path = os.path.join(local_path_base, store_map.path, image_map.image.image_file_name)
+        image_paths[image_map.image.hash_id] = image_path
+    return image_paths
+
+
 def get_assembly(name):
     assy_model = assemblies.lookup_assembly(name)
     local_paths = fetch_assembly(assy_model)
-    loader = Loader(assy_model, local_paths)
+    loader = AssemblyLoader(assy_model, local_paths)
     return loader.load()
 
 
+def get_stimulus_set(name):
+    stimulus_set_model = StimulusSetModel.get(StimulusSetModel.name == name)
+    image_paths = fetch_stimulus_set(stimulus_set_model)
+    pw_query = ImageModel.select()\
+        .join(StimulusSetImageMap)\
+        .join(StimulusSetModel)\
+        .where(StimulusSetModel.name == name)
+    df_reconstructed = pd.DataFrame(list(pw_query.dicts()))
+    stimulus_set = StimulusSet(df_reconstructed)
+    stimulus_set.image_paths = image_paths
+    return stimulus_set

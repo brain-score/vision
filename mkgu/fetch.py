@@ -2,14 +2,14 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import hashlib
 import os
-import sqlite3
-
+import pandas as pd
+import peewee
 import boto3
 import xarray as xr
 from six.moves.urllib.parse import urlparse
 
-from mkgu import assemblies
-from mkgu.assemblies import gather_indexes
+from mkgu import assemblies, stimuli
+from mkgu.assemblies import coords_for_dim
 
 _local_data_path = os.path.expanduser("~/.mkgu/data")
 
@@ -81,117 +81,12 @@ class LocalFetcher(Fetcher):
         super(LocalFetcher, self).__init__(location, assembly_name)
 
 
-class Lookup(object):
-    """A Lookup gives an abstraction layer for findoing out where a DataAssembly can be fetched from.  """
-    def __init__(self):
-        pass
-
-    def lookup_assembly(self, name):
-        pass
-
-
-class SQLiteLookup(Lookup):
-    """A Lookup that uses a local SQLite file.  """
-    sql_lookup_assy = """SELECT
-    a.id as a_id, a.name, a.class
-    FROM
-    assembly a
-    WHERE
-    a.name = ?
-    """
-
-    sql_get_assy = """SELECT
-    a.id as a_id, a.name, a.class, a_s.id as a_s_id, a_s.role,
-    s.id as s_id, s.type, s.location
-    FROM
-    assembly a
-    JOIN assembly_store a_s ON a.id = a_s.assembly_id
-    JOIN store s ON a_s.store_id = s.id
-    WHERE
-    a.name = ?
-    """
-
-    def __init__(self, db_file=None):
-        super(SQLiteLookup, self).__init__()
-        if db_file is None:
-            db_file = os.path.join(os.path.dirname(__file__), "lookup.db")
-        self.db_file = db_file
-
-    def get_connection(self):
-        if not hasattr(self, '_connection'):
-            self._connection = sqlite3.connect(self.db_file)
-            self._connection.row_factory = sqlite3.Row
-        return self._connection
-
-    def lookup_assembly(self, name):
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        cursor.execute(self.sql_lookup_assy, (name,))
-        assy_result = cursor.fetchone()
-        if assy_result:
-            assy = AssemblyRecord(assy_result["a_id"], assy_result["name"], assy_result["class"])
-            cursor.execute(self.sql_get_assy, (name,))
-            assy_store_result = cursor.fetchall()
-            for r in assy_store_result:
-                s = Store(r["s_id"], r["type"], r["location"], [assy])
-                role = r["role"]
-                a_s = AssemblyStoreMap(r["a_s_id"], role, s, assy)
-                assy.stores[role] = a_s
-            return assy
-        else:
-            raise AssemblyLookupError("A DataAssembly named " + name + " was not found.")
-
-
-class PostgreSQLLookup(Lookup):
-    """A Lookup that uses a Postgres database.  """
-    def __init__(self):
-        super(PostgreSQLLookup, self).__init__()
-
-
-class WebServiceLookup(Lookup):
-    """A Lookup that uses a web service.  """
-    def __init__(self):
-        super(WebServiceLookup, self).__init__()
-
-
-class AssemblyRecord(object):
-    """An AssemblyRecord stores information about the canonical location where the data
-    for a DataAssembly is stored.  """
-    def __init__(self, db_id, name, cls, stores=None):
-        self.db_id = db_id
-        self.name = name
-        self.cls = cls
-        if stores is None:
-            stores = {}
-        self.stores = stores
-
-
-class AssemblyStoreMap(object):
-    """An AssemblyStoreMap links an AssemblyRecord to a Store.  """
-    def __init__(self, db_id, role, store, assembly_record):
-        self.db_id = db_id
-        self.role = role
-        self.store = store
-        self.assembly_record = assembly_record
-
-
-class Store(object):
-    """A Store stores the location of a DataAssembly data file.  """
-    def __init__(self, db_id, type, location, assemblies=None):
-        self.db_id = db_id
-        self.type = type
-        self.location = location
-        if assemblies is None:
-            assemblies = []
-        self.assemblies = assemblies
-
-
 class Loader(object):
     """
     Loads a DataAssembly from files.
     """
-    def __init__(self, assy_record, local_paths):
-        self.assy_record = assy_record
+    def __init__(self, assy_model, local_paths):
+        self.assy_model = assy_model
         self.local_paths = local_paths
 
     def load(self):
@@ -199,14 +94,24 @@ class Loader(object):
         for role, path in self.local_paths.items():
             tmp_da = xr.open_dataarray(path)
             data_arrays.append(tmp_da)
-        merged = xr.concat(data_arrays, dim="presentation")
-        class_object = getattr(assemblies, self.assy_record.cls)
+        concatenated = xr.concat(data_arrays, dim="presentation")
+        stimulus_set_name = self.assy_model.stimulus_set.name
+        stimulus_set = stimuli.get_stimulus_set(stimulus_set_name)
+        merged = self.merge(concatenated, stimulus_set)
+        class_object = getattr(assemblies, self.assy_model.assembly_class)
         result = class_object(data=merged)
+        result.attrs["stimulus_set_name"] = stimulus_set_name
+        result.attrs["stimulus_set"] = stimulus_set
         return result
 
-
-class AssemblyLookupError(Exception):
-    pass
+    def merge(self, assy, stimulus_set):
+        axis_name = "presentation"
+        df_of_coords = pd.DataFrame(coords_for_dim(assy, axis_name))
+        merged = df_of_coords.merge(stimulus_set, left_on="image_id", right_on="hash_id", how="left")
+        for col in stimulus_set.columns:
+            assy[col] = (axis_name, merged[col])
+            # assy.set_index(append=True, inplace=True, **{axis_name: [col]})
+        return assy
 
 
 class AssemblyFetchError(Exception):
@@ -224,29 +129,20 @@ def get_fetcher(type="S3", location=None, assembly_name=None):
     return _fetcher_types[type](location, assembly_name)
 
 
-_lookup_types = {
-    "SQLite": SQLiteLookup,
-    "PostgreSQL": PostgreSQLLookup,
-    "WebService": WebServiceLookup
-}
-
-
-def get_lookup(type="SQLite"):
-    return _lookup_types[type]()
-
-
-def fetch_assembly(assy_record):
+def fetch_assembly(assy_model):
     local_paths = {}
-    for s in assy_record.stores.values():
-        fetcher = get_fetcher(type=s.store.type, location=s.store.location, assembly_name=assy_record.name)
+    for s in assy_model.assembly_store_maps:
+        fetcher = get_fetcher(type=s.assembly_store_model.location_type,
+                              location=s.assembly_store_model.location,
+                              assembly_name=assy_model.name)
         local_paths[s.role] = fetcher.fetch()
     return local_paths
 
 
 def get_assembly(name):
-    assy_record = get_lookup().lookup_assembly(name)
-    local_paths = fetch_assembly(assy_record)
-    loader = Loader(assy_record, local_paths)
+    assy_model = assemblies.lookup_assembly(name)
+    local_paths = fetch_assembly(assy_model)
+    loader = Loader(assy_model, local_paths)
     return loader.load()
 
 

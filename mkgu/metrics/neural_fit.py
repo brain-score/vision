@@ -27,8 +27,8 @@ class NeuralFitSimilarity(Similarity):
         self._logger = logging.getLogger(self.__class__.__name__)
 
     def __call__(self, source_assembly, target_assembly):
-        assert all(source_assembly.obj == target_assembly.obj)
-        object_labels = source_assembly.obj
+        assert all(source_assembly['object_name'] == target_assembly['object_name'])
+        object_labels = source_assembly['object_name']
 
         correlations = []
         for split_iterator, (train_indices, test_indices) in enumerate(

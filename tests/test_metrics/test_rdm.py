@@ -10,12 +10,12 @@ from tests.test_metrics import load_hvm
 
 class TestRDM(object):
     def test_hvm(self):
-        hvm_it_v6_obj = load_hvm(group=lambda hvm: hvm.multi_groupby(["category", "obj"]))
+        hvm_it_v6_obj = load_hvm(group=lambda hvm: hvm.multi_groupby(["category_name", "object_name"]))
         assert hvm_it_v6_obj.shape == (64, 168)
         self._test_hvm(hvm_it_v6_obj)
 
     def test_hvm_T(self):
-        hvm_it_v6_obj = load_hvm(group=lambda hvm: hvm.multi_groupby(["category", "obj"])).T
+        hvm_it_v6_obj = load_hvm(group=lambda hvm: hvm.multi_groupby(["category_name", "object_name"])).T
         assert hvm_it_v6_obj.shape == (168, 64)
         self._test_hvm(hvm_it_v6_obj)
 
@@ -86,7 +86,7 @@ class TestRDMSimilarity(object):
 
 class TestRDMMetric(object):
     def test_equal(self):
-        hvm = load_hvm(group=lambda hvm: hvm.multi_groupby(["category", "obj"]))
+        hvm = load_hvm(group=lambda hvm: hvm.multi_groupby(["category_name", "object_name"]))
         rdm_metric = RDMMetric()
         score = rdm_metric(hvm, hvm)
         assert score == approx(1.)

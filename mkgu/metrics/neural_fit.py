@@ -11,10 +11,8 @@ from mkgu.metrics import Metric, Similarity, Characterization
 
 
 class NeuralFitMetric(Metric):
-    def __init__(self, pca_components):
-        characterization = PCANeuroidCharacterization(pca_components) if pca_components is not None else None
-        super(NeuralFitMetric, self).__init__(characterization=characterization,
-                                              similarity=NeuralFitSimilarity())
+    def __init__(self):
+        super(NeuralFitMetric, self).__init__(similarity=NeuralFitSimilarity())
 
 
 class NeuralFitSimilarity(Similarity):

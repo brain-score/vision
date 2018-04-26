@@ -10,7 +10,7 @@ from mkgu.metrics.rdm import RDMMetric
 
 metrics = {
     'rdm': RDMMetric,
-    'neural_fit': functools.partial(NeuralFitMetric, pca_components=1000),
+    'neural_fit': NeuralFitMetric,
     'edge_ratio': EdgeRatioMetric
 }
 

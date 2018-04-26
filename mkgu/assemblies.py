@@ -2,10 +2,15 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import functools
 import operator
+from collections import OrderedDict
 
 import numpy as np
+import peewee
 import xarray as xr
 from xarray import DataArray
+
+from mkgu.lookup import pwdb
+from mkgu.stimuli import StimulusSetModel
 
 
 class DataPoint(object):
@@ -73,12 +78,12 @@ class ModelFeaturesAssembly(NeuroidAssembly):
 
 
 def coords_for_dim(xr_data, dim, exclude_indexes=True):
-    result = []
-    for x in xr_data.coords.variables.items():
-        only_this_dim = x[1].dims == (dim,)
-        exclude_because_index = exclude_indexes and isinstance(x[1], xr.IndexVariable)
+    result = OrderedDict()
+    for key, value in xr_data.coords.variables.items():
+        only_this_dim = value.dims == (dim,)
+        exclude_because_index = exclude_indexes and isinstance(value, xr.IndexVariable)
         if only_this_dim and not exclude_because_index:
-            result.append(x[0])
+            result[key] = value
     return result
 
 
@@ -88,7 +93,7 @@ def gather_indexes(xr_data):
     for dim in xr_data.dims:
         coords = coords_for_dim(xr_data, dim)
         if coords:
-            coords_d[dim] = coords
+            coords_d[dim] = coords.keys()
     if coords_d:
         xr_data.set_index(append=True, inplace=True, **coords_d)
     return xr_data
@@ -130,3 +135,48 @@ class GroupbyBridge(object):
 
 class GroupbyError(Exception):
     pass
+
+
+class AssemblyModel(peewee.Model):
+    """An AssemblyModel stores information about the canonical location where the data
+    for a DataAssembly is stored.  """
+    name = peewee.CharField()
+    assembly_class = peewee.CharField()
+    stimulus_set = peewee.ForeignKeyField(StimulusSetModel, backref="assembly_models")
+
+    class Meta:
+        database = pwdb
+
+
+class AssemblyStoreModel(peewee.Model):
+    """An AssemblyStoreModel stores the location of a DataAssembly data file.  """
+    assembly_type = peewee.CharField()
+    location_type = peewee.CharField()
+    location = peewee.CharField()
+
+    class Meta:
+        database = pwdb
+
+
+class AssemblyStoreMap(peewee.Model):
+    """An AssemblyStoreMap links an AssemblyRecord to an AssemblyStore.  """
+    assembly_model = peewee.ForeignKeyField(AssemblyModel, backref="assembly_store_maps")
+    assembly_store_model = peewee.ForeignKeyField(AssemblyStoreModel, backref="assembly_store_maps")
+    role = peewee.CharField()
+
+    class Meta:
+        database = pwdb
+
+
+class AssemblyLookupError(Exception):
+    pass
+
+
+def lookup_assembly(name):
+    pwdb.connect(reuse_if_open=True)
+    try:
+        assy = AssemblyModel.get(AssemblyModel.name == name)
+    except AssemblyModel.DoesNotExist as e:
+        raise AssemblyLookupError("A DataAssembly named " + name + " was not found.")
+    return assy
+

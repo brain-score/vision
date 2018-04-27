@@ -17,14 +17,20 @@ class SimilarityDummy(Similarity):
 
 
 class TestSimilarity:
-    def test_no_adjacent(self):
-        assembly = np.random.rand(100)
+    def test_no_adjacent3(self):
+        self._test_no_adjacent(3)
+
+    def test_no_adjacent100(self):
+        self._test_no_adjacent(100)
+
+    def _test_no_adjacent(self, num_values):
+        assembly = np.random.rand(num_values)
         assembly = NeuroidAssembly(assembly, coords={'neuroid': list(range(len(assembly)))}, dims=['neuroid'])
         similarity = SimilarityDummy()
         similarity(assembly, assembly)
         assert 1 == len(similarity.source_assemblies) == len(similarity.target_assemblies)
-        assert assembly.equals(similarity.source_assemblies[0])
-        assert assembly.equals(similarity.target_assemblies[0])
+        np.testing.assert_array_equal(assembly.values, similarity.source_assemblies[0])
+        np.testing.assert_array_equal(assembly.values, similarity.target_assemblies[0])
 
     def test_one_adjacent(self):
         assembly = np.random.rand(100, 3)

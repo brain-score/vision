@@ -7,24 +7,9 @@ from collections import OrderedDict
 
 import numpy as np
 from sklearn.model_selection import StratifiedShuffleSplit
-from .utils import collect_coords, collect_dim_shapes
 
 from mkgu.assemblies import DataAssembly
-
-
-class Benchmark(object):
-    """a Benchmark represents the application of a Metric to a specific set of data.  """
-
-    def __init__(self, metric, target_assembly):
-        """
-        :param Metric metric:
-        :param target_assembly:
-        """
-        self._metric = metric
-        self._target_assembly = target_assembly
-
-    def __call__(self, source_assembly):
-        return self._metric(self._target_assembly, source_assembly)
+from .utils import collect_coords, collect_dim_shapes
 
 
 class Metric(object):

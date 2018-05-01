@@ -1,7 +1,6 @@
 import xarray as xr
 
 import mkgu
-from mkgu.metrics import Benchmark
 from mkgu.metrics.anatomy import ventral_stream, EdgeRatioMetric
 from mkgu.metrics.neural_fit import NeuralFitMetric
 from mkgu.metrics.rdm import RDMMetric
@@ -11,6 +10,21 @@ metrics = {
     'neural_fit': NeuralFitMetric,
     'edge_ratio': EdgeRatioMetric
 }
+
+
+class Benchmark(object):
+    """a Benchmark represents the application of a Metric to a specific set of data.  """
+
+    def __init__(self, metric, target_assembly):
+        """
+        :param Metric metric:
+        :param target_assembly:
+        """
+        self._metric = metric
+        self._target_assembly = target_assembly
+
+    def __call__(self, source_assembly):
+        return self._metric(self._target_assembly, source_assembly)
 
 
 def load(data_name, metric_name):

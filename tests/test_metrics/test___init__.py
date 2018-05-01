@@ -1,9 +1,10 @@
 import itertools
 
 import numpy as np
+import pytest
 
 from mkgu.assemblies import NeuroidAssembly, DataAssembly
-from mkgu.metrics import OuterCrossValidationSimilarity, NonparametricCVSimilarity
+from mkgu.metrics import OuterCrossValidationSimilarity, NonparametricCVSimilarity, subset
 
 
 class SimilarityAdjacencyPlaceholder(OuterCrossValidationSimilarity):
@@ -109,3 +110,53 @@ class TestSimilarityScore:
             assert len(assembly['presentation']) == 90
         assert all(score.values == 0)
         assert score.center == 0
+
+
+class TestSubset:
+    def test_equal(self):
+        assembly = np.random.rand(100, 3)
+        assembly = NeuroidAssembly(assembly, coords={
+            'image_id': list(range(assembly.shape[0])),
+            'neuroid_id': list(range(assembly.shape[1]))},
+                                   dims=['image_id', 'neuroid_id'])
+        assembly = assembly.stack(presentation=('image_id',), neuroid=('neuroid_id',))
+        subset_assembly = subset(assembly, assembly)
+        assert (subset_assembly == assembly).all()
+
+    def test_smaller(self):
+        source_assembly = np.random.rand(100, 3)
+        source_assembly = NeuroidAssembly(source_assembly, coords={
+            'image_id': list(range(source_assembly.shape[0])),
+            'neuroid_id': list(range(source_assembly.shape[1]))},
+                                          dims=['image_id', 'neuroid_id'])
+        source_assembly = source_assembly.stack(presentation=('image_id',), neuroid=('neuroid_id',))
+
+        target_assembly = np.random.rand(50, 2)
+        target_assembly = NeuroidAssembly(target_assembly, coords={
+            'image_id': list(range(target_assembly.shape[0])),
+            'neuroid_id': list(range(target_assembly.shape[1]))},
+                                          dims=['image_id', 'neuroid_id'])
+        target_assembly = target_assembly.stack(presentation=('image_id',), neuroid=('neuroid_id',))
+
+        subset_assembly = subset(source_assembly, target_assembly)
+        np.testing.assert_array_equal(subset_assembly.coords.keys(), target_assembly.coords.keys())
+        for coord_name in target_assembly.coords:
+            assert all(subset_assembly[coord_name] == target_assembly[coord_name])
+
+    def test_larger_error(self):
+        source_assembly = np.random.rand(50, 2)
+        source_assembly = NeuroidAssembly(source_assembly, coords={
+            'image_id': list(range(source_assembly.shape[0])),
+            'neuroid_id': list(range(source_assembly.shape[1]))},
+                                          dims=['image_id', 'neuroid_id'])
+        source_assembly = source_assembly.stack(presentation=('image_id',), neuroid=('neuroid_id',))
+
+        target_assembly = np.random.rand(100, 3)
+        target_assembly = NeuroidAssembly(target_assembly, coords={
+            'image_id': list(range(target_assembly.shape[0])),
+            'neuroid_id': list(range(target_assembly.shape[1]))},
+                                          dims=['image_id', 'neuroid_id'])
+        target_assembly = target_assembly.stack(presentation=('image_id',), neuroid=('neuroid_id',))
+
+        with pytest.raises(AssertionError):
+            subset(source_assembly, target_assembly)

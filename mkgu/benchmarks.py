@@ -24,7 +24,7 @@ class Benchmark(object):
         self._target_assembly = target_assembly
 
     def __call__(self, source_assembly):
-        return self._metric(self._target_assembly, source_assembly)
+        return self._metric(source_assembly, self._target_assembly)
 
 
 def load(data_name, metric_name):

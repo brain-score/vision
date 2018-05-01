@@ -1,9 +1,7 @@
-import itertools
-
 import numpy as np
 
 from mkgu.assemblies import DataAssembly
-from mkgu.metrics import Characterization, Metric, Similarity
+from mkgu.metrics import Characterization, Metric, NonparametricCVSimilarity
 
 
 class RDMMetric(Metric):
@@ -42,86 +40,37 @@ class RDM(RSA):
         return 1 - super(RDM, self).__call__(assembly)
 
 
-class RDMCorrelationCoefficient(Similarity):
+class RDMCorrelationCoefficient(NonparametricCVSimilarity):
     """
     Computes a coefficient for the similarity between two `RDM`s, using the upper triangular regions
 
     Kriegeskorte et al., 2008 https://doi.org/10.3389/neuro.06.004.2008
     """
 
-    def __call__(self, assembly1, assembly2, rdm_dim='presentation'):
+    class Defaults:
+        similarity_dims = 'presentation',
+
+    def apply(self, source_assembly, target_assembly,
+              similarity_dims=Defaults.similarity_dims):
+        return super(RDMCorrelationCoefficient, self).apply(
+            source_assembly=source_assembly, target_assembly=target_assembly, similarity_dims=similarity_dims)
+
+    def compute(self, assembly1, assembly2):
         """
         :param mkgu.assemblies.NeuroidAssembly assembly1:
         :param mkgu.assemblies.NeuroidAssembly assembly2:
-        :param str rdm_dim: indicate the dimension along which the RDM/RSA was computed,
+        :param str similarity_dims: indicate the dimension along which the RDM/RSA was computed,
             either with a string for a repeated dimension or with a list for two different dimension names
         :return: mkgu.assemblies.DataAssembly
         """
-        # get upper triangulars
-        assert isinstance(rdm_dim, str) or len(rdm_dim) == 2
-        assert len(assembly1[rdm_dim]) == len(assembly2[rdm_dim])
-        joint_dim = '{}-{}'.format(*rdm_dim if not isinstance(rdm_dim, str) else (rdm_dim, rdm_dim))
-        triu1 = self._preprocess_assembly(assembly1, rdm_dim=rdm_dim, joint_dim=joint_dim)
-        triu2 = self._preprocess_assembly(assembly2, rdm_dim=rdm_dim, joint_dim=joint_dim)
-        assert len(set(triu1.dims).intersection(set(triu2.dims))) == 1, \
-            "Only joint dim {} should be shared".format(joint_dim)
-        assert len(triu1[joint_dim]) == len(triu2[joint_dim])
+        triu1 = self._triangulars(assembly1.values)
+        triu2 = self._triangulars(assembly2.values)
+        corr = np.corrcoef(triu1, triu2)
+        np.testing.assert_array_equal(corr.shape, [2, 2])
+        return corr[0, 1]
 
-        # compute correlations
-        def iter_indices(triu):
-            joint_dim_index = np.where(np.array(triu.dims) == joint_dim)[0][0]
-
-            def insert_rdm_slice(combination):
-                combination.insert(joint_dim_index, slice(None))
-                return combination
-
-            return [insert_rdm_slice(list(combination)) for combination in
-                    itertools.product(*[list(range(len(triu[dim])))
-                                        for dim in filter(lambda dim: dim != joint_dim, triu.dims)])]
-
-        indices1, indices2 = iter_indices(triu1), iter_indices(triu2)
-
-        def _corr(vals1, vals2):
-            corr = np.corrcoef(vals1, vals2)
-            assert len(corr.shape) == 2 and corr.shape[0] == 2 and corr.shape[1] == 2
-            np.testing.assert_almost_equal(np.diag(corr), [1, 1])
-            return corr[0, 1]
-
-        corrs = np.array([_corr(triu1.values[ids1], triu2.values[ids2])
-                          for ids1, ids2 in itertools.product(indices1, indices2)])
-
-        # package in assembly
-        coords = {**{coord: values for coord, values in triu1.coords.items() if coord is not joint_dim},
-                  **{coord: values for coord, values in triu2.coords.items() if coord is not joint_dim}}
-        dims = {**{dim: triu1[dim].shape for dim in triu1.dims}, **{dim: triu2[dim].shape for dim in triu2.dims}}
-        del dims[joint_dim]
-        corrs = corrs.reshape(list(itertools.chain(*dims.values())))
-        return DataAssembly(corrs, coords=coords, dims=dims.keys())
-
-    def _preprocess_assembly(self, assembly, rdm_dim, joint_dim):
-        rdm_dim_indices, = np.where(np.array(assembly.dims) == rdm_dim)
-        adjacent_dims = list(filter(lambda dim: dim != rdm_dim, assembly.dims))
-        assert len(rdm_dim_indices) == 2
-        self._assert_diagonal_zero(assembly, rdm_dim_indices, diag_dimensions=list(adjacent_dims) + [rdm_dim])
-
-        # get upper triangulars
-        triangular_indices = np.triu_indices(assembly[rdm_dim].shape[0], k=1)
-        indices = [slice(None) if i not in rdm_dim_indices else triangular_indices[np.where(rdm_dim_indices == i)[0][0]]
-                   for i in range(len(assembly.dims))]
-        triu = assembly.values[indices]
-
-        # package in assembly again
-        coords = {coord: assembly[coord] for coord in assembly.coords if coord != rdm_dim}
-        coords[joint_dim] = ['{}-{}'.format(*assembly[rdm_dim][[i1, i2]].values)
-                             # ^ hack around xarray not allowing 2D coords
-                             for i1, i2 in zip(*triangular_indices)]
-        triu_dims = list(assembly.dims)
-        triu_dims.remove(rdm_dim)
-        triu_dims = [dim if dim != rdm_dim else joint_dim for dim in triu_dims]
-        return DataAssembly(triu, coords=coords, dims=triu_dims)
-
-    def _assert_diagonal_zero(self, assembly, rdm_dim_indices, diag_dimensions):
-        assert all(len(assembly[dim].shape) == 1 for dim in diag_dimensions)
-        zero_target = np.zeros([assembly[dim].shape[0] for dim in diag_dimensions])
-        diag_values = np.diagonal(assembly, axis1=rdm_dim_indices[0], axis2=rdm_dim_indices[1])
-        assert np.allclose(diag_values, zero_target, atol=1e-10)
+    def _triangulars(self, values):
+        assert len(values.shape) == 2 and values.shape[0] == values.shape[1]
+        assert all(np.diag(values) == 0)
+        triangular_indices = np.triu_indices(values.shape[0], k=1)
+        return values[triangular_indices]

@@ -10,12 +10,12 @@ from tests.test_metrics import load_hvm
 
 class TestRDM(object):
     def test_hvm(self):
-        hvm_it_v6_obj = load_hvm(group=lambda hvm: hvm.multi_groupby(["category", "obj"]))
+        hvm_it_v6_obj = load_hvm(group=lambda hvm: hvm.multi_groupby(["category_name", "object_name"]))
         assert hvm_it_v6_obj.shape == (64, 168)
         self._test_hvm(hvm_it_v6_obj)
 
     def test_hvm_T(self):
-        hvm_it_v6_obj = load_hvm(group=lambda hvm: hvm.multi_groupby(["category", "obj"])).T
+        hvm_it_v6_obj = load_hvm(group=lambda hvm: hvm.multi_groupby(["category_name", "object_name"])).T
         assert hvm_it_v6_obj.shape == (168, 64)
         self._test_hvm(hvm_it_v6_obj)
 
@@ -29,47 +29,58 @@ class TestRDM(object):
 
 
 class TestRDMSimilarity(object):
-    def test_2d_equal5(self):
-        rdm = np.random.rand(5, 5)  # not mirrored across diagonal, but fine for unit test
+    def test_2d_equal20(self):
+        rdm = np.random.rand(20, 20)  # not mirrored across diagonal, but fine for unit test
         np.fill_diagonal(rdm, 0)
-        rdm = NeuroidAssembly(rdm, coords={'presentation': list(range(5))}, dims=['presentation', 'presentation'])
+        rdm = NeuroidAssembly(
+            rdm, coords={'presentation': list(range(20)), 'object_name': ('presentation', ['A', 'B'] * 10)},
+            dims=['presentation', 'presentation'])
         similarity = RDMCorrelationCoefficient()
         score = similarity(rdm, rdm)
-        assert score == approx(1.)
+        assert score.center == approx(1.)
 
     def test_2d_equal100(self):
         rdm = np.random.rand(100, 100)  # not mirrored across diagonal, but fine for unit test
         np.fill_diagonal(rdm, 0)
-        rdm = NeuroidAssembly(rdm, coords={'presentation': list(range(100))}, dims=['presentation', 'presentation'])
+        rdm = NeuroidAssembly(
+            rdm, coords={'presentation': list(range(100)), 'object_name': ('presentation', ['A', 'B'] * 50)},
+            dims=['presentation', 'presentation'])
         similarity = RDMCorrelationCoefficient()
         score = similarity(rdm, rdm)
-        assert score == approx(1.)
+        assert score.center == approx(1.)
 
     def test_3d_equal(self):
-        values = np.broadcast_to(np.random.rand(5, 5, 1), [5, 5, 3]).copy()
-        diag_indices = np.diag_indices(5)
+        values = np.broadcast_to(np.random.rand(20, 20, 1), [20, 20, 3]).copy()
+        diag_indices = np.diag_indices(20)
         values[diag_indices] = 0
-        assembly1 = NeuroidAssembly(values, coords={'presentation': list(range(5)), 'dim1': list(range(3))},
+        assembly1 = NeuroidAssembly(values, coords={
+            'presentation': list(range(20)), 'object_name': ('presentation', ['A', 'B'] * 10), 'dim1': list(range(3))},
                                     dims=['presentation', 'presentation', 'dim1'])
-        assembly2 = NeuroidAssembly(values, coords={'presentation': list(range(5)), 'dim2': list(range(3))},
+        assembly2 = NeuroidAssembly(values, coords={
+            'presentation': list(range(20)), 'object_name': ('presentation', ['A', 'B'] * 10), 'dim2': list(range(3))},
                                     dims=['presentation', 'presentation', 'dim2'])
         similarity = RDMCorrelationCoefficient()
-        scores = similarity(assembly1, assembly2)
-        np.testing.assert_array_equal(scores.shape, [3, 3])
-        np.testing.assert_array_almost_equal(scores, np.broadcast_to(1, [3, 3]))
+        score = similarity(assembly1, assembly2)
+        np.testing.assert_array_equal(score.center.shape, [3, 3])
+        np.testing.assert_array_almost_equal(score.center, np.broadcast_to(1, [3, 3]))
 
     def test_3d_diag(self):
-        values = np.random.rand(5, 5, 3)
-        diag_indices = np.diag_indices(5)
+        values = np.random.rand(20, 20, 3)
+        diag_indices = np.diag_indices(20)
         values[diag_indices] = 0
-        assembly1 = NeuroidAssembly(values, coords={'presentation': list(range(5)), 'dim1': list(range(3))},
+        assembly1 = NeuroidAssembly(values, coords={
+            'presentation': list(range(20)), 'object_name': ('presentation', ['A', 'B'] * 10), 'dim1': list(range(3))},
                                     dims=['presentation', 'presentation', 'dim1'])
-        assembly2 = NeuroidAssembly(values, coords={'presentation': list(range(5)), 'dim2': list(range(3))},
+        assembly2 = NeuroidAssembly(values, coords={
+            'presentation': list(range(20)), 'object_name': ('presentation', ['A', 'B'] * 10), 'dim2': list(range(3))},
                                     dims=['presentation', 'presentation', 'dim2'])
         similarity = RDMCorrelationCoefficient()
-        scores = similarity(assembly1, assembly2)
-        np.testing.assert_array_equal(scores.shape, [3, 3])
-        np.testing.assert_array_almost_equal(np.diag(scores), np.broadcast_to(1, [3]))
+        score = similarity(assembly1, assembly2)
+        np.testing.assert_array_equal(score.center.shape, [3, 3])
+        assert len(score.values['split']) * 3 == (score.values == approx(1)).sum()
+        diags = score.values['dim1'] == score.values['dim2']
+        diag_values = score.values.values[np.broadcast_to(diags.values, (10, 3, 3))]
+        np.testing.assert_array_almost_equal(diag_values, 1)
 
     def test_3d_equal_presentation_last(self):
         values = np.broadcast_to(np.random.rand(5, 5, 1), [5, 5, 3]).copy()
@@ -86,7 +97,7 @@ class TestRDMSimilarity(object):
 
 class TestRDMMetric(object):
     def test_equal(self):
-        hvm = load_hvm(group=lambda hvm: hvm.multi_groupby(["category", "obj"]))
+        hvm = load_hvm(group=lambda hvm: hvm.multi_groupby(["category_name", "object_name"]))
         rdm_metric = RDMMetric()
         score = rdm_metric(hvm, hvm)
         assert score == approx(1.)

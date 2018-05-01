@@ -34,14 +34,29 @@ class Similarity(object, metaclass=ABCMeta):
         :param mkgu.assemblies.NeuroidAssembly target_assembly:
         :return: mkgu.metrics.Score
         """
+        source_assembly = self.align(source_assembly, target_assembly)
         similarity_assembly = self.apply(source_assembly, target_assembly)
         return self.score(similarity_assembly)
+
+    def align(self, source_assembly, target_assembly):
+        source_assembly = subset(source_assembly, target_assembly)
+        source_assembly = source_assembly.transpose(*target_assembly.dims)
+        return source_assembly
 
     def score(self, similarity_assembly):
         return MeanScore(similarity_assembly)
 
     def apply(self, source_assembly, target_assembly):
         raise NotImplementedError()
+
+
+def subset(source_assembly, target_assembly):
+    assert all([dim_value.values in source_assembly[dim].values
+                for dim in target_assembly.dims
+                for dim_value in target_assembly[dim]])
+    for dim in target_assembly.dims:
+        source_assembly = source_assembly.sel(**{dim: target_assembly[dim]})
+    return source_assembly
 
 
 class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):

@@ -1,5 +1,6 @@
 import numpy as np
 import xarray
+from pytest import approx
 
 import mkgu
 from mkgu.metrics.neural_fit import NeuralFitMetric, PCANeuroidCharacterization
@@ -11,7 +12,7 @@ class TestNeuralFit(object):
         hvm = load_hvm()
         neural_fit_metric = NeuralFitMetric()
         score = neural_fit_metric(hvm, hvm)
-        assert 0.75 < score < 0.8
+        assert score.center == approx(0.78, rel=0.005)
 
 
 class TestPCA(object):

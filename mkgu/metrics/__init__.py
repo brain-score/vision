@@ -7,6 +7,7 @@ from collections import OrderedDict
 
 import numpy as np
 from sklearn.model_selection import StratifiedShuffleSplit
+from .utils import collect_coords, collect_dim_shapes
 
 from mkgu.assemblies import DataAssembly
 
@@ -49,7 +50,10 @@ class Similarity(object, metaclass=ABCMeta):
         :return: mkgu.metrics.Score
         """
         similarity_assembly = self.apply(source_assembly, target_assembly)
-        return Score(similarity_assembly)
+        return self.score(similarity_assembly)
+
+    def score(self, similarity_assembly):
+        return MeanScore(similarity_assembly)
 
     def apply(self, source_assembly, target_assembly):
         raise NotImplementedError()
@@ -89,22 +93,24 @@ class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
         similarities = [
             self.cross_apply(source_assembly.sel(**adj1), target_assembly.sel(**adj2))
             for adj1, adj2 in itertools.product(adjacents1, adjacents2)]
-        assert all(similarity.shape == similarities[0].shape for similarity in similarities[1:])  # all scores equal
+        assert all(similarity.shape == similarities[0].shape for similarity in similarities[1:])  # all shapes equal
+        # similarities = xr.auto_combine(similarities)
 
         # package in assembly
         coords = list(source_assembly.coords.keys()) + list(target_assembly.coords.keys())
         duplicate_coords = [coord for coord in coords if coords.count(coord) > 1]
-        collect_coords = functools.partial(self._collect_coords,
-                                           rename_coords=duplicate_coords, ignore_dims=similarity_dims)
-        collect_dim_shapes = functools.partial(self._collect_dim_shapes,
-                                               rename_coords=duplicate_coords, ignore_dims=similarity_dims)
-        coords = {**collect_coords(assembly=source_assembly, kind='left'),
-                  **collect_coords(assembly=target_assembly, kind='right'),
+        _collect_coords = functools.partial(collect_coords,
+                                            rename_coords_list=duplicate_coords, ignore_dims=similarity_dims)
+        _collect_dim_shapes = functools.partial(collect_dim_shapes,
+                                                rename_dims_list=duplicate_coords, ignore_dims=similarity_dims)
+        coords = {**_collect_coords(assembly=source_assembly, kind='left'),
+                  **_collect_coords(assembly=target_assembly, kind='right'),
                   **{'split': similarities[0]['split']}}
-        dims = OrderedDict(itertools.chain(collect_dim_shapes(assembly=source_assembly, kind='left').items(),
-                                           collect_dim_shapes(assembly=target_assembly, kind='right').items()))
+        dims = OrderedDict(itertools.chain(_collect_dim_shapes(assembly=source_assembly, kind='left').items(),
+                                           _collect_dim_shapes(assembly=target_assembly, kind='right').items()))
         dims['split'] = similarities[0].shape
         dims.move_to_end('split', last=False)
+
         similarities = np.reshape(similarities, tuple(itertools.chain(*dims.values())))
         similarities = DataAssembly(similarities, coords=coords, dims=dims.keys())
         return similarities
@@ -117,7 +123,7 @@ class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
         assert all(source_assembly[cross_validation_dim] == target_assembly[cross_validation_dim])
         assert all(source_assembly[stratification_coord] == target_assembly[stratification_coord])
 
-        cross_validation_values = source_assembly[cross_validation_dim]
+        cross_validation_values = source_assembly[cross_validation_dim].values
         split_scores = {}
         for split_iterator, (train_indices, test_indices) in enumerate(self._split_strategy.split(
                 np.zeros(len(np.unique(source_assembly[cross_validation_dim]))),
@@ -128,30 +134,23 @@ class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
             test_target = target_assembly.sel(**{cross_validation_dim: cross_validation_values[test_indices]})
             split_score = self.apply_split(train_source, train_target, test_source, test_target)
             split_scores[split_iterator] = split_score
-        split_scores = DataAssembly(list(split_scores.values()),
-                                    coords={'split': list(split_scores.keys())}, dims=['split'])
+
+        # throw away all of the multi-dimensional dims as similarity will be computed over them.
+        # we want to keep the adjacent dimensions which are 1-dimensional after the comprehension calling this method
+        multi_dimensional_dims = [dim for dim in source_assembly.dims if len(source_assembly[dim]) > 1] + \
+                                 [dim for dim in source_assembly.dims if len(target_assembly[dim]) > 1]
+        coords = list(source_assembly.coords.keys()) + list(target_assembly.coords.keys())
+        duplicate_coords = [coord for coord in coords if coords.count(coord) > 1]
+        _collect_coords = functools.partial(collect_coords,
+                                            ignore_dims=multi_dimensional_dims, rename_coords_list=duplicate_coords)
+        coords = {**_collect_coords(assembly=source_assembly, kind='left'),
+                  **_collect_coords(assembly=target_assembly, kind='right'),
+                  **{'split': list(split_scores.keys())}}
+        split_scores = DataAssembly(list(split_scores.values()), coords=coords, dims=['split'])
         return split_scores
 
     def apply_split(self, train_source, train_target, test_source, test_target):
         raise NotImplementedError()
-
-    def _collect_coords(self, assembly, rename_coords, ignore_dims, kind):
-        coord_names = {coord: coord if coord not in rename_coords else coord + '-' + kind
-                       for coord in assembly.coords}
-        result = {}
-        for coord, values in assembly.coords.items():
-            if coord in ignore_dims:
-                continue
-            value_dims_ignore = [dim in ignore_dims for dim in values.dims]
-            if any(value_dims_ignore):
-                assert all(value_dims_ignore)
-                continue
-            result[coord_names[coord]] = (tuple(coord_names[dim] for dim in values.dims), values.values)
-        return result
-
-    def _collect_dim_shapes(self, assembly, rename_coords, ignore_dims, kind):
-        return OrderedDict((dim if dim not in rename_coords else dim + '-' + kind, assembly[dim].shape)
-                           for dim in assembly.dims if dim not in ignore_dims)
 
 
 class ParametricCVSimilarity(OuterCrossValidationSimilarity):
@@ -191,4 +190,16 @@ class Characterization(object, metaclass=ABCMeta):
 class Score(object):
     def __init__(self, values_assembly, split_dim='split'):
         self.values = values_assembly
-        self.mean = values_assembly.mean(dim=split_dim)
+        self.center = self.get_center(self.values, dim=split_dim)
+        self.error = self.get_error(self.values, dim=split_dim)
+
+    def get_center(self, values, dim):
+        raise NotImplementedError()
+
+    def get_error(self, values, dim):
+        return values.std(dim)
+
+
+class MeanScore(Score):
+    def get_center(self, values, dim):
+        return values.mean(dim=dim)

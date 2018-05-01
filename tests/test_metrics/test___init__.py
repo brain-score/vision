@@ -108,4 +108,4 @@ class TestSimilarityScore:
         for assembly in similarity.source_assemblies + similarity.target_assemblies:
             assert len(assembly['presentation']) == 90
         assert all(score.values == 0)
-        assert score.mean == 0
+        assert score.center == 0

@@ -21,6 +21,9 @@ class SimilarityAdjacencyPlaceholder(OuterCrossValidationSimilarity):
     def apply_split(self, train_source, train_target, test_source, test_target, *args, **kwargs):
         raise NotImplementedError("should not be reached")
 
+    def align(self, source_assembly, target_assembly, subset_dims=()):
+        return source_assembly  # avoid alignment
+
 
 class TestSimilarityAdjacentProduct:
     def test_no_adjacent3(self):

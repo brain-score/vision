@@ -78,21 +78,23 @@ class TestRDMSimilarity(object):
         score = similarity(assembly1, assembly2)
         np.testing.assert_array_equal(score.center.shape, [3, 3])
         assert len(score.values['split']) * 3 == (score.values == approx(1)).sum()
-        diags = score.values['dim1'] == score.values['dim2']
-        diag_values = score.values.values[np.broadcast_to(diags.values, (10, 3, 3))]
+        diags_indexer = score.center['dim1'] == score.center['dim2']
+        diag_values = score.center.values[diags_indexer.values]
         np.testing.assert_array_almost_equal(diag_values, 1)
 
     def test_3d_equal_presentation_last(self):
-        values = np.broadcast_to(np.random.rand(5, 5, 1), [5, 5, 3]).copy()
-        values[np.diag_indices(5)] = 0
-        assembly1 = NeuroidAssembly(values.T, coords={'presentation': list(range(5)), 'dim1': list(range(3))},
+        values = np.broadcast_to(np.random.rand(20, 20, 1), [20, 20, 3]).copy()
+        values[np.diag_indices(20)] = 0
+        assembly1 = NeuroidAssembly(values.T, coords={
+            'presentation': list(range(20)), 'object_name': ('presentation', ['A', 'B'] * 10), 'dim1': list(range(3))},
                                     dims=['dim1', 'presentation', 'presentation'])
-        assembly2 = NeuroidAssembly(values.T, coords={'presentation': list(range(5)), 'dim2': list(range(3))},
+        assembly2 = NeuroidAssembly(values.T, coords={
+            'presentation': list(range(20)), 'object_name': ('presentation', ['A', 'B'] * 10), 'dim2': list(range(3))},
                                     dims=['dim2', 'presentation', 'presentation'])
         similarity = RDMCorrelationCoefficient()
         scores = similarity(assembly1, assembly2)
-        np.testing.assert_array_equal(scores.shape, [3, 3])
-        np.testing.assert_array_almost_equal(scores, np.broadcast_to(1, [3, 3]))
+        np.testing.assert_array_equal(scores.center.shape, [3, 3])
+        np.testing.assert_array_almost_equal(scores.center, 1)
 
 
 class TestRDMMetric(object):

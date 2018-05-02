@@ -1,4 +1,5 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
+import xarray as xr
 
 import functools
 import itertools
@@ -38,9 +39,8 @@ class Similarity(object, metaclass=ABCMeta):
         similarity_assembly = self.apply(source_assembly, target_assembly)
         return self.score(similarity_assembly)
 
-    def align(self, source_assembly, target_assembly):
-        source_assembly = subset(source_assembly, target_assembly)
-        source_assembly = source_assembly.transpose(*target_assembly.dims)
+    def align(self, source_assembly, target_assembly, subset_dims=('presentation',)):
+        source_assembly = subset(source_assembly, target_assembly, subset_dims=subset_dims)
         return source_assembly
 
     def score(self, similarity_assembly):
@@ -50,12 +50,24 @@ class Similarity(object, metaclass=ABCMeta):
         raise NotImplementedError()
 
 
-def subset(source_assembly, target_assembly):
-    assert all([dim_value.values in source_assembly[dim].values
-                for dim in target_assembly.dims
-                for dim_value in target_assembly[dim]])
-    for dim in target_assembly.dims:
-        source_assembly = source_assembly.sel(**{dim: target_assembly[dim]})
+def subset(source_assembly, target_assembly, subset_dims=None):
+    subset_dims = subset_dims or target_assembly.dims
+    for dim in subset_dims:
+        assert dim in target_assembly.dims
+        assert dim in source_assembly.dims
+        # we assume here that it does not matter if all levels are present in the source assembly
+        # as long as there is at least one level that we can select over
+        levels = target_assembly[dim].variable.level_names or [dim]
+        assert any(hasattr(source_assembly, level) for level in levels)
+        for level in levels:
+            if not hasattr(source_assembly, level):
+                continue
+            level_values = target_assembly[level].values
+            indexer = np.array([val in level_values for val in source_assembly[level].values])
+            dim_indexes = {_dim: slice(None) if _dim != dim else np.where(indexer)[0] for _dim in source_assembly.dims}
+            source_assembly = source_assembly.isel(**dim_indexes)
+        # dims match up after selection - cannot make the strong version of equality due to potentially missing levels
+        assert len(target_assembly[dim]) == len(source_assembly[dim])
     return source_assembly
 
 
@@ -94,25 +106,12 @@ class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
             self.cross_apply(source_assembly.sel(**adj1), target_assembly.sel(**adj2))
             for adj1, adj2 in itertools.product(adjacents1, adjacents2)]
         assert all(similarity.shape == similarities[0].shape for similarity in similarities[1:])  # all shapes equal
-        # similarities = xr.auto_combine(similarities)
 
-        # package in assembly
-        coords = list(source_assembly.coords.keys()) + list(target_assembly.coords.keys())
-        duplicate_coords = [coord for coord in coords if coords.count(coord) > 1]
-        _collect_coords = functools.partial(collect_coords,
-                                            rename_coords_list=duplicate_coords, ignore_dims=similarity_dims)
-        _collect_dim_shapes = functools.partial(collect_dim_shapes,
-                                                rename_dims_list=duplicate_coords, ignore_dims=similarity_dims)
-        coords = {**_collect_coords(assembly=source_assembly, kind='left'),
-                  **_collect_coords(assembly=target_assembly, kind='right'),
-                  **{'split': similarities[0]['split']}}
-        dims = OrderedDict(itertools.chain(_collect_dim_shapes(assembly=source_assembly, kind='left').items(),
-                                           _collect_dim_shapes(assembly=target_assembly, kind='right').items()))
-        dims['split'] = similarities[0].shape
-        dims.move_to_end('split', last=False)
-
-        similarities = np.reshape(similarities, tuple(itertools.chain(*dims.values())))
-        similarities = DataAssembly(similarities, coords=coords, dims=dims.keys())
+        # re-shape into adjacent dimensions and split
+        assembly_dims = source_assembly.dims + target_assembly.dims + ('split',)
+        similarities = [expand(similarity, assembly_dims) for similarity in similarities]
+        # https://stackoverflow.com/a/50125997/2225200
+        similarities = xr.merge([similarity.rename('z') for similarity in similarities])['z'].rename(None)
         return similarities
 
     def cross_apply(self, source_assembly, target_assembly,
@@ -151,6 +150,22 @@ class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
 
     def apply_split(self, train_source, train_target, test_source, test_target):
         raise NotImplementedError()
+
+
+def expand(assembly, target_dims):
+    def reformat_coord_values(coord, dims, values):
+        if coord in target_dims and len(values.shape) == 0:
+            values = np.array([values])
+            dims = [coord]
+        return dims, values
+
+    coords = {coord: reformat_coord_values(coord, values.dims, values.values)
+              for coord, values in assembly.coords.items()}
+    dim_shapes = OrderedDict((coord, values[1].shape)
+                             for coord, values in coords.items() if coord in target_dims)
+    shape = [_shape for shape in dim_shapes.values() for _shape in shape]
+    values = np.broadcast_to(assembly.values, shape)
+    return DataAssembly(values, coords=coords, dims=list(dim_shapes.keys()))
 
 
 class ParametricCVSimilarity(OuterCrossValidationSimilarity):

@@ -120,10 +120,31 @@ class TestSubset:
             'neuroid_id': list(range(assembly.shape[1]))},
                                    dims=['image_id', 'neuroid_id'])
         assembly = assembly.stack(presentation=('image_id',), neuroid=('neuroid_id',))
-        subset_assembly = subset(assembly, assembly)
+        subset_assembly = subset(assembly, assembly, subset_dims=('presentation',))
         assert (subset_assembly == assembly).all()
 
-    def test_smaller(self):
+    def test_equal_shifted(self):
+        target_assembly = np.random.rand(100, 3)
+        target_assembly = NeuroidAssembly(target_assembly, coords={
+            'image_id': list(range(target_assembly.shape[0])),
+            'neuroid_id': list(range(target_assembly.shape[1]))},
+                                          dims=['image_id', 'neuroid_id'])
+        target_assembly = target_assembly.stack(presentation=('image_id',), neuroid=('neuroid_id',))
+
+        shifted_values = np.concatenate((target_assembly.values[1:], target_assembly.values[:1]))
+        shifed_ids = np.array(list(range(shifted_values.shape[0]))) + 1
+        shifed_ids[-1] = 0
+        source_assembly = NeuroidAssembly(shifted_values, coords={
+            'image_id': shifed_ids,
+            'neuroid_id': list(range(shifted_values.shape[1]))},
+                                          dims=['image_id', 'neuroid_id'])
+        source_assembly = source_assembly.stack(presentation=('image_id',), neuroid=('neuroid_id',))
+
+        subset_assembly = subset(source_assembly, target_assembly, subset_dims=('presentation',))
+        np.testing.assert_array_equal(subset_assembly.coords.keys(), target_assembly.coords.keys())
+        assert subset_assembly.shape == target_assembly.shape
+
+    def test_smaller_first(self):
         source_assembly = np.random.rand(100, 3)
         source_assembly = NeuroidAssembly(source_assembly, coords={
             'image_id': list(range(source_assembly.shape[0])),
@@ -131,17 +152,31 @@ class TestSubset:
                                           dims=['image_id', 'neuroid_id'])
         source_assembly = source_assembly.stack(presentation=('image_id',), neuroid=('neuroid_id',))
 
-        target_assembly = np.random.rand(50, 2)
-        target_assembly = NeuroidAssembly(target_assembly, coords={
-            'image_id': list(range(target_assembly.shape[0])),
-            'neuroid_id': list(range(target_assembly.shape[1]))},
-                                          dims=['image_id', 'neuroid_id'])
-        target_assembly = target_assembly.stack(presentation=('image_id',), neuroid=('neuroid_id',))
+        target_assembly = source_assembly.sel(presentation=list(map(lambda x: (x,), range(50))),
+                                              neuroid=list(map(lambda x: (x,), range(2))))
 
-        subset_assembly = subset(source_assembly, target_assembly)
+        subset_assembly = subset(source_assembly, target_assembly, subset_dims=('presentation',))
         np.testing.assert_array_equal(subset_assembly.coords.keys(), target_assembly.coords.keys())
         for coord_name in target_assembly.coords:
             assert all(subset_assembly[coord_name] == target_assembly[coord_name])
+        assert (subset_assembly == target_assembly).all()
+
+    def test_smaller_last(self):
+        source_assembly = np.random.rand(100, 3)
+        source_assembly = NeuroidAssembly(source_assembly, coords={
+            'image_id': list(range(source_assembly.shape[0])),
+            'neuroid_id': list(range(source_assembly.shape[1]))},
+                                          dims=['image_id', 'neuroid_id'])
+        source_assembly = source_assembly.stack(presentation=('image_id',), neuroid=('neuroid_id',))
+
+        target_assembly = source_assembly.sel(presentation=list(map(lambda x: (50 + x,), range(50))),
+                                              neuroid=list(map(lambda x: (1 + x,), range(2))))
+
+        subset_assembly = subset(source_assembly, target_assembly, subset_dims=('presentation',))
+        np.testing.assert_array_equal(subset_assembly.coords.keys(), target_assembly.coords.keys())
+        for coord_name in target_assembly.coords:
+            assert all(subset_assembly[coord_name] == target_assembly[coord_name])
+        assert (subset_assembly == target_assembly).all()
 
     def test_larger_error(self):
         source_assembly = np.random.rand(50, 2)
@@ -159,4 +194,4 @@ class TestSubset:
         target_assembly = target_assembly.stack(presentation=('image_id',), neuroid=('neuroid_id',))
 
         with pytest.raises(AssertionError):
-            subset(source_assembly, target_assembly)
+            subset(source_assembly, target_assembly, subset_dims=('presentation',))

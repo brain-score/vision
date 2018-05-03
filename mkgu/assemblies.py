@@ -93,7 +93,7 @@ def gather_indexes(xr_data):
     for dim in xr_data.dims:
         coords = coords_for_dim(xr_data, dim)
         if coords:
-            coords_d[dim] = coords.keys()
+            coords_d[dim] = list(coords.keys())
     if coords_d:
         xr_data.set_index(append=True, inplace=True, **coords_d)
     return xr_data

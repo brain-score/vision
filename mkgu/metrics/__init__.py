@@ -118,19 +118,19 @@ class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
                     cross_validation_dim=Defaults.cross_validation_dim,
                     stratification_coord=Defaults.stratification_coord,
                     *args, **kwargs):
-        np.testing.assert_array_equal(source_assembly.shape, target_assembly.shape)
         assert all(source_assembly[cross_validation_dim] == target_assembly[cross_validation_dim])
         assert all(source_assembly[stratification_coord] == target_assembly[stratification_coord])
 
-        cross_validation_values = source_assembly[cross_validation_dim].values
+        cross_validation_values = target_assembly[cross_validation_dim]
         split_scores = {}
         for split_iterator, (train_indices, test_indices) in enumerate(self._split_strategy.split(
                 np.zeros(len(np.unique(source_assembly[cross_validation_dim]))),
                 source_assembly[stratification_coord].values)):
-            train_source = source_assembly.sel(**{cross_validation_dim: cross_validation_values[train_indices]})
-            train_target = target_assembly.sel(**{cross_validation_dim: cross_validation_values[train_indices]})
-            test_source = source_assembly.sel(**{cross_validation_dim: cross_validation_values[test_indices]})
-            test_target = target_assembly.sel(**{cross_validation_dim: cross_validation_values[test_indices]})
+            train_values, test_values = cross_validation_values[train_indices], cross_validation_values[test_indices]
+            train_source = subset(source_assembly, train_values)
+            train_target = subset(target_assembly, train_values)
+            test_source = subset(source_assembly, test_values)
+            test_target = subset(target_assembly, test_values)
             split_score = self.apply_split(train_source, train_target, test_source, test_target)
             split_scores[split_iterator] = split_score
 

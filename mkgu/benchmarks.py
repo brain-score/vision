@@ -23,8 +23,14 @@ class Benchmark(object):
         self._metric = metric
         self._target_assembly = target_assembly
 
+        self._ceiling = self.ceiling()
+
     def __call__(self, source_assembly):
         return self._metric(source_assembly, self._target_assembly)
+
+    def ceiling(self):
+        return None
+        # we need a way to pass in the cross-validation scheme here
 
 
 def load(data_name, metric_name):

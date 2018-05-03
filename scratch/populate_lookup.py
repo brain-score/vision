@@ -13,7 +13,7 @@ hvm_images = StimulusSetModel(name="dicarlo.hvm")
 hvm_images.save()
 
 hvm_image_store = ImageStoreModel(location_type="S3", store_type="zip",
-                                  location="http://dicarlocox-datasets.s3.amazonaws.com/HvM_with_discfade.zip")
+                                  location="https://mkgu-dicarlolab-hvm.s3.amazonaws.com/HvM_with_discfade.zip")
 hvm_image_store.save()
 
 df_images = pd.read_pickle("image_meta_dataframe.pkl")
@@ -55,12 +55,12 @@ store = AssemblyStoreModel(assembly_type="netCDF",
 store.save()
 
 
-assy = AssemblyModel(name="dicarlo.Hong2011", assembly_class="NeuronRecordingAssembly",
+assy = AssemblyModel(name="dicarlo.Majaj2015", assembly_class="NeuronRecordingAssembly",
                      stimulus_set=hvm_images)
 assy.save()
 
 
-assy_store_map = AssemblyStoreMap(assembly_model=assy, assembly_store_model=store, role="dicarlo.Hong2011")
+assy_store_map = AssemblyStoreMap(assembly_model=assy, assembly_store_model=store, role="dicarlo.Majaj2015")
 assy_store_map.save()
 
 

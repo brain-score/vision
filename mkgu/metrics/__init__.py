@@ -10,7 +10,7 @@ import xarray as xr
 from sklearn.model_selection import StratifiedShuffleSplit
 
 from mkgu.assemblies import DataAssembly, NeuroidAssembly
-from .utils import collect_coords, collect_dim_shapes, get_coords
+from .utils import collect_coords, collect_dim_shapes, walk_coords
 
 
 class Metric(object):
@@ -196,22 +196,36 @@ class ParametricCVSimilarity(OuterCrossValidationSimilarity):
         np.testing.assert_array_equal(test_source.dims, ['presentation', 'neuroid'])
         predicted_values = self.predict_values(test_source)
 
+        # count number of neuroid dimensions for workaround
+        neuroid_counter = 0
+
+        def count_neuroid(name, dims, values):
+            if len(dims) == 1 and dims[0] == 'neuroid':
+                nonlocal neuroid_counter
+                neuroid_counter += 1
+
+        walk_coords(test_source, count_neuroid)
+
         def modify_coord(name, dims, values):
             if name == 'neuroid_id':
                 values = self._target_neuroid_ids
             # ugly work-around: if we wouldn't do this, the gather_indexes method would rename neuroid_id -> neuroid
-            # and discard the neuroid_id coord
-            if 'neuroid' in dims:
+            # and discard the neuroid_id coord. but only if neuroid_id is the only coord referencing neuroid
+            # this can be remoed once https://github.com/pydata/xarray/issues/1077 is fixed
+            if 'neuroid' in dims and neuroid_counter == 1:
                 assert len(dims) == 1
                 np.testing.assert_array_equal(dims, ['neuroid'])
                 dims = ['neuroid_id']
             return name, (dims, values)
 
-        coords = get_coords(test_source, modify_coord)
+        coords = walk_coords(test_source, modify_coord)
 
-        result = NeuroidAssembly(predicted_values, coords=coords,
-                                 dims=[dim if dim != 'neuroid' else 'neuroid_id' for dim in test_source.dims])
-        return result.stack(neuroid=['neuroid_id'])
+        if neuroid_counter == 1:
+            result = NeuroidAssembly(predicted_values, coords=coords,
+                                     dims=[dim if dim != 'neuroid' else 'neuroid_id' for dim in test_source.dims])
+            return result.stack(neuroid=['neuroid_id'])
+        else:
+            return NeuroidAssembly(predicted_values, coords=coords, dims=test_source.dims)
 
     def predict_values(self, test_source):
         raise NotImplementedError()

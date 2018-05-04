@@ -45,7 +45,10 @@ def rename_dims(dims, rename_dims_list, rename_suffix):
     return [dim if dim not in rename_dims_list else dim + '-' + rename_suffix for dim in dims]
 
 
-def get_coords(assembly, modifier=lambda name, dims, values: (name, (dims, values))):
+def walk_coords(assembly, modifier=lambda name, dims, values: (name, (dims, values))):
+    """
+    walks through coords and all levels, just like the `__repr__` function
+    """
     coords = {}
 
     def handle_coord(name, vals):

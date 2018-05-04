@@ -13,7 +13,7 @@ class TestAnatomyFelleman:
 
 class TestMajaj2015:
     def test_target_assembly(self):
-        benchmark = benchmarks.load(data_name='dicarlo.Hong2011', metric_name='rdm')
+        benchmark = benchmarks.load(data_name='dicarlo.Majaj2015', metric_name='rdm')
         np.testing.assert_array_equal(benchmark._target_assembly.dims, ['presentation', 'neuroid'])
         assert len(benchmark._target_assembly['presentation']) == 2560
         assert len(benchmark._target_assembly['neuroid']) == 296

@@ -1,16 +1,16 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-import xarray as xr
-
 import functools
 import itertools
+import logging
 from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
 
 import numpy as np
+import scipy
+import xarray as xr
 from sklearn.model_selection import StratifiedShuffleSplit
 
-from mkgu.assemblies import DataAssembly
-from .utils import collect_coords, collect_dim_shapes
+from mkgu.assemblies import DataAssembly, NeuroidAssembly
+from .utils import collect_coords, collect_dim_shapes, get_coords
 
 
 class Metric(object):
@@ -169,19 +169,66 @@ def expand(assembly, target_dims):
 
 
 class ParametricCVSimilarity(OuterCrossValidationSimilarity):
+    def __init__(self, cross_validation_splits=OuterCrossValidationSimilarity.Defaults.cross_validation_splits,
+                 cross_validation_data_ratio=OuterCrossValidationSimilarity.Defaults.cross_validation_data_ratio):
+        super().__init__(cross_validation_splits, cross_validation_data_ratio)
+        self._target_neuroid_ids = None
+        self._logger = logging.getLogger(self.__class__.__name__)
+
     def apply_split(self, train_source, train_target, test_source, test_target):
+        self._logger.debug("Fitting")
         self.fit(train_source, train_target)
+        self._logger.debug("Predicting")
         prediction = self.predict(test_source)
+        self._logger.debug("Comparing")
         return self.compare_prediction(prediction, test_target)
 
     def fit(self, train_source, train_target):
+        np.testing.assert_array_equal(train_source.dims, ['presentation', 'neuroid'])
+        np.testing.assert_array_equal(train_target.dims, ['presentation', 'neuroid'])
+        self._target_neuroid_ids = train_target['neuroid_id']
+        self.fit_values(train_source, train_target)
+
+    def fit_values(self, train_source, train_target):
         raise NotImplementedError()
 
     def predict(self, test_source):
+        np.testing.assert_array_equal(test_source.dims, ['presentation', 'neuroid'])
+        predicted_values = self.predict_values(test_source)
+
+        def modify_coord(name, dims, values):
+            if name == 'neuroid_id':
+                values = self._target_neuroid_ids
+            # ugly work-around: if we wouldn't do this, the gather_indexes method would rename neuroid_id -> neuroid
+            # and discard the neuroid_id coord
+            if 'neuroid' in dims:
+                assert len(dims) == 1
+                np.testing.assert_array_equal(dims, ['neuroid'])
+                dims = ['neuroid_id']
+            return name, (dims, values)
+
+        coords = get_coords(test_source, modify_coord)
+
+        result = NeuroidAssembly(predicted_values, coords=coords,
+                                 dims=[dim if dim != 'neuroid' else 'neuroid_id' for dim in test_source.dims])
+        return result.stack(neuroid=['neuroid_id'])
+
+    def predict_values(self, test_source):
         raise NotImplementedError()
 
-    def compare_prediction(self, prediction, target):
-        raise NotImplementedError()
+    def compare_prediction(self, prediction, target, axis='neuroid_id', correlation=scipy.stats.pearsonr):
+        self._logger.debug("Comparing")
+        assert all(target[axis] == prediction[axis])
+        rs = []
+        for i in target[axis].values:
+            target_activations = target.sel(**{axis: i}).squeeze()
+            prediction_activations = prediction.sel(**{axis: i}).squeeze()
+            r, p = correlation(target_activations, prediction_activations)
+            rs.append(r)
+        return np.mean(rs)  # mean across neuroids
+
+    def score(self, similarity_assembly):
+        return MedianScore(similarity_assembly)  # median across cross-validations
 
 
 class NonparametricCVSimilarity(OuterCrossValidationSimilarity):
@@ -214,7 +261,16 @@ class Score(object):
     def get_error(self, values, dim):
         return values.std(dim)
 
+    def __repr__(self):
+        return self.__class__.__name__ + "(" + ",".join(
+            "{}={}".format(attr, val) for attr, val in self.__dict__.items()) + ")"
+
 
 class MeanScore(Score):
     def get_center(self, values, dim):
         return values.mean(dim=dim)
+
+
+class MedianScore(Score):
+    def get_center(self, values, dim):
+        return values.median(dim=dim)

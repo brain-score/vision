@@ -244,10 +244,7 @@ class ParametricCVSimilarity(OuterCrossValidationSimilarity):
             prediction_activations = prediction.sel(**{axis: i}).squeeze()
             r, p = correlation(target_activations, prediction_activations)
             rs.append(r)
-        return np.mean(rs)  # mean across neuroids
-
-    def score(self, similarity_assembly):
-        return MedianScore(similarity_assembly)  # median across cross-validations
+        return np.median(rs)  # median across neuroids
 
 
 class NonparametricCVSimilarity(OuterCrossValidationSimilarity):
@@ -288,8 +285,3 @@ class Score(object):
 class MeanScore(Score):
     def get_center(self, values, dim):
         return values.mean(dim=dim)
-
-
-class MedianScore(Score):
-    def get_center(self, values, dim):
-        return values.median(dim=dim)

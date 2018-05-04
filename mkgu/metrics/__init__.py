@@ -36,12 +36,15 @@ class Similarity(object, metaclass=ABCMeta):
         :return: mkgu.metrics.Score
         """
         source_assembly = self.align(source_assembly, target_assembly)
+        source_assembly, target_assembly = self.sort(source_assembly), self.sort(target_assembly)
         similarity_assembly = self.apply(source_assembly, target_assembly)
         return self.score(similarity_assembly)
 
-    def align(self, source_assembly, target_assembly, subset_dims=('presentation',)):
-        source_assembly = subset(source_assembly, target_assembly, subset_dims=subset_dims)
-        return source_assembly
+    def align(self, source_assembly, target_assembly, subset_dim='presentation'):
+        return subset(source_assembly, target_assembly, subset_dims=[subset_dim])
+
+    def sort(self, assembly):
+        return assembly.sortby('image_id')
 
     def score(self, similarity_assembly):
         return MeanScore(similarity_assembly)
@@ -186,6 +189,7 @@ class ParametricCVSimilarity(OuterCrossValidationSimilarity):
     def fit(self, train_source, train_target):
         np.testing.assert_array_equal(train_source.dims, ['presentation', 'neuroid'])
         np.testing.assert_array_equal(train_target.dims, ['presentation', 'neuroid'])
+        assert all(source == target for source, target in zip(train_source['image_id'], train_target['image_id']))
         self._target_neuroid_ids = train_target['neuroid_id']
         self.fit_values(train_source, train_target)
 
@@ -232,7 +236,8 @@ class ParametricCVSimilarity(OuterCrossValidationSimilarity):
 
     def compare_prediction(self, prediction, target, axis='neuroid_id', correlation=scipy.stats.pearsonr):
         self._logger.debug("Comparing")
-        assert all(target[axis] == prediction[axis])
+        assert all(source == target for source, target in zip(prediction['image_id'], target['image_id']))
+        assert all(source == target for source, target in zip(prediction[axis], target[axis]))
         rs = []
         for i in target[axis].values:
             target_activations = target.sel(**{axis: i}).squeeze()

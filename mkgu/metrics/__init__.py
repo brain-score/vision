@@ -3,6 +3,7 @@ import itertools
 import logging
 from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
+from pathos.pools import ThreadPool
 
 import numpy as np
 import scipy
@@ -10,7 +11,7 @@ import xarray as xr
 from sklearn.model_selection import StratifiedShuffleSplit
 
 from mkgu.assemblies import DataAssembly, NeuroidAssembly
-from .utils import collect_coords, collect_dim_shapes, walk_coords
+from .utils import collect_coords, collect_dim_shapes, get_modified_coords, array_is_element, walk_coords, merge_dicts
 
 
 class Metric(object):
@@ -125,17 +126,23 @@ class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
         assert all(source_assembly[stratification_coord] == target_assembly[stratification_coord])
 
         cross_validation_values = target_assembly[cross_validation_dim]
-        split_scores = {}
-        for split_iterator, (train_indices, test_indices) in enumerate(self._split_strategy.split(
-                np.zeros(len(np.unique(source_assembly[cross_validation_dim]))),
-                source_assembly[stratification_coord].values)):
+        splits = list(self._split_strategy.split(np.zeros(len(np.unique(source_assembly[cross_validation_dim]))),
+                                                 source_assembly[stratification_coord].values))
+
+        def run_split(split_train_test):
+            split_iterator, (train_indices, test_indices) = split_train_test
+            self._logger.debug("split {}/{}".format(split_iterator, len(splits)))
             train_values, test_values = cross_validation_values[train_indices], cross_validation_values[test_indices]
             train_source = subset(source_assembly, train_values)
             train_target = subset(target_assembly, train_values)
             test_source = subset(source_assembly, test_values)
             test_target = subset(target_assembly, test_values)
             split_score = self.apply_split(train_source, train_target, test_source, test_target)
-            split_scores[split_iterator] = split_score
+            return {split_iterator: split_score}
+
+        pool = ThreadPool()
+        split_scores = pool.map(run_split, enumerate(splits))
+        split_scores = merge_dicts(split_scores)
 
         # throw away all of the multi-dimensional dims as similarity will be computed over them.
         # we want to keep the adjacent dimensions which are 1-dimensional after the comprehension calling this method

@@ -78,6 +78,7 @@ def subset(source_assembly, target_assembly, subset_dims=None):
 class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
     class Defaults:
         similarity_dims = 'presentation', 'neuroid'
+        adjacent_coords = 'region',
         cross_validation_splits = 10
         cross_validation_data_ratio = .9
         cross_validation_dim = 'presentation'
@@ -91,25 +92,31 @@ class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
         self._logger = logging.getLogger(self.__class__.__name__)
 
     def apply(self, source_assembly, target_assembly,
-              similarity_dims=Defaults.similarity_dims):
+              similarity_dims=Defaults.similarity_dims, additional_adjacent_coords=Defaults.adjacent_coords):
         """
         :param mkgu.assemblies.NeuroidAssembly source_assembly:
         :param mkgu.assemblies.NeuroidAssembly target_assembly:
         :param str similarity_dims: the dimension in both assemblies along which the similarity is to be computed
+        :param [str] additional_adjacent_coords:
         :return: mkgu.assemblies.DataAssembly
         """
 
         # compute similarities over `similarity_dims`, i.e. across all adjacent coords
         def adjacent_selections(assembly):
-            adjacent_dims = [dim for dim in assembly.dims if dim not in similarity_dims]
-            choices = {dim: np.unique(assembly[dim]) for dim in adjacent_dims}
+            adjacent_coords = [dim for dim in assembly.dims if dim not in similarity_dims] \
+                              + [coord for coord in additional_adjacent_coords if hasattr(assembly, coord)]
+            choices = {coord: np.unique(assembly[coord]) for coord in adjacent_coords}
             combinations = [dict(zip(choices, values)) for values in itertools.product(*choices.values())]
             return combinations
 
         adjacents1, adjacents2 = adjacent_selections(source_assembly), adjacent_selections(target_assembly)
-        similarities = [
-            self.cross_apply(source_assembly.sel(**adj1), target_assembly.sel(**adj2))
-            for adj1, adj2 in itertools.product(adjacents1, adjacents2)]
+        # run all adjacent combinations or use the assemblies themselves if no adjacents
+        adjacent_combinations = list(itertools.product(adjacents1, adjacents2)) or [({}, {})]
+        similarities = []
+        for i, (adj1, adj2) in enumerate(adjacent_combinations):
+            self._logger.debug("adjacents {}/{}: {} | {}".format(i, len(adjacent_combinations), adj1, adj2))
+            similarity = self.cross_apply(source_assembly.sel(**adj1), target_assembly.sel(**adj2))
+            similarities.append(similarity)
         assert all(similarity.shape == similarities[0].shape for similarity in similarities[1:])  # all shapes equal
 
         # re-shape into adjacent dimensions and split

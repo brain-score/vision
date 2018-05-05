@@ -3,14 +3,13 @@ import itertools
 import logging
 from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
-from pathos.pools import ThreadPool
 
 import numpy as np
 import scipy
-import xarray as xr
+from pathos.pools import ThreadPool
 from sklearn.model_selection import StratifiedShuffleSplit
 
-from mkgu.assemblies import DataAssembly, NeuroidAssembly
+from mkgu.assemblies import DataAssembly, NeuroidAssembly, merge_data_arrays
 from .utils import collect_coords, collect_dim_shapes, get_modified_coords, array_is_element, walk_coords, merge_dicts
 
 
@@ -123,8 +122,7 @@ class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
         # re-shape into adjacent dimensions and split
         assembly_dims = source_assembly.dims + target_assembly.dims + ('split',)
         similarities = [expand(similarity, assembly_dims) for similarity in similarities]
-        # https://stackoverflow.com/a/50125997/2225200
-        similarities = xr.merge([similarity.rename('z') for similarity in similarities])['z'].rename(None)
+        similarities = merge_data_arrays(similarities)
         return similarities
 
     def cross_apply(self, source_assembly, target_assembly,

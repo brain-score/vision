@@ -180,3 +180,7 @@ def lookup_assembly(name):
         raise AssemblyLookupError("A DataAssembly named " + name + " was not found.")
     return assy
 
+
+def merge_data_arrays(data_arrays):
+    # https://stackoverflow.com/a/50125997/2225200
+    return xr.merge([similarity.rename('z') for similarity in data_arrays])['z'].rename(None)

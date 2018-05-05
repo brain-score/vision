@@ -23,22 +23,23 @@ class Metric(object):
         self._similarity = similarity
         self._characterization = characterization or (lambda x: x)
 
-    def __call__(self, source_assembly, target_assembly):
+    def __call__(self, source_assembly, target_assembly, similarity_kwargs=None):
         characterized_source = self._characterization(source_assembly)
         characterized_target = self._characterization(target_assembly)
-        return self._similarity(characterized_source, characterized_target)
+        return self._similarity(characterized_source, characterized_target, **similarity_kwargs)
 
 
 class Similarity(object, metaclass=ABCMeta):
-    def __call__(self, source_assembly, target_assembly):
+    def __call__(self, source_assembly, target_assembly, **kwargs):
         """
         :param mkgu.assemblies.NeuroidAssembly source_assembly:
         :param mkgu.assemblies.NeuroidAssembly target_assembly:
         :return: mkgu.metrics.Score
         """
+        kwargs = kwargs or {}
         source_assembly = self.align(source_assembly, target_assembly)
         source_assembly, target_assembly = self.sort(source_assembly), self.sort(target_assembly)
-        similarity_assembly = self.apply(source_assembly, target_assembly)
+        similarity_assembly = self.apply(source_assembly, target_assembly, **kwargs)
         return self.score(similarity_assembly)
 
     def align(self, source_assembly, target_assembly, subset_dim='presentation'):

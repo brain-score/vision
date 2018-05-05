@@ -156,8 +156,18 @@ class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
 
 
 def expand(assembly, target_dims):
+    def strip(coord):
+        stripped_coord = coord
+        if stripped_coord.endswith('-left'):
+            stripped_coord = stripped_coord[:-len('-left')]
+        if stripped_coord.endswith('-right'):
+            stripped_coord = stripped_coord[:-len('-right')]
+        return stripped_coord
+
     def reformat_coord_values(coord, dims, values):
-        if coord in target_dims and len(values.shape) == 0:
+        stripped_coord = strip(coord)
+
+        if stripped_coord in target_dims and len(values.shape) == 0:
             values = np.array([values])
             dims = [coord]
         return dims, values
@@ -165,7 +175,7 @@ def expand(assembly, target_dims):
     coords = {coord: reformat_coord_values(coord, values.dims, values.values)
               for coord, values in assembly.coords.items()}
     dim_shapes = OrderedDict((coord, values[1].shape)
-                             for coord, values in coords.items() if coord in target_dims)
+                             for coord, values in coords.items() if strip(coord) in target_dims)
     shape = [_shape for shape in dim_shapes.values() for _shape in shape]
     values = np.broadcast_to(assembly.values, shape)
     return DataAssembly(values, coords=coords, dims=list(dim_shapes.keys()))

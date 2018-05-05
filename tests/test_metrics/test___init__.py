@@ -2,9 +2,33 @@ import itertools
 
 import numpy as np
 import pytest
+from pytest import approx
 
 from mkgu.assemblies import NeuroidAssembly, DataAssembly
 from mkgu.metrics import OuterCrossValidationSimilarity, NonparametricCVSimilarity, subset
+
+
+class SimilarityScorePlaceholder(OuterCrossValidationSimilarity):
+    def apply_split(self, train_source, train_target, test_source, test_target):
+        return np.random.normal(scale=0.01)
+
+
+class TestSimilarityScoring:
+    def test_one_adjacent(self):
+        assembly = np.random.rand(100, 3, 5)
+        assembly = NeuroidAssembly(assembly, coords={
+            'image_id': list(range(assembly.shape[0])),
+            'neuroid_id': list(range(assembly.shape[1])),
+            'adjacent': list(range(assembly.shape[2]))},
+                                   dims=['image_id', 'neuroid_id', 'adjacent'])
+        assembly = assembly.stack(presentation=('image_id',), neuroid=('neuroid_id',))
+        assembly = assembly.transpose('presentation', 'neuroid', 'adjacent')
+        object_ratio = 10
+        assembly['object_name'] = 'presentation', list(range(int(assembly.shape[0] / object_ratio))) * object_ratio
+        similarity = SimilarityScorePlaceholder()
+        sim = similarity(assembly, assembly)
+        np.testing.assert_array_equal(sim.center.shape, [5, 5])
+        assert (sim.center.values == approx(0, abs=0.1)).all()
 
 
 class SimilarityAdjacencyPlaceholder(OuterCrossValidationSimilarity):
@@ -18,11 +42,11 @@ class SimilarityAdjacencyPlaceholder(OuterCrossValidationSimilarity):
         self.target_assemblies.append(target_assembly)
         return DataAssembly([0], coords={'split': [0]}, dims=['split'])
 
-    def apply_split(self, train_source, train_target, test_source, test_target, *args, **kwargs):
-        raise NotImplementedError("should not be reached")
-
-    def align(self, source_assembly, target_assembly, subset_dims=()):
+    def align(self, source_assembly, target_assembly, subset_dim=None):
         return source_assembly  # avoid alignment
+
+    def sort(self, source_assembly):
+        return source_assembly  # avoid sorting
 
 
 class TestSimilarityAdjacentProduct:
@@ -36,7 +60,8 @@ class TestSimilarityAdjacentProduct:
         assembly = np.random.rand(num_values)
         assembly = NeuroidAssembly(assembly, coords={'neuroid': list(range(len(assembly)))}, dims=['neuroid'])
         similarity = SimilarityAdjacencyPlaceholder()
-        similarity(assembly, assembly)
+        sim = similarity(assembly, assembly)
+        assert sim.center == 0
         assert 1 == len(similarity.source_assemblies) == len(similarity.target_assemblies)
         np.testing.assert_array_equal(assembly.values, similarity.source_assemblies[0])
         np.testing.assert_array_equal(assembly.values, similarity.target_assemblies[0])
@@ -84,9 +109,9 @@ class TestSimilarityAdjacentProduct:
             assert match, "pair {} - {} not found".format(source_values, target_values)
 
 
-class SimilarityScorePlaceholder(NonparametricCVSimilarity):
+class SimilarityNonparametricScorePlaceholder(NonparametricCVSimilarity):
     def __init__(self):
-        super(SimilarityScorePlaceholder, self).__init__()
+        super(SimilarityNonparametricScorePlaceholder, self).__init__()
         self.source_assemblies = []
         self.target_assemblies = []
 
@@ -96,7 +121,7 @@ class SimilarityScorePlaceholder(NonparametricCVSimilarity):
         return 0
 
 
-class TestSimilarityScore:
+class TestSimilarityNonparametricScore:
     def test_presentation_x_neuroid(self):
         assembly = np.random.rand(100, 3)
         assembly = NeuroidAssembly(assembly, coords={
@@ -106,7 +131,7 @@ class TestSimilarityScore:
         assembly = assembly.stack(presentation=('image_id',), neuroid=('neuroid_id',))
         object_ratio = 10
         assembly['object_name'] = 'presentation', list(range(int(assembly.shape[0] / object_ratio))) * object_ratio
-        similarity = SimilarityScorePlaceholder()
+        similarity = SimilarityNonparametricScorePlaceholder()
         score = similarity(assembly, assembly)
         assert 10 == len(similarity.source_assemblies) == len(similarity.target_assemblies)
         for assembly in similarity.source_assemblies + similarity.target_assemblies:

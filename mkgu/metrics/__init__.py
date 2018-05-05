@@ -200,7 +200,7 @@ class ParametricCVSimilarity(OuterCrossValidationSimilarity):
     def __init__(self, cross_validation_splits=OuterCrossValidationSimilarity.Defaults.cross_validation_splits,
                  cross_validation_data_ratio=OuterCrossValidationSimilarity.Defaults.cross_validation_data_ratio):
         super().__init__(cross_validation_splits, cross_validation_data_ratio)
-        self._target_neuroid_ids = None
+        self._target_neuroid_values = None
         self._logger = logging.getLogger(self.__class__.__name__)
 
     def apply_split(self, train_source, train_target, test_source, test_target):
@@ -209,13 +209,18 @@ class ParametricCVSimilarity(OuterCrossValidationSimilarity):
         self._logger.debug("Predicting")
         prediction = self.predict(test_source)
         self._logger.debug("Comparing")
-        return self.compare_prediction(prediction, test_target)
+        similarity = self.compare_prediction(prediction, test_target)
+        return similarity
 
     def fit(self, train_source, train_target):
         np.testing.assert_array_equal(train_source.dims, ['presentation', 'neuroid'])
         np.testing.assert_array_equal(train_target.dims, ['presentation', 'neuroid'])
         assert all(source == target for source, target in zip(train_source['image_id'], train_target['image_id']))
-        self._target_neuroid_ids = train_target['neuroid_id']
+        self._target_neuroid_values = {}
+        for name, dims, values in walk_coords(train_target):
+            if 'neuroid' in dims:
+                assert array_is_element(dims, 'neuroid')
+                self._target_neuroid_values[name] = values
         self.fit_values(train_source, train_target)
 
     def fit_values(self, train_source, train_target):
@@ -226,28 +231,21 @@ class ParametricCVSimilarity(OuterCrossValidationSimilarity):
         predicted_values = self.predict_values(test_source)
 
         # count number of neuroid dimensions for workaround
-        neuroid_counter = 0
-
-        def count_neuroid(name, dims, values):
-            if len(dims) == 1 and dims[0] == 'neuroid':
-                nonlocal neuroid_counter
-                neuroid_counter += 1
-
-        walk_coords(test_source, count_neuroid)
+        neuroid_counter = sum(array_is_element(dims, 'neuroid') for name, dims, values in walk_coords(test_source))
 
         def modify_coord(name, dims, values):
-            if name == 'neuroid_id':
-                values = self._target_neuroid_ids
+            if 'neuroid' in dims:
+                assert array_is_element(dims, 'neuroid')
+                values = self._target_neuroid_values[name]
             # ugly work-around: if we wouldn't do this, the gather_indexes method would rename neuroid_id -> neuroid
-            # and discard the neuroid_id coord. but only if neuroid_id is the only coord referencing neuroid
-            # this can be remoed once https://github.com/pydata/xarray/issues/1077 is fixed
+            # and discard the neuroid_id coord. but only if neuroid_id is the only coord referencing neuroid.
+            # this can be removed once https://github.com/pydata/xarray/issues/1077 is fixed
             if 'neuroid' in dims and neuroid_counter == 1:
-                assert len(dims) == 1
-                np.testing.assert_array_equal(dims, ['neuroid'])
+                assert array_is_element(dims, 'neuroid')
                 dims = ['neuroid_id']
             return name, (dims, values)
 
-        coords = walk_coords(test_source, modify_coord)
+        coords = get_modified_coords(test_source, modify_coord)
 
         if neuroid_counter == 1:
             result = NeuroidAssembly(predicted_values, coords=coords,
@@ -260,7 +258,6 @@ class ParametricCVSimilarity(OuterCrossValidationSimilarity):
         raise NotImplementedError()
 
     def compare_prediction(self, prediction, target, axis='neuroid_id', correlation=scipy.stats.pearsonr):
-        self._logger.debug("Comparing")
         assert all(source == target for source, target in zip(prediction['image_id'], target['image_id']))
         assert all(source == target for source, target in zip(prediction[axis], target[axis]))
         rs = []

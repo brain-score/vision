@@ -88,6 +88,7 @@ class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
         super(OuterCrossValidationSimilarity, self).__init__()
         self._split_strategy = StratifiedShuffleSplit(
             n_splits=cross_validation_splits, train_size=cross_validation_data_ratio)
+        self._logger = logging.getLogger(self.__class__.__name__)
 
     def apply(self, source_assembly, target_assembly,
               similarity_dims=Defaults.similarity_dims):

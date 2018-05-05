@@ -1,11 +1,16 @@
 import itertools
 
+import logging
+import sys
+
 import numpy as np
 import pytest
 from pytest import approx
 
 from mkgu.assemblies import NeuroidAssembly, DataAssembly
 from mkgu.metrics import OuterCrossValidationSimilarity, NonparametricCVSimilarity, subset
+
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
 class SimilarityScorePlaceholder(OuterCrossValidationSimilarity):
@@ -15,7 +20,7 @@ class SimilarityScorePlaceholder(OuterCrossValidationSimilarity):
 
 class TestSimilarityScoring:
     def test_one_adjacent(self):
-        assembly = np.random.rand(100, 3, 5)
+        assembly = np.random.rand(100, 3, 2)
         assembly = NeuroidAssembly(assembly, coords={
             'image_id': list(range(assembly.shape[0])),
             'neuroid_id': list(range(assembly.shape[1])),
@@ -27,7 +32,7 @@ class TestSimilarityScoring:
         assembly['object_name'] = 'presentation', list(range(int(assembly.shape[0] / object_ratio))) * object_ratio
         similarity = SimilarityScorePlaceholder()
         sim = similarity(assembly, assembly)
-        np.testing.assert_array_equal(sim.center.shape, [5, 5])
+        np.testing.assert_array_equal(sim.center.shape, [2, 2])
         assert (sim.center.values == approx(0, abs=0.1)).all()
 
 

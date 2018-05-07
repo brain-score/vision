@@ -36,7 +36,7 @@ class FileRecord(peewee.Model):
 class Sighting(peewee.Model):
     location = peewee.CharField()
     file_record = peewee.ForeignKeyField(FileRecord, backref="sightings")
-    stamp = peewee.TimestampField(default=datetime.datetime.now)
+    stamp = peewee.DateTimeField(default=datetime.datetime.now)
 
     class Meta:
         database = get_db()

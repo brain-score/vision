@@ -1,5 +1,7 @@
 from collections import OrderedDict
 
+from mkgu.assemblies import walk_coords
+
 
 def collect_coords(assembly, ignore_dims, rename_coords_list, kind):
     coords = assembly.coords
@@ -45,24 +47,18 @@ def rename_dims(dims, rename_dims_list, rename_suffix):
     return [dim if dim not in rename_dims_list else dim + '-' + rename_suffix for dim in dims]
 
 
-def walk_coords(assembly, modifier=lambda name, dims, values: (name, (dims, values))):
-    """
-    walks through coords and all levels, just like the `__repr__` function
-    """
+def get_modified_coords(assembly, modifier=lambda name, dims, values: (name, (dims, values))):
     coords = {}
-
-    def handle_coord(name, vals):
-        name_dims_vals = modifier(name, vals.dims, vals.values)
+    for name, dims, values in walk_coords(assembly):
+        name_dims_vals = modifier(name, dims, values)
         if name_dims_vals is not None:
             name, (dims, vals) = name_dims_vals
             coords[name] = dims, vals
-
-    for name, values in assembly.coords.items():
-        # partly borrowed from xarray.core.formatting#summarize_coord
-        is_index = name in assembly.dims
-        if is_index:
-            for level in values.variable.level_names:
-                handle_coord(level, assembly.coords[level])
-        else:
-            handle_coord(name, values)
     return coords
+
+
+def merge_dicts(dicts):
+    result = {}
+    for dict in dicts:
+        result = {**result, **dict}
+    return result

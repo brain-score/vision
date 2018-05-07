@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import functools
 import operator
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 
 import numpy as np
 import peewee
@@ -16,6 +16,7 @@ from mkgu.stimuli import StimulusSetModel
 class DataPoint(object):
     """A DataPoint represents one value, usually a recording from one neuron or node,
     in response to one presentation of a stimulus.  """
+
     def __init__(self, value, neuroid, presentation):
         self.value = value
         self.neuroid = neuroid
@@ -53,6 +54,41 @@ class DataAssembly(DataArray):
             return dims[0]
         else:
             raise GroupbyError("All coordinates for grouping must be associated with the same single dimension.  ")
+
+    def multisel(self, method=None, tolerance=None, drop=False, **indexers):
+        """
+        partial workaround to keep multi-indexes and scalar coords
+        https://github.com/pydata/xarray/issues/1491, https://github.com/pydata/xarray/pull/1426
+
+        this method might slow things down, use with caution
+        """
+        indexer_dims = {index: self[index].dims for index in indexers}
+        dims = []
+        for _dims in indexer_dims.values():
+            assert len(_dims) == 1
+            dims.append(_dims[0])
+        coords_dim, dim_coords = {}, defaultdict(list)
+        for dim in dims:
+            for coord, coord_dims, _ in walk_coords(self):
+                if array_is_element(coord_dims, dim):
+                    coords_dim[coord] = dim
+                    dim_coords[dim].append(coord)
+
+        result = super().sel(method, tolerance, drop, **indexers)
+
+        # stack back together
+        for result_dim in result.dims:
+            if result_dim not in self.dims:
+                original_dim = coords_dim[result_dim]
+                result = result.stack(**{original_dim: [coord for coord in dim_coords[original_dim]
+                                                        if hasattr(result, coord)]})
+        # add scalar indexer variable
+        for index, value in indexers.items():
+            dim = indexer_dims[index]
+            assert len(dim) == 1
+            value = np.repeat(value, len(result[dim[0]]))
+            result[index] = dim, value
+        return result
 
 
 class BehavioralAssembly(DataAssembly):
@@ -101,11 +137,12 @@ def gather_indexes(xr_data):
 
 class GroupbyBridge(object):
     """Wraps an xarray GroupBy object to allow grouping on multiple coordinates.   """
+
     def __init__(self, groupby, assembly, dim, group_coord_names, delimiter, multi_group_name):
         self.groupby = groupby
         self.assembly = assembly
         self.dim = dim
-        self.group_coord_names =  group_coord_names
+        self.group_coord_names = group_coord_names
         self.delimiter = delimiter
         self.multi_group_name = multi_group_name
 
@@ -121,10 +158,12 @@ class GroupbyBridge(object):
             if isinstance(result, type(self.assembly)):
                 result = self.split_group_coords(result)
             return result
+
         return wrapper
 
     def split_group_coords(self, result):
-        split_coords = np.array(list(map(lambda s: s.split(self.delimiter), result.coords[self.multi_group_name].values))).T
+        split_coords = np.array(
+            list(map(lambda s: s.split(self.delimiter), result.coords[self.multi_group_name].values))).T
         for coord_name, coord in zip(self.group_coord_names, split_coords):
             result.coords[coord_name] = (self.multi_group_name, coord)
         result.reset_index(self.multi_group_name, drop=True, inplace=True)
@@ -184,3 +223,25 @@ def lookup_assembly(name):
 def merge_data_arrays(data_arrays):
     # https://stackoverflow.com/a/50125997/2225200
     return xr.merge([similarity.rename('z') for similarity in data_arrays])['z'].rename(None)
+
+
+def array_is_element(arr, element):
+    return len(arr) == 1 and arr[0] == element
+
+
+def walk_coords(assembly):
+    """
+    walks through coords and all levels, just like the `__repr__` function, yielding `(name, dims, values)`.
+    """
+    coords = {}
+
+    for name, values in assembly.coords.items():
+        # partly borrowed from xarray.core.formatting#summarize_coord
+        is_index = name in assembly.dims
+        if is_index:
+            for level in values.variable.level_names:
+                level_values = assembly.coords[level]
+                yield level, level_values.dims, level_values.values
+        else:
+            yield name, values.dims, values.values
+    return coords

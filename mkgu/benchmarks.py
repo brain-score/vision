@@ -25,8 +25,9 @@ class Benchmark(object):
 
         self._ceiling = self.ceiling()
 
-    def __call__(self, source_assembly):
-        return self._metric(source_assembly, self._target_assembly)
+    def __call__(self, source_assembly, metric_kwargs=None):
+        metric_kwargs = metric_kwargs or {}
+        return self._metric(source_assembly, self._target_assembly, **metric_kwargs)
 
     def ceiling(self):
         return None
@@ -38,7 +39,6 @@ def load(data_name, metric_name):
         data = ventral_stream
     else:
         data = mkgu.get_assembly(name=data_name).sel(variation=6)  # TODO: remove variation selection once part of name
-        data = data.loc[xr.ufuncs.logical_or(data["region"] == "V4", data["region"] == "IT")]
         data.load()  # TODO: should load lazy
         data = data.multi_groupby(['category_name', 'object_name', 'image_id']).mean(dim="presentation")
         data = data.squeeze("time_bin")

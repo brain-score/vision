@@ -1,6 +1,7 @@
 import logging
 
 from sklearn.cross_decomposition import PLSRegression
+from sklearn.linear_model import LinearRegression
 from sklearn.decomposition import PCA
 
 import mkgu
@@ -9,8 +10,9 @@ from mkgu.metrics import Metric, Characterization, ParametricCVSimilarity
 
 
 class NeuralFitMetric(Metric):
-    def __init__(self):
-        super(NeuralFitMetric, self).__init__(similarity=NeuralFitSimilarity())
+    def __init__(self, similarity_kwargs=None):
+        similarity_kwargs = similarity_kwargs or {}
+        super(NeuralFitMetric, self).__init__(similarity=NeuralFitSimilarity(**similarity_kwargs))
 
 
 class NeuralFitSimilarity(ParametricCVSimilarity):
@@ -18,9 +20,14 @@ class NeuralFitSimilarity(ParametricCVSimilarity):
     Yamins & Hong et al., 2014 https://doi.org/10.1073/pnas.1403112111
     """
 
-    def __init__(self, regression_components=25):
+    regressions = {
+        'pls-25': PLSRegression(n_components=25, scale=False),
+        'linear': LinearRegression(),
+    }
+
+    def __init__(self, regression='pls-25'):
         super(NeuralFitSimilarity, self).__init__()
-        self._regression = PLSRegression(n_components=regression_components, scale=False)
+        self._regression = self.regressions[regression] if isinstance(regression, str) else regression
 
     def fit_values(self, train_source, train_target):
         self._regression.fit(train_source, train_target)

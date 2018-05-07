@@ -3,14 +3,15 @@ import itertools
 import logging
 from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
+from os import cpu_count
 
 import numpy as np
 import scipy
 from pathos.pools import ThreadPool
 from sklearn.model_selection import StratifiedShuffleSplit
 
-from mkgu.assemblies import DataAssembly, NeuroidAssembly, merge_data_arrays
-from .utils import collect_coords, collect_dim_shapes, get_modified_coords, array_is_element, walk_coords, merge_dicts
+from mkgu.assemblies import DataAssembly, NeuroidAssembly, merge_data_arrays, array_is_element, walk_coords
+from .utils import collect_coords, collect_dim_shapes, get_modified_coords, merge_dicts
 
 
 class Metric(object):
@@ -114,21 +115,24 @@ class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
         adjacent_combinations = list(itertools.product(adjacents1, adjacents2)) or [({}, {})]
         similarities = []
         for i, (adj1, adj2) in enumerate(adjacent_combinations):
-            self._logger.debug("adjacents {}/{}: {} | {}".format(i, len(adjacent_combinations), adj1, adj2))
-            similarity = self.cross_apply(source_assembly.sel(**adj1), target_assembly.sel(**adj2))
+            self._logger.debug("adjacents {}/{}: {} | {}".format(i + 1, len(adjacent_combinations), adj1, adj2))
+            source_adj, target_adj = source_assembly.multisel(**adj1), target_assembly.multisel(**adj2)
+            similarity = self.cross_apply(source_adj, target_adj)
+            adj_coords = self.merge_adjacents(adj1, adj2)
+            for coord_name, coord_value in adj_coords.items():
+                similarity[coord_name] = coord_value
             similarities.append(similarity)
         assert all(similarity.shape == similarities[0].shape for similarity in similarities[1:])  # all shapes equal
 
         # re-shape into adjacent dimensions and split
-        assembly_dims = source_assembly.dims + target_assembly.dims + ('split',)
+        assembly_dims = source_assembly.dims + target_assembly.dims + tuple(additional_adjacent_coords) + ('split',)
         similarities = [expand(similarity, assembly_dims) for similarity in similarities]
         similarities = merge_data_arrays(similarities)
         return similarities
 
     def cross_apply(self, source_assembly, target_assembly,
                     cross_validation_dim=Defaults.cross_validation_dim,
-                    stratification_coord=Defaults.stratification_coord,
-                    *args, **kwargs):
+                    stratification_coord=Defaults.stratification_coord):
         assert all(source_assembly[cross_validation_dim] == target_assembly[cross_validation_dim])
         assert all(source_assembly[stratification_coord] == target_assembly[stratification_coord])
 
@@ -138,7 +142,7 @@ class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
 
         def run_split(split_train_test):
             split_iterator, (train_indices, test_indices) = split_train_test
-            self._logger.debug("split {}/{}".format(split_iterator, len(splits)))
+            self._logger.debug("split {}/{}".format(split_iterator + 1, len(splits)))
             train_values, test_values = cross_validation_values[train_indices], cross_validation_values[test_indices]
             train_source = subset(source_assembly, train_values)
             train_target = subset(target_assembly, train_values)
@@ -147,12 +151,13 @@ class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
             split_score = self.apply_split(train_source, train_target, test_source, test_target)
             return {split_iterator: split_score}
 
-        pool = ThreadPool()
+        pool = ThreadPool(nthreads=cpu_count() * 2)
         split_scores = pool.map(run_split, enumerate(splits))
         split_scores = merge_dicts(split_scores)
 
         # throw away all of the multi-dimensional dims as similarity will be computed over them.
         # we want to keep the adjacent dimensions which are 1-dimensional after the comprehension calling this method
+        # Note that we don't keep adjacent coords yet, which is something we should ultimately do
         multi_dimensional_dims = [dim for dim in source_assembly.dims if len(source_assembly[dim]) > 1] + \
                                  [dim for dim in source_assembly.dims if len(target_assembly[dim]) > 1]
         coords = list(source_assembly.coords.keys()) + list(target_assembly.coords.keys())
@@ -167,6 +172,15 @@ class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
 
     def apply_split(self, train_source, train_target, test_source, test_target):
         raise NotImplementedError()
+
+    def merge_adjacents(self, adj_left, adj_right):
+        coords = list(adj_left.keys()) + list(adj_right.keys())
+        duplicates = [coord for coord in coords if coords.count(coord) > 1]
+        coords_left = {coord if coord not in duplicates else coord + '-left': coord_value
+                       for coord, coord_value in adj_left.items()}
+        coords_right = {coord if coord not in duplicates else coord + '-right': coord_value
+                        for coord, coord_value in adj_right.items()}
+        return {**coords_left, **coords_right}
 
 
 def expand(assembly, target_dims):
@@ -191,7 +205,11 @@ def expand(assembly, target_dims):
     dim_shapes = OrderedDict((coord, values[1].shape)
                              for coord, values in coords.items() if strip(coord) in target_dims)
     shape = [_shape for shape in dim_shapes.values() for _shape in shape]
-    values = np.broadcast_to(assembly.values, shape)
+    # prepare values for broadcasting by adding new dimensions
+    values = assembly.values
+    for _ in range(sum([dim not in assembly.dims for dim in dim_shapes])):
+        values = values[:, np.newaxis]
+    values = np.broadcast_to(values, shape)
     return DataAssembly(values, coords=coords, dims=list(dim_shapes.keys()))
 
 
@@ -219,7 +237,7 @@ class ParametricCVSimilarity(OuterCrossValidationSimilarity):
         for name, dims, values in walk_coords(train_target):
             if 'neuroid' in dims:
                 assert array_is_element(dims, 'neuroid')
-                self._target_neuroid_values[name] = values
+                self._target_neuroid_values[name] = dims, values
         self.fit_values(train_source, train_target)
 
     def fit_values(self, train_source, train_target):
@@ -229,36 +247,17 @@ class ParametricCVSimilarity(OuterCrossValidationSimilarity):
         np.testing.assert_array_equal(test_source.dims, ['presentation', 'neuroid'])
         predicted_values = self.predict_values(test_source)
 
-        # count number of neuroid dimensions for workaround
-        neuroid_counter = sum(array_is_element(dims, 'neuroid') for name, dims, values in walk_coords(test_source))
-
-        def modify_coord(name, dims, values):
-            if 'neuroid' in dims:
-                assert array_is_element(dims, 'neuroid')
-                values = self._target_neuroid_values[name]
-            # ugly work-around: if we wouldn't do this, the gather_indexes method would rename neuroid_id -> neuroid
-            # and discard the neuroid_id coord. but only if neuroid_id is the only coord referencing neuroid.
-            # this can be removed once https://github.com/pydata/xarray/issues/1077 is fixed
-            if 'neuroid' in dims and neuroid_counter == 1:
-                assert array_is_element(dims, 'neuroid')
-                dims = ['neuroid_id']
-            return name, (dims, values)
-
-        coords = get_modified_coords(test_source, modify_coord)
-
-        if neuroid_counter == 1:
-            result = NeuroidAssembly(predicted_values, coords=coords,
-                                     dims=[dim if dim != 'neuroid' else 'neuroid_id' for dim in test_source.dims])
-            return result.stack(neuroid=['neuroid_id'])
-        else:
-            return NeuroidAssembly(predicted_values, coords=coords, dims=test_source.dims)
+        coords = {name: (dims, values) for name, dims, values in walk_coords(test_source) if 'neuroid' not in dims}
+        for target_coord, target_dim_value in self._target_neuroid_values.items():
+            coords[target_coord] = target_dim_value  # this might overwrite values which is okay
+        return NeuroidAssembly(predicted_values, coords=coords, dims=test_source.dims)
 
     def predict_values(self, test_source):
         raise NotImplementedError()
 
     def compare_prediction(self, prediction, target, axis='neuroid_id', correlation=scipy.stats.pearsonr):
-        assert all(source == target for source, target in zip(prediction['image_id'], target['image_id']))
-        assert all(source == target for source, target in zip(prediction[axis], target[axis]))
+        assert sorted(prediction['image_id']) == sorted(target['image_id'])
+        assert sorted(prediction[axis]) == sorted(target[axis])
         rs = []
         for i in target[axis].values:
             target_activations = target.sel(**{axis: i}).squeeze()

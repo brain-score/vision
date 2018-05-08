@@ -90,3 +90,10 @@ class TestRDMMetric(object):
         rdm_metric = RDMMetric()
         score = rdm_metric(hvm, hvm)
         assert score == approx(1.)
+
+
+def test_np_load():
+    print(os.getcwd())
+    it_rdm = np.load("it_rdm.p", encoding="latin1")
+    print(it_rdm)
+    assert it_rdm.shape == (64, 64)

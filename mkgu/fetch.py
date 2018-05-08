@@ -12,7 +12,8 @@ from six.moves.urllib.parse import urlparse
 
 from mkgu import assemblies, stimuli
 from mkgu.assemblies import coords_for_dim
-from mkgu.stimuli import StimulusSetModel, ImageModel, ImageStoreModel, StimulusSetImageMap, ImageStoreMap, StimulusSet
+from mkgu.stimuli import StimulusSet, ImageModel, AttributeModel, ImageMetaModel, StimulusSetModel, ImageStoreModel, \
+    StimulusSetImageMap, ImageStoreMap
 
 _local_data_path = os.path.expanduser("~/.mkgu/data")
 
@@ -185,6 +186,23 @@ def get_stimulus_set(name):
         .join(StimulusSetModel)\
         .where(StimulusSetModel.name == name)
     df_reconstructed = pd.DataFrame(list(pw_query.dicts()))
+    pw_query_attributes = AttributeModel.select()\
+        .join(ImageMetaModel)\
+        .join(ImageModel)\
+        .join(StimulusSetImageMap)\
+        .join(StimulusSetModel)\
+        .where(StimulusSetModel.name == name)\
+        .distinct()
+    for a in pw_query_attributes:
+        pw_query_single_attribute = AttributeModel.select(ImageModel.hash_id, ImageMetaModel.value)\
+        .join(ImageMetaModel)\
+        .join(ImageModel)\
+        .join(StimulusSetImageMap)\
+        .join(StimulusSetModel)\
+        .where((StimulusSetModel.name == name) & (AttributeModel.name == a.name))
+        df_single_attribute = pd.DataFrame(list(pw_query_single_attribute.dicts()))
+        merged = df_reconstructed.merge(df_single_attribute, on="hash_id", how="left", suffixes=("orig_", ""))
+        df_reconstructed[a.name] = merged["value"].astype(a.type)
     stimulus_set = StimulusSet(df_reconstructed)
     stimulus_set.image_paths = image_paths
     return stimulus_set

@@ -32,7 +32,7 @@ eav_ryz = AttributeModel(name="ryz", type="float")
 eav_rxy_semantic = AttributeModel(name="rxy_semantic", type="float")
 eav_rxz_semantic = AttributeModel(name="rxz_semantic", type="float")
 eav_ryz_semantic = AttributeModel(name="ryz_semantic", type="float")
-eav_size = AttributeModel(name="size", type="int")
+eav_size = AttributeModel(name="size", type="float")
 eav_s = AttributeModel(name="s", type="float")
 
 eav_object_name.save()

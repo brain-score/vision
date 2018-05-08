@@ -202,7 +202,7 @@ def get_stimulus_set(name):
         .where((StimulusSetModel.name == name) & (AttributeModel.name == a.name))
         df_single_attribute = pd.DataFrame(list(pw_query_single_attribute.dicts()))
         merged = df_reconstructed.merge(df_single_attribute, on="hash_id", how="left", suffixes=("orig_", ""))
-        df_reconstructed[a.name] = merged["value"]
+        df_reconstructed[a.name] = merged["value"].astype(a.type)
     stimulus_set = StimulusSet(df_reconstructed)
     stimulus_set.image_paths = image_paths
     return stimulus_set

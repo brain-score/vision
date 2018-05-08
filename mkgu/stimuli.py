@@ -14,23 +14,26 @@ class StimulusSet(pd.DataFrame):
         return self.image_paths[image_id]
 
 
+class AttributeModel(peewee.Model):
+    name = peewee.CharField(unique=True)
+    type = peewee.CharField()
+
+    class Meta:
+        database = pwdb
+
+
 class ImageModel(peewee.Model):
     hash_id = peewee.CharField()
-    object_name = peewee.CharField()
-    category_name = peewee.CharField()
-    background_id = peewee.CharField()
     image_file_name = peewee.CharField()
-    variation = peewee.IntegerField()
-    ty = peewee.FloatField()
-    tz = peewee.FloatField()
-    rxy = peewee.FloatField()
-    rxz = peewee.FloatField()
-    ryz = peewee.FloatField()
-    rxy_semantic = peewee.FloatField()
-    rxz_semantic = peewee.FloatField()
-    ryz_semantic = peewee.FloatField()
-    size = peewee.FloatField()
-    s = peewee.FloatField()
+
+    class Meta:
+        database = pwdb
+
+
+class ImageMetaModel(peewee.Model):
+    image = peewee.ForeignKeyField(ImageModel, backref="image_meta_models")
+    attribute = peewee.ForeignKeyField(AttributeModel, backref="image_meta_models")
+    value = peewee.CharField()
 
     class Meta:
         database = pwdb

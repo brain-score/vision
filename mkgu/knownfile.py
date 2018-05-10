@@ -48,9 +48,13 @@ class KnownFile(object):
         self.exists = os.path.exists(path)
         if self.exists:
             self.realpath = os.path.realpath(path)
-            self.sha1 = hash_a_file(path)
-            self.file_record, created = FileRecord.get_or_create(sha1=self.sha1)
-            self.sighting = Sighting.get_or_create(location=self.path, file_record=self.file_record)
+            self.isfile = os.path.isfile(path)
+            if self.isfile:
+                self.sha1 = hash_a_file(path)
+                self.file_record, fr_created = FileRecord.get_or_create(sha1=self.sha1)
+                self.sighting, s_created = Sighting.get_or_create(location=self.path, file_record=self.file_record)
 
             # self.sighting.save()
 
+
+get_db().create_tables([FileRecord, Sighting])

@@ -94,6 +94,7 @@ class TestRDMMetric(object):
 
 def test_np_load():
     print(os.getcwd())
-    it_rdm = np.load("it_rdm.p", encoding="latin1")
+    p_path = os.path.join(os.path.dirname(__file__), "it_rdm.p")
+    it_rdm = np.load(p_path, encoding="latin1")
     print(it_rdm)
     assert it_rdm.shape == (64, 64)

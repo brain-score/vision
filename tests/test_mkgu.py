@@ -9,7 +9,6 @@ Tests for `mkgu` module.
 """
 
 import os
-import random
 
 import numpy as np
 import pytest
@@ -25,25 +24,18 @@ _hvm_s3_url = "https://mkgu-dicarlolab-hvm.s3.amazonaws.com/hvm_neuronal_feature
 
 
 def test_nr_assembly_ctor():
-    assy_hvm = mkgu.get_assembly(name="dicarlo.Hong2011")
+    assy_hvm = mkgu.get_assembly(name="dicarlo.Majaj2015")
     assert isinstance(assy_hvm, mkgu.assemblies.DataAssembly)
 
 
-def test_np_load():
-    print(os.getcwd())
-    it_rdm = np.load("it_rdm.p", encoding="latin1")
-    print(it_rdm)
-    assert it_rdm.shape == (64, 64)
-
-
 def test_load():
-    assy_hvm = mkgu.get_assembly(name="dicarlo.Hong2011")
+    assy_hvm = mkgu.get_assembly(name="dicarlo.Majaj2015")
     assert assy_hvm.shape == (296, 268800, 1)
     print(assy_hvm)
 
 
 def test_repr():
-    assy_hvm = mkgu.get_assembly(name="dicarlo.Hong2011")
+    assy_hvm = mkgu.get_assembly(name="dicarlo.Majaj2015")
     repr_hvm = repr(assy_hvm)
     assert "neuroid" in repr_hvm
     assert "presentation" in repr_hvm
@@ -54,17 +46,17 @@ def test_repr():
 
 
 def test_getitem():
-    assy_hvm = mkgu.get_assembly(name="dicarlo.Hong2011")
+    assy_hvm = mkgu.get_assembly(name="dicarlo.Majaj2015")
     single = assy_hvm[0, 0, 0]
     assert type(single) is type(assy_hvm)
     assert single.values == approx(0.808021)
 
 
 def test_lookup():
-    assy = mkgu.assemblies.lookup_assembly("dicarlo.Hong2011")
-    assert assy.name == "dicarlo.Hong2011"
+    assy = mkgu.assemblies.lookup_assembly("dicarlo.Majaj2015")
+    assert assy.name == "dicarlo.Majaj2015"
     store = assy.assembly_store_maps[0]
-    assert store.role == "dicarlo.Hong2011"
+    assert store.role == "dicarlo.Majaj2015"
     assert store.assembly_store_model.location_type == "S3"
     assert store.assembly_store_model.location == _hvm_s3_url
 
@@ -75,15 +67,15 @@ def test_lookup_bad_name():
 
 
 def test_fetch():
-    assy_record = mkgu.assemblies.lookup_assembly("dicarlo.Hong2011")
+    assy_record = mkgu.assemblies.lookup_assembly("dicarlo.Majaj2015")
     local_paths = fetch.fetch_assembly(assy_record)
     assert len(local_paths) == 1
-    print(local_paths["dicarlo.Hong2011"])
-    assert os.path.exists(local_paths["dicarlo.Hong2011"])
+    print(local_paths["dicarlo.Majaj2015"])
+    assert os.path.exists(local_paths["dicarlo.Majaj2015"])
 
 
 def test_wrap():
-    assy_hvm = mkgu.get_assembly(name="dicarlo.Hong2011")
+    assy_hvm = mkgu.get_assembly(name="dicarlo.Majaj2015")
     hvm_v6 = assy_hvm.sel(variation=6)
     assert isinstance(hvm_v6, assemblies.NeuronRecordingAssembly)
 
@@ -107,7 +99,7 @@ def test_wrap():
 
 
 def test_multi_group():
-    assy_hvm = mkgu.get_assembly(name="dicarlo.Hong2011")
+    assy_hvm = mkgu.get_assembly(name="dicarlo.Majaj2015")
     hvm_it_v6 = assy_hvm.sel(variation=6).sel(region="IT")
     hvm_it_v6.load()
     hvm_it_v6_obj = hvm_it_v6.multi_groupby(["category_name", "object_name"]).mean(dim="presentation")
@@ -117,18 +109,17 @@ def test_multi_group():
 
 def test_get_stimulus_set():
     stimulus_set = mkgu.get_stimulus_set("dicarlo.hvm")
-    assert "hash_id" in stimulus_set.columns
+    assert "image_id" in stimulus_set.columns
     assert stimulus_set.shape == (5760, 17)
-    assert os.path.exists(stimulus_set.image_paths[random.choice(stimulus_set["hash_id"])])
-    for hash_id in stimulus_set['hash_id']:
-        image_path = stimulus_set.get_image(hash_id)
+    for image_id in stimulus_set['image_id']:
+        image_path = stimulus_set.get_image(image_id)
         assert os.path.exists(image_path)
 
 
 def test_stimulus_set_from_assembly():
-    assy_hvm = mkgu.get_assembly(name="dicarlo.Hong2011")
+    assy_hvm = mkgu.get_assembly(name="dicarlo.Majaj2015")
     stimulus_set = assy_hvm.attrs["stimulus_set"]
     assert stimulus_set.shape[0] == np.unique(assy_hvm["image_id"]).shape[0]
-    for hash_id in stimulus_set['hash_id']:
-        image_path = stimulus_set.get_image(hash_id)
+    for image_id in stimulus_set['image_id']:
+        image_path = stimulus_set.get_image(image_id)
         assert os.path.exists(image_path)

@@ -56,7 +56,7 @@ eav_s.save()
 
 for image in df_images.itertuples():
     pw_image = ImageModel(
-        hash_id=image.image_id,
+        image_id=image.image_id
     )
     pw_stimulus_set_image_map = StimulusSetImageMap(stimulus_set=hvm_images, image=pw_image)
     pw_image_image_store_map = ImageStoreMap(image=pw_image, image_store=hvm_image_store,

@@ -111,7 +111,7 @@ class AssemblyLoader(object):
     def merge(self, assy, stimulus_set):
         axis_name = "presentation"
         df_of_coords = pd.DataFrame(coords_for_dim(assy, axis_name))
-        merged = df_of_coords.merge(stimulus_set, left_on="image_id", right_on="hash_id", how="left")
+        merged = df_of_coords.merge(stimulus_set, on="image_id", how="left")
         for col in stimulus_set.columns:
             assy[col] = (axis_name, merged[col])
             # assy.set_index(append=True, inplace=True, **{axis_name: [col]})
@@ -167,7 +167,7 @@ def fetch_stimulus_set(stimulus_set_model):
         store_map = image_map.image.image_image_store_maps[0]
         local_path_base = local_paths[store_map.image_store.location]
         image_path = os.path.join(local_path_base, store_map.path)
-        image_paths[image_map.image.hash_id] = image_path
+        image_paths[image_map.image.image_id] = image_path
     return image_paths
 
 
@@ -194,14 +194,14 @@ def get_stimulus_set(name):
         .where(StimulusSetModel.name == name)\
         .distinct()
     for a in pw_query_attributes:
-        pw_query_single_attribute = AttributeModel.select(ImageModel.hash_id, ImageMetaModel.value)\
+        pw_query_single_attribute = AttributeModel.select(ImageModel.image_id, ImageMetaModel.value)\
         .join(ImageMetaModel)\
         .join(ImageModel)\
         .join(StimulusSetImageMap)\
         .join(StimulusSetModel)\
         .where((StimulusSetModel.name == name) & (AttributeModel.name == a.name))
         df_single_attribute = pd.DataFrame(list(pw_query_single_attribute.dicts()))
-        merged = df_reconstructed.merge(df_single_attribute, on="hash_id", how="left", suffixes=("orig_", ""))
+        merged = df_reconstructed.merge(df_single_attribute, on="image_id", how="left", suffixes=("orig_", ""))
         df_reconstructed[a.name] = merged["value"].astype(a.type)
     stimulus_set = StimulusSet(df_reconstructed)
     stimulus_set.image_paths = image_paths

@@ -24,7 +24,6 @@ class AttributeModel(peewee.Model):
 
 class ImageModel(peewee.Model):
     hash_id = peewee.CharField()
-    image_file_name = peewee.CharField()
 
     class Meta:
         database = pwdb

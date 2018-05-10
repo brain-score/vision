@@ -166,7 +166,7 @@ def fetch_stimulus_set(stimulus_set_model):
     for image_map in stimulus_set_model.stimulus_set_image_maps.prefetch(ImageModel, ImageStoreMap, ImageStoreModel):
         store_map = image_map.image.image_image_store_maps[0]
         local_path_base = local_paths[store_map.image_store.location]
-        image_path = os.path.join(local_path_base, store_map.path, image_map.image.image_file_name)
+        image_path = os.path.join(local_path_base, store_map.path)
         image_paths[image_map.image.hash_id] = image_path
     return image_paths
 

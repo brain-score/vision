@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 from mkgu.assemblies import pwdb, AssemblyModel, AssemblyStoreMap, AssemblyStoreModel
 from mkgu.stimuli import ImageModel, AttributeModel, ImageMetaModel, StimulusSetModel, ImageStoreModel, \
@@ -20,6 +22,7 @@ hvm_image_store.save()
 df_images = pd.read_pickle("image_meta_dataframe.pkl")
 path_map = {"V0": "Variation00_20110203", "V3": "Variation03_20110128", "V6": "Variation06_20110131"}
 
+eav_image_file_name = AttributeModel(name="image_file_name", type="str")
 eav_object_name = AttributeModel(name="object_name", type="str")
 eav_category_name = AttributeModel(name="category_name", type="str")
 eav_background_id = AttributeModel(name="background_id", type="str")
@@ -35,6 +38,7 @@ eav_ryz_semantic = AttributeModel(name="ryz_semantic", type="float")
 eav_size = AttributeModel(name="size", type="float")
 eav_s = AttributeModel(name="s", type="float")
 
+eav_image_file_name.save()
 eav_object_name.save()
 eav_category_name.save()
 eav_background_id.save()
@@ -53,13 +57,13 @@ eav_s.save()
 for image in df_images.itertuples():
     pw_image = ImageModel(
         hash_id=image.image_id,
-        image_file_name=image.image_file_name
     )
     pw_stimulus_set_image_map = StimulusSetImageMap(stimulus_set=hvm_images, image=pw_image)
     pw_image_image_store_map = ImageStoreMap(image=pw_image, image_store=hvm_image_store,
-                                                  path=path_map[image.variation])
+                                             path=os.path.join(path_map[image.variation], image.image_file_name))
     pw_image.save()
 
+    ImageMetaModel(image=pw_image, attribute=eav_image_file_name, value=str(image.image_file_name)).save()
     ImageMetaModel(image=pw_image, attribute=eav_object_name, value=str(image.object)).save()
     ImageMetaModel(image=pw_image, attribute=eav_category_name, value=str(image.category)).save()
     ImageMetaModel(image=pw_image, attribute=eav_background_id, value=str(image.background_id)).save()

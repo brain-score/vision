@@ -55,7 +55,7 @@ class Similarity(object, metaclass=ABCMeta):
         raise NotImplementedError()
 
 
-def subset(source_assembly, target_assembly, subset_dims=None):
+def subset(source_assembly, target_assembly, subset_dims=None, dims_must_match=True):
     subset_dims = subset_dims or target_assembly.dims
     for dim in subset_dims:
         assert dim in target_assembly.dims
@@ -71,8 +71,9 @@ def subset(source_assembly, target_assembly, subset_dims=None):
             indexer = np.array([val in level_values for val in source_assembly[level].values])
             dim_indexes = {_dim: slice(None) if _dim != dim else np.where(indexer)[0] for _dim in source_assembly.dims}
             source_assembly = source_assembly.isel(**dim_indexes)
-        # dims match up after selection - cannot make the strong version of equality due to potentially missing levels
-        assert len(target_assembly[dim]) == len(source_assembly[dim])
+        if dims_must_match:
+            # dims match up after selection. cannot compare exact equality due to potentially missing levels
+            assert len(target_assembly[dim]) == len(source_assembly[dim])
     return source_assembly
 
 

@@ -25,6 +25,11 @@ A framework for the quantitative comparison of mindlike systems.
     * `hvm = mkgu.get_assembly("dicarlo.Majaj2015")`
     * `hvm`
     * The IPython output should show a representation of a `NeuronRecordingAssembly`, including a snippet of the 3-dimensional numeric data, and a list of the metadata coordinates attached to it.  
+    * `hvm.attrs["stimulus_set"]`
+    * This displays the `StimulusSet` object (a subclass of a pandas `DataFrame`) associated with this `NeuronRecordingAssembly`.  The same `StimulusSet` can be obtained directly: 
+    * `hvm_images = mkgu.get_stimulus_set("dicarlo.hvm")`
+    * You can also obtain the local path of any individual image via its `image_id`: 
+    * `hvm_images.get_image("8a72e2bfdb8c267b57232bf96f069374d5b21832")`
 
 Some steps may take minutes.  
 

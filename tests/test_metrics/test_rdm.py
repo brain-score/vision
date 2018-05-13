@@ -103,3 +103,11 @@ class TestRDMMetric(object):
         rdm_metric = RDMMetric()
         score = rdm_metric(hvm, hvm)
         assert score == approx(1.)
+
+
+def test_np_load():
+    print(os.getcwd())
+    p_path = os.path.join(os.path.dirname(__file__), "it_rdm.p")
+    it_rdm = np.load(p_path, encoding="latin1")
+    print(it_rdm)
+    assert it_rdm.shape == (64, 64)

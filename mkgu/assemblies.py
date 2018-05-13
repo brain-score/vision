@@ -222,7 +222,9 @@ def lookup_assembly(name):
 
 def merge_data_arrays(data_arrays):
     # https://stackoverflow.com/a/50125997/2225200
-    return xr.merge([similarity.rename('z') for similarity in data_arrays])['z'].rename(None)
+    merged = xr.merge([similarity.rename('z') for similarity in data_arrays])['z'].rename(None)
+    # ensure same class
+    return type(data_arrays[0])(merged)
 
 
 def array_is_element(arr, element):

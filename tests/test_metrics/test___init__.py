@@ -8,7 +8,7 @@ import pytest
 from pytest import approx
 
 from mkgu.assemblies import NeuroidAssembly, DataAssembly
-from mkgu.metrics import OuterCrossValidationSimilarity, NonparametricCVSimilarity, subset
+from mkgu.metrics import OuterCrossValidationSimilarity, NonparametricCVSimilarity, subset, index_efficient
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
@@ -226,5 +226,36 @@ class TestSubset:
                                           dims=['image_id', 'neuroid_id'])
         target_assembly = target_assembly.stack(presentation=('image_id',), neuroid=('neuroid_id',))
 
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError):
             subset(source_assembly, target_assembly, subset_dims=('presentation',))
+
+    def test_repeated_target(self):
+        source_assembly = np.random.rand(5, 3)
+        source_assembly = NeuroidAssembly(source_assembly, coords={
+            'image_id': list(range(source_assembly.shape[0])),
+            'neuroid_id': list(range(source_assembly.shape[1]))},
+                                          dims=['image_id', 'neuroid_id'])
+        source_assembly = source_assembly.stack(presentation=('image_id',), neuroid=('neuroid_id',))
+
+        target_assembly = NeuroidAssembly(np.repeat(source_assembly, 2, axis=0), coords={
+            'image_id': np.repeat(list(range(source_assembly.shape[0])), 2, axis=0),
+            'neuroid_id': list(range(source_assembly.shape[1]))},
+                                          dims=['image_id', 'neuroid_id'])
+        target_assembly = target_assembly.stack(presentation=('image_id',), neuroid=('neuroid_id',))
+
+        subset_assembly = subset(source_assembly, target_assembly, subset_dims=('presentation',))
+        np.testing.assert_array_equal(subset_assembly.coords.keys(), target_assembly.coords.keys())
+        for coord_name in target_assembly.coords:
+            assert all(subset_assembly[coord_name] == target_assembly[coord_name])
+        np.testing.assert_array_equal(subset_assembly, target_assembly)
+        assert (subset_assembly == target_assembly).all()
+
+
+class TestIndexEfficient:
+    def test(self):
+        a = np.array([1, 2, 3, 4, 5])
+        b = np.array([1, 1, 3, 4, 4, 4, 5])
+        indexer = [a.tolist().index(target_val) for target_val in b]
+        indexer = [index for index in indexer if index != -1]
+        result = index_efficient(a, b)
+        assert result == indexer

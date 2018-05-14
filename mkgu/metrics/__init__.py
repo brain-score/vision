@@ -30,6 +30,9 @@ class Metric(object):
 
 
 class Similarity(object, metaclass=ABCMeta):
+    def __init__(self):
+        self._logger = logging.getLogger(self.__class__.__name__)
+
     def __call__(self, source_assembly, target_assembly, **kwargs):
         """
         :param mkgu.assemblies.NeuroidAssembly source_assembly:
@@ -37,7 +40,9 @@ class Similarity(object, metaclass=ABCMeta):
         :return: mkgu.metrics.Score
         """
         kwargs = kwargs or {}
+        self._logger.debug("Aligning")
         source_assembly = self.align(source_assembly, target_assembly)
+        self._logger.debug("Sorting")
         source_assembly, target_assembly = self.sort(source_assembly), self.sort(target_assembly)
         similarity_assembly = self.apply(source_assembly, target_assembly, **kwargs)
         return self.score(similarity_assembly)
@@ -55,6 +60,22 @@ class Similarity(object, metaclass=ABCMeta):
         raise NotImplementedError()
 
 
+def index_efficient(source_values, target_values):
+    source_sort_indeces, target_sort_indeces = np.argsort(source_values), np.argsort(target_values)
+    source_values, target_values = source_values[source_sort_indeces], target_values[target_sort_indeces]
+    indexer = []
+    source_index, target_index = 0, 0
+    while target_index < len(target_values):
+        if source_values[source_index] == target_values[target_index]:
+            indexer.append(source_sort_indeces[source_index])
+            target_index += 1
+        elif source_values[source_index] < target_values[target_index]:
+            source_index += 1
+        else:  # source_values[source_index] > target_values[target_index]:
+            target_index += 1
+    return indexer
+
+
 def subset(source_assembly, target_assembly, subset_dims=None, dims_must_match=True):
     subset_dims = subset_dims or target_assembly.dims
     for dim in subset_dims:
@@ -67,9 +88,10 @@ def subset(source_assembly, target_assembly, subset_dims=None, dims_must_match=T
         for level in levels:
             if not hasattr(source_assembly, level):
                 continue
-            level_values = target_assembly[level].values
-            indexer = np.array([val in level_values for val in source_assembly[level].values])
-            dim_indexes = {_dim: slice(None) if _dim != dim else np.where(indexer)[0] for _dim in source_assembly.dims}
+            target_values = target_assembly[level].values
+            source_values = source_assembly[level].values
+            indexer = index_efficient(source_values, target_values)
+            dim_indexes = {_dim: slice(None) if _dim != dim else indexer for _dim in source_assembly.dims}
             source_assembly = source_assembly.isel(**dim_indexes)
         if dims_must_match:
             # dims match up after selection. cannot compare exact equality due to potentially missing levels

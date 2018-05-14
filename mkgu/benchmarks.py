@@ -34,15 +34,24 @@ class Benchmark(object):
         # we need a way to pass in the cross-validation scheme here
 
 
-def load(data_name, metric_name):
+def load(data_name, metric_name, metric_kwargs=None):
+    metric_kwargs = metric_kwargs or {}
     if data_name == 'Felleman1991':
         data = ventral_stream
     else:
-        data = mkgu.get_assembly(name=data_name).sel(variation=6)  # TODO: remove variation selection once part of name
+        data = mkgu.get_assembly(name=data_name)
         data.load()  # TODO: should load lazy
-        data = data.multi_groupby(['category_name', 'object_name', 'image_id']).mean(dim="presentation")
-        data = data.squeeze("time_bin")
+        if data_name == 'dicarlo.Majaj2015':
+            data = data.sel(variation=6)  # TODO: remove variation selection once part of name
+            data = data.multi_groupby(['category_name', 'object_name', 'image_id']).mean(dim="presentation")
+            data = data.squeeze("time_bin")
+        if data_name == 'gallant.David2004':
+            data = data.rename({'neuroid': 'neuroid_id'})
+            # data['object_name'] = 'presentation', data['image_id']
+            data = data.stack(neuroid=('neuroid_id',))
+        if data_name.startswith('gallant'):
+            metric_kwargs = {**dict(similarity_kwargs=dict(regression='linear')), **metric_kwargs}
         data = data.transpose('presentation', 'neuroid')
     # TODO: everything above this line needs work
-    metric = metrics[metric_name]()
+    metric = metrics[metric_name](**metric_kwargs)
     return Benchmark(target_assembly=data, metric=metric)

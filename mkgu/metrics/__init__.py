@@ -2,13 +2,11 @@ import functools
 import itertools
 import logging
 from abc import ABCMeta, abstractmethod
-from collections import OrderedDict
-from os import cpu_count
+from collections import OrderedDict, Counter
 
 import numpy as np
 import scipy
-from pathos.pools import ThreadPool
-from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
 
 from mkgu.assemblies import DataAssembly, NeuroidAssembly, merge_data_arrays, array_is_element, walk_coords
 from .utils import collect_coords, collect_dim_shapes, get_modified_coords, merge_dicts
@@ -105,50 +103,62 @@ class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
         adjacent_coords = 'region',
         cross_validation_splits = 10
         cross_validation_data_ratio = .9
-        cross_validation_dim = 'presentation'
+        cross_validation_dim = 'image_id'
         stratification_coord = 'object_name'  # cross-validation across images, balancing objects
 
     def __init__(self, cross_validation_splits=Defaults.cross_validation_splits,
                  cross_validation_data_ratio=Defaults.cross_validation_data_ratio):
         super(OuterCrossValidationSimilarity, self).__init__()
-        self._split_strategy = StratifiedShuffleSplit(
+        self._stratified_split = StratifiedShuffleSplit(
+            n_splits=cross_validation_splits, train_size=cross_validation_data_ratio)
+        self._shuffle_split = ShuffleSplit(
             n_splits=cross_validation_splits, train_size=cross_validation_data_ratio)
         self._logger = logging.getLogger(self.__class__.__name__)
 
     def apply(self, source_assembly, target_assembly,
-              similarity_dims=Defaults.similarity_dims, additional_adjacent_coords=Defaults.adjacent_coords):
+              similarity_dims=Defaults.similarity_dims, adjacent_coord_names=Defaults.adjacent_coords,
+              adjacent_coord_names_source=(), adjacent_coord_names_target=()):
         """
         :param mkgu.assemblies.NeuroidAssembly source_assembly:
         :param mkgu.assemblies.NeuroidAssembly target_assembly:
         :param str similarity_dims: the dimension in both assemblies along which the similarity is to be computed
-        :param [str] additional_adjacent_coords:
+        :param [str] adjacent_coord_names:
         :return: mkgu.assemblies.DataAssembly
         """
 
         # compute similarities over `similarity_dims`, i.e. across all adjacent coords
-        def adjacent_selections(assembly):
+        def adjacent_selections(assembly, adjacent_coord_names):
             adjacent_coords = [dim for dim in assembly.dims if dim not in similarity_dims] \
-                              + [coord for coord in additional_adjacent_coords if hasattr(assembly, coord)]
+                              + [coord for coord in adjacent_coord_names if hasattr(assembly, coord)]
             choices = {coord: np.unique(assembly[coord]) for coord in adjacent_coords}
             combinations = [dict(zip(choices, values)) for values in itertools.product(*choices.values())]
             return combinations
 
-        adjacents1, adjacents2 = adjacent_selections(source_assembly), adjacent_selections(target_assembly)
+        adjacents_src = adjacent_selections(source_assembly, adjacent_coord_names + tuple(adjacent_coord_names_source))
+        adjacents_tgt = adjacent_selections(target_assembly, adjacent_coord_names + tuple(adjacent_coord_names_target))
         # run all adjacent combinations or use the assemblies themselves if no adjacents
-        adjacent_combinations = list(itertools.product(adjacents1, adjacents2)) or [({}, {})]
+        adjacent_combinations = list(itertools.product(adjacents_src, adjacents_tgt)) or [({}, {})]
         similarities = []
-        for i, (adj1, adj2) in enumerate(adjacent_combinations):
-            self._logger.debug("adjacents {}/{}: {} | {}".format(i + 1, len(adjacent_combinations), adj1, adj2))
-            source_adj, target_adj = source_assembly.multisel(**adj1), target_assembly.multisel(**adj2)
+        for i, (adj_src, adj_tgt) in enumerate(adjacent_combinations):
+            self._logger.debug("adjacents {}/{}: {} | {}".format(i + 1, len(adjacent_combinations), adj_src, adj_tgt))
+            source_adj, target_adj = source_assembly.multisel(**adj_src), target_assembly.multisel(**adj_tgt)
+            # in single-unit recordings, not all electrodes were recorded for each presentation -> drop non-recorded
+            non_nan = ~np.isnan(target_adj.values)
+            if not all(non_nan):
+                non_nan = non_nan.squeeze()  # FIXME: we assume 2D data with single-value neuroid here
+                source_adj, target_adj = source_adj[non_nan], target_adj[non_nan]
+
             similarity = self.cross_apply(source_adj, target_adj)
-            adj_coords = self.merge_adjacents(adj1, adj2)
+            adj_coords = self.merge_adjacents(adj_src, adj_tgt)
             for coord_name, coord_value in adj_coords.items():
                 similarity[coord_name] = coord_value
             similarities.append(similarity)
         assert all(similarity.shape == similarities[0].shape for similarity in similarities[1:])  # all shapes equal
 
         # re-shape into adjacent dimensions and split
-        assembly_dims = source_assembly.dims + target_assembly.dims + tuple(additional_adjacent_coords) + ('split',)
+        assembly_dims = source_assembly.dims + target_assembly.dims + tuple(adjacent_coord_names) \
+                        + tuple(adjacent_coord_names_source) + tuple(adjacent_coord_names_target) \
+                        + ('split',)
         similarities = [expand(similarity, assembly_dims) for similarity in similarities]
         similarities = merge_data_arrays(similarities)
         return similarities
@@ -156,15 +166,21 @@ class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
     def cross_apply(self, source_assembly, target_assembly,
                     cross_validation_dim=Defaults.cross_validation_dim,
                     stratification_coord=Defaults.stratification_coord):
-        assert all(source_assembly[cross_validation_dim] == target_assembly[cross_validation_dim])
-        assert all(source_assembly[stratification_coord] == target_assembly[stratification_coord])
+        assert all(source_assembly[cross_validation_dim].values == target_assembly[cross_validation_dim].values)
 
         cross_validation_values = target_assembly[cross_validation_dim]
-        splits = list(self._split_strategy.split(np.zeros(len(np.unique(source_assembly[cross_validation_dim]))),
-                                                 source_assembly[stratification_coord].values))
+        if hasattr(target_assembly, stratification_coord):
+            assert hasattr(source_assembly, stratification_coord)
+            assert all(source_assembly[stratification_coord].values == target_assembly[stratification_coord].values)
+            splits = list(self._stratified_split.split(np.zeros(len(np.unique(source_assembly[cross_validation_dim]))),
+                                                       source_assembly[stratification_coord].values))
+        else:
+            self._logger.warning("Stratification coord '{}' not found in assembly "
+                                 "- falling back to un-stratified splits".format(stratification_coord))
+            splits = list(self._shuffle_split.split(np.zeros(len(np.unique(source_assembly[cross_validation_dim])))))
 
-        def run_split(split_train_test):
-            split_iterator, (train_indices, test_indices) = split_train_test
+        split_scores = {}
+        for split_iterator, (train_indices, test_indices) in enumerate(splits):
             self._logger.debug("split {}/{}".format(split_iterator + 1, len(splits)))
             train_values, test_values = cross_validation_values[train_indices], cross_validation_values[test_indices]
             train_source = subset(source_assembly, train_values)
@@ -172,11 +188,7 @@ class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
             test_source = subset(source_assembly, test_values)
             test_target = subset(target_assembly, test_values)
             split_score = self.apply_split(train_source, train_target, test_source, test_target)
-            return {split_iterator: split_score}
-
-        pool = ThreadPool(nthreads=cpu_count() * 2)
-        split_scores = pool.map(run_split, enumerate(splits))
-        split_scores = merge_dicts(split_scores)
+            split_scores[split_iterator] = split_score
 
         # throw away all of the multi-dimensional dims as similarity will be computed over them.
         # we want to keep the adjacent dimensions which are 1-dimensional after the comprehension calling this method
@@ -187,9 +199,10 @@ class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
         duplicate_coords = [coord for coord in coords if coords.count(coord) > 1]
         _collect_coords = functools.partial(collect_coords,
                                             ignore_dims=multi_dimensional_dims, rename_coords_list=duplicate_coords)
-        coords = {**_collect_coords(assembly=source_assembly, kind='left'),
-                  **_collect_coords(assembly=target_assembly, kind='right'),
+        coords = {**_collect_coords(assembly=source_assembly, kind='source'),
+                  **_collect_coords(assembly=target_assembly, kind='target'),
                   **{'split': list(split_scores.keys())}}
+        coords = {'split': list(split_scores.keys())}  # FIXME: hack to work around non-matching dims
         split_scores = DataAssembly(list(split_scores.values()), coords=coords, dims=['split'])
         return split_scores
 
@@ -255,7 +268,7 @@ class ParametricCVSimilarity(OuterCrossValidationSimilarity):
     def fit(self, train_source, train_target):
         np.testing.assert_array_equal(train_source.dims, ['presentation', 'neuroid'])
         np.testing.assert_array_equal(train_target.dims, ['presentation', 'neuroid'])
-        assert all(source == target for source, target in zip(train_source['image_id'], train_target['image_id']))
+        # assert all(source == target for source, target in zip(train_source['image_id'], train_target['image_id']))
         self._target_neuroid_values = {}
         for name, dims, values in walk_coords(train_target):
             if 'neuroid' in dims:
@@ -273,14 +286,27 @@ class ParametricCVSimilarity(OuterCrossValidationSimilarity):
         coords = {name: (dims, values) for name, dims, values in walk_coords(test_source) if 'neuroid' not in dims}
         for target_coord, target_dim_value in self._target_neuroid_values.items():
             coords[target_coord] = target_dim_value  # this might overwrite values which is okay
-        return NeuroidAssembly(predicted_values, coords=coords, dims=test_source.dims)
+        dims = Counter([dim for name, (dim, values) in coords.items()])
+        single_dims = {dim: count == 1 for dim, count in dims.items()}
+        result_dims = test_source.dims
+        unstacked_coords = {}
+        for name, (dims, values) in coords.items():
+            if single_dims[dims]:
+                result_dims = [dim if dim != dims[0] else name for dim in result_dims]
+                coords[name] = name, values
+                unstacked_coords[name] = dims
+        result = NeuroidAssembly(predicted_values, coords=coords, dims=result_dims)
+        for name, dims in unstacked_coords.items():
+            assert len(dims) == 1
+            result = result.stack(**{dims[0]: (name,)})
+        return result
 
     def predict_values(self, test_source):
         raise NotImplementedError()
 
     def compare_prediction(self, prediction, target, axis='neuroid_id', correlation=scipy.stats.pearsonr):
-        assert sorted(prediction['image_id']) == sorted(target['image_id'])
-        assert sorted(prediction[axis]) == sorted(target[axis])
+        assert sorted(prediction['image_id'].values) == sorted(target['image_id'].values)
+        assert sorted(prediction[axis].values) == sorted(target[axis].values)
         rs = []
         for i in target[axis].values:
             target_activations = target.sel(**{axis: i}).squeeze()

@@ -76,6 +76,15 @@ class DataAssembly(DataArray):
 
         result = super().sel(method, tolerance, drop, **indexers)
 
+        # un-drop potentially dropped dims
+        for coord, value in indexers.items():
+            dim = self[coord].dims
+            assert len(dim) == 1
+            dim = dim[0]
+            if not hasattr(result, coord) and dim not in result.dims:
+                result = result.expand_dims(coord)
+                result[coord] = [value]
+
         # stack back together
         for result_dim in result.dims:
             if result_dim not in self.dims:
@@ -84,6 +93,8 @@ class DataAssembly(DataArray):
                                                         if hasattr(result, coord)]})
         # add scalar indexer variable
         for index, value in indexers.items():
+            if hasattr(result, index):
+                continue  # already set, potentially during un-dropping
             dim = indexer_dims[index]
             assert len(dim) == 1
             value = np.repeat(value, len(result[dim[0]]))

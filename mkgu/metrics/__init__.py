@@ -344,7 +344,7 @@ class Score(object):
         raise NotImplementedError()
 
     def get_error(self, values, dim):
-        return values.std(dim)
+        return values.std(dim) / math.sqrt(len(values[dim]))
 
     def __repr__(self):
         return self.__class__.__name__ + "(" + ",".join(

@@ -1,6 +1,7 @@
 import functools
 import itertools
 import logging
+import math
 from abc import ABCMeta, abstractmethod
 from collections import OrderedDict, Counter
 
@@ -22,6 +23,7 @@ class Metric(object):
         self._characterization = characterization or (lambda x: x)
 
     def __call__(self, source_assembly, target_assembly, similarity_kwargs=None):
+        similarity_kwargs = similarity_kwargs or {}
         characterized_source = self._characterization(source_assembly)
         characterized_target = self._characterization(target_assembly)
         return self._similarity(characterized_source, characterized_target, **similarity_kwargs)
@@ -63,7 +65,7 @@ def index_efficient(source_values, target_values):
     source_values, target_values = source_values[source_sort_indeces], target_values[target_sort_indeces]
     indexer = []
     source_index, target_index = 0, 0
-    while target_index < len(target_values):
+    while target_index < len(target_values) and source_index < len(source_values):
         if source_values[source_index] == target_values[target_index]:
             indexer.append(source_sort_indeces[source_index])
             target_index += 1
@@ -74,7 +76,12 @@ def index_efficient(source_values, target_values):
     return indexer
 
 
-def subset(source_assembly, target_assembly, subset_dims=None, dims_must_match=True):
+def subset(source_assembly, target_assembly, subset_dims=None, dims_must_match=True, repeat=False):
+    """
+    :param subset_dims: either dimensions, then all its levels will be used or levels right away
+    :param dims_must_match:
+    :return:
+    """
     subset_dims = subset_dims or target_assembly.dims
     for dim in subset_dims:
         assert dim in target_assembly.dims
@@ -88,8 +95,14 @@ def subset(source_assembly, target_assembly, subset_dims=None, dims_must_match=T
                 continue
             target_values = target_assembly[level].values
             source_values = source_assembly[level].values
-            indexer = index_efficient(source_values, target_values)
-            dim_indexes = {_dim: slice(None) if _dim != dim else indexer for _dim in source_assembly.dims}
+            if repeat:
+                indexer = index_efficient(source_values, target_values)
+                dim_indexes = {_dim: slice(None) if _dim != dim else indexer for _dim in source_assembly.dims}
+            else:
+                level_values = target_assembly[level].values
+                indexer = np.array([val in level_values for val in source_assembly[level].values])
+                dim_indexes = {_dim: slice(None) if _dim != dim else np.where(indexer)[0] for _dim in
+                               source_assembly.dims}
             source_assembly = source_assembly.isel(**dim_indexes)
         if dims_must_match:
             # dims match up after selection. cannot compare exact equality due to potentially missing levels
@@ -144,7 +157,7 @@ class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
             source_adj, target_adj = source_assembly.multisel(**adj_src), target_assembly.multisel(**adj_tgt)
             # in single-unit recordings, not all electrodes were recorded for each presentation -> drop non-recorded
             non_nan = ~np.isnan(target_adj.values)
-            if not all(non_nan):
+            if not all(non_nan.flatten()):
                 non_nan = non_nan.squeeze()  # FIXME: we assume 2D data with single-value neuroid here
                 source_adj, target_adj = source_adj[non_nan], target_adj[non_nan]
 

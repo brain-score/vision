@@ -8,7 +8,8 @@ import pytest
 from pytest import approx
 
 from mkgu.assemblies import NeuroidAssembly, DataAssembly
-from mkgu.metrics import OuterCrossValidationMetric, NonparametricCVMetric, subset, index_efficient
+from mkgu.metrics import OuterCrossValidationMetric, NonparametricCVMetric, subset
+from mkgu.metrics.transformations import index_efficient
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 

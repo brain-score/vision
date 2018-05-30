@@ -225,9 +225,9 @@ class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
     def merge_adjacents(self, adj_left, adj_right):
         coords = list(adj_left.keys()) + list(adj_right.keys())
         duplicates = [coord for coord in coords if coords.count(coord) > 1]
-        coords_left = {coord if coord not in duplicates else coord + '-left': coord_value
+        coords_left = {coord if coord not in duplicates else coord + '_left': coord_value
                        for coord, coord_value in adj_left.items()}
-        coords_right = {coord if coord not in duplicates else coord + '-right': coord_value
+        coords_right = {coord if coord not in duplicates else coord + '_right': coord_value
                         for coord, coord_value in adj_right.items()}
         return {**coords_left, **coords_right}
 
@@ -235,10 +235,10 @@ class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
 def expand(assembly, target_dims):
     def strip(coord):
         stripped_coord = coord
-        if stripped_coord.endswith('-left'):
-            stripped_coord = stripped_coord[:-len('-left')]
-        if stripped_coord.endswith('-right'):
-            stripped_coord = stripped_coord[:-len('-right')]
+        if stripped_coord.endswith('_left'):
+            stripped_coord = stripped_coord[:-len('_left')]
+        if stripped_coord.endswith('_right'):
+            stripped_coord = stripped_coord[:-len('_right')]
         return stripped_coord
 
     def reformat_coord_values(coord, dims, values):
@@ -296,6 +296,7 @@ class ParametricCVSimilarity(OuterCrossValidationSimilarity):
         np.testing.assert_array_equal(test_source.dims, ['presentation', 'neuroid'])
         predicted_values = self.predict_values(test_source)
 
+        # package in assembly
         coords = {name: (dims, values) for name, dims, values in walk_coords(test_source) if 'neuroid' not in dims}
         for target_coord, target_dim_value in self._target_neuroid_values.items():
             coords[target_coord] = target_dim_value  # this might overwrite values which is okay
@@ -304,7 +305,7 @@ class ParametricCVSimilarity(OuterCrossValidationSimilarity):
         result_dims = test_source.dims
         unstacked_coords = {}
         for name, (dims, values) in coords.items():
-            if single_dims[dims]:
+            if single_dims[dims] and len(dims) > 0:
                 result_dims = [dim if dim != dims[0] else name for dim in result_dims]
                 coords[name] = name, values
                 unstacked_coords[name] = dims

@@ -1,21 +1,15 @@
 import logging
 
 from sklearn.cross_decomposition import PLSRegression
+from sklearn.decomposition import PCA as PCAImpl
 from sklearn.linear_model import LinearRegression
-from sklearn.decomposition import PCA
 
 import mkgu
 from mkgu.assemblies import NeuroidAssembly
-from mkgu.metrics import Metric, Characterization, ParametricCVSimilarity
+from mkgu.metrics import ParametricCVMetric
 
 
-class NeuralFitMetric(Metric):
-    def __init__(self, similarity_kwargs=None):
-        similarity_kwargs = similarity_kwargs or {}
-        super(NeuralFitMetric, self).__init__(similarity=NeuralFitSimilarity(**similarity_kwargs))
-
-
-class NeuralFitSimilarity(ParametricCVSimilarity):
+class NeuralFit(ParametricCVMetric):
     """
     Yamins & Hong et al., 2014 https://doi.org/10.1073/pnas.1403112111
     """
@@ -26,7 +20,7 @@ class NeuralFitSimilarity(ParametricCVSimilarity):
     }
 
     def __init__(self, regression='pls-25'):
-        super(NeuralFitSimilarity, self).__init__()
+        super(NeuralFit, self).__init__()
         self._regression = self.regressions[regression] if isinstance(regression, str) else regression
 
     def fit_values(self, train_source, train_target):
@@ -36,9 +30,9 @@ class NeuralFitSimilarity(ParametricCVSimilarity):
         return self._regression.predict(test_source)
 
 
-class PCANeuroidCharacterization(Characterization):
+class PCA(object):
     def __init__(self, max_components):
-        self._pca = PCA(n_components=max_components)
+        self._pca = PCAImpl(n_components=max_components)
         self._logger = logging.getLogger(self.__class__.__name__)
 
     def __call__(self, assembly):

@@ -8,12 +8,12 @@ import pytest
 from pytest import approx
 
 from mkgu.assemblies import NeuroidAssembly, DataAssembly
-from mkgu.metrics import OuterCrossValidationSimilarity, NonparametricCVSimilarity, subset, index_efficient
+from mkgu.metrics import OuterCrossValidationMetric, NonparametricCVMetric, subset, index_efficient
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
-class SimilarityScorePlaceholder(OuterCrossValidationSimilarity):
+class MetricScorePlaceholder(OuterCrossValidationMetric):
     def apply_split(self, train_source, train_target, test_source, test_target):
         return np.random.normal(scale=0.01)
 
@@ -30,15 +30,15 @@ class TestSimilarityScoring:
         assembly = assembly.transpose('presentation', 'neuroid', 'adjacent')
         object_ratio = 10
         assembly['object_name'] = 'presentation', list(range(int(assembly.shape[0] / object_ratio))) * object_ratio
-        similarity = SimilarityScorePlaceholder()
+        similarity = MetricScorePlaceholder()
         sim = similarity(assembly, assembly)
         np.testing.assert_array_equal(sim.center.shape, [2, 2])
         assert (sim.center.values == approx(0, abs=0.1)).all()
 
 
-class SimilarityAdjacencyPlaceholder(OuterCrossValidationSimilarity):
+class MetricAdjacencyPlaceholder(OuterCrossValidationMetric):
     def __init__(self):
-        super(SimilarityAdjacencyPlaceholder, self).__init__()
+        super(MetricAdjacencyPlaceholder, self).__init__()
         self.source_assemblies = []
         self.target_assemblies = []
 
@@ -64,7 +64,7 @@ class TestSimilarityAdjacentProduct:
     def _test_no_adjacent(self, num_values):
         assembly = np.random.rand(num_values)
         assembly = NeuroidAssembly(assembly, coords={'neuroid': list(range(len(assembly)))}, dims=['neuroid'])
-        similarity = SimilarityAdjacencyPlaceholder()
+        similarity = MetricAdjacencyPlaceholder()
         sim = similarity(assembly, assembly)
         assert sim.center == 0
         assert 1 == len(similarity.source_assemblies) == len(similarity.target_assemblies)
@@ -77,7 +77,7 @@ class TestSimilarityAdjacentProduct:
             assembly,
             coords={'neuroid': list(range(len(assembly))), 'adjacent_coord': list(range(assembly.shape[1]))},
             dims=['neuroid', 'adjacent_coord'])
-        similarity = SimilarityAdjacencyPlaceholder()
+        similarity = MetricAdjacencyPlaceholder()
         similarity(assembly, assembly)
         assert np.power(assembly.shape[1], 2) == len(similarity.source_assemblies) == len(similarity.target_assemblies)
         pairs = list(zip(similarity.source_assemblies, similarity.target_assemblies))
@@ -98,7 +98,7 @@ class TestSimilarityAdjacentProduct:
             assembly,
             coords={'neuroid': list(range(assembly.shape[1])), 'adjacent_coord': list(range(assembly.shape[0]))},
             dims=['adjacent_coord', 'neuroid'])
-        similarity = SimilarityAdjacencyPlaceholder()
+        similarity = MetricAdjacencyPlaceholder()
         similarity(assembly, assembly)
         assert np.power(assembly.shape[0], 2) == len(similarity.source_assemblies) == len(similarity.target_assemblies)
         pairs = list(zip(similarity.source_assemblies, similarity.target_assemblies))
@@ -114,7 +114,7 @@ class TestSimilarityAdjacentProduct:
             assert match, "pair {} - {} not found".format(source_values, target_values)
 
 
-class SimilarityNonparametricScorePlaceholder(NonparametricCVSimilarity):
+class SimilarityNonparametricScorePlaceholder(NonparametricCVMetric):
     def __init__(self):
         super(SimilarityNonparametricScorePlaceholder, self).__init__()
         self.source_assemblies = []

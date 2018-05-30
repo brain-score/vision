@@ -251,7 +251,7 @@ def walk_coords(assembly):
     for name, values in assembly.coords.items():
         # partly borrowed from xarray.core.formatting#summarize_coord
         is_index = name in assembly.dims
-        if is_index:
+        if is_index and values.variable.level_names:
             for level in values.variable.level_names:
                 level_values = assembly.coords[level]
                 yield level, level_values.dims, level_values.values

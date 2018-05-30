@@ -14,22 +14,6 @@ from .utils import collect_coords, collect_dim_shapes, get_modified_coords, merg
 
 
 class Metric(object):
-    def __init__(self, similarity, characterization=None):
-        """
-        :param Similarity similarity:
-        :param Characterization characterization:
-        """
-        self._similarity = similarity
-        self._characterization = characterization or (lambda x: x)
-
-    def __call__(self, source_assembly, target_assembly, similarity_kwargs=None):
-        similarity_kwargs = similarity_kwargs or {}
-        characterized_source = self._characterization(source_assembly)
-        characterized_target = self._characterization(target_assembly)
-        return self._similarity(characterized_source, characterized_target, **similarity_kwargs)
-
-
-class Similarity(object, metaclass=ABCMeta):
     def __init__(self):
         self._logger = logging.getLogger(self.__class__.__name__)
 
@@ -58,6 +42,23 @@ class Similarity(object, metaclass=ABCMeta):
 
     def apply(self, source_assembly, target_assembly):
         raise NotImplementedError()
+
+
+class Score(object):
+    def __init__(self, values_assembly, split_dim='split'):
+        self.values = values_assembly
+        self.center = self.get_center(self.values, dim=split_dim)
+        self.error = self.get_error(self.values, dim=split_dim)
+
+    def get_center(self, values, dim):
+        raise NotImplementedError()
+
+    def get_error(self, values, dim):
+        return values.std(dim) / math.sqrt(len(values[dim]))
+
+    def __repr__(self):
+        return self.__class__.__name__ + "(" + ",".join(
+            "{}={}".format(attr, val) for attr, val in self.__dict__.items()) + ")"
 
 
 def index_efficient(source_values, target_values):
@@ -110,7 +111,7 @@ def subset(source_assembly, target_assembly, subset_dims=None, dims_must_match=T
     return source_assembly
 
 
-class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
+class OuterCrossValidationMetric(Metric, metaclass=ABCMeta):
     class Defaults:
         similarity_dims = 'presentation', 'neuroid'
         adjacent_coords = 'region',
@@ -121,7 +122,7 @@ class OuterCrossValidationSimilarity(Similarity, metaclass=ABCMeta):
 
     def __init__(self, cross_validation_splits=Defaults.cross_validation_splits,
                  cross_validation_data_ratio=Defaults.cross_validation_data_ratio):
-        super(OuterCrossValidationSimilarity, self).__init__()
+        super(OuterCrossValidationMetric, self).__init__()
         self._stratified_split = StratifiedShuffleSplit(
             n_splits=cross_validation_splits, train_size=cross_validation_data_ratio)
         self._shuffle_split = ShuffleSplit(
@@ -262,9 +263,9 @@ def expand(assembly, target_dims):
     return DataAssembly(values, coords=coords, dims=list(dim_shapes.keys()))
 
 
-class ParametricCVSimilarity(OuterCrossValidationSimilarity):
-    def __init__(self, cross_validation_splits=OuterCrossValidationSimilarity.Defaults.cross_validation_splits,
-                 cross_validation_data_ratio=OuterCrossValidationSimilarity.Defaults.cross_validation_data_ratio):
+class ParametricCVMetric(OuterCrossValidationMetric):
+    def __init__(self, cross_validation_splits=OuterCrossValidationMetric.Defaults.cross_validation_splits,
+                 cross_validation_data_ratio=OuterCrossValidationMetric.Defaults.cross_validation_data_ratio):
         super().__init__(cross_validation_splits, cross_validation_data_ratio)
         self._target_neuroid_values = None
         self._logger = logging.getLogger(self.__class__.__name__)
@@ -330,39 +331,13 @@ class ParametricCVSimilarity(OuterCrossValidationSimilarity):
         return np.median(rs)  # median across neuroids
 
 
-class NonparametricCVSimilarity(OuterCrossValidationSimilarity):
+class NonparametricCVMetric(OuterCrossValidationMetric):
     def apply_split(self, train_source, train_target, test_source, test_target):
         # ignore test, apply directly on train
         return self.compute(train_source, train_target)
 
     def compute(self, source, target):
         raise NotImplementedError()
-
-
-class Characterization(object, metaclass=ABCMeta):
-    """A Characterization contains a chain of numerical operations to be applied to a set of
-    data to highlight some aspect of the data.  """
-
-    @abstractmethod
-    def __call__(self, assembly):
-        raise NotImplementedError()
-
-
-class Score(object):
-    def __init__(self, values_assembly, split_dim='split'):
-        self.values = values_assembly
-        self.center = self.get_center(self.values, dim=split_dim)
-        self.error = self.get_error(self.values, dim=split_dim)
-
-    def get_center(self, values, dim):
-        raise NotImplementedError()
-
-    def get_error(self, values, dim):
-        return values.std(dim) / math.sqrt(len(values[dim]))
-
-    def __repr__(self):
-        return self.__class__.__name__ + "(" + ",".join(
-            "{}={}".format(attr, val) for attr, val in self.__dict__.items()) + ")"
 
 
 class MeanScore(Score):

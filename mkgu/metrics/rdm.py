@@ -1,7 +1,7 @@
 import numpy as np
 
 from mkgu.assemblies import DataAssembly
-from mkgu.metrics import NonparametricCVMetric
+from mkgu.metrics import NonparametricMetric
 
 
 class RSA(object):
@@ -45,7 +45,7 @@ class RDMSimilarity(object):
         return values[triangular_indices]
 
 
-class RDMMetric(NonparametricCVMetric):
+class RDMMetric(NonparametricMetric):
     """
     Computes a coefficient for the similarity between two `RDM`s, using the upper triangular regions
 

@@ -67,7 +67,7 @@ class Score(object):
             "{}={}".format(attr, val) for attr, val in self.__dict__.items()) + ")"
 
 
-class ParametricCVMetric(Metric):
+class ParametricMetric(Metric):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._target_neuroid_values = None
@@ -134,7 +134,7 @@ class ParametricCVMetric(Metric):
         return np.median(rs)  # median across neuroids
 
 
-class NonparametricCVMetric(Metric):
+class NonparametricMetric(Metric):
     def apply(self, train_source, train_target, test_source, test_target):
         # ignore test, apply directly on train
         return self.compute(train_source, train_target)

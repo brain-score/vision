@@ -1,13 +1,11 @@
-import functools
 import itertools
 import logging
+from collections import OrderedDict
 
 import numpy as np
-from collections import OrderedDict
 from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
 
 from mkgu.assemblies import merge_data_arrays, DataAssembly
-from mkgu.metrics.utils import collect_coords
 
 
 def enumerate_done(values):

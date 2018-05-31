@@ -6,10 +6,10 @@ from sklearn.linear_model import LinearRegression
 
 import mkgu
 from mkgu.assemblies import NeuroidAssembly
-from mkgu.metrics import ParametricCVMetric
+from mkgu.metrics import ParametricMetric
 
 
-class NeuralFit(ParametricCVMetric):
+class NeuralFit(ParametricMetric):
     """
     Yamins & Hong et al., 2014 https://doi.org/10.1073/pnas.1403112111
     """

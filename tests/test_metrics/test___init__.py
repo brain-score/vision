@@ -228,7 +228,7 @@ class TestSubset:
                                           dims=['image_id', 'neuroid_id'])
         target_assembly = target_assembly.stack(presentation=('image_id',), neuroid=('neuroid_id',))
 
-        with pytest.raises(ValueError):
+        with pytest.raises(Exception):
             subset(source_assembly, target_assembly, subset_dims=('presentation',))
 
     def test_repeated_target(self):
@@ -245,7 +245,7 @@ class TestSubset:
                                           dims=['image_id', 'neuroid_id'])
         target_assembly = target_assembly.stack(presentation=('image_id',), neuroid=('neuroid_id',))
 
-        subset_assembly = subset(source_assembly, target_assembly, subset_dims=('presentation',))
+        subset_assembly = subset(source_assembly, target_assembly, subset_dims=('presentation',), repeat=True)
         np.testing.assert_array_equal(subset_assembly.coords.keys(), target_assembly.coords.keys())
         for coord_name in target_assembly.coords:
             assert all(subset_assembly[coord_name] == target_assembly[coord_name])

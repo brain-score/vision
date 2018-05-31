@@ -6,6 +6,7 @@ import xarray
 from pytest import approx
 
 import mkgu
+from mkgu.metrics import CartesianProductTransformation, SplitTransformation
 from mkgu.metrics.neural_fit import NeuralFit, PCA
 from tests.test_metrics import load_hvm
 
@@ -25,8 +26,9 @@ class TestNeuralFit(object):
 
     def test_hvm_linear_subregions(self):
         hvm = load_hvm()
-        neural_fit_metric = NeuralFit(regression='linear')
-        score = neural_fit_metric(hvm, hvm, adjacent_coord_names=('subregion',))
+        transformations = [CartesianProductTransformation(dividing_coord_names=('subregion',)), SplitTransformation()]
+        neural_fit_metric = NeuralFit(regression='linear', transformations=transformations)
+        score = neural_fit_metric(hvm, hvm)
         for subregion in ['V4', 'pIT', 'cIT', 'aIT']:
             assert score.center.sel(subregion_left=subregion, subregion_right=subregion) == approx(1, rel=0.005), \
                 "subregion {} score does not match".format(subregion)

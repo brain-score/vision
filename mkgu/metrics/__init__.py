@@ -2,17 +2,22 @@ import logging
 import math
 from collections import Counter
 
+import functools
 import numpy as np
 import scipy
 
 from mkgu.assemblies import NeuroidAssembly, array_is_element, walk_coords
-from mkgu.metrics import OuterCrossValidationMetric
-from mkgu.metrics.transformations import subset, OuterCrossValidationMetric
+from mkgu.metrics.transformations import subset, CartesianProductTransformation, SplitTransformation, \
+    apply_transformations
 from .utils import collect_coords, collect_dim_shapes, get_modified_coords, merge_dicts
 
 
 class Metric(object):
-    def __init__(self):
+    def __init__(self, transformations='default'):
+        if transformations == 'default':
+            transformations = [CartesianProductTransformation(), SplitTransformation()]
+        self._transformations = transformations
+
         self._logger = logging.getLogger(self.__class__.__name__)
 
     def __call__(self, source_assembly, target_assembly, **kwargs):
@@ -26,7 +31,10 @@ class Metric(object):
         source_assembly = self.align(source_assembly, target_assembly)
         self._logger.debug("Sorting")
         source_assembly, target_assembly = self.sort(source_assembly), self.sort(target_assembly)
-        similarity_assembly = self.apply(source_assembly, target_assembly, **kwargs)
+        self._logger.debug("Applying transformations")
+        apply = functools.partial(self.apply, **kwargs)
+        similarity_assembly = apply_transformations(source_assembly, target_assembly,
+                                                    transformations=self._transformations, computor=apply)
         return self.score(similarity_assembly)
 
     def align(self, source_assembly, target_assembly, subset_dim='presentation'):
@@ -38,7 +46,7 @@ class Metric(object):
     def score(self, similarity_assembly):
         return MeanScore(similarity_assembly)
 
-    def apply(self, source_assembly, target_assembly):
+    def apply(self, *args, **kwargs):
         raise NotImplementedError()
 
 
@@ -59,14 +67,13 @@ class Score(object):
             "{}={}".format(attr, val) for attr, val in self.__dict__.items()) + ")"
 
 
-class ParametricCVMetric(OuterCrossValidationMetric):
-    def __init__(self, cross_validation_splits=OuterCrossValidationMetric.Defaults.cross_validation_splits,
-                 cross_validation_data_ratio=OuterCrossValidationMetric.Defaults.cross_validation_data_ratio):
-        super().__init__(cross_validation_splits, cross_validation_data_ratio)
+class ParametricCVMetric(Metric):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._target_neuroid_values = None
         self._logger = logging.getLogger(self.__class__.__name__)
 
-    def apply_split(self, train_source, train_target, test_source, test_target):
+    def apply(self, train_source, train_target, test_source, test_target):
         self._logger.debug("Fitting")
         self.fit(train_source, train_target)
         self._logger.debug("Predicting")
@@ -127,8 +134,8 @@ class ParametricCVMetric(OuterCrossValidationMetric):
         return np.median(rs)  # median across neuroids
 
 
-class NonparametricCVMetric(OuterCrossValidationMetric):
-    def apply_split(self, train_source, train_target, test_source, test_target):
+class NonparametricCVMetric(Metric):
+    def apply(self, train_source, train_target, test_source, test_target):
         # ignore test, apply directly on train
         return self.compute(train_source, train_target)
 

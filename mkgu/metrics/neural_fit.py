@@ -19,8 +19,8 @@ class NeuralFit(ParametricCVMetric):
         'linear': LinearRegression(),
     }
 
-    def __init__(self, regression='pls-25'):
-        super(NeuralFit, self).__init__()
+    def __init__(self, *args, regression='pls-25', **kwargs):
+        super().__init__(*args, **kwargs)
         self._regression = self.regressions[regression] if isinstance(regression, str) else regression
 
     def fit_values(self, train_source, train_target):

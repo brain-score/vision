@@ -6,7 +6,7 @@ import xarray
 from pytest import approx
 
 import mkgu
-from mkgu.metrics import CartesianProductTransformation, SplitTransformation
+from mkgu.metrics import CartesianProduct, CrossValidation
 from mkgu.metrics.neural_fit import NeuralFit, PCA
 from tests.test_metrics import load_hvm
 
@@ -26,7 +26,7 @@ class TestNeuralFit(object):
 
     def test_hvm_linear_subregions(self):
         hvm = load_hvm()
-        transformations = [CartesianProductTransformation(dividing_coord_names=('subregion',)), SplitTransformation()]
+        transformations = [CartesianProduct(dividing_coord_names=('subregion',)), CrossValidation()]
         neural_fit_metric = NeuralFit(regression='linear', transformations=transformations)
         score = neural_fit_metric(hvm, hvm)
         for subregion in ['V4', 'pIT', 'cIT', 'aIT']:

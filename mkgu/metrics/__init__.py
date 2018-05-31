@@ -7,7 +7,7 @@ import numpy as np
 import scipy
 
 from mkgu.assemblies import NeuroidAssembly, array_is_element, walk_coords
-from mkgu.metrics.transformations import subset, CartesianProductTransformation, SplitTransformation, \
+from mkgu.metrics.transformations import subset, CartesianProduct, CrossValidation, \
     apply_transformations
 from .utils import collect_coords, collect_dim_shapes, get_modified_coords, merge_dicts
 
@@ -15,7 +15,7 @@ from .utils import collect_coords, collect_dim_shapes, get_modified_coords, merg
 class Metric(object):
     def __init__(self, transformations='default'):
         if transformations == 'default':
-            transformations = [CartesianProductTransformation(), SplitTransformation()]
+            transformations = [CartesianProduct(), CrossValidation()]
         self._transformations = transformations
 
         self._logger = logging.getLogger(self.__class__.__name__)

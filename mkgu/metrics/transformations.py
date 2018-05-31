@@ -68,7 +68,7 @@ class Transformation(object):
         return result
 
 
-class CartesianProductTransformation(Transformation):
+class CartesianProduct(Transformation):
     """
     Splits an incoming assembly along all dimensions that similarity is not computed over
     as well as along dividing coords that denote separate parts of the assembly.
@@ -81,7 +81,7 @@ class CartesianProductTransformation(Transformation):
     def __init__(self,
                  similarity_dims=Defaults.similarity_dims, dividing_coord_names=Defaults.dividing_coords,
                  dividing_coord_names_source=(), dividing_coord_names_target=()):
-        super(CartesianProductTransformation, self).__init__()
+        super(CartesianProduct, self).__init__()
         self._similarity_dims = similarity_dims
         self._dividing_coord_names = dividing_coord_names
         self._dividing_coord_names_source = dividing_coord_names_source
@@ -141,7 +141,7 @@ class CartesianProductTransformation(Transformation):
         return {**coords_left, **coords_right}
 
 
-class SplitTransformation(Transformation):
+class CrossValidation(Transformation):
     class Defaults:
         cross_validation_splits = 10
         cross_validation_data_ratio = .9

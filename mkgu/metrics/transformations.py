@@ -115,12 +115,6 @@ class CartesianProductTransformation(Transformation):
         for i, (div_src, div_tgt), done in enumerate_done(divider_combinations):
             self._logger.debug("dividers {}/{}: {} | {}".format(i + 1, len(divider_combinations), div_src, div_tgt))
             source_div, target_div = source_assembly.multisel(**div_src), target_assembly.multisel(**div_tgt)
-            # in single-unit recordings, not all electrodes were recorded for each presentation -> drop non-recorded
-            non_nan = ~np.isnan(target_div.values)
-            if not all(non_nan.flatten()):
-                non_nan = non_nan.squeeze()  # FIXME: we assume 2D data with single-value neuroid here
-                source_div, target_div = source_div[non_nan], target_div[non_nan]
-
             similarity = yield from self._get_result(source_div, target_div, done=done)
 
             divider_coords = self.merge_dividers(div_src, div_tgt)

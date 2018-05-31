@@ -192,19 +192,7 @@ class SplitTransformation(Transformation):
             split_score = yield from self._get_result(train_source, train_target, test_source, test_target, done=done)
             split_scores[split_iterator] = split_score
 
-        # throw away all of the multi-dimensional dims as similarity will be computed over them.
-        # we want to keep the dividing dimensions which are 1-dimensional after the comprehension calling this method
-        # Note that we don't keep dividing coords yet, which is something we should ultimately do
-        multi_dimensional_dims = [dim for dim in source_assembly.dims if len(source_assembly[dim]) > 1] + \
-                                 [dim for dim in source_assembly.dims if len(target_assembly[dim]) > 1]
-        coords = list(source_assembly.coords.keys()) + list(target_assembly.coords.keys())
-        duplicate_coords = [coord for coord in coords if coords.count(coord) > 1]
-        _collect_coords = functools.partial(collect_coords,
-                                            ignore_dims=multi_dimensional_dims, rename_coords_list=duplicate_coords)
-        coords = {**_collect_coords(assembly=source_assembly, kind='left'),
-                  **_collect_coords(assembly=target_assembly, kind='right'),
-                  **{'split': list(split_scores.keys())}}
-        coords = {'split': list(split_scores.keys())}  # FIXME: hack to work around non-matching dims
+        coords = {'split': list(split_scores.keys())}
         split_scores = DataAssembly(list(split_scores.values()), coords=coords, dims=['split'])
         yield split_scores
 

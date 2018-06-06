@@ -2,7 +2,6 @@ import logging
 import math
 from collections import Counter
 
-import functools
 import numpy as np
 import scipy
 
@@ -26,18 +25,19 @@ class Metric(object):
         :param mkgu.assemblies.NeuroidAssembly target_assembly:
         :return: mkgu.metrics.Score
         """
-        kwargs = kwargs or {}
         self._logger.debug("Aligning")
         source_assembly = self.align(source_assembly, target_assembly)
         self._logger.debug("Sorting")
         source_assembly, target_assembly = self.sort(source_assembly), self.sort(target_assembly)
         self._logger.debug("Applying transformations")
-        apply = functools.partial(self.apply, **kwargs)
         similarity_assembly = apply_transformations(source_assembly, target_assembly,
-                                                    transformations=self._transformations, computor=apply)
+                                                    transformations=self._transformations, computor=self.apply)
         return self.score(similarity_assembly)
 
     def align(self, source_assembly, target_assembly, subset_dim='presentation'):
+        dimensions = ['presentation', 'neuroid']
+        dimensions += list(set(source_assembly.dims) - set(dimensions))
+        source_assembly = source_assembly.transpose(*dimensions)
         return subset(source_assembly, target_assembly, subset_dims=[subset_dim])
 
     def sort(self, assembly):

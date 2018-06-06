@@ -13,7 +13,7 @@ def test_score_precomputed_alexnet_activations():
     # load activations
     activations = pd.read_pickle(os.path.join(os.path.dirname(__file__), 'alexnet-pca200.pkl'))
     # score
-    benchmark = benchmarks.load('dicarlo/hong2014', 'neural_fit')
+    benchmark = benchmarks.load('dicarlo.Majaj2015', 'neural_fit')
     scores = None
     for layer in np.unique(activations['layers']):
         layer_activations = activations[activations['layers'] == layer]

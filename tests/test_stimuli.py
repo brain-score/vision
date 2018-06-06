@@ -22,7 +22,7 @@ def test_loadname_dicarlo_hvm_v6():
 
 def test_load_images():
     stimulus_set = mkgu.get_stimulus_set(name="dicarlo.hvm")
-    paths = np.unique(stimulus_set['stimulus.path'])
+    paths = stimulus_set.image_paths.values()
     for path in paths:
         image = scipy.misc.imread(path)
         assert isinstance(image, np.ndarray)

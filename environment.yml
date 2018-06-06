@@ -15,3 +15,4 @@ dependencies:
 - pytest
 - jupyter
 - pip:
+  - pathos

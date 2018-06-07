@@ -8,6 +8,7 @@ import scipy
 from mkgu.assemblies import NeuroidAssembly, array_is_element, walk_coords
 from mkgu.metrics.transformations import subset, CartesianProduct, CrossValidation, \
     apply_transformations
+from mkgu.utils import fullname
 from .utils import collect_coords, collect_dim_shapes, get_modified_coords, merge_dicts
 
 
@@ -17,7 +18,7 @@ class Metric(object):
             transformations = [CartesianProduct(), CrossValidation()]
         self._transformations = transformations
 
-        self._logger = logging.getLogger(self.__class__.__name__)
+        self._logger = logging.getLogger(fullname(self))
 
     def __call__(self, source_assembly, target_assembly, **kwargs):
         """
@@ -71,7 +72,7 @@ class ParametricMetric(Metric):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._target_neuroid_values = None
-        self._logger = logging.getLogger(self.__class__.__name__)
+        self._logger = logging.getLogger(fullname(self))
 
     def apply(self, train_source, train_target, test_source, test_target):
         self._logger.debug("Fitting")

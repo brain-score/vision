@@ -6,6 +6,7 @@ import numpy as np
 from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
 
 from mkgu.assemblies import merge_data_arrays, DataAssembly
+from mkgu.utils import fullname
 
 
 def enumerate_done(values):
@@ -85,7 +86,7 @@ class CartesianProduct(Transformation):
         self._dividing_coord_names_source = dividing_coord_names_source
         self._dividing_coord_names_target = dividing_coord_names_target
 
-        self._logger = logging.getLogger(self.__class__.__name__)
+        self._logger = logging.getLogger(fullname(self))
 
     def __call__(self, source_assembly, target_assembly):
         """
@@ -159,7 +160,7 @@ class CrossValidation(Transformation):
         self._cross_validation_dim = cross_validation_dim
         self._stratification_coord = stratification_coord
 
-        self._logger = logging.getLogger(self.__class__.__name__)
+        self._logger = logging.getLogger(fullname(self))
 
     def __call__(self, source_assembly, target_assembly):
         assert all(source_assembly[self._cross_validation_dim].values ==

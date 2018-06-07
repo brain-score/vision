@@ -7,6 +7,7 @@ from sklearn.linear_model import LinearRegression
 import mkgu
 from mkgu.assemblies import NeuroidAssembly
 from mkgu.metrics import ParametricMetric
+from mkgu.utils import fullname
 
 
 class NeuralFit(ParametricMetric):
@@ -33,7 +34,7 @@ class NeuralFit(ParametricMetric):
 class PCA(object):
     def __init__(self, max_components):
         self._pca = PCAImpl(n_components=max_components)
-        self._logger = logging.getLogger(self.__class__.__name__)
+        self._logger = logging.getLogger(fullname(self))
 
     def __call__(self, assembly):
         assert len(assembly.neuroid.shape) == 1

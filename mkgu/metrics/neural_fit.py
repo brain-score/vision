@@ -1,54 +1,38 @@
 import logging
 
-import numpy as np
-import scipy
 from sklearn.cross_decomposition import PLSRegression
-from sklearn.decomposition import PCA
-from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.decomposition import PCA as PCAImpl
+from sklearn.linear_model import LinearRegression
 
 import mkgu
-from mkgu.metrics import Metric, Similarity, Characterization
+from mkgu.assemblies import NeuroidAssembly
+from mkgu.metrics import ParametricMetric
 
 
-class NeuralFitMetric(Metric):
-    def __init__(self):
-        super(NeuralFitMetric, self).__init__(similarity=NeuralFitSimilarity())
-
-
-class NeuralFitSimilarity(Similarity):
+class NeuralFit(ParametricMetric):
     """
     Yamins & Hong et al., 2014 https://doi.org/10.1073/pnas.1403112111
     """
 
-    def __init__(self, num_splits=10, test_size=.25, regression_components=25):
-        super(NeuralFitSimilarity, self).__init__()
-        self._split_strategy = StratifiedShuffleSplit(n_splits=num_splits, test_size=test_size)
-        self._regression = PLSRegression(n_components=regression_components, scale=False)
-        self._logger = logging.getLogger(self.__class__.__name__)
+    regressions = {
+        'pls-25': PLSRegression(n_components=25, scale=False),
+        'linear': LinearRegression(),
+    }
 
-    def __call__(self, source_assembly, target_assembly):
-        assert all(source_assembly['object_name'] == target_assembly['object_name'])
-        object_labels = source_assembly['object_name']
+    def __init__(self, *args, regression='pls-25', **kwargs):
+        super().__init__(*args, **kwargs)
+        self._regression = self.regressions[regression] if isinstance(regression, str) else regression
 
-        correlations = []
-        for split_iterator, (train_indices, test_indices) in enumerate(
-                self._split_strategy.split(np.zeros(len(object_labels)), object_labels.values)):
-            # fit
-            self._logger.debug('Fitting split {}/{}'.format(split_iterator + 1, self._split_strategy.n_splits))
-            self._regression.fit(source_assembly[train_indices], target_assembly[train_indices])
-            predicted_responses = self._regression.predict(source_assembly[test_indices])
+    def fit_values(self, train_source, train_target):
+        self._regression.fit(train_source, train_target)
 
-            # correlate
-            self._logger.debug('Correlating split {}/{}'.format(split_iterator + 1, self._split_strategy.n_splits))
-            rs = pearsonr_matrix(target_assembly[test_indices].values, predicted_responses)
-            correlations.append(rs)
-
-        return np.mean(correlations)
+    def predict_values(self, test_source):
+        return self._regression.predict(test_source)
 
 
-class PCANeuroidCharacterization(Characterization):
+class PCA(object):
     def __init__(self, max_components):
-        self._pca = PCA(n_components=max_components)
+        self._pca = PCAImpl(n_components=max_components)
         self._logger = logging.getLogger(self.__class__.__name__)
 
     def __call__(self, assembly):
@@ -62,13 +46,3 @@ class PCANeuroidCharacterization(Characterization):
                       assembly[dim] if dim != 'neuroid' else assembly.neuroid[:self._pca.n_components]
                   for dim in assembly.coords}
         return mkgu.assemblies.NeuroidAssembly(transformed_values, coords=coords, dims=assembly.dims)
-
-
-def pearsonr_matrix(data1, data2, axis=1):
-    rs = []
-    for i in range(data1.shape[axis]):
-        d1 = np.take(data1, i, axis=axis)
-        d2 = np.take(data2, i, axis=axis)
-        r, p = scipy.stats.pearsonr(d1, d2)
-        rs.append(r)
-    return np.array(rs)

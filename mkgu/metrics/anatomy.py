@@ -1,6 +1,6 @@
 import networkx as nx
 
-from mkgu.metrics import Metric, Similarity
+from mkgu.metrics import Metric
 
 ventral_stream = nx.DiGraph()  # derived from Felleman & van Essen
 ventral_stream.add_edge('input', 'V1')
@@ -25,11 +25,6 @@ ventral_stream.add_edge('aIT', 'cIT')
 
 
 class EdgeRatioMetric(Metric):
-    def __init__(self):
-        super(EdgeRatioMetric, self).__init__(similarity=EdgeRatio())
-
-
-class EdgeRatio(Similarity):
     def __call__(self, source_graph, target_graph):
         unmatched = [edge for edge in target_graph.edges if edge not in source_graph.edges]
         return 1 - len(unmatched) / len(target_graph.edges)

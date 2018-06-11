@@ -19,6 +19,7 @@ requirements = [
     "netcdf4",
     "peewee",
     "networkx",
+    "pathos",
 ]
 
 test_requirements = [

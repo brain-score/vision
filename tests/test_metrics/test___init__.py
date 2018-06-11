@@ -1,13 +1,8 @@
-import logging
-import sys
-
 import numpy as np
 from pytest import approx
 
 from mkgu.assemblies import NeuroidAssembly
 from mkgu.metrics import NonparametricMetric, ParametricMetric
-
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
 class MetricScorePlaceholder(ParametricMetric):

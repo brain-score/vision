@@ -1,6 +1,3 @@
-import logging
-import sys
-
 import numpy as np
 import xarray
 from pytest import approx
@@ -9,8 +6,6 @@ import mkgu
 from mkgu.metrics import CartesianProduct, CrossValidation
 from mkgu.metrics.neural_fit import NeuralFit, PCA
 from tests.test_metrics import load_hvm
-
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
 class TestNeuralFit(object):

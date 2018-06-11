@@ -1,6 +1,4 @@
 import itertools
-import logging
-import sys
 
 import numpy as np
 import pytest
@@ -8,8 +6,6 @@ import pytest
 from mkgu.assemblies import NeuroidAssembly, DataAssembly
 from mkgu.metrics import Metric
 from mkgu.metrics.transformations import subset, index_efficient, CartesianProduct
-
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
 class MetricPlaceholder(Metric):

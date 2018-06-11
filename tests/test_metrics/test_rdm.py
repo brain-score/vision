@@ -1,6 +1,4 @@
-import logging
 import os
-import sys
 
 import numpy as np
 import pytest
@@ -9,8 +7,6 @@ from pytest import approx
 from mkgu.assemblies import NeuroidAssembly
 from mkgu.metrics.rdm import RSA, RDMSimilarity, RDMMetric
 from tests.test_metrics import load_hvm
-
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
 class TestRSA(object):

@@ -1,13 +1,11 @@
-import xarray as xr
-
 import mkgu
 from mkgu.metrics.anatomy import ventral_stream, EdgeRatioMetric
-from mkgu.metrics.neural_fit import NeuralFitMetric
+from mkgu.metrics.neural_fit import NeuralFit
 from mkgu.metrics.rdm import RDMMetric
 
 metrics = {
     'rdm': RDMMetric,
-    'neural_fit': NeuralFitMetric,
+    'neural_fit': NeuralFit,
     'edge_ratio': EdgeRatioMetric
 }
 

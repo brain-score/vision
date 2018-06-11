@@ -6,8 +6,7 @@ import numpy as np
 import scipy
 
 from mkgu.assemblies import NeuroidAssembly, array_is_element, walk_coords
-from mkgu.metrics.transformations import subset, CartesianProduct, CrossValidation, \
-    apply_transformations
+from mkgu.metrics.transformations import Alignment, CartesianProduct, CrossValidation, apply_transformations
 from mkgu.utils import fullname
 from .utils import collect_coords, collect_dim_shapes, get_modified_coords, merge_dicts
 
@@ -15,7 +14,7 @@ from .utils import collect_coords, collect_dim_shapes, get_modified_coords, merg
 class Metric(object):
     def __init__(self, transformations='default'):
         if transformations == 'default':
-            transformations = [CartesianProduct(), CrossValidation()]
+            transformations = [Alignment(), CartesianProduct(), CrossValidation()]
         self._transformations = transformations
 
         self._logger = logging.getLogger(fullname(self))
@@ -26,23 +25,10 @@ class Metric(object):
         :param mkgu.assemblies.NeuroidAssembly target_assembly:
         :return: mkgu.metrics.Score
         """
-        self._logger.debug("Aligning")
-        source_assembly = self.align(source_assembly, target_assembly)
-        self._logger.debug("Sorting")
-        source_assembly, target_assembly = self.sort(source_assembly), self.sort(target_assembly)
-        self._logger.debug("Applying transformations")
+        self._logger.debug("Applying metric to transformed assemblies")
         similarity_assembly = apply_transformations(source_assembly, target_assembly,
                                                     transformations=self._transformations, computor=self.apply)
         return self.score(similarity_assembly)
-
-    def align(self, source_assembly, target_assembly, subset_dim='presentation'):
-        dimensions = ['presentation', 'neuroid']
-        dimensions += list(set(source_assembly.dims) - set(dimensions))
-        source_assembly = source_assembly.transpose(*dimensions)
-        return subset(source_assembly, target_assembly, subset_dims=[subset_dim])
-
-    def sort(self, assembly):
-        return assembly.sortby('image_id')
 
     def score(self, similarity_assembly):
         return MeanScore(similarity_assembly)

@@ -67,6 +67,28 @@ class Transformation(object):
         return result
 
 
+class Alignment(Transformation):
+    def __init__(self):
+        self._logger = logging.getLogger(fullname(self))
+
+    def __call__(self, source_assembly, target_assembly):
+        self._logger.debug("Aligning")
+        source_assembly = self.align(source_assembly, target_assembly)
+        self._logger.debug("Sorting")
+        source_assembly, target_assembly = self.sort(source_assembly), self.sort(target_assembly)
+        result = yield from self._get_result(source_assembly, target_assembly, done=True)
+        yield result
+
+    def align(self, source_assembly, target_assembly, subset_dim='presentation'):
+        dimensions = ['presentation', 'neuroid']
+        dimensions += list(set(source_assembly.dims) - set(dimensions))
+        source_assembly = source_assembly.transpose(*dimensions)
+        return subset(source_assembly, target_assembly, subset_dims=[subset_dim])  # , repeat=True)
+
+    def sort(self, assembly):
+        return assembly.sortby('image_id')
+
+
 class CartesianProduct(Transformation):
     """
     Splits an incoming assembly along all dimensions that similarity is not computed over

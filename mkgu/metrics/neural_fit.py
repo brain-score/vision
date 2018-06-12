@@ -6,7 +6,7 @@ from sklearn.linear_model import LinearRegression
 
 import mkgu
 from mkgu.assemblies import NeuroidAssembly
-from mkgu.metrics import ParametricMetric
+from mkgu.metrics import ParametricMetric, MeanScore
 from mkgu.utils import fullname
 
 
@@ -24,11 +24,28 @@ class NeuralFit(ParametricMetric):
         super().__init__(*args, **kwargs)
         self._regression = self.regressions[regression] if isinstance(regression, str) else regression
 
-    def fit_values(self, train_source, train_target):
-        self._regression.fit(train_source, train_target)
+    def fit_values(self, source, target):
+        self._regression.fit(source, target)
 
     def predict_values(self, test_source):
         return self._regression.predict(test_source)
+
+    def score(self, similarity_assembly):
+        return NeuroidMedianScore(similarity_assembly)
+
+
+class NeuroidMedianScore(MeanScore):
+    class Defaults:
+        neuroid_dim = 'neuroid_id'
+
+    def __init__(self, values_assembly,
+                 aggregation_dim=MeanScore.Defaults.aggregation_dim, neuroid_dim=Defaults.neuroid_dim):
+        values_assembly = self._neuroid_median(values_assembly, neuroid_dim)
+        super().__init__(values_assembly, aggregation_dim)
+
+    def _neuroid_median(self, values, dim):
+        # median already ignores NaNs which might arise from IT neuroid ids in V4 comparisons
+        return values.median(dim)
 
 
 class PCA(object):

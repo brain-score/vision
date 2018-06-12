@@ -3,6 +3,7 @@ import logging
 from collections import OrderedDict
 
 import numpy as np
+import xarray as xr
 from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
 
 from mkgu.assemblies import merge_data_arrays, DataAssembly
@@ -68,25 +69,34 @@ class Transformation(object):
 
 
 class Alignment(Transformation):
-    def __init__(self):
+    class Defaults:
+        order_dimensions = ('presentation', 'neuroid')
+        alignment_dim = 'image_id'
+        repeat = False
+
+    def __init__(self, order_dimensions=Defaults.order_dimensions, alignment_dim=Defaults.alignment_dim,
+                 repeat=Defaults.repeat):
+        self._order_dimensions = order_dimensions
+        self._alignment_dim = alignment_dim
+        self._repeat = repeat
         self._logger = logging.getLogger(fullname(self))
 
     def __call__(self, source_assembly, target_assembly):
-        self._logger.debug("Aligning")
+        self._logger.debug("Aligning by {} and {}, {} repeats".format(
+            self._order_dimensions, self._alignment_dim, "with" if self._repeat else "no"))
         source_assembly = self.align(source_assembly, target_assembly)
-        self._logger.debug("Sorting")
+        self._logger.debug("Sorting by {}".format(self._alignment_dim))
         source_assembly, target_assembly = self.sort(source_assembly), self.sort(target_assembly)
         result = yield from self._get_result(source_assembly, target_assembly, done=True)
         yield result
 
-    def align(self, source_assembly, target_assembly, subset_dim='presentation'):
-        dimensions = ['presentation', 'neuroid']
-        dimensions += list(set(source_assembly.dims) - set(dimensions))
+    def align(self, source_assembly, target_assembly):
+        dimensions = list(self._order_dimensions) + list(set(source_assembly.dims) - set(self._order_dimensions))
         source_assembly = source_assembly.transpose(*dimensions)
-        return subset(source_assembly, target_assembly, subset_dims=[subset_dim])  # , repeat=True)
+        return subset(source_assembly, target_assembly, subset_dims=[self._alignment_dim], repeat=self._repeat)
 
     def sort(self, assembly):
-        return assembly.sortby('image_id')
+        return assembly.sortby(self._alignment_dim)
 
 
 class CartesianProduct(Transformation):
@@ -96,14 +106,14 @@ class CartesianProduct(Transformation):
     """
 
     class Defaults:
-        similarity_dims = 'presentation', 'neuroid'
+        non_dividing_dims = 'presentation', 'neuroid'
         dividing_coords = 'region',
 
     def __init__(self,
-                 similarity_dims=Defaults.similarity_dims, dividing_coord_names=Defaults.dividing_coords,
+                 non_dividing_dims=Defaults.non_dividing_dims, dividing_coord_names=Defaults.dividing_coords,
                  dividing_coord_names_source=(), dividing_coord_names_target=()):
         super(CartesianProduct, self).__init__()
-        self._similarity_dims = similarity_dims
+        self._non_dividing_dims = non_dividing_dims
         self._dividing_coord_names = dividing_coord_names
         self._dividing_coord_names_source = dividing_coord_names_source
         self._dividing_coord_names_target = dividing_coord_names_target
@@ -120,7 +130,7 @@ class CartesianProduct(Transformation):
         # divide data along dividing coords and non-central dimensions,
         # i.e. dimensions that the metric is not computed over
         def dividing_selections(assembly, dividing_coord_names):
-            dividing_coords = [dim for dim in assembly.dims if dim not in self._similarity_dims] \
+            dividing_coords = [dim for dim in assembly.dims if dim not in self._non_dividing_dims] \
                               + [coord for coord in dividing_coord_names if hasattr(assembly, coord)]
             choices = {coord: np.unique(assembly[coord]) for coord in dividing_coords}
             combinations = [dict(zip(choices, values)) for values in itertools.product(*choices.values())]
@@ -140,15 +150,13 @@ class CartesianProduct(Transformation):
 
             divider_coords = self.merge_dividers(div_src, div_tgt)
             for coord_name, coord_value in divider_coords.items():
-                similarity[coord_name] = coord_value
+                similarity = similarity.expand_dims(coord_name)
+                similarity[coord_name] = [coord_value]
             similarities.append(similarity)
-        assert all(similarity.shape == similarities[0].shape for similarity in similarities[1:])  # all shapes equal
-
-        # re-shape into dividing dimensions and split
-        assembly_dims = source_assembly.dims + target_assembly.dims + tuple(self._dividing_coord_names) \
-                        + tuple(self._dividing_coord_names_source) + tuple(self._dividing_coord_names_target) \
-                        + ('split',)
-        similarities = [expand(similarity, assembly_dims) for similarity in similarities]
+        assert all(similarity.dims == similarities[0].dims for similarity in similarities[1:])  # all dims equal
+        # note that the shapes are likely different between combinations and will be padded with NaNs:
+        # for instance, V4 and IT have different numbers of neurons and while the neuroid dimension will be merged,
+        # the values for V4 neuroids of an IT combination will be NaN.
         similarities = merge_data_arrays(similarities)
         yield similarities
 
@@ -187,9 +195,8 @@ class CrossValidation(Transformation):
     def __call__(self, source_assembly, target_assembly):
         assert all(source_assembly[self._cross_validation_dim].values ==
                    target_assembly[self._cross_validation_dim].values)
-
-        cross_validation_values = target_assembly[self._cross_validation_dim]
-        unique_cross_validation_values = np.unique(source_assembly[self._cross_validation_dim])
+        cross_validation_values = extract_coord(target_assembly, self._cross_validation_dim)
+        unique_cross_validation_values = np.unique(cross_validation_values)
         if hasattr(target_assembly, self._stratification_coord):
             assert hasattr(source_assembly, self._stratification_coord)
             assert all(source_assembly[self._stratification_coord].values ==
@@ -201,21 +208,33 @@ class CrossValidation(Transformation):
                                  "- falling back to un-stratified splits".format(self._stratification_coord))
             splits = list(self._shuffle_split.split(np.zeros(len(unique_cross_validation_values))))
 
-        split_scores = {}
+        split_scores = []
         for split_iterator, (train_indices, test_indices), done in enumerate_done(splits):
             self._logger.debug("split {}/{}".format(split_iterator + 1, len(splits)))
             train_values, test_values = cross_validation_values[train_indices], cross_validation_values[test_indices]
-            train_source = subset(source_assembly, train_values)
-            train_target = subset(target_assembly, train_values)
-            test_source = subset(source_assembly, test_values)
-            test_target = subset(target_assembly, test_values)
+            train_source = subset(source_assembly, train_values, dims_must_match=False)
+            train_target = subset(target_assembly, train_values, dims_must_match=False)
+            assert len(train_source[self._cross_validation_dim]) == len(train_target[self._cross_validation_dim])
+            test_source = subset(source_assembly, test_values, dims_must_match=False)
+            test_target = subset(target_assembly, test_values, dims_must_match=False)
+            assert len(test_source[self._cross_validation_dim]) == len(test_target[self._cross_validation_dim])
 
             split_score = yield from self._get_result(train_source, train_target, test_source, test_target, done=done)
-            split_scores[split_iterator] = split_score
+            split_score = split_score.expand_dims('split')
+            split_score['split'] = [split_iterator]
+            split_scores.append(split_score)
 
-        coords = {'split': list(split_scores.keys())}
-        split_scores = DataAssembly(list(split_scores.values()), coords=coords, dims=['split'])
+        split_scores = merge_data_arrays(split_scores)
         yield split_scores
+
+
+def extract_coord(assembly, coord):
+    extracted_assembly = np.unique(assembly[coord].values)
+    dims = assembly[coord].dims
+    assert len(dims) == 1
+    extracted_assembly = xr.DataArray(extracted_assembly, coords={coord: extracted_assembly}, dims=[coord])
+    extracted_assembly = extracted_assembly.stack(**{dims[0]: (coord,)})
+    return extracted_assembly
 
 
 def subset(source_assembly, target_assembly, subset_dims=None, dims_must_match=True, repeat=False):
@@ -226,8 +245,8 @@ def subset(source_assembly, target_assembly, subset_dims=None, dims_must_match=T
     """
     subset_dims = subset_dims or target_assembly.dims
     for dim in subset_dims:
-        assert dim in target_assembly.dims
-        assert dim in source_assembly.dims
+        assert hasattr(target_assembly, dim)
+        assert hasattr(source_assembly, dim)
         # we assume here that it does not matter if all levels are present in the source assembly
         # as long as there is at least one level that we can select over
         levels = target_assembly[dim].variable.level_names or [dim]
@@ -239,12 +258,15 @@ def subset(source_assembly, target_assembly, subset_dims=None, dims_must_match=T
             source_values = source_assembly[level].values
             if repeat:
                 indexer = index_efficient(source_values, target_values)
-                dim_indexes = {_dim: slice(None) if _dim != dim else indexer for _dim in source_assembly.dims}
             else:
-                level_values = target_assembly[level].values
-                indexer = np.array([val in level_values for val in source_assembly[level].values])
-                dim_indexes = {_dim: slice(None) if _dim != dim else np.where(indexer)[0] for _dim in
-                               source_assembly.dims}
+                indexer = np.array([val in target_values for val in source_assembly[level].values])
+                indexer = np.where(indexer)[0]
+            if dim not in target_assembly.dims:
+                # not actually a dimension, but rather a coord -> filter along underlying dim
+                dim = target_assembly[dim].dims
+                assert len(dim) == 1
+                dim = dim[0]
+            dim_indexes = {_dim: slice(None) if _dim != dim else indexer for _dim in source_assembly.dims}
             source_assembly = source_assembly.isel(**dim_indexes)
         if dims_must_match:
             # dims match up after selection. cannot compare exact equality due to potentially missing levels

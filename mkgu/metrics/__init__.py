@@ -5,17 +5,21 @@ from collections import Counter
 import numpy as np
 import scipy
 
-from mkgu.assemblies import NeuroidAssembly, array_is_element, walk_coords
-from mkgu.metrics.transformations import Alignment, CartesianProduct, CrossValidation, apply_transformations
+from mkgu.assemblies import NeuroidAssembly, array_is_element, walk_coords, DataAssembly, merge_data_arrays
+from mkgu.metrics.transformations import Alignment, Alignment, CartesianProduct, CrossValidation, apply_transformations
 from mkgu.utils import fullname
 from .utils import collect_coords, collect_dim_shapes, get_modified_coords, merge_dicts
 
 
 class Metric(object):
-    def __init__(self, transformations='default'):
-        if transformations == 'default':
-            transformations = [Alignment(), CartesianProduct(), CrossValidation()]
-        self._transformations = transformations
+    def __init__(self, alignment_kwargs=None, cartesian_product_kwargs=None, cross_validation_kwargs=None,
+                 alignment_ctr=Alignment, cartesian_product_ctr=CartesianProduct, cross_validation_ctr=CrossValidation):
+        alignment_kwargs = alignment_kwargs or {}
+        cartesian_product_kwargs = cartesian_product_kwargs or {}
+        cross_validation_kwargs = cross_validation_kwargs or {}
+        self._transformations = [alignment_ctr(**alignment_kwargs),
+                                 cartesian_product_ctr(**cartesian_product_kwargs),
+                                 cross_validation_ctr(**cross_validation_kwargs)]
 
         self._logger = logging.getLogger(fullname(self))
 
@@ -37,17 +41,29 @@ class Metric(object):
         raise NotImplementedError()
 
 
+def standard_error_of_the_mean(values, dim):
+    return values.std(dim) / math.sqrt(len(values[dim]))
+
+
 class Score(object):
-    def __init__(self, values_assembly, split_dim='split'):
+    class Defaults:
+        aggregation_dim = 'split'
+
+    def __init__(self, values_assembly, aggregation_dim=Defaults.aggregation_dim):
         self.values = values_assembly
-        self.center = self.get_center(self.values, dim=split_dim)
-        self.error = self.get_error(self.values, dim=split_dim)
+        center = self.get_center(self.values, dim=aggregation_dim)
+        error = self.get_error(self.values, dim=aggregation_dim)
+        center = center.expand_dims('aggregation')
+        center['aggregation'] = ['center']
+        error = error.expand_dims('aggregation')
+        error['aggregation'] = ['error']
+        self.aggregation = merge_data_arrays([center, error])
 
     def get_center(self, values, dim):
         raise NotImplementedError()
 
     def get_error(self, values, dim):
-        return values.std(dim) / math.sqrt(len(values[dim]))
+        return standard_error_of_the_mean(values, dim)
 
     def __repr__(self):
         return self.__class__.__name__ + "(" + ",".join(
@@ -55,6 +71,12 @@ class Score(object):
 
 
 class ParametricMetric(Metric):
+    class Defaults:
+        expected_dims = ['presentation', 'neuroid']
+        stimulus_coord = 'image_id'
+        neuroid_dim = 'neuroid'
+        neuroid_coord = 'neuroid_id'
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._target_neuroid_values = None
@@ -69,62 +91,66 @@ class ParametricMetric(Metric):
         similarity = self.compare_prediction(prediction, test_target)
         return similarity
 
-    def fit(self, train_source, train_target):
-        np.testing.assert_array_equal(train_source.dims, ['presentation', 'neuroid'])
-        np.testing.assert_array_equal(train_target.dims, ['presentation', 'neuroid'])
-        # assert all(source == target for source, target in zip(train_source['image_id'], train_target['image_id']))
+    def fit(self, source, target):
+        np.testing.assert_array_equal(source.dims, self.Defaults.expected_dims)
+        np.testing.assert_array_equal(target.dims, self.Defaults.expected_dims)
+        assert all(source[self.Defaults.stimulus_coord].values
+                   == target[self.Defaults.stimulus_coord].values)
         self._target_neuroid_values = {}
-        for name, dims, values in walk_coords(train_target):
-            if 'neuroid' in dims:
-                assert array_is_element(dims, 'neuroid')
+        for name, dims, values in walk_coords(target):
+            if self.Defaults.neuroid_dim in dims:
+                assert array_is_element(dims, self.Defaults.neuroid_dim)
                 self._target_neuroid_values[name] = dims, values
-        self.fit_values(train_source, train_target)
+        self.fit_values(source, target)
 
-    def fit_values(self, train_source, train_target):
+    def fit_values(self, source, target):
         raise NotImplementedError()
 
-    def predict(self, test_source):
-        np.testing.assert_array_equal(test_source.dims, ['presentation', 'neuroid'])
-        predicted_values = self.predict_values(test_source)
+    def predict(self, source):
+        np.testing.assert_array_equal(source.dims, self.Defaults.expected_dims)
+        predicted_values = self.predict_values(source)
 
         # package in assembly
-        coords = {name: (dims, values) for name, dims, values in walk_coords(test_source) if 'neuroid' not in dims}
+        coords = {name: (dims, values) for name, dims, values in walk_coords(source)
+                  if self.Defaults.neuroid_dim not in dims}
         for target_coord, target_dim_value in self._target_neuroid_values.items():
             coords[target_coord] = target_dim_value  # this might overwrite values which is okay
         dims = Counter([dim for name, (dim, values) in coords.items()])
         single_dims = {dim: count == 1 for dim, count in dims.items()}
-        result_dims = test_source.dims
+        result_dims = source.dims
         unstacked_coords = {}
         for name, (dims, values) in coords.items():
             if single_dims[dims] and len(dims) > 0:
                 result_dims = [dim if dim != dims[0] else name for dim in result_dims]
                 coords[name] = name, values
                 unstacked_coords[name] = dims
-        result = NeuroidAssembly(predicted_values, coords=coords, dims=result_dims)
+        prediction = NeuroidAssembly(predicted_values, coords=coords, dims=result_dims)
         for name, dims in unstacked_coords.items():
             assert len(dims) == 1
-            result = result.stack(**{dims[0]: (name,)})
-        return result
+            prediction = prediction.stack(**{dims[0]: (name,)})
+        return prediction
 
     def predict_values(self, test_source):
         raise NotImplementedError()
 
-    def compare_prediction(self, prediction, target, axis='neuroid_id', correlation=scipy.stats.pearsonr):
-        assert sorted(prediction['image_id'].values) == sorted(target['image_id'].values)
-        assert sorted(prediction[axis].values) == sorted(target[axis].values)
-        rs = []
+    def compare_prediction(self, prediction, target, axis=Defaults.neuroid_coord, correlation=scipy.stats.pearsonr):
+        assert all(prediction[self.Defaults.stimulus_coord].values == target[self.Defaults.stimulus_coord].values)
+        assert all(prediction[axis].values == target[axis].values)
+        correlations = []
         for i in target[axis].values:
             target_activations = target.sel(**{axis: i}).squeeze()
             prediction_activations = prediction.sel(**{axis: i}).squeeze()
             r, p = correlation(target_activations, prediction_activations)
-            rs.append(r)
-        return np.median(rs)  # median across neuroids
+            correlations.append(r)
+        return DataAssembly(correlations, coords={axis: target[axis].values}, dims=[axis])
+        # return np.median(correlations)  # median across neuroids TODO
 
 
 class NonparametricMetric(Metric):
     def apply(self, train_source, train_target, test_source, test_target):
-        # ignore test, apply directly on train
-        return self.compute(train_source, train_target)
+        # no training, apply directly on test
+        result = self.compute(test_source, test_target)
+        return DataAssembly(result)
 
     def compute(self, source, target):
         raise NotImplementedError()

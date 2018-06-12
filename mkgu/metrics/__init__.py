@@ -5,17 +5,21 @@ from collections import Counter
 import numpy as np
 import scipy
 
-from mkgu.assemblies import NeuroidAssembly, array_is_element, walk_coords
-from mkgu.metrics.transformations import Alignment, CartesianProduct, CrossValidation, apply_transformations
+from mkgu.assemblies import NeuroidAssembly, array_is_element, walk_coords, DataAssembly, merge_data_arrays
+from mkgu.metrics.transformations import Alignment, Alignment, CartesianProduct, CrossValidation, apply_transformations
 from mkgu.utils import fullname
 from .utils import collect_coords, collect_dim_shapes, get_modified_coords, merge_dicts
 
 
 class Metric(object):
-    def __init__(self, transformations='default'):
-        if transformations == 'default':
-            transformations = [Alignment(), CartesianProduct(), CrossValidation()]
-        self._transformations = transformations
+    def __init__(self, alignment_kwargs=None, cartesian_product_kwargs=None, cross_validation_kwargs=None,
+                 alignment_ctr=Alignment, cartesian_product_ctr=CartesianProduct, cross_validation_ctr=CrossValidation):
+        alignment_kwargs = alignment_kwargs or {}
+        cartesian_product_kwargs = cartesian_product_kwargs or {}
+        cross_validation_kwargs = cross_validation_kwargs or {}
+        self._transformations = [alignment_ctr(**alignment_kwargs),
+                                 cartesian_product_ctr(**cartesian_product_kwargs),
+                                 cross_validation_ctr(**cross_validation_kwargs)]
 
         self._logger = logging.getLogger(fullname(self))
 

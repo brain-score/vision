@@ -3,6 +3,7 @@ import logging
 from collections import OrderedDict
 
 import numpy as np
+import xarray as xr
 from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
 
 from mkgu.assemblies import merge_data_arrays, DataAssembly
@@ -68,25 +69,34 @@ class Transformation(object):
 
 
 class Alignment(Transformation):
-    def __init__(self):
+    class Defaults:
+        order_dimensions = ('presentation', 'neuroid')
+        alignment_dim = 'image_id'
+        repeat = False
+
+    def __init__(self, order_dimensions=Defaults.order_dimensions, alignment_dim=Defaults.alignment_dim,
+                 repeat=Defaults.repeat):
+        self._order_dimensions = order_dimensions
+        self._alignment_dim = alignment_dim
+        self._repeat = repeat
         self._logger = logging.getLogger(fullname(self))
 
     def __call__(self, source_assembly, target_assembly):
-        self._logger.debug("Aligning")
+        self._logger.debug("Aligning by {} and {}, {} repeats".format(
+            self._order_dimensions, self._alignment_dim, "with" if self._repeat else "no"))
         source_assembly = self.align(source_assembly, target_assembly)
-        self._logger.debug("Sorting")
+        self._logger.debug("Sorting by {}".format(self._alignment_dim))
         source_assembly, target_assembly = self.sort(source_assembly), self.sort(target_assembly)
         result = yield from self._get_result(source_assembly, target_assembly, done=True)
         yield result
 
-    def align(self, source_assembly, target_assembly, subset_dim='presentation'):
-        dimensions = ['presentation', 'neuroid']
-        dimensions += list(set(source_assembly.dims) - set(dimensions))
+    def align(self, source_assembly, target_assembly):
+        dimensions = list(self._order_dimensions) + list(set(source_assembly.dims) - set(self._order_dimensions))
         source_assembly = source_assembly.transpose(*dimensions)
-        return subset(source_assembly, target_assembly, subset_dims=[subset_dim])  # , repeat=True)
+        return subset(source_assembly, target_assembly, subset_dims=[self._alignment_dim], repeat=self._repeat)
 
     def sort(self, assembly):
-        return assembly.sortby('image_id')
+        return assembly.sortby(self._alignment_dim)
 
 
 class CartesianProduct(Transformation):
@@ -96,14 +106,14 @@ class CartesianProduct(Transformation):
     """
 
     class Defaults:
-        similarity_dims = 'presentation', 'neuroid'
+        non_dividing_dims = 'presentation', 'neuroid'
         dividing_coords = 'region',
 
     def __init__(self,
-                 similarity_dims=Defaults.similarity_dims, dividing_coord_names=Defaults.dividing_coords,
+                 non_dividing_dims=Defaults.non_dividing_dims, dividing_coord_names=Defaults.dividing_coords,
                  dividing_coord_names_source=(), dividing_coord_names_target=()):
         super(CartesianProduct, self).__init__()
-        self._similarity_dims = similarity_dims
+        self._non_dividing_dims = non_dividing_dims
         self._dividing_coord_names = dividing_coord_names
         self._dividing_coord_names_source = dividing_coord_names_source
         self._dividing_coord_names_target = dividing_coord_names_target
@@ -120,7 +130,7 @@ class CartesianProduct(Transformation):
         # divide data along dividing coords and non-central dimensions,
         # i.e. dimensions that the metric is not computed over
         def dividing_selections(assembly, dividing_coord_names):
-            dividing_coords = [dim for dim in assembly.dims if dim not in self._similarity_dims] \
+            dividing_coords = [dim for dim in assembly.dims if dim not in self._non_dividing_dims] \
                               + [coord for coord in dividing_coord_names if hasattr(assembly, coord)]
             choices = {coord: np.unique(assembly[coord]) for coord in dividing_coords}
             combinations = [dict(zip(choices, values)) for values in itertools.product(*choices.values())]

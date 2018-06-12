@@ -150,15 +150,13 @@ class CartesianProduct(Transformation):
 
             divider_coords = self.merge_dividers(div_src, div_tgt)
             for coord_name, coord_value in divider_coords.items():
-                similarity[coord_name] = coord_value
+                similarity = similarity.expand_dims(coord_name)
+                similarity[coord_name] = [coord_value]
             similarities.append(similarity)
-        assert all(similarity.shape == similarities[0].shape for similarity in similarities[1:])  # all shapes equal
-
-        # re-shape into dividing dimensions and split
-        assembly_dims = source_assembly.dims + target_assembly.dims + tuple(self._dividing_coord_names) \
-                        + tuple(self._dividing_coord_names_source) + tuple(self._dividing_coord_names_target) \
-                        + ('split',)
-        similarities = [expand(similarity, assembly_dims) for similarity in similarities]
+        assert all(similarity.dims == similarities[0].dims for similarity in similarities[1:])  # all dims equal
+        # note that the shapes are likely different between combinations and will be padded with NaNs:
+        # for instance, V4 and IT have different numbers of neurons and while the neuroid dimension will be merged,
+        # the values for V4 neuroids of an IT combination will be NaN.
         similarities = merge_data_arrays(similarities)
         yield similarities
 
@@ -197,9 +195,8 @@ class CrossValidation(Transformation):
     def __call__(self, source_assembly, target_assembly):
         assert all(source_assembly[self._cross_validation_dim].values ==
                    target_assembly[self._cross_validation_dim].values)
-
-        cross_validation_values = target_assembly[self._cross_validation_dim]
-        unique_cross_validation_values = np.unique(source_assembly[self._cross_validation_dim])
+        cross_validation_values = extract_coord(target_assembly, self._cross_validation_dim)
+        unique_cross_validation_values = np.unique(cross_validation_values)
         if hasattr(target_assembly, self._stratification_coord):
             assert hasattr(source_assembly, self._stratification_coord)
             assert all(source_assembly[self._stratification_coord].values ==
@@ -211,21 +208,33 @@ class CrossValidation(Transformation):
                                  "- falling back to un-stratified splits".format(self._stratification_coord))
             splits = list(self._shuffle_split.split(np.zeros(len(unique_cross_validation_values))))
 
-        split_scores = {}
+        split_scores = []
         for split_iterator, (train_indices, test_indices), done in enumerate_done(splits):
             self._logger.debug("split {}/{}".format(split_iterator + 1, len(splits)))
             train_values, test_values = cross_validation_values[train_indices], cross_validation_values[test_indices]
-            train_source = subset(source_assembly, train_values)
-            train_target = subset(target_assembly, train_values)
-            test_source = subset(source_assembly, test_values)
-            test_target = subset(target_assembly, test_values)
+            train_source = subset(source_assembly, train_values, dims_must_match=False)
+            train_target = subset(target_assembly, train_values, dims_must_match=False)
+            assert len(train_source[self._cross_validation_dim]) == len(train_target[self._cross_validation_dim])
+            test_source = subset(source_assembly, test_values, dims_must_match=False)
+            test_target = subset(target_assembly, test_values, dims_must_match=False)
+            assert len(test_source[self._cross_validation_dim]) == len(test_target[self._cross_validation_dim])
 
             split_score = yield from self._get_result(train_source, train_target, test_source, test_target, done=done)
-            split_scores[split_iterator] = split_score
+            split_score = split_score.expand_dims('split')
+            split_score['split'] = [split_iterator]
+            split_scores.append(split_score)
 
-        coords = {'split': list(split_scores.keys())}
-        split_scores = DataAssembly(list(split_scores.values()), coords=coords, dims=['split'])
+        split_scores = merge_data_arrays(split_scores)
         yield split_scores
+
+
+def extract_coord(assembly, coord):
+    extracted_assembly = np.unique(assembly[coord].values)
+    dims = assembly[coord].dims
+    assert len(dims) == 1
+    extracted_assembly = xr.DataArray(extracted_assembly, coords={coord: extracted_assembly}, dims=[coord])
+    extracted_assembly = extracted_assembly.stack(**{dims[0]: (coord,)})
+    return extracted_assembly
 
 
 def subset(source_assembly, target_assembly, subset_dims=None, dims_must_match=True, repeat=False):
@@ -236,8 +245,8 @@ def subset(source_assembly, target_assembly, subset_dims=None, dims_must_match=T
     """
     subset_dims = subset_dims or target_assembly.dims
     for dim in subset_dims:
-        assert dim in target_assembly.dims
-        assert dim in source_assembly.dims
+        assert hasattr(target_assembly, dim)
+        assert hasattr(source_assembly, dim)
         # we assume here that it does not matter if all levels are present in the source assembly
         # as long as there is at least one level that we can select over
         levels = target_assembly[dim].variable.level_names or [dim]
@@ -249,12 +258,15 @@ def subset(source_assembly, target_assembly, subset_dims=None, dims_must_match=T
             source_values = source_assembly[level].values
             if repeat:
                 indexer = index_efficient(source_values, target_values)
-                dim_indexes = {_dim: slice(None) if _dim != dim else indexer for _dim in source_assembly.dims}
             else:
-                level_values = target_assembly[level].values
-                indexer = np.array([val in level_values for val in source_assembly[level].values])
-                dim_indexes = {_dim: slice(None) if _dim != dim else np.where(indexer)[0] for _dim in
-                               source_assembly.dims}
+                indexer = np.array([val in target_values for val in source_assembly[level].values])
+                indexer = np.where(indexer)[0]
+            if dim not in target_assembly.dims:
+                # not actually a dimension, but rather a coord -> filter along underlying dim
+                dim = target_assembly[dim].dims
+                assert len(dim) == 1
+                dim = dim[0]
+            dim_indexes = {_dim: slice(None) if _dim != dim else indexer for _dim in source_assembly.dims}
             source_assembly = source_assembly.isel(**dim_indexes)
         if dims_must_match:
             # dims match up after selection. cannot compare exact equality due to potentially missing levels

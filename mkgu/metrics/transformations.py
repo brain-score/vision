@@ -1,5 +1,6 @@
 import itertools
 import logging
+import math
 from collections import OrderedDict
 
 import numpy as np
@@ -10,50 +11,15 @@ from mkgu.assemblies import merge_data_arrays, DataAssembly
 from mkgu.utils import fullname
 
 
-def enumerate_done(values):
-    for i, val in enumerate(values):
-        done = i == len(values) - 1
-        yield i, val, done
-
-
-def apply_transformations(*args, transformations, computor):
-    """
-    Start from first transformation, pass all of the transformed values into second transformation and so forth.
-    When no transformations are left, apply the computor on each of the transformed values.
-    When values are coming back, go the reverse way:
-    collect all computed values, send them to the last transformation.
-    Once the last transformation is complete, return its result to the second-last transformation and so forth.
-
-    Note that transformations are expected to yield a transformed value,
-    receive the result of computing that transformation,
-    and signal whether all transformations are done.
-    When the last transformation is done, the generator ought to yield the combined result.
-    """
-
-    def recurse(generator, generators):
-        for vals in generator:
-            if len(generators) > 0:
-                gen = generators[0]
-                gen = gen(*vals)
-                y = recurse(gen, generators[1:])
-            else:
-                y = computor(*vals)
-            done = generator.send(y)
-            if done:
-                break
-        result = next(generator)
-        return result
-
-    result = recurse(transformations[0](*args), transformations[1:])
-    return result
-
-
 class Transformation(object):
     """
     Transforms an incoming assembly into parts/combinations thereof,
     yields them for further processing,
     and packages the results back together.
     """
+
+    def __call__(self, source_assembly, target_assembly):
+        raise NotImplementedError()
 
     def _get_result(self, *args, done):
         """
@@ -66,6 +32,9 @@ class Transformation(object):
         result = yield args  # yield the values to coroutine
         yield done  # wait for coroutine to send back similarity and inform whether result is ready to be returned
         return result
+
+    def aggregate(self, center, error):
+        return center, error
 
 
 class Alignment(Transformation):
@@ -107,16 +76,15 @@ class CartesianProduct(Transformation):
 
     class Defaults:
         non_dividing_dims = 'presentation', 'neuroid'
-        dividing_coords = 'region',
+        dividing_coords_target = 'region',
 
     def __init__(self,
-                 non_dividing_dims=Defaults.non_dividing_dims, dividing_coord_names=Defaults.dividing_coords,
-                 dividing_coord_names_source=(), dividing_coord_names_target=()):
+                 non_dividing_dims=Defaults.non_dividing_dims,
+                 dividing_coord_names_source=(), dividing_coord_names_target=Defaults.dividing_coords_target):
         super(CartesianProduct, self).__init__()
         self._non_dividing_dims = non_dividing_dims
-        self._dividing_coord_names = dividing_coord_names
-        self._dividing_coord_names_source = dividing_coord_names_source
-        self._dividing_coord_names_target = dividing_coord_names_target
+        self._dividing_coord_names_source = dividing_coord_names_source or ()
+        self._dividing_coord_names_target = dividing_coord_names_target or ()
 
         self._logger = logging.getLogger(fullname(self))
 
@@ -136,10 +104,8 @@ class CartesianProduct(Transformation):
             combinations = [dict(zip(choices, values)) for values in itertools.product(*choices.values())]
             return combinations
 
-        dividers_source = dividing_selections(source_assembly,
-                                              self._dividing_coord_names + tuple(self._dividing_coord_names_source))
-        dividers_target = dividing_selections(target_assembly,
-                                              self._dividing_coord_names + tuple(self._dividing_coord_names_target))
+        dividers_source = dividing_selections(source_assembly, self._dividing_coord_names_source)
+        dividers_target = dividing_selections(target_assembly, self._dividing_coord_names_target)
         # run all dividing combinations or use the assemblies themselves if no dividers
         divider_combinations = list(itertools.product(dividers_source, dividers_target)) or [({}, {})]
         similarities = []
@@ -226,6 +192,13 @@ class CrossValidation(Transformation):
 
         split_scores = merge_data_arrays(split_scores)
         yield split_scores
+
+    def aggregate(self, center, error):
+        return center.mean('split'), standard_error_of_the_mean(error, 'split')
+
+
+def standard_error_of_the_mean(values, dim):
+    return values.std(dim) / math.sqrt(len(values[dim]))
 
 
 def extract_coord(assembly, coord):
@@ -318,3 +291,63 @@ def expand(assembly, target_dims):
         values = values[:, np.newaxis]
     values = np.broadcast_to(values, shape)
     return DataAssembly(values, coords=coords, dims=list(dim_shapes.keys()))
+
+
+def enumerate_done(values):
+    for i, val in enumerate(values):
+        done = i == len(values) - 1
+        yield i, val, done
+
+
+def apply_transformations(*args, transformations, metric):
+    """
+    Start from first transformation, pass all of the transformed values into second transformation and so forth.
+    When no transformations are left, apply the metric on each of the transformed values.
+    When values are coming back, go the reverse way:
+    collect all computed values, send them to the last transformation.
+    Once the last transformation is complete, return its result to the second-last transformation and so forth.
+
+    Note that transformations are expected to yield a transformed value,
+    receive the result of computing that transformation,
+    and signal whether all transformations are done.
+    When the last transformation is done, the generator ought to yield the combined result.
+    """
+
+    def recurse(generator, generators):
+        for vals in generator:
+            if len(generators) > 0:
+                gen = generators[0]
+                gen = gen(*vals)
+                y = recurse(gen, generators[1:])
+            else:
+                y = metric(*vals)
+            done = generator.send(y)
+            if done:
+                break
+        result = next(generator)
+        return result
+
+    scores = recurse(transformations[0](*args), transformations[1:])
+    return scores
+
+
+class Transformations(object):
+    def __init__(self, alignment_kwargs=None, cartesian_product_kwargs=None, cross_validation_kwargs=None,
+                 alignment_ctr=Alignment, cartesian_product_ctr=CartesianProduct, cross_validation_ctr=CrossValidation):
+        alignment_kwargs = alignment_kwargs or {}
+        cartesian_product_kwargs = cartesian_product_kwargs or {}
+        cross_validation_kwargs = cross_validation_kwargs or {}
+        self._transformations = [alignment_ctr(**alignment_kwargs),
+                                 cartesian_product_ctr(**cartesian_product_kwargs),
+                                 cross_validation_ctr(**cross_validation_kwargs)]
+
+    def __call__(self, source_assembly, target_assembly, metric):
+        raw_scores = apply_transformations(source_assembly, target_assembly,
+                                           transformations=self._transformations, metric=metric)
+
+        scores = metric.aggregate(raw_scores)
+        center, error = scores, scores
+        for transformation in self._transformations:
+            center, error = transformation.aggregate(center, error)
+        from mkgu.metrics import Score  # avoid circular import
+        return Score(raw_scores, center, error)

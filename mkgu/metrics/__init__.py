@@ -1,5 +1,4 @@
 import logging
-import math
 from collections import Counter
 
 import numpy as np
@@ -12,62 +11,11 @@ from .utils import collect_coords, collect_dim_shapes, get_modified_coords, merg
 
 
 class Metric(object):
-    def __init__(self, alignment_kwargs=None, cartesian_product_kwargs=None, cross_validation_kwargs=None,
-                 alignment_ctr=Alignment, cartesian_product_ctr=CartesianProduct, cross_validation_ctr=CrossValidation):
-        alignment_kwargs = alignment_kwargs or {}
-        cartesian_product_kwargs = cartesian_product_kwargs or {}
-        cross_validation_kwargs = cross_validation_kwargs or {}
-        self._transformations = [alignment_ctr(**alignment_kwargs),
-                                 cartesian_product_ctr(**cartesian_product_kwargs),
-                                 cross_validation_ctr(**cross_validation_kwargs)]
-
-        self._logger = logging.getLogger(fullname(self))
-
-    def __call__(self, source_assembly, target_assembly, **kwargs):
-        """
-        :param mkgu.assemblies.NeuroidAssembly source_assembly:
-        :param mkgu.assemblies.NeuroidAssembly target_assembly:
-        :return: mkgu.metrics.Score
-        """
-        self._logger.debug("Applying metric to transformed assemblies")
-        similarity_assembly = apply_transformations(source_assembly, target_assembly,
-                                                    transformations=self._transformations, computor=self.apply)
-        return self.score(similarity_assembly)
-
-    def score(self, similarity_assembly):
-        return MeanScore(similarity_assembly)
-
-    def apply(self, *args, **kwargs):
+    def __call__(self, train_source, train_target, test_source, test_target):
         raise NotImplementedError()
 
-
-def standard_error_of_the_mean(values, dim):
-    return values.std(dim) / math.sqrt(len(values[dim]))
-
-
-class Score(object):
-    class Defaults:
-        aggregation_dim = 'split'
-
-    def __init__(self, values_assembly, aggregation_dim=Defaults.aggregation_dim):
-        self.values = values_assembly
-        center = self.get_center(self.values, dim=aggregation_dim)
-        error = self.get_error(self.values, dim=aggregation_dim)
-        center = center.expand_dims('aggregation')
-        center['aggregation'] = ['center']
-        error = error.expand_dims('aggregation')
-        error['aggregation'] = ['error']
-        self.aggregation = merge_data_arrays([center, error])
-
-    def get_center(self, values, dim):
-        raise NotImplementedError()
-
-    def get_error(self, values, dim):
-        return standard_error_of_the_mean(values, dim)
-
-    def __repr__(self):
-        return self.__class__.__name__ + "(" + ",".join(
-            "{}={}".format(attr, val) for attr, val in self.__dict__.items()) + ")"
+    def aggregate(self, scores):
+        return scores
 
 
 class ParametricMetric(Metric):
@@ -82,7 +30,7 @@ class ParametricMetric(Metric):
         self._target_neuroid_values = None
         self._logger = logging.getLogger(fullname(self))
 
-    def apply(self, train_source, train_target, test_source, test_target):
+    def __call__(self, train_source, train_target, test_source, test_target):
         self._logger.debug("Fitting")
         self.fit(train_source, train_target)
         self._logger.debug("Predicting")
@@ -94,8 +42,7 @@ class ParametricMetric(Metric):
     def fit(self, source, target):
         np.testing.assert_array_equal(source.dims, self.Defaults.expected_dims)
         np.testing.assert_array_equal(target.dims, self.Defaults.expected_dims)
-        assert all(source[self.Defaults.stimulus_coord].values
-                   == target[self.Defaults.stimulus_coord].values)
+        assert all(source[self.Defaults.stimulus_coord].values == target[self.Defaults.stimulus_coord].values)
         self._target_neuroid_values = {}
         for name, dims, values in walk_coords(target):
             if self.Defaults.neuroid_dim in dims:
@@ -143,11 +90,10 @@ class ParametricMetric(Metric):
             r, p = correlation(target_activations, prediction_activations)
             correlations.append(r)
         return DataAssembly(correlations, coords={axis: target[axis].values}, dims=[axis])
-        # return np.median(correlations)  # median across neuroids TODO
 
 
 class NonparametricMetric(Metric):
-    def apply(self, train_source, train_target, test_source, test_target):
+    def __call__(self, train_source, train_target, test_source, test_target):
         # no training, apply directly on test
         result = self.compute(test_source, test_target)
         return DataAssembly(result)
@@ -156,6 +102,16 @@ class NonparametricMetric(Metric):
         raise NotImplementedError()
 
 
-class MeanScore(Score):
-    def get_center(self, values, dim):
-        return values.mean(dim=dim)
+class Score(object):
+    def __init__(self, values_assembly, center_assembly, error_assembly):
+        self.values = values_assembly
+
+        center = center_assembly.expand_dims('aggregation')
+        center['aggregation'] = ['center']
+        error = error_assembly.expand_dims('aggregation')
+        error['aggregation'] = ['error']
+        self.aggregation = merge_data_arrays([center, error])
+
+    def __repr__(self):
+        return self.__class__.__name__ + "(" + ",".join(
+            "{}={}".format(attr, val) for attr, val in self.__dict__.items()) + ")"

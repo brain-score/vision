@@ -5,44 +5,43 @@ import pytest
 
 from mkgu.assemblies import NeuroidAssembly, DataAssembly
 from mkgu.metrics import Metric
-from mkgu.metrics.transformations import subset, index_efficient, CartesianProduct
+from mkgu.metrics.transformations import subset, index_efficient, CartesianProduct, apply_transformations
 
 
 class MetricPlaceholder(Metric):
-    def __init__(self, *args, **kwargs):
-        kwargs['transformations'] = [CartesianProduct()]
-        super(MetricPlaceholder, self).__init__(*args, **kwargs)
+    def __init__(self):
+        super(MetricPlaceholder, self).__init__()
         self.source_assemblies = []
         self.target_assemblies = []
 
-    def apply(self, source_assembly, target_assembly):
+    def __call__(self, source_assembly, target_assembly):
         self.source_assemblies.append(source_assembly)
         self.target_assemblies.append(target_assembly)
         return DataAssembly([0], coords={'split': [0]}, dims=['split'])
 
-    def align(self, source_assembly, target_assembly, subset_dim=None):
-        return source_assembly  # avoid alignment
-
-    def sort(self, source_assembly):
-        return source_assembly  # avoid sorting
-
 
 class TestCartesianProduct:
     def test_no_division3(self):
-        self._test_no_division(3)
+        self._test_no_division_apply_manually(3)
 
     def test_no_division100(self):
-        self._test_no_division(100)
+        self._test_no_division_apply_manually(100)
 
-    def _test_no_division(self, num_values):
+    def _test_no_division_apply_manually(self, num_values):
         assembly = np.random.rand(num_values)
         assembly = NeuroidAssembly(assembly, coords={'neuroid': list(range(len(assembly)))}, dims=['neuroid'])
-        similarity = MetricPlaceholder()
-        sim = similarity(assembly, assembly)
-        assert sim.center == 0
-        assert 1 == len(similarity.source_assemblies) == len(similarity.target_assemblies)
-        np.testing.assert_array_equal(assembly.values, similarity.source_assemblies[0])
-        np.testing.assert_array_equal(assembly.values, similarity.target_assemblies[0])
+        transformation = CartesianProduct()
+        generator = transformation(assembly, assembly)
+        for source, target in generator:  # should run only once
+            np.testing.assert_array_equal(assembly.values, source)
+            np.testing.assert_array_equal(assembly.values, target)
+            done = generator.send(DataAssembly([0], coords={'split': [0]}, dims=['split']))
+            assert done
+            break
+        similarity = next(generator)
+        np.testing.assert_array_equal(similarity.shape, [1])
+        np.testing.assert_array_equal(similarity.dims, ['split'])
+        assert similarity[0] == 0
 
     def test_one_division(self):
         assembly = np.random.rand(100, 3)
@@ -50,10 +49,12 @@ class TestCartesianProduct:
             assembly,
             coords={'neuroid': list(range(len(assembly))), 'division_coord': list(range(assembly.shape[1]))},
             dims=['neuroid', 'division_coord'])
-        similarity = MetricPlaceholder()
-        similarity(assembly, assembly)
-        assert np.power(assembly.shape[1], 2) == len(similarity.source_assemblies) == len(similarity.target_assemblies)
-        pairs = list(zip(similarity.source_assemblies, similarity.target_assemblies))
+        transformation = CartesianProduct()
+        placeholder = MetricPlaceholder()
+        apply_transformations(assembly, assembly, transformations=[transformation], metric=placeholder)
+        assert np.power(assembly.shape[1], 2) == \
+               len(placeholder.source_assemblies) == len(placeholder.target_assemblies)
+        pairs = list(zip(placeholder.source_assemblies, placeholder.target_assemblies))
         target_pairs = [(assembly.sel(division_coord=i).rename({'division_coord': 'division_coord-left'}).values,
                          assembly.sel(division_coord=j).rename({'division_coord': 'division_coord-right'}).values)
                         for i, j in itertools.product(*([list(range(assembly.shape[1]))] * 2))]
@@ -71,10 +72,11 @@ class TestCartesianProduct:
             assembly,
             coords={'neuroid': list(range(assembly.shape[1])), 'division_coord': list(range(assembly.shape[0]))},
             dims=['division_coord', 'neuroid'])
-        similarity = MetricPlaceholder()
-        similarity(assembly, assembly)
-        assert np.power(assembly.shape[0], 2) == len(similarity.source_assemblies) == len(similarity.target_assemblies)
-        pairs = list(zip(similarity.source_assemblies, similarity.target_assemblies))
+        transformation = CartesianProduct()
+        placeholder = MetricPlaceholder()
+        apply_transformations(assembly, assembly, transformations=[transformation], metric=placeholder)
+        assert np.power(assembly.shape[0], 2) == len(placeholder.source_assemblies) == len(placeholder.target_assemblies)
+        pairs = list(zip(placeholder.source_assemblies, placeholder.target_assemblies))
         target_pairs = [(assembly.sel(division_coord=i).rename({'division_coord': 'division_coord-left'}).values,
                          assembly.sel(division_coord=j).rename({'division_coord': 'division_coord-right'}).values)
                         for i, j in itertools.product(*([list(range(assembly.shape[0]))] * 2))]

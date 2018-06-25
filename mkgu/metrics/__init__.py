@@ -103,15 +103,20 @@ class NonparametricMetric(Metric):
 
 
 class Score(object):
-    def __init__(self, values_assembly, center_assembly, error_assembly):
-        self.values = values_assembly
-
-        center = center_assembly.expand_dims('aggregation')
-        center['aggregation'] = ['center']
-        error = error_assembly.expand_dims('aggregation')
-        error['aggregation'] = ['error']
-        self.aggregation = merge_data_arrays([center, error])
+    def __init__(self, values, aggregation):
+        self.values = values
+        self.aggregation = aggregation
 
     def __repr__(self):
         return self.__class__.__name__ + "(" + ",".join(
             "{}={}".format(attr, val) for attr, val in self.__dict__.items()) + ")"
+
+
+def build_score(values, center, error):
+    # keep separate from Score class to keep constructor equal to fields (necessary for utils.py#combine_fields)
+    center = center.expand_dims('aggregation')
+    center['aggregation'] = ['center']
+    error = error.expand_dims('aggregation')
+    error['aggregation'] = ['error']
+    aggregation = merge_data_arrays([center, error])
+    return Score(values, aggregation)

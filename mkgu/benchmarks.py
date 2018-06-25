@@ -8,6 +8,7 @@ from mkgu.metrics.ceiling import ceilings
 from mkgu.metrics.neural_fit import NeuralFit
 from mkgu.metrics.rdm import RDMMetric
 from mkgu.metrics.transformations import Transformations, CartesianProduct
+from mkgu.storage import store
 from mkgu.utils import map_fields, combine_fields, fullname
 
 metrics = {
@@ -38,6 +39,7 @@ class Benchmark(object):
         return scores / ceiling
 
     @property
+    @store()
     def ceiling(self):
         return self._ceiling(self._target_assembly)
 

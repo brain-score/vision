@@ -102,20 +102,18 @@ class SplitBenchmark(Benchmark):
 
 class DicarloMajaj2015(SplitBenchmark):
     def __init__(self):
-        assembly = DicarloMajaj2015Loader()()
+        self._loader = DicarloMajaj2015Loader()
+        assembly = self._loader(average_repetition=False)
         metric = metrics['neural_fit']()
-        ceiling = ceilings['splitrep'](metric, average_repetition=self.average_repetition)
+        ceiling = ceilings['splitrep'](metric, average_repetition=self._loader.average_repetition)
         super(DicarloMajaj2015, self).__init__(assembly, metric, ceiling, target_splits=('region',))
 
     def _apply(self, source_assembly, source_splits=()):
         target_assembly_save = copy.deepcopy(self._target_assembly)
-        self._target_assembly = self.average_repetition(self._target_assembly)
+        self._target_assembly = self._loader.average_repetition(self._target_assembly)
         scores = super(DicarloMajaj2015, self)._apply(source_assembly, source_splits)
         self._target_assembly = target_assembly_save
         return scores
-
-    def average_repetition(self, assembly):
-        return assembly.multi_groupby(['category_name', 'object_name', 'image_id']).mean(dim='presentation')
 
 
 class GallantDavid2004(Benchmark):
@@ -140,7 +138,7 @@ class AssemblyLoader(object):
 
 
 class DicarloMajaj2015Loader(AssemblyLoader):
-    def __call__(self):
+    def __call__(self, average_repetition=True):
         assembly = mkgu.get_assembly(name='dicarlo.Majaj2015')
         assembly.load()
         err_neuroids = ['Tito_L_P_8_5', 'Tito_L_P_7_3', 'Tito_L_P_7_5', 'Tito_L_P_5_1', 'Tito_L_P_9_3',
@@ -157,7 +155,12 @@ class DicarloMajaj2015Loader(AssemblyLoader):
         assembly = assembly.sel(variation=6)  # TODO: remove variation selection once part of name
         assembly = assembly.squeeze("time_bin")
         assembly = assembly.transpose('presentation', 'neuroid')
+        if average_repetition:
+            assembly = self.average_repetition(assembly)
         return assembly
+
+    def average_repetition(self, assembly):
+        return assembly.multi_groupby(['category_name', 'object_name', 'image_id']).mean(dim='presentation')
 
 
 class GallantDavid2004Loader(AssemblyLoader):
@@ -189,6 +192,6 @@ def load(name):
 
 def build(assembly_name, metric_name, ceiling_name, target_splits=()):
     assembly = _assemblies[assembly_name]()
-    metric = metrics[metric_name]
-    ceiling = ceilings[ceiling_name]
+    metric = metrics[metric_name]()
+    ceiling = ceilings[ceiling_name]()
     return SplitBenchmark(assembly, metric, ceiling, target_splits=target_splits)

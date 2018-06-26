@@ -1,7 +1,7 @@
 import functools
 import logging
 
-from mkgu.assemblies import merge_data_arrays
+from mkgu.assemblies import merge_data_arrays, DataAssembly
 from mkgu.metrics import ParametricMetric, build_score
 from mkgu.metrics.transformations import CrossValidation, subset
 from mkgu.utils import fullname
@@ -10,6 +10,11 @@ from mkgu.utils import fullname
 class Ceiling(object):
     def __call__(self, assembly):
         raise NotImplementedError()
+
+
+class NoCeiling(Ceiling):
+    def __call__(self, assembly):
+        return build_score(DataAssembly([1]), center=DataAssembly([1]), error=DataAssembly([0]))
 
 
 class SplitCeiling(Ceiling):
@@ -94,4 +99,5 @@ def spearman_brown_correction(correlation, n):
 ceilings = {
     'splitrep': SplitRepCeiling,
     'cons': InternalConsistency,
+    None: NoCeiling,
 }

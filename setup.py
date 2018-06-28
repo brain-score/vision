@@ -20,6 +20,7 @@ requirements = [
     "peewee",
     "networkx",
     "pathos",
+    "git+https://github.com/mschrimpf/caching",
 ]
 
 test_requirements = [

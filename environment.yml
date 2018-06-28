@@ -16,3 +16,4 @@ dependencies:
 - jupyter
 - pip:
   - pathos
+  - git+https://github.com/mschrimpf/caching

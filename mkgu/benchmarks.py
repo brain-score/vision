@@ -1,5 +1,9 @@
 import copy
 import logging
+import os
+
+import caching
+from caching import store
 
 import mkgu
 from mkgu.assemblies import merge_data_arrays
@@ -8,8 +12,9 @@ from mkgu.metrics.ceiling import ceilings
 from mkgu.metrics.neural_fit import NeuralFit
 from mkgu.metrics.rdm import RDMMetric
 from mkgu.metrics.transformations import Transformations, CartesianProduct
-from mkgu.storage import store
 from mkgu.utils import map_fields, combine_fields, fullname
+
+caching.store.configure_storagedir(os.path.join(os.path.dirname(__file__), '..', 'output'))
 
 metrics = {
     'rdm': RDMMetric,

@@ -150,12 +150,13 @@ class CrossValidation(Transformation):
 
     def __init__(self,
                  splits=Defaults.splits, train_size=Defaults.train_size, test_size=None,  # complement train
-                 dim=Defaults.dim, stratification_coord=Defaults.stratification_coord):
+                 dim=Defaults.dim, stratification_coord=Defaults.stratification_coord,
+                 seed=1):
         super().__init__()
         self._stratified_split = StratifiedShuffleSplit(
-            n_splits=splits, train_size=train_size, test_size=test_size)
+            n_splits=splits, train_size=train_size, test_size=test_size, random_state=seed)
         self._shuffle_split = ShuffleSplit(
-            n_splits=splits, train_size=train_size, test_size=test_size)
+            n_splits=splits, train_size=train_size, test_size=test_size, random_state=seed)
         self._dim = dim
         self._stratification_coord = stratification_coord
 

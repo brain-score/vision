@@ -68,22 +68,23 @@ class SplitBenchmark(Benchmark):
         return scores
 
     def _ceil(self, score, ceiling):
-        # since splits are independent between score and ceiling, we can only really look at the aggregate.
-        # Ideally, we would want to ceil every single split but without equal seeding, we cannot do that currently.
+        # since splits are the same when scoring and computing the ceiling, we can ceil both values and aggregate.
         ceiled_score = copy.deepcopy(score)
-        ceiled_score.values = None
-        for divider in self._target_dividers:
-            _score = ceiled_score.aggregation
-            _ceiling = ceiling.aggregation
-            selector = {**divider, **dict(aggregation='center')}
-            _score.loc[selector] = _score.loc[selector] / _ceiling.loc[selector]
+        for field in ['values', 'aggregation']:
+            _score = getattr(ceiled_score, field)
+            _ceiling = getattr(ceiling, field)
+            for divider in self._target_dividers:
+                selector = divider
+                if field == 'aggregation':
+                    selector = {**selector, **dict(aggregation='center')}
+                _score.loc[selector] = _score.loc[selector] / _ceiling.loc[selector]
         return ceiled_score
 
     @property
     def ceiling(self):
         scores = []
         for i, divider in enumerate(self._target_dividers):
-            self._logger.debug("Ceiling divider {}/{}: {}".format(i, len(self._target_dividers), divider))
+            self._logger.debug("Ceiling divider {}/{}: {}".format(i + 1, len(self._target_dividers), divider))
             div_assembly = self._target_assembly.multisel(**divider)
             score = self._ceiling(div_assembly)
 
@@ -190,8 +191,12 @@ def load(name):
     return _benchmarks[name]()
 
 
+def load_assembly(name):
+    return _assemblies[name]()
+
+
 def build(assembly_name, metric_name, ceiling_name, target_splits=()):
-    assembly = _assemblies[assembly_name]()
+    assembly = load_assembly(assembly_name)
     metric = metrics[metric_name]()
     ceiling = ceilings[ceiling_name]()
     return SplitBenchmark(assembly, metric, ceiling, target_splits=target_splits)

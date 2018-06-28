@@ -88,24 +88,17 @@ class CartesianProduct(Transformation):
 
         self._logger = logging.getLogger(fullname(self))
 
+    def dividers(self, assembly, dividing_coord_names):
+        return dividers(assembly, dividing_coord_names=dividing_coord_names, non_dividing_dims=self._non_dividing_dims)
+
     def __call__(self, source_assembly, target_assembly):
         """
         :param mkgu.assemblies.NeuroidAssembly source_assembly:
         :param mkgu.assemblies.NeuroidAssembly target_assembly:
         :return: mkgu.assemblies.DataAssembly
         """
-
-        # divide data along dividing coords and non-central dimensions,
-        # i.e. dimensions that the metric is not computed over
-        def dividing_selections(assembly, dividing_coord_names):
-            dividing_coords = [dim for dim in assembly.dims if dim not in self._non_dividing_dims] \
-                              + [coord for coord in dividing_coord_names if hasattr(assembly, coord)]
-            choices = {coord: np.unique(assembly[coord]) for coord in dividing_coords}
-            combinations = [dict(zip(choices, values)) for values in itertools.product(*choices.values())]
-            return combinations
-
-        dividers_source = dividing_selections(source_assembly, self._dividing_coord_names_source)
-        dividers_target = dividing_selections(target_assembly, self._dividing_coord_names_target)
+        dividers_source = self.dividers(source_assembly, self._dividing_coord_names_source)
+        dividers_target = self.dividers(target_assembly, self._dividing_coord_names_target)
         # run all dividing combinations or use the assemblies themselves if no dividers
         divider_combinations = list(itertools.product(dividers_source, dividers_target)) or [({}, {})]
         similarities = []
@@ -136,43 +129,59 @@ class CartesianProduct(Transformation):
         return {**coords_left, **coords_right}
 
 
+def dividers(assembly, dividing_coord_names, non_dividing_dims=()):
+    """
+    divide data along dividing coords and non-central dimensions,
+    i.e. dimensions that the metric is not computed over
+    """
+    dividing_coords = [dim for dim in assembly.dims if dim not in non_dividing_dims] \
+                      + [coord for coord in dividing_coord_names if hasattr(assembly, coord)]
+    choices = {coord: np.unique(assembly[coord]) for coord in dividing_coords}
+    combinations = [dict(zip(choices, values)) for values in itertools.product(*choices.values())]
+    return combinations
+
+
 class CrossValidation(Transformation):
     class Defaults:
-        cross_validation_splits = 10
-        cross_validation_data_ratio = .9
-        cross_validation_dim = 'image_id'
+        splits = 10
+        train_size = .9
+        dim = 'image_id'
         stratification_coord = 'object_name'  # cross-validation across images, balancing objects
 
     def __init__(self,
-                 cross_validation_splits=Defaults.cross_validation_splits,
-                 cross_validation_data_ratio=Defaults.cross_validation_data_ratio,
-                 cross_validation_dim=Defaults.cross_validation_dim,
-                 stratification_coord=Defaults.stratification_coord):
+                 splits=Defaults.splits, train_size=Defaults.train_size, test_size=None,  # complement train
+                 dim=Defaults.dim, stratification_coord=Defaults.stratification_coord,
+                 seed=1):
         super().__init__()
         self._stratified_split = StratifiedShuffleSplit(
-            n_splits=cross_validation_splits, train_size=cross_validation_data_ratio)
+            n_splits=splits, train_size=train_size, test_size=test_size, random_state=seed)
         self._shuffle_split = ShuffleSplit(
-            n_splits=cross_validation_splits, train_size=cross_validation_data_ratio)
-        self._cross_validation_dim = cross_validation_dim
+            n_splits=splits, train_size=train_size, test_size=test_size, random_state=seed)
+        self._dim = dim
         self._stratification_coord = stratification_coord
 
         self._logger = logging.getLogger(fullname(self))
 
+    def build_splits(self, assembly):
+        cross_validation_values, indices = extract_coord(assembly, self._dim, return_index=True)
+        data_shape = np.zeros(len(cross_validation_values))
+        if self._stratification_coord and hasattr(assembly, self._stratification_coord):
+            splits = self._stratified_split.split(data_shape,
+                                                  assembly[self._stratification_coord].values[indices])
+        else:
+            self._logger.warning("Stratification coord '{}' not found in assembly "
+                                 "- falling back to un-stratified splits".format(self._stratification_coord))
+            splits = self._shuffle_split.split(data_shape)
+        return cross_validation_values, list(splits)
+
     def __call__(self, source_assembly, target_assembly):
-        assert all(source_assembly[self._cross_validation_dim].values ==
-                   target_assembly[self._cross_validation_dim].values)
-        cross_validation_values = extract_coord(target_assembly, self._cross_validation_dim)
-        unique_cross_validation_values = np.unique(cross_validation_values)
+        assert all(source_assembly[self._dim].values ==
+                   target_assembly[self._dim].values)
         if hasattr(target_assembly, self._stratification_coord):
             assert hasattr(source_assembly, self._stratification_coord)
             assert all(source_assembly[self._stratification_coord].values ==
                        target_assembly[self._stratification_coord].values)
-            splits = list(self._stratified_split.split(np.zeros(len(unique_cross_validation_values)),
-                                                       source_assembly[self._stratification_coord].values))
-        else:
-            self._logger.warning("Stratification coord '{}' not found in assembly "
-                                 "- falling back to un-stratified splits".format(self._stratification_coord))
-            splits = list(self._shuffle_split.split(np.zeros(len(unique_cross_validation_values))))
+        cross_validation_values, splits = self.build_splits(target_assembly)
 
         split_scores = []
         for split_iterator, (train_indices, test_indices), done in enumerate_done(splits):
@@ -180,10 +189,10 @@ class CrossValidation(Transformation):
             train_values, test_values = cross_validation_values[train_indices], cross_validation_values[test_indices]
             train_source = subset(source_assembly, train_values, dims_must_match=False)
             train_target = subset(target_assembly, train_values, dims_must_match=False)
-            assert len(train_source[self._cross_validation_dim]) == len(train_target[self._cross_validation_dim])
+            assert len(train_source[self._dim]) == len(train_target[self._dim])
             test_source = subset(source_assembly, test_values, dims_must_match=False)
             test_target = subset(target_assembly, test_values, dims_must_match=False)
-            assert len(test_source[self._cross_validation_dim]) == len(test_target[self._cross_validation_dim])
+            assert len(test_source[self._dim]) == len(test_target[self._dim])
 
             split_score = yield from self._get_result(train_source, train_target, test_source, test_target, done=done)
             split_score = split_score.expand_dims('split')
@@ -197,17 +206,17 @@ class CrossValidation(Transformation):
         return center.mean('split'), standard_error_of_the_mean(error, 'split')
 
 
-def standard_error_of_the_mean(values, dim):
-    return values.std(dim) / math.sqrt(len(values[dim]))
-
-
-def extract_coord(assembly, coord):
-    extracted_assembly = np.unique(assembly[coord].values)
+def extract_coord(assembly, coord, return_index=False):
+    extracted_assembly, indices = np.unique(assembly[coord].values, return_index=True)
     dims = assembly[coord].dims
     assert len(dims) == 1
     extracted_assembly = xr.DataArray(extracted_assembly, coords={coord: extracted_assembly}, dims=[coord])
     extracted_assembly = extracted_assembly.stack(**{dims[0]: (coord,)})
-    return extracted_assembly
+    return extracted_assembly if not return_index else extracted_assembly, indices
+
+
+def standard_error_of_the_mean(values, dim):
+    return values.std(dim) / math.sqrt(len(values[dim]))
 
 
 def subset(source_assembly, target_assembly, subset_dims=None, dims_must_match=True, repeat=False):
@@ -232,7 +241,7 @@ def subset(source_assembly, target_assembly, subset_dims=None, dims_must_match=T
             if repeat:
                 indexer = index_efficient(source_values, target_values)
             else:
-                indexer = np.array([val in target_values for val in source_assembly[level].values])
+                indexer = np.array([val in target_values for val in source_values])
                 indexer = np.where(indexer)[0]
             if dim not in target_assembly.dims:
                 # not actually a dimension, but rather a coord -> filter along underlying dim
@@ -349,5 +358,5 @@ class Transformations(object):
         center, error = scores, scores
         for transformation in self._transformations:
             center, error = transformation.aggregate(center, error)
-        from mkgu.metrics import Score  # avoid circular import
-        return Score(raw_scores, center, error)
+        from mkgu.metrics import build_score  # avoid circular import
+        return build_score(raw_scores, center, error)

@@ -2,9 +2,9 @@ import numpy as np
 import xarray
 from pytest import approx
 
-import mkgu
-from mkgu.benchmarks import Benchmark
-from mkgu.metrics.neural_fit import NeuralFit, PCA
+import brainscore
+from brainscore.benchmarks import Benchmark
+from brainscore.metrics.neural_fit import NeuralFit, PCA
 from tests.test_metrics import load_hvm
 
 
@@ -51,5 +51,5 @@ class TestPCA(object):
         hvm = load_hvm().sel(region='IT')
         pca = PCA(max_components=100)
         hvm_ = pca(hvm)
-        assert isinstance(hvm_, mkgu.assemblies.NeuroidAssembly)
+        assert isinstance(hvm_, brainscore.assemblies.NeuroidAssembly)
         np.testing.assert_array_equal([hvm.shape[0], 100], hvm_.shape)

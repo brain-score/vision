@@ -1,4 +1,4 @@
-name: mkgu
+name: brainscore
 channels:
 - defaults
 dependencies:

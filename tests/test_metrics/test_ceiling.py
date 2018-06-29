@@ -1,6 +1,6 @@
 import numpy as np
-from mkgu.metrics import Score
-from mkgu.metrics.ceiling import NoCeiling, SplitNoCeiling
+from brainscore.metrics import Score
+from brainscore.metrics.ceiling import NoCeiling, SplitNoCeiling
 
 
 class TestNoCeiling:

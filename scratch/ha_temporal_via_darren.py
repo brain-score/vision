@@ -12,7 +12,7 @@ import os
 import tables
 import scipy.io as sio
 import matplotlib.pyplot as plt
-import mkgu
+import brainscore
 
 
 def coords_from_df(dim, df, name_map):
@@ -81,7 +81,7 @@ def run_whole_notebook(for_jonas_dir, for_jjpr_dir):
         "presentation")
     hvm_temporal_subset_collapsed = coords_reset(hvm_temporal_subset_collapsed, "neuroid", "neuroid_id")
 
-    hvm = mkgu.get_assembly("HvM")
+    hvm = brainscore.get_assembly("HvM")
 
     hvm_collapsed = hvm.multi_groupby(["image_id", "image_file_name"]).mean("presentation").squeeze()
     hvm_collapsed = coords_reset(hvm_collapsed, "neuroid", "neuroid_id")
@@ -179,7 +179,7 @@ def write_assys_to_disk(assys, data_dir):
 
 
 def load_assy_from_disk(assy_file_name):
-    return mkgu.assemblies.NeuronRecordingAssembly(xr.open_dataarray(assy_file_name))
+    return brainscore.assemblies.NeuronRecordingAssembly(xr.open_dataarray(assy_file_name))
 
 
 presentation_groups = ["image_id", "image_file_name"]
@@ -201,7 +201,7 @@ def build_assy(mat, mat_name, map_dir):
     stacked = da_scratch.stack(presentation=("repetition", "stimulus"))
     transposed = stacked.transpose("neuroid", "presentation", "time_bin")
     transposed.reset_index("presentation", inplace=True)
-    hvm_temporal_subset = mkgu.assemblies.NeuronRecordingAssembly(transposed)
+    hvm_temporal_subset = brainscore.assemblies.NeuronRecordingAssembly(transposed)
     return hvm_temporal_subset
 
 

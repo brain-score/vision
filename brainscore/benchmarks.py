@@ -5,14 +5,14 @@ import os
 import caching
 from caching import store
 
-import mkgu
-from mkgu.assemblies import merge_data_arrays
-from mkgu.metrics.anatomy import ventral_stream, EdgeRatioMetric
-from mkgu.metrics.ceiling import ceilings
-from mkgu.metrics.neural_fit import NeuralFit
-from mkgu.metrics.rdm import RDMMetric
-from mkgu.metrics.transformations import Transformations, CartesianProduct
-from mkgu.utils import map_fields, combine_fields, fullname
+import brainscore
+from brainscore.assemblies import merge_data_arrays
+from brainscore.metrics.anatomy import ventral_stream, EdgeRatioMetric
+from brainscore.metrics.ceiling import ceilings
+from brainscore.metrics.neural_fit import NeuralFit
+from brainscore.metrics.rdm import RDMMetric
+from brainscore.metrics.transformations import Transformations, CartesianProduct
+from brainscore.utils import map_fields, combine_fields, fullname
 
 caching.store.configure_storagedir(os.path.join(os.path.dirname(__file__), '..', 'output'))
 
@@ -145,7 +145,7 @@ class AssemblyLoader(object):
 
 class DicarloMajaj2015Loader(AssemblyLoader):
     def __call__(self, average_repetition=True):
-        assembly = mkgu.get_assembly(name='dicarlo.Majaj2015')
+        assembly = brainscore.get_assembly(name='dicarlo.Majaj2015')
         assembly.load()
         err_neuroids = ['Tito_L_P_8_5', 'Tito_L_P_7_3', 'Tito_L_P_7_5', 'Tito_L_P_5_1', 'Tito_L_P_9_3',
                         'Tito_L_P_6_3', 'Tito_L_P_7_4', 'Tito_L_P_5_0', 'Tito_L_P_5_4', 'Tito_L_P_9_6',
@@ -171,7 +171,7 @@ class DicarloMajaj2015Loader(AssemblyLoader):
 
 class GallantDavid2004Loader(AssemblyLoader):
     def __call__(self):
-        assembly = mkgu.get_assembly(name='gallant.David2004')
+        assembly = brainscore.get_assembly(name='gallant.David2004')
         assembly.load()
         assembly = assembly.rename({'neuroid': 'neuroid_id'})
         assembly = assembly.stack(neuroid=('neuroid_id',))

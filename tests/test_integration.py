@@ -6,7 +6,7 @@ import os
 import numpy as np
 import pandas as pd
 
-from mkgu import benchmarks
+from brainscore import benchmarks
 
 
 def test_score_precomputed_alexnet_activations():

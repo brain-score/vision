@@ -1,10 +1,10 @@
 import functools
 import logging
 
-from mkgu.assemblies import merge_data_arrays, DataAssembly
-from mkgu.metrics import ParametricMetric, build_score
-from mkgu.metrics.transformations import CrossValidation, subset
-from mkgu.utils import fullname
+from brainscore.assemblies import merge_data_arrays, DataAssembly
+from brainscore.metrics import ParametricMetric, build_score
+from brainscore.metrics.transformations import CrossValidation, subset
+from brainscore.utils import fullname
 
 
 class Ceiling(object):

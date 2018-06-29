@@ -1,8 +1,8 @@
 import numpy as np
 from pytest import approx
 
-from mkgu.assemblies import NeuroidAssembly
-from mkgu.metrics import NonparametricMetric, ParametricMetric
+from brainscore.assemblies import NeuroidAssembly
+from brainscore.metrics import NonparametricMetric, ParametricMetric
 
 
 class MetricScorePlaceholder(ParametricMetric):

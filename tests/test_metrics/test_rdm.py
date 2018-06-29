@@ -4,8 +4,8 @@ import numpy as np
 import pytest
 from pytest import approx
 
-from mkgu.assemblies import NeuroidAssembly
-from mkgu.metrics.rdm import RSA, RDMSimilarity, RDMMetric
+from brainscore.assemblies import NeuroidAssembly
+from brainscore.metrics.rdm import RSA, RDMSimilarity, RDMMetric
 from tests.test_metrics import load_hvm
 
 

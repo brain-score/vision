@@ -3,7 +3,7 @@
 import numpy as np
 from pytest import approx
 
-from mkgu import benchmarks
+from brainscore import benchmarks
 
 
 class TestAnatomyFelleman:

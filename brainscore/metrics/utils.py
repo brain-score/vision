@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from mkgu.assemblies import walk_coords
+from brainscore.assemblies import walk_coords
 
 
 def collect_coords(assembly, ignore_dims, rename_coords_list, kind):

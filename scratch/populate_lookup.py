@@ -1,8 +1,8 @@
 import os
 
 import pandas as pd
-from mkgu.assemblies import pwdb, AssemblyModel, AssemblyStoreMap, AssemblyStoreModel
-from mkgu.stimuli import ImageModel, AttributeModel, ImageMetaModel, StimulusSetModel, ImageStoreModel, \
+from brainscore.assemblies import pwdb, AssemblyModel, AssemblyStoreMap, AssemblyStoreModel
+from brainscore.stimuli import ImageModel, AttributeModel, ImageMetaModel, StimulusSetModel, ImageStoreModel, \
     StimulusSetImageMap, ImageStoreMap
 
 

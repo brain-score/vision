@@ -9,8 +9,8 @@ import peewee
 import xarray as xr
 from xarray import DataArray
 
-from mkgu.lookup import pwdb
-from mkgu.stimuli import StimulusSetModel
+from brainscore.lookup import pwdb
+from brainscore.stimuli import StimulusSetModel
 
 
 class DataPoint(object):

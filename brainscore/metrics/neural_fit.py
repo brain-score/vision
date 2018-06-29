@@ -4,10 +4,10 @@ from sklearn.cross_decomposition import PLSRegression
 from sklearn.decomposition import PCA as PCAImpl
 from sklearn.linear_model import LinearRegression
 
-import mkgu
-from mkgu.assemblies import NeuroidAssembly
-from mkgu.metrics import ParametricMetric
-from mkgu.utils import fullname
+import brainscore
+from brainscore.assemblies import NeuroidAssembly
+from brainscore.metrics import ParametricMetric
+from brainscore.utils import fullname
 
 
 class NeuralFit(ParametricMetric):
@@ -49,4 +49,4 @@ class PCA(object):
         coords = {dim if dim != 'neuroid' else 'neuroid_components':
                       assembly[dim] if dim != 'neuroid' else assembly.neuroid[:self._pca.n_components]
                   for dim in assembly.coords}
-        return mkgu.assemblies.NeuroidAssembly(transformed_values, coords=coords, dims=assembly.dims)
+        return brainscore.assemblies.NeuroidAssembly(transformed_values, coords=coords, dims=assembly.dims)

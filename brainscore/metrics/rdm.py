@@ -12,6 +12,7 @@ class RSA(object):
     """
 
     def __call__(self, assembly):
+        assert len(assembly.dims) == 2
         correlations = np.corrcoef(assembly) if assembly.dims[-1] == 'neuroid' else np.corrcoef(assembly.T).T
         coords = {coord: coord_value for coord, coord_value in assembly.coords.items() if coord != 'neuroid'}
         dims = [dim if dim != 'neuroid' else assembly.dims[(i - 1) % len(assembly.dims)]
@@ -57,14 +58,15 @@ class RDMMetric(NonparametricMetric):
         self._rdm = RDM()
         self._similarity = RDMSimilarity()
 
-    def compute(self, rdm1, rdm2):
+    def _apply(self, assembly1, assembly2):
         """
-        :param brainscore.assemblies.NeuroidAssembly rdm1:
-        :param brainscore.assemblies.NeuroidAssembly rdm2:
+        :param brainscore.assemblies.NeuroidAssembly assembly1:
+        :param brainscore.assemblies.NeuroidAssembly assembly2:
         :param str similarity_dims: indicate the dimension along which the RDM/RSA was computed,
             either with a string for a repeated dimension or with a list for two different dimension names
         :return: brainscore.assemblies.DataAssembly
         """
-        rdm1 = self._rdm(rdm1)
-        rdm2 = self._rdm(rdm2)
-        return self._similarity(rdm1, rdm2)
+        rdm1 = self._rdm(assembly1)
+        rdm2 = self._rdm(assembly2)
+        similarity = self._similarity(rdm1, rdm2)
+        return similarity

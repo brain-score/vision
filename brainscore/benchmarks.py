@@ -7,6 +7,7 @@ from caching import store
 
 import brainscore
 from brainscore.assemblies import merge_data_arrays
+from brainscore.metrics import NonparametricWrapper
 from brainscore.metrics.anatomy import ventral_stream, EdgeRatioMetric
 from brainscore.metrics.ceiling import ceilings
 from brainscore.metrics.neural_fit import NeuralFit
@@ -17,7 +18,7 @@ from brainscore.utils import map_fields, combine_fields, fullname
 caching.store.configure_storagedir(os.path.join(os.path.dirname(__file__), '..', 'output'))
 
 metrics = {
-    'rdm': RDMMetric,
+    'rdm': lambda *args, **kwargs: NonparametricWrapper(RDMMetric(*args, **kwargs)),
     'neural_fit': NeuralFit,
     'edge_ratio': EdgeRatioMetric
 }

@@ -34,7 +34,7 @@ class NonparametricPlaceholder(NonparametricMetric):
         self.source_assemblies = []
         self.target_assemblies = []
 
-    def compute(self, source_assembly, target_assembly):
+    def _apply(self, source_assembly, target_assembly):
         self.source_assemblies.append(source_assembly)
         self.target_assemblies.append(target_assembly)
         return 0

@@ -5,13 +5,14 @@ import numpy as np
 import scipy
 
 from brainscore.assemblies import NeuroidAssembly, array_is_element, walk_coords, DataAssembly, merge_data_arrays
-from brainscore.metrics.transformations import Alignment, Alignment, CartesianProduct, CrossValidation, apply_transformations
+from brainscore.metrics.transformations import Alignment, Alignment, CartesianProduct, CrossValidation, \
+    apply_transformations
 from brainscore.utils import fullname
 from .utils import collect_coords, collect_dim_shapes, get_modified_coords, merge_dicts
 
 
 class Metric(object):
-    def __call__(self, train_source, train_target, test_source, test_target):
+    def __call__(self, *args):
         raise NotImplementedError()
 
     def aggregate(self, scores):
@@ -93,13 +94,29 @@ class ParametricMetric(Metric):
 
 
 class NonparametricMetric(Metric):
-    def __call__(self, train_source, train_target, test_source, test_target):
-        # no training, apply directly on test
-        result = self.compute(test_source, test_target)
+    def __call__(self, source_assembly, target_assembly):
+        result = self._apply(source_assembly, target_assembly)
         return DataAssembly(result)
 
-    def compute(self, source, target):
+    def _apply(self, source_assembly, target_assembly):
         raise NotImplementedError()
+
+
+class NonparametricWrapper(ParametricMetric):
+    """
+    The standard brainscore.metrics.transformations.Transformations will pass a 4-tuple
+    (train_source, train_target, test_source, test_target) to the metric
+    but non-parametric metrics only operate on the test.
+    This wrapper discards the train data and only passes test source and target to the underlying metric.
+    """
+
+    def __init__(self, metric, *args, **kwargs):
+        super(NonparametricWrapper, self).__init__(*args, **kwargs)
+        self._metric = metric
+
+    def __call__(self, train_source, train_target, test_source, test_target):
+        # no training, apply directly on test
+        return self._metric(test_source, test_target)
 
 
 class Score(object):

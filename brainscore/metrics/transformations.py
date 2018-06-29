@@ -2,6 +2,7 @@ import itertools
 import logging
 import math
 from collections import OrderedDict
+from enum import Enum
 
 import numpy as np
 import xarray as xr
@@ -119,14 +120,23 @@ class CartesianProduct(Transformation):
         similarities = merge_data_arrays(similarities)
         yield similarities
 
-    def merge_dividers(self, div_left, div_right):
-        coords = list(div_left.keys()) + list(div_right.keys())
+    def merge_dividers(self, div_source, div_target):
+        coords = list(div_source.keys()) + list(div_target.keys())
         duplicates = [coord for coord in coords if coords.count(coord) > 1]
-        coords_left = {coord if coord not in duplicates else coord + '_left': coord_value
-                       for coord, coord_value in div_left.items()}
-        coords_right = {coord if coord not in duplicates else coord + '_right': coord_value
-                        for coord, coord_value in div_right.items()}
-        return {**coords_left, **coords_right}
+        coords_source = {coord if coord not in duplicates else self.rename_duplicate_coord(coord, self.CoordType.SOURCE):
+                           coord_value for coord, coord_value in div_source.items()}
+        coords_target = {coord if coord not in duplicates else self.rename_duplicate_coord(coord, self.CoordType.TARGET):
+                            coord_value for coord, coord_value in div_target.items()}
+        return {**coords_source, **coords_target}
+
+    class CoordType(Enum):
+        SOURCE = 1
+        TARGET = 2
+
+    @classmethod
+    def rename_duplicate_coord(cls, coord, coord_type):
+        suffix = {cls.CoordType.SOURCE: 'source', cls.CoordType.TARGET: 'target'}
+        return coord + '_' + suffix[coord_type]
 
 
 def dividers(assembly, dividing_coord_names, non_dividing_dims=()):
@@ -275,10 +285,10 @@ def index_efficient(source_values, target_values):
 def expand(assembly, target_dims):
     def strip(coord):
         stripped_coord = coord
-        if stripped_coord.endswith('_left'):
-            stripped_coord = stripped_coord[:-len('_left')]
-        if stripped_coord.endswith('_right'):
-            stripped_coord = stripped_coord[:-len('_right')]
+        if stripped_coord.endswith('_source'):
+            stripped_coord = stripped_coord[:-len('_source')]
+        if stripped_coord.endswith('_target'):
+            stripped_coord = stripped_coord[:-len('_target')]
         return stripped_coord
 
     def reformat_coord_values(coord, dims, values):

@@ -25,7 +25,7 @@ class TestNeuralFit(object):
         score = benchmark(hvm, source_splits=['region'])
         expected_scores = {'V4': 0.795, 'IT': 0.826}
         for region in ['V4', 'IT']:
-            assert score.aggregation.sel(aggregation='center', region_left=region, region_right=region) \
+            assert score.aggregation.sel(aggregation='center', region_source=region, region_target=region) \
                    == approx(expected_scores[region], abs=0.01), \
                 "region {} score does not match".format(region)
 
@@ -35,7 +35,7 @@ class TestNeuralFit(object):
         benchmark = Benchmark(neural_fit_metric, target_assembly=hvm, target_splits=['subregion'])
         score = benchmark(hvm, source_splits=['subregion'])
         for subregion in ['V4', 'pIT', 'cIT', 'aIT']:
-            assert score.aggregation.sel(aggregation='center', subregion_left=subregion, subregion_right=subregion) \
+            assert score.aggregation.sel(aggregation='center', subregion_source=subregion, subregion_target=subregion) \
                    == approx(1, rel=0.005), \
                 "subregion {} score does not match".format(subregion)
 

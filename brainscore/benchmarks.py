@@ -83,8 +83,22 @@ class SplitBenchmark(Benchmark):
                 selector = divider
                 if field == 'aggregation':
                     selector = {**selector, **dict(aggregation='center')}
-                _score.loc[selector] = _score.loc[selector] / _ceiling.loc[selector]
+                # handle same-name regions in source and target
+                score_selector = self._check_selector_coord_names(selector, _score)
+                _score.loc[score_selector] = _score.loc[score_selector] / _ceiling.loc[selector]
         return ceiled_score
+
+    def _check_selector_coord_names(self, selector, assembly):
+        selector = copy.deepcopy(selector)
+        score_selector_items = set(selector.items())
+        for div_name, div_value in score_selector_items:
+            if not hasattr(assembly, div_name):
+                div_src = CartesianProduct.rename_duplicate_coord(div_name, CartesianProduct.CoordType.SOURCE)
+                div_tgt = CartesianProduct.rename_duplicate_coord(div_name, CartesianProduct.CoordType.TARGET)
+                assert hasattr(assembly, div_src) and hasattr(assembly, div_tgt)
+                del selector[div_name]
+                selector[div_tgt] = div_value  # we only need target for the ceiling correction
+        return selector
 
     @property
     def ceiling(self):
@@ -201,7 +215,7 @@ def load_assembly(name):
     return _assemblies[name]()
 
 
-def build(assembly_name, metric_name, ceiling_name, target_splits=()):
+def build(assembly_name, metric_name, ceiling_name=None, target_splits=()):
     assembly = load_assembly(assembly_name)
     metric = metrics[metric_name]()
     ceiling = ceilings[ceiling_name]()

@@ -55,8 +55,8 @@ class TestCartesianProduct:
         assert np.power(assembly.shape[1], 2) == \
                len(placeholder.source_assemblies) == len(placeholder.target_assemblies)
         pairs = list(zip(placeholder.source_assemblies, placeholder.target_assemblies))
-        target_pairs = [(assembly.sel(division_coord=i).rename({'division_coord': 'division_coord-left'}).values,
-                         assembly.sel(division_coord=j).rename({'division_coord': 'division_coord-right'}).values)
+        target_pairs = [(assembly.sel(division_coord=i).rename({'division_coord': 'division_coord-source'}).values,
+                         assembly.sel(division_coord=j).rename({'division_coord': 'division_coord-target'}).values)
                         for i, j in itertools.product(*([list(range(assembly.shape[1]))] * 2))]
         for source_values, target_values in target_pairs:
             match = False
@@ -77,8 +77,8 @@ class TestCartesianProduct:
         apply_transformations(assembly, assembly, transformations=[transformation], metric=placeholder)
         assert np.power(assembly.shape[0], 2) == len(placeholder.source_assemblies) == len(placeholder.target_assemblies)
         pairs = list(zip(placeholder.source_assemblies, placeholder.target_assemblies))
-        target_pairs = [(assembly.sel(division_coord=i).rename({'division_coord': 'division_coord-left'}).values,
-                         assembly.sel(division_coord=j).rename({'division_coord': 'division_coord-right'}).values)
+        target_pairs = [(assembly.sel(division_coord=i).rename({'division_coord': 'division_coord-source'}).values,
+                         assembly.sel(division_coord=j).rename({'division_coord': 'division_coord-target'}).values)
                         for i, j in itertools.product(*([list(range(assembly.shape[0]))] * 2))]
         for source_values, target_values in target_pairs:
             match = False

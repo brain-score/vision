@@ -20,12 +20,16 @@ requirements = [
     "peewee",
     "networkx",
     "pathos",
-    "http://github.com/mschrimpf/caching/tarball/master#egg=package-1.0"
+    "caching",
 ]
 
 test_requirements = [
     "pytest",
     "Pillow",
+]
+
+dependency_links = [
+    "https://github.com/mschrimpf/caching/master/tarball",
 ]
 
 setup(
@@ -37,10 +41,9 @@ setup(
     author_email='jjpr@mit.edu',
     url='https://github.com/dicarlolab/brain-score',
     packages=find_packages(exclude=['tests']),
-    package_dir={'brainscore':
-                     'brainscore'},
     include_package_data=True,
     install_requires=requirements,
+    dependency_links=dependency_links,
     license="MIT license",
     zip_safe=False,
     keywords='brain-score',

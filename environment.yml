@@ -13,6 +13,7 @@ dependencies:
 - scikit-learn
 - networkx
 - pytest
+- Pillow
 - jupyter
 - pip:
   - pathos

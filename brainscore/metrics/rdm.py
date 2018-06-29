@@ -1,7 +1,7 @@
 import numpy as np
 
-from mkgu.assemblies import DataAssembly
-from mkgu.metrics import NonparametricMetric
+from brainscore.assemblies import DataAssembly
+from brainscore.metrics import NonparametricMetric
 
 
 class RSA(object):
@@ -59,11 +59,11 @@ class RDMMetric(NonparametricMetric):
 
     def compute(self, rdm1, rdm2):
         """
-        :param mkgu.assemblies.NeuroidAssembly rdm1:
-        :param mkgu.assemblies.NeuroidAssembly rdm2:
+        :param brainscore.assemblies.NeuroidAssembly rdm1:
+        :param brainscore.assemblies.NeuroidAssembly rdm2:
         :param str similarity_dims: indicate the dimension along which the RDM/RSA was computed,
             either with a string for a repeated dimension or with a list for two different dimension names
-        :return: mkgu.assemblies.DataAssembly
+        :return: brainscore.assemblies.DataAssembly
         """
         rdm1 = self._rdm(rdm1)
         rdm2 = self._rdm(rdm2)

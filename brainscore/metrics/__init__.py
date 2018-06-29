@@ -4,9 +4,9 @@ from collections import Counter
 import numpy as np
 import scipy
 
-from mkgu.assemblies import NeuroidAssembly, array_is_element, walk_coords, DataAssembly, merge_data_arrays
-from mkgu.metrics.transformations import Alignment, Alignment, CartesianProduct, CrossValidation, apply_transformations
-from mkgu.utils import fullname
+from brainscore.assemblies import NeuroidAssembly, array_is_element, walk_coords, DataAssembly, merge_data_arrays
+from brainscore.metrics.transformations import Alignment, Alignment, CartesianProduct, CrossValidation, apply_transformations
+from brainscore.utils import fullname
 from .utils import collect_coords, collect_dim_shapes, get_modified_coords, merge_dicts
 
 

@@ -3,9 +3,9 @@ import itertools
 import numpy as np
 import pytest
 
-from mkgu.assemblies import NeuroidAssembly, DataAssembly
-from mkgu.metrics import Metric
-from mkgu.metrics.transformations import subset, index_efficient, CartesianProduct, apply_transformations
+from brainscore.assemblies import NeuroidAssembly, DataAssembly
+from brainscore.metrics import Metric
+from brainscore.metrics.transformations import subset, index_efficient, CartesianProduct, apply_transformations
 
 
 class MetricPlaceholder(Metric):

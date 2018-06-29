@@ -4,8 +4,8 @@
 # In[1]:
 
 
-from mkgu.lookup import pwdb, AssemblyModel, AssemblyStoreMap, AssemblyStoreModel
-from mkgu.stimuli import ImageModel, StimulusSetModel, ImageStoreModel, StimulusSetImageMap, ImageStoreMap
+from brainscore.lookup import pwdb, AssemblyModel, AssemblyStoreMap, AssemblyStoreModel
+from brainscore.stimuli import ImageModel, StimulusSetModel, ImageStoreModel, StimulusSetImageMap, ImageStoreMap
 
 
 # In[2]:

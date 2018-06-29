@@ -29,21 +29,21 @@ test_requirements = [
 ]
 
 setup(
-    name='mkgu',
+    name='brain-score',
     version='0.1.0',
     description="A framework for the quantitative comparison of mindlike systems.  ",
     long_description=readme + '\n\n' + history,
     author="Jon Prescott-Roy",
     author_email='jjpr@mit.edu',
-    url='https://github.com/dicarlolab/mkgu',
+    url='https://github.com/dicarlolab/brain-score',
     packages=find_packages(),
-    package_dir={'mkgu':
-                 'mkgu'},
+    package_dir={'brainscore':
+                 'brainscore'},
     include_package_data=True,
     install_requires=requirements,
     license="MIT license",
     zip_safe=False,
-    keywords='mkgu',
+    keywords='brain-score',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',

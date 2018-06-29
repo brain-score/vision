@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import networkx as nx
 
-from mkgu.metrics.anatomy import EdgeRatio
+from brainscore.metrics.anatomy import EdgeRatio
 
 
 class TestEdgeRatio:

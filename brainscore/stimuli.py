@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import pandas as pd
 import peewee
 
-from mkgu.lookup import pwdb
+from brainscore.lookup import pwdb
 
 
 class StimulusSet(pd.DataFrame):

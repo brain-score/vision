@@ -10,12 +10,12 @@ import boto3
 import xarray as xr
 from six.moves.urllib.parse import urlparse
 
-from mkgu import assemblies, stimuli
-from mkgu.assemblies import coords_for_dim
-from mkgu.stimuli import StimulusSet, ImageModel, AttributeModel, ImageMetaModel, StimulusSetModel, ImageStoreModel, \
+from brainscore import assemblies, stimuli
+from brainscore.assemblies import coords_for_dim
+from brainscore.stimuli import StimulusSet, ImageModel, AttributeModel, ImageMetaModel, StimulusSetModel, ImageStoreModel, \
     StimulusSetImageMap, ImageStoreMap
 
-_local_data_path = os.path.expanduser("~/.mkgu/data")
+_local_data_path = os.path.expanduser("~/.brainscore/data")
 
 
 class Fetcher(object):

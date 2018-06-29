@@ -7,8 +7,8 @@ import numpy as np
 import xarray as xr
 from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
 
-from mkgu.assemblies import merge_data_arrays, DataAssembly
-from mkgu.utils import fullname
+from brainscore.assemblies import merge_data_arrays, DataAssembly
+from brainscore.utils import fullname
 
 
 class Transformation(object):
@@ -93,9 +93,9 @@ class CartesianProduct(Transformation):
 
     def __call__(self, source_assembly, target_assembly):
         """
-        :param mkgu.assemblies.NeuroidAssembly source_assembly:
-        :param mkgu.assemblies.NeuroidAssembly target_assembly:
-        :return: mkgu.assemblies.DataAssembly
+        :param brainscore.assemblies.NeuroidAssembly source_assembly:
+        :param brainscore.assemblies.NeuroidAssembly target_assembly:
+        :return: brainscore.assemblies.DataAssembly
         """
         dividers_source = self.dividers(source_assembly, self._dividing_coord_names_source)
         dividers_target = self.dividers(target_assembly, self._dividing_coord_names_target)
@@ -358,5 +358,5 @@ class Transformations(object):
         center, error = scores, scores
         for transformation in self._transformations:
             center, error = transformation.aggregate(center, error)
-        from mkgu.metrics import build_score  # avoid circular import
+        from brainscore.metrics import build_score  # avoid circular import
         return build_score(raw_scores, center, error)

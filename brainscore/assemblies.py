@@ -86,11 +86,14 @@ class DataAssembly(DataArray):
                 result[coord] = [value]
 
         # stack back together
-        for result_dim in result.dims:
+        stack_dims = list(result.dims)
+        for result_dim in stack_dims:
             if result_dim not in self.dims:
                 original_dim = coords_dim[result_dim]
-                result = result.stack(**{original_dim: [coord for coord in dim_coords[original_dim]
-                                                        if hasattr(result, coord)]})
+                stack_coords = [coord for coord in dim_coords[original_dim] if hasattr(result, coord)]
+                for coord in stack_coords:
+                    stack_dims.remove(coord)
+                result = result.stack(**{original_dim: stack_coords})
         # add scalar indexer variable
         for index, value in indexers.items():
             if hasattr(result, index):

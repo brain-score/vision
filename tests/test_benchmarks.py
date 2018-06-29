@@ -13,13 +13,13 @@ class TestAnatomyFelleman:
 
 
 class TestMajaj2015:
-    def test_target_assembly(self):
-        benchmark = benchmarks.load('dicarlo.Majaj2015-rdm')
-        np.testing.assert_array_equal(benchmark._target_assembly.dims, ['presentation', 'neuroid'])
-        assert len(benchmark._target_assembly['presentation']) == 2560
-        assert len(benchmark._target_assembly['neuroid']) == 296
-        assert len(benchmark._target_assembly.sel(region='IT')['neuroid']) == 168
-        assert len(benchmark._target_assembly.sel(region='V4')['neuroid']) == 128
+    def test_loader(self):
+        assembly = benchmarks.load_assembly('dicarlo.Majaj2015')
+        np.testing.assert_array_equal(assembly.dims, ['presentation', 'neuroid'])
+        assert len(assembly['presentation']) == 2560
+        assert len(assembly['neuroid']) == 256
+        assert len(assembly.sel(region='IT')['neuroid']) == 168
+        assert len(assembly.sel(region='V4')['neuroid']) == 88
 
     def test_ceiling(self):
         benchmark = benchmarks.load('dicarlo.Majaj2015')
@@ -28,7 +28,7 @@ class TestMajaj2015:
 
     def test_self(self):
         benchmark = benchmarks.load('dicarlo.Majaj2015')
-        source = benchmark.average_repetition(benchmark._target_assembly)
+        source = benchmarks.load_assembly('dicarlo.Majaj2015')
         score, unceiled_score = benchmark(source, return_unceiled=True)
         assert all(score.aggregation.sel(aggregation='error') == unceiled_score.aggregation.sel(aggregation='error'))
         np.testing.assert_array_almost_equal(score.aggregation.sel(aggregation='center'), [1., 1.], decimal=2)

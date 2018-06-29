@@ -24,8 +24,8 @@ requirements = [
 ]
 
 test_requirements = [
-    "pytest"
-    # TODO: put package test requirements here
+    "pytest",
+    "Pillow"
 ]
 
 setup(
@@ -36,7 +36,7 @@ setup(
     author="Jon Prescott-Roy",
     author_email='jjpr@mit.edu',
     url='https://github.com/dicarlolab/brain-score',
-    packages=find_packages(),
+    packages=find_packages(exclude=['tests']),
     package_dir={'brainscore':
                  'brainscore'},
     include_package_data=True,

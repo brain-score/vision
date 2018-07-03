@@ -123,10 +123,10 @@ class CartesianProduct(Transformation):
     def merge_dividers(self, div_source, div_target):
         coords = list(div_source.keys()) + list(div_target.keys())
         duplicates = [coord for coord in coords if coords.count(coord) > 1]
-        coords_source = {coord if coord not in duplicates else self.rename_duplicate_coord(coord, self.CoordType.SOURCE):
-                           coord_value for coord, coord_value in div_source.items()}
-        coords_target = {coord if coord not in duplicates else self.rename_duplicate_coord(coord, self.CoordType.TARGET):
-                            coord_value for coord, coord_value in div_target.items()}
+        coords_source = {coord if coord not in duplicates else self.rename_duplicate_coord(coord, self.CoordType.SOURCE)
+                         : coord_value for coord, coord_value in div_source.items()}
+        coords_target = {coord if coord not in duplicates else self.rename_duplicate_coord(coord, self.CoordType.TARGET)
+                         : coord_value for coord, coord_value in div_target.items()}
         return {**coords_source, **coords_target}
 
     class CoordType(Enum):
@@ -172,10 +172,13 @@ class CrossValidation(Transformation):
 
         self._logger = logging.getLogger(fullname(self))
 
+    def _stratify(self, assembly):
+        return self._stratification_coord and hasattr(assembly, self._stratification_coord)
+
     def build_splits(self, assembly):
         cross_validation_values, indices = extract_coord(assembly, self._dim, return_index=True)
         data_shape = np.zeros(len(cross_validation_values))
-        if self._stratification_coord and hasattr(assembly, self._stratification_coord):
+        if self._stratify(assembly):
             splits = self._stratified_split.split(data_shape,
                                                   assembly[self._stratification_coord].values[indices])
         else:
@@ -187,7 +190,7 @@ class CrossValidation(Transformation):
     def __call__(self, source_assembly, target_assembly):
         assert all(source_assembly[self._dim].values ==
                    target_assembly[self._dim].values)
-        if hasattr(target_assembly, self._stratification_coord):
+        if self._stratify(target_assembly):
             assert hasattr(source_assembly, self._stratification_coord)
             assert all(source_assembly[self._stratification_coord].values ==
                        target_assembly[self._stratification_coord].values)
@@ -356,9 +359,11 @@ class Transformations(object):
         alignment_kwargs = alignment_kwargs or {}
         cartesian_product_kwargs = cartesian_product_kwargs or {}
         cross_validation_kwargs = cross_validation_kwargs or {}
-        self._transformations = [alignment_ctr(**alignment_kwargs),
-                                 cartesian_product_ctr(**cartesian_product_kwargs),
-                                 cross_validation_ctr(**cross_validation_kwargs)]
+        self._transformations = []
+        for ctr, kwargs in [(alignment_ctr, alignment_kwargs), (cartesian_product_ctr, cartesian_product_kwargs),
+                            (cross_validation_ctr, cross_validation_kwargs)]:
+            if ctr is not None:
+                self._transformations.append(ctr(**kwargs))
 
     def __call__(self, source_assembly, target_assembly, metric):
         raw_scores = apply_transformations(source_assembly, target_assembly,

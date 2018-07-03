@@ -13,15 +13,9 @@ from brainscore.metrics.ceiling import ceilings
 from brainscore.metrics.neural_fit import NeuralFit
 from brainscore.metrics.rdm import RDMMetric
 from brainscore.metrics.transformations import Transformations, CartesianProduct
-from brainscore.utils import map_fields, combine_fields, fullname
+from brainscore.utils import map_fields, combine_fields, fullname, recursive_dict_merge
 
 caching.store.configure_storagedir(os.path.join(os.path.dirname(__file__), '..', 'output'))
-
-metrics = {
-    'rdm': lambda *args, **kwargs: NonparametricWrapper(RDMMetric(*args, **kwargs)),
-    'neural_fit': NeuralFit,
-    'edge_ratio': EdgeRatioMetric
-}
 
 
 class Benchmark(object):
@@ -54,22 +48,25 @@ class Benchmark(object):
 
 
 class SplitBenchmark(Benchmark):
-    def __init__(self, *args, target_splits, **kwargs):
+    def __init__(self, *args, target_splits, target_splits_kwargs=None, **kwargs):
         super(SplitBenchmark, self).__init__(*args, **kwargs)
         self._target_splits = target_splits
-        cartesian_product = CartesianProduct()
+        target_splits_kwargs = target_splits_kwargs or {}
+        cartesian_product = CartesianProduct(**target_splits_kwargs)
         self._target_dividers = cartesian_product.dividers(self._target_assembly, self._target_splits)
 
-    def __call__(self, source_assembly, source_splits=(), return_unceiled=False):
-        scores = self._apply(source_assembly, source_splits=source_splits)
+    def __call__(self, source_assembly, transformation_kwargs=None, return_unceiled=False):
+        scores = self._apply(source_assembly, transformation_kwargs=transformation_kwargs)
         ceiled_scores = self._ceil(scores, self.ceiling)
         if return_unceiled:
             return ceiled_scores, scores
         return ceiled_scores
 
-    def _apply(self, source_assembly, source_splits=()):
-        transformations = Transformations(cartesian_product_kwargs=dict(
-            dividing_coord_names_source=source_splits, dividing_coord_names_target=self._target_splits))
+    def _apply(self, source_assembly, transformation_kwargs=None):
+        transformation_kwargs = transformation_kwargs or {}
+        target_split_kwargs = dict(cartesian_product_kwargs=dict(dividing_coord_names_target=self._target_splits))
+        transformation_kwargs = recursive_dict_merge(target_split_kwargs, transformation_kwargs)
+        transformations = Transformations(**transformation_kwargs)
         scores = transformations(source_assembly, self._target_assembly, metric=self._metric)
         return scores
 
@@ -194,7 +191,13 @@ class GallantDavid2004Loader(AssemblyLoader):
         return assembly
 
 
-_assemblies = {
+metrics = {
+    'rdm': lambda *args, **kwargs: NonparametricWrapper(RDMMetric(*args, **kwargs)),
+    'neural_fit': NeuralFit,
+    'edge_ratio': EdgeRatioMetric
+}
+
+assembly_loaders = {
     'dicarlo.Majaj2015': DicarloMajaj2015Loader(),
     'gallant.David2004': GallantDavid2004Loader(),
 }
@@ -211,8 +214,14 @@ def load(name):
     return _benchmarks[name]()
 
 
-def load_assembly(name):
-    return _assemblies[name]()
+def load_assembly(name: str):
+    """
+    Loads the assembly using an AssemblyLoader.
+    The AssemblyLoader might further refine the raw assembly provided by brainscore.get_assembly.
+    :param name: the name of the assembly loader
+    :return: the loaded assembly
+    """
+    return assembly_loaders[name]()
 
 
 def build(assembly_name, metric_name, ceiling_name=None, target_splits=()):

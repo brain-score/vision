@@ -55,12 +55,14 @@ class SplitNoCeiling(SplitCeiling):
 
 class SplitRepCeiling(SplitCeiling):
     def __init__(self, average_repetition, n_splits=CrossValidation.Defaults.splits,
-                 repetition_train_size=0.5, repetition_test_size=0.5, repetition_dim='repetition'):
+                 repetition_train_size=0.5, repetition_test_size=0.5, repetition_dim='repetition',
+                 stratification_coord=CrossValidation.Defaults.stratification_coord):
         super(SplitRepCeiling, self).__init__(n_splits=n_splits)
         self._average_repetition = average_repetition
         self._repetition_test_size = 1 / repetition_test_size
         self._rep_split = CrossValidation(train_size=repetition_train_size, test_size=repetition_test_size,
-                                          dim=repetition_dim, stratification_coord=None, splits=n_splits)
+                                          dim=repetition_dim, stratification_coord=stratification_coord,
+                                          splits=n_splits)
         self._traintest_split = CrossValidation(splits=n_splits)
         self._logger = logging.getLogger(fullname(self))
         self._split_generator = None

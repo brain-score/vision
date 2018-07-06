@@ -126,10 +126,10 @@ class DicarloMajaj2015(SplitBenchmark):
         ceiling = ceilings['splitrep'](metric, average_repetition=self._loader.average_repetition)
         super(DicarloMajaj2015, self).__init__(assembly, metric, ceiling, target_splits=('region',))
 
-    def _apply(self, source_assembly, source_splits=()):
+    def _apply(self, source_assembly, transformation_kwargs=None):
         target_assembly_save = copy.deepcopy(self._target_assembly)
         self._target_assembly = self._loader.average_repetition(self._target_assembly)
-        scores = super(DicarloMajaj2015, self)._apply(source_assembly, source_splits)
+        scores = super(DicarloMajaj2015, self)._apply(source_assembly, transformation_kwargs=transformation_kwargs)
         self._target_assembly = target_assembly_save
         return scores
 

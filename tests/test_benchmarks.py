@@ -4,6 +4,7 @@ import numpy as np
 from pytest import approx
 
 from brainscore import benchmarks
+from brainscore.assemblies import DataAssembly
 from brainscore.benchmarks import SplitBenchmark, metrics
 from brainscore.metrics.ceiling import SplitNoCeiling
 
@@ -33,7 +34,13 @@ class TestMajaj2015:
         source = benchmarks.load_assembly('dicarlo.Majaj2015')
         score, unceiled_score = benchmark(source, return_unceiled=True)
         assert all(score.aggregation.sel(aggregation='error') == unceiled_score.aggregation.sel(aggregation='error'))
+        # ceiling should use the same rng, but different repetitions. results should overall be close to 1
         np.testing.assert_array_almost_equal(score.aggregation.sel(aggregation='center'), [1., 1.], decimal=2)
+        target_array = DataAssembly(np.ones((2, 10, 256)), coords=score.values.coords, dims=score.values.dims)
+        target_array.loc[dict(region='IT', neuroid_id=source.sel(region='V4')['neuroid_id'])] = np.nan
+        target_array.loc[dict(region='V4', neuroid_id=source.sel(region='IT')['neuroid_id'])] = np.nan
+        # .8 is not that satisfying. it seems that different repetitions lead to quite different outcomes
+        assert np.isclose(score.values, target_array, atol=0.1).sum() / target_array.sum() > .8
 
     def test_construct_kwargs(self):
         assembly = benchmarks.load_assembly('dicarlo.Majaj2015')

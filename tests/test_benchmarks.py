@@ -4,8 +4,8 @@ import numpy as np
 from pytest import approx
 
 from brainscore import benchmarks
-from brainscore.assemblies import DataAssembly
-from brainscore.benchmarks import SplitBenchmark, metrics
+from brainscore.assemblies import DataAssembly, NeuroidAssembly
+from brainscore.benchmarks import SplitBenchmark, metrics, DicarloMajaj2015EarlyLateLoader, DicarloMajaj2015Loader
 from brainscore.metrics.ceiling import SplitNoCeiling
 
 
@@ -54,3 +54,20 @@ class TestMajaj2015:
             cartesian_product_kwargs=dict(non_dividing_dims=dimensions)))
         np.testing.assert_array_equal(score.aggregation.sel(aggregation='center').dims, ['region'])
         np.testing.assert_array_equal(score.values.dims, ['region', 'split'])
+
+
+class TestAssemblyLoaders:
+    def test_majaj2015(self):
+        loader = DicarloMajaj2015Loader()
+        assembly = loader()
+        assert isinstance(assembly, NeuroidAssembly)
+        assert {'presentation', 'neuroid'} == set(assembly.dims)
+        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm'
+
+    def test_majaj2015early_late(self):
+        loader = DicarloMajaj2015EarlyLateLoader()
+        assembly = loader()
+        assert isinstance(assembly, NeuroidAssembly)
+        assert {'presentation', 'neuroid', 'time_bin'} == set(assembly.dims)
+        assert len(assembly['time_bin']) == 2
+        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm'

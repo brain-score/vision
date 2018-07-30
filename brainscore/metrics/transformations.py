@@ -8,8 +8,10 @@ import numpy as np
 import xarray as xr
 from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
 
-from brainscore.assemblies import merge_data_arrays, DataAssembly
+from brainscore.assemblies import merge_data_arrays, DataAssembly, NeuroidAssembly, walk_coords
 from brainscore.utils import fullname
+
+_logger = logging.getLogger(__name__)
 
 
 class Transformation(object):
@@ -57,6 +59,12 @@ class Alignment(Transformation):
         source_assembly = self.align(source_assembly, target_assembly)
         self._logger.debug("Sorting by {}".format(self._alignment_dim))
         source_assembly, target_assembly = self.sort(source_assembly), self.sort(target_assembly)
+        # FIXME
+        source_assembly = NeuroidAssembly(
+            source_assembly,
+            coords={coord: (dims, (values if coord != 'object_name' else target_assembly['object_name'].values))
+                    for (coord, dims, values) in walk_coords(source_assembly)},
+            dims=source_assembly.dims)
         result = yield from self._get_result(source_assembly, target_assembly, done=True)
         yield result
 
@@ -89,8 +97,9 @@ class CartesianProduct(Transformation):
 
         self._logger = logging.getLogger(fullname(self))
 
-    def dividers(self, assembly, dividing_coord_names):
-        return dividers(assembly, dividing_coord_names=dividing_coord_names, non_dividing_dims=self._non_dividing_dims)
+    def dividers(self, assembly, dividing_coord_names, return_coords=False):
+        return dividers(assembly, dividing_coord_names=dividing_coord_names, non_dividing_dims=self._non_dividing_dims,
+                        return_coords=return_coords)
 
     def __call__(self, source_assembly, target_assembly):
         """
@@ -98,8 +107,11 @@ class CartesianProduct(Transformation):
         :param brainscore.assemblies.NeuroidAssembly target_assembly:
         :return: brainscore.assemblies.DataAssembly
         """
-        dividers_source = self.dividers(source_assembly, self._dividing_coord_names_source)
-        dividers_target = self.dividers(target_assembly, self._dividing_coord_names_target)
+        dividers_source, coords_source = self.dividers(source_assembly, self._dividing_coord_names_source,
+                                                       return_coords=True)
+        dividers_target, coords_target = self.dividers(target_assembly, self._dividing_coord_names_target,
+                                                       return_coords=True)
+        coord_mapping = {**coords_source, **coords_target}
         # run all dividing combinations or use the assemblies themselves if no dividers
         divider_combinations = list(itertools.product(dividers_source, dividers_target)) or [({}, {})]
         similarities = []
@@ -110,8 +122,14 @@ class CartesianProduct(Transformation):
 
             divider_coords = self.merge_dividers(div_src, div_tgt)
             for coord_name, coord_value in divider_coords.items():
-                similarity = similarity.expand_dims(coord_name)
-                similarity[coord_name] = [coord_value]
+                if not isinstance(coord_mapping[coord_name], tuple):
+                    similarity = similarity.expand_dims(coord_name)
+                    similarity[coord_mapping[coord_name]] = [coord_value]
+                else:
+                    for coord, value in zip(coord_mapping[coord_name], coord_value):
+                        similarity = similarity.expand_dims(coord)
+                        similarity[coord] = [value]
+                    similarity = similarity.stack(**{coord_name: coord_mapping[coord_name]})
             similarities.append(similarity)
         assert all(similarity.dims == similarities[0].dims for similarity in similarities[1:])  # all dims equal
         # note that the shapes are likely different between combinations and will be padded with NaNs:
@@ -139,16 +157,25 @@ class CartesianProduct(Transformation):
         return coord + '_' + suffix[coord_type]
 
 
-def dividers(assembly, dividing_coord_names, non_dividing_dims=()):
+def dividers(assembly, dividing_coord_names, non_dividing_dims=(), return_coords=False):
     """
     divide data along dividing coords and non-central dimensions,
     i.e. dimensions that the metric is not computed over
     """
-    dividing_coords = [dim for dim in assembly.dims if dim not in non_dividing_dims] \
-                      + [coord for coord in dividing_coord_names if hasattr(assembly, coord)]
-    choices = {coord: np.unique(assembly[coord]) for coord in dividing_coords}
-    combinations = [dict(zip(choices, values)) for values in itertools.product(*choices.values())]
-    return combinations
+    dividing_coords = [coord for coord in dividing_coord_names if hasattr(assembly, coord)]
+    missing_coords = set(dividing_coord_names) - set(dividing_coords)
+    if missing_coords:
+        _logger.warning("Not all dividing_coord_names found in assembly, missing: {}".format(missing_coords))
+    covered_dims = list(itertools.chain(*[assembly[coord].dims for coord in dividing_coords]))
+    dividing_dims = [dim for dim in assembly.dims if dim not in non_dividing_dims and dim not in covered_dims]
+    choices = {coord_or_dim: np.unique(assembly[coord_or_dim]) for coord_or_dim in dividing_coords + dividing_dims}
+    combinations = [dict(zip(choices.keys(), values)) for values in itertools.product(*choices.values())]
+    if not return_coords:
+        return combinations
+    coord_mapping = {coord_or_dim: coord_or_dim if not isinstance(values[0], tuple)
+    else (tuple(level for level, dims, _ in walk_coords(assembly) if dims[0] == coord_or_dim))
+                     for coord_or_dim, values in choices.items()}  # prefix multi-index with levels
+    return combinations, coord_mapping
 
 
 class CrossValidation(Transformation):

@@ -62,7 +62,7 @@ class SplitBenchmark(Benchmark):
 
     def __call__(self, source_assembly, transformation_kwargs=None, return_unceiled=False):
         scores = self._apply(source_assembly, transformation_kwargs=transformation_kwargs)
-        ceiled_scores = self._ceil(scores, self.ceiling)
+        ceiled_scores = scores  # self._ceil(scores, self.ceiling)
         if return_unceiled:
             return ceiled_scores, scores
         return ceiled_scores
@@ -113,7 +113,7 @@ class SplitBenchmark(Benchmark):
             def insert_dividers(data):
                 for coord_name, coord_value in divider.items():
                     data = data.expand_dims(coord_name)
-                    data[coord_name] = [coord_value]
+                    data[coord_name] = [coord_value]  # TODO: multi-index dims
                 return data
 
             map_fields(score, insert_dividers)
@@ -145,7 +145,8 @@ class DicarloMajaj2015EarlyLate(DicarloMajaj2015):
         assembly = self._loader(average_repetition=False)
         metric = metrics['neural_fit']()
         ceiling = ceilings['splitrep'](metric, average_repetition=self._loader.average_repetition)
-        SplitBenchmark.__init__(self, assembly, metric, ceiling, target_splits=('region', 'time_bin'))
+        SplitBenchmark.__init__(self, assembly, metric, ceiling,
+                                target_splits=('region', 'time_bin_start', 'time_bin_end'))
 
 
 class GallantDavid2004(Benchmark):
@@ -167,6 +168,9 @@ class FellemanVanEssen1991(Benchmark):
 class AssemblyLoader(object):
     def __call__(self):
         raise NotImplementedError()
+
+    def __repr__(self):
+        return fullname(self)
 
 
 class DicarloMajaj2015Loader(AssemblyLoader):
@@ -219,25 +223,26 @@ class DicarloMajaj2015TemporalLoader(DicarloMajaj2015Loader):
 
 
 class DicarloMajaj2015EarlyLateLoader(DicarloMajaj2015TemporalLoader):
+    @store()
     def __call__(self, average_repetition=True):
         assembly = super().__call__(average_repetition=average_repetition)
+
         # the principled way here would be to compute the internal consistency per neuron
         # and only use the time bins where the neuron's internal consistency is e.g. >0.2.
         # Note that this would have to be done per neuron
         # as a neuron in V4 will exhibit different time bins from one in IT.
         # We cut off at 200 ms because that's when the next stimulus is shown.
-        early = assembly.sel(time_bin_start=90, time_bin_end=110)
-        del early['time_bin']
-        early = early.expand_dims('time_bin_start').expand_dims('time_bin_end')
-        early['time_bin_start'] = [90]
-        early['time_bin_end'] = [110]
-        late = assembly.sel(time_bin_start=190, time_bin_end=210)
-        del late['time_bin']
-        late = late.expand_dims('time_bin_start').expand_dims('time_bin_end')
-        late['time_bin_start'] = [190]
-        late['time_bin_end'] = [210]
-        early = early.stack(time_bin=('time_bin_start', 'time_bin_end'))
-        late = late.stack(time_bin=('time_bin_start', 'time_bin_end'))
+        def sel_time_bin(time_bin_start, time_bin_end):
+            selection = assembly.sel(time_bin_start=time_bin_start, time_bin_end=time_bin_end)
+            del selection['time_bin']
+            selection = selection.expand_dims('time_bin_start').expand_dims('time_bin_end')
+            selection['time_bin_start'] = [time_bin_start]
+            selection['time_bin_end'] = [time_bin_end]
+            selection = selection.stack(time_bin=('time_bin_start', 'time_bin_end'))
+            return selection
+
+        early = sel_time_bin(90, 110)
+        late = sel_time_bin(190, 210)
         assembly = merge_data_arrays([early, late])
         return assembly
 

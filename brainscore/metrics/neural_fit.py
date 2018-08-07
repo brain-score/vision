@@ -61,7 +61,7 @@ class ParametricNeuroidMetric(ParametricMetric):
                             dims=[self._neuroid_coord])
 
 
-class RegressionFit(ParametricNeuroidMetric, metaclass=ABCMeta):
+class NeuralFit(ParametricNeuroidMetric, metaclass=ABCMeta):
     def __init__(self, *args, regression, **kwargs):
         super().__init__(*args, **kwargs)
         self._regression = regression
@@ -76,7 +76,7 @@ class RegressionFit(ParametricNeuroidMetric, metaclass=ABCMeta):
         return scores.median(dim=neuroid_dim)
 
 
-class NeuralFit(RegressionFit):
+class LinearFit(NeuralFit):
     """
     Yamins & Hong et al., 2014 https://doi.org/10.1073/pnas.1403112111
     """
@@ -89,7 +89,7 @@ class NeuralFit(RegressionFit):
         super().__init__(regression=LinearRegression())
 
 
-class Pls25Fit(RegressionFit):
+class PlsFit(NeuralFit):
     """
     Schrimpf & Kubilius et al., 2018
     """

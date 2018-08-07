@@ -10,7 +10,7 @@ from brainscore.assemblies import merge_data_arrays
 from brainscore.metrics import NonparametricWrapper
 from brainscore.metrics.anatomy import ventral_stream, EdgeRatioMetric
 from brainscore.metrics.ceiling import ceilings
-from brainscore.metrics.neural_fit import Pls25Fit
+from brainscore.metrics.neural_fit import PlsFit
 from brainscore.metrics.rdm import RDMMetric
 from brainscore.metrics.transformations import Transformations, CartesianProduct
 from brainscore.utils import map_fields, combine_fields, fullname, recursive_dict_merge
@@ -168,7 +168,7 @@ class DicarloMajaj2015(SplitBenchmark):
     def __init__(self):
         self._loader = DicarloMajaj2015Loader()
         assembly = self._loader(average_repetition=False)
-        metric = metrics['pls25fit']()
+        metric = metrics['pls_fit']()
         ceiling = ceilings['splitrep'](metric, average_repetition=self._loader.average_repetition)
         super(DicarloMajaj2015, self).__init__(assembly, metric, ceiling, target_splits=('region',))
 
@@ -184,7 +184,7 @@ class GallantDavid2004(CeiledBenchmark):
     # work in progress
     def __init__(self):
         assembly = GallantDavid2004Loader()()
-        metric = metrics['pls25fit'](regression='linear')
+        metric = metrics['pls_fit'](regression='linear')
         ceiling = ceilings['cons']()
         super().__init__(assembly, metric, ceiling)
 
@@ -239,7 +239,7 @@ class GallantDavid2004Loader(AssemblyLoader):
 
 metrics = {
     'rdm': lambda *args, **kwargs: NonparametricWrapper(RDMMetric(*args, **kwargs)),
-    'pls25fit': Pls25Fit,
+    'pls_fit': PlsFit,
     'edge_ratio': EdgeRatioMetric
 }
 

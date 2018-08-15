@@ -22,6 +22,7 @@ caching.store.configure_storagedir(os.path.join(os.path.dirname(__file__), '..',
 class Benchmark(object):
     def __init__(self, target_assembly, metric):
         self._target_assembly = target_assembly
+        self.stimulus_set_name = target_assembly.attrs['stimulus_set_name']
         self._metric = metric
         self._logger = logging.getLogger(fullname(self))
 
@@ -204,6 +205,7 @@ class AssemblyLoader(object):
 class DicarloMajaj2015Loader(AssemblyLoader):
     def __call__(self, average_repetition=True):
         assembly = brainscore.get_assembly(name='dicarlo.Majaj2015')
+        attrs = copy.deepcopy(assembly.attrs)
         assembly.load()
         err_neuroids = ['Tito_L_P_8_5', 'Tito_L_P_7_3', 'Tito_L_P_7_5', 'Tito_L_P_5_1', 'Tito_L_P_9_3',
                         'Tito_L_P_6_3', 'Tito_L_P_7_4', 'Tito_L_P_5_0', 'Tito_L_P_5_4', 'Tito_L_P_9_6',
@@ -221,6 +223,7 @@ class DicarloMajaj2015Loader(AssemblyLoader):
         assembly = assembly.transpose('presentation', 'neuroid')
         if average_repetition:
             assembly = self.average_repetition(assembly)
+        assembly.attrs = attrs
         return assembly
 
     def average_repetition(self, assembly):
@@ -277,3 +280,13 @@ def build(assembly_name, metric_name, ceiling_name=None, target_splits=()):
     metric = metrics[metric_name]()
     ceiling = ceilings[ceiling_name]()
     return SplitBenchmark(assembly, metric, ceiling, target_splits=target_splits)
+
+
+if __name__ == '__main__':
+    import sys
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+    benchmark = load('brain-score')
+    source = load_assembly('dicarlo.Majaj2015')
+    score = benchmark(source, transformation_kwargs=dict(
+        cartesian_product_kwargs=dict(dividing_coord_names_source=['region'])))
+    assert score == 1

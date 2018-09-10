@@ -22,6 +22,7 @@ caching.store.configure_storagedir(os.path.join(os.path.dirname(__file__), '..',
 class Benchmark(object):
     def __init__(self, target_assembly, metric):
         self._target_assembly = target_assembly
+        self.stimulus_set_name = target_assembly.attrs['stimulus_set_name']
         self._metric = metric
         self._logger = logging.getLogger(fullname(self))
 

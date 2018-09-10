@@ -6,11 +6,11 @@ import numpy as np
 
 import brainscore
 import caching
-from brainscore.assemblies import merge_data_arrays
+from brainscore.assemblies import merge_data_arrays, walk_coords, array_is_element
 from brainscore.metrics import NonparametricWrapper
 from brainscore.metrics.anatomy import ventral_stream, EdgeRatioMetric
 from brainscore.metrics.ceiling import ceilings
-from brainscore.metrics.neural_fit import PlsFit
+from brainscore.metrics.neural_fit import PlsFit, LinearFit
 from brainscore.metrics.rdm import RDMMetric
 from brainscore.metrics.transformations import Transformations, CartesianProduct
 from brainscore.utils import map_fields, combine_fields, fullname, recursive_dict_merge
@@ -22,6 +22,7 @@ caching.store.configure_storagedir(os.path.join(os.path.dirname(__file__), '..',
 class Benchmark(object):
     def __init__(self, target_assembly, metric):
         self._target_assembly = target_assembly
+        self.stimulus_set_name = target_assembly.attrs['stimulus_set_name']
         self._metric = metric
         self._logger = logging.getLogger(fullname(self))
 
@@ -95,7 +96,7 @@ class CeiledBenchmark(Benchmark):
 
 
 class SplitBenchmark(CeiledBenchmark):
-    def __init__(self, *args, target_splits, target_splits_kwargs=None, **kwargs):
+    def __init__(self, *args, target_splits=(), target_splits_kwargs=None, **kwargs):
         super(SplitBenchmark, self).__init__(*args, **kwargs)
         self._target_splits = target_splits
         target_splits_kwargs = target_splits_kwargs or {}
@@ -180,6 +181,23 @@ class DicarloMajaj2015(SplitBenchmark):
         return scores
 
 
+class ToliasCadena2017(SplitBenchmark):
+    def __init__(self):
+        self._loader = ToliasCadena2017Loader()
+        assembly = self._loader(average_repetition=False)
+        metric = metrics['pls_fit']()
+        ceiling = ceilings['splitrep'](metric, repetition_dim='repetition_id',
+                                       average_repetition=self._loader.average_repetition)
+        super(ToliasCadena2017, self).__init__(assembly, metric, ceiling)
+
+    def _apply(self, source_assembly):
+        target_assembly_save = copy.deepcopy(self._target_assembly)
+        self._target_assembly = self._loader.average_repetition(self._target_assembly)
+        scores = super(ToliasCadena2017, self)._apply(source_assembly)
+        self._target_assembly = target_assembly_save
+        return scores
+
+
 class GallantDavid2004(CeiledBenchmark):
     # work in progress
     def __init__(self):
@@ -204,6 +222,7 @@ class AssemblyLoader(object):
 class DicarloMajaj2015Loader(AssemblyLoader):
     def __call__(self, average_repetition=True):
         assembly = brainscore.get_assembly(name='dicarlo.Majaj2015')
+        attrs = copy.deepcopy(assembly.attrs)
         assembly.load()
         err_neuroids = ['Tito_L_P_8_5', 'Tito_L_P_7_3', 'Tito_L_P_7_5', 'Tito_L_P_5_1', 'Tito_L_P_9_3',
                         'Tito_L_P_6_3', 'Tito_L_P_7_4', 'Tito_L_P_5_0', 'Tito_L_P_5_4', 'Tito_L_P_9_6',
@@ -221,10 +240,35 @@ class DicarloMajaj2015Loader(AssemblyLoader):
         assembly = assembly.transpose('presentation', 'neuroid')
         if average_repetition:
             assembly = self.average_repetition(assembly)
+        assembly.attrs = attrs
         return assembly
 
     def average_repetition(self, assembly):
         return assembly.multi_groupby(['category_name', 'object_name', 'image_id']).mean(dim='presentation')
+
+
+class ToliasCadena2017Loader(AssemblyLoader):
+    def __call__(self, average_repetition=True):
+        assembly = brainscore.get_assembly(name='tolias.Cadena2017')
+        attrs = copy.deepcopy(assembly.attrs)
+        assembly.load()
+        assembly = assembly.rename({'neuroid': 'neuroid_id'})
+        assembly['region'] = 'neuroid_id', ['V1'] * len(assembly['neuroid_id'])
+        assembly = assembly.stack(neuroid=['neuroid_id'])
+        assembly = assembly.squeeze("time_bin")
+        # TODO: instead of discarding the entire image, see if we can be smarter in the metrics
+        assembly = assembly.dropna('presentation')  # discard any images with NaNs (~56%)
+        assembly = assembly.transpose('presentation', 'neuroid')
+        if average_repetition:
+            assembly = self.average_repetition(assembly)
+        assembly.attrs = attrs
+        return assembly
+
+    def average_repetition(self, assembly):
+        presentation_coords = [coord for coord, dims, values in walk_coords(assembly)
+                               if array_is_element(dims, 'presentation')]
+        presentation_coords = set(presentation_coords) - {'repetition_id', 'id'}
+        return assembly.multi_groupby(presentation_coords).mean(dim='presentation')
 
 
 class GallantDavid2004Loader(AssemblyLoader):
@@ -239,6 +283,7 @@ class GallantDavid2004Loader(AssemblyLoader):
 
 metrics = {
     'rdm': lambda *args, **kwargs: NonparametricWrapper(RDMMetric(*args, **kwargs)),
+    'linear_fit': LinearFit,
     'pls_fit': PlsFit,
     'edge_ratio': EdgeRatioMetric
 }
@@ -246,6 +291,7 @@ metrics = {
 assembly_loaders = {
     'dicarlo.Majaj2015': DicarloMajaj2015Loader(),
     'gallant.David2004': GallantDavid2004Loader(),
+    'tolias.Cadena2017': ToliasCadena2017Loader(),
 }
 
 _benchmarks = {
@@ -253,6 +299,7 @@ _benchmarks = {
     'dicarlo.Majaj2015': DicarloMajaj2015,
     'gallant.David2004': GallantDavid2004,
     'Felleman1991': FellemanVanEssen1991,
+    'tolias.Cadena2017': ToliasCadena2017,
 }
 
 
@@ -277,3 +324,14 @@ def build(assembly_name, metric_name, ceiling_name=None, target_splits=()):
     metric = metrics[metric_name]()
     ceiling = ceilings[ceiling_name]()
     return SplitBenchmark(assembly, metric, ceiling, target_splits=target_splits)
+
+
+if __name__ == '__main__':
+    import sys
+
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+    benchmark = load('brain-score')
+    source = load_assembly('dicarlo.Majaj2015')
+    score = benchmark(source, transformation_kwargs=dict(
+        cartesian_product_kwargs=dict(dividing_coord_names_source=['region'])))
+    assert score == 1

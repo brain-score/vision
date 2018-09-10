@@ -75,12 +75,12 @@ class CeiledBenchmark(Benchmark):
         self._ceiling = ceiling
         self._logger = logging.getLogger(fullname(self))
 
-    def __call__(self, source_assembly, identifier=None, return_unceiled=False):
+    def __call__(self, source_assembly, identifier=None, return_ceiled=False):
         scores = super(CeiledBenchmark, self).__call__(source_assembly, identifier=identifier)
         ceiled_scores = self._ceil(scores, self.ceiling)
-        if return_unceiled:
+        if return_ceiled:
             return ceiled_scores, scores
-        return ceiled_scores
+        return scores
 
     def _ceil(self, scores, ceiling):
         return scores / ceiling
@@ -103,13 +103,13 @@ class SplitBenchmark(CeiledBenchmark):
         self._target_dividers = cartesian_product.dividers(self._target_assembly, self._target_splits)
         self._transformations = None
 
-    def __call__(self, source_assembly, identifier=None, transformation_kwargs=None, return_unceiled=False):
+    def __call__(self, source_assembly, identifier=None, transformation_kwargs=None, return_ceiled=False):
         transformation_kwargs = transformation_kwargs or {}
         target_split_kwargs = dict(cartesian_product_kwargs=dict(dividing_coord_names_target=self._target_splits))
         transformation_kwargs = recursive_dict_merge(target_split_kwargs, transformation_kwargs)
         self._transformations = Transformations(**transformation_kwargs)
         scores = super(SplitBenchmark, self).__call__(source_assembly, identifier=identifier,
-                                                      return_unceiled=return_unceiled)
+                                                      return_ceiled=return_ceiled)
         self._transformations = None
         return scores
 

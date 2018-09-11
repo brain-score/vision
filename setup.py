@@ -21,6 +21,7 @@ requirements = [
     "networkx",
     "pathos",
     "caching",
+    "matplotlib",
 ]
 
 test_requirements = [

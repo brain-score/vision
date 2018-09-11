@@ -40,9 +40,6 @@ class Benchmark(object):
     def _apply(self, source_assembly):
         return self._metric(source_assembly, self._target_assembly)
 
-    def __repr__(self):
-        return fullname(self)
-
 
 class BrainScore(Benchmark):
     def __init__(self):

@@ -6,8 +6,8 @@ import numpy as np
 
 import brainscore
 import caching
-from brainscore.assemblies import merge_data_arrays, walk_coords, array_is_element
-from brainscore.metrics import NonparametricWrapper
+from brainscore.assemblies import merge_data_arrays, walk_coords, array_is_element, DataAssembly
+from brainscore.metrics import NonparametricWrapper, Score
 from brainscore.metrics.anatomy import ventral_stream, EdgeRatioMetric
 from brainscore.metrics.ceiling import ceilings
 from brainscore.metrics.neural_fit import PlsFit, LinearFit
@@ -20,7 +20,8 @@ caching.store.configure_storagedir(os.path.join(os.path.dirname(__file__), '..',
 
 
 class Benchmark(object):
-    def __init__(self, target_assembly, metric):
+    def __init__(self, name, target_assembly, metric):
+        self.name = name
         self._target_assembly = target_assembly
         self.stimulus_set_name = target_assembly.attrs['stimulus_set_name']
         self._metric = metric
@@ -40,48 +41,48 @@ class Benchmark(object):
     def _apply(self, source_assembly):
         return self._metric(source_assembly, self._target_assembly)
 
-    def __repr__(self):
-        return fullname(self)
 
-
-class BrainScore(Benchmark):
+class BrainScore(object):
+    # Brain-Score is a Benchmark too, but due to its compositionality
+    # we deem it too different from the Benchmark base class.
     def __init__(self):
-        super(BrainScore, self).__init__(None, None)
+        self.name = 'brain-score'
         self._v4_it_benchmark = DicarloMajaj2015()
+        # hacky but works for now: copy stimulus set from child benchmark.
+        # this will not scale to multiple child benchmarks.
+        self.stimulus_set_name = self._v4_it_benchmark.stimulus_set_name
         self._kwargs = None
 
     def __call__(self, source_assembly, identifier=None, **kwargs):
-        self._kwargs = kwargs
-        scores = super(BrainScore, self).__call__(source_assembly, identifier=identifier)
-        self._kwargs = None
-        return scores
-
-    def _apply(self, source_assembly):
-        v4_it_score = self._v4_it_benchmark(source_assembly, **self._kwargs)
+        v4_it_score = self._v4_it_benchmark(source_assembly, **kwargs)
         v4_it_score = v4_it_score.aggregation
         aggregation_dims = ['aggregation', 'region']
         assert all(dim in v4_it_score.dims for dim in aggregation_dims)
         reduce_dims = [dim for dim in v4_it_score.dims if dim not in aggregation_dims]
-        v4_it_score = v4_it_score.max(reduce_dims)
-        np.testing.assert_array_equal(v4_it_score.dims, aggregation_dims)
-        v4_it_score = v4_it_score.sel(aggregation='center')
-        brain_score = np.mean(v4_it_score)
+        aggregate_v4_it_score = v4_it_score.max(reduce_dims)
+        np.testing.assert_array_equal(aggregate_v4_it_score.dims, aggregation_dims)
+        aggregate_v4_it_score = aggregate_v4_it_score.sel(aggregation='center')
+        brain_score = np.mean(aggregate_v4_it_score).values
         # TODO: behavior
-        return brain_score
+        values = v4_it_score.expand_dims('benchmark')
+        values['benchmark'] = [self._v4_it_benchmark.name]
+        aggregation = DataAssembly([brain_score], coords={'aggregation': ['center']}, dims=['aggregation'])
+        score = Score(aggregation=aggregation, values=values)
+        return score
 
 
 class CeiledBenchmark(Benchmark):
-    def __init__(self, target_assembly, metric, ceiling):
-        super(CeiledBenchmark, self).__init__(target_assembly=target_assembly, metric=metric)
+    def __init__(self, *args, ceiling, **kwargs):
+        super(CeiledBenchmark, self).__init__(*args, **kwargs)
         self._ceiling = ceiling
         self._logger = logging.getLogger(fullname(self))
 
-    def __call__(self, source_assembly, identifier=None, return_unceiled=False):
+    def __call__(self, source_assembly, identifier=None, return_ceiled=False):
         scores = super(CeiledBenchmark, self).__call__(source_assembly, identifier=identifier)
         ceiled_scores = self._ceil(scores, self.ceiling)
-        if return_unceiled:
+        if return_ceiled:
             return ceiled_scores, scores
-        return ceiled_scores
+        return scores
 
     def _ceil(self, scores, ceiling):
         return scores / ceiling
@@ -104,13 +105,13 @@ class SplitBenchmark(CeiledBenchmark):
         self._target_dividers = cartesian_product.dividers(self._target_assembly, self._target_splits)
         self._transformations = None
 
-    def __call__(self, source_assembly, identifier=None, transformation_kwargs=None, return_unceiled=False):
+    def __call__(self, source_assembly, identifier=None, transformation_kwargs=None, return_ceiled=False):
         transformation_kwargs = transformation_kwargs or {}
         target_split_kwargs = dict(cartesian_product_kwargs=dict(dividing_coord_names_target=self._target_splits))
         transformation_kwargs = recursive_dict_merge(target_split_kwargs, transformation_kwargs)
         self._transformations = Transformations(**transformation_kwargs)
         scores = super(SplitBenchmark, self).__call__(source_assembly, identifier=identifier,
-                                                      return_unceiled=return_unceiled)
+                                                      return_ceiled=return_ceiled)
         self._transformations = None
         return scores
 
@@ -171,7 +172,8 @@ class DicarloMajaj2015(SplitBenchmark):
         assembly = self._loader(average_repetition=False)
         metric = metrics['pls_fit']()
         ceiling = ceilings['splitrep'](metric, average_repetition=self._loader.average_repetition)
-        super(DicarloMajaj2015, self).__init__(assembly, metric, ceiling, target_splits=('region',))
+        super(DicarloMajaj2015, self).__init__(name='dicarlo.Majaj2015', target_assembly=assembly,
+                                               metric=metric, ceiling=ceiling, target_splits=('region',))
 
     def _apply(self, source_assembly):
         target_assembly_save = copy.deepcopy(self._target_assembly)
@@ -204,7 +206,7 @@ class GallantDavid2004(CeiledBenchmark):
         assembly = GallantDavid2004Loader()()
         metric = metrics['pls_fit'](regression='linear')
         ceiling = ceilings['cons']()
-        super().__init__(assembly, metric, ceiling)
+        super().__init__(name='gallant.David2004', target_assembly=assembly, metric=metric, ceiling=ceiling)
 
 
 class FellemanVanEssen1991(CeiledBenchmark):
@@ -215,13 +217,19 @@ class FellemanVanEssen1991(CeiledBenchmark):
 
 
 class AssemblyLoader(object):
+    def __init__(self, name):
+        self.name = name
+
     def __call__(self):
         raise NotImplementedError()
 
 
 class DicarloMajaj2015Loader(AssemblyLoader):
+    def __init__(self):
+        super(DicarloMajaj2015Loader, self).__init__(name='dicarlo.Majaj2015')
+
     def __call__(self, average_repetition=True):
-        assembly = brainscore.get_assembly(name='dicarlo.Majaj2015')
+        assembly = brainscore.get_assembly(name=self.name)
         attrs = copy.deepcopy(assembly.attrs)
         assembly.load()
         err_neuroids = ['Tito_L_P_8_5', 'Tito_L_P_7_3', 'Tito_L_P_7_5', 'Tito_L_P_5_1', 'Tito_L_P_9_3',
@@ -248,6 +256,9 @@ class DicarloMajaj2015Loader(AssemblyLoader):
 
 
 class ToliasCadena2017Loader(AssemblyLoader):
+    def __init__(self):
+        super(ToliasCadena2017Loader, self).__init__(name='tolias.Cadena2017')
+
     def __call__(self, average_repetition=True):
         assembly = brainscore.get_assembly(name='tolias.Cadena2017')
         attrs = copy.deepcopy(assembly.attrs)
@@ -272,8 +283,11 @@ class ToliasCadena2017Loader(AssemblyLoader):
 
 
 class GallantDavid2004Loader(AssemblyLoader):
+    def __init__(self):
+        super(GallantDavid2004Loader, self).__init__(name='gallant.David2004')
+
     def __call__(self):
-        assembly = brainscore.get_assembly(name='gallant.David2004')
+        assembly = brainscore.get_assembly(name=self.name)
         assembly.load()
         assembly = assembly.rename({'neuroid': 'neuroid_id'})
         assembly = assembly.stack(neuroid=('neuroid_id',))
@@ -288,11 +302,8 @@ metrics = {
     'edge_ratio': EdgeRatioMetric
 }
 
-assembly_loaders = {
-    'dicarlo.Majaj2015': DicarloMajaj2015Loader(),
-    'gallant.David2004': GallantDavid2004Loader(),
-    'tolias.Cadena2017': ToliasCadena2017Loader(),
-}
+assembly_loaders = [DicarloMajaj2015Loader(), GallantDavid2004Loader(), ToliasCadena2017Loader()]
+assembly_loaders = {loader.name: loader for loader in assembly_loaders}
 
 _benchmarks = {
     'brain-score': BrainScore,

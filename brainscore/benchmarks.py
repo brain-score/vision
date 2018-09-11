@@ -20,7 +20,8 @@ caching.store.configure_storagedir(os.path.join(os.path.dirname(__file__), '..',
 
 
 class Benchmark(object):
-    def __init__(self, target_assembly, metric):
+    def __init__(self, name, target_assembly, metric):
+        self.name = name
         self._target_assembly = target_assembly
         self.stimulus_set_name = target_assembly.attrs['stimulus_set_name']
         self._metric = metric
@@ -43,7 +44,7 @@ class Benchmark(object):
 
 class BrainScore(Benchmark):
     def __init__(self):
-        super(BrainScore, self).__init__(None, None)
+        self.name = 'brain-score'
         self._v4_it_benchmark = DicarloMajaj2015()
         self._kwargs = None
 
@@ -68,8 +69,8 @@ class BrainScore(Benchmark):
 
 
 class CeiledBenchmark(Benchmark):
-    def __init__(self, target_assembly, metric, ceiling):
-        super(CeiledBenchmark, self).__init__(target_assembly=target_assembly, metric=metric)
+    def __init__(self, *args, ceiling, **kwargs):
+        super(CeiledBenchmark, self).__init__(*args, **kwargs)
         self._ceiling = ceiling
         self._logger = logging.getLogger(fullname(self))
 
@@ -168,7 +169,8 @@ class DicarloMajaj2015(SplitBenchmark):
         assembly = self._loader(average_repetition=False)
         metric = metrics['pls_fit']()
         ceiling = ceilings['splitrep'](metric, average_repetition=self._loader.average_repetition)
-        super(DicarloMajaj2015, self).__init__(assembly, metric, ceiling, target_splits=('region',))
+        super(DicarloMajaj2015, self).__init__(name='dicarlo.Majaj2015', target_assembly=assembly,
+                                               metric=metric, ceiling=ceiling, target_splits=('region',))
 
     def _apply(self, source_assembly):
         target_assembly_save = copy.deepcopy(self._target_assembly)
@@ -184,7 +186,7 @@ class GallantDavid2004(CeiledBenchmark):
         assembly = GallantDavid2004Loader()()
         metric = metrics['pls_fit'](regression='linear')
         ceiling = ceilings['cons']()
-        super().__init__(assembly, metric, ceiling)
+        super().__init__(name='gallant.David2004', target_assembly=assembly, metric=metric, ceiling=ceiling)
 
 
 class FellemanVanEssen1991(CeiledBenchmark):
@@ -195,13 +197,19 @@ class FellemanVanEssen1991(CeiledBenchmark):
 
 
 class AssemblyLoader(object):
+    def __init__(self, name):
+        self.name = name
+
     def __call__(self):
         raise NotImplementedError()
 
 
 class DicarloMajaj2015Loader(AssemblyLoader):
+    def __init__(self):
+        super(DicarloMajaj2015Loader, self).__init__(name='dicarlo.Majaj2015')
+
     def __call__(self, average_repetition=True):
-        assembly = brainscore.get_assembly(name='dicarlo.Majaj2015')
+        assembly = brainscore.get_assembly(name=self.name)
         assembly.load()
         err_neuroids = ['Tito_L_P_8_5', 'Tito_L_P_7_3', 'Tito_L_P_7_5', 'Tito_L_P_5_1', 'Tito_L_P_9_3',
                         'Tito_L_P_6_3', 'Tito_L_P_7_4', 'Tito_L_P_5_0', 'Tito_L_P_5_4', 'Tito_L_P_9_6',
@@ -226,8 +234,11 @@ class DicarloMajaj2015Loader(AssemblyLoader):
 
 
 class GallantDavid2004Loader(AssemblyLoader):
+    def __init__(self):
+        super(GallantDavid2004Loader, self).__init__(name='gallant.David2004')
+
     def __call__(self):
-        assembly = brainscore.get_assembly(name='gallant.David2004')
+        assembly = brainscore.get_assembly(name=self.name)
         assembly.load()
         assembly = assembly.rename({'neuroid': 'neuroid_id'})
         assembly = assembly.stack(neuroid=('neuroid_id',))
@@ -241,10 +252,8 @@ metrics = {
     'edge_ratio': EdgeRatioMetric
 }
 
-assembly_loaders = {
-    'dicarlo.Majaj2015': DicarloMajaj2015Loader(),
-    'gallant.David2004': GallantDavid2004Loader(),
-}
+assembly_loaders = [DicarloMajaj2015Loader(), GallantDavid2004Loader()]
+assembly_loaders = {loader.name: loader for loader in assembly_loaders}
 
 _benchmarks = {
     'brain-score': BrainScore,

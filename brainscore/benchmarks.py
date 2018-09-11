@@ -6,8 +6,8 @@ import numpy as np
 
 import brainscore
 import caching
-from brainscore.assemblies import merge_data_arrays
-from brainscore.metrics import NonparametricWrapper
+from brainscore.assemblies import merge_data_arrays, DataAssembly
+from brainscore.metrics import NonparametricWrapper, Score
 from brainscore.metrics.anatomy import ventral_stream, EdgeRatioMetric
 from brainscore.metrics.ceiling import ceilings
 from brainscore.metrics.neural_fit import PlsFit
@@ -42,30 +42,33 @@ class Benchmark(object):
         return self._metric(source_assembly, self._target_assembly)
 
 
-class BrainScore(Benchmark):
+class BrainScore(object):
+    # Brain-Score is a Benchmark too, but due to its compositionality
+    # we deem it too different from the Benchmark base class.
     def __init__(self):
         self.name = 'brain-score'
         self._v4_it_benchmark = DicarloMajaj2015()
+        # hacky but works for now: copy stimulus set from child benchmark.
+        # this will not scale to multiple child benchmarks.
+        self.stimulus_set_name = self._v4_it_benchmark.stimulus_set_name
         self._kwargs = None
 
     def __call__(self, source_assembly, identifier=None, **kwargs):
-        self._kwargs = kwargs
-        scores = super(BrainScore, self).__call__(source_assembly, identifier=identifier)
-        self._kwargs = None
-        return scores
-
-    def _apply(self, source_assembly):
-        v4_it_score = self._v4_it_benchmark(source_assembly, **self._kwargs)
+        v4_it_score = self._v4_it_benchmark(source_assembly, **kwargs)
         v4_it_score = v4_it_score.aggregation
         aggregation_dims = ['aggregation', 'region']
         assert all(dim in v4_it_score.dims for dim in aggregation_dims)
         reduce_dims = [dim for dim in v4_it_score.dims if dim not in aggregation_dims]
-        v4_it_score = v4_it_score.max(reduce_dims)
-        np.testing.assert_array_equal(v4_it_score.dims, aggregation_dims)
-        v4_it_score = v4_it_score.sel(aggregation='center')
-        brain_score = np.mean(v4_it_score)
+        aggregate_v4_it_score = v4_it_score.max(reduce_dims)
+        np.testing.assert_array_equal(aggregate_v4_it_score.dims, aggregation_dims)
+        aggregate_v4_it_score = aggregate_v4_it_score.sel(aggregation='center')
+        brain_score = np.mean(aggregate_v4_it_score).values
         # TODO: behavior
-        return brain_score
+        values = v4_it_score.expand_dims('benchmark')
+        values['benchmark'] = [self._v4_it_benchmark.name]
+        aggregation = DataAssembly([brain_score], coords={'aggregation': ['center']}, dims=['aggregation'])
+        score = Score(aggregation=aggregation, values=values)
+        return score
 
 
 class CeiledBenchmark(Benchmark):

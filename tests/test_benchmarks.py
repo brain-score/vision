@@ -39,7 +39,7 @@ class TestMajaj2015:
     def test_self(self):
         benchmark = benchmarks.load('dicarlo.Majaj2015')
         source = benchmarks.load_assembly('dicarlo.Majaj2015')
-        score, unceiled_score = benchmark(source, return_unceiled=True)
+        score, unceiled_score = benchmark(source, return_ceiled=True)
         assert all(score.aggregation.sel(aggregation='error') == unceiled_score.aggregation.sel(aggregation='error'))
         # ceiling should use the same rng, but different repetitions. results should overall be close to 1
         np.testing.assert_array_almost_equal(score.aggregation.sel(aggregation='center'), [1., 1.], decimal=2)

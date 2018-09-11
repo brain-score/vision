@@ -9,4 +9,4 @@ recursive-exclude * *.py[co]
 
 recursive-include docs *.rst conf.py Makefile make.bat *.jpg *.png *.gif
 
-include mkgu/lookup.db
+include brainscore/lookup.db

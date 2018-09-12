@@ -30,7 +30,7 @@ test_requirements = [
 ]
 
 dependency_links = [
-    "https://github.com/mschrimpf/result_caching/master/tarball",
+    "git+https://github.com/mschrimpf/result_caching.git@master#egg=result_caching-0",
 ]
 
 setup(

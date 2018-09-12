@@ -85,7 +85,7 @@ class TestCadena2017:
     def test_self(self):
         benchmark = benchmarks.load('tolias.Cadena2017')
         source = benchmarks.load_assembly('tolias.Cadena2017')
-        score, unceiled_score = benchmark(source, return_unceiled=True)
+        score, unceiled_score = benchmark(source, return_ceiled=True)
         assert score.aggregation.sel(aggregation='error') == unceiled_score.aggregation.sel(aggregation='error')
         # ceiling should use the same rng, but different repetitions. results should overall be close to 1
         np.testing.assert_almost_equal(score.aggregation.sel(aggregation='center'), 1., decimal=1)

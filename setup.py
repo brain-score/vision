@@ -20,7 +20,7 @@ requirements = [
     "peewee",
     "networkx",
     "pathos",
-    "caching",
+    "result_caching",
     "matplotlib",
 ]
 
@@ -30,7 +30,7 @@ test_requirements = [
 ]
 
 dependency_links = [
-    "https://github.com/mschrimpf/caching/master/tarball",
+    "git+https://github.com/mschrimpf/result_caching.git@master#egg=result_caching-0",
 ]
 
 setup(

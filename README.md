@@ -17,7 +17,7 @@ to multi-dimensional `numpy` arrays.
 
 Recommended for most users. Use Brain-Score as a library.
 
-`pip install git+https://github.com/dicarlolab/brain-score`
+`pip install --process-dependency-links git+https://github.com/dicarlolab/brain-score`
 
 To contribute code to Brain-Score, see the [Development Setup](#development-setup).
 

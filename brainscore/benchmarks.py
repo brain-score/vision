@@ -14,7 +14,7 @@ from brainscore.metrics.neural_fit import PlsFit, LinearFit
 from brainscore.metrics.rdm import RDMMetric
 from brainscore.metrics.transformations import Transformations, CartesianProduct
 from brainscore.utils import map_fields, combine_fields, fullname, recursive_dict_merge
-from result_caching import store
+from result_caching import cache, store
 
 result_caching.store.configure_storagedir(os.path.join(os.path.dirname(__file__), '..', 'output'))
 
@@ -190,7 +190,8 @@ class ToliasCadena2017(SplitBenchmark):
         metric = metrics['pls_fit']()
         ceiling = ceilings['splitrep'](metric, repetition_dim='repetition_id',
                                        average_repetition=self._loader.average_repetition)
-        super(ToliasCadena2017, self).__init__(assembly, metric, ceiling)
+        super(ToliasCadena2017, self).__init__(name='tolias.Cadena2017',
+                                               target_assembly=assembly, metric=metric, ceiling=ceiling)
 
     def _apply(self, source_assembly):
         target_assembly_save = copy.deepcopy(self._target_assembly)
@@ -267,8 +268,6 @@ class ToliasCadena2017Loader(AssemblyLoader):
         assembly['region'] = 'neuroid_id', ['V1'] * len(assembly['neuroid_id'])
         assembly = assembly.stack(neuroid=['neuroid_id'])
         assembly = assembly.squeeze("time_bin")
-        # TODO: instead of discarding the entire image, see if we can be smarter in the metrics
-        assembly = assembly.dropna('presentation')  # discard any images with NaNs (~56%)
         assembly = assembly.transpose('presentation', 'neuroid')
         if average_repetition:
             assembly = self.average_repetition(assembly)
@@ -279,7 +278,7 @@ class ToliasCadena2017Loader(AssemblyLoader):
         presentation_coords = [coord for coord, dims, values in walk_coords(assembly)
                                if array_is_element(dims, 'presentation')]
         presentation_coords = set(presentation_coords) - {'repetition_id', 'id'}
-        return assembly.multi_groupby(presentation_coords).mean(dim='presentation')
+        return assembly.multi_groupby(presentation_coords).mean(dim='presentation', skipna=True)
 
 
 class GallantDavid2004Loader(AssemblyLoader):
@@ -314,6 +313,7 @@ _benchmarks = {
 }
 
 
+@cache()
 def load(name):
     if name not in _benchmarks:
         raise ValueError("Unknown benchmark '{}' - must choose from {}".format(name, list(_benchmarks.keys())))

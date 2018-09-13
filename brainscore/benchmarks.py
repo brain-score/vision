@@ -1,11 +1,9 @@
 import copy
 import logging
-import os
 
 import numpy as np
 
 import brainscore
-import result_caching
 from brainscore.assemblies import merge_data_arrays, DataAssembly
 from brainscore.metrics import NonparametricWrapper, Score
 from brainscore.metrics.anatomy import ventral_stream, EdgeRatioMetric
@@ -15,8 +13,6 @@ from brainscore.metrics.rdm import RDMMetric
 from brainscore.metrics.transformations import Transformations, CartesianProduct
 from brainscore.utils import map_fields, combine_fields, fullname, recursive_dict_merge
 from result_caching import store
-
-result_caching.store.configure_storagedir(os.path.join(os.path.dirname(__file__), '..', 'output'))
 
 
 class Benchmark(object):

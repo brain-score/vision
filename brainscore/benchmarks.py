@@ -9,7 +9,7 @@ from brainscore.assemblies import merge_data_arrays, walk_coords, array_is_eleme
 from brainscore.metrics import NonparametricWrapper, Score
 from brainscore.metrics.anatomy import ventral_stream, EdgeRatioMetric
 from brainscore.metrics.ceiling import ceilings
-from brainscore.metrics.neural_fit import PlsFit, LinearFit
+from brainscore.metrics.neural_predictivity import PlsPredictivity, LinearPredictivity
 from brainscore.metrics.rdm import RDMMetric
 from brainscore.metrics.transformations import Transformations, CartesianProduct
 from brainscore.utils import map_fields, combine_fields, fullname, recursive_dict_merge
@@ -166,7 +166,7 @@ class DicarloMajaj2015(SplitBenchmark):
     def __init__(self):
         self._loader = DicarloMajaj2015Loader()
         assembly = self._loader(average_repetition=False)
-        metric = metrics['pls_fit']()
+        metric = metrics['pls_predictivity']()
         ceiling = ceilings['splitrep'](metric, average_repetition=self._loader.average_repetition)
         super(DicarloMajaj2015, self).__init__(name='dicarlo.Majaj2015', target_assembly=assembly,
                                                metric=metric, ceiling=ceiling, target_splits=('region',))
@@ -183,7 +183,7 @@ class ToliasCadena2017(SplitBenchmark):
     def __init__(self):
         self._loader = ToliasCadena2017Loader()
         assembly = self._loader(average_repetition=False)
-        metric = metrics['pls_fit']()
+        metric = metrics['pls_predictivity']()
         ceiling = ceilings['splitrep'](metric, repetition_dim='repetition_id',
                                        average_repetition=self._loader.average_repetition)
         super(ToliasCadena2017, self).__init__(name='tolias.Cadena2017',
@@ -201,7 +201,7 @@ class DicarloMajaj2015EarlyLate(DicarloMajaj2015):
     def __init__(self):
         self._loader = DicarloMajaj2015EarlyLateLoader()
         assembly = self._loader(average_repetition=False)
-        metric = metrics['neural_fit']()
+        metric = metrics['pls_predictivit']()
         ceiling = ceilings['splitrep'](metric, average_repetition=self._loader.average_repetition)
         SplitBenchmark.__init__(self, assembly, metric, ceiling,
                                 target_splits=('region', 'time_bin_start', 'time_bin_end'))
@@ -211,7 +211,7 @@ class GallantDavid2004(CeiledBenchmark):
     # work in progress
     def __init__(self):
         assembly = GallantDavid2004Loader()()
-        metric = metrics['pls_fit'](regression='linear')
+        metric = metrics['pls_predictivity'](regression='linear')
         ceiling = ceilings['cons']()
         super().__init__(name='gallant.David2004', target_assembly=assembly, metric=metric, ceiling=ceiling)
 
@@ -351,8 +351,8 @@ class GallantDavid2004Loader(AssemblyLoader):
 
 metrics = {
     'rdm': lambda *args, **kwargs: NonparametricWrapper(RDMMetric(*args, **kwargs)),
-    'linear_fit': LinearFit,
-    'pls_fit': PlsFit,
+    'linear_predictivity': LinearPredictivity,
+    'pls_predictivity': PlsPredictivity,
     'edge_ratio': EdgeRatioMetric
 }
 

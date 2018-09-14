@@ -61,7 +61,7 @@ class ParametricNeuroidMetric(ParametricMetric):
                             dims=[self._neuroid_coord])
 
 
-class NeuralFit(ParametricNeuroidMetric, metaclass=ABCMeta):
+class NeuralPredictivity(ParametricNeuroidMetric, metaclass=ABCMeta):
     def __init__(self, *args, regression, **kwargs):
         super().__init__(*args, **kwargs)
         self._regression = regression
@@ -76,22 +76,14 @@ class NeuralFit(ParametricNeuroidMetric, metaclass=ABCMeta):
         return scores.median(dim=neuroid_dim)
 
 
-class LinearFit(NeuralFit):
-    """
-    Yamins & Hong et al., 2014 https://doi.org/10.1073/pnas.1403112111
-    """
-
-    regressions = {
-        'pls-25': PLSRegression(n_components=25, scale=False),
-    }
-
+class LinearPredictivity(NeuralPredictivity):
     def __init__(self):
         super().__init__(regression=LinearRegression())
 
 
-class PlsFit(NeuralFit):
+class PlsPredictivity(NeuralPredictivity):
     """
-    Schrimpf & Kubilius et al., 2018
+    Yamins & Hong et al., 2014 https://doi.org/10.1073/pnas.1403112111
     """
 
     def __init__(self):

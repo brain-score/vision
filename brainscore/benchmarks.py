@@ -73,10 +73,6 @@ class CeiledBenchmark(Benchmark):
         self._ceiling = ceiling
         self._logger = logging.getLogger(fullname(self))
 
-    @property
-    def stimulus_set_name(self):
-        return self._target_assembly.attrs['stimulus_set_name']
-
     def __call__(self, source_assembly, identifier=None, return_ceiled=False):
         scores = super(CeiledBenchmark, self).__call__(source_assembly, identifier=identifier)
         ceiled_scores = self._ceil(scores, self.ceiling)
@@ -233,9 +229,6 @@ class AssemblyLoader(object):
 
     def __call__(self):
         raise NotImplementedError()
-
-    def __repr__(self):
-        return fullname(self)
 
 
 class DicarloMajaj2015Loader(AssemblyLoader):

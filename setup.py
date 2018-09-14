@@ -16,6 +16,7 @@ requirements = [
     "six",
     "requests",
     "boto3",
+    "tqdm",
     "netcdf4",
     "peewee",
     "networkx",

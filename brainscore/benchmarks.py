@@ -1,8 +1,8 @@
 import copy
 import logging
 
-import xarray as xr
 import numpy as np
+from result_caching import cache, store
 
 import brainscore
 from brainscore.assemblies import merge_data_arrays, walk_coords, array_is_element, DataAssembly
@@ -13,7 +13,6 @@ from brainscore.metrics.neural_fit import PlsFit, LinearFit
 from brainscore.metrics.rdm import RDMMetric
 from brainscore.metrics.transformations import Transformations, CartesianProduct
 from brainscore.utils import map_fields, combine_fields, fullname, recursive_dict_merge
-from result_caching import cache, store
 
 
 class Benchmark(object):
@@ -245,7 +244,6 @@ class DicarloMajaj2015Loader(AssemblyLoader):
 
     def __call__(self, average_repetition=True):
         assembly = brainscore.get_assembly(name=self.name)
-        attrs = copy.deepcopy(assembly.attrs)
         assembly.load()
         assembly = self._filter_erroneous_neuroids(assembly)
         assembly = assembly.sel(variation=6)  # TODO: remove variation selection once part of name
@@ -281,18 +279,12 @@ class DicarloMajaj2015TemporalLoader(DicarloMajaj2015Loader):
         super(DicarloMajaj2015TemporalLoader, self).__init__(name=name)
 
     def __call__(self, average_repetition=True):
-        assembly = xr.open_dataarray(os.path.join(os.path.dirname(__file__), '..', 'hvm_temporal_neuronal_features.nc'))
-        assembly = NeuroidAssembly(assembly, coords={
-            coord.replace('category', 'category_name').replace('object', 'object_name'):
-                (values.dims, values.values) for (coord, values) in assembly.coords.items()},
-                                   dims=assembly.dims)
-        assembly.attrs['stimulus_set_name'] = 'dicarlo.hvm'
+        assembly = brainscore.get_assembly(name='dicarlo.Majaj2015.temporal')
         assembly = self._filter_erroneous_neuroids(assembly)
-        assembly = assembly.sel(variation='V6')  # TODO: remove variation selection once part of name
+        assembly = assembly.sel(variation=6)  # TODO: remove variation selection once part of name
         assembly = assembly.transpose('presentation', 'neuroid', 'time_bin')
         if average_repetition:
             assembly = self.average_repetition(assembly)
-        assembly.attrs = attrs
         return assembly
 
 
@@ -369,7 +361,8 @@ metrics = {
     'edge_ratio': EdgeRatioMetric
 }
 
-assembly_loaders = [DicarloMajaj2015Loader(), DicarloMajaj2015EarlyLateLoader(), GallantDavid2004Loader(), ToliasCadena2017Loader()]
+assembly_loaders = [DicarloMajaj2015Loader(), DicarloMajaj2015EarlyLateLoader(), GallantDavid2004Loader(),
+                    ToliasCadena2017Loader()]
 assembly_loaders = {loader.name: loader for loader in assembly_loaders}
 
 _benchmarks = {

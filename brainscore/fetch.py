@@ -175,7 +175,9 @@ def get_assembly(name):
     assy_model = assemblies.lookup_assembly(name)
     local_paths = fetch_assembly(assy_model)
     loader = AssemblyLoader(assy_model, local_paths)
-    return loader.load()
+    assembly = loader.load()
+    assembly.name = name
+    return assembly
 
 
 def get_stimulus_set(name):

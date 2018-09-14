@@ -315,7 +315,6 @@ class ToliasCadena2017Loader(AssemblyLoader):
 
     def __call__(self, average_repetition=True):
         assembly = brainscore.get_assembly(name='tolias.Cadena2017')
-        attrs = copy.deepcopy(assembly.attrs)
         assembly.load()
         assembly = assembly.rename({'neuroid': 'neuroid_id'})
         assembly['region'] = 'neuroid_id', ['V1'] * len(assembly['neuroid_id'])
@@ -324,14 +323,17 @@ class ToliasCadena2017Loader(AssemblyLoader):
         assembly = assembly.transpose('presentation', 'neuroid')
         if average_repetition:
             assembly = self.average_repetition(assembly)
-        assembly.attrs = attrs
         return assembly
 
     def average_repetition(self, assembly):
+        attrs = assembly.attrs  # workaround to keeping attrs
         presentation_coords = [coord for coord, dims, values in walk_coords(assembly)
                                if array_is_element(dims, 'presentation')]
         presentation_coords = set(presentation_coords) - {'repetition_id', 'id'}
-        return assembly.multi_groupby(presentation_coords).mean(dim='presentation', skipna=True)
+        assembly = assembly.multi_groupby(presentation_coords).mean(dim='presentation', skipna=True)
+        assembly = assembly.dropna('presentation')  # discard any images with NaNs (~14%)
+        assembly.attrs = attrs
+        return assembly
 
 
 class GallantDavid2004Loader(AssemblyLoader):

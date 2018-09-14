@@ -5,7 +5,8 @@ from pytest import approx
 
 from brainscore import benchmarks
 from brainscore.assemblies import DataAssembly, NeuroidAssembly, walk_coords
-from brainscore.benchmarks import SplitBenchmark, metrics, DicarloMajaj2015EarlyLateLoader, DicarloMajaj2015Loader
+from brainscore.benchmarks import SplitBenchmark, metrics, DicarloMajaj2015EarlyLateLoader, DicarloMajaj2015Loader, \
+    ToliasCadena2017Loader
 from brainscore.metrics.ceiling import SplitNoCeiling
 
 
@@ -84,6 +85,14 @@ class TestAssemblyLoaders:
         assert {'presentation', 'neuroid', 'time_bin'} == set(assembly.dims)
         assert len(assembly['time_bin']) == 2
         assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm'
+
+    def test_toliascadena2017(self):
+        loader = ToliasCadena2017Loader()
+        assembly = loader()
+        assert isinstance(assembly, NeuroidAssembly)
+        assert {'presentation', 'neuroid'} == set(assembly.dims)
+        assert not np.isnan(assembly).any()
+        assert assembly.attrs['stimulus_set_name'] == 'tolias.Cadena2017'
 
 
 class TestCadena2017:

@@ -75,8 +75,8 @@ class CeiledBenchmark(Benchmark):
 
     def __call__(self, source_assembly, identifier=None, return_ceiled=False):
         scores = super(CeiledBenchmark, self).__call__(source_assembly, identifier=identifier)
-        ceiled_scores = self._ceil(scores, self.ceiling)
         if return_ceiled:
+            ceiled_scores = self._ceil(scores, self.ceiling)
             return ceiled_scores, scores
         return scores
 

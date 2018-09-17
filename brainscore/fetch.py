@@ -7,6 +7,8 @@ import zipfile
 import boto3
 import pandas as pd
 import xarray as xr
+from botocore import UNSIGNED
+from botocore.config import Config
 from six.moves.urllib.parse import urlparse
 from tqdm import tqdm
 
@@ -57,9 +59,11 @@ class BotoFetcher(Fetcher):
         return self.output_filename
 
     def download_boto(self, sha1=None):
-        """Downloads file from S3 via boto at `url` and writes it in `output_dirname`.
-        Borrowed from dldata.  """
-        s3 = boto3.resource('s3')
+        """Downloads file from S3 via boto at `url` and writes it in `output_dirname`."""
+        use_boto_signature = bool(int(os.getenv('BSC_BOTO3_SIGN', 0)))
+        # optionally disable signing requests. see https://stackoverflow.com/a/34866092/2225200
+        config = None if use_boto_signature else Config(signature_version=UNSIGNED)
+        s3 = boto3.resource('s3', config=config)
         obj = s3.Object(self.bucketname, self.relative_path)
         print('getting %s' % self.relative_path)
         # show progress. see https://gist.github.com/wy193777/e7607d12fad13459e8992d4f69b53586

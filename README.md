@@ -15,7 +15,7 @@ to multi-dimensional `numpy` arrays.
 
 ## Quick setup
 
-Recommended for most users. Use Brain-Score as a library.
+Recommended for most users. Use Brain-Score as a library. You will need Python >= 3.6.
 
 `pip install --process-dependency-links git+https://github.com/dicarlolab/brain-score`
 

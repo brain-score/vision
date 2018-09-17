@@ -2,7 +2,7 @@
 
 A framework for the quantitative comparison of mindlike systems.
 
-#### Introduction
+## Introduction
 
 `brainscore` is a simple framework
 for standardizing the interface between neuroscience metrics
@@ -13,7 +13,7 @@ which extends the capabilities of `pandas`
 to multi-dimensional `numpy` arrays.
 
 
-#### Quick setup
+## Quick setup
 
 Recommended for most users. Use Brain-Score as a library.
 
@@ -22,7 +22,7 @@ Recommended for most users. Use Brain-Score as a library.
 To contribute code to Brain-Score, see the [Development Setup](#development-setup).
 
 
-#### Basic Usage
+## Basic Usage
 
 Try it in IPython:
 ```python
@@ -47,7 +47,7 @@ Some steps may take minutes because data has to be downloaded.
 More examples can be found in the `examples/` directory.
 
 
-#### Development setup
+## Development setup
 
 Only necessary if you plan to change code.
 
@@ -62,5 +62,13 @@ Only necessary if you plan to change code.
     * `conda activate brainscore`
 
 
-#### License
+## License
 MIT license
+
+
+## Troubleshooting
+<details>
+<summary>`ValueError: did not find HDF5 headers` during netcdf4 installation</summary>
+pip seems to fail properly setting up the HDF5_DIR required by netcdf4.
+Use conda: `conda install netcdf4`
+</details>

@@ -47,6 +47,13 @@ Some steps may take minutes because data has to be downloaded.
 More examples can be found in the `examples/` directory.
 
 
+## Environment Variables
+
+| Variable               | Description                                                            |
+|------------------------|------------------------------------------------------------------------|
+| BSC_BOTO3_SIGN         | 0 (default) to not sign S3 requests, 1 to sign and access private data |
+
+
 ## Development setup
 
 Only necessary if you plan to change code.

@@ -1,15 +1,215 @@
 import functools
+import itertools
+import logging
 from collections import OrderedDict
 
 import numpy as np
 import pandas
-import scipy
-import sklearn
+import scipy.stats
+import sklearn.linear_model
+import sklearn.multioutput
+import xarray as xr
 
-from brainscore.metrics import ParametricMetric
+from brainscore.assemblies import walk_coords, array_is_element, DataAssembly
+from brainscore.metrics import Metric
+from brainscore.metrics.transformations import subset
+from brainscore.utils import fullname
 
 
-class I2n(ParametricMetric):
+class I2n(Metric):
+    """
+    Rajalingham & Issa et al., 2018 http://www.jneurosci.org/content/early/2018/07/13/JNEUROSCI.0388-18.2018
+    Schrimpf & Kubilius et al., 2018 https://www.biorxiv.org/content/early/2018/09/05/407007
+    """
+
+    class MatchToSampleClassifier(object):
+        def __init__(self):
+            classifier_c = 1e-3
+            self._classifier = sklearn.linear_model.LogisticRegression(
+                multi_class='multinomial', solver='newton-cg', C=classifier_c)
+            self._label_mapping = None
+
+        def fit(self, X, Y):
+            # TODO: preprocess X: normalize
+            Y, self._label_mapping = self.labels_to_indices(Y)
+            self._classifier.fit(X, Y)
+            return self
+
+        def predict_proba(self, X):
+            assert len(X.shape) == 2, "expected 2-dimensional input"
+            proba = self._classifier.predict_proba(X)
+            # we take only the 0th dimension because the 1st dimension is just the features
+            X_coords = {coord: (dims, value) for coord, dims, value in walk_coords(X)
+                        if array_is_element(dims, X.dims[0])}
+            proba = xr.DataArray(proba,
+                                 coords={**X_coords, **{'label': list(self._label_mapping.values())}},
+                                 dims=[X.dims[0], 'label'])
+            return proba
+
+        def labels_to_indices(self, labels):
+            label2index = OrderedDict()
+            indices = []
+            for label in labels:
+                if label not in label2index:
+                    label2index[label] = (max(label2index.values()) + 1) if len(label2index) > 0 else 0
+                indices.append(label2index[label])
+            index2label = OrderedDict((index, label) for label, index in label2index.items())
+            return indices, index2label
+
+    def __init__(self):
+        super().__init__()
+        self._source_classifier = self.MatchToSampleClassifier()
+        self._logger = logging.getLogger(fullname(self))
+
+    def __call__(self, source, target):
+        response_matrix = self.compute_response_matrix(source)
+        # TODO: what exactly is the target supposed to be?
+        # The same 240x24 matrix for humans?
+        # If yes, how can we compute that from just left/right responses; there are no features.
+        correlation = scipy.stats.pearsonr(response_matrix, target)
+        return correlation
+
+    def compute_response_matrix(self, source):
+        source_without_behavior = source  # mock TODO
+        source_features = source_without_behavior['features'].values
+        source_features = source_features.reshape(-1, 1)
+        target = source_without_behavior['label']
+
+        self._source_classifier.fit(source_features, target)
+
+        source_with_behavior = source  # mock
+        source_with_behavior = source_with_behavior.drop_duplicates('id')
+        source_features = source_with_behavior['features'].values
+        source_features = source_features.reshape(-1, 1)
+        source_features = DataAssembly(source_features,
+                                       coords={'image_id': source_with_behavior['id'].values,
+                                               'feature_id': list(range(source_features.shape[1]))},
+                                       dims=['image_id', 'feature_id'])
+        prediction = self._source_classifier.predict_proba(source_features)  # TODO: use held-out here
+        truth_labels = [source_with_behavior[source_with_behavior['id'] == image_id]['label'].values[0]
+                        for image_id in prediction['image_id'].values]
+        prediction['truth'] = 'image_id', truth_labels
+        assert prediction.shape == (240, 24)
+
+        target_distractor_scores = self.compute_target_distractor_scores(prediction)
+        assert target_distractor_scores.shape == (240, 24)
+
+        dprime_scores = self.dprime(target_distractor_scores)
+        assert dprime_scores.shape == (240, 24)
+
+        cap = 5
+        dprime_scores = dprime_scores.clip(-cap, cap)
+        assert dprime_scores.shape == (240, 24)
+
+        dprime_scores_normalized = self.subtract_mean(dprime_scores)
+        assert dprime_scores_normalized.shape == (240, 24)
+        assert all(self.centered_around_zero(response_matrix))
+        return dprime_scores_normalized
+
+    def compute_target_distractor_scores(self, object_probabilities):
+        result = DataAssembly(np.zeros([len(object_probabilities['image_id']), len(object_probabilities['label'])]),
+                              coords={'image_id': ('image', object_probabilities['image_id'].values),
+                                      'truth': ('image', object_probabilities['truth'].values),
+                                      'distractor': object_probabilities['label'].values},
+                              dims=['image', 'distractor'])
+        # the following code takes about 5 seconds -- xarray indexing slowing things down a lot
+        for image_id in result['image_id'].values:
+            image_data = object_probabilities.sel(image_id=image_id)
+            truth_label = image_data['truth'].values
+            p_object = image_data.sel(label=truth_label).values
+            for distractor in result['distractor'].values:
+                p_distractor = image_data.sel(label=distractor).values
+                result.loc[{'image_id': image_id, 'distractor': distractor}] = p_object / (p_object + p_distractor)
+
+        # image_ids = object_probabilities['image_id'].values
+        # distractor_ids = object_probabilities['label'].values
+        # unfortunately, xarray indexing is extremely slow here. instead, we're accessing values directly through numpy
+        # result = np.zeros([len(image_ids), len(distractor_ids)])
+        # for (image_iter, image_id), (dist_iter, dist_id) in itertools.product(
+        #     enumerate(image_ids), enumerate(distractor_ids)):
+        #     p_obj = object_probabilities.values[image_iter, obj_iter]
+        #     p_dist = object_probabilities.values[image_iter, dist_iter]
+        #     result[image_iter, obj_iter, dist_iter] = p_obj / (p_obj + p_dist)
+        #
+        # result = xr.DataArray(result,
+        #                       coords={'image_id': image_ids,
+        #                               'sample_obj': object_ids,
+        #                               'distractor_obj': distractor_ids},
+        #                       dims=['image_id', 'sample_obj', 'distractor_obj'])
+
+        # for image_id, obj_id, dist_id in itertools.product(
+        #     result['id'].values, result['sample_obj'].values, result['distractor_obj'].values):
+        #     # p_obj = object_probabilities.sel(id=image_id, sample_obj=obj_id).values
+        #     # p_dist = object_probabilities.sel(id=image_id, sample_obj=dist_id).values
+        #     p_obj = object_probabilities.loc[dict(id=image_id, sample_obj=obj_id)].values
+        #     p_dist = object_probabilities.loc[dict(id=image_id, sample_obj=dist_id)].values
+        #     result.loc[{'id': image_id, 'sample_obj': obj_id, 'distractor_obj': dist_id}] = p_obj / (p_obj + p_dist)
+        return result
+
+    def dprime(self, target_distractor_scores):
+        result = DataAssembly(np.zeros(target_distractor_scores.shape),
+                              coords=target_distractor_scores.coords,
+                              dims=target_distractor_scores.dims)
+        for image_id in result['image_id'].values:
+            image_data = target_distractor_scores.sel(image_id=image_id)
+            for distractor in result['distractor'].values:
+                hit_rate = image_data.sel(distractor=distractor).values[0]
+
+                distractor_choice = {'truth': [label for label in target_distractor_scores['truth'].values
+                                               if label != distractor],
+                                     'distractor': [distractor]}
+                distractor_choice = xr.DataArray(np.zeros([len(values) for values in distractor_choice.values()]),
+                                                 coords=distractor_choice, dims=list(distractor_choice.keys()))
+                distractor_choice = distractor_choice.stack(image=['truth'])
+                distractor_choice = subset(target_distractor_scores, distractor_choice)
+                false_alarms_rate = 1 - distractor_choice.mean()
+                dprime = scipy.stats.norm.ppf(hit_rate) - scipy.stats.norm.ppf(false_alarms_rate)
+                result.loc[{'image_id': image_id, 'distractor': distractor}] = dprime
+        return result
+
+    def subtract_mean(self, scores):
+        # TODO: in the text, it says "subtracting the mean Hit Rate across trials of the same target-distractor pair"
+        # but in the streams code, it looks like just the mean dprime is applied (which is what we're doing here):
+        # https://github.com/qbilius/streams/blob/464b0cbd4770c5f29eccf958644e5bea8ae9659f/streams/metrics/behav_cons.py#L354
+
+        # Ideally, we would like to do this:
+        # def subtract_mean(group):
+        #     return group - group.mean()
+        #
+        # result = scores.multi_groupby(['truth', 'distractor']).apply(subtract_mean)
+        # But xarray doesn't yet support MultiIndex well and so we have to do things manually.
+        result = DataAssembly(np.zeros(scores.shape), coords=scores.coords, dims=scores.dims)
+        for truth in np.unique(scores['truth'].values):
+            truth_data = scores.sel(truth=truth)
+            for distractor in np.unique(scores['distractor'].values):
+                target_distractor_pairs = truth_data.sel(distractor=distractor)
+                mean = target_distractor_pairs.mean()
+                for image_id in target_distractor_pairs['image_id'].values:
+                    normalized = target_distractor_pairs.sel(image_id=image_id) - mean
+                    result.loc[dict(image_id=image_id, distractor=distractor)] = normalized
+        return result
+
+    def compute_object_in_image_probabilities(self, data):
+        image_ids = np.unique(data['id'])
+        object_ids = np.unique(data['sample_obj'])
+        result = xr.DataArray(np.zeros([len(image_ids), len(object_ids)]),
+                              coords={'id': image_ids, 'sample_obj': object_ids}, dims=['id', 'sample_obj'])
+        for image_id in image_ids:
+            image_rows = data[data['id'] == image_id]
+            for object_id in object_ids:
+                image_object_rows = image_rows[image_rows['sample_obj'] == object_id]
+                result.loc[{'id': image_id, 'sample_obj': object_id}] = len(image_object_rows) / len(image_rows)
+        return result
+
+    #
+
+
+#
+#
+#
+#
+
+class I2nCopied(Metric):
     """
     Rajalingham & Issa et al., 2018 http://www.jneurosci.org/content/early/2018/07/13/JNEUROSCI.0388-18.2018
     Schrimpf & Kubilius et al., 2018 http://brain-score.org
@@ -21,17 +221,27 @@ class I2n(ParametricMetric):
         classifier_c = 1e-3
         self._source_classifier = MatchToSampleClassifier(C=classifier_c)
         self._target_classifier = MatchToSampleClassifier(C=classifier_c)
+        self._logger = logging.getLogger(fullname(self))
 
-    def fit_values(self, source, target):
-        self._source_classifier.fit(source, source['label'])
-        self._target_classifier.fit(target, target['label'])
+    def __call__(self, train_source, train_target, test_source, test_target):
+        self._logger.debug("Fitting")
+        self.fit(train_source, train_target)
+        self._logger.debug("Predicting")
+        prediction = self.predict(test_source)
+        self._logger.debug("Comparing")
+        similarity = self.compare_prediction(prediction, test_target)
+        return similarity
 
-    def predict_values(self, test_source):
+    def fit(self, source, target):
+        source_features = source['features'].values
+        self._source_classifier.fit(source_features, source['label'])
+        # self._target_classifier.fit(target, target['label'])  # TODO ??
+
+    def predict(self, test_source):
         predictions = self._source_classifier.predict_proba(test_source, targets=ground_truth, kind='2-way')
         return predictions
 
-    def compare_prediction(self, prediction, target,
-                           axis=ParametricMetric.Defaults.neuroid_coord, correlation=scipy.stats.pearsonr):
+    def compare_prediction(self, prediction, target, axis='neuroid_id', correlation=scipy.stats.pearsonr):
         def hitrate_to_dprime(x):
             idx = x.name
             hit_rate = np.nanmean(x)
@@ -138,7 +348,7 @@ class I2n(ParametricMetric):
         return df
 
 
-class MatchToSampleClassifier(object):
+class MatchToSampleClassifierCopied(object):
     def __init__(self, norm=True, nfeats=None, seed=None, C=1):
         """
         A classifier for the Delayed Match-to-Sample task.

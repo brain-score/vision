@@ -78,20 +78,6 @@ class URLFetcher(Fetcher):
     """A Fetcher that retrieves a resource identified by URL.  """
     def __init__(self, location, unique_name):
         super(URLFetcher, self).__init__(location, unique_name)
-        self.basename = location.split('/')[-1]
-        self.output_filename = os.path.join(self.local_dir_path, self.basename)
-
-    def fetch(self):
-        if not os.path.exists(self.output_filename):
-            self.download()
-        return self.output_filename
-
-    def download(self):
-        r = requests.get(self.location, stream=True)
-        with open(self.output_filename, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=1024):
-                if chunk:  # filter out keep-alive new chunks
-                    f.write(chunk)
 
 
 class LocalFetcher(Fetcher):

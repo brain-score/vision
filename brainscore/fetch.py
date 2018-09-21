@@ -5,9 +5,7 @@ import os
 import zipfile
 
 import pandas as pd
-import peewee
 import boto3
-import requests
 import xarray as xr
 from six.moves.urllib.parse import urlparse
 

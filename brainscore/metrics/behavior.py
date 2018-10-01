@@ -42,8 +42,8 @@ class I2n(Metric):
             X_coords = {coord: (dims, value) for coord, dims, value in walk_coords(X)
                         if array_is_element(dims, X.dims[0])}
             proba = xr.DataArray(proba,
-                                 coords={**X_coords, **{'label': list(self._label_mapping.values())}},
-                                 dims=[X.dims[0], 'label'])
+                                 coords={**X_coords, **{'choice': list(self._label_mapping.values())}},
+                                 dims=[X.dims[0], 'choice'])
             return proba
 
         def labels_to_indices(self, labels):
@@ -62,40 +62,43 @@ class I2n(Metric):
         self._logger = logging.getLogger(fullname(self))
 
     def __call__(self, source, target):
-        response_matrix = self.compute_response_matrix(source)
-        # TODO: what exactly is the target supposed to be?
-        # The same 240x24 matrix for humans?
-        # If yes, how can we compute that from just left/right responses; there are no features.
-        correlation = scipy.stats.pearsonr(response_matrix, target)
+        # TODO: compute scores on two splits of the target -- ceiling = correlation between the two halves
+        # ideally, we do the split multiple times
+        # for each split, correlate only the first half, then take the variance over splits
+        source_response_matrix = self.class_probabilities_from_features(source)
+        source_response_matrix = self.normalize_response_matrix(source_response_matrix)
+        target_response_matrix = self.build_response_matrix_from_responses(target)
+        target_response_matrix = self.normalize_response_matrix(target_response_matrix)
+        correlation = self.correlate(source_response_matrix, target_response_matrix)
         return correlation
 
-    def compute_response_matrix(self, source):
-        source_without_behavior = source  # mock TODO
-        source_features = source_without_behavior['features'].values
-        source_features = source_features.reshape(-1, 1)
+    def class_probabilities_from_features(self, source):
+        source_without_behavior = source  # mock TODO: use the 2400 - 240 images where we don't use behavioral responses
         target = source_without_behavior['label']
-
-        self._source_classifier.fit(source_features, target)
+        self._source_classifier.fit(source_without_behavior, target.values)
 
         source_with_behavior = source  # mock
-        source_with_behavior = source_with_behavior.drop_duplicates('id')
-        source_features = source_with_behavior['features'].values
-        source_features = source_features.reshape(-1, 1)
-        source_features = DataAssembly(source_features,
-                                       coords={'image_id': source_with_behavior['id'].values,
-                                               'feature_id': list(range(source_features.shape[1]))},
-                                       dims=['image_id', 'feature_id'])
-        prediction = self._source_classifier.predict_proba(source_features)  # TODO: use held-out here
-        truth_labels = [source_with_behavior[source_with_behavior['id'] == image_id]['label'].values[0]
-                        for image_id in prediction['image_id'].values]
-        prediction['truth'] = 'image_id', truth_labels
-        assert prediction.shape == (240, 24)
+        # source_with_behavior = source_with_behavior.drop_duplicates('id')
+        # source_features = DataAssembly(source_features,
+        #                                coords={'image_id': source_with_behavior['id'].values,
+        #                                        'feature_id': list(range(source_features.shape[1]))},
+        #                                dims=['image_id', 'feature_id'])
 
-        target_distractor_scores = self.compute_target_distractor_scores(prediction)
+        prediction = self._source_classifier.predict_proba(source_with_behavior)  # TODO: use held-out here
+        truth_labels = [source_with_behavior[source_with_behavior['image_id'] == image_id]['label'].values[0]
+                        for image_id in prediction['image_id'].values]
+        prediction['truth'] = 'presentation', truth_labels
+        prediction = prediction.set_index(presentation=['image_id', 'truth'])
+        assert prediction.shape == (240, 24)
+        return prediction
+
+    def normalize_response_matrix(self, response_matrix):
+        assert response_matrix.shape == (240, 24)
+
+        target_distractor_scores = self.compute_target_distractor_scores(response_matrix)
         assert target_distractor_scores.shape == (240, 24)
 
         dprime_scores = self.dprime(target_distractor_scores)
-        assert dprime_scores.shape == (240, 24)
 
         cap = 5
         dprime_scores = dprime_scores.clip(-cap, cap)
@@ -103,47 +106,27 @@ class I2n(Metric):
 
         dprime_scores_normalized = self.subtract_mean(dprime_scores)
         assert dprime_scores_normalized.shape == (240, 24)
-        assert all(self.centered_around_zero(response_matrix))
+        # assert all(self.centered_around_zero(dprime_scores_normalized))
         return dprime_scores_normalized
 
     def compute_target_distractor_scores(self, object_probabilities):
-        result = DataAssembly(np.zeros([len(object_probabilities['image_id']), len(object_probabilities['label'])]),
+        result = DataAssembly(np.zeros([len(object_probabilities['image_id']), len(object_probabilities['choice'])]),
                               coords={'image_id': ('image', object_probabilities['image_id'].values),
                                       'truth': ('image', object_probabilities['truth'].values),
-                                      'distractor': object_probabilities['label'].values},
-                              dims=['image', 'distractor'])
+                                      'choice': object_probabilities['choice'].values},
+                              dims=['image', 'choice'])
         # the following code takes about 5 seconds -- xarray indexing slowing things down a lot
         for image_id in result['image_id'].values:
             image_data = object_probabilities.sel(image_id=image_id)
-            truth_label = image_data['truth'].values
-            p_object = image_data.sel(label=truth_label).values
-            for distractor in result['distractor'].values:
-                p_distractor = image_data.sel(label=distractor).values
-                result.loc[{'image_id': image_id, 'distractor': distractor}] = p_object / (p_object + p_distractor)
-
-        # image_ids = object_probabilities['image_id'].values
-        # distractor_ids = object_probabilities['label'].values
-        # unfortunately, xarray indexing is extremely slow here. instead, we're accessing values directly through numpy
-        # result = np.zeros([len(image_ids), len(distractor_ids)])
-        # for (image_iter, image_id), (dist_iter, dist_id) in itertools.product(
-        #     enumerate(image_ids), enumerate(distractor_ids)):
-        #     p_obj = object_probabilities.values[image_iter, obj_iter]
-        #     p_dist = object_probabilities.values[image_iter, dist_iter]
-        #     result[image_iter, obj_iter, dist_iter] = p_obj / (p_obj + p_dist)
-        #
-        # result = xr.DataArray(result,
-        #                       coords={'image_id': image_ids,
-        #                               'sample_obj': object_ids,
-        #                               'distractor_obj': distractor_ids},
-        #                       dims=['image_id', 'sample_obj', 'distractor_obj'])
-
-        # for image_id, obj_id, dist_id in itertools.product(
-        #     result['id'].values, result['sample_obj'].values, result['distractor_obj'].values):
-        #     # p_obj = object_probabilities.sel(id=image_id, sample_obj=obj_id).values
-        #     # p_dist = object_probabilities.sel(id=image_id, sample_obj=dist_id).values
-        #     p_obj = object_probabilities.loc[dict(id=image_id, sample_obj=obj_id)].values
-        #     p_dist = object_probabilities.loc[dict(id=image_id, sample_obj=dist_id)].values
-        #     result.loc[{'id': image_id, 'sample_obj': obj_id, 'distractor_obj': dist_id}] = p_obj / (p_obj + p_dist)
+            truth_label = image_data['truth'].values[0]
+            p_object = image_data.sel(choice=truth_label).values[0]  # TODO: make sure that choice is there for features
+            for choice in result['choice'].values:
+                if truth_label == choice:  # if object == choice, put NaN instead of 0.5
+                    p = np.nan
+                else:
+                    p_distractor = image_data.sel(choice=choice).values[0]
+                    p = p_object / (p_object + p_distractor)
+                result.loc[{'image_id': image_id, 'choice': choice}] = p
         return result
 
     def dprime(self, target_distractor_scores):
@@ -152,41 +135,51 @@ class I2n(Metric):
                               dims=target_distractor_scores.dims)
         for image_id in result['image_id'].values:
             image_data = target_distractor_scores.sel(image_id=image_id)
-            for distractor in result['distractor'].values:
-                hit_rate = image_data.sel(distractor=distractor).values[0]
+            image_label = image_data['truth'].values[0]
+            for choice in result['choice'].values:
+                hit_rate = image_data.sel(choice=choice).values[0]
 
-                distractor_choice = {'truth': [label for label in target_distractor_scores['truth'].values
-                                               if label != distractor],
-                                     'distractor': [distractor]}
-                distractor_choice = xr.DataArray(np.zeros([len(values) for values in distractor_choice.values()]),
-                                                 coords=distractor_choice, dims=list(distractor_choice.keys()))
-                distractor_choice = distractor_choice.stack(image=['truth'])
-                distractor_choice = subset(target_distractor_scores, distractor_choice)
-                false_alarms_rate = 1 - distractor_choice.mean()
-                dprime = scipy.stats.norm.ppf(hit_rate) - scipy.stats.norm.ppf(false_alarms_rate)
-                result.loc[{'image_id': image_id, 'distractor': distractor}] = dprime
+                # distractor_choice = {'truth': distractor,  # TODO: select images that have distractor
+                #                      'distractor': [label for label in target_distractor_scores['distractor'].values
+                #                                if label == distractor]}  # TODO: select trials where the choice was the (outer loop's) target
+                # inverse_choice = {'truth': choice, 'choice': image_label}
+                # inverse_choice = xr.DataArray(np.zeros([len(values) for values in inverse_choice.values()]),
+                #                                  coords=inverse_choice, dims=list(inverse_choice.keys()))
+                # inverse_choice = inverse_choice.stack(image=['truth'])
+                # inverse_choice = distractor_choice.set_index(image=['truth'])
+                # inverse_choice = subset(target_distractor_scores, inverse_choice)
+                inverse_choice = target_distractor_scores.sel(truth=choice, choice=image_label)
+                # 1 -, because the cell value is how often you correctly chose bear over dog for bear image,
+                # but we want to know how often dog was chosen for bear image
+                false_alarms_rate = 1 - np.nanmean(inverse_choice)
+                dprime = self.z_score(hit_rate) - self.z_score(false_alarms_rate)
+                result.loc[{'image_id': image_id, 'choice': choice}] = dprime
         return result
 
+    def z_score(self, value):
+        return scipy.stats.norm.ppf(value)
+
     def subtract_mean(self, scores):
-        # TODO: in the text, it says "subtracting the mean Hit Rate across trials of the same target-distractor pair"
+        # In the text, it says "subtracting the mean Hit Rate across trials of the same target-distractor pair"
         # but in the streams code, it looks like just the mean dprime is applied (which is what we're doing here):
         # https://github.com/qbilius/streams/blob/464b0cbd4770c5f29eccf958644e5bea8ae9659f/streams/metrics/behav_cons.py#L354
+        # EDIT: after talking to qbilius, this (subtracting dprime) is the correct thing to do.
 
         # Ideally, we would like to do this:
         # def subtract_mean(group):
         #     return group - group.mean()
         #
         # result = scores.multi_groupby(['truth', 'distractor']).apply(subtract_mean)
-        # But xarray doesn't yet support MultiIndex well and so we have to do things manually.
+        # But xarray doesn't yet support MultiIndex / multi-grouping and so we have to do things manually.
         result = DataAssembly(np.zeros(scores.shape), coords=scores.coords, dims=scores.dims)
         for truth in np.unique(scores['truth'].values):
             truth_data = scores.sel(truth=truth)
-            for distractor in np.unique(scores['distractor'].values):
-                target_distractor_pairs = truth_data.sel(distractor=distractor)
+            for choice in np.unique(scores['choice'].values):
+                target_distractor_pairs = truth_data.sel(choice=choice)
                 mean = target_distractor_pairs.mean()
                 for image_id in target_distractor_pairs['image_id'].values:
                     normalized = target_distractor_pairs.sel(image_id=image_id) - mean
-                    result.loc[dict(image_id=image_id, distractor=distractor)] = normalized
+                    result.loc[dict(image_id=image_id, choice=choice)] = normalized
         return result
 
     def compute_object_in_image_probabilities(self, data):
@@ -201,7 +194,33 @@ class I2n(Metric):
                 result.loc[{'id': image_id, 'sample_obj': object_id}] = len(image_object_rows) / len(image_rows)
         return result
 
-    #
+    def build_response_matrix_from_responses(self, responses):
+        choices = np.unique(responses)
+        image_ids, indices = np.unique(responses['image_id'], return_index=True)
+        image_dim = responses['image_id'].dims
+        coords = {**{coord: (dims, value) for coord, dims, value in walk_coords(responses)},
+                  **{'choice': ('choice', choices)}}
+        coords = {coord: (dims, value if dims != image_dim else value[indices])
+                  for coord, (dims, value) in coords.items()}
+        response_matrix = DataAssembly(np.zeros((len(image_ids), len(choices))),
+                                       coords=coords, dims=responses.dims + ('choice',))
+        for image_id in image_ids:
+            image_responses = responses.sel(image_id=image_id)
+            for choice in choices:
+                combination_responses = image_responses.sel(choice=choice)
+                p = len(combination_responses) / len(image_responses)
+                response_matrix.loc[{'image_id': image_id, 'choice': choice}] = p
+        return response_matrix
+
+    def correlate(self, source_response_matrix, target_response_matrix):
+        source, target = source_response_matrix, target_response_matrix
+        # set diagonal = 0 (i.e. entries where image == choice)
+        source, target = source.fillna(0), target.fillna(0)  # TODO: don't just undo all NaNs
+        # align
+        source = source.sortby('image_id').sortby('choice')
+        target = target.sortby('image_id').sortby('choice')
+        correlation, p = scipy.stats.pearsonr(source.values.flatten(), target.values.flatten())
+        return correlation
 
 
 #

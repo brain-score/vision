@@ -8,6 +8,7 @@ dependencies:
 - six
 - requests
 - boto3
+- tqdm
 - netcdf4
 - scipy
 - scikit-learn
@@ -15,6 +16,8 @@ dependencies:
 - pytest
 - Pillow
 - jupyter
+- matplotlib
 - pip:
   - pathos
-  - git+https://github.com/mschrimpf/caching
+  - peewee
+  - git+https://github.com/mschrimpf/result_caching

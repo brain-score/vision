@@ -4,8 +4,9 @@ import numpy as np
 from pytest import approx
 
 from brainscore import benchmarks
-from brainscore.assemblies import DataAssembly, walk_coords
-from brainscore.benchmarks import SplitBenchmark, metrics
+from brainscore.assemblies import DataAssembly, NeuroidAssembly, walk_coords
+from brainscore.benchmarks import SplitBenchmark, metrics, DicarloMajaj2015EarlyLateLoader, DicarloMajaj2015Loader, \
+    ToliasCadena2017Loader
 from brainscore.metrics.ceiling import SplitNoCeiling
 
 
@@ -39,7 +40,7 @@ class TestMajaj2015:
     def test_self(self):
         benchmark = benchmarks.load('dicarlo.Majaj2015')
         source = benchmarks.load_assembly('dicarlo.Majaj2015')
-        score, unceiled_score = benchmark(source, return_unceiled=True)
+        score, unceiled_score = benchmark(source, return_ceiled=True)
         assert all(score.aggregation.sel(aggregation='error') == unceiled_score.aggregation.sel(aggregation='error'))
         # ceiling should use the same rng, but different repetitions. results should overall be close to 1
         np.testing.assert_array_almost_equal(score.aggregation.sel(aggregation='center'), [1., 1.], decimal=2)
@@ -67,3 +68,54 @@ class TestAnatomyFelleman:
     def test_equal(self):
         benchmark = benchmarks.load('Felleman1991')
         assert 1 == benchmark(benchmark._target_assembly)
+
+
+class TestAssemblyLoaders:
+    def test_majaj2015(self):
+        loader = DicarloMajaj2015Loader()
+        assembly = loader()
+        assert isinstance(assembly, NeuroidAssembly)
+        assert {'presentation', 'neuroid'} == set(assembly.dims)
+        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm'
+
+    def test_majaj2015early_late(self):
+        loader = DicarloMajaj2015EarlyLateLoader()
+        assembly = loader()
+        assert isinstance(assembly, NeuroidAssembly)
+        assert {'presentation', 'neuroid', 'time_bin'} == set(assembly.dims)
+        assert len(assembly['time_bin']) == 2
+        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm'
+
+    def test_toliascadena2017(self):
+        loader = ToliasCadena2017Loader()
+        assembly = loader()
+        assert isinstance(assembly, NeuroidAssembly)
+        assert {'presentation', 'neuroid'} == set(assembly.dims)
+        assert not np.isnan(assembly).any()
+        assert assembly.attrs['stimulus_set_name'] == 'tolias.Cadena2017'
+
+
+class TestCadena2017:
+    def test_loader(self):
+        assembly = benchmarks.load_assembly('tolias.Cadena2017')
+        np.testing.assert_array_equal(assembly.dims, ['presentation', 'neuroid'])
+        assert hasattr(assembly, 'image_id')
+        assert len(assembly['presentation']) == 7249
+        assert len(assembly['neuroid']) == 166
+
+    def test_ceiling(self):
+        benchmark = benchmarks.load('tolias.Cadena2017')
+        ceiling = benchmark.ceiling
+        assert ceiling.aggregation.sel(region='IT', aggregation='center') == approx(.817, abs=0.05)
+
+    def test_self(self):
+        benchmark = benchmarks.load('tolias.Cadena2017')
+        source = benchmarks.load_assembly('tolias.Cadena2017')
+        score, unceiled_score = benchmark(source, return_ceiled=True)
+        assert score.aggregation.sel(aggregation='error') == unceiled_score.aggregation.sel(aggregation='error')
+        # ceiling should use the same rng, but different repetitions. results should overall be close to 1
+        np.testing.assert_almost_equal(score.aggregation.sel(aggregation='center'), 1., decimal=1)
+        target_array = DataAssembly(np.ones((10, 166)), coords=score.values.coords, dims=score.values.dims)
+        # .4 is not satisfying at all. it seems that different repetitions lead to quite different outcomes
+        # and especially in this dataset, the lack of repetitions might be quite crucial.
+        assert np.isclose(score.values, target_array, atol=0.1).sum() / target_array.sum() > .4

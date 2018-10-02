@@ -4,15 +4,18 @@ import hashlib
 import os
 import zipfile
 
-import pandas as pd
 import boto3
+import pandas as pd
 import xarray as xr
+from botocore import UNSIGNED
+from botocore.config import Config
 from six.moves.urllib.parse import urlparse
+from tqdm import tqdm
 
-from brainscore import assemblies, stimuli
+from brainscore import assemblies
 from brainscore.assemblies import coords_for_dim
-from brainscore.stimuli import StimulusSet, ImageModel, AttributeModel, ImageMetaModel, StimulusSetModel, ImageStoreModel, \
-    StimulusSetImageMap, ImageStoreMap
+from brainscore.stimuli import StimulusSet, ImageModel, AttributeModel, ImageMetaModel, StimulusSetModel, \
+    ImageStoreModel, StimulusSetImageMap, ImageStoreMap
 
 _local_data_path = os.path.expanduser("~/.brainscore/data")
 
@@ -55,12 +58,20 @@ class BotoFetcher(Fetcher):
             self.download_boto()
         return self.output_filename
 
-    def download_boto(self, credentials=(None,), sha1=None):
-        """Downloads file from S3 via boto at `url` and writes it in `output_dirname`.
-        Borrowed from dldata.  """
-        s3 = boto3.client('s3')
+    def download_boto(self, sha1=None):
+        """Downloads file from S3 via boto at `url` and writes it in `output_dirname`."""
+        use_boto_signature = bool(int(os.getenv('BSC_BOTO3_SIGN', 0)))
+        # optionally disable signing requests. see https://stackoverflow.com/a/34866092/2225200
+        config = None if use_boto_signature else Config(signature_version=UNSIGNED)
+        s3 = boto3.resource('s3', config=config)
+        obj = s3.Object(self.bucketname, self.relative_path)
         print('getting %s' % self.relative_path)
-        s3.download_file(self.bucketname, self.relative_path, self.output_filename)
+        # show progress. see https://gist.github.com/wy193777/e7607d12fad13459e8992d4f69b53586
+        with tqdm(total=obj.content_length, unit='B', unit_scale=True, desc=self.relative_path) as progress_bar:
+            def progress_hook(bytes_amount):
+                progress_bar.update(bytes_amount)
+
+            obj.download_file(self.output_filename, Callback=progress_hook)
 
         if sha1 is not None:
             self.verify_sha1(self.output_filename, sha1)

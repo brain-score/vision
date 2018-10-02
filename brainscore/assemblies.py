@@ -206,6 +206,8 @@ class AssemblyStoreModel(peewee.Model):
     assembly_type = peewee.CharField()
     location_type = peewee.CharField()
     location = peewee.CharField()
+    unique_name = peewee.CharField(unique=True, null=True, index=True)
+    sha1 = peewee.CharField(unique=True, null=True, index=True)
 
     class Meta:
         database = pwdb

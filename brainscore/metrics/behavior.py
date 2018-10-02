@@ -1,18 +1,16 @@
 import functools
 import itertools
 import logging
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 
 import numpy as np
 import pandas
 import scipy.stats
 import sklearn.linear_model
 import sklearn.multioutput
-import xarray as xr
 
 from brainscore.assemblies import walk_coords, array_is_element, DataAssembly
 from brainscore.metrics import Metric
-from brainscore.metrics.transformations import subset
 from brainscore.utils import fullname
 
 
@@ -28,10 +26,12 @@ class I2n(Metric):
             self._classifier = sklearn.linear_model.LogisticRegression(
                 multi_class='multinomial', solver='newton-cg', C=classifier_c)
             self._label_mapping = None
+            self._target_class = None
 
         def fit(self, X, Y):
-            # TODO: preprocess X: normalize
-            Y, self._label_mapping = self.labels_to_indices(Y)
+            X = self._preprocess(X)
+            self._target_class = type(Y)
+            Y, self._label_mapping = self.labels_to_indices(Y.values)
             self._classifier.fit(X, Y)
             return self
 
@@ -41,9 +41,9 @@ class I2n(Metric):
             # we take only the 0th dimension because the 1st dimension is just the features
             X_coords = {coord: (dims, value) for coord, dims, value in walk_coords(X)
                         if array_is_element(dims, X.dims[0])}
-            proba = xr.DataArray(proba,
-                                 coords={**X_coords, **{'choice': list(self._label_mapping.values())}},
-                                 dims=[X.dims[0], 'choice'])
+            proba = self._target_class(proba,
+                                       coords={**X_coords, **{'choice': list(self._label_mapping.values())}},
+                                       dims=[X.dims[0], 'choice'])
             return proba
 
         def labels_to_indices(self, labels):
@@ -55,6 +55,10 @@ class I2n(Metric):
                 indices.append(label2index[label])
             index2label = OrderedDict((index, label) for label, index in label2index.items())
             return indices, index2label
+
+        def _preprocess(self, X):
+            scaler = sklearn.preprocessing.StandardScaler().fit(X)
+            return scaler.transform(X)
 
     def __init__(self):
         super().__init__()
@@ -75,7 +79,7 @@ class I2n(Metric):
     def class_probabilities_from_features(self, source):
         source_without_behavior = source  # mock TODO: use the 2400 - 240 images where we don't use behavioral responses
         target = source_without_behavior['label']
-        self._source_classifier.fit(source_without_behavior, target.values)
+        self._source_classifier.fit(source_without_behavior, target)
 
         source_with_behavior = source  # mock
         # source_with_behavior = source_with_behavior.drop_duplicates('id')
@@ -88,7 +92,7 @@ class I2n(Metric):
         truth_labels = [source_with_behavior[source_with_behavior['image_id'] == image_id]['label'].values[0]
                         for image_id in prediction['image_id'].values]
         prediction['truth'] = 'presentation', truth_labels
-        prediction = prediction.set_index(presentation=['image_id', 'truth'])
+        # prediction = prediction.set_index(presentation=['image_id', 'truth'])
         assert prediction.shape == (240, 24)
         return prediction
 
@@ -106,110 +110,63 @@ class I2n(Metric):
 
         dprime_scores_normalized = self.subtract_mean(dprime_scores)
         assert dprime_scores_normalized.shape == (240, 24)
-        # assert all(self.centered_around_zero(dprime_scores_normalized))
         return dprime_scores_normalized
 
     def compute_target_distractor_scores(self, object_probabilities):
-        result = DataAssembly(np.zeros([len(object_probabilities['image_id']), len(object_probabilities['choice'])]),
-                              coords={'image_id': ('image', object_probabilities['image_id'].values),
-                                      'truth': ('image', object_probabilities['truth'].values),
-                                      'choice': object_probabilities['choice'].values},
-                              dims=['image', 'choice'])
-        # the following code takes about 5 seconds -- xarray indexing slowing things down a lot
-        for image_id in result['image_id'].values:
-            image_data = object_probabilities.sel(image_id=image_id)
-            truth_label = image_data['truth'].values[0]
-            p_object = image_data.sel(choice=truth_label).values[0]  # TODO: make sure that choice is there for features
-            for choice in result['choice'].values:
-                if truth_label == choice:  # if object == choice, put NaN instead of 0.5
-                    p = np.nan
-                else:
-                    p_distractor = image_data.sel(choice=choice).values[0]
-                    p = p_object / (p_object + p_distractor)
-                result.loc[{'image_id': image_id, 'choice': choice}] = p
+        cached_object_probabilities = self._build_index(object_probabilities, ['image_id', 'choice'])
+
+        def apply(p_choice, image_id, truth, choice, **_):
+            if truth == choice:  # object == choice, ignore
+                return np.nan
+            # probability that something else was chosen rather than object (p_choice == p_distractor after above check)
+            p_object = cached_object_probabilities[(image_id, truth)]
+            p = p_object / (p_object + p_choice)
+            return p
+
+        result = object_probabilities.multi_dim_apply(['image_id', 'choice'], apply)
         return result
 
     def dprime(self, target_distractor_scores):
-        result = DataAssembly(np.zeros(target_distractor_scores.shape),
-                              coords=target_distractor_scores.coords,
-                              dims=target_distractor_scores.dims)
-        for image_id in result['image_id'].values:
-            image_data = target_distractor_scores.sel(image_id=image_id)
-            image_label = image_data['truth'].values[0]
-            for choice in result['choice'].values:
-                hit_rate = image_data.sel(choice=choice).values[0]
+        cached_target_distractor_scores = self._build_index(target_distractor_scores, ['truth', 'choice'])
 
-                # distractor_choice = {'truth': distractor,  # TODO: select images that have distractor
-                #                      'distractor': [label for label in target_distractor_scores['distractor'].values
-                #                                if label == distractor]}  # TODO: select trials where the choice was the (outer loop's) target
-                # inverse_choice = {'truth': choice, 'choice': image_label}
-                # inverse_choice = xr.DataArray(np.zeros([len(values) for values in inverse_choice.values()]),
-                #                                  coords=inverse_choice, dims=list(inverse_choice.keys()))
-                # inverse_choice = inverse_choice.stack(image=['truth'])
-                # inverse_choice = distractor_choice.set_index(image=['truth'])
-                # inverse_choice = subset(target_distractor_scores, inverse_choice)
-                inverse_choice = target_distractor_scores.sel(truth=choice, choice=image_label)
-                # 1 -, because the cell value is how often you correctly chose bear over dog for bear image,
-                # but we want to know how often dog was chosen for bear image
-                false_alarms_rate = 1 - np.nanmean(inverse_choice)
-                dprime = self.z_score(hit_rate) - self.z_score(false_alarms_rate)
-                result.loc[{'image_id': image_id, 'choice': choice}] = dprime
+        def apply(hit_rate, choice, truth, **_):
+            inverse_choice = cached_target_distractor_scores[(choice, truth)]
+            assert inverse_choice.size > 0
+            false_alarms_rate = 1 - np.nanmean(inverse_choice)
+            dprime = self.z_score(hit_rate) - self.z_score(false_alarms_rate)
+            return dprime
+
+        result = target_distractor_scores.multi_dim_apply(['image_id', 'choice'], apply)
         return result
 
     def z_score(self, value):
         return scipy.stats.norm.ppf(value)
 
     def subtract_mean(self, scores):
-        # In the text, it says "subtracting the mean Hit Rate across trials of the same target-distractor pair"
-        # but in the streams code, it looks like just the mean dprime is applied (which is what we're doing here):
-        # https://github.com/qbilius/streams/blob/464b0cbd4770c5f29eccf958644e5bea8ae9659f/streams/metrics/behav_cons.py#L354
-        # EDIT: after talking to qbilius, this (subtracting dprime) is the correct thing to do.
+        def apply(group, **_):
+            return group - group.mean()
 
-        # Ideally, we would like to do this:
-        # def subtract_mean(group):
-        #     return group - group.mean()
-        #
-        # result = scores.multi_groupby(['truth', 'distractor']).apply(subtract_mean)
-        # But xarray doesn't yet support MultiIndex / multi-grouping and so we have to do things manually.
-        result = DataAssembly(np.zeros(scores.shape), coords=scores.coords, dims=scores.dims)
-        for truth in np.unique(scores['truth'].values):
-            truth_data = scores.sel(truth=truth)
-            for choice in np.unique(scores['choice'].values):
-                target_distractor_pairs = truth_data.sel(choice=choice)
-                mean = target_distractor_pairs.mean()
-                for image_id in target_distractor_pairs['image_id'].values:
-                    normalized = target_distractor_pairs.sel(image_id=image_id) - mean
-                    result.loc[dict(image_id=image_id, choice=choice)] = normalized
-        return result
-
-    def compute_object_in_image_probabilities(self, data):
-        image_ids = np.unique(data['id'])
-        object_ids = np.unique(data['sample_obj'])
-        result = xr.DataArray(np.zeros([len(image_ids), len(object_ids)]),
-                              coords={'id': image_ids, 'sample_obj': object_ids}, dims=['id', 'sample_obj'])
-        for image_id in image_ids:
-            image_rows = data[data['id'] == image_id]
-            for object_id in object_ids:
-                image_object_rows = image_rows[image_rows['sample_obj'] == object_id]
-                result.loc[{'id': image_id, 'sample_obj': object_id}] = len(image_object_rows) / len(image_rows)
+        result = scores.multi_dim_apply(['truth', 'choice'], apply)
         return result
 
     def build_response_matrix_from_responses(self, responses):
+        num_images = Counter(responses['image_id'].values)
+        num_choices = [(image_id, choice) for image_id, choice in zip(responses['image_id'].values, responses.values)]
+        num_choices = Counter(num_choices)
+
         choices = np.unique(responses)
         image_ids, indices = np.unique(responses['image_id'], return_index=True)
         image_dim = responses['image_id'].dims
         coords = {**{coord: (dims, value) for coord, dims, value in walk_coords(responses)},
                   **{'choice': ('choice', choices)}}
-        coords = {coord: (dims, value if dims != image_dim else value[indices])
+        coords = {coord: (dims, value if dims != image_dim else value[indices])  # align image_dim coords with indices
                   for coord, (dims, value) in coords.items()}
-        response_matrix = DataAssembly(np.zeros((len(image_ids), len(choices))),
-                                       coords=coords, dims=responses.dims + ('choice',))
-        for image_id in image_ids:
-            image_responses = responses.sel(image_id=image_id)
-            for choice in choices:
-                combination_responses = image_responses.sel(choice=choice)
-                p = len(combination_responses) / len(image_responses)
-                response_matrix.loc[{'image_id': image_id, 'choice': choice}] = p
+        response_matrix = np.zeros((len(image_ids), len(choices)))
+        for (image_index, image_id), (choice_index, choice) in itertools.product(
+                enumerate(image_ids), enumerate(choices)):
+            p = num_choices[(image_id, choice)] / num_images[image_id]
+            response_matrix[image_index, choice_index] = p
+        response_matrix = DataAssembly(response_matrix, coords=coords, dims=responses.dims + ('choice',))
         return response_matrix
 
     def correlate(self, source_response_matrix, target_response_matrix):
@@ -221,6 +178,12 @@ class I2n(Metric):
         target = target.sortby('image_id').sortby('choice')
         correlation, p = scipy.stats.pearsonr(source.values.flatten(), target.values.flatten())
         return correlation
+
+    def _build_index(self, values, coords):
+        np.testing.assert_array_equal(list(itertools.chain(*[values[coord].dims for coord in coords])), values.dims)
+        return {coord_values: value for coord_values, value in zip(
+            itertools.product(*[values[coord].values for coord in coords]),
+            values.values.flatten())}
 
 
 #

@@ -35,7 +35,7 @@ class TestMultiDimGroupby:
                          coords={'a': ['a', 'b', 'c', 'd'],
                                  'b': ['x', 'y', 'z']},
                          dims=['a', 'b'])
-        g = d.multi_dim_groupby(['a', 'b'], lambda x, **_: x)
+        g = d.multi_dim_apply(['a', 'b'], lambda x, **_: x)
         assert g.equals(d)
 
     def test_unique_values_swappeddims(self):
@@ -43,7 +43,7 @@ class TestMultiDimGroupby:
                          coords={'a': ['a', 'b', 'c', 'd'],
                                  'b': ['x', 'y', 'z']},
                          dims=['a', 'b'])
-        g = d.multi_dim_groupby(['b', 'a'], lambda x, **_: x)
+        g = d.multi_dim_apply(['b', 'a'], lambda x, **_: x)
         assert g.equals(d)
 
     def test_subtract_mean(self):
@@ -52,7 +52,7 @@ class TestMultiDimGroupby:
                                  'aa': ('a', ['a', 'a', 'b', 'b']),
                                  'b': ['x', 'y', 'z']},
                          dims=['a', 'b'])
-        g = d.multi_dim_groupby(['aa', 'b'], lambda x, **_: x - x.mean())
+        g = d.multi_dim_apply(['aa', 'b'], lambda x, **_: x - x.mean())
         assert g.equals(DataAssembly([[-1.5, -1.5, -1.5], [1.5, 1.5, 1.5], [-1.5, -1.5, -1.5], [1.5, 1.5, 1.5]],
                                      coords={'a': ['a', 'b', 'c', 'd'],
                                              'aa': ('a', ['a', 'a', 'b', 'b']),

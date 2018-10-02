@@ -40,7 +40,7 @@ class DataAssembly(DataArray):
         result = tmp_assy.groupby(multi_group_name, *args, **kwargs)
         return GroupbyBridge(result, self, dim, group_coord_names, delimiter, multi_group_name)
 
-    def multi_dim_groupby(self, groups, apply):
+    def multi_dim_apply(self, groups, apply):
         # align
         groups = sorted(groups, key=lambda group: self.dims.index(self[group].dims[0]))
         # build indices
@@ -62,7 +62,7 @@ class DataAssembly(DataArray):
             return value.item() if value.size == 1 else value
 
         def indexify(dict_indices):
-            return [(i,) if isinstance(i, int) else tuple(i) for i in dict_indices.values()]
+            return tuple((i,) if isinstance(i, int) else tuple(i) for i in dict_indices.values())
 
         # group and apply
         # making this a DataArray right away and then inserting through .loc would slow things down
@@ -78,7 +78,7 @@ class DataAssembly(DataArray):
             cells = simplify(cells)
             cell_coords = {coord: (dims, value[self_indices[group_dims[dims]]])
                            for coord, (dims, value) in coords.items()}
-            cell_coords = {coord: (dims, simplify(np.unique(value))) for coord, (dims, value) in cell_coords.items()}
+            cell_coords = {coord: (dims, simplify(value)) for coord, (dims, value) in cell_coords.items()}
 
             # ignore dims when passing to function
             passed_coords = {coord: value for coord, (dims, value) in cell_coords.items()}

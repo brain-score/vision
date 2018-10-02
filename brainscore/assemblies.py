@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import functools
+import itertools
 import operator
 from collections import OrderedDict, defaultdict
 
@@ -38,6 +39,40 @@ class DataAssembly(DataArray):
         tmp_assy = self._join_group_coords(dim, group_coord_names, delimiter, multi_group_name)
         result = tmp_assy.groupby(multi_group_name, *args, **kwargs)
         return GroupbyBridge(result, self, dim, group_coord_names, delimiter, multi_group_name)
+
+    def multi_dim_groupby(self, groups, apply):
+        # build indices
+        groups = {group: np.unique(self[group]) for group in groups}
+        group_dims = {self[group].dims: group for group in groups}
+        indices = defaultdict(lambda: defaultdict(list))
+        for group in groups:
+            for index, value in enumerate(self[group].values):
+                indices[group][value].append(index)
+
+        coords = {coord: (dims, value) for coord, dims, value in walk_coords(self)}
+
+        def simplify(value):
+            return value.item() if value.size == 1 else value
+
+        # group and apply
+        # making this a DataArray right away and then inserting through .loc would slow things down
+        result = np.zeros([len(group) for group in groups.values()])
+        for values in itertools.product(*groups.values()):
+            group_values = dict(zip(groups.keys(), values))
+            group_indices = {group: indices[group][value] for group, value in group_values.items()}
+            idx = [tuple(i) for i in group_indices.values()]
+            cells = self.values[idx]  # using DataArray here would slow things down. thus we pass coords as kwargs
+            cells = simplify(cells)
+            cell_coords = {coord: value[group_indices[group_dims[dims]]]
+                           for coord, (dims, value) in coords.items()}  # note that we are ignoring dims here
+            cell_coords = {coord: simplify(value) for coord, value in cell_coords.items()}
+            merge = apply(cells, **cell_coords)
+            result[idx] = merge
+
+        # re-package
+        coords = {coord: (dims, value) for coord, (dims, value) in coords.items() if dims in group_dims}
+        result = type(self)(result, coords=coords, dims=list(itertools.chain(*group_dims.keys())))
+        return result
 
     def _join_group_coords(self, dim, group_coord_names, delimiter, multi_group_name):
         tmp_assy = self.copy()

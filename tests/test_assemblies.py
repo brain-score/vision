@@ -40,3 +40,23 @@ class TestMultiGroupby:
         assert g.equals(DataAssembly([2.5, 3.5, 4.5], [8.5, 9.5, 10.5],
                                      coords={'a': ['a', 'b'], 'b': ['x', 'y', 'z']},
                                      dims=['a', 'b']))
+
+
+class TestMultiDimGroupby:
+    def test_unique_values(self):
+        d = DataAssembly([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]],
+                         coords={'a': ['a', 'b', 'c', 'd'],
+                                 'b': ['x', 'y', 'z']},
+                         dims=['a', 'b'])
+        g = d.multi_dim_groupby(['a', 'b'], lambda x, **_: x)
+        assert g.equals(d)
+
+    def test_nonunique_singledim(self):
+        d = DataAssembly([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]],
+                         coords={'a': ['a', 'a', 'b', 'b'],
+                                 'b': ['x', 'y', 'z']},
+                         dims=['a', 'b'])
+        g = d.multi_dim_groupby(['a', 'b'], lambda x, **_: x.mean())
+        assert g.equals(DataAssembly([2.5, 3.5, 4.5], [8.5, 9.5, 10.5],
+                                     coords={'a': ['a', 'b'], 'b': ['x', 'y', 'z']},
+                                     dims=['a', 'b']))

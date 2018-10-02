@@ -170,14 +170,16 @@ class I2n(Metric):
         return response_matrix
 
     def correlate(self, source_response_matrix, target_response_matrix):
-        source, target = source_response_matrix, target_response_matrix
-        # set diagonal = 0 (i.e. entries where image == choice)
-        source, target = source.fillna(0), target.fillna(0)  # TODO: don't just undo all NaNs
         # align
-        source = source.sortby('image_id').sortby('choice')
-        target = target.sortby('image_id').sortby('choice')
-        correlation, p = scipy.stats.pearsonr(source.values.flatten(), target.values.flatten())
-        return correlation
+        source_response_matrix = source_response_matrix.sortby('image_id').sortby('choice')
+        target_response_matrix = target_response_matrix.sortby('image_id').sortby('choice')
+        # flatten and mask out NaNs
+        source, target = source_response_matrix.values.flatten(), target_response_matrix.values.flatten()
+        non_nan = ~np.isnan(target)
+        source, target = source[non_nan], target[non_nan]
+        assert not any(np.isnan(source))
+        correlation = np.corrcoef(source, target)
+        return correlation[0, 1]
 
     def _build_index(self, values, coords):
         np.testing.assert_array_equal(list(itertools.chain(*[values[coord].dims for coord in coords])), values.dims)

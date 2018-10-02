@@ -47,13 +47,14 @@ class DataAssembly(DataArray):
         groups = {group: np.unique(self[group]) for group in groups}
         group_dims = {self[group].dims: group for group in groups}
         indices = defaultdict(lambda: defaultdict(list))
-        result_indices = defaultdict(dict)
+        result_indices = defaultdict(lambda: defaultdict(list))
         for group in groups:
             for index, value in enumerate(self[group].values):
                 indices[group][value].append(index)
-                if value not in result_indices[group]:  # if captured once, it will be "grouped away"
-                    index = max(result_indices[group].values()) + 1 if len(result_indices[group]) > 0 else 0
-                    result_indices[group][value] = index
+                # result_indices
+                index = max(itertools.chain(*result_indices[group].values())) + 1 \
+                    if len(result_indices[group]) > 0 else 0
+                result_indices[group][value].append(index)
 
         coords = {coord: (dims, value) for coord, dims, value in walk_coords(self)}
 
@@ -65,8 +66,9 @@ class DataAssembly(DataArray):
 
         # group and apply
         # making this a DataArray right away and then inserting through .loc would slow things down
-        result = np.zeros([len(indices) for indices in result_indices.values()])
-        result_coords = {coord: (dims, [None] * len(result_indices[group_dims[dims]]))
+        shapes = {group: len(list(itertools.chain(*indices.values()))) for group, indices in result_indices.items()}
+        result = np.zeros(list(shapes.values()))
+        result_coords = {coord: (dims, np.array([None] * shapes[group_dims[dims]]))
                          for coord, (dims, value) in coords.items()}
         for values in itertools.product(*groups.values()):
             group_values = dict(zip(groups.keys(), values))
@@ -84,10 +86,6 @@ class DataAssembly(DataArray):
             result_idx = {group: result_indices[group][value] for group, value in group_values.items()}
             result[indexify(result_idx)] = merge
             for coord, (dims, value) in cell_coords.items():
-                if isinstance(value, np.ndarray):  # multiple values for coord -> ignore
-                    if coord in result_coords:  # delete from result coords if not yet deleted
-                        del result_coords[coord]
-                    continue
                 assert dims == result_coords[coord][0]
                 coord_index = result_idx[group_dims[dims]]
                 result_coords[coord][1][coord_index] = value

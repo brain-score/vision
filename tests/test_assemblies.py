@@ -1,5 +1,3 @@
-import pytest
-
 from brainscore.assemblies import DataAssembly
 
 
@@ -30,13 +28,42 @@ class TestMultiGroupby:
                                      coords={'a': ('multi_dim', ['a', 'a']), 'b': ('multi_dim', ['a', 'b'])},
                                      dims=['multi_dim']))
 
-    @pytest.mark.skip(reason="not implemented")
-    def test_multi_dim(self):
+
+class TestMultiDimGroupby:
+    def test_unique_values(self):
+        d = DataAssembly([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]],
+                         coords={'a': ['a', 'b', 'c', 'd'],
+                                 'b': ['x', 'y', 'z']},
+                         dims=['a', 'b'])
+        g = d.multi_dim_groupby(['a', 'b'], lambda x, **_: x)
+        assert g.equals(d)
+
+    def test_nonunique_singledim(self):
         d = DataAssembly([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]],
                          coords={'a': ['a', 'a', 'b', 'b'],
                                  'b': ['x', 'y', 'z']},
                          dims=['a', 'b'])
-        g = d.multi_groupby(['a', 'b']).mean()
-        assert g.equals(DataAssembly([2.5, 3.5, 4.5], [8.5, 9.5, 10.5],
+        g = d.multi_dim_groupby(['a', 'b'], lambda x, **_: x.mean())
+        assert g.equals(DataAssembly([[2.5, 3.5, 4.5], [8.5, 9.5, 10.5]],
                                      coords={'a': ['a', 'b'], 'b': ['x', 'y', 'z']},
                                      dims=['a', 'b']))
+
+    def test_nonunique_adjacentcoord(self):
+        d = DataAssembly([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]],
+                         coords={'a': ('adim', ['a', 'a', 'b', 'b']),
+                                 'aa': ('adim', ['a', 'b', 'a', 'b']),
+                                 'b': ['x', 'y', 'z']},
+                         dims=['adim', 'b'])
+        g = d.multi_dim_groupby(['a', 'b'], lambda x, **_: x.mean())
+        assert g.equals(DataAssembly([[2.5, 3.5, 4.5], [8.5, 9.5, 10.5]],
+                                     coords={'adim': ['a', 'b'], 'b': ['x', 'y', 'z']},
+                                     dims=['adim', 'b'])), \
+            "adjacent coord aa should be discarded due to non-mappability"
+
+    def test_unique_values_swappeddims(self):
+        d = DataAssembly([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]],
+                         coords={'a': ['a', 'b', 'c', 'd'],
+                                 'b': ['x', 'y', 'z']},
+                         dims=['a', 'b'])
+        g = d.multi_dim_groupby(['b', 'a'], lambda x, **_: x)
+        assert g.equals(d)

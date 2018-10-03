@@ -34,7 +34,7 @@ class TestI2N(object):
         objectome['truth'] = objectome['label']
         objectome = objectome.set_index(presentation=[col if col != 'id' else 'image_id' for col in columns])
 
-        feature_responses = pd.read_pickle('resnet34_activations.pkl')
+        feature_responses = pd.read_pickle(os.path.join(os.path.dirname(__file__), 'resnet34_activations.pkl'))
         feature_responses = feature_responses['data']  # only layer is 'avgpool'
         image_ids = xr.DataArray(np.zeros(len(labels)), coords={'image_id': list(labels.keys())},
                                  dims=['image_id']).stack(presentation=['image_id'])
@@ -47,4 +47,4 @@ class TestI2N(object):
         score = i2n(feature_responses, objectome)
         score = i2n.aggregate(score)
         expected_score = .245
-        assert score == approx(expected_score, abs=0.01)
+        assert score == approx(expected_score, abs=0.01), f"expected {expected_score}, but got {score}"

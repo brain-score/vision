@@ -1,9 +1,12 @@
 import functools
 import logging
 
+import scipy.stats
+
 from brainscore.assemblies import merge_data_arrays, DataAssembly
 from brainscore.metrics import ParametricMetric, build_score
-from brainscore.metrics.transformations import CrossValidation, subset
+from brainscore.metrics.transformations import CrossValidation, subset, Transformations
+from brainscore.metrics.xarray_utils import XarrayCorrelation
 from brainscore.utils import fullname
 
 
@@ -114,13 +117,16 @@ class SplitRepMetricCeiling(SplitRepCeiling):
         return super().aggregate(scores)
 
 
-class InternalConsistency(SplitRepCeiling):
-    def score(self, train_half1, train_half2, test_half1, test_half2):
-        return ParametricMetric().compare_prediction(test_half1, test_half2)
+class InternalConsistency:
+    def __init__(self, stimulus_coord, neuroid_dim, neuroid_coord):
+        correlation = scipy.stats.pearsonr
+        self._correlation = XarrayCorrelation(correlation, stimulus_coord=stimulus_coord, neuroid_coord=neuroid_coord)
+        self._neuroid_dim = neuroid_dim
+        cross_validation = CrossValidation()
+        self._transformations = Transformations([cross_validation])
 
-    def aggregate(self, scores):
-        scores = scores.median(dim='neuroid' if ('neuroid',) in scores.dims else 'neuroid_id')
-        return super().aggregate(scores)
+    def __call__(self, assembly):
+        return self._transformations(assembly, metric=self._correlation)
 
 
 def spearman_brown_correction(correlation, n):

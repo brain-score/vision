@@ -28,7 +28,7 @@ class XarrayRegression:
     def fit(self, source, target):
         np.testing.assert_array_equal(source.dims, self._expected_dims)
         np.testing.assert_array_equal(target.dims, self._expected_dims)
-        assert all(source[self._stimulus_coord].values == target[self._stimulus_coord].values)
+        source, target = source.sortby(self._stimulus_coord), target.sortby(self._stimulus_coord)
 
         self._regression.fit(source, target)
 
@@ -43,10 +43,10 @@ class XarrayRegression:
 
         predicted_values = self._regression.predict(source)
 
-        prediction = self.package_prediction(predicted_values, source=source)
+        prediction = self._package_prediction(predicted_values, source=source)
         return prediction
 
-    def package_prediction(self, predicted_values, source):
+    def _package_prediction(self, predicted_values, source):
         coords = {coord: (dims, values) for coord, dims, values in walk_coords(source)
                   if not array_is_element(dims, self._neuroid_dim)}
         # re-package neuroid coords
@@ -63,15 +63,17 @@ class XarrayCorrelation:
         self._neuroid_coord = neuroid_coord
 
     def __call__(self, prediction, target):
-        assert all(prediction[self._stimulus_coord].values == target[self._stimulus_coord].values)
-        assert all(prediction[self._neuroid_coord].values == target[self._neuroid_coord].values)
+        # align
+        prediction = prediction.sortby([self._stimulus_coord, self._neuroid_coord])
+        target = target.sortby([self._stimulus_coord, self._neuroid_coord])
+        # compute
         correlations = []
         for i in target[self._neuroid_coord].values:
             target_activations = target.sel(**{self._neuroid_coord: i}).squeeze()
             prediction_activations = prediction.sel(**{self._neuroid_coord: i}).squeeze()
             r, p = self._correlation(target_activations, prediction_activations)
             correlations.append(r)
-
+        # package
         neuroid_dim = target[self._neuroid_coord].dims
         result = DataAssembly(correlations,
                               coords={coord: (dims, values)

@@ -1,13 +1,13 @@
 import pytest
 from pytest import approx
 
-from brainscore.metrics.neural_predictivity import pls_predictor, linear_predictor
+from brainscore.metrics.neural_predictivity import pls_predictor, linear_predictor, LinearPredictivity
 from tests.test_metrics import load_hvm
 
 
 class TestPlsPredictivity:
     @pytest.mark.parametrize(['region', 'expected_score'], [('IT', 0.826), ('V4', 0.795)])
-    def test_hvm_pls_region(self, region, expected_score):
+    def test_hvm_region(self, region, expected_score):
         hvm = load_hvm()
         hvm = hvm.sel(region=region)
         metric = pls_predictor()
@@ -18,10 +18,20 @@ class TestPlsPredictivity:
 
 
 class TestLinearPredictivity:
-    @pytest.mark.parametrize(['V4', 'pIT', 'cIT', 'aIT'])
-    def test_hvm_linear_subregion(self, subregion):
+    @pytest.mark.parametrize('subregion', ['V4', 'pIT', 'cIT', 'aIT'])
+    def test_hvm_subregion(self, subregion):
         hvm = load_hvm()
         hvm = hvm.sel(subregion=subregion)
         metric = linear_predictor()
         score = metric(source_train=hvm, target_train=hvm, source_test=hvm, target_test=hvm)
-        assert score.aggregation.sel(aggregation='center') == approx(1, rel=0.005)
+        assert len(score['neuroid']) == len(hvm['neuroid'])
+        assert all(score == approx(1, abs=0.01))
+
+    def test_crossvalidated(self):
+        hvm = load_hvm()
+        hvm = hvm.sel(subregion='V4')
+        metric = LinearPredictivity()
+        score = metric(hvm, hvm)
+        assert len(score.values['split']) == 10
+        assert score.aggregation.sel(aggregation='center') == approx(1, rel=0.01)
+        assert score.aggregation.sel(aggregation='error') == approx(0, rel=0.01)

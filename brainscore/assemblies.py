@@ -74,7 +74,7 @@ class DataAssembly(DataArray):
                     coords_dim[coord] = dim
                     dim_coords[dim].append(coord)
 
-        result = super().sel(method, tolerance, drop, **indexers)
+        result = super().sel(method=method, tolerance=tolerance, drop=drop, **indexers)
 
         # un-drop potentially dropped dims
         for coord, value in indexers.items():

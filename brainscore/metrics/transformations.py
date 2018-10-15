@@ -215,15 +215,31 @@ class CrossValidationSingle(Transformation):
         return center.mean('split'), standard_error_of_the_mean(error, 'split')
 
 
-class CrossValidation(CrossValidationSingle):
+class CrossValidation(Transformation):
+    """
+    Performs multiple splits over a source and target assembly.
+    No guarantees are given for data-alignment, use the metadata.
+    """
+
+    def __init__(self,
+                 splits=CrossValidationSingle.Defaults.splits, split_coord=CrossValidationSingle.Defaults.split_coord,
+                 stratification_coord=CrossValidationSingle.Defaults.stratification_coord,
+                 train_size=None, test_size=None, seed=CrossValidationSingle.Defaults.seed):
+        self._split_coord = split_coord
+        self._stratification_coord = stratification_coord
+        self._single_crossval = CrossValidationSingle(splits=splits, split_coord=split_coord,
+                                                      stratification_coord=stratification_coord,
+                                                      train_size=train_size, test_size=test_size, seed=seed)
+        self._logger = logging.getLogger(fullname(self))
+
     def __call__(self, source_assembly, target_assembly):
-        assert all(source_assembly[self._split_coord].values ==
-                   target_assembly[self._split_coord].values)
-        if self._stratify(target_assembly):
+        # check only for equal values, alignment is given by metadata
+        assert sorted(source_assembly[self._split_coord].values) == sorted(target_assembly[self._split_coord].values)
+        if self._single_crossval._stratify(target_assembly):
             assert hasattr(source_assembly, self._stratification_coord)
-            assert all(source_assembly[self._stratification_coord].values ==
-                       target_assembly[self._stratification_coord].values)
-        cross_validation_values, splits = self._build_splits(target_assembly)
+            assert sorted(source_assembly[self._stratification_coord].values) == \
+                   sorted(target_assembly[self._stratification_coord].values)
+        cross_validation_values, splits = self._single_crossval._build_splits(target_assembly)
 
         split_scores = []
         for split_iterator, (train_indices, test_indices), done in enumerate_done(splits):
@@ -236,7 +252,8 @@ class CrossValidation(CrossValidationSingle):
             test_target = subset(target_assembly, test_values, dims_must_match=False)
             assert len(test_source[self._split_coord]) == len(test_target[self._split_coord])
 
-            split_score = yield from self._get_result(train_source, train_target, test_source, test_target, done=done)
+            split_score = yield from self._get_result(train_source, train_target, test_source, test_target,
+                                                      done=done)
             split_score = split_score.expand_dims('split')
             split_score['split'] = [split_iterator]
             split_scores.append(split_score)

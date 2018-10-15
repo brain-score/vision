@@ -5,22 +5,82 @@ import pytest
 
 from brainscore.assemblies import NeuroidAssembly, DataAssembly
 from brainscore.metrics import Metric
-from brainscore.metrics.transformations import subset, index_efficient, CartesianProduct, apply_transformations
+from brainscore.metrics.transformations import subset, index_efficient, CartesianProduct, apply_transformations, \
+    CrossValidation, Transformations, CrossValidationSingle
 
 
-class MetricPlaceholder(Metric):
-    def __init__(self):
-        super(MetricPlaceholder, self).__init__()
-        self.source_assemblies = []
-        self.target_assemblies = []
+class TestCrossValidationSingle:
+    class MetricPlaceholder(Metric):
+        def __init__(self):
+            super(TestCrossValidationSingle.MetricPlaceholder, self).__init__()
+            self.train_assemblies = []
+            self.test_assemblies = []
 
-    def __call__(self, source_assembly, target_assembly):
-        self.source_assemblies.append(source_assembly)
-        self.target_assemblies.append(target_assembly)
-        return DataAssembly([0], coords={'split': [0]}, dims=['split'])
+        def __call__(self, train, test):
+            self.train_assemblies.append(train)
+            self.test_assemblies.append(test)
+            return DataAssembly([0])
+
+    def test(self):
+        assembly = NeuroidAssembly(np.random.rand(500, 10),
+                                   coords={'image_id': ('presentation', list(range(500))),
+                                           'image_meta': ('presentation', [0] * 500),
+                                           'neuroid_id': ('neuroid', list(range(10))),
+                                           'neuroid_meta': ('neuroid', [0] * 10)},
+                                   dims=['presentation', 'neuroid'])
+        cv = CrossValidationSingle(splits=10)
+        metric = self.MetricPlaceholder()
+        score = Transformations([cv])(assembly, metric=metric)
+        assert len(metric.train_assemblies) == len(metric.test_assemblies) == 10
+        assert len(score.values['split']) == 10
+
+
+class TestCrossValidation:
+    class MetricPlaceholder(Metric):
+        def __init__(self):
+            super(TestCrossValidation.MetricPlaceholder, self).__init__()
+            self.train_source_assemblies = []
+            self.test_source_assemblies = []
+            self.train_target_assemblies = []
+            self.test_target_assemblies = []
+
+        def __call__(self, train_source, train_target, test_source, test_target):
+            assert sorted(train_source['image_id'].values) == sorted(train_target['image_id'].values)
+            assert sorted(test_source['image_id'].values) == sorted(test_target['image_id'].values)
+            self.train_source_assemblies.append(train_source)
+            self.train_target_assemblies.append(train_target)
+            self.test_source_assemblies.append(test_source)
+            self.test_target_assemblies.append(test_target)
+            return DataAssembly([0])
+
+    def test_misaligned(self):
+        jumbled_source = NeuroidAssembly(np.random.rand(500, 10),
+                                         coords={'image_id': ('presentation', list(reversed(range(500)))),
+                                                 'image_meta': ('presentation', [0] * 500),
+                                                 'neuroid_id': ('neuroid', list(reversed(range(10)))),
+                                                 'neuroid_meta': ('neuroid', [0] * 10)},
+                                         dims=['presentation', 'neuroid'])
+        target = jumbled_source.sortby(['image_id', 'neuroid_id'])
+        cv = CrossValidation(splits=10)
+        metric = self.MetricPlaceholder()
+        score = Transformations([cv])(jumbled_source, target, metric=metric)
+        assert len(metric.train_source_assemblies) == len(metric.test_source_assemblies) == \
+               len(metric.train_target_assemblies) == len(metric.test_target_assemblies) == 10
+        assert len(score.values['split']) == 10
 
 
 class TestCartesianProduct:
+    class MetricPlaceholder(Metric):
+        def __init__(self):
+            super(TestCartesianProduct.MetricPlaceholder, self).__init__()
+            self.source_assemblies = []
+            self.target_assemblies = []
+
+        def __call__(self, source_assembly, target_assembly):
+            self.source_assemblies.append(source_assembly)
+            self.target_assemblies.append(target_assembly)
+            return DataAssembly([0])
+
     def test_no_division3(self):
         self._test_no_division_apply_manually(3)
 
@@ -50,7 +110,7 @@ class TestCartesianProduct:
             coords={'neuroid': list(range(len(assembly))), 'division_coord': list(range(assembly.shape[1]))},
             dims=['neuroid', 'division_coord'])
         transformation = CartesianProduct()
-        placeholder = MetricPlaceholder()
+        placeholder = self.MetricPlaceholder()
         apply_transformations(assembly, assembly, transformations=[transformation], metric=placeholder)
         assert np.power(assembly.shape[1], 2) == \
                len(placeholder.source_assemblies) == len(placeholder.target_assemblies)
@@ -73,9 +133,10 @@ class TestCartesianProduct:
             coords={'neuroid': list(range(assembly.shape[1])), 'division_coord': list(range(assembly.shape[0]))},
             dims=['division_coord', 'neuroid'])
         transformation = CartesianProduct()
-        placeholder = MetricPlaceholder()
+        placeholder = self.MetricPlaceholder()
         apply_transformations(assembly, assembly, transformations=[transformation], metric=placeholder)
-        assert np.power(assembly.shape[0], 2) == len(placeholder.source_assemblies) == len(placeholder.target_assemblies)
+        assert np.power(assembly.shape[0], 2) == len(placeholder.source_assemblies) == len(
+            placeholder.target_assemblies)
         pairs = list(zip(placeholder.source_assemblies, placeholder.target_assemblies))
         target_pairs = [(assembly.sel(division_coord=i).rename({'division_coord': 'division_coord-source'}).values,
                          assembly.sel(division_coord=j).rename({'division_coord': 'division_coord-target'}).values)

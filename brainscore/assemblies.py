@@ -177,7 +177,8 @@ class GroupbyBridge(object):
 
     def split_group_coords(self, result):
         split_coords = np.array(
-            list(map(lambda s: s.split(self.delimiter), result.coords[self.multi_group_name].values))).T
+            list(map(lambda s: s.split(self.delimiter) if isinstance(s, str) else [s],
+                     result.coords[self.multi_group_name].values))).T
         for coord_name, coord in zip(self.group_coord_names, split_coords):
             result.coords[coord_name] = (self.multi_group_name, coord)
         result.reset_index(self.multi_group_name, drop=True, inplace=True)

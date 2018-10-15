@@ -19,7 +19,7 @@ class Transformation(object):
     and packages the results back together.
     """
 
-    def __call__(self, source_assembly, target_assembly):
+    def __call__(self, *args):
         raise NotImplementedError()
 
     def _get_result(self, *args, done):
@@ -151,23 +151,26 @@ def dividers(assembly, dividing_coord_names, non_dividing_dims=()):
     return combinations
 
 
-class CrossValidation(Transformation):
+class CrossValidationSingle(Transformation):
     class Defaults:
         splits = 10
         train_size = .9
-        dim = 'image_id'
+        split_coord = 'image_id'
         stratification_coord = 'object_name'  # cross-validation across images, balancing objects
+        seed = 1
 
     def __init__(self,
-                 splits=Defaults.splits, train_size=Defaults.train_size, test_size=None,  # complement train
-                 dim=Defaults.dim, stratification_coord=Defaults.stratification_coord,
-                 seed=1):
+                 splits=Defaults.splits, train_size=None, test_size=None,
+                 split_coord=Defaults.split_coord, stratification_coord=Defaults.stratification_coord,
+                 seed=Defaults.seed):
         super().__init__()
+        if train_size is None and test_size is None:
+            train_size = self.Defaults.train_size
         self._stratified_split = StratifiedShuffleSplit(
             n_splits=splits, train_size=train_size, test_size=test_size, random_state=seed)
         self._shuffle_split = ShuffleSplit(
             n_splits=splits, train_size=train_size, test_size=test_size, random_state=seed)
-        self._dim = dim
+        self._split_coord = split_coord
         self._stratification_coord = stratification_coord
 
         self._logger = logging.getLogger(fullname(self))
@@ -175,8 +178,8 @@ class CrossValidation(Transformation):
     def _stratify(self, assembly):
         return self._stratification_coord and hasattr(assembly, self._stratification_coord)
 
-    def build_splits(self, assembly):
-        cross_validation_values, indices = extract_coord(assembly, self._dim, return_index=True)
+    def _build_splits(self, assembly):
+        cross_validation_values, indices = extract_coord(assembly, self._split_coord, return_index=True)
         data_shape = np.zeros(len(cross_validation_values))
         if self._stratify(assembly):
             splits = self._stratified_split.split(data_shape,
@@ -187,27 +190,20 @@ class CrossValidation(Transformation):
             splits = self._shuffle_split.split(data_shape)
         return cross_validation_values, list(splits)
 
-    def __call__(self, source_assembly, target_assembly):
-        assert all(source_assembly[self._dim].values ==
-                   target_assembly[self._dim].values)
-        if self._stratify(target_assembly):
-            assert hasattr(source_assembly, self._stratification_coord)
-            assert all(source_assembly[self._stratification_coord].values ==
-                       target_assembly[self._stratification_coord].values)
-        cross_validation_values, splits = self.build_splits(target_assembly)
+    def __call__(self, assembly):
+        """
+        :param assembly: the assembly to cross-validate over
+        """
+        cross_validation_values, splits = self._build_splits(assembly)
 
         split_scores = []
         for split_iterator, (train_indices, test_indices), done in enumerate_done(splits):
             self._logger.debug("split {}/{}".format(split_iterator + 1, len(splits)))
             train_values, test_values = cross_validation_values[train_indices], cross_validation_values[test_indices]
-            train_source = subset(source_assembly, train_values, dims_must_match=False)
-            train_target = subset(target_assembly, train_values, dims_must_match=False)
-            assert len(train_source[self._dim]) == len(train_target[self._dim])
-            test_source = subset(source_assembly, test_values, dims_must_match=False)
-            test_target = subset(target_assembly, test_values, dims_must_match=False)
-            assert len(test_source[self._dim]) == len(test_target[self._dim])
+            train = subset(assembly, train_values, dims_must_match=False)
+            test = subset(assembly, test_values, dims_must_match=False)
 
-            split_score = yield from self._get_result(train_source, train_target, test_source, test_target, done=done)
+            split_score = yield from self._get_result(train, test, done=done)
             split_score = split_score.expand_dims('split')
             split_score['split'] = [split_iterator]
             split_scores.append(split_score)
@@ -217,6 +213,36 @@ class CrossValidation(Transformation):
 
     def aggregate(self, center, error):
         return center.mean('split'), standard_error_of_the_mean(error, 'split')
+
+
+class CrossValidation(CrossValidationSingle):
+    def __call__(self, source_assembly, target_assembly):
+        assert all(source_assembly[self._split_coord].values ==
+                   target_assembly[self._split_coord].values)
+        if self._stratify(target_assembly):
+            assert hasattr(source_assembly, self._stratification_coord)
+            assert all(source_assembly[self._stratification_coord].values ==
+                       target_assembly[self._stratification_coord].values)
+        cross_validation_values, splits = self._build_splits(target_assembly)
+
+        split_scores = []
+        for split_iterator, (train_indices, test_indices), done in enumerate_done(splits):
+            self._logger.debug("split {}/{}".format(split_iterator + 1, len(splits)))
+            train_values, test_values = cross_validation_values[train_indices], cross_validation_values[test_indices]
+            train_source = subset(source_assembly, train_values, dims_must_match=False)
+            train_target = subset(target_assembly, train_values, dims_must_match=False)
+            assert len(train_source[self._split_coord]) == len(train_target[self._split_coord])
+            test_source = subset(source_assembly, test_values, dims_must_match=False)
+            test_target = subset(target_assembly, test_values, dims_must_match=False)
+            assert len(test_source[self._split_coord]) == len(test_target[self._split_coord])
+
+            split_score = yield from self._get_result(train_source, train_target, test_source, test_target, done=done)
+            split_score = split_score.expand_dims('split')
+            split_score['split'] = [split_iterator]
+            split_scores.append(split_score)
+
+        split_scores = merge_data_arrays(split_scores)
+        yield split_scores
 
 
 def extract_coord(assembly, coord, return_index=False):
@@ -354,20 +380,11 @@ def apply_transformations(*args, transformations, metric):
 
 
 class Transformations(object):
-    def __init__(self, alignment_kwargs=None, cartesian_product_kwargs=None, cross_validation_kwargs=None,
-                 alignment_ctr=Alignment, cartesian_product_ctr=CartesianProduct, cross_validation_ctr=CrossValidation):
-        alignment_kwargs = alignment_kwargs or {}
-        cartesian_product_kwargs = cartesian_product_kwargs or {}
-        cross_validation_kwargs = cross_validation_kwargs or {}
-        self._transformations = []
-        for ctr, kwargs in [(alignment_ctr, alignment_kwargs), (cartesian_product_ctr, cartesian_product_kwargs),
-                            (cross_validation_ctr, cross_validation_kwargs)]:
-            if ctr is not None:
-                self._transformations.append(ctr(**kwargs))
+    def __init__(self, transformations):
+        self._transformations = transformations
 
-    def __call__(self, source_assembly, target_assembly, metric):
-        raw_scores = apply_transformations(source_assembly, target_assembly,
-                                           transformations=self._transformations, metric=metric)
+    def __call__(self, *args, metric):
+        raw_scores = apply_transformations(*args, transformations=self._transformations, metric=metric)
 
         scores = metric.aggregate(raw_scores)
         center, error = scores, scores

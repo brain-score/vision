@@ -5,8 +5,8 @@ import pytest
 
 from brainscore.assemblies import NeuroidAssembly, DataAssembly
 from brainscore.metrics import Metric
-from brainscore.metrics.transformations import subset, index_efficient, CartesianProduct, apply_transformations, \
-    CrossValidation, Transformations, CrossValidationSingle
+from brainscore.metrics.transformations import subset, index_efficient, CartesianProduct, CrossValidation, \
+    CrossValidationSingle
 
 
 class TestCrossValidationSingle:
@@ -30,7 +30,7 @@ class TestCrossValidationSingle:
                                    dims=['presentation', 'neuroid'])
         cv = CrossValidationSingle(splits=10)
         metric = self.MetricPlaceholder()
-        score = Transformations([cv])(assembly, metric=metric)
+        score = cv(assembly, metric=metric)
         assert len(metric.train_assemblies) == len(metric.test_assemblies) == 10
         assert len(score.values['split']) == 10
 
@@ -63,7 +63,7 @@ class TestCrossValidation:
         target = jumbled_source.sortby(['image_id', 'neuroid_id'])
         cv = CrossValidation(splits=10)
         metric = self.MetricPlaceholder()
-        score = Transformations([cv])(jumbled_source, target, metric=metric)
+        score = cv(jumbled_source, target, metric=metric)
         assert len(metric.train_source_assemblies) == len(metric.test_source_assemblies) == \
                len(metric.train_target_assemblies) == len(metric.test_target_assemblies) == 10
         assert len(score.values['split']) == 10
@@ -91,7 +91,7 @@ class TestCartesianProduct:
         assembly = np.random.rand(num_values)
         assembly = NeuroidAssembly(assembly, coords={'neuroid': list(range(len(assembly)))}, dims=['neuroid'])
         transformation = CartesianProduct()
-        generator = transformation(assembly, assembly)
+        generator = transformation.pipe(assembly, assembly)
         for source, target in generator:  # should run only once
             np.testing.assert_array_equal(assembly.values, source)
             np.testing.assert_array_equal(assembly.values, target)
@@ -111,7 +111,7 @@ class TestCartesianProduct:
             dims=['neuroid', 'division_coord'])
         transformation = CartesianProduct()
         placeholder = self.MetricPlaceholder()
-        apply_transformations(assembly, assembly, transformations=[transformation], metric=placeholder)
+        transformation(assembly, assembly, metric=placeholder)
         assert np.power(assembly.shape[1], 2) == \
                len(placeholder.source_assemblies) == len(placeholder.target_assemblies)
         pairs = list(zip(placeholder.source_assemblies, placeholder.target_assemblies))
@@ -134,7 +134,7 @@ class TestCartesianProduct:
             dims=['division_coord', 'neuroid'])
         transformation = CartesianProduct()
         placeholder = self.MetricPlaceholder()
-        apply_transformations(assembly, assembly, transformations=[transformation], metric=placeholder)
+        transformation(assembly, assembly, metric=placeholder)
         assert np.power(assembly.shape[0], 2) == len(placeholder.source_assemblies) == len(
             placeholder.target_assemblies)
         pairs = list(zip(placeholder.source_assemblies, placeholder.target_assemblies))

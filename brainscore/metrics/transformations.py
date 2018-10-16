@@ -19,7 +19,25 @@ class Transformation(object):
     and packages the results back together.
     """
 
-    def __call__(self, *args):
+    def __call__(self, *args, metric, **kwargs):
+        values = self._run_pipe(*args, metric=metric, **kwargs)
+
+        scores = metric.aggregate(values)
+        center, error = self.aggregate(scores, scores)
+        from brainscore.metrics import build_score  # avoid circular import
+        return build_score(values, center, error)
+
+    def _run_pipe(self, *args, metric, **kwargs):
+        generator = self.pipe(*args, **kwargs)
+        for vals in generator:
+            y = metric(*vals)
+            done = generator.send(y)
+            if done:
+                break
+        result = next(generator)
+        return result
+
+    def pipe(self, *args, **kwargs):
         raise NotImplementedError()
 
     def _get_result(self, *args, done):
@@ -51,7 +69,7 @@ class Alignment(Transformation):
         self._repeat = repeat
         self._logger = logging.getLogger(fullname(self))
 
-    def __call__(self, source_assembly, target_assembly):
+    def pipe(self, source_assembly, target_assembly):
         self._logger.debug("Aligning by {} and {}, {} repeats".format(
             self._order_dimensions, self._alignment_dim, "with" if self._repeat else "no"))
         source_assembly = self.align(source_assembly, target_assembly)
@@ -92,7 +110,7 @@ class CartesianProduct(Transformation):
     def dividers(self, assembly, dividing_coord_names):
         return dividers(assembly, dividing_coord_names=dividing_coord_names, non_dividing_dims=self._non_dividing_dims)
 
-    def __call__(self, source_assembly, target_assembly):
+    def pipe(self, source_assembly, target_assembly):
         """
         :param brainscore.assemblies.NeuroidAssembly source_assembly:
         :param brainscore.assemblies.NeuroidAssembly target_assembly:
@@ -190,7 +208,7 @@ class CrossValidationSingle(Transformation):
             splits = self._shuffle_split.split(data_shape)
         return cross_validation_values, list(splits)
 
-    def __call__(self, assembly):
+    def pipe(self, assembly):
         """
         :param assembly: the assembly to cross-validate over
         """
@@ -232,7 +250,7 @@ class CrossValidation(Transformation):
                                                       train_size=train_size, test_size=test_size, seed=seed)
         self._logger = logging.getLogger(fullname(self))
 
-    def __call__(self, source_assembly, target_assembly):
+    def pipe(self, source_assembly, target_assembly):
         # check only for equal values, alignment is given by metadata
         assert sorted(source_assembly[self._split_coord].values) == sorted(target_assembly[self._split_coord].values)
         if self._single_crossval._stratify(target_assembly):
@@ -382,7 +400,7 @@ def apply_transformations(*args, transformations, metric):
         for vals in generator:
             if len(generators) > 0:
                 gen = generators[0]
-                gen = gen(*vals)
+                gen = gen.pipe(*vals)
                 y = recurse(gen, generators[1:])
             else:
                 y = metric(*vals)
@@ -392,7 +410,7 @@ def apply_transformations(*args, transformations, metric):
         result = next(generator)
         return result
 
-    scores = recurse(transformations[0](*args), transformations[1:])
+    scores = recurse(transformations[0].pipe(*args), transformations[1:])
     return scores
 
 

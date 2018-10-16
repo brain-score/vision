@@ -2,7 +2,7 @@ import scipy.stats
 from sklearn.cross_decomposition import PLSRegression
 from sklearn.linear_model import LinearRegression
 
-from brainscore.metrics.transformations import Transformations, CrossValidation
+from brainscore.metrics.transformations import CrossValidation
 from brainscore.metrics.xarray_utils import XarrayRegression, XarrayCorrelation, Defaults as XarrayDefaults
 
 
@@ -12,11 +12,10 @@ class PlsPredictivity:
                  stimulus_coord=XarrayDefaults.stimulus_coord, neuroid_coord=XarrayDefaults.neuroid_coord):
         self._predictor = pls_predictor(n_components=n_components, expected_dims=expected_dims, neuroid_dim=neuroid_dim,
                                         stimulus_coord=stimulus_coord, neuroid_coord=neuroid_coord)
-        cross_validation = CrossValidation()
-        self._transformations = Transformations([cross_validation])
+        self._cross_validation = CrossValidation()
 
     def __call__(self, source, target):
-        return self._transformations(source, target, metric=self._predictor)
+        return self._cross_validation(source, target, metric=self._predictor)
 
 
 def pls_predictor(n_components=25,
@@ -34,11 +33,10 @@ class LinearPredictivity:
                  stimulus_coord=XarrayDefaults.stimulus_coord, neuroid_coord=XarrayDefaults.neuroid_coord):
         self._predictor = linear_predictor(expected_dims=expected_dims, stimulus_coord=stimulus_coord,
                                            neuroid_dim=neuroid_dim, neuroid_coord=neuroid_coord)
-        cross_validation = CrossValidation()
-        self._transformations = Transformations([cross_validation])
+        self._cross_validation = CrossValidation()
 
     def __call__(self, source, target):
-        return self._transformations(source, target, metric=self._predictor)
+        return self._cross_validation(source, target, metric=self._predictor)
 
 
 def linear_predictor(expected_dims=XarrayDefaults.expected_dims, neuroid_dim=XarrayDefaults.neuroid_dim,
@@ -70,5 +68,5 @@ class RegressionPredictor:
         score = self._correlation(prediction, target_test)
         return score
 
-    def aggregate(self, scores):  # TODO: need to decide where this goes
+    def aggregate(self, scores):
         return scores.median(dim=self._neuroid_dim)

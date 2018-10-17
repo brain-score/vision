@@ -5,11 +5,11 @@ from result_caching import cache, store
 
 import brainscore
 from brainscore.assemblies import merge_data_arrays, walk_coords, array_is_element, DataAssembly
-from brainscore.metrics import NonparametricWrapper, Score
+from brainscore.metrics import Score
 from brainscore.metrics.anatomy import EdgeRatioMetric
 from brainscore.metrics.ceiling import ceilings, InternalConsistency
-from brainscore.metrics.neural_predictivity import PlsPredictivity, LinearPredictivity, NeuralPredictivity
-from brainscore.metrics.rdm import RDMMetric
+from brainscore.metrics.neural_predictivity import PlsPredictivity, LinearPredictivity
+from brainscore.metrics.rdm import RDMCrossValidated
 from brainscore.utils import fullname
 
 
@@ -76,7 +76,7 @@ class DicarloMajaj2015Region(Benchmark):
         loader = DicarloMajaj2015Loader()
         assembly_repetitions = loader(average_repetition=False)
         assembly_repetitions = assembly_repetitions.sel(region=region)
-        metric = NeuralPredictivity()
+        metric = PlsPredictivity()
         ceiling = InternalConsistency(assembly_repetitions)
         assembly = loader.average_repetition(assembly_repetitions)
         super(DicarloMajaj2015Region, self).__init__(name=f'dicarlo.Majaj2015.{region}', target_assembly=assembly,
@@ -244,7 +244,7 @@ class GallantDavid2004Loader(AssemblyLoader):
 
 
 metrics = {
-    'rdm': lambda *args, **kwargs: NonparametricWrapper(RDMMetric(*args, **kwargs)),
+    'rdm': RDMCrossValidated,
     'linear_predictivity': LinearPredictivity,
     'pls_predictivity': PlsPredictivity,
     'edge_ratio': EdgeRatioMetric

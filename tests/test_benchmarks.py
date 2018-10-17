@@ -5,9 +5,10 @@ from pytest import approx
 
 from brainscore import benchmarks
 from brainscore.assemblies import DataAssembly, NeuroidAssembly, walk_coords
-from brainscore.benchmarks import SplitBenchmark, metrics, DicarloMajaj2015EarlyLateLoader, DicarloMajaj2015Loader, \
-    ToliasCadena2017Loader
-from brainscore.metrics.ceiling import SplitNoCeiling
+from brainscore.benchmarks import DicarloMajaj2015EarlyLateLoader, DicarloMajaj2015Loader, ToliasCadena2017Loader, \
+    Benchmark
+from brainscore.metrics.ceiling import NoCeiling
+from brainscore.metrics.rdm import RDMCrossValidated
 
 
 class TestBrainScore:
@@ -23,9 +24,9 @@ class TestBrainScore:
         assert score == approx(1, abs=.05)
 
 
-class TestMajaj2015:
+class TestMajaj2015IT:
     def test_loader(self):
-        assembly = benchmarks.load_assembly('dicarlo.Majaj2015')
+        assembly = benchmarks.load_assembly('dicarlo.Majaj2015.IT')
         np.testing.assert_array_equal(assembly.dims, ['presentation', 'neuroid'])
         assert len(assembly['presentation']) == 2560
         assert len(assembly['neuroid']) == 256
@@ -33,13 +34,13 @@ class TestMajaj2015:
         assert len(assembly.sel(region='V4')['neuroid']) == 88
 
     def test_ceiling(self):
-        benchmark = benchmarks.load('dicarlo.Majaj2015')
+        benchmark = benchmarks.load('dicarlo.Majaj2015.IT')
         ceiling = benchmark.ceiling
         assert ceiling.aggregation.sel(region='IT', aggregation='center') == approx(.817, abs=0.05)
 
     def test_self(self):
-        benchmark = benchmarks.load('dicarlo.Majaj2015')
-        source = benchmarks.load_assembly('dicarlo.Majaj2015')
+        benchmark = benchmarks.load('dicarlo.Majaj2015.IT')
+        source = benchmarks.load_assembly('dicarlo.Majaj2015.IT').sel(region='IT')
         score, unceiled_score = benchmark(source, return_ceiled=True)
         assert all(score.aggregation.sel(aggregation='error') == unceiled_score.aggregation.sel(aggregation='error'))
         # ceiling should use the same rng, but different repetitions. results should overall be close to 1
@@ -49,19 +50,6 @@ class TestMajaj2015:
         target_array.loc[dict(region='V4', neuroid_id=source.sel(region='IT')['neuroid_id'])] = np.nan
         # .8 is not that satisfying. it seems that different repetitions lead to quite different outcomes
         assert np.isclose(score.values, target_array, atol=0.1).sum() / target_array.sum() > .8
-
-    def test_construct_kwargs(self):
-        assembly = benchmarks.load_assembly('dicarlo.Majaj2015')
-        assembly = assembly.rename({'presentation': 'stimulus'})
-        metric = metrics['rdm']()
-        dimensions = ('stimulus', 'neuroid')
-        benchmark = SplitBenchmark(target_assembly=assembly, metric=metric, ceiling=SplitNoCeiling(),
-                                   target_splits=['region'], target_splits_kwargs=dict(non_dividing_dims=dimensions))
-        score = benchmark(assembly, transformation_kwargs=dict(
-            alignment_kwargs=dict(order_dimensions=dimensions),
-            cartesian_product_kwargs=dict(non_dividing_dims=dimensions)))
-        np.testing.assert_array_equal(score.aggregation.sel(aggregation='center').dims, ['region'])
-        np.testing.assert_array_equal(score.values.dims, ['region', 'split'])
 
 
 class TestAnatomyFelleman:
@@ -119,3 +107,13 @@ class TestCadena2017:
         # .4 is not satisfying at all. it seems that different repetitions lead to quite different outcomes
         # and especially in this dataset, the lack of repetitions might be quite crucial.
         assert np.isclose(score.values, target_array, atol=0.1).sum() / target_array.sum() > .4
+
+
+class TestConstruct:
+    def test_rdm(self):
+        assembly = benchmarks.load_assembly('dicarlo.Majaj2015').sel(region='V4')
+        metric = RDMCrossValidated()
+        ceiling = NoCeiling()
+        benchmark = Benchmark(name='test', target_assembly=assembly, metric=metric, ceiling=ceiling)
+        score = benchmark(assembly)
+        assert score.aggregation.sel(aggregation='center') == approx(1)

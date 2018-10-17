@@ -1,19 +1,21 @@
+import numpy as np
 import scipy.stats
+import xarray as xr
 
 from brainscore.assemblies import DataAssembly, walk_coords
 from brainscore.metrics import build_score
-from brainscore.metrics.transformations import Transformations, CrossValidationSingle
+from brainscore.metrics.transformations import CrossValidationSingle
 from brainscore.metrics.xarray_utils import Defaults as XarrayDefaults
 from brainscore.metrics.xarray_utils import XarrayCorrelation
 
 
 class Ceiling(object):
-    def __call__(self, assembly):
+    def __call__(self, *args, **kwargs):
         raise NotImplementedError()
 
 
 class NoCeiling(Ceiling):
-    def __call__(self, assembly):
+    def __call__(self):
         return build_score(None, center=DataAssembly(1), error=DataAssembly(0))
 
 
@@ -25,25 +27,31 @@ class InternalConsistency(Ceiling):
     class Defaults:
         split_coord = 'repetition'
 
-    def __init__(self, split_coord=Defaults.split_coord, stimulus_coord=XarrayDefaults.stimulus_coord,
+    def __init__(self, assembly,  # pass assembly here so that Benchmark does not have to keep reference to repetitions
+                 split_coord=Defaults.split_coord, stimulus_coord=XarrayDefaults.stimulus_coord,
                  neuroid_dim=XarrayDefaults.neuroid_dim, neuroid_coord=XarrayDefaults.neuroid_coord):
+        self._assembly = assembly
         consistency = SplitHalfConsistency(stimulus_coord=stimulus_coord, neuroid_dim=neuroid_dim,
                                            neuroid_coord=neuroid_coord)
-        self._consistency = self.SplitHalfWrapper(split_coord=split_coord, consistency=consistency)
-        cross_validation = CrossValidationSingle(train_size=0.5, split_coord=split_coord)
-        self._transformations = Transformations([cross_validation])
+        correction = SpearmanBrownCorrection(neuroid_dim=neuroid_dim)
+        self._consistency = self.SplitHalfWrapper(split_coord=split_coord,
+                                                  consistency=consistency, correction=correction)
+        self._cross_validation = CrossValidationSingle(train_size=0.5, split_coord=split_coord)
 
-    def __call__(self, assembly):
-        return self._transformations(assembly, metric=self._consistency)
+    def __call__(self):
+        return self._cross_validation(self._assembly, metric=self._consistency)
 
     class SplitHalfWrapper:
-        def __init__(self, split_coord, consistency):
+        def __init__(self, split_coord, consistency, correction):
             self._split_coord = split_coord
             self._consistency = consistency
+            self._correction = correction
 
         def __call__(self, half1, half2):
             half1, half2 = self._average_repetitions(half1), self._average_repetitions(half2)
-            return self._consistency(half1, half2)
+            consistency = self._consistency(half1, half2)
+            consistency = self._correction(consistency, n=2)
+            return consistency
 
         def _average_repetitions(self, assembly):
             repetition_dims = assembly[self._split_coord].dims
@@ -74,8 +82,20 @@ class SplitHalfConsistency:
         return scores.median(dim=self._neuroid_dim)
 
 
-def spearman_brown_correction(correlation, n):
-    return n * correlation / (1 + (n - 1) * correlation)
+class SpearmanBrownCorrection:
+    """
+    Corrects the correlation coefficients.
+    """
+
+    def __init__(self, neuroid_dim=XarrayDefaults.neuroid_dim):
+        self._neuroid_dim = neuroid_dim
+
+    def __call__(self, correlations, n):
+        np.testing.assert_array_equal(correlations.dims, [self._neuroid_dim])
+        return xr.apply_ufunc(lambda correlation: self.correct(correlation, n), correlations)
+
+    def correct(self, correlation, n):
+        return n * correlation / (1 + (n - 1) * correlation)
 
 
 ceilings = {

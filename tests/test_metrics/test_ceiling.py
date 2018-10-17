@@ -10,7 +10,7 @@ from brainscore.metrics.ceiling import NoCeiling, InternalConsistency, SplitHalf
 class TestNoCeiling:
     def test(self):
         ceiling = NoCeiling()
-        ceiling = ceiling(None)
+        ceiling = ceiling()
         assert isinstance(ceiling, Score)
         assert ceiling.aggregation.sel(aggregation='center') == 1
 
@@ -24,8 +24,8 @@ class TestInternalConsistency:
                                        'neuroid_id': ('neuroid', np.arange(10)),
                                        'neuroid_meta': ('neuroid', np.arange(10))},
                                dims=['presentation', 'neuroid'])
-        ceiler = InternalConsistency()
-        ceiling = ceiler(data)
+        ceiler = InternalConsistency(assembly=data)
+        ceiling = ceiler()
         assert ceiling.aggregation.sel(aggregation='center') == 1
 
 

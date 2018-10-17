@@ -25,7 +25,7 @@ class RDMCrossValidated:
             return self._metric(test_source, test_target)
 
         def aggregate(self, scores):
-            return self._metric.aggregate(scores)
+            return scores
 
     def __call__(self, assembly1, assembly2):
         """
@@ -60,10 +60,7 @@ class RDMMetric:
         rdm1 = self._rdm(assembly1)
         rdm2 = self._rdm(assembly2)
         similarity = self._similarity(rdm1, rdm2)
-        return similarity
-
-    def aggregate(self, scores):
-        return scores.median(dim=self._neuroid_dim)
+        return DataAssembly(similarity)
 
 
 class RSA:

@@ -33,6 +33,11 @@ class Benchmark(object):
     def _cached_call(self, source_assembly, identifier):
         return self._metric(source_assembly, self._target_assembly)
 
+    @property
+    @store()
+    def ceiling(self):
+        return self._ceiling()
+
 
 class BrainScore(object):
     # Brain-Score is a Benchmark too, but due to its compositionality
@@ -97,7 +102,7 @@ class ToliasCadena2017(Benchmark):
     def __init__(self):
         loader = ToliasCadena2017Loader()
         assembly_repetitions = loader(average_repetition=False)
-        ceiling = InternalConsistency(assembly_repetitions)
+        ceiling = InternalConsistency(assembly_repetitions, split_coord='repetition_id')
         assembly = loader.average_repetition(assembly_repetitions)
         metric = PlsPredictivity()
         super(ToliasCadena2017, self).__init__(name='tolias.Cadena2017', target_assembly=assembly,

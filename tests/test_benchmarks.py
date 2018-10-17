@@ -24,32 +24,35 @@ class TestBrainScore:
         assert score == approx(1, abs=.05)
 
 
-class TestMajaj2015IT:
+class TestMajaj2015:
     def test_loader(self):
-        assembly = benchmarks.load_assembly('dicarlo.Majaj2015.IT')
+        assembly = benchmarks.load_assembly('dicarlo.Majaj2015')
         np.testing.assert_array_equal(assembly.dims, ['presentation', 'neuroid'])
         assert len(assembly['presentation']) == 2560
         assert len(assembly['neuroid']) == 256
         assert len(assembly.sel(region='IT')['neuroid']) == 168
         assert len(assembly.sel(region='V4')['neuroid']) == 88
 
-    def test_ceiling(self):
+    def test_ceiling_V4(self):
+        benchmark = benchmarks.load('dicarlo.Majaj2015.V4')
+        ceiling = benchmark.ceiling
+        assert ceiling.aggregation.sel(aggregation='center') == approx(.892, abs=0.01)
+
+    def test_ceiling_IT(self):
         benchmark = benchmarks.load('dicarlo.Majaj2015.IT')
         ceiling = benchmark.ceiling
-        assert ceiling.aggregation.sel(region='IT', aggregation='center') == approx(.817, abs=0.05)
+        assert ceiling.aggregation.sel(aggregation='center') == approx(.817, abs=0.01)
 
     def test_self(self):
         benchmark = benchmarks.load('dicarlo.Majaj2015.IT')
-        source = benchmarks.load_assembly('dicarlo.Majaj2015.IT').sel(region='IT')
-        score, unceiled_score = benchmark(source, return_ceiled=True)
-        assert all(score.aggregation.sel(aggregation='error') == unceiled_score.aggregation.sel(aggregation='error'))
-        # ceiling should use the same rng, but different repetitions. results should overall be close to 1
-        np.testing.assert_array_almost_equal(score.aggregation.sel(aggregation='center'), [1., 1.], decimal=2)
-        target_array = DataAssembly(np.ones((2, 10, 256)), coords=score.values.coords, dims=score.values.dims)
-        target_array.loc[dict(region='IT', neuroid_id=source.sel(region='V4')['neuroid_id'])] = np.nan
-        target_array.loc[dict(region='V4', neuroid_id=source.sel(region='IT')['neuroid_id'])] = np.nan
+        source = benchmarks.load_assembly('dicarlo.Majaj2015').sel(region='IT')
+        source.name = 'dicarlo.Majaj2015.IT'
+        score = benchmark(source)
         # .8 is not that satisfying. it seems that different repetitions lead to quite different outcomes
-        assert np.isclose(score.values, target_array, atol=0.1).sum() / target_array.sum() > .8
+        assert score.aggregation.sel(aggregation='center') == approx(.82, abs=.01), "overall score too low"
+        assert score.values.median('neuroid').std() == approx(0.007, abs=0.001), "too much deviation between splits"
+        # .16 is actually a lot of deviation between different neuroids...
+        assert score.values.mean('split').std() == approx(0.16, abs=0.01), "too much deviation between neuroids"
 
 
 class TestAnatomyFelleman:

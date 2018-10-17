@@ -279,6 +279,9 @@ class CrossValidation(Transformation):
         split_scores = merge_data_arrays(split_scores)
         yield split_scores
 
+    def aggregate(self, center, error):
+        return self._single_crossval.aggregate(center, error)
+
 
 def extract_coord(assembly, coord, return_index=False):
     extracted_assembly, indices = np.unique(assembly[coord].values, return_index=True)

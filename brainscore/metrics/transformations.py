@@ -331,14 +331,22 @@ def subset(source_assembly, target_assembly, subset_dims=None, dims_must_match=T
 
 
 def index_efficient(source_values, target_values):
-    source_sort_indeces, target_sort_indeces = np.argsort(source_values), np.argsort(target_values)
-    source_values, target_values = source_values[source_sort_indeces], target_values[target_sort_indeces]
+    source_sort_indices, target_sort_indices = np.argsort(source_values), np.argsort(target_values)
+    source_values, target_values = source_values[source_sort_indices], target_values[target_sort_indices]
     indexer = []
     source_index, target_index = 0, 0
     while target_index < len(target_values) and source_index < len(source_values):
         if source_values[source_index] == target_values[target_index]:
-            indexer.append(source_sort_indeces[source_index])
-            target_index += 1
+            indexer.append(source_sort_indices[source_index])
+            # if next source value is greater than target, use next target. else next source.
+            # if target values remain the same, we might as well take the next target.
+            if (target_index + 1 < len(target_values) and
+                target_values[target_index + 1] == target_values[target_index]) or \
+                    (source_index + 1 < len(source_values) and
+                     source_values[source_index + 1] > target_values[target_index]):
+                target_index += 1
+            else:
+                source_index += 1
         elif source_values[source_index] < target_values[target_index]:
             source_index += 1
         else:  # source_values[source_index] > target_values[target_index]:

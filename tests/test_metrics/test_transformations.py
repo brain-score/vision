@@ -1,8 +1,10 @@
+import xarray as xr
 import itertools
 
 import numpy as np
 import pytest
 
+from brainscore import benchmarks
 from brainscore.assemblies import NeuroidAssembly, DataAssembly
 from brainscore.metrics import Metric
 from brainscore.metrics.transformations import subset, index_efficient, CartesianProduct, CrossValidation, \
@@ -254,6 +256,14 @@ class TestSubset:
             assert all(subset_assembly[coord_name] == target_assembly[coord_name])
         np.testing.assert_array_equal(subset_assembly, target_assembly)
         assert (subset_assembly == target_assembly).all()
+
+    def test_category_subselection(self):
+        assembly = benchmarks.load_assembly('dicarlo.Majaj2015')
+        categories = np.unique(assembly['category_name'])
+        target = xr.DataArray([0] * len(categories), coords={'category_name': categories},
+                              dims=['category_name']).stack(presentation=['category_name'])
+        sub_assembly = subset(assembly, target, repeat=True, dims_must_match=False)
+        assert (assembly == sub_assembly).all()
 
 
 class TestIndexEfficient:

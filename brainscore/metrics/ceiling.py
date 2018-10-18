@@ -31,15 +31,15 @@ class InternalConsistency(Ceiling):
                  split_coord=Defaults.split_coord, stimulus_coord=XarrayDefaults.stimulus_coord,
                  neuroid_dim=XarrayDefaults.neuroid_dim, neuroid_coord=XarrayDefaults.neuroid_coord):
         self._assembly = assembly
-        consistency = SplitHalfConsistency(stimulus_coord=stimulus_coord, neuroid_dim=neuroid_dim,
-                                           neuroid_coord=neuroid_coord)
+        self._consistency = SplitHalfConsistency(stimulus_coord=stimulus_coord, neuroid_dim=neuroid_dim,
+                                                 neuroid_coord=neuroid_coord)
         correction = SpearmanBrownCorrection(neuroid_dim=neuroid_dim)
-        self._consistency = self.SplitHalfWrapper(split_coord=split_coord,
-                                                  consistency=consistency, correction=correction)
+        self._wrapped_consistency = self.SplitHalfWrapper(split_coord=split_coord,
+                                                          consistency=self._consistency, correction=correction)
         self._cross_validation = CrossValidationSingle(train_size=0.5, split_coord=split_coord)
 
     def __call__(self):
-        return self._cross_validation(self._assembly, metric=self._consistency)
+        return self._cross_validation(self._assembly, apply=self._consistency, aggregate=self._consistency.aggregate)
 
     class SplitHalfWrapper:
         def __init__(self, split_coord, consistency, correction):
@@ -59,9 +59,6 @@ class InternalConsistency(Ceiling):
                                     if dims == repetition_dims and coord != self._split_coord]
             average = assembly.multi_groupby(nonrepetition_coords).mean(dim=repetition_dims)
             return average
-
-        def aggregate(self, scores):
-            return self._consistency.aggregate(scores)
 
 
 class SplitHalfConsistency:

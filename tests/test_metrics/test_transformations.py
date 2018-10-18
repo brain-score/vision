@@ -32,7 +32,7 @@ class TestCrossValidationSingle:
                                    dims=['presentation', 'neuroid'])
         cv = CrossValidationSingle(splits=10)
         metric = self.MetricPlaceholder()
-        score = cv(assembly, metric=metric)
+        score = cv(assembly, apply=metric)
         assert len(metric.train_assemblies) == len(metric.test_assemblies) == 10
         assert len(score.values['split']) == 10
 
@@ -65,7 +65,7 @@ class TestCrossValidation:
         target = jumbled_source.sortby(['image_id', 'neuroid_id'])
         cv = CrossValidation(splits=10)
         metric = self.MetricPlaceholder()
-        score = cv(jumbled_source, target, metric=metric)
+        score = cv(jumbled_source, target, apply=metric)
         assert len(metric.train_source_assemblies) == len(metric.test_source_assemblies) == \
                len(metric.train_target_assemblies) == len(metric.test_target_assemblies) == 10
         assert len(score.values['split']) == 10
@@ -113,7 +113,7 @@ class TestCartesianProduct:
             dims=['neuroid', 'division_coord'])
         transformation = CartesianProduct()
         placeholder = self.MetricPlaceholder()
-        transformation(assembly, assembly, metric=placeholder)
+        transformation(assembly, assembly, apply=placeholder)
         assert np.power(assembly.shape[1], 2) == \
                len(placeholder.source_assemblies) == len(placeholder.target_assemblies)
         pairs = list(zip(placeholder.source_assemblies, placeholder.target_assemblies))
@@ -136,7 +136,7 @@ class TestCartesianProduct:
             dims=['division_coord', 'neuroid'])
         transformation = CartesianProduct()
         placeholder = self.MetricPlaceholder()
-        transformation(assembly, assembly, metric=placeholder)
+        transformation(assembly, assembly, apply=placeholder)
         assert np.power(assembly.shape[0], 2) == len(placeholder.source_assemblies) == len(
             placeholder.target_assemblies)
         pairs = list(zip(placeholder.source_assemblies, placeholder.target_assemblies))

@@ -24,9 +24,6 @@ class RDMCrossValidated:
             # compare assemblies for a single split. we ignore the 10% train ("leave-one-out") and only use test.
             return self._metric(test_source, test_target)
 
-        def aggregate(self, scores):
-            return scores
-
     def __call__(self, assembly1, assembly2):
         """
         :param brainscore.assemblies.NeuroidAssembly assembly1:
@@ -35,7 +32,7 @@ class RDMCrossValidated:
         """
 
         leave_one_out = self.LeaveOneOutWrapper(self._metric)
-        return self._cross_validation(assembly1, assembly2, metric=leave_one_out)
+        return self._cross_validation(assembly1, assembly2, apply=leave_one_out)
 
 
 class RDMMetric:

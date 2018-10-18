@@ -19,18 +19,18 @@ class Transformation(object):
     and packages the results back together.
     """
 
-    def __call__(self, *args, metric, **kwargs):
-        values = self._run_pipe(*args, metric=metric, **kwargs)
+    def __call__(self, *args, apply, aggregate=None, **kwargs):
+        values = self._run_pipe(*args, apply=apply, **kwargs)
 
-        scores = metric.aggregate(values)
+        scores = aggregate(values) if aggregate is not None else values
         center, error = self.aggregate(scores, scores)
         from brainscore.metrics import build_score  # avoid circular import
         return build_score(values, center, error)
 
-    def _run_pipe(self, *args, metric, **kwargs):
+    def _run_pipe(self, *args, apply, **kwargs):
         generator = self.pipe(*args, **kwargs)
         for vals in generator:
-            y = metric(*vals)
+            y = apply(*vals)
             done = generator.send(y)
             if done:
                 break

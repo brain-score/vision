@@ -15,7 +15,7 @@ class PlsPredictivity:
         self._cross_validation = CrossValidation()
 
     def __call__(self, source, target):
-        return self._cross_validation(source, target, metric=self._predictor)
+        return self._cross_validation(source, target, apply=self._predictor, aggregate=self._predictor.aggregate)
 
 
 def pls_predictor(n_components=25,
@@ -36,7 +36,7 @@ class LinearPredictivity:
         self._cross_validation = CrossValidation()
 
     def __call__(self, source, target):
-        return self._cross_validation(source, target, metric=self._predictor)
+        return self._cross_validation(source, target, apply=self._predictor, aggregate=self._predictor.aggregate)
 
 
 def linear_predictor(expected_dims=XarrayDefaults.expected_dims, neuroid_dim=XarrayDefaults.neuroid_dim,

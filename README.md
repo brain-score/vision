@@ -62,9 +62,7 @@ Only necessary if you plan to change code.
     1. The lab has several S3 accounts. You need to have access to the one numbered 848242192475 (the one where MTurk experiments are stored). Ask [Chris Shay](cshay@mit.edu) to grant access to you
     2. Configure your AWS credentials files using awscli:
       1. Install awscli using `pip install awscli`
-      2. Run `aws configure`
-        - region: `us-east-1`
-        - output format: `json`
+      2. Run `aws configure`: region: `us-east-1`, output format: `json`
 2. Clone the Git repository to wherever you keep repositories:
     * `cd ~/dev`
     * `git clone git@github.com:dicarlolab/brain-score.git`

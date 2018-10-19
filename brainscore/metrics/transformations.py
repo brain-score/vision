@@ -2,13 +2,14 @@ import itertools
 import logging
 import math
 from collections import OrderedDict
-from enum import Enum
 
 import numpy as np
 import xarray as xr
 from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
+from tqdm import tqdm
 
 from brainscore.assemblies import merge_data_arrays, DataAssembly
+from brainscore.metrics.utils import unique_ordered
 from brainscore.utils import fullname
 
 
@@ -93,80 +94,41 @@ class CartesianProduct(Transformation):
     as well as along dividing coords that denote separate parts of the assembly.
     """
 
-    class Defaults:
-        non_dividing_dims = 'presentation', 'neuroid'
-        dividing_coords_target = 'region',
-
-    def __init__(self,
-                 non_dividing_dims=Defaults.non_dividing_dims,
-                 dividing_coord_names_source=(), dividing_coord_names_target=Defaults.dividing_coords_target):
+    def __init__(self, dividers=()):
         super(CartesianProduct, self).__init__()
-        self._non_dividing_dims = non_dividing_dims
-        self._dividing_coord_names_source = dividing_coord_names_source or ()
-        self._dividing_coord_names_target = dividing_coord_names_target or ()
-
+        self._dividers = dividers or ()
         self._logger = logging.getLogger(fullname(self))
 
-    def dividers(self, assembly, dividing_coord_names):
-        return dividers(assembly, dividing_coord_names=dividing_coord_names, non_dividing_dims=self._non_dividing_dims)
-
-    def pipe(self, source_assembly, target_assembly):
+    def dividers(self, assembly, dividing_coords):
         """
-        :param brainscore.assemblies.NeuroidAssembly source_assembly:
-        :param brainscore.assemblies.NeuroidAssembly target_assembly:
+        divide data along dividing coords and non-central dimensions,
+        i.e. dimensions that the metric is not computed over
+        """
+        non_matched_coords = [coord for coord in dividing_coords if not hasattr(assembly, coord)]
+        assert not non_matched_coords, f"{non_matched_coords} not found in assembly"
+        choices = {coord: unique_ordered(assembly[coord].values) for coord in dividing_coords}
+        combinations = [dict(zip(choices, values)) for values in itertools.product(*choices.values())]
+        return combinations
+
+    def pipe(self, assembly):
+        """
+        :param brainscore.assemblies.NeuroidAssembly assembly:
         :return: brainscore.assemblies.DataAssembly
         """
-        dividers_source = self.dividers(source_assembly, self._dividing_coord_names_source)
-        dividers_target = self.dividers(target_assembly, self._dividing_coord_names_target)
-        # run all dividing combinations or use the assemblies themselves if no dividers
-        divider_combinations = list(itertools.product(dividers_source, dividers_target)) or [({}, {})]
-        similarities = []
-        for i, (div_src, div_tgt), done in enumerate_done(divider_combinations):
-            self._logger.debug("dividers {}/{}: {} | {}".format(i + 1, len(divider_combinations), div_src, div_tgt))
-            source_div, target_div = source_assembly.multisel(**div_src), target_assembly.multisel(**div_tgt)
-            similarity = yield from self._get_result(source_div, target_div, done=done)
+        dividers = self.dividers(assembly, dividing_coords=self._dividers)
+        scores = []
+        progress = tqdm(enumerate_done(dividers), total=len(dividers), desc='cartesian product')
+        for i, divider, done in progress:
+            progress.set_description(str(divider))
+            divided_assembly = assembly.multisel(**divider)
+            result = yield from self._get_result(divided_assembly, done=done)
 
-            divider_coords = self.merge_dividers(div_src, div_tgt)
-            for coord_name, coord_value in divider_coords.items():
-                similarity = similarity.expand_dims(coord_name)
-                similarity[coord_name] = [coord_value]
-            similarities.append(similarity)
-        assert all(similarity.dims == similarities[0].dims for similarity in similarities[1:])  # all dims equal
-        # note that the shapes are likely different between combinations and will be padded with NaNs:
-        # for instance, V4 and IT have different numbers of neurons and while the neuroid dimension will be merged,
-        # the values for V4 neuroids of an IT combination will be NaN.
-        similarities = merge_data_arrays(similarities)
-        yield similarities
-
-    def merge_dividers(self, div_source, div_target):
-        coords = list(div_source.keys()) + list(div_target.keys())
-        duplicates = [coord for coord in coords if coords.count(coord) > 1]
-        coords_source = {coord if coord not in duplicates else self.rename_duplicate_coord(coord, self.CoordType.SOURCE)
-                         : coord_value for coord, coord_value in div_source.items()}
-        coords_target = {coord if coord not in duplicates else self.rename_duplicate_coord(coord, self.CoordType.TARGET)
-                         : coord_value for coord, coord_value in div_target.items()}
-        return {**coords_source, **coords_target}
-
-    class CoordType(Enum):
-        SOURCE = 1
-        TARGET = 2
-
-    @classmethod
-    def rename_duplicate_coord(cls, coord, coord_type):
-        suffix = {cls.CoordType.SOURCE: 'source', cls.CoordType.TARGET: 'target'}
-        return coord + '_' + suffix[coord_type]
-
-
-def dividers(assembly, dividing_coord_names, non_dividing_dims=()):
-    """
-    divide data along dividing coords and non-central dimensions,
-    i.e. dimensions that the metric is not computed over
-    """
-    dividing_coords = [dim for dim in assembly.dims if dim not in non_dividing_dims] \
-                      + [coord for coord in dividing_coord_names if hasattr(assembly, coord)]
-    choices = {coord: np.unique(assembly[coord]) for coord in dividing_coords}
-    combinations = [dict(zip(choices, values)) for values in itertools.product(*choices.values())]
-    return combinations
+            for coord_name, coord_value in divider.items():
+                result = result.expand_dims(coord_name)
+                result[coord_name] = [coord_value]
+            scores.append(result)
+        scores = merge_data_arrays(scores)
+        yield scores
 
 
 class CrossValidationSingle(Transformation):
@@ -215,8 +177,8 @@ class CrossValidationSingle(Transformation):
         cross_validation_values, splits = self._build_splits(assembly)
 
         split_scores = []
-        for split_iterator, (train_indices, test_indices), done in enumerate_done(splits):
-            self._logger.debug("split {}/{}".format(split_iterator + 1, len(splits)))
+        for split_iterator, (train_indices, test_indices), done \
+                in tqdm(enumerate_done(splits), total=len(splits), desc='cross-validation'):
             train_values, test_values = cross_validation_values[train_indices], cross_validation_values[test_indices]
             train = subset(assembly, train_values, dims_must_match=False)
             test = subset(assembly, test_values, dims_must_match=False)
@@ -260,8 +222,8 @@ class CrossValidation(Transformation):
         cross_validation_values, splits = self._single_crossval._build_splits(target_assembly)
 
         split_scores = []
-        for split_iterator, (train_indices, test_indices), done in enumerate_done(splits):
-            self._logger.debug("split {}/{}".format(split_iterator + 1, len(splits)))
+        for split_iterator, (train_indices, test_indices), done \
+                in tqdm(enumerate_done(splits), total=len(splits), desc='cross-validation'):
             train_values, test_values = cross_validation_values[train_indices], cross_validation_values[test_indices]
             train_source = subset(source_assembly, train_values, dims_must_match=False)
             train_target = subset(target_assembly, train_values, dims_must_match=False)

@@ -3,16 +3,14 @@ from string import ascii_lowercase as alphabet
 import numpy as np
 
 from brainscore.assemblies import NeuroidAssembly, DataAssembly
-from brainscore.metrics import Score
 from brainscore.metrics.ceiling import NoCeiling, InternalConsistency, SplitHalfConsistency
 
 
 class TestNoCeiling:
     def test(self):
         ceiling = NoCeiling()
-        ceiling = ceiling()
-        assert isinstance(ceiling, Score)
-        assert ceiling.aggregation.sel(aggregation='center') == 1
+        ceiling_score = ceiling()
+        assert ceiling_score == 1
 
 
 class TestInternalConsistency:
@@ -26,7 +24,7 @@ class TestInternalConsistency:
                                dims=['presentation', 'neuroid'])
         ceiler = InternalConsistency(assembly=data)
         ceiling = ceiler()
-        assert ceiling.aggregation.sel(aggregation='center') == 1
+        assert ceiling.sel(aggregation='center') == 1
 
 
 class TestSplitHalfConsistency:

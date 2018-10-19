@@ -2,8 +2,8 @@ import numpy as np
 import scipy.stats
 import xarray as xr
 
-from brainscore.assemblies import DataAssembly, walk_coords
-from brainscore.metrics import build_score
+from brainscore.assemblies import walk_coords
+from brainscore.metrics import Score
 from brainscore.metrics.transformations import CrossValidationSingle
 from brainscore.metrics.xarray_utils import Defaults as XarrayDefaults
 from brainscore.metrics.xarray_utils import XarrayCorrelation
@@ -16,7 +16,7 @@ class Ceiling(object):
 
 class NoCeiling(Ceiling):
     def __call__(self):
-        return build_score(None, center=DataAssembly(1), error=DataAssembly(0))
+        return Score(1)
 
 
 class InternalConsistency(Ceiling):
@@ -39,7 +39,8 @@ class InternalConsistency(Ceiling):
         self._cross_validation = CrossValidationSingle(train_size=0.5, split_coord=split_coord)
 
     def __call__(self):
-        return self._cross_validation(self._assembly, apply=self._consistency, aggregate=self._consistency.aggregate)
+        return self._cross_validation(self._assembly,
+                                      apply=self._wrapped_consistency, aggregate=self._consistency.aggregate)
 
     class SplitHalfWrapper:
         def __init__(self, split_coord, consistency, correction):

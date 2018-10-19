@@ -1,7 +1,7 @@
 import numpy as np
 
 from brainscore.assemblies import DataAssembly
-from brainscore.metrics import CrossValidation
+from brainscore.metrics.transformations import CrossValidation
 from brainscore.metrics.xarray_utils import Defaults as XarrayDefaults
 
 

@@ -1,49 +1,46 @@
-from brainscore.assemblies import merge_data_arrays
-from brainscore.metrics.transformations import Alignment, Alignment, CartesianProduct, CrossValidation, \
-    apply_transformations
-from .utils import collect_coords, collect_dim_shapes, get_modified_coords, merge_dicts
+from brainscore.assemblies import DataAssembly, merge_data_arrays
 
 
-class Metric(object):
+class Metric:
     def __call__(self, *args):
         raise NotImplementedError()
 
 
-class Score(object):
-    def __init__(self, values, aggregation):
-        self.values = values
-        self.aggregation = aggregation
+class Score(DataAssembly):
+    RAW_VALUES_KEY = 'raw'
 
     def __repr__(self):
         return self.__class__.__name__ + "(" + ",".join(
             "{}={}".format(attr, val) for attr, val in self.__dict__.items()) + ")"
 
     def sel(self, *args, **kwargs):
-        values = self.values.sel(*args, **kwargs)
-        aggregation = self.aggregation.sel(*args, **kwargs)
-        return Score(values, aggregation)
+        result = super().sel(*args, **kwargs)
+        if self.RAW_VALUES_KEY in self.attrs:
+            raw = self.attrs[self.RAW_VALUES_KEY]
+            try:
+                raw = raw.sel(*args, **kwargs)
+            except ValueError:
+                pass  # ignore errors. likely this is from selecting on e.g. aggregation
+            result.attrs[self.RAW_VALUES_KEY] = raw
+        return result
 
     def expand_dims(self, *args, **kwargs):
-        values = self.values.expand_dims(*args, **kwargs)
-        aggregation = self.aggregation.expand_dims(*args, **kwargs)
-        return Score(values, aggregation)
+        result = super(Score, self).expand_dims(*args, **kwargs)
+        if self.RAW_VALUES_KEY in self.attrs:
+            raw = self.attrs[self.RAW_VALUES_KEY].expand_dims(*args, **kwargs)
+            result.attrs[self.RAW_VALUES_KEY] = raw
+        return result
 
     def __setitem__(self, key, value):
-        self.values[key] = value
-        self.aggregation[key] = value
+        super(Score, self).__setitem__(key, value)
+        if self.RAW_VALUES_KEY in self.attrs:
+            self.attrs[self.RAW_VALUES_KEY].__setitem__(key, value)
 
     @classmethod
     def merge(cls, *scores):
-        values = merge_data_arrays([score.values for score in scores])
-        aggregation = merge_data_arrays([score.aggregation for score in scores])
-        return Score(values, aggregation)
-
-
-def build_score(values, center, error):
-    # keep separate from Score class to keep constructor equal to fields (necessary for utils.py#combine_fields)
-    center = center.expand_dims('aggregation')
-    center['aggregation'] = ['center']
-    error = error.expand_dims('aggregation')
-    error['aggregation'] = ['error']
-    aggregation = merge_data_arrays([center, error])
-    return Score(values, aggregation)
+        result = merge_data_arrays(scores)
+        raws = [score.attrs[cls.RAW_VALUES_KEY] for score in scores if cls.RAW_VALUES_KEY in score.attrs]
+        if len(raws) > 0:
+            raw = merge_data_arrays(raws)
+            result.attrs[cls.RAW_VALUES_KEY] = raw
+        return result

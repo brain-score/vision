@@ -9,6 +9,7 @@ from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
 from tqdm import tqdm
 
 from brainscore.assemblies import merge_data_arrays, DataAssembly
+from brainscore.metrics import Score
 from brainscore.metrics.utils import unique_ordered
 from brainscore.utils import fullname
 
@@ -23,10 +24,9 @@ class Transformation(object):
     def __call__(self, *args, apply, aggregate=None, **kwargs):
         values = self._run_pipe(*args, apply=apply, **kwargs)
 
-        scores = aggregate(values) if aggregate is not None else values
-        center, error = self.aggregate(scores, scores)
-        from brainscore.metrics import build_score  # avoid circular import
-        return build_score(values, center, error)
+        score = aggregate(values) if aggregate is not None else values
+        score = self.aggregate(score)
+        return score
 
     def _run_pipe(self, *args, apply, **kwargs):
         generator = self.pipe(*args, **kwargs)
@@ -53,8 +53,8 @@ class Transformation(object):
         yield done  # wait for coroutine to send back similarity and inform whether result is ready to be returned
         return result
 
-    def aggregate(self, center, error):
-        return center, error
+    def aggregate(self, score):
+        return Score(score)
 
 
 class Alignment(Transformation):
@@ -127,7 +127,7 @@ class CartesianProduct(Transformation):
                 result = result.expand_dims(coord_name)
                 result[coord_name] = [coord_value]
             scores.append(result)
-        scores = merge_data_arrays(scores)
+        scores = Score.merge(*scores)
         yield scores
 
 
@@ -188,11 +188,15 @@ class CrossValidationSingle(Transformation):
             split_score['split'] = [split_iterator]
             split_scores.append(split_score)
 
-        split_scores = merge_data_arrays(split_scores)
+        split_scores = Score.merge(*split_scores)
         yield split_scores
 
-    def aggregate(self, center, error):
-        return center.mean('split'), standard_error_of_the_mean(error, 'split')
+    def aggregate(self, values):
+        center = values.mean('split')
+        error = standard_error_of_the_mean(values, 'split')
+        score = Score([center, error], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
+        score.attrs[Score.RAW_VALUES_KEY] = values
+        return score
 
 
 class CrossValidation(Transformation):
@@ -241,8 +245,8 @@ class CrossValidation(Transformation):
         split_scores = merge_data_arrays(split_scores)
         yield split_scores
 
-    def aggregate(self, center, error):
-        return self._single_crossval.aggregate(center, error)
+    def aggregate(self, score):
+        return self._single_crossval.aggregate(score)
 
 
 def extract_coord(assembly, coord, return_index=False):
@@ -353,50 +357,3 @@ def enumerate_done(values):
     for i, val in enumerate(values):
         done = i == len(values) - 1
         yield i, val, done
-
-
-def apply_transformations(*args, transformations, metric):
-    """
-    Start from first transformation, pass all of the transformed values into second transformation and so forth.
-    When no transformations are left, apply the metric on each of the transformed values.
-    When values are coming back, go the reverse way:
-    collect all computed values, send them to the last transformation.
-    Once the last transformation is complete, return its result to the second-last transformation and so forth.
-
-    Note that transformations are expected to yield a transformed value,
-    receive the result of computing that transformation,
-    and signal whether all transformations are done.
-    When the last transformation is done, the generator ought to yield the combined result.
-    """
-
-    def recurse(generator, generators):
-        for vals in generator:
-            if len(generators) > 0:
-                gen = generators[0]
-                gen = gen.pipe(*vals)
-                y = recurse(gen, generators[1:])
-            else:
-                y = metric(*vals)
-            done = generator.send(y)
-            if done:
-                break
-        result = next(generator)
-        return result
-
-    scores = recurse(transformations[0].pipe(*args), transformations[1:])
-    return scores
-
-
-class Transformations(object):
-    def __init__(self, transformations):
-        self._transformations = transformations
-
-    def __call__(self, *args, metric):
-        raw_scores = apply_transformations(*args, transformations=self._transformations, metric=metric)
-
-        scores = metric.aggregate(raw_scores)
-        center, error = scores, scores
-        for transformation in self._transformations:
-            center, error = transformation.aggregate(center, error)
-        from brainscore.metrics import build_score  # avoid circular import
-        return build_score(raw_scores, center, error)

@@ -32,6 +32,6 @@ class TestLinearPredictivity:
         hvm = hvm.sel(subregion='V4')
         metric = LinearPredictivity()
         score = metric(hvm, hvm)
-        assert len(score.values['split']) == 10
-        assert score.aggregation.sel(aggregation='center') == approx(1, rel=0.01)
-        assert score.aggregation.sel(aggregation='error') == approx(0, rel=0.01)
+        assert len(score.attrs['raw']['split']) == 10
+        assert score.sel(aggregation='center') == approx(1, rel=0.01)
+        assert score.sel(aggregation='error') == approx(0, rel=0.01)

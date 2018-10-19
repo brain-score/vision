@@ -1,27 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import numpy as np
+import pytest
 from pytest import approx
 
 from brainscore import benchmarks
-from brainscore.assemblies import DataAssembly, NeuroidAssembly, walk_coords
+from brainscore.assemblies import NeuroidAssembly
 from brainscore.benchmarks import DicarloMajaj2015EarlyLateLoader, DicarloMajaj2015Loader, ToliasCadena2017Loader, \
     Benchmark
 from brainscore.metrics.ceiling import NoCeiling
 from brainscore.metrics.rdm import RDMCrossValidated
-
-
-class TestBrainScore:
-    def test_self(self):
-        benchmark = benchmarks.load('brain-score')
-        source = benchmarks.load_assembly('dicarlo.Majaj2015')
-        source = type(source)(source.values,
-                              coords={coord.replace('region', 'adjacent_coord'): (dims, values)
-                                      for coord, dims, values in walk_coords(source)},
-                              dims=source.dims, name=source.name)
-        score = benchmark(source, transformation_kwargs=dict(
-            cartesian_product_kwargs=dict(dividing_coord_names_source=['adjacent_coord'])))
-        assert score == approx(1, abs=.05)
 
 
 class TestMajaj2015:
@@ -36,12 +24,12 @@ class TestMajaj2015:
     def test_ceiling_V4(self):
         benchmark = benchmarks.load('dicarlo.Majaj2015.V4')
         ceiling = benchmark.ceiling
-        assert ceiling.aggregation.sel(aggregation='center') == approx(.892, abs=0.01)
+        assert ceiling.sel(aggregation='center') == approx(.892, abs=0.01)
 
     def test_ceiling_IT(self):
         benchmark = benchmarks.load('dicarlo.Majaj2015.IT')
         ceiling = benchmark.ceiling
-        assert ceiling.aggregation.sel(aggregation='center') == approx(.817, abs=0.01)
+        assert ceiling.sel(aggregation='center') == approx(.817, abs=0.01)
 
     def test_self(self):
         benchmark = benchmarks.load('dicarlo.Majaj2015.IT')
@@ -49,12 +37,14 @@ class TestMajaj2015:
         source.name = 'dicarlo.Majaj2015.IT'
         score = benchmark(source)
         # .8 is not that satisfying. it seems that different repetitions lead to quite different outcomes
-        assert score.aggregation.sel(aggregation='center') == approx(.82, abs=.01), "overall score too low"
-        assert score.values.median('neuroid').std() == approx(0.007, abs=0.001), "too much deviation between splits"
+        assert score.sel(aggregation='center') == approx(.82, abs=.01), "overall score too low"
+        raw_values = score.attrs['raw']
+        assert raw_values.median('neuroid').std() == approx(0.007, abs=0.001), "too much deviation between splits"
         # .16 is actually a lot of deviation between different neuroids...
-        assert score.values.mean('split').std() == approx(0.16, abs=0.01), "too much deviation between neuroids"
+        assert raw_values.mean('split').std() == approx(0.16, abs=0.01), "too much deviation between neuroids"
 
 
+@pytest.mark.skip(reason="ignore anatomy for now")
 class TestAnatomyFelleman:
     def test_equal(self):
         benchmark = benchmarks.load('Felleman1991')
@@ -91,25 +81,24 @@ class TestCadena2017:
         assembly = benchmarks.load_assembly('tolias.Cadena2017')
         np.testing.assert_array_equal(assembly.dims, ['presentation', 'neuroid'])
         assert hasattr(assembly, 'image_id')
-        assert len(assembly['presentation']) == 7249
+        assert len(assembly['presentation']) == 6249
         assert len(assembly['neuroid']) == 166
 
     def test_ceiling(self):
         benchmark = benchmarks.load('tolias.Cadena2017')
         ceiling = benchmark.ceiling
-        assert ceiling.aggregation.sel(region='IT', aggregation='center') == approx(.817, abs=0.05)
+        assert ceiling.sel(aggregation='center') == approx(.577, abs=0.05)
 
     def test_self(self):
         benchmark = benchmarks.load('tolias.Cadena2017')
         source = benchmarks.load_assembly('tolias.Cadena2017')
-        score, unceiled_score = benchmark(source, return_ceiled=True)
-        assert score.aggregation.sel(aggregation='error') == unceiled_score.aggregation.sel(aggregation='error')
-        # ceiling should use the same rng, but different repetitions. results should overall be close to 1
-        np.testing.assert_almost_equal(score.aggregation.sel(aggregation='center'), 1., decimal=1)
-        target_array = DataAssembly(np.ones((10, 166)), coords=score.values.coords, dims=score.values.dims)
-        # .4 is not satisfying at all. it seems that different repetitions lead to quite different outcomes
-        # and especially in this dataset, the lack of repetitions might be quite crucial.
-        assert np.isclose(score.values, target_array, atol=0.1).sum() / target_array.sum() > .4
+        score = benchmark(source)
+        # .8 is not that satisfying. it seems that different repetitions lead to quite different outcomes
+        assert score.sel(aggregation='center') == approx(.58, abs=.01), "overall score too low"
+        raw_values = score.attrs['raw']
+        assert raw_values.median('neuroid').std() == approx(0.007, abs=0.001), "too much deviation between splits"
+        # .22 is a lot of deviation between different neuroids...
+        assert raw_values.mean('split').std() == approx(0.21, abs=0.01), "too much deviation between neuroids"
 
 
 class TestConstruct:
@@ -119,4 +108,4 @@ class TestConstruct:
         ceiling = NoCeiling()
         benchmark = Benchmark(name='test', target_assembly=assembly, metric=metric, ceiling=ceiling)
         score = benchmark(assembly)
-        assert score.aggregation.sel(aggregation='center') == approx(1)
+        assert score.sel(aggregation='center') == approx(1)

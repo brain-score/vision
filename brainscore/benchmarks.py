@@ -1,16 +1,14 @@
 import logging
 
-import numpy as np
-from result_caching import cache, store
-
 import brainscore
-from brainscore.assemblies import merge_data_arrays, walk_coords, array_is_element, DataAssembly
-from brainscore.metrics import Score
+from brainscore.assemblies import merge_data_arrays, walk_coords, array_is_element
 from brainscore.metrics.anatomy import EdgeRatioMetric
 from brainscore.metrics.ceiling import ceilings, InternalConsistency
 from brainscore.metrics.neural_predictivity import PlsPredictivity, LinearPredictivity
 from brainscore.metrics.rdm import RDMCrossValidated
+from brainscore.metrics.transformations import subset
 from brainscore.utils import fullname
+from result_caching import cache, store
 
 
 class Benchmark(object):
@@ -22,56 +20,13 @@ class Benchmark(object):
         self._ceiling = ceiling
         self._logger = logging.getLogger(fullname(self))
 
-    def __call__(self, source_assembly, identifier=None):
-        if identifier is None and source_assembly.name is None:
-            raise ValueError("must provide either identifier or source_assembly.name")
-        identifier = identifier or source_assembly.name
-        return self._cached_call(source_assembly, identifier=identifier)
-
-    # noinspection PyUnusedLocal
-    @store(identifier_ignore=['source_assembly'])
-    def _cached_call(self, source_assembly, identifier):
+    def __call__(self, source_assembly):
         return self._metric(source_assembly, self._target_assembly)
 
     @property
     @store()
     def ceiling(self):
         return self._ceiling()
-
-
-class BrainScore(object):
-    # Brain-Score is a Benchmark too, but due to its compositionality
-    # we deem it too different from the Benchmark base class.
-    def __init__(self):
-        self.name = 'brain-score'
-        self._benchmarks = [DicarloMajaj2015V4(), DicarloMajaj2015IT()]
-        # hacky but works for now: copy stimulus set from child benchmark.
-        # this will not scale to multiple child benchmarks.
-        self.stimulus_set_name = self._benchmarks[0].stimulus_set_name
-        self._kwargs = None
-
-    def __call__(self, source_assembly, identifier=None, **kwargs):
-        scores = [benchmark(source_assembly, **kwargs) for benchmark in self._benchmarks]
-        scores = [score.aggregation for score in scores]
-
-        def aggregate_score(score):
-            aggregation_dims = ['aggregation', 'region']
-            assert all(dim in score.dims for dim in aggregation_dims)
-            reduce_dims = [dim for dim in score.dims if dim not in aggregation_dims]
-            best_score = score.max(reduce_dims)
-            np.testing.assert_array_equal(best_score.dims, aggregation_dims)
-            return best_score.sel(aggregation='center')
-
-        scores = [aggregate_score(score) for score in scores]
-        brain_score = np.mean(scores).values  # TODO
-        # TODO: behavior
-        values = [score.expand_dims('benchmark') for score in scores]
-        for value, benchmark in zip(values, self._benchmarks):
-            value['benchmark'] = [benchmark.name]
-        values = merge_data_arrays(values)
-        aggregation = DataAssembly([brain_score], coords={'aggregation': ['center']}, dims=['aggregation'])
-        score = Score(aggregation=aggregation, values=values)
-        return score
 
 
 class DicarloMajaj2015Region(Benchmark):
@@ -86,6 +41,12 @@ class DicarloMajaj2015Region(Benchmark):
         assembly = loader.average_repetition(assembly_repetitions)
         super(DicarloMajaj2015Region, self).__init__(name=f'dicarlo.Majaj2015.{region}', target_assembly=assembly,
                                                      metric=metric, ceiling=ceiling)
+
+    def __call__(self, source_assembly):
+        # subset the values where the image_ids match up. The stimulus set of this assembly provides
+        # all the images (including variations 0 and 3), but the assembly considers only variation 6.
+        source_assembly = subset(source_assembly, self._target_assembly, subset_dims=['image_id'])
+        return super(DicarloMajaj2015Region, self).__call__(source_assembly=source_assembly)
 
 
 class DicarloMajaj2015V4(DicarloMajaj2015Region):
@@ -138,7 +99,7 @@ class DicarloMajaj2015Loader(AssemblyLoader):
         assembly = brainscore.get_assembly(name=self.name)
         assembly.load()
         assembly = self._filter_erroneous_neuroids(assembly)
-        assembly = assembly.sel(variation=6)  # TODO: remove variation selection once part of name
+        assembly = assembly.sel(variation=6)
         assembly = assembly.squeeze("time_bin")
         assembly = assembly.transpose('presentation', 'neuroid')
         if average_repetition:
@@ -173,7 +134,7 @@ class DicarloMajaj2015TemporalLoader(DicarloMajaj2015Loader):
     def __call__(self, average_repetition=True):
         assembly = brainscore.get_assembly(name='dicarlo.Majaj2015.temporal')
         assembly = self._filter_erroneous_neuroids(assembly)
-        assembly = assembly.sel(variation=6)  # TODO: remove variation selection once part of name
+        assembly = assembly.sel(variation=6)
         assembly = assembly.transpose('presentation', 'neuroid', 'time_bin')
         if average_repetition:
             assembly = self.average_repetition(assembly)
@@ -260,7 +221,6 @@ assembly_loaders = [DicarloMajaj2015Loader(), DicarloMajaj2015EarlyLateLoader(),
 assembly_loaders = {loader.name: loader for loader in assembly_loaders}
 
 _benchmarks = {
-    'brain-score': BrainScore,
     'dicarlo.Majaj2015.V4': DicarloMajaj2015V4,
     'dicarlo.Majaj2015.IT': DicarloMajaj2015IT,
     'dicarlo.Majaj2015.IT.earlylate': DicarloMajaj2015ITEarlyLate,

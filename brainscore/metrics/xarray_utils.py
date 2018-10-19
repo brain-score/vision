@@ -1,5 +1,4 @@
 import numpy as np
-
 from brainscore.assemblies import NeuroidAssembly, DataAssembly
 from brainscore.assemblies import array_is_element, walk_coords
 
@@ -26,8 +25,7 @@ class XarrayRegression:
         self._target_neuroid_values = None
 
     def fit(self, source, target):
-        np.testing.assert_array_equal(source.dims, self._expected_dims)
-        np.testing.assert_array_equal(target.dims, self._expected_dims)
+        source, target = self._align(source), self._align(target)
         source, target = source.sortby(self._stimulus_coord), target.sortby(self._stimulus_coord)
 
         self._regression.fit(source, target)
@@ -39,7 +37,7 @@ class XarrayRegression:
                 self._target_neuroid_values[name] = values
 
     def predict(self, source):
-        np.testing.assert_array_equal(source.dims, self._expected_dims)
+        source = self._align(source)
 
         predicted_values = self._regression.predict(source)
 
@@ -55,6 +53,10 @@ class XarrayRegression:
         prediction = NeuroidAssembly(predicted_values, coords=coords, dims=source.dims)
         return prediction
 
+    def _align(self, assembly):
+        assert set(assembly.dims) == set(self._expected_dims)
+        return assembly.transpose(*self._expected_dims)
+
 
 class XarrayCorrelation:
     def __init__(self, correlation, stimulus_coord=Defaults.stimulus_coord, neuroid_coord=Defaults.neuroid_coord):
@@ -66,6 +68,8 @@ class XarrayCorrelation:
         # align
         prediction = prediction.sortby([self._stimulus_coord, self._neuroid_coord])
         target = target.sortby([self._stimulus_coord, self._neuroid_coord])
+        assert np.array(prediction[self._stimulus_coord].values == target[self._stimulus_coord].values).all()
+        assert np.array(prediction[self._neuroid_coord].values == target[self._neuroid_coord].values).all()
         # compute
         correlations = []
         for i in target[self._neuroid_coord].values:

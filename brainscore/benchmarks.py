@@ -1,226 +1,86 @@
-import copy
 import logging
 
-import numpy as np
-from result_caching import cache, store
-
 import brainscore
-from brainscore.assemblies import merge_data_arrays, walk_coords, array_is_element, DataAssembly
-from brainscore.metrics import NonparametricWrapper, Score
-from brainscore.metrics.anatomy import ventral_stream, EdgeRatioMetric
-from brainscore.metrics.ceiling import ceilings
+from brainscore.assemblies import merge_data_arrays, walk_coords, array_is_element
+from brainscore.metrics.anatomy import EdgeRatioMetric
+from brainscore.metrics.ceiling import ceilings, InternalConsistency
 from brainscore.metrics.neural_predictivity import PlsPredictivity, LinearPredictivity
-from brainscore.metrics.rdm import RDMMetric
-from brainscore.metrics.transformations import Transformations, CartesianProduct
-from brainscore.utils import map_fields, combine_fields, fullname, recursive_dict_merge
+from brainscore.metrics.rdm import RDMCrossValidated
+from brainscore.metrics.transformations import subset
+from brainscore.utils import fullname
+from result_caching import cache, store
 
 
 class Benchmark(object):
-    def __init__(self, name, target_assembly, metric):
+    def __init__(self, name, target_assembly, metric, ceiling):
         self.name = name
         self._target_assembly = target_assembly
         self.stimulus_set_name = target_assembly.attrs['stimulus_set_name']
         self._metric = metric
-        self._logger = logging.getLogger(fullname(self))
-
-    def __call__(self, source_assembly, identifier=None):
-        if identifier is None and source_assembly.name is None:
-            raise ValueError("must provide either identifier or source_assembly.name")
-        identifier = identifier or source_assembly.name
-        scores = self._call(source_assembly, identifier=identifier)
-        return scores
-
-    @store(identifier_ignore=['source_assembly'])
-    def _call(self, source_assembly, identifier):
-        return self._apply(source_assembly)
-
-    def _apply(self, source_assembly):
-        return self._metric(source_assembly, self._target_assembly)
-
-
-class BrainScore(object):
-    # Brain-Score is a Benchmark too, but due to its compositionality
-    # we deem it too different from the Benchmark base class.
-    def __init__(self):
-        self.name = 'brain-score'
-        self._v4_it_benchmark = DicarloMajaj2015()
-        # hacky but works for now: copy stimulus set from child benchmark.
-        # this will not scale to multiple child benchmarks.
-        self.stimulus_set_name = self._v4_it_benchmark.stimulus_set_name
-        self._kwargs = None
-
-    def __call__(self, source_assembly, identifier=None, **kwargs):
-        v4_it_score = self._v4_it_benchmark(source_assembly, **kwargs)
-        v4_it_score = v4_it_score.aggregation
-        aggregation_dims = ['aggregation', 'region']
-        assert all(dim in v4_it_score.dims for dim in aggregation_dims)
-        reduce_dims = [dim for dim in v4_it_score.dims if dim not in aggregation_dims]
-        aggregate_v4_it_score = v4_it_score.max(reduce_dims)
-        np.testing.assert_array_equal(aggregate_v4_it_score.dims, aggregation_dims)
-        aggregate_v4_it_score = aggregate_v4_it_score.sel(aggregation='center')
-        brain_score = np.mean(aggregate_v4_it_score).values
-        # TODO: behavior
-        values = v4_it_score.expand_dims('benchmark')
-        values['benchmark'] = [self._v4_it_benchmark.name]
-        aggregation = DataAssembly([brain_score], coords={'aggregation': ['center']}, dims=['aggregation'])
-        score = Score(aggregation=aggregation, values=values)
-        return score
-
-
-class CeiledBenchmark(Benchmark):
-    def __init__(self, *args, ceiling, **kwargs):
-        super(CeiledBenchmark, self).__init__(*args, **kwargs)
         self._ceiling = ceiling
         self._logger = logging.getLogger(fullname(self))
 
-    def __call__(self, source_assembly, identifier=None, return_ceiled=False):
-        scores = super(CeiledBenchmark, self).__call__(source_assembly, identifier=identifier)
-        if return_ceiled:
-            ceiled_scores = self._ceil(scores, self.ceiling)
-            return ceiled_scores, scores
-        return scores
-
-    def _ceil(self, scores, ceiling):
-        return scores / ceiling
+    def __call__(self, source_assembly):
+        return self._metric(source_assembly, self._target_assembly)
 
     @property
     @store()
     def ceiling(self):
-        return self._apply_ceiling(self._target_assembly)
-
-    def _apply_ceiling(self, assembly):
-        return self._ceiling(assembly)
+        return self._ceiling()
 
 
-class SplitBenchmark(CeiledBenchmark):
-    def __init__(self, *args, target_splits=(), target_splits_kwargs=None, **kwargs):
-        super(SplitBenchmark, self).__init__(*args, **kwargs)
-        self._target_splits = target_splits
-        target_splits_kwargs = target_splits_kwargs or {}
-        cartesian_product = CartesianProduct(**target_splits_kwargs)
-        self._target_dividers = cartesian_product.dividers(self._target_assembly, self._target_splits)
-        self._transformations = None
+class DicarloMajaj2015Region(Benchmark):
+    # We here treat V4 and IT as separate benchmarks
+    # even though they were collected from the same brains in the same sessions.
+    def __init__(self, region):
+        loader = DicarloMajaj2015Loader()
+        assembly_repetitions = loader(average_repetition=False)
+        assembly_repetitions = assembly_repetitions.sel(region=region)
+        metric = PlsPredictivity()
+        ceiling = InternalConsistency(assembly_repetitions)
+        assembly = loader.average_repetition(assembly_repetitions)
+        super(DicarloMajaj2015Region, self).__init__(name=f'dicarlo.Majaj2015.{region}', target_assembly=assembly,
+                                                     metric=metric, ceiling=ceiling)
 
-    def __call__(self, source_assembly, identifier=None, transformation_kwargs=None, return_ceiled=False):
-        transformation_kwargs = transformation_kwargs or {}
-        target_split_kwargs = dict(cartesian_product_kwargs=dict(dividing_coord_names_target=self._target_splits))
-        transformation_kwargs = recursive_dict_merge(target_split_kwargs, transformation_kwargs)
-        self._transformations = Transformations(**transformation_kwargs)
-        scores = super(SplitBenchmark, self).__call__(source_assembly, identifier=identifier,
-                                                      return_ceiled=return_ceiled)
-        self._transformations = None
-        return scores
-
-    def _apply(self, source_assembly):
-        scores = self._transformations(source_assembly, self._target_assembly, metric=self._metric)
-        return scores
-
-    def _ceil(self, score, ceiling):
-        # since splits are the same when scoring and computing the ceiling, we can ceil both values and aggregate.
-        ceiled_score = copy.deepcopy(score)
-        for field in ['values', 'aggregation']:
-            _score = getattr(ceiled_score, field)
-            _ceiling = getattr(ceiling, field)
-            for divider in self._target_dividers:
-                selector = divider
-                if field == 'aggregation':
-                    selector = {**selector, **dict(aggregation='center')}
-                # handle same-name regions in source and target
-                score_selector = self._check_selector_coord_names(selector, _score)
-                _score.loc[score_selector] = _score.loc[score_selector] / _ceiling.loc[selector]
-        return ceiled_score
-
-    def _check_selector_coord_names(self, selector, assembly):
-        selector = copy.deepcopy(selector)
-        score_selector_items = set(selector.items())
-        for div_name, div_value in score_selector_items:
-            if not hasattr(assembly, div_name):
-                div_src = CartesianProduct.rename_duplicate_coord(div_name, CartesianProduct.CoordType.SOURCE)
-                div_tgt = CartesianProduct.rename_duplicate_coord(div_name, CartesianProduct.CoordType.TARGET)
-                assert hasattr(assembly, div_src) and hasattr(assembly, div_tgt)
-                del selector[div_name]
-                selector[div_tgt] = div_value  # we only need target for the ceiling correction
-        return selector
-
-    def _apply_ceiling(self, assembly):
-        scores = []
-        for i, divider in enumerate(self._target_dividers):
-            self._logger.debug("Ceiling divider {}/{}: {}".format(i + 1, len(self._target_dividers), divider))
-            div_assembly = assembly.multisel(**divider)
-            score = self._ceiling(div_assembly)
-
-            def insert_dividers(data):
-                for coord_name, coord_value in divider.items():
-                    data = data.expand_dims(coord_name)
-                    data[coord_name] = [coord_value]  # TODO: multi-index dims
-                return data
-
-            map_fields(score, insert_dividers)
-            scores.append(score)
-
-        scores = combine_fields(scores, merge_data_arrays)
-        return scores
+    def __call__(self, source_assembly):
+        # subset the values where the image_ids match up. The stimulus set of this assembly provides
+        # all the images (including variations 0 and 3), but the assembly considers only variation 6.
+        source_assembly = subset(source_assembly, self._target_assembly, subset_dims=['image_id'])
+        return super(DicarloMajaj2015Region, self).__call__(source_assembly=source_assembly)
 
 
-class DicarloMajaj2015(SplitBenchmark):
+class DicarloMajaj2015V4(DicarloMajaj2015Region):
     def __init__(self):
-        self._loader = DicarloMajaj2015Loader()
-        assembly = self._loader(average_repetition=False)
-        metric = metrics['pls_predictivity']()
-        ceiling = ceilings['splitrep'](metric, average_repetition=self._loader.average_repetition)
-        super(DicarloMajaj2015, self).__init__(name='dicarlo.Majaj2015', target_assembly=assembly,
-                                               metric=metric, ceiling=ceiling, target_splits=('region',))
-
-    def _apply(self, source_assembly):
-        target_assembly_save = copy.deepcopy(self._target_assembly)
-        self._target_assembly = self._loader.average_repetition(self._target_assembly)
-        scores = super(DicarloMajaj2015, self)._apply(source_assembly)
-        self._target_assembly = target_assembly_save
-        return scores
+        super(DicarloMajaj2015V4, self).__init__(region='V4')
 
 
-class ToliasCadena2017(SplitBenchmark):
+class DicarloMajaj2015IT(DicarloMajaj2015Region):
     def __init__(self):
-        self._loader = ToliasCadena2017Loader()
-        assembly = self._loader(average_repetition=False)
-        metric = metrics['pls_predictivity']()
-        ceiling = ceilings['splitrep'](metric, repetition_dim='repetition_id',
-                                       average_repetition=self._loader.average_repetition)
-        super(ToliasCadena2017, self).__init__(name='tolias.Cadena2017',
-                                               target_assembly=assembly, metric=metric, ceiling=ceiling)
-
-    def _apply(self, source_assembly):
-        target_assembly_save = copy.deepcopy(self._target_assembly)
-        self._target_assembly = self._loader.average_repetition(self._target_assembly)
-        scores = super(ToliasCadena2017, self)._apply(source_assembly)
-        self._target_assembly = target_assembly_save
-        return scores
+        super(DicarloMajaj2015IT, self).__init__(region='IT')
 
 
-class DicarloMajaj2015EarlyLate(DicarloMajaj2015):
+class ToliasCadena2017(Benchmark):
     def __init__(self):
-        self._loader = DicarloMajaj2015EarlyLateLoader()
-        assembly = self._loader(average_repetition=False)
-        metric = metrics['pls_predictivit']()
-        ceiling = ceilings['splitrep'](metric, average_repetition=self._loader.average_repetition)
-        SplitBenchmark.__init__(self, assembly, metric, ceiling,
-                                target_splits=('region', 'time_bin_start', 'time_bin_end'))
+        loader = ToliasCadena2017Loader()
+        assembly_repetitions = loader(average_repetition=False)
+        ceiling = InternalConsistency(assembly_repetitions, split_coord='repetition_id')
+        assembly = loader.average_repetition(assembly_repetitions)
+        metric = PlsPredictivity()
+        super(ToliasCadena2017, self).__init__(name='tolias.Cadena2017', target_assembly=assembly,
+                                               metric=metric, ceiling=ceiling)
 
 
-class GallantDavid2004(CeiledBenchmark):
-    # work in progress
+class DicarloMajaj2015ITEarlyLate(Benchmark):
     def __init__(self):
-        assembly = GallantDavid2004Loader()()
-        metric = metrics['pls_predictivity'](regression='linear')
-        ceiling = ceilings['cons']()
-        super().__init__(name='gallant.David2004', target_assembly=assembly, metric=metric, ceiling=ceiling)
-
-
-class FellemanVanEssen1991(CeiledBenchmark):
-    # work in progress
-    def __init__(self):
-        self._target_assembly = ventral_stream
-        self._metric = EdgeRatioMetric()
+        loader = DicarloMajaj2015EarlyLateLoader()
+        assembly_repetitions = loader(average_repetition=False)
+        assembly_repetitions = assembly_repetitions.sel(region='IT')
+        ceiling = InternalConsistency(assembly_repetitions)
+        assembly = loader.average_repetition(assembly_repetitions)
+        metric = PlsPredictivity()
+        super(DicarloMajaj2015ITEarlyLate, self).__init__(name='dicarlo.Majaj2015.IT.earlylate',
+                                                          target_assembly=assembly, metric=metric, ceiling=ceiling)
+        # TODO: target_splits=('region', 'time_bin_start', 'time_bin_end'))
 
 
 class AssemblyLoader(object):
@@ -239,7 +99,7 @@ class DicarloMajaj2015Loader(AssemblyLoader):
         assembly = brainscore.get_assembly(name=self.name)
         assembly.load()
         assembly = self._filter_erroneous_neuroids(assembly)
-        assembly = assembly.sel(variation=6)  # TODO: remove variation selection once part of name
+        assembly = assembly.sel(variation=6)
         assembly = assembly.squeeze("time_bin")
         assembly = assembly.transpose('presentation', 'neuroid')
         if average_repetition:
@@ -274,7 +134,7 @@ class DicarloMajaj2015TemporalLoader(DicarloMajaj2015Loader):
     def __call__(self, average_repetition=True):
         assembly = brainscore.get_assembly(name='dicarlo.Majaj2015.temporal')
         assembly = self._filter_erroneous_neuroids(assembly)
-        assembly = assembly.sel(variation=6)  # TODO: remove variation selection once part of name
+        assembly = assembly.sel(variation=6)
         assembly = assembly.transpose('presentation', 'neuroid', 'time_bin')
         if average_repetition:
             assembly = self.average_repetition(assembly)
@@ -350,7 +210,7 @@ class GallantDavid2004Loader(AssemblyLoader):
 
 
 metrics = {
-    'rdm': lambda *args, **kwargs: NonparametricWrapper(RDMMetric(*args, **kwargs)),
+    'rdm': RDMCrossValidated,
     'linear_predictivity': LinearPredictivity,
     'pls_predictivity': PlsPredictivity,
     'edge_ratio': EdgeRatioMetric
@@ -361,11 +221,9 @@ assembly_loaders = [DicarloMajaj2015Loader(), DicarloMajaj2015EarlyLateLoader(),
 assembly_loaders = {loader.name: loader for loader in assembly_loaders}
 
 _benchmarks = {
-    'brain-score': BrainScore,
-    'dicarlo.Majaj2015': DicarloMajaj2015,
-    'dicarlo.Majaj2015.earlylate': DicarloMajaj2015EarlyLate,
-    'gallant.David2004': GallantDavid2004,
-    'Felleman1991': FellemanVanEssen1991,
+    'dicarlo.Majaj2015.V4': DicarloMajaj2015V4,
+    'dicarlo.Majaj2015.IT': DicarloMajaj2015IT,
+    'dicarlo.Majaj2015.IT.earlylate': DicarloMajaj2015ITEarlyLate,
     'tolias.Cadena2017': ToliasCadena2017,
 }
 
@@ -387,11 +245,11 @@ def load_assembly(name: str):
     return assembly_loaders[name]()
 
 
-def build(assembly_name, metric_name, ceiling_name=None, target_splits=()):
+def build(name, assembly_name, metric_name, ceiling_name=None):
     assembly = load_assembly(assembly_name)
     metric = metrics[metric_name]()
     ceiling = ceilings[ceiling_name]()
-    return SplitBenchmark(assembly, metric, ceiling, target_splits=target_splits)
+    return Benchmark(name=name, target_assembly=assembly, metric=metric, ceiling=ceiling)
 
 
 if __name__ == '__main__':

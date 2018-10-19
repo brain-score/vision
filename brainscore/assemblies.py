@@ -97,7 +97,13 @@ class DataAssembly(DataArray):
     def _join_group_coords(self, dim, group_coord_names, delimiter, multi_group_name):
         tmp_assy = self.copy()
         group_coords = [tmp_assy.coords[c] for c in group_coord_names]
-        to_join = [x for y in group_coords for x in (y, delimiter)][:-1]
+
+        def cast(x):
+            # partial fix to combining dataarrays with non-string values.
+            # astype(str) on a DataArray of strings will convert it to unicode <U40 which cannot be combined.
+            return x.astype(str) if not isinstance(x.values[0], str) else x
+
+        to_join = [x for y in group_coords for x in (cast(y), delimiter)][:-1]
         tmp_assy.coords[multi_group_name] = functools.reduce(operator.add, to_join)
         tmp_assy.set_index(append=True, inplace=True, **{dim: multi_group_name})
         return tmp_assy
@@ -129,7 +135,7 @@ class DataAssembly(DataArray):
                     coords_dim[coord] = dim
                     dim_coords[dim].append(coord)
 
-        result = super().sel(method, tolerance, drop, **indexers)
+        result = super().sel(method=method, tolerance=tolerance, drop=drop, **indexers)
 
         # un-drop potentially dropped dims
         for coord, value in indexers.items():
@@ -232,7 +238,8 @@ class GroupbyBridge(object):
 
     def split_group_coords(self, result):
         split_coords = np.array(
-            list(map(lambda s: s.split(self.delimiter), result.coords[self.multi_group_name].values))).T
+            list(map(lambda s: s.split(self.delimiter) if isinstance(s, str) else [s],
+                     result.coords[self.multi_group_name].values))).T
         for coord_name, coord in zip(self.group_coord_names, split_coords):
             result.coords[coord_name] = (self.multi_group_name, coord)
         result.reset_index(self.multi_group_name, drop=True, inplace=True)
@@ -261,6 +268,8 @@ class AssemblyStoreModel(peewee.Model):
     assembly_type = peewee.CharField()
     location_type = peewee.CharField()
     location = peewee.CharField()
+    unique_name = peewee.CharField(unique=True, null=True, index=True)
+    sha1 = peewee.CharField(unique=True, null=True, index=True)
 
     class Meta:
         database = pwdb

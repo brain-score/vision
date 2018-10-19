@@ -1,5 +1,7 @@
 from collections import OrderedDict
 
+import numpy as np
+
 from brainscore.assemblies import walk_coords
 
 
@@ -62,3 +64,8 @@ def merge_dicts(dicts):
     for dict in dicts:
         result = {**result, **dict}
     return result
+
+
+def unique_ordered(a):
+    _, idx = np.unique(a, return_index=True)
+    return a[np.sort(idx)]

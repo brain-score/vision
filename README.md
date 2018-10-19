@@ -49,9 +49,10 @@ More examples can be found in the `examples/` directory.
 
 ## Environment Variables
 
-| Variable               | Description                                                            |
-|------------------------|------------------------------------------------------------------------|
-| BSC_BOTO3_SIGN         | 0 (default) to not sign S3 requests, 1 to sign and access private data |
+| Variable               | Description                                                                                                                           |
+|------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| BSC_BOTO3_SIGN         | 0 (default) to not sign S3 requests, 1 to sign and access private data                                                                |
+| RESULTCACHING_HOME     | directory to cache results (activations, scores) in, `~/.result_caching` by default (see https://github.com/mschrimpf/result_caching) |
 
 
 ## Development setup
@@ -80,4 +81,10 @@ MIT license
 <summary>`ValueError: did not find HDF5 headers` during netcdf4 installation</summary>
 pip seems to fail properly setting up the HDF5_DIR required by netcdf4.
 Use conda: `conda install netcdf4`
+</details>
+
+<details>
+<summary>repeated runs of a benchmark / model do not change the outcome even though code was changed</summary>
+results (scores, activations) are cached on disk using https://github.com/mschrimpf/result_caching.
+Delete the corresponding file or directory to clear the cache.
 </details>

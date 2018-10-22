@@ -17,14 +17,14 @@ class TestI2N(object):
             objectome = pd.read_pickle(os.path.join(os.path.dirname(__file__), 'objectome24s100_humanpool.pkl'))
             subsample = pd.read_pickle(
                 os.path.join(os.path.dirname(__file__), 'objectome24s100_imgsubsampled240_pandas.pkl'))
-            objectome = objectome[objectome['id'].isin(subsample.values[:, 0])]
+            objectome['use'] = objectome['id'].isin(subsample.values[:, 0])
             objectome.to_pickle(packaged_filepath)
         else:
             objectome = pd.read_pickle(packaged_filepath)
 
         objectome['correct'] = objectome['choice'] == objectome['sample_obj']
         objectome['label'] = objectome['sample_obj']
-        labels = {row['id']: row['label'] for _, row in objectome[['id', 'label']].drop_duplicates().iterrows()}
+        id_rows = {row['id']: row for _, row in objectome[['id', 'label', 'use']].drop_duplicates().iterrows()}
         # reformat to xarray
         columns = [column for column in objectome.columns]
         objectome = xr.DataArray(objectome['choice'],
@@ -36,15 +36,17 @@ class TestI2N(object):
 
         feature_responses = pd.read_pickle(os.path.join(os.path.dirname(__file__), 'resnet34_activations.pkl'))
         feature_responses = feature_responses['data']  # only layer is 'avgpool'
-        image_ids = xr.DataArray(np.zeros(len(labels)), coords={'image_id': list(labels.keys())},
+        image_ids = xr.DataArray(np.zeros(len(id_rows)), coords={'image_id': list(id_rows.keys())},
                                  dims=['image_id']).stack(presentation=['image_id'])
         feature_responses = subset(feature_responses, image_ids)
-        labels = [labels[image_id] for image_id in feature_responses['image_id'].values]
+        labels = [id_rows[image_id]['label'] for image_id in feature_responses['image_id'].values]
         feature_responses['label'] = 'presentation', labels
+        use = [id_rows[image_id]['use'] for image_id in feature_responses['image_id'].values]
+        feature_responses['use'] = 'presentation', use
         feature_responses = feature_responses.transpose('presentation', 'neuroid')
 
         i2n = I2n()
         score = i2n(feature_responses, objectome)
-        score = i2n.aggregate(score)
-        expected_score = .245
+        score = score.sel(aggregation='center')
+        expected_score = .378
         assert score == approx(expected_score, abs=0.01), f"expected {expected_score}, but got {score}"

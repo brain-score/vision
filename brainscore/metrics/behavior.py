@@ -11,6 +11,7 @@ import sklearn.multioutput
 
 from brainscore.assemblies import walk_coords, array_is_element, DataAssembly
 from brainscore.metrics import Metric
+from brainscore.metrics.transformations import CrossValidation
 from brainscore.utils import fullname
 
 
@@ -63,38 +64,53 @@ class I2n(Metric):
     def __init__(self):
         super().__init__()
         self._source_classifier = self.MatchToSampleClassifier()
+        self._split = CrossValidation(splits=2, train_size=0.5)
         self._logger = logging.getLogger(fullname(self))
 
     def __call__(self, source, target):
-        # TODO: compute scores on two splits of the target -- ceiling = correlation between the two halves
-        # ideally, we do the split multiple times
-        # for each split, correlate only the first half, then take the variance over splits
         source_response_matrix = self.class_probabilities_from_features(source)
         source_response_matrix = self.normalize_response_matrix(source_response_matrix)
+        target = target.sel(use=True)
         target_response_matrix = self.build_response_matrix_from_responses(target)
         target_response_matrix = self.normalize_response_matrix(target_response_matrix)
-        correlation = self.correlate(source_response_matrix, target_response_matrix)
-        return correlation
+        correlations = self._split(source_response_matrix, target_response_matrix, apply=self._split_correlation)
+        return correlations
 
     def class_probabilities_from_features(self, source):
-        source_without_behavior = source  # mock TODO: use the 2400 - 240 images where we don't use behavioral responses
+        source_without_behavior = source.sel(use=False)  # images where we don't use behavioral responses
+        assert len(source_without_behavior) == 2400 - 240
         target = source_without_behavior['label']
         self._source_classifier.fit(source_without_behavior, target)
 
-        source_with_behavior = source  # mock
-        # source_with_behavior = source_with_behavior.drop_duplicates('id')
-        # source_features = DataAssembly(source_features,
-        #                                coords={'image_id': source_with_behavior['id'].values,
-        #                                        'feature_id': list(range(source_features.shape[1]))},
-        #                                dims=['image_id', 'feature_id'])
+        source_with_behavior = source.sel(use=True)
+        assert len(source_with_behavior) == 240
 
-        prediction = self._source_classifier.predict_proba(source_with_behavior)  # TODO: use held-out here
+        prediction = self._source_classifier.predict_proba(source_with_behavior)
         truth_labels = [source_with_behavior[source_with_behavior['image_id'] == image_id]['label'].values[0]
                         for image_id in prediction['image_id'].values]
         prediction['truth'] = 'presentation', truth_labels
-        # prediction = prediction.set_index(presentation=['image_id', 'truth'])
         assert prediction.shape == (240, 24)
         return prediction
+
+    def build_response_matrix_from_responses(self, responses):
+        num_images = Counter(responses['image_id'].values)
+        num_choices = [(image_id, choice) for image_id, choice in zip(responses['image_id'].values, responses.values)]
+        num_choices = Counter(num_choices)
+
+        choices = np.unique(responses)
+        image_ids, indices = np.unique(responses['image_id'], return_index=True)
+        image_dim = responses['image_id'].dims
+        coords = {**{coord: (dims, value) for coord, dims, value in walk_coords(responses)},
+                  **{'choice': ('choice', choices)}}
+        coords = {coord: (dims, value if dims != image_dim else value[indices])  # align image_dim coords with indices
+                  for coord, (dims, value) in coords.items()}
+        response_matrix = np.zeros((len(image_ids), len(choices)))
+        for (image_index, image_id), (choice_index, choice) in itertools.product(
+                enumerate(image_ids), enumerate(choices)):
+            p = num_choices[(image_id, choice)] / num_images[image_id]
+            response_matrix[image_index, choice_index] = p
+        response_matrix = DataAssembly(response_matrix, coords=coords, dims=responses.dims + ('choice',))
+        return response_matrix
 
     def normalize_response_matrix(self, response_matrix):
         assert response_matrix.shape == (240, 24)
@@ -149,30 +165,19 @@ class I2n(Metric):
         result = scores.multi_dim_apply(['truth', 'choice'], apply)
         return result
 
-    def build_response_matrix_from_responses(self, responses):
-        num_images = Counter(responses['image_id'].values)
-        num_choices = [(image_id, choice) for image_id, choice in zip(responses['image_id'].values, responses.values)]
-        num_choices = Counter(num_choices)
-
-        choices = np.unique(responses)
-        image_ids, indices = np.unique(responses['image_id'], return_index=True)
-        image_dim = responses['image_id'].dims
-        coords = {**{coord: (dims, value) for coord, dims, value in walk_coords(responses)},
-                  **{'choice': ('choice', choices)}}
-        coords = {coord: (dims, value if dims != image_dim else value[indices])  # align image_dim coords with indices
-                  for coord, (dims, value) in coords.items()}
-        response_matrix = np.zeros((len(image_ids), len(choices)))
-        for (image_index, image_id), (choice_index, choice) in itertools.product(
-                enumerate(image_ids), enumerate(choices)):
-            p = num_choices[(image_id, choice)] / num_images[image_id]
-            response_matrix[image_index, choice_index] = p
-        response_matrix = DataAssembly(response_matrix, coords=coords, dims=responses.dims + ('choice',))
-        return response_matrix
+    def _split_correlation(self, source1, target1, source2, target2):
+        assert len(source1['image_id']) == len(target1['image_id']) == \
+               len(source2['image_id']) == len(target2['image_id'])
+        correlation1 = self.correlate(source1, target1)
+        correlation2 = self.correlate(source2, target2)
+        return DataAssembly((correlation1 + correlation2) / 2)
 
     def correlate(self, source_response_matrix, target_response_matrix):
         # align
         source_response_matrix = source_response_matrix.sortby('image_id').sortby('choice')
         target_response_matrix = target_response_matrix.sortby('image_id').sortby('choice')
+        assert all(source_response_matrix['image_id'].values == target_response_matrix['image_id'].values)
+        assert all(source_response_matrix['choice'].values == target_response_matrix['choice'].values)
         # flatten and mask out NaNs
         source, target = source_response_matrix.values.flatten(), target_response_matrix.values.flatten()
         non_nan = ~np.isnan(target)
@@ -219,7 +224,6 @@ class I2nCopied(Metric):
     def fit(self, source, target):
         source_features = source['features'].values
         self._source_classifier.fit(source_features, source['label'])
-        # self._target_classifier.fit(target, target['label'])  # TODO ??
 
     def predict(self, test_source):
         predictions = self._source_classifier.predict_proba(test_source, targets=ground_truth, kind='2-way')

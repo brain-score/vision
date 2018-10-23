@@ -2,6 +2,7 @@ import os
 
 import numpy as np
 import pandas as pd
+import pytest
 import xarray as xr
 from pytest import approx
 
@@ -11,35 +12,58 @@ from brainscore.metrics.transformations import subset
 
 
 class TestI2N(object):
-    def test_match_rishi(self):
-        objectome = self.get_objectome()
-        objectome = objectome.sel(use=True)
+    def test_halves_match_precomputed(self):
         i2n = I2n()
-        response_matrix = i2n.build_response_matrix_from_responses(objectome)
-        response_matrix = i2n.normalize_response_matrix(response_matrix)
 
         expected = pd.read_pickle(os.path.join(os.path.dirname(__file__), 'metrics240.pkl'))['I2_dprime_C']
-        expected = expected[0][0]
         meta = pd.read_pickle(os.path.join(os.path.dirname(__file__), 'meta.pkl'))
         sel = pd.read_pickle(os.path.join(os.path.dirname(__file__), 'sel240.pkl'))
         meta = meta.loc[sel]
-        choices = [meta['obj'].values[np.where(np.isnan(expected[:, choice_index]))[0][0]]
-                   for choice_index in range(expected.shape[1])]
         presentation_coords = {column.replace('id', 'image_id'): ('presentation', meta[column].values)
                                for column in meta.columns}
-        expected = DataAssembly(expected,
-                                coords={**presentation_coords, **{'choice': choices}},
-                                dims=['presentation', 'choice'])
+        expected_halfs = []
+        for split in expected[0]:
+            choices = [meta['obj'].values[np.where(np.isnan(split[:, choice_index]))[0][0]]
+                       for choice_index in range(split.shape[1])]
+            split = DataAssembly(split, coords={**presentation_coords, **{'choice': choices}},
+                                 dims=['presentation', 'choice'])
+            expected_halfs.append(split)
 
-        correlation = i2n.correlate(response_matrix, expected)
-        assert correlation == approx(1)
+        objectome = self.get_objectome()
+        objectome = self.to_xarray(objectome)
+        objectome = objectome.sel(use=True)
+        actual_halfs = []
+        split_indices = np.arange(len(objectome))
+        np.random.seed(0)
+        np.random.shuffle(split_indices)
+        split_indices = np.array_split(split_indices, 2)
+        for split_idx in split_indices:
+            split = objectome[split_idx]
+            response_matrix = i2n.build_response_matrix_from_responses(split)
+            response_matrix = i2n.normalize_response_matrix(response_matrix)
+            actual_halfs.append(response_matrix)
 
-    def test_resnet34(self):
+        expected_halfs_correlation = i2n.correlate(*expected_halfs)
+        actual_halfs_correlation = i2n.correlate(*actual_halfs)
+        actual_expected_correlation1 = i2n.correlate(actual_halfs[0], expected_halfs[0])
+        actual_expected_correlation2 = i2n.correlate(actual_halfs[1], expected_halfs[1])
+
+        assert actual_expected_correlation1 == approx(.71, abs=.005)
+        assert actual_halfs_correlation == approx(expected_halfs_correlation, abs=0.02)
+        assert actual_expected_correlation2 == approx(actual_expected_correlation1, abs=0.02)
+
+    @pytest.mark.parametrize(['model', 'expected_score'],
+                             [('resnet34', .378),
+                              ('resnet18', .364),
+                              # ('alexnet', .378),
+                              ('squeezenet1_0', .180),
+                              ('squeezenet1_1', .201)])
+    def test_model(self, model, expected_score):
         objectome = self.get_objectome()
         id_rows = {row['id']: row for _, row in objectome[['id', 'label', 'use']].drop_duplicates().iterrows()}
-
-        feature_responses = pd.read_pickle(os.path.join(os.path.dirname(__file__), 'resnet34_activations.pkl'))
-        feature_responses = feature_responses['data']  # only layer is 'avgpool'
+        feature_responses = pd.read_pickle(os.path.join(os.path.dirname(__file__), f'{model}_activations.pkl'))
+        feature_responses = feature_responses['data']
+        assert len(np.unique(feature_responses['layer'])) == 1  # only penultimate layer
         image_ids = xr.DataArray(np.zeros(len(id_rows)), coords={'image_id': list(id_rows.keys())},
                                  dims=['image_id']).stack(presentation=['image_id'])
         feature_responses = subset(feature_responses, image_ids)
@@ -48,11 +72,10 @@ class TestI2N(object):
         use = [id_rows[image_id]['use'] for image_id in feature_responses['image_id'].values]
         feature_responses['use'] = 'presentation', use
         feature_responses = feature_responses.transpose('presentation', 'neuroid')
-
+        objectome = self.to_xarray(objectome)
         i2n = I2n()
         score = i2n(feature_responses, objectome)
         score = score.sel(aggregation='center')
-        expected_score = .378
         assert score == approx(expected_score, abs=0.01), f"expected {expected_score}, but got {score}"
 
     def get_objectome(self):
@@ -68,7 +91,9 @@ class TestI2N(object):
             objectome = pd.read_pickle(packaged_filepath)
         objectome['correct'] = objectome['choice'] == objectome['sample_obj']
         objectome['label'] = objectome['sample_obj']
-        # reformat to xarray
+        return objectome
+
+    def to_xarray(self, objectome):
         columns = objectome.columns
         objectome = xr.DataArray(objectome['choice'],
                                  coords={column: ('presentation', objectome[column]) for column in columns},

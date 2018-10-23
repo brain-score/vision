@@ -12,3 +12,6 @@ def test_hvm_temporal():
 
 def test_tolias():
     tolias = brainscore.get_assembly("tolias.Cadena2017")
+
+def test_movshon():
+    movshon = brainscore.get_assembly("movshon.FreemanZiemba2013")

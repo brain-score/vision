@@ -2,13 +2,15 @@ import itertools
 import logging
 import math
 from collections import OrderedDict
-from enum import Enum
 
 import numpy as np
 import xarray as xr
 from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
+from tqdm import tqdm
 
 from brainscore.assemblies import merge_data_arrays, DataAssembly
+from brainscore.metrics import Score
+from brainscore.metrics.utils import unique_ordered
 from brainscore.utils import fullname
 
 
@@ -19,7 +21,24 @@ class Transformation(object):
     and packages the results back together.
     """
 
-    def __call__(self, source_assembly, target_assembly):
+    def __call__(self, *args, apply, aggregate=None, **kwargs):
+        values = self._run_pipe(*args, apply=apply, **kwargs)
+
+        score = self._apply_aggregate(aggregate, values) if aggregate is not None else values
+        score = self._apply_aggregate(self.aggregate, score)
+        return score
+
+    def _run_pipe(self, *args, apply, **kwargs):
+        generator = self.pipe(*args, **kwargs)
+        for vals in generator:
+            y = apply(*vals)
+            done = generator.send(y)
+            if done:
+                break
+        result = next(generator)
+        return result
+
+    def pipe(self, *args, **kwargs):
         raise NotImplementedError()
 
     def _get_result(self, *args, done):
@@ -34,8 +53,21 @@ class Transformation(object):
         yield done  # wait for coroutine to send back similarity and inform whether result is ready to be returned
         return result
 
-    def aggregate(self, center, error):
-        return center, error
+    def _apply_aggregate(self, aggregate_fnc, values):
+        """
+        Applies the aggregate while keeping the raw values in the attrs.
+        If raw values are already present, keeps them, else they are added.
+        """
+        score = aggregate_fnc(values)
+        if Score.RAW_VALUES_KEY not in score.attrs:
+            # check if the raw values are already in the values.
+            # if yes, they didn't get copied to the aggregate score and we use those as the "rawest" values.
+            raw = values if Score.RAW_VALUES_KEY not in values.attrs else values.attrs[Score.RAW_VALUES_KEY]
+            score.attrs[Score.RAW_VALUES_KEY] = raw
+        return score
+
+    def aggregate(self, score):
+        return Score(score)
 
 
 class Alignment(Transformation):
@@ -51,7 +83,7 @@ class Alignment(Transformation):
         self._repeat = repeat
         self._logger = logging.getLogger(fullname(self))
 
-    def __call__(self, source_assembly, target_assembly):
+    def pipe(self, source_assembly, target_assembly):
         self._logger.debug("Aligning by {} and {}, {} repeats".format(
             self._order_dimensions, self._alignment_dim, "with" if self._repeat else "no"))
         source_assembly = self.align(source_assembly, target_assembly)
@@ -75,99 +107,63 @@ class CartesianProduct(Transformation):
     as well as along dividing coords that denote separate parts of the assembly.
     """
 
-    class Defaults:
-        non_dividing_dims = 'presentation', 'neuroid'
-        dividing_coords_target = 'region',
-
-    def __init__(self,
-                 non_dividing_dims=Defaults.non_dividing_dims,
-                 dividing_coord_names_source=(), dividing_coord_names_target=Defaults.dividing_coords_target):
+    def __init__(self, dividers=()):
         super(CartesianProduct, self).__init__()
-        self._non_dividing_dims = non_dividing_dims
-        self._dividing_coord_names_source = dividing_coord_names_source or ()
-        self._dividing_coord_names_target = dividing_coord_names_target or ()
-
+        self._dividers = dividers or ()
         self._logger = logging.getLogger(fullname(self))
 
-    def dividers(self, assembly, dividing_coord_names):
-        return dividers(assembly, dividing_coord_names=dividing_coord_names, non_dividing_dims=self._non_dividing_dims)
-
-    def __call__(self, source_assembly, target_assembly):
+    def dividers(self, assembly, dividing_coords):
         """
-        :param brainscore.assemblies.NeuroidAssembly source_assembly:
-        :param brainscore.assemblies.NeuroidAssembly target_assembly:
+        divide data along dividing coords and non-central dimensions,
+        i.e. dimensions that the metric is not computed over
+        """
+        non_matched_coords = [coord for coord in dividing_coords if not hasattr(assembly, coord)]
+        assert not non_matched_coords, f"{non_matched_coords} not found in assembly"
+        choices = {coord: unique_ordered(assembly[coord].values) for coord in dividing_coords}
+        combinations = [dict(zip(choices, values)) for values in itertools.product(*choices.values())]
+        return combinations
+
+    def pipe(self, assembly):
+        """
+        :param brainscore.assemblies.NeuroidAssembly assembly:
         :return: brainscore.assemblies.DataAssembly
         """
-        dividers_source = self.dividers(source_assembly, self._dividing_coord_names_source)
-        dividers_target = self.dividers(target_assembly, self._dividing_coord_names_target)
-        # run all dividing combinations or use the assemblies themselves if no dividers
-        divider_combinations = list(itertools.product(dividers_source, dividers_target)) or [({}, {})]
-        similarities = []
-        for i, (div_src, div_tgt), done in enumerate_done(divider_combinations):
-            self._logger.debug("dividers {}/{}: {} | {}".format(i + 1, len(divider_combinations), div_src, div_tgt))
-            source_div, target_div = source_assembly.multisel(**div_src), target_assembly.multisel(**div_tgt)
-            similarity = yield from self._get_result(source_div, target_div, done=done)
+        dividers = self.dividers(assembly, dividing_coords=self._dividers)
+        scores = []
+        progress = tqdm(enumerate_done(dividers), total=len(dividers), desc='cartesian product')
+        for i, divider, done in progress:
+            progress.set_description(str(divider))
+            divided_assembly = assembly.multisel(**divider)
+            result = yield from self._get_result(divided_assembly, done=done)
 
-            divider_coords = self.merge_dividers(div_src, div_tgt)
-            for coord_name, coord_value in divider_coords.items():
-                similarity = similarity.expand_dims(coord_name)
-                similarity[coord_name] = [coord_value]
-            similarities.append(similarity)
-        assert all(similarity.dims == similarities[0].dims for similarity in similarities[1:])  # all dims equal
-        # note that the shapes are likely different between combinations and will be padded with NaNs:
-        # for instance, V4 and IT have different numbers of neurons and while the neuroid dimension will be merged,
-        # the values for V4 neuroids of an IT combination will be NaN.
-        similarities = merge_data_arrays(similarities)
-        yield similarities
-
-    def merge_dividers(self, div_source, div_target):
-        coords = list(div_source.keys()) + list(div_target.keys())
-        duplicates = [coord for coord in coords if coords.count(coord) > 1]
-        coords_source = {coord if coord not in duplicates else self.rename_duplicate_coord(coord, self.CoordType.SOURCE)
-                         : coord_value for coord, coord_value in div_source.items()}
-        coords_target = {coord if coord not in duplicates else self.rename_duplicate_coord(coord, self.CoordType.TARGET)
-                         : coord_value for coord, coord_value in div_target.items()}
-        return {**coords_source, **coords_target}
-
-    class CoordType(Enum):
-        SOURCE = 1
-        TARGET = 2
-
-    @classmethod
-    def rename_duplicate_coord(cls, coord, coord_type):
-        suffix = {cls.CoordType.SOURCE: 'source', cls.CoordType.TARGET: 'target'}
-        return coord + '_' + suffix[coord_type]
+            for coord_name, coord_value in divider.items():
+                result = result.expand_dims(coord_name)
+                result[coord_name] = [coord_value]
+            scores.append(result)
+        scores = Score.merge(*scores)
+        yield scores
 
 
-def dividers(assembly, dividing_coord_names, non_dividing_dims=()):
-    """
-    divide data along dividing coords and non-central dimensions,
-    i.e. dimensions that the metric is not computed over
-    """
-    dividing_coords = [dim for dim in assembly.dims if dim not in non_dividing_dims] \
-                      + [coord for coord in dividing_coord_names if hasattr(assembly, coord)]
-    choices = {coord: np.unique(assembly[coord]) for coord in dividing_coords}
-    combinations = [dict(zip(choices, values)) for values in itertools.product(*choices.values())]
-    return combinations
-
-
-class CrossValidation(Transformation):
+class CrossValidationSingle(Transformation):
     class Defaults:
         splits = 10
         train_size = .9
-        dim = 'image_id'
+        split_coord = 'image_id'
         stratification_coord = 'object_name'  # cross-validation across images, balancing objects
+        seed = 1
 
     def __init__(self,
-                 splits=Defaults.splits, train_size=Defaults.train_size, test_size=None,  # complement train
-                 dim=Defaults.dim, stratification_coord=Defaults.stratification_coord,
-                 seed=1):
+                 splits=Defaults.splits, train_size=None, test_size=None,
+                 split_coord=Defaults.split_coord, stratification_coord=Defaults.stratification_coord,
+                 seed=Defaults.seed):
         super().__init__()
+        if train_size is None and test_size is None:
+            train_size = self.Defaults.train_size
         self._stratified_split = StratifiedShuffleSplit(
             n_splits=splits, train_size=train_size, test_size=test_size, random_state=seed)
         self._shuffle_split = ShuffleSplit(
             n_splits=splits, train_size=train_size, test_size=test_size, random_state=seed)
-        self._dim = dim
+        self._split_coord = split_coord
         self._stratification_coord = stratification_coord
 
         self._logger = logging.getLogger(fullname(self))
@@ -175,8 +171,8 @@ class CrossValidation(Transformation):
     def _stratify(self, assembly):
         return self._stratification_coord and hasattr(assembly, self._stratification_coord)
 
-    def build_splits(self, assembly):
-        cross_validation_values, indices = extract_coord(assembly, self._dim, return_index=True)
+    def _build_splits(self, assembly):
+        cross_validation_values, indices = extract_coord(assembly, self._split_coord, return_index=True)
         data_shape = np.zeros(len(cross_validation_values))
         if self._stratify(assembly):
             splits = self._stratified_split.split(data_shape,
@@ -187,27 +183,72 @@ class CrossValidation(Transformation):
             splits = self._shuffle_split.split(data_shape)
         return cross_validation_values, list(splits)
 
-    def __call__(self, source_assembly, target_assembly):
-        assert all(source_assembly[self._dim].values ==
-                   target_assembly[self._dim].values)
-        if self._stratify(target_assembly):
-            assert hasattr(source_assembly, self._stratification_coord)
-            assert all(source_assembly[self._stratification_coord].values ==
-                       target_assembly[self._stratification_coord].values)
-        cross_validation_values, splits = self.build_splits(target_assembly)
+    def pipe(self, assembly):
+        """
+        :param assembly: the assembly to cross-validate over
+        """
+        cross_validation_values, splits = self._build_splits(assembly)
 
         split_scores = []
-        for split_iterator, (train_indices, test_indices), done in enumerate_done(splits):
-            self._logger.debug("split {}/{}".format(split_iterator + 1, len(splits)))
+        for split_iterator, (train_indices, test_indices), done \
+                in tqdm(enumerate_done(splits), total=len(splits), desc='cross-validation'):
+            train_values, test_values = cross_validation_values[train_indices], cross_validation_values[test_indices]
+            train = subset(assembly, train_values, dims_must_match=False)
+            test = subset(assembly, test_values, dims_must_match=False)
+
+            split_score = yield from self._get_result(train, test, done=done)
+            split_score = split_score.expand_dims('split')
+            split_score['split'] = [split_iterator]
+            split_scores.append(split_score)
+
+        split_scores = Score.merge(*split_scores)
+        yield split_scores
+
+    def aggregate(self, values):
+        center = values.mean('split')
+        error = standard_error_of_the_mean(values, 'split')
+        return Score([center, error], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
+
+
+class CrossValidation(Transformation):
+    """
+    Performs multiple splits over a source and target assembly.
+    No guarantees are given for data-alignment, use the metadata.
+    """
+
+    def __init__(self,
+                 splits=CrossValidationSingle.Defaults.splits, split_coord=CrossValidationSingle.Defaults.split_coord,
+                 stratification_coord=CrossValidationSingle.Defaults.stratification_coord,
+                 train_size=None, test_size=None, seed=CrossValidationSingle.Defaults.seed):
+        self._split_coord = split_coord
+        self._stratification_coord = stratification_coord
+        self._single_crossval = CrossValidationSingle(splits=splits, split_coord=split_coord,
+                                                      stratification_coord=stratification_coord,
+                                                      train_size=train_size, test_size=test_size, seed=seed)
+        self._logger = logging.getLogger(fullname(self))
+
+    def pipe(self, source_assembly, target_assembly):
+        # check only for equal values, alignment is given by metadata
+        assert sorted(source_assembly[self._split_coord].values) == sorted(target_assembly[self._split_coord].values)
+        if self._single_crossval._stratify(target_assembly):
+            assert hasattr(source_assembly, self._stratification_coord)
+            assert sorted(source_assembly[self._stratification_coord].values) == \
+                   sorted(target_assembly[self._stratification_coord].values)
+        cross_validation_values, splits = self._single_crossval._build_splits(target_assembly)
+
+        split_scores = []
+        for split_iterator, (train_indices, test_indices), done \
+                in tqdm(enumerate_done(splits), total=len(splits), desc='cross-validation'):
             train_values, test_values = cross_validation_values[train_indices], cross_validation_values[test_indices]
             train_source = subset(source_assembly, train_values, dims_must_match=False)
             train_target = subset(target_assembly, train_values, dims_must_match=False)
-            assert len(train_source[self._dim]) == len(train_target[self._dim])
+            assert len(train_source[self._split_coord]) == len(train_target[self._split_coord])
             test_source = subset(source_assembly, test_values, dims_must_match=False)
             test_target = subset(target_assembly, test_values, dims_must_match=False)
-            assert len(test_source[self._dim]) == len(test_target[self._dim])
+            assert len(test_source[self._split_coord]) == len(test_target[self._split_coord])
 
-            split_score = yield from self._get_result(train_source, train_target, test_source, test_target, done=done)
+            split_score = yield from self._get_result(train_source, train_target, test_source, test_target,
+                                                      done=done)
             split_score = split_score.expand_dims('split')
             split_score['split'] = [split_iterator]
             split_scores.append(split_score)
@@ -215,8 +256,8 @@ class CrossValidation(Transformation):
         split_scores = merge_data_arrays(split_scores)
         yield split_scores
 
-    def aggregate(self, center, error):
-        return center.mean('split'), standard_error_of_the_mean(error, 'split')
+    def aggregate(self, score):
+        return self._single_crossval.aggregate(score)
 
 
 def extract_coord(assembly, coord, return_index=False):
@@ -270,14 +311,22 @@ def subset(source_assembly, target_assembly, subset_dims=None, dims_must_match=T
 
 
 def index_efficient(source_values, target_values):
-    source_sort_indeces, target_sort_indeces = np.argsort(source_values), np.argsort(target_values)
-    source_values, target_values = source_values[source_sort_indeces], target_values[target_sort_indeces]
+    source_sort_indices, target_sort_indices = np.argsort(source_values), np.argsort(target_values)
+    source_values, target_values = source_values[source_sort_indices], target_values[target_sort_indices]
     indexer = []
     source_index, target_index = 0, 0
     while target_index < len(target_values) and source_index < len(source_values):
         if source_values[source_index] == target_values[target_index]:
-            indexer.append(source_sort_indeces[source_index])
-            target_index += 1
+            indexer.append(source_sort_indices[source_index])
+            # if next source value is greater than target, use next target. else next source.
+            # if target values remain the same, we might as well take the next target.
+            if (target_index + 1 < len(target_values) and
+                target_values[target_index + 1] == target_values[target_index]) or \
+                    (source_index + 1 < len(source_values) and
+                     source_values[source_index + 1] > target_values[target_index]):
+                target_index += 1
+            else:
+                source_index += 1
         elif source_values[source_index] < target_values[target_index]:
             source_index += 1
         else:  # source_values[source_index] > target_values[target_index]:
@@ -319,59 +368,3 @@ def enumerate_done(values):
     for i, val in enumerate(values):
         done = i == len(values) - 1
         yield i, val, done
-
-
-def apply_transformations(*args, transformations, metric):
-    """
-    Start from first transformation, pass all of the transformed values into second transformation and so forth.
-    When no transformations are left, apply the metric on each of the transformed values.
-    When values are coming back, go the reverse way:
-    collect all computed values, send them to the last transformation.
-    Once the last transformation is complete, return its result to the second-last transformation and so forth.
-
-    Note that transformations are expected to yield a transformed value,
-    receive the result of computing that transformation,
-    and signal whether all transformations are done.
-    When the last transformation is done, the generator ought to yield the combined result.
-    """
-
-    def recurse(generator, generators):
-        for vals in generator:
-            if len(generators) > 0:
-                gen = generators[0]
-                gen = gen(*vals)
-                y = recurse(gen, generators[1:])
-            else:
-                y = metric(*vals)
-            done = generator.send(y)
-            if done:
-                break
-        result = next(generator)
-        return result
-
-    scores = recurse(transformations[0](*args), transformations[1:])
-    return scores
-
-
-class Transformations(object):
-    def __init__(self, alignment_kwargs=None, cartesian_product_kwargs=None, cross_validation_kwargs=None,
-                 alignment_ctr=Alignment, cartesian_product_ctr=CartesianProduct, cross_validation_ctr=CrossValidation):
-        alignment_kwargs = alignment_kwargs or {}
-        cartesian_product_kwargs = cartesian_product_kwargs or {}
-        cross_validation_kwargs = cross_validation_kwargs or {}
-        self._transformations = []
-        for ctr, kwargs in [(alignment_ctr, alignment_kwargs), (cartesian_product_ctr, cartesian_product_kwargs),
-                            (cross_validation_ctr, cross_validation_kwargs)]:
-            if ctr is not None:
-                self._transformations.append(ctr(**kwargs))
-
-    def __call__(self, source_assembly, target_assembly, metric):
-        raw_scores = apply_transformations(source_assembly, target_assembly,
-                                           transformations=self._transformations, metric=metric)
-
-        scores = metric.aggregate(raw_scores)
-        center, error = scores, scores
-        for transformation in self._transformations:
-            center, error = transformation.aggregate(center, error)
-        from brainscore.metrics import build_score  # avoid circular import
-        return build_score(raw_scores, center, error)

@@ -7,6 +7,8 @@ import zipfile
 import boto3
 import pandas as pd
 import xarray as xr
+from botocore import UNSIGNED
+from botocore.config import Config
 from six.moves.urllib.parse import urlparse
 from tqdm import tqdm
 
@@ -20,10 +22,10 @@ _local_data_path = os.path.expanduser("~/.brainscore/data")
 
 class Fetcher(object):
     """A Fetcher obtains data with which to populate a DataAssembly.  """
-    def __init__(self, location, assembly_name):
+    def __init__(self, location, unique_name):
         self.location = location
-        self.assembly_name = assembly_name
-        self.local_dir_path = os.path.join(_local_data_path, self.assembly_name)
+        self.unique_name = unique_name
+        self.local_dir_path = os.path.join(_local_data_path, self.unique_name)
         os.makedirs(self.local_dir_path, exist_ok=True)
 
     def fetch(self):
@@ -36,8 +38,8 @@ class Fetcher(object):
 
 class BotoFetcher(Fetcher):
     """A Fetcher that retrieves files from Amazon Web Services' S3 data storage.  """
-    def __init__(self, location, assembly_name):
-        super(BotoFetcher, self).__init__(location, assembly_name)
+    def __init__(self, location, unique_name):
+        super(BotoFetcher, self).__init__(location, unique_name)
         self.parsed_url = urlparse(self.location)
         self.split_hostname = self.parsed_url.hostname.split(".")
         self.split_path = self.parsed_url.path.lstrip('/').split("/")
@@ -57,9 +59,11 @@ class BotoFetcher(Fetcher):
         return self.output_filename
 
     def download_boto(self, sha1=None):
-        """Downloads file from S3 via boto at `url` and writes it in `output_dirname`.
-        Borrowed from dldata.  """
-        s3 = boto3.resource('s3')
+        """Downloads file from S3 via boto at `url` and writes it in `output_dirname`."""
+        use_boto_signature = bool(int(os.getenv('BSC_BOTO3_SIGN', 0)))
+        # optionally disable signing requests. see https://stackoverflow.com/a/34866092/2225200
+        config = None if use_boto_signature else Config(signature_version=UNSIGNED)
+        s3 = boto3.resource('s3', config=config)
         obj = s3.Object(self.bucketname, self.relative_path)
         print('getting %s' % self.relative_path)
         # show progress. see https://gist.github.com/wy193777/e7607d12fad13459e8992d4f69b53586
@@ -81,14 +85,14 @@ class BotoFetcher(Fetcher):
 
 class URLFetcher(Fetcher):
     """A Fetcher that retrieves a resource identified by URL.  """
-    def __init__(self, location, assembly_name):
-        super(URLFetcher, self).__init__(location, assembly_name)
+    def __init__(self, location, unique_name):
+        super(URLFetcher, self).__init__(location, unique_name)
 
 
 class LocalFetcher(Fetcher):
     """A Fetcher that retrieves local files.  """
-    def __init__(self, location, assembly_name):
-        super(LocalFetcher, self).__init__(location, assembly_name)
+    def __init__(self, location, unique_name):
+        super(LocalFetcher, self).__init__(location, unique_name)
 
 
 class AssemblyLoader(object):
@@ -135,8 +139,8 @@ _fetcher_types = {
 }
 
 
-def get_fetcher(type="S3", location=None, assembly_name=None):
-    return _fetcher_types[type](location, assembly_name)
+def get_fetcher(type="S3", location=None, unique_name=None):
+    return _fetcher_types[type](location, unique_name)
 
 
 def fetch_assembly(assy_model):
@@ -144,7 +148,7 @@ def fetch_assembly(assy_model):
     for s in assy_model.assembly_store_maps:
         fetcher = get_fetcher(type=s.assembly_store_model.location_type,
                               location=s.assembly_store_model.location,
-                              assembly_name=assy_model.name)
+                              unique_name=s.assembly_store_model.unique_name)
         local_paths[s.role] = fetcher.fetch()
     return local_paths
 
@@ -162,7 +166,7 @@ def fetch_stimulus_set(stimulus_set_model):
     for s in pw_query_stores_for_set:
         fetcher = get_fetcher(type=s.location_type,
                               location=s.location,
-                              assembly_name=stimulus_set_model.name)
+                              unique_name=s.unique_name)
         fetched = fetcher.fetch()
         containing_dir = os.path.dirname(fetched)
         with zipfile.ZipFile(fetched, 'r') as zip_file:

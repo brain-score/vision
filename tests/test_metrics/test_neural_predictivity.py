@@ -1,6 +1,9 @@
+import numpy as np
 import pytest
 from pytest import approx
 
+from brainscore.assemblies import NeuroidAssembly
+from brainscore.metrics.neural_predictivity import PlsPredictivity
 from brainscore.metrics.neural_predictivity import pls_predictor, linear_predictor, LinearPredictivity
 from tests.test_metrics import load_hvm
 
@@ -15,6 +18,17 @@ class TestPlsPredictivity:
         score = metric.aggregate(score)
         expected_score = expected_score
         assert score == approx(expected_score, abs=0.01)
+
+    def test_small(self):
+        source = target = NeuroidAssembly(np.ones((30, 25)),  # TODO: don't use all 1s or it's gonna be NaN
+                                          coords={'image_id': ('presentation', np.arange(30)),
+                                                  'object_name': ('presentation', ['a', 'b', 'c'] * 10),
+                                                  'neuroid_id': ('neuroid', np.arange(25)),
+                                                  'region': ('neuroid', [None] * 25)},
+                                          dims=['presentation', 'neuroid'])
+        metric = PlsPredictivity()
+        score = metric(source=source, target=target)
+        assert score.sel(aggregation='center') == approx(1)
 
 
 class TestLinearPredictivity:

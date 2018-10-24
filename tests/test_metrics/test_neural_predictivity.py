@@ -20,14 +20,14 @@ class TestPlsPredictivity:
         assert score == approx(expected_score, abs=0.01)
 
     def test_small(self):
-        source = target = NeuroidAssembly(np.ones((30, 25)),  # TODO: don't use all 1s or it's gonna be NaN
-                                          coords={'image_id': ('presentation', np.arange(30)),
-                                                  'object_name': ('presentation', ['a', 'b', 'c'] * 10),
-                                                  'neuroid_id': ('neuroid', np.arange(25)),
-                                                  'region': ('neuroid', [None] * 25)},
-                                          dims=['presentation', 'neuroid'])
+        assembly = NeuroidAssembly((np.arange(30 * 25) + np.random.standard_normal(30 * 25)).reshape((30, 25)),
+                                   coords={'image_id': ('presentation', np.arange(30)),
+                                           'object_name': ('presentation', ['a', 'b', 'c'] * 10),
+                                           'neuroid_id': ('neuroid', np.arange(25)),
+                                           'region': ('neuroid', [None] * 25)},
+                                   dims=['presentation', 'neuroid'])
         metric = PlsPredictivity()
-        score = metric(source=source, target=target)
+        score = metric(source=assembly, target=assembly)
         assert score.sel(aggregation='center') == approx(1)
 
 

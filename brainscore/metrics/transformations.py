@@ -8,7 +8,7 @@ import xarray as xr
 from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
 from tqdm import tqdm
 
-from brainscore.assemblies import merge_data_arrays, DataAssembly
+from brainscore.assemblies import merge_data_arrays, DataAssembly, walk_coords
 from brainscore.metrics import Score
 from brainscore.metrics.utils import unique_ordered
 from brainscore.utils import fullname
@@ -207,7 +207,10 @@ class CrossValidationSingle(Transformation):
     def aggregate(self, values):
         center = values.mean('split')
         error = standard_error_of_the_mean(values, 'split')
-        return Score([center, error], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
+        return Score([center, error],
+                     coords={**{'aggregation': ['center', 'error']},
+                             **{coord: (dims, values) for coord, dims, values in walk_coords(center)}},
+                     dims=('aggregation',) + center.dims)
 
 
 class CrossValidation(Transformation):

@@ -6,9 +6,6 @@ from setuptools import setup, find_packages
 with open('README.md') as readme_file:
     readme = readme_file.read()
 
-with open('HISTORY.rst') as history_file:
-    history = history_file.read()
-
 requirements = [
     "numpy",
     "pandas",
@@ -37,10 +34,10 @@ dependency_links = [
 setup(
     name='brain-score',
     version='0.1.0',
-    description="A framework for the quantitative comparison of mindlike systems.  ",
-    long_description=readme + '\n\n' + history,
-    author="Jon Prescott-Roy",
-    author_email='jjpr@mit.edu',
+    description="A framework for the quantitative comparison of mindlike systems.",
+    long_description=readme,
+    author="Jon Prescott-Roy, Martin Schrimpf",
+    author_email='jjpr@mit.edu, mschrimpf@mit.edu',
     url='https://github.com/dicarlolab/brain-score',
     packages=find_packages(exclude=['tests']),
     include_package_data=True,
@@ -54,13 +51,8 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
-        "Programming Language :: Python :: 2",
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
     test_suite='tests',
     tests_require=test_requirements

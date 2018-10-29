@@ -1,3 +1,5 @@
+import warnings
+
 from brainscore.assemblies import DataAssembly, merge_data_arrays
 
 
@@ -13,14 +15,15 @@ class Score(DataAssembly):
         return self.__class__.__name__ + "(" + ",".join(
             "{}={}".format(attr, val) for attr, val in self.__dict__.items()) + ")"
 
-    def sel(self, *args, select_raw=True, **kwargs):
+    def sel(self, *args, _select_raw=True, **kwargs):
         result = super().sel(*args, **kwargs)
-        if select_raw and self.RAW_VALUES_KEY in self.attrs:
+        if _select_raw and self.RAW_VALUES_KEY in self.attrs:
             raw = self.attrs[self.RAW_VALUES_KEY]
             try:
                 raw = raw.sel(*args, **kwargs)
-            except ValueError:
-                pass  # ignore errors. likely this is from selecting on e.g. aggregation
+            except Exception as e:
+                # ignore errors with warning. most users will likely only want to access the main score
+                warnings.warn("raw values not selected: " + repr(e))
             result.attrs[self.RAW_VALUES_KEY] = raw
         return result
 
@@ -38,6 +41,9 @@ class Score(DataAssembly):
 
     @classmethod
     def merge(cls, *scores):
+        """
+        Merges the raw values in addition to the score assemblies.
+        """
         result = merge_data_arrays(scores)
         raws = [score.attrs[cls.RAW_VALUES_KEY] for score in scores if cls.RAW_VALUES_KEY in score.attrs]
         if len(raws) > 0:

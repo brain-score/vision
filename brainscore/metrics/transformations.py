@@ -306,7 +306,15 @@ def subset(source_assembly, target_assembly, subset_dims=None, dims_must_match=T
                 assert len(dim) == 1
                 dim = dim[0]
             dim_indexes = {_dim: slice(None) if _dim != dim else indexer for _dim in source_assembly.dims}
-            source_assembly = source_assembly.isel(**dim_indexes)
+            if len(np.unique(source_assembly.dims)) == len(source_assembly.dims):  # no repeated dimensions
+                source_assembly = source_assembly.isel(**dim_indexes)
+                continue
+            # work-around when dimensions are repeated. `isel` will keep only the first instance of a repeated dimension
+            positional_dim_indexes = [dim_indexes[dim] for dim in source_assembly.dims]
+            source_assembly = type(source_assembly)(
+                source_assembly.values[np.ix_(*positional_dim_indexes)],
+                coords={coord: (dim, value[dim_indexes[dim]]) for coord, dims, value in walk_coords(source_assembly)},
+                dims=source_assembly.dims)
         if dims_must_match:
             # dims match up after selection. cannot compare exact equality due to potentially missing levels
             assert len(target_assembly[dim]) == len(source_assembly[dim])

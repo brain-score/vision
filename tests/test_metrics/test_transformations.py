@@ -274,6 +274,22 @@ class TestSubset:
         np.testing.assert_array_equal(subset_assembly.shape, (3, 3))
         assert set(subset_assembly['image_id'].values) == set(target_assembly['image_id'].values)
 
+    def test_repeated_dim_and_adjacent(self):
+        source_assembly = np.random.rand(5, 5)
+        source_assembly = NeuroidAssembly(source_assembly, coords={
+            'image_id': ('presentation', list(range(source_assembly.shape[0]))),
+            'image_meta': ('presentation', np.zeros(source_assembly.shape[0])),
+            'adjacent': 12},
+                                          dims=['presentation', 'presentation'])
+
+        target_assembly = NeuroidAssembly(np.zeros(3), coords={
+            'image_id': [0, 2, 3]}, dims=['image_id']).stack(presentation=('image_id',))
+
+        subset_assembly = subset(source_assembly, target_assembly, subset_dims=('presentation',), repeat=True)
+        np.testing.assert_array_equal(subset_assembly.shape, (3, 3))
+        assert set(subset_assembly['image_id'].values) == set(target_assembly['image_id'].values)
+        assert subset_assembly['adjacent'] == 12
+
 
 class TestIndexEfficient:
     def test(self):

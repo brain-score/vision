@@ -313,7 +313,8 @@ def subset(source_assembly, target_assembly, subset_dims=None, dims_must_match=T
             positional_dim_indexes = [dim_indexes[dim] for dim in source_assembly.dims]
             source_assembly = type(source_assembly)(
                 source_assembly.values[np.ix_(*positional_dim_indexes)],
-                coords={coord: (dim, value[dim_indexes[dim]]) for coord, dims, value in walk_coords(source_assembly)},
+                coords={coord: (dim, value[dim_indexes[dim[0]]] if len(dim) == 1 else value)
+                        for coord, dim, value in walk_coords(source_assembly)},
                 dims=source_assembly.dims)
         if dims_must_match:
             # dims match up after selection. cannot compare exact equality due to potentially missing levels

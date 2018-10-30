@@ -5,8 +5,21 @@ import pytest
 from pytest import approx
 
 from brainscore.assemblies import NeuroidAssembly, DataAssembly
-from brainscore.metrics.rdm import RSA, RDMSimilarity, RDMMetric
+from brainscore.metrics.rdm import RSA, RDMSimilarity, RDMMetric, RDMCrossValidated
 from tests.test_metrics import load_hvm
+
+
+class TestRDMCrossValidated:
+    def test_small(self):
+        assembly = NeuroidAssembly((np.arange(30 * 25) + np.random.standard_normal(30 * 25)).reshape((30, 25)),
+                                   coords={'image_id': ('presentation', np.arange(30)),
+                                           'object_name': ('presentation', ['a', 'b', 'c'] * 10),
+                                           'neuroid_id': ('neuroid', np.arange(25)),
+                                           'region': ('neuroid', [None] * 25)},
+                                   dims=['presentation', 'neuroid'])
+        metric = RDMCrossValidated()
+        score = metric(assembly1=assembly, assembly2=assembly)
+        assert score.sel(aggregation='center') == approx(1)
 
 
 class TestRSA(object):

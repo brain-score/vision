@@ -11,10 +11,6 @@ class Metric:
 class Score(DataAssembly):
     RAW_VALUES_KEY = 'raw'
 
-    def __repr__(self):
-        return self.__class__.__name__ + "(" + ",".join(
-            "{}={}".format(attr, val) for attr, val in self.__dict__.items()) + ")"
-
     def sel(self, *args, _select_raw=True, **kwargs):
         result = super().sel(*args, **kwargs)
         if _select_raw and self.RAW_VALUES_KEY in self.attrs:
@@ -38,6 +34,27 @@ class Score(DataAssembly):
         super(Score, self).__setitem__(key, value)
         if self.RAW_VALUES_KEY in self.attrs:
             self.attrs[self.RAW_VALUES_KEY].__setitem__(key, value)
+
+    def _preserve_raw(self, result):
+        if self.RAW_VALUES_KEY in self.attrs:
+            result.attrs[self.RAW_VALUES_KEY] = self.attrs[self.RAW_VALUES_KEY]
+        return result
+
+    def mean(self, *args, **kwargs):
+        result = super(Score, self).mean(*args, **kwargs)
+        return self._preserve_raw(result)
+
+    def sum(self, *args, **kwargs):
+        result = super(Score, self).sum(*args, **kwargs)
+        return self._preserve_raw(result)
+
+    def std(self, *args, **kwargs):
+        result = super(Score, self).std(*args, **kwargs)
+        return self._preserve_raw(result)
+
+    def min(self, *args, **kwargs):
+        result = super(Score, self).min(*args, **kwargs)
+        return self._preserve_raw(result)
 
     @classmethod
     def merge(cls, *scores):

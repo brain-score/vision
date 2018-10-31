@@ -35,26 +35,26 @@ class Score(DataAssembly):
         if self.RAW_VALUES_KEY in self.attrs:
             self.attrs[self.RAW_VALUES_KEY].__setitem__(key, value)
 
-    def _preserve_raw(self, result):
+    def _preserve_raw(self, operation, *args, raw_apply=False, **kwargs):
+        result = getattr(super(Score, self), operation)(*args, **kwargs)
         if self.RAW_VALUES_KEY in self.attrs:
-            result.attrs[self.RAW_VALUES_KEY] = self.attrs[self.RAW_VALUES_KEY]
+            raw = self.attrs[self.RAW_VALUES_KEY]
+            if raw_apply:
+                raw = getattr(raw, operation)(*args, **kwargs)
+            result.attrs[self.RAW_VALUES_KEY] = raw
         return result
 
-    def mean(self, *args, **kwargs):
-        result = super(Score, self).mean(*args, **kwargs)
-        return self._preserve_raw(result)
+    def mean(self, *args, raw_apply=False, **kwargs):
+        return self._preserve_raw('mean', *args, **kwargs, raw_apply=raw_apply)
 
-    def sum(self, *args, **kwargs):
-        result = super(Score, self).sum(*args, **kwargs)
-        return self._preserve_raw(result)
+    def sum(self, *args, raw_apply=False, **kwargs):
+        return self._preserve_raw('sum', *args, **kwargs, raw_apply=raw_apply)
 
-    def std(self, *args, **kwargs):
-        result = super(Score, self).std(*args, **kwargs)
-        return self._preserve_raw(result)
+    def std(self, *args, raw_apply=False, **kwargs):
+        return self._preserve_raw('std', *args, **kwargs, raw_apply=raw_apply)
 
-    def min(self, *args, **kwargs):
-        result = super(Score, self).min(*args, **kwargs)
-        return self._preserve_raw(result)
+    def min(self, *args, raw_apply=False, **kwargs):
+        return self._preserve_raw('min', *args, **kwargs, raw_apply=raw_apply)
 
     @classmethod
     def merge(cls, *scores):

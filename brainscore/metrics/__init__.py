@@ -11,22 +11,40 @@ class Metric:
 class Score(DataAssembly):
     RAW_VALUES_KEY = 'raw'
 
-    def sel(self, *args, _select_raw=True, **kwargs):
-        result = super().sel(*args, **kwargs)
-        if _select_raw and self.RAW_VALUES_KEY in self.attrs:
-            raw = self.attrs[self.RAW_VALUES_KEY]
-            try:
-                raw = raw.sel(*args, **kwargs)
-            except Exception as e:
-                # ignore errors with warning. most users will likely only want to access the main score
-                warnings.warn("raw values not selected: " + repr(e))
-            result.attrs[self.RAW_VALUES_KEY] = raw
-        return result
+    def sel(self, *args, _apply_raw=True, **kwargs):
+        return self._preserve_raw('sel', *args, **kwargs, _apply_raw=_apply_raw, _ignore_errors=True)
 
-    def expand_dims(self, *args, **kwargs):
-        result = super(Score, self).expand_dims(*args, **kwargs)
+    def squeeze(self, *args, _apply_raw=True, **kwargs):
+        return self._preserve_raw('squeeze', *args, **kwargs, _apply_raw=_apply_raw, _ignore_errors=True)
+
+    def expand_dims(self, *args, _apply_raw=True, **kwargs):
+        return self._preserve_raw('expand_dims', *args, **kwargs, _apply_raw=_apply_raw)
+
+    def mean(self, *args, _apply_raw=False, **kwargs):
+        return self._preserve_raw('mean', *args, **kwargs, _apply_raw=_apply_raw)
+
+    def sum(self, *args, _apply_raw=False, **kwargs):
+        return self._preserve_raw('sum', *args, **kwargs, _apply_raw=_apply_raw)
+
+    def std(self, *args, _apply_raw=False, **kwargs):
+        return self._preserve_raw('std', *args, **kwargs, _apply_raw=_apply_raw)
+
+    def min(self, *args, _apply_raw=False, **kwargs):
+        return self._preserve_raw('min', *args, **kwargs, _apply_raw=_apply_raw)
+
+    def _preserve_raw(self, operation, *args, _apply_raw=False, _ignore_errors=False, **kwargs):
+        result = getattr(super(Score, self), operation)(*args, **kwargs)
         if self.RAW_VALUES_KEY in self.attrs:
-            raw = self.attrs[self.RAW_VALUES_KEY].expand_dims(*args, **kwargs)
+            raw = self.attrs[self.RAW_VALUES_KEY]
+            if _apply_raw:
+                try:
+                    raw = getattr(raw, operation)(*args, **kwargs)
+                except Exception as e:
+                    if _ignore_errors:
+                        # ignore errors with warning. most users will likely only want to access the main score
+                        warnings.warn(f"{operation} on raw values failed: {repr(e)}")
+                    else:
+                        raise e
             result.attrs[self.RAW_VALUES_KEY] = raw
         return result
 
@@ -34,27 +52,6 @@ class Score(DataAssembly):
         super(Score, self).__setitem__(key, value)
         if self.RAW_VALUES_KEY in self.attrs:
             self.attrs[self.RAW_VALUES_KEY].__setitem__(key, value)
-
-    def _preserve_raw(self, operation, *args, raw_apply=False, **kwargs):
-        result = getattr(super(Score, self), operation)(*args, **kwargs)
-        if self.RAW_VALUES_KEY in self.attrs:
-            raw = self.attrs[self.RAW_VALUES_KEY]
-            if raw_apply:
-                raw = getattr(raw, operation)(*args, **kwargs)
-            result.attrs[self.RAW_VALUES_KEY] = raw
-        return result
-
-    def mean(self, *args, raw_apply=False, **kwargs):
-        return self._preserve_raw('mean', *args, **kwargs, raw_apply=raw_apply)
-
-    def sum(self, *args, raw_apply=False, **kwargs):
-        return self._preserve_raw('sum', *args, **kwargs, raw_apply=raw_apply)
-
-    def std(self, *args, raw_apply=False, **kwargs):
-        return self._preserve_raw('std', *args, **kwargs, raw_apply=raw_apply)
-
-    def min(self, *args, raw_apply=False, **kwargs):
-        return self._preserve_raw('min', *args, **kwargs, raw_apply=raw_apply)
 
     @classmethod
     def merge(cls, *scores):

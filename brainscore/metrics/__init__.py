@@ -14,6 +14,9 @@ class Score(DataAssembly):
     def sel(self, *args, _apply_raw=True, **kwargs):
         return self._preserve_raw('sel', *args, **kwargs, _apply_raw=_apply_raw, _ignore_errors=True)
 
+    def isel(self, *args, _apply_raw=True, **kwargs):
+        return self._preserve_raw('isel', *args, **kwargs, _apply_raw=_apply_raw, _ignore_errors=True)
+
     def squeeze(self, *args, _apply_raw=True, **kwargs):
         return self._preserve_raw('squeeze', *args, **kwargs, _apply_raw=_apply_raw, _ignore_errors=True)
 

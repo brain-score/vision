@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import hashlib
+import logging
 import os
 import zipfile
 
@@ -16,12 +17,14 @@ from brainscore import assemblies
 from brainscore.assemblies import coords_for_dim
 from brainscore.stimuli import StimulusSet, ImageModel, AttributeModel, ImageMetaModel, StimulusSetModel, \
     ImageStoreModel, StimulusSetImageMap, ImageStoreMap
+from brainscore.utils import fullname
 
 _local_data_path = os.path.expanduser("~/.brainscore/data")
 
 
 class Fetcher(object):
     """A Fetcher obtains data with which to populate a DataAssembly.  """
+
     def __init__(self, location, unique_name):
         self.location = location
         self.unique_name = unique_name
@@ -38,12 +41,14 @@ class Fetcher(object):
 
 class BotoFetcher(Fetcher):
     """A Fetcher that retrieves files from Amazon Web Services' S3 data storage.  """
+
     def __init__(self, location, unique_name):
         super(BotoFetcher, self).__init__(location, unique_name)
         self.parsed_url = urlparse(self.location)
         self.split_hostname = self.parsed_url.hostname.split(".")
         self.split_path = self.parsed_url.path.lstrip('/').split("/")
-        virtual_hosted_style = len(self.split_hostname) == 4 # http://docs.aws.amazon.com/AmazonS3/latest/dev/UsingBucket.html#access-bucket-intro
+        # http://docs.aws.amazon.com/AmazonS3/latest/dev/UsingBucket.html#access-bucket-intro
+        virtual_hosted_style = len(self.split_hostname) == 4
         if virtual_hosted_style:
             self.bucketname = self.split_hostname[0]
             self.relative_path = os.path.join(*(self.split_path))
@@ -52,6 +57,7 @@ class BotoFetcher(Fetcher):
             self.relative_path = os.path.join(*(self.split_path[1:]))
         self.basename = self.split_path[-1]
         self.output_filename = os.path.join(self.local_dir_path, self.relative_path)
+        self._logger = logging.getLogger(fullname(self))
 
     def fetch(self):
         if not os.path.exists(self.output_filename):
@@ -59,13 +65,20 @@ class BotoFetcher(Fetcher):
         return self.output_filename
 
     def download_boto(self, sha1=None):
-        """Downloads file from S3 via boto at `url` and writes it in `output_dirname`."""
-        use_boto_signature = bool(int(os.getenv('BSC_BOTO3_SIGN', 0)))
-        # optionally disable signing requests. see https://stackoverflow.com/a/34866092/2225200
-        config = None if use_boto_signature else Config(signature_version=UNSIGNED)
+        """Downloads file from S3 via boto at `url` and writes it in `self.output_filename`."""
+        self._logger.info('downloading %s' % self.relative_path)
+        try:  # try with authentication
+            self._logger.debug("attempting default download (signed)")
+            self.download_boto_config(config=None, sha1=sha1)
+        except Exception:  # try without authentication
+            self._logger.debug("default download failed, trying unsigned")
+            # disable signing requests. see https://stackoverflow.com/a/34866092/2225200
+            unsigned_config = Config(signature_version=UNSIGNED)
+            self.download_boto_config(config=unsigned_config, sha1=sha1)
+
+    def download_boto_config(self, config, sha1=None):
         s3 = boto3.resource('s3', config=config)
         obj = s3.Object(self.bucketname, self.relative_path)
-        print('getting %s' % self.relative_path)
         # show progress. see https://gist.github.com/wy193777/e7607d12fad13459e8992d4f69b53586
         with tqdm(total=obj.content_length, unit='B', unit_scale=True, desc=self.relative_path) as progress_bar:
             def progress_hook(bytes_amount):
@@ -85,12 +98,14 @@ class BotoFetcher(Fetcher):
 
 class URLFetcher(Fetcher):
     """A Fetcher that retrieves a resource identified by URL.  """
+
     def __init__(self, location, unique_name):
         super(URLFetcher, self).__init__(location, unique_name)
 
 
 class LocalFetcher(Fetcher):
     """A Fetcher that retrieves local files.  """
+
     def __init__(self, location, unique_name):
         super(LocalFetcher, self).__init__(location, unique_name)
 
@@ -99,6 +114,7 @@ class AssemblyLoader(object):
     """
     Loads a DataAssembly from files.
     """
+
     def __init__(self, assy_model, local_paths):
         self.assy_model = assy_model
         self.local_paths = local_paths
@@ -193,25 +209,25 @@ def get_assembly(name):
 def get_stimulus_set(name):
     stimulus_set_model = StimulusSetModel.get(StimulusSetModel.name == name)
     image_paths = fetch_stimulus_set(stimulus_set_model)
-    pw_query = ImageModel.select()\
-        .join(StimulusSetImageMap)\
-        .join(StimulusSetModel)\
+    pw_query = ImageModel.select() \
+        .join(StimulusSetImageMap) \
+        .join(StimulusSetModel) \
         .where(StimulusSetModel.name == name)
     df_reconstructed = pd.DataFrame(list(pw_query.dicts()))
-    pw_query_attributes = AttributeModel.select()\
-        .join(ImageMetaModel)\
-        .join(ImageModel)\
-        .join(StimulusSetImageMap)\
-        .join(StimulusSetModel)\
-        .where(StimulusSetModel.name == name)\
+    pw_query_attributes = AttributeModel.select() \
+        .join(ImageMetaModel) \
+        .join(ImageModel) \
+        .join(StimulusSetImageMap) \
+        .join(StimulusSetModel) \
+        .where(StimulusSetModel.name == name) \
         .distinct()
     for a in pw_query_attributes:
-        pw_query_single_attribute = AttributeModel.select(ImageModel.image_id, ImageMetaModel.value)\
-        .join(ImageMetaModel)\
-        .join(ImageModel)\
-        .join(StimulusSetImageMap)\
-        .join(StimulusSetModel)\
-        .where((StimulusSetModel.name == name) & (AttributeModel.name == a.name))
+        pw_query_single_attribute = AttributeModel.select(ImageModel.image_id, ImageMetaModel.value) \
+            .join(ImageMetaModel) \
+            .join(ImageModel) \
+            .join(StimulusSetImageMap) \
+            .join(StimulusSetModel) \
+            .where((StimulusSetModel.name == name) & (AttributeModel.name == a.name))
         df_single_attribute = pd.DataFrame(list(pw_query_single_attribute.dicts()))
         merged = df_reconstructed.merge(df_single_attribute, on="image_id", how="left", suffixes=("orig_", ""))
         df_reconstructed[a.name] = merged["value"].astype(a.type)

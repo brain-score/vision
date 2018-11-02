@@ -38,9 +38,7 @@ class XarrayRegression:
 
     def predict(self, source):
         source = self._align(source)
-
         predicted_values = self._regression.predict(source)
-
         prediction = self._package_prediction(predicted_values, source=source)
         return prediction
 
@@ -48,9 +46,19 @@ class XarrayRegression:
         coords = {coord: (dims, values) for coord, dims, values in walk_coords(source)
                   if not array_is_element(dims, self._neuroid_dim)}
         # re-package neuroid coords
+        dims = source.dims
+        # if there is only one neuroid coordinate, it would get discarded and the dimension would be used as coordinate.
+        # to avoid this, we can build the assembly first and then stack on the neuroid dimension.
+        neuroid_level_dim = None
+        if len(self._target_neuroid_values) == 1:  # extract single key: https://stackoverflow.com/a/20145927/2225200
+            (neuroid_level_dim, _), = self._target_neuroid_values.items()
+            dims = [dim if dim != self._neuroid_dim else neuroid_level_dim for dim in dims]
         for target_coord, target_value in self._target_neuroid_values.items():
-            coords[target_coord] = self._neuroid_dim, target_value  # this might overwrite values which is okay
-        prediction = NeuroidAssembly(predicted_values, coords=coords, dims=source.dims)
+            # this might overwrite values which is okay
+            coords[target_coord] = (neuroid_level_dim or self._neuroid_dim), target_value
+        prediction = NeuroidAssembly(predicted_values, coords=coords, dims=dims)
+        if neuroid_level_dim:
+            prediction = prediction.stack(**{self._neuroid_dim: [neuroid_level_dim]})
         return prediction
 
     def _align(self, assembly):

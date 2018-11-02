@@ -22,6 +22,19 @@ class TestXarrayRegression:
         np.testing.assert_array_almost_equal(prediction.sortby(['image_id', 'neuroid_id']).values,
                                              target.sortby(['image_id', 'neuroid_id']).values)
 
+    def test_neuroid_single_coord(self):
+        jumbled_source = NeuroidAssembly(np.random.rand(500, 10),
+                                         coords={'image_id': ('presentation', list(reversed(range(500)))),
+                                                 'image_meta': ('presentation', [0] * 500),
+                                                 'neuroid_id': ('neuroid_id', list(reversed(range(10))))},
+                                         dims=['presentation', 'neuroid_id']).stack(neuroid=['neuroid_id'])
+        target = jumbled_source.sortby(['image_id', 'neuroid_id'])
+        regression = XarrayRegression(LinearRegression())
+        regression.fit(jumbled_source, target)
+        prediction = regression.predict(jumbled_source)
+        assert set(prediction.dims) == {'presentation', 'neuroid'}
+        assert len(prediction['neuroid_id']) == 10
+
 
 class TestXarrayCorrelation:
     def test_dimensions(self):

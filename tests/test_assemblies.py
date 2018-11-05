@@ -1,6 +1,63 @@
+import numpy as np
 import pytest
 
 from brainscore.assemblies import DataAssembly
+
+
+class TestConstructor:
+    def test_multi_coord_dim(self):
+        d = DataAssembly([0, 1], coords={'coord1': ('dim', [0, 1]), 'coord2': ('dim', [1, 1])}, dims=['dim'])
+        np.testing.assert_array_equal(d.sel(coord1=0).values, [0])
+        np.testing.assert_array_equal(d.sel(coord2=1).values, [0, 1])
+
+    def test_single_coord_dim(self):
+        d = DataAssembly([0, 1], coords={'coord1': ('dim', [0, 1])}, dims=['dim'])
+        np.testing.assert_array_equal(d.sel(coord1=0).values, [0])
+
+    def test_multi_dims(self):
+        d = DataAssembly([[0, 1], [2, 3]],
+                         coords={
+                             'coord1_1': ('dim1', [0, 1]), 'coord1_2': ('dim1', [1, 1]),
+                             'coord2_1': ('dim2', [0, 1]), 'coord2_2': ('dim2', [1, 1])},
+                         dims=['dim1', 'dim2'])
+        np.testing.assert_array_equal(d.sel(coord1_1=0, coord2_1=0).values, [[0]])
+        np.testing.assert_array_equal(d.sel(coord1_2=1, coord2_2=1).values, [[0, 1], [2, 3]])
+        np.testing.assert_array_equal(d.sel(coord1_1=0).values, [[0, 1]])
+        np.testing.assert_array_equal(d.sel(coord2_2=1).values, [[0, 1], [2, 3]])
+
+    def test_multi_dims_single_coord_unique(self):
+        d = DataAssembly([[0, 1]],
+                         coords={'coord1': ('dim1', [0]), 'coord2': ('dim2', [1, 2])},
+                         dims=['dim1', 'dim2'])
+        np.testing.assert_array_equal(d.sel(coord1=0, coord2=1).values, [[0]])
+        np.testing.assert_array_equal(d.sel(coord1=0, coord2=2).values, [1])  # ideally this would be [[1]]
+
+    def test_multi_dims_single_coord_unique_nonunique(self):
+        d = DataAssembly([[0, 1]],
+                         coords={'coord1': ('dim1', [0]), 'coord2': ('dim2', [1, 1])},
+                         dims=['dim1', 'dim2'])
+        np.testing.assert_array_equal(d.sel(coord1=0, coord2=1).values, [0, 1])  # ideally this would be [[0, 1]]
+
+    def test_multi_dims_single_coord_nonunique(self):
+        d = DataAssembly([[0, 1], [2, 3]],
+                         coords={'coord1': ('dim1', [1, 1]), 'coord2': ('dim2', [1, 1])},
+                         dims=['dim1', 'dim2'])
+        np.testing.assert_array_equal(d.sel(coord1=1, coord2=1).values, [[0, 1], [2, 3]])
+
+    def test_multi_dims_mixed_coord_unique(self):
+        d = DataAssembly([[0, 1], [2, 3]],
+                         coords={'coord1_1': ('dim1', [0, 1]), 'coord1_2': ('dim1', [1, 1]),
+                                 'coord2': ('dim2', [0, 1])},
+                         dims=['dim1', 'dim2'])
+        np.testing.assert_array_equal(d.sel(coord1_1=0, coord2=0).values, [0])  # ideally this would be [[0]]
+        np.testing.assert_array_equal(d.sel(coord1_2=1, coord2=1).values, [1, 3])  # ideally this would be [[1], [3]]
+
+    def test_multi_dims_mixed_coord_nonunique(self):
+        d = DataAssembly([[0, 1], [2, 3]],
+                         coords={'coord1_1': ('dim1', [0, 1]), 'coord1_2': ('dim1', [1, 1]),
+                                 'coord2': ('dim2', [1, 1])},
+                         dims=['dim1', 'dim2'])
+        np.testing.assert_array_equal(d.sel(coord1_2=1, coord2=1).values, [[0, 1], [2, 3]])
 
 
 class TestMultiGroupby:

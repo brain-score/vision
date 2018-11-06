@@ -51,7 +51,6 @@ More examples can be found in the [examples](examples/) directory.
 
 | Variable               | Description                                                                                                                           |
 |------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
-| BSC_BOTO3_SIGN         | 0 (default) to not sign S3 requests, 1 to sign and access private data                                                                |
 | RESULTCACHING_HOME     | directory to cache results (benchmark ceilings) in, `~/.result_caching` by default (see https://github.com/mschrimpf/result_caching) |
 
 

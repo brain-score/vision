@@ -42,14 +42,10 @@ class DataAssembly(DataArray):
     def _join_group_coords(self, dim, group_coord_names, delimiter, multi_group_name):
         tmp_assy = self.copy()
         group_coords = [tmp_assy.coords[c] for c in group_coord_names]
-
-        def cast(x):
-            # partial fix to combining dataarrays with non-string values.
-            # astype(str) on a DataArray of strings will convert it to unicode <U40 which cannot be combined.
-            return x.astype(str) if not isinstance(x.values[0], str) else x
-
-        to_join = [x for y in group_coords for x in (cast(y), delimiter)][:-1]
-        tmp_assy.coords[multi_group_name] = functools.reduce(operator.add, to_join)
+        multi_group_coord = []
+        for coords in zip(*group_coords):
+            multi_group_coord.append(delimiter.join([str(c.values) for c in coords]))
+        tmp_assy.coords[multi_group_name] = dim, multi_group_coord
         tmp_assy.set_index(append=True, inplace=True, **{dim: multi_group_name})
         return tmp_assy
 

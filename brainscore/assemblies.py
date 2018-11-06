@@ -1,8 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import functools
-import operator
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict, defaultdict, ChainMap
 
 import numpy as np
 import peewee
@@ -29,7 +27,8 @@ class DataAssembly(DataArray):
 
     def __init__(self, *args, **kwargs):
         super(DataAssembly, self).__init__(*args, **kwargs)
-        gather_indexes(self)
+        indexed = gather_indexes(self)
+        self.__dict__ = indexed.__dict__  # re-assign to indexed version
 
     def multi_groupby(self, group_coord_names, *args, **kwargs):
         delimiter = "|"
@@ -139,16 +138,46 @@ def coords_for_dim(xr_data, dim, exclude_indexes=True):
     return result
 
 
-def gather_indexes(xr_data):
+def gather_indexes(assembly):
     """This is only necessary as long as xarray cannot persist MultiIndex to netCDF.  """
-    coords_d = {}
-    for dim in xr_data.dims:
-        coords = coords_for_dim(xr_data, dim)
+    # the following is unfortunately more complicated than a simple `assembly.set_index(append=True, **dim_coords)`.
+    # because dimensions with a single coordinate consume the coordinate and set the values on the dimension instead
+    # (https://github.com/pydata/xarray/issues/2537).
+    # instead, for dimensions with a single coordinate, we build a temporary assembly with that coordinate as dimension,
+    # set the index there and then stack the original dimension with the coordinate.
+    dim_coords = {}
+    single_dim_coords = {}
+    stack_dims = {}
+    # collect single-coord dims first. otherwise, we might set a MultiIndex inside
+    for dim in assembly.dims:
+        coords = coords_for_dim(assembly, dim)
+        coords = list(coords.keys())
+        if coords and len(coords) == 1:
+            stack_dims[dim] = coords
+            single_dim_coords[dim] = coords[0]
+    # build temporary assembly for dimensions with single coordinate
+    if single_dim_coords:
+        coords = ChainMap(*[coords_for_dim(assembly, _dim, exclude_indexes=False) for _dim in assembly.dims])
+        coords = {coord: (
+            [single_dim_coords[_dim] if _dim in single_dim_coords else _dim for _dim in values.dims], values.values)
+            for coord, values in coords.items()}
+        assembly = type(assembly)(
+            assembly.values, coords=coords,
+            dims=[single_dim_coords[_dim] if _dim in single_dim_coords else _dim for _dim in assembly.dims])
+        assembly = assembly.set_index(**{coord: coord for coord in single_dim_coords.values()})
+    # now collect non-single-coord dims
+    for dim in assembly.dims:
+        coords = coords_for_dim(assembly, dim)
+        coords = list(coords.keys())
         if coords:
-            coords_d[dim] = list(coords.keys())
-    if coords_d:
-        xr_data.set_index(append=True, inplace=True, **coords_d)
-    return xr_data
+            assert len(coords) > 1
+            dim_coords[dim] = coords
+    # set indices and stack
+    if dim_coords:
+        assembly = assembly.set_index(append=True, **dim_coords)
+    if stack_dims:
+        assembly = assembly.stack(**stack_dims)
+    return assembly
 
 
 class GroupbyBridge(object):

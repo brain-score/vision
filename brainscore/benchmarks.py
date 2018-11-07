@@ -29,7 +29,7 @@ class Benchmark(object):
         return self._ceiling()
 
 
-class DicarloMajaj2015Region(Benchmark):
+class _DicarloMajaj2015Region(Benchmark):
     # We here treat V4 and IT as separate benchmarks
     # even though they were collected from the same brains in the same sessions.
     def __init__(self, region):
@@ -39,22 +39,22 @@ class DicarloMajaj2015Region(Benchmark):
         metric = PlsPredictivity()
         ceiling = InternalConsistency(assembly_repetitions)
         assembly = loader.average_repetition(assembly_repetitions)
-        super(DicarloMajaj2015Region, self).__init__(name=f'dicarlo.Majaj2015.{region}', target_assembly=assembly,
-                                                     metric=metric, ceiling=ceiling)
+        super(_DicarloMajaj2015Region, self).__init__(name=f'dicarlo.Majaj2015.{region}', target_assembly=assembly,
+                                                      metric=metric, ceiling=ceiling)
 
     def __call__(self, source_assembly):
         # subset the values where the image_ids match up. The stimulus set of this assembly provides
         # all the images (including variations 0 and 3), but the assembly considers only variation 6.
         source_assembly = subset(source_assembly, self._target_assembly, subset_dims=['image_id'])
-        return super(DicarloMajaj2015Region, self).__call__(source_assembly=source_assembly)
+        return super(_DicarloMajaj2015Region, self).__call__(source_assembly=source_assembly)
 
 
-class DicarloMajaj2015V4(DicarloMajaj2015Region):
+class DicarloMajaj2015V4(_DicarloMajaj2015Region):
     def __init__(self):
         super(DicarloMajaj2015V4, self).__init__(region='V4')
 
 
-class DicarloMajaj2015IT(DicarloMajaj2015Region):
+class DicarloMajaj2015IT(_DicarloMajaj2015Region):
     def __init__(self):
         super(DicarloMajaj2015IT, self).__init__(region='IT')
 
@@ -68,6 +68,34 @@ class ToliasCadena2017(Benchmark):
         metric = PlsPredictivity()
         super(ToliasCadena2017, self).__init__(name='tolias.Cadena2017', target_assembly=assembly,
                                                metric=metric, ceiling=ceiling)
+
+    def __call__(self, source_assembly):
+        # subset the values where the image_ids match up. The stimulus set of this assembly provides
+        # more images than actually have good recordings attached.
+        source_assembly = subset(source_assembly, self._target_assembly, subset_dims=['image_id'])
+        return super(ToliasCadena2017, self).__call__(source_assembly=source_assembly)
+
+
+class _MovshonFreemanZiemba2013Region(Benchmark):
+    def __init__(self, region):
+        loader = MovshonFreemanZiemba2013Loader()
+        assembly_repetitions = loader(average_repetition=False)
+        assembly_repetitions = assembly_repetitions.sel(region=region)
+        ceiling = InternalConsistency(assembly_repetitions, split_coord='repetition_id')
+        assembly = loader().sel(region=region).stack(neuroid=['neuroid_id'])
+        metric = PlsPredictivity()
+        super(_MovshonFreemanZiemba2013Region, self).__init__(
+            name=f'movshon.FreemanZiemba2013.{region}', target_assembly=assembly, metric=metric, ceiling=ceiling)
+
+
+class MovshonFreemanZiemba2013V1(_MovshonFreemanZiemba2013Region):
+    def __init__(self):
+        super(MovshonFreemanZiemba2013V1, self).__init__(region='V1')
+
+
+class MovshonFreemanZiemba2013V2(_MovshonFreemanZiemba2013Region):
+    def __init__(self):
+        super(MovshonFreemanZiemba2013V2, self).__init__(region='V2')
 
 
 class DicarloMajaj2015ITEarlyLate(Benchmark):
@@ -196,6 +224,32 @@ class ToliasCadena2017Loader(AssemblyLoader):
         return assembly
 
 
+class MovshonFreemanZiemba2013Loader(AssemblyLoader):
+    def __init__(self):
+        super(MovshonFreemanZiemba2013Loader, self).__init__(name='movshon.FreemanZiemba2013')
+
+    @store()
+    def __call__(self, average_repetition=True):
+        assembly = brainscore.get_assembly(name='movshon.FreemanZiemba2013')
+        assembly.load()
+        # TODO: determine response onset or just take e.g. 40-100?
+        assembly = assembly.sel(time_bin=[(t, t + 1) for t in range(40, 100)])
+        assembly = assembly.mean(dim='time_bin', keep_attrs=True)
+        assembly = assembly.transpose('presentation', 'neuroid')
+        if average_repetition:
+            assembly = self.average_repetition(assembly)
+        return assembly
+
+    def average_repetition(self, assembly):
+        attrs = assembly.attrs  # workaround to keeping attrs
+        presentation_coords = [coord for coord, dims, values in walk_coords(assembly)
+                               if array_is_element(dims, 'presentation')]
+        presentation_coords = set(presentation_coords) - {'repetition'}
+        assembly = assembly.multi_groupby(presentation_coords).mean(dim='presentation', skipna=True)
+        assembly.attrs = attrs
+        return assembly
+
+
 class GallantDavid2004Loader(AssemblyLoader):
     def __init__(self):
         super(GallantDavid2004Loader, self).__init__(name='gallant.David2004')
@@ -225,6 +279,8 @@ _benchmarks = {
     'dicarlo.Majaj2015.IT': DicarloMajaj2015IT,
     'dicarlo.Majaj2015.IT.earlylate': DicarloMajaj2015ITEarlyLate,
     'tolias.Cadena2017': ToliasCadena2017,
+    'movshon.FreemanZiemba2013.V1': MovshonFreemanZiemba2013V1,
+    'movshon.FreemanZiemba2013.V2': MovshonFreemanZiemba2013V2,
 }
 
 

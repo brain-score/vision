@@ -7,7 +7,7 @@ from pytest import approx
 from brainscore import benchmarks
 from brainscore.assemblies import NeuroidAssembly
 from brainscore.benchmarks import DicarloMajaj2015EarlyLateLoader, DicarloMajaj2015Loader, ToliasCadena2017Loader, \
-    Benchmark
+    Benchmark, MovshonFreemanZiemba2013Loader
 from brainscore.metrics.ceiling import NoCeiling
 from brainscore.metrics.rdm import RDMCrossValidated
 
@@ -74,6 +74,16 @@ class TestAssemblyLoaders:
         assert {'presentation', 'neuroid'} == set(assembly.dims)
         assert not np.isnan(assembly).any()
         assert assembly.attrs['stimulus_set_name'] == 'tolias.Cadena2017'
+
+    def test_movshonfreemanziemba2013(self):
+        loader = MovshonFreemanZiemba2013Loader()
+        assembly = loader()
+        assert isinstance(assembly, NeuroidAssembly)
+        assert {'presentation', 'neuroid'} == set(assembly.dims)
+        assert not np.isnan(assembly).any()
+        assert assembly.attrs['stimulus_set_name'] == 'movshon.FreemanZiemba2013'
+        assert len(assembly['presentation']) == 450
+        assert len(assembly['neuroid']) == 205
 
 
 class TestCadena2017:

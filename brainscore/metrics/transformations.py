@@ -134,6 +134,12 @@ class CartesianProduct(Transformation):
         for i, divider, done in progress:
             progress.set_description(str(divider))
             divided_assembly = assembly.multisel(**divider)
+            # squeeze dimensions if necessary
+            for divider_coord in divider:
+                dims = assembly[divider_coord].dims
+                assert len(dims) == 1
+                if dims[0] in divided_assembly.dims and len(divided_assembly[dims[0]]) == 1:
+                    divided_assembly = divided_assembly.squeeze(dims[0])
             result = yield from self._get_result(divided_assembly, done=done)
 
             for coord_name, coord_value in divider.items():

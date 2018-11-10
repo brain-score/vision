@@ -6,7 +6,7 @@ from brainscore.metrics.anatomy import EdgeRatioMetric
 from brainscore.metrics.ceiling import ceilings, InternalConsistency
 from brainscore.metrics.neural_predictivity import PlsPredictivity, LinearPredictivity
 from brainscore.metrics.rdm import RDMCrossValidated
-from brainscore.metrics.transformations import subset
+from brainscore.metrics.transformations import subset, CartesianProduct
 from brainscore.utils import fullname
 from result_caching import cache, store
 
@@ -81,7 +81,7 @@ class _MovshonFreemanZiemba2013Region(Benchmark):
         loader = MovshonFreemanZiemba2013Loader()
         assembly_repetitions = loader(average_repetition=False)
         assembly_repetitions = assembly_repetitions.sel(region=region)
-        ceiling = InternalConsistency(assembly_repetitions, split_coord='repetition_id')
+        ceiling = InternalConsistency(assembly_repetitions)
         assembly = loader().sel(region=region).stack(neuroid=['neuroid_id'])
         metric = PlsPredictivity()
         super(_MovshonFreemanZiemba2013Region, self).__init__(
@@ -98,17 +98,26 @@ class MovshonFreemanZiemba2013V2(_MovshonFreemanZiemba2013Region):
         super(MovshonFreemanZiemba2013V2, self).__init__(region='V2')
 
 
-class DicarloMajaj2015ITEarlyLate(Benchmark):
+class DicarloMajaj2015EarlyLate(Benchmark):
     def __init__(self):
         loader = DicarloMajaj2015EarlyLateLoader()
         assembly_repetitions = loader(average_repetition=False)
-        assembly_repetitions = assembly_repetitions.sel(region='IT')
         ceiling = InternalConsistency(assembly_repetitions)
-        assembly = loader.average_repetition(assembly_repetitions)
+        assembly = loader(average_repetition=True)
         metric = PlsPredictivity()
-        super(DicarloMajaj2015ITEarlyLate, self).__init__(name='dicarlo.Majaj2015.IT.earlylate',
-                                                          target_assembly=assembly, metric=metric, ceiling=ceiling)
-        # TODO: target_splits=('region', 'time_bin_start', 'time_bin_end'))
+        self._cross_region = CartesianProduct(dividers=['region'])
+        self._cross_time = CartesianProduct(dividers=['time_bin_start'])
+        super(DicarloMajaj2015EarlyLate, self).__init__(name='dicarlo.Majaj2015.earlylate',
+                                                        target_assembly=assembly, metric=metric, ceiling=ceiling)
+
+    def __call__(self, source_assembly):
+        # subset the values where the image_ids match up. The stimulus set of this assembly provides
+        # all the images (including variations 0 and 3), but the assembly considers only variation 6.
+        source_assembly = subset(source_assembly, self._target_assembly, subset_dims=['image_id'])
+        score = self._cross_region(self._target_assembly, apply=
+        lambda region_assembly: self._cross_time(region_assembly, apply=
+        lambda region_time_assembly: self._metric(source_assembly, region_time_assembly)))
+        return score
 
 
 class AssemblyLoader(object):
@@ -277,7 +286,7 @@ assembly_loaders = {loader.name: loader for loader in assembly_loaders}
 _benchmarks = {
     'dicarlo.Majaj2015.V4': DicarloMajaj2015V4,
     'dicarlo.Majaj2015.IT': DicarloMajaj2015IT,
-    'dicarlo.Majaj2015.IT.earlylate': DicarloMajaj2015ITEarlyLate,
+    'dicarlo.Majaj2015.earlylate': DicarloMajaj2015EarlyLate,
     'tolias.Cadena2017': ToliasCadena2017,
     'movshon.FreemanZiemba2013.V1': MovshonFreemanZiemba2013V1,
     'movshon.FreemanZiemba2013.V2': MovshonFreemanZiemba2013V2,

@@ -37,7 +37,10 @@ class Score(DataAssembly):
     def __setitem__(self, key, value):
         super(Score, self).__setitem__(key, value)
         if self.RAW_VALUES_KEY in self.attrs:
-            self.attrs[self.RAW_VALUES_KEY].__setitem__(key, value)
+            try:
+                self.attrs[self.RAW_VALUES_KEY].__setitem__(key, value)
+            except Exception as e:
+                warnings.warn(f"failed to set {key}={value} on raw values: " + (repr(e)))
 
     @classmethod
     def merge(cls, *scores):

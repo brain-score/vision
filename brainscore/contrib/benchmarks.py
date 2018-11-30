@@ -1,11 +1,11 @@
 from result_caching import store
 
 import brainscore
-from brainscore.assemblies import walk_coords, array_is_element
+from brainscore.assemblies import walk_coords, array_is_element, merge_data_arrays
 from brainscore.metrics.ceiling import InternalConsistency
 from brainscore.metrics.neural_predictivity import PlsPredictivity
-from brainscore.metrics.transformations import subset
-from brainscore.benchmarks import Benchmark, AssemblyLoader, _benchmarks, assembly_loaders
+from brainscore.metrics.transformations import subset, CartesianProduct
+from brainscore.benchmarks import Benchmark, AssemblyLoader, _benchmarks, assembly_loaders, mean_over
 
 
 class ToliasCadena2017(Benchmark):
@@ -45,6 +45,28 @@ class MovshonFreemanZiemba2013V1(_MovshonFreemanZiemba2013Region):
 class MovshonFreemanZiemba2013V2(_MovshonFreemanZiemba2013Region):
     def __init__(self):
         super(MovshonFreemanZiemba2013V2, self).__init__(region='V2')
+
+
+class DicarloMajaj2015EarlyLate(Benchmark):
+    def __init__(self):
+        loader = DicarloMajaj2015EarlyLateLoader()
+        assembly_repetitions = loader(average_repetition=False)
+        ceiling = InternalConsistency(assembly_repetitions)
+        assembly = loader(average_repetition=True)
+        metric = PlsPredictivity()
+        self._cross_region = CartesianProduct(dividers=['region'])
+        self._cross_time = CartesianProduct(dividers=['time_bin_start'])
+        super(DicarloMajaj2015EarlyLate, self).__init__(name='dicarlo.Majaj2015.earlylate',
+                                                        target_assembly=assembly, metric=metric, ceiling=ceiling)
+
+    def __call__(self, source_assembly):
+        # subset the values where the image_ids match up. The stimulus set of this assembly provides
+        # all the images (including variations 0 and 3), but the assembly considers only variation 6.
+        source_assembly = subset(source_assembly, self._target_assembly, subset_dims=['image_id'])
+        score = self._cross_region(self._target_assembly, apply=
+        lambda region_assembly: self._cross_time(region_assembly, apply=
+        lambda region_time_assembly: self._metric(source_assembly, region_time_assembly)))
+        return score
 
 
 class ToliasCadena2017Loader(AssemblyLoader):
@@ -109,6 +131,36 @@ class GallantDavid2004Loader(AssemblyLoader):
         assembly = assembly.rename({'neuroid': 'neuroid_id'})
         assembly = assembly.stack(neuroid=('neuroid_id',))
         assembly = assembly.transpose('presentation', 'neuroid')
+        return assembly
+
+
+class DicarloMajaj2015EarlyLateLoader(AssemblyLoader):
+    def __init__(self):
+        super(DicarloMajaj2015EarlyLateLoader, self).__init__(name='dicarlo.Majaj2015.earlylate')
+
+    @store()
+    def __call__(self, average_repetition=True):
+        assembly = brainscore.get_assembly(name='dicarlo.Majaj2015.temporal')
+
+        # the principled way here would be to compute the internal consistency per neuron
+        # and only use the time bins where the neuron's internal consistency is e.g. >0.2.
+        # Note that this would have to be done per neuron
+        # as a neuron in V4 will exhibit different time bins from one in IT.
+        # We cut off at 200 ms because that's when the next stimulus is shown.
+        def sel_time_bin(time_bin_start, time_bin_end):
+            selection = assembly.sel(time_bin_start=time_bin_start, time_bin_end=time_bin_end)
+            del selection['time_bin']
+            selection = selection.expand_dims('time_bin_start').expand_dims('time_bin_end')
+            selection['time_bin_start'] = [time_bin_start]
+            selection['time_bin_end'] = [time_bin_end]
+            selection = selection.stack(time_bin=('time_bin_start', 'time_bin_end'))
+            return selection
+
+        early = sel_time_bin(90, 110)
+        late = sel_time_bin(190, 210)
+        assembly = merge_data_arrays([early, late])
+        if average_repetition:
+            assembly = mean_over(assembly, presentation=['category_name', 'object_name', 'image_id'])
         return assembly
 
 

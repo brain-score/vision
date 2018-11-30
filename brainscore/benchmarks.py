@@ -71,6 +71,8 @@ class AssemblyLoader(object):
 class DicarloMajaj2015Loader(AssemblyLoader):
     def __init__(self, name='dicarlo.Majaj2015'):
         super(DicarloMajaj2015Loader, self).__init__(name=name)
+        self.average_repetition = lambda assembly: mean_over(assembly,
+                                                             presentation=['category_name', 'object_name', 'image_id'])
 
     def __call__(self, average_repetition=True):
         assembly = brainscore.get_assembly(name=self.name)
@@ -97,11 +99,13 @@ class DicarloMajaj2015Loader(AssemblyLoader):
         assembly = assembly.isel(neuroid=good_neuroids)
         return assembly
 
-    def average_repetition(self, assembly):
-        attrs = assembly.attrs  # workaround to keeping attrs
-        assembly = assembly.multi_groupby(['category_name', 'object_name', 'image_id']).mean(dim='presentation')
-        assembly.attrs = attrs
-        return assembly
+
+def mean_over(assembly, **dim_coords):
+    attrs = assembly.attrs  # workaround to keeping attrs
+    for dim, coords in dim_coords.items():
+        assembly = assembly.multi_groupby(coords).mean(dim=dim)
+    assembly.attrs = attrs
+    return assembly
 
 
 metrics = {

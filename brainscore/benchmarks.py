@@ -9,7 +9,6 @@ from brainscore.metrics.neural_predictivity import PlsPredictivity, LinearPredic
 from brainscore.metrics.rdm import RDMCrossValidated
 from brainscore.metrics.transformations import subset
 from brainscore.utils import fullname
-from brainscore.contrib import benchmarks as contrib_benchmarks
 
 
 class Benchmark(object):
@@ -122,8 +121,6 @@ _benchmarks = {
     'dicarlo.Majaj2015.V4': DicarloMajaj2015V4,
     'dicarlo.Majaj2015.IT': DicarloMajaj2015IT,
 }
-
-contrib_benchmarks.inject()
 
 
 @cache()

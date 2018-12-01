@@ -6,8 +6,9 @@ from pytest import approx
 
 from brainscore import benchmarks
 from brainscore.assemblies import NeuroidAssembly
-from brainscore.benchmarks import DicarloMajaj2015EarlyLateLoader, DicarloMajaj2015Loader, ToliasCadena2017Loader, \
-    Benchmark, MovshonFreemanZiemba2013Loader
+from brainscore.benchmarks import Benchmark, DicarloMajaj2015Loader
+from brainscore.contrib.benchmarks import DicarloMajaj2015EarlyLateLoader, ToliasCadena2017Loader, \
+    MovshonFreemanZiemba2013Loader
 from brainscore.metrics.ceiling import NoCeiling
 from brainscore.metrics.rdm import RDMCrossValidated
 

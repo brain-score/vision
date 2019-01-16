@@ -1,8 +1,8 @@
 from string import ascii_lowercase as alphabet
 
 import numpy as np
+from brainio_base.assemblies import NeuroidAssembly, DataAssembly
 
-from brainscore.assemblies import NeuroidAssembly, DataAssembly
 from brainscore.metrics.ceiling import NoCeiling, InternalConsistency, SplitHalfConsistency
 
 

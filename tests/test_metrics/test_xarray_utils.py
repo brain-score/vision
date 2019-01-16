@@ -1,8 +1,8 @@
 import numpy as np
 import scipy.stats
+from brainio_base.assemblies import NeuroidAssembly
 from sklearn.linear_model import LinearRegression
 
-from brainscore.assemblies import NeuroidAssembly
 from brainscore.metrics.xarray_utils import XarrayCorrelation, XarrayRegression
 
 

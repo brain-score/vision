@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
+from brainio_base.assemblies import NeuroidAssembly
 from pytest import approx
 
-from brainscore.assemblies import NeuroidAssembly
 from brainscore.metrics.neural_predictivity import PlsPredictivity
 from brainscore.metrics.neural_predictivity import pls_predictor, linear_predictor, LinearPredictivity
 from tests.test_metrics import load_hvm

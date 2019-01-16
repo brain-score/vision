@@ -8,7 +8,8 @@ import xarray as xr
 from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
 from tqdm import tqdm
 
-from brainscore.assemblies import merge_data_arrays, DataAssembly, walk_coords
+from brainio_base.assemblies import DataAssembly
+from brainscore.assemblies import merge_data_arrays, walk_coords
 from brainscore.metrics import Score
 from brainscore.metrics.utils import unique_ordered
 from brainscore.utils import fullname

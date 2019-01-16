@@ -1,5 +1,5 @@
 import numpy as np
-from brainscore.assemblies import NeuroidAssembly, DataAssembly
+from brainio_base.assemblies import NeuroidAssembly, DataAssembly
 from brainscore.assemblies import array_is_element, walk_coords
 
 

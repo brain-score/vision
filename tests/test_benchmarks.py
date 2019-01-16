@@ -1,13 +1,11 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import numpy as np
 import pytest
+from brainio_base.assemblies import NeuroidAssembly
 from pytest import approx
 
 from brainscore import benchmarks
-from brainscore.assemblies import NeuroidAssembly
 from brainscore.benchmarks import Benchmark, DicarloMajaj2015Loader
-from brainscore.contrib.benchmarks import DicarloMajaj2015EarlyLateLoader, ToliasCadena2017Loader, \
+from brainscore.contrib.benchmarks import ToliasCadena2017Loader, \
     MovshonFreemanZiemba2013Loader
 from brainscore.metrics.ceiling import NoCeiling
 from brainscore.metrics.rdm import RDMCrossValidated
@@ -60,14 +58,6 @@ class TestAssemblyLoaders:
         assert {'presentation', 'neuroid'} == set(assembly.dims)
         assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm'
 
-    def test_majaj2015early_late(self):
-        loader = DicarloMajaj2015EarlyLateLoader()
-        assembly = loader()
-        assert isinstance(assembly, NeuroidAssembly)
-        assert {'presentation', 'neuroid', 'time_bin'} == set(assembly.dims)
-        assert len(assembly['time_bin']) == 2
-        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm'
-
     def test_toliascadena2017(self):
         loader = ToliasCadena2017Loader()
         assembly = loader()
@@ -76,6 +66,7 @@ class TestAssemblyLoaders:
         assert not np.isnan(assembly).any()
         assert assembly.attrs['stimulus_set_name'] == 'tolias.Cadena2017'
 
+    @pytest.mark.skip(reason="ignore for now")
     def test_movshonfreemanziemba2013(self):
         loader = MovshonFreemanZiemba2013Loader()
         assembly = loader()

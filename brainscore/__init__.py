@@ -1,9 +1,5 @@
-# -*- coding: utf-8 -*-
+from brainio_collection.fetch import get_assembly, get_stimulus_set
 
-__author__ = """Jon Prescott-Roy"""
-__email__ = 'jjpr@mit.edu'
-__version__ = '0.1.0'
+from brainscore.contrib import benchmarks as contrib_benchmarks
 
-from .fetch import get_assembly, get_stimulus_set
-
-
+contrib_benchmarks.inject()

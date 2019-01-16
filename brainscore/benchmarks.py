@@ -1,14 +1,14 @@
 import logging
 
+from result_caching import cache, store
+
 import brainscore
-from brainscore.assemblies import merge_data_arrays, walk_coords, array_is_element
 from brainscore.metrics.anatomy import EdgeRatioMetric
 from brainscore.metrics.ceiling import ceilings, InternalConsistency
 from brainscore.metrics.neural_predictivity import PlsPredictivity, LinearPredictivity
 from brainscore.metrics.rdm import RDMCrossValidated
 from brainscore.metrics.transformations import subset
 from brainscore.utils import fullname
-from result_caching import cache, store
 
 
 class Benchmark(object):
@@ -29,7 +29,7 @@ class Benchmark(object):
         return self._ceiling()
 
 
-class DicarloMajaj2015Region(Benchmark):
+class _DicarloMajaj2015Region(Benchmark):
     # We here treat V4 and IT as separate benchmarks
     # even though they were collected from the same brains in the same sessions.
     def __init__(self, region):
@@ -39,48 +39,24 @@ class DicarloMajaj2015Region(Benchmark):
         metric = PlsPredictivity()
         ceiling = InternalConsistency(assembly_repetitions)
         assembly = loader.average_repetition(assembly_repetitions)
-        super(DicarloMajaj2015Region, self).__init__(name=f'dicarlo.Majaj2015.{region}', target_assembly=assembly,
-                                                     metric=metric, ceiling=ceiling)
+        super(_DicarloMajaj2015Region, self).__init__(name=f'dicarlo.Majaj2015.{region}', target_assembly=assembly,
+                                                      metric=metric, ceiling=ceiling)
 
     def __call__(self, source_assembly):
         # subset the values where the image_ids match up. The stimulus set of this assembly provides
         # all the images (including variations 0 and 3), but the assembly considers only variation 6.
         source_assembly = subset(source_assembly, self._target_assembly, subset_dims=['image_id'])
-        return super(DicarloMajaj2015Region, self).__call__(source_assembly=source_assembly)
+        return super(_DicarloMajaj2015Region, self).__call__(source_assembly=source_assembly)
 
 
-class DicarloMajaj2015V4(DicarloMajaj2015Region):
+class DicarloMajaj2015V4(_DicarloMajaj2015Region):
     def __init__(self):
         super(DicarloMajaj2015V4, self).__init__(region='V4')
 
 
-class DicarloMajaj2015IT(DicarloMajaj2015Region):
+class DicarloMajaj2015IT(_DicarloMajaj2015Region):
     def __init__(self):
         super(DicarloMajaj2015IT, self).__init__(region='IT')
-
-
-class ToliasCadena2017(Benchmark):
-    def __init__(self):
-        loader = ToliasCadena2017Loader()
-        assembly_repetitions = loader(average_repetition=False)
-        ceiling = InternalConsistency(assembly_repetitions, split_coord='repetition_id')
-        assembly = loader.average_repetition(assembly_repetitions)
-        metric = PlsPredictivity()
-        super(ToliasCadena2017, self).__init__(name='tolias.Cadena2017', target_assembly=assembly,
-                                               metric=metric, ceiling=ceiling)
-
-
-class DicarloMajaj2015ITEarlyLate(Benchmark):
-    def __init__(self):
-        loader = DicarloMajaj2015EarlyLateLoader()
-        assembly_repetitions = loader(average_repetition=False)
-        assembly_repetitions = assembly_repetitions.sel(region='IT')
-        ceiling = InternalConsistency(assembly_repetitions)
-        assembly = loader.average_repetition(assembly_repetitions)
-        metric = PlsPredictivity()
-        super(DicarloMajaj2015ITEarlyLate, self).__init__(name='dicarlo.Majaj2015.IT.earlylate',
-                                                          target_assembly=assembly, metric=metric, ceiling=ceiling)
-        # TODO: target_splits=('region', 'time_bin_start', 'time_bin_end'))
 
 
 class AssemblyLoader(object):
@@ -94,6 +70,8 @@ class AssemblyLoader(object):
 class DicarloMajaj2015Loader(AssemblyLoader):
     def __init__(self, name='dicarlo.Majaj2015'):
         super(DicarloMajaj2015Loader, self).__init__(name=name)
+        self.average_repetition = lambda assembly: mean_over(assembly,
+                                                             presentation=['category_name', 'object_name', 'image_id'])
 
     def __call__(self, average_repetition=True):
         assembly = brainscore.get_assembly(name=self.name)
@@ -120,93 +98,13 @@ class DicarloMajaj2015Loader(AssemblyLoader):
         assembly = assembly.isel(neuroid=good_neuroids)
         return assembly
 
-    def average_repetition(self, assembly):
-        attrs = assembly.attrs  # workaround to keeping attrs
-        assembly = assembly.multi_groupby(['category_name', 'object_name', 'image_id']).mean(dim='presentation')
-        assembly.attrs = attrs
-        return assembly
 
-
-class DicarloMajaj2015TemporalLoader(DicarloMajaj2015Loader):
-    def __init__(self, name='dicarlo.Majaj2015.temporal'):
-        super(DicarloMajaj2015TemporalLoader, self).__init__(name=name)
-
-    def __call__(self, average_repetition=True):
-        assembly = brainscore.get_assembly(name='dicarlo.Majaj2015.temporal')
-        assembly = self._filter_erroneous_neuroids(assembly)
-        assembly = assembly.sel(variation=6)
-        assembly = assembly.transpose('presentation', 'neuroid', 'time_bin')
-        if average_repetition:
-            assembly = self.average_repetition(assembly)
-        return assembly
-
-
-class DicarloMajaj2015EarlyLateLoader(DicarloMajaj2015TemporalLoader):
-    def __init__(self):
-        super(DicarloMajaj2015EarlyLateLoader, self).__init__(name='dicarlo.Majaj2015.earlylate')
-
-    @store()
-    def __call__(self, average_repetition=True):
-        assembly = super().__call__(average_repetition=average_repetition)
-
-        # the principled way here would be to compute the internal consistency per neuron
-        # and only use the time bins where the neuron's internal consistency is e.g. >0.2.
-        # Note that this would have to be done per neuron
-        # as a neuron in V4 will exhibit different time bins from one in IT.
-        # We cut off at 200 ms because that's when the next stimulus is shown.
-        def sel_time_bin(time_bin_start, time_bin_end):
-            selection = assembly.sel(time_bin_start=time_bin_start, time_bin_end=time_bin_end)
-            del selection['time_bin']
-            selection = selection.expand_dims('time_bin_start').expand_dims('time_bin_end')
-            selection['time_bin_start'] = [time_bin_start]
-            selection['time_bin_end'] = [time_bin_end]
-            selection = selection.stack(time_bin=('time_bin_start', 'time_bin_end'))
-            return selection
-
-        early = sel_time_bin(90, 110)
-        late = sel_time_bin(190, 210)
-        assembly = merge_data_arrays([early, late])
-        return assembly
-
-
-class ToliasCadena2017Loader(AssemblyLoader):
-    def __init__(self):
-        super(ToliasCadena2017Loader, self).__init__(name='tolias.Cadena2017')
-
-    def __call__(self, average_repetition=True):
-        assembly = brainscore.get_assembly(name='tolias.Cadena2017')
-        assembly.load()
-        assembly = assembly.rename({'neuroid': 'neuroid_id'})
-        assembly['region'] = 'neuroid_id', ['V1'] * len(assembly['neuroid_id'])
-        assembly = assembly.stack(neuroid=['neuroid_id'])
-        assembly = assembly.squeeze("time_bin")
-        assembly = assembly.transpose('presentation', 'neuroid')
-        if average_repetition:
-            assembly = self.average_repetition(assembly)
-        return assembly
-
-    def average_repetition(self, assembly):
-        attrs = assembly.attrs  # workaround to keeping attrs
-        presentation_coords = [coord for coord, dims, values in walk_coords(assembly)
-                               if array_is_element(dims, 'presentation')]
-        presentation_coords = set(presentation_coords) - {'repetition_id', 'id'}
-        assembly = assembly.multi_groupby(presentation_coords).mean(dim='presentation', skipna=True)
-        assembly = assembly.dropna('presentation')  # discard any images with NaNs (~14%)
-        assembly.attrs = attrs
-        return assembly
-
-
-class GallantDavid2004Loader(AssemblyLoader):
-    def __init__(self):
-        super(GallantDavid2004Loader, self).__init__(name='gallant.David2004')
-
-    def __call__(self):
-        assembly = brainscore.get_assembly(name=self.name)
-        assembly.load()
-        assembly = assembly.rename({'neuroid': 'neuroid_id'})
-        assembly = assembly.stack(neuroid=('neuroid_id',))
-        assembly = assembly.transpose('presentation', 'neuroid')
-        return assembly
+def mean_over(assembly, **dim_coords):
+    attrs = assembly.attrs  # workaround to keeping attrs
+    for dim, coords in dim_coords.items():
+        assembly = assembly.multi_groupby(coords).mean(dim=dim)
+    assembly.attrs = attrs
+    return assembly
 
 
 metrics = {
@@ -216,15 +114,12 @@ metrics = {
     'edge_ratio': EdgeRatioMetric
 }
 
-assembly_loaders = [DicarloMajaj2015Loader(), DicarloMajaj2015EarlyLateLoader(), GallantDavid2004Loader(),
-                    ToliasCadena2017Loader()]
+assembly_loaders = [DicarloMajaj2015Loader()]
 assembly_loaders = {loader.name: loader for loader in assembly_loaders}
 
 _benchmarks = {
     'dicarlo.Majaj2015.V4': DicarloMajaj2015V4,
     'dicarlo.Majaj2015.IT': DicarloMajaj2015IT,
-    'dicarlo.Majaj2015.IT.earlylate': DicarloMajaj2015ITEarlyLate,
-    'tolias.Cadena2017': ToliasCadena2017,
 }
 
 

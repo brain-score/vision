@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+from brainio_base.assemblies import NeuroidAssembly
 from pytest import approx
 
 from brainscore.assemblies import NeuroidAssembly

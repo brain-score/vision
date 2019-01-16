@@ -13,8 +13,11 @@ from brainscore.lookup import pwdb
 
 
 class StimulusSet(pd.DataFrame):
-    _internal_names = pd.DataFrame._internal_names + ["image_paths", "get_image"]
-    _internal_names_set = set(_internal_names)
+    _metadata = ["image_paths", "get_image"]
+
+    @property
+    def _constructor(self):
+        return StimulusSet
 
     CENTRAL_VISION_DEGREES = 10
 

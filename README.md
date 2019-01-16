@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/brain-score/brain-score.svg?token=vqt7d2yhhpLGwHsiTZvT&branch=master)](https://travis-ci.com/brain-score/brain-score)
+
 # Brain-Score
 
 `brainscore` standardizes the interface between neuroscience metrics

@@ -5,6 +5,14 @@ from pytest import approx
 import brainscore
 
 
+class TestStimulusSet:
+    class TestPreservation:
+        def test_subselection(self):
+            stimulus_set = brainscore.get_stimulus_set(name='dicarlo.hvm')
+            stimulus_set = stimulus_set[stimulus_set['image_id'].isin(stimulus_set['image_id'].values[:50])]
+            assert os.path.isfile(stimulus_set.get_image(stimulus_set['image_id'].values[0]))
+
+
 def test_loadname_dicarlo_hvm():
     assert brainscore.get_stimulus_set(name="dicarlo.hvm") is not None
 

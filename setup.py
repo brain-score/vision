@@ -7,7 +7,16 @@ with open('README.md') as readme_file:
     readme = readme_file.read()
 
 requirements = [
-    "brainscore @ git+https://github.com/brain-score/brain-score",
+    "brainio_base @ git+https://github.com/brain-score/brainio_base",
+    "brain-score @ git+https://github.com/brain-score/brain-score",
+    "h5py",
+    "Pillow",
+    "numpy",
+    "tqdm",
+    "scikit-learn",
+    "result_caching @ git+https://github.com/mschrimpf/result_caching",
+    "boto3",
+    "botocore",
     # test_requirements - listed here for travis
     "pytest",
 ]

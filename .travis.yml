@@ -8,5 +8,10 @@ matrix:  # python 3.7 workaround: https://github.com/travis-ci/travis-ci/issues/
       sudo: true
 install:
   - pip install -e .
+  # install all the frameworks for testing
+  - pip install pytorch torchvision
+  - pip install keras
+  - git clone https://github.com/qbilius/models/ tf-models
+  - export PYTHONPATH="$PYTHONPATH:$(pwd)/tf-models/research/slim"
 script:
   - pytest

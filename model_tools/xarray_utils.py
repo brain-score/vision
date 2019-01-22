@@ -1,5 +1,5 @@
 from brainio_base.assemblies import NeuroidAssembly
-from brainscore.assemblies import array_is_element, walk_coords
+from brainio_base.assemblies import array_is_element, walk_coords
 
 
 class Defaults:

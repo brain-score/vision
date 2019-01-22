@@ -23,4 +23,4 @@ before_install:
 install:
   - pip install .
 script:
-  - pytest
+  - pytest --ignore=tf-models

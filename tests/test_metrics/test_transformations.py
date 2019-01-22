@@ -42,7 +42,7 @@ class TestCrossValidationSingle:
                                    coords={'image_id': ('presentation', list(range(50))),
                                            'image_meta': ('presentation', [0] * 50)},
                                    dims=['presentation', 'presentation'])
-        cv = CrossValidationSingle(splits=10)
+        cv = CrossValidationSingle(splits=10, train_size=.9)
         metric = self.MetricPlaceholder()
         score = cv(assembly, apply=metric)
         assert len(metric.train_assemblies) == len(metric.test_assemblies) == 10

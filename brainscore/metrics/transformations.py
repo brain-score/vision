@@ -151,10 +151,28 @@ class CartesianProduct(Transformation):
         yield scores
 
 
+class TestOnlyCrossValidationSingle:
+    def __init__(self, *args, **kwargs):
+        self._cross_validation = CrossValidationSingle(*args, **kwargs)
+
+    def __call__(self, *args, apply, **kwargs):
+        apply_wrapper = lambda train, test: apply(test)
+        return self._cross_validation(*args, apply=apply_wrapper, **kwargs)
+
+
+class TestOnlyCrossValidation:
+    def __init__(self, *args, **kwargs):
+        self._cross_validation = CrossValidation(*args, **kwargs)
+
+    def __call__(self, *args, apply, **kwargs):
+        apply_wrapper = lambda train1, train2, test1, test2: apply(test1, test2)
+        return self._cross_validation(*args, apply=apply_wrapper, **kwargs)
+
+
 class CrossValidationSingle(Transformation):
     class Defaults:
         splits = 10
-        train_size = .9
+        train_size = .1
         split_coord = 'image_id'
         stratification_coord = 'object_name'  # cross-validation across images, balancing objects
         seed = 1

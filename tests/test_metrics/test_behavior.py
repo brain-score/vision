@@ -2,13 +2,15 @@ import os
 
 import numpy as np
 import pandas as pd
+import pytest
 import xarray as xr
 from pytest import approx
 
-from brainscore.assemblies import BehavioralAssembly, walk_coords
-from brainscore.metrics.behavior import I2n
+# from brainscore.assemblies import BehavioralAssembly, walk_coords
+# from brainscore.metrics.behavior import I2n
 
 
+@pytest.mark.skip(reason='WIP')
 class TestI2N(object):
     def test_objectome(self):
         # objectome = xr.open_dataarray(os.path.join(os.path.dirname(__file__), 'monkobjectome_behavior.nc'))

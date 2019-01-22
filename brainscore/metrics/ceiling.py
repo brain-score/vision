@@ -27,10 +27,9 @@ class InternalConsistency(Ceiling):
     class Defaults:
         split_coord = 'repetition'
 
-    def __init__(self, assembly,  # pass assembly here so that Benchmark does not have to keep reference to repetitions
+    def __init__(self,
                  split_coord=Defaults.split_coord, stimulus_coord=XarrayDefaults.stimulus_coord,
                  neuroid_dim=XarrayDefaults.neuroid_dim, neuroid_coord=XarrayDefaults.neuroid_coord):
-        self._assembly = assembly
         self._consistency = SplitHalfConsistency(stimulus_coord=stimulus_coord, neuroid_dim=neuroid_dim,
                                                  neuroid_coord=neuroid_coord)
         correction = SpearmanBrownCorrection(neuroid_dim=neuroid_dim)
@@ -38,8 +37,8 @@ class InternalConsistency(Ceiling):
                                                           consistency=self._consistency, correction=correction)
         self._cross_validation = CrossValidationSingle(train_size=0.5, split_coord=split_coord)
 
-    def __call__(self):
-        return self._cross_validation(self._assembly,
+    def __call__(self, assembly):
+        return self._cross_validation(assembly,
                                       apply=self._wrapped_consistency, aggregate=self._consistency.aggregate)
 
     class SplitHalfWrapper:

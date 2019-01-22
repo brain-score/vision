@@ -38,3 +38,21 @@ def recursive_dict_merge(dict1, dict2):
         else:
             result[key] = dict2[key]
     return result
+
+
+class LazyLoad:
+    def __init__(self, load_fnc):
+        self.load_fnc = load_fnc
+        self.content = None
+
+    def __getattr__(self, item):
+        self._ensure_loaded()
+        return getattr(self.content, item)
+
+    def _ensure_loaded(self):
+        if self.content is None:
+            self.content = self.load_fnc()
+
+    def __call__(self, *args, **kwargs):
+        self._ensure_loaded()
+        return self.content(*args, **kwargs)

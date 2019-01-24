@@ -1,8 +1,10 @@
 import logging
-import numpy as np
-from PIL import Image
 from collections import OrderedDict
 
+import numpy as np
+from PIL import Image
+
+from model_tools.activations.core import ActivationsExtractorHelper
 from model_tools.utils import fullname
 
 _logger = logging.getLogger(__name__)
@@ -12,15 +14,22 @@ SUBMODULE_SEPARATOR = '.'
 
 
 class PytorchWrapper:
-    def __init__(self, model):
+    def __init__(self, model, preprocessing, identifier=None, *args, **kwargs):
         import torch
         self._logger = logging.getLogger(fullname(self))
         self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self._logger.debug(f"Using device {self._device}")
         self._model = model
         self._model = self._model.to(self._device)
+        identifier = identifier or model.__module__
+        self._extractor = ActivationsExtractorHelper(
+            identifier=identifier, get_activations=self.get_activations, preprocessing=preprocessing,
+            *args, **kwargs)
 
-    def __call__(self, images, layer_names):
+    def __call__(self, *args, **kwargs):
+        return self._extractor(*args, **kwargs)
+
+    def get_activations(self, images, layer_names):
         import torch
         from torch.autograd import Variable
         images = [torch.from_numpy(image) for image in images]

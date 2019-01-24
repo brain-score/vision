@@ -2,37 +2,27 @@ import logging
 import numpy as np
 from collections import OrderedDict
 
+from model_tools.activations.core import ActivationsExtractorHelper
+
 _logger = logging.getLogger(__name__)
 
 
 class KerasWrapper:
-    def __init__(self, model):
+    def __init__(self, model, preprocessing, identifier=None, *args, **kwargs):
         """
         :param model: a keras model with a function `preprocess_input`
             that will later be called on the loaded numpy image
         """
         self._model = model
+        identifier = identifier or model.__module__
+        self._extractor = ActivationsExtractorHelper(
+            identifier=identifier, get_activations=self.get_activations, preprocessing=preprocessing,
+            *args, **kwargs)
 
-    def _load_image(self, image_filepath):
-        from keras.preprocessing import image
-        img = image.load_img(image_filepath)
-        x = image.img_to_array(img)
-        return x
+    def __call__(self, *args, **kwargs):
+        return self._extractor(*args, **kwargs)
 
-    def _preprocess_images(self, images, image_size):
-        images = [self._preprocess_image(image, image_size) for image in images]
-        return np.array(images)
-
-    def _preprocess_image(self, img, image_size):
-        from PIL import Image
-        from keras.preprocessing import image
-        img = Image.fromarray(img.astype(np.uint8))
-        img = img.resize((image_size, image_size))
-        img = image.img_to_array(img)
-        img = self._model.preprocess_input(img)
-        return img
-
-    def __call__(self, images, layer_names):
+    def get_activations(self, images, layer_names):
         from keras import backend as K
         input_tensor = self._model.input
         layers = [layer for layer in self._model.layers if layer.name in layer_names]
@@ -56,7 +46,30 @@ class KerasWrapper:
         return g
 
 
-def preprocess(*args, **kwargs):
+def load_images(image_filepaths, image_size):
+    images = [load_image(image_filepath) for image_filepath in image_filepaths]
+    images = [scale_image(image, image_size) for image in images]
+    return np.array(images)
+
+
+def load_image(image_filepath):
+    from keras.preprocessing import image
+    img = image.load_img(image_filepath)
+    x = image.img_to_array(img)
+    return x
+
+
+def scale_image(img, image_size):
+    from PIL import Image
+    from keras.preprocessing import image
+    img = Image.fromarray(img.astype(np.uint8))
+    img = img.resize((image_size, image_size))
+    img = image.img_to_array(img)
+    return img
+
+
+def preprocess(image_filepaths, image_size, *args, **kwargs):
     # only a wrapper to avoid top-level keras imports
     from keras.applications.imagenet_utils import preprocess_input
-    return preprocess_input(*args, **kwargs)
+    images = load_images(image_filepaths, image_size=image_size)
+    return preprocess_input(images, *args, **kwargs)

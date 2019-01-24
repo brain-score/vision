@@ -3,6 +3,7 @@ import os
 
 import numpy as np
 import pytest
+from result_caching import cache
 
 from model_tools.activations import KerasWrapper, PytorchWrapper, TensorflowWrapper
 
@@ -54,6 +55,7 @@ def keras_vgg19():
     return functools.partial(KerasWrapper, model=VGG19(), preprocessing=preprocessing), ['block3_pool']
 
 
+@cache()  # cache to avoid re-initializing variable scope
 def tfslim_custom():
     from model_tools.activations.tensorflow import load_resize_image
     import tensorflow as tf
@@ -80,6 +82,7 @@ def tfslim_custom():
                              endpoints=endpoints, inputs=placeholder, session=session), ['my_model/pool2']
 
 
+@cache()  # cache to avoid re-initializing variable scope
 def tfslim_vgg16():
     import tensorflow as tf
     from nets import nets_factory
@@ -103,14 +106,15 @@ def tfslim_vgg16():
 
 
 class TestModels:
+    @pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png'])
     @pytest.mark.parametrize("provider", [
         pytorch_custom, pytorch_alexnet,
         keras_vgg19,
         tfslim_custom, tfslim_vgg16])
-    def test_nopca_single_image(self, provider):
+    def test_nopca(self, provider, image_name):
         extractor_ctr, layers = provider()
         activations_extractor = extractor_ctr(pca_components=None)
-        stimuli_paths = [os.path.join(os.path.dirname(__file__), 'rgb.jpg')]
+        stimuli_paths = [os.path.join(os.path.dirname(__file__), image_name)]
         activations = activations_extractor(stimuli_paths=stimuli_paths, layers=layers)
         assert activations is not None
         assert len(activations['stimulus_path']) == 1

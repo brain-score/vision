@@ -117,7 +117,7 @@ def preprocess_image(image, image_size):
     return image
 
 
-def torchvision_preprocess_input(image_size, normalize_mean=[0.485, 0.456, 0.406], normalize_std=[0.229, 0.224, 0.225]):
+def torchvision_preprocess_input(image_size, normalize_mean=(0.485, 0.456, 0.406), normalize_std=(0.229, 0.224, 0.225)):
     from torchvision import transforms
     return transforms.Compose([
         transforms.Resize(image_size),

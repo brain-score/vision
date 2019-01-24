@@ -3,6 +3,7 @@ import os
 
 import numpy as np
 import pytest
+from brainio_base.stimuli import StimulusSet
 from result_caching import cache
 
 from model_tools.activations import KerasWrapper, PytorchWrapper, TensorflowWrapper
@@ -105,17 +106,41 @@ def tfslim_vgg16():
                              endpoints=endpoints, inputs=placeholder, session=session), ['vgg_16/pool5']
 
 
-class TestModels:
-    @pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png'])
-    @pytest.mark.parametrize("provider", [
-        pytorch_custom, pytorch_alexnet,
-        keras_vgg19,
-        tfslim_custom, tfslim_vgg16])
-    def test_nopca(self, provider, image_name):
-        extractor_ctr, layers = provider()
-        activations_extractor = extractor_ctr(pca_components=None)
-        stimuli_paths = [os.path.join(os.path.dirname(__file__), image_name)]
-        activations = activations_extractor(stimuli_paths=stimuli_paths, layers=layers)
-        assert activations is not None
-        assert len(activations['stimulus_path']) == 1
-        assert len(np.unique(activations['layer'])) == len(layers)
+@pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png'])
+@pytest.mark.parametrize("pca_components", [None])
+@pytest.mark.parametrize("provider", [
+    pytorch_custom, pytorch_alexnet,
+    keras_vgg19,
+    tfslim_custom, tfslim_vgg16])
+def test_from_image_path(provider, image_name, pca_components):
+    stimuli_paths = [os.path.join(os.path.dirname(__file__), image_name)]
+
+    extractor_ctr, layers = provider()
+    activations_extractor = extractor_ctr(pca_components=None)
+    activations = activations_extractor.from_paths(stimuli_paths=stimuli_paths, layers=layers)
+
+    assert activations is not None
+    assert len(activations['stimulus_path']) == 1
+    assert len(np.unique(activations['layer'])) == len(layers)
+
+
+@pytest.mark.parametrize("pca_components", [None])
+@pytest.mark.parametrize("provider", [
+    pytorch_custom, pytorch_alexnet,
+    keras_vgg19,
+    tfslim_custom, tfslim_vgg16])
+def test_from_stimulus_set(provider, pca_components):
+    image_names = ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png']
+    stimulus_set = StimulusSet([{'image_id': image_name, 'some_meta': image_name[::-1]}
+                                for image_name in image_names])
+    stimulus_set.image_paths = {image_name: os.path.join(os.path.dirname(__file__), image_name)
+                                for image_name in image_names}
+
+    extractor_ctr, layers = provider()
+    activations_extractor = extractor_ctr(pca_components=None)
+    activations = activations_extractor.from_stimulus_set(stimulus_set, layers=layers)
+
+    assert activations is not None
+    assert set(activations['image_id'].values) == set(image_names)
+    assert all(activations['some_meta'].values == [image_name[::-1] for image_name in image_names])
+    assert len(np.unique(activations['layer'])) == len(layers)

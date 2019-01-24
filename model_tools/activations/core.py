@@ -8,6 +8,7 @@ import h5py
 import numpy as np
 from PIL import Image
 from brainio_base.assemblies import NeuroidAssembly
+from brainio_base.stimuli import StimulusSet
 from result_caching import store
 from sklearn.decomposition import PCA
 from tqdm import tqdm
@@ -30,7 +31,19 @@ class ActivationsExtractorHelper:
         self.get_activations = get_activations
         self.preprocess = preprocessing or (lambda x: x)
 
-    def __call__(self, stimuli_paths, layers):
+    def __call__(self, stimuli, layers):
+        if isinstance(stimuli, StimulusSet):
+            return self.from_stimulus_set(stimulus_set=stimuli, layers=layers)
+        else:
+            return self.from_paths(stimuli_paths=stimuli, layers=layers)
+
+    def from_stimulus_set(self, stimulus_set, layers):
+        stimuli_paths = [stimulus_set.get_image(image_id) for image_id in stimulus_set['image_id']]
+        activations = self.from_paths(stimuli_paths=stimuli_paths, layers=layers)
+        activations = attach_stimulus_set_meta(activations, stimulus_set)
+        return activations
+
+    def from_paths(self, stimuli_paths, layers):
         # PCA
         def get_activations(inputs, reduce_dimensionality):
             return self._get_activations_batched(inputs,
@@ -197,6 +210,17 @@ class ActivationsExtractorHelper:
         if multithread:
             pool.close()
         return results
+
+
+def attach_stimulus_set_meta(assembly, stimulus_set):
+    stimulus_paths = [stimulus_set.get_image(image_id) for image_id in stimulus_set['image_id']]
+    assert all(assembly['stimulus_path'] == stimulus_paths)
+    assembly['stimulus_path'] = stimulus_set['image_id'].values
+    assembly = assembly.rename({'stimulus_path': 'image_id'})
+    for column in stimulus_set.columns:
+        assembly[column] = 'image_id', stimulus_set[column].values
+    assembly = assembly.stack(presentation=('image_id',))
+    return assembly
 
 
 def flatten(layer_name, layer_output):

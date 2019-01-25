@@ -1,9 +1,9 @@
 import numpy as np
 import scipy.stats
-from brainio_base.assemblies import NeuroidAssembly
 from sklearn.linear_model import LinearRegression
 
-from brainscore.metrics.xarray_utils import XarrayCorrelation, XarrayRegression
+from brainio_base.assemblies import NeuroidAssembly
+from brainscore.metrics.xarray_utils import XarrayRegression, XarrayCorrelation
 
 
 class TestXarrayRegression:
@@ -71,3 +71,14 @@ class TestXarrayCorrelation:
         correlation = XarrayCorrelation(scipy.stats.pearsonr)
         score = correlation(jumbled_prediction, prediction)
         assert all(score == 1)
+
+    def test_neuroid_single_coord(self):
+        prediction = NeuroidAssembly(np.random.rand(500, 10),
+                                     coords={'image_id': ('presentation', list(range(500))),
+                                             'image_meta': ('presentation', [0] * 500),
+                                             'neuroid_id': ('neuroid_id', list(range(10)))},
+                                     dims=['presentation', 'neuroid_id']).stack(neuroid=['neuroid_id'])
+        correlation = XarrayCorrelation(lambda a, b: (1, 0))
+        score = correlation(prediction, prediction)
+        np.testing.assert_array_equal(score.dims, ['neuroid'])
+        assert len(score['neuroid']) == 10

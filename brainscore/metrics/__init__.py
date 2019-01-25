@@ -68,6 +68,9 @@ class Score(DataAssembly):
         result = merge_data_arrays(scores)
         raws = [score.attrs[cls.RAW_VALUES_KEY] for score in scores if cls.RAW_VALUES_KEY in score.attrs]
         if len(raws) > 0:
-            raw = merge_data_arrays(raws)
-            result.attrs[cls.RAW_VALUES_KEY] = raw
+            try:
+                raw = merge_data_arrays(raws)
+                result.attrs[cls.RAW_VALUES_KEY] = raw
+            except Exception as e:
+                warnings.warn("failed to merge raw values: " + str(e))
         return result

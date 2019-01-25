@@ -7,6 +7,7 @@ matrix:  # python 3.7 workaround: https://github.com/travis-ci/travis-ci/issues/
       dist: xenial
       sudo: true
 install:
-  - pip install -e .
+  - pip install .
+  - pip install pytest
 script:
   - pytest

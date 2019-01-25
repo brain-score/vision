@@ -20,11 +20,6 @@ class DicarloMajaj2015Region(BenchmarkBase):
             name=name, assembly=assembly,
             similarity_metric=similarity_metric, ceiling_func=lambda: ceiler(assembly_repetition))
 
-    def __call__(self, candidate):
-        source_assembly = candidate(self.assembly.stimulus_set)
-        raw_score = self._similarity_metric(source_assembly, self._assembly)
-        return ceil_score(raw_score, self.ceiling)
-
 
 class DicarloMajaj2015V4(DicarloMajaj2015Region):
     def __init__(self):

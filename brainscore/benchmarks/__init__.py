@@ -37,7 +37,8 @@ class BenchmarkBase(Benchmark):
     def assembly(self):
         return self._assembly
 
-    def __call__(self, source_assembly):
+    def __call__(self, candidate):
+        source_assembly = candidate(self.assembly.stimulus_set)
         raw_score = self._similarity_metric(source_assembly, self._assembly)
         return ceil_score(raw_score, self.ceiling)
 
@@ -50,6 +51,7 @@ class BenchmarkBase(Benchmark):
 def ceil_score(score, ceiling):
     ceiled_score = score / ceiling
     ceiled_score.attrs[Score.RAW_VALUES_KEY] = score
+    ceiled_score.attrs['ceiling'] = ceiling
     return ceiled_score
 
 
@@ -57,6 +59,16 @@ class BenchmarkPool(dict):
     def __init__(self):
         super(BenchmarkPool, self).__init__()
         # separate into class to avoid circular imports
+        self._init_nonregressing()
+        self._init_regressing()
+
+    def _init_nonregressing(self):
+        from .nonregressing import DicarloMajaj2015V4, DicarloMajaj2015IT, ToliasCadena2017
+        self['dicarlo.Majaj2015.V4'] = LazyLoad(lambda: DicarloMajaj2015V4())
+        self['dicarlo.Majaj2015.IT'] = LazyLoad(lambda: DicarloMajaj2015IT())
+        self['tolias.Cadena2017'] = LazyLoad(lambda: ToliasCadena2017())
+
+    def _init_regressing(self):
         from .regressing import DicarloMajaj2015V4, DicarloMajaj2015IT
         self['dicarlo.Majaj2015.V4-regressing'] = LazyLoad(lambda: DicarloMajaj2015V4())
         self['dicarlo.Majaj2015.IT-regressing'] = LazyLoad(lambda: DicarloMajaj2015IT())

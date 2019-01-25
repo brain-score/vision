@@ -10,7 +10,7 @@ class TestAssemblyLoaders:
         assembly = loader()
         assert isinstance(assembly, NeuroidAssembly)
         assert {'presentation', 'neuroid'} == set(assembly.dims)
-        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm'
+        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm-V6'
         assert len(assembly['presentation']) == 2560
         assert len(assembly['neuroid']) == 256
         assert len(assembly.sel(region='IT')['neuroid']) == 168

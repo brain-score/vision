@@ -24,6 +24,12 @@ class DicarloMajaj2015Loader(AssemblyLoader):
         assembly = assembly.transpose('presentation', 'neuroid')
         if average_repetition:
             assembly = self.average_repetition(assembly)
+
+        stimulus_set_name = f"{assembly.stimulus_set.name}-V6"
+        assembly.attrs['stimulus_set'] = assembly.stimulus_set[
+            assembly.stimulus_set['image_id'].isin(assembly['image_id'].values)]
+        assembly.stimulus_set.name = stimulus_set_name
+        assembly.attrs['stimulus_set_name'] = stimulus_set_name
         return assembly
 
     def _filter_erroneous_neuroids(self, assembly):

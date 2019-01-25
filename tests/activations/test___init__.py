@@ -45,7 +45,7 @@ def pytorch_alexnet():
     from model_tools.activations.pytorch import load_preprocess_images
 
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
-    return functools.partial(PytorchWrapper, model=alexnet(), preprocessing=preprocessing), \
+    return functools.partial(PytorchWrapper, model=alexnet(pretrained=True), preprocessing=preprocessing), \
            ['features.12', 'classifier.5']
 
 
@@ -107,7 +107,7 @@ def tfslim_vgg16():
 
 
 @pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png'])
-@pytest.mark.parametrize("pca_components", [None])
+@pytest.mark.parametrize("pca_components", [None, 1000])
 @pytest.mark.parametrize("provider", [
     pytorch_custom, pytorch_alexnet,
     keras_vgg19,
@@ -116,15 +116,17 @@ def test_from_image_path(provider, image_name, pca_components):
     stimuli_paths = [os.path.join(os.path.dirname(__file__), image_name)]
 
     extractor_ctr, layers = provider()
-    activations_extractor = extractor_ctr(pca_components=None)
+    activations_extractor = extractor_ctr(pca_components=pca_components)
     activations = activations_extractor.from_paths(stimuli_paths=stimuli_paths, layers=layers)
 
     assert activations is not None
     assert len(activations['stimulus_path']) == 1
     assert len(np.unique(activations['layer'])) == len(layers)
+    if pca_components is not None:
+        assert len(activations['neuroid']) == pca_components * len(layers)
 
 
-@pytest.mark.parametrize("pca_components", [None])
+@pytest.mark.parametrize("pca_components", [None, 1000])
 @pytest.mark.parametrize("provider", [
     pytorch_custom, pytorch_alexnet,
     keras_vgg19,
@@ -137,10 +139,12 @@ def test_from_stimulus_set(provider, pca_components):
                                 for image_name in image_names}
 
     extractor_ctr, layers = provider()
-    activations_extractor = extractor_ctr(pca_components=None)
+    activations_extractor = extractor_ctr(pca_components=pca_components)
     activations = activations_extractor.from_stimulus_set(stimulus_set, layers=layers)
 
     assert activations is not None
     assert set(activations['image_id'].values) == set(image_names)
     assert all(activations['some_meta'].values == [image_name[::-1] for image_name in image_names])
     assert len(np.unique(activations['layer'])) == len(layers)
+    if pca_components is not None:
+        assert len(activations['neuroid']) == pca_components * len(layers)

@@ -1,19 +1,18 @@
 import copy
+import functools
 import logging
-import os
 from collections import OrderedDict
-from multiprocessing.pool import ThreadPool
 
-import h5py
 import numpy as np
-from PIL import Image
+from result_caching import store_xarray
+
 from brainio_base.assemblies import NeuroidAssembly
 from brainio_base.stimuli import StimulusSet
-from result_caching import store
-from sklearn.decomposition import PCA
+from multiprocessing.pool import ThreadPool
 from tqdm import tqdm
 
-from model_tools.utils import fullname, s3
+from model_tools.activations.pca import LayerPCA, flatten
+from model_tools.utils import fullname
 
 
 class Defaults:
@@ -22,52 +21,88 @@ class Defaults:
 
 
 class ActivationsExtractorHelper:
-    def __init__(self, identifier, get_activations, preprocessing,
+    def __init__(self, get_activations, preprocessing, identifier=False,
                  pca_components=Defaults.pca_components, batch_size=Defaults.batch_size):
-        self._pca_components = pca_components
-        self._batch_size = batch_size
+        """
+        :param identifier: an activations identifier for the stored results file. False to disable saving.
+        """
         self._logger = logging.getLogger(fullname(self))
+
+        self._batch_size = batch_size
         self.identifier = identifier
         self.get_activations = get_activations
         self.preprocess = preprocessing or (lambda x: x)
+        self._batch_hooks = {}
+        if pca_components:
+            hook = LayerPCA(self, pca_components)
+            handle = self.register_batch_hook(hook)
+            hook.handle = handle
 
-    def __call__(self, stimuli, layers):
+    def __call__(self, stimuli, layers, stimuli_identifier=False):
+        """
+        :param stimuli_identifier: a stimuli identifier for the stored results file. False to disable saving.
+        """
         if isinstance(stimuli, StimulusSet):
             return self.from_stimulus_set(stimulus_set=stimuli, layers=layers)
         else:
-            return self.from_paths(stimuli_paths=stimuli, layers=layers)
+            return self.from_paths(stimuli_paths=stimuli, layers=layers, stimuli_identifier=stimuli_identifier)
 
-    def from_stimulus_set(self, stimulus_set, layers):
+    def from_stimulus_set(self, stimulus_set, layers, stimuli_identifier=None):
+        """
+        :param stimuli_identifier: a stimuli identifier for the stored results file.
+            False to disable saving. None to use `stimulus_set.name`
+        """
+        if stimuli_identifier is None:
+            stimuli_identifier = stimulus_set.name
         stimuli_paths = [stimulus_set.get_image(image_id) for image_id in stimulus_set['image_id']]
-        activations = self.from_paths(stimuli_paths=stimuli_paths, layers=layers)
+        activations = self.from_paths(stimuli_paths=stimuli_paths, layers=layers, stimuli_identifier=stimuli_identifier)
         activations = attach_stimulus_set_meta(activations, stimulus_set)
         return activations
 
-    def from_paths(self, stimuli_paths, layers):
-        # PCA
-        def get_activations(inputs, reduce_dimensionality):
-            return self._get_activations_batched(inputs,
-                                                 layers=layers, batch_size=self._batch_size,
-                                                 reduce_dimensionality=reduce_dimensionality)
+    def from_paths(self, stimuli_paths, layers, stimuli_identifier=False):
+        if self.identifier and stimuli_identifier:
+            fnc = functools.partial(self._from_paths_stored,
+                                    identifier=self.identifier, stimuli_identifier=stimuli_identifier)
+        else:
+            self._logger.debug(f"self.identifier `{self.identifier}` or stimuli_identifier {stimuli_identifier} "
+                               f"are not set, will not store")
+            fnc = self._from_paths
+        return fnc(layers=layers, stimuli_paths=stimuli_paths)
 
-        reduce_dimensionality = self._initialize_dimensionality_reduction(
-            pca_components=self._pca_components, get_image_activations=get_activations)
-        # actual stimuli
+    @store_xarray(identifier_ignore=['stimuli_paths', 'layers'], combine_fields={'layers': 'layer'})
+    def _from_paths_stored(self, identifier, layers, stimuli_identifier, stimuli_paths):
+        return self._from_paths(layers=layers, stimuli_paths=stimuli_paths)
+
+    def _from_paths(self, layers, stimuli_paths):
         self._logger.info('Running stimuli')
-        layer_activations = get_activations(stimuli_paths, reduce_dimensionality=reduce_dimensionality)
-
+        layer_activations = self._get_activations_batched(stimuli_paths, layers=layers, batch_size=self._batch_size)
         self._logger.info('Packaging into assembly')
         return self._package(layer_activations, stimuli_paths)
 
-    def _get_activations_batched(self, inputs, layers, batch_size, reduce_dimensionality):
+    def register_batch_hook(self, hook):
+        r"""
+        The hook will be called every time a batch of activations is retrieved.
+        The hook should have the following signature::
+
+            hook(batch_activations) -> batch_activations
+
+        The hook should return new batch_activations which will be used in place of the previous ones.
+        """
+
+        handle = HookHandle(self._batch_hooks)
+        self._batch_hooks[handle.id] = hook
+        return handle
+
+    def _get_activations_batched(self, inputs, layers, batch_size):
         layer_activations = None
         for batch_start in tqdm(range(0, len(inputs), batch_size), unit_scale=batch_size, desc="activations"):
             batch_end = min(batch_start + batch_size, len(inputs))
             self._logger.debug('Batch %d->%d/%d', batch_start, batch_end, len(inputs))
             batch_inputs = inputs[batch_start:batch_end]
             batch_activations = self._get_batch_activations(batch_inputs, layer_names=layers, batch_size=batch_size)
-            batch_activations = self._change_layer_activations(batch_activations, reduce_dimensionality,
-                                                               keep_name=True, multithread=True)
+            for hook in self._batch_hooks.copy().values():  # copy to avoid handle re-enabling messing with the loop
+                batch_activations = hook(batch_activations)
+
             if layer_activations is None:
                 layer_activations = copy.copy(batch_activations)
             else:
@@ -75,79 +110,6 @@ class ActivationsExtractorHelper:
                     layer_activations[layer_name] = np.concatenate((layer_activations[layer_name], layer_output))
 
         return layer_activations
-
-    def _initialize_dimensionality_reduction(self, pca_components, get_image_activations):
-        if pca_components is None:
-            return flatten
-
-        pca = self._compute_dimensionality_reduction(identifier=self.identifier, pca_components=pca_components,
-                                                     get_image_activations=get_image_activations)
-
-        # define dimensionality reduction method for external use
-        def reduce_dimensionality(layer_name, layer_activations):
-            layer_activations = flatten(layer_name, layer_activations)
-            if layer_activations.shape[1] < pca_components:
-                self._logger.debug(f"layer {layer_name} activations are smaller than pca components: "
-                                   f"{layer_activations.shape} -- not performing PCA")
-                return layer_activations
-            return pca[layer_name].transform(layer_activations)
-
-        return reduce_dimensionality
-
-    @store(identifier_ignore=['get_image_activations'])
-    def _compute_dimensionality_reduction(self, identifier, pca_components, get_image_activations):
-        self._logger.info('Pre-computing principal components')
-        self._logger.debug('Retrieving ImageNet activations')
-        imagenet_paths = self._get_imagenet_val(pca_components)
-        imagenet_activations = get_image_activations(imagenet_paths, reduce_dimensionality=flatten)
-        self._logger.debug('Computing ImageNet principal components')
-        progress = tqdm(total=len(imagenet_activations), desc="layer principal components")
-
-        def compute_layer_pca(activations):
-            if activations.shape[1] <= pca_components:
-                self._logger.debug(f"Not computing principal components for activations {activations.shape} "
-                                   f"as shape is small enough already")
-                pca = None
-            else:
-                pca = PCA(n_components=pca_components)
-                pca = pca.fit(activations)
-            progress.update(1)
-            return pca
-
-        pca = self._change_layer_activations(imagenet_activations, compute_layer_pca, multithread=True)
-        progress.close()
-        return pca
-
-    def _get_imagenet_val(self, num_images):
-        num_classes = 1000
-        num_images_per_class = (num_images - 1) // num_classes
-        base_indices = np.arange(num_images_per_class).astype(int)
-        indices = []
-        for i in range(num_classes):
-            indices.extend(50 * i + base_indices)
-        for i in range((num_images - 1) % num_classes + 1):
-            indices.extend(50 * i + np.array([num_images_per_class]).astype(int))
-
-        framework_home = os.path.expanduser(os.getenv('CM_HOME', '~/.candidate_models'))
-        imagenet_filepath = os.getenv('CM_IMAGENET_PATH', os.path.join(framework_home, 'imagenet2012.hdf5'))
-        imagenet_dir = f"{imagenet_filepath}-files"
-        os.makedirs(imagenet_dir, exist_ok=True)
-
-        if not os.path.isfile(imagenet_filepath):
-            os.makedirs(os.path.dirname(imagenet_filepath), exist_ok=True)
-            self._logger.debug(f"Downloading ImageNet validation to {imagenet_filepath}")
-            s3.download_file("imagenet2012-val.hdf5", imagenet_filepath)
-
-        filepaths = []
-        with h5py.File(imagenet_filepath, 'r') as f:
-            for index in indices:
-                imagepath = os.path.join(imagenet_dir, f"{index}.png")
-                if not os.path.isfile(imagepath):
-                    image = np.array(f['val/images'][index])
-                    Image.fromarray(image).save(imagepath)
-                filepaths.append(imagepath)
-
-        return filepaths
 
     def _get_batch_activations(self, inputs, layer_names, batch_size):
         inputs, num_padding = self._pad(inputs, batch_size)
@@ -157,10 +119,22 @@ class ActivationsExtractorHelper:
         activations = self._unpad(activations, num_padding)
         return activations
 
+    def _pad(self, batch_images, batch_size):
+        num_images = len(batch_images)
+        if num_images % batch_size == 0:
+            return batch_images, 0
+        num_padding = batch_size - (num_images % batch_size)
+        padding = np.repeat(batch_images[-1:], repeats=num_padding, axis=0)
+        return np.concatenate((batch_images, padding)), num_padding
+
+    def _unpad(self, layer_activations, num_padding):
+        return change_dict(layer_activations, lambda values: values[:-num_padding or None])
+
     def _package(self, layer_activations, stimuli_paths):
         activations = list(layer_activations.values())
         shapes = [a.shape for a in activations]
         self._logger.debug('Activations shapes: {}'.format(shapes))
+        activations = [flatten(single_layer_activations) for single_layer_activations in activations]  # collapse
         # layer x images x activations --> images x (layer x activations)
         activations = np.concatenate(activations, axis=-1)
         assert activations.shape[0] == len(stimuli_paths)
@@ -178,38 +152,24 @@ class ActivationsExtractorHelper:
         )
         return model_assembly
 
-    def _pad(self, batch_images, batch_size):
-        num_images = len(batch_images)
-        # try:  # `len` for numpy arrays and lists (of filepaths)
-        #     num_images = len(batch_images)
-        # except TypeError:  # `.shape` for tensors without `__len__` (e.g. in TensorFlow)
-        #     num_images = batch_images.shape[0]
-        if num_images % batch_size == 0:
-            return batch_images, 0
-        num_padding = batch_size - (num_images % batch_size)
-        padding = np.repeat(batch_images[-1:], repeats=num_padding, axis=0)
-        return np.concatenate((batch_images, padding)), num_padding
 
-    def _unpad(self, layer_activations, num_padding):
-        return self._change_layer_activations(layer_activations, lambda values: values[:-num_padding or None])
+def change_dict(d, change_function, keep_name=False, multithread=False):
+    if not multithread:
+        map_fnc = map
+    else:
+        pool = ThreadPool()
+        map_fnc = pool.map
 
-    def _change_layer_activations(self, layer_activations, change_function, keep_name=False, multithread=False):
-        if not multithread:
-            map_fnc = map
-        else:
-            pool = ThreadPool()
-            map_fnc = pool.map
+    def apply_change(layer_values):
+        layer, values = layer_values
+        values = change_function(values) if not keep_name else change_function(layer, values)
+        return layer, values
 
-        def apply_change(layer_values):
-            layer, values = layer_values
-            values = change_function(values) if not keep_name else change_function(layer, values)
-            return layer, values
-
-        results = map_fnc(apply_change, layer_activations.items())
-        results = OrderedDict(results)
-        if multithread:
-            pool.close()
-        return results
+    results = map_fnc(apply_change, d.items())
+    results = OrderedDict(results)
+    if multithread:
+        pool.close()
+    return results
 
 
 def attach_stimulus_set_meta(assembly, stimulus_set):
@@ -223,5 +183,23 @@ def attach_stimulus_set_meta(assembly, stimulus_set):
     return assembly
 
 
-def flatten(layer_name, layer_output):
-    return layer_output.reshape(layer_output.shape[0], -1)
+class HookHandle:
+    next_id = 0
+
+    def __init__(self, hook_dict):
+        self.hook_dict = hook_dict
+        self.id = HookHandle.next_id
+        HookHandle.next_id += 1
+        self._saved_hook = None
+
+    def remove(self):
+        hook = self.hook_dict[self.id]
+        del self.hook_dict[self.id]
+        return hook
+
+    def disable(self):
+        self._saved_hook = self.remove()
+
+    def enable(self):
+        self.hook_dict[self.id] = self._saved_hook
+        self._saved_hook = None

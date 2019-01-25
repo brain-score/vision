@@ -10,11 +10,10 @@ requirements = [
     "numpy",
     "brainio_base @ git+https://github.com/brain-score/brainio_base",
     "brainio_collection @ git+https://github.com/brain-score/brainio_collection",
+    "scikit-learn",
     "tqdm",
     "networkx",
     "result_caching @ git+https://github.com/mschrimpf/result_caching",
-    # test_requirements - listed here for travis
-    "pytest",
 ]
 
 setup(

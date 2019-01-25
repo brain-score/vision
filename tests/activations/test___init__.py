@@ -1,3 +1,5 @@
+import pickle
+
 import functools
 import os
 
@@ -124,6 +126,7 @@ def test_from_image_path(provider, image_name, pca_components):
     assert len(np.unique(activations['layer'])) == len(layers)
     if pca_components is not None:
         assert len(activations['neuroid']) == pca_components * len(layers)
+    return activations
 
 
 @pytest.mark.parametrize("pca_components", [None, 1000])
@@ -148,3 +151,11 @@ def test_from_stimulus_set(provider, pca_components):
     assert len(np.unique(activations['layer'])) == len(layers)
     if pca_components is not None:
         assert len(activations['neuroid']) == pca_components * len(layers)
+
+
+@pytest.mark.parametrize("pca_components", [None, 1000])
+def test_exact_activations(pca_components):
+    activations = test_from_image_path(pytorch_alexnet, 'rgb.jpg', pca_components=pca_components)
+    with open(os.path.join(os.path.dirname(__file__), f'alexnet-rgb-{pca_components}.pkl'), 'rb') as f:
+        target = pickle.load(f)['activations']
+    assert (activations == target).all()

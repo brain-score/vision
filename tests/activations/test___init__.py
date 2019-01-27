@@ -8,7 +8,7 @@ import pytest
 from brainio_base.stimuli import StimulusSet
 from result_caching import cache
 
-from model_tools.activations import KerasWrapper, PytorchWrapper, TensorflowWrapper
+from model_tools.activations import KerasWrapper, PytorchWrapper, TensorflowSlimWrapper
 
 
 def unique_preserved_order(a):
@@ -77,11 +77,13 @@ def tfslim_custom():
             net = slim.conv2d(preprocess, 64, [11, 11], 4, padding='VALID', scope='conv1')
             net = slim.max_pool2d(net, [5, 5], 5, scope='pool1')
             net = slim.max_pool2d(net, [3, 3], 2, scope='pool2')
+            net = slim.flatten(net, scope='flatten')
+            net = slim.fully_connected(net, 1000, scope='logits')
             endpoints = slim.utils.convert_collection_to_dict(end_points_collection)
 
     session = tf.Session()
     session.run(tf.initialize_all_variables())
-    return functools.partial(TensorflowWrapper, identifier='tf-custom',
+    return functools.partial(TensorflowSlimWrapper, identifier='tf-custom', labels_offset=0,
                              endpoints=endpoints, inputs=placeholder, session=session), ['my_model/pool2']
 
 
@@ -104,27 +106,31 @@ def tfslim_vgg16():
 
     session = tf.Session()
     session.run(tf.initialize_all_variables())
-    return functools.partial(TensorflowWrapper, identifier='tf-vgg16',
-                             endpoints=endpoints, inputs=placeholder, session=session), ['vgg_16/pool5']
+    return functools.partial(TensorflowSlimWrapper, identifier='tf-vgg16', labels_offset=1,
+                             logits=logits, endpoints=endpoints, inputs=placeholder, session=session), ['vgg_16/pool5']
 
 
 @pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png'])
-@pytest.mark.parametrize("pca_components", [None, 1000])
+@pytest.mark.parametrize(["pca_components", "logits"], [(None, True), (None, False), (1000, False)])
 @pytest.mark.parametrize("provider", [
     pytorch_custom, pytorch_alexnet,
     keras_vgg19,
-    tfslim_custom, tfslim_vgg16])
-def test_from_image_path(provider, image_name, pca_components):
+    tfslim_custom, tfslim_vgg16,
+])
+def test_from_image_path(provider, image_name, pca_components, logits):
     stimuli_paths = [os.path.join(os.path.dirname(__file__), image_name)]
 
     extractor_ctr, layers = provider()
     activations_extractor = extractor_ctr(pca_components=pca_components)
-    activations = activations_extractor.from_paths(stimuli_paths=stimuli_paths, layers=layers)
+    activations = activations_extractor.from_paths(stimuli_paths=stimuli_paths,
+                                                   layers=layers if not logits else None)
 
     assert activations is not None
     assert len(activations['stimulus_path']) == 1
-    assert len(np.unique(activations['layer'])) == len(layers)
-    if pca_components is not None:
+    assert len(np.unique(activations['layer'])) == len(layers) if not logits else 1
+    if logits and not pca_components:
+        assert len(activations['neuroid']) == 1000
+    elif pca_components is not None:
         assert len(activations['neuroid']) == pca_components * len(layers)
     return activations
 

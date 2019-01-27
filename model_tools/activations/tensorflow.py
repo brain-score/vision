@@ -4,10 +4,11 @@ from model_tools.activations.core import ActivationsExtractorHelper
 
 
 class TensorflowWrapper:
-    def __init__(self, identifier, inputs, endpoints: dict, session, *args, **kwargs):
+    def __init__(self, identifier, inputs, endpoints: dict, session, logits=None, *args, **kwargs):
         import tensorflow as tf
         self._inputs = inputs
         self._endpoints = endpoints
+        self._logits = logits if logits is not None else endpoints[next(reversed(endpoints))]
         self._session = session or tf.Session()
         self._extractor = ActivationsExtractorHelper(identifier=identifier, get_activations=self.get_activations,
                                                      preprocessing=None, *args, **kwargs)
@@ -18,7 +19,10 @@ class TensorflowWrapper:
         return self._extractor(*args, **kwargs)
 
     def get_activations(self, images, layer_names):
-        layer_tensors = OrderedDict((layer, self._endpoints[layer]) for layer in layer_names)
+        if not layer_names:
+            layer_tensors = OrderedDict([('logits', self._logits)])
+        else:
+            layer_tensors = OrderedDict((layer, self._endpoints[layer]) for layer in layer_names)
         layer_outputs = self._session.run(layer_tensors, feed_dict={self._inputs: images})
         return layer_outputs
 
@@ -29,6 +33,18 @@ class TensorflowWrapper:
             g.add_node(name, object=layer, type=type(layer))
         g.add_node("logits", object=self.logits, type=type(self.logits))
         return g
+
+
+class TensorflowSlimWrapper(TensorflowWrapper):
+    def __init__(self, *args, labels_offset=1, **kwargs):
+        super(TensorflowSlimWrapper, self).__init__(*args, **kwargs)
+        self._labels_offset = labels_offset
+
+    def get_activations(self, images, layer_names):
+        layer_outputs = super(TensorflowSlimWrapper, self).get_activations(images, layer_names)
+        if 'logits' in layer_outputs:
+            layer_outputs['logits'] = layer_outputs['logits'][:, self._labels_offset:]
+        return layer_outputs
 
 
 def load_image(image_filepath):

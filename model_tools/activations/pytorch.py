@@ -37,6 +37,12 @@ class PytorchWrapper:
         images = [torch.from_numpy(image) for image in images]
         images = Variable(torch.stack(images))
         images = images.to(self._device)
+        self._model.eval()
+
+        if not layer_names:
+            logits = self._model(images)
+            logits = self._tensor_to_numpy(logits)
+            return OrderedDict([('logits', logits)])
 
         layer_results = OrderedDict()
         hooks = []
@@ -46,7 +52,6 @@ class PytorchWrapper:
             hook = self.register_hook(layer, layer_name, target_dict=layer_results)
             hooks.append(hook)
 
-        self._model.eval()
         self._model(images)
         for hook in hooks:
             hook.remove()
@@ -59,12 +64,14 @@ class PytorchWrapper:
             assert module is not None, "No submodule found for layer {}, at part {}".format(layer_name, part)
         return module
 
-    def store_layer_output(self, layer_results, layer_name, output):
-        layer_results[layer_name] = output.cpu().data.numpy()
+    @staticmethod
+    def _tensor_to_numpy(output):
+        return output.cpu().data.numpy()
 
-    def register_hook(self, layer, layer_name, target_dict):
+    @staticmethod
+    def register_hook(layer, layer_name, target_dict):
         def hook_function(_layer, _input, output, name=layer_name):
-            self.store_layer_output(target_dict, name, output)
+            target_dict[name] = PytorchWrapper._tensor_to_numpy(output)
 
         hook = layer.register_forward_hook(hook_function)
         return hook

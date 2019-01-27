@@ -25,6 +25,8 @@ class KerasWrapper:
         return self._extractor(*args, **kwargs)
 
     def get_activations(self, images, layer_names):
+        if not layer_names:
+            return OrderedDict([('logits', self._model.predict(images))])
         from keras import backend as K
         input_tensor = self._model.input
         layers = [layer for layer in self._model.layers if layer.name in layer_names]

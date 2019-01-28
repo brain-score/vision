@@ -6,6 +6,7 @@ import os
 import numpy as np
 import pytest
 from brainio_base.stimuli import StimulusSet
+from model_tools.activations.pca import LayerPCA
 from result_caching import cache
 
 from model_tools.activations import KerasWrapper, PytorchWrapper, TensorflowSlimWrapper
@@ -121,7 +122,9 @@ def test_from_image_path(provider, image_name, pca_components, logits):
     stimuli_paths = [os.path.join(os.path.dirname(__file__), image_name)]
 
     extractor_ctr, layers = provider()
-    activations_extractor = extractor_ctr(pca_components=pca_components)
+    activations_extractor = extractor_ctr()
+    if pca_components:
+        LayerPCA.hook(activations_extractor, pca_components)
     activations = activations_extractor.from_paths(stimuli_paths=stimuli_paths,
                                                    layers=layers if not logits else None)
 
@@ -148,7 +151,9 @@ def test_from_stimulus_set(provider, pca_components):
                                 for image_name in image_names}
 
     extractor_ctr, layers = provider()
-    activations_extractor = extractor_ctr(pca_components=pca_components)
+    activations_extractor = extractor_ctr()
+    if pca_components:
+        LayerPCA.hook(activations_extractor, pca_components)
     activations = activations_extractor.from_stimulus_set(stimulus_set, layers=layers)
 
     assert activations is not None

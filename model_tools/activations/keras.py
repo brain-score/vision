@@ -18,8 +18,7 @@ class KerasWrapper:
         self._extractor = ActivationsExtractorHelper(
             identifier=identifier, get_activations=self.get_activations, preprocessing=preprocessing,
             *args, **kwargs)
-        self.from_stimulus_set = self._extractor.from_stimulus_set
-        self.from_paths = self._extractor.from_paths
+        self._extractor.insert_attrs(self)
 
     def __call__(self, *args, **kwargs):  # cannot assign __call__ as attribute due to Python convention
         return self._extractor(*args, **kwargs)

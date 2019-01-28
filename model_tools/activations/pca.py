@@ -7,6 +7,7 @@ from PIL import Image
 from sklearn.decomposition import PCA
 from tqdm import tqdm
 
+from model_tools.activations.core import flatten
 from model_tools.utils import fullname, s3
 from result_caching import store_dict
 
@@ -70,6 +71,13 @@ class LayerPCA:
         progress.close()
         return layer_pcas
 
+    @classmethod
+    def hook(cls, activations_extractor, n_components):
+        hook = LayerPCA(activations_extractor=activations_extractor, n_components=n_components)
+        handle = activations_extractor.register_batch_hook(hook)
+        hook.handle = handle
+        return handle
+
 
 def _get_imagenet_val(num_images):
     _logger = logging.getLogger(fullname(_get_imagenet_val))
@@ -102,7 +110,3 @@ def _get_imagenet_val(num_images):
             filepaths.append(imagepath)
 
     return filepaths
-
-
-def flatten(layer_output):
-    return layer_output.reshape(layer_output.shape[0], -1)

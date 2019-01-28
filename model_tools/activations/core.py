@@ -2,27 +2,23 @@ import copy
 import functools
 import logging
 from collections import OrderedDict
+from multiprocessing.pool import ThreadPool
 
 import numpy as np
-from result_caching import store_xarray
+from tqdm import tqdm
 
 from brainio_base.assemblies import NeuroidAssembly
 from brainio_base.stimuli import StimulusSet
-from multiprocessing.pool import ThreadPool
-from tqdm import tqdm
-
-from model_tools.activations.pca import LayerPCA, flatten
 from model_tools.utils import fullname
+from result_caching import store_xarray
 
 
 class Defaults:
     batch_size = 64
-    pca_components = 1000
 
 
 class ActivationsExtractorHelper:
-    def __init__(self, get_activations, preprocessing, identifier=False,
-                 pca_components=Defaults.pca_components, batch_size=Defaults.batch_size):
+    def __init__(self, get_activations, preprocessing, identifier=False, batch_size=Defaults.batch_size):
         """
         :param identifier: an activations identifier for the stored results file. False to disable saving.
         """
@@ -33,10 +29,6 @@ class ActivationsExtractorHelper:
         self.get_activations = get_activations
         self.preprocess = preprocessing or (lambda x: x)
         self._batch_hooks = {}
-        if pca_components:
-            hook = LayerPCA(self, pca_components)
-            handle = self.register_batch_hook(hook)
-            hook.handle = handle
 
     def __call__(self, stimuli, layers, stimuli_identifier=False):
         """
@@ -152,6 +144,12 @@ class ActivationsExtractorHelper:
         )
         return model_assembly
 
+    def insert_attrs(self, wrapper):
+        wrapper.identifier = self.identifier
+        wrapper.from_stimulus_set = self.from_stimulus_set
+        wrapper.from_paths = self.from_paths
+        wrapper.register_batch_hook = self.register_batch_hook
+
 
 def change_dict(d, change_function, keep_name=False, multithread=False):
     if not multithread:
@@ -203,3 +201,7 @@ class HookHandle:
     def enable(self):
         self.hook_dict[self.id] = self._saved_hook
         self._saved_hook = None
+
+
+def flatten(layer_output):
+    return layer_output.reshape(layer_output.shape[0], -1)

@@ -30,7 +30,7 @@ class ActivationsExtractorHelper:
         self.preprocess = preprocessing or (lambda x: x)
         self._batch_hooks = {}
 
-    def __call__(self, stimuli, layers, stimuli_identifier=False):
+    def __call__(self, stimuli, layers, stimuli_identifier=None):
         """
         :param stimuli_identifier: a stimuli identifier for the stored results file. False to disable saving.
         """
@@ -39,7 +39,7 @@ class ActivationsExtractorHelper:
         else:
             return self.from_paths(stimuli_paths=stimuli, layers=layers, stimuli_identifier=stimuli_identifier)
 
-    def from_stimulus_set(self, stimulus_set, layers, stimuli_identifier=False):
+    def from_stimulus_set(self, stimulus_set, layers, stimuli_identifier=None):
         """
         :param stimuli_identifier: a stimuli identifier for the stored results file.
             False to disable saving. None to use `stimulus_set.name`
@@ -51,7 +51,7 @@ class ActivationsExtractorHelper:
         activations = attach_stimulus_set_meta(activations, stimulus_set)
         return activations
 
-    def from_paths(self, stimuli_paths, layers, stimuli_identifier=False):
+    def from_paths(self, stimuli_paths, layers, stimuli_identifier=None):
         if self.identifier and stimuli_identifier:
             fnc = functools.partial(self._from_paths_stored,
                                     identifier=self.identifier, stimuli_identifier=stimuli_identifier)

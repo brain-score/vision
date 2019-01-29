@@ -1,15 +1,13 @@
-import pickle
-
 import functools
 import os
+import pickle
 
 import numpy as np
 import pytest
-from brainio_base.stimuli import StimulusSet
-from model_tools.activations.pca import LayerPCA
-from result_caching import cache
 
+from brainio_base.stimuli import StimulusSet
 from model_tools.activations import KerasWrapper, PytorchWrapper, TensorflowSlimWrapper
+from model_tools.activations.pca import LayerPCA
 
 
 def unique_preserved_order(a):
@@ -59,11 +57,11 @@ def keras_vgg19():
     return functools.partial(KerasWrapper, model=VGG19(), preprocessing=preprocessing), ['block3_pool']
 
 
-@cache()  # cache to avoid re-initializing variable scope
 def tfslim_custom():
     from model_tools.activations.tensorflow import load_resize_image
     import tensorflow as tf
     slim = tf.contrib.slim
+    tf.reset_default_graph()
 
     image_size = 224
     placeholder = tf.placeholder(dtype=tf.string, shape=[64])
@@ -88,12 +86,12 @@ def tfslim_custom():
                              endpoints=endpoints, inputs=placeholder, session=session), ['my_model/pool2']
 
 
-@cache()  # cache to avoid re-initializing variable scope
 def tfslim_vgg16():
     import tensorflow as tf
     from nets import nets_factory
     from preprocessing import vgg_preprocessing
     from model_tools.activations.tensorflow import load_resize_image
+    tf.reset_default_graph()
 
     image_size = 224
     placeholder = tf.placeholder(dtype=tf.string, shape=[64])

@@ -23,4 +23,4 @@ before_install:
 install:
   - pip install .
 script:
-  - pytest --ignore=tf-models
+  - CUDA_VISIBLE_DEVICES= pytest --ignore=tf-models

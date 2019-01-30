@@ -1,6 +1,7 @@
 language: python
 python:
   - 3.6
+sudo: required
 before_install:
   # the following is taken from https://github.com/pytorch/vision/blob/master/.travis.yml
   - sudo apt-get update

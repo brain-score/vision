@@ -3,3 +3,12 @@
 # Brain-Score Model Tools
 
 Utility for generic models to interact with brain data.
+
+
+## Environment variables
+
+Environment variables are prefixed with `MT_`.
+
+| Variable               | Description                                                  |
+|------------------------|--------------------------------------------------------------|
+| MT_MULTITHREAD         | whether or not to use multi-threading                        |

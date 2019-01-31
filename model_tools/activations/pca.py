@@ -30,7 +30,8 @@ class LayerPCA:
             return pca.transform(activations)
 
         from model_tools.activations.core import change_dict
-        return change_dict(batch_activations, apply_pca, keep_name=True, multithread=False)
+        return change_dict(batch_activations, apply_pca, keep_name=True,
+                           multithread=os.getenv('MT_MULTITHREAD', '1') == '1')
 
     def _ensure_initialized(self, layers):
         missing_layers = [layer for layer in layers if layer not in self._layer_pcas]
@@ -61,13 +62,14 @@ class LayerPCA:
                                    f"activations {activations.shape} as shape is small enough already")
                 pca = None
             else:
-                pca = PCA(n_components=n_components)
+                pca = PCA(n_components=n_components, random_state=0)
                 pca.fit(activations)
             progress.update(1)
             return pca
 
         from model_tools.activations.core import change_dict
-        layer_pcas = change_dict(imagenet_activations, init_and_progress, keep_name=True, multithread=True)
+        layer_pcas = change_dict(imagenet_activations, init_and_progress, keep_name=True,
+                                 multithread=os.getenv('MT_MULTITHREAD', '1') == '1')
         progress.close()
         return layer_pcas
 

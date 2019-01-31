@@ -49,6 +49,21 @@ def pytorch_alexnet():
     return PytorchWrapper(model=alexnet(pretrained=True), preprocessing=preprocessing)
 
 
+def pytorch_alexnet_resize():
+    from torchvision.models.alexnet import alexnet
+    from model_tools.activations.pytorch import load_images, torchvision_preprocess
+    from torchvision import transforms
+    torchvision_preprocess_input = transforms.Compose([transforms.Resize(224), torchvision_preprocess()])
+
+    def preprocessing(paths):
+        images = load_images(paths)
+        images = [torchvision_preprocess_input(image) for image in images]
+        images = np.concatenate(images)
+        return images
+
+    return PytorchWrapper(alexnet(pretrained=True), preprocessing, identifier='alexnet-resize')
+
+
 def keras_vgg19():
     import keras
     from keras.applications.vgg19 import VGG19, preprocess_input
@@ -168,7 +183,7 @@ def test_from_stimulus_set(model_ctr, layers, pca_components):
 
 @pytest.mark.parametrize("pca_components", [None, 1000])
 def test_exact_activations(pca_components):
-    activations = test_from_image_path(model_ctr=pytorch_alexnet, layers=['features.12', 'classifier.5'],
+    activations = test_from_image_path(model_ctr=pytorch_alexnet_resize, layers=['features.12', 'classifier.5'],
                                        image_name='rgb.jpg', pca_components=pca_components, logits=False)
     with open(os.path.join(os.path.dirname(__file__), f'alexnet-rgb-{pca_components}.pkl'), 'rb') as f:
         target = pickle.load(f)['activations']

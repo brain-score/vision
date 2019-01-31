@@ -24,4 +24,4 @@ before_install:
 install:
   - pip install .
 script:
-  - CUDA_VISIBLE_DEVICES= pytest --ignore=tf-models
+  - CUDA_VISIBLE_DEVICES= MT_MULTITHREAD=0 pytest --ignore=tf-models --skip-memory-intense

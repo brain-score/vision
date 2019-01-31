@@ -9,6 +9,10 @@ from brainio_base.stimuli import StimulusSet
 from model_tools.activations import KerasWrapper, PytorchWrapper, TensorflowSlimWrapper
 from model_tools.activations.pca import LayerPCA
 
+memory_intense = pytest.mark.skipif(
+    pytest.config.getoption("--skip-memory-intense"),
+    reason="set --skip-memory-intense option to not run memory intense tests")
+
 
 def unique_preserved_order(a):
     _, idx = np.unique(a, return_index=True)
@@ -128,11 +132,11 @@ def tfslim_vgg16():
 @pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png'])
 @pytest.mark.parametrize(["pca_components", "logits"], [(None, True), (None, False), (5, False)])
 @pytest.mark.parametrize(["model_ctr", "layers"], [
-    (pytorch_custom, ['linear', 'relu2']),
-    (pytorch_alexnet, ['features.12', 'classifier.5']),
-    (keras_vgg19, ['block3_pool']),
-    (tfslim_custom, ['my_model/pool2']),
-    (tfslim_vgg16, ['vgg_16/pool5']),
+    pytest.param(pytorch_custom, ['linear', 'relu2']),
+    pytest.param(pytorch_alexnet, ['features.12', 'classifier.5'], marks=memory_intense),
+    pytest.param(keras_vgg19, ['block3_pool'], marks=memory_intense),
+    pytest.param(tfslim_custom, ['my_model/pool2'], marks=memory_intense),
+    pytest.param(tfslim_vgg16, ['vgg_16/pool5'], marks=memory_intense),
 ])
 def test_from_image_path(model_ctr, layers, image_name, pca_components, logits):
     stimuli_paths = [os.path.join(os.path.dirname(__file__), image_name)]
@@ -150,16 +154,18 @@ def test_from_image_path(model_ctr, layers, image_name, pca_components, logits):
         assert len(activations['neuroid']) == 1000
     elif pca_components is not None:
         assert len(activations['neuroid']) == pca_components * len(layers)
+    import gc
+    gc.collect()
     return activations
 
 
-@pytest.mark.parametrize("pca_components", [None, 1000])
+@pytest.mark.parametrize("pca_components", [None, 5])
 @pytest.mark.parametrize(["model_ctr", "layers"], [
-    (pytorch_custom, ['linear', 'relu2']),
-    (pytorch_alexnet, ['features.12', 'classifier.5']),
-    (keras_vgg19, ['block3_pool']),
-    (tfslim_custom, ['my_model/pool2']),
-    (tfslim_vgg16, ['vgg_16/pool5']),
+    pytest.param(pytorch_custom, ['linear', 'relu2']),
+    pytest.param(pytorch_alexnet, ['features.12', 'classifier.5'], marks=memory_intense),
+    pytest.param(keras_vgg19, ['block3_pool'], marks=memory_intense),
+    pytest.param(tfslim_custom, ['my_model/pool2'], marks=memory_intense),
+    pytest.param(tfslim_vgg16, ['vgg_16/pool5'], marks=memory_intense),
 ])
 def test_from_stimulus_set(model_ctr, layers, pca_components):
     image_names = ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png']
@@ -181,6 +187,7 @@ def test_from_stimulus_set(model_ctr, layers, pca_components):
         assert len(activations['neuroid']) == pca_components * len(layers)
 
 
+@memory_intense
 @pytest.mark.parametrize("pca_components", [None, 1000])
 def test_exact_activations(pca_components):
     activations = test_from_image_path(model_ctr=pytorch_alexnet_resize, layers=['features.12', 'classifier.5'],
@@ -190,6 +197,7 @@ def test_exact_activations(pca_components):
     assert (activations == target).all()
 
 
+@memory_intense
 @pytest.mark.parametrize(["model_ctr", "internal_layers"], [
     (pytorch_alexnet, ['features.12', 'classifier.5']),
     (keras_vgg19, ['block3_pool']),

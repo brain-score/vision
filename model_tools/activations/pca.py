@@ -92,8 +92,8 @@ def _get_imagenet_val(num_images):
     for i in range((num_images - 1) % num_classes + 1):
         indices.extend(50 * i + np.array([num_images_per_class]).astype(int))
 
-    framework_home = os.path.expanduser(os.getenv('CM_HOME', '~/.model-tools'))
-    imagenet_filepath = os.getenv('CM_IMAGENET_PATH', os.path.join(framework_home, 'imagenet2012.hdf5'))
+    framework_home = os.path.expanduser(os.getenv('MT_HOME', '~/.model-tools'))
+    imagenet_filepath = os.getenv('MT_IMAGENET_PATH', os.path.join(framework_home, 'imagenet2012.hdf5'))
     imagenet_dir = f"{imagenet_filepath}-files"
     os.makedirs(imagenet_dir, exist_ok=True)
 

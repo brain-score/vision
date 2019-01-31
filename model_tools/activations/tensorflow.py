@@ -8,7 +8,6 @@ class TensorflowWrapper:
         import tensorflow as tf
         self._inputs = inputs
         self._endpoints = endpoints
-        self._logits = logits if logits is not None else endpoints[next(reversed(endpoints))]
         self._session = session or tf.Session()
         self._extractor = ActivationsExtractorHelper(identifier=identifier, get_activations=self.get_activations,
                                                      preprocessing=None, *args, **kwargs)
@@ -18,10 +17,9 @@ class TensorflowWrapper:
         return self._extractor(*args, **kwargs)
 
     def get_activations(self, images, layer_names):
-        if not layer_names:
-            layer_tensors = OrderedDict([('logits', self._logits)])
-        else:
-            layer_tensors = OrderedDict((layer, self._endpoints[layer]) for layer in layer_names)
+        layer_tensors = OrderedDict((layer, self._endpoints[
+            layer if (layer != 'logits' or layer in self._endpoints) else next(reversed(self._endpoints))])
+                                    for layer in layer_names)
         layer_outputs = self._session.run(layer_tensors, feed_dict={self._inputs: images})
         return layer_outputs
 

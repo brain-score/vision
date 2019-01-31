@@ -35,7 +35,7 @@ class ActivationsExtractorHelper:
         :param stimuli_identifier: a stimuli identifier for the stored results file. False to disable saving.
         """
         if isinstance(stimuli, StimulusSet):
-            return self.from_stimulus_set(stimulus_set=stimuli, layers=layers)
+            return self.from_stimulus_set(stimulus_set=stimuli, layers=layers, stimuli_identifier=stimuli_identifier)
         else:
             return self.from_paths(stimuli_paths=stimuli, layers=layers, stimuli_identifier=stimuli_identifier)
 
@@ -52,6 +52,8 @@ class ActivationsExtractorHelper:
         return activations
 
     def from_paths(self, stimuli_paths, layers, stimuli_identifier=None):
+        if layers is None:
+            layers = ['logits']
         if self.identifier and stimuli_identifier:
             fnc = functools.partial(self._from_paths_stored,
                                     identifier=self.identifier, stimuli_identifier=stimuli_identifier)
@@ -172,7 +174,7 @@ def change_dict(d, change_function, keep_name=False, multithread=False):
 
 def attach_stimulus_set_meta(assembly, stimulus_set):
     stimulus_paths = [stimulus_set.get_image(image_id) for image_id in stimulus_set['image_id']]
-    assert all(assembly['stimulus_path'] == stimulus_paths)
+    assert all(assembly['stimulus_path'].values == stimulus_paths)
     assembly['stimulus_path'] = stimulus_set['image_id'].values
     assembly = assembly.rename({'stimulus_path': 'image_id'})
     for column in stimulus_set.columns:

@@ -24,17 +24,17 @@ class KerasWrapper:
         return self._extractor(*args, **kwargs)
 
     def get_activations(self, images, layer_names):
-        if not layer_names:
-            return OrderedDict([('logits', self._model.predict(images))])
         from keras import backend as K
         input_tensor = self._model.input
         layers = [layer for layer in self._model.layers if layer.name in layer_names]
         layers = sorted(layers, key=lambda layer: layer_names.index(layer.name))
+        if 'logits' in layer_names:
+            layers.insert(layer_names.index('logits'), self._model.layers[-1])
+        assert len(layers) == len(layer_names)
         layer_out_tensors = [layer.output for layer in layers]
         functor = K.function([input_tensor] + [K.learning_phase()], layer_out_tensors)  # evaluate all tensors at once
         layer_outputs = functor([images, 0.])  # 0 to signal testing phase
-        return OrderedDict([(layer_name, layer_output) for layer_name, layer_output
-                            in zip([layer.name for layer in layers], layer_outputs)])
+        return OrderedDict([(layer_name, layer_output) for layer_name, layer_output in zip(layer_names, layer_outputs)])
 
     def __repr__(self):
         return repr(self._model)

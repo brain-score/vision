@@ -38,7 +38,7 @@ def pytorch_custom():
             return x
 
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
-    return functools.partial(PytorchWrapper, model=MyModel(), preprocessing=preprocessing), ['linear', 'relu2']
+    return PytorchWrapper(model=MyModel(), preprocessing=preprocessing)
 
 
 def pytorch_alexnet():
@@ -46,15 +46,16 @@ def pytorch_alexnet():
     from model_tools.activations.pytorch import load_preprocess_images
 
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
-    return functools.partial(PytorchWrapper, model=alexnet(pretrained=True), preprocessing=preprocessing), \
-           ['features.12', 'classifier.5']
+    return PytorchWrapper(model=alexnet(pretrained=True), preprocessing=preprocessing)
 
 
 def keras_vgg19():
+    import keras
     from keras.applications.vgg19 import VGG19, preprocess_input
     from model_tools.activations.keras import load_images
+    keras.backend.clear_session()
     preprocessing = lambda image_filepaths: preprocess_input(load_images(image_filepaths, image_size=224))
-    return functools.partial(KerasWrapper, model=VGG19(), preprocessing=preprocessing), ['block3_pool']
+    return KerasWrapper(model=VGG19(), preprocessing=preprocessing)
 
 
 def tfslim_custom():
@@ -82,8 +83,8 @@ def tfslim_custom():
 
     session = tf.Session()
     session.run(tf.initialize_all_variables())
-    return functools.partial(TensorflowSlimWrapper, identifier='tf-custom', labels_offset=0,
-                             endpoints=endpoints, inputs=placeholder, session=session), ['my_model/pool2']
+    return TensorflowSlimWrapper(identifier='tf-custom', labels_offset=0,
+                                 endpoints=endpoints, inputs=placeholder, session=session)
 
 
 def tfslim_vgg16():
@@ -105,22 +106,23 @@ def tfslim_vgg16():
 
     session = tf.Session()
     session.run(tf.initialize_all_variables())
-    return functools.partial(TensorflowSlimWrapper, identifier='tf-vgg16', labels_offset=1,
-                             logits=logits, endpoints=endpoints, inputs=placeholder, session=session), ['vgg_16/pool5']
+    return TensorflowSlimWrapper(identifier='tf-vgg16', labels_offset=1,
+                                 logits=logits, endpoints=endpoints, inputs=placeholder, session=session)
 
 
 @pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png'])
-@pytest.mark.parametrize(["pca_components", "logits"], [(None, True), (None, False), (1000, False)])
-@pytest.mark.parametrize("provider", [
-    pytorch_custom, pytorch_alexnet,
-    keras_vgg19,
-    tfslim_custom, tfslim_vgg16,
+@pytest.mark.parametrize(["pca_components", "logits"], [(None, True), (None, False), (5, False)])
+@pytest.mark.parametrize(["model_ctr", "layers"], [
+    (pytorch_custom, ['linear', 'relu2']),
+    (pytorch_alexnet, ['features.12', 'classifier.5']),
+    (keras_vgg19, ['block3_pool']),
+    (tfslim_custom, ['my_model/pool2']),
+    (tfslim_vgg16, ['vgg_16/pool5']),
 ])
-def test_from_image_path(provider, image_name, pca_components, logits):
+def test_from_image_path(model_ctr, layers, image_name, pca_components, logits):
     stimuli_paths = [os.path.join(os.path.dirname(__file__), image_name)]
 
-    extractor_ctr, layers = provider()
-    activations_extractor = extractor_ctr()
+    activations_extractor = model_ctr()
     if pca_components:
         LayerPCA.hook(activations_extractor, pca_components)
     activations = activations_extractor.from_paths(stimuli_paths=stimuli_paths,
@@ -137,22 +139,24 @@ def test_from_image_path(provider, image_name, pca_components, logits):
 
 
 @pytest.mark.parametrize("pca_components", [None, 1000])
-@pytest.mark.parametrize("provider", [
-    pytorch_custom, pytorch_alexnet,
-    keras_vgg19,
-    tfslim_custom, tfslim_vgg16])
-def test_from_stimulus_set(provider, pca_components):
+@pytest.mark.parametrize(["model_ctr", "layers"], [
+    (pytorch_custom, ['linear', 'relu2']),
+    (pytorch_alexnet, ['features.12', 'classifier.5']),
+    (keras_vgg19, ['block3_pool']),
+    (tfslim_custom, ['my_model/pool2']),
+    (tfslim_vgg16, ['vgg_16/pool5']),
+])
+def test_from_stimulus_set(model_ctr, layers, pca_components):
     image_names = ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png']
     stimulus_set = StimulusSet([{'image_id': image_name, 'some_meta': image_name[::-1]}
                                 for image_name in image_names])
     stimulus_set.image_paths = {image_name: os.path.join(os.path.dirname(__file__), image_name)
                                 for image_name in image_names}
 
-    extractor_ctr, layers = provider()
-    activations_extractor = extractor_ctr()
+    activations_extractor = model_ctr()
     if pca_components:
         LayerPCA.hook(activations_extractor, pca_components)
-    activations = activations_extractor.from_stimulus_set(stimulus_set, layers=layers)
+    activations = activations_extractor.from_stimulus_set(stimulus_set, layers=layers, stimuli_identifier=False)
 
     assert activations is not None
     assert set(activations['image_id'].values) == set(image_names)
@@ -164,7 +168,24 @@ def test_from_stimulus_set(provider, pca_components):
 
 @pytest.mark.parametrize("pca_components", [None, 1000])
 def test_exact_activations(pca_components):
-    activations = test_from_image_path(pytorch_alexnet, 'rgb.jpg', pca_components=pca_components)
+    activations = test_from_image_path(model_ctr=pytorch_alexnet, layers=['features.12', 'classifier.5'],
+                                       image_name='rgb.jpg', pca_components=pca_components, logits=False)
     with open(os.path.join(os.path.dirname(__file__), f'alexnet-rgb-{pca_components}.pkl'), 'rb') as f:
         target = pickle.load(f)['activations']
     assert (activations == target).all()
+
+
+@pytest.mark.parametrize(["model_ctr", "internal_layers"], [
+    (pytorch_alexnet, ['features.12', 'classifier.5']),
+    (keras_vgg19, ['block3_pool']),
+    (tfslim_vgg16, ['vgg_16/pool5']),
+])
+def test_mixed_layer_logits(model_ctr, internal_layers):
+    stimuli_paths = [os.path.join(os.path.dirname(__file__), 'rgb.jpg')]
+
+    activations_extractor = model_ctr()
+    layers = internal_layers + ['logits']
+    activations = activations_extractor(stimuli=stimuli_paths, layers=layers)
+    assert len(np.unique(activations['layer'])) == len(internal_layers) + 1
+    assert set(activations['layer'].values) == set(layers)
+    assert unique_preserved_order(activations['layer'])[-1] == 'logits'

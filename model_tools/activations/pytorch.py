@@ -38,11 +38,6 @@ class PytorchWrapper:
         images = images.to(self._device)
         self._model.eval()
 
-        if not layer_names:
-            logits = self._model(images)
-            logits = self._tensor_to_numpy(logits)
-            return OrderedDict([('logits', logits)])
-
         layer_results = OrderedDict()
         hooks = []
 
@@ -57,10 +52,18 @@ class PytorchWrapper:
         return layer_results
 
     def get_layer(self, layer_name):
+        if layer_name == 'logits':
+            return self._output_layer()
         module = self._model
         for part in layer_name.split(SUBMODULE_SEPARATOR):
             module = module._modules.get(part)
-            assert module is not None, "No submodule found for layer {}, at part {}".format(layer_name, part)
+            assert module is not None, f"No submodule found for layer {layer_name}, at part {part}"
+        return module
+
+    def _output_layer(self):
+        module = self._model
+        while module._modules:
+            module = module._modules[next(reversed(module._modules))]
         return module
 
     @staticmethod

@@ -2,6 +2,7 @@ from pytest import approx
 
 import brainscore
 from brainscore.benchmarks.nonregressing import split_assembly, DicarloMajaj2015IT, DicarloMajaj2015V4, ToliasCadena2017
+from tests import private_access
 
 
 class TestSplitAssembly:
@@ -36,6 +37,7 @@ class TestMajaj2015:
         assert raw_values.mean('split').std() == approx(0), "too much deviation between neuroids"
 
 
+@private_access
 class TestCadena2017:
     def test_ceiling(self):
         benchmark = ToliasCadena2017()

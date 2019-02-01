@@ -2,6 +2,7 @@ import numpy as np
 
 from brainio_base.assemblies import NeuroidAssembly
 from brainscore.benchmarks import DicarloMajaj2015Loader, ToliasCadena2017Loader
+from tests import private_access
 
 
 class TestAssemblyLoaders:
@@ -16,6 +17,7 @@ class TestAssemblyLoaders:
         assert len(assembly.sel(region='IT')['neuroid']) == 168
         assert len(assembly.sel(region='V4')['neuroid']) == 88
 
+    @private_access
     def test_toliascadena2017(self):
         loader = ToliasCadena2017Loader()
         assembly = loader()

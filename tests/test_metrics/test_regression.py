@@ -12,7 +12,7 @@ class TestCrossRegressedCorrelation:
                                    coords={'image_id': ('presentation', np.arange(30)),
                                            'object_name': ('presentation', ['a', 'b', 'c'] * 10),
                                            'neuroid_id': ('neuroid', np.arange(25)),
-                                           'region': ('neuroid', [None] * 25)},
+                                           'region': ('neuroid', ['some_region'] * 25)},
                                    dims=['presentation', 'neuroid'])
         metric = CrossRegressedCorrelation()
         score = metric(source=assembly, target=assembly)

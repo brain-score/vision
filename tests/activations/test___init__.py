@@ -212,3 +212,14 @@ def test_mixed_layer_logits(model_ctr, internal_layers):
     assert len(np.unique(activations['layer'])) == len(internal_layers) + 1
     assert set(activations['layer'].values) == set(layers)
     assert unique_preserved_order(activations['layer'])[-1] == 'logits'
+
+
+@memory_intense
+@pytest.mark.parametrize(["model_ctr", "expected_identifier"], [
+    (pytorch_custom, 'MyModel'),
+    (pytorch_alexnet, 'AlexNet'),
+    (keras_vgg19, 'vgg19'),
+])
+def test_infer_identifier(model_ctr, expected_identifier):
+    model = model_ctr()
+    assert model.identifier == expected_identifier

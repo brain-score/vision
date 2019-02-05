@@ -21,7 +21,7 @@ class PytorchWrapper:
         self._logger.debug(f"Using device {self._device}")
         self._model = model
         self._model = self._model.to(self._device)
-        identifier = identifier or model.__module__
+        identifier = identifier or model.__class__.__name__
         self._extractor = ActivationsExtractorHelper(
             identifier=identifier, get_activations=self.get_activations, preprocessing=preprocessing,
             *args, **kwargs)

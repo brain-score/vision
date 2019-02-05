@@ -1,6 +1,7 @@
 import logging
-import numpy as np
 from collections import OrderedDict
+
+import numpy as np
 
 from model_tools.activations.core import ActivationsExtractorHelper
 
@@ -14,7 +15,7 @@ class KerasWrapper:
             that will later be called on the loaded numpy image
         """
         self._model = model
-        identifier = identifier or model.__module__
+        identifier = identifier or model.name
         self._extractor = ActivationsExtractorHelper(
             identifier=identifier, get_activations=self.get_activations, preprocessing=preprocessing,
             *args, **kwargs)

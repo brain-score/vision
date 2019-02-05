@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
 import xarray as xr
+from brainio_base.assemblies import NeuroidAssembly, DataAssembly
 
 from brainscore import benchmarks
-from brainscore.assemblies import NeuroidAssembly, DataAssembly
 from brainscore.metrics import Metric
 from brainscore.metrics.transformations import subset, index_efficient, CartesianProduct, CrossValidation, \
     CrossValidationSingle
@@ -21,7 +21,7 @@ class TestCrossValidationSingle:
             self.test_assemblies.append(test)
             return DataAssembly(0)
 
-    def test(self):
+    def test_presentation_neuroid(self):
         assembly = NeuroidAssembly(np.random.rand(500, 10),
                                    coords={'image_id': ('presentation', list(range(500))),
                                            'image_meta': ('presentation', [0] * 500),
@@ -32,6 +32,22 @@ class TestCrossValidationSingle:
         metric = self.MetricPlaceholder()
         score = cv(assembly, apply=metric)
         assert len(metric.train_assemblies) == len(metric.test_assemblies) == 10
+        assert len(score.attrs['raw']['split']) == 10
+
+    def test_repeated_dim(self):
+        """
+        necessary for cross-validation over RDMs
+        """
+        assembly = NeuroidAssembly(np.random.rand(50, 50),
+                                   coords={'image_id': ('presentation', list(range(50))),
+                                           'image_meta': ('presentation', [0] * 50)},
+                                   dims=['presentation', 'presentation'])
+        cv = CrossValidationSingle(splits=10, train_size=.9)
+        metric = self.MetricPlaceholder()
+        score = cv(assembly, apply=metric)
+        assert len(metric.train_assemblies) == len(metric.test_assemblies) == 10
+        assert all(assembly.shape == (45, 45) for assembly in metric.train_assemblies)
+        assert all(assembly.shape == (5, 5) for assembly in metric.test_assemblies)
         assert len(score.attrs['raw']['split']) == 10
 
 
@@ -243,6 +259,36 @@ class TestSubset:
                               dims=['category_name']).stack(presentation=['category_name'])
         sub_assembly = subset(assembly, target, repeat=True, dims_must_match=False)
         assert (assembly == sub_assembly).all()
+
+    def test_repeated_dim(self):
+        source_assembly = np.random.rand(5, 5)
+        source_assembly = NeuroidAssembly(source_assembly, coords={
+            'image_id': ('presentation', list(range(source_assembly.shape[0]))),
+            'image_meta': ('presentation', np.zeros(source_assembly.shape[0]))},
+                                          dims=['presentation', 'presentation'])
+
+        target_assembly = NeuroidAssembly(np.zeros(3), coords={
+            'image_id': [0, 2, 3]}, dims=['image_id']).stack(presentation=('image_id',))
+
+        subset_assembly = subset(source_assembly, target_assembly, subset_dims=('presentation',), repeat=True)
+        np.testing.assert_array_equal(subset_assembly.shape, (3, 3))
+        assert set(subset_assembly['image_id'].values) == set(target_assembly['image_id'].values)
+
+    def test_repeated_dim_and_adjacent(self):
+        source_assembly = np.random.rand(5, 5)
+        source_assembly = NeuroidAssembly(source_assembly, coords={
+            'image_id': ('presentation', list(range(source_assembly.shape[0]))),
+            'image_meta': ('presentation', np.zeros(source_assembly.shape[0])),
+            'adjacent': 12},
+                                          dims=['presentation', 'presentation'])
+
+        target_assembly = NeuroidAssembly(np.zeros(3), coords={
+            'image_id': [0, 2, 3]}, dims=['image_id']).stack(presentation=('image_id',))
+
+        subset_assembly = subset(source_assembly, target_assembly, subset_dims=('presentation',), repeat=True)
+        np.testing.assert_array_equal(subset_assembly.shape, (3, 3))
+        assert set(subset_assembly['image_id'].values) == set(target_assembly['image_id'].values)
+        assert subset_assembly['adjacent'] == 12
 
 
 class TestIndexEfficient:

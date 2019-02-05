@@ -1,7 +1,7 @@
 import numpy as np
 
-from brainscore.assemblies import DataAssembly
-from brainscore.metrics.transformations import CrossValidation
+from brainio_base.assemblies import DataAssembly
+from brainscore.metrics.transformations import CrossValidation, TestOnlyCrossValidation
 from brainscore.metrics.xarray_utils import Defaults as XarrayDefaults
 
 
@@ -14,15 +14,7 @@ class RDMCrossValidated:
 
     def __init__(self, neuroid_dim=XarrayDefaults.neuroid_dim, comparison_coord=XarrayDefaults.stimulus_coord):
         self._metric = RDMMetric(neuroid_dim=neuroid_dim, comparison_coord=comparison_coord)
-        self._cross_validation = CrossValidation(test_size=.9)  # leave 10% out
-
-    class LeaveOneOutWrapper:
-        def __init__(self, metric):
-            self._metric = metric
-
-        def __call__(self, train_source, train_target, test_source, test_target):
-            # compare assemblies for a single split. we ignore the 10% train ("leave-one-out") and only use test.
-            return self._metric(test_source, test_target)
+        self._cross_validation = TestOnlyCrossValidation(test_size=.9)  # leave 10% out
 
     def __call__(self, assembly1, assembly2):
         """
@@ -31,8 +23,7 @@ class RDMCrossValidated:
         :return: brainscore.assemblies.DataAssembly
         """
 
-        leave_one_out = self.LeaveOneOutWrapper(self._metric)
-        return self._cross_validation(assembly1, assembly2, apply=leave_one_out)
+        return self._cross_validation(assembly1, assembly2, apply=self._metric)
 
 
 class RDMMetric:

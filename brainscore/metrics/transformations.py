@@ -8,7 +8,8 @@ import xarray as xr
 from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
 from tqdm import tqdm
 
-from brainscore.assemblies import merge_data_arrays, DataAssembly
+from brainio_base.assemblies import DataAssembly
+from brainscore.assemblies import merge_data_arrays, walk_coords
 from brainscore.metrics import Score
 from brainscore.metrics.utils import unique_ordered
 from brainscore.utils import fullname
@@ -134,6 +135,12 @@ class CartesianProduct(Transformation):
         for i, divider, done in progress:
             progress.set_description(str(divider))
             divided_assembly = assembly.multisel(**divider)
+            # squeeze dimensions if necessary
+            for divider_coord in divider:
+                dims = assembly[divider_coord].dims
+                assert len(dims) == 1
+                if dims[0] in divided_assembly.dims and len(divided_assembly[dims[0]]) == 1:
+                    divided_assembly = divided_assembly.squeeze(dims[0])
             result = yield from self._get_result(divided_assembly, done=done)
 
             for coord_name, coord_value in divider.items():
@@ -144,37 +151,37 @@ class CartesianProduct(Transformation):
         yield scores
 
 
-class CrossValidationSingle(Transformation):
+class Split:
     class Defaults:
         splits = 10
         train_size = .9
         split_coord = 'image_id'
         stratification_coord = 'object_name'  # cross-validation across images, balancing objects
-        seed = 1
+        random_state = 1
 
     def __init__(self,
                  splits=Defaults.splits, train_size=None, test_size=None,
                  split_coord=Defaults.split_coord, stratification_coord=Defaults.stratification_coord,
-                 seed=Defaults.seed):
+                 random_state=Defaults.random_state):
         super().__init__()
         if train_size is None and test_size is None:
             train_size = self.Defaults.train_size
         self._stratified_split = StratifiedShuffleSplit(
-            n_splits=splits, train_size=train_size, test_size=test_size, random_state=seed)
+            n_splits=splits, train_size=train_size, test_size=test_size, random_state=random_state)
         self._shuffle_split = ShuffleSplit(
-            n_splits=splits, train_size=train_size, test_size=test_size, random_state=seed)
+            n_splits=splits, train_size=train_size, test_size=test_size, random_state=random_state)
         self._split_coord = split_coord
         self._stratification_coord = stratification_coord
 
         self._logger = logging.getLogger(fullname(self))
 
-    def _stratify(self, assembly):
+    def stratify(self, assembly):
         return self._stratification_coord and hasattr(assembly, self._stratification_coord)
 
-    def _build_splits(self, assembly):
+    def build_splits(self, assembly):
         cross_validation_values, indices = extract_coord(assembly, self._split_coord, return_index=True)
         data_shape = np.zeros(len(cross_validation_values))
-        if self._stratify(assembly):
+        if self.stratify(assembly):
             splits = self._stratified_split.split(data_shape,
                                                   assembly[self._stratification_coord].values[indices])
         else:
@@ -183,11 +190,49 @@ class CrossValidationSingle(Transformation):
             splits = self._shuffle_split.split(data_shape)
         return cross_validation_values, list(splits)
 
+    def aggregate(self, values):
+        center = values.mean('split')
+        error = standard_error_of_the_mean(values, 'split')
+        return Score([center, error],
+                     coords={**{'aggregation': ['center', 'error']},
+                             **{coord: (dims, values) for coord, dims, values in walk_coords(center)}},
+                     dims=('aggregation',) + center.dims)
+
+
+class TestOnlyCrossValidationSingle:
+    def __init__(self, *args, **kwargs):
+        self._cross_validation = CrossValidationSingle(*args, **kwargs)
+
+    def __call__(self, *args, apply, **kwargs):
+        apply_wrapper = lambda train, test: apply(test)
+        return self._cross_validation(*args, apply=apply_wrapper, **kwargs)
+
+
+class TestOnlyCrossValidation:
+    def __init__(self, *args, **kwargs):
+        self._cross_validation = CrossValidation(*args, **kwargs)
+
+    def __call__(self, *args, apply, **kwargs):
+        apply_wrapper = lambda train1, train2, test1, test2: apply(test1, test2)
+        return self._cross_validation(*args, apply=apply_wrapper, **kwargs)
+
+
+class CrossValidationSingle(Transformation):
+    def __init__(self,
+                 splits=Split.Defaults.splits, train_size=None, test_size=None,
+                 split_coord=Split.Defaults.split_coord, stratification_coord=Split.Defaults.stratification_coord,
+                 random_state=Split.Defaults.random_state):
+        super().__init__()
+        self._split = Split(splits=splits, split_coord=split_coord,
+                            stratification_coord=stratification_coord,
+                            train_size=train_size, test_size=test_size, random_state=random_state)
+        self._logger = logging.getLogger(fullname(self))
+
     def pipe(self, assembly):
         """
         :param assembly: the assembly to cross-validate over
         """
-        cross_validation_values, splits = self._build_splits(assembly)
+        cross_validation_values, splits = self._split.build_splits(assembly)
 
         split_scores = []
         for split_iterator, (train_indices, test_indices), done \
@@ -204,10 +249,8 @@ class CrossValidationSingle(Transformation):
         split_scores = Score.merge(*split_scores)
         yield split_scores
 
-    def aggregate(self, values):
-        center = values.mean('split')
-        error = standard_error_of_the_mean(values, 'split')
-        return Score([center, error], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
+    def aggregate(self, score):
+        return self._split.aggregate(score)
 
 
 class CrossValidation(Transformation):
@@ -217,24 +260,24 @@ class CrossValidation(Transformation):
     """
 
     def __init__(self,
-                 splits=CrossValidationSingle.Defaults.splits, split_coord=CrossValidationSingle.Defaults.split_coord,
-                 stratification_coord=CrossValidationSingle.Defaults.stratification_coord,
-                 train_size=None, test_size=None, seed=CrossValidationSingle.Defaults.seed):
+                 splits=Split.Defaults.splits, split_coord=Split.Defaults.split_coord,
+                 stratification_coord=Split.Defaults.stratification_coord,
+                 train_size=None, test_size=None, seed=Split.Defaults.random_state):
         self._split_coord = split_coord
         self._stratification_coord = stratification_coord
-        self._single_crossval = CrossValidationSingle(splits=splits, split_coord=split_coord,
-                                                      stratification_coord=stratification_coord,
-                                                      train_size=train_size, test_size=test_size, seed=seed)
+        self._split = Split(splits=splits, split_coord=split_coord,
+                            stratification_coord=stratification_coord,
+                            train_size=train_size, test_size=test_size, random_state=seed)
         self._logger = logging.getLogger(fullname(self))
 
     def pipe(self, source_assembly, target_assembly):
         # check only for equal values, alignment is given by metadata
         assert sorted(source_assembly[self._split_coord].values) == sorted(target_assembly[self._split_coord].values)
-        if self._single_crossval._stratify(target_assembly):
+        if self._split.stratify(target_assembly):
             assert hasattr(source_assembly, self._stratification_coord)
             assert sorted(source_assembly[self._stratification_coord].values) == \
                    sorted(target_assembly[self._stratification_coord].values)
-        cross_validation_values, splits = self._single_crossval._build_splits(target_assembly)
+        cross_validation_values, splits = self._split.build_splits(target_assembly)
 
         split_scores = []
         for split_iterator, (train_indices, test_indices), done \
@@ -257,7 +300,7 @@ class CrossValidation(Transformation):
         yield split_scores
 
     def aggregate(self, score):
-        return self._single_crossval.aggregate(score)
+        return self._split.aggregate(score)
 
 
 def extract_coord(assembly, coord, return_index=False):
@@ -303,7 +346,16 @@ def subset(source_assembly, target_assembly, subset_dims=None, dims_must_match=T
                 assert len(dim) == 1
                 dim = dim[0]
             dim_indexes = {_dim: slice(None) if _dim != dim else indexer for _dim in source_assembly.dims}
-            source_assembly = source_assembly.isel(**dim_indexes)
+            if len(np.unique(source_assembly.dims)) == len(source_assembly.dims):  # no repeated dimensions
+                source_assembly = source_assembly.isel(**dim_indexes)
+                continue
+            # work-around when dimensions are repeated. `isel` will keep only the first instance of a repeated dimension
+            positional_dim_indexes = [dim_indexes[dim] for dim in source_assembly.dims]
+            source_assembly = type(source_assembly)(
+                source_assembly.values[np.ix_(*positional_dim_indexes)],
+                coords={coord: (dim, value[dim_indexes[dim[0]]] if len(dim) == 1 else value)
+                        for coord, dim, value in walk_coords(source_assembly)},
+                dims=source_assembly.dims)
         if dims_must_match:
             # dims match up after selection. cannot compare exact equality due to potentially missing levels
             assert len(target_assembly[dim]) == len(source_assembly[dim])

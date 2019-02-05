@@ -1,6 +1,9 @@
+from brainio_base.assemblies import NeuroidAssembly
+from brainio_base.assemblies import array_is_element, walk_coords
 import numpy as np
-from brainscore.assemblies import NeuroidAssembly, DataAssembly
-from brainscore.assemblies import array_is_element, walk_coords
+
+from brainio_base.assemblies import DataAssembly
+from brainscore.assemblies import walk_coords
 
 
 class Defaults:
@@ -38,9 +41,7 @@ class XarrayRegression:
 
     def predict(self, source):
         source = self._align(source)
-
         predicted_values = self._regression.predict(source)
-
         prediction = self._package_prediction(predicted_values, source=source)
         return prediction
 
@@ -48,9 +49,20 @@ class XarrayRegression:
         coords = {coord: (dims, values) for coord, dims, values in walk_coords(source)
                   if not array_is_element(dims, self._neuroid_dim)}
         # re-package neuroid coords
+        dims = source.dims
+        # if there is only one neuroid coordinate, it would get discarded and the dimension would be used as coordinate.
+        # to avoid this, we can build the assembly first and then stack on the neuroid dimension.
+        neuroid_level_dim = None
+        if len(self._target_neuroid_values) == 1:  # extract single key: https://stackoverflow.com/a/20145927/2225200
+            (neuroid_level_dim, _), = self._target_neuroid_values.items()
+            dims = [dim if dim != self._neuroid_dim else neuroid_level_dim for dim in dims]
         for target_coord, target_value in self._target_neuroid_values.items():
-            coords[target_coord] = self._neuroid_dim, target_value  # this might overwrite values which is okay
-        prediction = NeuroidAssembly(predicted_values, coords=coords, dims=source.dims)
+            # this might overwrite values which is okay
+            coords[target_coord] = (neuroid_level_dim or self._neuroid_dim), target_value
+        prediction = NeuroidAssembly(predicted_values, coords=coords, dims=dims)
+        if neuroid_level_dim:
+            prediction = prediction.stack(**{self._neuroid_dim: [neuroid_level_dim]})
+
         return prediction
 
     def _align(self, assembly):
@@ -70,12 +82,12 @@ class XarrayCorrelation:
         target = target.sortby([self._stimulus_coord, self._neuroid_coord])
         assert np.array(prediction[self._stimulus_coord].values == target[self._stimulus_coord].values).all()
         assert np.array(prediction[self._neuroid_coord].values == target[self._neuroid_coord].values).all()
-        # compute
+        # compute correlation per neuroid
         correlations = []
         for i in target[self._neuroid_coord].values:
-            target_activations = target.sel(**{self._neuroid_coord: i}).squeeze()
-            prediction_activations = prediction.sel(**{self._neuroid_coord: i}).squeeze()
-            r, p = self._correlation(target_activations, prediction_activations)
+            target_neuroids = target.sel(**{self._neuroid_coord: i}).squeeze()
+            prediction_neuroids = prediction.sel(**{self._neuroid_coord: i}).squeeze()
+            r, p = self._correlation(target_neuroids, prediction_neuroids)
             correlations.append(r)
         # package
         neuroid_dim = target[self._neuroid_coord].dims

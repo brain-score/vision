@@ -1,58 +1,59 @@
+[![Build Status](https://travis-ci.com/brain-score/brain-score.svg?token=vqt7d2yhhpLGwHsiTZvT&branch=master)](https://travis-ci.com/brain-score/brain-score)
+
 # Brain-Score
 
-A framework for the quantitative comparison of mindlike systems.
-
-## Introduction
-
-`brainscore` is a simple framework
-for standardizing the interface between neuroscience metrics
+`brainscore` standardizes the interface between neuroscience metrics
 and the data they operate on.
-It is based on the package [`xarray`](http://xarray.pydata.org/),
-a project affiliated with NumFOCUS,
-which extends the capabilities of `pandas`
-to multi-dimensional `numpy` arrays.
+Brain recordings (termed "assemblies", e.g. neural or behavioral)
+are packaged in a [standard format](http://xarray.pydata.org/).
+This allows metrics (e.g. neural predictivity, RDMs) to operate
+on many assemblies without having to be re-written.
+Together with http://github.com/brain-score/candidate_models, `brainscore`
+allows scoring candidate models of the brain on a range of assemblies and metrics.
 
 
 ## Quick setup
 
-Recommended for most users. Use Brain-Score as a library. You will need Python >= 3.6.
+Recommended for most users. Use Brain-Score as a library. You will need Python >= 3.6 and pip >= 18.1.
 
-`pip install --process-dependency-links git+https://github.com/dicarlolab/brain-score`
+`pip install git+https://github.com/brain-score/brain-score`
 
 To contribute code to Brain-Score, see the [Development Setup](#development-setup).
 
 
 ## Basic Usage
 
-Try it in IPython:
 ```python
-ipython
-import brainscore
-hvm = brainscore.get_assembly("dicarlo.Majaj2015")`
-hvm
-# The IPython output should show a representation of a `NeuronRecordingAssembly`,
-# including a snippet of the 3-dimensional numeric data,
-# and a list of the metadata coordinates attached to it.
-hvm.attrs["stimulus_set"]
-# The output displays the `StimulusSet` object (a subclass of a pandas `DataFrame`)
-# associated with this `NeuronRecordingAssembly`.
-# The same `StimulusSet` can be obtained directly:
-hvm_images = brainscore.get_stimulus_set("dicarlo.hvm")
-# You can also obtain the local path of any individual image via its `image_id`:
-hvm_images.get_image("8a72e2bfdb8c267b57232bf96f069374d5b21832")
+$ import brainscore
+$ hvm = brainscore.get_assembly("dicarlo.Majaj2015")`
+$ hvm
+<xarray.NeuronRecordingAssembly 'dicarlo.Majaj2015' (neuroid: 296, presentation: 268800, time_bin: 1)>
+array([[[ 0.060929],
+        [-0.686162],
+        ...,
+Coordinates:
+  * neuroid          (neuroid) MultiIndex
+  - neuroid_id       (neuroid) object 'Chabo_L_M_5_9' 'Chabo_L_M_6_9' ...
+  ...
+$ ...
+$ metric = RDM()
+$ score = metric(assembly1=hvm, assembly2=hvm)
+Score(aggregation: 2)>
+array([1., 0.])
+Coordinates:
+  * aggregation    'center' 'error'
 ```
 
-Some steps may take minutes because data has to be downloaded.
+Some steps may take minutes because data has to be downloaded during first-time use.
 
-More examples can be found in the `examples/` directory.
+More examples can be found in the [examples](examples/) directory.
 
 
 ## Environment Variables
 
 | Variable               | Description                                                                                                                           |
 |------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
-| BSC_BOTO3_SIGN         | 0 (default) to not sign S3 requests, 1 to sign and access private data                                                                |
-| RESULTCACHING_HOME     | directory to cache results (activations, scores) in, `~/.result_caching` by default (see https://github.com/mschrimpf/result_caching) |
+| RESULTCACHING_HOME     | directory to cache results (benchmark ceilings) in, `~/.result_caching` by default (see https://github.com/mschrimpf/result_caching) |
 
 
 ## Development setup
@@ -67,9 +68,8 @@ Only necessary if you plan to change code.
 2. Clone the Git repository to wherever you keep repositories:
     * `cd ~/dev`
     * `git clone git@github.com:dicarlolab/brain-score.git`
-3. Create and activate a Conda environment with relevant packages:
-    * `conda env create -f environment.yml`
-    * `conda activate brainscore`
+3. Install the depencies (we suggest doing this in a [conda environment](https://conda.io/docs/user-guide/tasks/manage-environments.html)):
+    * `pip install -e .`
 
 
 ## License

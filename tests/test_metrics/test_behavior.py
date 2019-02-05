@@ -6,12 +6,12 @@ import pytest
 import xarray as xr
 from pytest import approx
 
-from brainscore.assemblies import DataAssembly
+from brainio_base.assemblies import DataAssembly
 from brainscore.metrics.behavior import I2n
 from brainscore.metrics.transformations import subset
 
 
-class TestI2N(object):
+class TestI2N:
     def test_halves_match_precomputed(self):
         i2n = I2n()
 
@@ -53,16 +53,23 @@ class TestI2N(object):
         assert actual_expected_correlation2 == approx(actual_expected_correlation1, abs=0.02)
 
     @pytest.mark.parametrize(['model', 'expected_score'],
-                             [('resnet34', .378),
-                              ('resnet18', .364),
-                              # ('alexnet', .378),
-                              ('squeezenet1_0', .180),
-                              ('squeezenet1_1', .201)])
+                             [
+                                 ('alexnet', .245),
+                                 ('resnet34', .378),
+                                 ('resnet18', .364),
+                                 ('squeezenet1_0', .180),
+                                 ('squeezenet1_1', .201),
+                             ])
     def test_model(self, model, expected_score):
         objectome = self.get_objectome()
         id_rows = {row['id']: row for _, row in objectome[['id', 'label', 'use']].drop_duplicates().iterrows()}
-        feature_responses = pd.read_pickle(os.path.join(os.path.dirname(__file__), f'{model}_activations.pkl'))
+        feature_responses = pd.read_pickle(os.path.join(os.path.dirname(__file__),
+                                                        f'identifier={model},stimuli_identifier=objectome-240.pkl'))
         feature_responses = feature_responses['data']
+        feature_responses['image_id'] = 'stimulus_path', [os.path.splitext(os.path.basename(path))[0]
+                                                          for path in feature_responses['stimulus_path'].values]
+        feature_responses = feature_responses.stack(presentation=['stimulus_path'])
+        assert set(objectome['id'].values).issuperset(set(feature_responses['image_id'].values))
         assert len(np.unique(feature_responses['layer'])) == 1  # only penultimate layer
         image_ids = xr.DataArray(np.zeros(len(id_rows)), coords={'image_id': list(id_rows.keys())},
                                  dims=['image_id']).stack(presentation=['image_id'])
@@ -102,3 +109,23 @@ class TestI2N(object):
         objectome['truth'] = objectome['label']
         objectome = objectome.set_index(presentation=[col if col != 'id' else 'image_id' for col in columns])
         return objectome
+
+
+def get_all_features():
+    for model, layer in [
+        ('alexnet', 'classifier.5'),
+        ('resnet-34', 'avgpool'),
+        ('resnet-18', 'avgpool'),
+        ('squeezenet1_0', 'features.12.expand3x3_activation'),
+        ('squeezenet1_1', 'features.12.expand3x3_activation'),
+    ]:
+        print(model)
+        get_features(model_name=model, layer=layer)
+
+
+def get_features(model_name, layer):
+    from candidate_models import base_models
+    from glob import glob
+    model = base_models.base_model_pool[model_name]
+    stimuli_paths = list(glob('/braintree/home/msch/brain-score_packaging/objectome/objectome-224/*.png'))
+    model(layers=[layer], stimuli_identifier='objectome-240', stimuli=stimuli_paths)

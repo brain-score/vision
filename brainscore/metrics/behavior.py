@@ -7,7 +7,7 @@ import scipy.stats
 import sklearn.linear_model
 import sklearn.multioutput
 
-from brainscore.assemblies import walk_coords, array_is_element, DataAssembly
+from brainio_base.assemblies import walk_coords, array_is_element, DataAssembly
 from brainscore.metrics import Metric
 from brainscore.metrics.transformations import CrossValidation
 from brainscore.utils import fullname

@@ -1,11 +1,11 @@
+from brainscore.metrics.neural_predictivity import PlsPredictivity
 from result_caching import store
 
 import brainscore
 from brainscore.assemblies import walk_coords, array_is_element, merge_data_arrays
-from brainscore.metrics.ceiling import InternalConsistency
-from brainscore.metrics.neural_predictivity import PlsPredictivity
-from brainscore.metrics.transformations import subset, CartesianProduct
 from brainscore.benchmarks import Benchmark, AssemblyLoader, _benchmarks, assembly_loaders, mean_over
+from brainscore.metrics.ceiling import InternalConsistency
+from brainscore.metrics.transformations import subset, CartesianProduct
 
 
 class ToliasCadena2017(Benchmark):
@@ -23,28 +23,6 @@ class ToliasCadena2017(Benchmark):
         # more images than actually have good recordings attached.
         source_assembly = subset(source_assembly, self._target_assembly, subset_dims=['image_id'])
         return super(ToliasCadena2017, self).__call__(source_assembly=source_assembly)
-
-
-class _MovshonFreemanZiemba2013Region(Benchmark):
-    def __init__(self, region):
-        loader = MovshonFreemanZiemba2013Loader()
-        assembly_repetitions = loader(average_repetition=False)
-        assembly_repetitions = assembly_repetitions.sel(region=region).stack(neuroid=['neuroid_id'])
-        ceiling = InternalConsistency(assembly_repetitions)
-        assembly = loader().sel(region=region).stack(neuroid=['neuroid_id'])
-        metric = PlsPredictivity()
-        super(_MovshonFreemanZiemba2013Region, self).__init__(
-            name=f'movshon.FreemanZiemba2013.{region}', target_assembly=assembly, metric=metric, ceiling=ceiling)
-
-
-class MovshonFreemanZiemba2013V1(_MovshonFreemanZiemba2013Region):
-    def __init__(self):
-        super(MovshonFreemanZiemba2013V1, self).__init__(region='V1')
-
-
-class MovshonFreemanZiemba2013V2(_MovshonFreemanZiemba2013Region):
-    def __init__(self):
-        super(MovshonFreemanZiemba2013V2, self).__init__(region='V2')
 
 
 class DicarloMajaj2015EarlyLate(Benchmark):
@@ -92,31 +70,6 @@ class ToliasCadena2017Loader(AssemblyLoader):
         presentation_coords = set(presentation_coords) - {'repetition_id', 'id'}
         assembly = assembly.multi_groupby(presentation_coords).mean(dim='presentation', skipna=True)
         assembly = assembly.dropna('presentation')  # discard any images with NaNs (~14%)
-        assembly.attrs = attrs
-        return assembly
-
-
-class MovshonFreemanZiemba2013Loader(AssemblyLoader):
-    def __init__(self):
-        super(MovshonFreemanZiemba2013Loader, self).__init__(name='movshon.FreemanZiemba2013')
-
-    @store()
-    def __call__(self, average_repetition=True):
-        assembly = brainscore.get_assembly(name='movshon.FreemanZiemba2013')
-        assembly.load()
-        assembly = assembly.sel(time_bin=[(t, t + 1) for t in range(40, 100)])
-        assembly = assembly.mean(dim='time_bin', keep_attrs=True)
-        assembly = assembly.transpose('presentation', 'neuroid')
-        if average_repetition:
-            assembly = self.average_repetition(assembly)
-        return assembly
-
-    def average_repetition(self, assembly):
-        attrs = assembly.attrs  # workaround to keeping attrs
-        presentation_coords = [coord for coord, dims, values in walk_coords(assembly)
-                               if array_is_element(dims, 'presentation')]
-        presentation_coords = set(presentation_coords) - {'repetition'}
-        assembly = assembly.multi_groupby(presentation_coords).mean(dim='presentation', skipna=True)
         assembly.attrs = attrs
         return assembly
 

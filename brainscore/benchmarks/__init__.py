@@ -69,9 +69,13 @@ class BenchmarkPool(dict):
         self['tolias.Cadena2017'] = LazyLoad(lambda: ToliasCadena2017())
 
     def _init_regressing(self):
-        from .regressing import DicarloMajaj2015V4, DicarloMajaj2015IT
+        from .regressing import \
+            DicarloMajaj2015V4, DicarloMajaj2015IT, \
+            MovshonFreemanZiemba2013V1, MovshonFreemanZiemba2013V2
         self['dicarlo.Majaj2015.V4-regressing'] = LazyLoad(lambda: DicarloMajaj2015V4())
         self['dicarlo.Majaj2015.IT-regressing'] = LazyLoad(lambda: DicarloMajaj2015IT())
+        self['movshon.FreemanZiemba2013.V1-regressing'] = LazyLoad(lambda: MovshonFreemanZiemba2013V1())
+        self['movshon.FreemanZiemba2013.V2-regressing'] = LazyLoad(lambda: MovshonFreemanZiemba2013V2())
 
 
 benchmark_pool = BenchmarkPool()

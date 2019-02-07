@@ -47,23 +47,22 @@ class DicarloMajaj2015Loader(AssemblyLoader):
         return assembly
 
     def average_repetition(self, assembly):
-        attrs = assembly.attrs  # workaround to keeping attrs
-        assembly = assembly.multi_groupby(['category_name', 'object_name', 'image_id']).mean(dim='presentation')
-        assembly.attrs = attrs
-        return assembly
+        return apply_keep_attrs(assembly, lambda assembly: assembly
+                                .multi_groupby(['category_name', 'object_name', 'image_id']).mean(dim='presentation'))
 
 
-class DicarloMajaj2015TemporalLoader(DicarloMajaj2015Loader):
+class DicarloMajaj2015TemporalLoader(AssemblyLoader):
     def __init__(self, name='dicarlo.Majaj2015.temporal'):
         super(DicarloMajaj2015TemporalLoader, self).__init__(name=name)
+        self._helper = DicarloMajaj2015Loader()
 
     def __call__(self, average_repetition=True):
         assembly = brainscore.get_assembly(name='dicarlo.Majaj2015.temporal')
-        assembly = self._filter_erroneous_neuroids(assembly)
+        assembly = self._helper._filter_erroneous_neuroids(assembly)
         assembly = assembly.sel(variation=6)
         assembly = assembly.transpose('presentation', 'neuroid', 'time_bin')
         if average_repetition:
-            assembly = self.average_repetition(assembly)
+            assembly = self._helper.average_repetition(assembly)
         return assembly
 
 
@@ -93,6 +92,32 @@ class DicarloMajaj2015EarlyLateLoader(DicarloMajaj2015TemporalLoader):
         late = sel_time_bin(190, 210)
         assembly = merge_data_arrays([early, late])
         return assembly
+
+
+class MovshonFreemanZiemba2013Loader(AssemblyLoader):
+    def __init__(self):
+        super(MovshonFreemanZiemba2013Loader, self).__init__(name='movshon.FreemanZiemba2013')
+
+    @store()
+    def __call__(self, average_repetition=True):
+        assembly = brainscore.get_assembly(name='movshon.FreemanZiemba2013')
+        assembly.load()
+        assembly = assembly.sel(time_bin=[(t, t + 1) for t in range(40, 100)])
+        assembly = assembly.mean(dim='time_bin', keep_attrs=True)
+        assembly = assembly.transpose('presentation', 'neuroid')
+        if average_repetition:
+            assembly = self.average_repetition(assembly)
+        return assembly
+
+    def average_repetition(self, assembly):
+        def avg_repr(assembly):
+            presentation_coords = [coord for coord, dims, values in walk_coords(assembly)
+                                   if array_is_element(dims, 'presentation')]
+            presentation_coords = set(presentation_coords) - {'repetition'}
+            assembly = assembly.multi_groupby(presentation_coords).mean(dim='presentation', skipna=True)
+            return assembly
+
+        return apply_keep_attrs(assembly, avg_repr)
 
 
 class ToliasCadena2017Loader(AssemblyLoader):
@@ -134,8 +159,19 @@ class GallantDavid2004Loader(AssemblyLoader):
         return assembly
 
 
-assembly_loaders = [DicarloMajaj2015Loader(), DicarloMajaj2015EarlyLateLoader(), GallantDavid2004Loader(),
-                    ToliasCadena2017Loader()]
+def apply_keep_attrs(assembly, fnc):  # workaround to keeping attrs
+    attrs = assembly.attrs
+    assembly = fnc(assembly)
+    assembly.attrs = attrs
+    return assembly
+
+
+assembly_loaders = [
+    DicarloMajaj2015Loader(), DicarloMajaj2015EarlyLateLoader(),
+    MovshonFreemanZiemba2013Loader(),
+    ToliasCadena2017Loader(),
+    GallantDavid2004Loader(),
+]
 assembly_loaders = {loader.name: loader for loader in assembly_loaders}
 
 

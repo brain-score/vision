@@ -4,8 +4,8 @@ import numpy as np
 import pytest
 
 from model_tools.activations import PytorchWrapper
-from model_tools.multilayer_mapping import ModelCommitment
-from model_tools.multilayer_mapping.data import it_translation_data
+from model_tools.brain_transformation import ModelCommitment
+from model_tools.brain_transformation.data import it_translation_data
 
 
 def pytorch_custom():

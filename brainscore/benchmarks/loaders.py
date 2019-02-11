@@ -97,6 +97,7 @@ class DicarloMajaj2015EarlyLateLoader(DicarloMajaj2015TemporalLoader):
 class MovshonFreemanZiemba2013Loader(AssemblyLoader):
     def __init__(self):
         super(MovshonFreemanZiemba2013Loader, self).__init__(name='movshon.FreemanZiemba2013')
+        self.average_repetition = average_repetition
 
     @store()
     def __call__(self, average_repetition=True):
@@ -109,15 +110,16 @@ class MovshonFreemanZiemba2013Loader(AssemblyLoader):
             assembly = self.average_repetition(assembly)
         return assembly
 
-    def average_repetition(self, assembly):
-        def avg_repr(assembly):
-            presentation_coords = [coord for coord, dims, values in walk_coords(assembly)
-                                   if array_is_element(dims, 'presentation')]
-            presentation_coords = set(presentation_coords) - {'repetition'}
-            assembly = assembly.multi_groupby(presentation_coords).mean(dim='presentation', skipna=True)
-            return assembly
 
-        return apply_keep_attrs(assembly, avg_repr)
+def average_repetition(assembly):
+    def avg_repr(assembly):
+        presentation_coords = [coord for coord, dims, values in walk_coords(assembly)
+                               if array_is_element(dims, 'presentation')]
+        presentation_coords = set(presentation_coords) - {'repetition'}
+        assembly = assembly.multi_groupby(presentation_coords).mean(dim='presentation', skipna=True)
+        return assembly
+
+    return apply_keep_attrs(assembly, avg_repr)
 
 
 class ToliasCadena2017Loader(AssemblyLoader):

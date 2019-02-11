@@ -3,7 +3,6 @@ from abc import ABC
 
 from result_caching import cache, store
 
-from brainscore.benchmarks.loaders import load_assembly, DicarloMajaj2015Loader, ToliasCadena2017Loader
 from brainscore.metrics import Score
 from brainscore.utils import fullname, LazyLoad
 
@@ -22,25 +21,13 @@ class Benchmark(ABC):
 
 
 class BenchmarkBase(Benchmark):
-    def __init__(self, name, assembly, similarity_metric, ceiling_func):
+    def __init__(self, name, ceiling_func):
         self._name = name
-        self._assembly = assembly
-        self._similarity_metric = similarity_metric
         self._ceiling_func = ceiling_func
-        self._logger = logging.getLogger(fullname(self))
 
     @property
     def name(self):
         return self._name
-
-    @property
-    def assembly(self):
-        return self._assembly
-
-    def __call__(self, candidate):
-        source_assembly = candidate(self.assembly.stimulus_set)
-        raw_score = self._similarity_metric(source_assembly, self._assembly)
-        return ceil_score(raw_score, self.ceiling)
 
     @property
     @store()
@@ -58,17 +45,7 @@ def ceil_score(score, ceiling):
 class BenchmarkPool(dict):
     def __init__(self):
         super(BenchmarkPool, self).__init__()
-        # separate into class to avoid circular imports
-        self._init_nonregressing()
-        self._init_regressing()
-
-    def _init_nonregressing(self):
-        from .nonregressing import DicarloMajaj2015V4, DicarloMajaj2015IT, ToliasCadena2017
-        self['dicarlo.Majaj2015.V4'] = LazyLoad(lambda: DicarloMajaj2015V4())
-        self['dicarlo.Majaj2015.IT'] = LazyLoad(lambda: DicarloMajaj2015IT())
-        self['tolias.Cadena2017'] = LazyLoad(lambda: ToliasCadena2017())
-
-    def _init_regressing(self):
+        # avoid circular imports
         from .regressing import \
             DicarloMajaj2015V4, DicarloMajaj2015IT, \
             MovshonFreemanZiemba2013V1, MovshonFreemanZiemba2013V2

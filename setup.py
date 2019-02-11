@@ -15,8 +15,7 @@ requirements = [
     "tqdm",
     "scikit-learn",
     "result_caching @ git+https://github.com/mschrimpf/result_caching",
-    "boto3",
-    "botocore",
+    "bidict",
     # test_requirements - listed here for travis
     "pytest",
 ]

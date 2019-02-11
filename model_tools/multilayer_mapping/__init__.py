@@ -1,11 +1,67 @@
+from bidict import bidict
 import logging
 
 import numpy as np
+from tqdm import tqdm
 
-from brainscore.metrics.regression import pls_regression
-from brainscore.metrics.transformations import CartesianProduct
+from brainscore.benchmarks import BenchmarkBase, ceil_score
+from brainscore.benchmarks.loaders import average_repetition
+from brainscore.metrics import Score
+from brainscore.metrics.ceiling import InternalConsistency
+from brainscore.metrics.regression import CrossRegressedCorrelation
+from brainscore.model_interface import BrainModel
 from brainscore.utils import fullname
-from result_caching import store_xarray
+from result_caching import store_xarray, store
+
+
+class ModelCommitment(BrainModel):
+    def __init__(self, identifier, base_model, layers):
+        self.identifier = identifier
+        self.base_model = base_model
+        self.layers = layers
+        self.region_layer = bidict()
+        self.recorded_regions = []
+
+    def commit_region(self, region, commitment_data):
+        layer_selection = LayerSelection(model_identifier=self.identifier,
+                                         activations_model=self.base_model, layers=self.layers)
+        layer = layer_selection(commitment_data)
+        self.region_layer[region] = layer
+
+    def look_at(self, stimuli):
+        activations = self.base_model(stimuli, layers=[self.region_layer[region] for region in self.recorded_regions])
+        activations['region'] = 'neuroid', [self.region_layer.inv[layer] for layer in activations['layer'].values]
+        return activations
+
+    def start_task(self, task):
+        if task != BrainModel.Task.passive:
+            raise NotImplementedError()
+
+    def start_recording(self, recording_target):
+        if str(recording_target) not in self.region_layer:
+            raise NotImplementedError(f"Region {recording_target} is not committed")
+        self.recorded_regions.append(recording_target)
+
+
+class LayerModel(BrainModel):
+    def __init__(self, identifier, base_model, layer, region):
+        self.identifier = identifier
+        self.base_model = base_model
+        self.layer = layer
+        self.region = region
+
+    def look_at(self, stimuli):
+        activations = self.base_model(stimuli, layers=[self.layer])
+        activations['region'] = 'neuroid', np.repeat([self.region], len(activations['layer']))
+        return activations
+
+    def start_task(self, task):
+        if task != BrainModel.Task.passive:
+            raise NotImplementedError()
+
+    def start_recording(self, recording_target):
+        if str(recording_target) != self.region:
+            raise NotImplementedError(f"Region {recording_target} is not available")
 
 
 class LayerSelection:
@@ -19,63 +75,58 @@ class LayerSelection:
         self.layers = layers
         self._logger = logging.getLogger(fullname(self))
 
-    def map(self, training_benchmark, validation_benchmark):
-        regression_ctr = pls_regression
+    def __call__(self, assembly):
+        return self._call(model_identifier=self.model_identifier, assembly_identifier=assembly.name, assembly=assembly)
+
+    @store(identifier_ignore=['assembly'])
+    def _call(self, model_identifier, assembly_identifier, assembly):
+        benchmark = self.build_benchmark(assembly)
         self._logger.debug("Finding best layer")
-        best_layer = self._find_best_layer(
-            regression_ctr=regression_ctr,
-            training_benchmark=training_benchmark, validation_benchmark=validation_benchmark)
-
-        self._logger.debug(f"Preparing mapped model using layer {best_layer}")
-        regression = regression_ctr()
-        mapping_activations = self._activations_model(layers=[best_layer],
-                                                      stimuli=training_benchmark.assembly.stimulus_set)
-        regression.fit(mapping_activations, training_benchmark.assembly)
-
-        def mapped_model(test_stimuli):
-            model_test_assembly = self._activations_model(layers=[best_layer], stimuli=test_stimuli)
-            prediction = regression.predict(model_test_assembly)
-            return prediction
-
-        return mapped_model
-
-    def _find_best_layer(self, regression_ctr,
-                         training_benchmark, validation_benchmark):
         layer_scores = self._layer_scores(
-            model_identifier=self.model_identifier, layers=self.layers, regression_ctr=regression_ctr,
-            training_benchmark_name=training_benchmark.name, validation_benchmark_name=validation_benchmark.name,
-            training_benchmark=training_benchmark, validation_benchmark=validation_benchmark)
+            model_identifier=self.model_identifier, layers=self.layers,
+            benchmark_identifier=assembly_identifier, benchmark=benchmark)
         self._logger.debug(f"Layer scores (unceiled): {layer_scores.raw}")
         best_layer = layer_scores['layer'].values[layer_scores.sel(aggregation='center').argmax()]
         return best_layer
 
-    @store_xarray(identifier_ignore=[
-        'activations_func', 'regression_ctr', 'training_benchmark', 'validation_benchmark', 'layers'],
-        combine_fields={'layers': 'layer'})
-    def _layer_scores(self,
-                      model_identifier, layers, training_benchmark_name, validation_benchmark_name,  # storage fields
-                      regression_ctr, training_benchmark, validation_benchmark):
-        training_activations = self._activations_model(layers=self.layers,
-                                                       stimuli=training_benchmark.assembly.stimulus_set)
-        # also run validation_activations to avoid running every layer separately
-        self._activations_model(layers=self.layers, stimuli=validation_benchmark.assembly.stimulus_set)
-        cross_layer = CartesianProduct(dividers=['layer'])
+    @store_xarray(identifier_ignore=['benchmark', 'layers'], combine_fields={'layers': 'layer'})
+    def _layer_scores(self, model_identifier, layers, benchmark_identifier,  # storage fields
+                      benchmark):
+        # pre-run activations together to avoid running every layer separately
+        self._activations_model(layers=self.layers, stimuli=benchmark.assembly.stimulus_set)
 
-        def map_score(layer_training_activations):
-            layer_regression = regression_ctr()
-            layer_regression.fit(layer_training_activations, training_benchmark.assembly)
-            layer = single_element(np.unique(layer_training_activations['layer']))
-
-            def layer_model(stimulus_set):
-                activations = self._activations_model(layers=[layer], stimuli=stimulus_set)
-                prediction = layer_regression.predict(activations)
-                return prediction
-
-            score = validation_benchmark(layer_model)
-            return score
-
-        layer_scores = cross_layer(training_activations, apply=map_score)
+        layer_scores = []
+        for layer in tqdm(self.layers):
+            layer_model = LayerModel(identifier=model_identifier, base_model=self._activations_model,
+                                     layer=layer, region=benchmark.region)
+            score = benchmark(layer_model)
+            score = score.expand_dims('layer')
+            score['layer'] = [layer]
+            layer_scores.append(score)
+        layer_scores = Score.merge(*layer_scores)
         return layer_scores
+
+    class _Benchmark(BenchmarkBase):
+        def __init__(self, assembly_repetition, similarity_metric=None, ceiler=None):
+            # assert len(np.unique(assembly_repetition['region'])) == 1
+            # self.region = np.unique(assembly_repetition['region'])[0]
+            self.region = 'layer_selection-dummy_region'
+            self.assembly = average_repetition(assembly_repetition)
+
+            self._similarity_metric = similarity_metric or CrossRegressedCorrelation()
+            name = f'{assembly_repetition.name}-layer_selection'
+            ceiler = ceiler or InternalConsistency()
+            super(LayerSelection._Benchmark, self).__init__(
+                name=name, ceiling_func=lambda: ceiler(assembly_repetition))
+
+        def __call__(self, candidate):
+            candidate.start_recording(self.region)
+            source_assembly = candidate.look_at(self.assembly.stimulus_set)
+            raw_score = self._similarity_metric(source_assembly, self.assembly)
+            return ceil_score(raw_score, self.ceiling)
+
+    def build_benchmark(self, assembly):
+        return self._Benchmark(assembly)
 
 
 def single_element(element_list):

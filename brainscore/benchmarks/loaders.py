@@ -101,9 +101,10 @@ class MovshonFreemanZiemba2013Loader(AssemblyLoader):
 
     @store()
     def __call__(self, average_repetition=True):
+        time_window = (50, 200)
         assembly = brainscore.get_assembly(name='movshon.FreemanZiemba2013')
         assembly.load()
-        assembly = assembly.sel(time_bin=[(t, t + 1) for t in range(40, 100)])
+        assembly = assembly.sel(time_bin=[(t, t + 1) for t in range(*time_window)])
         assembly = assembly.mean(dim='time_bin', keep_attrs=True)
         assembly = assembly.transpose('presentation', 'neuroid')
         if average_repetition:

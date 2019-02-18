@@ -3,9 +3,9 @@ import functools
 import numpy as np
 import pytest
 
+from brainscore.benchmarks.loaders import load_assembly
 from model_tools.activations import PytorchWrapper
 from model_tools.brain_transformation import ModelCommitment
-from model_tools.brain_transformation.data import it_translation_data
 
 
 def pytorch_custom():
@@ -35,14 +35,14 @@ def pytorch_custom():
 
 
 class TestLayerSelection:
-    @pytest.mark.parametrize(['model_ctr', 'layers', 'expected_layer', 'data_ctr', 'region'],
-                             [(pytorch_custom, ['linear', 'relu2'], 'relu2', it_translation_data, 'IT')])
-    def test(self, model_ctr, layers, expected_layer, data_ctr, region):
+    @pytest.mark.parametrize(['model_ctr', 'layers', 'expected_layer', 'assembly_identifier', 'region'],
+                             [(pytorch_custom, ['linear', 'relu2'], 'relu2', 'dicarlo.Majaj2015.IT', 'IT')])
+    def test(self, model_ctr, layers, expected_layer, assembly_identifier, region):
         np.random.seed(0)
         activations_model = model_ctr()
         brain_model = ModelCommitment(identifier=activations_model.identifier, base_model=activations_model,
                                       layers=layers)
-        assembly = data_ctr()
+        assembly = load_assembly(assembly_identifier)
         brain_model.commit_region(region, assembly)
 
         brain_model.start_recording(region)

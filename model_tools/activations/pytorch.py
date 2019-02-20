@@ -66,12 +66,11 @@ class PytorchWrapper:
             module = module._modules[next(reversed(module._modules))]
         return module
 
-    @staticmethod
-    def _tensor_to_numpy(output):
+    @classmethod
+    def _tensor_to_numpy(cls, output):
         return output.cpu().data.numpy()
 
-    @staticmethod
-    def register_hook(layer, layer_name, target_dict):
+    def register_hook(self, layer, layer_name, target_dict):
         def hook_function(_layer, _input, output, name=layer_name):
             target_dict[name] = PytorchWrapper._tensor_to_numpy(output)
 

@@ -13,13 +13,13 @@ class Score(DataAssembly):
     RAW_VALUES_KEY = 'raw'
 
     def sel(self, *args, _apply_raw=True, **kwargs):
-        return self._preserve_raw('sel', *args, **kwargs, _apply_raw=_apply_raw, _ignore_errors=True)
+        return self._preserve_raw('sel', *args, **kwargs, _apply_raw=_apply_raw)
 
     def isel(self, *args, _apply_raw=True, **kwargs):
-        return self._preserve_raw('isel', *args, **kwargs, _apply_raw=_apply_raw, _ignore_errors=True)
+        return self._preserve_raw('isel', *args, **kwargs, _apply_raw=_apply_raw)
 
     def squeeze(self, *args, _apply_raw=True, **kwargs):
-        return self._preserve_raw('squeeze', *args, **kwargs, _apply_raw=_apply_raw, _ignore_errors=True)
+        return self._preserve_raw('squeeze', *args, **kwargs, _apply_raw=_apply_raw)
 
     def expand_dims(self, *args, _apply_raw=True, **kwargs):
         return self._preserve_raw('expand_dims', *args, **kwargs, _apply_raw=_apply_raw)
@@ -36,7 +36,7 @@ class Score(DataAssembly):
     def min(self, *args, _apply_raw=False, **kwargs):
         return self._preserve_raw('min', *args, **kwargs, _apply_raw=_apply_raw)
 
-    def _preserve_raw(self, operation, *args, _apply_raw=False, _ignore_errors=False, **kwargs):
+    def _preserve_raw(self, operation, *args, _apply_raw=False, _ignore_errors=True, **kwargs):
         result = getattr(super(Score, self), operation)(*args, **kwargs)
         if self.RAW_VALUES_KEY in self.attrs:
             raw = self.attrs[self.RAW_VALUES_KEY]

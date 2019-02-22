@@ -1,10 +1,9 @@
-import logging
 from abc import ABC
 
 from result_caching import cache, store
 
 from brainscore.metrics import Score
-from brainscore.utils import fullname, LazyLoad
+from brainscore.utils import LazyLoad
 
 
 class Benchmark(ABC):
@@ -30,8 +29,11 @@ class BenchmarkBase(Benchmark):
         return self._name
 
     @property
-    @store()
     def ceiling(self):
+        return self._ceiling(identifier=self.name)
+
+    @store()
+    def _ceiling(self, identifier):
         return self._ceiling_func()
 
 

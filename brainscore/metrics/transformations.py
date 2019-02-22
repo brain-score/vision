@@ -15,6 +15,20 @@ from brainscore.metrics.utils import unique_ordered
 from brainscore.utils import fullname
 
 
+def apply_aggregate(aggregate_fnc, values):
+    """
+    Applies the aggregate while keeping the raw values in the attrs.
+    If raw values are already present, keeps them, else they are added.
+    """
+    score = aggregate_fnc(values)
+    if Score.RAW_VALUES_KEY not in score.attrs:
+        # check if the raw values are already in the values.
+        # if yes, they didn't get copied to the aggregate score and we use those as the "rawest" values.
+        raw = values if Score.RAW_VALUES_KEY not in values.attrs else values.attrs[Score.RAW_VALUES_KEY]
+        score.attrs[Score.RAW_VALUES_KEY] = raw
+    return score
+
+
 class Transformation(object):
     """
     Transforms an incoming assembly into parts/combinations thereof,
@@ -25,8 +39,8 @@ class Transformation(object):
     def __call__(self, *args, apply, aggregate=None, **kwargs):
         values = self._run_pipe(*args, apply=apply, **kwargs)
 
-        score = self._apply_aggregate(aggregate, values) if aggregate is not None else values
-        score = self._apply_aggregate(self.aggregate, score)
+        score = apply_aggregate(aggregate, values) if aggregate is not None else values
+        score = apply_aggregate(self.aggregate, score)
         return score
 
     def _run_pipe(self, *args, apply, **kwargs):
@@ -53,19 +67,6 @@ class Transformation(object):
         result = yield args  # yield the values to coroutine
         yield done  # wait for coroutine to send back similarity and inform whether result is ready to be returned
         return result
-
-    def _apply_aggregate(self, aggregate_fnc, values):
-        """
-        Applies the aggregate while keeping the raw values in the attrs.
-        If raw values are already present, keeps them, else they are added.
-        """
-        score = aggregate_fnc(values)
-        if Score.RAW_VALUES_KEY not in score.attrs:
-            # check if the raw values are already in the values.
-            # if yes, they didn't get copied to the aggregate score and we use those as the "rawest" values.
-            raw = values if Score.RAW_VALUES_KEY not in values.attrs else values.attrs[Score.RAW_VALUES_KEY]
-            score.attrs[Score.RAW_VALUES_KEY] = raw
-        return score
 
     def aggregate(self, score):
         return Score(score)
@@ -190,7 +191,8 @@ class Split:
             splits = self._shuffle_split.split(data_shape)
         return cross_validation_values, list(splits)
 
-    def aggregate(self, values):
+    @classmethod
+    def aggregate(cls, values):
         center = values.mean('split')
         error = standard_error_of_the_mean(values, 'split')
         return Score([center, error],

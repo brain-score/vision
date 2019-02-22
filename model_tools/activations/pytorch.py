@@ -7,18 +7,15 @@ from PIL import Image
 from model_tools.activations.core import ActivationsExtractorHelper
 from model_tools.utils import fullname
 
-_logger = logging.getLogger(__name__)
-logging.getLogger("PIL").setLevel(logging.WARNING)
-
 SUBMODULE_SEPARATOR = '.'
 
 
 class PytorchWrapper:
     def __init__(self, model, preprocessing, identifier=None, *args, **kwargs):
         import torch
-        self._logger = logging.getLogger(fullname(self))
-        self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self._logger.debug(f"Using device {self._device}")
+        logger = logging.getLogger(fullname(self))
+        self._device = "cpu"  # torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        logger.debug(f"Using device {self._device}")
         self._model = model
         self._model = self._model.to(self._device)
         identifier = identifier or model.__class__.__name__

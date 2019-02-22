@@ -4,7 +4,7 @@ from model_tools.activations.core import ActivationsExtractorHelper
 
 
 class TensorflowWrapper:
-    def __init__(self, identifier, inputs, endpoints: dict, session, logits=None, *args, **kwargs):
+    def __init__(self, identifier, inputs, endpoints: dict, session, *args, **kwargs):
         import tensorflow as tf
         self._inputs = inputs
         self._endpoints = endpoints

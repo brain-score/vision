@@ -7,9 +7,13 @@ from .xarray_utils import XarrayRegression, Defaults as XarrayDefaults, XarrayCo
 
 
 class CrossRegressedCorrelation:
-    def __init__(self):
-        self.cross_validation = CrossValidation(train_size=.9)
-        self.regression = pls_regression()
+    def __init__(self, crossvalidation_kwargs=None, regression_kwargs=None):
+        crossvalidation_defaults = dict(train_size=.9, test_size=None)
+        crossvalidation_kwargs = {**crossvalidation_defaults, **(crossvalidation_kwargs or {})}
+        regression_kwargs = regression_kwargs or {}
+
+        self.cross_validation = CrossValidation(**crossvalidation_kwargs)
+        self.regression = pls_regression(**regression_kwargs)
         self.correlation = XarrayCorrelation(scipy.stats.pearsonr)
 
     def __call__(self, source, target):

@@ -12,8 +12,8 @@ class AssemblyLoader(object):
 
 
 class DicarloMajaj2015Loader(AssemblyLoader):
-    def __init__(self, name='dicarlo.Majaj2015'):
-        super(DicarloMajaj2015Loader, self).__init__(name=name)
+    def __init__(self):
+        super(DicarloMajaj2015Loader, self).__init__(name='dicarlo.Majaj2015')
 
     def __call__(self, average_repetition=True):
         assembly = brainscore.get_assembly(name=self.name)
@@ -49,6 +49,27 @@ class DicarloMajaj2015Loader(AssemblyLoader):
     def average_repetition(self, assembly):
         return apply_keep_attrs(assembly, lambda assembly: assembly
                                 .multi_groupby(['category_name', 'object_name', 'image_id']).mean(dim='presentation'))
+
+
+class _RegionLoader(AssemblyLoader):
+    def __init__(self, name, region):
+        super(_RegionLoader, self).__init__(name=f'{name}.{region}')
+        self.region = region
+        self.loader = assembly_loaders[name]
+        self.average_repetition = self.loader.average_repetition
+
+    def __call__(self, average_repetition=True):
+        assembly = self.loader(average_repetition=average_repetition)
+        assembly.name = self.name
+        assembly = assembly.sel(region=self.region)
+        if 'neuroid_id' in assembly.dims:  # work around xarray multiindex issues
+            assembly = assembly.stack(neuroid=['neuroid_id'])
+        assembly['region'] = 'neuroid', [self.region] * len(assembly['neuroid'])
+        return assembly
+
+
+DicarloMajaj2015V4Loader = lambda: _RegionLoader(name='dicarlo.Majaj2015', region='V4')
+DicarloMajaj2015ITLoader = lambda: _RegionLoader(name='dicarlo.Majaj2015', region='IT')
 
 
 class DicarloMajaj2015TemporalLoader(AssemblyLoader):
@@ -109,7 +130,12 @@ class MovshonFreemanZiemba2013Loader(AssemblyLoader):
         assembly = assembly.transpose('presentation', 'neuroid')
         if average_repetition:
             assembly = self.average_repetition(assembly)
+        assembly.stimulus_set.name = assembly.stimulus_set_name
         return assembly
+
+
+MovshonFreemanZiemba2013V1Loader = lambda: _RegionLoader(name='movshon.FreemanZiemba2013', region='V1')
+MovshonFreemanZiemba2013V2Loader = lambda: _RegionLoader(name='movshon.FreemanZiemba2013', region='V2')
 
 
 def average_repetition(assembly):
@@ -169,20 +195,24 @@ def apply_keep_attrs(assembly, fnc):  # workaround to keeping attrs
     return assembly
 
 
-assembly_loaders = [
-    DicarloMajaj2015Loader(), DicarloMajaj2015EarlyLateLoader(),
-    MovshonFreemanZiemba2013Loader(),
-    ToliasCadena2017Loader(),
-    GallantDavid2004Loader(),
+_assembly_loaders_ctrs = [
+    MovshonFreemanZiemba2013Loader, MovshonFreemanZiemba2013V1Loader, MovshonFreemanZiemba2013V2Loader,
+    ToliasCadena2017Loader,
+    GallantDavid2004Loader,
+    DicarloMajaj2015Loader, DicarloMajaj2015V4Loader, DicarloMajaj2015ITLoader,
+    DicarloMajaj2015EarlyLateLoader,
 ]
-assembly_loaders = {loader.name: loader for loader in assembly_loaders}
+assembly_loaders = {}
+for loader_ctr in _assembly_loaders_ctrs:
+    loader = loader_ctr()
+    assembly_loaders[loader.name] = loader
 
 
-def load_assembly(name: str):
+def load_assembly(name: str, **kwargs):
     """
     Loads the assembly using an AssemblyLoader.
     The AssemblyLoader might further refine the raw assembly provided by brainscore.get_assembly.
     :param name: the name of the assembly loader
     :return: the loaded assembly
     """
-    return assembly_loaders[name]()
+    return assembly_loaders[name](**kwargs)

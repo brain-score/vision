@@ -1,6 +1,7 @@
 import logging
 from typing import Optional
 
+import numpy as np
 from tqdm import tqdm
 
 from brainscore.benchmarks import BenchmarkBase, ceil_score
@@ -64,7 +65,7 @@ class LayerSelection:
             the combination of (model, preprocessing), i.e. no mapping.
         """
         self.model_identifier = model_identifier
-        self._activations_model = activations_model
+        self._layer_scoring = LayerScores(model_identifier=model_identifier, activations_model=activations_model)
         self.layers = layers
         self._logger = logging.getLogger(fullname(self))
 
@@ -75,9 +76,7 @@ class LayerSelection:
     def _call(self, model_identifier, assembly_identifier, assembly):
         benchmark = self._Benchmark(assembly)
         self._logger.debug("Finding best layer")
-        layer_scores = self._layer_scores(
-            model_identifier=self.model_identifier, layers=self.layers,
-            benchmark_identifier=assembly_identifier, benchmark=benchmark)
+        layer_scores = self._layer_scoring(benchmark=benchmark, layers=self.layers)
         self._logger.debug("Layer scores (unceiled): " + ", ".join([
             f"{layer} -> {layer_scores.raw.sel(layer=layer, aggregation='center').values:.3f}"
             f"+-{layer_scores.raw.sel(layer=layer, aggregation='error').values:.3f}"
@@ -85,15 +84,45 @@ class LayerSelection:
         best_layer = layer_scores['layer'].values[layer_scores.sel(aggregation='center').argmax()]
         return best_layer
 
-    @store_xarray(identifier_ignore=['benchmark', 'layers'], combine_fields={'layers': 'layer'})
-    def _layer_scores(self, model_identifier, layers, benchmark_identifier,  # storage fields
-                      benchmark):
+    class _Benchmark(BenchmarkBase):
+        def __init__(self, assembly_repetition, similarity_metric=None, ceiler=None):
+            assert len(np.unique(assembly_repetition['region'])) == 1
+            self.region = np.unique(assembly_repetition['region'])[0]
+            self.assembly = average_repetition(assembly_repetition)
+
+            self._similarity_metric = similarity_metric or CrossRegressedCorrelation()
+            identifier = f'{assembly_repetition.name}-layer_selection'
+            ceiler = ceiler or InternalConsistency()
+            super(LayerSelection._Benchmark, self).__init__(
+                identifier=identifier, ceiling_func=lambda: ceiler(assembly_repetition))
+
+        def __call__(self, candidate):
+            candidate.start_recording(self.region)
+            source_assembly = candidate.look_at(self.assembly.stimulus_set)
+            raw_score = self._similarity_metric(source_assembly, self.assembly)
+            return ceil_score(raw_score, self.ceiling)
+
+
+class LayerScores:
+    def __init__(self, model_identifier, activations_model):
+        self.model_identifier = model_identifier
+        self._activations_model = activations_model
+        self._logger = logging.getLogger(fullname(self))
+
+    def __call__(self, benchmark, layers, benchmark_identifier=None):
+        return self._call(model_identifier=self.model_identifier,
+                          benchmark_identifier=benchmark_identifier or benchmark.identifier,
+                          model=self._activations_model, benchmark=benchmark, layers=layers)
+
+    @store_xarray(identifier_ignore=['model', 'benchmark', 'layers'], combine_fields={'layers': 'layer'})
+    def _call(self, model_identifier, benchmark_identifier,  # storage fields
+              model, benchmark, layers):
         # pre-run activations together to avoid running every layer separately
-        self._activations_model(layers=layers, stimuli=benchmark.assembly.stimulus_set)
+        model(layers=layers, stimuli=benchmark.assembly.stimulus_set)
 
         layer_scores = []
         for layer in tqdm(layers, desc="layers"):
-            layer_model = LayerModel(identifier=model_identifier, base_model=self._activations_model,
+            layer_model = LayerModel(identifier=model_identifier, base_model=model,
                                      region_layer_map={benchmark.region: layer})
             score = benchmark(layer_model)
             score = score.expand_dims('layer')
@@ -102,25 +131,6 @@ class LayerSelection:
         layer_scores = Score.merge(*layer_scores)
         layer_scores = layer_scores.sel(layer=layers)  # preserve layer ordering
         return layer_scores
-
-    class _Benchmark(BenchmarkBase):
-        def __init__(self, assembly_repetition, similarity_metric=None, ceiler=None):
-            # assert len(np.unique(assembly_repetition['region'])) == 1
-            # self.region = np.unique(assembly_repetition['region'])[0]
-            self.region = 'layer_selection-dummy_region'
-            self.assembly = average_repetition(assembly_repetition)
-
-            self._similarity_metric = similarity_metric or CrossRegressedCorrelation()
-            name = f'{assembly_repetition.name}-layer_selection'
-            ceiler = ceiler or InternalConsistency()
-            super(LayerSelection._Benchmark, self).__init__(
-                name=name, ceiling_func=lambda: ceiler(assembly_repetition))
-
-        def __call__(self, candidate):
-            candidate.start_recording(self.region)
-            source_assembly = candidate.look_at(self.assembly.stimulus_set)
-            raw_score = self._similarity_metric(source_assembly, self.assembly)
-            return ceil_score(raw_score, self.ceiling)
 
 
 def single_element(element_list):

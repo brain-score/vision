@@ -1,9 +1,14 @@
+import hashlib
 import logging
+import os
+import tempfile
 from typing import Optional
 
 import numpy as np
+from PIL import Image
 from tqdm import tqdm
 
+from brainio_base.stimuli import StimulusSet
 from brainscore.benchmarks import BenchmarkBase, ceil_score
 from brainscore.benchmarks.loaders import average_repetition
 from brainscore.metrics import Score
@@ -29,6 +34,55 @@ class ModelCommitment(BrainModel):
                                          activations_model=self.layer_model.base_model, layers=self.layers)
         best_layer = layer_selection(assembly)
         self.layer_model.commit(region, best_layer)
+
+
+class PixelsToDegrees:
+    CENTRAL_VISION_DEGREES = 10
+
+    def __init__(self, pixels_per_degree, target_degrees=CENTRAL_VISION_DEGREES):
+        self.pixels_per_degree = pixels_per_degree
+        self.target_degrees = target_degrees
+        self._directory = tempfile.TemporaryDirectory()  # keep this object in context to avoid cleanup
+
+    def __call__(self, stimuli):
+        image_paths = {image_id: self.convert_image(stimuli.get_image(image_id), image_degrees=degrees)
+                       for image_id, degrees in zip(stimuli['image_id'], stimuli['degrees'])}
+        converted_stimuli = StimulusSet(stimuli)  # .copy() for some reason keeps the link to the old metadata
+        converted_stimuli.name = f"{stimuli.name}-{self.target_degrees}degrees_{self.pixels_per_degree}"
+        converted_stimuli['degrees'] = self.target_degrees
+        converted_stimuli.image_paths = image_paths
+        return converted_stimuli
+
+    def convert_image(self, image_path, image_degrees):
+        image = self._load_image(image_path)
+        stimulus_pixels = self._round(image_degrees * self.pixels_per_degree)
+        background_pixels = self._round(self.target_degrees * self.pixels_per_degree)
+        image = self._resize_image(image, image_size=stimulus_pixels)
+        image = self._center_on_background(image, background_size=background_pixels)
+        image_path = self._write(image, directory=self._directory.name, extension=os.path.splitext(image_path)[-1])
+        image.close()
+        return image_path
+
+    def _round(self, number):
+        return np.array(number).round().astype(int)
+
+    def _load_image(self, image_path):
+        return Image.open(image_path)
+
+    def _resize_image(self, image, image_size):
+        return image.resize((image_size, image_size), Image.ANTIALIAS)
+
+    def _center_on_background(self, center_image, background_size, background_color='gray'):
+        image = Image.new('RGB', (background_size, background_size), background_color)
+        center_topleft = self._round(np.subtract(background_size, center_image.size) / 2)
+        image.paste(center_image, tuple(center_topleft))
+        return image
+
+    def _write(self, image, directory, extension=None):
+        image_hash = hashlib.sha1(image.tobytes()).hexdigest()
+        output_path = os.path.join(directory, image_hash) + (extension or '')
+        image.save(output_path)
+        return output_path
 
 
 class LayerModel(BrainModel):

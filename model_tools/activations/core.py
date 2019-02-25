@@ -28,7 +28,8 @@ class ActivationsExtractorHelper:
         self.identifier = identifier
         self.get_activations = get_activations
         self.preprocess = preprocessing or (lambda x: x)
-        self._batch_hooks = {}
+        self._stimulus_set_hooks = {}
+        self._batch_activations_hooks = {}
 
     def __call__(self, stimuli, layers, stimuli_identifier=None):
         """
@@ -46,6 +47,8 @@ class ActivationsExtractorHelper:
         """
         if stimuli_identifier is None:
             stimuli_identifier = stimulus_set.name
+        for hook in self._stimulus_set_hooks.copy().values():  # copy to avoid stale handles
+            stimulus_set = hook(stimulus_set)
         stimuli_paths = [stimulus_set.get_image(image_id) for image_id in stimulus_set['image_id']]
         activations = self.from_paths(stimuli_paths=stimuli_paths, layers=layers, stimuli_identifier=stimuli_identifier)
         activations = attach_stimulus_set_meta(activations, stimulus_set)
@@ -73,7 +76,7 @@ class ActivationsExtractorHelper:
         self._logger.info('Packaging into assembly')
         return self._package(layer_activations, stimuli_paths)
 
-    def register_batch_hook(self, hook):
+    def register_batch_activations_hook(self, hook):
         r"""
         The hook will be called every time a batch of activations is retrieved.
         The hook should have the following signature::
@@ -83,18 +86,32 @@ class ActivationsExtractorHelper:
         The hook should return new batch_activations which will be used in place of the previous ones.
         """
 
-        handle = HookHandle(self._batch_hooks)
-        self._batch_hooks[handle.id] = hook
+        handle = HookHandle(self._batch_activations_hooks)
+        self._batch_activations_hooks[handle.id] = hook
         return handle
 
-    def _get_activations_batched(self, inputs, layers, batch_size):
+    def register_stimulus_set_hook(self, hook):
+        r"""
+        The hook will be called every time before a stimulus set is processed.
+        The hook should have the following signature::
+
+            hook(stimulus_set) -> stimulus_set
+
+        The hook should return a new stimulus_set which will be used in place of the previous one.
+        """
+
+        handle = HookHandle(self._stimulus_set_hooks)
+        self._stimulus_set_hooks[handle.id] = hook
+        return handle
+
+    def _get_activations_batched(self, paths, layers, batch_size):
         layer_activations = None
-        for batch_start in tqdm(range(0, len(inputs), batch_size), unit_scale=batch_size, desc="activations"):
-            batch_end = min(batch_start + batch_size, len(inputs))
-            self._logger.debug('Batch %d->%d/%d', batch_start, batch_end, len(inputs))
-            batch_inputs = inputs[batch_start:batch_end]
+        for batch_start in tqdm(range(0, len(paths), batch_size), unit_scale=batch_size, desc="activations"):
+            batch_end = min(batch_start + batch_size, len(paths))
+            self._logger.debug('Batch %d->%d/%d', batch_start, batch_end, len(paths))
+            batch_inputs = paths[batch_start:batch_end]
             batch_activations = self._get_batch_activations(batch_inputs, layer_names=layers, batch_size=batch_size)
-            for hook in self._batch_hooks.copy().values():  # copy to avoid handle re-enabling messing with the loop
+            for hook in self._batch_activations_hooks.copy().values():  # copy to avoid handle re-enabling messing with the loop
                 batch_activations = hook(batch_activations)
 
             if layer_activations is None:
@@ -150,7 +167,8 @@ class ActivationsExtractorHelper:
         wrapper.identifier = self.identifier
         wrapper.from_stimulus_set = self.from_stimulus_set
         wrapper.from_paths = self.from_paths
-        wrapper.register_batch_hook = self.register_batch_hook
+        wrapper.register_batch_activations_hook = self.register_batch_activations_hook
+        wrapper.register_stimulus_set_hook = self.register_stimulus_set_hook
 
 
 def change_dict(d, change_function, keep_name=False, multithread=False):

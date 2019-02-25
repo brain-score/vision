@@ -76,7 +76,7 @@ class LayerPCA:
     @classmethod
     def hook(cls, activations_extractor, n_components):
         hook = LayerPCA(activations_extractor=activations_extractor, n_components=n_components)
-        handle = activations_extractor.register_batch_hook(hook)
+        handle = activations_extractor.register_batch_activations_hook(hook)
         hook.handle = handle
         return handle
 

@@ -57,10 +57,10 @@ class TestLayerSelection:
 class TestPixelsToDegrees:
     def test_shape(self):
         stimulus_set = brainio_collection.get_stimulus_set(name="dicarlo.hvm")
-        stimulus_set['degrees'] = [8] * len(stimulus_set)
+        stimulus_set['degrees'] = 8
 
         model_pixels = 224
-        pixels_to_degrees = PixelsToDegrees(pixels_per_degree=model_pixels / PixelsToDegrees.CENTRAL_VISION_DEGREES)
+        pixels_to_degrees = PixelsToDegrees(target_pixels=model_pixels)
         converted_stimuli = pixels_to_degrees(stimulus_set)
 
         non_degree_columns = list(set(stimulus_set.columns) - {'degrees'})
@@ -75,10 +75,10 @@ class TestPixelsToDegrees:
     def test_gray_background(self):
         stimulus_set = brainio_collection.get_stimulus_set(name="dicarlo.hvm")
         stimulus_set = stimulus_set.loc[[0]]  # check only first image
-        stimulus_set['degrees'] = [8] * len(stimulus_set)
+        stimulus_set['degrees'] = 8
 
         model_pixels = 224
-        pixels_to_degrees = PixelsToDegrees(pixels_per_degree=model_pixels / PixelsToDegrees.CENTRAL_VISION_DEGREES)
+        pixels_to_degrees = PixelsToDegrees(target_pixels=model_pixels)
         converted_stimuli = pixels_to_degrees(stimulus_set)
         image_path = converted_stimuli.get_image(converted_stimuli['image_id'].values[0])
         image = scipy.misc.imread(image_path)
@@ -94,15 +94,32 @@ class TestPixelsToDegrees:
     def test_image_centered(self):
         stimulus_set = brainio_collection.get_stimulus_set(name="dicarlo.hvm")
         stimulus_set = stimulus_set.loc[[0]]  # check only first image
-        stimulus_set['degrees'] = [8] * len(stimulus_set)
+        stimulus_set['degrees'] = 8
 
         model_pixels = 224
-        pixels_to_degrees = PixelsToDegrees(pixels_per_degree=model_pixels / PixelsToDegrees.CENTRAL_VISION_DEGREES)
+        pixels_to_degrees = PixelsToDegrees(target_pixels=model_pixels)
         converted_stimuli = pixels_to_degrees(stimulus_set)
         image_path = converted_stimuli.get_image(converted_stimuli['image_id'].values[0])
         image = scipy.misc.imread(image_path)
 
-        assert (image[48, 48] == [128, 128, 128]).all()
-        assert (image[224 - 48, 224 - 48] == [128, 128, 128]).all()
-        assert (image[48, 224 - 48] == [128, 128, 128]).all()
-        assert (image[224 - 48, 48] == [128, 128, 128]).all()
+        gray = [128, 128, 128]
+        assert (image[48, 48] == gray).all()
+        assert (image[224 - 48, 224 - 48] == gray).all()
+        assert (image[48, 224 - 48] == gray).all()
+        assert (image[224 - 48, 48] == gray).all()
+
+    def test_repeated_path(self):
+        stimulus_set = brainio_collection.get_stimulus_set(name="dicarlo.hvm")
+        stimulus_set = stimulus_set.loc[[0]]  # check only first image
+        stimulus_set['degrees'] = 8
+
+        model_pixels = 224
+        pixels_to_degrees1 = PixelsToDegrees(target_pixels=model_pixels)
+        converted_stimuli1 = pixels_to_degrees1(stimulus_set)
+        image_path1 = converted_stimuli1.get_image(converted_stimuli1['image_id'].values[0])
+
+        pixels_to_degrees2 = PixelsToDegrees(target_pixels=model_pixels)
+        converted_stimuli2 = pixels_to_degrees2(stimulus_set)
+        image_path2 = converted_stimuli2.get_image(converted_stimuli2['image_id'].values[0])
+
+        assert image_path1 == image_path2

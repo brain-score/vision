@@ -11,7 +11,7 @@ class Benchmark(ABC):
         raise NotImplementedError()
 
     @property
-    def name(self):
+    def identifier(self):
         raise NotImplementedError()
 
     @property
@@ -20,17 +20,17 @@ class Benchmark(ABC):
 
 
 class BenchmarkBase(Benchmark):
-    def __init__(self, name, ceiling_func):
-        self._name = name
+    def __init__(self, identifier, ceiling_func):
+        self._identifier = identifier
         self._ceiling_func = ceiling_func
 
     @property
-    def name(self):
-        return self._name
+    def identifier(self):
+        return self._identifier
 
     @property
     def ceiling(self):
-        return self._ceiling(identifier=self.name)
+        return self._ceiling(identifier=self.identifier)
 
     @store()
     def _ceiling(self, identifier):

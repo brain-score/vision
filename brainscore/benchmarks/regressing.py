@@ -7,8 +7,8 @@ from brainscore.metrics.regression import CrossRegressedCorrelation
 
 
 class NeuralBenchmark(BenchmarkBase):
-    def __init__(self, name, assembly, similarity_metric, ceiling_func):
-        super(NeuralBenchmark, self).__init__(name=name, ceiling_func=ceiling_func)
+    def __init__(self, identifier, assembly, similarity_metric, ceiling_func):
+        super(NeuralBenchmark, self).__init__(identifier=identifier, ceiling_func=ceiling_func)
         self._assembly = assembly
         self._similarity_metric = similarity_metric
         region = np.unique(self._assembly['region'])
@@ -25,12 +25,12 @@ class NeuralBenchmark(BenchmarkBase):
 def _DicarloMajaj2015Region(region):
     loader = assembly_loaders[f'dicarlo.Majaj2015.{region}']
     assembly_repetition = loader(average_repetition=False)
-    assembly = loader.average_repetition(assembly_repetition)
+    assembly = loader(average_repetition=True)
 
     similarity_metric = CrossRegressedCorrelation()
-    name = f'dicarlo.Majaj2015.{region}-regressing'
+    identifier = f'dicarlo.Majaj2015.{region}-regressing'
     ceiler = InternalConsistency()
-    return NeuralBenchmark(name=name, assembly=assembly, similarity_metric=similarity_metric,
+    return NeuralBenchmark(identifier=identifier, assembly=assembly, similarity_metric=similarity_metric,
                            ceiling_func=lambda: ceiler(assembly_repetition))
 
 
@@ -45,13 +45,13 @@ def DicarloMajaj2015IT():
 def _MovshonFreemanZiemba2013Region(region):
     loader = assembly_loaders[f'movshon.FreemanZiemba2013.{region}']
     assembly_repetition = loader(average_repetition=False)
-    assembly = loader.average_repetition(assembly_repetition)
+    assembly = loader(average_repetition=True)
     assembly.stimulus_set.name = assembly.stimulus_set_name
 
     similarity_metric = CrossRegressedCorrelation()
-    name = f'movshon.FreemanZiemba2013.{region}-regressing'
+    identifier = f'movshon.FreemanZiemba2013.{region}-regressing'
     ceiler = InternalConsistency()
-    return NeuralBenchmark(name=name, assembly=assembly, similarity_metric=similarity_metric,
+    return NeuralBenchmark(identifier=identifier, assembly=assembly, similarity_metric=similarity_metric,
                            ceiling_func=lambda: ceiler(assembly_repetition))
 
 

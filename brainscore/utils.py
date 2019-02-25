@@ -49,9 +49,19 @@ class LazyLoad:
         self._ensure_loaded()
         return getattr(self.content, name)
 
+    def __setattr__(self, key, value):
+        if key not in ['content', 'load_fnc']:
+            self._ensure_loaded()
+            return setattr(self.content, key, value)
+        return super(LazyLoad, self).__setattr__(key, value)
+
     def __getitem__(self, item):
         self._ensure_loaded()
         return self.content.__getitem__(item)
+
+    def __setitem__(self, key, value):
+        self._ensure_loaded()
+        return self.content.__setitem__(key, value)
 
     def _ensure_loaded(self):
         if self.content is None:

@@ -3,6 +3,7 @@ import numpy as np
 from brainscore.benchmarks import BenchmarkBase, ceil_score
 from brainscore.benchmarks.loaders import assembly_loaders
 from brainscore.metrics.ceiling import InternalConsistency
+from brainscore.metrics.pca import PCA
 from brainscore.metrics.regression import CrossRegressedCorrelation
 
 
@@ -10,6 +11,7 @@ class NeuralBenchmark(BenchmarkBase):
     def __init__(self, identifier, assembly, similarity_metric, ceiling_func):
         super(NeuralBenchmark, self).__init__(identifier=identifier, ceiling_func=ceiling_func)
         self._assembly = assembly
+        self._pca = PCA(n_components=1000)
         self._similarity_metric = similarity_metric
         region = np.unique(self._assembly['region'])
         assert len(region) == 1
@@ -17,7 +19,9 @@ class NeuralBenchmark(BenchmarkBase):
 
     def __call__(self, candidate):
         candidate.start_recording(self.region)
-        source_assembly = candidate.look_at(self._assembly.stimulus_set)
+        candidate_region_identifier = f"{candidate.identifier}-{self.region}"  # per-region identifier for PCA
+        source_assembly = self._pca(model_identifier=candidate_region_identifier, model=candidate.look_at,
+                                    stimuli=self._assembly.stimulus_set)
         raw_score = self._similarity_metric(source_assembly, self._assembly)
         return ceil_score(raw_score, self.ceiling)
 

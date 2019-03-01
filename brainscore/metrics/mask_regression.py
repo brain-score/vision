@@ -1,36 +1,37 @@
 import os
 import warnings
-from numpy import linalg as la
-from numpy import concatenate, mean
 
+from numpy import concatenate
+from numpy import linalg as la
+from scipy.stats import pearsonr
+from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import train_test_split, KFold
 from sklearn.preprocessing import scale
 
+from brainio_base.stimuli import StimulusSet
+from brainscore.metrics.regression import pls_regression
 
-class RegressionScore():
 
-    def __init__(self, _model_name, _layer, _data_dir, _im_dir='images', _nc_file=None, _wrapper=None,
-                 n_components=None, **kwargs):
-        self.data_dir = _data_dir
+class RegressionScore:
+    def __init__(self, _model_name, _layer, _assembly, _im_dir='images', _nc_file=None, _wrapper=None):
         self.modelname = _model_name
         self.layer = _layer
         self.identifier = self.modelname + '_' + self.layer
 
-        self.testing_stim_dir = os.path.join(self.data_dir, _im_dir)
-        self.assembly = load_nc_data(self.data_dir, _nc_file)
+        self.testing_stim_dir = 'TODO'
+        self.assembly = _assembly
 
         self.extractor = _wrapper
         # for testing:
         self.extractor.identifier = self.identifier + '_kernel_PCA'
 
         self.regressor = None
-        if n_components:
-            self.layerPCA = KernelLayerPCA.hook(self.extractor, n_components=n_components)
 
     def __call__(self, im_path_offset=0):
         # split test/train
-        train_index, test_index, resp_train, resp_val = self.split_data()
+        train_index, val_index, resp_train, resp_val = self.split_data()
         self.train(train_index + im_path_offset, resp_train)
-        predicted = self.predict(test_index + im_path_offset)
+        predicted = self.predict(val_index + im_path_offset)
         # Scale
         scale(resp_val.values, copy=False)
         # only for vectors
@@ -78,9 +79,9 @@ class RegressionScore():
         return im_train, im_val, resp_train, resp_val
 
     def create_stim_set(self, im_idx):
-        stim_paths = [self.testing_stim_dir + '/image_{:05}.jpg'.format(i) for i in im_idx]
+        stim_paths = [os.path.dirname(__file__) + '/../../tests/test_metrics/image_{:05}.jpg'.format(i) for i in im_idx]
         basenames = [os.path.splitext(os.path.basename(path))[0] for path in stim_paths]
-        image_ids = [get_im_hash(im_path) for im_path in stim_paths]
+        image_ids = stim_paths
         s = StimulusSet({'image_file_path': stim_paths, 'image_file_name': basenames, 'image_id': image_ids})
         s.image_paths = {image_id: path for image_id, path in zip(image_ids, stim_paths)}
         s.name = None
@@ -103,7 +104,7 @@ class CubeMapper(RegressionScore):
     def init_mapper(self, **kwargs):
         if not self._mapper_inits:
             self._mapper_inits = kwargs
-        self.regressor = Mapper(map_type='separable', **kwargs)
+        self.regressor = Mapper(**kwargs)
         self._initialized = True
         self._is_trained = False
 
@@ -116,20 +117,16 @@ class CubeMapper(RegressionScore):
             self.init_mapper(**self._mapper_inits)
 
         train_gt = train_gt.values
-        scale(train_gt, copy=False)
         # make sure batch array is empty
         self.batch_data.reset()
 
         train_stim_set = self.create_stim_set(train_idx)
         self.extractor(train_stim_set, layers=[self.layer])
 
-        _batchArray = self.norm_batch_array(self.batch_data.batchArray)
+        _batchArray = self.batch_data.batchArray
 
         self.regressor.fit(_batchArray, train_gt)
         self._is_trained = True
-
-    def save_weights(self, save_dir, fname):
-        self.regressor.save_weights(os.path.join(save_dir, fname))
 
     def predict(self, im_idx):
         # make sure batch array is empty
@@ -140,12 +137,8 @@ class CubeMapper(RegressionScore):
         # Validation activations:
         self.extractor(validation_stim_set, layers=[self.layer])
 
-        _batchArray = self.norm_batch_array(self.batch_data.batchArray)
+        _batchArray = self.batch_data.batchArray
         return self.regressor.predict(_batchArray)
-
-    @staticmethod
-    def norm_batch_array(data):
-        return data / la.norm(data, axis=-1, keepdims=True, ord=1)
 
 
 class BatchHook(object):
@@ -167,14 +160,13 @@ class BatchHook(object):
 
     def hook(self):
         hook = self
-        handle = self.extractor.register_batch_hook(hook)
+        handle = self.extractor.register_batch_activations_hook(hook)
         hook.handle = handle
         return handle
 
 
 import numpy as np
 import tensorflow as tf
-import h5py
 
 np.random.seed(123)
 
@@ -183,7 +175,7 @@ np.random.seed(123)
 
 class Mapper(object):
     def __init__(self, graph=None, num_neurons=65, batch_size=50, init_lr=0.01,
-                 ls=0.05, ld=0.1, tol=1e-2, max_epochs=10, map_type='linreg', inits=None,
+                 ls=0.05, ld=0.1, tol=1e-2, max_epochs=10, inits=None,
                  log_rate=100, decay_rate=200, gpu_options=None):
         """
         Mapping function class.
@@ -195,7 +187,6 @@ class Mapper(object):
         :param ld: regularization coefficient for depth parameters
         :param tol: tolerance - stops the optimization if reaches below tol
         :param max_epochs: maximum number of epochs to train
-        :param map_type: type of mapping function ('linreg', 'separable')
         :param inits: initial values for the mapping function parameters. A dictionary containing
                       any of the following keys ['s_w', 'd_w', 'bias']
         :param log_rate: rate of logging the loss values
@@ -208,7 +199,6 @@ class Mapper(object):
         self._num_neurons = num_neurons
         self._lr = init_lr
         self._max_epochs = max_epochs
-        self._map_type = map_type
         self._inits = inits
         self._is_initialized = False
         self._log_rate = log_rate
@@ -247,104 +237,6 @@ class Mapper(object):
             else:
                 yield inputs[excerpt], targets[excerpt]
 
-    def _make_separable_map(self):
-        """
-        Makes the mapping function computational graph
-        :return:
-        """
-        with self._graph.as_default():
-            with tf.variable_scope('mapping'):
-                if self._map_type == 'separable':
-                    input_shape = self._input_ph.shape
-                    preds = []
-                    for n in range(self._num_neurons):
-                        with tf.variable_scope('N_{}'.format(n)):
-                            if self._inits is None:
-                                s_w = tf.Variable(initial_value=np.random.randn(1, input_shape[1], input_shape[2], 1),
-                                                  dtype=tf.float32)
-                                d_w = tf.Variable(initial_value=np.random.randn(1, 1, input_shape[-1], 1),
-                                                  dtype=tf.float32)
-                                bias = tf.Variable(initial_value=np.zeros((1, 1, 1, 1)), dtype=tf.float32)
-                            else:
-                                if 's_w' in self._inits:
-                                    s_w = tf.Variable(initial_value=self._inits['s_w'][n].reshape(
-                                        (1, input_shape[1], input_shape[2], 1)),
-                                        dtype=tf.float32)
-                                else:
-                                    s_w = tf.Variable(
-                                        initial_value=np.random.randn(1, input_shape[1], input_shape[2], 1),
-                                        dtype=tf.float32)
-                                if 'd_w' in self._inits:
-                                    d_w = tf.Variable(
-                                        initial_value=self._inits['d_w'][n].reshape(1, 1, input_shape[-1], 1),
-                                        dtype=tf.float32)
-                                else:
-                                    d_w = tf.Variable(initial_value=np.random.randn(1, 1, input_shape[-1], 1),
-                                                      dtype=tf.float32)
-                                if 'bias' in self._inits:
-                                    bias = tf.Variable(initial_value=self._inits['bias'][n].reshape(1, 1, 1, 1),
-                                                       dtype=tf.float32)
-                                else:
-                                    bias = tf.Variable(initial_value=np.zeros((1, 1, 1, 1)), dtype=tf.float32)
-
-                            tf.add_to_collection('s_w', s_w)
-                            out = s_w * self._input_ph
-
-                            tf.add_to_collection('d_w', d_w)
-                            out = tf.reduce_sum(out, axis=[1, 2], keepdims=True)
-                            out = tf.nn.conv2d(out, d_w, [1, 1, 1, 1], 'SAME')
-
-                            tf.add_to_collection('bias', bias)
-                            preds.append(tf.squeeze(out, axis=[1, 2]) + bias)
-                            # preds.append(tf.reduce_sum(out, axis=[1, 2]) + bias)
-
-                    self._predictions = tf.concat(preds, -1)
-                elif self._map_type == 'linreg':
-                    # For L1-Regression
-                    tmp = tf.layers.flatten(self._input_ph)
-                    self._predictions = tf.layers.dense(tmp, self._num_neurons)
-
-    def _make_loss(self):
-        """
-        Makes the loss computational graph
-        :return:
-        """
-        with self._graph.as_default():
-            with tf.variable_scope('loss'):
-                self.l2_error = tf.norm(self._predictions - self.target_ph,
-                                        ord=2)  # tf.reduce_sum(tf.pow(self._predictions-self.target_ph, 2))/(2*self.batch_size) #
-                # For L1-Regression
-                if self._map_type == 'linreg':
-                    self.reg_loss = tf.reduce_sum(
-                        [tf.reduce_sum(tf.abs(t)) for t in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES)])
-                    self.total_loss = self.l2_error + self._ld * self.reg_loss
-
-                elif self._map_type == 'separable':
-                    # For separable mapping
-                    self._s_vars = tf.get_collection('s_w')
-                    self._d_vars = tf.get_collection('d_w')
-                    self._biases = tf.get_collection('bias')
-
-                    # L1 reg
-                    # self.reg_loss = self.ls * tf.reduce_sum([tf.reduce_sum(tf.abs(t)) for t in self.s_vars]) + self.ld * tf.reduce_sum([tf.reduce_sum(tf.abs(t)) for t in self.d_vars])
-                    # L2 reg
-                    # self.reg_loss = self.ls * tf.reduce_sum([tf.reduce_sum(tf.pow(t, 2)) for t in self.s_vars]) + self.ld * tf.reduce_sum([tf.reduce_sum(tf.pow(t, 2)) for t in self.d_vars])
-                    #                 self.total_loss = self.l2_error + self.reg_loss
-
-                    # Laplacian loss
-                    laplace_filter = tf.constant(np.array([0, -1, 0, -1, 4, -1, 0, -1, 0]).reshape((3, 3, 1, 1)),
-                                                 dtype=tf.float32)
-                    laplace_loss = tf.reduce_sum(
-                        [tf.norm(tf.nn.conv2d(t, laplace_filter, [1, 1, 1, 1], 'SAME')) for t in self._s_vars])
-                    l2_loss = tf.reduce_sum([tf.reduce_sum(tf.pow(t, 2)) for t in self._s_vars])
-                    self.reg_loss = self._ls * (l2_loss + laplace_loss) + \
-                                    self._ld * tf.reduce_sum([tf.reduce_sum(tf.pow(t, 2)) for t in self._d_vars])
-
-                    self.total_loss = self.l2_error + self.reg_loss
-                self.tvars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
-                self.train_op = self._opt.minimize(self.total_loss, var_list=self.tvars,
-                                                   global_step=tf.train.get_or_create_global_step())
-
     def fit(self, X, Y):
         """
         Fits the parameters to the data
@@ -352,11 +244,10 @@ class Mapper(object):
         :param Y: response values (neurons), first dimension is examples
         :return:
         """
+        X = self.norm_batch_array(X)
+        Y = scale(Y, copy=True)
         with self._graph.as_default():
-            if self._map_type == 'linreg':
-                assert X.ndim == 2, 'Input matrix rank should be 2.'
-            else:
-                assert X.ndim == 4, 'Input matrix rank should be 4.'
+            assert X.ndim == 4, 'Input matrix rank should be 4.'
             if self._is_initialized is False:
                 self._init_mapper(X)
 
@@ -382,6 +273,7 @@ class Mapper(object):
         :param X: Input data, first dimension is examples
         :return: predictions
         """
+        X = self.norm_batch_array(X)
         with self._graph.as_default():
             if self._is_initialized is False:
                 self._init_mapper(X)
@@ -392,18 +284,90 @@ class Mapper(object):
                 preds.append(np.squeeze(self._sess.run([self._predictions], feed_dict=feed_dict)))
             return np.concatenate(preds, axis=0)
 
-    def save_weights(self, save_path):
+    def _make_separable_map(self):
         """
-        Save weights to an hdf5 file
-        :param save_path: save path
+        Makes the mapping function computational graph
         :return:
         """
-        print('Opening file to write to...')
-        with h5py.File(save_path, 'w') as h5file:
-            h5file.create_dataset('s_w', data=np.squeeze(self._sess.run(self._s_vars)))
-            h5file.create_dataset('d_w', data=np.squeeze(self._sess.run(self._d_vars)))
-            h5file.create_dataset('bias', data=np.squeeze(self._sess.run(self._biases)))
-        print('Finished saving.')
+        with self._graph.as_default():
+            with tf.variable_scope('mapping'):
+                input_shape = self._input_ph.shape
+                preds = []
+                for n in range(self._num_neurons):
+                    with tf.variable_scope('N_{}'.format(n)):
+                        if self._inits is None:
+                            s_w = tf.Variable(initial_value=np.random.randn(1, input_shape[1], input_shape[2], 1),
+                                              dtype=tf.float32)
+                            d_w = tf.Variable(initial_value=np.random.randn(1, 1, input_shape[-1], 1),
+                                              dtype=tf.float32)
+                            bias = tf.Variable(initial_value=np.zeros((1, 1, 1, 1)), dtype=tf.float32)
+                        else:
+                            if 's_w' in self._inits:
+                                s_w = tf.Variable(initial_value=self._inits['s_w'][n].reshape(
+                                    (1, input_shape[1], input_shape[2], 1)),
+                                    dtype=tf.float32)
+                            else:
+                                s_w = tf.Variable(
+                                    initial_value=np.random.randn(1, input_shape[1], input_shape[2], 1),
+                                    dtype=tf.float32)
+                            if 'd_w' in self._inits:
+                                d_w = tf.Variable(
+                                    initial_value=self._inits['d_w'][n].reshape(1, 1, input_shape[-1], 1),
+                                    dtype=tf.float32)
+                            else:
+                                d_w = tf.Variable(initial_value=np.random.randn(1, 1, input_shape[-1], 1),
+                                                  dtype=tf.float32)
+                            if 'bias' in self._inits:
+                                bias = tf.Variable(initial_value=self._inits['bias'][n].reshape(1, 1, 1, 1),
+                                                   dtype=tf.float32)
+                            else:
+                                bias = tf.Variable(initial_value=np.zeros((1, 1, 1, 1)), dtype=tf.float32)
+
+                        tf.add_to_collection('s_w', s_w)
+                        out = s_w * self._input_ph
+
+                        tf.add_to_collection('d_w', d_w)
+                        out = tf.reduce_sum(out, axis=[1, 2], keepdims=True)
+                        out = tf.nn.conv2d(out, d_w, [1, 1, 1, 1], 'SAME')
+
+                        tf.add_to_collection('bias', bias)
+                        preds.append(tf.squeeze(out, axis=[1, 2]) + bias)
+                        # preds.append(tf.reduce_sum(out, axis=[1, 2]) + bias)
+
+                self._predictions = tf.concat(preds, -1)
+
+    def _make_loss(self):
+        """
+        Makes the loss computational graph
+        :return:
+        """
+        with self._graph.as_default():
+            with tf.variable_scope('loss'):
+                self.l2_error = tf.norm(self._predictions - self.target_ph, ord=2)
+                # For separable mapping
+                self._s_vars = tf.get_collection('s_w')
+                self._d_vars = tf.get_collection('d_w')
+                self._biases = tf.get_collection('bias')
+
+                # L1 reg
+                # self.reg_loss = self.ls * tf.reduce_sum([tf.reduce_sum(tf.abs(t)) for t in self.s_vars]) + self.ld * tf.reduce_sum([tf.reduce_sum(tf.abs(t)) for t in self.d_vars])
+                # L2 reg
+                # self.reg_loss = self.ls * tf.reduce_sum([tf.reduce_sum(tf.pow(t, 2)) for t in self.s_vars]) + self.ld * tf.reduce_sum([tf.reduce_sum(tf.pow(t, 2)) for t in self.d_vars])
+                #                 self.total_loss = self.l2_error + self.reg_loss
+
+                # Laplacian loss
+                laplace_filter = tf.constant(np.array([0, -1, 0, -1, 4, -1, 0, -1, 0]).reshape((3, 3, 1, 1)),
+                                             dtype=tf.float32)
+                laplace_loss = tf.reduce_sum(
+                    [tf.norm(tf.nn.conv2d(t, laplace_filter, [1, 1, 1, 1], 'SAME')) for t in self._s_vars])
+                l2_loss = tf.reduce_sum([tf.reduce_sum(tf.pow(t, 2)) for t in self._s_vars])
+                self.reg_loss = self._ls * (l2_loss + laplace_loss) + \
+                                self._ld * tf.reduce_sum([tf.reduce_sum(tf.pow(t, 2)) for t in self._d_vars])
+
+                self.total_loss = self.l2_error + self.reg_loss
+                self.tvars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
+                self.train_op = self._opt.minimize(self.total_loss, var_list=self.tvars,
+                                                   global_step=tf.train.get_or_create_global_step())
 
     def _init_mapper(self, X):
         """
@@ -428,6 +392,10 @@ class Mapper(object):
                 self._sess = tf.Session(config=tf.ConfigProto(gpu_options=self._gpu_options))
 
             self._sess.run(init_op)
+
+    @staticmethod
+    def norm_batch_array(data):
+        return data / la.norm(data, axis=-1, keepdims=True, ord=1)
 
     def close(self):
         """

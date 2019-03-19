@@ -13,6 +13,3 @@ class BrainModel:
 
     def start_recording(self, recording_target: RecordingTarget):
         raise NotImplementedError()
-
-    def receptive_fields(self, record=True):
-        raise NotImplementedError()

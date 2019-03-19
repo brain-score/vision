@@ -25,7 +25,7 @@ install:
   - pip install .
 before_script:
   # download imagenet validation now to avoid out-of-memory errors in script
-  - pip install awscli
+  - pip install awscli==1.11.18 # avoid PyYAML erroneous dependency: https://github.com/aws/aws-cli/issues/2290#issuecomment-262514332
   - aws --no-sign-request --region=us-east-1 s3 cp s3://brain-score-models/imagenet2012-val.hdf5 ./imagenet2012.hdf5
 script:
   - CUDA_VISIBLE_DEVICES= MT_MULTITHREAD=0 MT_IMAGENET_PATH=./imagenet2012.hdf5 pytest --ignore=tf-models --skip-memory-intense

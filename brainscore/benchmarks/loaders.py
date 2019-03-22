@@ -1,3 +1,6 @@
+import xarray as xr
+from brainscore.metrics.transformations import subset
+
 import brainscore
 from brainscore.assemblies import merge_data_arrays, walk_coords, array_is_element
 from result_caching import store
@@ -14,22 +17,16 @@ class AssemblyLoader(object):
 class DicarloMajaj2015Loader(AssemblyLoader):
     def __init__(self):
         super(DicarloMajaj2015Loader, self).__init__(name='dicarlo.Majaj2015')
+        self.average_repetition = average_repetition
 
     def __call__(self, average_repetition=True):
         assembly = brainscore.get_assembly(name=self.name)
         assembly.load()
         assembly = self._filter_erroneous_neuroids(assembly)
-        assembly = assembly.sel(variation=6)
         assembly = assembly.squeeze("time_bin")
         assembly = assembly.transpose('presentation', 'neuroid')
         if average_repetition:
             assembly = self.average_repetition(assembly)
-
-        stimulus_set_name = f"{assembly.stimulus_set.name}-V6"
-        assembly.attrs['stimulus_set'] = assembly.stimulus_set[
-            assembly.stimulus_set['image_id'].isin(assembly['image_id'].values)]
-        assembly.stimulus_set.name = stimulus_set_name
-        assembly.attrs['stimulus_set_name'] = stimulus_set_name
         return assembly
 
     def _filter_erroneous_neuroids(self, assembly):
@@ -46,16 +43,12 @@ class DicarloMajaj2015Loader(AssemblyLoader):
         assembly = assembly.isel(neuroid=good_neuroids)
         return assembly
 
-    def average_repetition(self, assembly):
-        return apply_keep_attrs(assembly, lambda assembly: assembly
-                                .multi_groupby(['category_name', 'object_name', 'image_id']).mean(dim='presentation'))
-
 
 class _RegionLoader(AssemblyLoader):
-    def __init__(self, name, region):
-        super(_RegionLoader, self).__init__(name=f'{name}.{region}')
+    def __init__(self, basename, region):
+        super(_RegionLoader, self).__init__(name=f'{basename}.{region}')
         self.region = region
-        self.loader = assembly_loaders[name]
+        self.loader = assembly_loaders[basename]
         self.average_repetition = self.loader.average_repetition
 
     def __call__(self, average_repetition=True):
@@ -68,8 +61,42 @@ class _RegionLoader(AssemblyLoader):
         return assembly
 
 
-DicarloMajaj2015V4Loader = lambda: _RegionLoader(name='dicarlo.Majaj2015', region='V4')
-DicarloMajaj2015ITLoader = lambda: _RegionLoader(name='dicarlo.Majaj2015', region='IT')
+class _VariationLoader(AssemblyLoader):
+    def __init__(self, basename, variation_name, variation):
+        super(_VariationLoader, self).__init__(name=f'{basename}.{variation_name}var')
+        self.variation = variation
+        self.loader = assembly_loaders[basename]
+        self.average_repetition = self.loader.average_repetition
+
+    def __call__(self, average_repetition=True):
+        assembly = self.loader(average_repetition=average_repetition)
+        assembly.name = self.name
+        variation = [self.variation] if not isinstance(self.variation, list) else self.variation
+        variation_selection = xr.DataArray([0] * len(variation), coords={'variation': variation},
+                                           dims=['variation']).stack(presentation=['variation'])
+        assembly = subset(assembly, variation_selection, repeat=True, dims_must_match=False)
+        assert hasattr(assembly, 'variation')
+        adapt_stimulus_set(assembly, name_suffix="var" + "".join(str(v) for v in variation))
+        return assembly
+
+
+def adapt_stimulus_set(assembly, name_suffix):
+    stimulus_set_name = f"{assembly.stimulus_set.name}-{name_suffix}"
+    assembly.attrs['stimulus_set'] = assembly.stimulus_set[
+        assembly.stimulus_set['image_id'].isin(assembly['image_id'].values)]
+    assembly.stimulus_set.name = stimulus_set_name
+    assembly.attrs['stimulus_set_name'] = stimulus_set_name
+
+
+DicarloMajaj2015LowvarLoader = lambda: _VariationLoader(basename='dicarlo.Majaj2015',
+                                                        variation_name='low', variation=[0, 3])
+DicarloMajaj2015HighvarLoader = lambda: _VariationLoader(basename='dicarlo.Majaj2015',
+                                                         variation_name='high', variation=6)
+# separate into mapping and test  # TODO: these need to be packaged separately for access rights
+DicarloMajaj2015V4LowvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.lowvar', region='V4')
+DicarloMajaj2015ITLowvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.lowvar', region='IT')
+DicarloMajaj2015V4HighvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.highvar', region='V4')
+DicarloMajaj2015ITHighvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.highvar', region='IT')
 
 
 class DicarloMajaj2015TemporalLoader(AssemblyLoader):
@@ -134,15 +161,14 @@ class MovshonFreemanZiemba2013Loader(AssemblyLoader):
         return assembly
 
 
-MovshonFreemanZiemba2013V1Loader = lambda: _RegionLoader(name='movshon.FreemanZiemba2013', region='V1')
-MovshonFreemanZiemba2013V2Loader = lambda: _RegionLoader(name='movshon.FreemanZiemba2013', region='V2')
+MovshonFreemanZiemba2013V1Loader = lambda: _RegionLoader(basename='movshon.FreemanZiemba2013', region='V1')
+MovshonFreemanZiemba2013V2Loader = lambda: _RegionLoader(basename='movshon.FreemanZiemba2013', region='V2')
 
 
 def average_repetition(assembly):
     def avg_repr(assembly):
         presentation_coords = [coord for coord, dims, values in walk_coords(assembly)
-                               if array_is_element(dims, 'presentation')]
-        presentation_coords = set(presentation_coords) - {'repetition'}
+                               if array_is_element(dims, 'presentation') and coord != 'repetition']
         assembly = assembly.multi_groupby(presentation_coords).mean(dim='presentation', skipna=True)
         return assembly
 
@@ -199,7 +225,9 @@ _assembly_loaders_ctrs = [
     MovshonFreemanZiemba2013Loader, MovshonFreemanZiemba2013V1Loader, MovshonFreemanZiemba2013V2Loader,
     ToliasCadena2017Loader,
     GallantDavid2004Loader,
-    DicarloMajaj2015Loader, DicarloMajaj2015V4Loader, DicarloMajaj2015ITLoader,
+    DicarloMajaj2015Loader, DicarloMajaj2015LowvarLoader, DicarloMajaj2015HighvarLoader,
+    DicarloMajaj2015V4LowvarLoader, DicarloMajaj2015ITLowvarLoader,  # public mapping
+    DicarloMajaj2015V4HighvarLoader, DicarloMajaj2015ITHighvarLoader,  # private testing
     DicarloMajaj2015EarlyLateLoader,
 ]
 assembly_loaders = {}

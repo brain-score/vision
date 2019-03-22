@@ -14,24 +14,37 @@ from brainscore.metrics.ceiling import InternalConsistency
 from brainscore.metrics.regression import CrossRegressedCorrelation
 from brainscore.model_interface import BrainModel
 from brainscore.utils import fullname
+from model_tools.activations.pca import LayerPCA
 from result_caching import store_xarray, store
 
 
 class ModelCommitment(BrainModel):
-    def __init__(self, identifier, base_model, layers):
+    def __init__(self, identifier, activations_model, layers):
         self.layers = layers
-
-        self.layer_model = LayerModel(identifier=identifier, base_model=base_model)
+        self.region_assemblies = {}
+        self.layer_model = LayerModel(identifier=identifier, activations_model=activations_model)
         # forward brain-interface methods
         self.look_at = self.layer_model.look_at
-        self.start_recording = self.layer_model.start_recording
         self.start_task = self.layer_model.start_task
 
-    def commit_region(self, region, assembly):
+    def commit_region(self, region, assembly, assembly_stratification=None):
+        self.region_assemblies[region] = (assembly, assembly_stratification)  # lazy, only run when actually needed
+
+    def do_commit_region(self, region):
         layer_selection = LayerSelection(model_identifier=self.layer_model.identifier,
-                                         activations_model=self.layer_model.base_model, layers=self.layers)
-        best_layer = layer_selection(assembly)
+                                         activations_model=self.layer_model.activations_model, layers=self.layers)
+        assembly, assembly_stratification = self.region_assemblies[region]
+        best_layer = layer_selection(assembly, assembly_stratification=assembly_stratification)
         self.layer_model.commit(region, best_layer)
+
+    def start_recording(self, recording_target):
+        if recording_target not in self.layer_model.region_layer_map:  # not yet committed
+            self.do_commit_region(recording_target)
+        return self.layer_model.start_recording(recording_target)
+
+    @property
+    def identifier(self):
+        return self.layer_model.identifier
 
 
 class PixelsToDegrees:
@@ -96,16 +109,16 @@ class PixelsToDegrees:
 
 
 class LayerModel(BrainModel):
-    def __init__(self, identifier, base_model, region_layer_map: Optional[dict] = None):
+    def __init__(self, identifier, activations_model, region_layer_map: Optional[dict] = None):
         self.identifier = identifier
-        self.base_model = base_model
+        self.activations_model = activations_model
         self.region_layer_map = region_layer_map or {}
         self.recorded_regions = []
 
     def look_at(self, stimuli):
         layer_regions = {self.region_layer_map[region]: region for region in self.recorded_regions}
         assert len(layer_regions) == len(self.recorded_regions), f"duplicate layers for {self.recorded_regions}"
-        activations = self.base_model(stimuli, layers=list(layer_regions.keys()))
+        activations = self.activations_model(stimuli, layers=list(layer_regions.keys()))
         activations['region'] = 'neuroid', [layer_regions[layer] for layer in activations['layer'].values]
         return activations
 
@@ -133,14 +146,30 @@ class LayerSelection:
         self.layers = layers
         self._logger = logging.getLogger(fullname(self))
 
-    def __call__(self, assembly):
-        return self._call(model_identifier=self.model_identifier, assembly_identifier=assembly.name, assembly=assembly)
+    def __call__(self, assembly, assembly_stratification=None):
+        # for layer-mapping, attach LayerPCA so that we can cache activations
+        model_identifier = self.model_identifier
+        pca_hooked = LayerPCA.is_hooked(self._layer_scoring._activations_model)
+        if not pca_hooked:
+            pca_handle = LayerPCA.hook(self._layer_scoring._activations_model, n_components=1000)
+            identifier = self._layer_scoring._activations_model.identifier
+            self._layer_scoring._activations_model.identifier = identifier + "-pca_1000"
+            model_identifier += "-pca_1000"
+
+        result = self._call(model_identifier=model_identifier, assembly_identifier=assembly.name,
+                            assembly=assembly, assembly_stratification=assembly_stratification)
+
+        if not pca_hooked:
+            pca_handle.remove()
+            self._layer_scoring._activations_model.identifier = identifier
+        return result
 
     @store(identifier_ignore=['assembly'])
-    def _call(self, model_identifier, assembly_identifier, assembly):
-        benchmark = self._Benchmark(assembly)
+    def _call(self, model_identifier, assembly_identifier, assembly, assembly_stratification=None):
+        benchmark = self._Benchmark(assembly, ceiler=InternalConsistency(stratification_coord=assembly_stratification))
         self._logger.debug("Finding best layer")
-        layer_scores = self._layer_scoring(benchmark=benchmark, layers=self.layers)
+        layer_scores = self._layer_scoring(benchmark=benchmark, layers=self.layers, prerun=True)
+
         self._logger.debug("Layer scores (unceiled): " + ", ".join([
             f"{layer} -> {layer_scores.raw.sel(layer=layer, aggregation='center').values:.3f}"
             f"+-{layer_scores.raw.sel(layer=layer, aggregation='error').values:.3f}"
@@ -151,6 +180,7 @@ class LayerSelection:
     class _Benchmark(BenchmarkBase):
         def __init__(self, assembly_repetition, similarity_metric=None, ceiler=None):
             assert len(np.unique(assembly_repetition['region'])) == 1
+            assert hasattr(assembly_repetition, 'repetition')
             self.region = np.unique(assembly_repetition['region'])[0]
             self.assembly = average_repetition(assembly_repetition)
 
@@ -173,21 +203,22 @@ class LayerScores:
         self._activations_model = activations_model
         self._logger = logging.getLogger(fullname(self))
 
-    def __call__(self, benchmark, layers, benchmark_identifier=None):
+    def __call__(self, benchmark, layers, benchmark_identifier=None, prerun=False):
         return self._call(model_identifier=self.model_identifier,
                           benchmark_identifier=benchmark_identifier or benchmark.identifier,
-                          model=self._activations_model, benchmark=benchmark, layers=layers)
+                          model=self._activations_model, benchmark=benchmark, layers=layers, prerun=prerun)
 
-    @store_xarray(identifier_ignore=['model', 'benchmark', 'layers'], combine_fields={'layers': 'layer'})
+    @store_xarray(identifier_ignore=['model', 'benchmark', 'layers', 'prerun'], combine_fields={'layers': 'layer'})
     def _call(self, model_identifier, benchmark_identifier,  # storage fields
-              model, benchmark, layers):
-        # pre-run activations together to avoid running every layer separately
-        model(layers=layers, stimuli=benchmark.assembly.stimulus_set)
+              model, benchmark, layers, prerun=False):
+        if prerun:
+            # pre-run activations together to avoid running every layer separately
+            model(layers=layers, stimuli=benchmark.assembly.stimulus_set)
 
         layer_scores = []
         for layer in tqdm(layers, desc="layers"):
-            layer_model = LayerModel(identifier=model_identifier, base_model=model,
-                                     region_layer_map={benchmark.region: layer})
+            layer_model = LayerModel(identifier=f"{model_identifier}-{layer}",  # per-layer identifier to avoid overlap
+                                     activations_model=model, region_layer_map={benchmark.region: layer})
             score = benchmark(layer_model)
             score = score.expand_dims('layer')
             score['layer'] = [layer]

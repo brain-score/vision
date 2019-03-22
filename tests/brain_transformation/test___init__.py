@@ -39,14 +39,14 @@ def pytorch_custom():
 
 class TestLayerSelection:
     @pytest.mark.parametrize(['model_ctr', 'layers', 'expected_layer', 'assembly_identifier', 'region'],
-                             [(pytorch_custom, ['linear', 'relu2'], 'relu2', 'dicarlo.Majaj2015.IT', 'IT')])
+                             [(pytorch_custom, ['linear', 'relu2'], 'linear', 'dicarlo.Majaj2015.lowvar.IT', 'IT')])
     def test(self, model_ctr, layers, expected_layer, assembly_identifier, region):
         np.random.seed(0)
         activations_model = model_ctr()
-        brain_model = ModelCommitment(identifier=activations_model.identifier, base_model=activations_model,
+        brain_model = ModelCommitment(identifier=activations_model.identifier, activations_model=activations_model,
                                       layers=layers)
-        assembly = load_assembly(assembly_identifier)
-        brain_model.commit_region(region, assembly)
+        assembly = load_assembly(assembly_identifier, average_repetition=False)
+        brain_model.commit_region(region, assembly, assembly_stratification='category_name')
 
         brain_model.start_recording(region)
         predictions = brain_model.look_at(assembly.stimulus_set)

@@ -23,7 +23,7 @@ class NeuralBenchmark(BenchmarkBase):
 
 
 def _DicarloMajaj2015Region(region):
-    loader = assembly_loaders[f'dicarlo.Majaj2015.{region}']
+    loader = assembly_loaders[f'dicarlo.Majaj2015.highvar.{region}']
     assembly_repetition = loader(average_repetition=False)
     assembly = loader(average_repetition=True)
 

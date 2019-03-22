@@ -164,7 +164,6 @@ class ActivationsExtractorHelper:
         return model_assembly
 
     def insert_attrs(self, wrapper):
-        wrapper.identifier = self.identifier
         wrapper.from_stimulus_set = self.from_stimulus_set
         wrapper.from_paths = self.from_paths
         wrapper.register_batch_activations_hook = self.register_batch_activations_hook

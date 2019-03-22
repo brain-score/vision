@@ -18,6 +18,14 @@ class KerasWrapper:
             *args, **kwargs)
         self._extractor.insert_attrs(self)
 
+    @property
+    def identifier(self):
+        return self._extractor.identifier
+
+    @identifier.setter
+    def identifier(self, value):
+        self._extractor.identifier = value
+
     def __call__(self, *args, **kwargs):  # cannot assign __call__ as attribute due to Python convention
         return self._extractor(*args, **kwargs)
 

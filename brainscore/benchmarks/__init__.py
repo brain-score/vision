@@ -49,12 +49,13 @@ class BenchmarkPool(dict):
         super(BenchmarkPool, self).__init__()
         # avoid circular imports
         from .regressing import \
-            DicarloMajaj2015V4, DicarloMajaj2015IT, \
+            DicarloMajaj2015V4PLS, DicarloMajaj2015ITPLS, DicarloMajaj2015ITMask, \
             MovshonFreemanZiemba2013V1, MovshonFreemanZiemba2013V2
-        self['dicarlo.Majaj2015.V4-regressing'] = LazyLoad(lambda: DicarloMajaj2015V4())
-        self['dicarlo.Majaj2015.IT-regressing'] = LazyLoad(lambda: DicarloMajaj2015IT())
-        self['movshon.FreemanZiemba2013.V1-regressing'] = LazyLoad(lambda: MovshonFreemanZiemba2013V1())
-        self['movshon.FreemanZiemba2013.V2-regressing'] = LazyLoad(lambda: MovshonFreemanZiemba2013V2())
+        self['dicarlo.Majaj2015.V4-pls'] = LazyLoad(DicarloMajaj2015V4PLS)
+        self['dicarlo.Majaj2015.IT-pls'] = LazyLoad(DicarloMajaj2015ITPLS)
+        self['dicarlo.Majaj2015.IT-mask'] = LazyLoad(DicarloMajaj2015ITMask)
+        self['movshon.FreemanZiemba2013.V1-pls'] = LazyLoad(MovshonFreemanZiemba2013V1)
+        self['movshon.FreemanZiemba2013.V2-pls'] = LazyLoad(MovshonFreemanZiemba2013V2)
 
 
 benchmark_pool = BenchmarkPool()

@@ -17,7 +17,7 @@ before_install:
 - pip install pytest
 # download large files
 - pip install awscli
-- aws s3 cp s3://brain-score-tests/tests/test_benchmark/alexnet-hvmv6-features.6.pkl tests/test_benchmark/
+  - aws --no-sign-request s3 cp s3://brain-score-tests/tests/test_benchmark/alexnet-hvmv6-features.6.pkl tests/test_benchmark/
 install:
 - pip install .
 script:

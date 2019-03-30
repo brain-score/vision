@@ -7,7 +7,7 @@ from multiprocessing.pool import ThreadPool
 import numpy as np
 from tqdm import tqdm
 
-from brainio_base.assemblies import NeuroidAssembly
+from brainio_base.assemblies import NeuroidAssembly, merge_data_arrays
 from brainio_base.stimuli import StimulusSet
 from model_tools.utils import fullname
 from result_caching import store_xarray
@@ -142,26 +142,34 @@ class ActivationsExtractorHelper:
         return change_dict(layer_activations, lambda values: values[:-num_padding or None])
 
     def _package(self, layer_activations, stimuli_paths):
-        activations = list(layer_activations.values())
-        shapes = [a.shape for a in activations]
+        shapes = [a.shape for a in layer_activations.values()]
         self._logger.debug('Activations shapes: {}'.format(shapes))
-        activations = [flatten(single_layer_activations) for single_layer_activations in activations]  # collapse
-        # layer x images x activations --> images x (layer x activations)
-        activations = np.concatenate(activations, axis=-1)
-        assert activations.shape[0] == len(stimuli_paths)
-        assert activations.shape[1] == np.sum([np.prod(shape[1:]) for shape in shapes])
-        layers = []
-        for layer, shape in zip(layer_activations.keys(), shapes):
-            repeated_layer = [layer] * np.prod(shape[1:])
-            layers += repeated_layer
-        model_assembly = NeuroidAssembly(
+        layer_assemblies = [self._package_layer(single_layer_activations, layer=layer, stimuli_paths=stimuli_paths)
+                            for layer, single_layer_activations in layer_activations.items()]
+        model_assembly = merge_data_arrays(layer_assemblies)
+        return model_assembly
+
+    def _package_layer(self, layer_activations, layer, stimuli_paths):
+        assert layer_activations.shape[0] == len(stimuli_paths)
+        activations, flatten_indices = flatten(layer_activations, return_index=True)  # collapse for single neuroid dim
+        flatten_coord_names = (['channel', 'channel_x', 'channel_y'] if flatten_indices.shape[1] == 3  # convolutional
+                               else [f'channel_{i}' for i in range(flatten_indices.shape[1])])
+        flatten_coords = {flatten_coord_names[i]: [sample_index[i] for sample_index in flatten_indices]
+                          for i in range(flatten_indices.shape[1])}
+        layer_assembly = NeuroidAssembly(
             activations,
-            coords={'stimulus_path': stimuli_paths,
-                    'neuroid_id': ('neuroid', list(range(activations.shape[1]))),
-                    'layer': ('neuroid', layers)},
+            coords={**{'stimulus_path': stimuli_paths,
+                       'neuroid_num': ('neuroid', list(range(activations.shape[1]))),
+                       'model': ('neuroid', [self.identifier] * activations.shape[1]),
+                       'layer': ('neuroid', [layer] * activations.shape[1]),
+                       },
+                    **{coord: ('neuroid', values) for coord, values in flatten_coords.items()}},
             dims=['stimulus_path', 'neuroid']
         )
-        return model_assembly
+        neuroid_id = [".".join([f"{value}" for value in values]) for values in zip(*[
+            layer_assembly[coord].values for coord in ['model', 'layer'] + flatten_coord_names])]
+        layer_assembly['neuroid_id'] = 'neuroid', neuroid_id
+        return layer_assembly
 
     def insert_attrs(self, wrapper):
         wrapper.from_stimulus_set = self.from_stimulus_set
@@ -222,5 +230,25 @@ class HookHandle:
         self._saved_hook = None
 
 
-def flatten(layer_output):
-    return layer_output.reshape(layer_output.shape[0], -1)
+def flatten(layer_output, return_index=False):
+    flattened = layer_output.reshape(layer_output.shape[0], -1)
+    if not return_index:
+        return flattened
+
+    def cartesian_product_broadcasted(*arrays):
+        """
+        http://stackoverflow.com/a/11146645/190597
+        """
+        broadcastable = np.ix_(*arrays)
+        broadcasted = np.broadcast_arrays(*broadcastable)
+        dtype = np.result_type(*arrays)
+        rows, cols = functools.reduce(np.multiply, broadcasted[0].shape), len(broadcasted)
+        out = np.empty(rows * cols, dtype=dtype)
+        start, end = 0, rows
+        for a in broadcasted:
+            out[start:end] = a.reshape(-1)
+            start, end = end, end + rows
+        return out.reshape(cols, rows).T
+
+    index = cartesian_product_broadcasted(*[np.arange(s, dtype='int') for s in layer_output.shape[1:]])
+    return flattened, index

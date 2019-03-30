@@ -7,6 +7,7 @@ import pytest
 
 from brainio_base.stimuli import StimulusSet
 from model_tools.activations import KerasWrapper, PytorchWrapper, TensorflowSlimWrapper
+from model_tools.activations.core import flatten
 from model_tools.activations.pca import LayerPCA
 
 memory_intense = pytest.mark.skipif(
@@ -223,3 +224,43 @@ def test_mixed_layer_logits(model_ctr, internal_layers):
 def test_infer_identifier(model_ctr, expected_identifier):
     model = model_ctr()
     assert model.identifier == expected_identifier
+
+
+def test_convolution_meta():
+    model = pytorch_custom()
+    activations = model(stimuli=['rgb.jpg'], layers=['conv1'])
+    assert hasattr(activations, 'channel')
+    assert hasattr(activations, 'channel_x')
+    assert hasattr(activations, 'channel_y')
+
+
+class TestFlatten:
+    def test_flattened_shape(self):
+        A = np.random.rand(2560, 256, 6, 6)
+        flattened = flatten(A)
+        assert np.prod(flattened.shape) == np.prod(A.shape)
+        assert flattened.shape[0] == A.shape[0]
+        assert len(flattened.shape) == 2
+
+    def test_indices_shape(self):
+        A = np.random.rand(2560, 256, 6, 6)
+        _, indices = flatten(A, return_index=True)
+        assert len(indices.shape) == 2
+        assert indices.shape[0] == np.prod(A.shape[1:])
+        assert indices.shape[1] == 3  # for 256, 6, 6
+
+    def test_match_flatten(self):
+        A = np.random.rand(10, 256, 6, 6)
+        flattened, indices = flatten(A, return_index=True)
+        for layer in range(A.shape[0]):
+            for i in range(np.prod(A.shape[1:])):
+                value = flattened[layer][i]
+                index = indices[i]
+                assert A[layer][tuple(index)] == value
+
+    def test_inverse(self):
+        A = np.random.rand(2560, 256, 6, 6)
+        flattened = flatten(A)
+        A_ = np.reshape(flattened, [flattened.shape[0], 256, 6, 6])
+        assert A.shape == A_.shape
+        assert (A == A_).all()

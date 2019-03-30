@@ -7,7 +7,7 @@ from PIL import Image
 from sklearn.decomposition import PCA
 from tqdm import tqdm
 
-from model_tools.activations.core import flatten
+from model_tools.activations.core import flatten, change_dict
 from model_tools.utils import fullname, s3
 from result_caching import store_dict
 
@@ -29,7 +29,6 @@ class LayerPCA:
                 return activations
             return pca.transform(activations)
 
-        from model_tools.activations.core import change_dict
         return change_dict(batch_activations, apply_pca, keep_name=True,
                            multithread=os.getenv('MT_MULTITHREAD', '1') == '1')
 
@@ -76,9 +75,15 @@ class LayerPCA:
     @classmethod
     def hook(cls, activations_extractor, n_components):
         hook = LayerPCA(activations_extractor=activations_extractor, n_components=n_components)
+        assert not cls.is_hooked(activations_extractor), "PCA already hooked"
         handle = activations_extractor.register_batch_activations_hook(hook)
         hook.handle = handle
         return handle
+
+    @classmethod
+    def is_hooked(cls, activations_extractor):
+        return any(isinstance(hook, cls) for hook in
+                   activations_extractor._extractor._batch_activations_hooks.values())
 
 
 def _get_imagenet_val(num_images):

@@ -176,18 +176,16 @@ class Split:
 
         self._logger = logging.getLogger(fullname(self))
 
-    def stratify(self, assembly):
-        return self._stratification_coord and hasattr(assembly, self._stratification_coord)
+    @property
+    def do_stratify(self):
+        return bool(self._stratification_coord)
 
     def build_splits(self, assembly):
-        cross_validation_values, indices = extract_coord(assembly, self._split_coord, return_index=True)
+        cross_validation_values = extract_coord(assembly, self._split_coord)
         data_shape = np.zeros(len(cross_validation_values))
-        if self.stratify(assembly):
-            splits = self._stratified_split.split(data_shape,
-                                                  assembly[self._stratification_coord].values[indices])
+        if self.do_stratify:
+            splits = self._stratified_split.split(data_shape, assembly[self._stratification_coord].values)
         else:
-            self._logger.warning("Stratification coord '{}' not found in assembly "
-                                 "- falling back to un-stratified splits".format(self._stratification_coord))
             splits = self._shuffle_split.split(data_shape)
         return cross_validation_values, list(splits)
 
@@ -199,6 +197,13 @@ class Split:
                      coords={**{'aggregation': ['center', 'error']},
                              **{coord: (dims, values) for coord, dims, values in walk_coords(center)}},
                      dims=('aggregation',) + center.dims)
+
+
+def extract_coord(assembly, coord):
+    coord_assembly = xr.DataArray(assembly[coord].values, coords={coord: assembly[coord].values}, dims=[coord])
+    dims = assembly[coord].dims
+    coord_assembly = coord_assembly.stack(**{dims[0]: (coord,)})
+    return coord_assembly
 
 
 class TestOnlyCrossValidationSingle:
@@ -275,7 +280,7 @@ class CrossValidation(Transformation):
     def pipe(self, source_assembly, target_assembly):
         # check only for equal values, alignment is given by metadata
         assert sorted(source_assembly[self._split_coord].values) == sorted(target_assembly[self._split_coord].values)
-        if self._split.stratify(target_assembly):
+        if self._split.do_stratify:
             assert hasattr(source_assembly, self._stratification_coord)
             assert sorted(source_assembly[self._stratification_coord].values) == \
                    sorted(target_assembly[self._stratification_coord].values)
@@ -303,15 +308,6 @@ class CrossValidation(Transformation):
 
     def aggregate(self, score):
         return self._split.aggregate(score)
-
-
-def extract_coord(assembly, coord, return_index=False):
-    extracted_assembly, indices = np.unique(assembly[coord].values, return_index=True)
-    dims = assembly[coord].dims
-    assert len(dims) == 1
-    extracted_assembly = xr.DataArray(extracted_assembly, coords={coord: extracted_assembly}, dims=[coord])
-    extracted_assembly = extracted_assembly.stack(**{dims[0]: (coord,)})
-    return extracted_assembly if not return_index else extracted_assembly, indices
 
 
 def standard_error_of_the_mean(values, dim):

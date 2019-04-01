@@ -228,7 +228,7 @@ def test_infer_identifier(model_ctr, expected_identifier):
 
 def test_convolution_meta():
     model = pytorch_custom()
-    activations = model(stimuli=['rgb.jpg'], layers=['conv1'])
+    activations = model(stimuli=[os.path.join(os.path.dirname(__file__), 'rgb.jpg')], layers=['conv1'])
     assert hasattr(activations, 'channel')
     assert hasattr(activations, 'channel_x')
     assert hasattr(activations, 'channel_y')

@@ -14,8 +14,8 @@ except (ValueError, AttributeError):
     # Can't get config from pytest, e.g., because framework is installed instead
     # of being run from a development version (and hence conftests.py is not
     # available). Don't run private tests.
-    _SKIP_PRIVATE = False
-    _SKIP_GPU = False
+    _SKIP_PRIVATE = True
+    _SKIP_GPU = True
 
 private_access = pytest.mark.skipif(
     _SKIP_PRIVATE, reason="set to not run tests that require private s3 access")

@@ -34,7 +34,7 @@ def _DicarloMajaj2015Region(region, identifier_metric_suffix, similarity_metric)
     return build_benchmark(f'dicarlo.Majaj2015.{region}-{identifier_metric_suffix}',
                            assembly_loader_name=f'dicarlo.Majaj2015.highvar.{region}',
                            similarity_metric=similarity_metric,
-                           ceiler=InternalConsistency(stratification_coord='object_name'))
+                           ceiler=InternalConsistency())
 
 
 def DicarloMajaj2015V4PLS():
@@ -67,7 +67,7 @@ def _MovshonFreemanZiemba2013Region(region, identifier_metric_suffix, similarity
     return build_benchmark(f'movshon.FreemanZiemba2013.{region}-{identifier_metric_suffix}',
                            assembly_loader_name=f'movshon.FreemanZiemba2013.{region}',
                            similarity_metric=similarity_metric,
-                           ceiler=InternalConsistency(stratification_coord=None))
+                           ceiler=InternalConsistency())
 
 
 def MovshonFreemanZiemba2013V1PLS():

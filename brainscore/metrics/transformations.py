@@ -158,12 +158,13 @@ class Split:
         train_size = .9
         split_coord = 'image_id'
         stratification_coord = 'object_name'  # cross-validation across images, balancing objects
+        unique_split_values = False
         random_state = 1
 
     def __init__(self,
                  splits=Defaults.splits, train_size=None, test_size=None,
                  split_coord=Defaults.split_coord, stratification_coord=Defaults.stratification_coord,
-                 random_state=Defaults.random_state):
+                 unique_split_values=Defaults.unique_split_values, random_state=Defaults.random_state):
         super().__init__()
         if train_size is None and test_size is None:
             train_size = self.Defaults.train_size
@@ -173,6 +174,7 @@ class Split:
             n_splits=splits, train_size=train_size, test_size=test_size, random_state=random_state)
         self._split_coord = split_coord
         self._stratification_coord = stratification_coord
+        self._unique_split_values = unique_split_values
 
         self._logger = logging.getLogger(fullname(self))
 
@@ -181,10 +183,10 @@ class Split:
         return bool(self._stratification_coord)
 
     def build_splits(self, assembly):
-        cross_validation_values = extract_coord(assembly, self._split_coord)
+        cross_validation_values, indices = extract_coord(assembly, self._split_coord, unique=self._unique_split_values)
         data_shape = np.zeros(len(cross_validation_values))
         if self.do_stratify:
-            splits = self._stratified_split.split(data_shape, assembly[self._stratification_coord].values)
+            splits = self._stratified_split.split(data_shape, assembly[self._stratification_coord].values[indices])
         else:
             splits = self._shuffle_split.split(data_shape)
         return cross_validation_values, list(splits)
@@ -199,11 +201,18 @@ class Split:
                      dims=('aggregation',) + center.dims)
 
 
-def extract_coord(assembly, coord):
-    coord_assembly = xr.DataArray(assembly[coord].values, coords={coord: assembly[coord].values}, dims=[coord])
+def extract_coord(assembly, coord, unique=False):
+    if not unique:
+        coord_values = assembly[coord].values
+        indices = list(range(len(coord_values)))
+    else:
+        # need unique values for when e.g. repetitions are heavily redundant and splits would yield equal unique values
+        coord_values, indices = np.unique(assembly[coord].values, return_index=True)
     dims = assembly[coord].dims
-    coord_assembly = coord_assembly.stack(**{dims[0]: (coord,)})
-    return coord_assembly
+    assert len(dims) == 1
+    extracted_assembly = xr.DataArray(coord_values, coords={coord: coord_values}, dims=[coord])
+    extracted_assembly = extracted_assembly.stack(**{dims[0]: (coord,)})
+    return extracted_assembly if not unique else extracted_assembly, indices
 
 
 class TestOnlyCrossValidationSingle:
@@ -228,10 +237,10 @@ class CrossValidationSingle(Transformation):
     def __init__(self,
                  splits=Split.Defaults.splits, train_size=None, test_size=None,
                  split_coord=Split.Defaults.split_coord, stratification_coord=Split.Defaults.stratification_coord,
-                 random_state=Split.Defaults.random_state):
+                 unique_split_values=Split.Defaults.unique_split_values, random_state=Split.Defaults.random_state):
         super().__init__()
         self._split = Split(splits=splits, split_coord=split_coord,
-                            stratification_coord=stratification_coord,
+                            stratification_coord=stratification_coord, unique_split_values=unique_split_values,
                             train_size=train_size, test_size=test_size, random_state=random_state)
         self._logger = logging.getLogger(fullname(self))
 
@@ -316,6 +325,8 @@ def standard_error_of_the_mean(values, dim):
 
 def subset(source_assembly, target_assembly, subset_dims=None, dims_must_match=True, repeat=False):
     """
+    Returns the subset of the source_assembly whose coordinates align with those specified by target_assembly.
+    Ordering is not guaranteed.
     :param subset_dims: either dimensions, then all its levels will be used or levels right away
     :param dims_must_match:
     :return:

@@ -29,15 +29,14 @@ class InternalConsistency(Ceiling):
 
     def __init__(self,
                  split_coord=Defaults.split_coord, stimulus_coord=XarrayDefaults.stimulus_coord,
-                 neuroid_dim=XarrayDefaults.neuroid_dim, neuroid_coord=XarrayDefaults.neuroid_coord,
-                 stratification_coord=Split.Defaults.stratification_coord):
+                 neuroid_dim=XarrayDefaults.neuroid_dim, neuroid_coord=XarrayDefaults.neuroid_coord):
         self._consistency = SplitHalfConsistency(stimulus_coord=stimulus_coord, neuroid_dim=neuroid_dim,
                                                  neuroid_coord=neuroid_coord)
         correction = SpearmanBrownCorrection(neuroid_dim=neuroid_dim)
         self._wrapped_consistency = self.SplitHalfWrapper(split_coord=split_coord,
                                                           consistency=self._consistency, correction=correction)
-        self._cross_validation = CrossValidationSingle(train_size=0.5, split_coord=split_coord,
-                                                       stratification_coord=stratification_coord)
+        self._cross_validation = CrossValidationSingle(
+            train_size=0.5, split_coord=split_coord, stratification_coord=None, unique_split_values=True)
 
     def __call__(self, assembly):
         return self._cross_validation(assembly,

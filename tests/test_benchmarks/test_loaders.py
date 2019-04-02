@@ -1,7 +1,8 @@
 import numpy as np
 
 from brainio_base.assemblies import NeuroidAssembly
-from brainscore.benchmarks.loaders import DicarloMajaj2015Loader, MovshonFreemanZiemba2013Loader, ToliasCadena2017Loader
+from brainscore.benchmarks.loaders import DicarloMajaj2015Loader, DicarloMajaj2015HighvarLoader, \
+    MovshonFreemanZiemba2013Loader, ToliasCadena2017Loader
 from tests import private_access
 
 
@@ -19,7 +20,17 @@ class TestAssemblyLoaders:
         loader = DicarloMajaj2015Loader()
         assembly = loader()
         check_standard_format(assembly)
-        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm-V6'
+        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm'
+        assert len(assembly['presentation']) == 5760
+        assert len(assembly['neuroid']) == 256
+        assert len(assembly.sel(region='IT')['neuroid']) == 168
+        assert len(assembly.sel(region='V4')['neuroid']) == 88
+
+    def test_majaj2015_highvar(self):
+        loader = DicarloMajaj2015HighvarLoader()
+        assembly = loader()
+        check_standard_format(assembly)
+        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm-var6'
         assert len(assembly['presentation']) == 2560
         assert len(assembly['neuroid']) == 256
         assert len(assembly.sel(region='IT')['neuroid']) == 168

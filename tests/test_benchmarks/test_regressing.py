@@ -7,7 +7,7 @@ from pytest import approx
 from brainscore.benchmarks.regressing import MovshonFreemanZiemba2013V1PLS, MovshonFreemanZiemba2013V2PLS, \
     DicarloMajaj2015ITPLS, DicarloMajaj2015V4PLS, DicarloMajaj2015ITMask
 from brainscore.model_interface import BrainModel
-from tests import requires_gpu
+from tests import requires_gpu, private_access
 
 
 class TestMajaj2015:
@@ -39,6 +39,7 @@ class TestMajaj2015:
         assert score.sel(aggregation='center') == approx(.614621, abs=.005)
 
 
+@private_access
 class TestMovshonFreemanZiemba2013:
     def test_V1_ceiling(self):
         benchmark = MovshonFreemanZiemba2013V1PLS()

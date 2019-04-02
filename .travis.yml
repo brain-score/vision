@@ -9,17 +9,17 @@ matrix:
     python: '3.6'
     env:
     - PRIVATE_ACCESS=1
-    - secure: H+miAUcWHg+9exg3Fx8wVOO1Vhj1kXAjDdcz3tRppaOXht6hvVyVfClji8179OZG1OqYnFV/cHiHx9KtCFHBWOIQ6vEdp3S+FekU1LNRg0Ink1J+HSePVOUptaQ7vrtRfIbgq97J1lr1zNfEkSi69myE8D5zd6p7Ku8Dt/D8K5FcQYEu22mIOg/jkgS/3z7U7LM+3pvhAO+1vCcy6lBT5VpMGz+0PCXfI3p0uxREb889zvqjQmRxqSPnsJ6KXtdo1o81LY3SE1fAs3GtqkLd2QGiX4T6PbqVAQiTnwVKNKs6B2eiZCJmJQpI46Pg0h2rfEwZqtxV6L93BS/h2dr/3o+j+LujIbe/Rcq7svgycalsGlLPaDvRhXaVJfF0a7wdsIqw8geX2qitPIRh4J+ReZ2uMdf4lFTzTkoqGLmPxd2oGwtQQX/U/l2gNfmt0rWOjOLWpmBSmBN+K+9IfSvY/Img6Nu8TKSmcQipZWU0mVcRTVLUv+Vj1JkxkRb6hFaGLldw/KPGSDZCpOL/v5+9Tz3ZTcsgJVYR6XzL3HM4MlvGRfZrNAymYqNfMq3XZU0Jrl1rQnsxZ4L3aLqR3igQr3yI2St6IWoYHFYD+YQRq+yYZJNOBjMGmIu0IS3ddnwzkmX7pXdffNNBqRX3aRagGCzZ4QxrjhamRd1PnecpM/Y=
-    - secure: eVWMZsraSRKJV7k4aWdbL6StKlKxCZbbS9U/swr0yz+YCWLFJeRemPZlmprIOTffurJy5Btaz+TjyFNrpxeWpbWs0IMX1kHQM3BLdFL6rbI39QfCGcLHVwJifncPzuJRcOxJUQFMIVYzU99tAbAVzlphnW0vVpnsF91gl/jkZdScSWLekTS0wGrkyZ0QpKRuajtL2/3TtcrT84rcFLehrveqeNI3ZoBeWil9uq9QC8EOyEwQHHo7dSzHajwSHd2EvBja3XcMYt8PiVKfbvRgc8nOl+Dj9zOyJVMh/bLvQWYPglHsCyfx9KEneoDbjE8SwQLD6fXCgTnptMFOywT7Jtkkd4DclwjB50xJ9+L9EdVWBdPaLPzvMYwOtILtOs9DqqTPzVCwCmlbEup9ps7+3pjeEOFUYWgKwzktb9ZKkCrF0pIikZ2nKuGy7CoL1ukw9HS2NPbky0l6WH6Fkr0ofREvrtCJu2vZqXQsT/rxz8mNhmM27ZM+9NE+H9Rsl2Z5SbgX890ElFeCZRJlAGAAVyVL7zvFVd7z1M9FCyJ2kLQl0OjC9D5A7bR3kf2BNUIlKfnIwXwc5IOFma2Zop7hmHb1k2hlSuiqTcOulWfM+dTjdAWxONtEHnt+SfNgUD71UXoHE5lmB/f4NZDBZW2C1nhLBUyo4WBBEU/WJM6Ud8g=
+    - secure: IULfcDRlV6Q3G04BfPxNpwyj15cr0LwtqJxSayQrLctdE1Ss6ji8bCDiVs7bGQbsXWkNRL2T6WSFMTqgLVHKBcA0BVKQDFqPZM78uwMaz4VllSBlIPh2B8U5zsmNDe+KZ/eZ/mnPSJfy+8UIYIobtLgPWAZKK+EUVQdaxATPiL3PzRuRikuhvzwgtGUOUy899NuHgolU2br4VZa7w1FYYx6TIxBDCDFG17PS5VBu91JsSeIStmnN0man2kxWfe4TdJzhIz3OrdOstL44R4QXOYj3Ppa8k0FQ8J11VljvWKktmeoJzC4fsuRMM0dZuyvmITWoN3C9AcdJQDNxaHg+0eyxjyDG3/2yOxuO5cGJjCBDk80aPfd7uk7wStUFRdIVQGBxz0D8v5Zgey9BCYC/wRpzS3Q17yOxPqxjLTg89bGsJCSKhZYc/8RdfsdlZvf8Qb5qYpcloxMxPCFZW9xDrAM8TKiCKyQHiRBeEX6M8nBtJwGg8L2LXw9lXGyv7tREeIeucVDjMILOMWuGnIveh+w4BOwg8CkVP7eDf9GjQeLWBaA5P+9rkwPjkmoKTk+xlqT0u+BggHoWE2opi4pt++X1xtwftEdkIRuBb6iAIX+hErBT8ze2gkeMig72ZQAfLbANbuunbiNW2AmJh2fB2g5kaklYK+x0ywPw6xuDftg=
+    - secure: kgYmj7LhHuxSU6mAcpS6sXU+jMZp9VDaMl0GciNXw4k7IcBhdfGGizfJB2kalUhkLyjDIRfTAZ8Po5FOw7zbwPWR6pZguRV8AlULOvt99Yo+rGF22ZjjS9UpOVaPlpIDDNpyebhiXqJTxQCe+aXmZM5NZWbR3X0ljVK4FW9nUQjJtwHXiYYVooYUVIL0YHJqbeu04uVRHVURxl9ZtOWRPSpSSt7LkfYCstgRnknRCtvcfbgzWHhCAq3CyjbJLCjslyD/iHm90ALWJuOJ4sELh9EvzZagm7VUfSMjnJSI3dMoYhQxpJnmFgYgI2bQQfdhM+39cmzGptq1PkBdw+aUajT7G3IYYeVkIg3FAKBkjdtTI3Jv0D+WqGYoKgKRXnKNtd4/1NJoDsTtEwVURwnht8VbJuZ1OGPfuTtK4mf5xd/lOToRmge3kuuKkGNw9hXIdd+rzBFO2S/EijcrU5XA8SHy5iASRz7mUc0e/MYc4Tq9os724zSEXqAu1oCnQd/zjMJYV5Lqtdvlup12aQRarsRS5ZRg1YsKk2q1ApV2KucAAm7U106DQMNZLTw28ameLOs6UwnMiY1RVfN3tAr/W8Hov9y6BenLxc1zsYKmo0Fwvhq1mG0Uz++/On3pI+hWNHa3jCTVGVY1C45a4UivnaRg2HgPGvftRIwDrtIvThw=
     - AWS_DEFAULT_REGION=us-east-1
 before_install:
 - pip install --upgrade pip
 - pip install pytest
 # download large files
 - pip install awscli
-  - aws --no-sign-request s3 cp s3://brain-score-tests/tests/test_benchmark/alexnet-hvmv6-features.6.pkl tests/test_benchmark/
+- aws --no-sign-request s3 cp s3://brain-score-tests/tests/test_benchmark/alexnet-hvmv6-features.6.pkl tests/test_benchmark/
 install:
 - pip install .
 script:
-- if [ "$PRIVATE_ACCESS" = 1 ]; then pytest; fi
-- if [ "$PRIVATE_ACCESS" != 1 ]; then pytest --skip-private; fi
+- if [ "$PRIVATE_ACCESS" = 1 ]; then pytest --skip-gpu; fi
+- if [ "$PRIVATE_ACCESS" != 1 ]; then pytest --skip-private --skip-gpu; fi

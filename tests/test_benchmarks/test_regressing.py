@@ -31,6 +31,7 @@ class TestMajaj2015:
         assert raw_values.median('neuroid').std() == approx(.005639, abs=.00001), "too much deviation between splits"
         assert raw_values.mean('split').std() == approx(.155962, abs=.00001), "too much deviation between neuroids"
 
+    @requires_gpu
     def test_IT_mask_alexnet(self):
         benchmark = DicarloMajaj2015ITMask()
         candidate = StoredPrecomputedFeatures('alexnet-hvmv6-features.6.pkl')

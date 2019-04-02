@@ -103,13 +103,14 @@ class DicarloMajaj2015TemporalLoader(AssemblyLoader):
     def __init__(self, name='dicarlo.Majaj2015.temporal'):
         super(DicarloMajaj2015TemporalLoader, self).__init__(name=name)
         self._helper = DicarloMajaj2015Loader()
+        self.average_repetition = self._helper.average_repetition
 
     def __call__(self, average_repetition=True):
         assembly = brainscore.get_assembly(name='dicarlo.Majaj2015.temporal')
         assembly = self._helper._filter_erroneous_neuroids(assembly)
         assembly = assembly.transpose('presentation', 'neuroid', 'time_bin')
         if average_repetition:
-            assembly = self._helper.average_repetition(assembly)
+            assembly = self.average_repetition(assembly)
         return assembly
 
 DicarloMajaj2015TemporalLowvarLoader = lambda: _VariationLoader(basename='dicarlo.Majaj2015.temporal',

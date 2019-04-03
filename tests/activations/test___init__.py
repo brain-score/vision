@@ -127,7 +127,7 @@ def tfslim_vgg16():
     session = tf.Session()
     session.run(tf.initialize_all_variables())
     return TensorflowSlimWrapper(identifier='tf-vgg16', labels_offset=1,
-                                 logits=logits, endpoints=endpoints, inputs=placeholder, session=session)
+                                 endpoints=endpoints, inputs=placeholder, session=session)
 
 
 @pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png'])

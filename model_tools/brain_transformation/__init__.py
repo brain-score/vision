@@ -166,7 +166,7 @@ class LayerSelection:
 
     @store(identifier_ignore=['assembly'])
     def _call(self, model_identifier, assembly_identifier, assembly, assembly_stratification=None):
-        benchmark = self._Benchmark(assembly, ceiler=InternalConsistency(stratification_coord=assembly_stratification))
+        benchmark = self._Benchmark(assembly, ceiler=InternalConsistency())
         self._logger.debug("Finding best layer")
         layer_scores = self._layer_scoring(benchmark=benchmark, layers=self.layers, prerun=True)
 

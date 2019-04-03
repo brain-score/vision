@@ -144,8 +144,10 @@ class ActivationsExtractorHelper:
     def _package(self, layer_activations, stimuli_paths):
         shapes = [a.shape for a in layer_activations.values()]
         self._logger.debug('Activations shapes: {}'.format(shapes))
-        layer_assemblies = [self._package_layer(single_layer_activations, layer=layer, stimuli_paths=stimuli_paths)
-                            for layer, single_layer_activations in layer_activations.items()]
+        self._logger.debug("Packaging individual layers")
+        layer_assemblies = [self._package_layer(single_layer_activations, layer=layer, stimuli_paths=stimuli_paths) for
+                            layer, single_layer_activations in tqdm(layer_activations.items(), desc='layer packaging')]
+        self._logger.debug("Merging layer assemblies")
         model_assembly = merge_data_arrays(layer_assemblies)
         return model_assembly
 

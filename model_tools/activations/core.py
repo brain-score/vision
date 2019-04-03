@@ -152,10 +152,11 @@ class ActivationsExtractorHelper:
     def _package_layer(self, layer_activations, layer, stimuli_paths):
         assert layer_activations.shape[0] == len(stimuli_paths)
         activations, flatten_indices = flatten(layer_activations, return_index=True)  # collapse for single neuroid dim
-        flatten_coord_names = (['channel', 'channel_x', 'channel_y'] if flatten_indices.shape[1] == 3  # convolutional
-                               else [f'channel_{i}' for i in range(flatten_indices.shape[1])])
-        flatten_coords = {flatten_coord_names[i]: [sample_index[i] for sample_index in flatten_indices]
-                          for i in range(flatten_indices.shape[1])}
+        assert flatten_indices.shape[1] in [1, 3]  # either convolutional or fully-connected
+        flatten_coord_names = ['channel', 'channel_x', 'channel_y']
+        flatten_coords = {flatten_coord_names[i]: [sample_index[i] if i < flatten_indices.shape[1] else np.nan
+                                                   for sample_index in flatten_indices]
+                          for i in range(len(flatten_coord_names))}
         layer_assembly = NeuroidAssembly(
             activations,
             coords={**{'stimulus_path': stimuli_paths,
@@ -167,7 +168,7 @@ class ActivationsExtractorHelper:
             dims=['stimulus_path', 'neuroid']
         )
         neuroid_id = [".".join([f"{value}" for value in values]) for values in zip(*[
-            layer_assembly[coord].values for coord in ['model', 'layer'] + flatten_coord_names])]
+            layer_assembly[coord].values for coord in ['model', 'layer', 'neuroid_num']])]
         layer_assembly['neuroid_id'] = 'neuroid', neuroid_id
         return layer_assembly
 

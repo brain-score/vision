@@ -232,6 +232,13 @@ def test_convolution_meta():
     assert hasattr(activations, 'channel')
     assert hasattr(activations, 'channel_x')
     assert hasattr(activations, 'channel_y')
+    assert len(set(activations['neuroid_id'].values)) == len(activations['neuroid'])
+
+
+def test_conv_and_fc():
+    model = pytorch_custom()
+    activations = model(stimuli=[os.path.join(os.path.dirname(__file__), 'rgb.jpg')], layers=['conv1', 'linear'])
+    assert set(activations['layer'].values) == {'conv1', 'linear'}
 
 
 class TestFlatten:

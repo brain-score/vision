@@ -1,4 +1,5 @@
 from brainscore.model_interface import BrainModel
+from .behavior import LogitsBehavior
 from .neural import LayerModel, LayerSelection, LayerScores
 from .stimuli import PixelsToDegrees
 
@@ -8,9 +9,19 @@ class ModelCommitment(BrainModel):
         self.layers = layers
         self.region_assemblies = {}
         self.layer_model = LayerModel(identifier=identifier, activations_model=activations_model)
-        # forward brain-interface methods
-        self.look_at = self.layer_model.look_at
-        self.start_task = self.layer_model.start_task
+        self.behavior_model = LogitsBehavior(identifier=identifier, activations_model=activations_model)
+        self.do_behavior = False
+
+    def start_task(self, task: BrainModel.Task):
+        if task != BrainModel.Task.passive:
+            self.behavior_model.start_task(task)
+            self.do_behavior = True
+
+    def look_at(self, stimuli):
+        if self.do_behavior:
+            return self.behavior_model.look_at(stimuli)
+        else:
+            return self.layer_model.look_at(stimuli)
 
     def commit_region(self, region, assembly, assembly_stratification=None):
         self.region_assemblies[region] = (assembly, assembly_stratification)  # lazy, only run when actually needed

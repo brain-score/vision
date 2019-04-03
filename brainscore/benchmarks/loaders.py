@@ -105,6 +105,7 @@ class DicarloMajaj2015TemporalLoader(AssemblyLoader):
         self._helper = DicarloMajaj2015Loader()
         self.average_repetition = self._helper.average_repetition
 
+    @store()
     def __call__(self, average_repetition=True):
         assembly = brainscore.get_assembly(name='dicarlo.Majaj2015.temporal')
         assembly = self._helper._filter_erroneous_neuroids(assembly)

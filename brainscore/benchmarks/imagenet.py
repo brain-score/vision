@@ -1,14 +1,16 @@
+import os
+
 import pandas as pd
 
+from brainio_base.stimuli import StimulusSet
 from brainscore.benchmarks import Benchmark
 from brainscore.metrics.accuracy import Accuracy
-from brainio_base.stimuli import StimulusSet
+from brainscore.model_interface import BrainModel
 
 
 class Imagenet2012(Benchmark):
     def __init__(self):
-        stimulus_set = pd.read_csv('/braintree/home/msch/brainio_contrib/mkgu_packaging/imagenet/'
-                                   'imagenet2012.csv')
+        stimulus_set = pd.read_csv(os.path.join(os.path.dirname(__file__), 'imagenet2012.csv'))
         stimulus_set = StimulusSet(stimulus_set)
         stimulus_set.image_paths = {row.image_id: row.filepath for row in stimulus_set.itertuples()}
         self._stimulus_set = stimulus_set
@@ -21,8 +23,9 @@ class Imagenet2012(Benchmark):
         return self._name
 
     def __call__(self, candidate):
-        predictions = candidate(self._stimulus_set)
-        score = self._similarity_metric(predictions, self._stimulus_set['label'].values)
+        candidate.start_task(BrainModel.Task.probabilities)
+        predictions = candidate.look_at(self._stimulus_set[list(set(self._stimulus_set.columns) - {'synset'})])
+        score = self._similarity_metric(predictions, self._stimulus_set['synset'].values)
         return score
 
     @property

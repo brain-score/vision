@@ -45,10 +45,11 @@ class DicarloMajaj2015Loader(AssemblyLoader):
 
 
 class _RegionLoader(AssemblyLoader):
-    def __init__(self, basename, region):
+    def __init__(self, basename, region, assembly_loader_pool=None):
         super(_RegionLoader, self).__init__(name=f'{basename}.{region}')
+        assembly_loader_pool = assembly_loader_pool or assembly_loaders
         self.region = region
-        self.loader = assembly_loaders[basename]
+        self.loader = assembly_loader_pool[basename]
         self.average_repetition = self.loader.average_repetition
 
     def __call__(self, average_repetition=True):
@@ -62,8 +63,9 @@ class _RegionLoader(AssemblyLoader):
 
 
 class _VariationLoader(AssemblyLoader):
-    def __init__(self, basename, variation_name, variation):
+    def __init__(self, basename, variation_name, variation, assembly_loader_pool=None):
         super(_VariationLoader, self).__init__(name=f'{basename}.{variation_name}var')
+        assembly_loader_pool = assembly_loader_pool or assembly_loaders
         self.variation = variation
         self.loader = assembly_loaders[basename]
         self.average_repetition = self.loader.average_repetition

@@ -1,8 +1,8 @@
 import numpy as np
 
 from brainio_base.assemblies import NeuroidAssembly
-from brainscore.benchmarks.loaders import DicarloMajaj2015Loader, DicarloMajaj2015HighvarLoader, \
-    MovshonFreemanZiemba2013Loader, ToliasCadena2017Loader
+from brainscore.assemblies.private import DicarloMajaj2015Loader, DicarloMajaj2015HighvarLoader, \
+    MovshonFreemanZiemba2013Loader, ToliasCadena2017Loader, load_assembly
 from tests.flags import private_access, memory_intense
 
 
@@ -55,3 +55,13 @@ class TestAssemblyLoaders:
         assert assembly.attrs['stimulus_set_name'] == 'tolias.Cadena2017'
         assert len(assembly['presentation']) == 6249
         assert len(assembly['neuroid']) == 166
+
+
+class TestPrivate:
+    @memory_intense
+    @private_access
+    def test_movshonfreemanziemba2013v1(self):
+        assembly = load_assembly('movshon.FreemanZiemba2013.V1')
+        assert set(assembly['region'].values) == {'V1'}
+        assert len(assembly['presentation']) == 315
+        assert len(assembly['neuroid']) == 102

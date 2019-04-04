@@ -1,17 +1,17 @@
+import numpy as np
 import xarray as xr
-from brainscore.metrics.transformations import subset
+from numpy.random.mtrand import RandomState
+from result_caching import store
+from sklearn.model_selection import StratifiedShuffleSplit
+from xarray import DataArray
 
 import brainscore
-from brainscore.assemblies import merge_data_arrays, walk_coords, array_is_element
-from result_caching import store
+from brainscore.assemblies import merge_data_arrays, walk_coords, array_is_element, AssemblyLoader
+from brainscore.metrics.transformations import subset
+from brainscore.utils import LazyLoad
 
 
-class AssemblyLoader(object):
-    def __init__(self, name):
-        self.name = name
-
-    def __call__(self):
-        raise NotImplementedError()
+# TODO: assemblies in here need separate S3 access rights
 
 
 class DicarloMajaj2015Loader(AssemblyLoader):
@@ -88,13 +88,8 @@ def adapt_stimulus_set(assembly, name_suffix):
     assembly.attrs['stimulus_set_name'] = stimulus_set_name
 
 
-DicarloMajaj2015LowvarLoader = lambda: _VariationLoader(basename='dicarlo.Majaj2015',
-                                                        variation_name='low', variation=[0, 3])
 DicarloMajaj2015HighvarLoader = lambda: _VariationLoader(basename='dicarlo.Majaj2015',
                                                          variation_name='high', variation=6)
-# separate into mapping and test  # TODO: these need to be packaged separately for access rights
-DicarloMajaj2015V4LowvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.lowvar', region='V4')
-DicarloMajaj2015ITLowvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.lowvar', region='IT')
 DicarloMajaj2015V4HighvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.highvar', region='V4')
 DicarloMajaj2015ITHighvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.highvar', region='IT')
 
@@ -161,8 +156,46 @@ class MovshonFreemanZiemba2013Loader(AssemblyLoader):
         return assembly
 
 
-MovshonFreemanZiemba2013V1Loader = lambda: _RegionLoader(basename='movshon.FreemanZiemba2013', region='V1')
-MovshonFreemanZiemba2013V2Loader = lambda: _RegionLoader(basename='movshon.FreemanZiemba2013', region='V2')
+def _separate_movshon_private_public(region):
+    baseloader = _RegionLoader(basename='movshon.FreemanZiemba2013', region=region)
+    base_assembly = baseloader()
+    _, unique_indices = np.unique(base_assembly['image_id'].values, return_index=True)
+    unique_indices = np.sort(unique_indices)  # preserve order
+    image_ids = base_assembly['image_id'].values[unique_indices]
+    stratification_values = base_assembly['texture_type'].values[unique_indices]
+    rng = RandomState(seed=12)
+    splitter = StratifiedShuffleSplit(n_splits=1, train_size=.3, test_size=None, random_state=rng)
+    split = next(splitter.split(np.zeros(len(image_ids)), stratification_values))
+    result = {}
+    for assembly_type, image_indices in zip(['public', 'private'], split):
+        current_image_ids = image_ids[image_indices]
+        subset_indexer = DataArray(np.zeros(len(current_image_ids)), coords={'image_id': current_image_ids},
+                                   dims=['image_id']).stack(presentation=['image_id'])
+        assembly = subset(base_assembly, subset_indexer, dims_must_match=False)
+        adapt_stimulus_set(assembly, assembly_type)
+        result[assembly_type] = assembly
+    return result
+
+
+movshon_private_public = {
+    'V1': LazyLoad(lambda: _separate_movshon_private_public('V1')),
+    'V2': LazyLoad(lambda: _separate_movshon_private_public('V2')),
+}
+
+
+class _SeparateMovshonPrivatePublic(AssemblyLoader):
+    def __init__(self, region, private_or_public):
+        basename = f"movshon.FreemanZiemba2013.{region}"
+        self.region = region
+        self.access = private_or_public
+        super(_SeparateMovshonPrivatePublic, self).__init__(name=basename)
+
+    def __call__(self):
+        return movshon_private_public[self.region][self.access]
+
+
+MovshonFreemanZiemba2013V1PrivateLoader = lambda: _SeparateMovshonPrivatePublic('V1', 'private')
+MovshonFreemanZiemba2013V2PrivateLoader = lambda: _SeparateMovshonPrivatePublic('V2', 'private')
 
 
 def average_repetition(assembly):
@@ -222,12 +255,11 @@ def apply_keep_attrs(assembly, fnc):  # workaround to keeping attrs
 
 
 _assembly_loaders_ctrs = [
-    MovshonFreemanZiemba2013Loader, MovshonFreemanZiemba2013V1Loader, MovshonFreemanZiemba2013V2Loader,
+    MovshonFreemanZiemba2013Loader, MovshonFreemanZiemba2013V1PrivateLoader, MovshonFreemanZiemba2013V2PrivateLoader,
     ToliasCadena2017Loader,
     GallantDavid2004Loader,
-    DicarloMajaj2015Loader, DicarloMajaj2015LowvarLoader, DicarloMajaj2015HighvarLoader,
-    DicarloMajaj2015V4LowvarLoader, DicarloMajaj2015ITLowvarLoader,  # public mapping
-    DicarloMajaj2015V4HighvarLoader, DicarloMajaj2015ITHighvarLoader,  # private testing
+    DicarloMajaj2015Loader, DicarloMajaj2015HighvarLoader,
+    DicarloMajaj2015V4HighvarLoader, DicarloMajaj2015ITHighvarLoader,
     DicarloMajaj2015EarlyLateLoader,
 ]
 assembly_loaders = {}

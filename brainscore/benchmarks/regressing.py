@@ -1,7 +1,7 @@
 import numpy as np
 
 from brainscore.benchmarks import BenchmarkBase, ceil_score
-from brainscore.benchmarks.loaders import assembly_loaders
+from brainscore.assemblies.private import assembly_loaders
 from brainscore.metrics.ceiling import InternalConsistency
 from brainscore.metrics.regression import CrossRegressedCorrelation, mask_regression, ScaledCrossRegressedCorrelation
 

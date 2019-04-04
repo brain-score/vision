@@ -55,10 +55,10 @@ class TestI2N:
     @pytest.mark.parametrize(['model', 'expected_score'],
                              [
                                  ('alexnet', .245),
-                                 ('resnet34', .378),
-                                 ('resnet18', .364),
-                                 ('squeezenet1_0', .180),
-                                 ('squeezenet1_1', .201),
+                                 # ('resnet34', .378),
+                                 # ('resnet18', .364),
+                                 # ('squeezenet1_0', .180),
+                                 # ('squeezenet1_1', .201),
                              ])
     def test_model(self, model, expected_score):
         objectome = self.get_objectome()
@@ -84,6 +84,20 @@ class TestI2N:
         score = i2n(feature_responses, objectome)
         score = score.sel(aggregation='center')
         assert score == approx(expected_score, abs=0.01), f"expected {expected_score}, but got {score}"
+
+    def test_model_from_actual_halfs(self):
+        objectome = self.get_objectome()
+        objectome = self.to_xarray(objectome)
+        actual_halfs = []
+        split_indices = np.arange(len(objectome))
+        np.random.seed(0)
+        np.random.shuffle(split_indices)
+        split_indices = np.array_split(split_indices, 2)
+        for split_idx in split_indices:
+            split = objectome[split_idx]
+            response_matrix = i2n.build_response_matrix_from_responses(split)
+            response_matrix = i2n.normalize_response_matrix(response_matrix)
+            actual_halfs.append(response_matrix)
 
     def get_objectome(self):
         packaged_filepath = os.path.join(os.path.dirname(__file__), 'objectome240.pkl')

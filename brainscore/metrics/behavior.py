@@ -26,9 +26,11 @@ class I2n(Metric):
                 multi_class='multinomial', solver='newton-cg', C=classifier_c)
             self._label_mapping = None
             self._target_class = None
+            self._scaler = None
 
         def fit(self, X, Y):
-            X = self._preprocess(X)
+            self._scaler = sklearn.preprocessing.StandardScaler().fit(X)
+            X = self._scaler.transform(X)
             self._target_class = type(Y)
             Y, self._label_mapping = self.labels_to_indices(Y.values)
             self._classifier.fit(X, Y)
@@ -36,7 +38,8 @@ class I2n(Metric):
 
         def predict_proba(self, X):
             assert len(X.shape) == 2, "expected 2-dimensional input"
-            proba = self._classifier.predict_proba(X)
+            scaled_X = self._scaler.transform(X)
+            proba = self._classifier.predict_proba(scaled_X)
             # we take only the 0th dimension because the 1st dimension is just the features
             X_coords = {coord: (dims, value) for coord, dims, value in walk_coords(X)
                         if array_is_element(dims, X.dims[0])}
@@ -55,14 +58,10 @@ class I2n(Metric):
             index2label = OrderedDict((index, label) for label, index in label2index.items())
             return indices, index2label
 
-        def _preprocess(self, X):
-            scaler = sklearn.preprocessing.StandardScaler().fit(X)
-            return scaler.transform(X)
-
     def __init__(self):
         super().__init__()
         self._source_classifier = self.MatchToSampleClassifier()
-        self._split = CrossValidation(splits=2, train_size=0.5)
+        self._split = CrossValidation(splits=2, train_size=0.5, stratification_coord=None)
         self._logger = logging.getLogger(fullname(self))
 
     def __call__(self, source, target):

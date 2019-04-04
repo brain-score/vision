@@ -6,7 +6,7 @@ from sklearn.model_selection import StratifiedShuffleSplit
 from xarray import DataArray
 
 import brainscore
-from brainscore.assemblies import merge_data_arrays, walk_coords, array_is_element, AssemblyLoader
+from brainscore.assemblies import merge_data_arrays, walk_coords, array_is_element, AssemblyLoader, average_repetition
 from brainscore.metrics.transformations import subset
 from brainscore.utils import LazyLoad
 
@@ -67,7 +67,7 @@ class _VariationLoader(AssemblyLoader):
         super(_VariationLoader, self).__init__(name=f'{basename}.{variation_name}var')
         assembly_loader_pool = assembly_loader_pool or assembly_loaders
         self.variation = variation
-        self.loader = assembly_loaders[basename]
+        self.loader = assembly_loader_pool[basename]
         self.average_repetition = self.loader.average_repetition
 
     def __call__(self, average_repetition=True):
@@ -200,16 +200,6 @@ MovshonFreemanZiemba2013V1PrivateLoader = lambda: _SeparateMovshonPrivatePublic(
 MovshonFreemanZiemba2013V2PrivateLoader = lambda: _SeparateMovshonPrivatePublic('V2', 'private')
 
 
-def average_repetition(assembly):
-    def avg_repr(assembly):
-        presentation_coords = [coord for coord, dims, values in walk_coords(assembly)
-                               if array_is_element(dims, 'presentation') and coord != 'repetition']
-        assembly = assembly.multi_groupby(presentation_coords).mean(dim='presentation', skipna=True)
-        return assembly
-
-    return apply_keep_attrs(assembly, avg_repr)
-
-
 class ToliasCadena2017Loader(AssemblyLoader):
     def __init__(self):
         super(ToliasCadena2017Loader, self).__init__(name='tolias.Cadena2017')
@@ -247,13 +237,6 @@ class GallantDavid2004Loader(AssemblyLoader):
         assembly = assembly.stack(neuroid=('neuroid_id',))
         assembly = assembly.transpose('presentation', 'neuroid')
         return assembly
-
-
-def apply_keep_attrs(assembly, fnc):  # workaround to keeping attrs
-    attrs = assembly.attrs
-    assembly = fnc(assembly)
-    assembly.attrs = attrs
-    return assembly
 
 
 _assembly_loaders_ctrs = [

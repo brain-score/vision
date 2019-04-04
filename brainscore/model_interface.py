@@ -3,7 +3,7 @@ from enum import Enum
 
 class BrainModel:
     RecordingTarget = Enum('RecordingTarget', " ".join(['V1', 'V2', 'V4', 'IT']))
-    Task = Enum('Task', " ".join(['passive', 'match-to-sample']))
+    Task = Enum('Task', " ".join(['passive', 'probabilities']))
 
     def look_at(self, stimuli):
         raise NotImplementedError()

@@ -6,7 +6,7 @@ from brainscore.benchmarks.loaders import DicarloMajaj2015Loader, DicarloMajaj20
     DicarloMajaj2015TemporalLowvarLoader, DicarloMajaj2015TemporalHighvarLoader, \
     DicarloMajaj2015TemporalV4LowvarLoader, DicarloMajaj2015TemporalV4HighvarLoader, \
     DicarloMajaj2015TemporalITLowvarLoader, DicarloMajaj2015TemporalITHighvarLoader
-from tests.flags import private_access
+from tests.flags import private_access, memory_intense
 
 
 def check_standard_format(assembly):
@@ -39,6 +39,7 @@ class TestAssemblyLoaders:
         assert len(assembly.sel(region='IT')['neuroid']) == 168
         assert len(assembly.sel(region='V4')['neuroid']) == 88
 
+    @memory_intense
     @private_access
     def test_movshonfreemanziemba2013(self):
         loader = MovshonFreemanZiemba2013Loader()

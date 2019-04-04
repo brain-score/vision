@@ -3,7 +3,7 @@ import functools
 import numpy as np
 import pytest
 
-from brainscore.benchmarks.loaders import load_assembly
+from brainscore.assemblies.public import load_assembly
 from model_tools.activations import PytorchWrapper
 from model_tools.brain_transformation import ModelCommitment
 

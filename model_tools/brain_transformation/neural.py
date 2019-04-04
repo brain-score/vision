@@ -5,7 +5,7 @@ import numpy as np
 from tqdm import tqdm
 
 from brainscore.benchmarks import BenchmarkBase, ceil_score
-from brainscore.benchmarks.loaders import average_repetition
+from brainscore.assemblies import average_repetition
 from brainscore.metrics import Score
 from brainscore.metrics.ceiling import InternalConsistency
 from brainscore.metrics.regression import CrossRegressedCorrelation

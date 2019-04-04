@@ -24,6 +24,8 @@ before_install:
 install:
   - pip install .
 before_script:
+  - pip install pytest
+  - pip install pytest-timeout
   # download imagenet validation now to avoid out-of-memory errors in script
   - sudo -H pip install awscli --upgrade --ignore-installed six  # aws dependency issue: https://github.com/aws/aws-cli/issues/1522#issuecomment-159007931
   - aws --no-sign-request --region=us-east-1 s3 cp s3://brain-score-models/imagenet2012-val.hdf5 ./imagenet2012.hdf5

@@ -7,7 +7,7 @@ from multiprocessing.pool import ThreadPool
 import numpy as np
 from tqdm import tqdm
 
-from brainio_base.assemblies import NeuroidAssembly, merge_data_arrays
+from brainio_base.assemblies import NeuroidAssembly, walk_coords
 from brainio_base.stimuli import StimulusSet
 from model_tools.utils import fullname
 from result_caching import store_xarray
@@ -147,8 +147,25 @@ class ActivationsExtractorHelper:
         self._logger.debug("Packaging individual layers")
         layer_assemblies = [self._package_layer(single_layer_activations, layer=layer, stimuli_paths=stimuli_paths) for
                             layer, single_layer_activations in tqdm(layer_activations.items(), desc='layer packaging')]
+        # merge manually instead of using merge_data_arrays since `xarray.merge` is very slow with these large arrays
         self._logger.debug("Merging layer assemblies")
-        model_assembly = merge_data_arrays(layer_assemblies)
+        model_assembly = np.concatenate([a.values for a in layer_assemblies],
+                                        axis=layer_assemblies[0].dims.index('neuroid'))
+        nonneuroid_coords = {coord: (dims, values) for coord, dims, values in walk_coords(layer_assemblies[0])
+                             if set(dims) != {'neuroid'}}
+        neuroid_coords = {coord: [dims, values] for coord, dims, values in walk_coords(layer_assemblies[0])
+                          if set(dims) == {'neuroid'}}
+        for layer_assembly in layer_assemblies[1:]:
+            for coord in neuroid_coords:
+                neuroid_coords[coord][1] = np.concatenate((neuroid_coords[coord][1], layer_assembly[coord].values))
+            assert layer_assemblies[0].dims == layer_assembly.dims
+            for dim in set(layer_assembly.dims) - {'neuroid'}:
+                for coord in layer_assembly[dim].coords:
+                    assert (layer_assembly[coord].values == nonneuroid_coords[coord][1]).all()
+        neuroid_coords = {coord: (dims_values[0], dims_values[1])  # re-package as tuple instead of list for xarray
+                          for coord, dims_values in neuroid_coords.items()}
+        model_assembly = type(layer_assemblies[0])(model_assembly, coords={**nonneuroid_coords, **neuroid_coords},
+                                                   dims=layer_assemblies[0].dims)
         return model_assembly
 
     def _package_layer(self, layer_activations, layer, stimuli_paths):

@@ -4,7 +4,7 @@ from string import ascii_lowercase as alphabet
 import numpy as np
 from brainio_base.assemblies import NeuroidAssembly, DataAssembly
 
-from brainscore.benchmarks.loaders import DicarloMajaj2015Loader
+from brainscore.assemblies.private import DicarloMajaj2015Loader
 from brainscore.metrics.ceiling import NoCeiling, InternalConsistency, SplitHalfConsistency
 
 

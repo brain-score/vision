@@ -1,7 +1,7 @@
 import numpy as np
 
 from brainio_base.assemblies import NeuroidAssembly
-from brainscore.benchmarks.loaders import DicarloMajaj2015Loader, DicarloMajaj2015HighvarLoader, \
+from brainscore.assemblies.private import DicarloMajaj2015Loader, DicarloMajaj2015HighvarLoader, \
     MovshonFreemanZiemba2013Loader, ToliasCadena2017Loader
 from tests.flags import private_access, memory_intense
 

@@ -7,6 +7,14 @@ from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
 from xarray import DataArray
 
 
+class AssemblyLoader:
+    def __init__(self, name):
+        self.name = name
+
+    def __call__(self):
+        raise NotImplementedError()
+
+
 def split_assembly(assembly, on='image_id', stratification='object_name',
                    named_ratios=OrderedDict([('map', .8), ('test', .2)]), rng=None):
     from brainscore.metrics.transformations import subset  # avoid circular import

@@ -36,7 +36,7 @@ def pytorch_custom():
 
 class TestLayerSelection:
     @pytest.mark.parametrize(['model_ctr', 'layers', 'expected_layer', 'assembly_identifier', 'region'],
-                             [(pytorch_custom, ['linear', 'relu2'], 'linear', 'dicarlo.Majaj2015.lowvar.IT', 'IT')])
+                             [(pytorch_custom, ['linear', 'relu2'], 'relu2', 'dicarlo.Majaj2015.lowvar.IT', 'IT')])
     def test(self, model_ctr, layers, expected_layer, assembly_identifier, region):
         np.random.seed(0)
         activations_model = model_ctr()

@@ -22,7 +22,7 @@ class TestRDMCrossValidated:
         assert score.sel(aggregation='center') == approx(1)
 
 
-class TestRSA(object):
+class TestRSA:
     def test_equal_hvm(self):
         hvm = load_hvm().sel(region='IT')
         metric = RDMMetric()
@@ -62,7 +62,7 @@ class TestRSA(object):
                                            'neuroid_meta': ('neuroid', list(range(2)))},
                                    dims=['presentation', 'neuroid'])
         matrix = RSA()(assembly)
-        assert np.diag(matrix) == approx(1., abs=.001)
+        assert np.all(np.diag(matrix) == approx(1., abs=.001))
         assert all(matrix.values[np.triu_indices(matrix.shape[0], k=1)] ==
                    matrix.values[np.tril_indices(matrix.shape[0], k=-1)]), "upper and lower triangular need to be equal"
         expected = DataAssembly([[1., 1., -1., -1.],

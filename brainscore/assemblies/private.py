@@ -114,9 +114,10 @@ class DicarloMajaj2015TemporalLoader(AssemblyLoader):
 
 DicarloMajaj2015TemporalHighvarLoader = lambda: _VariationLoader(basename='dicarlo.Majaj2015.temporal',
                                                          variation_name='high', variation=6)
-# separate into mapping and test  # TODO: these need to be packaged separately for access rights
-DicarloMajaj2015TemporalV4HighvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.highvar', region='V4')
-DicarloMajaj2015TemporalITHighvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.highvar', region='IT')
+DicarloMajaj2015TemporalV4HighvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.highvar',
+                                                                region='V4')
+DicarloMajaj2015TemporalITHighvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.highvar',
+                                                                region='IT')
 
 
 class DicarloMajaj2015EarlyLateLoader(DicarloMajaj2015TemporalLoader):

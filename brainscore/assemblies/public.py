@@ -1,8 +1,7 @@
 from brainscore.assemblies.private import _VariationLoader, _RegionLoader, _SeparateMovshonPrivatePublic
 
 DicarloMajaj2015LowvarLoader = lambda: _VariationLoader(basename='dicarlo.Majaj2015',
-                                                        variation_name='low', variation=[0, 3],
-                                                        assembly_loader_pool=assembly_loaders)
+                                                        variation_name='low', variation=[0, 3])
 DicarloMajaj2015V4LowvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.lowvar', region='V4',
                                                        assembly_loader_pool=assembly_loaders)
 DicarloMajaj2015ITLowvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.lowvar', region='IT',

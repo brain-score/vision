@@ -100,15 +100,24 @@ class DicarloMajaj2015TemporalLoader(AssemblyLoader):
     def __init__(self, name='dicarlo.Majaj2015.temporal'):
         super(DicarloMajaj2015TemporalLoader, self).__init__(name=name)
         self._helper = DicarloMajaj2015Loader()
+        self.average_repetition = self._helper.average_repetition
 
+    @store()
     def __call__(self, average_repetition=True):
         assembly = brainscore.get_assembly(name='dicarlo.Majaj2015.temporal')
         assembly = self._helper._filter_erroneous_neuroids(assembly)
-        assembly = assembly.sel(variation=6)
         assembly = assembly.transpose('presentation', 'neuroid', 'time_bin')
         if average_repetition:
-            assembly = self._helper.average_repetition(assembly)
+            assembly = self.average_repetition(assembly)
         return assembly
+
+
+DicarloMajaj2015TemporalHighvarLoader = lambda: _VariationLoader(basename='dicarlo.Majaj2015.temporal',
+                                                                 variation_name='high', variation=6)
+DicarloMajaj2015TemporalV4HighvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.highvar',
+                                                                region='V4')
+DicarloMajaj2015TemporalITHighvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.highvar',
+                                                                region='IT')
 
 
 class DicarloMajaj2015EarlyLateLoader(DicarloMajaj2015TemporalLoader):
@@ -246,6 +255,10 @@ _assembly_loaders_ctrs = [
     DicarloMajaj2015Loader, DicarloMajaj2015HighvarLoader,
     DicarloMajaj2015V4HighvarLoader, DicarloMajaj2015ITHighvarLoader,
     DicarloMajaj2015EarlyLateLoader,
+    DicarloMajaj2015TemporalLoader,  # private testing temporal loaders
+    DicarloMajaj2015TemporalHighvarLoader,
+    DicarloMajaj2015TemporalV4HighvarLoader,
+    DicarloMajaj2015TemporalITHighvarLoader,
 ]
 assembly_loaders = {}
 for loader_ctr in _assembly_loaders_ctrs:

@@ -1,24 +1,13 @@
-import numpy as np
-
-from brainio_base.assemblies import NeuroidAssembly
-from brainscore.benchmarks.loaders import DicarloMajaj2015Loader, DicarloMajaj2015HighvarLoader, \
+from brainscore.assemblies.private import DicarloMajaj2015Loader, DicarloMajaj2015HighvarLoader, \
     MovshonFreemanZiemba2013Loader, ToliasCadena2017Loader, \
-    DicarloMajaj2015TemporalLowvarLoader, DicarloMajaj2015TemporalHighvarLoader, \
-    DicarloMajaj2015TemporalV4LowvarLoader, DicarloMajaj2015TemporalV4HighvarLoader, \
-    DicarloMajaj2015TemporalITLowvarLoader, DicarloMajaj2015TemporalITHighvarLoader, load_assembly
+    DicarloMajaj2015TemporalHighvarLoader, \
+    DicarloMajaj2015TemporalV4HighvarLoader, \
+    DicarloMajaj2015TemporalITHighvarLoader, load_assembly
 from tests.flags import private_access, memory_intense
+from tests.test_assemblies import check_standard_format
 
 
-def check_standard_format(assembly):
-    assert isinstance(assembly, NeuroidAssembly)
-    assert set(assembly.dims).issuperset({'presentation', 'neuroid'})
-    assert hasattr(assembly, 'image_id')
-    assert hasattr(assembly, 'neuroid_id')
-    assert not np.isnan(assembly).any()
-    assert 'stimulus_set_name' in assembly.attrs
-
-
-class TestAssemblyLoaders:
+class TestBaseLoaders:
     def test_majaj2015(self):
         loader = DicarloMajaj2015Loader()
         assembly = loader()
@@ -70,17 +59,6 @@ class TestPrivate:
         assert len(assembly['neuroid']) == 102
 
     @private_access
-    def test_majaj2015temporal_lowvar(self):
-        loader = DicarloMajaj2015TemporalLowvarLoader()
-        assembly = loader()
-        check_standard_format(assembly)
-        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm-var03'
-        assert len(assembly['presentation']) == 3200
-        assert len(assembly['neuroid']) == 256
-        assert len(assembly.sel(region='IT')['neuroid']) == 168
-        assert len(assembly.sel(region='V4')['neuroid']) == 88
-
-    @private_access
     def test_majaj2015temporal_highvar(self):
         loader = DicarloMajaj2015TemporalHighvarLoader()
         assembly = loader()
@@ -92,15 +70,6 @@ class TestPrivate:
         assert len(assembly.sel(region='V4')['neuroid']) == 88
 
     @private_access
-    def test_majaj2015temporal_v4lowvar(self):
-        loader = DicarloMajaj2015TemporalV4LowvarLoader()
-        assembly = loader()
-        check_standard_format(assembly)
-        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm-var03'
-        assert len(assembly['presentation']) == 3200
-        assert len(assembly['neuroid']) == 88
-
-    @private_access
     def test_majaj2015temporal_v4highvar(self):
         loader = DicarloMajaj2015TemporalV4HighvarLoader()
         assembly = loader()
@@ -108,15 +77,6 @@ class TestPrivate:
         assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm-var6'
         assert len(assembly['presentation']) == 2560
         assert len(assembly['neuroid']) == 88
-
-    @private_access
-    def test_majaj2015temporal_itlowvar(self):
-        loader = DicarloMajaj2015TemporalITLowvarLoader()
-        assembly = loader()
-        check_standard_format(assembly)
-        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm-var03'
-        assert len(assembly['presentation']) == 3200
-        assert len(assembly['neuroid']) == 168
 
     @private_access
     def test_majaj2015temporal_ithighvar(self):

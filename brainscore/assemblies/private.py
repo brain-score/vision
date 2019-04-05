@@ -111,15 +111,13 @@ class DicarloMajaj2015TemporalLoader(AssemblyLoader):
             assembly = self.average_repetition(assembly)
         return assembly
 
-DicarloMajaj2015TemporalLowvarLoader = lambda: _VariationLoader(basename='dicarlo.Majaj2015.temporal',
-                                                        variation_name='low', variation=[0, 3])
+
 DicarloMajaj2015TemporalHighvarLoader = lambda: _VariationLoader(basename='dicarlo.Majaj2015.temporal',
-                                                         variation_name='high', variation=6)
-# separate into mapping and test  # TODO: these need to be packaged separately for access rights
-DicarloMajaj2015TemporalV4LowvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.lowvar', region='V4')
-DicarloMajaj2015TemporalITLowvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.lowvar', region='IT')
-DicarloMajaj2015TemporalV4HighvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.highvar', region='V4')
-DicarloMajaj2015TemporalITHighvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.highvar', region='IT')
+                                                                 variation_name='high', variation=6)
+DicarloMajaj2015TemporalV4HighvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.highvar',
+                                                                region='V4')
+DicarloMajaj2015TemporalITHighvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.highvar',
+                                                                region='IT')
 
 
 class DicarloMajaj2015EarlyLateLoader(DicarloMajaj2015TemporalLoader):
@@ -258,12 +256,8 @@ _assembly_loaders_ctrs = [
     DicarloMajaj2015V4HighvarLoader, DicarloMajaj2015ITHighvarLoader,
     DicarloMajaj2015EarlyLateLoader,
     DicarloMajaj2015TemporalLoader,  # private testing temporal loaders
-    DicarloMajaj2015TemporalLowvarLoader,
     DicarloMajaj2015TemporalHighvarLoader,
-    DicarloMajaj2015TemporalV4LowvarLoader,
-    DicarloMajaj2015TemporalITLowvarLoader,
-    DicarloMajaj2015TemporalV4HighvarLoader,
-    DicarloMajaj2015TemporalITHighvarLoader,
+    DicarloMajaj2015TemporalV4HighvarLoader, DicarloMajaj2015TemporalITHighvarLoader,
 ]
 assembly_loaders = {}
 for loader_ctr in _assembly_loaders_ctrs:

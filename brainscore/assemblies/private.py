@@ -113,7 +113,7 @@ class DicarloMajaj2015TemporalLoader(AssemblyLoader):
 
 
 DicarloMajaj2015TemporalHighvarLoader = lambda: _VariationLoader(basename='dicarlo.Majaj2015.temporal',
-                                                         variation_name='high', variation=6)
+                                                                 variation_name='high', variation=6)
 DicarloMajaj2015TemporalV4HighvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.highvar',
                                                                 region='V4')
 DicarloMajaj2015TemporalITHighvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.highvar',

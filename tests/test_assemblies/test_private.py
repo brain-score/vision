@@ -17,7 +17,7 @@ def check_standard_format(assembly):
     assert 'stimulus_set_name' in assembly.attrs
 
 
-class TestAssemblyLoaders:
+class TestBaseLoaders:
     def test_majaj2015(self):
         loader = DicarloMajaj2015Loader()
         assembly = loader()
@@ -70,6 +70,16 @@ class TestAssemblyLoaders:
         assert len(assembly.sel(region='IT')['neuroid']) == 168
         assert len(assembly.sel(region='V4')['neuroid']) == 88
 
+
+class TestPrivate:
+    @memory_intense
+    @private_access
+    def test_movshonfreemanziemba2013v1(self):
+        assembly = load_assembly('movshon.FreemanZiemba2013.V1')
+        assert set(assembly['region'].values) == {'V1'}
+        assert len(assembly['presentation']) == 315
+        assert len(assembly['neuroid']) == 102
+
     @memory_intense
     @private_access
     def test_majaj2015V4TemporalHighvar(self):
@@ -90,12 +100,3 @@ class TestAssemblyLoaders:
         assert len(assembly['presentation']) == 2560
         assert len(assembly['neuroid']) == 168
 
-
-class TestPrivate:
-    @memory_intense
-    @private_access
-    def test_movshonfreemanziemba2013v1(self):
-        assembly = load_assembly('movshon.FreemanZiemba2013.V1')
-        assert set(assembly['region'].values) == {'V1'}
-        assert len(assembly['presentation']) == 315
-        assert len(assembly['neuroid']) == 102

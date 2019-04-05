@@ -1,18 +1,22 @@
 from brainscore.assemblies.private import _VariationLoader, _RegionLoader, _SeparateMovshonPrivatePublic
 
+# Majaj2015 time-averaged
 DicarloMajaj2015LowvarLoader = lambda: _VariationLoader(basename='dicarlo.Majaj2015',
                                                         variation_name='low', variation=[0, 3])
 DicarloMajaj2015V4LowvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.lowvar', region='V4',
                                                        assembly_loader_pool=assembly_loaders)
 DicarloMajaj2015ITLowvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.lowvar', region='IT',
                                                        assembly_loader_pool=assembly_loaders)
-DicarloMajaj2015TemporalLowvarLoader = lambda: _VariationLoader(basename='dicarlo.Majaj2015.temporal',
-                                                        variation_name='low', variation=[0, 3])
-DicarloMajaj2015TemporalV4LowvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.lowvar',
-                                                               region='V4')
-DicarloMajaj2015TemporalITLowvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.lowvar',
-                                                               region='IT')
 
+# Majaj2015 temporal
+DicarloMajaj2015TemporalLowvarLoader = lambda: _VariationLoader(basename='dicarlo.Majaj2015.temporal',
+                                                                variation_name='low', variation=[0, 3])
+DicarloMajaj2015TemporalV4LowvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.lowvar',
+                                                               region='V4', assembly_loader_pool=assembly_loaders)
+DicarloMajaj2015TemporalITLowvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.lowvar',
+                                                               region='IT', assembly_loader_pool=assembly_loaders)
+
+# FreemanZiemba2013
 MovshonFreemanZiemba2013V1PublicLoader = lambda: _SeparateMovshonPrivatePublic('V1', 'public')
 MovshonFreemanZiemba2013V2PublicLoader = lambda: _SeparateMovshonPrivatePublic('V2', 'public')
 

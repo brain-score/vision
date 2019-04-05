@@ -5,7 +5,7 @@ from brainscore.benchmarks.loaders import DicarloMajaj2015Loader, DicarloMajaj20
     MovshonFreemanZiemba2013Loader, ToliasCadena2017Loader, \
     DicarloMajaj2015TemporalLowvarLoader, DicarloMajaj2015TemporalHighvarLoader, \
     DicarloMajaj2015TemporalV4LowvarLoader, DicarloMajaj2015TemporalV4HighvarLoader, \
-    DicarloMajaj2015TemporalITLowvarLoader, DicarloMajaj2015TemporalITHighvarLoader
+    DicarloMajaj2015TemporalITLowvarLoader, DicarloMajaj2015TemporalITHighvarLoader, load_assembly
 from tests.flags import private_access, memory_intense
 
 
@@ -58,6 +58,16 @@ class TestAssemblyLoaders:
         assert assembly.attrs['stimulus_set_name'] == 'tolias.Cadena2017'
         assert len(assembly['presentation']) == 6249
         assert len(assembly['neuroid']) == 166
+
+
+class TestPrivate:
+    @memory_intense
+    @private_access
+    def test_movshonfreemanziemba2013v1(self):
+        assembly = load_assembly('movshon.FreemanZiemba2013.V1')
+        assert set(assembly['region'].values) == {'V1'}
+        assert len(assembly['presentation']) == 315
+        assert len(assembly['neuroid']) == 102
 
     @private_access
     def test_majaj2015temporal_lowvar(self):

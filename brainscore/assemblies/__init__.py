@@ -7,6 +7,14 @@ from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
 from xarray import DataArray
 
 
+class AssemblyLoader:
+    def __init__(self, name):
+        self.name = name
+
+    def __call__(self):
+        raise NotImplementedError()
+
+
 def split_assembly(assembly, on='image_id', stratification='object_name',
                    named_ratios=OrderedDict([('map', .8), ('test', .2)]), rng=None):
     from brainscore.metrics.transformations import subset  # avoid circular import
@@ -69,3 +77,20 @@ def walk_coords(assembly):
         else:
             yield name, values.dims, values.values
     return coords
+
+
+def average_repetition(assembly):
+    def avg_repr(assembly):
+        presentation_coords = [coord for coord, dims, values in walk_coords(assembly)
+                               if array_is_element(dims, 'presentation') and coord != 'repetition']
+        assembly = assembly.multi_groupby(presentation_coords).mean(dim='presentation', skipna=True)
+        return assembly
+
+    return apply_keep_attrs(assembly, avg_repr)
+
+
+def apply_keep_attrs(assembly, fnc):  # workaround to keeping attrs
+    attrs = assembly.attrs
+    assembly = fnc(assembly)
+    assembly.attrs = attrs
+    return assembly

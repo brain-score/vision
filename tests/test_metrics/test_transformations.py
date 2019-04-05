@@ -3,8 +3,7 @@ import pytest
 import xarray as xr
 from brainio_base.assemblies import NeuroidAssembly, DataAssembly
 
-from brainscore import benchmarks
-from brainscore.benchmarks.loaders import load_assembly
+from brainscore.assemblies.private import load_assembly
 from brainscore.metrics import Metric
 from brainscore.metrics.transformations import subset, index_efficient, CartesianProduct, CrossValidation, \
     CrossValidationSingle

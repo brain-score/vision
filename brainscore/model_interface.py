@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import List, Tuple
 
 
 class BrainModel:
@@ -11,5 +12,5 @@ class BrainModel:
     def start_task(self, task: Task):
         raise NotImplementedError()
 
-    def start_recording(self, recording_target: RecordingTarget):
+    def start_recording(self, recording_target: RecordingTarget, time_bins=List[Tuple[int]]):
         raise NotImplementedError()

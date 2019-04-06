@@ -1,3 +1,5 @@
+import numpy as np
+
 from brainscore.assemblies.private import DicarloMajaj2015Loader, DicarloMajaj2015HighvarLoader, \
     MovshonFreemanZiemba2013Loader, ToliasCadena2017Loader, \
     DicarloMajaj2015TemporalHighvarLoader, DicarloMajaj2015TemporalV4HighvarLoader, \
@@ -77,6 +79,9 @@ class TestPrivate:
         assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm-var6'
         assert len(assembly['presentation']) == 2560
         assert len(assembly['neuroid']) == 88
+        assert len(assembly['time_bin']) == 39
+        np.testing.assert_array_equal(assembly['time_bin_start'], list(range(-100, 281, 10)))
+        np.testing.assert_array_equal(assembly['time_bin_end'], list(range(-80, 301, 10)))
 
     @memory_intense
     def test_majaj2015ITTemporalHighvar(self):
@@ -86,3 +91,6 @@ class TestPrivate:
         assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm-var6'
         assert len(assembly['presentation']) == 2560
         assert len(assembly['neuroid']) == 168
+        assert len(assembly['time_bin']) == 39
+        np.testing.assert_array_equal(assembly['time_bin_start'], list(range(-100, 281, 10)))
+        np.testing.assert_array_equal(assembly['time_bin_end'], list(range(-80, 301, 10)))

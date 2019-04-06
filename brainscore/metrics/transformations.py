@@ -312,7 +312,7 @@ class CrossValidation(Transformation):
             split_score['split'] = [split_iterator]
             split_scores.append(split_score)
 
-        split_scores = merge_data_arrays(split_scores)
+        split_scores = Score.merge(*split_scores)
         yield split_scores
 
     def aggregate(self, score):

@@ -10,14 +10,14 @@ from .xarray_utils import XarrayRegression, Defaults as XarrayDefaults, XarrayCo
 
 
 class CrossRegressedCorrelation:
-    def __init__(self, regression=None, crossvalidation_kwargs=None):
+    def __init__(self, regression, correlation, crossvalidation_kwargs=None):
         regression = regression or pls_regression()
         crossvalidation_defaults = dict(train_size=.9, test_size=None)
         crossvalidation_kwargs = {**crossvalidation_defaults, **(crossvalidation_kwargs or {})}
 
         self.cross_validation = CrossValidation(**crossvalidation_kwargs)
         self.regression = regression
-        self.correlation = XarrayCorrelation(scipy.stats.pearsonr)
+        self.correlation = correlation
 
     def __call__(self, source, target):
         return self.cross_validation(source, target, apply=self.apply, aggregate=self.aggregate)
@@ -64,3 +64,7 @@ def linear_regression(expected_dims=XarrayDefaults.expected_dims,
     regression = XarrayRegression(regression, expected_dims=expected_dims,
                                   neuroid_dim=neuroid_dim, neuroid_coord=neuroid_coord)
     return regression
+
+
+def pearsonr_correlation():
+    return XarrayCorrelation(scipy.stats.pearsonr)

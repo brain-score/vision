@@ -54,11 +54,9 @@ class TestI2N:
 
     @pytest.mark.parametrize(['model', 'expected_score'],
                              [
-                                 ('alexnet', .245),
-                                 # ('resnet34', .378),
-                                 # ('resnet18', .364),
-                                 # ('squeezenet1_0', .180),
-                                 # ('squeezenet1_1', .201),
+                                 ('alexnet', .253),
+                                 # ('resnet34', .37787),
+                                 # ('resnet18', .3638),
                              ])
     def test_model(self, model, expected_score):
         objectome = self.get_objectome()

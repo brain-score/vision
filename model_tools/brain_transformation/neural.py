@@ -1,21 +1,24 @@
 import logging
-from typing import Optional
 
 import numpy as np
 from tqdm import tqdm
+from typing import Optional
 
-from brainscore.benchmarks import BenchmarkBase, ceil_score
 from brainscore.assemblies import average_repetition
+from brainscore.benchmarks import BenchmarkBase, ceil_score
+from brainscore.benchmarks.regressing import timebins_from_assembly
 from brainscore.metrics import Score
 from brainscore.metrics.ceiling import InternalConsistency
-from brainscore.metrics.regression import CrossRegressedCorrelation
+from brainscore.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation
+from brainscore.metrics.transformations import Split
 from brainscore.model_interface import BrainModel
 from brainscore.utils import fullname
 from model_tools.activations.pca import LayerPCA
+from model_tools.brain_transformation import TemporalIgnore
 from result_caching import store_xarray, store
 
 
-class LayerModel(BrainModel):
+class LayerMappedModel(BrainModel):
     def __init__(self, identifier, activations_model, region_layer_map: Optional[dict] = None):
         self.identifier = identifier
         self.activations_model = activations_model
@@ -33,7 +36,7 @@ class LayerModel(BrainModel):
         if task != BrainModel.Task.passive:
             raise NotImplementedError()
 
-    def start_recording(self, recording_target):
+    def start_recording(self, recording_target: BrainModel.RecordingTarget):
         if str(recording_target) not in self.region_layer_map:
             raise NotImplementedError(f"Region {recording_target} is not committed")
         self.recorded_regions = [recording_target]
@@ -90,15 +93,19 @@ class LayerSelection:
             assert hasattr(assembly_repetition, 'repetition')
             self.region = np.unique(assembly_repetition['region'])[0]
             self.assembly = average_repetition(assembly_repetition)
+            self.timebins = timebins_from_assembly(self.assembly)
 
-            self._similarity_metric = similarity_metric or CrossRegressedCorrelation()
+            self._similarity_metric = similarity_metric or CrossRegressedCorrelation(
+                regression=pls_regression(), correlation=pearsonr_correlation(),
+                crossvalidation_kwargs=dict(stratification_coord=Split.Defaults.stratification_coord
+                if hasattr(self.assembly, Split.Defaults.stratification_coord) else None))
             identifier = f'{assembly_repetition.name}-layer_selection'
             ceiler = ceiler or InternalConsistency()
             super(LayerSelection._Benchmark, self).__init__(
                 identifier=identifier, ceiling_func=lambda: ceiler(assembly_repetition))
 
         def __call__(self, candidate):
-            candidate.start_recording(self.region)
+            candidate.start_recording(self.region, time_bins=self.timebins)
             source_assembly = candidate.look_at(self.assembly.stimulus_set)
             raw_score = self._similarity_metric(source_assembly, self.assembly)
             return ceil_score(raw_score, self.ceiling)
@@ -124,8 +131,10 @@ class LayerScores:
 
         layer_scores = []
         for layer in tqdm(layers, desc="layers"):
-            layer_model = LayerModel(identifier=f"{model_identifier}-{layer}",  # per-layer identifier to avoid overlap
-                                     activations_model=model, region_layer_map={benchmark.region: layer})
+            layer_model = LayerMappedModel(identifier=f"{model_identifier}-{layer}",
+                                           # per-layer identifier to avoid overlap
+                                           activations_model=model, region_layer_map={benchmark.region: layer})
+            layer_model = TemporalIgnore(layer_model)
             score = benchmark(layer_model)
             score = score.expand_dims('layer')
             score['layer'] = [layer]

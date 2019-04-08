@@ -15,15 +15,21 @@ class NeuralBenchmark(BenchmarkBase):
         region = np.unique(self._assembly['region'])
         assert len(region) == 1
         self.region = region[0]
-        self.timebins = self._assembly['time_bin'].values
-        if 'time_bin' not in self._assembly.dims:
-            self.timebins = [self.timebins]  # only single time-bin
+        timebins = timebins_from_assembly(self._assembly)
+        self.timebins = timebins
 
     def __call__(self, candidate):
-        candidate.start_recording(self.region, timebins=self.timebins)
+        candidate.start_recording(self.region, time_bins=self.timebins)
         source_assembly = candidate.look_at(self._assembly.stimulus_set)
         raw_score = self._similarity_metric(source_assembly, self._assembly)
         return ceil_score(raw_score, self.ceiling)
+
+
+def timebins_from_assembly(assembly):
+    timebins = assembly['time_bin'].values
+    if 'time_bin' not in assembly.dims:
+        timebins = [timebins]  # only single time-bin
+    return timebins
 
 
 def build_benchmark(identifier, assembly_loader, similarity_metric, ceiler):
@@ -69,8 +75,8 @@ def DicarloMajaj2015ITMask():
 
 
 def _MovshonFreemanZiemba2013Region(region, identifier_metric_suffix, similarity_metric):
-    return build_benchmark(f'movshon.FreemanZiemba2013.{region}-{identifier_metric_suffix}',
-                           assembly_loader=assembly_loaders[f'movshon.FreemanZiemba2013.{region}'],
+    return build_benchmark(f'movshon.FreemanZiemba2013.private.{region}-{identifier_metric_suffix}',
+                           assembly_loader=assembly_loaders[f'movshon.FreemanZiemba2013.private.{region}'],
                            similarity_metric=similarity_metric,
                            ceiler=InternalConsistency())
 
@@ -79,14 +85,14 @@ def MovshonFreemanZiemba2013V1PLS():
     return _MovshonFreemanZiemba2013Region('V1', identifier_metric_suffix='pls',
                                            similarity_metric=CrossRegressedCorrelation(
                                                regression=pls_regression(), correlation=pearsonr_correlation(),
-                                               crossvalidation_kwargs=dict(stratification_coord=None)))
+                                               crossvalidation_kwargs=dict(stratification_coord='texture_type')))
 
 
 def MovshonFreemanZiemba2013V2PLS():
     return _MovshonFreemanZiemba2013Region('V2', identifier_metric_suffix='pls',
                                            similarity_metric=CrossRegressedCorrelation(
                                                regression=pls_regression(), correlation=pearsonr_correlation(),
-                                               crossvalidation_kwargs=dict(stratification_coord=None)))
+                                               crossvalidation_kwargs=dict(stratification_coord='texture_type')))
 
 
 def ToliasCadena2017():

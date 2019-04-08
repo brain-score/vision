@@ -1,6 +1,6 @@
 from pytest import approx
 
-from brainscore.benchmarks.temporal import DicarloMajaj2015TemporalV4, DicarloMajaj2015TemporalIT
+from brainscore.benchmarks.temporal import DicarloMajaj2015TemporalV4PLS, DicarloMajaj2015TemporalITPLS
 from tests.flags import private_access, memory_intense
 from tests.test_benchmarks import PrecomputedFeatures
 
@@ -9,7 +9,7 @@ from tests.test_benchmarks import PrecomputedFeatures
 @private_access
 class TestMajaj2015:
     def test_V4_self(self):
-        benchmark = DicarloMajaj2015TemporalV4()
+        benchmark = DicarloMajaj2015TemporalV4PLS()
         source = benchmark._assembly
         source.name = 'dicarlo.Majaj2015.temporal.V4'
         score = benchmark(PrecomputedFeatures(source)).raw
@@ -19,7 +19,7 @@ class TestMajaj2015:
         assert len(raw_values['time_bin']) == len(source['time_bin'])
 
     def test_IT_self(self):
-        benchmark = DicarloMajaj2015TemporalIT()
+        benchmark = DicarloMajaj2015TemporalITPLS()
         source = benchmark._assembly
         source.name = 'dicarlo.Majaj2015.temporal.IT'
         score = benchmark(PrecomputedFeatures(source)).raw

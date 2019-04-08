@@ -40,8 +40,10 @@ class TestBaseLoaders:
         assert len(assembly['presentation']) == 450
         assert len(assembly['neuroid']) == 205
 
-    @private_access
-    def test_toliascadena2017(self):
+
+@private_access
+class TestToliasCadena2017:
+    def test(self):
         loader = ToliasCadena2017Loader()
         assembly = loader()
         check_standard_format(assembly)
@@ -49,8 +51,10 @@ class TestBaseLoaders:
         assert len(assembly['presentation']) == 6249
         assert len(assembly['neuroid']) == 166
 
-    @memory_intense
-    @private_access
+
+@private_access
+@memory_intense
+class TestMajaj2015:
     def test_majaj2015TemporalHighvar(self):
         loader = DicarloMajaj2015TemporalHighvarLoader()
         assembly = loader()
@@ -61,17 +65,6 @@ class TestBaseLoaders:
         assert len(assembly.sel(region='IT')['neuroid']) == 168
         assert len(assembly.sel(region='V4')['neuroid']) == 88
 
-
-@private_access
-class TestPrivate:
-    @memory_intense
-    def test_movshonfreemanziemba2013v1(self):
-        assembly = load_assembly('movshon.FreemanZiemba2013.V1')
-        assert set(assembly['region'].values) == {'V1'}
-        assert len(assembly['presentation']) == 315
-        assert len(assembly['neuroid']) == 102
-
-    @memory_intense
     def test_majaj2015V4TemporalHighvar(self):
         loader = DicarloMajaj2015TemporalV4HighvarLoader()
         assembly = loader()
@@ -83,7 +76,6 @@ class TestPrivate:
         np.testing.assert_array_equal(assembly['time_bin_start'], list(range(-100, 281, 10)))
         np.testing.assert_array_equal(assembly['time_bin_end'], list(range(-80, 301, 10)))
 
-    @memory_intense
     def test_majaj2015ITTemporalHighvar(self):
         loader = DicarloMajaj2015TemporalITHighvarLoader()
         assembly = loader()
@@ -94,3 +86,27 @@ class TestPrivate:
         assert len(assembly['time_bin']) == 39
         np.testing.assert_array_equal(assembly['time_bin_start'], list(range(-100, 281, 10)))
         np.testing.assert_array_equal(assembly['time_bin_end'], list(range(-80, 301, 10)))
+
+
+@private_access
+@memory_intense
+class TestFreemanZiemba2013:
+    def test_v1(self):
+        assembly = load_assembly('movshon.FreemanZiemba2013.private.V1')
+        assert set(assembly['region'].values) == {'V1'}
+        assert len(assembly['presentation']) == 315
+        assert len(assembly['neuroid']) == 102
+
+    def test_temporal_v1(self):
+        assembly = load_assembly('movshon.FreemanZiemba2013.temporal.private.V1')
+        assert len(assembly['presentation']) == 315
+        assert len(assembly['neuroid']) == 102
+        np.testing.assert_array_equal(assembly['time_bin_start'], list(range(0, 291, 10)))
+        np.testing.assert_array_equal(assembly['time_bin_end'], list(range(10, 301, 10)))
+
+    def test_temporal_v2(self):
+        assembly = load_assembly('movshon.FreemanZiemba2013.temporal.private.V2')
+        assert len(assembly['presentation']) == 315
+        assert len(assembly['neuroid']) == 103
+        np.testing.assert_array_equal(assembly['time_bin_start'], list(range(0, 291, 10)))
+        np.testing.assert_array_equal(assembly['time_bin_end'], list(range(10, 301, 10)))

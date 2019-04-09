@@ -3,7 +3,7 @@ import pytest
 import xarray as xr
 from brainio_base.assemblies import NeuroidAssembly, DataAssembly
 
-from brainscore import benchmarks
+from brainscore.assemblies.private import load_assembly
 from brainscore.metrics import Metric
 from brainscore.metrics.transformations import subset, index_efficient, CartesianProduct, CrossValidation, \
     CrossValidationSingle
@@ -28,7 +28,7 @@ class TestCrossValidationSingle:
                                            'neuroid_id': ('neuroid', list(range(10))),
                                            'neuroid_meta': ('neuroid', [0] * 10)},
                                    dims=['presentation', 'neuroid'])
-        cv = CrossValidationSingle(splits=10)
+        cv = CrossValidationSingle(splits=10, stratification_coord=None)
         metric = self.MetricPlaceholder()
         score = cv(assembly, apply=metric)
         assert len(metric.train_assemblies) == len(metric.test_assemblies) == 10
@@ -42,7 +42,7 @@ class TestCrossValidationSingle:
                                    coords={'image_id': ('presentation', list(range(50))),
                                            'image_meta': ('presentation', [0] * 50)},
                                    dims=['presentation', 'presentation'])
-        cv = CrossValidationSingle(splits=10, train_size=.9)
+        cv = CrossValidationSingle(splits=10, train_size=.9, stratification_coord=None)
         metric = self.MetricPlaceholder()
         score = cv(assembly, apply=metric)
         assert len(metric.train_assemblies) == len(metric.test_assemblies) == 10
@@ -77,7 +77,7 @@ class TestCrossValidation:
                                                  'neuroid_meta': ('neuroid', [0] * 10)},
                                          dims=['presentation', 'neuroid'])
         target = jumbled_source.sortby(['image_id', 'neuroid_id'])
-        cv = CrossValidation(splits=10)
+        cv = CrossValidation(splits=10, stratification_coord=None)
         metric = self.MetricPlaceholder()
         score = cv(jumbled_source, target, apply=metric)
         assert len(metric.train_source_assemblies) == len(metric.test_source_assemblies) == \
@@ -253,7 +253,7 @@ class TestSubset:
         assert (subset_assembly == target_assembly).all()
 
     def test_category_subselection(self):
-        assembly = benchmarks.load_assembly('dicarlo.Majaj2015')
+        assembly = load_assembly('dicarlo.Majaj2015')
         categories = np.unique(assembly['category_name'])
         target = xr.DataArray([0] * len(categories), coords={'category_name': categories},
                               dims=['category_name']).stack(presentation=['category_name'])

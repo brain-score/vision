@@ -4,7 +4,7 @@ import xarray as xr
 
 from brainscore.assemblies import walk_coords
 from brainscore.metrics import Score
-from brainscore.metrics.transformations import CrossValidationSingle
+from brainscore.metrics.transformations import CrossValidationSingle, Split
 from brainscore.metrics.xarray_utils import Defaults as XarrayDefaults
 from brainscore.metrics.xarray_utils import XarrayCorrelation
 
@@ -21,7 +21,7 @@ class NoCeiling(Ceiling):
 
 class InternalConsistency(Ceiling):
     """
-    Computes the consistency within an assembly with repetitions.
+    Computes the consistency within an assembly with repetitions
     """
 
     class Defaults:
@@ -35,7 +35,8 @@ class InternalConsistency(Ceiling):
         correction = SpearmanBrownCorrection(neuroid_dim=neuroid_dim)
         self._wrapped_consistency = self.SplitHalfWrapper(split_coord=split_coord,
                                                           consistency=self._consistency, correction=correction)
-        self._cross_validation = CrossValidationSingle(train_size=0.5, split_coord=split_coord)
+        self._cross_validation = CrossValidationSingle(
+            train_size=0.5, split_coord=split_coord, stratification_coord=None, unique_split_values=True)
 
     def __call__(self, assembly):
         return self._cross_validation(assembly,

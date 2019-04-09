@@ -15,6 +15,20 @@ from brainscore.metrics.utils import unique_ordered
 from brainscore.utils import fullname
 
 
+def apply_aggregate(aggregate_fnc, values):
+    """
+    Applies the aggregate while keeping the raw values in the attrs.
+    If raw values are already present, keeps them, else they are added.
+    """
+    score = aggregate_fnc(values)
+    if Score.RAW_VALUES_KEY not in score.attrs:
+        # check if the raw values are already in the values.
+        # if yes, they didn't get copied to the aggregate score and we use those as the "rawest" values.
+        raw = values if Score.RAW_VALUES_KEY not in values.attrs else values.attrs[Score.RAW_VALUES_KEY]
+        score.attrs[Score.RAW_VALUES_KEY] = raw
+    return score
+
+
 class Transformation(object):
     """
     Transforms an incoming assembly into parts/combinations thereof,
@@ -25,8 +39,8 @@ class Transformation(object):
     def __call__(self, *args, apply, aggregate=None, **kwargs):
         values = self._run_pipe(*args, apply=apply, **kwargs)
 
-        score = self._apply_aggregate(aggregate, values) if aggregate is not None else values
-        score = self._apply_aggregate(self.aggregate, score)
+        score = apply_aggregate(aggregate, values) if aggregate is not None else values
+        score = apply_aggregate(self.aggregate, score)
         return score
 
     def _run_pipe(self, *args, apply, **kwargs):
@@ -53,19 +67,6 @@ class Transformation(object):
         result = yield args  # yield the values to coroutine
         yield done  # wait for coroutine to send back similarity and inform whether result is ready to be returned
         return result
-
-    def _apply_aggregate(self, aggregate_fnc, values):
-        """
-        Applies the aggregate while keeping the raw values in the attrs.
-        If raw values are already present, keeps them, else they are added.
-        """
-        score = aggregate_fnc(values)
-        if Score.RAW_VALUES_KEY not in score.attrs:
-            # check if the raw values are already in the values.
-            # if yes, they didn't get copied to the aggregate score and we use those as the "rawest" values.
-            raw = values if Score.RAW_VALUES_KEY not in values.attrs else values.attrs[Score.RAW_VALUES_KEY]
-            score.attrs[Score.RAW_VALUES_KEY] = raw
-        return score
 
     def aggregate(self, score):
         return Score(score)
@@ -157,12 +158,13 @@ class Split:
         train_size = .9
         split_coord = 'image_id'
         stratification_coord = 'object_name'  # cross-validation across images, balancing objects
+        unique_split_values = False
         random_state = 1
 
     def __init__(self,
                  splits=Defaults.splits, train_size=None, test_size=None,
                  split_coord=Defaults.split_coord, stratification_coord=Defaults.stratification_coord,
-                 random_state=Defaults.random_state):
+                 unique_split_values=Defaults.unique_split_values, random_state=Defaults.random_state):
         super().__init__()
         if train_size is None and test_size is None:
             train_size = self.Defaults.train_size
@@ -172,31 +174,45 @@ class Split:
             n_splits=splits, train_size=train_size, test_size=test_size, random_state=random_state)
         self._split_coord = split_coord
         self._stratification_coord = stratification_coord
+        self._unique_split_values = unique_split_values
 
         self._logger = logging.getLogger(fullname(self))
 
-    def stratify(self, assembly):
-        return self._stratification_coord and hasattr(assembly, self._stratification_coord)
+    @property
+    def do_stratify(self):
+        return bool(self._stratification_coord)
 
     def build_splits(self, assembly):
-        cross_validation_values, indices = extract_coord(assembly, self._split_coord, return_index=True)
+        cross_validation_values, indices = extract_coord(assembly, self._split_coord, unique=self._unique_split_values)
         data_shape = np.zeros(len(cross_validation_values))
-        if self.stratify(assembly):
-            splits = self._stratified_split.split(data_shape,
-                                                  assembly[self._stratification_coord].values[indices])
+        if self.do_stratify:
+            splits = self._stratified_split.split(data_shape, assembly[self._stratification_coord].values[indices])
         else:
-            self._logger.warning("Stratification coord '{}' not found in assembly "
-                                 "- falling back to un-stratified splits".format(self._stratification_coord))
             splits = self._shuffle_split.split(data_shape)
         return cross_validation_values, list(splits)
 
-    def aggregate(self, values):
+    @classmethod
+    def aggregate(cls, values):
         center = values.mean('split')
         error = standard_error_of_the_mean(values, 'split')
         return Score([center, error],
                      coords={**{'aggregation': ['center', 'error']},
                              **{coord: (dims, values) for coord, dims, values in walk_coords(center)}},
                      dims=('aggregation',) + center.dims)
+
+
+def extract_coord(assembly, coord, unique=False):
+    if not unique:
+        coord_values = assembly[coord].values
+        indices = list(range(len(coord_values)))
+    else:
+        # need unique values for when e.g. repetitions are heavily redundant and splits would yield equal unique values
+        coord_values, indices = np.unique(assembly[coord].values, return_index=True)
+    dims = assembly[coord].dims
+    assert len(dims) == 1
+    extracted_assembly = xr.DataArray(coord_values, coords={coord: coord_values}, dims=[coord])
+    extracted_assembly = extracted_assembly.stack(**{dims[0]: (coord,)})
+    return extracted_assembly if not unique else extracted_assembly, indices
 
 
 class TestOnlyCrossValidationSingle:
@@ -221,10 +237,10 @@ class CrossValidationSingle(Transformation):
     def __init__(self,
                  splits=Split.Defaults.splits, train_size=None, test_size=None,
                  split_coord=Split.Defaults.split_coord, stratification_coord=Split.Defaults.stratification_coord,
-                 random_state=Split.Defaults.random_state):
+                 unique_split_values=Split.Defaults.unique_split_values, random_state=Split.Defaults.random_state):
         super().__init__()
         self._split = Split(splits=splits, split_coord=split_coord,
-                            stratification_coord=stratification_coord,
+                            stratification_coord=stratification_coord, unique_split_values=unique_split_values,
                             train_size=train_size, test_size=test_size, random_state=random_state)
         self._logger = logging.getLogger(fullname(self))
 
@@ -273,7 +289,7 @@ class CrossValidation(Transformation):
     def pipe(self, source_assembly, target_assembly):
         # check only for equal values, alignment is given by metadata
         assert sorted(source_assembly[self._split_coord].values) == sorted(target_assembly[self._split_coord].values)
-        if self._split.stratify(target_assembly):
+        if self._split.do_stratify:
             assert hasattr(source_assembly, self._stratification_coord)
             assert sorted(source_assembly[self._stratification_coord].values) == \
                    sorted(target_assembly[self._stratification_coord].values)
@@ -303,21 +319,14 @@ class CrossValidation(Transformation):
         return self._split.aggregate(score)
 
 
-def extract_coord(assembly, coord, return_index=False):
-    extracted_assembly, indices = np.unique(assembly[coord].values, return_index=True)
-    dims = assembly[coord].dims
-    assert len(dims) == 1
-    extracted_assembly = xr.DataArray(extracted_assembly, coords={coord: extracted_assembly}, dims=[coord])
-    extracted_assembly = extracted_assembly.stack(**{dims[0]: (coord,)})
-    return extracted_assembly if not return_index else extracted_assembly, indices
-
-
 def standard_error_of_the_mean(values, dim):
     return values.std(dim) / math.sqrt(len(values[dim]))
 
 
 def subset(source_assembly, target_assembly, subset_dims=None, dims_must_match=True, repeat=False):
     """
+    Returns the subset of the source_assembly whose coordinates align with those specified by target_assembly.
+    Ordering is not guaranteed.
     :param subset_dims: either dimensions, then all its levels will be used or levels right away
     :param dims_must_match:
     :return:

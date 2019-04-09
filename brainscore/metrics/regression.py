@@ -1,15 +1,22 @@
 import scipy.stats
 from sklearn.cross_decomposition import PLSRegression
 from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import scale
 
+from brainio_base.assemblies import walk_coords
+from brainscore.metrics.mask_regression import MaskRegression
 from brainscore.metrics.transformations import CrossValidation
 from .xarray_utils import XarrayRegression, Defaults as XarrayDefaults, XarrayCorrelation
 
 
 class CrossRegressedCorrelation:
-    def __init__(self):
-        self.cross_validation = CrossValidation(train_size=.9)
-        self.regression = pls_regression()
+    def __init__(self, regression=None, crossvalidation_kwargs=None):
+        regression = regression or pls_regression()
+        crossvalidation_defaults = dict(train_size=.9, test_size=None)
+        crossvalidation_kwargs = {**crossvalidation_defaults, **(crossvalidation_kwargs or {})}
+
+        self.cross_validation = CrossValidation(**crossvalidation_kwargs)
+        self.regression = regression
         self.correlation = XarrayCorrelation(scipy.stats.pearsonr)
 
     def __call__(self, source, target):
@@ -23,6 +30,24 @@ class CrossRegressedCorrelation:
 
     def aggregate(self, scores):
         return scores.median(dim='neuroid')
+
+
+class ScaledCrossRegressedCorrelation:
+    def __init__(self, *args, **kwargs):
+        self.cross_regressed_correlation = CrossRegressedCorrelation(*args, **kwargs)
+        self.aggregate = self.cross_regressed_correlation.aggregate
+
+    def __call__(self, source, target):
+        scaled_values = scale(target, copy=True)
+        target = type(target)(scaled_values, coords={
+            coord: (dims, value) for coord, dims, value in walk_coords(target)}, dims=target.dims)
+        return self.cross_regressed_correlation(source, target)
+
+
+def mask_regression():
+    regression = MaskRegression()
+    regression = XarrayRegression(regression)
+    return regression
 
 
 def pls_regression(n_components=25, expected_dims=XarrayDefaults.expected_dims,

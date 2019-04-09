@@ -1,7 +1,8 @@
-import itertools
 import logging
-from collections import OrderedDict, Counter
+import os
+from collections import OrderedDict, Counter, defaultdict
 
+import itertools
 import numpy as np
 import scipy.stats
 import sklearn.linear_model
@@ -16,10 +17,9 @@ from brainscore.utils import fullname
 class I2n(Metric):
     """
     Rajalingham & Issa et al., 2018 http://www.jneurosci.org/content/early/2018/07/13/JNEUROSCI.0388-18.2018
-    Schrimpf & Kubilius et al., 2018 https://www.biorxiv.org/content/early/2018/09/05/407007
     """
 
-    class MatchToSampleClassifier(object):
+    class MatchToSampleClassifier:
         def __init__(self):
             classifier_c = 1e-3
             self._classifier = sklearn.linear_model.LogisticRegression(
@@ -67,9 +67,11 @@ class I2n(Metric):
     def __call__(self, source, target):
         source_response_matrix = self.class_probabilities_from_features(source)
         source_response_matrix = self.target_distractor_scores(source_response_matrix)
+        source_response_matrix = self.object_dprime(source_response_matrix)
         source_response_matrix = self.normalize_response_matrix(source_response_matrix)
         target = target.sel(use=True)
         target_response_matrix = self.build_response_matrix_from_responses(target)
+        target_response_matrix = self.trial_dprime(target_response_matrix, target)
         target_response_matrix = self.normalize_response_matrix(target_response_matrix)
         correlations = self._split(source_response_matrix, target_response_matrix, apply=self._split_correlation)
         return correlations
@@ -117,10 +119,8 @@ class I2n(Metric):
         response_matrix = DataAssembly(response_matrix, coords=coords, dims=responses.dims + ('choice',))
         return response_matrix
 
-    def normalize_response_matrix(self, response_matrix):
-        assert response_matrix.shape == (240, 24)
-
-        dprime_scores = self.dprime(response_matrix)
+    def normalize_response_matrix(self, dprime_scores):
+        assert dprime_scores.shape == (240, 24)
 
         cap = 5
         dprime_scores = dprime_scores.clip(-cap, cap)
@@ -143,7 +143,7 @@ class I2n(Metric):
         result = object_probabilities.multi_dim_apply(['image_id', 'choice'], apply)
         return result
 
-    def dprime(self, response_matrix):
+    def object_dprime(self, response_matrix):
         truth_choice_values = self._build_index(response_matrix, ['truth', 'choice'])
 
         def apply(false_alarms_rate_images, choice, truth, **_):
@@ -152,6 +152,37 @@ class I2n(Metric):
             assert len(inverse_choice) == 10
             false_alarms_rate_objects = np.nanmean(inverse_choice)
             dprime = self.z_score(hit_rate) - self.z_score(false_alarms_rate_objects)
+            return dprime
+
+        result = response_matrix.multi_dim_apply(['image_id', 'choice'], apply)
+        return result
+
+    def trial_dprime(self, response_matrix, responses):
+        images_index = Counter(responses['truth'].values)
+
+        # we'd like to do the following inside `apply`:
+        #     distractor_images = responses.sel(sample_obj=choice)
+        #     assert len(set(distractor_images['image_id'].values)) == 10
+        #     false_alarms = distractor_images.sel(choice=sample_obj)
+        #     false_alarms_rate = len(false_alarms) / len(distractor_images)
+        # since that is slow, we pre-compute an index that we can query with (sample_obj, choice).
+        false_alarms_index = defaultdict(lambda: 0)
+        coord_values = {coord: values for coord, dims, values in walk_coords(responses)}
+        for index in range(len(responses)):
+            sample_obj, choice = coord_values['sample_obj'][index], coord_values['choice'][index]
+            false_alarms_index[(sample_obj, choice)] += 1
+        assert len(false_alarms_index) == 24 * 24
+
+        def apply(incorrect_ratio, choice, truth, sample_obj, **_):
+            if choice == truth:
+                return np.nan
+            hit_rate = 1 - incorrect_ratio
+            num_distractor_images = images_index[choice]
+            num_false_alarms = false_alarms_index[(choice, sample_obj)] \
+                if (choice, sample_obj) in false_alarms_index else 0
+            false_alarms_rate = num_false_alarms / num_distractor_images
+            assert 0 <= false_alarms_rate <= 1
+            dprime = self.z_score(hit_rate) - self.z_score(false_alarms_rate)
             return dprime
 
         result = response_matrix.multi_dim_apply(['image_id', 'choice'], apply)

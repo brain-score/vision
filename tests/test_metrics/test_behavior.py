@@ -40,7 +40,7 @@ class TestI2N:
         for split_idx in split_indices:
             split = objectome[split_idx]
             response_matrix = i2n.build_response_matrix_from_responses(split)
-            response_matrix = i2n.normalize_response_matrix(response_matrix)
+            response_matrix = i2n.normalized_dprimes(response_matrix)
             actual_halfs.append(response_matrix)
 
         expected_halfs_correlation = i2n.correlate(*expected_halfs)
@@ -79,23 +79,10 @@ class TestI2N:
         feature_responses = feature_responses.transpose('presentation', 'neuroid')
         objectome = self.to_xarray(objectome)
         i2n = I2n()
-        score = i2n(feature_responses, objectome)
+        fitting_features, testing_features = feature_responses.sel(use=False), feature_responses.sel(use=True)
+        score = i2n(fitting_features, testing_features, objectome)
         score = score.sel(aggregation='center')
-        assert score == approx(expected_score, abs=0.01), f"expected {expected_score}, but got {score}"
-
-    def test_model_from_actual_halfs(self):
-        objectome = self.get_objectome()
-        objectome = self.to_xarray(objectome)
-        actual_halfs = []
-        split_indices = np.arange(len(objectome))
-        np.random.seed(0)
-        np.random.shuffle(split_indices)
-        split_indices = np.array_split(split_indices, 2)
-        for split_idx in split_indices:
-            split = objectome[split_idx]
-            response_matrix = i2n.build_response_matrix_from_responses(split)
-            response_matrix = i2n.normalize_response_matrix(response_matrix)
-            actual_halfs.append(response_matrix)
+        assert score == approx(expected_score, abs=0.005), f"expected {expected_score}, but got {score}"
 
     def get_objectome(self):
         packaged_filepath = os.path.join(os.path.dirname(__file__), 'objectome240.pkl')

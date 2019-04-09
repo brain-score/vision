@@ -1,25 +1,30 @@
 import logging
-import os
-from collections import OrderedDict, Counter, defaultdict
+from collections import OrderedDict, Counter
 
 import itertools
 import numpy as np
 import scipy.stats
 import sklearn.linear_model
 import sklearn.multioutput
+from numpy.random.mtrand import RandomState
 
 from brainio_base.assemblies import walk_coords, array_is_element, DataAssembly
-from brainscore.metrics import Metric
-from brainscore.metrics.transformations import CrossValidation
+from brainscore.metrics import Metric, Score
+from brainscore.metrics.transformations import apply_aggregate
 from brainscore.utils import fullname
 
 
 class I2n(Metric):
     """
     Rajalingham & Issa et al., 2018 http://www.jneurosci.org/content/early/2018/07/13/JNEUROSCI.0388-18.2018
+    modified by Schrimpf & Kubilius et al., 2018 https://www.biorxiv.org/content/early/2018/09/05/407007:
+        - Rajalingham et al. generated model trials by using different train-test splits.
+            This implementation fixes the train-test split, and thus computes a fixed response matrix without trials.
+        - for computing dprime scores, Rajalingham et al. computed the false-alarms rate across the flat vector of all
+            distractor images. This implementation computes the false-alarms rate per object, and then takes the mean.
     """
 
-    class MatchToSampleClassifier:
+    class ProbabilitiesClassifier:
         def __init__(self):
             classifier_c = 1e-3
             self._classifier = sklearn.linear_model.LogisticRegression(
@@ -60,36 +65,36 @@ class I2n(Metric):
 
     def __init__(self):
         super().__init__()
-        self._source_classifier = self.MatchToSampleClassifier()
-        self._split = CrossValidation(splits=2, train_size=0.5, stratification_coord=None)
+        self._source_classifier = self.ProbabilitiesClassifier()
         self._logger = logging.getLogger(fullname(self))
 
-    def __call__(self, source, target):
-        source_response_matrix = self.class_probabilities_from_features(source)
+    def __call__(self, fitting_source, testing_source, target):
+        self._source_classifier.fit(fitting_source, fitting_source['label'])
+
+        source_response_matrix = self.class_probabilities_from_features(testing_source)
         source_response_matrix = self.target_distractor_scores(source_response_matrix)
-        source_response_matrix = self.object_dprime(source_response_matrix)
-        source_response_matrix = self.normalize_response_matrix(source_response_matrix)
+        source_response_matrix = self.normalized_dprimes(source_response_matrix)
+
         target = target.sel(use=True)
+        indices = list(range(len(target)))
+        rng = RandomState(seed=0)
+        rng.shuffle(indices)
+        halves = target[indices[:int(len(indices) / 2)]], target[indices[int(len(indices) / 2):]]
+        correlations = [self.compare(source_response_matrix, target_half) for target_half in halves]
+        correlations = Score(correlations, coords={'split': [0, 1]}, dims=['split'])
+        return apply_aggregate(self.aggregate, correlations)
+
+    def compare(self, source_response_matrix, target):
         target_response_matrix = self.build_response_matrix_from_responses(target)
-        target_response_matrix = self.trial_dprime(target_response_matrix, target)
-        target_response_matrix = self.normalize_response_matrix(target_response_matrix)
-        correlations = self._split(source_response_matrix, target_response_matrix, apply=self._split_correlation)
-        return correlations
+        target_response_matrix = self.normalized_dprimes(target_response_matrix)
+        correlation = self.correlate(source_response_matrix, target_response_matrix)
+        return correlation
 
     def class_probabilities_from_features(self, source):
-        source_without_behavior = source.sel(use=False)  # images where we don't use behavioral responses
-        assert len(source_without_behavior) == 2400 - 240
-        target = source_without_behavior['label']
-        self._source_classifier.fit(source_without_behavior, target)
-
-        source_with_behavior = source.sel(use=True)
-        assert len(source_with_behavior) == 240
-
-        prediction = self._source_classifier.predict_proba(source_with_behavior)
-        truth_labels = [source_with_behavior[source_with_behavior['image_id'] == image_id]['label'].values[0]
+        prediction = self._source_classifier.predict_proba(source)
+        truth_labels = [source[source['image_id'] == image_id]['label'].values[0]
                         for image_id in prediction['image_id'].values]
         prediction['truth'] = 'presentation', truth_labels
-        assert prediction.shape == (240, 24)
         return prediction
 
     def build_response_matrix_from_responses(self, responses):
@@ -119,14 +124,10 @@ class I2n(Metric):
         response_matrix = DataAssembly(response_matrix, coords=coords, dims=responses.dims + ('choice',))
         return response_matrix
 
-    def normalize_response_matrix(self, dprime_scores):
-        assert dprime_scores.shape == (240, 24)
-
-        cap = 5
-        dprime_scores = dprime_scores.clip(-cap, cap)
-
-        dprime_scores_normalized = self.subtract_mean(dprime_scores)
-        assert dprime_scores_normalized.shape == (240, 24)
+    def normalized_dprimes(self, response_matrix, cap=5):
+        dprime_scores = self.dprime(response_matrix)
+        dprime_scores_clipped = dprime_scores.clip(-cap, cap)
+        dprime_scores_normalized = self.subtract_mean(dprime_scores_clipped)
         return dprime_scores_normalized
 
     def target_distractor_scores(self, object_probabilities):
@@ -143,46 +144,14 @@ class I2n(Metric):
         result = object_probabilities.multi_dim_apply(['image_id', 'choice'], apply)
         return result
 
-    def object_dprime(self, response_matrix):
+    def dprime(self, response_matrix):
         truth_choice_values = self._build_index(response_matrix, ['truth', 'choice'])
 
         def apply(false_alarms_rate_images, choice, truth, **_):
             hit_rate = 1 - false_alarms_rate_images
             inverse_choice = truth_choice_values[(choice, truth)]
-            assert len(inverse_choice) == 10
             false_alarms_rate_objects = np.nanmean(inverse_choice)
             dprime = self.z_score(hit_rate) - self.z_score(false_alarms_rate_objects)
-            return dprime
-
-        result = response_matrix.multi_dim_apply(['image_id', 'choice'], apply)
-        return result
-
-    def trial_dprime(self, response_matrix, responses):
-        images_index = Counter(responses['truth'].values)
-
-        # we'd like to do the following inside `apply`:
-        #     distractor_images = responses.sel(sample_obj=choice)
-        #     assert len(set(distractor_images['image_id'].values)) == 10
-        #     false_alarms = distractor_images.sel(choice=sample_obj)
-        #     false_alarms_rate = len(false_alarms) / len(distractor_images)
-        # since that is slow, we pre-compute an index that we can query with (sample_obj, choice).
-        false_alarms_index = defaultdict(lambda: 0)
-        coord_values = {coord: values for coord, dims, values in walk_coords(responses)}
-        for index in range(len(responses)):
-            sample_obj, choice = coord_values['sample_obj'][index], coord_values['choice'][index]
-            false_alarms_index[(sample_obj, choice)] += 1
-        assert len(false_alarms_index) == 24 * 24
-
-        def apply(incorrect_ratio, choice, truth, sample_obj, **_):
-            if choice == truth:
-                return np.nan
-            hit_rate = 1 - incorrect_ratio
-            num_distractor_images = images_index[choice]
-            num_false_alarms = false_alarms_index[(choice, sample_obj)] \
-                if (choice, sample_obj) in false_alarms_index else 0
-            false_alarms_rate = num_false_alarms / num_distractor_images
-            assert 0 <= false_alarms_rate <= 1
-            dprime = self.z_score(hit_rate) - self.z_score(false_alarms_rate)
             return dprime
 
         result = response_matrix.multi_dim_apply(['image_id', 'choice'], apply)
@@ -192,19 +161,8 @@ class I2n(Metric):
         return scipy.stats.norm.ppf(value)
 
     def subtract_mean(self, scores):
-        def apply(group, **_):
-            assert len(group) == 10
-            return group - group.mean()
-
-        result = scores.multi_dim_apply(['truth', 'choice'], apply)
+        result = scores.multi_dim_apply(['truth', 'choice'], lambda group, **_: group - group.mean())
         return result
-
-    def _split_correlation(self, source1, target1, source2, target2):
-        assert len(source1['image_id']) == len(target1['image_id']) == \
-               len(source2['image_id']) == len(target2['image_id'])
-        correlation1 = self.correlate(source1, target1)
-        correlation2 = self.correlate(source2, target2)
-        return DataAssembly((correlation1 + correlation2) / 2)
 
     def correlate(self, source_response_matrix, target_response_matrix):
         # align
@@ -219,6 +177,11 @@ class I2n(Metric):
         assert not any(np.isnan(source))
         correlation = np.corrcoef(source, target)
         return correlation[0, 1]
+
+    def aggregate(self, scores):
+        center = scores.mean('split')
+        error = scores.std('split')
+        return Score([center, error], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
 
     def _build_index(self, assembly, coords):
         np.testing.assert_array_equal(list(itertools.chain(*[assembly[coord].dims for coord in coords])), assembly.dims)

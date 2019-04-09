@@ -75,7 +75,6 @@ class I2n(Metric):
         source_response_matrix = self.target_distractor_scores(source_response_matrix)
         source_response_matrix = self.normalized_dprimes(source_response_matrix)
 
-        target = target.sel(use=True)
         indices = list(range(len(target)))
         rng = RandomState(seed=0)
         rng.shuffle(indices)
@@ -92,7 +91,7 @@ class I2n(Metric):
 
     def class_probabilities_from_features(self, source):
         prediction = self._source_classifier.predict_proba(source)
-        truth_labels = [source[source['image_id'] == image_id]['label'].values[0]
+        truth_labels = [source[source['image_id'].values == image_id]['label'].values[0]
                         for image_id in prediction['image_id'].values]
         prediction['truth'] = 'presentation', truth_labels
         return prediction

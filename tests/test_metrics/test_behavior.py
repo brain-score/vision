@@ -55,32 +55,31 @@ class TestI2N:
     @pytest.mark.parametrize(['model', 'expected_score'],
                              [
                                  ('alexnet', .253),
-                                 # ('resnet34', .37787),
-                                 # ('resnet18', .3638),
+                                 ('resnet34', .37787),
+                                 ('resnet18', .3638),
                              ])
     def test_model(self, model, expected_score):
-        objectome = self.get_objectome()
-        id_rows = {row['id']: row for _, row in objectome[['id', 'label', 'use']].drop_duplicates().iterrows()}
+        # assembly
+        _objectome = self.get_objectome()
+        fitting_objectome, testing_objectome = _objectome[~ _objectome['use']], _objectome[_objectome['use']]
+
+        # features
         feature_responses = pd.read_pickle(os.path.join(os.path.dirname(__file__),
                                                         f'identifier={model},stimuli_identifier=objectome-240.pkl'))
         feature_responses = feature_responses['data']
         feature_responses['image_id'] = 'stimulus_path', [os.path.splitext(os.path.basename(path))[0]
                                                           for path in feature_responses['stimulus_path'].values]
         feature_responses = feature_responses.stack(presentation=['stimulus_path'])
-        assert set(objectome['id'].values).issuperset(set(feature_responses['image_id'].values))
+        expected_images = set(fitting_objectome['id'].values) | set(testing_objectome['id'].values)
+        assert expected_images.issuperset(set(feature_responses['image_id'].values))
         assert len(np.unique(feature_responses['layer'])) == 1  # only penultimate layer
-        image_ids = xr.DataArray(np.zeros(len(id_rows)), coords={'image_id': list(id_rows.keys())},
-                                 dims=['image_id']).stack(presentation=['image_id'])
-        feature_responses = subset(feature_responses, image_ids)
-        labels = [id_rows[image_id]['label'] for image_id in feature_responses['image_id'].values]
-        feature_responses['label'] = 'presentation', labels
-        use = [id_rows[image_id]['use'] for image_id in feature_responses['image_id'].values]
-        feature_responses['use'] = 'presentation', use
         feature_responses = feature_responses.transpose('presentation', 'neuroid')
-        objectome = self.to_xarray(objectome)
+        fitting_features = self.separate_and_annotate_features(feature_responses, fitting_objectome)
+        testing_features = self.separate_and_annotate_features(feature_responses, testing_objectome)
+        # metric
+        testing_objectome = self.to_xarray(testing_objectome)
         i2n = I2n()
-        fitting_features, testing_features = feature_responses.sel(use=False), feature_responses.sel(use=True)
-        score = i2n(fitting_features, testing_features, objectome)
+        score = i2n(fitting_features, testing_features, testing_objectome)
         score = score.sel(aggregation='center')
         assert score == approx(expected_score, abs=0.005), f"expected {expected_score}, but got {score}"
 
@@ -99,6 +98,15 @@ class TestI2N:
         objectome['label'] = objectome['sample_obj']
         return objectome
 
+    def separate_and_annotate_features(self, feature_responses, objectome):
+        id_rows = {row['id']: row for _, row in objectome[['id', 'label']].drop_duplicates().iterrows()}
+        image_ids = xr.DataArray(np.zeros(len(id_rows)), coords={'image_id': list(id_rows.keys())},
+                                 dims=['image_id']).stack(presentation=['image_id'])
+        feature_responses = subset(feature_responses, image_ids)
+        labels = [id_rows[image_id]['label'] for image_id in feature_responses['image_id'].values]
+        feature_responses['label'] = 'presentation', labels
+        return feature_responses
+
     def to_xarray(self, objectome):
         columns = objectome.columns
         objectome = xr.DataArray(objectome['choice'],
@@ -108,23 +116,3 @@ class TestI2N:
         objectome['truth'] = objectome['label']
         objectome = objectome.set_index(presentation=[col if col != 'id' else 'image_id' for col in columns])
         return objectome
-
-
-def get_all_features():
-    for model, layer in [
-        ('alexnet', 'classifier.5'),
-        ('resnet-34', 'avgpool'),
-        ('resnet-18', 'avgpool'),
-        ('squeezenet1_0', 'features.12.expand3x3_activation'),
-        ('squeezenet1_1', 'features.12.expand3x3_activation'),
-    ]:
-        print(model)
-        get_features(model_name=model, layer=layer)
-
-
-def get_features(model_name, layer):
-    from candidate_models import base_models
-    from glob import glob
-    model = base_models.base_model_pool[model_name]
-    stimuli_paths = list(glob('/braintree/home/msch/brain-score_packaging/objectome/objectome-224/*.png'))
-    model(layers=[layer], stimuli_identifier='objectome-240', stimuli=stimuli_paths)

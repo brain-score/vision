@@ -1,22 +1,27 @@
 from brainscore.model_interface import BrainModel
 from model_tools.brain_transformation.temporal import TemporalIgnore
-from .behavior import LogitsBehavior
+from .behavior import BehaviorArbiter, LogitsBehavior, ProbabilitiesMapping
 from .neural import LayerMappedModel, LayerSelection, LayerScores
 from .stimuli import PixelsToDegrees
 
 
 class ModelCommitment(BrainModel):
-    def __init__(self, identifier, activations_model, layers):
+    def __init__(self, identifier, activations_model, layers, behavioral_readout_layer=None):
         self.layers = layers
         self.region_assemblies = {}
         layer_model = LayerMappedModel(identifier=identifier, activations_model=activations_model)
         self.layer_model = TemporalIgnore(layer_model)
-        self.behavior_model = LogitsBehavior(identifier=identifier, activations_model=activations_model)
+        logits_behavior = LogitsBehavior(identifier=identifier, activations_model=activations_model)
+        behavioral_readout_layer = behavioral_readout_layer or layers[-1]
+        probabilities_behavior = ProbabilitiesMapping(identifier=identifier, activations_model=activations_model,
+                                                      layer=behavioral_readout_layer)
+        self.behavior_model = BehaviorArbiter({BrainModel.Task.label: logits_behavior,
+                                               BrainModel.Task.probabilities: probabilities_behavior})
         self.do_behavior = False
 
-    def start_task(self, task: BrainModel.Task):
+    def start_task(self, task: BrainModel.Task, *args, **kwargs):
         if task != BrainModel.Task.passive:
-            self.behavior_model.start_task(task)
+            self.behavior_model.start_task(task, *args, **kwargs)
             self.do_behavior = True
 
     def look_at(self, stimuli):

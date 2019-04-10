@@ -5,6 +5,7 @@ import itertools
 import numpy as np
 import scipy.stats
 from numpy.random.mtrand import RandomState
+from scipy.stats import pearsonr
 
 from brainio_base.assemblies import walk_coords, DataAssembly
 from brainscore.metrics import Metric, Score
@@ -22,28 +23,37 @@ class I2n(Metric):
             distractor images. This implementation computes the false-alarms rate per object, and then takes the mean.
     """
 
-    def __init__(self):
+    def __init__(self, repetitions=2):
         super().__init__()
+        self.repetitions = repetitions
         self._logger = logging.getLogger(fullname(self))
 
     def __call__(self, source_probabilities, target):
+        return self._repeat(lambda random_state:
+                            self._call_single(source_probabilities, target, random_state=random_state))
+
+    def _call_single(self, source_probabilities, target, random_state):
         self.add_source_meta(source_probabilities, target)
         source_response_matrix = self.target_distractor_scores(source_probabilities)
         source_response_matrix = self.normalized_dprimes(source_response_matrix)
 
-        indices = list(range(len(target)))
-        rng = RandomState(seed=0)
-        rng.shuffle(indices)
-        halves = target[indices[:int(len(indices) / 2)]], target[indices[int(len(indices) / 2):]]
-        correlations = [self.compare(source_response_matrix, target_half) for target_half in halves]
-        correlations = Score(correlations, coords={'split': [0, 1]}, dims=['split'])
-        return apply_aggregate(self.aggregate, correlations)
-
-    def compare(self, source_response_matrix, target):
-        target_response_matrix = self.build_response_matrix_from_responses(target)
+        target_half = self.generate_halves(target, random_state=random_state)[0]
+        target_response_matrix = self.build_response_matrix_from_responses(target_half)
         target_response_matrix = self.normalized_dprimes(target_response_matrix)
         correlation = self.correlate(source_response_matrix, target_response_matrix)
         return correlation
+
+    def ceiling(self, assembly):
+        return self._repeat(lambda random_state:
+                            self.compute_ceiling(assembly, random_state=random_state))
+
+    def compute_ceiling(self, assembly, random_state):
+        dprime_halves = []
+        for half in self.generate_halves(assembly, random_state=random_state):
+            half = self.build_response_matrix_from_responses(half)
+            half = self.normalized_dprimes(half)
+            dprime_halves.append(half)
+        return self.correlate(*dprime_halves)
 
     def build_response_matrix_from_responses(self, responses):
         num_choices = [(image_id, choice) for image_id, choice in zip(responses['image_id'].values, responses.values)]
@@ -112,7 +122,8 @@ class I2n(Metric):
         result = scores.multi_dim_apply(['truth', 'choice'], lambda group, **_: group - group.mean())
         return result
 
-    def correlate(self, source_response_matrix, target_response_matrix):
+    @classmethod
+    def correlate(cls, source_response_matrix, target_response_matrix):
         # align
         source_response_matrix = source_response_matrix.sortby('image_id').sortby('choice')
         target_response_matrix = target_response_matrix.sortby('image_id').sortby('choice')
@@ -123,14 +134,20 @@ class I2n(Metric):
         non_nan = ~np.isnan(target)
         source, target = source[non_nan], target[non_nan]
         assert not any(np.isnan(source))
-        correlation = np.corrcoef(source, target)
-        return correlation[0, 1]
+        correlation, p = pearsonr(source, target)
+        return correlation
 
     @classmethod
     def aggregate(cls, scores):
         center = scores.mean('split')
         error = scores.std('split')
         return Score([center, error], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
+
+    def generate_halves(self, assembly, random_state):
+        indices = list(range(len(assembly)))
+        random_state.shuffle(indices)
+        halves = assembly[indices[:int(len(indices) / 2)]], assembly[indices[int(len(indices) / 2):]]
+        return halves
 
     def _build_index(self, assembly, coords):
         np.testing.assert_array_equal(list(itertools.chain(*[assembly[coord].dims for coord in coords])), assembly.dims)
@@ -144,6 +161,16 @@ class I2n(Metric):
             else:
                 result[coord_values] = value
         return result
+
+    def _repeat(self, func):
+        random_state = self._initialize_random_state()
+        repetitions = list(range(self.repetitions))
+        scores = [func(random_state=random_state) for repetition in repetitions]
+        score = Score(scores, coords={'split': repetitions}, dims=['split'])
+        return apply_aggregate(self.aggregate, score)
+
+    def _initialize_random_state(self):
+        return RandomState(seed=0)  # fix the seed here so that the same halves are produced for score and ceiling
 
     def add_source_meta(self, source_probabilities, target):
         image_meta = {image_id: meta_value for image_id, meta_value in

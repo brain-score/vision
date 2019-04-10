@@ -28,6 +28,13 @@ class TestI2N:
         score = score.sel(aggregation='center')
         assert score == approx(expected_score, abs=0.005), f"expected {expected_score}, but got {score}"
 
+    def test_ceiling(self):
+        objectome = self.get_objectome('full_trials')
+        i2n = I2n()
+        ceiling = i2n.ceiling(objectome)
+        assert ceiling.sel(aggregation='center') == approx(.4786, abs=.0064)
+        assert ceiling.sel(aggregation='error') == approx(.00537, abs=.0015)
+
     def get_objectome(self, subtype):
         with open(f'/braintree/home/msch/brainio_contrib/mkgu_packaging/dicarlo/dicarlo.Rajalingham2018.{subtype}.pkl',
                   'rb') as f:

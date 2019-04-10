@@ -1,14 +1,12 @@
 import logging
-from collections import OrderedDict, Counter
+from collections import Counter
 
 import itertools
 import numpy as np
 import scipy.stats
-import sklearn.linear_model
-import sklearn.multioutput
 from numpy.random.mtrand import RandomState
 
-from brainio_base.assemblies import walk_coords, array_is_element, DataAssembly
+from brainio_base.assemblies import walk_coords, DataAssembly
 from brainscore.metrics import Metric, Score
 from brainscore.metrics.transformations import apply_aggregate
 from brainscore.utils import fullname
@@ -24,55 +22,13 @@ class I2n(Metric):
             distractor images. This implementation computes the false-alarms rate per object, and then takes the mean.
     """
 
-    class ProbabilitiesClassifier:
-        def __init__(self):
-            classifier_c = 1e-3
-            self._classifier = sklearn.linear_model.LogisticRegression(
-                multi_class='multinomial', solver='newton-cg', C=classifier_c)
-            self._label_mapping = None
-            self._target_class = None
-            self._scaler = None
-
-        def fit(self, X, Y):
-            self._scaler = sklearn.preprocessing.StandardScaler().fit(X)
-            X = self._scaler.transform(X)
-            self._target_class = type(Y)
-            Y, self._label_mapping = self.labels_to_indices(Y.values)
-            self._classifier.fit(X, Y)
-            return self
-
-        def predict_proba(self, X):
-            assert len(X.shape) == 2, "expected 2-dimensional input"
-            scaled_X = self._scaler.transform(X)
-            proba = self._classifier.predict_proba(scaled_X)
-            # we take only the 0th dimension because the 1st dimension is just the features
-            X_coords = {coord: (dims, value) for coord, dims, value in walk_coords(X)
-                        if array_is_element(dims, X.dims[0])}
-            proba = self._target_class(proba,
-                                       coords={**X_coords, **{'choice': list(self._label_mapping.values())}},
-                                       dims=[X.dims[0], 'choice'])
-            return proba
-
-        def labels_to_indices(self, labels):
-            label2index = OrderedDict()
-            indices = []
-            for label in labels:
-                if label not in label2index:
-                    label2index[label] = (max(label2index.values()) + 1) if len(label2index) > 0 else 0
-                indices.append(label2index[label])
-            index2label = OrderedDict((index, label) for label, index in label2index.items())
-            return indices, index2label
-
     def __init__(self):
         super().__init__()
-        self._source_classifier = self.ProbabilitiesClassifier()
         self._logger = logging.getLogger(fullname(self))
 
-    def __call__(self, fitting_source, testing_source, target):
-        self._source_classifier.fit(fitting_source, fitting_source['label'])
-
-        source_response_matrix = self.class_probabilities_from_features(testing_source)
-        source_response_matrix = self.target_distractor_scores(source_response_matrix)
+    def __call__(self, source_probabilities, target):
+        self.add_source_meta(source_probabilities, target)
+        source_response_matrix = self.target_distractor_scores(source_probabilities)
         source_response_matrix = self.normalized_dprimes(source_response_matrix)
 
         indices = list(range(len(target)))
@@ -88,13 +44,6 @@ class I2n(Metric):
         target_response_matrix = self.normalized_dprimes(target_response_matrix)
         correlation = self.correlate(source_response_matrix, target_response_matrix)
         return correlation
-
-    def class_probabilities_from_features(self, source):
-        prediction = self._source_classifier.predict_proba(source)
-        truth_labels = [source[source['image_id'].values == image_id]['label'].values[0]
-                        for image_id in prediction['image_id'].values]
-        prediction['truth'] = 'presentation', truth_labels
-        return prediction
 
     def build_response_matrix_from_responses(self, responses):
         num_choices = [(image_id, choice) for image_id, choice in zip(responses['image_id'].values, responses.values)]
@@ -177,7 +126,8 @@ class I2n(Metric):
         correlation = np.corrcoef(source, target)
         return correlation[0, 1]
 
-    def aggregate(self, scores):
+    @classmethod
+    def aggregate(cls, scores):
         center = scores.mean('split')
         error = scores.std('split')
         return Score([center, error], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
@@ -194,3 +144,9 @@ class I2n(Metric):
             else:
                 result[coord_values] = value
         return result
+
+    def add_source_meta(self, source_probabilities, target):
+        image_meta = {image_id: meta_value for image_id, meta_value in
+                      zip(target['image_id'].values, target['truth'].values)}
+        meta_values = [image_meta[image_id] for image_id in source_probabilities['image_id'].values]
+        source_probabilities['truth'] = 'presentation', meta_values

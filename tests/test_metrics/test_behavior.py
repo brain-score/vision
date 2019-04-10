@@ -6,52 +6,11 @@ import pytest
 import xarray as xr
 from pytest import approx
 
-from brainio_base.assemblies import DataAssembly
 from brainscore.metrics.behavior import I2n
 from brainscore.metrics.transformations import subset
 
 
 class TestI2N:
-    def test_halves_match_precomputed(self):
-        i2n = I2n()
-
-        expected = pd.read_pickle(os.path.join(os.path.dirname(__file__), 'metrics240.pkl'))['I2_dprime_C']
-        meta = pd.read_pickle(os.path.join(os.path.dirname(__file__), 'meta.pkl'))
-        sel = pd.read_pickle(os.path.join(os.path.dirname(__file__), 'sel240.pkl'))
-        meta = meta.loc[sel]
-        presentation_coords = {column.replace('id', 'image_id'): ('presentation', meta[column].values)
-                               for column in meta.columns}
-        expected_halfs = []
-        for split in expected[0]:
-            choices = [meta['obj'].values[np.where(np.isnan(split[:, choice_index]))[0][0]]
-                       for choice_index in range(split.shape[1])]
-            split = DataAssembly(split, coords={**presentation_coords, **{'choice': choices}},
-                                 dims=['presentation', 'choice'])
-            expected_halfs.append(split)
-
-        objectome = self.get_objectome()
-        objectome = self.to_xarray(objectome)
-        objectome = objectome.sel(use=True)
-        actual_halfs = []
-        split_indices = np.arange(len(objectome))
-        np.random.seed(0)
-        np.random.shuffle(split_indices)
-        split_indices = np.array_split(split_indices, 2)
-        for split_idx in split_indices:
-            split = objectome[split_idx]
-            response_matrix = i2n.build_response_matrix_from_responses(split)
-            response_matrix = i2n.normalized_dprimes(response_matrix)
-            actual_halfs.append(response_matrix)
-
-        expected_halfs_correlation = i2n.correlate(*expected_halfs)
-        actual_halfs_correlation = i2n.correlate(*actual_halfs)
-        actual_expected_correlation1 = i2n.correlate(actual_halfs[0], expected_halfs[0])
-        actual_expected_correlation2 = i2n.correlate(actual_halfs[1], expected_halfs[1])
-
-        assert actual_expected_correlation1 == approx(.71, abs=.005)
-        assert actual_halfs_correlation == approx(expected_halfs_correlation, abs=0.02)
-        assert actual_expected_correlation2 == approx(actual_expected_correlation1, abs=0.02)
-
     @pytest.mark.parametrize(['model', 'expected_score'],
                              [
                                  ('alexnet', .253),

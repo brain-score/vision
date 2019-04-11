@@ -209,6 +209,29 @@ MovshonFreemanZiemba2013V1PrivateLoader = lambda: _SeparateMovshonPrivatePublic(
 MovshonFreemanZiemba2013V2PrivateLoader = lambda: _SeparateMovshonPrivatePublic('V2', 'private')
 
 
+class Rajalingham2018Loader(AssemblyLoader):
+    def __init__(self):
+        super(Rajalingham2018Loader, self).__init__(name='dicarlo.Rajalingham2018')
+
+    def __call__(self):
+        # TODO: replace once packaged
+        basepath = '/braintree/home/msch/brainio_contrib/mkgu_packaging/dicarlo'
+        subtype = 'full_trials'
+        import pickle
+        with open(f'{basepath}/dicarlo.Rajalingham2018.{subtype}.pkl', 'rb') as f:
+            objectome = pickle.load(f)
+        with open(f'{basepath}/dicarlo.Rajalingham2018.{subtype}-stim.pkl', 'rb') as f:
+            stimulus_set = pickle.load(f)
+            from brainio_base.stimuli import StimulusSet
+            stimulus_set = StimulusSet(stimulus_set)
+            stimulus_set.name = f'dicarlo.Rajalingham2018.{subtype}'
+            stimulus_set.image_paths = {image_id: filepath for image_id, filepath in
+                                        zip(stimulus_set['image_id'], stimulus_set['filepath'])}
+        objectome.attrs['stimulus_set'] = stimulus_set
+        return objectome
+        return brainscore.get_assembly('dicarlo.Rajalingham2018.full_trials')
+
+
 class ToliasCadena2017Loader(AssemblyLoader):
     def __init__(self):
         super(ToliasCadena2017Loader, self).__init__(name='tolias.Cadena2017')
@@ -259,6 +282,7 @@ _assembly_loaders_ctrs = [
     DicarloMajaj2015TemporalHighvarLoader,
     DicarloMajaj2015TemporalV4HighvarLoader,
     DicarloMajaj2015TemporalITHighvarLoader,
+    Rajalingham2018Loader,
 ]
 assembly_loaders = {}
 for loader_ctr in _assembly_loaders_ctrs:

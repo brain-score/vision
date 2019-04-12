@@ -17,11 +17,20 @@ DicarloMajaj2015TemporalITLowvarLoader = lambda: _RegionLoader(basename='dicarlo
                                                                region='IT', assembly_loader_pool=assembly_loaders)
 
 # FreemanZiemba2013
-MovshonFreemanZiemba2013V1PublicLoader = lambda: _SeparateMovshonPrivatePublic('V1', 'public')
-MovshonFreemanZiemba2013V2PublicLoader = lambda: _SeparateMovshonPrivatePublic('V2', 'public')
+MovshonFreemanZiemba2013V1PublicLoader = lambda: _SeparateMovshonPrivatePublic('movshon.FreemanZiemba2013', 'V1',
+                                                                               'public')
+MovshonFreemanZiemba2013V2PublicLoader = lambda: _SeparateMovshonPrivatePublic('movshon.FreemanZiemba2013', 'V2',
+                                                                               'public')
+
+# FreemanZiemba2013 temporal
+MovshonFreemanZiemba2013TemporalV1PublicLoader = lambda: _SeparateMovshonPrivatePublic(
+    'movshon.FreemanZiemba2013.temporal', 'V1', 'public')
+MovshonFreemanZiemba2013TemporalV2PublicLoader = lambda: _SeparateMovshonPrivatePublic(
+    'movshon.FreemanZiemba2013.temporal', 'V2', 'public')
 
 _assembly_loaders_ctrs = [
     MovshonFreemanZiemba2013V1PublicLoader, MovshonFreemanZiemba2013V2PublicLoader,
+    MovshonFreemanZiemba2013TemporalV1PublicLoader, MovshonFreemanZiemba2013TemporalV2PublicLoader,
     DicarloMajaj2015LowvarLoader, DicarloMajaj2015V4LowvarLoader, DicarloMajaj2015ITLowvarLoader,
     DicarloMajaj2015TemporalLowvarLoader, DicarloMajaj2015TemporalV4LowvarLoader,
     DicarloMajaj2015TemporalITLowvarLoader,

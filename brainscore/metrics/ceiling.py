@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.stats
 import xarray as xr
+from tqdm import tqdm
 
 from brainscore.assemblies import walk_coords
 from brainscore.metrics import Score
@@ -70,7 +71,8 @@ class SplitHalfConsistency:
     def __init__(self, stimulus_coord=XarrayDefaults.stimulus_coord,
                  neuroid_dim=XarrayDefaults.neuroid_dim, neuroid_coord=XarrayDefaults.neuroid_coord):
         correlation = scipy.stats.pearsonr
-        self._correlation = XarrayCorrelation(correlation, stimulus_coord=stimulus_coord, neuroid_coord=neuroid_coord)
+        self._correlation = XarrayCorrelation(correlation, correlation_coord=stimulus_coord,
+                                              neuroid_coord=neuroid_coord)
         self._neuroid_dim = neuroid_dim
 
     def __call__(self, half1, half2):
@@ -94,6 +96,24 @@ class SpearmanBrownCorrection:
 
     def correct(self, correlation, n):
         return n * correlation / (1 + (n - 1) * correlation)
+
+
+class TemporalCeiling:
+    def __init__(self, ceiling):
+        """
+        :param ceiling: the ceiling to use per time-bin
+        """
+        self.ceiling = ceiling
+
+    def __call__(self, assembly):
+        ceilings = []
+        for time_bin in tqdm(assembly['time_bin'].values, desc='time-ceiling'):
+            ceiling = self.ceiling(assembly.sel(time_bin=time_bin))
+            ceiling = ceiling.expand_dims('time_bin')
+            ceiling['time_bin'] = [str(time_bin)]
+            ceilings.append(ceiling)
+        ceiling = Score.merge(*ceilings)
+        return ceiling
 
 
 ceilings = {

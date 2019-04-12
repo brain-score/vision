@@ -1,13 +1,9 @@
-import os
-import pickle
-
-import numpy as np
 from pytest import approx
 
 from brainscore.benchmarks.regressing import MovshonFreemanZiemba2013V1PLS, MovshonFreemanZiemba2013V2PLS, \
     DicarloMajaj2015ITPLS, DicarloMajaj2015V4PLS, DicarloMajaj2015ITMask
-from brainscore.model_interface import BrainModel
 from tests.flags import requires_gpu, private_access, memory_intense
+from tests.test_benchmarks import PrecomputedFeatures, StoredPrecomputedFeatures
 
 
 class TestMajaj2015:
@@ -69,27 +65,3 @@ class TestMovshonFreemanZiemba2013:
         raw_values = score.attrs['raw']
         assert raw_values.median('neuroid').std() == approx(.0324611, abs=.00001), "too much deviation between splits"
         assert raw_values.mean('split').std() == approx(.2668294, abs=.00001), "too much deviation between neuroids"
-
-
-class PrecomputedFeatures(BrainModel):
-    def __init__(self, features):
-        self.features = features
-
-    def start_recording(self, region, *args, **kwargs):
-        pass
-
-    def look_at(self, stimuli):
-        assert set(self.features['image_id'].values) == set(stimuli['image_id'].values)
-        features = self.features.isel(presentation=[np.where(self.features['image_id'].values == image_id)[0][0]
-                                                    for image_id in stimuli['image_id'].values])
-        assert all(features['image_id'].values == stimuli['image_id'].values)
-        return self.features
-
-
-class StoredPrecomputedFeatures(PrecomputedFeatures):
-    def __init__(self, filename):
-        self.filepath = os.path.join(os.path.dirname(__file__), filename)
-        assert os.path.isfile(self.filepath)
-        with open(self.filepath, 'rb') as f:
-            features = pickle.load(f)['data']
-        super(StoredPrecomputedFeatures, self).__init__(features)

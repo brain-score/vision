@@ -8,7 +8,6 @@ from xarray import DataArray
 import brainscore
 from brainscore.assemblies import merge_data_arrays, walk_coords, array_is_element, AssemblyLoader, average_repetition
 from brainscore.metrics.transformations import subset
-from brainscore.utils import LazyLoad
 
 
 # TODO: assemblies in here need separate S3 access rights
@@ -148,6 +147,32 @@ class DicarloMajaj2015EarlyLateLoader(DicarloMajaj2015TemporalLoader):
         return assembly
 
 
+class MovshonFreemanZiemba2013TemporalLoader(AssemblyLoader):
+    def __init__(self):
+        super(MovshonFreemanZiemba2013TemporalLoader, self).__init__(name='movshon.FreemanZiemba2013.temporal')
+        self.average_repetition = average_repetition
+
+    @store()
+    def __call__(self, average_repetition=True):
+        time_bins = [(time_bin_start, time_bin_start + 10) for time_bin_start in range(0, 291, 10)]
+        assembly = brainscore.get_assembly(name='movshon.FreemanZiemba2013')
+        assembly.load()
+        time_assemblies = []
+        for time_bin_start, time_bin_end in time_bins:
+            time_assembly = assembly.sel(time_bin=[(t, t + 1) for t in range(time_bin_start, time_bin_end)])
+            time_assembly = time_assembly.mean(dim='time_bin', keep_attrs=True)
+            time_assembly = time_assembly.expand_dims('time_bin_start').expand_dims('time_bin_end')
+            time_assembly['time_bin_start'] = [time_bin_start]
+            time_assembly['time_bin_end'] = [time_bin_end]
+            time_assembly = time_assembly.stack(time_bin=['time_bin_start', 'time_bin_end'])
+            time_assemblies.append(time_assembly)
+        assembly = merge_data_arrays(time_assemblies)
+        assembly = assembly.transpose('presentation', 'neuroid', 'time_bin')
+        if average_repetition:
+            assembly = self.average_repetition(assembly)
+        return assembly
+
+
 class MovshonFreemanZiemba2013Loader(AssemblyLoader):
     def __init__(self):
         super(MovshonFreemanZiemba2013Loader, self).__init__(name='movshon.FreemanZiemba2013')
@@ -160,53 +185,56 @@ class MovshonFreemanZiemba2013Loader(AssemblyLoader):
         assembly.load()
         assembly = assembly.sel(time_bin=[(t, t + 1) for t in range(*time_window)])
         assembly = assembly.mean(dim='time_bin', keep_attrs=True)
+
+        assembly = assembly.expand_dims('time_bin_start').expand_dims('time_bin_end')
+        assembly['time_bin_start'], assembly['time_bin_end'] = [time_window[0]], [time_window[1]]
+        assembly = assembly.stack(time_bin=['time_bin_start', 'time_bin_end'])
+        assembly = assembly.squeeze('time_bin')
+
         assembly = assembly.transpose('presentation', 'neuroid')
         if average_repetition:
             assembly = self.average_repetition(assembly)
-        assembly.stimulus_set.name = assembly.stimulus_set_name
         return assembly
 
 
-def _separate_movshon_private_public(region):
-    baseloader = _RegionLoader(basename='movshon.FreemanZiemba2013', region=region)
-    base_assembly = baseloader()
-    _, unique_indices = np.unique(base_assembly['image_id'].values, return_index=True)
-    unique_indices = np.sort(unique_indices)  # preserve order
-    image_ids = base_assembly['image_id'].values[unique_indices]
-    stratification_values = base_assembly['texture_type'].values[unique_indices]
-    rng = RandomState(seed=12)
-    splitter = StratifiedShuffleSplit(n_splits=1, train_size=.3, test_size=None, random_state=rng)
-    split = next(splitter.split(np.zeros(len(image_ids)), stratification_values))
-    result = {}
-    for assembly_type, image_indices in zip(['public', 'private'], split):
-        current_image_ids = image_ids[image_indices]
-        subset_indexer = DataArray(np.zeros(len(current_image_ids)), coords={'image_id': current_image_ids},
-                                   dims=['image_id']).stack(presentation=['image_id'])
-        assembly = subset(base_assembly, subset_indexer, dims_must_match=False)
-        adapt_stimulus_set(assembly, assembly_type)
-        result[assembly_type] = assembly
-    return result
-
-
-movshon_private_public = {
-    'V1': LazyLoad(lambda: _separate_movshon_private_public('V1')),
-    'V2': LazyLoad(lambda: _separate_movshon_private_public('V2')),
-}
-
-
 class _SeparateMovshonPrivatePublic(AssemblyLoader):
-    def __init__(self, region, private_or_public):
-        basename = f"movshon.FreemanZiemba2013.{region}"
+    def __init__(self, basename, region, private_or_public):
+        self.baseloader = _RegionLoader(basename=basename, region=region)
+        self.average_repetition = self.baseloader.average_repetition
         self.region = region
         self.access = private_or_public
-        super(_SeparateMovshonPrivatePublic, self).__init__(name=basename)
+        name = f"{basename}.{private_or_public}.{region}"
+        super(_SeparateMovshonPrivatePublic, self).__init__(name=name)
 
-    def __call__(self):
-        return movshon_private_public[self.region][self.access]
+    def __call__(self, *args, **kwargs):
+        base_assembly = self.baseloader(*args, **kwargs)
+        _, unique_indices = np.unique(base_assembly['image_id'].values, return_index=True)
+        unique_indices = np.sort(unique_indices)  # preserve order
+        image_ids = base_assembly['image_id'].values[unique_indices]
+        stratification_values = base_assembly['texture_type'].values[unique_indices]
+        rng = RandomState(seed=12)
+        splitter = StratifiedShuffleSplit(n_splits=1, train_size=.3, test_size=None, random_state=rng)
+        split = next(splitter.split(np.zeros(len(image_ids)), stratification_values))
+        access_indices = {assembly_type: image_indices
+                          for assembly_type, image_indices in zip(['public', 'private'], split)}
+        indices = access_indices[self.access]
+        subset_image_ids = image_ids[indices]
+        subset_indexer = DataArray(np.zeros(len(subset_image_ids)), coords={'image_id': subset_image_ids},
+                                   dims=['image_id']).stack(presentation=['image_id'])
+        assembly = subset(base_assembly, subset_indexer, dims_must_match=False)
+        adapt_stimulus_set(assembly, self.access)
+        return assembly
 
 
-MovshonFreemanZiemba2013V1PrivateLoader = lambda: _SeparateMovshonPrivatePublic('V1', 'private')
-MovshonFreemanZiemba2013V2PrivateLoader = lambda: _SeparateMovshonPrivatePublic('V2', 'private')
+MovshonFreemanZiemba2013V1PrivateLoader = lambda: _SeparateMovshonPrivatePublic('movshon.FreemanZiemba2013', 'V1',
+                                                                                'private')
+MovshonFreemanZiemba2013V2PrivateLoader = lambda: _SeparateMovshonPrivatePublic('movshon.FreemanZiemba2013', 'V2',
+                                                                                'private')
+
+MovshonFreemanZiemba2013TemporalV1PrivateLoader = lambda: _SeparateMovshonPrivatePublic(
+    'movshon.FreemanZiemba2013.temporal', 'V1', 'private')
+MovshonFreemanZiemba2013TemporalV2PrivateLoader = lambda: _SeparateMovshonPrivatePublic(
+    'movshon.FreemanZiemba2013.temporal', 'V2', 'private')
 
 
 class ToliasCadena2017Loader(AssemblyLoader):
@@ -249,7 +277,9 @@ class GallantDavid2004Loader(AssemblyLoader):
 
 
 _assembly_loaders_ctrs = [
-    MovshonFreemanZiemba2013Loader, MovshonFreemanZiemba2013V1PrivateLoader, MovshonFreemanZiemba2013V2PrivateLoader,
+    MovshonFreemanZiemba2013Loader, MovshonFreemanZiemba2013TemporalLoader,
+    MovshonFreemanZiemba2013V1PrivateLoader, MovshonFreemanZiemba2013V2PrivateLoader,
+    MovshonFreemanZiemba2013TemporalV1PrivateLoader, MovshonFreemanZiemba2013TemporalV2PrivateLoader,
     ToliasCadena2017Loader,
     GallantDavid2004Loader,
     DicarloMajaj2015Loader, DicarloMajaj2015HighvarLoader,

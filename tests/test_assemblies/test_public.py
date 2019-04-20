@@ -4,13 +4,6 @@ from brainscore.assemblies.public import load_assembly
 from tests.flags import private_access, memory_intense
 
 
-def test_Majaj2015ITLowvar():
-    assembly = load_assembly('dicarlo.Majaj2015.lowvar.IT')
-    assert set(assembly['region'].values) == {'IT'}
-    assert len(assembly['presentation']) == 3200
-    assert len(assembly['neuroid']) == 168
-
-
 @private_access
 @memory_intense
 class TestMajaj2015Temporal:
@@ -44,3 +37,21 @@ class TestMajaj2015Temporal:
         assert len(assembly['time_bin']) == 39
         np.testing.assert_array_equal(assembly['time_bin_start'], list(range(-100, 281, 10)))
         np.testing.assert_array_equal(assembly['time_bin_end'], list(range(-80, 301, 10)))
+
+
+@private_access
+@memory_intense
+class TestFreemanZiemba2013Temporal:
+    def test_v1(self):
+        assembly = load_assembly('movshon.FreemanZiemba2013.temporal.public.V1')
+        assert len(assembly['presentation']) == 135
+        assert len(assembly['neuroid']) == 102
+        np.testing.assert_array_equal(assembly['time_bin_start'], list(range(0, 291, 10)))
+        np.testing.assert_array_equal(assembly['time_bin_end'], list(range(10, 301, 10)))
+
+    def test_v2(self):
+        assembly = load_assembly('movshon.FreemanZiemba2013.temporal.public.V2')
+        assert len(assembly['presentation']) == 135
+        assert len(assembly['neuroid']) == 103
+        np.testing.assert_array_equal(assembly['time_bin_start'], list(range(0, 291, 10)))
+        np.testing.assert_array_equal(assembly['time_bin_end'], list(range(10, 301, 10)))

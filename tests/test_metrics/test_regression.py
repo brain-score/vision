@@ -3,7 +3,8 @@ import pytest
 from pytest import approx
 
 from brainio_base.assemblies import NeuroidAssembly
-from brainscore.metrics.regression import pls_regression, linear_regression, CrossRegressedCorrelation
+from brainscore.metrics.regression import CrossRegressedCorrelation, pls_regression, linear_regression, \
+    pearsonr_correlation
 
 
 class TestCrossRegressedCorrelation:
@@ -14,7 +15,7 @@ class TestCrossRegressedCorrelation:
                                            'neuroid_id': ('neuroid', np.arange(25)),
                                            'region': ('neuroid', ['some_region'] * 25)},
                                    dims=['presentation', 'neuroid'])
-        metric = CrossRegressedCorrelation()
+        metric = CrossRegressedCorrelation(regression=pls_regression(), correlation=pearsonr_correlation())
         score = metric(source=assembly, target=assembly)
         assert score.sel(aggregation='center') == approx(1, abs=.00001)
 

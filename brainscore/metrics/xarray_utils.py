@@ -1,9 +1,9 @@
-from brainio_base.assemblies import NeuroidAssembly
-from brainio_base.assemblies import array_is_element, walk_coords
 import numpy as np
 
-from brainio_base.assemblies import DataAssembly
+from brainio_base.assemblies import NeuroidAssembly
+from brainio_base.assemblies import array_is_element, walk_coords
 from brainscore.assemblies import walk_coords
+from brainscore.metrics import Score
 
 
 class Defaults:
@@ -71,16 +71,16 @@ class XarrayRegression:
 
 
 class XarrayCorrelation:
-    def __init__(self, correlation, stimulus_coord=Defaults.stimulus_coord, neuroid_coord=Defaults.neuroid_coord):
+    def __init__(self, correlation, correlation_coord=Defaults.stimulus_coord, neuroid_coord=Defaults.neuroid_coord):
         self._correlation = correlation
-        self._stimulus_coord = stimulus_coord
+        self._correlation_coord = correlation_coord
         self._neuroid_coord = neuroid_coord
 
     def __call__(self, prediction, target):
         # align
-        prediction = prediction.sortby([self._stimulus_coord, self._neuroid_coord])
-        target = target.sortby([self._stimulus_coord, self._neuroid_coord])
-        assert np.array(prediction[self._stimulus_coord].values == target[self._stimulus_coord].values).all()
+        prediction = prediction.sortby([self._correlation_coord, self._neuroid_coord])
+        target = target.sortby([self._correlation_coord, self._neuroid_coord])
+        assert np.array(prediction[self._correlation_coord].values == target[self._correlation_coord].values).all()
         assert np.array(prediction[self._neuroid_coord].values == target[self._neuroid_coord].values).all()
         # compute correlation per neuroid
         correlations = []
@@ -91,8 +91,8 @@ class XarrayCorrelation:
             correlations.append(r)
         # package
         neuroid_dim = target[self._neuroid_coord].dims
-        result = DataAssembly(correlations,
-                              coords={coord: (dims, values)
-                                      for coord, dims, values in walk_coords(target) if dims == neuroid_dim},
-                              dims=neuroid_dim)
+        result = Score(correlations,
+                       coords={coord: (dims, values)
+                               for coord, dims, values in walk_coords(target) if dims == neuroid_dim},
+                       dims=neuroid_dim)
         return result

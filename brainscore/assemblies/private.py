@@ -237,6 +237,16 @@ MovshonFreemanZiemba2013TemporalV2PrivateLoader = lambda: _SeparateMovshonPrivat
     'movshon.FreemanZiemba2013.temporal', 'V2', 'private')
 
 
+class Rajalingham2018Loader(AssemblyLoader):
+    def __init__(self):
+        super(Rajalingham2018Loader, self).__init__(name='dicarlo.Rajalingham2018')
+
+    def __call__(self):
+        assembly = brainscore.get_assembly('dicarlo.Rajalingham2018.private')
+        assembly['correct'] = assembly['choice'] == assembly['sample_obj']
+        return assembly
+
+
 class ToliasCadena2017Loader(AssemblyLoader):
     def __init__(self):
         super(ToliasCadena2017Loader, self).__init__(name='tolias.Cadena2017')
@@ -289,6 +299,7 @@ _assembly_loaders_ctrs = [
     DicarloMajaj2015TemporalHighvarLoader,
     DicarloMajaj2015TemporalV4HighvarLoader,
     DicarloMajaj2015TemporalITHighvarLoader,
+    Rajalingham2018Loader,
 ]
 assembly_loaders = {}
 for loader_ctr in _assembly_loaders_ctrs:

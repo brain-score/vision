@@ -53,6 +53,7 @@ class BenchmarkPool(dict):
             MovshonFreemanZiemba2013V1PLS, MovshonFreemanZiemba2013V2PLS
         from .temporal import DicarloMajaj2015TemporalV4PLS, DicarloMajaj2015TemporalITPLS, \
             MovshonFreemanZiemba2013TemporalV1PLS, MovshonFreemanZiemba2013TemporalV2PLS
+        from .behavioral import DicarloRajalingham2018I2n
         self['dicarlo.Majaj2015.V4-pls'] = LazyLoad(DicarloMajaj2015V4PLS)
         self['dicarlo.Majaj2015.IT-pls'] = LazyLoad(DicarloMajaj2015ITPLS)
         self['dicarlo.Majaj2015.temporal.V4-pls'] = LazyLoad(DicarloMajaj2015TemporalV4PLS)
@@ -63,6 +64,7 @@ class BenchmarkPool(dict):
         self['movshon.FreemanZiemba2013.V2-pls'] = LazyLoad(MovshonFreemanZiemba2013V2PLS)
         self['movshon.FreemanZiemba2013.temporal.V1-pls'] = LazyLoad(MovshonFreemanZiemba2013TemporalV1PLS)
         self['movshon.FreemanZiemba2013.temporal.V2-pls'] = LazyLoad(MovshonFreemanZiemba2013TemporalV2PLS)
+        self['dicarlo.Rajalingham2018-i2n'] = LazyLoad(DicarloRajalingham2018I2n)
 
 
 benchmark_pool = BenchmarkPool()
@@ -71,5 +73,5 @@ benchmark_pool = BenchmarkPool()
 @cache()
 def load(name):
     if name not in benchmark_pool:
-        raise ValueError("Unknown benchmark '{}' - must choose from {}".format(name, list(benchmark_pool.keys())))
+        raise ValueError(f"Unknown benchmark '{name}' - must choose from {list(benchmark_pool.keys())}")
     return benchmark_pool[name]

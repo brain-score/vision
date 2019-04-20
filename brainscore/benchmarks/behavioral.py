@@ -13,15 +13,7 @@ from brainscore.model_interface import BrainModel
 class DicarloRajalingham2018I2n(BenchmarkBase):
     def __init__(self):
         self._metric = I2n()
-        # self._fitting_stimuli = brainscore.get_stimulus_set('dicarlo.Rajalingham2018.partial_trials')
-        with open('/braintree/home/msch/brainio_contrib/mkgu_packaging/dicarlo/dicarlo.Rajalingham2018.partial_trials-stim.pkl', 'rb') as f:
-            import pickle
-            self._fitting_stimuli = pickle.load(f)
-            from brainio_base.stimuli import StimulusSet
-            self._fitting_stimuli = StimulusSet(self._fitting_stimuli)
-            self._fitting_stimuli.name = 'dicarlo.Rajalingham.partial_trials'
-            self._fitting_stimuli.image_paths = {image_id: filepath for image_id, filepath in
-                                                 zip(self._fitting_stimuli['image_id'], self._fitting_stimuli['filepath'])}
+        self._fitting_stimuli = brainscore.get_stimulus_set('dicarlo.objectome.public')
         self._assembly = load_assembly('dicarlo.Rajalingham2018')
         super(DicarloRajalingham2018I2n, self).__init__(identifier='dicarlo.Rajalingham2018-i2n',
                                                         ceiling_func=lambda: self._metric.ceiling(self._assembly))

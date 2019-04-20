@@ -44,5 +44,8 @@ class PrecomputedProbabilities(BrainModel):
         assert len(fitting_stimuli) == 2160
 
     def look_at(self, stimuli):
-        assert all(self.probabilities['image_id'].values == stimuli['image_id'].values)
-        return self.probabilities
+        assert set(self.probabilities['image_id'].values) == set(stimuli['image_id'].values)
+        image_ids = self.probabilities['image_id'].values.tolist()
+        probabilities = self.probabilities[[image_ids.index(image_id) for image_id in stimuli['image_id'].values], :]
+        assert all(probabilities['image_id'].values == stimuli['image_id'].values)
+        return probabilities

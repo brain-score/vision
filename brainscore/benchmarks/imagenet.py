@@ -23,7 +23,10 @@ class Imagenet2012(Benchmark):
         return self._name
 
     def __call__(self, candidate):
-        candidate.start_task(BrainModel.Task.probabilities)
+        # the proper `fitting_stimuli` to pass to the candidate would be the imagenet training set.
+        # for now, since all models in our hands were trained with imagenet, we'll just short-cut this
+        # by telling the candidate to use its pre-trained imagenet weights.
+        candidate.start_task(BrainModel.Task.label, 'imagenet')
         predictions = candidate.look_at(self._stimulus_set[list(set(self._stimulus_set.columns) - {'synset'})])
         score = self._similarity_metric(predictions, self._stimulus_set['synset'].values)
         return score

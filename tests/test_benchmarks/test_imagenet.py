@@ -10,11 +10,13 @@ class TestImagenet2012:
         source = benchmark._stimulus_set
 
         class GroundTruth(BrainModel):
-            def start_task(self, task):
-                assert task == BrainModel.Task.probabilities
+            def start_task(self, task, fitting_stimuli):
+                assert task == BrainModel.Task.label
+                assert fitting_stimuli == 'imagenet'  # shortcut
 
             def look_at(self, stimuli):
-                return source[source['image_id'] == stimuli['image_id']]['synset'].values
+                aligned_source = source[source['image_id'] == stimuli['image_id']]
+                return aligned_source['synset'].values
 
         candidate = GroundTruth()
         score = benchmark(candidate)

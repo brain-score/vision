@@ -27,8 +27,10 @@ class LogitsBehavior(BrainModel):
         self.activations_model = activations_model
         self.current_task = None
 
-    def start_task(self, task: BrainModel.Task):
+    def start_task(self, task: BrainModel.Task, fitting_stimuli):
         assert task in [BrainModel.Task.passive, BrainModel.Task.label]
+        if task == BrainModel.Task.label:
+            assert fitting_stimuli == 'imagenet'
         self.current_task = task
 
     def look_at(self, stimuli):

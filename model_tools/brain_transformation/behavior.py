@@ -62,7 +62,7 @@ class ProbabilitiesMapping(BrainModel):
         fitting_features = fitting_features.transpose('presentation', 'neuroid')
         assert all(fitting_features['image_id'].values == fitting_stimuli['image_id'].values), \
             "image_id ordering is incorrect"
-        self.classifier.fit(fitting_features, fitting_stimuli['label'])
+        self.classifier.fit(fitting_features, fitting_stimuli['image_label'])
 
     def look_at(self, stimuli):
         if self.current_task is BrainModel.Task.passive:

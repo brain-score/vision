@@ -43,17 +43,17 @@ class I2n(Metric):
         correlation = self.correlate(source_response_matrix, target_response_matrix)
         return correlation
 
-    def ceiling(self, assembly):
+    def ceiling(self, assembly, skipna=False):
         return self._repeat(lambda random_state:
-                            self.compute_ceiling(assembly, random_state=random_state))
+                            self.compute_ceiling(assembly, random_state=random_state, skipna=skipna))
 
-    def compute_ceiling(self, assembly, random_state):
+    def compute_ceiling(self, assembly, random_state, skipna=False):
         dprime_halves = []
         for half in self.generate_halves(assembly, random_state=random_state):
             half = self.build_response_matrix_from_responses(half)
             half = self.normalized_dprimes(half)
             dprime_halves.append(half)
-        return self.correlate(*dprime_halves)
+        return self.correlate(*dprime_halves, skipna=skipna)
 
     def build_response_matrix_from_responses(self, responses):
         num_choices = [(image_id, choice) for image_id, choice in zip(responses['image_id'].values, responses.values)]
@@ -77,7 +77,8 @@ class I2n(Metric):
                 p = np.nan
             else:
                 # divide by number of times where object was one of the two choices (target or distractor)
-                p = num_choices[(image_id, choice)] / num_objects[(image_id, choice)]
+                p = (num_choices[(image_id, choice)] / num_objects[(image_id, choice)]) \
+                    if num_objects[(image_id, choice)] > 0 else np.nan
             response_matrix[image_index, choice_index] = p
         response_matrix = DataAssembly(response_matrix, coords=coords, dims=responses.dims + ('choice',))
         return response_matrix
@@ -119,11 +120,11 @@ class I2n(Metric):
         return scipy.stats.norm.ppf(value)
 
     def subtract_mean(self, scores):
-        result = scores.multi_dim_apply(['truth', 'choice'], lambda group, **_: group - group.mean())
+        result = scores.multi_dim_apply(['truth', 'choice'], lambda group, **_: group - np.nanmean(group))
         return result
 
     @classmethod
-    def correlate(cls, source_response_matrix, target_response_matrix):
+    def correlate(cls, source_response_matrix, target_response_matrix, skipna=False):
         # align
         source_response_matrix = source_response_matrix.sortby('image_id').sortby('choice')
         target_response_matrix = target_response_matrix.sortby('image_id').sortby('choice')
@@ -132,6 +133,7 @@ class I2n(Metric):
         # flatten and mask out NaNs
         source, target = source_response_matrix.values.flatten(), target_response_matrix.values.flatten()
         non_nan = ~np.isnan(target)
+        non_nan = np.logical_and(non_nan, (~np.isnan(source) if skipna else 1))
         source, target = source[non_nan], target[non_nan]
         assert not any(np.isnan(source))
         correlation, p = pearsonr(source, target)

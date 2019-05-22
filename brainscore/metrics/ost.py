@@ -6,6 +6,8 @@ import numpy as np
 import sklearn.linear_model
 import sklearn.multioutput
 from numpy.random.mtrand import RandomState
+from scipy.interpolate import interp1d
+from scipy.optimize import fsolve
 from scipy.stats import pearsonr
 from tqdm import tqdm
 
@@ -31,8 +33,7 @@ class OSTCorrelation(Metric):
         return score
 
     def compute_osts(self, train_source, test_source, test_osts):
-        predicted_osts = np.empty(len(test_osts), dtype=np.float)
-        predicted_osts[:] = np.nan
+        last_osts, hit_osts = [None] * len(test_osts), [None] * len(test_osts)
         for time_bin_start in tqdm(sorted(set(train_source['time_bin_start'].values)), desc='time_bins'):
             time_train_source = train_source.sel(time_bin_start=time_bin_start).squeeze('time_bin_end')
             time_test_source = test_source.sel(time_bin_start=time_bin_start).squeeze('time_bin_end')
@@ -44,7 +45,7 @@ class OSTCorrelation(Metric):
                 use_tf_classifier = True
             except ModuleNotFoundError:  # tensorflow not installed
                 warnings.warn("tensorflow not installed. "
-                              "falling back to cpu classifier which is much slower for large data")
+                              "falling back to sklearn classifier which does not support GPU and gets worse results")
                 classifier = ProbabilitiesClassifier()
                 use_tf_classifier = False
             classifier.fit(time_train_source, time_train_source['image_label'])
@@ -55,10 +56,29 @@ class OSTCorrelation(Metric):
             assert all(source_i1['image_id'].values == test_osts['image_id'].values)
             for i, (image_source_i1, threshold_i1) in enumerate(zip(
                     source_i1.values, test_osts['i1'].values)):
-                if np.isnan(predicted_osts[i]) and image_source_i1 >= threshold_i1:
-                    predicted_osts[i] = time_bin_start  # TODO: extrapolate
-            if not any(np.isnan(predicted_osts)):
+                if hit_osts[i] is None:
+                    if image_source_i1 < threshold_i1:
+                        last_osts[i] = time_bin_start, image_source_i1
+                    else:
+                        hit_osts[i] = time_bin_start, image_source_i1
+            if not any(hit_ost is None for hit_ost in hit_osts):
                 break
+
+        # interpolate
+        predicted_osts = np.empty(len(test_osts), dtype=np.float)
+        predicted_osts[:] = np.nan
+        for i, (last_ost, hit_ost) in enumerate(zip(last_osts, hit_osts)):
+            if hit_ost is None:
+                predicted_osts[i] = np.nan
+                continue
+            (hit_ost_time, hit_ost_i1) = hit_ost
+            if last_ost is None:
+                predicted_osts[i] = hit_ost_time
+                continue
+            (last_ost_time, last_ost_i1) = last_ost
+            fit = interp1d([last_ost_time, hit_ost_time], [last_ost_i1, hit_ost_i1], fill_value='extrapolate')
+            ost = fsolve(lambda xs: [fit(x) - test_osts['i1'].values[i] for x in xs], x0=hit_ost_time)[0]
+            predicted_osts[i] = ost
         return predicted_osts
 
     def correlate(self, predicted_osts, target_osts):
@@ -72,6 +92,16 @@ class OSTCorrelation(Metric):
         response_matrix = self._i1.dprimes(response_matrix)
         response_matrix = self._i1.collapse_distractors(response_matrix)
         return response_matrix
+
+    def plot(self, x, y, filename='osts'):
+        from matplotlib import pyplot
+        pyplot.figure()
+        pyplot.scatter(x, y)
+        pyplot.xlabel('model IT OST')
+        pyplot.ylabel('monkey IT OST')
+        target_path = f'/braintree/home/msch/{filename}.png'
+        print(f"saved to {target_path}")
+        pyplot.savefig(target_path)
 
 
 class ProbabilitiesClassifier:

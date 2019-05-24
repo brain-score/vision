@@ -1,7 +1,9 @@
+import numpy as np
 from brainscore.benchmarks import BenchmarkBase
 
 from brainscore.assemblies.private import assembly_loaders
 from brainscore.benchmarks.regressing import build_benchmark
+from brainscore.metrics import Score
 from brainscore.metrics.ceiling import InternalConsistency, TemporalCeiling
 from brainscore.metrics.ost import OSTCorrelation
 from brainscore.metrics.regression import CrossRegressedCorrelation, pearsonr_correlation, pls_regression
@@ -11,7 +13,8 @@ from brainscore.model_interface import BrainModel
 
 class DicarloKar2019OST(BenchmarkBase):
     def __init__(self):
-        super(DicarloKar2019OST, self).__init__(identifier='dicarlo.Kar2019-ost', ceiling_func=lambda x: x)
+        super(DicarloKar2019OST, self).__init__(identifier='dicarlo.Kar2019-ost',
+                                                ceiling_func=lambda x: Score(0.79))  # ceiling computed independently
 
         import pandas as pd
         import xarray as xr
@@ -27,6 +30,13 @@ class DicarloKar2019OST(BenchmarkBase):
         assembly = DataAssembly(assembly)
         assembly.attrs['stimulus_set'] = stimuli
         assembly.attrs['stimulus_set_name '] = stimuli.name
+        # drop duplicate images
+        _, index = np.unique(assembly['image_id'], return_index=True)
+        assembly = assembly.isel(presentation=index)
+        assembly.stimulus_set = assembly.stimulus_set.drop_duplicates('image_id')
+
+        assembly = assembly.sel(decoder='logistic')
+
         self._assembly = assembly
         self._assembly['truth'] = self._assembly['image_label']
         self._assembly.stimulus_set['truth'] = self._assembly.stimulus_set['image_label']

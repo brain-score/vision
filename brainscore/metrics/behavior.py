@@ -123,8 +123,6 @@ class _I(Metric):
         cached_object_probabilities = self._build_index(object_probabilities, ['image_id', 'choice'])
 
         def apply(p_choice, image_id, truth, choice, **_):
-            if isinstance(image_id, np.ndarray) and image_id.size > 1:  # deal with identical image_ids
-                p_choice, image_id, truth = list(set(p_choice))[0], list(set(image_id))[0], list(set(truth))[0]
             if truth == choice:  # object == choice, ignore
                 return np.nan
             # probability that something else was chosen rather than object (p_choice == p_distractor after above check)
@@ -139,8 +137,6 @@ class _I(Metric):
         truth_choice_values = self._build_index(response_matrix, ['truth', 'choice'])
 
         def apply(false_alarms_rate_images, choice, truth, **_):
-            if isinstance(truth, np.ndarray) and truth.size > 1:  # deal with identical image_ids
-                truth = list(set(truth))[0]
             hit_rate = 1 - false_alarms_rate_images
             inverse_choice = truth_choice_values[(choice, truth)]
             false_alarms_rate_objects = np.nanmean(inverse_choice)

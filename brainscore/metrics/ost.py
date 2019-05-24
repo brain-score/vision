@@ -1,11 +1,7 @@
 import logging
-import warnings
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 
 import numpy as np
-import scipy.stats
-import sklearn.linear_model
-import sklearn.multioutput
 from numpy.random.mtrand import RandomState
 from scipy.interpolate import interp1d
 from scipy.optimize import fsolve
@@ -23,42 +19,14 @@ class OSTCorrelation(Metric):
     def __init__(self):
         self._cross_validation = CrossValidation(stratification_coord=None, splits=10, test_size=0.1)
         self._i1 = I1()
-        self._tracked_bins = defaultdict(list)
         self._predicted_osts, self._target_osts = [], []
 
     def __call__(self, source_recordings, target_osts):
         score = self._cross_validation(source_recordings, target_osts, apply=self.apply)
-        correlation = score.sel(aggregation='center')
-        t, p = scipy.stats.ttest_ind(score.raw.values, [0] * len(score.raw.values))
-
-        num_bins = 5
-        non_nan = np.logical_and(~np.isnan(self._predicted_osts), ~np.isnan(self._target_osts))
-        self._predicted_osts, self._target_osts = self._predicted_osts[non_nan], self._target_osts[non_nan]
-        min_x, max_x = self._predicted_osts.min(), self._predicted_osts.max()
-        stepsize = (max_x - min_x) / num_bins
-        bins = np.arange(min_x, max_x, stepsize)
-        binned_values = OrderedDict()
-        for bin1, bin2 in zip(bins, bins[1:].tolist() + [np.inf]):
-            mask = np.array([bin1 <= x < bin2 for x in self._predicted_osts])
-            y = self._target_osts[mask]
-            binned_values[bin1 + stepsize] = y
-        binned_x, binned_y = list(binned_values.keys()), list(binned_values.values())
-        binned_y_means, binned_y_err = [np.mean(y) for y in binned_y], [scipy.stats.sem(y) for y in binned_y]
-        self.plot(binned_x, binned_y_means, yerr=binned_y_err, correlation_p=(correlation.values.tolist(), p),
-                  filename='osts-interpolation-binned-cv', plot_type='errorbar')
-
-        # plot model bins
-        binned_x, binned_y = list(self._tracked_bins.keys()), list(self._tracked_bins.values())
-        binned_y_means, binned_y_err = [np.mean(y) for y in binned_y], [scipy.stats.sem(y) for y in binned_y]
-        self.plot(binned_x, binned_y_means, yerr=binned_y_err, correlation_p=(correlation.values.tolist(), p),
-                  filename='osts-binned-cv', plot_type='errorbar')
-
         return score
 
     def apply(self, train_source, train_osts, test_source, test_osts):
         predicted_osts = self.compute_osts(train_source, test_source, test_osts)
-        self._predicted_osts = np.concatenate((self._predicted_osts, predicted_osts))
-        self._target_osts = np.concatenate((self._target_osts, test_osts.values))
         score = self.correlate(predicted_osts, test_osts.values)
         return score
 
@@ -70,18 +38,10 @@ class OSTCorrelation(Metric):
             time_train_source = time_train_source.transpose('presentation', 'neuroid')
             time_test_source = time_test_source.transpose('presentation', 'neuroid')
 
-            try:
-                classifier = TFProbabilitiesClassifier()
-                use_tf_classifier = True
-            except ModuleNotFoundError:  # tensorflow not installed
-                warnings.warn("tensorflow not installed. "
-                              "falling back to sklearn classifier which does not support GPU and gets worse results")
-                classifier = ProbabilitiesClassifier()
-                use_tf_classifier = False
+            classifier = TFProbabilitiesClassifier()
             classifier.fit(time_train_source, time_train_source['image_label'])
             prediction_probabilities = classifier.predict_proba(time_test_source)
-            if use_tf_classifier:
-                classifier.close()
+            classifier.close()
             source_i1 = self.i1(prediction_probabilities)
             assert all(source_i1['image_id'].values == test_osts['image_id'].values)
             for i, (image_source_i1, threshold_i1) in enumerate(zip(
@@ -93,14 +53,6 @@ class OSTCorrelation(Metric):
                         hit_osts[i] = time_bin_start, image_source_i1
             if not any(hit_ost is None for hit_ost in hit_osts):
                 break
-
-        # save binned
-        for source, target in zip(hit_osts, test_osts.values):
-            if source is None or np.isnan(target):
-                continue  # skip
-            self._tracked_bins[source[0]].append(target)
-
-        # return np.array([ost[0] if ost is not None else np.nan for ost in hit_osts])  # ignore interpolation
 
         # interpolate
         predicted_osts = np.empty(len(test_osts), dtype=np.float)
@@ -123,26 +75,7 @@ class OSTCorrelation(Metric):
         non_nan = np.logical_and(~np.isnan(predicted_osts), ~np.isnan(target_osts))
         predicted_osts, target_osts = predicted_osts[non_nan], target_osts[non_nan]
 
-        # correlation, p = pearsonr(predicted_osts, target_osts)
         correlation, p = spearmanr(predicted_osts, target_osts)
-
-        # plots
-        # self.plot(predicted_osts, target_osts, correlation_p=(correlation, p))
-
-        # binned_targets = defaultdict(list)
-        # for source, target in zip(predicted_osts, target_osts):
-        #     binned_targets[source].append(target)
-        # # self.ttest(binned_targets)
-        # binned_means = OrderedDict((source, np.mean(targets)) for source, targets in binned_targets.items())
-        # for source_bin, mean in binned_means.items():
-        #     self._tracked_bins[source_bin].append(mean)
-        # binned_x, binned_y = list(binned_means.keys()), list(binned_means.values())
-        # self.plot(binned_x, binned_y, yerr=[scipy.stats.sem(targets) for source, targets in binned_targets.items()],
-        #           filename='osts-binned', plot_type='errorbar', correlation_p=(correlation, p))
-        # self.plot(list(binned_targets.keys()), list(binned_targets.values()),
-        #           filename='osts-violin', plot_type='violinplot',)#raw_stats_values=binned_targets)
-        # predicted_osts, target_osts = binned_x, binned_y
-
         return Score(correlation)
 
     def i1(self, prediction_probabilities):
@@ -150,123 +83,6 @@ class OSTCorrelation(Metric):
         response_matrix = self._i1.dprimes(response_matrix)
         response_matrix = self._i1.collapse_distractors(response_matrix)
         return response_matrix
-
-    def plot(self, x, y, yerr=None, filename='osts', plot_type='scatter',
-             raw_stats_values=None, trend_line=True, correlation_p=None):
-        x, y, yerr = np.array(x), np.array(y), np.array(yerr)
-        import seaborn
-        seaborn.set()
-        seaborn.set_context('paper', font_scale=2)
-        seaborn.set_style('whitegrid', {'axes.grid': False})
-        from matplotlib import pyplot
-        pyplot.figure()
-        plot = getattr(pyplot, plot_type)
-        if plot_type == 'errorbar':
-            idx = x.argsort()
-            plot(x[idx], y[idx], yerr=yerr[idx], markersize=7.5, elinewidth=.5, fmt='o', color='#808080')
-        elif plot_type == 'boxplot':
-            plot(y, positions=x)
-        elif plot_type == 'violinplot':
-            plot(y, positions=x, showmeans=True, widths=8)
-        else:
-            plot(x, y)
-
-        if plot_type in ['bar', 'errorbar']:
-            pyplot.ylim(min(y) - 10, pyplot.ylim()[1])
-
-        if raw_stats_values:
-            significant_differences = self.ttest(raw_stats_values)
-            for x1, x2 in significant_differences:
-                self.significance_bar(x1, x2, 165 + np.random.randint(-10, 10), '*')
-
-        if trend_line:
-            if isinstance(y, list) and isinstance(y[0], list):
-                import itertools
-                x = list(itertools.chain(*[[_x] * len(_y) for _x, _y in zip(x, y)]))
-                y = list(itertools.chain(*y))
-            z = np.polyfit(x, y, 1)
-            p = np.poly1d(z)
-            print("trend line", p)
-            trend_x = list(sorted(set(x)))
-            pyplot.plot(trend_x, p(trend_x), linestyle='dashed', color='#D4145A', linewidth=4)
-
-        if correlation_p:
-            correlation, p = correlation_p
-            p_magnitude = np.round(np.log10(p))
-            print(f"magnitude of {p} is {p_magnitude}")
-            pyplot.text(pyplot.xlim()[0] + 10, pyplot.ylim()[1] - 10, f"r={correlation:.2f} (p<{10 ** p_magnitude})")
-
-        pyplot.xlabel('$IT_{COR}$ object solution times')
-        pyplot.ylabel('$IT_{monkey}$ object solution times')
-
-        pyplot.tight_layout()
-        seaborn.despine(right=True, top=True)
-        target_path = f'/braintree/home/msch/{filename}'
-        for extension in ['png', 'pdf', 'svg']:
-            pyplot.savefig(target_path + "." + extension)
-        print(f"saved to {target_path}")
-
-    def significance_bar(self, start, end, height, displaystring, linewidth=1.2, markersize=8, boxpad=0.3, fontsize=15,
-                         color='k'):
-        from matplotlib import pyplot
-        from matplotlib.markers import TICKDOWN
-        # draw a line with downticks at the ends
-        pyplot.plot([start, end], [height] * 2,
-                    '-', color=color, lw=linewidth, marker=TICKDOWN, markeredgewidth=linewidth, markersize=markersize)
-        # draw the text with a bounding box covering up the line
-        pyplot.text(0.5 * (start + end), height, displaystring, ha='center', va='center',
-                    bbox=dict(facecolor='1.', edgecolor='none', boxstyle='Square,pad=' + str(boxpad)), size=fontsize)
-
-    def ttest(self, bin_values):
-        significant_differences = []
-        bins = list(sorted(bin_values))
-        for bin1 in bins:
-            bins2 = [b for b in bins if b > bin1]
-            for bin2 in bins2:
-                a, b = np.array(bin_values[bin1]), np.array(bin_values[bin2])
-                t, p = scipy.stats.ttest_ind(a[~np.isnan(a)], b[~np.isnan(b)])
-                significant = p < .05
-                print(f"t-test: {bin1} {'?' if not significant else '<' if t < 0 else '>'} {bin2}, (t={t}, p={p})")
-                if significant:
-                    significant_differences.append((bin1, bin2))
-        return significant_differences
-
-
-class ProbabilitiesClassifier:
-    def __init__(self, classifier_c=1e-3):
-        self._classifier = sklearn.linear_model.LogisticRegression(
-            multi_class='multinomial', solver='newton-cg', C=classifier_c)
-        self._label_mapping = None
-        self._scaler = None
-
-    def fit(self, X, Y):
-        self._scaler = sklearn.preprocessing.StandardScaler().fit(X)
-        X = self._scaler.transform(X)
-        Y, self._label_mapping = self.labels_to_indices(Y.values)
-        self._classifier.fit(X, Y)
-        return self
-
-    def predict_proba(self, X):
-        assert len(X.shape) == 2, "expected 2-dimensional input"
-        scaled_X = self._scaler.transform(X)
-        proba = self._classifier.predict_proba(scaled_X)
-        # we take only the 0th dimension because the 1st dimension is just the features
-        X_coords = {coord: (dims, value) for coord, dims, value in walk_coords(X)
-                    if array_is_element(dims, X.dims[0])}
-        proba = BehavioralAssembly(proba,
-                                   coords={**X_coords, **{'choice': list(self._label_mapping.values())}},
-                                   dims=[X.dims[0], 'choice'])
-        return proba
-
-    def labels_to_indices(self, labels):
-        label2index = OrderedDict()
-        indices = []
-        for label in labels:
-            if label not in label2index:
-                label2index[label] = (max(label2index.values()) + 1) if len(label2index) > 0 else 0
-            indices.append(label2index[label])
-        index2label = OrderedDict((index, label) for label, index in label2index.items())
-        return indices, index2label
 
 
 class TFProbabilitiesClassifier:

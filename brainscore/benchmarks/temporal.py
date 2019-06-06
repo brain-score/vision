@@ -33,7 +33,7 @@ class DicarloKar2019OST(BenchmarkBase):
         # drop duplicate images
         _, index = np.unique(assembly['image_id'], return_index=True)
         assembly = assembly.isel(presentation=index)
-        assembly.stimulus_set = assembly.stimulus_set.drop_duplicates('image_id')
+        assembly.attrs['stimulus_set'] = assembly.stimulus_set.drop_duplicates('image_id')
 
         assembly = assembly.sel(decoder='logistic')
 

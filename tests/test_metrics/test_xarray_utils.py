@@ -59,7 +59,7 @@ class TestXarrayCorrelation:
                                      dims=['presentation', 'neuroid'])
         correlation = XarrayCorrelation(lambda a, b: (1, 0))
         score = correlation(prediction, prediction)
-        assert all(score == 1)
+        assert all(score == approx(1))
 
     def test_alignment(self):
         jumbled_prediction = NeuroidAssembly(np.random.rand(500, 10),

@@ -45,7 +45,7 @@ class TestLayerSelection:
         assembly = load_assembly(assembly_identifier, average_repetition=False)
         brain_model.commit_region(region, assembly, assembly_stratification='category_name')
 
-        brain_model.start_recording(region)
+        brain_model.start_recording(region, [(70, 170)])
         predictions = brain_model.look_at(assembly.stimulus_set)
         assert set(predictions['region'].values) == {region}
         assert set(predictions['layer'].values) == {expected_layer}

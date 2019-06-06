@@ -71,7 +71,7 @@ class TestProbabilitiesMapping:
         np.testing.assert_array_almost_equal(probabilities.sel(image_id='rgb1', choice='label1').values,
                                              probabilities.sel(image_id='rgb2', choice='label2').values)
         assert probabilities.sel(image_id='rgb1', choice='label1') + \
-               probabilities.sel(image_id='rgb1', choice='label2') == 1
+               probabilities.sel(image_id='rgb1', choice='label2') == approx(1)
 
 
 class TestI2N:

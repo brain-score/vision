@@ -9,10 +9,7 @@ from brainio_base.stimuli import StimulusSet
 from model_tools.activations import KerasWrapper, PytorchWrapper, TensorflowSlimWrapper
 from model_tools.activations.core import flatten
 from model_tools.activations.pca import LayerPCA
-
-memory_intense = pytest.mark.skipif(
-    pytest.config.getoption("--skip-memory-intense"),
-    reason="set --skip-memory-intense option to not run memory intense tests")
+from tests.flags import memory_intense
 
 
 def unique_preserved_order(a):

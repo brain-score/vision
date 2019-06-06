@@ -20,6 +20,7 @@ before_install:
 - aws --no-sign-request s3 cp s3://brain-score-tests/tests/test_benchmark/alexnet-hvmv6-features.6.pkl tests/test_benchmark/
 install:
 - pip install .
+- pip list # list installed package versions
 script:
 - if [ "$PRIVATE_ACCESS" = 1 ] && [ "$TRAVIS_PULL_REQUEST" = "false" ]; then pytest --skip-gpu --skip-memory-intense; fi
 - if [ "$PRIVATE_ACCESS" != 1 ]; then pytest --skip-private --skip-gpu --skip-memory-intense; fi

@@ -360,11 +360,18 @@ def subset(source_assembly, target_assembly, subset_dims=None, dims_must_match=T
                 continue
             # work-around when dimensions are repeated. `isel` will keep only the first instance of a repeated dimension
             positional_dim_indexes = [dim_indexes[dim] for dim in source_assembly.dims]
-            source_assembly = type(source_assembly)(
-                source_assembly.values[np.ix_(*positional_dim_indexes)],
-                coords={coord: (dim, value[dim_indexes[dim[0]]] if len(dim) == 1 else value)
-                        for coord, dim, value in walk_coords(source_assembly)},
-                dims=source_assembly.dims)
+            coords = {}
+            for coord, dims, value in walk_coords(source_assembly):
+                if len(dims) == 1:
+                    coords[coord] = (dims, value[dim_indexes[dims[0]]])
+                elif len(dims) == 0:
+                    coords[coord] = (dims, value)
+                elif len(set(dims)) == 1:
+                    coords[coord] = (dims, value[np.ix_(*[dim_indexes[dim] for dim in dims])])
+                else:
+                    raise NotImplementedError("cannot handle multiple dimensions")
+            source_assembly = type(source_assembly)(source_assembly.values[np.ix_(*positional_dim_indexes)],
+                                                    coords=coords, dims=source_assembly.dims)
         if dims_must_match:
             # dims match up after selection. cannot compare exact equality due to potentially missing levels
             assert len(target_assembly[dim]) == len(source_assembly[dim])

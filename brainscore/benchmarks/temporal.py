@@ -1,5 +1,5 @@
 from brainscore.assemblies.private import assembly_loaders
-from brainscore.benchmarks.regressing import build_benchmark
+from brainscore.benchmarks.neural import build_benchmark
 from brainscore.metrics.ceiling import InternalConsistency, TemporalCeiling
 from brainscore.metrics.regression import CrossRegressedCorrelation, pearsonr_correlation, pls_regression
 from brainscore.metrics.temporal import TemporalRegressionAcrossTime, TemporalCorrelationAcrossImages

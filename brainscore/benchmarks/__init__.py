@@ -48,7 +48,7 @@ class BenchmarkPool(dict):
     def __init__(self):
         super(BenchmarkPool, self).__init__()
         # avoid circular imports
-        from .regressing import \
+        from .neural import \
             DicarloMajaj2015V4PLS, DicarloMajaj2015ITPLS, DicarloMajaj2015V4Mask, DicarloMajaj2015ITMask, \
             MovshonFreemanZiemba2013V1PLS, MovshonFreemanZiemba2013V2PLS
         from .temporal import DicarloMajaj2015TemporalV4PLS, DicarloMajaj2015TemporalITPLS, \

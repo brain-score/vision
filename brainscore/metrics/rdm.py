@@ -1,7 +1,8 @@
 import numpy as np
+from scipy.stats import spearmanr
 
-from brainio_base.assemblies import DataAssembly
-from brainscore.metrics.transformations import CrossValidation, TestOnlyCrossValidation
+from brainio_base.assemblies import DataAssembly, walk_coords
+from brainscore.metrics.transformations import TestOnlyCrossValidation
 from brainscore.metrics.xarray_utils import Defaults as XarrayDefaults
 
 
@@ -92,15 +93,28 @@ class RDMSimilarity(object):
         self._comparison_coord = comparison_coord
 
     def __call__(self, rdm_assembly1, rdm_assembly2):
+        # align
+        rdm_assembly1 = self.multishape_preserved_sort(rdm_assembly1)
+        rdm_assembly2 = self.multishape_preserved_sort(rdm_assembly2)
         assert all(rdm_assembly1[self._comparison_coord].values == rdm_assembly2[self._comparison_coord].values)
+
         triu1 = self._triangulars(rdm_assembly1.values)
         triu2 = self._triangulars(rdm_assembly2.values)
-        corr = np.corrcoef(triu1, triu2)
-        np.testing.assert_array_equal(corr.shape, [2, 2])
-        return corr[0, 1]
+        corr, p = spearmanr(triu1, triu2)
+        return corr
 
     def _triangulars(self, values):
         assert len(values.shape) == 2 and values.shape[0] == values.shape[1]
         np.testing.assert_almost_equal(np.diag(values), 0)
         triangular_indices = np.triu_indices(values.shape[0], k=1)
         return values[triangular_indices]
+
+    def multishape_preserved_sort(self, assembly):
+        comparison_dims = assembly[self._comparison_coord].dims
+        assert set(assembly.dims) == set(comparison_dims), "multi-dimensional case not implemented"
+        indices = np.argsort(assembly[self._comparison_coord].values)
+        assembly = type(assembly)(assembly.values[np.ix_(indices, indices)],
+                                  coords={coord: (dims, values[indices] if dims == comparison_dims else values)
+                                          for coord, dims, values in walk_coords(assembly)},
+                                  dims=assembly.dims)
+        return assembly

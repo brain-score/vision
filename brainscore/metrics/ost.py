@@ -26,9 +26,13 @@ class OSTCorrelation(Metric):
         return score
 
     def apply(self, train_source, train_osts, test_source, test_osts):
+        train_source, test_source = self._align(train_source, train_osts), self._align(test_source, test_osts)
         predicted_osts = self.compute_osts(train_source, test_source, test_osts)
         score = self.correlate(predicted_osts, test_osts.values)
         return score
+
+    def _align(self, source, target, on='image_id'):
+        return source.isel(presentation=[np.where(source[on].values == key)[0][0] for key in target[on].values])
 
     def compute_osts(self, train_source, test_source, test_osts):
         last_osts, hit_osts = [None] * len(test_osts), [None] * len(test_osts)

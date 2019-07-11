@@ -1,7 +1,8 @@
 import numpy as np
-from brainscore.benchmarks import BenchmarkBase
 
+import brainscore
 from brainscore.assemblies.private import assembly_loaders
+from brainscore.benchmarks import BenchmarkBase, ceil_score
 from brainscore.benchmarks.regressing import build_benchmark
 from brainscore.metrics import Score
 from brainscore.metrics.ceiling import InternalConsistency, TemporalCeiling
@@ -13,23 +14,10 @@ from brainscore.model_interface import BrainModel
 
 class DicarloKar2019OST(BenchmarkBase):
     def __init__(self):
-        super(DicarloKar2019OST, self).__init__(identifier='dicarlo.Kar2019-ost',
-                                                ceiling_func=lambda x: Score(0.79))  # ceiling computed independently
-
-        import pandas as pd
-        import xarray as xr
-        from brainio_base.assemblies import DataAssembly
-        from brainio_base.stimuli import StimulusSet
-        files_dir = '/braintree/home/msch/share/Kar2019OST/'
-        stimuli = pd.read_pickle(f"{files_dir}/image_dicarlo_kar2019.pkl")
-        stimuli_name = stimuli.name
-        stimuli = StimulusSet(stimuli)
-        stimuli.name = stimuli_name
-        stimuli.image_paths = {row.image_id: row.image_current_local_file_path for row in stimuli.itertuples()}
-        assembly = xr.open_dataarray(f"{files_dir}/assy_dicarlo_kar2019.nc")
-        assembly = DataAssembly(assembly)
-        assembly.attrs['stimulus_set'] = stimuli
-        assembly.attrs['stimulus_set_name '] = stimuli.name
+        ceiling = Score([.79, np.nan],  # following private conversation with Kohitij Kar
+                        coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
+        super(DicarloKar2019OST, self).__init__(identifier='dicarlo.Kar2019-ost', ceiling_func=lambda: ceiling)
+        assembly = brainscore.get_assembly('dicarlo.Kar2019')
         # drop duplicate images
         _, index = np.unique(assembly['image_id'], return_index=True)
         assembly = assembly.isel(presentation=index)
@@ -48,6 +36,7 @@ class DicarloKar2019OST(BenchmarkBase):
         candidate.start_recording('IT', time_bins=time_bins)
         recordings = candidate.look_at(self._assembly.stimulus_set)
         score = self._similarity_metric(recordings, self._assembly)
+        score = ceil_score(score, self.ceiling)
         return score
 
 

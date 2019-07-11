@@ -1,6 +1,6 @@
 from pytest import approx
 
-from brainscore.benchmarks.regressing import MovshonFreemanZiemba2013V1PLS, MovshonFreemanZiemba2013V2PLS, \
+from brainscore.benchmarks.neural import MovshonFreemanZiemba2013V1PLS, MovshonFreemanZiemba2013V2PLS, \
     DicarloMajaj2015ITPLS, DicarloMajaj2015V4PLS, DicarloMajaj2015ITMask
 from tests.flags import requires_gpu, private_access, memory_intense
 from tests.test_benchmarks import PrecomputedFeatures, StoredPrecomputedFeatures

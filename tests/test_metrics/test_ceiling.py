@@ -47,7 +47,7 @@ class TestSplitHalfConsistency:
                                dims=['presentation', 'neuroid'])
         ceiler = SplitHalfConsistency()
         ceiling = ceiler(data, data)
-        assert all(ceiling == DataAssembly(np.ones(10),
+        assert all(ceiling == DataAssembly([approx(1)] * 10,
                                            coords={'neuroid_id': ('neuroid', np.arange(10)),
                                                    'neuroid_meta': ('neuroid', np.arange(10))},
                                            dims=['neuroid']))

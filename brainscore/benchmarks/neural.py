@@ -1,8 +1,9 @@
 import numpy as np
 
-from brainscore.benchmarks import BenchmarkBase, ceil_score
 from brainscore.assemblies.private import assembly_loaders
+from brainscore.benchmarks import BenchmarkBase, ceil_score
 from brainscore.metrics.ceiling import InternalConsistency
+from brainscore.metrics.rdm import RDMCrossValidated
 from brainscore.metrics.regression import CrossRegressedCorrelation, mask_regression, ScaledCrossRegressedCorrelation, \
     pls_regression, pearsonr_correlation
 
@@ -72,6 +73,14 @@ def DicarloMajaj2015ITMask():
                                    similarity_metric=ScaledCrossRegressedCorrelation(
                                        regression=mask_regression(), correlation=pearsonr_correlation(),
                                        crossvalidation_kwargs=dict(splits=2, stratification_coord='object_name')))
+
+
+def DicarloMajaj2015V4RDM():
+    return _DicarloMajaj2015Region('V4', identifier_metric_suffix='rdm', similarity_metric=RDMCrossValidated())
+
+
+def DicarloMajaj2015ITRDM():
+    return _DicarloMajaj2015Region('IT', identifier_metric_suffix='rdm', similarity_metric=RDMCrossValidated())
 
 
 def _MovshonFreemanZiemba2013Region(region, identifier_metric_suffix, similarity_metric):

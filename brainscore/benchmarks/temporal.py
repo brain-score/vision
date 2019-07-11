@@ -3,7 +3,7 @@ import numpy as np
 import brainscore
 from brainscore.assemblies.private import assembly_loaders
 from brainscore.benchmarks import BenchmarkBase, ceil_score
-from brainscore.benchmarks.regressing import build_benchmark
+from brainscore.benchmarks.neural import build_benchmark
 from brainscore.metrics import Score
 from brainscore.metrics.ceiling import InternalConsistency, TemporalCeiling
 from brainscore.metrics.ost import OSTCorrelation

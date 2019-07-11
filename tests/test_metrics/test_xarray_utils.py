@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.stats
+from pytest import approx
 from sklearn.linear_model import LinearRegression
 
 from brainio_base.assemblies import NeuroidAssembly
@@ -58,7 +59,7 @@ class TestXarrayCorrelation:
                                      dims=['presentation', 'neuroid'])
         correlation = XarrayCorrelation(lambda a, b: (1, 0))
         score = correlation(prediction, prediction)
-        assert all(score == 1)
+        assert all(score == approx(1))
 
     def test_alignment(self):
         jumbled_prediction = NeuroidAssembly(np.random.rand(500, 10),
@@ -70,7 +71,7 @@ class TestXarrayCorrelation:
         prediction = jumbled_prediction.sortby(['image_id', 'neuroid_id'])
         correlation = XarrayCorrelation(scipy.stats.pearsonr)
         score = correlation(jumbled_prediction, prediction)
-        assert all(score == 1)
+        assert all(score == approx(1))
 
     def test_neuroid_single_coord(self):
         prediction = NeuroidAssembly(np.random.rand(500, 10),

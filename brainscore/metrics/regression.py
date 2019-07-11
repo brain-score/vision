@@ -50,21 +50,22 @@ def mask_regression():
     return regression
 
 
-def pls_regression(n_components=25, expected_dims=XarrayDefaults.expected_dims,
-                   neuroid_dim=XarrayDefaults.neuroid_dim, neuroid_coord=XarrayDefaults.neuroid_coord):
-    regression = PLSRegression(n_components=n_components, scale=False)
-    regression = XarrayRegression(regression, expected_dims=expected_dims,
-                                  neuroid_dim=neuroid_dim, neuroid_coord=neuroid_coord)
+def pls_regression(regression_kwargs=None, xarray_kwargs=None):
+    regression_defaults = dict(n_components=25, scale=False)
+    regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
+    regression = PLSRegression(**regression_kwargs)
+    xarray_kwargs = xarray_kwargs or {}
+    regression = XarrayRegression(regression, **xarray_kwargs)
     return regression
 
 
-def linear_regression(expected_dims=XarrayDefaults.expected_dims,
-                      neuroid_dim=XarrayDefaults.neuroid_dim, neuroid_coord=XarrayDefaults.neuroid_coord):
+def linear_regression(xarray_kwargs=None):
     regression = LinearRegression()
-    regression = XarrayRegression(regression, expected_dims=expected_dims,
-                                  neuroid_dim=neuroid_dim, neuroid_coord=neuroid_coord)
+    xarray_kwargs = xarray_kwargs or {}
+    regression = XarrayRegression(regression, **xarray_kwargs)
     return regression
 
 
-def pearsonr_correlation():
-    return XarrayCorrelation(scipy.stats.pearsonr)
+def pearsonr_correlation(xarray_kwargs=None):
+    xarray_kwargs = xarray_kwargs or {}
+    return XarrayCorrelation(scipy.stats.pearsonr, **xarray_kwargs)

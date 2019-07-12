@@ -13,7 +13,23 @@ from brainscore.metrics.transformations import apply_aggregate
 from brainscore.utils import fullname
 
 
-class I2n(Metric):
+def I1(*args, **kwargs):
+    return _I(*args, collapse_distractors=True, normalize=False, **kwargs)
+
+
+def I1n(*args, **kwargs):
+    return _I(*args, collapse_distractors=True, normalize=True, **kwargs)
+
+
+def I2(*args, **kwargs):
+    return _I(*args, collapse_distractors=False, normalize=False, **kwargs)
+
+
+def I2n(*args, **kwargs):
+    return _I(*args, collapse_distractors=False, normalize=True, **kwargs)
+
+
+class _I(Metric):
     """
     Rajalingham & Issa et al., 2018 http://www.jneurosci.org/content/early/2018/07/13/JNEUROSCI.0388-18.2018
     modified by Schrimpf & Kubilius et al., 2018 https://www.biorxiv.org/content/early/2018/09/05/407007:
@@ -23,9 +39,11 @@ class I2n(Metric):
             distractor images. This implementation computes the false-alarms rate per object, and then takes the mean.
     """
 
-    def __init__(self, repetitions=2):
+    def __init__(self, collapse_distractors, normalize, repetitions=2):
         super().__init__()
-        self.repetitions = repetitions
+        self._collapse_distractors = collapse_distractors
+        self._normalize = normalize
+        self._repetitions = repetitions
         self._logger = logging.getLogger(fullname(self))
 
     def __call__(self, source_probabilities, target):
@@ -35,11 +53,17 @@ class I2n(Metric):
     def _call_single(self, source_probabilities, target, random_state):
         self.add_source_meta(source_probabilities, target)
         source_response_matrix = self.target_distractor_scores(source_probabilities)
-        source_response_matrix = self.normalized_dprimes(source_response_matrix)
+        source_response_matrix = self.dprimes(source_response_matrix)
+        if self._collapse_distractors:
+            source_response_matrix = self.collapse_distractors(source_response_matrix)
 
         target_half = self.generate_halves(target, random_state=random_state)[0]
         target_response_matrix = self.build_response_matrix_from_responses(target_half)
-        target_response_matrix = self.normalized_dprimes(target_response_matrix)
+        target_response_matrix = self.dprimes(target_response_matrix)
+        if self._collapse_distractors:
+            target_response_matrix = self.collapse_distractors(target_response_matrix)
+            raise NotImplementedError("correlation for I1 not implemented")
+
         correlation = self.correlate(source_response_matrix, target_response_matrix)
         return correlation
 
@@ -51,7 +75,7 @@ class I2n(Metric):
         dprime_halves = []
         for half in self.generate_halves(assembly, random_state=random_state):
             half = self.build_response_matrix_from_responses(half)
-            half = self.normalized_dprimes(half)
+            half = self.dprimes(half)
             dprime_halves.append(half)
         return self.correlate(*dprime_halves, skipna=skipna)
 
@@ -83,11 +107,17 @@ class I2n(Metric):
         response_matrix = DataAssembly(response_matrix, coords=coords, dims=responses.dims + ('choice',))
         return response_matrix
 
-    def normalized_dprimes(self, response_matrix, cap=5):
+    def dprimes(self, response_matrix, cap=5):
         dprime_scores = self.dprime(response_matrix)
         dprime_scores_clipped = dprime_scores.clip(-cap, cap)
-        dprime_scores_normalized = self.subtract_mean(dprime_scores_clipped)
-        return dprime_scores_normalized
+        if not self._normalize:
+            return dprime_scores_clipped
+        else:
+            dprime_scores_normalized = self.subtract_mean(dprime_scores_clipped)
+            return dprime_scores_normalized
+
+    def collapse_distractors(self, response_matrix):
+        return response_matrix.mean(dim='choice', skipna=True)
 
     def target_distractor_scores(self, object_probabilities):
         cached_object_probabilities = self._build_index(object_probabilities, ['image_id', 'choice'])
@@ -166,7 +196,7 @@ class I2n(Metric):
 
     def _repeat(self, func):
         random_state = self._initialize_random_state()
-        repetitions = list(range(self.repetitions))
+        repetitions = list(range(self._repetitions))
         scores = [func(random_state=random_state) for repetition in repetitions]
         score = Score(scores, coords={'split': repetitions}, dims=['split'])
         return apply_aggregate(self.aggregate, score)

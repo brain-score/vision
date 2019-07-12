@@ -1,8 +1,43 @@
+import numpy as np
+
+import brainscore
 from brainscore.assemblies.private import assembly_loaders
+from brainscore.benchmarks import BenchmarkBase, ceil_score
 from brainscore.benchmarks.neural import build_benchmark
+from brainscore.metrics import Score
 from brainscore.metrics.ceiling import InternalConsistency, TemporalCeiling
+from brainscore.metrics.ost import OSTCorrelation
 from brainscore.metrics.regression import CrossRegressedCorrelation, pearsonr_correlation, pls_regression
 from brainscore.metrics.temporal import TemporalRegressionAcrossTime, TemporalCorrelationAcrossImages
+from brainscore.model_interface import BrainModel
+
+
+class DicarloKar2019OST(BenchmarkBase):
+    def __init__(self):
+        ceiling = Score([.79, np.nan],  # following private conversation with Kohitij Kar
+                        coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
+        super(DicarloKar2019OST, self).__init__(identifier='dicarlo.Kar2019-ost', ceiling_func=lambda: ceiling)
+        assembly = brainscore.get_assembly('dicarlo.Kar2019')
+        # drop duplicate images
+        _, index = np.unique(assembly['image_id'], return_index=True)
+        assembly = assembly.isel(presentation=index)
+        assembly.attrs['stimulus_set'] = assembly.stimulus_set.drop_duplicates('image_id')
+
+        assembly = assembly.sel(decoder='logistic')
+
+        self._assembly = assembly
+        self._assembly['truth'] = self._assembly['image_label']
+        self._assembly.stimulus_set['truth'] = self._assembly.stimulus_set['image_label']
+
+        self._similarity_metric = OSTCorrelation()
+
+    def __call__(self, candidate: BrainModel):
+        time_bins = [(time_bin_start, time_bin_start + 10) for time_bin_start in range(70, 250, 10)]
+        candidate.start_recording('IT', time_bins=time_bins)
+        recordings = candidate.look_at(self._assembly.stimulus_set)
+        score = self._similarity_metric(recordings, self._assembly)
+        score = ceil_score(score, self.ceiling)
+        return score
 
 
 class TimeFilteredAssemblyLoader:

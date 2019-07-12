@@ -1,8 +1,35 @@
+import numpy as np
+from numpy.random.mtrand import RandomState
 from pytest import approx
 
-from brainscore.benchmarks.temporal import DicarloMajaj2015TemporalV4PLS, DicarloMajaj2015TemporalITPLS
+from brainio_base.assemblies import DataAssembly
+from brainscore.benchmarks.temporal import DicarloMajaj2015TemporalV4PLS, DicarloMajaj2015TemporalITPLS, \
+    DicarloKar2019OST
 from tests.flags import private_access, memory_intense
 from tests.test_benchmarks import PrecomputedFeatures
+
+
+@memory_intense
+@private_access
+def test_Kar2019():
+    benchmark = DicarloKar2019OST()
+    rnd = RandomState(0)
+    stimuli = benchmark._assembly.stimulus_set
+    source = DataAssembly(rnd.rand(len(stimuli), 5, 1), coords={
+        'image_id': ('presentation', stimuli['image_id']),
+        'image_label': ('presentation', stimuli['image_label']),
+        'truth': ('presentation', stimuli['truth']),
+        'neuroid_id': ('neuroid', list(range(5))),
+        'layer': ('neuroid', ['test'] * 5),
+        'time_bin_start': ('time_bin', [70]),
+        'time_bin_end': ('time_bin', [170]),
+    }, dims=['presentation', 'neuroid', 'time_bin'])
+    source.name = 'dicarlo.Kar2019'
+    score = benchmark(PrecomputedFeatures(source))
+    assert np.isnan(score.raw.sel(aggregation='center'))  # not a temporal model
+    assert len(score.raw.raw['split']) == 10
+    assert np.isnan(score.raw.raw.values).all()
+    assert score.attrs['ceiling'].sel(aggregation='center') == approx(.79)
 
 
 @memory_intense

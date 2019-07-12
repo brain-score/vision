@@ -36,5 +36,5 @@ before_script:
 - aws --no-sign-request --region=us-east-1 s3 cp s3://brain-score-models/imagenet2012-val.hdf5 ./imagenet2012.hdf5
 - conda list # list installed package versions
 script:
-- if [ "$TRAVIS_PULL_REQUEST" = "false"];  then CUDA_VISIBLE_DEVICES= MT_MULTITHREAD=0 MT_IMAGENET_PATH=./imagenet2012.hdf5 pytest --ignore=tf-models --skip-memory-intense; fi
-- if [ "$TRAVIS_PULL_REQUEST" = "true" ];  then CUDA_VISIBLE_DEVICES= MT_MULTITHREAD=0 MT_IMAGENET_PATH=./imagenet2012.hdf5 pytest --ignore=tf-models --skip-memory-intense --skip-private; fi
+- if [ "$TRAVIS_PULL_REQUEST" = "false"];  then CUDA_VISIBLE_DEVICES= MT_MULTITHREAD=0 MT_IMAGENET_PATH=./imagenet2012.hdf5 pytest --ignore=tf-models -m "not memory_intense"; fi
+- if [ "$TRAVIS_PULL_REQUEST" = "true" ];  then CUDA_VISIBLE_DEVICES= MT_MULTITHREAD=0 MT_IMAGENET_PATH=./imagenet2012.hdf5 pytest --ignore=tf-models -m "not memory_intense and not private_access"; fi

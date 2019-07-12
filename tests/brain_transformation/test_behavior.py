@@ -11,7 +11,6 @@ from brainscore.benchmarks.behavioral import DicarloRajalingham2018I2n
 from brainscore.model_interface import BrainModel
 from model_tools.activations import PytorchWrapper
 from model_tools.brain_transformation import ModelCommitment, ProbabilitiesMapping
-from tests.flags import private_access
 
 
 def pytorch_custom():
@@ -75,7 +74,7 @@ class TestProbabilitiesMapping:
                probabilities.sel(image_id='rgb1', choice='label2') == approx(1)
 
 
-@private_access
+@pytest.mark.private_access
 class TestI2N:
     @pytest.mark.parametrize(['model', 'expected_score'],
                              [

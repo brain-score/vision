@@ -7,10 +7,9 @@ from pytest import approx
 from brainio_base.assemblies import BehavioralAssembly
 from brainscore.assemblies.private import Rajalingham2018Loader
 from brainscore.metrics.behavior import I2n
-from tests.flags import private_access
 
 
-@private_access
+@pytest.mark.private_access
 class TestI2N:
     @pytest.mark.parametrize(['model', 'expected_score'],
                              [

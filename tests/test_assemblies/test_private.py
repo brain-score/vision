@@ -1,10 +1,10 @@
 import numpy as np
+import pytest
 
 from brainscore.assemblies.private import DicarloMajaj2015Loader, DicarloMajaj2015HighvarLoader, \
     MovshonFreemanZiemba2013Loader, ToliasCadena2017Loader, \
     DicarloMajaj2015TemporalHighvarLoader, DicarloMajaj2015TemporalV4HighvarLoader, \
     DicarloMajaj2015TemporalITHighvarLoader, load_assembly
-from tests.flags import private_access, memory_intense
 from tests.test_assemblies import check_standard_format
 
 
@@ -29,8 +29,8 @@ class TestBaseLoaders:
         assert len(assembly.sel(region='IT')['neuroid']) == 168
         assert len(assembly.sel(region='V4')['neuroid']) == 88
 
-    @memory_intense
-    @private_access
+    @pytest.mark.memory_intense
+    @pytest.mark.private_access
     def test_movshonfreemanziemba2013(self):
         loader = MovshonFreemanZiemba2013Loader()
         assembly = loader()
@@ -41,7 +41,7 @@ class TestBaseLoaders:
         assert len(assembly['neuroid']) == 205
 
 
-@private_access
+@pytest.mark.private_access
 class TestToliasCadena2017:
     def test(self):
         loader = ToliasCadena2017Loader()
@@ -52,8 +52,8 @@ class TestToliasCadena2017:
         assert len(assembly['neuroid']) == 166
 
 
-@private_access
-@memory_intense
+@pytest.mark.private_access
+@pytest.mark.memory_intense
 class TestMajaj2015:
     def test_majaj2015TemporalHighvar(self):
         loader = DicarloMajaj2015TemporalHighvarLoader()
@@ -88,8 +88,8 @@ class TestMajaj2015:
         np.testing.assert_array_equal(assembly['time_bin_end'], list(range(-80, 301, 10)))
 
 
-@private_access
-@memory_intense
+@pytest.mark.private_access
+@pytest.mark.memory_intense
 class TestFreemanZiemba2013:
     def test_v1(self):
         assembly = load_assembly('movshon.FreemanZiemba2013.private.V1')

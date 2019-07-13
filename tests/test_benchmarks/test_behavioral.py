@@ -8,10 +8,9 @@ from pytest import approx
 from brainio_base.assemblies import BehavioralAssembly
 from brainscore.benchmarks.behavioral import DicarloRajalingham2018I2n
 from brainscore.model_interface import BrainModel
-from tests.flags import private_access
 
 
-@private_access
+@pytest.mark.private_access
 class TestRajalingham2018:
     def test_ceiling(self):
         benchmark = DicarloRajalingham2018I2n()

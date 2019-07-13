@@ -1,8 +1,8 @@
+import pytest
 from pytest import approx
 
 from brainscore.benchmarks.neural import MovshonFreemanZiemba2013V1PLS, MovshonFreemanZiemba2013V2PLS, \
     DicarloMajaj2015ITPLS, DicarloMajaj2015V4PLS, DicarloMajaj2015ITMask
-from tests.flags import requires_gpu, private_access, memory_intense
 from tests.test_benchmarks import PrecomputedFeatures, StoredPrecomputedFeatures
 
 
@@ -27,7 +27,7 @@ class TestMajaj2015:
         assert raw_values.median('neuroid').std() == approx(.005639, abs=.00001), "too much deviation between splits"
         assert raw_values.mean('split').std() == approx(.155962, abs=.00001), "too much deviation between neuroids"
 
-    @requires_gpu
+    @pytest.mark.requires_gpu
     def test_IT_mask_alexnet(self):
         benchmark = DicarloMajaj2015ITMask()
         candidate = StoredPrecomputedFeatures('alexnet-hvmv6-features.6.pkl')
@@ -35,8 +35,8 @@ class TestMajaj2015:
         assert score.sel(aggregation='center') == approx(.614621, abs=.005)
 
 
-@memory_intense
-@private_access
+@pytest.mark.memory_intense
+@pytest.mark.private_access
 class TestMovshonFreemanZiemba2013:
     def test_V1_ceiling(self):
         benchmark = MovshonFreemanZiemba2013V1PLS()

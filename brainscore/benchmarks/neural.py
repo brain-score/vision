@@ -104,14 +104,36 @@ def MovshonFreemanZiemba2013V2PLS():
                                                crossvalidation_kwargs=dict(stratification_coord='texture_type')))
 
 
-def ToliasCadena2017():
+def ToliasCadena2017PLS():
     loader = assembly_loaders[f'tolias.Cadena2017']
     assembly_repetition = loader(average_repetition=False)
     assembly = loader(average_repetition=True)
     assembly.stimulus_set.name = assembly.stimulus_set_name
 
-    similarity_metric = CrossRegressedCorrelation(regression=pls_regression(), correlation=pearsonr_correlation())
+    similarity_metric = CrossRegressedCorrelation(
+            regression=pls_regression(), 
+            correlation=pearsonr_correlation(),
+            crossvalidation_kwargs={'stratification_coord': None})
     identifier = f'tolias.Cadena2017-pls'
-    ceiler = InternalConsistency()
+    ceiler = InternalConsistency(split_coord='repetition_id')
+    return NeuralBenchmark(identifier=identifier, assembly=assembly, similarity_metric=similarity_metric,
+                           ceiling_func=lambda: ceiler(assembly_repetition))
+
+
+ToliasCadena2017 = ToliasCadena2017PLS
+
+
+def ToliasCadena2017Mask():
+    loader = assembly_loaders[f'tolias.Cadena2017']
+    assembly_repetition = loader(average_repetition=False)
+    assembly = loader(average_repetition=True)
+    assembly.stimulus_set.name = assembly.stimulus_set_name
+
+    similarity_metric = CrossRegressedCorrelation(
+            regression=mask_regression(), 
+            correlation=pearsonr_correlation(),
+            crossvalidation_kwargs={'splits': 4, 'stratification_coord': None})
+    identifier = f'tolias.Cadena2017-mask'
+    ceiler = InternalConsistency(split_coord='repetition_id')
     return NeuralBenchmark(identifier=identifier, assembly=assembly, similarity_metric=similarity_metric,
                            ceiling_func=lambda: ceiler(assembly_repetition))

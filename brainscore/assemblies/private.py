@@ -262,6 +262,12 @@ class ToliasCadena2017Loader(AssemblyLoader):
             assembly = self.average_repetition(assembly)
         return assembly
 
+    def dropna_stimulus(self, attrs, new_image_ids):
+        # dropna in stimulus set
+        df = attrs['stimulus_set']
+        attrs['stimulus_set'] = df.loc[df['image_id'].isin(new_image_ids)]
+        return attrs
+
     def average_repetition(self, assembly):
         attrs = assembly.attrs  # workaround to keeping attrs
         presentation_coords = [coord for coord, dims, values in walk_coords(assembly)
@@ -269,6 +275,7 @@ class ToliasCadena2017Loader(AssemblyLoader):
         presentation_coords = set(presentation_coords) - {'repetition_id', 'id'}
         assembly = assembly.multi_groupby(presentation_coords).mean(dim='presentation', skipna=True)
         assembly = assembly.dropna('presentation')  # discard any images with NaNs (~14%)
+        attrs = self.dropna_stimulus(attrs, assembly.image_id.values)
         assembly.attrs = attrs
         return assembly
 

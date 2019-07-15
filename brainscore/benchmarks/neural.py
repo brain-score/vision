@@ -22,6 +22,8 @@ class NeuralBenchmark(BenchmarkBase):
     def __call__(self, candidate):
         candidate.start_recording(self.region, time_bins=self.timebins)
         source_assembly = candidate.look_at(self._assembly.stimulus_set)
+        if 'time_bin' in source_assembly.dims:
+            source_assembly = source_assembly.squeeze('time_bin')  # static case for these benchmarks
         raw_score = self._similarity_metric(source_assembly, self._assembly)
         return ceil_score(raw_score, self.ceiling)
 

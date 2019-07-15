@@ -1,11 +1,11 @@
 import numpy as np
+import pytest
 
 from brainscore.assemblies.public import load_assembly
-from tests.flags import private_access, memory_intense
 
 
-@private_access
-@memory_intense
+@pytest.mark.private_access
+@pytest.mark.memory_intense
 class TestMajaj2015Temporal:
     def test_majaj2015TemporalLowvar(self):
         assembly = load_assembly('dicarlo.Majaj2015.temporal.lowvar')
@@ -39,8 +39,8 @@ class TestMajaj2015Temporal:
         np.testing.assert_array_equal(assembly['time_bin_end'], list(range(-80, 301, 10)))
 
 
-@private_access
-@memory_intense
+@pytest.mark.private_access
+@pytest.mark.memory_intense
 class TestFreemanZiemba2013Temporal:
     def test_v1(self):
         assembly = load_assembly('movshon.FreemanZiemba2013.temporal.public.V1')

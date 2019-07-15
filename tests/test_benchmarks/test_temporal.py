@@ -1,16 +1,16 @@
 import numpy as np
+import pytest
 from numpy.random.mtrand import RandomState
 from pytest import approx
 
 from brainio_base.assemblies import DataAssembly
 from brainscore.benchmarks.temporal import DicarloMajaj2015TemporalV4PLS, DicarloMajaj2015TemporalITPLS, \
     DicarloKar2019OST
-from tests.flags import private_access, memory_intense
 from tests.test_benchmarks import PrecomputedFeatures
 
 
-@memory_intense
-@private_access
+@pytest.mark.memory_intense
+@pytest.mark.private_access
 def test_Kar2019():
     benchmark = DicarloKar2019OST()
     rnd = RandomState(0)
@@ -32,8 +32,8 @@ def test_Kar2019():
     assert score.attrs['ceiling'].sel(aggregation='center') == approx(.79)
 
 
-@memory_intense
-@private_access
+@pytest.mark.memory_intense
+@pytest.mark.private_access
 class TestMajaj2015:
     def test_V4_self(self):
         benchmark = DicarloMajaj2015TemporalV4PLS()

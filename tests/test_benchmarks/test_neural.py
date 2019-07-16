@@ -68,7 +68,6 @@ class TestMovshonFreemanZiemba2013:
         assert raw_values.mean('split').std() == approx(.2668294, abs=.00001), "too much deviation between neuroids"
 
 
-@pytest.mark.memory_intense
 @pytest.mark.private_access
 class TestToliasCadena2017:
     def test_V1_self(self):

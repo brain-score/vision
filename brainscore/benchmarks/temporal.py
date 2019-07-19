@@ -16,7 +16,10 @@ class DicarloKar2019OST(BenchmarkBase):
     def __init__(self):
         ceiling = Score([.79, np.nan],  # following private conversation with Kohitij Kar
                         coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
-        super(DicarloKar2019OST, self).__init__(identifier='dicarlo.Kar2019-ost', ceiling_func=lambda: ceiling)
+        super(DicarloKar2019OST, self).__init__(identifier='dicarlo.Kar2019-ost',
+                                                ceiling_func=lambda: ceiling,
+                                                parent='IT-temporal',
+                                                paper_link='https://www.nature.com/articles/s41593-019-0392-5')
         assembly = brainscore.get_assembly('dicarlo.Kar2019')
         # drop duplicate images
         _, index = np.unique(assembly['image_id'], return_index=True)
@@ -58,7 +61,8 @@ def _DicarloMajaj2015TemporalRegion(region):
     time_bins = [(time_bin_start, time_bin_start + 20) for time_bin_start in range(0, 231, 20)]
     loader = TimeFilteredAssemblyLoader(assembly_loaders[f'dicarlo.Majaj2015.temporal.highvar.{region}'], time_bins)
     return build_benchmark(identifier=f'dicarlo.Majaj2015.temporal.{region}', assembly_loader=loader,
-                           similarity_metric=metric, ceiler=TemporalCeiling(InternalConsistency()))
+                           similarity_metric=metric, ceiler=TemporalCeiling(InternalConsistency()),
+                           parent=region, paper_link='http://www.jneurosci.org/content/35/39/13402.short')
 
 
 DicarloMajaj2015TemporalV4PLS = lambda: _DicarloMajaj2015TemporalRegion(region='V4')
@@ -74,7 +78,8 @@ def _MovshonFreemanZiemba2013TemporalRegion(region):
     loader = assembly_loaders[f'movshon.FreemanZiemba2013.temporal.private.{region}']
     loader = TimeFilteredAssemblyLoader(loader, time_bins)
     return build_benchmark(identifier=f'movshon.FreemanZiemba2013.temporal.{region}', assembly_loader=loader,
-                           similarity_metric=metric, ceiler=TemporalCeiling(InternalConsistency()))
+                           similarity_metric=metric, ceiler=TemporalCeiling(InternalConsistency()),
+                           parent=region, paper_link='https://www.nature.com/articles/nn.3402')
 
 
 MovshonFreemanZiemba2013TemporalV1PLS = lambda: _MovshonFreemanZiemba2013TemporalRegion(region='V1')

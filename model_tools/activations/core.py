@@ -1,4 +1,6 @@
 import copy
+import os
+
 import functools
 import logging
 from collections import OrderedDict
@@ -108,7 +110,6 @@ class ActivationsExtractorHelper:
         layer_activations = None
         for batch_start in tqdm(range(0, len(paths), batch_size), unit_scale=batch_size, desc="activations"):
             batch_end = min(batch_start + batch_size, len(paths))
-            self._logger.debug('Batch %d->%d/%d', batch_start, batch_end, len(paths))
             batch_inputs = paths[batch_start:batch_end]
             batch_activations = self._get_batch_activations(batch_inputs, layer_names=layers, batch_size=batch_size)
             for hook in self._batch_activations_hooks.copy().values():  # copy to avoid handle re-enabling messing with the loop
@@ -217,9 +218,21 @@ def change_dict(d, change_function, keep_name=False, multithread=False):
     return results
 
 
+def lstrip_local(path):
+    parts = path.split(os.sep)
+    try:
+        start_index = parts.index('.brainio')
+    except ValueError:  # not in list -- perhaps custom directory
+        return path
+    path = os.sep.join(parts[start_index:])
+    return path
+
+
 def attach_stimulus_set_meta(assembly, stimulus_set):
     stimulus_paths = [stimulus_set.get_image(image_id) for image_id in stimulus_set['image_id']]
-    assert all(assembly['stimulus_path'].values == stimulus_paths)
+    stimulus_paths = [lstrip_local(path) for path in stimulus_paths]
+    assembly_paths = [lstrip_local(path) for path in assembly['stimulus_path'].values]
+    assert (np.array(assembly_paths) == np.array(stimulus_paths)).all()
     assembly['stimulus_path'] = stimulus_set['image_id'].values
     assembly = assembly.rename({'stimulus_path': 'image_id'})
     for column in stimulus_set.columns:

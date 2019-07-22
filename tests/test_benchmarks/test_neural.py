@@ -1,9 +1,8 @@
 import pytest
 from pytest import approx
-import numpy as np
 
 from brainscore.benchmarks.neural import MovshonFreemanZiemba2013V1PLS, MovshonFreemanZiemba2013V2PLS, \
-    DicarloMajaj2015ITPLS, DicarloMajaj2015V4PLS, DicarloMajaj2015ITMask, ToliasCadena2017
+    DicarloMajaj2015ITPLS, DicarloMajaj2015V4PLS, DicarloMajaj2015ITMask, ToliasCadena2017PLS
 from tests.test_benchmarks import PrecomputedFeatures, StoredPrecomputedFeatures
 
 
@@ -71,14 +70,12 @@ class TestMovshonFreemanZiemba2013:
 @pytest.mark.private_access
 class TestToliasCadena2017:
     def test_V1_self(self):
-        np.random.seed(0)
-        benchmark = ToliasCadena2017()
+        benchmark = ToliasCadena2017PLS()
         source = benchmark._assembly
         score = benchmark(PrecomputedFeatures(source)).raw
-        assert score.sel(aggregation='center') == approx(0.577474, abs=.00001), \
-                score.sel(aggregation='center')
-        raw_values = score.attrs['raw']
-        assert raw_values.median('neuroid').std() == approx(0.007518, abs=.00001), \
-                "too much deviation between splits" + str(raw_values.median('neuroid').std())
-        assert raw_values.mean('split').std() == approx(0.213484, abs=.00001), \
-                "too much deviation between neuroids" + str(raw_values.mean('split').std())
+        assert score.sel(aggregation='center') == approx(0.577474, abs=.005)
+        raw_values = score.raw
+        assert raw_values.median('neuroid').std() == approx(0.007518, abs=.003), \
+            "too much deviation between splits" + str(raw_values.median('neuroid').std())
+        assert raw_values.mean('split').std() == approx(0.213484, abs=.003), \
+            "too much deviation between neuroids" + str(raw_values.mean('split').std())

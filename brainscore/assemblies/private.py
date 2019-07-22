@@ -262,15 +262,25 @@ class ToliasCadena2017Loader(AssemblyLoader):
             assembly = self.average_repetition(assembly)
         return assembly
 
+    def _align_stimuli(self, stimulus_set, image_ids):
+        stimulus_set = stimulus_set.loc[stimulus_set['image_id'].isin(image_ids)]
+        return stimulus_set
+
     def average_repetition(self, assembly):
         attrs = assembly.attrs  # workaround to keeping attrs
         presentation_coords = [coord for coord, dims, values in walk_coords(assembly)
                                if array_is_element(dims, 'presentation')]
         presentation_coords = set(presentation_coords) - {'repetition_id', 'id'}
         assembly = assembly.multi_groupby(presentation_coords).mean(dim='presentation', skipna=True)
-        assembly = assembly.dropna('presentation')  # discard any images with NaNs (~14%)
+        assembly, stimulus_set = self.dropna(assembly, stimulus_set=attrs['stimulus_set'])
+        attrs['stimulus_set'] = stimulus_set
         assembly.attrs = attrs
         return assembly
+
+    def dropna(self, assembly, stimulus_set):
+        assembly = assembly.dropna('presentation')  # discard any images with NaNs (~14%)
+        stimulus_set = self._align_stimuli(stimulus_set, assembly.image_id.values)
+        return assembly, stimulus_set
 
 
 class GallantDavid2004Loader(AssemblyLoader):

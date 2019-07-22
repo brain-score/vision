@@ -15,8 +15,11 @@ class DicarloRajalingham2018I2n(BenchmarkBase):
         self._metric = I2n()
         self._fitting_stimuli = brainscore.get_stimulus_set('dicarlo.objectome.public')
         self._assembly = load_assembly('dicarlo.Rajalingham2018')
-        super(DicarloRajalingham2018I2n, self).__init__(identifier='dicarlo.Rajalingham2018-i2n',
-                                                        ceiling_func=lambda: self._metric.ceiling(self._assembly))
+        super(DicarloRajalingham2018I2n, self).__init__(
+            identifier='dicarlo.Rajalingham2018-i2n',
+            ceiling_func=lambda: self._metric.ceiling(self._assembly),
+            parent='behavior',
+            paper_link='https://www.biorxiv.org/content/early/2018/02/12/240614')
 
     def __call__(self, candidate: BrainModel):
         candidate.start_task(BrainModel.Task.probabilities, self._fitting_stimuli)

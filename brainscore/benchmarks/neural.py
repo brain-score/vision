@@ -9,8 +9,8 @@ from brainscore.metrics.regression import CrossRegressedCorrelation, mask_regres
 
 
 class NeuralBenchmark(BenchmarkBase):
-    def __init__(self, identifier, assembly, similarity_metric, ceiling_func):
-        super(NeuralBenchmark, self).__init__(identifier=identifier, ceiling_func=ceiling_func)
+    def __init__(self, identifier, assembly, similarity_metric, **kwargs):
+        super(NeuralBenchmark, self).__init__(identifier=identifier, **kwargs)
         self._assembly = assembly
         self._similarity_metric = similarity_metric
         region = np.unique(self._assembly['region'])
@@ -35,18 +35,20 @@ def timebins_from_assembly(assembly):
     return timebins
 
 
-def build_benchmark(identifier, assembly_loader, similarity_metric, ceiler):
+def build_benchmark(identifier, assembly_loader, similarity_metric, ceiler, **kwargs):
     assembly_repetition = assembly_loader(average_repetition=False)
     assembly = assembly_loader(average_repetition=True)
     return NeuralBenchmark(identifier=identifier, assembly=assembly, similarity_metric=similarity_metric,
-                           ceiling_func=lambda: ceiler(assembly_repetition))
+                           ceiling_func=lambda: ceiler(assembly_repetition), **kwargs)
 
 
 def _DicarloMajaj2015Region(region, identifier_metric_suffix, similarity_metric):
     return build_benchmark(f'dicarlo.Majaj2015.{region}-{identifier_metric_suffix}',
                            assembly_loader=assembly_loaders[f'dicarlo.Majaj2015.highvar.{region}'],
                            similarity_metric=similarity_metric,
-                           ceiler=InternalConsistency())
+                           ceiler=InternalConsistency(),
+                           parent=region,
+                           paper_link='http://www.jneurosci.org/content/35/39/13402.short')
 
 
 def DicarloMajaj2015V4PLS():
@@ -89,7 +91,9 @@ def _MovshonFreemanZiemba2013Region(region, identifier_metric_suffix, similarity
     return build_benchmark(f'movshon.FreemanZiemba2013.private.{region}-{identifier_metric_suffix}',
                            assembly_loader=assembly_loaders[f'movshon.FreemanZiemba2013.private.{region}'],
                            similarity_metric=similarity_metric,
-                           ceiler=InternalConsistency())
+                           ceiler=InternalConsistency(),
+                           parent=region,
+                           paper_link='https://www.nature.com/articles/nn.3402')
 
 
 def MovshonFreemanZiemba2013V1PLS():

@@ -25,7 +25,7 @@ class NeuralBenchmark(BenchmarkBase):
         if 'time_bin' in source_assembly.dims:
             source_assembly = source_assembly.squeeze('time_bin')  # static case for these benchmarks
         raw_score = self._similarity_metric(source_assembly, self._assembly)
-        return ceil_score(raw_score, self.ceiling)
+        return explained_variance(raw_score, self.ceiling)
 
 
 def timebins_from_assembly(assembly):
@@ -33,6 +33,19 @@ def timebins_from_assembly(assembly):
     if 'time_bin' not in assembly.dims:
         timebins = [timebins]  # only single time-bin
     return timebins
+
+
+def explained_variance(score, ceiling):
+    ceiled_score = ceil_score(score, ceiling)
+    # ro(X, Y)
+    # = (r(X, Y) / sqrt(r(X, X) * r(Y, Y)))^2
+    # = (r(X, Y) / sqrt(r(Y, Y) * r(Y, Y)))^2  # assuming that r(Y, Y) ~ r(X, X) following Yamins 2014
+    # = (r(X, Y) / r(Y, Y))^2
+    r_square = np.power(ceiled_score.raw.sel(aggregation='center').values /
+                        ceiled_score.ceiling.sel(aggregation='center').values, 2)
+    ceiled_score.__setitem__({'aggregation': score['aggregation'] == 'center'}, r_square,
+                             _apply_raw=False)
+    return ceiled_score
 
 
 def build_benchmark(identifier, assembly_loader, similarity_metric, ceiler, **kwargs):

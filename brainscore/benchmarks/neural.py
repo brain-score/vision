@@ -2,10 +2,12 @@ import numpy as np
 
 from brainscore.assemblies.private import assembly_loaders
 from brainscore.benchmarks import BenchmarkBase, ceil_score
+from brainscore.benchmarks.screen import place_on_screen
 from brainscore.metrics.ceiling import InternalConsistency
 from brainscore.metrics.rdm import RDMCrossValidated
-from brainscore.metrics.regression import CrossRegressedCorrelation, mask_regression, ScaledCrossRegressedCorrelation, \
-    pls_regression, pearsonr_correlation
+from brainscore.metrics.regression import CrossRegressedCorrelation, ScaledCrossRegressedCorrelation, \
+    pls_regression, mask_regression, pearsonr_correlation
+from brainscore.model_interface import BrainModel
 
 
 class NeuralBenchmark(BenchmarkBase):
@@ -13,15 +15,23 @@ class NeuralBenchmark(BenchmarkBase):
         super(NeuralBenchmark, self).__init__(identifier=identifier, **kwargs)
         self._assembly = assembly
         self._similarity_metric = similarity_metric
+
+        assert hasattr(self._assembly, "region"),\
+            "the assembly needs to provide a `region` coordinate to determine where to record from"
         region = np.unique(self._assembly['region'])
         assert len(region) == 1
         self.region = region[0]
+        assert hasattr(self._assembly, "time_bin"),\
+            "the assembly needs to provide a `time_bin` coordinate to determine when to record"
         timebins = timebins_from_assembly(self._assembly)
         self.timebins = timebins
+        assert hasattr(self._assembly.stimulus_set, "degrees"),\
+            "the stimulus_set needs to provide a `degrees` column to determine the relative size of the stimuli"
 
-    def __call__(self, candidate):
+    def __call__(self, candidate: BrainModel):
+        stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees())
         candidate.start_recording(self.region, time_bins=self.timebins)
-        source_assembly = candidate.look_at(self._assembly.stimulus_set)
+        source_assembly = candidate.look_at(stimulus_set)
         if 'time_bin' in source_assembly.dims:
             source_assembly = source_assembly.squeeze('time_bin')  # static case for these benchmarks
         raw_score = self._similarity_metric(source_assembly, self._assembly)

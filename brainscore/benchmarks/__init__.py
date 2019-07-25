@@ -3,11 +3,12 @@ from abc import ABC
 from result_caching import cache, store
 
 from brainscore.metrics import Score
+from brainscore.model_interface import BrainModel
 from brainscore.utils import LazyLoad
 
 
 class Benchmark(ABC):
-    def __call__(self, candidate):
+    def __call__(self, candidate: BrainModel):
         raise NotImplementedError()
 
     @property

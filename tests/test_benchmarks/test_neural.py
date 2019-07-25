@@ -11,7 +11,7 @@ class TestMajaj2015:
         benchmark = DicarloMajaj2015V4PLS()
         source = benchmark._assembly
         source.name = 'dicarlo.Majaj2015.V4'
-        score = benchmark(PrecomputedFeatures(source)).raw
+        score = benchmark(PrecomputedFeatures(source, visual_degrees=8)).raw
         assert score.sel(aggregation='center') == approx(.921713, abs=.00001)
         raw_values = score.attrs['raw']
         assert raw_values.median('neuroid').std() == approx(.00416566, abs=.00001), "too much deviation between splits"
@@ -21,7 +21,7 @@ class TestMajaj2015:
         benchmark = DicarloMajaj2015ITPLS()
         source = benchmark._assembly
         source.name = 'dicarlo.Majaj2015.IT'
-        score = benchmark(PrecomputedFeatures(source)).raw
+        score = benchmark(PrecomputedFeatures(source, visual_degrees=8)).raw
         assert score.sel(aggregation='center') == approx(.821433, abs=.00001)
         raw_values = score.attrs['raw']
         assert raw_values.median('neuroid').std() == approx(.005639, abs=.00001), "too much deviation between splits"
@@ -30,7 +30,7 @@ class TestMajaj2015:
     @pytest.mark.requires_gpu
     def test_IT_mask_alexnet(self):
         benchmark = DicarloMajaj2015ITMask()
-        candidate = StoredPrecomputedFeatures('alexnet-hvmv6-features.6.pkl')
+        candidate = StoredPrecomputedFeatures('alexnet-hvmv6-features.6.pkl', visual_degrees=8)
         score = benchmark(candidate).raw
         assert score.sel(aggregation='center') == approx(.614621, abs=.005)
 
@@ -51,7 +51,7 @@ class TestMovshonFreemanZiemba2013:
     def test_V1_self(self):
         benchmark = MovshonFreemanZiemba2013V1PLS()
         source = benchmark._assembly
-        score = benchmark(PrecomputedFeatures(source)).raw
+        score = benchmark(PrecomputedFeatures(source, visual_degrees=4)).raw
         assert score.sel(aggregation='center') == approx(.676264, abs=.00001)
         raw_values = score.attrs['raw']
         assert raw_values.median('neuroid').std() == approx(.0210868, abs=.00001), "too much deviation between splits"
@@ -60,7 +60,7 @@ class TestMovshonFreemanZiemba2013:
     def test_V2_self(self):
         benchmark = MovshonFreemanZiemba2013V2PLS()
         source = benchmark._assembly
-        score = benchmark(PrecomputedFeatures(source)).raw
+        score = benchmark(PrecomputedFeatures(source, visual_degrees=4)).raw
         assert score.sel(aggregation='center') == approx(.560371, abs=.00001)
         raw_values = score.attrs['raw']
         assert raw_values.median('neuroid').std() == approx(.0324611, abs=.00001), "too much deviation between splits"
@@ -72,7 +72,7 @@ class TestToliasCadena2017:
     def test_V1_self(self):
         benchmark = ToliasCadena2017PLS()
         source = benchmark._assembly
-        score = benchmark(PrecomputedFeatures(source)).raw
+        score = benchmark(PrecomputedFeatures(source, visual_degrees=4)).raw
         assert score.sel(aggregation='center') == approx(0.577474, abs=.005)
         raw_values = score.raw
         assert raw_values.median('neuroid').std() == approx(0.007518, abs=.003), \

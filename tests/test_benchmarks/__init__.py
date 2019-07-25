@@ -7,8 +7,12 @@ from brainscore.model_interface import BrainModel
 
 
 class PrecomputedFeatures(BrainModel):
-    def __init__(self, features):
+    def __init__(self, features, visual_degrees):
         self.features = features
+        self._visual_degrees = visual_degrees
+
+    def visual_degrees(self) -> int:
+        return self._visual_degrees
 
     def start_recording(self, region, *args, **kwargs):
         pass
@@ -22,9 +26,9 @@ class PrecomputedFeatures(BrainModel):
 
 
 class StoredPrecomputedFeatures(PrecomputedFeatures):
-    def __init__(self, filename):
+    def __init__(self, filename, visual_degrees):
         self.filepath = os.path.join(os.path.dirname(__file__), filename)
         assert os.path.isfile(self.filepath)
         with open(self.filepath, 'rb') as f:
             features = pickle.load(f)['data']
-        super(StoredPrecomputedFeatures, self).__init__(features)
+        super(StoredPrecomputedFeatures, self).__init__(features, visual_degrees=visual_degrees)

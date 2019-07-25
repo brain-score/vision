@@ -52,9 +52,9 @@ class Score(DataAssembly):
             result.attrs[self.RAW_VALUES_KEY] = raw
         return result
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value, _apply_raw=True):
         super(Score, self).__setitem__(key, value)
-        if self.RAW_VALUES_KEY in self.attrs:
+        if _apply_raw and self.RAW_VALUES_KEY in self.attrs:
             try:
                 self.attrs[self.RAW_VALUES_KEY].__setitem__(key, value)
             except Exception as e:

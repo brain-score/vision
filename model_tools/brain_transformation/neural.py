@@ -1,8 +1,9 @@
 import logging
+from collections import Iterable
 
 import numpy as np
 from tqdm import tqdm
-from typing import Optional
+from typing import Optional, Union
 
 from brainscore.assemblies import average_repetition
 from brainscore.benchmarks import BenchmarkBase, ceil_score
@@ -26,8 +27,14 @@ class LayerMappedModel(BrainModel):
         self.recorded_regions = []
 
     def look_at(self, stimuli):
-        layer_regions = {self.region_layer_map[region]: region for region in self.recorded_regions}
-        assert len(layer_regions) == len(self.recorded_regions), f"duplicate layers for {self.recorded_regions}"
+        layer_regions = {}
+        for region in self.recorded_regions:
+            layers = self.region_layer_map[region]
+            if not isinstance(layers, Iterable) or isinstance(layers, (str, bytes)):
+                layers = [layers]
+            for layer in layers:
+                assert layer not in layer_regions, f"layer {layer} has already been assigned for {layer_regions[layer]}"
+                layer_regions[layer] = region
         activations = self.activations_model(stimuli, layers=list(layer_regions.keys()))
         activations['region'] = 'neuroid', [layer_regions[layer] for layer in activations['layer'].values]
         return activations
@@ -41,7 +48,9 @@ class LayerMappedModel(BrainModel):
             raise NotImplementedError(f"Region {recording_target} is not committed")
         self.recorded_regions = [recording_target]
 
-    def commit(self, region, layer):
+    def commit(self, region: str, layer: Union[str, list, tuple]):
+        if isinstance(layer, list):
+            layer = tuple(layer)
         self.region_layer_map[region] = layer
 
 

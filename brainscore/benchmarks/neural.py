@@ -93,11 +93,13 @@ def DicarloMajaj2015ITMask():
 
 
 def DicarloMajaj2015V4RDM():
-    return _DicarloMajaj2015Region('V4', identifier_metric_suffix='rdm', similarity_metric=RDMCrossValidated())
+    return _DicarloMajaj2015Region('V4', identifier_metric_suffix='rdm', similarity_metric=RDMCrossValidated(
+        crossvalidation_kwargs=dict(stratification_coord='object_name')))
 
 
 def DicarloMajaj2015ITRDM():
-    return _DicarloMajaj2015Region('IT', identifier_metric_suffix='rdm', similarity_metric=RDMCrossValidated())
+    return _DicarloMajaj2015Region('IT', identifier_metric_suffix='rdm', similarity_metric=RDMCrossValidated(
+        crossvalidation_kwargs=dict(stratification_coord='object_name')))
 
 
 def _MovshonFreemanZiemba2013Region(region, identifier_metric_suffix, similarity_metric):
@@ -121,6 +123,16 @@ def MovshonFreemanZiemba2013V2PLS():
                                            similarity_metric=CrossRegressedCorrelation(
                                                regression=pls_regression(), correlation=pearsonr_correlation(),
                                                crossvalidation_kwargs=dict(stratification_coord='texture_type')))
+
+
+def MovshonFreemanZiemba2013V1RDM():
+    return _MovshonFreemanZiemba2013Region('V1', identifier_metric_suffix='rdm', similarity_metric=RDMCrossValidated(
+        crossvalidation_kwargs=dict(stratification_coord='texture_type')))
+
+
+def MovshonFreemanZiemba2013V2RDM():
+    return _MovshonFreemanZiemba2013Region('V2', identifier_metric_suffix='rdm', similarity_metric=RDMCrossValidated(
+        crossvalidation_kwargs=dict(stratification_coord='texture_type')))
 
 
 def ToliasCadena2017PLS():

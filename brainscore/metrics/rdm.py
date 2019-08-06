@@ -13,9 +13,12 @@ class RDMCrossValidated:
     Kriegeskorte et al., 2008 https://doi.org/10.3389/neuro.06.004.2008
     """
 
-    def __init__(self, neuroid_dim=XarrayDefaults.neuroid_dim, comparison_coord=XarrayDefaults.stimulus_coord):
+    def __init__(self, neuroid_dim=XarrayDefaults.neuroid_dim, comparison_coord=XarrayDefaults.stimulus_coord,
+                 crossvalidation_kwargs=None):
         self._metric = RDMMetric(neuroid_dim=neuroid_dim, comparison_coord=comparison_coord)
-        self._cross_validation = TestOnlyCrossValidation(test_size=.9)  # leave 10% out
+        crossvalidation_defaults = dict(test_size=.9)  # leave 10% out
+        crossvalidation_kwargs = {**crossvalidation_defaults, **(crossvalidation_kwargs or {})}
+        self._cross_validation = TestOnlyCrossValidation(**crossvalidation_kwargs)
 
     def __call__(self, assembly1, assembly2):
         """

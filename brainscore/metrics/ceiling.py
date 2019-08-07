@@ -1,11 +1,11 @@
-import numpy as np
 import scipy.stats
 import xarray as xr
 from tqdm import tqdm
 
 from brainscore.assemblies import walk_coords
 from brainscore.metrics import Score
-from brainscore.metrics.transformations import CrossValidationSingle, Split
+from brainscore.metrics.rdm import RDMMetric
+from brainscore.metrics.transformations import CrossValidationSingle
 from brainscore.metrics.xarray_utils import Defaults as XarrayDefaults
 from brainscore.metrics.xarray_utils import XarrayCorrelation
 
@@ -20,28 +20,27 @@ class NoCeiling(Ceiling):
         return Score(1)
 
 
-class InternalConsistency(Ceiling):
+class _SplitHalvesConsistency(Ceiling):
     """
-    Computes the consistency within an assembly with repetitions
+    Computes the consistency within an assembly with repetitions,
+    by splitting the assembly in halves and computing consistency between the two halves.
     """
 
     class Defaults:
         split_coord = 'repetition'
 
-    def __init__(self,
-                 split_coord=Defaults.split_coord, stimulus_coord=XarrayDefaults.stimulus_coord,
-                 neuroid_dim=XarrayDefaults.neuroid_dim, neuroid_coord=XarrayDefaults.neuroid_coord):
-        self._consistency = SplitHalfConsistency(stimulus_coord=stimulus_coord, neuroid_dim=neuroid_dim,
-                                                 neuroid_coord=neuroid_coord)
-        correction = SpearmanBrownCorrection(neuroid_dim=neuroid_dim)
-        self._wrapped_consistency = self.SplitHalfWrapper(split_coord=split_coord,
-                                                          consistency=self._consistency, correction=correction)
-        self._cross_validation = CrossValidationSingle(
-            train_size=0.5, split_coord=split_coord, stratification_coord=None, unique_split_values=True)
+    def __init__(self, consistency, split_coord=Defaults.split_coord, cross_validation_kwargs=None, aggregate=None):
+        correction = SpearmanBrownCorrection()
+        self._consistency = self.SplitHalfWrapper(split_coord=split_coord,
+                                                  consistency=consistency, correction=correction)
+        self._aggregate = aggregate
+        cross_validation_defaults = dict(train_size=0.5, split_coord=split_coord,
+                                         stratification_coord=None, unique_split_values=True)
+        cross_validation_kwargs = {**cross_validation_defaults, **(cross_validation_kwargs or {})}
+        self._cross_validation = CrossValidationSingle(**cross_validation_kwargs)
 
     def __call__(self, assembly):
-        return self._cross_validation(assembly,
-                                      apply=self._wrapped_consistency, aggregate=self._consistency.aggregate)
+        return self._cross_validation(assembly, apply=self._consistency, aggregate=self._aggregate)
 
     class SplitHalfWrapper:
         def __init__(self, split_coord, consistency, correction):
@@ -63,6 +62,19 @@ class InternalConsistency(Ceiling):
             return average
 
 
+class InternalConsistency(Ceiling):
+    def __init__(self,
+                 split_coord=_SplitHalvesConsistency.Defaults.split_coord, stimulus_coord=XarrayDefaults.stimulus_coord,
+                 neuroid_dim=XarrayDefaults.neuroid_dim, neuroid_coord=XarrayDefaults.neuroid_coord):
+        consistency = SplitHalfConsistency(stimulus_coord=stimulus_coord, neuroid_dim=neuroid_dim,
+                                           neuroid_coord=neuroid_coord)
+        self._consistency = _SplitHalvesConsistency(consistency=consistency, split_coord=split_coord,
+                                                    aggregate=consistency.aggregate)
+
+    def __call__(self, assembly):
+        return self._consistency(assembly)
+
+
 class SplitHalfConsistency:
     """
     Computes the consistency between two halves of an assembly.
@@ -82,16 +94,21 @@ class SplitHalfConsistency:
         return scores.median(dim=self._neuroid_dim)
 
 
+class RDMConsistency(Ceiling):
+    def __init__(self):
+        rdm = RDMMetric()
+        self._consistency = _SplitHalvesConsistency(consistency=rdm)
+
+    def __call__(self, assembly):
+        return self._consistency(assembly)
+
+
 class SpearmanBrownCorrection:
     """
-    Corrects the correlation coefficients.
+    Applies Spearman-Brown correction to all passed values.
     """
 
-    def __init__(self, neuroid_dim=XarrayDefaults.neuroid_dim):
-        self._neuroid_dim = neuroid_dim
-
     def __call__(self, correlations, n):
-        np.testing.assert_array_equal(correlations.dims, [self._neuroid_dim])
         return xr.apply_ufunc(lambda correlation: self.correct(correlation, n), correlations)
 
     def correct(self, correlation, n):

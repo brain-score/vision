@@ -2,7 +2,7 @@ import numpy as np
 
 from brainscore.assemblies.private import assembly_loaders
 from brainscore.benchmarks import BenchmarkBase, ceil_score
-from brainscore.metrics.ceiling import InternalConsistency
+from brainscore.metrics.ceiling import InternalConsistency, RDMConsistency
 from brainscore.metrics.rdm import RDMCrossValidated
 from brainscore.metrics.regression import CrossRegressedCorrelation, mask_regression, ScaledCrossRegressedCorrelation, \
     pls_regression, pearsonr_correlation
@@ -55,11 +55,11 @@ def build_benchmark(identifier, assembly_loader, similarity_metric, ceiler, **kw
                            ceiling_func=lambda: ceiler(assembly_repetition), **kwargs)
 
 
-def _DicarloMajaj2015Region(region, identifier_metric_suffix, similarity_metric):
+def _DicarloMajaj2015Region(region, identifier_metric_suffix, similarity_metric, ceiler):
     return build_benchmark(f'dicarlo.Majaj2015.{region}-{identifier_metric_suffix}',
                            assembly_loader=assembly_loaders[f'dicarlo.Majaj2015.highvar.{region}'],
                            similarity_metric=similarity_metric,
-                           ceiler=InternalConsistency(),
+                           ceiler=ceiler,
                            parent=region,
                            paper_link='http://www.jneurosci.org/content/35/39/13402.short')
 
@@ -68,45 +68,53 @@ def DicarloMajaj2015V4PLS():
     return _DicarloMajaj2015Region('V4', identifier_metric_suffix='pls',
                                    similarity_metric=CrossRegressedCorrelation(
                                        regression=pls_regression(), correlation=pearsonr_correlation(),
-                                       crossvalidation_kwargs=dict(stratification_coord='object_name')))
+                                       crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                   ceiler=InternalConsistency())
 
 
 def DicarloMajaj2015ITPLS():
     return _DicarloMajaj2015Region('IT', identifier_metric_suffix='pls',
                                    similarity_metric=CrossRegressedCorrelation(
                                        regression=pls_regression(), correlation=pearsonr_correlation(),
-                                       crossvalidation_kwargs=dict(stratification_coord='object_name')))
+                                       crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                   ceiler=InternalConsistency())
 
 
 def DicarloMajaj2015V4Mask():
     return _DicarloMajaj2015Region('V4', identifier_metric_suffix='mask',
                                    similarity_metric=ScaledCrossRegressedCorrelation(
                                        regression=mask_regression(), correlation=pearsonr_correlation(),
-                                       crossvalidation_kwargs=dict(splits=2, stratification_coord='object_name')))
+                                       crossvalidation_kwargs=dict(splits=2, stratification_coord='object_name')),
+                                   ceiler=InternalConsistency())
 
 
 def DicarloMajaj2015ITMask():
     return _DicarloMajaj2015Region('IT', identifier_metric_suffix='mask',
                                    similarity_metric=ScaledCrossRegressedCorrelation(
                                        regression=mask_regression(), correlation=pearsonr_correlation(),
-                                       crossvalidation_kwargs=dict(splits=2, stratification_coord='object_name')))
+                                       crossvalidation_kwargs=dict(splits=2, stratification_coord='object_name')),
+                                   ceiler=InternalConsistency())
 
 
 def DicarloMajaj2015V4RDM():
-    return _DicarloMajaj2015Region('V4', identifier_metric_suffix='rdm', similarity_metric=RDMCrossValidated(
-        crossvalidation_kwargs=dict(stratification_coord='object_name')))
+    return _DicarloMajaj2015Region('V4', identifier_metric_suffix='rdm',
+                                   similarity_metric=RDMCrossValidated(
+                                       crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                   ceiler=RDMConsistency())
 
 
 def DicarloMajaj2015ITRDM():
-    return _DicarloMajaj2015Region('IT', identifier_metric_suffix='rdm', similarity_metric=RDMCrossValidated(
-        crossvalidation_kwargs=dict(stratification_coord='object_name')))
+    return _DicarloMajaj2015Region('IT', identifier_metric_suffix='rdm',
+                                   similarity_metric=RDMCrossValidated(
+                                       crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                   ceiler=RDMConsistency())
 
 
-def _MovshonFreemanZiemba2013Region(region, identifier_metric_suffix, similarity_metric):
+def _MovshonFreemanZiemba2013Region(region, identifier_metric_suffix, similarity_metric, ceiler):
     return build_benchmark(f'movshon.FreemanZiemba2013.private.{region}-{identifier_metric_suffix}',
                            assembly_loader=assembly_loaders[f'movshon.FreemanZiemba2013.private.{region}'],
                            similarity_metric=similarity_metric,
-                           ceiler=InternalConsistency(),
+                           ceiler=ceiler,
                            parent=region,
                            paper_link='https://www.nature.com/articles/nn.3402')
 
@@ -115,24 +123,30 @@ def MovshonFreemanZiemba2013V1PLS():
     return _MovshonFreemanZiemba2013Region('V1', identifier_metric_suffix='pls',
                                            similarity_metric=CrossRegressedCorrelation(
                                                regression=pls_regression(), correlation=pearsonr_correlation(),
-                                               crossvalidation_kwargs=dict(stratification_coord='texture_type')))
+                                               crossvalidation_kwargs=dict(stratification_coord='texture_type')),
+                                           ceiler=InternalConsistency())
 
 
 def MovshonFreemanZiemba2013V2PLS():
     return _MovshonFreemanZiemba2013Region('V2', identifier_metric_suffix='pls',
                                            similarity_metric=CrossRegressedCorrelation(
                                                regression=pls_regression(), correlation=pearsonr_correlation(),
-                                               crossvalidation_kwargs=dict(stratification_coord='texture_type')))
+                                               crossvalidation_kwargs=dict(stratification_coord='texture_type')),
+                                           ceiler=InternalConsistency())
 
 
 def MovshonFreemanZiemba2013V1RDM():
-    return _MovshonFreemanZiemba2013Region('V1', identifier_metric_suffix='rdm', similarity_metric=RDMCrossValidated(
-        crossvalidation_kwargs=dict(stratification_coord='texture_type')))
+    return _MovshonFreemanZiemba2013Region('V1', identifier_metric_suffix='rdm',
+                                           similarity_metric=RDMCrossValidated(
+                                               crossvalidation_kwargs=dict(stratification_coord='texture_type')),
+                                           ceiler=RDMConsistency())
 
 
 def MovshonFreemanZiemba2013V2RDM():
-    return _MovshonFreemanZiemba2013Region('V2', identifier_metric_suffix='rdm', similarity_metric=RDMCrossValidated(
-        crossvalidation_kwargs=dict(stratification_coord='texture_type')))
+    return _MovshonFreemanZiemba2013Region('V2', identifier_metric_suffix='rdm',
+                                           similarity_metric=RDMCrossValidated(
+                                               crossvalidation_kwargs=dict(stratification_coord='texture_type')),
+                                           ceiler=RDMConsistency())
 
 
 def ToliasCadena2017PLS():

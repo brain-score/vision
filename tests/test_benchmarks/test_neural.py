@@ -1,81 +1,81 @@
 import pytest
 from pytest import approx
 
-from brainscore.benchmarks.neural import MovshonFreemanZiemba2013V1PLS, MovshonFreemanZiemba2013V2PLS, \
-    DicarloMajaj2015ITPLS, DicarloMajaj2015V4PLS, DicarloMajaj2015ITMask, ToliasCadena2017PLS
+from brainscore.benchmarks import benchmark_pool
+from brainscore.benchmarks.neural import DicarloMajaj2015ITMask
 from tests.test_benchmarks import PrecomputedFeatures, StoredPrecomputedFeatures
 
 
-class TestMajaj2015:
-    def test_V4_PLS_self(self):
-        benchmark = DicarloMajaj2015V4PLS()
-        source = benchmark._assembly
-        source.name = 'dicarlo.Majaj2015.V4'
-        score = benchmark(PrecomputedFeatures(source)).raw
-        assert score.sel(aggregation='center') == approx(.921713, abs=.00001)
-        raw_values = score.attrs['raw']
-        assert raw_values.median('neuroid').std() == approx(.00416566, abs=.00001), "too much deviation between splits"
-        assert raw_values.mean('split').std() == approx(.1434765, abs=.00001), "too much deviation between neuroids"
+class TestStandardized:
+    @pytest.mark.parametrize('benchmark, expected', [
+        pytest.param('movshon.FreemanZiemba2013.V1-pls', approx(.873345, abs=.001),
+                     marks=[pytest.mark.memory_intense, pytest.mark.private_access]),
+        pytest.param('movshon.FreemanZiemba2013.V2-pls', approx(.824836, abs=.001),
+                     marks=[pytest.mark.memory_intense, pytest.mark.private_access]),
+        pytest.param('movshon.FreemanZiemba2013.V1-rdm', approx(.918672, abs=.001),
+                     marks=[pytest.mark.memory_intense, pytest.mark.private_access]),
+        pytest.param('movshon.FreemanZiemba2013.V2-rdm', approx(.856968, abs=.001),
+                     marks=[pytest.mark.memory_intense, pytest.mark.private_access]),
+        pytest.param('dicarlo.Majaj2015.V4-pls', approx(.89503, abs=.001),
+                     marks=pytest.mark.memory_intense),
+        pytest.param('dicarlo.Majaj2015.IT-pls', approx(.821841, abs=.001),
+                     marks=pytest.mark.memory_intense),
+        pytest.param('dicarlo.Majaj2015.V4-rdm', approx(.936473, abs=.001),
+                     marks=pytest.mark.memory_intense),
+        pytest.param('dicarlo.Majaj2015.IT-rdm', approx(.887618, abs=.001),
+                     marks=pytest.mark.memory_intense),
+    ])
+    def test_ceilings(self, benchmark, expected):
+        benchmark = benchmark_pool[benchmark]
+        ceiling = benchmark.ceiling
+        assert ceiling.sel(aggregation='center') == expected
 
-    def test_IT_PLS_self(self):
-        benchmark = DicarloMajaj2015ITPLS()
+    @pytest.mark.parametrize('benchmark, expected', [
+        pytest.param('movshon.FreemanZiemba2013.V1-pls', approx(.687929, abs=.001),
+                     marks=[pytest.mark.memory_intense, pytest.mark.private_access]),
+        pytest.param('movshon.FreemanZiemba2013.V2-pls', approx(.553678, abs=.001),
+                     marks=[pytest.mark.memory_intense, pytest.mark.private_access]),
+        pytest.param('tolias.Cadena2017-pls', approx(.577474, abs=.001),
+                     marks=pytest.mark.private_access),
+        pytest.param('dicarlo.Majaj2015.V4-pls', approx(.921713, abs=.001),
+                     marks=pytest.mark.memory_intense),
+        pytest.param('dicarlo.Majaj2015.IT-pls', approx(.821433, abs=.001),
+                     marks=pytest.mark.memory_intense),
+    ])
+    def test_self_regression(self, benchmark, expected):
+        benchmark = benchmark_pool[benchmark]
         source = benchmark._assembly
-        source.name = 'dicarlo.Majaj2015.IT'
         score = benchmark(PrecomputedFeatures(source)).raw
-        assert score.sel(aggregation='center') == approx(.821433, abs=.00001)
+        assert score.sel(aggregation='center') == expected
         raw_values = score.attrs['raw']
-        assert raw_values.median('neuroid').std() == approx(.005639, abs=.00001), "too much deviation between splits"
-        assert raw_values.mean('split').std() == approx(.155962, abs=.00001), "too much deviation between neuroids"
+        assert hasattr(raw_values, 'neuroid')
+        assert hasattr(raw_values, 'split')
+        assert len(raw_values['split']) == 10
 
+    @pytest.mark.parametrize('benchmark, expected', [
+        pytest.param('movshon.FreemanZiemba2013.V1-rdm', approx(1, abs=.001),
+                     marks=[pytest.mark.memory_intense, pytest.mark.private_access]),
+        pytest.param('movshon.FreemanZiemba2013.V2-rdm', approx(1, abs=.001),
+                     marks=[pytest.mark.memory_intense, pytest.mark.private_access]),
+        pytest.param('dicarlo.Majaj2015.V4-rdm', approx(1, abs=.001),
+                     marks=pytest.mark.memory_intense),
+        pytest.param('dicarlo.Majaj2015.IT-rdm', approx(1, abs=.001),
+                     marks=pytest.mark.memory_intense),
+    ])
+    def test_self_rdm(self, benchmark, expected):
+        benchmark = benchmark_pool[benchmark]
+        source = benchmark._assembly
+        score = benchmark(PrecomputedFeatures(source)).raw
+        assert score.sel(aggregation='center') == expected
+        raw_values = score.attrs['raw']
+        assert hasattr(raw_values, 'split')
+        assert len(raw_values['split']) == 10
+
+
+class TestPrecomputed:
     @pytest.mark.requires_gpu
     def test_IT_mask_alexnet(self):
         benchmark = DicarloMajaj2015ITMask()
         candidate = StoredPrecomputedFeatures('alexnet-hvmv6-features.6.pkl')
         score = benchmark(candidate).raw
         assert score.sel(aggregation='center') == approx(.614621, abs=.005)
-
-
-@pytest.mark.memory_intense
-@pytest.mark.private_access
-class TestMovshonFreemanZiemba2013:
-    def test_V1_ceiling(self):
-        benchmark = MovshonFreemanZiemba2013V1PLS()
-        ceiling = benchmark.ceiling
-        assert ceiling.sel(aggregation='center') == approx(.873345, abs=.0001)
-
-    def test_V2_ceiling(self):
-        benchmark = MovshonFreemanZiemba2013V2PLS()
-        ceiling = benchmark.ceiling
-        assert ceiling.sel(aggregation='center') == approx(.826023, abs=.0001)
-
-    def test_V1_self(self):
-        benchmark = MovshonFreemanZiemba2013V1PLS()
-        source = benchmark._assembly
-        score = benchmark(PrecomputedFeatures(source)).raw
-        assert score.sel(aggregation='center') == approx(.676264, abs=.00001)
-        raw_values = score.attrs['raw']
-        assert raw_values.median('neuroid').std() == approx(.0210868, abs=.00001), "too much deviation between splits"
-        assert raw_values.mean('split').std() == approx(.2449174, abs=.00001), "too much deviation between neuroids"
-
-    def test_V2_self(self):
-        benchmark = MovshonFreemanZiemba2013V2PLS()
-        source = benchmark._assembly
-        score = benchmark(PrecomputedFeatures(source)).raw
-        assert score.sel(aggregation='center') == approx(.560371, abs=.00001)
-        raw_values = score.attrs['raw']
-        assert raw_values.median('neuroid').std() == approx(.0324611, abs=.00001), "too much deviation between splits"
-        assert raw_values.mean('split').std() == approx(.2668294, abs=.00001), "too much deviation between neuroids"
-
-
-@pytest.mark.private_access
-class TestToliasCadena2017:
-    def test_V1_self(self):
-        benchmark = ToliasCadena2017PLS()
-        source = benchmark._assembly
-        score = benchmark(PrecomputedFeatures(source)).raw
-        assert score.sel(aggregation='center') == approx(0.577474, abs=.005)
-        raw_values = score.raw
-        assert raw_values.median('neuroid').std() == approx(0.007518, abs=.003), \
-            "too much deviation between splits" + str(raw_values.median('neuroid').std())
-        assert raw_values.mean('split').std() == approx(0.213484, abs=.003), \
-            "too much deviation between neuroids" + str(raw_values.mean('split').std())

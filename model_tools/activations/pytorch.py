@@ -19,10 +19,14 @@ class PytorchWrapper:
         self._model = model
         self._model = self._model.to(self._device)
         identifier = identifier or model.__class__.__name__
-        self._extractor = ActivationsExtractorHelper(
-            identifier=identifier, get_activations=self.get_activations, preprocessing=preprocessing,
-            *args, **kwargs)
+        self._extractor = self._build_extractor(
+            identifier=identifier, preprocessing=preprocessing, get_activations=self.get_activations, *args, **kwargs)
         self._extractor.insert_attrs(self)
+
+    def _build_extractor(self, identifier, preprocessing, get_activations, *args, **kwargs):
+        return ActivationsExtractorHelper(
+            identifier=identifier, get_activations=get_activations, preprocessing=preprocessing,
+            *args, **kwargs)
 
     @property
     def identifier(self):

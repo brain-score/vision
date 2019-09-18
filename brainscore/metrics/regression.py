@@ -51,7 +51,7 @@ def mask_regression():
 
 
 def pls_regression(regression_kwargs=None, xarray_kwargs=None):
-    regression_defaults = dict(n_components=25, scale=False)
+    regression_defaults = dict(n_components=4, scale=False)
     regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
     regression = PLSRegression(**regression_kwargs)
     xarray_kwargs = xarray_kwargs or {}

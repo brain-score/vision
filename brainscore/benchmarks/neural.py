@@ -48,7 +48,11 @@ def explained_variance(score, ceiling):
     return ceiled_score
 
 
-def build_benchmark(identifier, assembly_loader, similarity_metric, ceiler, **kwargs):
+def build_benchmark(identifier, assembly_loader, ceiler, similarity_metric=None, **kwargs):
+    if not similarity_metric:
+        similarity_metric = CrossRegressedCorrelation(
+            regression=pls_regression(), correlation=pearsonr_correlation(),
+            crossvalidation_kwargs=dict(stratification_coord='object_name'))
     assembly_repetition = assembly_loader(average_repetition=False)
     assembly = assembly_loader(average_repetition=True)
     return NeuralBenchmark(identifier=identifier, assembly=assembly, similarity_metric=similarity_metric,

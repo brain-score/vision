@@ -16,6 +16,7 @@ requirements = [
     "tqdm",
     "networkx",
     "result_caching @ git+https://github.com/mschrimpf/result_caching",
+    "jupyter",
 ]
 
 setup(

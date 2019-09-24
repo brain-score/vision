@@ -1,11 +1,15 @@
+import logging
+
 import nbformat
 import pytest
 from nbconvert.preprocessors import ExecutePreprocessor
 from pathlib import Path
 
+_logger = logging.getLogger(__name__)
+
 
 def run_notebook(notebook_path):
-    print(f"Running {notebook_path}")
+    _logger.info(f"Running {notebook_path}")
     with open(notebook_path) as f:
         nb = nbformat.read(f, as_version=4)
 
@@ -26,7 +30,7 @@ def run_notebook(notebook_path):
 @pytest.mark.parametrize('filename', [
     pytest.param('data.ipynb', marks=pytest.mark.memory_intense),
     pytest.param('metrics.ipynb', marks=pytest.mark.memory_intense),
-    pytest.param('benchmarks.ipynb', marks=[]),
+    pytest.param('benchmarks.ipynb', marks=pytest.mark.private_access),
 ])
 def test_notebook(filename):
     filepath = Path(__file__).parent / '..' / 'examples' / filename

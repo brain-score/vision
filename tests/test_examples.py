@@ -29,7 +29,7 @@ def run_notebook(notebook_path):
 
 @pytest.mark.parametrize('filename', [
     pytest.param('data.ipynb', marks=pytest.mark.memory_intense),
-    pytest.param('metrics.ipynb', marks=pytest.mark.memory_intense),
+    pytest.param('metrics.ipynb', marks=[]),
     pytest.param('benchmarks.ipynb', marks=[pytest.mark.memory_intense, pytest.mark.private_access]),
 ])
 def test_notebook(filename):

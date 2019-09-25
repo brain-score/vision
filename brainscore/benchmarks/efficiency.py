@@ -12,8 +12,8 @@ class NeuronsSynapsesEnergy(Benchmark):
         return 'roy.Chakraborty2019-neurons_synapses'
 
     def __call__(self, candidate):
-        weights = candidate.get_synapses()
-        neurons = candidate.get_neurons()
+        weights = candidate.synapses
+        neurons = candidate.neurons
         num_weights, num_neurons = len(weights), len(neurons)
         energy = self.E_mac * num_weights + self.E_mem * num_neurons
         return Score(energy, coords={'unit': 'mJ'})

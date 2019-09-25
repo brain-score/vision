@@ -14,3 +14,11 @@ class BrainModel:
 
     def start_recording(self, recording_target: RecordingTarget, time_bins=List[Tuple[int]]):
         raise NotImplementedError()
+
+    @property
+    def synapses(self):
+        raise NotImplementedError()
+
+    @property
+    def neurons(self):
+        raise NotImplementedError()

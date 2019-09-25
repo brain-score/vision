@@ -3,13 +3,13 @@ from brainscore.metrics import Score
 from brainscore.benchmarks import Benchmark
 
 
-class NeuronParameterEnergy(Benchmark):
+class NeuronsSynapsesEnergy(Benchmark):
     E_mac = 3.2e-12
     E_mem = 5e-12
 
     @property
     def identifier(self):
-        return 'roy.energy-neuron_parameter'
+        return 'roy.Chakraborty2019-neurons_synapses'
 
     def __call__(self, candidate):
         weights = candidate.get_synapses()

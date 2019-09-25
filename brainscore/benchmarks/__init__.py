@@ -85,6 +85,8 @@ class BenchmarkPool(dict):
 
         from .imagenet import Imagenet2012
         self['fei-fei.Deng2009-top1'] = LazyLoad(Imagenet2012)
+        from .efficiency import NeuronsSynapsesEnergy
+        self['roy.Chakraborty2019-neurons_synapses'] = LazyLoad(NeuronsSynapsesEnergy)
 
 
 benchmark_pool = BenchmarkPool()

@@ -1,6 +1,7 @@
-from brainscore.metrics import Score
+import numpy as np
 
 from brainscore.benchmarks import Benchmark
+from brainscore.metrics import Score
 
 
 class NeuronsSynapsesEnergy(Benchmark):
@@ -12,7 +13,8 @@ class NeuronsSynapsesEnergy(Benchmark):
         return 'roy.Chakraborty2019-neurons_synapses'
 
     def __call__(self, candidate):
-        weights = candidate.synapses
+        weights = candidate.synapses.values
+        weights = weights[(weights != 0) & (~np.isnan(weights))]
         neurons = candidate.neurons
         num_weights, num_neurons = len(weights), len(neurons)
         energy = self.E_mac * num_weights + self.E_mem * num_neurons

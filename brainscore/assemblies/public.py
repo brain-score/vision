@@ -42,7 +42,6 @@ _assembly_loaders_ctrs = [
 assembly_loaders = {}
 for loader_ctr in _assembly_loaders_ctrs:
     loader = loader_ctr()
-    print(loader.name)
     assembly_loaders[loader.name] = loader
 
 

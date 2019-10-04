@@ -289,9 +289,7 @@ class CrossValidation(Transformation):
 
     def pipe(self, source_assembly, target_assembly):
         # check only for equal values, alignment is given by metadata
-        print('>>Split coord ', self._split_coord)
-        if not sorted(source_assembly[self._split_coord].values) == sorted(target_assembly[self._split_coord].values):
-            i =1
+        assert sorted(source_assembly[self._split_coord].values) == sorted(target_assembly[self._split_coord].values)
         if self._split.do_stratify:
             assert hasattr(source_assembly, self._stratification_coord)
             assert sorted(source_assembly[self._stratification_coord].values) == \
@@ -324,9 +322,6 @@ class CrossValidation(Transformation):
 
 def standard_error_of_the_mean(values, dim):
     return values.std(dim) / math.sqrt(len(values[dim]))
-
-
-
 
 
 def expand(assembly, target_dims):

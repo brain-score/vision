@@ -1,15 +1,6 @@
-import numpy as np
-from numpy.random.mtrand import RandomState
-from result_caching import store
-from sklearn.model_selection import StratifiedShuffleSplit
-from xarray import DataArray
-
 import brainscore
 from brainscore.assemblies import merge_data_arrays, walk_coords, array_is_element, AssemblyLoader, average_repetition
-from brainscore.metrics.transformations import subset
-
-
-# TODO: assemblies in here need separate S3 access rights
+from result_caching import store
 
 
 class DicarloMajaj2015Loader(AssemblyLoader):
@@ -20,26 +11,11 @@ class DicarloMajaj2015Loader(AssemblyLoader):
     def __call__(self, average_repetition=True):
         assembly = brainscore.get_assembly(name=self.name)
         assembly.load()
-        # assembly = self._filter_erroneous_neuroids(assembly)
         assembly = assembly.squeeze("time_bin")
         assembly = assembly.transpose('presentation', 'neuroid')
-        # if average_repetition:
-        #     assembly = self.average_repetition(assembly)
+        if average_repetition:
+            assembly = self.average_repetition(assembly)
         return assembly
-
-    # def _filter_erroneous_neuroids(self, assembly):
-    #     err_neuroids = ['Tito_L_P_8_5', 'Tito_L_P_7_3', 'Tito_L_P_7_5', 'Tito_L_P_5_1', 'Tito_L_P_9_3',
-    #                     'Tito_L_P_6_3', 'Tito_L_P_7_4', 'Tito_L_P_5_0', 'Tito_L_P_5_4', 'Tito_L_P_9_6',
-    #                     'Tito_L_P_0_4', 'Tito_L_P_4_6', 'Tito_L_P_5_6', 'Tito_L_P_7_6', 'Tito_L_P_9_8',
-    #                     'Tito_L_P_4_1', 'Tito_L_P_0_5', 'Tito_L_P_9_9', 'Tito_L_P_3_0', 'Tito_L_P_0_3',
-    #                     'Tito_L_P_6_6', 'Tito_L_P_5_7', 'Tito_L_P_1_1', 'Tito_L_P_3_8', 'Tito_L_P_1_6',
-    #                     'Tito_L_P_3_5', 'Tito_L_P_6_8', 'Tito_L_P_2_8', 'Tito_L_P_9_7', 'Tito_L_P_6_7',
-    #                     'Tito_L_P_1_0', 'Tito_L_P_4_5', 'Tito_L_P_4_9', 'Tito_L_P_7_8', 'Tito_L_P_4_7',
-    #                     'Tito_L_P_4_0', 'Tito_L_P_3_9', 'Tito_L_P_7_7', 'Tito_L_P_4_3', 'Tito_L_P_9_5']
-    #     good_neuroids = [i for i, neuroid_id in enumerate(assembly['neuroid_id'].values)
-    #                      if neuroid_id not in err_neuroids]
-    #     assembly = assembly.isel(neuroid=good_neuroids)
-    #     return assembly
 
 
 class _RegionLoader(AssemblyLoader):
@@ -48,7 +24,7 @@ class _RegionLoader(AssemblyLoader):
         assembly_loader_pool = assembly_loader_pool or assembly_loaders
         self.region = region
         self.loader = assembly_loader_pool[basename]
-        # self.average_repetition = self.loader.average_repetition
+        self.average_repetition = self.loader.average_repetition
 
     def __call__(self, average_repetition=True):
         assembly = self.loader(average_repetition=average_repetition)
@@ -60,37 +36,7 @@ class _RegionLoader(AssemblyLoader):
         return assembly
 
 
-class _VariationLoader(AssemblyLoader):
-    def __init__(self, basename, variation_name, variation, assembly_loader_pool=None):
-        super(_VariationLoader, self).__init__(name=f'{basename}.{variation_name}var')
-        assembly_loader_pool = assembly_loader_pool or assembly_loaders
-        self.variation = variation
-        self.loader = assembly_loader_pool[basename]
-        self.average_repetition = self.loader.average_repetition
-
-    def __call__(self, average_repetition=True):
-        assembly = self.loader(average_repetition=average_repetition)
-        assembly.name = self.name
-        variation = [self.variation] if not isinstance(self.variation, list) else self.variation
-        variation_selection = DataArray([0] * len(variation), coords={'variation': variation},
-                                        dims=['variation']).stack(presentation=['variation'])
-        assembly = subset(assembly, variation_selection, repeat=True, dims_must_match=False)
-        assert hasattr(assembly, 'variation')
-        adapt_stimulus_set(assembly, name_suffix="var" + "".join(str(v) for v in variation))
-        return assembly
-
-
-def adapt_stimulus_set(assembly, name_suffix):
-    stimulus_set_name = f"{assembly.stimulus_set.name}-{name_suffix}"
-    assembly.attrs['stimulus_set'] = assembly.stimulus_set[
-        assembly.stimulus_set['image_id'].isin(assembly['image_id'].values)]
-    assembly.stimulus_set.name = stimulus_set_name
-    assembly.attrs['stimulus_set_name'] = stimulus_set_name
-
-
 DicarloMajaj2015HighvarLoader = lambda: DicarloMajaj2015Loader(access='private')
-# DicarloMajaj2015HighvarLoader = lambda: _VariationLoader(basename='dicarlo.Majaj2015',
-#                                                          variation_name='high', variation=6)
 DicarloMajaj2015V4HighvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.private', region='V4')
 DicarloMajaj2015ITHighvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.private', region='IT')
 
@@ -99,22 +45,19 @@ class DicarloMajaj2015TemporalLoader(AssemblyLoader):
     def __init__(self, access, name='dicarlo.Majaj2015.temporal'):
         super(DicarloMajaj2015TemporalLoader, self).__init__(name=f'{name}.{access}')
         self.access = access
-        # self._helper = DicarloMajaj2015Loader(access)
-        # self.average_repetition = self._helper.average_repetition
+        self._helper = DicarloMajaj2015Loader(access)
+        self.average_repetition = self._helper.average_repetition
 
     @store()
     def __call__(self, average_repetition=True):
         assembly = brainscore.get_assembly(name=f'dicarlo.Majaj2015.temporal.{self.access}')
-        # assembly = self._helper._filter_erroneous_neuroids(assembly)
         assembly = assembly.transpose('presentation', 'neuroid', 'time_bin')
-        # if average_repetition:
-        #     assembly = self.average_repetition(assembly)
+        if average_repetition:
+            assembly = self.average_repetition(assembly)
         return assembly
 
 
 DicarloMajaj2015TemporalHighvarLoader = lambda: DicarloMajaj2015TemporalLoader(access='private')
-# DicarloMajaj2015TemporalHighvarLoader = lambda: _VariationLoader(basename='dicarlo.Majaj2015.temporal',
-#                                                                  variation_name='high', variation=6)
 DicarloMajaj2015TemporalV4HighvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.private',
                                                                 region='V4')
 DicarloMajaj2015TemporalITHighvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.private',
@@ -153,12 +96,13 @@ class MovshonFreemanZiemba2013TemporalLoader(AssemblyLoader):
     def __init__(self, access):
         super(MovshonFreemanZiemba2013TemporalLoader, self).__init__(
             name=f'movshon.FreemanZiemba2013.temporal.{access}')
-        # self.average_repetition = average_repetition
+        self.average_repetition = average_repetition
+        self.access = access
 
     @store()
     def __call__(self, average_repetition=True):
         time_bins = [(time_bin_start, time_bin_start + 10) for time_bin_start in range(0, 291, 10)]
-        assembly = brainscore.get_assembly(name=self.name)
+        assembly = brainscore.get_assembly(f'movshon.FreemanZiemba2013.{self.access}')
         assembly.load()
         time_assemblies = []
         for time_bin_start, time_bin_end in time_bins:
@@ -171,8 +115,8 @@ class MovshonFreemanZiemba2013TemporalLoader(AssemblyLoader):
             time_assemblies.append(time_assembly)
         assembly = merge_data_arrays(time_assemblies)
         assembly = assembly.transpose('presentation', 'neuroid', 'time_bin')
-        # if average_repetition:
-        # assembly = self.average_repetition(assembly)
+        if average_repetition:
+            assembly = self.average_repetition(assembly)
         return assembly
 
 
@@ -183,10 +127,9 @@ class MovshonFreemanZiemba2013Loader(AssemblyLoader):
 
     @store()
     def __call__(self, average_repetition=True):
-        time_window = (50, 200)
         assembly = brainscore.get_assembly(name=self.name)
-
         assembly.load()
+        time_window = (50, 200)
         assembly = assembly.sel(time_bin=[(t, t + 1) for t in range(*time_window)])
         assembly = assembly.mean(dim='time_bin', keep_attrs=True)
 
@@ -194,42 +137,14 @@ class MovshonFreemanZiemba2013Loader(AssemblyLoader):
         assembly['time_bin_start'], assembly['time_bin_end'] = [time_window[0]], [time_window[1]]
         assembly = assembly.stack(time_bin=['time_bin_start', 'time_bin_end'])
         assembly = assembly.squeeze('time_bin')
-
         assembly = assembly.transpose('presentation', 'neuroid')
-        self.average_repetition(assembly)
+        if average_repetition:
+            assembly = self.average_repetition(assembly)
         return assembly
 
 
-class _SeparateMovshonPrivatePublic(AssemblyLoader):
-    def __init__(self, basename, region, private_or_public, assembly_loader_pool=None):
-        assembly_loader_pool = assembly_loader_pool or assembly_loaders
-        self.baseloader = assembly_loader_pool[f'{basename}.{private_or_public}']
-        self.region = region
-        self.access = private_or_public
-        name = f"{basename}.{private_or_public}.{region}"
-        super(_SeparateMovshonPrivatePublic, self).__init__(name=name)
-
-    def __call__(self, *args, **kwargs):
-        return self.baseloader(*args, **kwargs)
-        # base_assembly = self.baseloader(*args, **kwargs)
-        # _, unique_indices = np.unique(base_assembly['image_id'].values, return_index=True)
-        # unique_indices = np.sort(unique_indices)  # preserve order
-        # image_ids = base_assembly['image_id'].values[unique_indices]
-        # stratification_values = base_assembly['texture_type'].values[unique_indices]
-        # rng = RandomState(seed=12)
-        # splitter = StratifiedShuffleSplit(n_splits=1, train_size=.3, test_size=None, random_state=rng)
-        # split = next(splitter.split(np.zeros(len(image_ids)), stratification_values))
-        # access_indices = {assembly_type: image_indices
-        #                   for assembly_type, image_indices in zip(['public', 'private'], split)}
-        # indices = access_indices[self.access]
-        # subset_image_ids = image_ids[indices]
-        # subset_indexer = DataArray(np.zeros(len(subset_image_ids)), coords={'image_id': subset_image_ids},
-        #                            dims=['image_id']).stack(presentation=['image_id'])
-        # assembly = subset(base_assembly, subset_indexer, dims_must_match=False)
-        # adapt_stimulus_set(assembly, self.access)
-        # return assembly
-
-
+MovshonFreemanZiemba2013PrivateLoader = lambda: MovshonFreemanZiemba2013Loader('private')
+MovshonFreemanZiemba2013TemporalPrivateLoader = lambda: MovshonFreemanZiemba2013TemporalLoader('private')
 MovshonFreemanZiemba2013V1PrivateLoader = lambda: _RegionLoader('movshon.FreemanZiemba2013.private', 'V1')
 MovshonFreemanZiemba2013V2PrivateLoader = lambda: _RegionLoader('movshon.FreemanZiemba2013.private', 'V2')
 
@@ -237,10 +152,6 @@ MovshonFreemanZiemba2013TemporalV1PrivateLoader = lambda: _RegionLoader('movshon
                                                                         'V1')
 MovshonFreemanZiemba2013TemporalV2PrivateLoader = lambda: _RegionLoader('movshon.FreemanZiemba2013.temporal.private',
                                                                         'V2')
-
-MovshonFreemanZiemba2013PrivateLoader = lambda: MovshonFreemanZiemba2013Loader('private')
-
-MovshonFreemanZiemba2013TemporalPrivateLoader = lambda: MovshonFreemanZiemba2013TemporalLoader('private')
 
 
 class Rajalingham2018Loader(AssemblyLoader):
@@ -311,7 +222,6 @@ _assembly_loaders_ctrs = [
     DicarloMajaj2015HighvarLoader,
     DicarloMajaj2015V4HighvarLoader, DicarloMajaj2015ITHighvarLoader,
     DicarloMajaj2015EarlyLateLoader,
-    # DicarloMajaj2015TemporalLoader,  # private testing temporal loaders
     DicarloMajaj2015TemporalHighvarLoader,
     DicarloMajaj2015TemporalV4HighvarLoader,
     DicarloMajaj2015TemporalITHighvarLoader,

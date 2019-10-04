@@ -3,8 +3,6 @@ from brainscore.assemblies.private import _RegionLoader, \
     MovshonFreemanZiemba2013Loader
 
 # Majaj2015 time-averaged
-# DicarloMajaj2015LowvarLoader = lambda: _VariationLoader(basename='dicarlo.Majaj2015',
-#                                                         variation_name='low', variation=[0, 3])
 DicarloMajaj2015LowvarLoader = lambda: DicarloMajaj2015Loader(access='public')
 
 DicarloMajaj2015V4LowvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.public', region='V4',
@@ -13,10 +11,7 @@ DicarloMajaj2015ITLowvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj20
                                                        assembly_loader_pool=assembly_loaders)
 
 # Majaj2015 temporal
-
 DicarloMajaj2015TemporalLowvarLoader = lambda: DicarloMajaj2015TemporalLoader(access='public')
-# DicarloMajaj2015TemporalLowvarLoader = lambda: _VariationLoader(basename='dicarlo.Majaj2015.temporal',
-#                                                                 variation_name='low', variation=[0, 3])
 DicarloMajaj2015TemporalV4LowvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.public',
                                                                region='V4', assembly_loader_pool=assembly_loaders)
 DicarloMajaj2015TemporalITLowvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.public',

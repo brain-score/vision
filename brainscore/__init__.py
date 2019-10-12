@@ -1,5 +1,4 @@
-from brainio_collection.fetch import get_assembly as brainio_get_assembly, get_stimulus_set
-from brainio_collection import list_stimulus_sets, list_assemblies
+from brainio_collection.fetch import get_assembly as brainio_get_assembly
 
 
 def get_assembly(name):

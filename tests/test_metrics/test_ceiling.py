@@ -29,7 +29,7 @@ class TestInternalConsistency:
         assert ceiling.sel(aggregation='center') == 1
 
     def test_majaj2015_it(self):
-        loader = DicarloMajaj2015Loader()
+        loader = DicarloMajaj2015Loader('private')
         assembly_repetitions = loader(average_repetition=False).sel(region='IT')
         ceiler = InternalConsistency()
         ceiling = ceiler(assembly_repetitions)

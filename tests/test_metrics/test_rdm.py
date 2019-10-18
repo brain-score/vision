@@ -99,5 +99,5 @@ class TestRDMSimilarity(object):
 
 def test_np_load():
     p_path = os.path.join(os.path.dirname(__file__), "it_rdm.p")
-    it_rdm = np.load(p_path, encoding="latin1")
+    it_rdm = np.load(p_path, encoding="latin1", allow_pickle=True)
     assert it_rdm.shape == (64, 64)

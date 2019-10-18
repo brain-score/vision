@@ -7,6 +7,9 @@ import zipfile
 import git
 
 from importlib import import_module, reload
+
+from brainscore.utils import LazyLoad
+
 from submission import score_model
 from submission.ml_pool import MLBrainPool, ModelLayers
 
@@ -47,7 +50,8 @@ def score_models(config_file, work_dir, db_connection_config, all_models=True, a
         layers = {}
         base_model_pool = {}
         for model in test_models:
-            base_model_pool[model] = lambda: module.base_models.get_model(model)
+            function = lambda: module.base_models.get_model(model)
+            base_model_pool[model] = LazyLoad(function)
             if module.base_models.get_layers != None:
                 layers[model] = module.base_models.get_layers(model)
         model_layers = ModelLayers(layers)

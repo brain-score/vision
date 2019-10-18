@@ -15,9 +15,9 @@ parser.add_argument('config_file', type=str, help='The configuration file for th
 parser.add_argument('work_dir', type=str, help='A working directory to unpack/clone the model repo')
 parser.add_argument('db_config', type=str,
                     help='A configuration file containing database details to write the output to')
-parser.add_argument('--models', type=list, default=None,
+parser.add_argument('--models', type=str, nargs='*', default=None,
                     help='An optional list of the models to benchmark, if it doesn\'t exist all models are socred')
-parser.add_argument('--benchmarks', type=list, default=None,
+parser.add_argument('--benchmarks', type=str, nargs='*', default=None,
                     help='An optional list of the benchmarks to run, if it doesn\'t exist all benchmarks are run')
 args, remaining_args = parser.parse_known_args()
 logging.basicConfig(stream=sys.stdout, level=logging.getLevelName(args.log_level),

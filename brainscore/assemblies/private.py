@@ -45,8 +45,7 @@ class DicarloMajaj2015TemporalLoader(AssemblyLoader):
     def __init__(self, access, name='dicarlo.Majaj2015.temporal'):
         super(DicarloMajaj2015TemporalLoader, self).__init__(name=f'{name}.{access}')
         self.access = access
-        self._helper = DicarloMajaj2015Loader(access)
-        self.average_repetition = self._helper.average_repetition
+        self.average_repetition = average_repetition
 
     @store()
     def __call__(self, average_repetition=True):

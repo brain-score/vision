@@ -57,7 +57,7 @@ def build_benchmark(identifier, assembly_loader, similarity_metric, ceiler, **kw
 
 def _DicarloMajaj2015Region(region, identifier_metric_suffix, similarity_metric, ceiler):
     return build_benchmark(f'dicarlo.Majaj2015.{region}-{identifier_metric_suffix}',
-                           assembly_loader=assembly_loaders[f'dicarlo.Majaj2015.highvar.{region}'],
+                           assembly_loader=assembly_loaders[f'dicarlo.Majaj2015.private.{region}'],
                            similarity_metric=similarity_metric,
                            ceiler=ceiler,
                            parent=region,

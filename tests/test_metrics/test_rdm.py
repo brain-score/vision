@@ -23,6 +23,7 @@ class TestRDMCrossValidated:
 
 
 class TestRSA:
+    @pytest.mark.private_access
     def test_equal_hvm(self):
         hvm = load_hvm().sel(region='IT')
         metric = RDMMetric()

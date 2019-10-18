@@ -9,6 +9,7 @@ from tests.test_assemblies import check_standard_format
 
 
 class TestBaseLoaders:
+    @pytest.mark.private_access
     def test_majaj2015(self):
         loader = DicarloMajaj2015Loader('private')
         assembly = loader()
@@ -19,6 +20,7 @@ class TestBaseLoaders:
         assert len(assembly.sel(region='IT')['neuroid']) == 168
         assert len(assembly.sel(region='V4')['neuroid']) == 88
 
+    @pytest.mark.private_access
     def test_majaj2015_highvar(self):
         loader = DicarloMajaj2015HighvarLoader()
         assembly = loader()

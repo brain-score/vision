@@ -1,3 +1,4 @@
+import pytest
 from pytest import approx
 from string import ascii_lowercase as alphabet
 
@@ -14,7 +15,7 @@ class TestNoCeiling:
         ceiling_score = ceiling()
         assert ceiling_score == 1
 
-
+@pytest.mark.private_access
 class TestInternalConsistency:
     def test_dummy_data(self):
         data = NeuroidAssembly(np.tile(np.arange(10)[:, np.newaxis], [5, 10]),

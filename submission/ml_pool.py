@@ -5,8 +5,6 @@ import itertools
 from brainscore.assemblies.public import load_assembly
 from brainscore.utils import LazyLoad
 from submission.utils import UniqueKeyDict
-from model_tools.activations.pca import LayerPCA
-from model_tools.brain_transformation import ModelCommitment, PixelsToDegrees
 
 
 class Hooks:
@@ -14,6 +12,8 @@ class Hooks:
 
     def __init__(self):
         pca_components = 1000
+        from model_tools.activations.pca import LayerPCA
+        from model_tools.brain_transformation import PixelsToDegrees
         self.activation_hooks = {
             f"pca_{pca_components}": lambda activations_model: LayerPCA.hook(
                 activations_model, n_components=pca_components),
@@ -93,7 +93,7 @@ class MLBrainPool(UniqueKeyDict):
             for identifier, activations_model in Hooks().iterate_hooks(basemodel_identifier, activations_model):
                 if identifier in self:  # already pre-defined
                     continue
-
+                from model_tools.brain_transformation import ModelCommitment
                 # enforce early parameter binding: https://stackoverflow.com/a/3431699/2225200
                 def load(identifier=identifier, activations_model=activations_model, layers=layers):
                     brain_model = ModelCommitment(identifier=identifier, activations_model=activations_model,

@@ -1,11 +1,8 @@
 import numpy as np
-import pytest
-import xarray as xr
-from brainio_base.assemblies import NeuroidAssembly, DataAssembly
 
-from brainscore.assemblies.private import load_assembly
+from brainio_base.assemblies import NeuroidAssembly, DataAssembly
 from brainscore.metrics import Metric
-from brainscore.metrics.transformations import subset, index_efficient, CartesianProduct, CrossValidation, \
+from brainscore.metrics.transformations import CartesianProduct, CrossValidation, \
     CrossValidationSingle
 
 

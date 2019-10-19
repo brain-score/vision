@@ -15,7 +15,6 @@ class TestNoCeiling:
         ceiling_score = ceiling()
         assert ceiling_score == 1
 
-@pytest.mark.private_access
 class TestInternalConsistency:
     def test_dummy_data(self):
         data = NeuroidAssembly(np.tile(np.arange(10)[:, np.newaxis], [5, 10]),
@@ -29,6 +28,7 @@ class TestInternalConsistency:
         ceiling = ceiler(data)
         assert ceiling.sel(aggregation='center') == 1
 
+    @pytest.mark.private_access
     def test_majaj2015_it(self):
         loader = DicarloMajaj2015Loader('private')
         assembly_repetitions = loader(average_repetition=False).sel(region='IT')

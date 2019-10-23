@@ -60,11 +60,17 @@ def score_models(config_file, work_dir, db_connection_config, all_models=True, a
         logger.info(f"Start working with brain models")
         for model in test_models:
             ml_brain_pool[model] = module.brain_models.get_model(model)
-    for benchmark in test_benchmarks:
-        for model in test_models:
+    file = open('result.txt', 'w')
+    file.write(f'Executed benchmarks in this order: {test_benchmarks}')
+    for model in test_models:
+        scores = []
+        for benchmark in test_benchmarks:
             logger.info(f"Scoring {model} on benchmark {benchmark}")
             score = score_model(model, benchmark, ml_brain_pool[model])
+            scores.append(score.sel(aggregation='center').value)
             logger.info(f'Running benchmark {benchmark} on model {model} produced this score: {score}')
+        file.write(f'Results for model{model}: {str(scores)}')
+    file.close()
 
 
 def connect_db(db):

@@ -65,10 +65,14 @@ def score_models(config_file, work_dir, db_connection_config, all_models=True, a
     for model in test_models:
         scores = []
         for benchmark in test_benchmarks:
-            logger.info(f"Scoring {model} on benchmark {benchmark}")
-            score = score_model(model, benchmark, ml_brain_pool[model])
-            scores.append(score.sel(aggregation='center').value)
-            logger.info(f'Running benchmark {benchmark} on model {model} produced this score: {score}')
+            try:
+                logger.info(f"Scoring {model} on benchmark {benchmark}")
+                score = score_model(model, benchmark, ml_brain_pool[model])
+                scores.append(score.sel(aggregation='center').values)
+                logger.info(f'Running benchmark {benchmark} on model {model} produced this score: {score}')
+            except Exception as e:
+                logger.error(f'Could not run model {model} because of error {e.__traceback__}')
+
         file.write(f'Results for model{model}: {str(scores)}')
     file.close()
 

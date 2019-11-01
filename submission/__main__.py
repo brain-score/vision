@@ -31,10 +31,9 @@ def score_model_console():
     assert os.path.exists(args.config_file) or os.path.exists(os.path.realpath(args.config_file)), 'Configuration file doesn\'t exist'
     assert os.path.exists(args.work_dir) or os.path.exists(os.path.realpath(args.work_dir)), 'Work directory is not a valid directory'
     assert os.path.exists(args.db_config) or os.path.exists(os.path.realpath(args.db_config)), 'The db connection file doesn\'t exist'
-    # assert args.models is list
-    # assert args.benchmarks is list
-    score_models(args.config_file, args.work_dir, args.db_config, all_models=(args.models is None),
-                 all_benchmarks=(args.benchmarks is None),
+    logger.info(f'Benchmarks configured:{args.benchmarks}')
+    logger.info(f'Models configured:{args.models}')
+    score_models(args.config_file, args.work_dir, args.db_config,
                  models=args.models, benchmarks=args.benchmarks)
 
 

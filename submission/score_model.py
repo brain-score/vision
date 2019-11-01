@@ -26,8 +26,8 @@ all_benchmarks_list = [
 ]
 
 
-def score_models(config_file, work_dir, db_connection_config, all_models=True, all_benchmarks=True, models=None,
-                 benchmarks=None):
+def score_models(config_file, work_dir, db_connection_config, models=None,
+                 benchmarks=None, private=False):
     config_file = config_file if os.path.isfile(config_file) else os.path.realpath(config_file)
     with open(config_file) as file:
         configs = json.load(file)
@@ -39,13 +39,10 @@ def score_models(config_file, work_dir, db_connection_config, all_models=True, a
         repo = clone_repo(configs, work_dir)
     package = 'models.brain_models' if configs['model_type'] is 'BrainModel' else 'models.base_models'
     module = install_project(repo, configs['repo_name'], package)
-    test_models = configs['models'] if all_models else models
-    test_benchmarks = all_benchmarks_list if all_benchmarks else benchmarks
-    # for i in dir(module.brain_models):
-    #     print(i)
-    # print(module.base_models.get_model_list())
+    test_benchmarks = all_benchmarks_list if benchmarks is None or len(benchmarks)==0 else benchmarks
     ml_brain_pool = {}
     if configs['model_type'] == 'BaseModel':
+        test_models = module.base_models.get_model_list() if models is None or len(models)==0 else models
         logger.info(f"Start working with base models")
         layers = {}
         base_model_pool = {}
@@ -58,6 +55,7 @@ def score_models(config_file, work_dir, db_connection_config, all_models=True, a
         ml_brain_pool = MLBrainPool(base_model_pool, model_layers)
     else:
         logger.info(f"Start working with brain models")
+        test_models = module.brain_models.get_model_list() if models is None or len(benchmarks)==0 else models
         for model in test_models:
             ml_brain_pool[model] = module.brain_models.get_model(model)
     file = open('result.txt', 'w')
@@ -71,8 +69,8 @@ def score_models(config_file, work_dir, db_connection_config, all_models=True, a
                 scores.append(score.sel(aggregation='center').values)
                 logger.info(f'Running benchmark {benchmark} on model {model} produced this score: {score}')
             except Exception as e:
-                logger.error(f'Could not run model {model} because of error {e.__traceback__}')
-
+                logging.error(f'Could not run model {model} because of following error')
+                logging.error(e, exc_info=True)
         file.write(f'Results for model{model}: {str(scores)}')
     file.close()
 

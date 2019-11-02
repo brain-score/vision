@@ -78,7 +78,8 @@ class OSTCorrelation(Metric):
     def correlate(self, predicted_osts, target_osts):
         non_nan = np.logical_and(~np.isnan(predicted_osts), ~np.isnan(target_osts))
         predicted_osts, target_osts = predicted_osts[non_nan], target_osts[non_nan]
-
+        # use Spearman over Pearson since it tests whether the rank orders are the same,
+        # which allows for nonlinear correlates whereas Pearson assumes linearity.
         correlation, p = spearmanr(predicted_osts, target_osts)
         return Score(correlation)
 
@@ -325,7 +326,8 @@ class TFProbabilitiesClassifier:
             preds = []
             for batch in self._iterate_minibatches(scaled_X, batchsize=self._eval_batch_size, shuffle=False):
                 feed_dict = {self._input_placeholder: batch, self._fc_keep_prob: 1.0}
-                preds.append(np.squeeze(self._sess.run([tf.nn.softmax(self._predictions)], feed_dict=feed_dict)))
+                softmax = self._sess.run([tf.nn.softmax(self._predictions)], feed_dict=feed_dict)
+                preds.append(np.squeeze(softmax))
             proba = np.concatenate(preds, axis=0)
         # we take only the 0th dimension because the 1st dimension is just the features
         X_coords = {coord: (dims, value) for coord, dims, value in walk_coords(X)

@@ -26,7 +26,7 @@ class DicarloKar2019OST(BenchmarkBase):
         assembly = assembly.isel(presentation=index)
         assembly.attrs['stimulus_set'] = assembly.stimulus_set.drop_duplicates('image_id')
 
-        assembly = assembly.sel(decoder='logistic')
+        assembly = assembly.sel(decoder='svm')
 
         self._assembly = assembly
         self._assembly['truth'] = self._assembly['image_label']

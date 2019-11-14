@@ -8,12 +8,13 @@ from brainscore.assemblies.private import load_assembly
 from brainscore.metrics.behavior import I2n
 from brainscore.metrics.transformations import apply_aggregate
 from brainscore.model_interface import BrainModel
-
+from brainscore.benchmarks.screen import place_on_screen
 
 class DicarloRajalingham2018I2n(BenchmarkBase):
     def __init__(self):
         self._metric = I2n()
         self._fitting_stimuli = brainscore.get_stimulus_set('dicarlo.objectome.public')
+        self._fitting_stimuli['degrees'] = 6
         self._assembly = load_assembly('dicarlo.Rajalingham2018')
         super(DicarloRajalingham2018I2n, self).__init__(
             identifier='dicarlo.Rajalingham2018-i2n',
@@ -22,8 +23,10 @@ class DicarloRajalingham2018I2n(BenchmarkBase):
             paper_link='https://www.biorxiv.org/content/early/2018/02/12/240614')
 
     def __call__(self, candidate: BrainModel):
-        candidate.start_task(BrainModel.Task.probabilities, self._fitting_stimuli)
-        probabilities = candidate.look_at(self._assembly.stimulus_set)
+        fitting_stimuli = place_on_screen(self._fitting_stimuli, target_visual_degrees=candidate.visual_degrees())
+        candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli)
+        stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees())
+        probabilities = candidate.look_at(stimulus_set)
         score = self._metric(probabilities, self._assembly)
         score = self.ceil_score(score, self.ceiling)
         return score

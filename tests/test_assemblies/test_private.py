@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from brainscore.assemblies.private import DicarloMajaj2015Loader, DicarloMajaj2015HighvarLoader, \
-    MovshonFreemanZiemba2013Loader, ToliasCadena2017Loader, \
+    MovshonFreemanZiemba2013PrivateLoader, ToliasCadena2017Loader, \
     DicarloMajaj2015TemporalHighvarLoader, DicarloMajaj2015TemporalV4HighvarLoader, \
     DicarloMajaj2015TemporalITHighvarLoader, load_assembly
 from tests.test_assemblies import check_standard_format
@@ -34,7 +34,7 @@ class TestBaseLoaders:
     @pytest.mark.memory_intense
     @pytest.mark.private_access
     def test_movshonfreemanziemba2013(self):
-        loader = MovshonFreemanZiemba2013Loader('private')
+        loader = MovshonFreemanZiemba2013PrivateLoader()
         assembly = loader()
         check_standard_format(assembly)
         assert assembly.attrs['stimulus_set_name'] == 'movshon.FreemanZiemba2013-private'

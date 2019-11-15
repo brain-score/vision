@@ -41,9 +41,9 @@ DicarloMajaj2015V4HighvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2
 DicarloMajaj2015ITHighvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.private', region='IT')
 
 
-class DicarloMajaj2015TemporalLoader(AssemblyLoader):
+class _DicarloMajaj2015TemporalLoader(AssemblyLoader):
     def __init__(self, access, name='dicarlo.Majaj2015.temporal'):
-        super(DicarloMajaj2015TemporalLoader, self).__init__(name=f'{name}.{access}')
+        super(_DicarloMajaj2015TemporalLoader, self).__init__(name=f'{name}.{access}')
         self.access = access
         self.average_repetition = average_repetition
 
@@ -56,16 +56,20 @@ class DicarloMajaj2015TemporalLoader(AssemblyLoader):
         return assembly
 
 
-DicarloMajaj2015TemporalHighvarLoader = lambda: DicarloMajaj2015TemporalLoader(access='private')
+class DicarloMajaj2015TemporalHighvarLoader(_DicarloMajaj2015TemporalLoader):
+    def __init__(self):
+        super(DicarloMajaj2015TemporalHighvarLoader, self).__init__(access='private')
+
+
 DicarloMajaj2015TemporalV4HighvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.private',
                                                                 region='V4')
 DicarloMajaj2015TemporalITHighvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.private',
                                                                 region='IT')
 
 
-class DicarloMajaj2015EarlyLateLoader(DicarloMajaj2015TemporalLoader):
+class DicarloMajaj2015EarlyLateLoader(_DicarloMajaj2015TemporalLoader):
     def __init__(self):
-        super(DicarloMajaj2015EarlyLateLoader, self).__init__('private', name='dicarlo.Majaj2015.earlylate')
+        super(DicarloMajaj2015EarlyLateLoader, self).__init__(access='private', name='dicarlo.Majaj2015.earlylate')
 
     @store()
     def __call__(self, average_repetition=True):
@@ -91,9 +95,9 @@ class DicarloMajaj2015EarlyLateLoader(DicarloMajaj2015TemporalLoader):
         return assembly
 
 
-class MovshonFreemanZiemba2013TemporalLoader(AssemblyLoader):
+class _MovshonFreemanZiemba2013TemporalLoader(AssemblyLoader):
     def __init__(self, access):
-        super(MovshonFreemanZiemba2013TemporalLoader, self).__init__(
+        super(_MovshonFreemanZiemba2013TemporalLoader, self).__init__(
             name=f'movshon.FreemanZiemba2013.temporal.{access}')
         self.average_repetition = average_repetition
         self.access = access
@@ -119,9 +123,14 @@ class MovshonFreemanZiemba2013TemporalLoader(AssemblyLoader):
         return assembly
 
 
-class MovshonFreemanZiemba2013Loader(AssemblyLoader):
+class MovshonFreemanZiemba2013TemporalPrivateLoader(_MovshonFreemanZiemba2013TemporalLoader):
+    def __init__(self):
+        super(MovshonFreemanZiemba2013TemporalPrivateLoader, self).__init__(access='private')
+
+
+class _MovshonFreemanZiemba2013Loader(AssemblyLoader):
     def __init__(self, access):
-        super(MovshonFreemanZiemba2013Loader, self).__init__(name=f'movshon.FreemanZiemba2013.{access}')
+        super(_MovshonFreemanZiemba2013Loader, self).__init__(name=f'movshon.FreemanZiemba2013.{access}')
         self.average_repetition = average_repetition
 
     @store()
@@ -142,8 +151,11 @@ class MovshonFreemanZiemba2013Loader(AssemblyLoader):
         return assembly
 
 
-MovshonFreemanZiemba2013PrivateLoader = lambda: MovshonFreemanZiemba2013Loader('private')
-MovshonFreemanZiemba2013TemporalPrivateLoader = lambda: MovshonFreemanZiemba2013TemporalLoader('private')
+class MovshonFreemanZiemba2013PrivateLoader(_MovshonFreemanZiemba2013Loader):
+    def __init__(self):
+        super(MovshonFreemanZiemba2013PrivateLoader, self).__init__(access='private')
+
+
 MovshonFreemanZiemba2013V1PrivateLoader = lambda: _RegionLoader('movshon.FreemanZiemba2013.private', 'V1')
 MovshonFreemanZiemba2013V2PrivateLoader = lambda: _RegionLoader('movshon.FreemanZiemba2013.private', 'V2')
 

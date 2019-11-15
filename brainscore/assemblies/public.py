@@ -1,6 +1,6 @@
 from brainscore.assemblies.private import _RegionLoader, \
-    DicarloMajaj2015Loader, DicarloMajaj2015TemporalLoader, MovshonFreemanZiemba2013TemporalLoader, \
-    MovshonFreemanZiemba2013Loader
+    DicarloMajaj2015Loader, _DicarloMajaj2015TemporalLoader, \
+    _MovshonFreemanZiemba2013TemporalLoader, _MovshonFreemanZiemba2013Loader
 
 # Majaj2015 time-averaged
 DicarloMajaj2015LowvarLoader = lambda: DicarloMajaj2015Loader(access='public')
@@ -10,22 +10,37 @@ DicarloMajaj2015V4LowvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj20
 DicarloMajaj2015ITLowvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.public', region='IT',
                                                        assembly_loader_pool=assembly_loaders)
 
+
 # Majaj2015 temporal
-DicarloMajaj2015TemporalLowvarLoader = lambda: DicarloMajaj2015TemporalLoader(access='public')
+class DicarloMajaj2015TemporalLowvarLoader(_DicarloMajaj2015TemporalLoader):
+    def __init__(self):
+        super(DicarloMajaj2015TemporalLowvarLoader, self).__init__(access='public')
+
+
 DicarloMajaj2015TemporalV4LowvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.public',
                                                                region='V4', assembly_loader_pool=assembly_loaders)
 DicarloMajaj2015TemporalITLowvarLoader = lambda: _RegionLoader(basename='dicarlo.Majaj2015.temporal.public',
                                                                region='IT', assembly_loader_pool=assembly_loaders)
 
+
 # FreemanZiemba2013
-MovshonFreemanZiemba2013PublicLoader = lambda: MovshonFreemanZiemba2013Loader(access='public')
+class MovshonFreemanZiemba2013PublicLoader(_MovshonFreemanZiemba2013Loader):
+    def __init__(self):
+        super(MovshonFreemanZiemba2013PublicLoader, self).__init__(access='public')
+
+
 MovshonFreemanZiemba2013V1PublicLoader = lambda: _RegionLoader(
     basename='movshon.FreemanZiemba2013.public', region='V1', assembly_loader_pool=assembly_loaders)
 MovshonFreemanZiemba2013V2PublicLoader = lambda: _RegionLoader(
     basename='movshon.FreemanZiemba2013.public', region='V2', assembly_loader_pool=assembly_loaders)
 
+
 # FreemanZiemba2013 temporal
-MovshonFreemanZiemba2013TemporalPublicLoader = lambda: MovshonFreemanZiemba2013TemporalLoader(access='public')
+class MovshonFreemanZiemba2013TemporalPublicLoader(_MovshonFreemanZiemba2013TemporalLoader):
+    def __init__(self):
+        super(MovshonFreemanZiemba2013TemporalPublicLoader, self).__init__(access='public')
+
+
 MovshonFreemanZiemba2013TemporalV1PublicLoader = lambda: _RegionLoader(
     basename='movshon.FreemanZiemba2013.temporal.public', region='V1', assembly_loader_pool=assembly_loaders)
 MovshonFreemanZiemba2013TemporalV2PublicLoader = lambda: _RegionLoader(

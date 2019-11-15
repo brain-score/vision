@@ -14,7 +14,7 @@ class DicarloRajalingham2018I2n(BenchmarkBase):
     def __init__(self):
         self._metric = I2n()
         self._fitting_stimuli = brainscore.get_stimulus_set('dicarlo.objectome.public')
-        self._fitting_stimuli['degrees'] = 6
+        self._fitting_stimuli['degrees'] = 8
         self._assembly = load_assembly('dicarlo.Rajalingham2018')
         super(DicarloRajalingham2018I2n, self).__init__(
             identifier='dicarlo.Rajalingham2018-i2n',

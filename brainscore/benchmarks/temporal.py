@@ -59,7 +59,7 @@ def _DicarloMajaj2015TemporalRegion(region):
                                        correlation=TemporalCorrelationAcrossImages(correlation=pearsonr_correlation()))
     # sub-select time-bins, and get rid of overlapping time bins
     time_bins = [(time_bin_start, time_bin_start + 20) for time_bin_start in range(0, 231, 20)]
-    loader = TimeFilteredAssemblyLoader(assembly_loaders[f'dicarlo.Majaj2015.temporal.highvar.{region}'], time_bins)
+    loader = TimeFilteredAssemblyLoader(assembly_loaders[f'dicarlo.Majaj2015.temporal.private.{region}'], time_bins)
     return build_benchmark(identifier=f'dicarlo.Majaj2015.temporal.{region}', assembly_loader=loader,
                            similarity_metric=metric, ceiler=TemporalCeiling(InternalConsistency()),
                            parent=region, paper_link='http://www.jneurosci.org/content/35/39/13402.short')

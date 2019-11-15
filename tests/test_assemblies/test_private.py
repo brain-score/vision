@@ -2,28 +2,30 @@ import numpy as np
 import pytest
 
 from brainscore.assemblies.private import DicarloMajaj2015Loader, DicarloMajaj2015HighvarLoader, \
-    MovshonFreemanZiemba2013Loader, ToliasCadena2017Loader, \
+    MovshonFreemanZiemba2013PrivateLoader, ToliasCadena2017Loader, \
     DicarloMajaj2015TemporalHighvarLoader, DicarloMajaj2015TemporalV4HighvarLoader, \
     DicarloMajaj2015TemporalITHighvarLoader, load_assembly
 from tests.test_assemblies import check_standard_format
 
 
 class TestBaseLoaders:
+    @pytest.mark.private_access
     def test_majaj2015(self):
-        loader = DicarloMajaj2015Loader()
+        loader = DicarloMajaj2015Loader('private')
         assembly = loader()
         check_standard_format(assembly)
-        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm'
-        assert len(assembly['presentation']) == 5760
+        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm-private'
+        assert len(assembly['presentation']) == 2560
         assert len(assembly['neuroid']) == 256
         assert len(assembly.sel(region='IT')['neuroid']) == 168
         assert len(assembly.sel(region='V4')['neuroid']) == 88
 
+    @pytest.mark.private_access
     def test_majaj2015_highvar(self):
         loader = DicarloMajaj2015HighvarLoader()
         assembly = loader()
         check_standard_format(assembly)
-        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm-var6'
+        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm-private'
         assert len(assembly['presentation']) == 2560
         assert len(assembly['neuroid']) == 256
         assert len(assembly.sel(region='IT')['neuroid']) == 168
@@ -32,12 +34,12 @@ class TestBaseLoaders:
     @pytest.mark.memory_intense
     @pytest.mark.private_access
     def test_movshonfreemanziemba2013(self):
-        loader = MovshonFreemanZiemba2013Loader()
+        loader = MovshonFreemanZiemba2013PrivateLoader()
         assembly = loader()
         check_standard_format(assembly)
-        assert assembly.attrs['stimulus_set_name'] == 'movshon.FreemanZiemba2013'
+        assert assembly.attrs['stimulus_set_name'] == 'movshon.FreemanZiemba2013-private'
         assert set(assembly['region'].values) == {'V1', 'V2'}
-        assert len(assembly['presentation']) == 450
+        assert len(assembly['presentation']) == 315
         assert len(assembly['neuroid']) == 205
 
 
@@ -59,7 +61,7 @@ class TestMajaj2015:
         loader = DicarloMajaj2015TemporalHighvarLoader()
         assembly = loader()
         check_standard_format(assembly)
-        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm-var6'
+        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm-private'
         assert len(assembly['presentation']) == 2560
         assert len(assembly['neuroid']) == 256
         assert len(assembly.sel(region='IT')['neuroid']) == 168
@@ -69,7 +71,7 @@ class TestMajaj2015:
         loader = DicarloMajaj2015TemporalV4HighvarLoader()
         assembly = loader()
         check_standard_format(assembly)
-        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm-var6'
+        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm-private'
         assert len(assembly['presentation']) == 2560
         assert len(assembly['neuroid']) == 88
         assert len(assembly['time_bin']) == 39
@@ -80,7 +82,7 @@ class TestMajaj2015:
         loader = DicarloMajaj2015TemporalITHighvarLoader()
         assembly = loader()
         check_standard_format(assembly)
-        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm-var6'
+        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm-private'
         assert len(assembly['presentation']) == 2560
         assert len(assembly['neuroid']) == 168
         assert len(assembly['time_bin']) == 39

@@ -1,3 +1,4 @@
+import pytest
 from pytest import approx
 from string import ascii_lowercase as alphabet
 
@@ -14,7 +15,6 @@ class TestNoCeiling:
         ceiling_score = ceiling()
         assert ceiling_score == 1
 
-
 class TestInternalConsistency:
     def test_dummy_data(self):
         data = NeuroidAssembly(np.tile(np.arange(10)[:, np.newaxis], [5, 10]),
@@ -28,8 +28,9 @@ class TestInternalConsistency:
         ceiling = ceiler(data)
         assert ceiling.sel(aggregation='center') == 1
 
+    @pytest.mark.private_access
     def test_majaj2015_it(self):
-        loader = DicarloMajaj2015Loader()
+        loader = DicarloMajaj2015Loader('private')
         assembly_repetitions = loader(average_repetition=False).sel(region='IT')
         ceiler = InternalConsistency()
         ceiling = ceiler(assembly_repetitions)

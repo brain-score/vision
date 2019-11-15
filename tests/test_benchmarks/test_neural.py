@@ -31,15 +31,15 @@ class TestStandardized:
         assert ceiling.sel(aggregation='center') == expected
 
     @pytest.mark.parametrize('benchmark, expected', [
-        pytest.param('movshon.FreemanZiemba2013.V1-pls', approx(.687929, abs=.001),
+        pytest.param('movshon.FreemanZiemba2013.V1-pls', approx(.686929, abs=.001),
                      marks=[pytest.mark.memory_intense, pytest.mark.private_access]),
-        pytest.param('movshon.FreemanZiemba2013.V2-pls', approx(.553678, abs=.001),
+        pytest.param('movshon.FreemanZiemba2013.V2-pls', approx(.573678, abs=.001),
                      marks=[pytest.mark.memory_intense, pytest.mark.private_access]),
         pytest.param('tolias.Cadena2017-pls', approx(.577474, abs=.001),
                      marks=pytest.mark.private_access),
-        pytest.param('dicarlo.Majaj2015.V4-pls', approx(.921713, abs=.001),
+        pytest.param('dicarlo.Majaj2015.V4-pls', approx(.923713, abs=.001),
                      marks=pytest.mark.memory_intense),
-        pytest.param('dicarlo.Majaj2015.IT-pls', approx(.821433, abs=.001),
+        pytest.param('dicarlo.Majaj2015.IT-pls', approx(.823433, abs=.001),
                      marks=pytest.mark.memory_intense),
     ])
     def test_self_regression(self, benchmark, expected):

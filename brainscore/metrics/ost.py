@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 from brainio_base.assemblies import walk_coords, array_is_element, BehavioralAssembly
 from brainscore.metrics import Metric, Score
-from brainscore.metrics.behavior import I1
+from brainscore.metrics.image_level_behavior import I1
 from brainscore.metrics.transformations import CrossValidation
 from brainscore.utils import fullname
 

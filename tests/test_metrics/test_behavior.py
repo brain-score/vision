@@ -6,7 +6,7 @@ from pytest import approx
 
 from brainio_base.assemblies import BehavioralAssembly
 from brainscore.benchmarks.rajalingham2018 import load_assembly
-from brainscore.metrics.behavior import I2n
+from brainscore.metrics.image_level_behavior import I2n
 
 
 @pytest.mark.private_access

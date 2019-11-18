@@ -50,9 +50,10 @@ def MovshonFreemanZiemba2013V2RDM():
 
 
 @store()
-def load_assembly(average_reps, region):
+def load_assembly(average_repetitions, region):
     assembly = brainscore.get_assembly('movshon.FreemanZiemba2013.private')
     assembly = assembly.sel(region=region)
+    assembly = assembly.stack(neuroid=['neuroid_id'])  # work around xarray multiindex issues
     assembly['region'] = 'neuroid', [region] * len(assembly['neuroid'])
     assembly.load()
     time_window = (50, 200)
@@ -63,7 +64,7 @@ def load_assembly(average_reps, region):
     assembly = assembly.stack(time_bin=['time_bin_start', 'time_bin_end'])
     assembly = assembly.squeeze('time_bin')
     assembly = assembly.transpose('presentation', 'neuroid')
-    if average_reps:
+    if average_repetitions:
         assembly = average_repetition(assembly)
     return assembly
 
@@ -90,9 +91,11 @@ MovshonFreemanZiemba2013TemporalV1PLS = lambda: _MovshonFreemanZiemba2013Tempora
 MovshonFreemanZiemba2013TemporalV2PLS = lambda: _MovshonFreemanZiemba2013TemporalRegion(region='V2')
 
 
-def load_temporal_assembly(average_reps, region, time_bins):
+def load_temporal_assembly(average_repetitions, region, time_bins):
     assembly = brainscore.get_assembly('movshon.FreemanZiemba2013.private')
     assembly = assembly.sel(region=region)
+    assembly = assembly.stack(neuroid=['neuroid_id'])  # work around xarray multiindex issues
+    assembly['region'] = 'neuroid', [region] * len(assembly['neuroid'])
     assembly.load()
     time_assemblies = []
     for time_bin_start, time_bin_end in time_bins:
@@ -105,6 +108,6 @@ def load_temporal_assembly(average_reps, region, time_bins):
         time_assemblies.append(time_assembly)
     assembly = merge_data_arrays(time_assemblies)
     assembly = assembly.transpose('presentation', 'neuroid', 'time_bin')
-    if average_reps:
+    if average_repetitions:
         assembly = average_repetition(assembly)
     return assembly

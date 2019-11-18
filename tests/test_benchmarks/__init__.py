@@ -3,6 +3,7 @@ import pickle
 
 import numpy as np
 
+from brainio_base.assemblies import NeuroidAssembly
 from brainscore.model_interface import BrainModel
 
 
@@ -28,3 +29,12 @@ class StoredPrecomputedFeatures(PrecomputedFeatures):
         with open(self.filepath, 'rb') as f:
             features = pickle.load(f)['data']
         super(StoredPrecomputedFeatures, self).__init__(features)
+
+
+def check_standard_format(assembly):
+    assert isinstance(assembly, NeuroidAssembly)
+    assert set(assembly.dims).issuperset({'presentation', 'neuroid'})
+    assert hasattr(assembly, 'image_id')
+    assert hasattr(assembly, 'neuroid_id')
+    assert not np.isnan(assembly).any()
+    assert 'stimulus_set_name' in assembly.attrs

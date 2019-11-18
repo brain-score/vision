@@ -2,8 +2,7 @@ import pytest
 from pytest import approx
 
 from brainscore.benchmarks import benchmark_pool
-from brainscore.benchmarks.majaj2015 import DicarloMajaj2015ITMask
-from tests.test_benchmarks import PrecomputedFeatures, StoredPrecomputedFeatures
+from tests.test_benchmarks import PrecomputedFeatures
 
 
 class TestStandardized:
@@ -70,12 +69,3 @@ class TestStandardized:
         raw_values = score.attrs['raw']
         assert hasattr(raw_values, 'split')
         assert len(raw_values['split']) == 10
-
-
-class TestPrecomputed:
-    @pytest.mark.requires_gpu
-    def test_IT_mask_alexnet(self):
-        benchmark = DicarloMajaj2015ITMask()
-        candidate = StoredPrecomputedFeatures('alexnet-hvmv6-features.6.pkl')
-        score = benchmark(candidate).raw
-        assert score.sel(aggregation='center') == approx(.614621, abs=.005)

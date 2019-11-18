@@ -12,7 +12,7 @@ from result_caching import store
 def _MovshonFreemanZiemba2013Region(region, identifier_metric_suffix, similarity_metric, ceiler):
     assembly_repetition = LazyLoad(lambda region=region: load_assembly(False, region=region))
     assembly = LazyLoad(lambda region=region: load_assembly(True, region=region))
-    return NeuralBenchmark(identifier=f'movshon.FreemanZiemba2013.{region}-{identifier_metric_suffix}',
+    return NeuralBenchmark(identifier=f'movshon.FreemanZiemba2013.{region}-{identifier_metric_suffix}', version=2,
                            assembly=assembly, similarity_metric=similarity_metric,
                            ceiling_func=lambda: ceiler(assembly_repetition),
                            parent=region,
@@ -79,7 +79,7 @@ def _MovshonFreemanZiemba2013TemporalRegion(region):
     assembly = LazyLoad(lambda region=region, time_bins=time_bins:
                         load_temporal_assembly(True, region=region, time_bins=time_bins))
     ceiler = TemporalCeiling(InternalConsistency())
-    return NeuralBenchmark(identifier=f'movshon.FreemanZiemba2013.temporal.{region}-pls_across_time',
+    return NeuralBenchmark(identifier=f'movshon.FreemanZiemba2013.temporal.{region}-pls_across_time', version=2,
                            assembly=assembly, similarity_metric=metric,
                            ceiling_func=lambda: ceiler(assembly_repetition),
                            parent=region,

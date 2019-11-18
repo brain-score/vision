@@ -11,7 +11,7 @@ class DicarloKar2019OST(BenchmarkBase):
     def __init__(self):
         ceiling = Score([.79, np.nan],  # following private conversation with Kohitij Kar
                         coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
-        super(DicarloKar2019OST, self).__init__(identifier='dicarlo.Kar2019-ost',
+        super(DicarloKar2019OST, self).__init__(identifier='dicarlo.Kar2019-ost', version=2,
                                                 ceiling_func=lambda: ceiling,
                                                 parent='IT-temporal',
                                                 paper_link='https://www.nature.com/articles/s41593-019-0392-5')

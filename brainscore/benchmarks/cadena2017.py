@@ -30,8 +30,8 @@ def ToliasCadena2017PLS():
         assembly_nonan, stimuli = loader.dropna(assembly_repetition, assembly_repetition.attrs['stimulus_set'])
         return ceiler(assembly_nonan)
 
-    return NeuralBenchmark(identifier=identifier, assembly=assembly, similarity_metric=similarity_metric,
-                           ceiling_func=ceiling)
+    return NeuralBenchmark(identifier=identifier, version=1,
+                           assembly=assembly, similarity_metric=similarity_metric, ceiling_func=ceiling)
 
 
 def ToliasCadena2017Mask():
@@ -46,7 +46,8 @@ def ToliasCadena2017Mask():
         crossvalidation_kwargs={'splits': 4, 'stratification_coord': None})
     identifier = f'tolias.Cadena2017-mask'
     ceiler = InternalConsistency(split_coord='repetition_id')
-    return NeuralBenchmark(identifier=identifier, assembly=assembly, similarity_metric=similarity_metric,
+    return NeuralBenchmark(identifier=identifier, version=1,
+                           assembly=assembly, similarity_metric=similarity_metric,
                            ceiling_func=lambda: ceiler(assembly_repetition))
 
 

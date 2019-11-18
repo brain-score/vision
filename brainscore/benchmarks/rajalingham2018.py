@@ -15,7 +15,7 @@ class DicarloRajalingham2018I2n(BenchmarkBase):
         self._fitting_stimuli = brainscore.get_stimulus_set('dicarlo.objectome.public')
         self._assembly = LazyLoad(load_assembly)
         super(DicarloRajalingham2018I2n, self).__init__(
-            identifier='dicarlo.Rajalingham2018-i2n',
+            identifier='dicarlo.Rajalingham2018-i2n', version=2,
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
             parent='behavior',
             paper_link='https://www.biorxiv.org/content/early/2018/02/12/240614')

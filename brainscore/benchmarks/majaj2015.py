@@ -11,7 +11,7 @@ from brainscore.utils import LazyLoad
 def _DicarloMajaj2015Region(region, identifier_metric_suffix, similarity_metric, ceiler):
     assembly_repetition = LazyLoad(lambda region=region: load_assembly(region))
     assembly = LazyLoad(lambda: average_repetition(assembly_repetition))
-    return NeuralBenchmark(identifier=f'dicarlo.Majaj2015.{region}-{identifier_metric_suffix}',
+    return NeuralBenchmark(identifier=f'dicarlo.Majaj2015.{region}-{identifier_metric_suffix}', version=3,
                            assembly=assembly, similarity_metric=similarity_metric,
                            ceiling_func=lambda: ceiler(assembly_repetition),
                            parent=region, paper_link='http://www.jneurosci.org/content/35/39/13402.short')
@@ -81,7 +81,7 @@ def _DicarloMajaj2015TemporalRegion(region):
     assembly_repetition = LazyLoad(lambda region=region, time_bins=time_bins: load_temporal_assembly(region, time_bins))
     assembly = LazyLoad(lambda: average_repetition((assembly_repetition)))
     ceiler = TemporalCeiling(InternalConsistency())
-    return NeuralBenchmark(identifier=f'dicarlo.Majaj2015.temporal.{region}-pls_across_time',
+    return NeuralBenchmark(identifier=f'dicarlo.Majaj2015.temporal.{region}-pls_across_time', version=3,
                            assembly=assembly, similarity_metric=metric,
                            ceiling_func=lambda: ceiler(assembly_repetition),
                            parent=region, paper_link='http://www.jneurosci.org/content/35/39/13402.short')

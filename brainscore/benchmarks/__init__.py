@@ -20,9 +20,10 @@ class Benchmark(ABC):
 
 
 class BenchmarkBase(Benchmark):
-    def __init__(self, identifier, ceiling_func, parent=None, paper_link=None):
+    def __init__(self, identifier, ceiling_func, version, parent=None, paper_link=None):
         self._identifier = identifier
         self._ceiling_func = ceiling_func
+        self.version = version
         self.parent = parent
         self.paper_link = paper_link
 

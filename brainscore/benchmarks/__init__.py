@@ -52,37 +52,39 @@ class BenchmarkPool(dict):
     def __init__(self):
         super(BenchmarkPool, self).__init__()
         # local imports to avoid circular imports
-        from .neural import \
-            DicarloMajaj2015V4PLS, DicarloMajaj2015ITPLS, DicarloMajaj2015V4Mask, DicarloMajaj2015ITMask, \
+        # neural benchmarks
+        from .majaj2015 import DicarloMajaj2015V4PLS, DicarloMajaj2015ITPLS, \
+            DicarloMajaj2015V4Mask, DicarloMajaj2015ITMask, \
             DicarloMajaj2015V4RDM, DicarloMajaj2015ITRDM, \
-            MovshonFreemanZiemba2013V1PLS, MovshonFreemanZiemba2013V2PLS, \
-            MovshonFreemanZiemba2013V1RDM, MovshonFreemanZiemba2013V2RDM, \
-            ToliasCadena2017PLS, ToliasCadena2017Mask
+            DicarloMajaj2015TemporalV4PLS, DicarloMajaj2015TemporalITPLS
         self['dicarlo.Majaj2015.V4-pls'] = LazyLoad(DicarloMajaj2015V4PLS)
         self['dicarlo.Majaj2015.IT-pls'] = LazyLoad(DicarloMajaj2015ITPLS)
         self['dicarlo.Majaj2015.V4-mask'] = LazyLoad(DicarloMajaj2015V4Mask)
         self['dicarlo.Majaj2015.IT-mask'] = LazyLoad(DicarloMajaj2015ITMask)
         self['dicarlo.Majaj2015.V4-rdm'] = LazyLoad(DicarloMajaj2015V4RDM)
         self['dicarlo.Majaj2015.IT-rdm'] = LazyLoad(DicarloMajaj2015ITRDM)
+        self['dicarlo.Majaj2015.temporal.V4-pls'] = LazyLoad(DicarloMajaj2015TemporalV4PLS)
+        self['dicarlo.Majaj2015.temporal.IT-pls'] = LazyLoad(DicarloMajaj2015TemporalITPLS)
+        from .freemanziemba2013 import MovshonFreemanZiemba2013V1PLS, MovshonFreemanZiemba2013V2PLS, \
+            MovshonFreemanZiemba2013V1RDM, MovshonFreemanZiemba2013V2RDM, \
+            MovshonFreemanZiemba2013TemporalV1PLS, MovshonFreemanZiemba2013TemporalV2PLS
         self['movshon.FreemanZiemba2013.V1-pls'] = LazyLoad(MovshonFreemanZiemba2013V1PLS)
         self['movshon.FreemanZiemba2013.V2-pls'] = LazyLoad(MovshonFreemanZiemba2013V2PLS)
         self['movshon.FreemanZiemba2013.V1-rdm'] = LazyLoad(MovshonFreemanZiemba2013V1RDM)
         self['movshon.FreemanZiemba2013.V2-rdm'] = LazyLoad(MovshonFreemanZiemba2013V2RDM)
-        self['tolias.Cadena2017-pls'] = LazyLoad(ToliasCadena2017PLS)
-        self['tolias.Cadena2017-mask'] = LazyLoad(ToliasCadena2017Mask)
-
-        from .temporal import DicarloMajaj2015TemporalV4PLS, DicarloMajaj2015TemporalITPLS, \
-            MovshonFreemanZiemba2013TemporalV1PLS, MovshonFreemanZiemba2013TemporalV2PLS, \
-            DicarloKar2019OST
-        self['dicarlo.Majaj2015.temporal.V4-pls'] = LazyLoad(DicarloMajaj2015TemporalV4PLS)
-        self['dicarlo.Majaj2015.temporal.IT-pls'] = LazyLoad(DicarloMajaj2015TemporalITPLS)
         self['movshon.FreemanZiemba2013.temporal.V1-pls'] = LazyLoad(MovshonFreemanZiemba2013TemporalV1PLS)
         self['movshon.FreemanZiemba2013.temporal.V2-pls'] = LazyLoad(MovshonFreemanZiemba2013TemporalV2PLS)
+        from .cadena2017 import ToliasCadena2017PLS, ToliasCadena2017Mask
+        self['tolias.Cadena2017-pls'] = LazyLoad(ToliasCadena2017PLS)
+        self['tolias.Cadena2017-mask'] = LazyLoad(ToliasCadena2017Mask)
+        from .kar2019 import DicarloKar2019OST
         self['dicarlo.Kar2019-ost'] = LazyLoad(DicarloKar2019OST)
 
-        from .behavioral import DicarloRajalingham2018I2n
+        # behavioral benchmarks
+        from .rajalingham2018 import DicarloRajalingham2018I2n
         self['dicarlo.Rajalingham2018-i2n'] = LazyLoad(DicarloRajalingham2018I2n)
 
+        # engineering (ML) benchmarks
         from .imagenet import Imagenet2012
         self['fei-fei.Deng2009-top1'] = LazyLoad(Imagenet2012)
 

@@ -5,7 +5,7 @@ from brainscore.metrics import Score
 
 from brainscore.benchmarks import BenchmarkBase
 from brainscore.assemblies.private import load_assembly
-from brainscore.metrics.behavior import I2n
+from brainscore.metrics.image_level_behavior import I2n
 from brainscore.metrics.transformations import apply_aggregate
 from brainscore.model_interface import BrainModel
 

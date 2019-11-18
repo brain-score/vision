@@ -2,7 +2,7 @@ import pytest
 from pytest import approx
 
 from brainscore.benchmarks import benchmark_pool
-from brainscore.benchmarks.neural import DicarloMajaj2015ITMask
+from brainscore.benchmarks.majaj2015 import DicarloMajaj2015ITMask
 from tests.test_benchmarks import PrecomputedFeatures, StoredPrecomputedFeatures
 
 

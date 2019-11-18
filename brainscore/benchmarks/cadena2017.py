@@ -1,4 +1,5 @@
-from brainscore.assemblies.private import assembly_loaders
+import brainscore
+from brainio_base.assemblies import walk_coords, array_is_element
 from brainscore.benchmarks._neural_common import NeuralBenchmark
 from brainscore.metrics.ceiling import InternalConsistency
 from brainscore.metrics.regression import CrossRegressedCorrelation, mask_regression, pls_regression, \
@@ -6,7 +7,7 @@ from brainscore.metrics.regression import CrossRegressedCorrelation, mask_regres
 
 
 def ToliasCadena2017PLS():
-    loader = assembly_loaders[f'tolias.Cadena2017']
+    loader = AssemblyLoader()
     assembly_repetition = loader(average_repetition=False)
     assembly = loader(average_repetition=True)
     assembly.stimulus_set.name = assembly.stimulus_set_name
@@ -34,7 +35,7 @@ def ToliasCadena2017PLS():
 
 
 def ToliasCadena2017Mask():
-    loader = assembly_loaders[f'tolias.Cadena2017']
+    loader = AssemblyLoader()
     assembly_repetition = loader(average_repetition=False)
     assembly = loader(average_repetition=True)
     assembly.stimulus_set.name = assembly.stimulus_set_name
@@ -47,3 +48,38 @@ def ToliasCadena2017Mask():
     ceiler = InternalConsistency(split_coord='repetition_id')
     return NeuralBenchmark(identifier=identifier, assembly=assembly, similarity_metric=similarity_metric,
                            ceiling_func=lambda: ceiler(assembly_repetition))
+
+
+class AssemblyLoader:
+    name = 'tolias.Cadena2017'
+
+    def __call__(self, average_repetition=True):
+        assembly = brainscore.get_assembly(name='tolias.Cadena2017')
+        assembly = assembly.rename({'neuroid': 'neuroid_id'}).stack(neuroid=['neuroid_id'])
+        assembly.load()
+        assembly['region'] = 'neuroid', ['V1'] * len(assembly['neuroid'])
+        assembly = assembly.squeeze("time_bin")
+        assembly = assembly.transpose('presentation', 'neuroid')
+        if average_repetition:
+            assembly = self.average_repetition(assembly)
+        return assembly
+
+    def _align_stimuli(self, stimulus_set, image_ids):
+        stimulus_set = stimulus_set.loc[stimulus_set['image_id'].isin(image_ids)]
+        return stimulus_set
+
+    def average_repetition(self, assembly):
+        attrs = assembly.attrs  # workaround to keeping attrs
+        presentation_coords = [coord for coord, dims, values in walk_coords(assembly)
+                               if array_is_element(dims, 'presentation')]
+        presentation_coords = set(presentation_coords) - {'repetition_id', 'id'}
+        assembly = assembly.multi_groupby(presentation_coords).mean(dim='presentation', skipna=True)
+        assembly, stimulus_set = self.dropna(assembly, stimulus_set=attrs['stimulus_set'])
+        attrs['stimulus_set'] = stimulus_set
+        assembly.attrs = attrs
+        return assembly
+
+    def dropna(self, assembly, stimulus_set):
+        assembly = assembly.dropna('presentation')  # discard any images with NaNs (~14%)
+        stimulus_set = self._align_stimuli(stimulus_set, assembly.image_id.values)
+        return assembly, stimulus_set

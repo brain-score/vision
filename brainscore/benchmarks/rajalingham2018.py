@@ -1,20 +1,19 @@
 import numpy as np
 
 import brainscore
-from brainscore.metrics import Score
-
 from brainscore.benchmarks import BenchmarkBase
-from brainscore.assemblies.private import load_assembly
+from brainscore.metrics import Score
 from brainscore.metrics.image_level_behavior import I2n
 from brainscore.metrics.transformations import apply_aggregate
 from brainscore.model_interface import BrainModel
+from brainscore.utils import LazyLoad
 
 
 class DicarloRajalingham2018I2n(BenchmarkBase):
     def __init__(self):
         self._metric = I2n()
         self._fitting_stimuli = brainscore.get_stimulus_set('dicarlo.objectome.public')
-        self._assembly = load_assembly('dicarlo.Rajalingham2018')
+        self._assembly = LazyLoad(load_assembly)
         super(DicarloRajalingham2018I2n, self).__init__(
             identifier='dicarlo.Rajalingham2018-i2n',
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
@@ -43,3 +42,9 @@ class DicarloRajalingham2018I2n(BenchmarkBase):
         split_scores.attrs[Score.RAW_VALUES_KEY] = score  # this will override raw per-split ceiled scores which is ok
         split_scores.attrs['ceiling'] = ceiling
         return split_scores
+
+
+def load_assembly():
+    assembly = brainscore.get_assembly('dicarlo.Rajalingham2018.private')
+    assembly['correct'] = assembly['choice'] == assembly['sample_obj']
+    return assembly

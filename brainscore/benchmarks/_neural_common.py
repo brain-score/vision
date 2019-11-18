@@ -1,5 +1,6 @@
 import numpy as np
 
+from brainio_base.assemblies import array_is_element, walk_coords
 from brainscore.benchmarks import BenchmarkBase, ceil_score
 
 
@@ -43,19 +44,18 @@ def explained_variance(score, ceiling):
     return ceiled_score
 
 
-def build_benchmark(identifier, assembly_loader, similarity_metric, ceiler, **kwargs):
-    assembly_repetition = assembly_loader(average_repetition=False)
-    assembly = assembly_loader(average_repetition=True)
-    return NeuralBenchmark(identifier=identifier, assembly=assembly, similarity_metric=similarity_metric,
-                           ceiling_func=lambda: ceiler(assembly_repetition), **kwargs)
-
-
-class TimeFilteredAssemblyLoader:
-    def __init__(self, baseloader, time_bins):
-        self._loader = baseloader
-        self._time_bins = time_bins
-
-    def __call__(self, *args, **kwargs):
-        assembly = self._loader(*args, **kwargs)
-        assembly = assembly.sel(time_bin=self._time_bins)
+def average_repetition(assembly):
+    def avg_repr(assembly):
+        presentation_coords = [coord for coord, dims, values in walk_coords(assembly)
+                               if array_is_element(dims, 'presentation') and coord != 'repetition']
+        assembly = assembly.multi_groupby(presentation_coords).mean(dim='presentation', skipna=True)
         return assembly
+
+    return apply_keep_attrs(assembly, avg_repr)
+
+
+def apply_keep_attrs(assembly, fnc):  # workaround to keeping attrs
+    attrs = assembly.attrs
+    assembly = fnc(assembly)
+    assembly.attrs = attrs
+    return assembly

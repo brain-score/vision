@@ -6,7 +6,7 @@ import pytest
 from pytest import approx
 
 from brainio_base.assemblies import BehavioralAssembly
-from brainscore.benchmarks.behavioral import DicarloRajalingham2018I2n
+from brainscore.benchmarks.rajalingham2018 import DicarloRajalingham2018I2n
 from brainscore.model_interface import BrainModel
 
 

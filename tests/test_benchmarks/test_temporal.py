@@ -4,8 +4,8 @@ from numpy.random.mtrand import RandomState
 from pytest import approx
 
 from brainio_base.assemblies import DataAssembly
-from brainscore.benchmarks.temporal import DicarloMajaj2015TemporalV4PLS, DicarloMajaj2015TemporalITPLS, \
-    DicarloKar2019OST
+from brainscore.benchmarks.majaj2015 import DicarloMajaj2015TemporalV4PLS, DicarloMajaj2015TemporalITPLS
+from brainscore.benchmarks.kar2019 import DicarloKar2019OST
 from tests.test_benchmarks import PrecomputedFeatures
 
 

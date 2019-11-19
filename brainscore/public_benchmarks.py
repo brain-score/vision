@@ -1,23 +1,17 @@
-import logging
-
 import boto3
 from botocore import UNSIGNED
 from botocore.config import Config
 from botocore.exceptions import ClientError
-from tqdm import tqdm
 
 import brainio_collection
 from brainio_collection.fetch import BotoFetcher
-
-_logger = logging.getLogger(__name__)
 
 
 def list_public_assemblies():
     all_assemblies = brainio_collection.list_assemblies()
     all_assemblies = ['movshon.FreemanZiemba2013.private'] + all_assemblies
     public_assemblies = []
-    for assembly in tqdm(all_assemblies, desc='probe public assemblies'):
-        _logger.debug(f"Probing {assembly}")
+    for assembly in all_assemblies:
         access = True
         # https://github.com/brain-score/brainio_collection/blob/a7a1eed2afafa0988d2b9da76091b3f61942e4d1/brainio_collection/fetch.py#L208
         assy_model = brainio_collection.assemblies.lookup_assembly(assembly)
@@ -37,7 +31,8 @@ class _ProbeBotoFetcher(BotoFetcher):
         s3 = boto3.resource('s3', config=Config(signature_version=UNSIGNED))
         obj = s3.Object(self.bucketname, self.relative_path)
         try:
-            length = obj.content_length  # probe
+            # noinspection PyStatementEffect
+            obj.content_length  # probe
             return True
         except ClientError:
             return False

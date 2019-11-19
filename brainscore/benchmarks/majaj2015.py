@@ -9,8 +9,8 @@ from brainscore.utils import LazyLoad
 
 
 def _DicarloMajaj2015Region(region, identifier_metric_suffix, similarity_metric, ceiler):
-    assembly_repetition = LazyLoad(lambda region=region: load_assembly(region))
-    assembly = LazyLoad(lambda: average_repetition(assembly_repetition))
+    assembly_repetition = LazyLoad(lambda region=region: load_assembly(average_repetitions=False, region=region))
+    assembly = LazyLoad(lambda region=region: load_assembly(average_repetitions=True, region=region))
     return NeuralBenchmark(identifier=f'dicarlo.Majaj2015.{region}-{identifier_metric_suffix}', version=3,
                            assembly=assembly, similarity_metric=similarity_metric,
                            ceiling_func=lambda: ceiler(assembly_repetition),
@@ -63,13 +63,15 @@ def DicarloMajaj2015ITRDM():
                                    ceiler=RDMConsistency())
 
 
-def load_assembly(region):
-    assembly = brainscore.get_assembly(name='dicarlo.Majaj2015.private')
+def load_assembly(average_repetitions, region, access='private'):
+    assembly = brainscore.get_assembly(name=f'dicarlo.Majaj2015.{access}')
     assembly = assembly.sel(region=region)
     assembly['region'] = 'neuroid', [region] * len(assembly['neuroid'])
     assembly = assembly.squeeze("time_bin")
     assembly.load()
     assembly = assembly.transpose('presentation', 'neuroid')
+    if average_repetitions:
+        assembly = average_repetition(assembly)
     return assembly
 
 

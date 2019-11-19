@@ -13,7 +13,7 @@ class DicarloRajalingham2018I2n(BenchmarkBase):
     def __init__(self):
         self._metric = I2n()
         self._fitting_stimuli = brainscore.get_stimulus_set('dicarlo.objectome.public')
-        self._assembly = LazyLoad(load_assembly)
+        self._assembly = LazyLoad(lambda: load_assembly('private'))
         super(DicarloRajalingham2018I2n, self).__init__(
             identifier='dicarlo.Rajalingham2018-i2n', version=2,
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
@@ -44,7 +44,7 @@ class DicarloRajalingham2018I2n(BenchmarkBase):
         return split_scores
 
 
-def load_assembly():
-    assembly = brainscore.get_assembly('dicarlo.Rajalingham2018.private')
+def load_assembly(access='private'):
+    assembly = brainscore.get_assembly(f'dicarlo.Rajalingham2018.{access}')
     assembly['correct'] = assembly['choice'] == assembly['sample_obj']
     return assembly

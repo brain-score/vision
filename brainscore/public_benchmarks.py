@@ -1,10 +1,65 @@
+"""
+The purpose of this file is to provide benchmarks based on publicly accessible data that can be run on candidate models
+without restrictions. As opposed to the private benchmarks hosted on www.Brain-Score.org, models can be evaluated
+without having to submit them to the online platform.
+This allows for quick local prototyping, layer commitment, etc.
+For the final model evaluation, candidate models should still be sent to www.Brain-Score.org to evaluate them on
+held-out private data.
+"""
 import boto3
+import functools
 from botocore import UNSIGNED
 from botocore.config import Config
 from botocore.exceptions import ClientError
 
 import brainio_collection
 from brainio_collection.fetch import BotoFetcher
+from brainscore.benchmarks._neural_common import NeuralBenchmark
+from brainscore.metrics.ceiling import InternalConsistency
+from brainscore.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation
+from brainscore.utils import LazyLoad
+from .benchmarks.freemanziemba2013 import load_assembly as load_freemanziemba2013
+from .benchmarks.majaj2015 import load_assembly as load_majaj2015
+from .benchmarks.rajalingham2018 import load_assembly as load_rajalingham2018, DicarloRajalingham2018I2n
+
+
+def _standard_benchmark(identifier, load_assembly):
+    assembly_repetition = LazyLoad(lambda: load_assembly(average_repetitions=False))
+    assembly = LazyLoad(lambda: load_assembly(average_repetitions=True))
+    similarity_metric = CrossRegressedCorrelation(
+        regression=pls_regression(), correlation=pearsonr_correlation(),
+        crossvalidation_kwargs=dict(stratification_coord='object_name'))
+    ceiler = InternalConsistency()
+    return NeuralBenchmark(identifier=f"{identifier}-pls", version=1,
+                           assembly=assembly, similarity_metric=similarity_metric,
+                           ceiling_func=lambda: ceiler(assembly_repetition),
+                           parent=None, paper_link='http://www.jneurosci.org/content/35/39/13402.short')
+
+
+def FreemanZiembaV1PublicBenchmark():
+    return _standard_benchmark('movshon.FreemanZiemba2013.V1.public',
+                               load_assembly=functools.partial(load_freemanziemba2013, region='V1', access='public'))
+
+
+def FreemanZiembaV2PublicBenchmark():
+    return _standard_benchmark('movshon.FreemanZiemba2013.V2.public',
+                               load_assembly=functools.partial(load_freemanziemba2013, region='V2', access='public'))
+
+
+def MajajV4PublicBenchmark():
+    return _standard_benchmark('dicarlo.Majaj2015.V4.public',
+                               load_assembly=functools.partial(load_majaj2015, region='V4', access='public'))
+
+
+def MajajITPublicBenchmark():
+    return _standard_benchmark('dicarlo.Majaj2015.IT.public',
+                               load_assembly=functools.partial(load_majaj2015, region='IT', access='public'))
+
+
+class RajalinghamMatchtosamplePublicBenchmark(DicarloRajalingham2018I2n):
+    def __init__(self):
+        super(RajalinghamMatchtosamplePublicBenchmark, self).__init__()
+        self._assembly = LazyLoad(lambda: load_rajalingham2018(access='public'))
 
 
 def list_public_assemblies():

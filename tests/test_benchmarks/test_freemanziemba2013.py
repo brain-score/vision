@@ -10,7 +10,7 @@ from . import check_standard_format
 @pytest.mark.private_access
 class TestAssembly:
     def test_V1(self):
-        assembly = load_assembly(region='V1')
+        assembly = load_assembly(region='V1', average_repetitions=True)
         check_standard_format(assembly)
         assert assembly.attrs['stimulus_set_name'] == 'movshon.FreemanZiemba2013-private'
         assert set(assembly['region'].values) == {'V1'}
@@ -18,7 +18,7 @@ class TestAssembly:
         assert len(assembly['neuroid']) == 102
 
     def test_V2(self):
-        assembly = load_assembly(region='V2')
+        assembly = load_assembly(region='V2', average_repetitions=True)
         check_standard_format(assembly)
         assert assembly.attrs['stimulus_set_name'] == 'movshon.FreemanZiemba2013-private'
         assert set(assembly['region'].values) == {'V2'}

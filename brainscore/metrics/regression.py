@@ -6,7 +6,7 @@ from sklearn.preprocessing import scale
 from brainio_base.assemblies import walk_coords
 from brainscore.metrics.mask_regression import MaskRegression
 from brainscore.metrics.transformations import CrossValidation
-from .xarray_utils import XarrayRegression, Defaults as XarrayDefaults, XarrayCorrelation
+from .xarray_utils import XarrayRegression, XarrayCorrelation
 
 
 class CrossRegressedCorrelation:
@@ -39,7 +39,7 @@ class ScaledCrossRegressedCorrelation:
 
     def __call__(self, source, target):
         scaled_values = scale(target, copy=True)
-        target = type(target)(scaled_values, coords={
+        target = target.__class__(scaled_values, coords={
             coord: (dims, value) for coord, dims, value in walk_coords(target)}, dims=target.dims)
         return self.cross_regressed_correlation(source, target)
 

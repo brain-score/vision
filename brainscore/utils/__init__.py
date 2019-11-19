@@ -70,3 +70,12 @@ class LazyLoad:
     def __call__(self, *args, **kwargs):
         self._ensure_loaded()
         return self.content(*args, **kwargs)
+
+    def __len__(self):
+        self._ensure_loaded()
+        return len(self.content)
+
+    @property
+    def __class__(self):
+        self._ensure_loaded()
+        return self.content.__class__

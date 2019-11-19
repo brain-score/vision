@@ -34,7 +34,7 @@ class TestStandardized:
                      marks=[pytest.mark.memory_intense, pytest.mark.private_access]),
         pytest.param('movshon.FreemanZiemba2013.V2-pls', approx(.573678, abs=.001),
                      marks=[pytest.mark.memory_intense, pytest.mark.private_access]),
-        pytest.param('tolias.Cadena2017-pls', approx(.577474, abs=.001),
+        pytest.param('tolias.Cadena2017-pls', approx(.577474, abs=.005),
                      marks=pytest.mark.private_access),
         pytest.param('dicarlo.Majaj2015.V4-pls', approx(.923713, abs=.001),
                      marks=pytest.mark.memory_intense),

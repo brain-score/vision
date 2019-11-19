@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
+from pathlib import Path
 from pytest import approx
 
-from brainscore.benchmarks.majaj2015 import DicarloMajaj2015ITMask, DicarloMajaj2015TemporalITPLS, \
-    DicarloMajaj2015TemporalV4PLS
+from brainscore.benchmarks.majaj2015 import DicarloMajaj2015ITMask
 from brainscore.benchmarks.majaj2015 import load_assembly
 from . import StoredPrecomputedFeatures, check_standard_format
 
@@ -34,26 +34,3 @@ class TestAssembly:
         assert set(assembly['region'].values) == {'IT'}
         assert len(assembly['presentation']) == 2560
         assert len(assembly['neuroid']) == 168
-
-    @pytest.mark.memory_intense
-    def test_majaj2015temporal_V4_from_benchmark(self):
-        benchmark = DicarloMajaj2015TemporalV4PLS()
-        assembly = benchmark._assembly
-        check_standard_format(assembly)
-        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm-private'
-        assert len(assembly['presentation']) == 2560
-        assert len(assembly['neuroid']) == 88
-        assert len(assembly['time_bin']) == 39
-        np.testing.assert_array_equal(assembly['time_bin_start'], list(range(0, 231, 20)))
-        np.testing.assert_array_equal(assembly['time_bin_end'], list(range(20, 251, 20)))
-
-    @pytest.mark.memory_intense
-    def test_majaj2015temporal_IT_from_benchmark(self):
-        benchmark = DicarloMajaj2015TemporalITPLS()
-        assembly = benchmark._assembly
-        check_standard_format(assembly)
-        assert assembly.attrs['stimulus_set_name'] == 'dicarlo.hvm-private'
-        assert len(assembly['presentation']) == 2560
-        assert len(assembly['neuroid']) == 168
-        np.testing.assert_array_equal(assembly['time_bin_start'], list(range(0, 231, 20)))
-        np.testing.assert_array_equal(assembly['time_bin_end'], list(range(20, 251, 20)))

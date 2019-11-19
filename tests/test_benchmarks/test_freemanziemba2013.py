@@ -1,8 +1,6 @@
-import numpy as np
 import pytest
 
-from brainscore.benchmarks.freemanziemba2013 import load_assembly, MovshonFreemanZiemba2013TemporalV1PLS, \
-    MovshonFreemanZiemba2013TemporalV2PLS
+from brainscore.benchmarks.freemanziemba2013 import load_assembly
 from . import check_standard_format
 
 
@@ -24,19 +22,3 @@ class TestAssembly:
         assert set(assembly['region'].values) == {'V2'}
         assert len(assembly['presentation']) == 315
         assert len(assembly['neuroid']) == 103
-
-    def test_temporal_V1_from_benchmark(self):
-        benchmark = MovshonFreemanZiemba2013TemporalV1PLS()
-        assembly = benchmark._assembly
-        assert len(assembly['presentation']) == 315
-        assert len(assembly['neuroid']) == 102
-        np.testing.assert_array_equal(assembly['time_bin_start'], list(range(0, 291, 10)))
-        np.testing.assert_array_equal(assembly['time_bin_end'], list(range(10, 301, 10)))
-
-    def test_temporal_V2_from_benchmark(self):
-        benchmark = MovshonFreemanZiemba2013TemporalV2PLS()
-        assembly = benchmark._assembly
-        assert len(assembly['presentation']) == 315
-        assert len(assembly['neuroid']) == 103
-        np.testing.assert_array_equal(assembly['time_bin_start'], list(range(0, 291, 10)))
-        np.testing.assert_array_equal(assembly['time_bin_end'], list(range(10, 301, 10)))

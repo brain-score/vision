@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 import os
@@ -26,8 +27,8 @@ all_benchmarks_list = [
 ]
 
 
-def score_models(config_file, work_dir, db_connection_config, models=None,
-                 benchmarks=None, private=False):
+def score_models(config_file, work_dir, db_connection_config, jenkins_id, models=None,
+                 benchmarks=None):
     config_file = config_file if os.path.isfile(config_file) else os.path.realpath(config_file)
     with open(config_file) as file:
         configs = json.load(file)
@@ -38,11 +39,11 @@ def score_models(config_file, work_dir, db_connection_config, models=None,
     else:
         repo = clone_repo(configs, work_dir)
     package = 'models.brain_models' if configs['model_type'] is 'BrainModel' else 'models.base_models'
-    module = install_project(repo, configs['repo_name'], package)
-    test_benchmarks = all_benchmarks_list if benchmarks is None or len(benchmarks)==0 else benchmarks
+    module = install_project(repo, configs['repo_name'], package, work_dir)
+    test_benchmarks = all_benchmarks_list if benchmarks is None or len(benchmarks) == 0 else benchmarks
     ml_brain_pool = {}
     if configs['model_type'] == 'BaseModel':
-        test_models = module.base_models.get_model_list() if models is None or len(models)==0 else models
+        test_models = module.base_models.get_model_list() if models is None or len(models) == 0 else models
         logger.info(f"Start working with base models")
         layers = {}
         base_model_pool = {}
@@ -55,33 +56,43 @@ def score_models(config_file, work_dir, db_connection_config, models=None,
         ml_brain_pool = MLBrainPool(base_model_pool, model_layers)
     else:
         logger.info(f"Start working with brain models")
-        test_models = module.brain_models.get_model_list() if models is None or len(benchmarks)==0 else models
+        test_models = module.brain_models.get_model_list() if models is None or len(benchmarks) == 0 else models
         for model in test_models:
             ml_brain_pool[model] = module.brain_models.get_model(model)
     file = open('result.txt', 'w')
+    db_conn = connect_db(db_connection_config)
     file.write(f'Executed benchmarks in this order: {test_benchmarks}')
-    for model in test_models:
-        scores = []
-        for benchmark in test_benchmarks:
-            try:
-                logger.info(f"Scoring {model} on benchmark {benchmark}")
-                score = score_model(model, benchmark, ml_brain_pool[model])
-                scores.append(score.sel(aggregation='center').values)
-                logger.info(f'Running benchmark {benchmark} on model {model} produced this score: {score}')
-            except Exception as e:
-                logging.error(f'Could not run model {model} because of following error')
-                logging.error(e, exc_info=True)
-        file.write(f'Results for model{model}: {str(scores)}')
-    file.close()
+    try:
+        for model in test_models:
+            scores = []
+            for benchmark in test_benchmarks:
+                try:
+                    logger.info(f"Scoring {model} on benchmark {benchmark}")
+                    score = score_model(model, benchmark, ml_brain_pool[model])
+                    scores.append(score.sel(aggregation='center').values)
+                    logger.info(f'Running benchmark {benchmark} on model {model} produced this score: {score}')
+                    store_score(db_conn, (model, benchmark, score['raw'], score.sel(aggregation='center'), score.sel(aggregation='error'), datetime.datetime.now(), jenkins_id))
+                except Exception as e:
+                    logging.error(f'Could not run model {model} because of following error')
+                    logging.error(e, exc_info=True)
+            file.write(f'Results for model{model}: {str(scores)}')
+    finally:
+        file.close()
+        db_conn.close()
 
 
 def connect_db(db):
-    #     tbd
-    return
+    with open(db) as file:
+        db_configs = json.load(file)
+    import pgdb
+    return pgdb.connect( host=db_configs.host_name, user=db_configs.user_name, password=db_configs, database=db_configs.database)
 
 
-def store_score(dbConnection):
-    #     tbd
+def store_score(dbConnection, score):
+    insert = '''insert into benchmarks_score(model, benchmark, score_raw, score_ceiled, error, timestamp, jenkins_job_id)   
+            values (?,?,?,?,?,?,?)'''
+    cur = dbConnection.cursor()
+    cur.execute(insert, score)
     return
 
 
@@ -100,9 +111,11 @@ def clone_repo(config, work_dir):
     return '%s/%s' % (work_dir, config['repo_name'])
 
 
-def install_project(repo, repo_name, package):
+def install_project(repo, repo_name, package, git_install_dir):
     try:
-        subprocess.call([sys.executable, "-m", "pip", "install", repo])
+        # subprocess.call([sys.executable, f"{repo}/setup.py", "install", f'--install-dir={git_install_dir}'])
+        print(os.environ["PYTHONPATH"])
+        subprocess.call([sys.executable, "-m", "pip", "install", f'--target={git_install_dir}', repo ])
         # os.environ["PYTHONPATH"] = '%s:%s'%(repo, os.environ['PYTHONPATH'])
         # print(os.environ["PYTHONPATH"] )
         sys.path.insert(1, repo)

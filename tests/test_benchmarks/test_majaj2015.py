@@ -1,20 +1,7 @@
-import numpy as np
 import pytest
-from pathlib import Path
-from pytest import approx
 
-from brainscore.benchmarks.majaj2015 import DicarloMajaj2015ITMask
 from brainscore.benchmarks.majaj2015 import load_assembly
-from . import StoredPrecomputedFeatures, check_standard_format
-
-
-class TestPrecomputed:
-    @pytest.mark.requires_gpu
-    def test_IT_mask_alexnet(self):
-        benchmark = DicarloMajaj2015ITMask()
-        candidate = StoredPrecomputedFeatures('alexnet-hvmv6-features.6.pkl')
-        score = benchmark(candidate).raw
-        assert score.sel(aggregation='center') == approx(.614621, abs=.005)
+from . import check_standard_format
 
 
 @pytest.mark.private_access

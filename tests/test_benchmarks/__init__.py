@@ -1,6 +1,3 @@
-import os
-import pickle
-
 import numpy as np
 
 from brainio_base.assemblies import NeuroidAssembly
@@ -20,15 +17,6 @@ class PrecomputedFeatures(BrainModel):
                                                     for image_id in stimuli['image_id'].values])
         assert all(features['image_id'].values == stimuli['image_id'].values)
         return self.features
-
-
-class StoredPrecomputedFeatures(PrecomputedFeatures):
-    def __init__(self, filename):
-        self.filepath = os.path.join(os.path.dirname(__file__), filename)
-        assert os.path.isfile(self.filepath)
-        with open(self.filepath, 'rb') as f:
-            features = pickle.load(f)['data']
-        super(StoredPrecomputedFeatures, self).__init__(features)
 
 
 def check_standard_format(assembly):

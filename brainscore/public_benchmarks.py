@@ -23,12 +23,12 @@ from .benchmarks.majaj2015 import load_assembly as load_majaj2015
 from .benchmarks.rajalingham2018 import load_assembly as load_rajalingham2018, DicarloRajalingham2018I2n
 
 
-def _standard_benchmark(identifier, load_assembly):
+def _standard_benchmark(identifier, load_assembly, stratification_coord):
     assembly_repetition = LazyLoad(lambda: load_assembly(average_repetitions=False))
     assembly = LazyLoad(lambda: load_assembly(average_repetitions=True))
     similarity_metric = CrossRegressedCorrelation(
         regression=pls_regression(), correlation=pearsonr_correlation(),
-        crossvalidation_kwargs=dict(stratification_coord='object_name'))
+        crossvalidation_kwargs=dict(stratification_coord=stratification_coord))
     ceiler = InternalConsistency()
     return NeuralBenchmark(identifier=f"{identifier}-pls", version=1,
                            assembly=assembly, similarity_metric=similarity_metric,
@@ -38,22 +38,26 @@ def _standard_benchmark(identifier, load_assembly):
 
 def FreemanZiembaV1PublicBenchmark():
     return _standard_benchmark('movshon.FreemanZiemba2013.V1.public',
-                               load_assembly=functools.partial(load_freemanziemba2013, region='V1', access='public'))
+                               load_assembly=functools.partial(load_freemanziemba2013, region='V1', access='public'),
+                               stratification_coord='texture_type')
 
 
 def FreemanZiembaV2PublicBenchmark():
     return _standard_benchmark('movshon.FreemanZiemba2013.V2.public',
-                               load_assembly=functools.partial(load_freemanziemba2013, region='V2', access='public'))
+                               load_assembly=functools.partial(load_freemanziemba2013, region='V2', access='public'),
+                               stratification_coord='texture_type')
 
 
 def MajajV4PublicBenchmark():
     return _standard_benchmark('dicarlo.Majaj2015.V4.public',
-                               load_assembly=functools.partial(load_majaj2015, region='V4', access='public'))
+                               load_assembly=functools.partial(load_majaj2015, region='V4', access='public'),
+                               stratification_coord='object_name')
 
 
 def MajajITPublicBenchmark():
     return _standard_benchmark('dicarlo.Majaj2015.IT.public',
-                               load_assembly=functools.partial(load_majaj2015, region='IT', access='public'))
+                               load_assembly=functools.partial(load_majaj2015, region='IT', access='public'),
+                               stratification_coord='object_name')
 
 
 class RajalinghamMatchtosamplePublicBenchmark(DicarloRajalingham2018I2n):

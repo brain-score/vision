@@ -15,6 +15,10 @@ class Benchmark(ABC):
         raise NotImplementedError()
 
     @property
+    def version(self):
+        raise NotImplementedError()
+
+    @property
     def ceiling(self):
         raise NotImplementedError()
 
@@ -23,13 +27,17 @@ class BenchmarkBase(Benchmark):
     def __init__(self, identifier, ceiling_func, version, parent=None, paper_link=None):
         self._identifier = identifier
         self._ceiling_func = ceiling_func
-        self.version = version
+        self._version = version
         self.parent = parent
         self.paper_link = paper_link
 
     @property
     def identifier(self):
         return self._identifier
+
+    @property
+    def version(self):
+        return self._version
 
     @property
     def ceiling(self):

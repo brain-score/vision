@@ -88,7 +88,7 @@ class TestPrecomputed:
 
     @pytest.mark.memory_intense
     @pytest.mark.parametrize('benchmark, expected', [
-        ('dicarlo.Majaj2015.V4-pls', approx(.681548, abs=.005)),
+        ('dicarlo.Majaj2015.V4-pls', approx(.490236, abs=.005)),
         ('dicarlo.Majaj2015.IT-pls', approx(.584053, abs=.005)),
     ])
     def test_Majaj2015(self, benchmark, expected):

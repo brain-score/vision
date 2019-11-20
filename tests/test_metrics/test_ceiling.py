@@ -31,7 +31,7 @@ class TestInternalConsistency:
 
     @pytest.mark.private_access
     def test_majaj2015_it(self):
-        assembly_repetitions = load_assembly(region='IT')
+        assembly_repetitions = load_assembly(average_repetitions=False, region='IT')
         ceiler = InternalConsistency()
         ceiling = ceiler(assembly_repetitions)
         assert ceiling.sel(aggregation='center') == approx(.82, abs=.01)

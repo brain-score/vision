@@ -21,6 +21,8 @@ from brainscore.utils import LazyLoad
 from .benchmarks.freemanziemba2013 import load_assembly as load_freemanziemba2013
 from .benchmarks.majaj2015 import load_assembly as load_majaj2015
 from .benchmarks.rajalingham2018 import load_assembly as load_rajalingham2018, DicarloRajalingham2018I2n
+# noinspection PyUnresolvedReferences
+from .benchmarks.imagenet import Imagenet2012
 
 
 def _standard_benchmark(identifier, load_assembly, stratification_coord):
@@ -68,7 +70,6 @@ class RajalinghamMatchtosamplePublicBenchmark(DicarloRajalingham2018I2n):
 
 def list_public_assemblies():
     all_assemblies = brainio_collection.list_assemblies()
-    all_assemblies = ['movshon.FreemanZiemba2013.private'] + all_assemblies
     public_assemblies = []
     for assembly in all_assemblies:
         access = True

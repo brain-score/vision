@@ -17,7 +17,7 @@ requirements = [
     "gitpython",
     "fire",
     "networkx",
-    "pgdb",
+    "psycopg2",
     "result_caching @ git+https://github.com/mschrimpf/result_caching",
 ]
 

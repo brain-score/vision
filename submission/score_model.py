@@ -30,6 +30,7 @@ all_benchmarks_list = [
 def score_models(config_file, work_dir, db_connection_config, jenkins_id, models=None,
                  benchmarks=None):
     config_file = config_file if os.path.isfile(config_file) else os.path.realpath(config_file)
+    db_conn = connect_db(db_connection_config)
     with open(config_file) as file:
         configs = json.load(file)
     logger.info('Start executing models from %s in repo %s' % (configs['name'], configs['repo_name']))
@@ -60,7 +61,7 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
         for model in test_models:
             ml_brain_pool[model] = module.brain_models.get_model(model)
     file = open('result.txt', 'w')
-    db_conn = connect_db(db_connection_config)
+
     file.write(f'Executed benchmarks in this order: {test_benchmarks}')
     try:
         for model in test_models:
@@ -84,8 +85,9 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
 def connect_db(db):
     with open(db) as file:
         db_configs = json.load(file)
-    import pgdb
-    return pgdb.connect( host=db_configs.host_name, user=db_configs.user_name, password=db_configs, database=db_configs.database)
+    print(f'somethign1!!!{str(db_configs)}')
+    import psycopg2
+    return psycopg2.connect( host=db_configs['hostname'], user=db_configs['user_name'], password=db_configs['password'], dbname=db_configs['database'])
 
 
 def store_score(dbConnection, score):

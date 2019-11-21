@@ -119,7 +119,7 @@ def install_project(repo, repo_name, package, git_install_dir):
     try:
         # subprocess.call([sys.executable, f"{repo}/setup.py", "install", f'--install-dir={git_install_dir}'])
         print(os.environ["PYTHONPATH"])
-        subprocess.call([sys.executable, "-m", "pip", "install", repo])
+        subprocess.call(["pip", "install", repo])
         # os.environ["PYTHONPATH"] = '%s:%s'%(repo, os.environ['PYTHONPATH'])
         # print(os.environ["PYTHONPATH"] )
         sys.path.insert(1, repo)

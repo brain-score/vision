@@ -72,7 +72,7 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
                     score = score_model(model, benchmark, ml_brain_pool[model])
                     scores.append(score.sel(aggregation='center').values)
                     logger.info(f'Running benchmark {benchmark} on model {model} produced this score: {score}')
-                    store_score(db_conn, (model, benchmark, score['raw'], score.sel(aggregation='center'), score.sel(aggregation='error'), datetime.datetime.now(), jenkins_id))
+                    store_score(db_conn, (model, benchmark, score.raw.sel(aggregation='center').item(0), score.sel(aggregation='center').item(0), score.sel(aggregation='error').item(0), datetime.datetime.now(), jenkins_id))
                 except Exception as e:
                     logging.error(f'Could not run model {model} because of following error')
                     logging.error(e, exc_info=True)
@@ -87,14 +87,16 @@ def connect_db(db):
         db_configs = json.load(file)
     print(f'somethign1!!!{str(db_configs)}')
     import psycopg2
-    return psycopg2.connect( host=db_configs['hostname'], user=db_configs['user_name'], password=db_configs['password'], dbname=db_configs['database'])
+    return psycopg2.connect(host=db_configs['hostname'], user=db_configs['user_name'], password=db_configs['password'], dbname=db_configs['database'])
 
 
 def store_score(dbConnection, score):
     insert = '''insert into benchmarks_score(model, benchmark, score_raw, score_ceiled, error, timestamp, jenkins_job_id)   
-            values (?,?,?,?,?,?,?)'''
+            VALUES(%s,%s,%s,%s,%s,%s, %s)'''
+    print(score)
     cur = dbConnection.cursor()
     cur.execute(insert, score)
+    dbConnection.commit()
     return
 
 

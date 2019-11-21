@@ -17,7 +17,7 @@ requirements = [
     "gitpython",
     "fire",
     "networkx",
-    "psycopg2",
+    # "psycopg2",
     "result_caching @ git+https://github.com/mschrimpf/result_caching",
 ]
 
@@ -26,7 +26,7 @@ setup(
     version='0.1.0',
     description="A framework for the quantitative comparison of mindlike systems.",
     long_description=readme,
-    author="Martin Schrimpf, Jon Prescott-Roy",
+    author="Martin Schrimpf, John Prescott-Roy",
     author_email='mschrimpf@mit.edu, jjpr@mit.edu',
     url='https://github.com/brain-score/brain-score',
     packages=find_packages(exclude=['tests']),

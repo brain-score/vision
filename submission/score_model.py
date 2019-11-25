@@ -105,6 +105,7 @@ def extract_zip_file(config, work_dir):
     zip_file = zip_file if os.path.isfile(zip_file) else os.path.realpath(zip_file)
     with zipfile.ZipFile(zip_file, 'r') as model_repo:
         model_repo.extractall(path=work_dir)
+    #     Use the single directory in the zip file
     path = '%s/%s' % (work_dir, config['repo_name'])
     path = path if os.path.isfile(path) else os.path.realpath(path)
     return path

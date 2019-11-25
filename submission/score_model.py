@@ -33,14 +33,15 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
     db_conn = connect_db(db_connection_config)
     with open(config_file) as file:
         configs = json.load(file)
-    logger.info('Start executing models from %s in repo %s' % (configs['name'], configs['repo_name']))
     print(configs)
     if configs['type'] == 'zip':
+        logger.info('Start executing models in repo %s %s' % (configs['zip_filepath'], configs['zip_filename']))
         repo = extract_zip_file(configs, work_dir)
     else:
+        logger.info('Start executing models in repo %s' % (configs['git_url']))
         repo = clone_repo(configs, work_dir)
     package = 'models.brain_models' if configs['model_type'] is 'BrainModel' else 'models.base_models'
-    module = install_project(repo, configs['repo_name'], package, work_dir)
+    module = install_project(repo, package)
     test_benchmarks = all_benchmarks_list if benchmarks is None or len(benchmarks) == 0 else benchmarks
     ml_brain_pool = {}
     if configs['model_type'] == 'BaseModel':
@@ -106,18 +107,19 @@ def extract_zip_file(config, work_dir):
     with zipfile.ZipFile(zip_file, 'r') as model_repo:
         model_repo.extractall(path=work_dir)
     #     Use the single directory in the zip file
-    path = '%s/%s' % (work_dir, config['repo_name'])
+    path = '%s/%s' % (work_dir, os.listdir(work_dir)[0])
     path = path if os.path.isfile(path) else os.path.realpath(path)
     return path
 
 
 def clone_repo(config, work_dir):
     git.Git(work_dir).clone(config['git_url'])
-    return '%s/%s' % (work_dir, config['repo_name'])
+    return '%s/%s' % (work_dir, os.listdir(work_dir)[0])
 
 
-def install_project(repo, repo_name, package, git_install_dir):
+def install_project(repo,package):
     try:
+        repo_name = repo.split('/')[-1]
         # subprocess.call([sys.executable, f"{repo}/setup.py", "install", f'--install-dir={git_install_dir}'])
         print(os.environ["PYTHONPATH"])
         subprocess.call([sys.executable, "-m", "pip3", "install", repo], env=os.environ)

@@ -119,13 +119,9 @@ def install_project(repo, repo_name, package, git_install_dir):
     try:
         # subprocess.call([sys.executable, f"{repo}/setup.py", "install", f'--install-dir={git_install_dir}'])
         print(os.environ["PYTHONPATH"])
-        subprocess.call([sys.executable, "-m", "pip", "install", repo], env=os.environ)
-        # os.environ["PYTHONPATH"] = '%s:%s'%(repo, os.environ['PYTHONPATH'])
-        # print(os.environ["PYTHONPATH"] )
+        subprocess.call([sys.executable, "-m", "pip3", "install", repo], env=os.environ)
         sys.path.insert(1, repo)
         print(sys.path)
-        # import site
-        # reload(site)
         return import_module(f'{repo_name}.{package}')
     except ImportError:
         return __import__(package)

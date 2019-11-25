@@ -122,7 +122,7 @@ def install_project(repo,package):
         repo_name = repo.split('/')[-1]
         # subprocess.call([sys.executable, f"{repo}/setup.py", "install", f'--install-dir={git_install_dir}'])
         print(os.environ["PYTHONPATH"])
-        subprocess.call([sys.executable, "-m", "pip3", "install", repo], env=os.environ)
+        subprocess.call([sys.executable, "-m", "pip", "install", repo], env=os.environ)
         sys.path.insert(1, repo)
         print(sys.path)
         return import_module(f'{repo_name}.{package}')

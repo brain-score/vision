@@ -75,7 +75,7 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
                     logger.info(f'Running benchmark {benchmark} on model {model} produced this score: {score}')
                     store_score(db_conn, (model, benchmark, score.raw.sel(aggregation='center').item(0),
                                           score.sel(aggregation='center').item(0),
-                                          score.sel(aggregation='error').item(0), datetime.datetime.now(), jenkins_id))
+                                          score.sel(aggregation='error').item(0), datetime.datetime.now(), jenkins_id, configs['email']))
                 except Exception as e:
                     logging.error(f'Could not run model {model} because of following error')
                     logging.error(e, exc_info=True)
@@ -95,8 +95,8 @@ def connect_db(db):
 
 
 def store_score(dbConnection, score):
-    insert = '''insert into benchmarks_score(model, benchmark, score_raw, score_ceiled, error, timestamp, jenkins_job_id)   
-            VALUES(%s,%s,%s,%s,%s,%s, %s)'''
+    insert = '''insert into benchmarks_score(model, benchmark, score_raw, score_ceiled, error, timestamp, jenkins_job_id, user_id)   
+            VALUES(%s,%s,%s,%s,%s,%s, %s, %s)'''
     print(score)
     cur = dbConnection.cursor()
     cur.execute(insert, score)

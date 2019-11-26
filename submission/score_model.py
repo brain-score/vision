@@ -50,17 +50,17 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
         layers = {}
         base_model_pool = {}
         for model in test_models:
-            function = lambda: module.base_models.get_model(model)
+            function = lambda: module.get_model(model)
             base_model_pool[model] = LazyLoad(function)
-            if module.base_models.get_layers != None:
-                layers[model] = module.base_models.get_layers(model)
+            if module.get_layers is not None:
+                layers[model] = module.get_layers(model)
         model_layers = ModelLayers(layers)
         ml_brain_pool = MLBrainPool(base_model_pool, model_layers)
     else:
         logger.info(f"Start working with brain models")
-        test_models = module.brain_models.get_model_list() if models is None or len(benchmarks) == 0 else models
+        test_models = module.get_model_list() if models is None or len(benchmarks) == 0 else models
         for model in test_models:
-            ml_brain_pool[model] = module.brain_models.get_model(model)
+            ml_brain_pool[model] = module.get_model(model)
     file = open('result.txt', 'w')
 
     file.write(f'Executed benchmarks in this order: {test_benchmarks}')
@@ -73,7 +73,9 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
                     score = score_model(model, benchmark, ml_brain_pool[model])
                     scores.append(score.sel(aggregation='center').values)
                     logger.info(f'Running benchmark {benchmark} on model {model} produced this score: {score}')
-                    store_score(db_conn, (model, benchmark, score.raw.sel(aggregation='center').item(0), score.sel(aggregation='center').item(0), score.sel(aggregation='error').item(0), datetime.datetime.now(), jenkins_id))
+                    store_score(db_conn, (model, benchmark, score.raw.sel(aggregation='center').item(0),
+                                          score.sel(aggregation='center').item(0),
+                                          score.sel(aggregation='error').item(0), datetime.datetime.now(), jenkins_id))
                 except Exception as e:
                     logging.error(f'Could not run model {model} because of following error')
                     logging.error(e, exc_info=True)
@@ -88,7 +90,8 @@ def connect_db(db):
         db_configs = json.load(file)
     print(f'somethign1!!!{str(db_configs)}')
     import psycopg2
-    return psycopg2.connect(host=db_configs['hostname'], user=db_configs['user_name'], password=db_configs['password'], dbname=db_configs['database'])
+    return psycopg2.connect(host=db_configs['hostname'], user=db_configs['user_name'], password=db_configs['password'],
+                            dbname=db_configs['database'])
 
 
 def store_score(dbConnection, score):
@@ -117,7 +120,7 @@ def clone_repo(config, work_dir):
     return '%s/%s' % (work_dir, os.listdir(work_dir)[0])
 
 
-def install_project(repo,package):
+def install_project(repo, package):
     try:
         repo_name = repo.split('/')[-1]
         # subprocess.call([sys.executable, f"{repo}/setup.py", "install", f'--install-dir={git_install_dir}'])
@@ -125,6 +128,6 @@ def install_project(repo,package):
         subprocess.call([sys.executable, "-m", "pip", "install", repo], env=os.environ)
         sys.path.insert(1, repo)
         print(sys.path)
-        return import_module(f'{repo_name}.{package}')
+        return import_module(package)
     except ImportError:
         return __import__(package)

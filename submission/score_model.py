@@ -17,10 +17,12 @@ from submission.ml_pool import MLBrainPool, ModelLayers
 logger = logging.getLogger(__name__)
 
 all_benchmarks_list = [
-    'movshon.FreemanZiemba2013.V1-pls', 'movshon.FreemanZiemba2013.V2-pls',
-    'movshon.FreemanZiemba2013.V1-rdm', 'movshon.FreemanZiemba2013.V2-rdm',
+    'movshon.FreemanZiemba2013.V1-pls',
+    'movshon.FreemanZiemba2013.V2-pls',
+    # 'movshon.FreemanZiemba2013.V1-rdm',
+    # 'movshon.FreemanZiemba2013.V2-rdm',
     'dicarlo.Majaj2015.V4-pls', 'dicarlo.Majaj2015.IT-pls',
-    'dicarlo.Majaj2015.V4-rdm', 'dicarlo.Majaj2015.IT-rdm',
+    # 'dicarlo.Majaj2015.V4-rdm', 'dicarlo.Majaj2015.IT-rdm',
     'dicarlo.Rajalingham2018-i2n',
     'dicarlo.Kar2019-ost',
     'fei-fei.Deng2009-top1'
@@ -61,9 +63,10 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
         test_models = module.get_model_list() if models is None or len(benchmarks) == 0 else models
         for model in test_models:
             ml_brain_pool[model] = module.get_model(model)
-    file = open('result.txt', 'w')
+    file = open(f'result_{jenkins_id}.txt', 'w')
 
     file.write(f'Executed benchmarks in this order: {test_benchmarks}')
+    file.write('Model|Benchmark|raw result|ceiled result|error|finished time')
     try:
         for model in test_models:
             scores = []
@@ -73,13 +76,21 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
                     score = score_model(model, benchmark, ml_brain_pool[model])
                     scores.append(score.sel(aggregation='center').values)
                     logger.info(f'Running benchmark {benchmark} on model {model} produced this score: {score}')
-                    store_score(db_conn, (model, benchmark, score.raw.sel(aggregation='center').item(0),
-                                          score.sel(aggregation='center').item(0),
-                                          score.sel(aggregation='error').item(0), datetime.datetime.now(), jenkins_id, configs['email']))
+                    raw =score.raw.sel(aggregation='center').item(0)
+                    ceiled=score.sel(aggregation='center').item(0)
+                    error= score.sel(aggregation='error').item(0)
+                    finished= datetime.datetime.now()
+                    store_score(db_conn, (model,
+                                          benchmark,
+                                          raw, ceiled, error,
+                                          finished,
+                                          jenkins_id,
+                                          configs['email']))
+                    file.write(f'{model}|{benchmark}|{raw}|{ceiled}|{error}|{finished}')
                 except Exception as e:
                     logging.error(f'Could not run model {model} because of following error')
                     logging.error(e, exc_info=True)
-            file.write(f'Results for model{model}: {str(scores)}')
+                    file.write(f'{model}|{benchmark}|Execution error: {str(e)}')
     finally:
         file.close()
         db_conn.close()
@@ -88,7 +99,6 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
 def connect_db(db):
     with open(db) as file:
         db_configs = json.load(file)
-    print(f'somethign1!!!{str(db_configs)}')
     import psycopg2
     return psycopg2.connect(host=db_configs['hostname'], user=db_configs['user_name'], password=db_configs['password'],
                             dbname=db_configs['database'])

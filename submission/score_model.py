@@ -6,6 +6,7 @@ import subprocess
 import sys
 import zipfile
 import git
+from pathlib import Path
 
 from importlib import import_module, reload
 
@@ -19,10 +20,7 @@ logger = logging.getLogger(__name__)
 all_benchmarks_list = [
     'movshon.FreemanZiemba2013.V1-pls',
     'movshon.FreemanZiemba2013.V2-pls',
-    # 'movshon.FreemanZiemba2013.V1-rdm',
-    # 'movshon.FreemanZiemba2013.V2-rdm',
     'dicarlo.Majaj2015.V4-pls', 'dicarlo.Majaj2015.IT-pls',
-    # 'dicarlo.Majaj2015.V4-rdm', 'dicarlo.Majaj2015.IT-rdm',
     'dicarlo.Rajalingham2018-i2n',
     'dicarlo.Kar2019-ost',
     'fei-fei.Deng2009-top1'
@@ -37,8 +35,9 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
         configs = json.load(file)
     print(configs)
     if configs['type'] == 'zip':
+        config_path=Path(config_file).parent
         logger.info('Start executing models in repo %s %s' % (configs['zip_filepath'], configs['zip_filename']))
-        repo = extract_zip_file(configs, work_dir)
+        repo = extract_zip_file(configs, config_path,work_dir)
     else:
         logger.info('Start executing models in repo %s' % (configs['git_url']))
         repo = clone_repo(configs, work_dir)
@@ -114,8 +113,8 @@ def store_score(dbConnection, score):
     return
 
 
-def extract_zip_file(config, work_dir):
-    zip_file = '%s/%s' % (config['zip_filepath'], config['zip_filename'])
+def extract_zip_file(config, config_path, work_dir):
+    zip_file = '%s/%s' % (config_path, config['zip_filename'])
     zip_file = zip_file if os.path.isfile(zip_file) else os.path.realpath(zip_file)
     with zipfile.ZipFile(zip_file, 'r') as model_repo:
         model_repo.extractall(path=work_dir)

@@ -36,7 +36,7 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
     print(configs)
     if configs['type'] == 'zip':
         config_path = Path(config_file).parent
-        logger.info('Start executing models in repo %s %s' % (configs['zip_filepath'], configs['zip_filename']))
+        logger.info('Start executing models in repo %s' % ( configs['zip_filename']))
         repo = extract_zip_file(configs, config_path, work_dir)
     else:
         logger.info('Start executing models in repo %s' % (configs['git_url']))

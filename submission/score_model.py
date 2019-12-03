@@ -35,9 +35,9 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
         configs = json.load(file)
     print(configs)
     if configs['type'] == 'zip':
-        config_path=Path(config_file).parent
+        config_path = Path(config_file).parent
         logger.info('Start executing models in repo %s %s' % (configs['zip_filepath'], configs['zip_filename']))
-        repo = extract_zip_file(configs, config_path,work_dir)
+        repo = extract_zip_file(configs, config_path, work_dir)
     else:
         logger.info('Start executing models in repo %s' % (configs['git_url']))
         repo = clone_repo(configs, work_dir)
@@ -64,8 +64,8 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
             ml_brain_pool[model] = module.get_model(model)
     file = open(f'result_{jenkins_id}.txt', 'w')
 
-    file.write(f'Executed benchmarks in this order: {test_benchmarks}')
-    file.write('Model|Benchmark|raw result|ceiled result|error|finished time')
+    file.write(f'Executed following benchmarks: {test_benchmarks}\n')
+    file.write('Model|Benchmark|raw result|ceiled result|error|finished time \n')
     try:
         for model in test_models:
             scores = []
@@ -75,16 +75,17 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
                     score = score_model(model, benchmark, ml_brain_pool[model])
                     scores.append(score.sel(aggregation='center').values)
                     logger.info(f'Running benchmark {benchmark} on model {model} produced this score: {score}')
-                    raw =score.raw.sel(aggregation='center').item(0)
-                    ceiled=score.sel(aggregation='center').item(0)
-                    error= score.sel(aggregation='error').item(0)
-                    finished= datetime.datetime.now()
+                    raw = score.raw.sel(aggregation='center').item(0)
+                    ceiled = score.sel(aggregation='center').item(0)
+                    error = score.sel(aggregation='error').item(0)
+                    finished = datetime.datetime.now()
                     store_score(db_conn, (model,
                                           benchmark,
                                           raw, ceiled, error,
                                           finished,
                                           jenkins_id,
-                                          configs['email']))
+                                          configs['email'],
+                                          configs['name']))
                     file.write(f'{model}|{benchmark}|{raw}|{ceiled}|{error}|{finished}')
                 except Exception as e:
                     logging.error(f'Could not run model {model} because of following error')
@@ -104,9 +105,10 @@ def connect_db(db):
 
 
 def store_score(dbConnection, score):
-    insert = '''insert into benchmarks_score(model, benchmark, score_raw, score_ceiled, error, timestamp, jenkins_job_id, user_id)   
-            VALUES(%s,%s,%s,%s,%s,%s, %s, %s)'''
-    print(score)
+    insert = '''insert into benchmarks_score
+            (model, benchmark, score_raw, score_ceiled, error, timestamp, jenkins_job_id, user_id, name)   
+            VALUES(%s,%s,%s,%s,%s,%s, %s, %s, %s)'''
+    logging.info('Run results', score)
     cur = dbConnection.cursor()
     cur.execute(insert, score)
     dbConnection.commit()
@@ -131,8 +133,6 @@ def clone_repo(config, work_dir):
 
 def install_project(repo, package):
     try:
-        repo_name = repo.split('/')[-1]
-        # subprocess.call([sys.executable, f"{repo}/setup.py", "install", f'--install-dir={git_install_dir}'])
         print(os.environ["PYTHONPATH"])
         subprocess.call([sys.executable, "-m", "pip", "install", repo], env=os.environ)
         sys.path.insert(1, repo)

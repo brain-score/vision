@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 from brainio_base.assemblies import NeuroidAssembly
 from brainio_base.assemblies import array_is_element, walk_coords
@@ -90,6 +92,8 @@ class XarrayCorrelation:
             target_neuroids = target.isel(**{neuroid_dims[0]: i})  # `isel` is about 10x faster than `sel`
             prediction_neuroids = prediction.isel(**{neuroid_dims[0]: i})
             r, p = self._correlation(target_neuroids, prediction_neuroids)
+            if math.isnan(r):
+                r=0
             correlations.append(r)
         # package
         result = Score(correlations,

@@ -8,7 +8,7 @@ import zipfile
 import git
 from pathlib import Path
 
-from importlib import import_module, reload
+from importlib import import_module
 
 from brainscore.utils import LazyLoad
 
@@ -46,7 +46,7 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
     test_benchmarks = all_benchmarks_list if benchmarks is None or len(benchmarks) == 0 else benchmarks
     ml_brain_pool = {}
     if configs['model_type'] == 'BaseModel':
-        test_models = module.base_models.get_model_list() if models is None or len(models) == 0 else models
+        test_models = module.get_model_list() if models is None or len(models) == 0 else models
         logger.info(f"Start working with base models")
         layers = {}
         base_model_pool = {}

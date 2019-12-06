@@ -75,9 +75,14 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
                     score = score_model(model, benchmark, ml_brain_pool[model])
                     scores.append(score.sel(aggregation='center').values)
                     logger.info(f'Running benchmark {benchmark} on model {model} produced this score: {score}')
-                    raw = score.raw.sel(aggregation='center').item(0)
-                    ceiled = score.sel(aggregation='center').item(0)
-                    error = score.sel(aggregation='error').item(0)
+                    if benchmark is 'fei-fei.Deng2009-top1':
+                        raw = score.sel(aggregation='center').item(0)
+                        ceiled = raw
+                        error = 0
+                    else:
+                        raw = score.raw.sel(aggregation='center').item(0)
+                        ceiled = score.sel(aggregation='center').item(0)
+                        error = score.sel(aggregation='error').item(0)
                     finished = datetime.datetime.now()
                     store_score(db_conn, (model,
                                           benchmark,
@@ -108,7 +113,7 @@ def store_score(dbConnection, score):
     insert = '''insert into benchmarks_score
             (model, benchmark, score_raw, score_ceiled, error, timestamp, jenkins_job_id, user_id, name)   
             VALUES(%s,%s,%s,%s,%s,%s, %s, %s, %s)'''
-    logging.info('Run results', score)
+    logging.info(f'Run results{score}')
     cur = dbConnection.cursor()
     cur.execute(insert, score)
     dbConnection.commit()

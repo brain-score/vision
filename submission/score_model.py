@@ -22,7 +22,7 @@ all_benchmarks_list = [
     'movshon.FreemanZiemba2013.V2-pls',
     'dicarlo.Majaj2015.V4-pls', 'dicarlo.Majaj2015.IT-pls',
     'dicarlo.Rajalingham2018-i2n',
-    'dicarlo.Kar2019-ost',
+    # 'dicarlo.Kar2019-ost',
     'fei-fei.Deng2009-top1'
 ]
 

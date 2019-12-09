@@ -1,16 +1,15 @@
-import itertools
 import logging
-import math
 from collections import OrderedDict
 
+import itertools
+import math
 import numpy as np
 import xarray as xr
 from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
 from tqdm import tqdm
 
-from brainio_base.assemblies import DataAssembly
+from brainio_base.assemblies import DataAssembly, walk_coords
 from brainio_collection.transform import subset
-from brainscore.assemblies import merge_data_arrays, walk_coords
 from brainscore.metrics import Score
 from brainscore.metrics.utils import unique_ordered
 from brainscore.utils import fullname

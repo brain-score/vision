@@ -1,8 +1,6 @@
 import numpy as np
-from brainio_base.assemblies import NeuroidAssembly
-from brainio_base.assemblies import array_is_element, walk_coords
 
-from brainscore.assemblies import walk_coords
+from brainio_base.assemblies import NeuroidAssembly, array_is_element, walk_coords
 from brainscore.metrics import Score
 
 

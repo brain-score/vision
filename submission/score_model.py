@@ -75,7 +75,7 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
                     score = score_model(model, benchmark, ml_brain_pool[model])
                     scores.append(score.sel(aggregation='center').values)
                     logger.info(f'Running benchmark {benchmark} on model {model} produced this score: {score}')
-                    if benchmark is 'fei-fei.Deng2009-top1':
+                    if benchmark == 'fei-fei.Deng2009-top1':
                         raw = score.sel(aggregation='center').item(0)
                         ceiled = raw
                         error = 0
@@ -91,11 +91,11 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
                                           jenkins_id,
                                           configs['email'],
                                           configs['name']))
-                    file.write(f'{model}|{benchmark}|{raw}|{ceiled}|{error}|{finished}')
+                    file.write(f'{model}|{benchmark}|{raw}|{ceiled}|{error}|{finished}\n')
                 except Exception as e:
                     logging.error(f'Could not run model {model} because of following error')
                     logging.error(e, exc_info=True)
-                    file.write(f'{model}|{benchmark}|Execution error: {str(e)}')
+                    file.write(f'{model}|{benchmark}|Execution error: {str(e)}\n')
     finally:
         file.close()
         db_conn.close()

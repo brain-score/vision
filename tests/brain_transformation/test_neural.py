@@ -1,11 +1,11 @@
-import os
-
 import functools
+import os
+from pathlib import Path
+
 import numpy as np
 import pytest
 
 from brainio_base.stimuli import StimulusSet
-from brainscore.assemblies.public import load_assembly
 from model_tools.activations import PytorchWrapper
 from model_tools.brain_transformation import ModelCommitment, LayerMappedModel
 
@@ -37,17 +37,16 @@ def pytorch_custom():
 
 
 class TestLayerSelection:
-    @pytest.mark.parametrize(['model_ctr', 'layers', 'expected_layer', 'assembly_identifier', 'region'],
-                             [(pytorch_custom, ['linear', 'relu2'], 'relu2', 'dicarlo.Majaj2015.lowvar.IT', 'IT')])
-    def test_commit_record(self, model_ctr, layers, expected_layer, assembly_identifier, region):
+    @pytest.mark.parametrize(['model_ctr', 'layers', 'expected_layer', 'region'],
+                             [(pytorch_custom, ['linear', 'relu2'], 'relu2', 'IT')])
+    def test_commit_record(self, model_ctr, layers, expected_layer, region):
         activations_model = model_ctr()
         brain_model = ModelCommitment(identifier=activations_model.identifier, activations_model=activations_model,
                                       layers=layers)
-        assembly = load_assembly(assembly_identifier, average_repetition=False)
-        brain_model.commit_region(region, assembly, assembly_stratification='category_name')
+        brain_model.commit_region(region)
 
         brain_model.start_recording(region, [(70, 170)])
-        predictions = brain_model.look_at(assembly.stimulus_set)
+        predictions = brain_model.look_at([Path(__file__).parent / 'rgb1.jpg'])
         assert set(predictions['region'].values) == {region}
         assert set(predictions['layer'].values) == {expected_layer}
 

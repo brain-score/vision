@@ -1,17 +1,10 @@
 import logging
 from collections import Iterable
-
-import numpy as np
-from tqdm import tqdm
 from typing import Optional, Union
 
-from brainscore.assemblies import average_repetition
-from brainscore.benchmarks import BenchmarkBase, ceil_score
-from brainscore.benchmarks.neural import timebins_from_assembly
+from tqdm import tqdm
+
 from brainscore.metrics import Score
-from brainscore.metrics.ceiling import InternalConsistency
-from brainscore.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation
-from brainscore.metrics.transformations import Split
 from brainscore.model_interface import BrainModel
 from brainscore.utils import fullname
 from model_tools.activations.pca import LayerPCA
@@ -65,7 +58,7 @@ class LayerSelection:
         self.layers = layers
         self._logger = logging.getLogger(fullname(self))
 
-    def __call__(self, assembly, assembly_stratification=None):
+    def __call__(self, selection_identifier, benchmark):
         # for layer-mapping, attach LayerPCA so that we can cache activations
         model_identifier = self.model_identifier
         pca_hooked = LayerPCA.is_hooked(self._layer_scoring._activations_model)
@@ -75,8 +68,8 @@ class LayerSelection:
             self._layer_scoring._activations_model.identifier = identifier + "-pca_1000"
             model_identifier += "-pca_1000"
 
-        result = self._call(model_identifier=model_identifier, assembly_identifier=assembly.name,
-                            assembly=assembly, assembly_stratification=assembly_stratification)
+        result = self._call(model_identifier=model_identifier, selection_identifier=selection_identifier,
+                            benchmark=benchmark)
 
         if not pca_hooked:
             pca_handle.remove()
@@ -84,10 +77,10 @@ class LayerSelection:
         return result
 
     @store(identifier_ignore=['assembly'])
-    def _call(self, model_identifier, assembly_identifier, assembly, assembly_stratification=None):
-        benchmark = self._Benchmark(assembly, ceiler=InternalConsistency())
+    def _call(self, model_identifier, selection_identifier, benchmark):
         self._logger.debug("Finding best layer")
-        layer_scores = self._layer_scoring(benchmark=benchmark, layers=self.layers, prerun=True)
+        layer_scores = self._layer_scoring(benchmark=benchmark, benchmark_identifier=selection_identifier,
+                                           layers=self.layers, prerun=True)
 
         self._logger.debug("Layer scores (unceiled): " + ", ".join([
             f"{layer} -> {layer_scores.raw.sel(layer=layer, aggregation='center').values:.3f}"
@@ -95,29 +88,6 @@ class LayerSelection:
             for layer in layer_scores['layer'].values]))
         best_layer = layer_scores['layer'].values[layer_scores.sel(aggregation='center').argmax()]
         return best_layer
-
-    class _Benchmark(BenchmarkBase):
-        def __init__(self, assembly_repetition, similarity_metric=None, ceiler=None):
-            assert len(np.unique(assembly_repetition['region'])) == 1
-            assert hasattr(assembly_repetition, 'repetition')
-            self.region = np.unique(assembly_repetition['region'])[0]
-            self.assembly = average_repetition(assembly_repetition)
-            self.timebins = timebins_from_assembly(self.assembly)
-
-            self._similarity_metric = similarity_metric or CrossRegressedCorrelation(
-                regression=pls_regression(), correlation=pearsonr_correlation(),
-                crossvalidation_kwargs=dict(stratification_coord=Split.Defaults.stratification_coord
-                if hasattr(self.assembly, Split.Defaults.stratification_coord) else None))
-            identifier = f'{assembly_repetition.name}-layer_selection'
-            ceiler = ceiler or InternalConsistency()
-            super(LayerSelection._Benchmark, self).__init__(
-                identifier=identifier, ceiling_func=lambda: ceiler(assembly_repetition))
-
-        def __call__(self, candidate):
-            candidate.start_recording(self.region, time_bins=self.timebins)
-            source_assembly = candidate.look_at(self.assembly.stimulus_set)
-            raw_score = self._similarity_metric(source_assembly, self.assembly)
-            return ceil_score(raw_score, self.ceiling)
 
 
 class LayerScores:
@@ -136,7 +106,7 @@ class LayerScores:
               model, benchmark, layers, prerun=False):
         if prerun:
             # pre-run activations together to avoid running every layer separately
-            model(layers=layers, stimuli=benchmark.assembly.stimulus_set)
+            model(layers=layers, stimuli=benchmark._assembly.stimulus_set)
 
         layer_scores = []
         for layer in tqdm(layers, desc="layers"):

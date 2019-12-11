@@ -21,9 +21,9 @@ class ModelCommitment(BrainModel):
         'IT': LazyLoad(MajajITPublicBenchmark),
     }
 
-    def __init__(self, identifier, activations_model, layers, behavioral_readout_layer=None):
+    def __init__(self, identifier, activations_model, layers, behavioral_readout_layer=None, region_benchmarks=None):
         self.layers = layers
-        self.region_benchmarks = self.standard_region_benchmarks
+        self.region_benchmarks = {**self.standard_region_benchmarks, **(region_benchmarks or {})}
         layer_model = LayerMappedModel(identifier=identifier, activations_model=activations_model)
         self.layer_model = TemporalIgnore(layer_model)
         logits_behavior = LogitsBehavior(identifier=identifier, activations_model=activations_model)

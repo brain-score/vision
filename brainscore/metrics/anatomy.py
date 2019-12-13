@@ -26,5 +26,5 @@ ventral_stream.add_edge('aIT', 'cIT')
 
 class EdgeRatioMetric(Metric):
     def __call__(self, source_graph, target_graph):
-        unmatched = [edge for edge in target_graph.edges if edge not in source_graph.edges]
-        return 1 - len(unmatched) / len(target_graph.edges)
+        unmatched = [edge for edge in target_graph.edges() if edge not in source_graph.edges()]
+        return 1 - len(unmatched) / len(target_graph.edges())

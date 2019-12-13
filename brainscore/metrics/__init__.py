@@ -1,7 +1,6 @@
 import warnings
 
-from brainio_base.assemblies import DataAssembly
-from brainscore.assemblies import merge_data_arrays
+from brainio_base.assemblies import DataAssembly, merge_data_arrays
 
 
 class Metric:

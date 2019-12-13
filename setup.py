@@ -19,6 +19,7 @@ requirements = [
     "networkx",
     # "psycopg2",
     "result_caching @ git+https://github.com/mschrimpf/result_caching",
+    "jupyter",
 ]
 
 setup(

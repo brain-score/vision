@@ -1,8 +1,8 @@
 import logging
 
 from brainscore.benchmarks import benchmark_pool
-from brainscore.assemblies.private import load_assembly as load_private_assembly
-from brainscore.assemblies.public import load_assembly as load_public_assembly
+# from brainscore.assemblies.private import load_assembly as load_private_assembly
+# from brainscore.assemblies.public import load_assembly as load_public_assembly
 from result_caching import store
 
 _logger = logging.getLogger(__name__)
@@ -43,9 +43,9 @@ def score_layers(model_identifier, benchmark_identifier, model, layers, benchmar
     return scores
 
 
-def get_activations(model, layers, assembly_identifier, access_type='public'):
-    access_loader = {'private': load_private_assembly, 'public': load_public_assembly}
-    load_assembly = access_loader[access_type]
-    assembly = load_assembly(assembly_identifier)
-    stimuli = assembly.stimulus_set
-    return model(stimuli, layers=layers)
+# def get_activations(model, layers, assembly_identifier, access_type='public'):
+#     access_loader = {'private': load_private_assembly, 'public': load_public_assembly}
+#     load_assembly = access_loader[access_type]
+#     assembly = load_assembly(assembly_identifier)
+#     stimuli = assembly.stimulus_set
+#     return model(stimuli, layers=layers)

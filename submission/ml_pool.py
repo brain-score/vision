@@ -48,8 +48,8 @@ class ModelLayers(UniqueKeyDict):
     def _item(item):
         # if item.startswith('mobilenet'):
         #     return "_".join(item.split("_")[:2])
-        if item.startswith('bagnet'):
-            return 'bagnet'
+        # if item.startswith('bagnet'):
+        #     return 'bagnet'
         return item
 
     def __getitem__(self, item):

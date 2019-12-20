@@ -41,7 +41,7 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
     else:
         logger.info('Start executing models in repo %s' % (configs['git_url']))
         repo = clone_repo(configs, work_dir)
-    package = 'models.brain_models' if configs['model_type'] is 'BrainModel' else 'models.base_models'
+    package = 'models.brain_models' if configs['model_type'] == 'BrainModel' else 'models.base_models'
     module = install_project(repo, package)
     test_benchmarks = all_benchmarks_list if benchmarks is None or len(benchmarks) == 0 else benchmarks
     ml_brain_pool = {}

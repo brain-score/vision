@@ -145,8 +145,11 @@ class CartesianProduct(Transformation):
             result = yield from self._get_result(divided_assembly, done=done)
 
             for coord_name, coord_value in divider.items():
-                result = result.expand_dims(coord_name)
-                result[coord_name] = [coord_value]
+                apply_raw = not hasattr(result.raw, coord_name)
+                # expand and set coordinate value. If the underlying raw values already contain that coordinate
+                # (e.g. as part of a MultiIndex), don't create and set new dimension.
+                result = result.expand_dims(coord_name, _apply_raw=apply_raw)
+                result.__setitem__(coord_name, [coord_value], _apply_raw=apply_raw)
             scores.append(result)
         scores = Score.merge(*scores)
         yield scores

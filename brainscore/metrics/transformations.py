@@ -148,8 +148,9 @@ class CartesianProduct(Transformation):
                 # expand and set coordinate value. If the underlying raw values already contain that coordinate
                 # (e.g. as part of a MultiIndex), don't create and set new dimension on raw values.
                 apply_raw = hasattr(result, 'raw') and not hasattr(result.raw, coord_name)
-                result = result.expand_dims(coord_name, _apply_raw=apply_raw)
-                result.__setitem__(coord_name, [coord_value], _apply_raw=apply_raw)
+                kwargs = dict(_apply_raw=apply_raw) if apply_raw else {}
+                result = result.expand_dims(coord_name, **kwargs)
+                result.__setitem__(coord_name, [coord_value], **kwargs)
             scores.append(result)
         scores = Score.merge(*scores)
         yield scores

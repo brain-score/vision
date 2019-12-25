@@ -59,7 +59,7 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
         ml_brain_pool = MLBrainPool(base_model_pool, model_layers)
     else:
         logger.info(f"Start working with brain models")
-        test_models = module.get_model_list() if models is None or len(benchmarks) == 0 else models
+        test_models = module.get_model_list() if models is None or len(models) == 0 else models
         for model in test_models:
             ml_brain_pool[model] = module.get_model(model)
     file = open(f'result_{jenkins_id}.txt', 'w')

@@ -33,10 +33,10 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
     db_conn = connect_db(db_connection_config)
     with open(config_file) as file:
         configs = json.load(file)
-    print(configs)
+    logger.info(f'Run with following configurations:{str(configs)}')
     if configs['type'] == 'zip':
         config_path = Path(config_file).parent
-        logger.info('Start executing models in repo %s' % ( configs['zip_filename']))
+        logger.info('Start executing models in repo %s' % (configs['zip_filename']))
         repo = extract_zip_file(configs, config_path, work_dir)
     else:
         logger.info('Start executing models in repo %s' % (configs['git_url']))
@@ -68,12 +68,10 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
     file.write('Model|Benchmark|raw result|ceiled result|error|finished time \n')
     try:
         for model in test_models:
-            scores = []
             for benchmark in test_benchmarks:
                 try:
                     logger.info(f"Scoring {model} on benchmark {benchmark}")
                     score = score_model(model, benchmark, ml_brain_pool[model])
-                    scores.append(score.sel(aggregation='center').values)
                     logger.info(f'Running benchmark {benchmark} on model {model} produced this score: {score}')
                     if benchmark == 'fei-fei.Deng2009-top1':
                         raw = score.sel(aggregation='center').item(0)

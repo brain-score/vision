@@ -14,6 +14,8 @@ requirements = [
     "scikit-learn",
     "h5py",
     "tqdm",
+    "gitpython",
+    "fire",
     "networkx",
     "result_caching @ git+https://github.com/mschrimpf/result_caching",
     "jupyter",

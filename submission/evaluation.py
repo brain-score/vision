@@ -82,25 +82,26 @@ def run_evaluation(config_file, work_dir, db_connection_config, jenkins_id, mode
                         ceiled = score.sel(aggregation='center').item(0)
                         error = score.sel(aggregation='error').item(0)
                     finished = datetime.datetime.now()
-                    store_score(db_conn, (model,
-                                          benchmark,
-                                          raw, ceiled, error,
-                                          finished,
-                                          jenkins_id,
-                                          configs['email'],
-                                          configs['name']))
-                    data.append({
-                        'Model': model, 'Benchmark': benchmark,
-                        'raw result': raw, 'ceiled_result': ceiled,
-                        'error': error, 'finished time': finished
-                    })
+                    result = {
+                        'Model': model,
+                        'Benchmark': benchmark,
+                        'raw_result': raw,
+                        'ceiled_result': ceiled,
+                        'error': error,
+                        'finished_time': finished
+                    }
+                    data.append(result)
+                    store_score(db_conn, {**result, **{'jenkins_id': jenkins_id,
+                                                       'email': configs['email'],
+                                                       'name': configs['name']}})
+
                 except Exception as e:
                     logging.error(f'Could not run model {model} because of following error')
                     logging.error(e, exc_info=True)
                     data.append({
                         'Model': model, 'Benchmark': benchmark,
-                        'raw result': 0, 'ceiled_result': 0,
-                        'error': 0, 'finished time': datetime.datetime.now()
+                        'raw_result': 0, 'ceiled_result': 0,
+                        'error': 0, 'finished_time': datetime.datetime.now()
                     })
     finally:
         df = pd.DataFrame(data)
@@ -121,9 +122,14 @@ def store_score(dbConnection, score):
     insert = '''insert into benchmarks_score
             (model, benchmark, score_raw, score_ceiled, error, timestamp, jenkins_job_id, user_id, name)   
             VALUES(%s,%s,%s,%s,%s,%s, %s, %s, %s)'''
-    logging.info(f'Run results{score}')
+    logging.info(f'Run results: {score}')
     cur = dbConnection.cursor()
-    cur.execute(insert, score)
+    args = [score['Model'], score['Benchmark'],
+            score['raw_result'], score['ceiled_result'],
+            score['error'], score['finished_time'],
+            score['jenkins_id'], score['email'],
+            score['name']]
+    cur.execute(insert, args)
     dbConnection.commit()
     return
 

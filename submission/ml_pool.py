@@ -6,38 +6,6 @@ from brainscore.utils import LazyLoad
 from submission.utils import UniqueKeyDict
 
 
-class Hooks:
-    HOOK_SEPARATOR = "--"
-
-    def __init__(self):
-        pca_components = 1000
-        from model_tools.activations.pca import LayerPCA
-        from model_tools.brain_transformation import PixelsToDegrees
-        self.activation_hooks = {
-            f"pca_{pca_components}": lambda activations_model: LayerPCA.hook(
-                activations_model, n_components=pca_components),
-            "degrees": lambda activations_model: PixelsToDegrees.hook(
-                activations_model, target_pixels=activations_model.image_size)}
-
-    def iterate_hooks(self, basemodel_identifier, activations_model):
-        for hook_identifiers in itertools.chain.from_iterable(
-                itertools.combinations(self.activation_hooks, n) for n in range(len(self.activation_hooks) + 1)):
-            hook_identifiers = list(sorted(hook_identifiers))
-            identifier = basemodel_identifier
-            if len(hook_identifiers) > 0:
-                identifier += self.HOOK_SEPARATOR + "-".join(hook_identifiers)
-
-            # enforce early parameter binding: https://stackoverflow.com/a/3431699/2225200
-            def load(identifier=identifier, activations_model=activations_model,
-                     hook_identifiers=hook_identifiers):
-                activations_model.identifier = identifier  # since inputs are different, also change identifier
-                for hook in hook_identifiers:
-                    self.activation_hooks[hook](activations_model)
-                return activations_model
-
-            yield identifier, LazyLoad(load)
-
-
 class ModelLayers(UniqueKeyDict):
     def __init__(self, layers):
         super(ModelLayers, self).__init__()

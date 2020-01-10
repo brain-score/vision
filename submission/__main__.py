@@ -2,10 +2,11 @@ import argparse
 import logging
 import os
 import sys
+from pathlib import Path
 
 import fire
 
-from submission.score_model import score_models
+from submission.evaluation import run_evaluation
 
 logger = logging.getLogger(__name__)
 
@@ -29,13 +30,13 @@ for disable_logger in ['s3transfer', 'botocore', 'boto3', 'urllib3', 'peewee', '
 
 
 def score_model_console():
-    print('Start scoring model proces..')
-    assert os.path.exists(args.config_file) or os.path.exists(os.path.realpath(args.config_file)), 'Configuration file doesn\'t exist'
-    assert os.path.exists(args.work_dir) or os.path.exists(os.path.realpath(args.work_dir)), 'Work directory is not a valid directory'
-    assert os.path.exists(args.db_config) or os.path.exists(os.path.realpath(args.db_config)), 'The db connection file doesn\'t exist'
-    logger.info(f'Benchmarks configured:{args.benchmarks}')
-    logger.info(f'Models configured:{args.models}')
-    score_models(args.config_file, args.work_dir, args.db_config, args.jenkins_id,
+    logger.info('Start scoring model process..')
+    assert Path(args.config_file).is_file(), 'Configuration file doesn\'t exist'
+    assert Path(args.work_dir).is_dir(), 'Work directory is not a valid directory'
+    assert Path(args.db_config).is_file(), 'The db connection file doesn\'t exist'
+    logger.info(f'Benchmarks configured: {args.benchmarks}')
+    logger.info(f'Models configured: {args.models}')
+    run_evaluation(args.config_file, args.work_dir, args.db_config, args.jenkins_id,
                  models=args.models, benchmarks=args.benchmarks)
 
 

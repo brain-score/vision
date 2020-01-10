@@ -7,12 +7,14 @@ import sys
 import zipfile
 import git
 from pathlib import Path
+import pandas as pd
 
 from importlib import import_module
 
+from brainscore import score_model
+from brainscore.metrics import ceiling
 from brainscore.utils import LazyLoad
 
-from submission import score_model
 from submission.ml_pool import MLBrainPool, ModelLayers
 
 logger = logging.getLogger(__name__)
@@ -27,26 +29,27 @@ all_benchmarks_list = [
 ]
 
 
-def score_models(config_file, work_dir, db_connection_config, jenkins_id, models=None,
-                 benchmarks=None):
-    config_file = config_file if os.path.isfile(config_file) else os.path.realpath(config_file)
+def run_evaluation(config_file, work_dir, db_connection_config, jenkins_id, models=None,
+                   benchmarks=None):
+    config_file = Path(config_file).resolve()
+    work_dir = Path(work_dir).resolve()
     db_conn = connect_db(db_connection_config)
     with open(config_file) as file:
         configs = json.load(file)
-    logger.info(f'Run with following configurations:{str(configs)}')
+    logger.info(f'Run with following configurations: {str(configs)}')
     if configs['type'] == 'zip':
-        config_path = Path(config_file).parent
+        config_path = config_file.parent
         logger.info('Start executing models in repo %s' % (configs['zip_filename']))
         repo = extract_zip_file(configs, config_path, work_dir)
     else:
-        logger.info('Start executing models in repo %s' % (configs['git_url']))
+        logger.info(f'Start executing models in repo {configs["git_url"]}')
         repo = clone_repo(configs, work_dir)
     package = 'models.brain_models' if configs['model_type'] == 'BrainModel' else 'models.base_models'
     module = install_project(repo, package)
     test_benchmarks = all_benchmarks_list if benchmarks is None or len(benchmarks) == 0 else benchmarks
     ml_brain_pool = {}
+    test_models = module.get_model_list() if models is None or len(models) == 0 else models
     if configs['model_type'] == 'BaseModel':
-        test_models = module.get_model_list() if models is None or len(models) == 0 else models
         logger.info(f"Start working with base models")
         layers = {}
         base_model_pool = {}
@@ -59,13 +62,9 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
         ml_brain_pool = MLBrainPool(base_model_pool, model_layers)
     else:
         logger.info(f"Start working with brain models")
-        test_models = module.get_model_list() if models is None or len(models) == 0 else models
         for model in test_models:
             ml_brain_pool[model] = module.get_model(model)
-    file = open(f'result_{jenkins_id}.txt', 'w')
-
-    file.write(f'Executed following benchmarks: {test_benchmarks}\n')
-    file.write('Model|Benchmark|raw result|ceiled result|error|finished time \n')
+    data = []
     try:
         for model in test_models:
             for benchmark in test_benchmarks:
@@ -73,11 +72,12 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
                     logger.info(f"Scoring {model} on benchmark {benchmark}")
                     score = score_model(model, benchmark, ml_brain_pool[model])
                     logger.info(f'Running benchmark {benchmark} on model {model} produced this score: {score}')
-                    if benchmark == 'fei-fei.Deng2009-top1':
+                    if not hasattr(score, ceiling):
                         raw = score.sel(aggregation='center').item(0)
-                        ceiled = raw
-                        error = 0
+                        ceiled = None
+                        error = None
                     else:
+                        assert len(score.raw.sel(aggregation='center')) == 1
                         raw = score.raw.sel(aggregation='center').item(0)
                         ceiled = score.sel(aggregation='center').item(0)
                         error = score.sel(aggregation='error').item(0)
@@ -89,13 +89,23 @@ def score_models(config_file, work_dir, db_connection_config, jenkins_id, models
                                           jenkins_id,
                                           configs['email'],
                                           configs['name']))
-                    file.write(f'{model}|{benchmark}|{raw}|{ceiled}|{error}|{finished}\n')
+                    data.append({
+                        'Model': model, 'Benchmark': benchmark,
+                        'raw result': raw, 'ceiled_result': ceiled,
+                        'error': error, 'finished time': finished
+                    })
                 except Exception as e:
                     logging.error(f'Could not run model {model} because of following error')
                     logging.error(e, exc_info=True)
-                    file.write(f'{model}|{benchmark}|Execution error: {str(e)}\n')
+                    data.append({
+                        'Model': model, 'Benchmark': benchmark,
+                        'raw result': 0, 'ceiled_result': 0,
+                        'error': 0, 'finished time': datetime.datetime.now()
+                    })
     finally:
-        file.close()
+        df = pd.DataFrame(data)
+        # This is the result file we send to the user after the scoring process is done
+        df.to_csv(f'result_{jenkins_id}.csv', index=None, header=True)
         db_conn.close()
 
 
@@ -119,27 +129,22 @@ def store_score(dbConnection, score):
 
 
 def extract_zip_file(config, config_path, work_dir):
-    zip_file = '%s/%s' % (config_path, config['zip_filename'])
-    zip_file = zip_file if os.path.isfile(zip_file) else os.path.realpath(zip_file)
+    zip_file = Path('%s/%s' % (config_path, config['zip_filename']))
     with zipfile.ZipFile(zip_file, 'r') as model_repo:
         model_repo.extractall(path=work_dir)
     #     Use the single directory in the zip file
-    path = '%s/%s' % (work_dir, os.listdir(work_dir)[0])
-    path = path if os.path.isfile(path) else os.path.realpath(path)
-    return path
+    return Path('%s/%s' % (work_dir, os.listdir(work_dir)[0]))
 
 
 def clone_repo(config, work_dir):
     git.Git(work_dir).clone(config['git_url'])
-    return '%s/%s' % (work_dir, os.listdir(work_dir)[0])
+    return Path('%s/%s' % (work_dir, os.listdir(work_dir)[0]))
 
 
 def install_project(repo, package):
     try:
-        print(os.environ["PYTHONPATH"])
-        subprocess.call([sys.executable, "-m", "pip", "install", repo], env=os.environ)
+        assert 0 == subprocess.call([sys.executable, "-m", "pip", "install", repo], env=os.environ)
         sys.path.insert(1, repo)
-        print(sys.path)
         return import_module(package)
     except ImportError:
         return __import__(package)

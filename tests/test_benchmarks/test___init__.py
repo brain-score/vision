@@ -34,42 +34,42 @@ class TestStandardized:
         ceiling = benchmark.ceiling
         assert ceiling.sel(aggregation='center') == expected
 
-    @pytest.mark.parametrize('benchmark, expected', [
-        pytest.param('movshon.FreemanZiemba2013.V1-pls', approx(.686929, abs=.001),
+    @pytest.mark.parametrize('benchmark, visual_degrees, expected', [
+        pytest.param('movshon.FreemanZiemba2013.V1-pls', 4, approx(.686929, abs=.001),
                      marks=[pytest.mark.memory_intense]),
-        pytest.param('movshon.FreemanZiemba2013.V2-pls', approx(.573678, abs=.001),
+        pytest.param('movshon.FreemanZiemba2013.V2-pls', 4, approx(.573678, abs=.001),
                      marks=[pytest.mark.memory_intense]),
-        pytest.param('tolias.Cadena2017-pls', approx(.577474, abs=.005),
+        pytest.param('tolias.Cadena2017-pls', 2, approx(.577474, abs=.005),
                      marks=pytest.mark.private_access),
-        pytest.param('dicarlo.Majaj2015.V4-pls', approx(.923713, abs=.001),
+        pytest.param('dicarlo.Majaj2015.V4-pls', 8, approx(.923713, abs=.001),
                      marks=pytest.mark.memory_intense),
-        pytest.param('dicarlo.Majaj2015.IT-pls', approx(.823433, abs=.001),
+        pytest.param('dicarlo.Majaj2015.IT-pls', 8, approx(.823433, abs=.001),
                      marks=pytest.mark.memory_intense),
     ])
-    def test_self_regression(self, benchmark, expected):
+    def test_self_regression(self, benchmark, visual_degrees, expected):
         benchmark = benchmark_pool[benchmark]
         source = benchmark._assembly
-        score = benchmark(PrecomputedFeatures(source)).raw
+        score = benchmark(PrecomputedFeatures(source, visual_degrees=visual_degrees)).raw
         assert score.sel(aggregation='center') == expected
         raw_values = score.attrs['raw']
         assert hasattr(raw_values, 'neuroid')
         assert hasattr(raw_values, 'split')
         assert len(raw_values['split']) == 10
 
-    @pytest.mark.parametrize('benchmark, expected', [
-        pytest.param('movshon.FreemanZiemba2013.V1-rdm', approx(1, abs=.001),
+    @pytest.mark.parametrize('benchmark, visual_degrees, expected', [
+        pytest.param('movshon.FreemanZiemba2013.V1-rdm', 4, approx(1, abs=.001),
                      marks=[pytest.mark.memory_intense]),
-        pytest.param('movshon.FreemanZiemba2013.V2-rdm', approx(1, abs=.001),
+        pytest.param('movshon.FreemanZiemba2013.V2-rdm', 4, approx(1, abs=.001),
                      marks=[pytest.mark.memory_intense]),
-        pytest.param('dicarlo.Majaj2015.V4-rdm', approx(1, abs=.001),
+        pytest.param('dicarlo.Majaj2015.V4-rdm', 8, approx(1, abs=.001),
                      marks=pytest.mark.memory_intense),
-        pytest.param('dicarlo.Majaj2015.IT-rdm', approx(1, abs=.001),
+        pytest.param('dicarlo.Majaj2015.IT-rdm', 8, approx(1, abs=.001),
                      marks=pytest.mark.memory_intense),
     ])
-    def test_self_rdm(self, benchmark, expected):
+    def test_self_rdm(self, benchmark, visual_degrees, expected):
         benchmark = benchmark_pool[benchmark]
         source = benchmark._assembly
-        score = benchmark(PrecomputedFeatures(source)).raw
+        score = benchmark(PrecomputedFeatures(source, visual_degrees=visual_degrees)).raw
         assert score.sel(aggregation='center') == expected
         raw_values = score.attrs['raw']
         assert hasattr(raw_values, 'split')
@@ -113,7 +113,9 @@ class TestPrecomputed:
         assert (precomputed_features['stimulus_path'].values == expected_stimulus_paths).all()
         for column in stimulus_set.columns:
             precomputed_features[column] = 'presentation', stimulus_set[column].values
-        precomputed_features = PrecomputedFeatures(precomputed_features)
+        precomputed_features = PrecomputedFeatures(precomputed_features,
+                                                   visual_degrees=10,  # doesn't matter
+                                                   )
         # score
         score = benchmark(precomputed_features).raw
         assert score.sel(aggregation='center') == expected

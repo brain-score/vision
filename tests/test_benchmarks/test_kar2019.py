@@ -24,7 +24,7 @@ def test_Kar2019():
         'time_bin_end': ('time_bin', [170]),
     }, dims=['presentation', 'neuroid', 'time_bin'])
     source.name = 'dicarlo.Kar2019'
-    score = benchmark(PrecomputedFeatures(source))
+    score = benchmark(PrecomputedFeatures(source, visual_degrees=8))
     assert np.isnan(score.raw.sel(aggregation='center'))  # not a temporal model
     assert len(score.raw.raw['split']) == 10
     assert np.isnan(score.raw.raw.values).all()

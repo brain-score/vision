@@ -5,8 +5,8 @@ import pytest
 from pytest import approx
 
 from brainio_base.assemblies import BehavioralAssembly
-from brainscore.assemblies.private import Rajalingham2018Loader
-from brainscore.metrics.behavior import I2n
+from brainscore.benchmarks.rajalingham2018 import load_assembly
+from brainscore.metrics.image_level_behavior import I2n
 
 
 @pytest.mark.private_access
@@ -19,7 +19,7 @@ class TestI2N:
                              ])
     def test_model(self, model, expected_score):
         # assemblies
-        objectome = Rajalingham2018Loader()()
+        objectome = load_assembly()
         probabilities = pd.read_pickle(os.path.join(os.path.dirname(__file__),
                                                     f'{model}-probabilities.pkl'))['data']
         probabilities = BehavioralAssembly(probabilities)
@@ -30,7 +30,7 @@ class TestI2N:
         assert score == approx(expected_score, abs=0.005), f"expected {expected_score}, but got {score}"
 
     def test_ceiling(self):
-        objectome = Rajalingham2018Loader()()
+        objectome = load_assembly()
         i2n = I2n()
         ceiling = i2n.ceiling(objectome)
         assert ceiling.sel(aggregation='center') == approx(.4786, abs=.0064)

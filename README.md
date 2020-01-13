@@ -61,7 +61,7 @@ More examples can be found in the [examples](examples/) directory.
 Only necessary if you plan to change code.
 
 1. If you want to access private S3 data, get permissions for the DiCarlo Lab Amazon S3 account
-    1. The lab has several S3 accounts. You need to have access to the one numbered 848242192475 (the one where MTurk experiments are stored). Ask [Chris Shay](cshay@mit.edu) to grant access to you
+    1. The lab has several S3 accounts. You need to have access to the one numbered 613927419654. Ask [Chris Shay](cshay@mit.edu) to grant access to you
     2. Configure your AWS credentials files using awscli:
       1. Install awscli using `pip install awscli`
       2. Run `aws configure`: region: `us-east-1`, output format: `json`

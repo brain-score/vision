@@ -18,7 +18,7 @@ class Imagenet2012(BenchmarkBase):
         self._stimulus_set = stimulus_set
         self._similarity_metric = Accuracy()
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
-        super(Imagenet2012, self).__init__(identifier='fei-fei.Deng2009-top1',
+        super(Imagenet2012, self).__init__(identifier='fei-fei.Deng2009-top1', version=1,
                                            ceiling_func=lambda: ceiling,
                                            parent='ImageNet',
                                            paper_link="https://ieeexplore.ieee.org/abstract/document/5206848")

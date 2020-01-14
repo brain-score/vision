@@ -1,6 +1,10 @@
 import logging
 
-from brainio_collection.fetch import get_assembly as brainio_get_assembly
+# The following imports provide convenience methods.
+# noinspection PyUnresolvedReferences
+from brainio_collection import list_stimulus_sets, list_assemblies
+# noinspection PyUnresolvedReferences
+from brainio_collection.fetch import get_assembly as brainio_get_assembly, get_stimulus_set
 from brainscore.benchmarks import benchmark_pool
 from result_caching import store
 

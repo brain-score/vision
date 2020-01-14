@@ -38,3 +38,12 @@ before_script:
 script:
 - if [ "$TRAVIS_PULL_REQUEST" = "false"];  then CUDA_VISIBLE_DEVICES= MT_MULTITHREAD=0 MT_IMAGENET_PATH=./imagenet2012.hdf5 pytest --ignore=tf-models -m "not memory_intense"; fi
 - if [ "$TRAVIS_PULL_REQUEST" = "true" ];  then CUDA_VISIBLE_DEVICES= MT_MULTITHREAD=0 MT_IMAGENET_PATH=./imagenet2012.hdf5 pytest --ignore=tf-models -m "not memory_intense and not private_access"; fi
+
+notifications:
+  slack:
+    if: |
+      branch = master AND \
+      type IN (push, api, cron)
+    on_success: change
+    on_failure: always
+    secure: "eCS+HaOHPMTXTplsowGKt4Ibf19Lwd0ZWkQpbFdW06hgEIJDxjAfrTRSHV73YF8X4mrvQRyZ9Kax0n2OZUW3ulPaavdPVKgnJRoSYAToImIYZoMk5evFy/YHvtpxtuWGnV2NzTtktKLPB3QgwGehZqbMVuBE7HVsYpaqJwI8n82X6Gwcr+k9RI4A96Zi8HESPAJO/TTjrCxeYNM8jve/lo6oJR9DM2f2fj07UFXqGTpXjS80ULbCrK3HHbDFmph9aoFQDlEGyIuTfwZ32cQpuJbezxeDMdoYq4Aq37qxcQXxh2fVZIJ6LmknRQYkrcBbKXDsX5sUtePnKsx6ImjO2WUOkBHUKhXMwmKjuxY5OOSY1rXnI88YMQMQZYJCAPIY4pUekeU0PmWwziGXb1ZX4NUW8s54f3ZpY34QIumJ5FPVW3LKm73zEgaDvFySBYzqGUdiYhe7JUeA57CgG7E7sb1QWs/fnng9w++ERNwyqG+KUp+GMPEF9yRK6+AZ4ZgmFPhFX5ydRSlxzJKXoUP7myCLOEEG279pGyMAE981InnkClYcCrWm4lotbmHC0ViTEJ+U+gli9ESeviJDxFJBMjNGEC90jhFH9k52qN+/WnSMVqkt7AoOHqUidTws7Rey99ASWROzk/OP5zgsgVh/BfOamXbpoBSRP/5Wj46x6mg="

@@ -147,8 +147,14 @@ class CartesianProduct(Transformation):
             for coord_name, coord_value in divider.items():
                 # expand and set coordinate value. If the underlying raw values already contain that coordinate
                 # (e.g. as part of a MultiIndex), don't create and set new dimension on raw values.
-                apply_raw = hasattr(result, 'raw') and not hasattr(result.raw, coord_name)
-                kwargs = dict(_apply_raw=apply_raw) if apply_raw else {}
+                if not hasattr(result, 'raw'):  # no raw values anyway
+                    kwargs = {}
+                elif not hasattr(result.raw, coord_name):  # doesn't have values yet, we can set (True by default)
+                    kwargs = {}
+                else:  # has raw values but already has coord in them --> need to prevent setting
+                    # this expects the result to accept `_apply_raw` in its `expand_dims` method
+                    # which is true for our `Score` class, but not a standard `DataAssembly`.
+                    kwargs = dict(_apply_raw=False)
                 result = result.expand_dims(coord_name, **kwargs)
                 result.__setitem__(coord_name, [coord_value], **kwargs)
             scores.append(result)

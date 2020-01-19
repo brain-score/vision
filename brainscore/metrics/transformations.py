@@ -180,7 +180,7 @@ class Split:
             train_size = self.Defaults.train_size
         if kfold:
             assert (train_size is None or train_size == self.Defaults.train_size) and test_size is None
-            assert not bool(self._stratification_coord)
+            assert not bool(stratification_coord)
             self._split = KFold(n_splits=splits, shuffle=True, random_state=random_state)
         elif stratification_coord:
             self._split = StratifiedShuffleSplit(

@@ -5,7 +5,7 @@ import itertools
 import math
 import numpy as np
 import xarray as xr
-from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
+from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit, KFold
 from tqdm import tqdm
 
 from brainio_base.assemblies import DataAssembly, walk_coords
@@ -173,32 +173,36 @@ class Split:
 
     def __init__(self,
                  splits=Defaults.splits, train_size=None, test_size=None,
-                 split_coord=Defaults.split_coord, stratification_coord=Defaults.stratification_coord,
+                 split_coord=Defaults.split_coord, stratification_coord=Defaults.stratification_coord, kfold=False,
                  unique_split_values=Defaults.unique_split_values, random_state=Defaults.random_state):
         super().__init__()
         if train_size is None and test_size is None:
             train_size = self.Defaults.train_size
-        self._stratified_split = StratifiedShuffleSplit(
-            n_splits=splits, train_size=train_size, test_size=test_size, random_state=random_state)
-        self._shuffle_split = ShuffleSplit(
-            n_splits=splits, train_size=train_size, test_size=test_size, random_state=random_state)
+        if kfold:
+            assert (train_size is None or train_size == self.Defaults.train_size) and test_size is None
+            self._split = KFold(n_splits=splits, shuffle=True, random_state=random_state)
+        elif stratification_coord:
+            self._split = StratifiedShuffleSplit(
+                n_splits=splits, train_size=train_size, test_size=test_size, random_state=random_state)
+        else:
+            self._split = ShuffleSplit(
+                n_splits=splits, train_size=train_size, test_size=test_size, random_state=random_state)
         self._split_coord = split_coord
         self._stratification_coord = stratification_coord
+        self._kfold = kfold
         self._unique_split_values = unique_split_values
 
         self._logger = logging.getLogger(fullname(self))
 
     @property
     def do_stratify(self):
-        return bool(self._stratification_coord)
+        return not self._kfold and not bool(self._stratification_coord)
 
     def build_splits(self, assembly):
         cross_validation_values, indices = extract_coord(assembly, self._split_coord, unique=self._unique_split_values)
         data_shape = np.zeros(len(cross_validation_values))
-        if self.do_stratify:
-            splits = self._stratified_split.split(data_shape, assembly[self._stratification_coord].values[indices])
-        else:
-            splits = self._shuffle_split.split(data_shape)
+        args = [assembly[self._stratification_coord].values[indices]] if self.do_stratify else []
+        splits = self._split.split(data_shape, *args)
         return cross_validation_values, list(splits)
 
     @classmethod
@@ -285,15 +289,11 @@ class CrossValidation(Transformation):
     No guarantees are given for data-alignment, use the metadata.
     """
 
-    def __init__(self,
-                 splits=Split.Defaults.splits, split_coord=Split.Defaults.split_coord,
-                 stratification_coord=Split.Defaults.stratification_coord,
-                 train_size=None, test_size=None, seed=Split.Defaults.random_state):
+    def __init__(self, *args, split_coord=Split.Defaults.split_coord,
+                 stratification_coord=Split.Defaults.stratification_coord, **kwargs):
         self._split_coord = split_coord
         self._stratification_coord = stratification_coord
-        self._split = Split(splits=splits, split_coord=split_coord,
-                            stratification_coord=stratification_coord,
-                            train_size=train_size, test_size=test_size, random_state=seed)
+        self._split = Split(*args, split_coord=split_coord, stratification_coord=stratification_coord, **kwargs)
         self._logger = logging.getLogger(fullname(self))
 
     def pipe(self, source_assembly, target_assembly):

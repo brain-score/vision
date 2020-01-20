@@ -18,7 +18,7 @@ Recommended for most users. Use Brain-Score as a library. You will need Python >
 
 `pip install git+https://github.com/brain-score/brain-score`
 
-To contribute code to Brain-Score, see the [Development Setup](#development-setup).
+To contribute to Brain-Score, please [send in a pull request](https://github.com/brain-score/brain-score/pulls).
 
 
 ## Basic Usage

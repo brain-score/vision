@@ -32,8 +32,8 @@ class ModelLayersPool(UniqueKeyDict):
                 continue
             layers = model_layers[basemodel_identifier]
 
-            for identifier, activations_model in Hooks().iterate_hooks(basemodel_identifier, activations_model):
-                self[identifier] = {'model': activations_model, 'layers': layers}
+            # for identifier, activations_model in Hooks().iterate_hooks(basemodel_identifier, activations_model):
+            self[basemodel_identifier] = {'model': activations_model, 'layers': layers}
 
 
 regions = ['V1', 'V2', 'V4', 'IT']
@@ -49,16 +49,16 @@ class MLBrainPool(UniqueKeyDict):
                 continue
             layers = model_layers[basemodel_identifier]
 
-            for identifier, activations_model in Hooks().iterate_hooks(basemodel_identifier, activations_model):
-                if identifier in self:  # already pre-defined
-                    continue
-                from model_tools.brain_transformation import ModelCommitment
-                # enforce early parameter binding: https://stackoverflow.com/a/3431699/2225200
-                def load(identifier=identifier, activations_model=activations_model, layers=layers):
-                    brain_model = ModelCommitment(identifier=identifier, activations_model=activations_model,
-                                                  layers=layers)
-                    for region in regions:
-                        brain_model.commit_region(region)
-                    return brain_model
+            # for identifier, activations_model in Hooks().iterate_hooks(basemodel_identifier, activations_model):
+            # if identifier in self:  # already pre-defined
+            #     continue
+            from model_tools.brain_transformation import ModelCommitment
+            # enforce early parameter binding: https://stackoverflow.com/a/3431699/2225200
+            def load(identifier=basemodel_identifier, activations_model=activations_model, layers=layers):
+                brain_model = ModelCommitment(identifier=identifier, activations_model=activations_model,
+                                              layers=layers)
+                for region in regions:
+                    brain_model.commit_region(region)
+                return brain_model
 
-                self[identifier] = LazyLoad(load)
+            self[basemodel_identifier] = LazyLoad(load)

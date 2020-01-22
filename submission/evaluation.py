@@ -151,6 +151,7 @@ def install_project(repo, package):
     try:
         assert 0 == subprocess.call([sys.executable, "-m", "pip", "install", repo], env=os.environ)
         sys.path.insert(1, str(repo))
+        logger.info(f'System paths {sys.path}')
         return import_module(package)
     except ImportError:
         return __import__(package)

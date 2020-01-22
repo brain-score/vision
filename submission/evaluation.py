@@ -77,7 +77,7 @@ def run_evaluation(config_file, work_dir, db_connection_config, jenkins_id, mode
                         ceiled = None
                         error = None
                     else:
-                        assert len(score.raw.sel(aggregation='center')) == 1
+                        assert score.raw.sel(aggregation='center') is not None
                         raw = score.raw.sel(aggregation='center').item(0)
                         ceiled = score.sel(aggregation='center').item(0)
                         error = score.sel(aggregation='error').item(0)

@@ -4,7 +4,7 @@ from typing import List, Tuple
 
 class BrainModel:
     RecordingTarget = Enum('RecordingTarget', " ".join(['V1', 'V2', 'V4', 'IT']))
-    Task = Enum('Task', " ".join(['passive', 'probabilities', 'label']))
+    Task = Enum('Task', " ".join(['passive', 'probabilities', 'label', 'visual_search']))
 
     def look_at(self, stimuli):
         raise NotImplementedError()

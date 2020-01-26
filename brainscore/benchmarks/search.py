@@ -22,15 +22,19 @@ class KlabZhang2018ObjArray(Benchmark):
 
     def __call__(self, candidate: BrainModel):
         self._metric = ScanMatchPy.initialize()
+
+        print("## Starting visual search task...")
         candidate.start_task(BrainModel.Task.visual_search)
         self.cumm_perf, self.saccades = candidate.look_at(self._stimuli)
         fix_model = self.saccades[:,:7,:]
         I_fix_model = self.saccades[:,7,:1]
         fix1 = matlab.int32(fix_model.tolist())
         I_fix1 = matlab.int32(I_fix_model.tolist())
+        print("## Search task done...\n")
 
+        print("## Calculating score...")
         scores = []
-        for sub_id in tqdm(range(15)):
+        for sub_id in tqdm(range(15), desc="comparing with human data: "):
             data_human = self._assemblies.values[sub_id*300:(sub_id+1)*300]
             fix_human = data_human[:,:7,:]
             I_fix_human = data_human[:,7,:1]
@@ -50,6 +54,8 @@ class KlabZhang2018ObjArray(Benchmark):
         self._metric.terminate()
 
         ceiled_score = self.ceiling
+        print("## Score calculated...\n")
+
         return ceiled_score
 
     @property

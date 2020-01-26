@@ -4,20 +4,21 @@ import matlab
 
 import brainscore
 import brainio_collection
-from brainscore.benchmarks import Benchmark
+from brainscore.benchmarks import Benchmark, ceil_score
 from brainscore.model_interface import BrainModel
 from brainscore.metrics import Score
 from tqdm import tqdm
 
 class KlabZhang2018ObjArray(Benchmark):
     def __init__(self):
+        self.human_score = Score([0.4411, np.nan],
+                        coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         self._version = 1
         self._identifier='klab.Zhang2018-ObjArray'
         self.parent='visual_search',
         self.paper_link='https://doi.org/10.1038/s41467-018-06217-x'
         self._assemblies = brainscore.get_assembly('klab.Zhang2018search_obj_array')
         self._stimuli = self._assemblies.stimulus_set
-        self.human_score = 0.4411
 
     def __call__(self, candidate: BrainModel):
         self._metric = ScanMatchPy.initialize()
@@ -39,11 +40,17 @@ class KlabZhang2018ObjArray(Benchmark):
             scores.append(score)
 
         scores = np.asarray(scores)
-        self.score = np.mean(scores)
+
+        self.raw_score = np.mean(scores)
+        self.std = np.std(scores)/np.sqrt(scores.shape[0])
+
+        self.model_score = Score([self.raw_score, self.std],
+                        coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
+
         self._metric.terminate()
 
-        ceil_score = self.ceiling
-        return ceil_score
+        ceiled_score = self.ceiling
+        return ceiled_score
 
     @property
     def identifier(self):
@@ -55,7 +62,7 @@ class KlabZhang2018ObjArray(Benchmark):
 
     @property
     def ceiling(self):
-        return round(self.score/self.human_score, 3)
+        return ceil_score(self.model_score, self.human_score)
 
     def get_raw_data(self):
         return self.cumm_perf, self.saccades

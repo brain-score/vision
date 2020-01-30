@@ -160,13 +160,13 @@ class TFProbabilitiesClassifier:
         import tensorflow as tf
         self._graph = tf.Graph()
         with self._graph.as_default():
-            self._lr_ph = tf.placeholder(dtype=tf.float32)
-            self._opt = tf.train.AdamOptimizer(learning_rate=self._lr_ph)
+            self._lr_ph = tf.compat.v1.placeholder(dtype=tf.float32)
+            self._opt = tf.compat.v1.train.AdamOptimizer(learning_rate=self._lr_ph)
 
     def initializer(self, kind='xavier', *args, **kwargs):
         import tensorflow as tf
         if kind == 'xavier':
-            init = tf.contrib.layers.xavier_initializer(*args, **kwargs, seed=0)
+            init = tf.compat.v1.keras.initializers.VarianceScaling(*args, **kwargs, seed=0)
         else:
             init = getattr(tf, kind + '_initializer')(*args, **kwargs)
         return init
@@ -193,16 +193,16 @@ class TFProbabilitiesClassifier:
 
         # weights
         init = self.initializer(kernel_init, **kernel_init_kwargs)
-        kernel = tf.get_variable(initializer=init,
+        kernel = tf.compat.v1.get_variable(initializer=init,
                                  shape=[in_depth, out_depth],
                                  dtype=tf.float32,
-                                 regularizer=tf.contrib.layers.l2_regularizer(weight_decay),
+                                 regularizer=tf.keras.regularizers.l2(0.5 * (weight_decay)),
                                  name='weights')
         init = self.initializer(kind='constant', value=bias)
-        biases = tf.get_variable(initializer=init,
+        biases = tf.compat.v1.get_variable(initializer=init,
                                  shape=[out_depth],
                                  dtype=tf.float32,
-                                 regularizer=tf.contrib.layers.l2_regularizer(weight_decay),
+                                 regularizer=tf.keras.regularizers.l2(0.5 * (weight_decay)),
                                  name='bias')
 
         # ops
@@ -220,9 +220,9 @@ class TFProbabilitiesClassifier:
         import tensorflow as tf
         num_classes = len(self._label_mapping.keys())
         with self._graph.as_default():
-            with tf.variable_scope('behavioral_mapping'):
+            with tf.compat.v1.variable_scope('behavioral_mapping'):
                 out = self._input_placeholder
-                out = tf.nn.dropout(out, keep_prob=self._fc_keep_prob, name="dropout_out")
+                out = tf.nn.dropout(out, rate=1 - (self._fc_keep_prob), name="dropout_out")
                 pred = self.fc(out,
                                out_depth=num_classes,
                                activation=self._activation,
@@ -236,17 +236,17 @@ class TFProbabilitiesClassifier:
         """
         import tensorflow as tf
         with self._graph.as_default():
-            with tf.variable_scope('loss'):
+            with tf.compat.v1.variable_scope('loss'):
                 logits = self._predictions
 
                 self.classification_error = tf.reduce_mean(
-                    tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=self._target_placeholder))
-                self.reg_loss = tf.add_n(tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES))
+                    input_tensor=tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=self._target_placeholder))
+                self.reg_loss = tf.add_n(tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.REGULARIZATION_LOSSES))
 
                 self.total_loss = self.classification_error + self.reg_loss
-                self.tvars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
+                self.tvars = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.TRAINABLE_VARIABLES)
                 self.train_op = self._opt.minimize(self.total_loss, var_list=self.tvars,
-                                                   global_step=tf.train.get_or_create_global_step())
+                                                   global_step=tf.compat.v1.train.get_or_create_global_step())
 
     def _init_mapper(self, X, Y):
         """
@@ -256,18 +256,18 @@ class TFProbabilitiesClassifier:
         import tensorflow as tf
         assert len(Y.shape) == 1
         with self._graph.as_default():
-            self._input_placeholder = tf.placeholder(dtype=tf.float32, shape=[None] + list(X.shape[1:]))
-            self._target_placeholder = tf.placeholder(dtype=tf.int32, shape=[None])
-            self._fc_keep_prob = tf.placeholder(dtype=tf.float32, shape=[], name='dropout_keep_prob')
+            self._input_placeholder = tf.compat.v1.placeholder(dtype=tf.float32, shape=[None] + list(X.shape[1:]))
+            self._target_placeholder = tf.compat.v1.placeholder(dtype=tf.int32, shape=[None])
+            self._fc_keep_prob = tf.compat.v1.placeholder(dtype=tf.float32, shape=[], name='dropout_keep_prob')
             # Build the model graph
             self._make_behavioral_map()
             self._make_loss()
 
             # initialize graph
             self._logger.debug('Initializing mapper')
-            init_op = tf.variables_initializer(tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES))
-            self._sess = tf.Session(
-                config=tf.ConfigProto(gpu_options=self._gpu_options) if self._gpu_options is not None else None)
+            init_op = tf.compat.v1.variables_initializer(tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES))
+            self._sess = tf.compat.v1.Session(
+                config=tf.compat.v1.ConfigProto(gpu_options=self._gpu_options) if self._gpu_options is not None else None)
             self._sess.run(init_op)
 
     def labels_to_indices(self, labels):
@@ -342,5 +342,5 @@ class TFProbabilitiesClassifier:
         Closes occupied resources
         """
         import tensorflow as tf
-        tf.reset_default_graph()
+        tf.compat.v1.reset_default_graph()
         self._sess.close()

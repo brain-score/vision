@@ -56,7 +56,8 @@ class BenchmarkPool(dict):
         from .neural import \
             DicarloMajaj2015V4PLS, DicarloMajaj2015ITPLS, DicarloMajaj2015V4Mask, DicarloMajaj2015ITMask, \
             DicarloMajaj2015V4RDM, DicarloMajaj2015ITRDM, \
-            MovshonFreemanZiemba2013V1PLS, MovshonFreemanZiemba2013V2PLS
+            MovshonFreemanZiemba2013V1PLS, MovshonFreemanZiemba2013V1PLSPublic, MovshonFreemanZiemba2013V2PLS, \
+            ToliasCadena2017PLS
         self['dicarlo.Majaj2015.V4-pls'] = LazyLoad(DicarloMajaj2015V4PLS)
         self['dicarlo.Majaj2015.IT-pls'] = LazyLoad(DicarloMajaj2015ITPLS)
         self['dicarlo.Majaj2015.V4-mask'] = LazyLoad(DicarloMajaj2015V4Mask)
@@ -64,7 +65,10 @@ class BenchmarkPool(dict):
         self['dicarlo.Majaj2015.V4-rdm'] = LazyLoad(DicarloMajaj2015V4RDM)
         self['dicarlo.Majaj2015.IT-rdm'] = LazyLoad(DicarloMajaj2015ITRDM)
         self['movshon.FreemanZiemba2013.V1-pls'] = LazyLoad(MovshonFreemanZiemba2013V1PLS)
+        self['movshon.FreemanZiemba2013.private.V1-pls'] = LazyLoad(MovshonFreemanZiemba2013V1PLS)
+        self['movshon.FreemanZiemba2013.public.V1-pls'] = LazyLoad(MovshonFreemanZiemba2013V1PLSPublic)
         self['movshon.FreemanZiemba2013.V2-pls'] = LazyLoad(MovshonFreemanZiemba2013V2PLS)
+        self['tolias.Cadena2017-pls'] = LazyLoad(ToliasCadena2017PLS)
 
         from .temporal import DicarloMajaj2015TemporalV4PLS, DicarloMajaj2015TemporalITPLS, \
             MovshonFreemanZiemba2013TemporalV1PLS, MovshonFreemanZiemba2013TemporalV2PLS, \

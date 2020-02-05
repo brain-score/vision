@@ -1,6 +1,7 @@
 import numpy as np
 
 from brainscore.assemblies.private import assembly_loaders
+from brainscore.assemblies.public import assembly_loaders as assembly_loaders_pub
 from brainscore.benchmarks import BenchmarkBase, ceil_score
 from brainscore.benchmarks.screen import place_on_screen
 from brainscore.metrics.ceiling import InternalConsistency
@@ -106,8 +107,24 @@ def _MovshonFreemanZiemba2013Region(region, identifier_metric_suffix, similarity
                            paper_link='https://www.nature.com/articles/nn.3402')
 
 
+def _MovshonFreemanZiemba2013RegionPublic(region, identifier_metric_suffix, similarity_metric):
+    return build_benchmark(f'movshon.FreemanZiemba2013.public.{region}-{identifier_metric_suffix}',
+                           assembly_loader=assembly_loaders_pub[f'movshon.FreemanZiemba2013.public.{region}'],
+                           similarity_metric=similarity_metric,
+                           ceiler=InternalConsistency(),
+                           parent=region,
+                           paper_link='https://www.nature.com/articles/nn.3402')
+
+
 def MovshonFreemanZiemba2013V1PLS():
     return _MovshonFreemanZiemba2013Region('V1', identifier_metric_suffix='pls',
+                                           similarity_metric=CrossRegressedCorrelation(
+                                               regression=pls_regression(), correlation=pearsonr_correlation(),
+                                               crossvalidation_kwargs=dict(stratification_coord='texture_type')))
+
+
+def MovshonFreemanZiemba2013V1PLSPublic():
+    return _MovshonFreemanZiemba2013RegionPublic('V1', identifier_metric_suffix='pls',
                                            similarity_metric=CrossRegressedCorrelation(
                                                regression=pls_regression(), correlation=pearsonr_correlation(),
                                                crossvalidation_kwargs=dict(stratification_coord='texture_type')))

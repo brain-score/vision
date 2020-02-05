@@ -1,10 +1,11 @@
-from pytest import approx
 from string import ascii_lowercase as alphabet
 
 import numpy as np
-from brainio_base.assemblies import NeuroidAssembly, DataAssembly
+import pytest
+from pytest import approx
 
-from brainscore.assemblies.private import DicarloMajaj2015Loader
+from brainio_base.assemblies import NeuroidAssembly, DataAssembly
+from brainscore.benchmarks.majaj2015 import load_assembly
 from brainscore.metrics.ceiling import NoCeiling, InternalConsistency, SplitHalfConsistency
 
 
@@ -28,9 +29,9 @@ class TestInternalConsistency:
         ceiling = ceiler(data)
         assert ceiling.sel(aggregation='center') == 1
 
+    @pytest.mark.private_access
     def test_majaj2015_it(self):
-        loader = DicarloMajaj2015Loader()
-        assembly_repetitions = loader(average_repetition=False).sel(region='IT')
+        assembly_repetitions = load_assembly(average_repetitions=False, region='IT')
         ceiler = InternalConsistency()
         ceiling = ceiler(assembly_repetitions)
         assert ceiling.sel(aggregation='center') == approx(.82, abs=.01)

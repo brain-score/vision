@@ -36,7 +36,7 @@ def _determine_visual_degrees(visual_degrees, stimulus_set):
     if not visual_degrees:
         visual_degrees = stimulus_set['degrees']
     if not is_iterable(visual_degrees):
-        visual_degrees = [visual_degrees] * len(stimulus_set)
+        visual_degrees = np.array([visual_degrees] * len(stimulus_set))
     return visual_degrees
 
 

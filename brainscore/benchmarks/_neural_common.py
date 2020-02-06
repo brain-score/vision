@@ -2,10 +2,11 @@ import numpy as np
 
 from brainio_base.assemblies import array_is_element, walk_coords
 from brainscore.benchmarks import BenchmarkBase, ceil_score
+from brainscore.benchmarks.screen import place_on_screen
 
 
 class NeuralBenchmark(BenchmarkBase):
-    def __init__(self, identifier, assembly, similarity_metric, **kwargs):
+    def __init__(self, identifier, assembly, similarity_metric, visual_degrees, **kwargs):
         super(NeuralBenchmark, self).__init__(identifier=identifier, **kwargs)
         self._assembly = assembly
         self._similarity_metric = similarity_metric
@@ -14,10 +15,13 @@ class NeuralBenchmark(BenchmarkBase):
         self.region = region[0]
         timebins = timebins_from_assembly(self._assembly)
         self.timebins = timebins
+        self._visual_degrees = visual_degrees
 
     def __call__(self, candidate):
         candidate.start_recording(self.region, time_bins=self.timebins)
-        source_assembly = candidate.look_at(self._assembly.stimulus_set)
+        stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
+                                       source_visual_degrees=self._visual_degrees)
+        source_assembly = candidate.look_at(stimulus_set)
         if 'time_bin' in source_assembly.dims:
             source_assembly = source_assembly.squeeze('time_bin')  # static case for these benchmarks
         raw_score = self._similarity_metric(source_assembly, self._assembly)

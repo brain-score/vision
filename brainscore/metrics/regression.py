@@ -1,4 +1,5 @@
 import scipy.stats
+import numpy as np
 from sklearn.cross_decomposition import PLSRegression
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import scale
@@ -44,6 +45,26 @@ class ScaledCrossRegressedCorrelation:
         return self.cross_regressed_correlation(source, target)
 
 
+class SingleRegression():
+    def __init__(self):
+        self.mapping = []
+
+    def fit(self, X, Y):
+        X = X.values
+        Y = Y.values
+        n_stim, n_neuroid = X.shape
+        _, n_neuron = Y.shape
+        r = np.zeros((n_neuron, n_neuroid))
+        for neuron in range(n_neuron):
+            r[neuron, :] = pearsonr(X, Y[:, neuron:neuron+1])
+        self.mapping = np.nanargmax(r, axis=1)
+
+    def predict(self, X):
+        X = X.values
+        Ypred = X[:, self.mapping]
+        return Ypred
+
+
 def mask_regression():
     regression = MaskRegression()
     regression = XarrayRegression(regression)
@@ -69,3 +90,25 @@ def linear_regression(xarray_kwargs=None):
 def pearsonr_correlation(xarray_kwargs=None):
     xarray_kwargs = xarray_kwargs or {}
     return XarrayCorrelation(scipy.stats.pearsonr, **xarray_kwargs)
+
+
+def single_regression(xarray_kwargs=None):
+    regression = SingleRegression()
+    xarray_kwargs = xarray_kwargs or {}
+    regression = XarrayRegression(regression, **xarray_kwargs)
+    return regression
+
+
+def pearsonr(x, y):
+    xmean = x.mean(axis=0, keepdims=True)
+    ymean = y.mean(axis=0, keepdims=True)
+
+    xm = x - xmean
+    ym = y - ymean
+
+    normxm = np.linalg.norm(xm, axis=0, keepdims=True)
+    normym = np.linalg.norm(ym, axis=0, keepdims=True)
+
+    r = ((xm/normxm)*(ym/normym)).sum(axis=0)
+
+    return r

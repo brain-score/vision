@@ -88,7 +88,7 @@ class XarrayCorrelation:
             target_neuroids = target.isel(**{neuroid_dims[0]: i})  # `isel` is about 10x faster than `sel`
             prediction_neuroids = prediction.isel(**{neuroid_dims[0]: i})
             r, p = self._correlation(target_neuroids, prediction_neuroids)
-            correlations.append(r)
+            correlations.append(r if np.isfinite(r) else 0)
         # package
         result = Score(correlations,
                        coords={coord: (dims, values)

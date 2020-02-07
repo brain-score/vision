@@ -106,8 +106,8 @@ def pearsonr(x, y):
     xm = x - xmean
     ym = y - ymean
 
-    normxm = np.linalg.norm(xm, axis=0, keepdims=True)
-    normym = np.linalg.norm(ym, axis=0, keepdims=True)
+    normxm = scipy.linalg.norm(xm, axis=0, keepdims=True)
+    normym = scipy.linalg.norm(ym, axis=0, keepdims=True)
 
     r = ((xm/normxm)*(ym/normym)).sum(axis=0)
 

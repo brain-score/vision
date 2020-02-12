@@ -32,7 +32,6 @@ class ModelLayersPool(UniqueKeyDict):
                 continue
             layers = model_layers[basemodel_identifier]
 
-            # for identifier, activations_model in Hooks().iterate_hooks(basemodel_identifier, activations_model):
             self[basemodel_identifier] = {'model': activations_model, 'layers': layers}
 
 
@@ -49,9 +48,6 @@ class MLBrainPool(UniqueKeyDict):
                 continue
             layers = model_layers[basemodel_identifier]
 
-            # for identifier, activations_model in Hooks().iterate_hooks(basemodel_identifier, activations_model):
-            # if identifier in self:  # already pre-defined
-            #     continue
             from model_tools.brain_transformation import ModelCommitment
             # enforce early parameter binding: https://stackoverflow.com/a/3431699/2225200
             def load(identifier=basemodel_identifier, activations_model=activations_model, layers=layers):

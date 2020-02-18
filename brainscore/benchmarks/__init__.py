@@ -91,8 +91,8 @@ class BenchmarkPool(dict):
         from .imagenet import Imagenet2012
         self['fei-fei.Deng2009-top1'] = LazyLoad(Imagenet2012)
 
-        from .search import KlabZhang2018ObjArray
-        self['klab.Zhang2018-ObjArray'] = LazyLoad(KlabZhang2018ObjArray)
+        from .search import KlabZhang2018ObjSearch
+        self['klab.Zhang2018-object_search'] = LazyLoad(KlabZhang2018ObjSearch)
 
 
 benchmark_pool = BenchmarkPool()

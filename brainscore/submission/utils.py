@@ -15,7 +15,7 @@ class UniqueKeyDict(dict):
 
     def __getitem__(self, item):
         value = super(UniqueKeyDict, self).__getitem__(item)
-        if self.reload:
+        if self.reload and hasattr(value, 'reload'):
             _logger.warning(f'{item} is accessed again and reloaded')
             value.reload()
         return value

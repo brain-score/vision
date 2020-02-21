@@ -37,7 +37,8 @@ class MLBrainPool(UniqueKeyDict):
             # enforce early parameter binding: https://stackoverflow.com/a/3431699/2225200
 
             def load(identifier=basemodel_identifier, activations_model=activations_model, layers=layers):
-                activations_model.unregister_hooks()
+                assert hasattr(activations_model, 'reload')
+                activations_model.reload()
                 brain_model = ModelCommitment(identifier=identifier, activations_model=activations_model,
                                               layers=layers)
                 for region in regions:

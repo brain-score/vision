@@ -45,7 +45,7 @@ class Score(DataAssembly):
                 except Exception as e:
                     if _ignore_errors:
                         # ignore errors with warning. most users will likely only want to access the main score
-                        warnings.warning(f"{operation} on raw values failed: {repr(e)}")
+                        warnings.warn(f"{operation} on raw values failed: {repr(e)}")
                     else:
                         raise e
             result.attrs[self.RAW_VALUES_KEY] = raw

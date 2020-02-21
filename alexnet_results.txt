@@ -1,6 +1,0 @@
-    benchmarks = ['movshon.FreemanZiemba2013.V1-pls', 'movshon.FreemanZiemba2013.V2-pls','dicarlo.Majaj2015.V4-pls', 'dicarlo.Majaj2015.IT-pls', 'dicarlo.Rajalingham2018-i2n', 'fei-fei.Deng2009-top1']
-
-
-data = {'alexnet_random': [0.23957123, 0.22241723, 0.43034628, 0.26072557, 0.10744794, 0.0012],
-     'alexnet_norm_dist': [0.21456451,0.2003876, 0.44366336, 0.24848454, 0.10700565, 0.0011],
-     'alexnet': [0.2154463,0.30824973,0.54964844,0.50798172,0.37017073,0.51908]}

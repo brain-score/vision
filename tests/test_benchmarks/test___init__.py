@@ -28,6 +28,10 @@ class TestStandardized:
                      marks=pytest.mark.memory_intense),
         pytest.param('dicarlo.Majaj2015.IT-rdm', approx(.887618, abs=.001),
                      marks=pytest.mark.memory_intense),
+        pytest.param('dicarlo.Kar2018hvm-pls', approx(.842015, abs=.001),
+                     marks=pytest.mark.memory_intense),
+        pytest.param('dicarlo.Kar2018coco-pls', approx(.795665, abs=.001),
+                     marks=pytest.mark.memory_intense),
     ])
     def test_ceilings(self, benchmark, expected):
         benchmark = benchmark_pool[benchmark]
@@ -44,6 +48,10 @@ class TestStandardized:
         pytest.param('dicarlo.Majaj2015.V4-pls', approx(.923713, abs=.001),
                      marks=pytest.mark.memory_intense),
         pytest.param('dicarlo.Majaj2015.IT-pls', approx(.823433, abs=.001),
+                     marks=pytest.mark.memory_intense),
+        pytest.param('dicarlo.Kar2018hvm-pls', approx(.823433, abs=.001),
+                     marks=pytest.mark.memory_intense),
+        pytest.param('dicarlo.Kar2018coco-pls', approx(.856989, abs=.001),
                      marks=pytest.mark.memory_intense),
     ])
     def test_self_regression(self, benchmark, expected):
@@ -93,6 +101,16 @@ class TestPrecomputed:
     ])
     def test_Majaj2015(self, benchmark, expected):
         self.run_test(benchmark=benchmark, file='alexnet-majaj2015.private-features.12.pkl', expected=expected)
+
+    @pytest.mark.memory_intense
+    def test_Kar2018hvm(self):
+        self.run_test(benchmark='dicarlo.Kar2018hvm-pls', file='alexnet-hvm-features.12.pkl',
+                      expected=approx(.490236, abs=.005))
+
+    @pytest.mark.memory_intense
+    def test_Kar2018coco(self):
+        self.run_test(benchmark='dicarlo.Kar2018coco-pls', file='alexnet-cocogray-features.12.pkl',
+                      expected=approx(.490236, abs=.005))
 
     @pytest.mark.memory_intense
     @pytest.mark.requires_gpu

@@ -12,10 +12,9 @@ import pandas as pd
 from importlib import import_module
 
 from brainscore import score_model
-from brainscore.metrics import ceiling
 from brainscore.utils import LazyLoad
 
-from submission.ml_pool import MLBrainPool, ModelLayers
+from brainscore.submission.ml_pool import MLBrainPool, ModelLayers
 
 logger = logging.getLogger(__name__)
 

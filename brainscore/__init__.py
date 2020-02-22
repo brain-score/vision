@@ -25,10 +25,13 @@ def get_assembly(name):
 
 @store(identifier_ignore=['model', 'benchmark'])
 def score_model(model_identifier, benchmark_identifier, model, benchmark=None):
+    # model_identifier variable is not unused, the result caching component uses it to identify the cached results
     assert model is not None
     if benchmark is None:
         _logger.debug("retrieving benchmark")
         benchmark = benchmark_pool[benchmark_identifier]
     _logger.debug("scoring model")
     score = benchmark(model)
+    score.attrs['model_identifier'] = model_identifier
+    score.attrs['benchmark_identifier'] = benchmark_identifier
     return score

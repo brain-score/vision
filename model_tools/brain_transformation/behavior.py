@@ -6,6 +6,7 @@ import sklearn.multioutput
 
 from brainio_base.assemblies import walk_coords, array_is_element, BehavioralAssembly
 from brainscore.model_interface import BrainModel
+from model_tools.utils import make_list
 
 
 class BehaviorArbiter(BrainModel):
@@ -48,9 +49,14 @@ class LogitsBehavior(BrainModel):
 
 class ProbabilitiesMapping(BrainModel):
     def __init__(self, identifier, activations_model, layer):
+        """
+        :param identifier: a string to identify the model
+        :param activations_model: the model from which to retrieve representations for stimuli
+        :param layer: the single behavioral readout layer or a list of layers to read out of.
+        """
         self.identifier = identifier
         self.activations_model = activations_model
-        self.layer = layer
+        self.readout = make_list(layer)
         self.classifier = ProbabilitiesMapping.ProbabilitiesClassifier()
         self.current_task = None
 
@@ -58,7 +64,7 @@ class ProbabilitiesMapping(BrainModel):
         assert task in [BrainModel.Task.passive, BrainModel.Task.probabilities]
         self.current_task = task
 
-        fitting_features = self.activations_model(fitting_stimuli, layers=[self.layer])
+        fitting_features = self.activations_model(fitting_stimuli, layers=self.readout)
         fitting_features = fitting_features.transpose('presentation', 'neuroid')
         assert all(fitting_features['image_id'].values == fitting_stimuli['image_id'].values), \
             "image_id ordering is incorrect"
@@ -67,7 +73,7 @@ class ProbabilitiesMapping(BrainModel):
     def look_at(self, stimuli):
         if self.current_task is BrainModel.Task.passive:
             return
-        features = self.activations_model(stimuli, layers=[self.layer])
+        features = self.activations_model(stimuli, layers=self.readout)
         features = features.transpose('presentation', 'neuroid')
         prediction = self.classifier.predict_proba(features)
         return prediction

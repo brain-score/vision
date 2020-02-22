@@ -1,14 +1,13 @@
 import logging
-from collections import Iterable
-from typing import Optional, Union
-
 from tqdm import tqdm
+from typing import Optional, Union
 
 from brainscore.metrics import Score
 from brainscore.model_interface import BrainModel
 from brainscore.utils import fullname
 from model_tools.activations.pca import LayerPCA
 from model_tools.brain_transformation import TemporalIgnore
+from model_tools.utils import make_list
 from result_caching import store_xarray, store
 
 
@@ -23,8 +22,7 @@ class LayerMappedModel(BrainModel):
         layer_regions = {}
         for region in self.recorded_regions:
             layers = self.region_layer_map[region]
-            if not isinstance(layers, Iterable) or isinstance(layers, (str, bytes)):
-                layers = [layers]
+            layers = make_list(layers)
             for layer in layers:
                 assert layer not in layer_regions, f"layer {layer} has already been assigned for {layer_regions[layer]}"
                 layer_regions[layer] = region

@@ -103,9 +103,9 @@ class PytorchWrapper:
         return g
 
 
-def load_preprocess_images(image_filepaths, image_size):
+def load_preprocess_images(image_filepaths, image_size, **kwargs):
     images = load_images(image_filepaths)
-    images = preprocess_images(images, image_size=image_size)
+    images = preprocess_images(images, image_size=image_size, **kwargs)
     return images
 
 
@@ -125,18 +125,18 @@ def load_image(image_filepath):
             return rgb_image
 
 
-def preprocess_images(images, image_size):
-    preprocess = torchvision_preprocess_input(image_size)
+def preprocess_images(images, image_size, **kwargs):
+    preprocess = torchvision_preprocess_input(image_size, **kwargs)
     images = [preprocess(image) for image in images]
     images = np.concatenate(images)
     return images
 
 
-def torchvision_preprocess_input(image_size):
+def torchvision_preprocess_input(image_size, **kwargs):
     from torchvision import transforms
     return transforms.Compose([
         transforms.Resize(image_size),
-        torchvision_preprocess(),
+        torchvision_preprocess(**kwargs),
     ])
 
 

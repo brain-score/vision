@@ -17,11 +17,11 @@ requirements = [
     "gitpython",
     "fire",
     "networkx",
-    "pandas==0.25.3",
-    "result_caching @ git+https://github.com/mschrimpf/result_caching",
-    "jupyter",
     "matplotlib",
     "tensorflow==1.15",
+    "result_caching @ git+https://github.com/mschrimpf/result_caching",
+    "jupyter",
+    "pandas==0.25.3",
 ]
 
 setup(

@@ -58,7 +58,7 @@ def run_evaluation(config_file, work_dir, db_connection_config, jenkins_id, mode
             try:
                 layers[model] = module.get_layers(model)
             except Exception:
-                pass
+                logging.warning(f'Could not retrieve layer for model {model} -- skipping model')
         model_layers = ModelLayers(layers)
         ml_brain_pool = MLBrainPool(base_model_pool, model_layers)
     else:

@@ -19,6 +19,7 @@ requirements = [
     "networkx",
     "result_caching @ git+https://github.com/mschrimpf/result_caching",
     "jupyter",
+    "ScanMatchPy @ git+https://github.com/kreimanlab/ScanMatchPy",
 ]
 
 setup(

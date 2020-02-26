@@ -1,5 +1,5 @@
+import os
 import pickle
-
 from pathlib import Path
 
 import pytest
@@ -107,13 +107,21 @@ class TestPrecomputed:
         with open(precomputed_features, 'rb') as f:
             precomputed_features = pickle.load(f)['data']
         precomputed_features = precomputed_features.stack(presentation=['stimulus_path'])
+        precomputed_paths = set(map(lstrip_local, precomputed_features['stimulus_path'].values))
         # attach stimulus set meta
         stimulus_set = benchmark._assembly.stimulus_set
-        expected_stimulus_paths = [stimulus_set.get_image(image_id) for image_id in stimulus_set['image_id']]
-        assert (precomputed_features['stimulus_path'].values == expected_stimulus_paths).all()
+        expected_stimulus_paths = list(
+            map(lstrip_local, [stimulus_set.get_image(image_id) for image_id in stimulus_set['image_id']]))
+        assert (precomputed_paths == set(expected_stimulus_paths))
         for column in stimulus_set.columns:
             precomputed_features[column] = 'presentation', stimulus_set[column].values
         precomputed_features = PrecomputedFeatures(precomputed_features)
         # score
         score = benchmark(precomputed_features).raw
         assert score.sel(aggregation='center') == expected
+
+
+def lstrip_local(path):
+    parts = path.split(os.sep)
+    path = os.sep.join(parts[-3:])
+    return path

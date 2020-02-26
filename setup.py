@@ -17,9 +17,12 @@ requirements = [
     "gitpython",
     "fire",
     "networkx",
+    "matplotlib",
+    "tensorflow==1.15",
     "result_caching @ git+https://github.com/mschrimpf/result_caching",
     "jupyter",
     "ScanMatchPy @ git+https://github.com/kreimanlab/ScanMatchPy",
+    "pandas==0.25.3",
 ]
 
 setup(

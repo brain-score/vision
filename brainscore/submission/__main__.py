@@ -1,12 +1,11 @@
 import argparse
 import logging
-import os
 import sys
 from pathlib import Path
 
 import fire
 
-from submission.evaluation import run_evaluation
+from brainscore.submission.evaluation import run_evaluation
 
 logger = logging.getLogger(__name__)
 

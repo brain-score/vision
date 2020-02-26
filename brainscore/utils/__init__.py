@@ -67,6 +67,9 @@ class LazyLoad:
         if self.content is None:
             self.content = self.load_fnc()
 
+    def reload(self):
+        self.content = self.load_fnc()
+
     def __call__(self, *args, **kwargs):
         self._ensure_loaded()
         return self.content(*args, **kwargs)

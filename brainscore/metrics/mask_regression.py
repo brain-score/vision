@@ -121,8 +121,8 @@ class MaskRegression:
         import tensorflow as tf
         self._graph = tf.Graph()
         with self._graph.as_default():
-            self._lr_ph = tf.placeholder(dtype=tf.float32)
-            self._opt = tf.train.AdamOptimizer(learning_rate=self._lr_ph)
+            self._lr_ph = tf.compat.v1.placeholder(dtype=tf.float32)
+            self._opt = tf.compat.v1.train.AdamOptimizer(learning_rate=self._lr_ph)
 
     def reindex(self, X):
         channel_names = ['channel', 'channel_x', 'channel_y']
@@ -138,11 +138,11 @@ class MaskRegression:
         """
         import tensorflow as tf
         with self._graph.as_default():
-            with tf.variable_scope('mapping'):
+            with tf.compat.v1.variable_scope('mapping'):
                 input_shape = self._input_placeholder.shape
                 preds = []
                 for n in range(self._target_placeholder.shape[1]):
-                    with tf.variable_scope('N_{}'.format(n)):
+                    with tf.compat.v1.variable_scope('N_{}'.format(n)):
                         # for all variables, either use pre-defined initial value or initialize randomly
                         if self._inits is not None and 's_w' in self._inits:
                             s_w = tf.Variable(initial_value=
@@ -163,14 +163,14 @@ class MaskRegression:
                         else:
                             bias = tf.Variable(initial_value=np.zeros((1, 1, 1, 1)), dtype=tf.float32)
 
-                        tf.add_to_collection('s_w', s_w)
+                        tf.compat.v1.add_to_collection('s_w', s_w)
                         out = s_w * self._input_placeholder
 
-                        tf.add_to_collection('d_w', d_w)
-                        out = tf.reduce_sum(out, axis=[1, 2], keepdims=True)
-                        out = tf.nn.conv2d(out, d_w, [1, 1, 1, 1], 'SAME')
+                        tf.compat.v1.add_to_collection('d_w', d_w)
+                        out = tf.reduce_sum(input_tensor=out, axis=[1, 2], keepdims=True)
+                        out = tf.nn.conv2d(input=out, filters=d_w, strides=[1, 1, 1, 1], padding='SAME')
 
-                        tf.add_to_collection('bias', bias)
+                        tf.compat.v1.add_to_collection('bias', bias)
                         preds.append(tf.squeeze(out, axis=[1, 2]) + bias)
 
                 self._predictions = tf.concat(preds, -1)
@@ -181,26 +181,26 @@ class MaskRegression:
         """
         import tensorflow as tf
         with self._graph.as_default():
-            with tf.variable_scope('loss'):
-                self.l2_error = tf.norm(self._predictions - self._target_placeholder, ord=2)
+            with tf.compat.v1.variable_scope('loss'):
+                self.l2_error = tf.norm(tensor=self._predictions - self._target_placeholder, ord=2)
                 # For separable mapping
-                self._s_vars = tf.get_collection('s_w')
-                self._d_vars = tf.get_collection('d_w')
-                self._biases = tf.get_collection('bias')
+                self._s_vars = tf.compat.v1.get_collection('s_w')
+                self._d_vars = tf.compat.v1.get_collection('d_w')
+                self._biases = tf.compat.v1.get_collection('bias')
 
                 # Laplacian loss
                 laplace_filter = tf.constant(np.array([0, -1, 0, -1, 4, -1, 0, -1, 0]).reshape((3, 3, 1, 1)),
                                              dtype=tf.float32)
                 laplace_loss = tf.reduce_sum(
-                    [tf.norm(tf.nn.conv2d(t, laplace_filter, [1, 1, 1, 1], 'SAME')) for t in self._s_vars])
-                l2_loss = tf.reduce_sum([tf.reduce_sum(tf.pow(t, 2)) for t in self._s_vars])
+                    input_tensor=[tf.norm(tensor=tf.nn.conv2d(input=t, filters=laplace_filter, strides=[1, 1, 1, 1], padding='SAME')) for t in self._s_vars])
+                l2_loss = tf.reduce_sum(input_tensor=[tf.reduce_sum(input_tensor=tf.pow(t, 2)) for t in self._s_vars])
                 self.reg_loss = self._ls * (l2_loss + laplace_loss) + \
-                                self._ld * tf.reduce_sum([tf.reduce_sum(tf.pow(t, 2)) for t in self._d_vars])
+                                self._ld * tf.reduce_sum(input_tensor=[tf.reduce_sum(input_tensor=tf.pow(t, 2)) for t in self._d_vars])
 
                 self.total_loss = self.l2_error + self.reg_loss
-                self.tvars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
+                self.tvars = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.TRAINABLE_VARIABLES)
                 self.train_op = self._opt.minimize(self.total_loss, var_list=self.tvars,
-                                                   global_step=tf.train.get_or_create_global_step())
+                                                   global_step=tf.compat.v1.train.get_or_create_global_step())
 
     def _init_mapper(self, X, Y):
         """
@@ -210,17 +210,17 @@ class MaskRegression:
         import tensorflow as tf
         assert len(Y.shape) == 2
         with self._graph.as_default():
-            self._input_placeholder = tf.placeholder(dtype=tf.float32, shape=[None] + list(X.shape[1:]))
-            self._target_placeholder = tf.placeholder(dtype=tf.float32, shape=[None, Y.shape[1]])
+            self._input_placeholder = tf.compat.v1.placeholder(dtype=tf.float32, shape=[None] + list(X.shape[1:]))
+            self._target_placeholder = tf.compat.v1.placeholder(dtype=tf.float32, shape=[None, Y.shape[1]])
             # Build the model graph
             self._make_separable_map()
             self._make_loss()
 
             # initialize graph
             self._logger.debug('Initializing mapper')
-            init_op = tf.variables_initializer(tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES))
-            self._sess = tf.Session(
-                config=tf.ConfigProto(gpu_options=self._gpu_options) if self._gpu_options is not None else None)
+            init_op = tf.compat.v1.variables_initializer(tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES))
+            self._sess = tf.compat.v1.Session(
+                config=tf.compat.v1.ConfigProto(gpu_options=self._gpu_options) if self._gpu_options is not None else None)
             self._sess.run(init_op)
 
     def close(self):
@@ -228,5 +228,5 @@ class MaskRegression:
         Closes occupied resources
         """
         import tensorflow as tf
-        tf.reset_default_graph()
+        tf.compat.v1.reset_default_graph()
         self._sess.close()

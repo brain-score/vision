@@ -12,10 +12,9 @@ import pandas as pd
 from importlib import import_module
 
 from brainscore import score_model
-from brainscore.metrics import ceiling
 from brainscore.utils import LazyLoad
 
-from submission.ml_pool import MLBrainPool, ModelLayers
+from brainscore.submission.ml_pool import MLBrainPool, ModelLayers
 
 logger = logging.getLogger(__name__)
 
@@ -56,8 +55,10 @@ def run_evaluation(config_file, work_dir, db_connection_config, jenkins_id, mode
         for model in test_models:
             function = lambda: module.get_model(model)
             base_model_pool[model] = LazyLoad(function)
-            if module.get_layers is not None:
+            try:
                 layers[model] = module.get_layers(model)
+            except Exception:
+                logging.warning(f'Could not retrieve layer for model {model} -- skipping model')
         model_layers = ModelLayers(layers)
         ml_brain_pool = MLBrainPool(base_model_pool, model_layers)
     else:
@@ -72,12 +73,12 @@ def run_evaluation(config_file, work_dir, db_connection_config, jenkins_id, mode
                     logger.info(f"Scoring {model} on benchmark {benchmark}")
                     score = score_model(model, benchmark, ml_brain_pool[model])
                     logger.info(f'Running benchmark {benchmark} on model {model} produced this score: {score}')
-                    if not hasattr(score, ceiling):
+                    if not hasattr(score, 'ceiling'):
                         raw = score.sel(aggregation='center').item(0)
                         ceiled = None
                         error = None
                     else:
-                        assert len(score.raw.sel(aggregation='center')) == 1
+                        assert score.raw.sel(aggregation='center') is not None
                         raw = score.raw.sel(aggregation='center').item(0)
                         ceiled = score.sel(aggregation='center').item(0)
                         error = score.sel(aggregation='error').item(0)
@@ -150,7 +151,8 @@ def clone_repo(config, work_dir):
 def install_project(repo, package):
     try:
         assert 0 == subprocess.call([sys.executable, "-m", "pip", "install", repo], env=os.environ)
-        sys.path.insert(1, repo)
+        sys.path.insert(1, str(repo))
+        logger.info(f'System paths {sys.path}')
         return import_module(package)
     except ImportError:
         return __import__(package)

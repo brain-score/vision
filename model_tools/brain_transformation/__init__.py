@@ -23,6 +23,7 @@ class ModelCommitment(BrainModel):
 
     def __init__(self, identifier, activations_model, layers, behavioral_readout_layer=None, region_benchmarks=None):
         self.layers = layers
+        self.activations_model = activations_model
         self.region_benchmarks = {**self.standard_region_benchmarks, **(region_benchmarks or {})}
         layer_model = LayerMappedModel(identifier=identifier, activations_model=activations_model)
         self.layer_model = TemporalIgnore(layer_model)

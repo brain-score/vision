@@ -7,7 +7,7 @@ import pytest
 from pytest import approx
 
 from brainio_base.stimuli import StimulusSet
-from brainscore.benchmarks.behavioral import DicarloRajalingham2018I2n
+from brainscore.benchmarks.rajalingham2018 import DicarloRajalingham2018I2n
 from brainscore.model_interface import BrainModel
 from model_tools.activations import PytorchWrapper
 from model_tools.brain_transformation import ModelCommitment, ProbabilitiesMapping

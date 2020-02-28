@@ -8,7 +8,7 @@ class TensorflowWrapper:
         import tensorflow as tf
         self._inputs = inputs
         self._endpoints = endpoints
-        self._session = session or tf.Session()
+        self._session = session or tf.compat.v1.Session()
         self._extractor = ActivationsExtractorHelper(identifier=identifier, get_activations=self.get_activations,
                                                      preprocessing=None, *args, **kwargs)
         self._extractor.insert_attrs(self)
@@ -54,14 +54,14 @@ class TensorflowSlimWrapper(TensorflowWrapper):
 
 def load_image(image_filepath):
     import tensorflow as tf
-    image = tf.read_file(image_filepath)
+    image = tf.io.read_file(image_filepath)
     image = tf.image.decode_png(image, channels=3)
     return image
 
 
 def resize_image(image, image_size):
     import tensorflow as tf
-    image = tf.image.resize_images(image, (image_size, image_size))
+    image = tf.image.resize(image, (image_size, image_size))
     return image
 
 

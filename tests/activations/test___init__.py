@@ -78,14 +78,14 @@ def tfslim_custom():
     from model_tools.activations.tensorflow import load_resize_image
     import tensorflow as tf
     slim = tf.contrib.slim
-    tf.reset_default_graph()
+    tf.compat.v1.reset_default_graph()
 
     image_size = 224
-    placeholder = tf.placeholder(dtype=tf.string, shape=[64])
+    placeholder = tf.compat.v1.placeholder(dtype=tf.string, shape=[64])
     preprocess = lambda image_path: load_resize_image(image_path, image_size)
     preprocess = tf.map_fn(preprocess, placeholder, dtype=tf.float32)
 
-    with tf.variable_scope('my_model', values=[preprocess]) as sc:
+    with tf.compat.v1.variable_scope('my_model', values=[preprocess]) as sc:
         end_points_collection = sc.original_name_scope + '_end_points'
         # Collect outputs for conv2d, fully_connected and max_pool2d.
         with slim.arg_scope([slim.conv2d, slim.fully_connected, slim.max_pool2d],
@@ -97,8 +97,8 @@ def tfslim_custom():
             net = slim.fully_connected(net, 1000, scope='logits')
             endpoints = slim.utils.convert_collection_to_dict(end_points_collection)
 
-    session = tf.Session()
-    session.run(tf.initialize_all_variables())
+    session = tf.compat.v1.Session()
+    session.run(tf.compat.v1.initialize_all_variables())
     return TensorflowSlimWrapper(identifier='tf-custom', labels_offset=0,
                                  endpoints=endpoints, inputs=placeholder, session=session)
 
@@ -108,10 +108,10 @@ def tfslim_vgg16():
     from nets import nets_factory
     from preprocessing import vgg_preprocessing
     from model_tools.activations.tensorflow import load_resize_image
-    tf.reset_default_graph()
+    tf.compat.v1.reset_default_graph()
 
     image_size = 224
-    placeholder = tf.placeholder(dtype=tf.string, shape=[64])
+    placeholder = tf.compat.v1.placeholder(dtype=tf.string, shape=[64])
     preprocess_image = lambda image: vgg_preprocessing.preprocess_image(
         image, image_size, image_size, resize_side_min=image_size)
     preprocess = lambda image_path: preprocess_image(load_resize_image(image_path, image_size))
@@ -120,8 +120,8 @@ def tfslim_vgg16():
     model_ctr = nets_factory.get_network_fn('vgg_16', num_classes=1001, is_training=False)
     logits, endpoints = model_ctr(preprocess)
 
-    session = tf.Session()
-    session.run(tf.initialize_all_variables())
+    session = tf.compat.v1.Session()
+    session.run(tf.compat.v1.initialize_all_variables())
     return TensorflowSlimWrapper(identifier='tf-vgg16', labels_offset=1,
                                  endpoints=endpoints, inputs=placeholder, session=session)
 

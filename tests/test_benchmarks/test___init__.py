@@ -94,13 +94,6 @@ class TestPrecomputed:
     def test_Majaj2015(self, benchmark, expected):
         self.run_test(benchmark=benchmark, file='alexnet-majaj2015.private-features.12.pkl', expected=expected)
 
-    @pytest.mark.memory_intense
-    @pytest.mark.requires_gpu
-    def test_IT_mask_alexnet(self):
-        self.run_test(benchmark='dicarlo.Majaj2015.IT-mask',
-                      file='alexnet-majaj2015.private-features.12.pkl',
-                      expected=approx(.594399, abs=.005))
-
     def run_test(self, benchmark, file, expected):
         benchmark = benchmark_pool[benchmark]
         precomputed_features = Path(__file__).parent / file
@@ -121,6 +114,19 @@ class TestPrecomputed:
         # score
         score = benchmark(precomputed_features).raw
         assert score.sel(aggregation='center') == expected
+
+    @pytest.mark.memory_intense
+    @pytest.mark.private_access
+    @pytest.mark.slow
+    def test_Kar2019ost_cornet_s(self):
+        benchmark = benchmark_pool['dicarlo.Kar2019-ost']
+        precomputed_features = Path(__file__).parent / 'cornet_s-kar2019.pkl'
+        with open(precomputed_features, 'rb') as f:
+            precomputed_features = pickle.load(f)['data']
+        precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
+        # score
+        score = benchmark(precomputed_features).raw
+        assert score.sel(aggregation='center') == approx(.316, abs=.005)
 
 
 def lstrip_local(path):

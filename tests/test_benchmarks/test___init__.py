@@ -116,7 +116,7 @@ class TestPrecomputed:
         for column in stimulus_set.columns:
             precomputed_features[column] = 'presentation', stimulus_set[column].values
         precomputed_features = PrecomputedFeatures(precomputed_features,
-                                                   visual_degrees=10,  # doesn't matter
+                                                   visual_degrees=10,  # doesn't matter, features are already computed
                                                    )
         # score
         score = benchmark(precomputed_features).raw
@@ -125,5 +125,6 @@ class TestPrecomputed:
 
 def lstrip_local(path):
     parts = path.split(os.sep)
-    path = os.sep.join(parts[-3:])
+    brainio_index = parts.index('.brainio')
+    path = os.sep.join(parts[brainio_index:])
     return path

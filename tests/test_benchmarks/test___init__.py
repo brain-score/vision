@@ -35,9 +35,9 @@ class TestStandardized:
         assert ceiling.sel(aggregation='center') == expected
 
     @pytest.mark.parametrize('benchmark, visual_degrees, expected', [
-        pytest.param('movshon.FreemanZiemba2013.V1-pls', 4, approx(.686929, abs=.001),
+        pytest.param('movshon.FreemanZiemba2013.V1-pls', 4, approx(.668491, abs=.001),
                      marks=[pytest.mark.memory_intense]),
-        pytest.param('movshon.FreemanZiemba2013.V2-pls', 4, approx(.573678, abs=.001),
+        pytest.param('movshon.FreemanZiemba2013.V2-pls', 4, approx(.553155, abs=.001),
                      marks=[pytest.mark.memory_intense]),
         pytest.param('tolias.Cadena2017-pls', 2, approx(.577474, abs=.005),
                      marks=pytest.mark.private_access),
@@ -80,11 +80,11 @@ class TestStandardized:
 class TestPrecomputed:
     @pytest.mark.memory_intense
     @pytest.mark.parametrize('benchmark, expected', [
-        ('movshon.FreemanZiemba2013.V1-pls', approx(.326559, abs=.005)),
-        ('movshon.FreemanZiemba2013.V2-pls', approx(.419765, abs=.005)),
+        ('movshon.FreemanZiemba2013.V1-pls', approx(.466222, abs=.005)),
+        ('movshon.FreemanZiemba2013.V2-pls', approx(.459283, abs=.005)),
     ])
     def test_FreemanZiemba2013(self, benchmark, expected):
-        self.run_test(benchmark=benchmark, file='alexnet-freemanziemba2013.private-features.12.pkl', expected=expected)
+        self.run_test(benchmark=benchmark, file='alexnet-freemanziemba2013.aperture-private.pkl', expected=expected)
 
     @pytest.mark.memory_intense
     @pytest.mark.parametrize('benchmark, expected', [

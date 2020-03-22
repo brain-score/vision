@@ -64,7 +64,8 @@ class XarrayRegression:
         return prediction
 
     def _align(self, assembly):
-        assert set(assembly.dims) == set(self._expected_dims)
+        assert set(assembly.dims) == set(self._expected_dims), \
+            f"Expected {set(self._expected_dims)}, but got {set(assembly.dims)}"
         return assembly.transpose(*self._expected_dims)
 
 

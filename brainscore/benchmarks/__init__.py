@@ -73,11 +73,12 @@ class BenchmarkPool(dict):
         self['dicarlo.Majaj2015.V4-rdm'] = LazyLoad(DicarloMajaj2015V4RDM)
         self['dicarlo.Majaj2015.IT-rdm'] = LazyLoad(DicarloMajaj2015ITRDM)
         from .freemanziemba2013 import MovshonFreemanZiemba2013V1PLS, MovshonFreemanZiemba2013V2PLS, \
-            MovshonFreemanZiemba2013V1RDM, MovshonFreemanZiemba2013V2RDM
+            MovshonFreemanZiemba2013V1RDM, MovshonFreemanZiemba2013V2RDM, MovshonFreemanZiemba2013V1Single
         self['movshon.FreemanZiemba2013.V1-pls'] = LazyLoad(MovshonFreemanZiemba2013V1PLS)
         self['movshon.FreemanZiemba2013.V2-pls'] = LazyLoad(MovshonFreemanZiemba2013V2PLS)
         self['movshon.FreemanZiemba2013.V1-rdm'] = LazyLoad(MovshonFreemanZiemba2013V1RDM)
         self['movshon.FreemanZiemba2013.V2-rdm'] = LazyLoad(MovshonFreemanZiemba2013V2RDM)
+        self['movshon.FreemanZiemba2013.V1-single'] = LazyLoad(MovshonFreemanZiemba2013V1Single)
         from .cadena2017 import ToliasCadena2017PLS, ToliasCadena2017Mask
         self['tolias.Cadena2017-pls'] = LazyLoad(ToliasCadena2017PLS)
         self['tolias.Cadena2017-mask'] = LazyLoad(ToliasCadena2017Mask)

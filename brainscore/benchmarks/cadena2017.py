@@ -5,6 +5,8 @@ from brainscore.metrics.ceiling import InternalConsistency
 from brainscore.metrics.regression import CrossRegressedCorrelation, mask_regression, pls_regression, \
     pearsonr_correlation
 
+VISUAL_DEGREES = 2
+
 
 def ToliasCadena2017PLS():
     loader = AssemblyLoader()
@@ -31,7 +33,8 @@ def ToliasCadena2017PLS():
         return ceiler(assembly_nonan)
 
     return NeuralBenchmark(identifier=identifier, version=1,
-                           assembly=assembly, similarity_metric=similarity_metric, ceiling_func=ceiling)
+                           assembly=assembly, similarity_metric=similarity_metric, visual_degrees=VISUAL_DEGREES,
+                           ceiling_func=ceiling)
 
 
 def ToliasCadena2017Mask():
@@ -47,7 +50,7 @@ def ToliasCadena2017Mask():
     identifier = f'tolias.Cadena2017-mask'
     ceiler = InternalConsistency(split_coord='repetition_id')
     return NeuralBenchmark(identifier=identifier, version=1,
-                           assembly=assembly, similarity_metric=similarity_metric,
+                           assembly=assembly, similarity_metric=similarity_metric, visual_degrees=VISUAL_DEGREES,
                            ceiling_func=lambda: ceiler(assembly_repetition))
 
 

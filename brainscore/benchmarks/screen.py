@@ -36,7 +36,7 @@ def _determine_visual_degrees(visual_degrees, stimulus_set):
     if not visual_degrees:
         visual_degrees = stimulus_set['degrees']
     if not is_iterable(visual_degrees):
-        visual_degrees = [visual_degrees] * len(stimulus_set)
+        visual_degrees = np.array([visual_degrees] * len(stimulus_set))
     return visual_degrees
 
 
@@ -57,7 +57,7 @@ def _place_on_screen(stimuli_identifier: str, stimulus_set: StimulusSet,
                                                              source_degrees=image_degrees,
                                                              target_degrees=target_visual_degrees)
         converted_image_paths[image_id] = converted_image_path
-    converted_stimuli = StimulusSet(stimulus_set)  # `.copy()` for some reason would keep the link to the old metadata
+    converted_stimuli = StimulusSet(stimulus_set.copy(deep=True))  # `.copy()` for some reason would keep the link to the old metadata
     converted_stimuli.image_paths = converted_image_paths
     converted_stimuli.name = converted_stimuli_id
     converted_stimuli['degrees'] = target_visual_degrees

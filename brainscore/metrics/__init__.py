@@ -1,6 +1,6 @@
 import warnings
 
-from brainscore.assemblies import DataAssembly, merge_data_arrays
+from brainio_base.assemblies import DataAssembly, merge_data_arrays
 
 
 class Metric:
@@ -12,13 +12,13 @@ class Score(DataAssembly):
     RAW_VALUES_KEY = 'raw'
 
     def sel(self, *args, _apply_raw=True, **kwargs):
-        return self._preserve_raw('sel', *args, **kwargs, _apply_raw=_apply_raw, _ignore_errors=True)
+        return self._preserve_raw('sel', *args, **kwargs, _apply_raw=_apply_raw)
 
     def isel(self, *args, _apply_raw=True, **kwargs):
-        return self._preserve_raw('isel', *args, **kwargs, _apply_raw=_apply_raw, _ignore_errors=True)
+        return self._preserve_raw('isel', *args, **kwargs, _apply_raw=_apply_raw)
 
     def squeeze(self, *args, _apply_raw=True, **kwargs):
-        return self._preserve_raw('squeeze', *args, **kwargs, _apply_raw=_apply_raw, _ignore_errors=True)
+        return self._preserve_raw('squeeze', *args, **kwargs, _apply_raw=_apply_raw)
 
     def expand_dims(self, *args, _apply_raw=True, **kwargs):
         return self._preserve_raw('expand_dims', *args, **kwargs, _apply_raw=_apply_raw)
@@ -35,7 +35,7 @@ class Score(DataAssembly):
     def min(self, *args, _apply_raw=False, **kwargs):
         return self._preserve_raw('min', *args, **kwargs, _apply_raw=_apply_raw)
 
-    def _preserve_raw(self, operation, *args, _apply_raw=False, _ignore_errors=False, **kwargs):
+    def _preserve_raw(self, operation, *args, _apply_raw=False, _ignore_errors=True, **kwargs):
         result = getattr(super(Score, self), operation)(*args, **kwargs)
         if self.RAW_VALUES_KEY in self.attrs:
             raw = self.attrs[self.RAW_VALUES_KEY]
@@ -51,10 +51,13 @@ class Score(DataAssembly):
             result.attrs[self.RAW_VALUES_KEY] = raw
         return result
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value, _apply_raw=True):
         super(Score, self).__setitem__(key, value)
-        if self.RAW_VALUES_KEY in self.attrs:
-            self.attrs[self.RAW_VALUES_KEY].__setitem__(key, value)
+        if _apply_raw and self.RAW_VALUES_KEY in self.attrs:
+            try:
+                self.attrs[self.RAW_VALUES_KEY].__setitem__(key, value)
+            except Exception as e:
+                warnings.warn(f"failed to set {key}={value} on raw values: " + (repr(e)))
 
     @classmethod
     def merge(cls, *scores):
@@ -64,6 +67,9 @@ class Score(DataAssembly):
         result = merge_data_arrays(scores)
         raws = [score.attrs[cls.RAW_VALUES_KEY] for score in scores if cls.RAW_VALUES_KEY in score.attrs]
         if len(raws) > 0:
-            raw = merge_data_arrays(raws)
-            result.attrs[cls.RAW_VALUES_KEY] = raw
+            try:
+                raw = merge_data_arrays(raws)
+                result.attrs[cls.RAW_VALUES_KEY] = raw
+            except Exception as e:
+                warnings.warn("failed to merge raw values: " + str(e))
         return result

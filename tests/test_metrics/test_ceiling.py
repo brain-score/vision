@@ -1,8 +1,11 @@
 from string import ascii_lowercase as alphabet
 
 import numpy as np
+import pytest
+from pytest import approx
 
-from brainscore.assemblies import NeuroidAssembly, DataAssembly
+from brainio_base.assemblies import NeuroidAssembly, DataAssembly
+from brainscore.benchmarks.majaj2015 import load_assembly
 from brainscore.metrics.ceiling import NoCeiling, InternalConsistency, SplitHalfConsistency
 
 
@@ -14,7 +17,7 @@ class TestNoCeiling:
 
 
 class TestInternalConsistency:
-    def test(self):
+    def test_dummy_data(self):
         data = NeuroidAssembly(np.tile(np.arange(10)[:, np.newaxis], [5, 10]),
                                coords={'image_id': ('presentation', np.tile(list(alphabet)[:10], 5)),
                                        'image_meta': ('presentation', np.tile(list(alphabet)[:10], 5)),
@@ -22,9 +25,16 @@ class TestInternalConsistency:
                                        'neuroid_id': ('neuroid', np.arange(10)),
                                        'neuroid_meta': ('neuroid', np.arange(10))},
                                dims=['presentation', 'neuroid'])
-        ceiler = InternalConsistency(assembly=data)
-        ceiling = ceiler()
+        ceiler = InternalConsistency()
+        ceiling = ceiler(data)
         assert ceiling.sel(aggregation='center') == 1
+
+    @pytest.mark.private_access
+    def test_majaj2015_it(self):
+        assembly_repetitions = load_assembly(average_repetitions=False, region='IT')
+        ceiler = InternalConsistency()
+        ceiling = ceiler(assembly_repetitions)
+        assert ceiling.sel(aggregation='center') == approx(.82, abs=.01)
 
 
 class TestSplitHalfConsistency:
@@ -38,7 +48,7 @@ class TestSplitHalfConsistency:
                                dims=['presentation', 'neuroid'])
         ceiler = SplitHalfConsistency()
         ceiling = ceiler(data, data)
-        assert all(ceiling == DataAssembly(np.ones(10),
+        assert all(ceiling == DataAssembly([approx(1)] * 10,
                                            coords={'neuroid_id': ('neuroid', np.arange(10)),
                                                    'neuroid_meta': ('neuroid', np.arange(10))},
                                            dims=['neuroid']))

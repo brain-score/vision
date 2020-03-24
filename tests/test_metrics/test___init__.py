@@ -1,6 +1,6 @@
 import numpy as np
+from brainio_base.assemblies import DataAssembly
 
-from brainscore.assemblies import DataAssembly
 from brainscore.metrics import Score
 
 

@@ -1,6 +1,7 @@
 import numpy as np
-from brainscore.assemblies import NeuroidAssembly, DataAssembly
-from brainscore.assemblies import array_is_element, walk_coords
+
+from brainio_base.assemblies import NeuroidAssembly, array_is_element, walk_coords
+from brainscore.metrics import Score
 
 
 class Defaults:
@@ -59,28 +60,29 @@ class XarrayRegression:
 
 
 class XarrayCorrelation:
-    def __init__(self, correlation, stimulus_coord=Defaults.stimulus_coord, neuroid_coord=Defaults.neuroid_coord):
+    def __init__(self, correlation, correlation_coord=Defaults.stimulus_coord, neuroid_coord=Defaults.neuroid_coord):
         self._correlation = correlation
-        self._stimulus_coord = stimulus_coord
+        self._correlation_coord = correlation_coord
         self._neuroid_coord = neuroid_coord
 
     def __call__(self, prediction, target):
         # align
-        prediction = prediction.sortby([self._stimulus_coord, self._neuroid_coord])
-        target = target.sortby([self._stimulus_coord, self._neuroid_coord])
-        assert np.array(prediction[self._stimulus_coord].values == target[self._stimulus_coord].values).all()
+        prediction = prediction.sortby([self._correlation_coord, self._neuroid_coord])
+        target = target.sortby([self._correlation_coord, self._neuroid_coord])
+        assert np.array(prediction[self._correlation_coord].values == target[self._correlation_coord].values).all()
         assert np.array(prediction[self._neuroid_coord].values == target[self._neuroid_coord].values).all()
-        # compute
+        # compute correlation per neuroid
+        neuroid_dims = target[self._neuroid_coord].dims
+        assert len(neuroid_dims) == 1
         correlations = []
-        for i in target[self._neuroid_coord].values:
-            target_activations = target.sel(**{self._neuroid_coord: i}).squeeze()
-            prediction_activations = prediction.sel(**{self._neuroid_coord: i}).squeeze()
-            r, p = self._correlation(target_activations, prediction_activations)
+        for i, coord_value in enumerate(target[self._neuroid_coord].values):
+            target_neuroids = target.isel(**{neuroid_dims[0]: i})  # `isel` is about 10x faster than `sel`
+            prediction_neuroids = prediction.isel(**{neuroid_dims[0]: i})
+            r, p = self._correlation(target_neuroids, prediction_neuroids)
             correlations.append(r)
         # package
-        neuroid_dim = target[self._neuroid_coord].dims
-        result = DataAssembly(correlations,
-                              coords={coord: (dims, values)
-                                      for coord, dims, values in walk_coords(target) if dims == neuroid_dim},
-                              dims=neuroid_dim)
+        result = Score(correlations,
+                       coords={coord: (dims, values)
+                               for coord, dims, values in walk_coords(target) if dims == neuroid_dims},
+                       dims=neuroid_dims)
         return result

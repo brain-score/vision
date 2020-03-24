@@ -2,9 +2,9 @@ import os
 
 import numpy as np
 import pytest
+from brainio_base.assemblies import NeuroidAssembly, DataAssembly
 from pytest import approx
 
-from brainscore.assemblies import NeuroidAssembly, DataAssembly
 from brainscore.metrics.rdm import RSA, RDMSimilarity, RDMMetric, RDMCrossValidated
 from tests.test_metrics import load_hvm
 
@@ -22,7 +22,8 @@ class TestRDMCrossValidated:
         assert score.sel(aggregation='center') == approx(1)
 
 
-class TestRSA(object):
+class TestRSA:
+    @pytest.mark.private_access
     def test_equal_hvm(self):
         hvm = load_hvm().sel(region='IT')
         metric = RDMMetric()
@@ -62,7 +63,7 @@ class TestRSA(object):
                                            'neuroid_meta': ('neuroid', list(range(2)))},
                                    dims=['presentation', 'neuroid'])
         matrix = RSA()(assembly)
-        assert np.diag(matrix) == approx(1., abs=.001)
+        assert np.all(np.diag(matrix) == approx(1., abs=.001))
         assert all(matrix.values[np.triu_indices(matrix.shape[0], k=1)] ==
                    matrix.values[np.tril_indices(matrix.shape[0], k=-1)]), "upper and lower triangular need to be equal"
         expected = DataAssembly([[1., 1., -1., -1.],
@@ -99,5 +100,5 @@ class TestRDMSimilarity(object):
 
 def test_np_load():
     p_path = os.path.join(os.path.dirname(__file__), "it_rdm.p")
-    it_rdm = np.load(p_path, encoding="latin1")
+    it_rdm = np.load(p_path, encoding="latin1", allow_pickle=True)
     assert it_rdm.shape == (64, 64)

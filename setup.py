@@ -8,27 +8,15 @@ with open('README.md') as readme_file:
 
 requirements = [
     "numpy",
-    "pandas",
-    "xarray",
-    "six",
-    "requests",
-    "boto3",
+    "brainio_base @ git+https://github.com/brain-score/brainio_base",
+    "brainio_collection @ git+https://github.com/brain-score/brainio_collection",
+    # "tensorflow-gpu",  # for using mask-regression
+    "scikit-learn",
+    "h5py",
     "tqdm",
-    "netcdf4",
-    "peewee",
     "networkx",
-    "pathos",
-    "result_caching",
-    "matplotlib",
-]
-
-test_requirements = [
-    "pytest",
-    "Pillow",
-]
-
-dependency_links = [
-    "git+https://github.com/mschrimpf/result_caching.git@master#egg=result_caching-0",
+    "result_caching @ git+https://github.com/mschrimpf/result_caching",
+    "jupyter",
 ]
 
 setup(
@@ -36,13 +24,12 @@ setup(
     version='0.1.0',
     description="A framework for the quantitative comparison of mindlike systems.",
     long_description=readme,
-    author="Jon Prescott-Roy, Martin Schrimpf",
-    author_email='jjpr@mit.edu, mschrimpf@mit.edu',
-    url='https://github.com/dicarlolab/brain-score',
+    author="Martin Schrimpf, Jon Prescott-Roy",
+    author_email='mschrimpf@mit.edu, jjpr@mit.edu',
+    url='https://github.com/brain-score/brain-score',
     packages=find_packages(exclude=['tests']),
     include_package_data=True,
     install_requires=requirements,
-    dependency_links=dependency_links,
     license="MIT license",
     zip_safe=False,
     keywords='brain-score',
@@ -55,5 +42,4 @@ setup(
         'Programming Language :: Python :: 3.7',
     ],
     test_suite='tests',
-    tests_require=test_requirements
 )

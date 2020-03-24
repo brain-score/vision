@@ -10,7 +10,7 @@ from tests.test_benchmarks import PrecomputedFeatures
 
 
 class TestPoolList:
-    """ samples for some benchmarks' existence in the benchmark pool """
+    """ ensures that the right benchmarks are in the right benchmark pool """
 
     @pytest.mark.parametrize('benchmark', [
         'movshon.FreemanZiemba2013.V1-pls',

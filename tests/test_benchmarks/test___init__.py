@@ -1,5 +1,5 @@
+import os
 import pickle
-
 from pathlib import Path
 
 import pytest
@@ -35,9 +35,9 @@ class TestStandardized:
         assert ceiling.sel(aggregation='center') == expected
 
     @pytest.mark.parametrize('benchmark, visual_degrees, expected', [
-        pytest.param('movshon.FreemanZiemba2013.V1-pls', 4, approx(.686929, abs=.001),
+        pytest.param('movshon.FreemanZiemba2013.V1-pls', 4, approx(.668491, abs=.001),
                      marks=[pytest.mark.memory_intense]),
-        pytest.param('movshon.FreemanZiemba2013.V2-pls', 4, approx(.573678, abs=.001),
+        pytest.param('movshon.FreemanZiemba2013.V2-pls', 4, approx(.553155, abs=.001),
                      marks=[pytest.mark.memory_intense]),
         pytest.param('tolias.Cadena2017-pls', 2, approx(.577474, abs=.005),
                      marks=pytest.mark.private_access),
@@ -80,11 +80,11 @@ class TestStandardized:
 class TestPrecomputed:
     @pytest.mark.memory_intense
     @pytest.mark.parametrize('benchmark, expected', [
-        ('movshon.FreemanZiemba2013.V1-pls', approx(.326559, abs=.005)),
-        ('movshon.FreemanZiemba2013.V2-pls', approx(.419765, abs=.005)),
+        ('movshon.FreemanZiemba2013.V1-pls', approx(.466222, abs=.005)),
+        ('movshon.FreemanZiemba2013.V2-pls', approx(.459283, abs=.005)),
     ])
     def test_FreemanZiemba2013(self, benchmark, expected):
-        self.run_test(benchmark=benchmark, file='alexnet-freemanziemba2013.private-features.12.pkl', expected=expected)
+        self.run_test(benchmark=benchmark, file='alexnet-freemanziemba2013.aperture-private.pkl', expected=expected)
 
     @pytest.mark.memory_intense
     @pytest.mark.parametrize('benchmark, expected', [
@@ -94,28 +94,43 @@ class TestPrecomputed:
     def test_Majaj2015(self, benchmark, expected):
         self.run_test(benchmark=benchmark, file='alexnet-majaj2015.private-features.12.pkl', expected=expected)
 
-    @pytest.mark.memory_intense
-    @pytest.mark.requires_gpu
-    def test_IT_mask_alexnet(self):
-        self.run_test(benchmark='dicarlo.Majaj2015.IT-mask',
-                      file='alexnet-majaj2015.private-features.12.pkl',
-                      expected=approx(.594399, abs=.005))
-
     def run_test(self, benchmark, file, expected):
         benchmark = benchmark_pool[benchmark]
         precomputed_features = Path(__file__).parent / file
         with open(precomputed_features, 'rb') as f:
             precomputed_features = pickle.load(f)['data']
         precomputed_features = precomputed_features.stack(presentation=['stimulus_path'])
+        precomputed_paths = set(map(lstrip_local, precomputed_features['stimulus_path'].values))
         # attach stimulus set meta
         stimulus_set = benchmark._assembly.stimulus_set
-        expected_stimulus_paths = [stimulus_set.get_image(image_id) for image_id in stimulus_set['image_id']]
-        assert (precomputed_features['stimulus_path'].values == expected_stimulus_paths).all()
+        expected_stimulus_paths = list(
+            map(lstrip_local, [stimulus_set.get_image(image_id) for image_id in stimulus_set['image_id']]))
+        assert (precomputed_paths == set(expected_stimulus_paths))
         for column in stimulus_set.columns:
             precomputed_features[column] = 'presentation', stimulus_set[column].values
         precomputed_features = PrecomputedFeatures(precomputed_features,
-                                                   visual_degrees=10,  # doesn't matter
+                                                   visual_degrees=10,  # doesn't matter, features are already computed
                                                    )
         # score
         score = benchmark(precomputed_features).raw
         assert score.sel(aggregation='center') == expected
+
+    @pytest.mark.memory_intense
+    @pytest.mark.private_access
+    @pytest.mark.slow
+    def test_Kar2019ost_cornet_s(self):
+        benchmark = benchmark_pool['dicarlo.Kar2019-ost']
+        precomputed_features = Path(__file__).parent / 'cornet_s-kar2019.pkl'
+        with open(precomputed_features, 'rb') as f:
+            precomputed_features = pickle.load(f)['data']
+        precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
+        # score
+        score = benchmark(precomputed_features).raw
+        assert score.sel(aggregation='center') == approx(.316, abs=.005)
+
+
+def lstrip_local(path):
+    parts = path.split(os.sep)
+    brainio_index = parts.index('.brainio')
+    path = os.sep.join(parts[brainio_index:])
+    return path

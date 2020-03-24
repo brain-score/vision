@@ -7,18 +7,20 @@ with open('README.md') as readme_file:
     readme = readme_file.read()
 
 requirements = [
-    "numpy",
+    "numpy>=1.16",
     "brainio_base @ git+https://github.com/brain-score/brainio_base",
     "brainio_collection @ git+https://github.com/brain-score/brainio_collection",
-    # "tensorflow-gpu",  # for using mask-regression
     "scikit-learn",
     "h5py",
     "tqdm",
     "gitpython",
     "fire",
     "networkx",
+    "matplotlib",
+    "tensorflow==1.15",
     "result_caching @ git+https://github.com/mschrimpf/result_caching",
     "jupyter",
+    "pandas==0.25.3",
 ]
 
 setup(

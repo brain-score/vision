@@ -9,15 +9,13 @@ from brainscore.model_interface import BrainModel
 from brainscore.benchmarks.screen import place_on_screen
 from brainscore.utils import LazyLoad
 
-VISUAL_DEGREES = 8
-
 
 class DicarloRajalingham2018I2n(BenchmarkBase):
     def __init__(self):
         self._metric = I2n()
         self._fitting_stimuli = brainscore.get_stimulus_set('dicarlo.objectome.public')
         self._assembly = LazyLoad(lambda: load_assembly('private'))
-        self._visual_degrees = VISUAL_DEGREES
+        self._visual_degrees = 8
         super(DicarloRajalingham2018I2n, self).__init__(
             identifier='dicarlo.Rajalingham2018-i2n', version=2,
             ceiling_func=lambda: self._metric.ceiling(self._assembly),

@@ -135,7 +135,7 @@ def preprocess_images(images, image_size, **kwargs):
 def torchvision_preprocess_input(image_size, **kwargs):
     from torchvision import transforms
     return transforms.Compose([
-        transforms.Resize(image_size),
+        transforms.Resize((image_size, image_size)),
         torchvision_preprocess(**kwargs),
     ])
 

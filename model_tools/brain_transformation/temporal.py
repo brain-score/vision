@@ -12,6 +12,7 @@ class TemporalIgnore(BrainModel):
     Always output the same prediction, regardless of time-bins.
     Duplicates the LayerMappedModel prediction across time.
     """
+
     def __init__(self, layer_model):
         self._layer_model = layer_model
         self.commit = self._layer_model.commit
@@ -23,6 +24,9 @@ class TemporalIgnore(BrainModel):
     def start_recording(self, recording_target: BrainModel.RecordingTarget, time_bins=List[Tuple[int]]):
         self._layer_model.start_recording(recording_target)
         self._time_bins = time_bins
+
+    def visual_degrees(self) -> int:
+        return self._layer_model.visual_degrees()
 
     def look_at(self, stimuli):
         responses = self._layer_model.look_at(stimuli)

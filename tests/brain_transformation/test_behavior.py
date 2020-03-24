@@ -8,6 +8,7 @@ from pytest import approx
 
 from brainio_base.stimuli import StimulusSet
 from brainscore.benchmarks.rajalingham2018 import DicarloRajalingham2018I2n
+from brainscore.benchmarks.screen import place_on_screen
 from brainscore.model_interface import BrainModel
 from model_tools.activations import PytorchWrapper
 from model_tools.brain_transformation import ModelCommitment, ProbabilitiesMapping
@@ -64,6 +65,8 @@ class TestProbabilitiesMapping:
         fitting_stimuli.image_paths = {'rgb1': os.path.join(os.path.dirname(__file__), 'rgb1.jpg'),
                                        'rgb2': os.path.join(os.path.dirname(__file__), 'rgb2.jpg')}
         fitting_stimuli.name = 'test_probabilities_mapping.creates_probabilities'
+        fitting_stimuli = place_on_screen(fitting_stimuli, target_visual_degrees=brain_model.visual_degrees(),
+                                          source_visual_degrees=8)
         brain_model.start_task(BrainModel.Task.probabilities, fitting_stimuli)
         probabilities = brain_model.look_at(fitting_stimuli)
         np.testing.assert_array_equal(probabilities.dims, ['presentation', 'choice'])

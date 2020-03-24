@@ -1,8 +1,9 @@
 import pytest
 from pytest import approx
 
-from brainscore.public_benchmarks import FreemanZiembaV1PublicBenchmark, FreemanZiembaV2PublicBenchmark, \
-    MajajV4PublicBenchmark, MajajITPublicBenchmark, list_public_assemblies
+from brainscore.benchmarks.public_benchmarks import list_public_assemblies, \
+    FreemanZiembaV1PublicBenchmark, FreemanZiembaV2PublicBenchmark, \
+    MajajV4PublicBenchmark, MajajITPublicBenchmark
 from tests.test_benchmarks import PrecomputedFeatures
 
 
@@ -26,4 +27,5 @@ def test_self(benchmark_ctr, expected):
 def test_list():
     assemblies = list_public_assemblies()
     assert set(assemblies) == {'dicarlo.Majaj2015.public', 'dicarlo.Majaj2015.temporal.public',
-                               'movshon.FreemanZiemba2013.public', 'dicarlo.Rajalingham2018.public'}
+                               'movshon.FreemanZiemba2013.public', 'movshon.FreemanZiemba2013.noaperture.public',
+                               'dicarlo.Rajalingham2018.public'}

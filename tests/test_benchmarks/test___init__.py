@@ -1,11 +1,15 @@
 import os
 import pickle
-from pathlib import Path
 
+import numpy as np
 import pytest
+from PIL import Image
+from pathlib import Path
 from pytest import approx
+from typing import List, Tuple
 
 from brainscore.benchmarks import benchmark_pool
+from brainscore.model_interface import BrainModel
 from tests.test_benchmarks import PrecomputedFeatures
 
 
@@ -127,6 +131,61 @@ class TestPrecomputed:
         # score
         score = benchmark(precomputed_features).raw
         assert score.sel(aggregation='center') == approx(.316, abs=.005)
+
+
+@pytest.mark.private_access
+class TestVisualDegrees:
+    @pytest.mark.memory_intense
+    @pytest.mark.parametrize('benchmark, candidate_degrees, image_id, expected', [
+        ('movshon.FreemanZiemba2013.V1-pls', 14, 'c3a633a13e736394f213ddf44bf124fe80cabe07', approx(.31429, abs=.0001)),
+        ('movshon.FreemanZiemba2013.V1-pls', 6, 'c3a633a13e736394f213ddf44bf124fe80cabe07', approx(.22966, abs=.0001)),
+        ('movshon.FreemanZiemba2013.V2-pls', 14, 'c3a633a13e736394f213ddf44bf124fe80cabe07', approx(.31429, abs=.0001)),
+        ('movshon.FreemanZiemba2013.V2-pls', 6, 'c3a633a13e736394f213ddf44bf124fe80cabe07', approx(.22966, abs=.0001)),
+        ('dicarlo.Majaj2015.V4-pls', 14, '40a786ed8e13db10185ddfdbe07759d83a589e1c', approx(.251345, abs=.0001)),
+        ('dicarlo.Majaj2015.V4-pls', 6, '40a786ed8e13db10185ddfdbe07759d83a589e1c', approx(.0054886, abs=.0001)),
+        ('dicarlo.Majaj2015.IT-pls', 14, '40a786ed8e13db10185ddfdbe07759d83a589e1c', approx(.251345, abs=.0001)),
+        ('dicarlo.Majaj2015.IT-pls', 6, '40a786ed8e13db10185ddfdbe07759d83a589e1c', approx(.0054886, abs=.0001)),
+        ('dicarlo.Kar2019-ost', 14, '6d19b24c29832dfb28360e7731e3261c13a4287f', approx(.225021, abs=.0001)),
+        ('dicarlo.Kar2019-ost', 6, '6d19b24c29832dfb28360e7731e3261c13a4287f', approx(.001248, abs=.0001)),
+        ('dicarlo.Rajalingham2018-i2n', 14, '0223bf9e5db0edad21976b16494fe9396a5ef145', approx(.225023, abs=.0001)),
+        ('dicarlo.Rajalingham2018-i2n', 6, '0223bf9e5db0edad21976b16494fe9396a5ef145', approx(.002244, abs=.0001)),
+        ('tolias.Cadena2017-pls', 14, '0fe27ddd5b9ea701e380063dc09b91234eba3551', approx(.32655, abs=.0001)),
+        ('tolias.Cadena2017-pls', 6, '0fe27ddd5b9ea701e380063dc09b91234eba3551', approx(.29641, abs=.0001)),
+    ])
+    def test_amount_gray(self, benchmark, candidate_degrees, image_id, expected):
+        benchmark = benchmark_pool[benchmark]
+
+        class DummyCandidate(BrainModel):
+            class StopException(Exception):
+                pass
+
+            def visual_degrees(self):
+                return candidate_degrees
+
+            def look_at(self, stimuli):
+                image = stimuli.get_image(image_id)
+                image = Image.open(image)
+                image = np.array(image)
+                amount_gray = 0
+                for index in np.ndindex(image.shape[:2]):
+                    color = image[index]
+                    gray = [128, 128, 128]
+                    if (color == gray).all():
+                        amount_gray += 1
+                assert amount_gray / image.size == expected
+                raise self.StopException()
+
+            def start_task(self, task: BrainModel.Task, fitting_stimuli):
+                pass
+
+            def start_recording(self, recording_target: BrainModel.RecordingTarget, time_bins=List[Tuple[int]]):
+                pass
+
+        candidate = DummyCandidate()
+        try:
+            benchmark(candidate)  # just call to get the stimuli
+        except DummyCandidate.StopException:  # but stop early
+            pass
 
 
 def lstrip_local(path):

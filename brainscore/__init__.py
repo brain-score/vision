@@ -15,11 +15,6 @@ def get_assembly(name):
     assembly = brainio_get_assembly(name)
     if not hasattr(assembly.stimulus_set, 'name'):
         assembly.stimulus_set.name = assembly.stimulus_set_name
-
-    stimulus_set_degrees = {'dicarlo.hvm': 8, 'movshon.FreemanZiemba2013': 4, 'tolias.Cadena2017': 2,
-                            'dicarlo.objectome.private': 8, 'dicarlo.objectome.public': 8}
-    if assembly.stimulus_set.name in stimulus_set_degrees:
-        assembly.stimulus_set['degrees'] = stimulus_set_degrees[assembly.stimulus_set.name]
     return assembly
 
 

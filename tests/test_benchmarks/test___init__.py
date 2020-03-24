@@ -8,9 +8,42 @@ from pathlib import Path
 from pytest import approx
 from typing import List, Tuple
 
-from brainscore.benchmarks import benchmark_pool
+from brainscore.benchmarks import benchmark_pool, public_benchmark_pool, evaluation_benchmark_pool
 from brainscore.model_interface import BrainModel
 from tests.test_benchmarks import PrecomputedFeatures
+
+
+class TestPoolList:
+    """ ensures that the right benchmarks are in the right benchmark pool """
+
+    @pytest.mark.parametrize('benchmark', [
+        'movshon.FreemanZiemba2013.V1-pls',
+        'movshon.FreemanZiemba2013public.V1-pls',
+        'dicarlo.Majaj2015.IT-pls',
+        'dicarlo.Majaj2015public.IT-pls',
+        'dicarlo.Rajalingham2018-i2n',
+        'dicarlo.Rajalingham2018public-i2n',
+        'fei-fei.Deng2009-top1',
+    ])
+    def test_contained_global(self, benchmark):
+        assert benchmark in benchmark_pool
+
+    @pytest.mark.parametrize('benchmark', [
+        'movshon.FreemanZiemba2013public.V1-pls',
+        'dicarlo.Majaj2015public.IT-pls',
+        'dicarlo.Rajalingham2018public-i2n',
+        'fei-fei.Deng2009-top1',
+    ])
+    def test_contained_public(self, benchmark):
+        assert benchmark in public_benchmark_pool
+
+    def test_exact_evaluation_pool(self):
+        assert set(evaluation_benchmark_pool.keys()) == {
+            'movshon.FreemanZiemba2013.V1-pls', 'movshon.FreemanZiemba2013.V2-pls',
+            'dicarlo.Majaj2015.V4-pls', 'dicarlo.Majaj2015.IT-pls', 'dicarlo.Kar2019-ost',
+            'dicarlo.Rajalingham2018-i2n',
+            'fei-fei.Deng2009-top1',
+        }
 
 
 @pytest.mark.private_access

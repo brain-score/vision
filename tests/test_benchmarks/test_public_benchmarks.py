@@ -7,20 +7,20 @@ from brainscore.benchmarks.public_benchmarks import list_public_assemblies, \
 from tests.test_benchmarks import PrecomputedFeatures
 
 
-@pytest.mark.parametrize('benchmark_ctr, expected', [
-    pytest.param(FreemanZiembaV1PublicBenchmark, approx(.668693, abs=.001),
+@pytest.mark.parametrize('benchmark_ctr, visual_degrees, expected', [
+    pytest.param(FreemanZiembaV1PublicBenchmark, 4, approx(.679954, abs=.001),
                  marks=[pytest.mark.memory_intense]),
-    pytest.param(FreemanZiembaV2PublicBenchmark, approx(.596314, abs=.001),
+    pytest.param(FreemanZiembaV2PublicBenchmark, 4, approx(.577498, abs=.001),
                  marks=[pytest.mark.memory_intense]),
-    pytest.param(MajajV4PublicBenchmark, approx(.897956, abs=.001),
+    pytest.param(MajajV4PublicBenchmark, 8, approx(.897956, abs=.001),
                  marks=pytest.mark.memory_intense),
-    pytest.param(MajajITPublicBenchmark, approx(.816251, abs=.001),
+    pytest.param(MajajITPublicBenchmark, 8, approx(.816251, abs=.001),
                  marks=pytest.mark.memory_intense),
 ])
-def test_self(benchmark_ctr, expected):
+def test_self(benchmark_ctr, visual_degrees, expected):
     benchmark = benchmark_ctr()
     source = benchmark._assembly.copy()
-    score = benchmark(PrecomputedFeatures(source)).raw
+    score = benchmark(PrecomputedFeatures(source, visual_degrees=visual_degrees)).raw
     assert score.sel(aggregation='center') == expected
 
 

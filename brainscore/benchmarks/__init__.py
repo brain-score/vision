@@ -1,15 +1,14 @@
 import itertools
-
 from abc import ABC
 
-from result_caching import cache, store
-
 from brainscore.metrics import Score
+from brainscore.model_interface import BrainModel
 from brainscore.utils import LazyLoad
+from result_caching import cache, store
 
 
 class Benchmark(ABC):
-    def __call__(self, candidate):
+    def __call__(self, candidate: BrainModel):
         raise NotImplementedError()
 
     @property
@@ -107,9 +106,11 @@ def _experimental_benchmark_pool():
     pool['dicarlo.Majaj2015.IT-mask'] = LazyLoad(DicarloMajaj2015ITMask)
     pool['dicarlo.Majaj2015.V4-rdm'] = LazyLoad(DicarloMajaj2015V4RDM)
     pool['dicarlo.Majaj2015.IT-rdm'] = LazyLoad(DicarloMajaj2015ITRDM)
-    from .freemanziemba2013 import MovshonFreemanZiemba2013V1RDM, MovshonFreemanZiemba2013V2RDM
+    from .freemanziemba2013 import MovshonFreemanZiemba2013V1RDM, MovshonFreemanZiemba2013V2RDM, \
+        MovshonFreemanZiemba2013V1Single
     pool['movshon.FreemanZiemba2013.V1-rdm'] = LazyLoad(MovshonFreemanZiemba2013V1RDM)
     pool['movshon.FreemanZiemba2013.V2-rdm'] = LazyLoad(MovshonFreemanZiemba2013V2RDM)
+    pool['movshon.FreemanZiemba2013.V1-single'] = LazyLoad(MovshonFreemanZiemba2013V1Single)
     from .cadena2017 import ToliasCadena2017PLS, ToliasCadena2017Mask
     pool['tolias.Cadena2017-pls'] = LazyLoad(ToliasCadena2017PLS)
     pool['tolias.Cadena2017-mask'] = LazyLoad(ToliasCadena2017Mask)

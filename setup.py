@@ -10,7 +10,6 @@ requirements = [
     "numpy>=1.16",
     "brainio_base @ git+https://github.com/brain-score/brainio_base",
     "brainio_collection @ git+https://github.com/brain-score/brainio_collection",
-    # "tensorflow-gpu",  # for using mask-regression
     "scikit-learn",
     "h5py",
     "tqdm",

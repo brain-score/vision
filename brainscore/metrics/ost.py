@@ -22,6 +22,8 @@ class OSTCorrelation(Metric):
         self._predicted_osts, self._target_osts = [], []
 
     def __call__(self, source_recordings, target_osts):
+        if len(set(source_recordings['time_bin'].values)) <= 1:  # short-cut for non-temporal models
+            return Score([np.nan, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         score = self._cross_validation(source_recordings, target_osts, apply=self.apply)
         return score
 
@@ -56,7 +58,7 @@ class OSTCorrelation(Metric):
                     if image_source_i1 >= threshold_i1:
                         hit_osts[i] = time_bin_start, image_source_i1
             if not any(hit_ost is None for hit_ost in hit_osts):
-                break
+                break  # stop early if threshold is already hit for every image
 
         # interpolate
         predicted_osts = np.empty(len(test_osts), dtype=np.float)

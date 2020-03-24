@@ -18,12 +18,12 @@ from brainscore.benchmarks._neural_common import NeuralBenchmark
 from brainscore.metrics.ceiling import InternalConsistency
 from brainscore.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation
 from brainscore.utils import LazyLoad
-from .freemanziemba2013 import load_assembly as load_freemanziemba2013
-from .majaj2015 import load_assembly as load_majaj2015
+from .freemanziemba2013 import load_assembly as load_freemanziemba2013, VISUAL_DEGREES as freemanziemba2013_degrees
+from .majaj2015 import load_assembly as load_majaj2015, VISUAL_DEGREES as majaj2015_degrees
 from .rajalingham2018 import load_assembly as load_rajalingham2018, DicarloRajalingham2018I2n
 
 
-def _standard_benchmark(identifier, load_assembly, stratification_coord):
+def _standard_benchmark(identifier, load_assembly, visual_degrees, stratification_coord):
     assembly_repetition = LazyLoad(lambda: load_assembly(average_repetitions=False))
     assembly = LazyLoad(lambda: load_assembly(average_repetitions=True))
     similarity_metric = CrossRegressedCorrelation(
@@ -31,7 +31,7 @@ def _standard_benchmark(identifier, load_assembly, stratification_coord):
         crossvalidation_kwargs=dict(stratification_coord=stratification_coord))
     ceiler = InternalConsistency()
     return NeuralBenchmark(identifier=f"{identifier}-pls", version=1,
-                           assembly=assembly, similarity_metric=similarity_metric,
+                           assembly=assembly, similarity_metric=similarity_metric, visual_degrees=visual_degrees,
                            ceiling_func=lambda: ceiler(assembly_repetition),
                            parent=None, paper_link='http://www.jneurosci.org/content/35/39/13402.short')
 
@@ -39,25 +39,25 @@ def _standard_benchmark(identifier, load_assembly, stratification_coord):
 def FreemanZiembaV1PublicBenchmark():
     return _standard_benchmark('movshon.FreemanZiemba2013.V1.public',
                                load_assembly=functools.partial(load_freemanziemba2013, region='V1', access='public'),
-                               stratification_coord='texture_type')
+                               visual_degrees=freemanziemba2013_degrees, stratification_coord='texture_type')
 
 
 def FreemanZiembaV2PublicBenchmark():
     return _standard_benchmark('movshon.FreemanZiemba2013.V2.public',
                                load_assembly=functools.partial(load_freemanziemba2013, region='V2', access='public'),
-                               stratification_coord='texture_type')
+                               visual_degrees=freemanziemba2013_degrees, stratification_coord='texture_type')
 
 
 def MajajV4PublicBenchmark():
     return _standard_benchmark('dicarlo.Majaj2015.V4.public',
                                load_assembly=functools.partial(load_majaj2015, region='V4', access='public'),
-                               stratification_coord='object_name')
+                               visual_degrees=majaj2015_degrees, stratification_coord='object_name')
 
 
 def MajajITPublicBenchmark():
     return _standard_benchmark('dicarlo.Majaj2015.IT.public',
                                load_assembly=functools.partial(load_majaj2015, region='IT', access='public'),
-                               stratification_coord='object_name')
+                               visual_degrees=majaj2015_degrees, stratification_coord='object_name')
 
 
 class RajalinghamMatchtosamplePublicBenchmark(DicarloRajalingham2018I2n):

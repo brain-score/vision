@@ -3,6 +3,7 @@ import numpy as np
 from brainio_base.assemblies import array_is_element, walk_coords
 from brainscore.benchmarks import BenchmarkBase, ceil_score
 from brainscore.benchmarks.screen import place_on_screen
+from brainscore.model_interface import BrainModel
 
 
 class NeuralBenchmark(BenchmarkBase):
@@ -17,7 +18,7 @@ class NeuralBenchmark(BenchmarkBase):
         self.timebins = timebins
         self._visual_degrees = visual_degrees
 
-    def __call__(self, candidate):
+    def __call__(self, candidate: BrainModel):
         candidate.start_recording(self.region, time_bins=self.timebins)
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)

@@ -1,8 +1,9 @@
 import pytest
 from pytest import approx
 
-from brainscore.public_benchmarks import FreemanZiembaV1PublicBenchmark, FreemanZiembaV2PublicBenchmark, \
-    MajajV4PublicBenchmark, MajajITPublicBenchmark, list_public_assemblies
+from brainscore.benchmarks.public_benchmarks import list_public_assemblies, \
+    FreemanZiembaV1PublicBenchmark, FreemanZiembaV2PublicBenchmark, \
+    MajajV4PublicBenchmark, MajajITPublicBenchmark
 from tests.test_benchmarks import PrecomputedFeatures
 
 

@@ -1,4 +1,8 @@
 language: python
+env:
+  global:
+    # make Matlab engine available. done here as `setup.py` has no way to export environment variables to parent process
+    - LD_LIBRARY_PATH=/usr/local/MATLAB/MATLAB_Runtime/v97/runtime/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v97/sys/os/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v97/extern/bin/glnxa64:$LD_LIBRARY_PATH
 matrix:
   include:
   - name: 3.7 public

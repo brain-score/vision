@@ -3,8 +3,6 @@ matrix:
   include:
   - name: 3.7 public
     python: '3.7'
-    dist: xenial # python 3.7 workaround: https://github.com/travis-ci/travis-ci/issues/9815
-    sudo: true
   - name: 3.6 private
     python: '3.6'
     env:
@@ -17,7 +15,7 @@ before_install:
 - pip install pytest
 # download large files
 - pip install awscli
-- aws --no-sign-request s3 cp s3://brain-score-tests/tests/test_benchmark/alexnet-hvmv6-features.6.pkl tests/test_benchmark/
+- bash tests/download_test_files.sh
 install:
 - pip install .
 - pip list # list installed package versions

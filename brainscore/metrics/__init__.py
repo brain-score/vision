@@ -1,11 +1,16 @@
 import warnings
 
+import logging
+
 from brainio_base.assemblies import DataAssembly, merge_data_arrays
 
 
 class Metric:
     def __call__(self, *args):
         raise NotImplementedError()
+
+
+_logger = logging.getLogger(__name__)  # cannot set directly on Score object
 
 
 class Score(DataAssembly):
@@ -45,7 +50,7 @@ class Score(DataAssembly):
                 except Exception as e:
                     if _ignore_errors:
                         # ignore errors with warning. most users will likely only want to access the main score
-                        warnings.warn(f"{operation} on raw values failed: {repr(e)}")
+                        _logger.debug(f"{operation} on raw values failed: {repr(e)}")
                     else:
                         raise e
             result.attrs[self.RAW_VALUES_KEY] = raw
@@ -57,7 +62,7 @@ class Score(DataAssembly):
             try:
                 self.attrs[self.RAW_VALUES_KEY].__setitem__(key, value)
             except Exception as e:
-                warnings.warn(f"failed to set {key}={value} on raw values: " + (repr(e)))
+                _logger.debug(f"failed to set {key}={value} on raw values: " + (repr(e)))
 
     @classmethod
     def merge(cls, *scores):

@@ -3,6 +3,7 @@ import brainscore
 import numpy as np
 import pytest
 from pytest import approx
+from brainscore.model_interface import BrainModel
 
 class PrecomputedSaccades(BrainModel):
     def __init__(self):

@@ -86,6 +86,8 @@ class _MockBenchmark(BenchmarkBase):
         if do_behavior:
             candidate.start_task(BrainModel.Task.probabilities, self.assembly.stimulus_set)
             candidate.look_at(self.assembly.stimulus_set)
+            candidate.start_task(BrainModel.Task.label, 'imagenet')
+            candidate.look_at(self.assembly.stimulus_set)
         raw_score = self._similarity_metric(source_assembly, self.assembly)
         return ceil_score(raw_score, self.ceiling)
 

@@ -2,16 +2,17 @@ import numpy as np
 
 import brainscore
 from brainscore.benchmarks import BenchmarkBase, ceil_score
+from brainscore.benchmarks.screen import place_on_screen
 from brainscore.metrics import Score
 from brainscore.metrics.ost import OSTCorrelation
 from brainscore.model_interface import BrainModel
-from brainscore.benchmarks.screen import place_on_screen
 
 VISUAL_DEGREES = 8
 
+
 class DicarloKar2019OST(BenchmarkBase):
     def __init__(self):
-        ceiling = Score([.79, np.nan],  # following private conversation with Kohitij Kar
+        ceiling = Score([.8, np.nan],  # computed offline by Kohitij Kar
                         coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         super(DicarloKar2019OST, self).__init__(identifier='dicarlo.Kar2019-ost', version=2,
                                                 ceiling_func=lambda: ceiling,
@@ -23,14 +24,14 @@ class DicarloKar2019OST(BenchmarkBase):
         assembly = assembly.isel(presentation=index)
         assembly.attrs['stimulus_set'] = assembly.stimulus_set.drop_duplicates('image_id')
 
-        assembly = assembly.sel(decoder='svm')
+        assembly = assembly.sel(decoder='logistic')
 
         self._assembly = assembly
         self._assembly['truth'] = self._assembly['image_label']
         self._assembly.stimulus_set['truth'] = self._assembly.stimulus_set['image_label']
 
         self._similarity_metric = OSTCorrelation()
-        self._visual_degrees=VISUAL_DEGREES
+        self._visual_degrees = VISUAL_DEGREES
 
     def __call__(self, candidate: BrainModel):
         time_bins = [(time_bin_start, time_bin_start + 10) for time_bin_start in range(70, 250, 10)]

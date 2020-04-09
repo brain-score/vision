@@ -162,8 +162,9 @@ class TestPrecomputed:
             precomputed_features = pickle.load(f)['data']
         precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
         # score
-        score = benchmark(precomputed_features).raw
-        assert score.sel(aggregation='center') == approx(.316, abs=.005)
+        score = benchmark(precomputed_features)
+        assert score.sel(aggregation='center') == approx(.387568, abs=.005)
+        assert score.raw.sel(aggregation='center') == approx(.306179, abs=.005)
 
 
 class TestVisualDegrees:

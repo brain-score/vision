@@ -49,7 +49,7 @@ class OSTCorrelation(Metric):
             classifier = LogisticRegression(penalty='l2',C=5*10e4,multi_class='ovr', max_iter=20000, class_weight='balanced')
             classifier.fit(time_train_source, time_train_source['image_label'])
             prediction_probabilities = classifier.predict_proba(time_test_source)
-            classifier.close()
+            #classifier.close()
             source_i1 = self.i1(prediction_probabilities)
             assert all(source_i1['image_id'].values == test_osts['image_id'].values)
             for i, (image_source_i1, threshold_i1) in enumerate(zip(

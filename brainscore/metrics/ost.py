@@ -7,6 +7,7 @@ from scipy.interpolate import interp1d
 from scipy.optimize import fsolve
 from scipy.stats import spearmanr
 from tqdm import tqdm
+from sklearn.linear_model import LogisticRegression
 
 from brainio_base.assemblies import walk_coords, array_is_element, BehavioralAssembly
 from brainscore.metrics import Metric, Score
@@ -44,7 +45,8 @@ class OSTCorrelation(Metric):
             time_train_source = time_train_source.transpose('presentation', 'neuroid')
             time_test_source = time_test_source.transpose('presentation', 'neuroid')
 
-            classifier = TFProbabilitiesClassifier()
+            #classifier = TFProbabilitiesClassifier()
+            classifier = LogisticRegression(penalty='l2',C=5*10e4,multi_class='ovr', max_iter=20000, class_weight='balanced')
             classifier.fit(time_train_source, time_train_source['image_label'])
             prediction_probabilities = classifier.predict_proba(time_test_source)
             classifier.close()

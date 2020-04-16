@@ -13,8 +13,8 @@ and standard models are implemented in https://github.com/brain-score/candidate_
    :caption: Contents:
 
    examples
-   packages/model_interface
-   packages/benchmarks
-   packages/metrics
-   packages/submission
-   packages/utils
+   modules/model_interface
+   modules/benchmarks
+   modules/metrics
+   modules/submission
+   modules/utils

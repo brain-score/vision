@@ -14,8 +14,6 @@ and standard models are implemented in candidate-models_.
 The primary method this library provides is the `score_model` function.
 
 .. autofunction:: brainscore.score_model
-    :members:
-    :undoc-members:
 
 .. toctree::
    :maxdepth: 2

@@ -24,7 +24,7 @@ def score_model(model_identifier, benchmark_identifier, model):
     Score a given model on a given benchmark.
     The model needs to implement the :class:`~brainscore.model_interface.BrainModel` interface so that the benchmark can
     interact with it.
-    The benchmark will be looked up from the :attribute:`~brainscore.benchmarks.benchmark_pool` and evaluates the model
+    The benchmark will be looked up from the :data:`~brainscore.benchmarks.benchmark_pool` and evaluates the model
     on how brain-like it is under that benchmark's experimental paradigm, primate measurements, comparison metric, and
     ceiling. This results in a quantitative :class:`~brainscore.metrics.Score` ranging from 0 (least brain-like) to 1
     (most brain-like under this benchmark).

@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup, find_packages
-from brainscore import __version__
 
 with open('README.md') as readme_file:
     readme = readme_file.read()
@@ -26,7 +25,7 @@ requirements = [
 
 setup(
     name='brain-score',
-    version=__version__,
+    version='0.3',
     description="A framework for the quantitative comparison of mindlike systems.",
     long_description=readme,
     author="Brain-Score Team",

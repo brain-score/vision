@@ -8,23 +8,62 @@ from result_caching import cache, store
 
 
 class Benchmark(ABC):
+    """
+    Standard Benchmark interface defining the method interface.
+    """
     def __call__(self, candidate: BrainModel):
+        """
+        Evaluate a candidate `BrainModel` and return a `Score` denoting the brain-likeness of the model under this
+        benchmark. Typically this involves reproducing the experiment on the model and then comparing model measurements
+        (e.g. neural/behavioral) against recordings from biological subjects (e.g. primates) using a metric. The output
+        of this method is a normalized score between 0 and 1 where 0 means the model does not match the measurements at
+        all and 1 means the model matches the measurements at ceiling level (e.g. if the model obtains a score of 0.8
+        and the data ceiling is also 0.8, the score output by this method should be 1).
+
+        :param candidate: a candidate model implementing the `BrainModel` interface. Benchmarks are agnostic of the
+                exact implementation and only interact with models through the methods defined in the interface.
+        :return: a `Score` of how brain-like the candidate model is under this benchmark. The score is normalized by
+                this benchmark's ceiling such that 1 means the model matches the data to ceiling level.
+        """
         raise NotImplementedError()
 
     @property
     def identifier(self):
+        """
+        Unique identifier for this benchmark.
+        Standard format is `<data identifier>-<metric identifier>`, e.g. `dicarlo.Rajalingham2018-i2n`.
+
+        :return: a unique identifier for this benchmark
+        """
         raise NotImplementedError()
 
     @property
     def version(self):
+        """
+        Optional, but strongly encouraged.
+
+        :return: a version number that is increased every time the model scores for this benchmark change
+                (but not for code changes that do not change scores).
+        """
         raise NotImplementedError()
 
     @property
     def ceiling(self):
+        """
+        The ceiling of this benchmark. Scores need to be normalized by this value.
+        Typically this represents the signal in the data and how well we expect the best possible model to score.
+
+        :return: a Score object, denoting the ceiling of this benchmark.
+                Typically has two values indexed by an `aggregation` coordinate:
+                `center` for the averaged ceiling value, and `error` for the uncertainty.
+        """
         raise NotImplementedError()
 
 
 class BenchmarkBase(Benchmark):
+    """
+    Helper class for implementing standard functions of the `Benchmark` interface.
+    """
     def __init__(self, identifier, ceiling_func, version, parent=None, paper_link=None):
         self._identifier = identifier
         self._ceiling_func = ceiling_func

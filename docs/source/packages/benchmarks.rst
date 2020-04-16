@@ -9,5 +9,6 @@ This score is normalized with data ceilings and hte output ultimately outputs th
 
 .. automodule:: brainscore.benchmarks
     :members:
+    :undoc-members:
 .. _data: https://github.com/brain-score/brainio_collection
 .. _model: https://github.com/brain-score/brain-score/blob/master/brainscore/model_interface.py

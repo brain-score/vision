@@ -7,5 +7,6 @@ into brain models (i.e. implementing the model-interface_).
 
 .. automodule:: brainscore.submission
     :members:
+    :undoc-members:
 .. _model-tools: https://github.com/brain-score/model-tools
 .. _model-interface: https://github.com/brain-score/brain-score/blob/master/brainscore/model_interface.py

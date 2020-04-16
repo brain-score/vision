@@ -7,3 +7,4 @@ without needing to know about the details of the model implementation.
 
 .. automodule:: brainscore.model_interface
     :members:
+    :undoc-members:

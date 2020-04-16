@@ -12,9 +12,9 @@ and standard models are implemented in https://github.com/brain-score/candidate_
    :maxdepth: 2
    :caption: Contents:
 
-    examples
-    packages/model_interface
-    packages/benchmarks
-    packages/metrics
-    packages/submission
-    packages/utils
+   examples
+   packages/model_interface
+   packages/benchmarks
+   packages/metrics
+   packages/submission
+   packages/utils

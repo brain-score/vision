@@ -17,7 +17,8 @@ class Metric:
 
         :param assembly1: the first assembly to compare against the second
         :param assembly2: the second assembly to compare against the first
-        :return: a `Score` denoting the match between the two assemblies (1 = identical, 0 = no match).
+        :return: a :class:`~brainscore.metrics.Score` denoting the match between the two assemblies
+                (1 = identical, 0 = no match).
         """
         raise NotImplementedError()
 

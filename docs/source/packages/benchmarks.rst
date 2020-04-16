@@ -7,7 +7,7 @@ Benchmarks
 This comparison is done by :ref:`metrics` which output a score.
 This score is normalized with data ceilings and hte output ultimately outputs this ceiled score.
 
-.. autoclass:: brainscore.benchmarks
+.. automodule:: brainscore.benchmarks
     :members:
 .. _data: https://github.com/brain-score/brainio_collection
 .. _model: https://github.com/brain-score/brain-score/blob/master/brainscore/model_interface.py

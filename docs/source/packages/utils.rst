@@ -3,5 +3,5 @@ Utils
 
 The ``utils`` package provides helper classes.
 
-.. autoclass:: brainscore.utils
+.. automodule:: brainscore.utils
     :members:

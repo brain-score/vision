@@ -10,6 +10,13 @@ and standard models are implemented in candidate-models_.
 
 .. _BrainIO: https://github.com/brain-score/brainio_collection
 .. _candidate-models: https://github.com/brain-score/candidate_models
+
+The primary method this library provides is the `score_model` function.
+
+.. autofunction:: brainscore.score_model
+    :members:
+    :undoc-members:
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:

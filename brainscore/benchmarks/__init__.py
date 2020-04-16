@@ -9,21 +9,23 @@ from result_caching import cache, store
 
 class Benchmark(ABC):
     """
-    Standard Benchmark interface defining the method interface.
+    Standard Benchmark interface defining the method interfaces.
     """
     def __call__(self, candidate: BrainModel):
         """
-        Evaluate a candidate `BrainModel` and return a `Score` denoting the brain-likeness of the model under this
-        benchmark. Typically this involves reproducing the experiment on the model and then comparing model measurements
-        (e.g. neural/behavioral) against recordings from biological subjects (e.g. primates) using a metric. The output
-        of this method is a normalized score between 0 and 1 where 0 means the model does not match the measurements at
-        all and 1 means the model matches the measurements at ceiling level (e.g. if the model obtains a score of 0.8
-        and the data ceiling is also 0.8, the score output by this method should be 1).
+        Evaluate a candidate `BrainModel` and return a :class:`~brainscore.metrics.Score` denoting the brain-likeness of
+        the model under this benchmark. Typically this involves reproducing the experiment on the model and then
+        comparing model measurements (e.g. neural/behavioral) against recordings from biological subjects (e.g.
+        primates) using a :class:`~brainscore.metrics.Metric`. The output of this method is a normalized score between 0
+        and 1 where 0 means the model does not match the measurements at all and 1 means the model matches the
+        measurements at ceiling level (e.g. if the model obtains a score of 0.8 and the data ceiling is also 0.8, the
+        score output by this method should be 1).
 
         :param candidate: a candidate model implementing the `BrainModel` interface. Benchmarks are agnostic of the
                 exact implementation and only interact with models through the methods defined in the interface.
-        :return: a `Score` of how brain-like the candidate model is under this benchmark. The score is normalized by
-                this benchmark's ceiling such that 1 means the model matches the data to ceiling level.
+        :return: a :class:`~brainscore.metrics.Score` of how brain-like the candidate model is under this benchmark. The
+                score is normalized by this benchmark's ceiling such that 1 means the model matches the data to ceiling
+                level.
         """
         raise NotImplementedError()
 

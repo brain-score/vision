@@ -25,7 +25,7 @@ requirements = [
 
 setup(
     name='brain-score',
-    version='0.3',
+    version='0.2',
     description="A framework for the quantitative comparison of mindlike systems.",
     long_description=readme,
     author="Brain-Score Team",

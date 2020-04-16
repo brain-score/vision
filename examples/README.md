@@ -1,4 +1,4 @@
-# Brain-Score Examples
+# Examples
 
 Basic examples to get you started with using the framework.
 

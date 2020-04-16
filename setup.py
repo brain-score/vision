@@ -1,5 +1,13 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+"""
+Releasing a new version (adopted from https://github.com/huggingface/transformers/blob/master/setup.py)
+
+1. Change the version in `setup.py` and `docs/source/conf.py`.
+
+2. Commit these changes with the message: "release: <version>"
+
+3. Mark the release with a git tag
+
+"""
 
 from setuptools import setup, find_packages
 

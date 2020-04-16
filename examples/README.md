@@ -1,6 +1,7 @@
 # Examples
 
-Basic examples to get you started with using the framework.
+The following examples are primarily concerned with the codebase, e.g. defining benchmarks and metrics.
+For examples of how to score models, please [see here](https://github.com/brain-score/candidate_models/blob/master/examples/score-model.ipynb).
 
 [benchmarks](benchmarks.ipynb): compare an assembly to a target assembly under a certain metric
 

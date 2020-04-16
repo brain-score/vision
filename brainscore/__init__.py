@@ -1,5 +1,3 @@
-__version__ = '0.2'
-
 import logging
 
 # The following imports provide convenience methods.

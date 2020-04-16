@@ -22,7 +22,8 @@ copyright = '2020, Brain-Score Team'
 author = 'Brain-Score Team'
 
 # The full version, including alpha/beta/rc tags
-release = '0.3'
+from brainscore import __version__
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------

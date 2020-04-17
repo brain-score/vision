@@ -48,7 +48,7 @@ score = metric(assembly1=data, assembly2=data)
 
 Some steps may take minutes because data has to be downloaded during first-time use.
 
-More examples can be found in the [examples](examples/) directory.
+For more details, see [the documentation](https://brain-score.readthedocs.io).
 
 
 ## Environment Variables

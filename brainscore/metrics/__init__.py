@@ -6,7 +6,20 @@ from brainio_base.assemblies import DataAssembly, merge_data_arrays
 
 
 class Metric:
-    def __call__(self, *args):
+    """
+    Metric interface.
+    A metric compares two sets of data and outputs a score of how well they match (1 = identical, 0 = no match).
+    """
+    def __call__(self, assembly1, assembly2):
+        """
+        Compare two assemblies on their similarity.
+        These assemblies are typically neural or behavioral measurements, e.g. model and primate recordings.
+
+        :param assembly1: the first assembly to compare against the second
+        :param assembly2: the second assembly to compare against the first
+        :return: a :class:`~brainscore.metrics.Score` denoting the match between the two assemblies
+                (1 = identical, 0 = no match).
+        """
         raise NotImplementedError()
 
 

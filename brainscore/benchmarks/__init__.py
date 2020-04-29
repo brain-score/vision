@@ -1,3 +1,10 @@
+"""
+A :class:`~brainscore.benchmarks.Benchmark` runs an experiment on a :class:`~brainscore.model_interface.BrainModel`
+and tests the resulting measurements against primate `data <https://github.com/brain-score/brainio_collection>`_.
+This comparison is done by a :class:`~brainscore.metrics.Metric` which outputs a score of how well model and data match.
+This score is normalized with data ceilings and the benchmark returns this ceiled score.
+"""
+
 import itertools
 from abc import ABC
 

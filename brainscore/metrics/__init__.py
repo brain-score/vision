@@ -1,3 +1,8 @@
+"""
+Metrics are a part of :class:`~brainscore.benchmarks.Benchmark`s and score how similar two sets of data are.
+Typically these two sets are model and primate measurements, but metrics are agnostic of the data source.
+"""
+
 import warnings
 
 import logging
@@ -10,6 +15,7 @@ class Metric:
     Metric interface.
     A metric compares two sets of data and outputs a score of how well they match (1 = identical, 0 = no match).
     """
+
     def __call__(self, assembly1, assembly2):
         """
         Compare two assemblies on their similarity.

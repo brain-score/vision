@@ -1,5 +1,5 @@
 """
-a :class:`~brainscore.metrics.Metric` is part of a :class:`~brainscore.benchmarks.Benchmark`
+A :class:`~brainscore.metrics.Metric` is part of a :class:`~brainscore.benchmarks.Benchmark`
 and scores how similar two sets of data are.
 Typically these two sets are model and primate measurements, but metrics are agnostic of the data source
 and can also be used to compare two primate measurements (e.g. for ceiling estimates).

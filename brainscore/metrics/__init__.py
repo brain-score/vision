@@ -1,6 +1,8 @@
 """
-Metrics are a part of :class:`~brainscore.benchmarks.Benchmark`s and score how similar two sets of data are.
-Typically these two sets are model and primate measurements, but metrics are agnostic of the data source.
+a :class:`~brainscore.metrics.Metric` is part of a :class:`~brainscore.benchmarks.Benchmark`
+and scores how similar two sets of data are.
+Typically these two sets are model and primate measurements, but metrics are agnostic of the data source
+and can also be used to compare two primate measurements (e.g. for ceiling estimates).
 """
 
 import warnings
@@ -33,6 +35,13 @@ _logger = logging.getLogger(__name__)  # cannot set directly on Score object
 
 
 class Score(DataAssembly):
+    """
+    Scores are used as the outputs of metrics, benchmarks, and ceilings. They indicate similarity or goodness-of-fit
+    of sets of data. The high-level score is typically an aggregate of many smaller scores, e.g. the median of neuroid
+    correlations. To keep records of these smaller scores, a score can store "raw" scores in its attributes
+    (`score.attrs['raw']`).
+    """
+
     RAW_VALUES_KEY = 'raw'
 
     def sel(self, *args, _apply_raw=True, **kwargs):

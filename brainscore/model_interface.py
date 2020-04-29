@@ -33,7 +33,7 @@ class BrainModel:
         """
         Digest a set of stimuli and return requested outputs. Which outputs to return is instructed by the
         :meth:`~brainscore.model_interface.BrainMode.start_task` and
-        :meth:`brainscore.model_interface.BrainModel.start_recording` methods.
+        :meth:`~brainscore.model_interface.BrainModel.start_recording` methods.
 
         :param stimuli: A set of stimuli, passed as either a :class:`~brainio_base.stimuli.StimulusSet`
             or a list of image file paths
@@ -59,17 +59,18 @@ class BrainModel:
         For all followings call of :meth:`~brainscore.model_interface.BrainModel.look_at`, the model returns the
         corresponding recordings. These recordings are a :class:`~brainio_base.assemblies.NeuroidAssembly` with exactly
         3 dimensions:
+
         - `presentation`: the presented stimuli (cf. stimuli argument of
-            :meth:`~brainscore.model_interface.BrainModel.look_at`). If a :class:`~brainio_base.stimuli.StimulusSet`
-            was passed, the recordings should contain all of the :class:`~brainio_base.stimuli.StimulusSet` columns as
-            coordinates on this dimension. The `image_id` coordinate is required in either case.
+                :meth:`~brainscore.model_interface.BrainModel.look_at`). If a :class:`~brainio_base.stimuli.StimulusSet`
+                was passed, the recordings should contain all of the :class:`~brainio_base.stimuli.StimulusSet` columns
+                as coordinates on this dimension. The `image_id` coordinate is required in either case.
         - `neuroid`: the recorded neuroids (neurons or mixtures thereof). They should all be part of the specified
-            :data:`~brainscore.model_interface.BrainModel.RecordingTarget`. The coordinates of this dimension should
-            again include as much information as is available, at the very least a `neuroid_id`.
+                :data:`~brainscore.model_interface.BrainModel.RecordingTarget`. The coordinates of this dimension should
+                again include as much information as is available, at the very least a `neuroid_id`.
         - `time_bins`: the time bins of each recording slice. This dimension should contain at least 2 coordinates:
-            `time_bin_start` and `time_bin_end`, where one `time_bin` is the bin between start and end. For instance, a
-            70-170ms time_bin would be marked as `time_bin_start=70` and `time_bin_end=170`. If only one time_bin is
-            requested, the model may choose to omit this dimension.
+                `time_bin_start` and `time_bin_end`, where one `time_bin` is the bin between start and end.
+                For instance, a 70-170ms time_bin would be marked as `time_bin_start=70` and `time_bin_end=170`.
+                If only one time_bin is requested, the model may choose to omit this dimension.
 
         :param recording_target: which location to record from
         :param time_bins: which time_bins to record as a list of integer tuples,

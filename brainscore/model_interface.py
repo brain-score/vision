@@ -72,6 +72,7 @@ class BrainModel:
             requested, the model may choose to omit this dimension.
 
         :param recording_target: which location to record from
-        :param time_bins: which time_bins to record
+        :param time_bins: which time_bins to record as a list of integer tuples,
+            e.g. `[(50, 100), (100, 150), (150, 200)]` or `[(70, 170)]`
         """
         raise NotImplementedError()

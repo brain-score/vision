@@ -93,16 +93,20 @@ class Score(DataAssembly):
                 _logger.debug(f"failed to set {key}={value} on raw values: " + (repr(e)))
 
     @classmethod
-    def merge(cls, *scores):
+    def merge(cls, *scores, ignore_exceptions=False):
         """
         Merges the raw values in addition to the score assemblies.
         """
-        result = merge_data_arrays(scores)
-        raws = [score.attrs[cls.RAW_VALUES_KEY] for score in scores if cls.RAW_VALUES_KEY in score.attrs]
-        if len(raws) > 0:
-            try:
-                raw = merge_data_arrays(raws)
+        try:
+            result = merge_data_arrays(scores)
+            raws = [score.attrs[cls.RAW_VALUES_KEY] for score in scores if cls.RAW_VALUES_KEY in score.attrs]
+            if len(raws) > 0:
+                raw = Score.merge(*raws, ignore_exceptions=True)
                 result.attrs[cls.RAW_VALUES_KEY] = raw
-            except Exception as e:
+        except Exception as e:
+            if ignore_exceptions:
                 warnings.warn("failed to merge raw values: " + str(e))
+                return None
+            else:
+                raise e
         return result

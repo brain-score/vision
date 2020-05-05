@@ -1,31 +1,24 @@
+import zipfile
+from importlib import import_module
+
 import datetime
+import git
 import json
 import logging
 import os
+import pandas as pd
 import subprocess
 import sys
-import zipfile
-import git
 from pathlib import Path
-import pandas as pd
-
-from importlib import import_module
 
 from brainscore import score_model
-from brainscore.utils import LazyLoad
-
+from brainscore.benchmarks import evaluation_benchmark_pool
 from brainscore.submission.ml_pool import MLBrainPool, ModelLayers
+from brainscore.utils import LazyLoad
 
 logger = logging.getLogger(__name__)
 
-all_benchmarks_list = [
-    'movshon.FreemanZiemba2013.V1-pls',
-    'movshon.FreemanZiemba2013.V2-pls',
-    'dicarlo.Majaj2015.V4-pls', 'dicarlo.Majaj2015.IT-pls',
-    'dicarlo.Rajalingham2018-i2n',
-    # 'dicarlo.Kar2019-ost',
-    'fei-fei.Deng2009-top1'
-]
+all_benchmarks_list = list(evaluation_benchmark_pool.keys())
 
 
 def run_evaluation(config_file, work_dir, db_connection_config, jenkins_id, models=None,
@@ -150,7 +143,7 @@ def clone_repo(config, work_dir):
 
 def install_project(repo, package):
     try:
-        assert 0 == subprocess.call([sys.executable, "-m", "pip", "install", repo], env=os.environ)
+        assert 0 == subprocess.call([sys.executable, "-m", "pip", "install", "-v", repo], env=os.environ)
         sys.path.insert(1, str(repo))
         logger.info(f'System paths {sys.path}')
         return import_module(package)

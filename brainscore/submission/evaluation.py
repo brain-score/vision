@@ -18,7 +18,8 @@ from brainscore.utils import LazyLoad
 
 logger = logging.getLogger(__name__)
 
-all_benchmarks_list = list(evaluation_benchmark_pool.keys())
+all_benchmarks_list = [benchmark for benchmark in evaluation_benchmark_pool.keys()
+                       if benchmark != 'dicarlo.Kar2019-ost']
 
 
 def run_evaluation(config_file, work_dir, db_connection_config, jenkins_id, models=None,

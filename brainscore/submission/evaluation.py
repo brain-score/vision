@@ -19,7 +19,7 @@ from brainscore.utils import LazyLoad
 logger = logging.getLogger(__name__)
 
 all_benchmarks_list = [benchmark for benchmark in evaluation_benchmark_pool.keys()
-                       if benchmark != 'dicarlo.Kar2019-ost']
+                       if benchmark not in ['dicarlo.Kar2019-ost', 'fei-fei.Deng2009-top1']]
 
 
 def run_evaluation(config_file, work_dir, db_connection_config, jenkins_id, models=None,

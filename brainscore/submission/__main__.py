@@ -13,10 +13,10 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--log_level', type=str, default='INFO')
 parser.add_argument('config_file', type=str, help='The configuration file for the repo containing the models')
 parser.add_argument('work_dir', type=str, help='A working directory to unpack/clone the model repo')
-parser.add_argument('db_config', type=str,
-                    help='A configuration file containing database details to write the output to')
 parser.add_argument('jenkins_id', type=str,
                     help='The id of the current jenkins run')
+parser.add_argument('--db_secret', type=str,
+                    help='The name of the database credential secret loaded from AWS', default='brainscore-1-ohio-cred')
 parser.add_argument('--models', type=str, nargs='*', default=None,
                     help='An optional list of the models to benchmark, if it doesn\'t exist all models are socred')
 parser.add_argument('--benchmarks', type=str, nargs='*', default=None,
@@ -32,10 +32,10 @@ def score_model_console():
     logger.info('Start scoring model process..')
     assert Path(args.config_file).is_file(), 'Configuration file doesn\'t exist'
     assert Path(args.work_dir).is_dir(), 'Work directory is not a valid directory'
-    assert Path(args.db_config).is_file(), 'The db connection file doesn\'t exist'
+    assert args.db_secret is not None, 'The db connection file doesn\'t exist'
     logger.info(f'Benchmarks configured: {args.benchmarks}')
     logger.info(f'Models configured: {args.models}')
-    run_evaluation(args.config_file, args.work_dir, args.db_config, args.jenkins_id,
+    run_evaluation(args.config_file, args.work_dir, args.jenkins_id, db_secret=args.db_secret,
                  models=args.models, benchmarks=args.benchmarks)
 
 

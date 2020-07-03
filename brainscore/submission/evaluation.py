@@ -67,7 +67,7 @@ def run_evaluation(config_file, work_dir, jenkins_id, db_secret, models=None,
                 try:
                     logger.info(f"Scoring {model} on benchmark {benchmark}")
                     model = ml_brain_pool[model]
-                    score = score_model(model, benchmark, )
+                    score = score_model(benchmark, model)
                     logger.info(f'Running benchmark {benchmark} on model {model} produced this score: {score}')
                     if not hasattr(score, 'ceiling'):
                         raw = score.sel(aggregation='center').item(0)
@@ -85,7 +85,8 @@ def run_evaluation(config_file, work_dir, jenkins_id, db_secret, models=None,
                         'raw_result': raw,
                         'ceiled_result': ceiled,
                         'error': error,
-                        'finished_time': finished
+                        'finished_time': finished,
+                        'layer' : str(model.layer_model.region_layer_map)
                     }
                     data.append(result)
                     store_score(db_secret, {**result, **{'jenkins_id': jenkins_id,

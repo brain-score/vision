@@ -68,7 +68,7 @@ def run_evaluation(config_file, work_dir, jenkins_id, db_secret, models=None,
                     logger.info(f"Scoring {model_id} on benchmark {benchmark}")
                     model = ml_brain_pool[model_id]
                     score = score_model(model_id, benchmark, model)
-                    logger.info(f'Running benchmark {benchmark} on model {model} produced this score: {score}')
+                    logger.info(f'Running benchmark {benchmark} on model {model_id} produced this score: {score}')
                     if not hasattr(score, 'ceiling'):
                         raw = score.sel(aggregation='center').item(0)
                         ceiled = None
@@ -80,7 +80,7 @@ def run_evaluation(config_file, work_dir, jenkins_id, db_secret, models=None,
                         error = score.sel(aggregation='error').item(0)
                     finished = datetime.datetime.now()
                     result = {
-                        'Model': model,
+                        'Model': model_id,
                         'Benchmark': benchmark,
                         'raw_result': raw,
                         'ceiled_result': ceiled,
@@ -94,11 +94,11 @@ def run_evaluation(config_file, work_dir, jenkins_id, db_secret, models=None,
                                                          'name': configs['name']}})
 
                 except Exception as e:
-                    error = f'Benchmark {benchmark} failed for model {model} because of this error: {e}'
-                    logging.error(f'Could not run model {model} because of following error')
+                    error = f'Benchmark {benchmark} failed for model {model_id} because of this error: {e}'
+                    logging.error(f'Could not run model {model_id} because of following error')
                     logging.error(e, exc_info=True)
                     data.append({
-                        'Model': model, 'Benchmark': benchmark,
+                        'Model': model_id, 'Benchmark': benchmark,
                         'raw_result': 0, 'ceiled_result': 0,
                         'error': error, 'finished_time': datetime.datetime.now()
                     })

@@ -5,7 +5,6 @@ from brainscore.submission.utils import get_secret
 
 
 def connect_db(database_secret):
-    # 'brainscore-1-ohio-cred'
     secret = get_secret(database_secret)
     print(secret)
     db_configs = json.loads(secret)

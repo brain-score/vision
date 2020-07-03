@@ -93,12 +93,13 @@ def run_evaluation(config_file, work_dir, jenkins_id, db_secret, models=None,
                                                          'name': configs['name']}})
 
                 except Exception as e:
+                    error = f'Benchmark {benchmark} failed for model {model} because of this error: {e}'
                     logging.error(f'Could not run model {model} because of following error')
                     logging.error(e, exc_info=True)
                     data.append({
                         'Model': model, 'Benchmark': benchmark,
                         'raw_result': 0, 'ceiled_result': 0,
-                        'error': 0, 'finished_time': datetime.datetime.now()
+                        'error': error, 'finished_time': datetime.datetime.now()
                     })
     finally:
         df = pd.DataFrame(data)

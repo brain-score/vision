@@ -62,12 +62,12 @@ def run_evaluation(config_file, work_dir, jenkins_id, db_secret, models=None,
             ml_brain_pool[model] = module.get_model(model)
     data = []
     try:
-        for model in test_models:
+        for model_id in test_models:
             for benchmark in test_benchmarks:
                 try:
-                    logger.info(f"Scoring {model} on benchmark {benchmark}")
-                    model = ml_brain_pool[model]
-                    score = score_model(benchmark, model)
+                    logger.info(f"Scoring {model_id} on benchmark {benchmark}")
+                    model = ml_brain_pool[model_id]
+                    score = score_model(model_id, benchmark, model)
                     logger.info(f'Running benchmark {benchmark} on model {model} produced this score: {score}')
                     if not hasattr(score, 'ceiling'):
                         raw = score.sel(aggregation='center').item(0)

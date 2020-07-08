@@ -45,8 +45,11 @@ def get_secret(secret_name, region_name='us-east-2'):
     else:
         # Secrets Manager decrypts the secret value using the associated KMS CMK
         # Depending on whether the secret was a string or binary, only one of these fields will be populated
+        _logger.info(f'Secret {secret_name}successfully fetched')
         if 'SecretString' in get_secret_value_response:
+            _logger.info("Inside string response...")
             return get_secret_value_response['SecretString']
         else:
+            _logger.info("Inside binary response...")
             return get_secret_value_response['SecretBinary']
 

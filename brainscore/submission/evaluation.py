@@ -11,8 +11,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+
 from brainscore import score_model
 from brainscore.benchmarks import evaluation_benchmark_pool
+from brainscore.submission.database import store_score
 from brainscore.submission.ml_pool import MLBrainPool, ModelLayers
 from brainscore.utils import LazyLoad
 
@@ -22,11 +24,10 @@ all_benchmarks_list = [benchmark for benchmark in evaluation_benchmark_pool.keys
                        if benchmark not in ['dicarlo.Kar2019-ost', 'fei-fei.Deng2009-top1']]
 
 
-def run_evaluation(config_file, work_dir, db_connection_config, jenkins_id, models=None,
+def run_evaluation(config_file, work_dir, jenkins_id, db_secret, models=None,
                    benchmarks=None):
     config_file = Path(config_file).resolve()
     work_dir = Path(work_dir).resolve()
-    db_conn = connect_db(db_connection_config)
     with open(config_file) as file:
         configs = json.load(file)
     logger.info(f'Run with following configurations: {str(configs)}')
@@ -61,12 +62,13 @@ def run_evaluation(config_file, work_dir, db_connection_config, jenkins_id, mode
             ml_brain_pool[model] = module.get_model(model)
     data = []
     try:
-        for model in test_models:
+        for model_id in test_models:
             for benchmark in test_benchmarks:
                 try:
-                    logger.info(f"Scoring {model} on benchmark {benchmark}")
-                    score = score_model(model, benchmark, ml_brain_pool[model])
-                    logger.info(f'Running benchmark {benchmark} on model {model} produced this score: {score}')
+                    logger.info(f"Scoring {model_id} on benchmark {benchmark}")
+                    model = ml_brain_pool[model_id]
+                    score = score_model(model_id, benchmark, model)
+                    logger.info(f'Running benchmark {benchmark} on model {model_id} produced this score: {score}')
                     if not hasattr(score, 'ceiling'):
                         raw = score.sel(aggregation='center').item(0)
                         ceiled = None
@@ -78,55 +80,32 @@ def run_evaluation(config_file, work_dir, db_connection_config, jenkins_id, mode
                         error = score.sel(aggregation='error').item(0)
                     finished = datetime.datetime.now()
                     result = {
-                        'Model': model,
+                        'Model': model_id,
                         'Benchmark': benchmark,
                         'raw_result': raw,
                         'ceiled_result': ceiled,
                         'error': error,
-                        'finished_time': finished
+                        'finished_time': finished,
+                        'layer' : str(model.layer_model.region_layer_map)
                     }
                     data.append(result)
-                    store_score(db_conn, {**result, **{'jenkins_id': jenkins_id,
-                                                       'email': configs['email'],
-                                                       'name': configs['name']}})
+                    store_score(db_secret, {**result, **{'jenkins_id': jenkins_id,
+                                                         'email': configs['email'],
+                                                         'name': configs['name']}})
 
                 except Exception as e:
-                    logging.error(f'Could not run model {model} because of following error')
+                    error = f'Benchmark {benchmark} failed for model {model_id} because of this error: {e}'
+                    logging.error(f'Could not run model {model_id} because of following error')
                     logging.error(e, exc_info=True)
                     data.append({
-                        'Model': model, 'Benchmark': benchmark,
+                        'Model': model_id, 'Benchmark': benchmark,
                         'raw_result': 0, 'ceiled_result': 0,
-                        'error': 0, 'finished_time': datetime.datetime.now()
+                        'error': error, 'finished_time': datetime.datetime.now()
                     })
     finally:
         df = pd.DataFrame(data)
         # This is the result file we send to the user after the scoring process is done
         df.to_csv(f'result_{jenkins_id}.csv', index=None, header=True)
-        db_conn.close()
-
-
-def connect_db(db):
-    with open(db) as file:
-        db_configs = json.load(file)
-    import psycopg2
-    return psycopg2.connect(host=db_configs['hostname'], user=db_configs['user_name'], password=db_configs['password'],
-                            dbname=db_configs['database'])
-
-
-def store_score(dbConnection, score):
-    insert = '''insert into benchmarks_score
-            (model, benchmark, score_raw, score_ceiled, error, timestamp, jenkins_job_id, user_id, name)   
-            VALUES(%s,%s,%s,%s,%s,%s, %s, %s, %s)'''
-    logging.info(f'Run results: {score}')
-    cur = dbConnection.cursor()
-    args = [score['Model'], score['Benchmark'],
-            score['raw_result'], score['ceiled_result'],
-            score['error'], score['finished_time'],
-            score['jenkins_id'], score['email'],
-            score['name']]
-    cur.execute(insert, args)
-    dbConnection.commit()
-    return
 
 
 def extract_zip_file(config, config_path, work_dir):
@@ -134,7 +113,25 @@ def extract_zip_file(config, config_path, work_dir):
     with zipfile.ZipFile(zip_file, 'r') as model_repo:
         model_repo.extractall(path=work_dir)
     #     Use the single directory in the zip file
-    return Path('%s/%s' % (work_dir, os.listdir(work_dir)[0]))
+
+    return Path('%s/%s' % (work_dir, find_correct_dir(work_dir, config['zip_filename'].split('.zip')[0])))
+
+
+def find_correct_dir(work_dir, name):
+    print(name)
+    list = os.listdir(work_dir)
+    candidates = []
+    for item in list:
+        if not item.startswith('.') and not item.startswith('_'):
+            candidates.append(item)
+    if len(candidates) is 1:
+        return candidates[0]
+    if name in candidates:
+        return name
+    logger.error('The zip file structure is not correct, we try to detect the correct directory')
+    if 'sample-model-submission' in candidates:
+        return 'sample-model-submission'
+    return candidates[0]
 
 
 def clone_repo(config, work_dir):

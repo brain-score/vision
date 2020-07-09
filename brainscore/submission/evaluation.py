@@ -69,7 +69,7 @@ def run_evaluation(config_file, work_dir, jenkins_id, db_secret, models=None,
                 try:
                     if layer_commitments is not None and model_id is not None:
                         assert layer_commitments[model_id] is not None
-                        model.layer_commitments.region_layer_map = layer_commitments[model_id]
+                        model.layer_model.region_layer_map = layer_commitments[model_id]
                     score = score_model(model_id, benchmark, model)
                     logger.info(f'Running benchmark {benchmark} on model {model_id} produced this score: {score}')
                     if not hasattr(score, 'ceiling'):

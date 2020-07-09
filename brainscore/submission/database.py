@@ -16,7 +16,7 @@ def store_score(database_secret, score):
     dbConnection = connect_db(database_secret)
     try:
         insert = '''insert into benchmarks_score
-                (model, benchmark, score_raw, score_ceiled, error, layer, timestamp, jenkins_job_id, user_id, name)   
+                (model, benchmark, score_raw, score_ceiled, error, layer, timestamp, jenkins_job_id, owner, author)   
                 VALUES(%s,%s,%s,%s,%s,%s, %s, %s, %s, %s)'''
         logging.info(f'Run results: {score}')
         cur = dbConnection.cursor()

@@ -25,7 +25,7 @@ all_benchmarks_list = [benchmark for benchmark in evaluation_benchmark_pool.keys
 
 
 def run_evaluation(config_file, work_dir, jenkins_id, db_secret, models=None,
-                   benchmarks=None):
+                   benchmarks=None, layer_commitments=None):
     config_file = Path(config_file).resolve()
     work_dir = Path(work_dir).resolve()
     with open(config_file) as file:
@@ -48,7 +48,7 @@ def run_evaluation(config_file, work_dir, jenkins_id, db_secret, models=None,
         layers = {}
         base_model_pool = {}
         for model in test_models:
-            function = lambda: module.get_model(model)
+            function = lambda model_inst=model: module.get_model(model_inst)
             base_model_pool[model] = LazyLoad(function)
             try:
                 layers[model] = module.get_layers(model)
@@ -63,10 +63,13 @@ def run_evaluation(config_file, work_dir, jenkins_id, db_secret, models=None,
     data = []
     try:
         for model_id in test_models:
+            model = ml_brain_pool[model_id]
             for benchmark in test_benchmarks:
+                logger.info(f"Scoring {model_id} on benchmark {benchmark}")
                 try:
-                    logger.info(f"Scoring {model_id} on benchmark {benchmark}")
-                    model = ml_brain_pool[model_id]
+                    if layer_commitments is not None and model_id is not None:
+                        assert layer_commitments[model_id] is not None
+                        model.layer_commitments.region_layer_map = layer_commitments[model_id]
                     score = score_model(model_id, benchmark, model)
                     logger.info(f'Running benchmark {benchmark} on model {model_id} produced this score: {score}')
                     if not hasattr(score, 'ceiling'):

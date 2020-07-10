@@ -4,16 +4,14 @@ import logging
 from brainscore.submission.utils import get_secret
 
 
-def connect_db(database_secret):
-    secret = get_secret(database_secret)
-    db_configs = json.loads(secret)
+def connect_db(db_configs):
     import psycopg2
     return psycopg2.connect(host=db_configs['host'], user=db_configs['username'], password=db_configs['password'],
                             dbname=db_configs['dbInstanceIdentifier'])
 
 
-def store_score(database_secret, score):
-    dbConnection = connect_db(database_secret)
+def store_score(db_configs, score):
+    dbConnection = connect_db(db_configs)
     try:
         insert = '''insert into benchmarks_score
                 (model, benchmark, score_raw, score_ceiled, error, layer, timestamp, jenkins_job_id, owner, author)   

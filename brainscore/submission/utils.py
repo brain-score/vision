@@ -26,6 +26,7 @@ class UniqueKeyDict(dict):
 
 def get_secret(secret_name, region_name='us-east-2'):
     session = boto3.session.Session()
+    _logger.info("Fetch secret from secret manager")
     client = session.client(
         service_name='secretsmanager',
         region_name=region_name,
@@ -37,11 +38,11 @@ def get_secret(secret_name, region_name='us-east-2'):
         )
     except ClientError as e:
         if e.response['Error']['Code'] == 'ResourceNotFoundException':
-            print("The requested secret " + secret_name + " was not found")
+            _logger.error("The requested secret " + secret_name + " was not found")
         elif e.response['Error']['Code'] == 'InvalidRequestException':
-            print("The request was invalid due to:", e)
+            _logger.error("The request was invalid due to:", e)
         elif e.response['Error']['Code'] == 'InvalidParameterException':
-            print("The request had invalid params:", e)
+            _logger.error("The request had invalid params:", e)
     else:
         # Secrets Manager decrypts the secret value using the associated KMS CMK
         # Depending on whether the secret was a string or binary, only one of these fields will be populated

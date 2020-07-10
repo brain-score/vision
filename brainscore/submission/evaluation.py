@@ -16,6 +16,7 @@ from brainscore import score_model
 from brainscore.benchmarks import evaluation_benchmark_pool
 from brainscore.submission.database import store_score
 from brainscore.submission.ml_pool import MLBrainPool, ModelLayers
+from brainscore.submission.utils import get_secret
 from brainscore.utils import LazyLoad
 
 logger = logging.getLogger(__name__)
@@ -26,6 +27,8 @@ all_benchmarks_list = [benchmark for benchmark in evaluation_benchmark_pool.keys
 
 def run_evaluation(config_file, work_dir, jenkins_id, db_secret, models=None,
                    benchmarks=None, layer_commitments=None):
+    secret = get_secret(db_secret)
+    db_configs = json.loads(secret)
     config_file = Path(config_file).resolve()
     work_dir = Path(work_dir).resolve()
     with open(config_file) as file:
@@ -70,6 +73,7 @@ def run_evaluation(config_file, work_dir, jenkins_id, db_secret, models=None,
                     if layer_commitments is not None and model_id is not None:
                         assert layer_commitments[model_id] is not None
                         model.layer_model.region_layer_map = layer_commitments[model_id]
+                        model.layer_model._layer_model.region_layer_map = layer_commitments[model_id]
                     score = score_model(model_id, benchmark, model)
                     logger.info(f'Running benchmark {benchmark} on model {model_id} produced this score: {score}')
                     if not hasattr(score, 'ceiling'):
@@ -92,7 +96,7 @@ def run_evaluation(config_file, work_dir, jenkins_id, db_secret, models=None,
                         'layer' : str(model.layer_model.region_layer_map)
                     }
                     data.append(result)
-                    store_score(db_secret, {**result, **{'jenkins_id': jenkins_id,
+                    store_score(db_configs, {**result, **{'jenkins_id': jenkins_id,
                                                          'email': configs['email'],
                                                          'name': configs['name']}})
 

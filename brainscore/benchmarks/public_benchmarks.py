@@ -64,6 +64,7 @@ class RajalinghamMatchtosamplePublicBenchmark(DicarloRajalingham2018I2n):
     def __init__(self):
         super(RajalinghamMatchtosamplePublicBenchmark, self).__init__()
         self._assembly = LazyLoad(lambda: load_rajalingham2018(access='public'))
+        self._ceiling_func = lambda: self._metric.ceiling(self._assembly, skipna=True)
 
 
 def list_public_assemblies():

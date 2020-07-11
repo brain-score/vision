@@ -165,6 +165,19 @@ class TestPrecomputed:
         score = benchmark(precomputed_features).raw
         assert score.sel(aggregation='center') == approx(.316, abs=.005)
 
+    def test_Rajalingham2018public(self):
+        # load features
+        precomputed_features = Path(__file__).parent / 'CORnetZ-rajalingham2018public.pkl'
+        with open(precomputed_features, 'rb') as f:
+            precomputed_features = pickle.load(f)['data']
+        precomputed_features = PrecomputedFeatures(precomputed_features,
+                                                   visual_degrees=8,  # doesn't matter, features are already computed
+                                                   )
+        # score
+        benchmark = benchmark_pool['dicarlo.Rajalingham2018public-i2n']
+        score = benchmark(precomputed_features).raw
+        assert score.sel(aggregation='center') == approx(.136923, abs=.005)
+
 
 class TestVisualDegrees:
     @pytest.mark.parametrize('benchmark, candidate_degrees, image_id, expected', [

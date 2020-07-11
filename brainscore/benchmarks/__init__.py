@@ -115,8 +115,9 @@ def _experimental_benchmark_pool():
     pool['tolias.Cadena2017-pls'] = LazyLoad(ToliasCadena2017PLS)
     pool['tolias.Cadena2017-mask'] = LazyLoad(ToliasCadena2017Mask)
 
-    from .search import KlabZhang2018ObjSearch
+    from .search import KlabZhang2018ObjSearch, KlabZhang2018VisualSearch
     pool['klab.Zhang2018-object_search'] = LazyLoad(KlabZhang2018ObjSearch)
+    pool['klab.Zhang2018-visual_search'] = LazyLoad(KlabZhang2018VisualSearch)
 
     return pool
 

@@ -1,5 +1,13 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+"""
+Releasing a new version (adopted from https://github.com/huggingface/transformers/blob/master/setup.py)
+
+1. Change the version in `setup.py` and `docs/source/conf.py`.
+
+2. Commit these changes with the message: "release: <version>"
+
+3. Mark the release with a git tag
+
+"""
 
 from setuptools import setup, find_packages
 
@@ -7,7 +15,7 @@ with open('README.md') as readme_file:
     readme = readme_file.read()
 
 requirements = [
-    "numpy>=1.16",
+    "numpy>=1.17",
     "brainio_base @ git+https://github.com/brain-score/brainio_base",
     "brainio_collection @ git+https://github.com/brain-score/brainio_collection",
     "scikit-learn",
@@ -26,10 +34,10 @@ requirements = [
 
 setup(
     name='brain-score',
-    version='0.1.0',
+    version='0.2',
     description="A framework for the quantitative comparison of mindlike systems.",
     long_description=readme,
-    author="Martin Schrimpf, Jon Prescott-Roy",
+    author="Brain-Score Team",
     author_email='mschrimpf@mit.edu, jjpr@mit.edu',
     url='https://github.com/brain-score/brain-score',
     packages=find_packages(exclude=['tests']),

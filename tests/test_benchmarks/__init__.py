@@ -12,6 +12,9 @@ class PrecomputedFeatures(BrainModel):
     def visual_degrees(self) -> int:
         return self._visual_degrees
 
+    def start_task(self, task, fitting_stimuli=None):
+        pass
+
     def start_recording(self, region, *args, **kwargs):
         pass
 

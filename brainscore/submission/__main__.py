@@ -36,10 +36,6 @@ def score_model_console():
     assert args.db_secret is not None, 'The db connection file doesn\'t exist'
     logger.info(f'Benchmarks configured: {args.benchmarks}')
     logger.info(f'Models configured: {args.models}')
-    layer_commitment = None
-    if args.layer_commitment is not None:
-        string = args.layer_commitment.replace("'", "\"")
-        layer_commitment = json.loads(string)
     run_evaluation(args.config_file, args.work_dir, args.jenkins_id, db_secret=args.db_secret,
                  models=args.models, benchmarks=args.benchmarks)
 

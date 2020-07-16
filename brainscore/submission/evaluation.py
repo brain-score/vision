@@ -121,7 +121,6 @@ def extract_zip_file(config, config_path, work_dir):
 
 
 def find_correct_dir(work_dir, name):
-    print(name)
     list = os.listdir(work_dir)
     candidates = []
     for item in list:

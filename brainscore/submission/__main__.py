@@ -22,8 +22,6 @@ parser.add_argument('--models', type=str, nargs='*', default=None,
                     help='An optional list of the models to benchmark, if it doesn\'t exist all models are socred')
 parser.add_argument('--benchmarks', type=str, nargs='*', default=None,
                     help='An optional list of the benchmarks to run, if it doesn\'t exist all benchmarks are run')
-parser.add_argument('--layer_commitment', type=str, default=None,
-                    help='A layer commitment map to avoid, key: model, value: dict of commitments')
 args, remaining_args = parser.parse_known_args()
 logging.basicConfig(stream=sys.stdout, level=logging.getLevelName(args.log_level),
                     format='%(asctime)-15s %(levelname)s:%(name)s:%(message)s')
@@ -43,7 +41,7 @@ def score_model_console():
         string = args.layer_commitment.replace("'", "\"")
         layer_commitment = json.loads(string)
     run_evaluation(args.config_file, args.work_dir, args.jenkins_id, db_secret=args.db_secret,
-                 models=args.models, benchmarks=args.benchmarks, layer_commitments=layer_commitment)
+                 models=args.models, benchmarks=args.benchmarks)
 
 
 logger.info(f"Running {' '.join(sys.argv)}")

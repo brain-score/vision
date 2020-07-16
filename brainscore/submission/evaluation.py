@@ -26,7 +26,7 @@ all_benchmarks_list = [benchmark for benchmark in evaluation_benchmark_pool.keys
 
 
 def run_evaluation(config_file, work_dir, jenkins_id, db_secret, models=None,
-                   benchmarks=None, layer_commitments=None):
+                   benchmarks=None):
     secret = get_secret(db_secret)
     db_configs = json.loads(secret)
     config_file = Path(config_file).resolve()
@@ -70,10 +70,6 @@ def run_evaluation(config_file, work_dir, jenkins_id, db_secret, models=None,
             for benchmark in test_benchmarks:
                 logger.info(f"Scoring {model_id} on benchmark {benchmark}")
                 try:
-                    if layer_commitments is not None and model_id is not None:
-                        assert layer_commitments[model_id] is not None
-                        model.layer_model.region_layer_map = layer_commitments[model_id]
-                        model.layer_model._layer_model.region_layer_map = layer_commitments[model_id]
                     score = score_model(model_id, benchmark, model)
                     logger.info(f'Running benchmark {benchmark} on model {model_id} produced this score: {score}')
                     if not hasattr(score, 'ceiling'):

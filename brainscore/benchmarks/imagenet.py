@@ -22,7 +22,7 @@ class Imagenet2012(BenchmarkBase):
                                            ceiling_func=lambda: ceiling,
                                            bibtex=
                                            """@inproceedings{Deng2009,
-                                              author={J. {Deng} and W. {Dong} and R. {Socher} and L. {Li} and  {Kai Li} and  {Li Fei-Fei}},
+                                              author={J. Deng and W. Dong and R. Socher and L. Li and  Kai Li and  Li Fei-Fei},
                                               booktitle={2009 IEEE Conference on Computer Vision and Pattern Recognition}, 
                                               title={ImageNet: A large-scale hierarchical image database}, 
                                               year={2009},

@@ -8,6 +8,17 @@ from brainscore.utils import LazyLoad
 from result_caching import store
 
 VISUAL_DEGREES = 4
+BIBTEX = """@article{freeman2013functional,
+              title={A functional and perceptual signature of the second visual area in primates},
+              author={Freeman, Jeremy and Ziemba, Corey M and Heeger, David J and Simoncelli, Eero P and Movshon, J Anthony},
+              journal={Nature neuroscience},
+              url={https://www.nature.com/articles/nn.3402},
+              volume={16},
+              number={7},
+              pages={974--981},
+              year={2013},
+              publisher={Nature Publishing Group}
+            }"""
 
 
 def _MovshonFreemanZiemba2013Region(region, identifier_metric_suffix, similarity_metric, ceiler):
@@ -17,18 +28,7 @@ def _MovshonFreemanZiemba2013Region(region, identifier_metric_suffix, similarity
                            parent=region, version=2,
                            assembly=assembly, similarity_metric=similarity_metric, visual_degrees=VISUAL_DEGREES,
                            ceiling_func=lambda: ceiler(assembly_repetition),
-                           bibtex=
-                           """@article{freeman2013functional,
-                              title={A functional and perceptual signature of the second visual area in primates},
-                              author={Freeman, Jeremy and Ziemba, Corey M and Heeger, David J and Simoncelli, Eero P and Movshon, J Anthony},
-                              journal={Nature neuroscience},
-                              url={https://www.nature.com/articles/nn.3402},
-                              volume={16},
-                              number={7},
-                              pages={974--981},
-                              year={2013},
-                              publisher={Nature Publishing Group}
-                            }""")
+                           bibtex=BIBTEX)
 
 
 def MovshonFreemanZiemba2013V1PLS():

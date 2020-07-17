@@ -32,9 +32,24 @@ def ToliasCadena2017PLS():
         assembly_nonan, stimuli = loader.dropna(assembly_repetition, assembly_repetition.attrs['stimulus_set'])
         return ceiler(assembly_nonan)
 
-    return NeuralBenchmark(identifier=identifier, version=1,
+    return NeuralBenchmark(identifier=identifier, parent='V1', version=1,
                            assembly=assembly, similarity_metric=similarity_metric, visual_degrees=VISUAL_DEGREES,
-                           ceiling_func=ceiling)
+                           ceiling_func=ceiling,
+                           bibtex=
+                           """@article{10.1371/journal.pcbi.1006897,
+                               author = {Cadena, Santiago A. AND Denfield, George H. AND Walker, Edgar Y. AND Gatys, Leon A. AND Tolias, Andreas S. AND Bethge, Matthias AND Ecker, Alexander S.},
+                               journal = {PLOS Computational Biology},
+                               publisher = {Public Library of Science},
+                               title = {Deep convolutional models improve predictions of macaque V1 responses to natural images},
+                               year = {2019},
+                               month = {04},
+                               volume = {15},
+                               url = {https://doi.org/10.1371/journal.pcbi.1006897},
+                               pages = {1-27},
+                               abstract = {Predicting the responses of sensory neurons to arbitrary natural stimuli is of major importance for understanding their function. Arguably the most studied cortical area is primary visual cortex (V1), where many models have been developed to explain its function. However, the most successful models built on neurophysiologists’ intuitions still fail to account for spiking responses to natural images. Here, we model spiking activity in primary visual cortex (V1) of monkeys using deep convolutional neural networks (CNNs), which have been successful in computer vision. We both trained CNNs directly to fit the data, and used CNNs trained to solve a high-level task (object categorization). With these approaches, we are able to outperform previous models and improve the state of the art in predicting the responses of early visual neurons to natural images. Our results have two important implications. First, since V1 is the result of several nonlinear stages, it should be modeled as such. Second, functional models of entire visual pathways, of which V1 is an early stage, do not only account for higher areas of such pathways, but also provide useful representations for V1 predictions.},
+                               number = {4},
+                               doi = {10.1371/journal.pcbi.1006897}
+                           }""")
 
 
 def ToliasCadena2017Mask():

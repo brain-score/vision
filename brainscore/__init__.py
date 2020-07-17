@@ -49,5 +49,6 @@ def score_model(model_identifier, benchmark_identifier, model):
     _logger.debug("scoring model")
     score = benchmark(model)
     score.attrs['model_identifier'] = model_identifier
-    score.attrs['benchmark_identifier'] = benchmark_identifier
+    score.attrs['benchmark_identifier'] = benchmark.identifier
+    score.attrs['benchmark_version'] = benchmark.version
     return score

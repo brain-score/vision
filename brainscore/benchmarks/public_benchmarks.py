@@ -19,7 +19,7 @@ from brainscore.metrics.ceiling import InternalConsistency
 from brainscore.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation
 from brainscore.utils import LazyLoad
 from .freemanziemba2013 import load_assembly as load_freemanziemba2013, VISUAL_DEGREES as freemanziemba2013_degrees
-from .majaj2015 import load_assembly as load_majaj2015, VISUAL_DEGREES as majaj2015_degrees
+from .majajhong2015 import load_assembly as load_majajhong2015, VISUAL_DEGREES as majajhong2015_degrees
 from .rajalingham2018 import load_assembly as load_rajalingham2018, DicarloRajalingham2018I2n
 
 
@@ -48,16 +48,16 @@ def FreemanZiembaV2PublicBenchmark():
                                visual_degrees=freemanziemba2013_degrees, stratification_coord='texture_type')
 
 
-def MajajV4PublicBenchmark():
-    return _standard_benchmark('dicarlo.Majaj2015.V4.public',
-                               load_assembly=functools.partial(load_majaj2015, region='V4', access='public'),
-                               visual_degrees=majaj2015_degrees, stratification_coord='object_name')
+def MajajHongV4PublicBenchmark():
+    return _standard_benchmark('dicarlo.MajajHong2015.V4.public',
+                               load_assembly=functools.partial(load_majajhong2015, region='V4', access='public'),
+                               visual_degrees=majajhong2015_degrees, stratification_coord='object_name')
 
 
-def MajajITPublicBenchmark():
-    return _standard_benchmark('dicarlo.Majaj2015.IT.public',
-                               load_assembly=functools.partial(load_majaj2015, region='IT', access='public'),
-                               visual_degrees=majaj2015_degrees, stratification_coord='object_name')
+def MajajHongITPublicBenchmark():
+    return _standard_benchmark('dicarlo.MajajHong2015.IT.public',
+                               load_assembly=functools.partial(load_majajhong2015, region='IT', access='public'),
+                               visual_degrees=majajhong2015_degrees, stratification_coord='object_name')
 
 
 class RajalinghamMatchtosamplePublicBenchmark(DicarloRajalingham2018I2n):

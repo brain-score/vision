@@ -13,11 +13,22 @@ VISUAL_DEGREES = 4
 def _MovshonFreemanZiemba2013Region(region, identifier_metric_suffix, similarity_metric, ceiler):
     assembly_repetition = LazyLoad(lambda region=region: load_assembly(False, region=region))
     assembly = LazyLoad(lambda region=region: load_assembly(True, region=region))
-    return NeuralBenchmark(identifier=f'movshon.FreemanZiemba2013.{region}-{identifier_metric_suffix}', version=2,
+    return NeuralBenchmark(identifier=f'movshon.FreemanZiemba2013.{region}-{identifier_metric_suffix}',
+                           parent=region, version=2,
                            assembly=assembly, similarity_metric=similarity_metric, visual_degrees=VISUAL_DEGREES,
                            ceiling_func=lambda: ceiler(assembly_repetition),
-                           parent=region,
-                           paper_link='https://www.nature.com/articles/nn.3402')
+                           bibtex=
+                           """@article{freeman2013functional,
+                              title={A functional and perceptual signature of the second visual area in primates},
+                              author={Freeman, Jeremy and Ziemba, Corey M and Heeger, David J and Simoncelli, Eero P and Movshon, J Anthony},
+                              journal={Nature neuroscience},
+                              url={https://www.nature.com/articles/nn.3402},
+                              volume={16},
+                              number={7},
+                              pages={974--981},
+                              year={2013},
+                              publisher={Nature Publishing Group}
+                            }""")
 
 
 def MovshonFreemanZiemba2013V1PLS():

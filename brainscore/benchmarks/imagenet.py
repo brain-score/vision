@@ -18,10 +18,16 @@ class Imagenet2012(BenchmarkBase):
         self._stimulus_set = stimulus_set
         self._similarity_metric = Accuracy()
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
-        super(Imagenet2012, self).__init__(identifier='fei-fei.Deng2009-top1', version=1,
+        super(Imagenet2012, self).__init__(identifier='fei-fei.Deng2009-top1', parent='engineering', version=1,
                                            ceiling_func=lambda: ceiling,
-                                           parent='ImageNet',
-                                           paper_link="https://ieeexplore.ieee.org/abstract/document/5206848")
+                                           bibtex=
+                                           """@inproceedings{Deng2009,
+                                              author={J. {Deng} and W. {Dong} and R. {Socher} and L. {Li} and  {Kai Li} and  {Li Fei-Fei}},
+                                              booktitle={2009 IEEE Conference on Computer Vision and Pattern Recognition}, 
+                                              title={ImageNet: A large-scale hierarchical image database}, 
+                                              year={2009},
+                                              url={https://ieeexplore.ieee.org/abstract/document/5206848},
+                                              pages={248-255},}""")
 
     def __call__(self, candidate):
         # the proper `fitting_stimuli` to pass to the candidate would be the imagenet training set.

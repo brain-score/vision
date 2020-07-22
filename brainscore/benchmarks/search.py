@@ -11,15 +11,15 @@ from brainscore.utils import fullname
 import logging
 from tqdm import tqdm
 
-class KlabZhang2018ObjSearch(Benchmark):
-    def __init__(self):
-        self.human_score = Score([0.4411, np.nan],
+class _KlabZhang2018ObjSearch(Benchmark):
+    def __init__(self, ceil_score=None, assembly_name=None, identifier_suffix=""):
+        self.human_score = Score([ceil_score, np.nan],
                         coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         self._version = 1
-        self._identifier='klab.Zhang2018-object_search'
+        self._identifier='klab.Zhang2018.ObjSearch-' + identifier_suffix
         self.parent='visual_search',
         self.paper_link='https://doi.org/10.1038/s41467-018-06217-x'
-        self._assemblies = brainscore.get_assembly('klab.Zhang2018search_obj_array')
+        self._assemblies = brainscore.get_assembly(assembly_name)
         self._stimuli = self._assemblies.stimulus_set
         self.fix = [[640, 512],
                      [365, 988],
@@ -36,7 +36,7 @@ class KlabZhang2018ObjSearch(Benchmark):
         self._metric = ScanMatchPy.initialize()
 
         self._logger.info("## Starting visual search task...")
-        candidate.start_task(BrainModel.Task.visual_search_obj_arr, fix=self.fix, max_fix=self.max_fix, data_len=self.data_len)
+        candidate.start_task(BrainModel.Task.object_search, fix=self.fix, max_fix=self.max_fix, data_len=self.data_len)
         self.cumm_perf, self.saccades = candidate.look_at(self._stimuli)
         # in saccades the first 7 index are the saccades whereas the last index denotes the index at which the target was found
         fix_model = self.saccades[:,:7,:] # first 7 saccades
@@ -85,22 +85,18 @@ class KlabZhang2018ObjSearch(Benchmark):
 
     def get_raw_data(self):
         return self.cumm_perf, self.saccades
+    
+def KlabZhang2018ObjSearchObjArr():
+    return _KlabZhang2018ObjSearch(ceil_score=0.4411, assembly_name='klab.Zhang2018search_obj_array', identifier_suffix='objarr')
 
-KlabZhang2018search_assembly = ['klab.Zhang2018search_waldo', 'klab.Zhang2018search_naturaldesign']
-KlabZhang2018search_assembly_ceil = [1, 1]
-
-class KlabZhang2018VisualSearch(Benchmark):
-    def __init__(self, ceil_score=None, assembly_name=None):
-        if assembly_name is None:
-            self._logger.info("## No assembly name given, therefore selecting random assembly from 'waldo' or 'naturaldesign'...\n")
-            i = np.random.choice(2)
-            assembly_name = KlabZhang2018search_assembly[i]
-            ceil_score = KlabZhang2018search_assembly_ceil[i]
+class _KlabZhang2018VisualSearch(Benchmark):
+    def __init__(self, ceil_score=None, assembly_name=None, identifier_suffix=""):
+        self._logger = logging.getLogger(fullname(self))
 
         self.human_score = Score([ceil_score, np.nan],
                         coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         self._version = 1
-        self._identifier='klab.Zhang2018-visual_search'
+        self._identifier='klab.Zhang2018.VisualSearch-' + identifier_suffix
         self.parent = 'visual_search'
         self.paper_link='https://doi.org/10.1038/s41467-018-06217-x'
         self._assemblies = brainscore.get_assembly(assembly_name)
@@ -110,8 +106,6 @@ class KlabZhang2018VisualSearch(Benchmark):
         self.num_sub = np.max(self._assemblies.subjects.values)
         self.data_len = int(self._assemblies.presentation.values.shape[0]/self.num_sub)
         self.ior_size = 100
-
-        self._logger = logging.getLogger(fullname(self))
 
     def __call__(self, candidate: BrainModel):
         self._metric = ScanMatchPy.initialize()
@@ -166,3 +160,9 @@ class KlabZhang2018VisualSearch(Benchmark):
 
     def get_raw_data(self):
         return self.cumm_perf, self.saccades
+    
+def KlabZhang2018VisualSearchWaldo():
+    return _KlabZhang2018VisualSearch(ceil_score=0.3519, assembly_name='klab.Zhang2018search_waldo', identifier_suffix="waldo")
+
+def KlabZhang2018VisualSearchNaturaldesign():
+    return _KlabZhang2018VisualSearch(ceil_score=0.3953, assembly_name='klab.Zhang2018search_naturaldesign', identifier_suffix="naturaldesign")

@@ -50,19 +50,19 @@ class MLBrainPool(UniqueKeyDict):
             from model_tools.brain_transformation import ModelCommitment
             # enforce early parameter binding: https://stackoverflow.com/a/3431699/2225200
 
-            def load(identifier=basemodel_identifier, activations_model=activations_model, layers=layers):
+            def load(identifier=basemodel_identifier, activations_model=activations_model, layers=layers, target_model=target_model, stimuli_model=stimuli_model):
                 assert hasattr(activations_model, 'reload')
                 activations_model.reload()
 
                 search_target_model_param = {}
                 search_stimuli_model_param = {}
-                if (vs_model_param is not None) and (basemodel_identifier == 'vgg-16'): #as vs_layer is implemented only for vgg-16 as of now
+                if (vs_model_param is not None) and (identifier == 'vgg-16'): #as vs_layer is implemented only for vgg-16 as of now
                     search_target_model_param['target_model'] = target_model
                     search_stimuli_model_param['stimuli_model'] = stimuli_model
-                    search_target_model_param['target_layer'] = visual_search_layer[basemodel_identifier][0]
-                    search_stimuli_model_param['stimuli_layer'] = visual_search_layer[basemodel_identifier][0]
+                    search_target_model_param['target_layer'] = visual_search_layer[identifier][0]
+                    search_stimuli_model_param['stimuli_layer'] = visual_search_layer[identifier][0]
                     search_target_model_param['target_img_size'] = target_img_size
-                    search_stimuli_model_param['search_image_size'] = search_image_size
+                    search_stimuli_model_param['search_image_size'] = stimuli_img_size
                 else:
                     search_target_model_param['target_model'] = None
                     search_stimuli_model_param['stimuli_model'] =  None
@@ -70,7 +70,7 @@ class MLBrainPool(UniqueKeyDict):
                     search_stimuli_model_param['stimuli_layer'] = None
                     search_target_model_param['target_img_size'] = None
                     search_stimuli_model_param['search_image_size'] = None
-
+                
                 brain_model = ModelCommitment(identifier=identifier, activations_model=activations_model,
                                               layers=layers,
                                               search_target_model_param=search_target_model_param,

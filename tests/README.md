@@ -1,4 +1,8 @@
 # Unit Tests
+## Precomputed files
+Some files have been pre-computed, but are too large to add to git.
+They are automatically downloaded by executing `bash download_test_files.sh`.
+
 ## Markers
 Unit tests have various markers that denote possible issues in the travis build:
 

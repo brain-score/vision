@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.com/brain-score/brain-score.svg?token=vqt7d2yhhpLGwHsiTZvT&branch=master)](https://travis-ci.com/brain-score/brain-score)
+[![Documentation Status](https://readthedocs.org/projects/brain-score/badge/?version=latest)](https://brain-score.readthedocs.io/en/latest/?badge=latest)
 
 # Brain-Score
 
@@ -47,7 +48,7 @@ score = metric(assembly1=data, assembly2=data)
 
 Some steps may take minutes because data has to be downloaded during first-time use.
 
-More examples can be found in the [examples](examples/) directory.
+For more details, see [the documentation](https://brain-score.readthedocs.io).
 
 
 ## Environment Variables

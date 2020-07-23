@@ -5,8 +5,15 @@ from brainscore.model_interface import BrainModel
 
 
 class PrecomputedFeatures(BrainModel):
-    def __init__(self, features):
+    def __init__(self, features, visual_degrees):
         self.features = features
+        self._visual_degrees = visual_degrees
+
+    def visual_degrees(self) -> int:
+        return self._visual_degrees
+
+    def start_task(self, task, fitting_stimuli=None):
+        pass
 
     def start_recording(self, region, *args, **kwargs):
         pass

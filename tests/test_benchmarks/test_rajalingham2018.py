@@ -38,6 +38,9 @@ class PrecomputedProbabilities(BrainModel):
     def __init__(self, probabilities):
         self.probabilities = probabilities
 
+    def visual_degrees(self) -> int:
+        return 8
+
     def start_task(self, task: BrainModel.Task, fitting_stimuli):
         assert task == BrainModel.Task.probabilities
         assert len(fitting_stimuli) == 2160

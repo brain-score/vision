@@ -32,12 +32,11 @@ class MLBrainPool(UniqueKeyDict):
             if basemodel_identifier not in model_layers:
                 warnings.warn(f"{basemodel_identifier} not found in model_layers")
                 continue
-            layers = model_layers[basemodel_identifier]
+            model_layer = model_layers[basemodel_identifier]
 
             from model_tools.brain_transformation import ModelCommitment
             # enforce early parameter binding: https://stackoverflow.com/a/3431699/2225200
-
-            def load(identifier=basemodel_identifier, activations_model=activations_model, layers=layers):
+            def load(identifier=basemodel_identifier, activations_model=activations_model, layers=model_layer):
                 assert hasattr(activations_model, 'reload')
                 activations_model.reload()
                 brain_model = ModelCommitment(identifier=identifier, activations_model=activations_model,

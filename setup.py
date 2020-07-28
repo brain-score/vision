@@ -29,6 +29,7 @@ requirements = [
     "result_caching @ git+https://github.com/mschrimpf/result_caching",
     "jupyter",
     "pandas==0.25.3",
+    "bibtexparser",
 ]
 
 setup(

@@ -3,6 +3,7 @@ import json
 import logging
 from pathlib import Path
 
+import bibtexparser as bibtexparser
 import pandas as pd
 
 from brainscore import score_model
@@ -10,7 +11,7 @@ from brainscore.benchmarks import evaluation_benchmark_pool, benchmark_pool
 from brainscore.submission.configuration import object_decoder, MultiConfig
 from brainscore.submission.database import connect_db
 from brainscore.submission.ml_pool import MLBrainPool, ModelLayers
-from brainscore.submission.models import Model, Score, BenchmarkInstance, BenchmarkType
+from brainscore.submission.models import Model, Score, BenchmarkInstance, BenchmarkType, Reference
 from brainscore.submission.repository import prepare_module
 from brainscore.utils import LazyLoad
 
@@ -49,8 +50,14 @@ def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
             assert len(test_models) > 0
             model_instances = []
             for model in test_models:
+                reference = None
+                if hasattr(module, 'get_bibtex'):
+                    bibtex_string = module.get_bibtex(model)
+                    parsed = bibtexparser.loads(bibtex_string)
+                    entry = list(parsed.entries)[0]
+                    reference = Reference.create(bibtex=bibtex_string, author = entry['author'], url=entry['url'], year = entry['year'])
                 model_instances.append(Model.create(name=model, owner=submission.submitter, public=submission_config.public,
-                                                    reference=submission_config.reference, submission=submission))
+                                                    reference=reference, submission=submission))
             run_submission(module, model_instances, test_benchmarks, submission)
         except Exception as e:
             submission.status = 'failure'

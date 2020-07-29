@@ -150,10 +150,10 @@ def _experimental_benchmark_pool():
     # neural benchmarks
     from .majajhong2015 import DicarloMajajHong2015V4Mask, DicarloMajajHong2015ITMask, \
         DicarloMajajHong2015V4RDM, DicarloMajajHong2015ITRDM
-    pool['dicarlo.Majaj2015.V4-mask'] = LazyLoad(DicarloMajajHong2015V4Mask)
-    pool['dicarlo.Majaj2015.IT-mask'] = LazyLoad(DicarloMajajHong2015ITMask)
-    pool['dicarlo.Majaj2015.V4-rdm'] = LazyLoad(DicarloMajajHong2015V4RDM)
-    pool['dicarlo.Majaj2015.IT-rdm'] = LazyLoad(DicarloMajajHong2015ITRDM)
+    pool['dicarlo.MajajHong2015.V4-mask'] = LazyLoad(DicarloMajajHong2015V4Mask)
+    pool['dicarlo.MajajHong2015.IT-mask'] = LazyLoad(DicarloMajajHong2015ITMask)
+    pool['dicarlo.MajajHong2015.V4-rdm'] = LazyLoad(DicarloMajajHong2015V4RDM)
+    pool['dicarlo.MajajHong2015.IT-rdm'] = LazyLoad(DicarloMajajHong2015ITRDM)
     from .freemanziemba2013 import MovshonFreemanZiemba2013V1RDM, MovshonFreemanZiemba2013V2RDM, \
         MovshonFreemanZiemba2013V1Single
     pool['movshon.FreemanZiemba2013.V1-rdm'] = LazyLoad(MovshonFreemanZiemba2013V1RDM)

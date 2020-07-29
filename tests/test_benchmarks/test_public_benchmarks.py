@@ -26,6 +26,6 @@ def test_self(benchmark_ctr, visual_degrees, expected):
 
 def test_list():
     assemblies = list_public_assemblies()
-    assert set(assemblies) == {'dicarlo.Majaj2015.public', 'dicarlo.Majaj2015.temporal.public',
+    assert set(assemblies) == {'dicarlo.MajajHong2015.public', 'dicarlo.MajajHong2015.temporal.public',
                                'movshon.FreemanZiemba2013.public', 'movshon.FreemanZiemba2013.noaperture.public',
                                'dicarlo.Rajalingham2018.public'}

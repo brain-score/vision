@@ -1,5 +1,5 @@
 from brainscore.benchmarks.public_benchmarks import FreemanZiembaV1PublicBenchmark, FreemanZiembaV2PublicBenchmark, \
-    MajajV4PublicBenchmark, MajajITPublicBenchmark
+    MajajHongV4PublicBenchmark, MajajHongITPublicBenchmark
 from brainscore.model_interface import BrainModel
 from brainscore.utils import LazyLoad
 from model_tools.brain_transformation.temporal import TemporalIgnore
@@ -16,8 +16,8 @@ class ModelCommitment(BrainModel):
     standard_region_benchmarks = {
         'V1': LazyLoad(FreemanZiembaV1PublicBenchmark),
         'V2': LazyLoad(FreemanZiembaV2PublicBenchmark),
-        'V4': LazyLoad(MajajV4PublicBenchmark),
-        'IT': LazyLoad(MajajITPublicBenchmark),
+        'V4': LazyLoad(MajajHongV4PublicBenchmark),
+        'IT': LazyLoad(MajajHongITPublicBenchmark),
     }
 
     def __init__(self, identifier,

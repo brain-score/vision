@@ -49,7 +49,7 @@ class TestLogitsBehavior:
                                       layers=None, behavioral_readout_layer='dummy')  # not needed
         stimuli = StimulusSet({'image_id': ['abc123']})
         stimuli.image_paths = {'abc123': os.path.join(os.path.dirname(__file__), 'rgb1.jpg')}
-        stimuli.name = 'test_logits_behavior.creates_synset'
+        stimuli.identifier = 'test_logits_behavior.creates_synset'
         brain_model.start_task(BrainModel.Task.label, 'imagenet')
         synsets = brain_model.look_at(stimuli)
         assert len(synsets) == 1
@@ -64,7 +64,7 @@ class TestProbabilitiesMapping:
         fitting_stimuli = StimulusSet({'image_id': ['rgb1', 'rgb2'], 'image_label': ['label1', 'label2']})
         fitting_stimuli.image_paths = {'rgb1': os.path.join(os.path.dirname(__file__), 'rgb1.jpg'),
                                        'rgb2': os.path.join(os.path.dirname(__file__), 'rgb2.jpg')}
-        fitting_stimuli.name = 'test_probabilities_mapping.creates_probabilities'
+        fitting_stimuli.identifier = 'test_probabilities_mapping.creates_probabilities'
         fitting_stimuli = place_on_screen(fitting_stimuli, target_visual_degrees=brain_model.visual_degrees(),
                                           source_visual_degrees=8)
         brain_model.start_task(BrainModel.Task.probabilities, fitting_stimuli)

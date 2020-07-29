@@ -113,8 +113,8 @@ def get_assembly():
                                 for i in range(20)])
     stimulus_set.image_paths = {image_name: os.path.join(os.path.dirname(__file__), image_name)
                                 for image_name in image_names}
-    stimulus_set.name = 'test'
+    stimulus_set.identifier = 'test'
     assembly.attrs['stimulus_set'] = stimulus_set
-    assembly.attrs['stimulus_set_name'] = stimulus_set.name
+    assembly.attrs['stimulus_set_name'] = stimulus_set.identifier
     assembly = assembly.squeeze("time_bin")
     return assembly.transpose('presentation', 'neuroid')

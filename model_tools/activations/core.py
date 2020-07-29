@@ -45,10 +45,10 @@ class ActivationsExtractorHelper:
     def from_stimulus_set(self, stimulus_set, layers, stimuli_identifier=None):
         """
         :param stimuli_identifier: a stimuli identifier for the stored results file.
-            False to disable saving. None to use `stimulus_set.name`
+            False to disable saving. None to use `stimulus_set.identifier`
         """
         if stimuli_identifier is None:
-            stimuli_identifier = stimulus_set.name
+            stimuli_identifier = stimulus_set.identifier
         for hook in self._stimulus_set_hooks.copy().values():  # copy to avoid stale handles
             stimulus_set = hook(stimulus_set)
         stimuli_paths = [stimulus_set.get_image(image_id) for image_id in stimulus_set['image_id']]

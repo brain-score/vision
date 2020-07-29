@@ -3,7 +3,7 @@ from pytest import approx
 
 from brainscore.benchmarks.public_benchmarks import list_public_assemblies, \
     FreemanZiembaV1PublicBenchmark, FreemanZiembaV2PublicBenchmark, \
-    MajajV4PublicBenchmark, MajajITPublicBenchmark
+    MajajHongV4PublicBenchmark, MajajHongITPublicBenchmark
 from tests.test_benchmarks import PrecomputedFeatures
 
 
@@ -12,9 +12,9 @@ from tests.test_benchmarks import PrecomputedFeatures
                  marks=[pytest.mark.memory_intense]),
     pytest.param(FreemanZiembaV2PublicBenchmark, 4, approx(.577498, abs=.001),
                  marks=[pytest.mark.memory_intense]),
-    pytest.param(MajajV4PublicBenchmark, 8, approx(.897956, abs=.001),
+    pytest.param(MajajHongV4PublicBenchmark, 8, approx(.897956, abs=.001),
                  marks=pytest.mark.memory_intense),
-    pytest.param(MajajITPublicBenchmark, 8, approx(.816251, abs=.001),
+    pytest.param(MajajHongITPublicBenchmark, 8, approx(.816251, abs=.001),
                  marks=pytest.mark.memory_intense),
 ])
 def test_self(benchmark_ctr, visual_degrees, expected):

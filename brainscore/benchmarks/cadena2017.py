@@ -12,7 +12,7 @@ def ToliasCadena2017PLS():
     loader = AssemblyLoader()
     assembly_repetition = loader(average_repetition=False)
     assembly = loader(average_repetition=True)
-    assembly.stimulus_set.name = assembly.stimulus_set_name
+    assembly.stimulus_set.identifier = assembly.stimulus_set_identifier
 
     similarity_metric = CrossRegressedCorrelation(
         regression=pls_regression(),
@@ -41,7 +41,7 @@ def ToliasCadena2017Mask():
     loader = AssemblyLoader()
     assembly_repetition = loader(average_repetition=False)
     assembly = loader(average_repetition=True)
-    assembly.stimulus_set.name = assembly.stimulus_set_name
+    assembly.stimulus_set.identifier = assembly.stimulus_set_identifier
 
     similarity_metric = CrossRegressedCorrelation(
         regression=mask_regression(),

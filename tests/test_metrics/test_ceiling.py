@@ -5,7 +5,7 @@ import pytest
 from pytest import approx
 
 from brainio_base.assemblies import NeuroidAssembly, DataAssembly
-from brainscore.benchmarks.majaj2015 import load_assembly
+from brainscore.benchmarks.majajhong2015 import load_assembly
 from brainscore.metrics.ceiling import NoCeiling, InternalConsistency, SplitHalfConsistency
 
 
@@ -30,7 +30,7 @@ class TestInternalConsistency:
         assert ceiling.sel(aggregation='center') == 1
 
     @pytest.mark.private_access
-    def test_majaj2015_it(self):
+    def test_majajhong2015_it(self):
         assembly_repetitions = load_assembly(average_repetitions=False, region='IT')
         ceiler = InternalConsistency()
         ceiling = ceiler(assembly_repetitions)

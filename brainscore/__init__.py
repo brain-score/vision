@@ -13,8 +13,8 @@ _logger = logging.getLogger(__name__)
 
 def get_assembly(name):
     assembly = brainio_get_assembly(name)
-    if not hasattr(assembly.stimulus_set, 'name'):
-        assembly.stimulus_set.name = assembly.stimulus_set_name
+    assert hasattr(assembly.stimulus_set, 'identifier')
+    assert assembly.stimulus_set.identifier == assembly.stimulus_set_identifier
     return assembly
 
 

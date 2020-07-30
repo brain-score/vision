@@ -26,9 +26,9 @@ To contribute to Brain-Score, please [send in a pull request](https://github.com
 
 ```python
 import brainscore
-data = brainscore.get_assembly("dicarlo.Majaj2015")
+data = brainscore.get_assembly("dicarlo.MajajHong2015")
 data
-> <xarray.NeuronRecordingAssembly 'dicarlo.Majaj2015' (neuroid: 296, presentation: 268800, time_bin: 1)>
+> <xarray.NeuronRecordingAssembly 'dicarlo.MajajHong2015' (neuroid: 296, presentation: 268800, time_bin: 1)>
 > array([[[ 0.060929],
 >         [-0.686162],
 >         ...,

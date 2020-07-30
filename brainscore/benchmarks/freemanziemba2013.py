@@ -17,7 +17,27 @@ def _MovshonFreemanZiemba2013Region(region, identifier_metric_suffix, similarity
                            assembly=assembly, similarity_metric=similarity_metric, visual_degrees=VISUAL_DEGREES,
                            ceiling_func=lambda: ceiler(assembly_repetition),
                            parent=region,
-                           paper_link='https://www.nature.com/articles/nn.3402')
+                           paper_link='https://www.nature.com/articles/nn.3402',
+                           bibtex="""﻿@Article{Freeman2013,
+                                author={Freeman, Jeremy
+                                and Ziemba, Corey M.
+                                and Heeger, David J.
+                                and Simoncelli, Eero P.
+                                and Movshon, J. Anthony},
+                                title={A functional and perceptual signature of the second visual area in primates},
+                                journal={Nature Neuroscience},
+                                year={2013},
+                                month={Jul},
+                                day={01},
+                                volume={16},
+                                number={7},
+                                pages={974-981},
+                                abstract={The authors examined neuronal responses in V1 and V2 to synthetic texture stimuli that replicate higher-order statistical dependencies found in natural images. V2, but not V1, responded differentially to these textures, in both macaque (single neurons) and human (fMRI). Human detection of naturalistic structure in the same images was predicted by V2 responses, suggesting a role for V2 in representing natural image structure.},
+                                issn={1546-1726},
+                                doi={10.1038/nn.3402},
+                                url={https://doi.org/10.1038/nn.3402}
+                                }
+                            """)
 
 
 def MovshonFreemanZiemba2013V1PLS():

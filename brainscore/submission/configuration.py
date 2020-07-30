@@ -1,4 +1,5 @@
 import datetime
+import distutils
 
 from brainscore.submission.models import Model, Submission
 
@@ -26,12 +27,11 @@ class MultiConfig(BaseConfig):
 
 
 class SubmissionConfig(BaseConfig):
-    def __init__(self, model_type, user_id, jenkins_id, public, reference, **kwargs):
+    def __init__(self, model_type, user_id, jenkins_id, public, **kwargs):
         BaseConfig.__init__(self, jenkins_id=jenkins_id, **kwargs)
         self.submission = Submission.create(id=jenkins_id, submitter=user_id, timestamp=datetime.datetime.now(),
                                             model_type=model_type, status='running')
         self.public = public
-        self.reference = reference
 
 
 def object_decoder(config, work_dir, config_path, db_secret, jenkins_id):
@@ -41,5 +41,4 @@ def object_decoder(config, work_dir, config_path, db_secret, jenkins_id):
     else:
         return SubmissionConfig(model_type=config['model_type'], user_id=config['user_id'], work_dir=work_dir,
                                 config_path=config_path,
-                                jenkins_id=jenkins_id, db_secret=db_secret, public=bool(config['public']),
-                                reference=config['reference'] if 'reference' in config else None)
+                                jenkins_id=jenkins_id, db_secret=db_secret, public=bool(distutils.util.strtobool(config['public'])))

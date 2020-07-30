@@ -43,12 +43,8 @@ def find_correct_dir(work_dir):
     logger.error('The zip file structure is not correct, we try to detect the correct directory')
     if 'sample-model-submission' in candidates:
         return 'sample-model-submission'
-    return candidates[0]
-
-
-def clone_repo(config, work_dir):
-    git.Git(work_dir).clone(config['git_url'])
-    return Path('%s/%s' % (work_dir, os.listdir(work_dir)[0]))
+    logger.error('The submission file contains too many entries and can therefore not be installed')
+    raise Exception('The submission file contains too many entries and can therefore not be installed')
 
 
 def install_project(repo, package):

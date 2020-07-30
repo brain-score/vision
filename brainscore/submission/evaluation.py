@@ -5,6 +5,7 @@ from pathlib import Path
 
 import bibtexparser as bibtexparser
 import pandas as pd
+from peewee import DoesNotExist
 
 from brainscore import score_model
 from brainscore.benchmarks import evaluation_benchmark_pool, benchmark_pool
@@ -53,17 +54,17 @@ def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
                 reference = None
                 if hasattr(module, 'get_bibtex'):
                     bibtex_string = module.get_bibtex(model)
-                    parsed = bibtexparser.loads(bibtex_string)
-                    entry = list(parsed.entries)[0]
-                    reference = Reference.create(bibtex=bibtex_string, author = entry['author'], url=entry['url'], year = entry['year'])
-                model_instances.append(Model.create(name=model, owner=submission.submitter, public=submission_config.public,
-                                                    reference=reference, submission=submission))
+                    reference = get_reference(bibtex_string)
+                model_instances.append(
+                    Model.create(name=model, owner=submission.submitter, public=submission_config.public,
+                                 reference=reference, submission=submission))
             run_submission(module, model_instances, test_benchmarks, submission)
         except Exception as e:
             submission.status = 'failure'
             submission.save()
             logging.error(f'Could not install submission because of following error')
             logging.error(e, exc_info=True)
+            raise e
 
 
 def run_submission(module, test_models, test_benchmarks, submission):
@@ -160,12 +161,16 @@ def get_benchmark_instance(benchmark):
     benchmark_type, created = BenchmarkType.get_or_create(identifier=benchmark, order=999)
     if created:
         try:
-            parent = BenchmarkType.get(bench.parent)
+            parent = BenchmarkType.get(identifier=bench.parent)
             benchmark_type.parent = parent
             benchmark_type.save()
-        except:
+        except DoesNotExist:
             logger.error(
-                f'Couldn\'t conenct benchmark {benchmark} to parent {bench.parent} since parent doesn\'t exist')
+                f'Couldn\'t connect benchmark {benchmark} to parent {bench.parent} since parent doesn\'t exist')
+        if hasattr(bench, 'bibtex') and bench.bibtex is not None:
+            bibtex_string = bench.bibtex
+            benchmark_type.reference = get_reference(bibtex_string)
+            benchmark_type.save()
     bench_inst, created = BenchmarkInstance.get_or_create(benchmark=benchmark_type, version=bench.version)
     if created:
         # the version has changed and the benchmark instance was not yet in the database
@@ -174,3 +179,10 @@ def get_benchmark_instance(benchmark):
         bench_inst.ceiling_error = ceiling.sel(aggregation='error')
         bench_inst.save()
     return bench_inst
+
+
+def get_reference(bibtex_string):
+    parsed = bibtexparser.loads(bibtex_string)
+    entry = list(parsed.entries)[0]
+    ref, create= Reference.get_or_create(bibtex=bibtex_string, author=entry['author'], url=entry['url'], year=entry['year'])
+    return ref

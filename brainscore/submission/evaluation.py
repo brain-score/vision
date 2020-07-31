@@ -42,7 +42,7 @@ def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
                 if model.submission.id == submission.id:
                     models.append(model)
             assert len(models) > 0
-            run_submission(module, models, test_benchmarks, submission)
+            run_submission(module, models, test_benchmarks, submission, submission_config.jenkins_id)
     else:
         submission = submission_config.submission
         try:
@@ -58,7 +58,7 @@ def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
                 model_instances.append(
                     Model.create(name=model, owner=submission.submitter, public=submission_config.public,
                                  reference=reference, submission=submission))
-            run_submission(module, model_instances, test_benchmarks, submission)
+            run_submission(module, model_instances, test_benchmarks, submission, submission.id)
         except Exception as e:
             submission.status = 'failure'
             submission.save()
@@ -67,7 +67,7 @@ def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
             raise e
 
 
-def run_submission(module, test_models, test_benchmarks, submission):
+def run_submission(module, test_models, test_benchmarks, submission, jenkins_id):
     ml_brain_pool = get_ml_pool(test_models, module, submission)
     data = []
     success = True
@@ -131,7 +131,7 @@ def run_submission(module, test_models, test_benchmarks, submission):
             submission.status = 'failure'
         submission.save()
         # This is the result file we send to the user after the scoring process is done
-        df.to_csv(f'result_{submission.id}.csv', index=None, header=True)
+        df.to_csv(f'result_{jenkins_id}.csv', index=None, header=True)
 
 
 def get_ml_pool(test_models, module, submission):

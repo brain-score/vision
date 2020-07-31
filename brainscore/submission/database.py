@@ -8,7 +8,7 @@ from brainscore.submission.utils import get_secret
 
 
 def connect_db(db_secret):
-    if 'sqlite' not in db_secret:
+    if 'sqlite3' not in db_secret:
         secret = get_secret(db_secret)
         db_configs = json.loads(secret)
         postgres = PostgresqlDatabase(db_configs['dbInstanceIdentifier'],
@@ -16,5 +16,5 @@ def connect_db(db_secret):
                                          'user': db_configs['username'], 'password': db_configs['password']})
         database.initialize(postgres)
     else:
-        sqlite = SqliteDatabase('django_generated.sqlite3')
+        sqlite = SqliteDatabase(db_secret)
         database.initialize(sqlite)

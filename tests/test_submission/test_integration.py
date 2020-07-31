@@ -10,6 +10,14 @@ from tests.test_submission.test_db import clear_schema, init_user
 
 logger = logging.getLogger(__name__)
 
+"""
+    Integration tests for the submission systems, executing 4 submissions:
+    1: ID:33 Working submission, executing one benchmark on Alexent (zip + json)
+    2: ID:34 Rerunning Alexnet on another benchmark (only json)
+    3: ID:35 Failing installation submission (zip + json)
+    6: ID:36 Submission is installable, but model (Alexnet) is not scoreable (zip + json)
+"""
+
 
 class TestIntegration:
 
@@ -32,14 +40,13 @@ class TestIntegration:
         working_dir = str(tmpdir.mkdir('sub'))
         config_dir = str(os.path.join(os.path.dirname(__file__), 'configs/'))
         run_evaluation(config_dir, working_dir, 33, 'brainscore-ohio-test', models=['alexnet'],
-                       benchmarks=['dicarlo.Majaj2015.IT-pls'])
+                       benchmarks=['dicarlo.MajajHong2015.IT-pls'])
         with open('result_33.csv') as results:
             csv_reader = csv.reader(results, delimiter=',')
             next(csv_reader)  # header row
             result_row = next(csv_reader)
-            # alexnet,dicarlo.Majaj2015.IT-pls,0.5857491098187586,0.5079816726934638,0.003155449372125895
             assert result_row[0] == 'alexnet'
-            assert result_row[1] == 'dicarlo.Majaj2015.IT-pls'
+            assert result_row[1] == 'dicarlo.MajajHong2015.IT-pls'
             assert result_row[2] == '0.5857491098187586'
             assert result_row[3] == '0.5079816726934638'
             assert result_row[4] == '0.003155449372125895'
@@ -64,9 +71,8 @@ class TestIntegration:
             csv_reader = csv.reader(results, delimiter=',')
             next(csv_reader)  # header row
             result_row = next(csv_reader)
-            # alexnet,dicarlo.Majaj2015.IT-pls,0.5857491098187586,0.5079816726934638,0.003155449372125895
             assert result_row[0] == 'alexnet'
-            assert result_row[1] == 'dicarlo.Majaj2015.IT-pls'
+            assert result_row[1] == 'dicarlo.Rajalingham2018-i2n'
             assert result_row[2] == '0.5857491098187586'
             assert result_row[3] == '0.5079816726934638'
             assert result_row[4] == '0.003155449372125895'
@@ -77,12 +83,10 @@ class TestIntegration:
         exception = False
         try:
             run_evaluation(config_dir, working_dir, 35, 'brainscore-ohio-test', models=['alexnet'],
-                       benchmarks=['dicarlo.Rajalingham2018-i2n'])
+                           benchmarks=['dicarlo.Rajalingham2018-i2n'])
         except:
             exception = True
         assert exception
-
-
 
     def test_model_failure_evaluation(self, tmpdir):
         working_dir = str(tmpdir.mkdir('sub'))
@@ -95,8 +99,8 @@ class TestIntegration:
             result_row = next(csv_reader)
             assert result_row[0] == 'alexnet'
             assert result_row[1] == 'movshon.FreemanZiemba2013.V1-pls'
-            assert result_row[2] == '0.0'
-            assert result_row[3] == '0.0'
-        model = Model.get(submission=Submission.get(id=36))[0]
+            assert result_row[2] == '0'
+            assert result_row[3] == '0'
+        model = Model.select().where(submission=Submission.get(id=36))[0]
         score = Score.get(model=model)[0]
         assert score.comment is not None  # When there's a problem, the comment field contains an error message

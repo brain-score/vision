@@ -2,7 +2,6 @@ import os
 from datetime import datetime
 
 import pytest
-from _pytest import tmpdir
 
 from brainscore.submission.database import connect_db
 from brainscore.submission.evaluation import run_evaluation
@@ -32,11 +31,11 @@ def clear_schema():
 
 
 @pytest.mark.parametrize('database', ['brainscore-ohio-test', 'configs/django_generated.sqlit3'])
-def test_evaluation( database):
+def test_evaluation(database, tmpdir):
     connect_db(database)
     clear_schema()
     init_user()
-    working_dir = str(tmpdir.tmpdir('sub'))
+    working_dir = str(tmpdir.mkdir("sub"))
     config_dir = str(os.path.join(os.path.dirname(__file__), 'configs/'))
     run_evaluation(config_dir, working_dir, 33, 'brainscore-ohio-test', models=['alexnet'],
                    benchmarks=['dicarlo.Majaj2015.IT-pls'])

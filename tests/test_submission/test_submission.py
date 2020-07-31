@@ -63,13 +63,13 @@ class TestSubmission:
         assert ref2.id == ref.id
 
     def test_get_benchmark_instance(self):
-        instance = get_benchmark_instance('dicarlo.Majaj2015.V4-pls')
+        instance = get_benchmark_instance('dicarlo.MajajHong2015.V4-pls')
         type = BenchmarkType.get(identifier=instance.benchmark)
         assert instance.ceiling is not None
         assert instance.ceiling_error is not None
         assert not type.parent
         BenchmarkType.create(identifier='IT', order=3)
-        instance2 = get_benchmark_instance('dicarlo.Majaj2015.IT-pls')
+        instance2 = get_benchmark_instance('dicarlo.MajajHong2015.IT-pls')
         assert instance2.benchmark.parent.identifier == 'IT'
 
     def get_test_models(self):
@@ -89,8 +89,8 @@ class TestSubmission:
 
     def test_run_submission(self):
         model_instances, submission = self.get_test_models()
-        run_submission(base_model, model_instances, ['dicarlo.Majaj2015.IT-pls'], submission)
-        bench_inst = BenchmarkInstance.get(benchmark_type_id='dicarlo.Majaj2015.IT-pls')
+        run_submission(base_model, model_instances, ['dicarlo.MajajHong2015.IT-pls'], submission)
+        bench_inst = BenchmarkInstance.get(benchmark_type_id='dicarlo.MajajHong2015.IT-pls')
         assert not isinstance(bench_inst, list)
         assert Score.get(benchmark=bench_inst)
 

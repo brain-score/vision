@@ -30,6 +30,7 @@ requirements = [
     "jupyter",
     "pandas==0.25.3",
     "bibtexparser",
+    'peewee',
 ]
 
 setup(

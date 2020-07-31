@@ -16,7 +16,7 @@ from tests.test_submission import base_model
 from tests.test_submission.test_db import clear_schema, init_user
 
 logger = logging.getLogger(__name__)
-database = 'brainscore-1-ohio-cred'
+# database = 'brainscore-1-ohio-cred'
 database = 'brainscore-ohio-test'
 
 class TestSubmission:

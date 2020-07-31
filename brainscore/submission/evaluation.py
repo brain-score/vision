@@ -110,7 +110,6 @@ def run_submission(module, test_models, test_benchmarks, submission, jenkins_id)
                     scoreInst.error = error
                     scoreInst.score_ceiled = ceiled
                     scoreInst.score_raw = raw
-                    # scoreInst.update(end_timestamp=finished,error=error, score_ceiled=ceiled, score_raw=raw)
                     scoreInst.save()
                 except Exception as e:
                     success = False

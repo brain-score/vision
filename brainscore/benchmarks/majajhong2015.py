@@ -13,7 +13,8 @@ def _DicarloMajajHong2015Region(region, identifier_metric_suffix, similarity_met
     assembly_repetition = LazyLoad(lambda region=region: load_assembly(average_repetitions=False, region=region))
     assembly = LazyLoad(lambda region=region: load_assembly(average_repetitions=True, region=region))
     return NeuralBenchmark(identifier=f'dicarlo.MajajHong2015.{region}-{identifier_metric_suffix}', version=3,
-                           assembly=assembly, similarity_metric=similarity_metric, visual_degrees=VISUAL_DEGREES,
+                           assembly=assembly, similarity_metric=similarity_metric,
+                           visual_degrees=VISUAL_DEGREES, number_of_trials=50,
                            ceiling_func=lambda: ceiler(assembly_repetition),
                            parent=region, paper_link='http://www.jneurosci.org/content/35/39/13402.short')
 

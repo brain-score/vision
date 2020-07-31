@@ -6,8 +6,10 @@ This allows for quick local prototyping, layer commitment, etc.
 For the final model evaluation, candidate models should still be sent to www.Brain-Score.org to evaluate them on
 held-out private data.
 """
-import boto3
 import functools
+import logging
+
+import boto3
 from botocore import UNSIGNED
 from botocore.config import Config
 from botocore.exceptions import ClientError
@@ -19,8 +21,10 @@ from brainscore.metrics.ceiling import InternalConsistency
 from brainscore.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation
 from brainscore.utils import LazyLoad
 from .freemanziemba2013 import load_assembly as load_freemanziemba2013, VISUAL_DEGREES as freemanziemba2013_degrees
-from .majaj2015 import load_assembly as load_majaj2015, VISUAL_DEGREES as majaj2015_degrees
+from .majajhong2015 import load_assembly as load_majajhong2015, VISUAL_DEGREES as majajhong2015_degrees
 from .rajalingham2018 import load_assembly as load_rajalingham2018, DicarloRajalingham2018I2n
+
+_logger = logging.getLogger(__name__)
 
 
 def _standard_benchmark(identifier, load_assembly, visual_degrees, stratification_coord):
@@ -48,16 +52,16 @@ def FreemanZiembaV2PublicBenchmark():
                                visual_degrees=freemanziemba2013_degrees, stratification_coord='texture_type')
 
 
-def MajajV4PublicBenchmark():
-    return _standard_benchmark('dicarlo.Majaj2015.V4.public',
-                               load_assembly=functools.partial(load_majaj2015, region='V4', access='public'),
-                               visual_degrees=majaj2015_degrees, stratification_coord='object_name')
+def MajajHongV4PublicBenchmark():
+    return _standard_benchmark('dicarlo.MajajHong2015.V4.public',
+                               load_assembly=functools.partial(load_majajhong2015, region='V4', access='public'),
+                               visual_degrees=majajhong2015_degrees, stratification_coord='object_name')
 
 
-def MajajITPublicBenchmark():
-    return _standard_benchmark('dicarlo.Majaj2015.IT.public',
-                               load_assembly=functools.partial(load_majaj2015, region='IT', access='public'),
-                               visual_degrees=majaj2015_degrees, stratification_coord='object_name')
+def MajajHongITPublicBenchmark():
+    return _standard_benchmark('dicarlo.MajajHong2015.IT.public',
+                               load_assembly=functools.partial(load_majajhong2015, region='IT', access='public'),
+                               visual_degrees=majajhong2015_degrees, stratification_coord='object_name')
 
 
 class RajalinghamMatchtosamplePublicBenchmark(DicarloRajalingham2018I2n):
@@ -71,16 +75,13 @@ def list_public_assemblies():
     all_assemblies = brainio_collection.list_assemblies()
     public_assemblies = []
     for assembly in all_assemblies:
-        access = True
-        # https://github.com/brain-score/brainio_collection/blob/a7a1eed2afafa0988d2b9da76091b3f61942e4d1/brainio_collection/fetch.py#L208
-        assy_model = brainio_collection.assemblies.lookup_assembly(assembly)
-        for store_map in assy_model.assembly_store_maps:
-            probe_fetcher = _ProbeBotoFetcher(location=store_map.assembly_store_model.location,
-                                              unique_name=store_map.assembly_store_model.unique_name)
-            if not probe_fetcher.has_access():
-                access = False
-                break
-        if access:
+        # https://github.com/brain-score/brainio_collection/blob/7892b9ec66c9e744766c794de4b73ebdf61d585c/brainio_collection/fetch.py#L181
+        assy_model = brainio_collection.lookup.lookup_assembly(assembly)
+        if assy_model['location_type'] != 'S3':
+            _logger.warning(f"Unknown location_type in assembly {assy_model}")
+            continue
+        probe_fetcher = _ProbeBotoFetcher(location=assy_model['location'], local_filename='probe')  # filename is unused
+        if probe_fetcher.has_access():
             public_assemblies.append(assembly)
     return public_assemblies
 

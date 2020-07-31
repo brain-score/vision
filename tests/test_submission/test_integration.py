@@ -10,21 +10,22 @@ from tests.test_submission.test_db import clear_schema, init_user
 
 logger = logging.getLogger(__name__)
 
-"""
-    Integration tests for the submission systems, executing 4 submissions:
-    1: ID:33 Working submission, executing one benchmark on Alexent (zip + json)
-    2: ID:34 Rerunning Alexnet on another benchmark (only json)
-    3: ID:35 Failing installation submission (zip + json)
-    6: ID:36 Submission is installable, but model (Alexnet) is not scoreable (zip + json)
-"""
+#
+#     Integration tests for the submission systems, executing 4 submissions:
+#     1: ID:33 Working submission, executing one benchmark on Alexent (zip + json)
+#     2: ID:34 Rerunning Alexnet on another benchmark (only json)
+#     3: ID:35 Failing installation submission (zip + json)
+#     6: ID:36 Submission is installable, but model (Alexnet) is not scoreable (zip + json)
+#
 
 
 class TestIntegration:
-
+    databse = 'brainscore-ohio-test'
     @classmethod
     def setup_class(cls):
         logger.info('Connect to database')
-        connect_db('brainscore-ohio-test')
+        # connect_db('brainscore-ohio-test')
+        connect_db(TestIntegration.databse)
         clear_schema()
 
     def setup_method(self):
@@ -32,14 +33,13 @@ class TestIntegration:
         init_user()
 
     def teardown_method(self):
-        # os.rmdir(self.working_dir)
         logger.info('Clean database')
         clear_schema()
 
     def test_evaluation(self, tmpdir):
         working_dir = str(tmpdir.mkdir('sub'))
         config_dir = str(os.path.join(os.path.dirname(__file__), 'configs/'))
-        run_evaluation(config_dir, working_dir, 33, 'brainscore-ohio-test', models=['alexnet'],
+        run_evaluation(config_dir, working_dir, 33, TestIntegration.databse, models=['alexnet'],
                        benchmarks=['dicarlo.MajajHong2015.IT-pls'])
         with open('result_33.csv') as results:
             csv_reader = csv.reader(results, delimiter=',')
@@ -65,7 +65,7 @@ class TestIntegration:
         with open(f'{config_dir}submission_34.json', 'w') as rerun:
             rerun.write(f"""{{
             "model_ids": [{model.id}], "user_id": 1}}""")
-        run_evaluation(config_dir, working_dir, 34, 'brainscore-ohio-test',
+        run_evaluation(config_dir, working_dir, 34, TestIntegration.databse,
                        benchmarks=['dicarlo.Rajalingham2018-i2n'])
         with open('result_34.csv') as results:
             csv_reader = csv.reader(results, delimiter=',')
@@ -73,16 +73,16 @@ class TestIntegration:
             result_row = next(csv_reader)
             assert result_row[0] == 'alexnet'
             assert result_row[1] == 'dicarlo.Rajalingham2018-i2n'
-            assert result_row[2] == '0.5857491098187586'
-            assert result_row[3] == '0.5079816726934638'
-            assert result_row[4] == '0.003155449372125895'
+            assert result_row[2] == '0.25771746331458695'
+            assert result_row[3] == '0.3701702418190641'
+            assert result_row[4] == '0.011129032024657565'
 
     def test_failure_evaluation(self, tmpdir):
         working_dir = str(tmpdir.mkdir('sub'))
         config_dir = str(os.path.join(os.path.dirname(__file__), 'configs/'))
         exception = False
         try:
-            run_evaluation(config_dir, working_dir, 35, 'brainscore-ohio-test', models=['alexnet'],
+            run_evaluation(config_dir, working_dir, 35, TestIntegration.databse, models=['alexnet'],
                            benchmarks=['dicarlo.Rajalingham2018-i2n'])
         except:
             exception = True
@@ -91,7 +91,7 @@ class TestIntegration:
     def test_model_failure_evaluation(self, tmpdir):
         working_dir = str(tmpdir.mkdir('sub'))
         config_dir = str(os.path.join(os.path.dirname(__file__), 'configs/'))
-        run_evaluation(config_dir, working_dir, 36, 'brainscore-ohio-test', models=['alexnet'],
+        run_evaluation(config_dir, working_dir, 36, TestIntegration.databse, models=['alexnet'],
                        benchmarks=['movshon.FreemanZiemba2013.V1-pls'])
         with open('result_36.csv') as results:
             csv_reader = csv.reader(results, delimiter=',')
@@ -101,6 +101,6 @@ class TestIntegration:
             assert result_row[1] == 'movshon.FreemanZiemba2013.V1-pls'
             assert result_row[2] == '0'
             assert result_row[3] == '0'
-        model = Model.select().where(submission=Submission.get(id=36))[0]
-        score = Score.get(model=model)[0]
+        model = Model.get()
+        score = Score.get(model=model)
         assert score.comment is not None  # When there's a problem, the comment field contains an error message

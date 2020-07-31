@@ -16,13 +16,16 @@ from tests.test_submission import base_model
 from tests.test_submission.test_db import clear_schema, init_user
 
 logger = logging.getLogger(__name__)
-
+database = 'brainscore-1-ohio-cred'
+database = 'brainscore-ohio-test'
 
 class TestSubmission:
+
     @classmethod
     def setup_class(cls):
         logger.info('Connect to database')
-        connect_db('brainscore-ohio-test')
+        # connect_db()
+        connect_db(database)
         clear_schema()
 
     def setup_method(self):
@@ -89,7 +92,7 @@ class TestSubmission:
 
     def test_run_submission(self):
         model_instances, submission = self.get_test_models()
-        run_submission(base_model, model_instances, ['dicarlo.MajajHong2015.IT-pls'], submission)
+        run_submission(base_model, model_instances, ['dicarlo.MajajHong2015.IT-pls'], submission, submission.id)
         bench_inst = BenchmarkInstance.get(benchmark_type_id='dicarlo.MajajHong2015.IT-pls')
         assert not isinstance(bench_inst, list)
         assert Score.get(benchmark=bench_inst)
@@ -99,7 +102,7 @@ class TestConfig:
     @classmethod
     def setup_class(cls):
         logger.info('Connect to database')
-        connect_db('brainscore-ohio-test')
+        connect_db(database)
         clear_schema()
         init_user()
 
@@ -137,7 +140,7 @@ class TestRepository:
 
     @classmethod
     def setup_class(cls):
-        connect_db('brainscore-ohio-test')
+        connect_db(database)
         clear_schema()
         init_user()
 

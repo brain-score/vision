@@ -74,13 +74,14 @@ def run_submission(module, test_models, test_benchmarks, submission, jenkins_id)
     try:
         for modelInst in test_models:
             model_id = modelInst.name
-            model = ml_brain_pool[model_id]
             for benchmark in test_benchmarks:
-                logger.info(f"Scoring {model_id} on benchmark {benchmark}")
-                start = datetime.datetime.now()
-                bench_inst = get_benchmark_instance(benchmark)
-                scoreInst = Score.create(benchmark=bench_inst, start_timestamp=start, model=modelInst)
+                scoreInst = None
                 try:
+                    start = datetime.datetime.now()
+                    bench_inst = get_benchmark_instance(benchmark)
+                    scoreInst = Score.create(benchmark=bench_inst, start_timestamp=start, model=modelInst)
+                    logger.info(f"Scoring {model_id} on benchmark {benchmark}")
+                    model = ml_brain_pool[model_id]
                     score = score_model(model_id, benchmark, model)
                     logger.info(f'Running benchmark {benchmark} on model {model_id} produced this score: {score}')
                     if not hasattr(score, 'ceiling'):
@@ -121,8 +122,9 @@ def run_submission(module, test_models, test_benchmarks, submission, jenkins_id)
                         'raw_result': 0, 'ceiled_result': 0,
                         'error': error, 'finished_time': datetime.datetime.now()
                     })
-                    scoreInst.comment = error
-                    scoreInst.save()
+                    if scoreInst:
+                        scoreInst.comment = error
+                        scoreInst.save()
     finally:
         df = pd.DataFrame(data)
         if success:

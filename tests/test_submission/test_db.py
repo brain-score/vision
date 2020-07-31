@@ -30,15 +30,15 @@ def clear_schema():
     User.delete().execute()
 
 
-@pytest.mark.parametrize('database', ['brainscore-ohio-test', 'configs/django_generated.sqlit3'])
+@pytest.mark.parametrize('database', ['brainscore-ohio-test', 'brainscore-1-ohio-cred'])
 def test_evaluation(database, tmpdir):
     connect_db(database)
     clear_schema()
     init_user()
     working_dir = str(tmpdir.mkdir("sub"))
     config_dir = str(os.path.join(os.path.dirname(__file__), 'configs/'))
-    run_evaluation(config_dir, working_dir, 33, 'brainscore-ohio-test', models=['alexnet'],
-                   benchmarks=['dicarlo.Majaj2015.IT-pls'])
-    scores = Score.get().all()
+    run_evaluation(config_dir, working_dir, 33, database, models=['alexnet'],
+                   benchmarks=['dicarlo.MajajHong2015.IT-pls'])
+    scores = Score.select().dicts()
     assert len(scores) == 1
-    assert scores[0].comment is None  # If comment is none the score was successfully stored, otherwise there would be an error message there
+    assert scores[0]['comment'] is None  # If comment is none the score was successfully stored, otherwise there would be an error message there

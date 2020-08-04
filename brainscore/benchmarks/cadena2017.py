@@ -33,7 +33,8 @@ def ToliasCadena2017PLS():
         return ceiler(assembly_nonan)
 
     return NeuralBenchmark(identifier=identifier, version=1,
-                           assembly=assembly, similarity_metric=similarity_metric, visual_degrees=VISUAL_DEGREES,
+                           assembly=assembly, similarity_metric=similarity_metric,
+                           visual_degrees=VISUAL_DEGREES, number_of_trials=2,
                            ceiling_func=ceiling)
 
 

@@ -2,12 +2,14 @@ import numpy as np
 
 import brainscore
 from brainscore.benchmarks import BenchmarkBase, ceil_score
+from brainscore.benchmarks.screen import place_on_screen
+from brainscore.benchmarks.trials import repeat_trials, average_trials
 from brainscore.metrics import Score
 from brainscore.metrics.ost import OSTCorrelation
 from brainscore.model_interface import BrainModel
-from brainscore.benchmarks.screen import place_on_screen
 
 VISUAL_DEGREES = 8
+
 
 class DicarloKar2019OST(BenchmarkBase):
     def __init__(self):
@@ -30,14 +32,18 @@ class DicarloKar2019OST(BenchmarkBase):
         self._assembly.stimulus_set['truth'] = self._assembly.stimulus_set['image_label']
 
         self._similarity_metric = OSTCorrelation()
-        self._visual_degrees=VISUAL_DEGREES
+        self._visual_degrees = VISUAL_DEGREES
+        self._number_of_trials = 44
+
 
     def __call__(self, candidate: BrainModel):
         time_bins = [(time_bin_start, time_bin_start + 10) for time_bin_start in range(70, 250, 10)]
         candidate.start_recording('IT', time_bins=time_bins)
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
+        stimulus_set = repeat_trials(stimulus_set, number_of_trials=self._number_of_trials)
         recordings = candidate.look_at(stimulus_set)
+        recordings = average_trials(recordings)
         score = self._similarity_metric(recordings, self._assembly)
         score = ceil_score(score, self.ceiling)
         return score

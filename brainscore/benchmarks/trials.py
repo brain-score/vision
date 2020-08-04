@@ -3,7 +3,7 @@ import copy
 import numpy as np
 import pandas as pd
 
-from brainio_base.assemblies import walk_coords
+from brainio_base.assemblies import walk_coords, array_is_element
 
 
 def repeat_trials(stimulus_set, number_of_trials):
@@ -29,7 +29,7 @@ def repeat_trials(stimulus_set, number_of_trials):
 
 def average_trials(assembly):
     non_repetition_coords = [coord for coord, dim, values in walk_coords(assembly['presentation'])
-                             if coord != 'repetition']
+                             if array_is_element(dim, 'presentation') and coord != 'repetition']
     grouped = assembly.multi_groupby(non_repetition_coords)
     if np.issubdtype(assembly.dtype, np.number):
         return grouped.mean('presentation')

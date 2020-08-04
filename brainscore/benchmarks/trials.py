@@ -10,7 +10,8 @@ def repeat_trials(stimulus_set, number_of_trials):
     # maintain metadata
     assert not hasattr(stimulus_set, 'repetition')
     meta = {meta_key: copy.deepcopy(getattr(stimulus_set, meta_key)) for meta_key in stimulus_set._metadata
-            if not callable(getattr(stimulus_set, meta_key))}  # don't copy functions
+            if hasattr(stimulus_set, meta_key)  # e.g. identifier might not be set
+            and not callable(getattr(stimulus_set, meta_key))}  # don't copy functions
     # repeat stimulus set
     num_stimuli = len(stimulus_set)
     assert isinstance(number_of_trials, int)

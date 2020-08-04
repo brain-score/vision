@@ -267,6 +267,7 @@ class TestVisualDegrees:
 
 
 class TestNumberOfTrials:
+    @pytest.mark.private_access
     @pytest.mark.parametrize('benchmark_identifier', evaluation_benchmark_pool.keys())
     def test_repetitions(self, benchmark_identifier):
         """ Tests that all evaluation benchmarks have repetitions in the stimulus_set """

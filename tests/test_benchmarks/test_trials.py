@@ -32,7 +32,7 @@ def test_integer_repeat():
     assert repeat_stimulus_set.identifier == 'dummy-5trials'
 
 
-def test_average_trials():
+def test_average_neural_trials():
     assembly = NeuroidAssembly([[1, 2, 3],
                                 [2, 3, 4],
                                 [3, 4, 5],
@@ -56,3 +56,24 @@ def test_average_trials():
     np.testing.assert_array_equal(averaged_assembly.sel(image_id='b').values, [[3.5, 4.5, 5.5]])
     np.testing.assert_array_equal(averaged_assembly.sel(image_id='c').values, [[5.5, 6.5, 7.5]])
     np.testing.assert_array_equal(averaged_assembly.sel(image_id='d').values, [[7.5, 8.5, 9.5]])
+
+
+def test_average_label_trials():
+    assembly = NeuroidAssembly([['a'],
+                                ['a'],
+                                ['a'],
+                                ['b'],
+                                ['b'],
+                                ['a'],
+                                ],
+                               coords={'image_id': ('presentation', ['a', 'a', 'a', 'b', 'b', 'b']),
+                                       'repetition': ('presentation', [0, 1, 2, 0, 1, 2]),
+                                       'presentation_dummy': ('presentation', ['x'] * 6),
+                                       'choice': ('choice', ['dummy'])},
+                               dims=['presentation', 'choice'])
+    averaged_assembly = average_trials(assembly)
+    assert len(averaged_assembly['choice']) == 1, "messed up dimension"
+    assert len(averaged_assembly['presentation']) == 2
+    assert set(averaged_assembly['image_id'].values) == {'a', 'b'}
+    np.testing.assert_array_equal(averaged_assembly.sel(image_id='a').values, [['a']])
+    np.testing.assert_array_equal(averaged_assembly.sel(image_id='b').values, [['b']])

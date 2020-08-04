@@ -31,6 +31,7 @@ requirements = [
     "pandas==0.25.3",
     "bibtexparser",
     'peewee',
+    'psycopg2'
 ]
 
 setup(

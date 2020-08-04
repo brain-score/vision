@@ -3,12 +3,12 @@ import numpy as np
 from brainio_base.assemblies import array_is_element, walk_coords
 from brainscore.benchmarks import BenchmarkBase, ceil_score
 from brainscore.benchmarks.screen import place_on_screen
-from brainscore.benchmarks.trials import infer_trials_from_parameter_or_assembly, repeat_trials, average_trials
+from brainscore.benchmarks.trials import repeat_trials, average_trials
 from brainscore.model_interface import BrainModel
 
 
 class NeuralBenchmark(BenchmarkBase):
-    def __init__(self, identifier, assembly, similarity_metric, visual_degrees, number_of_trials=None, **kwargs):
+    def __init__(self, identifier, assembly, similarity_metric, visual_degrees, number_of_trials, **kwargs):
         super(NeuralBenchmark, self).__init__(identifier=identifier, **kwargs)
         self._assembly = assembly
         self._similarity_metric = similarity_metric
@@ -18,7 +18,7 @@ class NeuralBenchmark(BenchmarkBase):
         timebins = timebins_from_assembly(self._assembly)
         self.timebins = timebins
         self._visual_degrees = visual_degrees
-        self._number_of_trials = infer_trials_from_parameter_or_assembly(number_of_trials, assembly)
+        self._number_of_trials = number_of_trials
 
     def __call__(self, candidate: BrainModel):
         candidate.start_recording(self.region, time_bins=self.timebins)

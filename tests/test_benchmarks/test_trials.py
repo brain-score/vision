@@ -1,5 +1,8 @@
+import numpy as np
+
+from brainio_base.assemblies import NeuroidAssembly
 from brainio_base.stimuli import StimulusSet
-from brainscore.benchmarks.trials import repeat_trials
+from brainscore.benchmarks.trials import repeat_trials, average_trials
 
 
 def _dummy_stimulus_set():
@@ -29,9 +32,27 @@ def test_integer_repeat():
     assert repeat_stimulus_set.identifier == 'dummy-5trials'
 
 
-def test_per_image_repeat():
-    pass
-
-
 def test_average_trials():
-    pass
+    assembly = NeuroidAssembly([[1, 2, 3],
+                                [2, 3, 4],
+                                [3, 4, 5],
+                                [4, 5, 6],
+                                [5, 6, 7],
+                                [6, 7, 8],
+                                [7, 8, 9],
+                                [8, 9, 10]],
+                               coords={'image_id': ('presentation', ['a', 'a', 'b', 'b', 'c', 'c', 'd', 'd']),
+                                       'repetition': ('presentation', [0, 1, 0, 1, 0, 1, 0, 1]),
+                                       'presentation_dummy': ('presentation', ['x'] * 8),
+                                       'neuroid_id': ('neuroid', [0, 1, 2]),
+                                       'region': ('neuroid', ['IT', 'IT', 'IT'])},
+                               dims=['presentation', 'neuroid'])
+    averaged_assembly = average_trials(assembly)
+    assert len(averaged_assembly['neuroid']) == 3, "messed up neuroids"
+    assert len(averaged_assembly['presentation']) == 4
+    assert set(averaged_assembly['image_id'].values) == {'a', 'b', 'c', 'd'}
+    np.testing.assert_array_equal(averaged_assembly['neuroid_id'].values, assembly['neuroid_id'].values)
+    np.testing.assert_array_equal(averaged_assembly.sel(image_id='a').values, [[1.5, 2.5, 3.5]])
+    np.testing.assert_array_equal(averaged_assembly.sel(image_id='b').values, [[3.5, 4.5, 5.5]])
+    np.testing.assert_array_equal(averaged_assembly.sel(image_id='c').values, [[5.5, 6.5, 7.5]])
+    np.testing.assert_array_equal(averaged_assembly.sel(image_id='d').values, [[7.5, 8.5, 9.5]])

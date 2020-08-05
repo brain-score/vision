@@ -30,7 +30,6 @@ class TestIntegration:
     @classmethod
     def setup_class(cls):
         logger.info('Connect to database')
-        # connect_db('brainscore-ohio-test')
         connect_db(TestIntegration.databse)
         clear_schema()
 

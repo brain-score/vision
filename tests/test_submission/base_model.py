@@ -9,7 +9,7 @@ from model_tools.activations.pytorch import load_preprocess_images
 
 # Attention: It is important, that the wrapper identifier is unique per model!
 # The results will otherwise be the same due to brain-scores internal result caching mechanism.
-# Please load your pytorch model for usage in CPU. There won't be GPU's available for scoring your model.
+# Please load your pytorch model for usage in CPU. There won't be GPUs available for scoring your model.
 # If the model requires a GPU, contact the brain-score team directly.
 from model_tools.check_submission import check_models
 

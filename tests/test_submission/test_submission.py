@@ -19,6 +19,7 @@ from tests.test_submission.test_db import clear_schema, init_user
 logger = logging.getLogger(__name__)
 database = 'brainscore-ohio-test'
 
+
 @pytest.mark.memory_intense
 @pytest.mark.private_access
 class TestSubmission:
@@ -26,7 +27,6 @@ class TestSubmission:
     @classmethod
     def setup_class(cls):
         logger.info('Connect to database')
-        # connect_db()
         connect_db(database)
         clear_schema()
 
@@ -148,7 +148,7 @@ class TestRepository:
 
     @classmethod
     def tear_down_class(cls):
-       clear_schema()
+        clear_schema()
 
     def setup_method(self):
         tmpdir = tempfile.mkdtemp()
@@ -156,7 +156,6 @@ class TestRepository:
 
     def tear_down_method(self):
         os.rmdir(TestRepository.working_dir)
-        # tmpdir.ensure_reset_dir(TestRepository.working_dir)
 
     def test_prepare_module(self):
         config = BaseConfig(TestRepository.working_dir, 33, '', TestRepository.config_dir)
@@ -173,14 +172,14 @@ class TestRepository:
         assert str(path) == f'{TestRepository.working_dir}/candidate_models'
 
     def test_find_correct_dir(self):
-        f1 = open(f'{TestRepository.working_dir}/.temp',"w+")
-        f2 = open(f'{TestRepository.working_dir}/_MACOS',"w+")
-        f3 = open(f'{TestRepository.working_dir}/candidate_models',"w+")
+        f1 = open(f'{TestRepository.working_dir}/.temp', "w+")
+        f2 = open(f'{TestRepository.working_dir}/_MACOS', "w+")
+        f3 = open(f'{TestRepository.working_dir}/candidate_models', "w+")
         dir = find_correct_dir(TestRepository.working_dir)
-        assert  dir == 'candidate_models'
+        assert dir == 'candidate_models'
         exception = False
         try:
-            f4 = open(f'{TestRepository.working_dir}/candidate_models2',"w+")
+            f4 = open(f'{TestRepository.working_dir}/candidate_models2', "w+")
             dir = find_correct_dir(TestRepository.working_dir)
         except:
             exception = True

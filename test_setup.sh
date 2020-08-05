@@ -7,3 +7,5 @@ for f in alexnet-freemanziemba2013.aperture-private.pkl alexnet-majaj2015.privat
 do
   aws --no-sign-request s3 cp s3://brain-score-tests/tests/test_benchmarks/${f} ${SCRIPT_DIR}/tests/test_benchmarks/
 done
+
+pip install https://github.com/brain-score/model-tools

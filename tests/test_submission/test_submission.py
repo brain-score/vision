@@ -99,7 +99,8 @@ class TestSubmission:
         assert not isinstance(bench_inst, list)
         assert Score.get(benchmark=bench_inst)
 
-
+@pytest.mark.memory_intense
+@pytest.mark.private_access
 class TestConfig:
     @classmethod
     def setup_class(cls):
@@ -135,7 +136,8 @@ class TestConfig:
         assert len(submission_config.models) == 1
         assert submission_config.models[0].name == 'alexnet'
 
-
+@pytest.mark.memory_intense
+@pytest.mark.private_access
 class TestRepository:
     working_dir = None
     config_dir = str(os.path.join(os.path.dirname(__file__), 'configs/'))

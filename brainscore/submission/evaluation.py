@@ -37,6 +37,7 @@ def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
         # We rerun existing models, which potentially are defined in different submissions
         for submission in submission_config.submissions.values():
             module = prepare_module(submission, submission_config)
+            logger.info('Successfully installed repository')
             models = []
             for model in submission_config.models:
                 if model.submission.id == submission.id:
@@ -47,9 +48,11 @@ def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
         submission = submission_config.submission
         try:
             module = prepare_module(submission, submission_config)
+            logger.info('Successfully installed repository')
             test_models = module.get_model_list() if models is None or len(models) == 0 else models
             assert len(test_models) > 0
             model_instances = []
+            logger.info(f'Create model instances')
             for model in test_models:
                 reference = None
                 if hasattr(module, 'get_bibtex'):
@@ -128,8 +131,10 @@ def run_submission(module, test_models, test_benchmarks, submission, jenkins_id)
         df = pd.DataFrame(data)
         if success:
             submission.status = 'success'
+            logger.info(f'Submission is stored as successful')
         else:
             submission.status = 'failure'
+            logger.info(f'Submission was not entirely successful (some benchmarks could not be executed)')
         submission.save()
         # This is the result file we send to the user after the scoring process is done
         df.to_csv(f'result_{jenkins_id}.csv', index=None, header=True)

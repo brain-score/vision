@@ -4,26 +4,25 @@ import subprocess
 import sys
 import zipfile
 from importlib import import_module
-
-import git
-
-from brainscore.submission.configuration import SubmissionConfig, BaseConfig
 from pathlib import Path
 
+from brainscore.submission.configuration import BaseConfig
 from brainscore.submission.models import Submission
 
 logger = logging.getLogger(__name__)
 
 
-def prepare_module(submission:Submission, config:BaseConfig):
+def prepare_module(submission: Submission, config: BaseConfig):
     config_path = config.config_path
     logger.info('Start executing models in repo submission_%s' % submission.id)
     repo = extract_zip_file(submission.id, config_path, config.work_dir)
     package = 'models.brain_models' if submission.model_type == 'BrainModel' else 'models.base_models'
+    logger.info(f'We work with {submission.model_type} and access {package} in the submission folder')
     return install_project(repo, package)
 
 
 def extract_zip_file(id, config_path, work_dir):
+    logger.info(f'Unpack zip file')
     zip_file = Path('%s/submission_%s.zip' % (config_path, id))
     with zipfile.ZipFile(zip_file, 'r') as model_repo:
         model_repo.extractall(path=str(work_dir))
@@ -48,6 +47,7 @@ def find_correct_dir(work_dir):
 
 
 def install_project(repo, package):
+    logger.info('Start installing submitted the repository')
     try:
         assert 0 == subprocess.call([sys.executable, "-m", "pip", "install", "-v", repo], env=os.environ)
         sys.path.insert(1, str(repo))
@@ -55,3 +55,7 @@ def install_project(repo, package):
         return import_module(package)
     except ImportError:
         return __import__(package)
+
+
+def deinstall_project(repo):
+    assert 0 == subprocess.call([sys.executable, "-m", "pip", "uninstall", "-v", repo], env=os.environ)

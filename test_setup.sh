@@ -9,3 +9,4 @@ do
 done
 
 pip install git+https://github.com/brain-score/model-tools --no-deps
+pip install torch torchvision

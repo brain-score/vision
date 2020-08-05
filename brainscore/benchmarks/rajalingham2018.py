@@ -20,7 +20,6 @@ class DicarloRajalingham2018I2n(BenchmarkBase):
             identifier='dicarlo.Rajalingham2018-i2n', version=2,
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
             parent='behavior',
-            paper_link='https://www.biorxiv.org/content/early/2018/02/12/240614',
             bibtex="""@article {Rajalingham240614,
                 author = {Rajalingham, Rishi and Issa, Elias B. and Bashivan, Pouya and Kar, Kohitij and Schmidt, Kailyn and DiCarlo, James J.},
                 title = {Large-scale, high-resolution comparison of the core visual object recognition behavior of humans, monkeys, and state-of-the-art deep artificial neural networks},

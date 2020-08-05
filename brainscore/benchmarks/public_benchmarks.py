@@ -37,7 +37,6 @@ def _standard_benchmark(identifier, load_assembly, visual_degrees, stratificatio
     return NeuralBenchmark(identifier=f"{identifier}-pls", version=1,
                            assembly=assembly, similarity_metric=similarity_metric, visual_degrees=visual_degrees,
                            ceiling_func=lambda: ceiler(assembly_repetition),
-                           parent=None, paper_link='http://www.jneurosci.org/content/35/39/13402.short',
                            bibtex= """@article {Majaj13402,
                                 author = {Majaj, Najib J. and Hong, Ha and Solomon, Ethan A. and DiCarlo, James J.},
                                 title = {Simple Learned Weighted Sums of Inferior Temporal Neuronal Firing Rates Accurately Predict Human Core Object Recognition Performance},

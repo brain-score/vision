@@ -16,7 +16,6 @@ class DicarloKar2019OST(BenchmarkBase):
         super(DicarloKar2019OST, self).__init__(identifier='dicarlo.Kar2019-ost', version=2,
                                                 ceiling_func=lambda: ceiling,
                                                 parent='IT-temporal',
-                                                paper_link='https://www.nature.com/articles/s41593-019-0392-5',
                                                 bibtex= """@Article{Kar2019,
                                                     author={Kar, Kohitij
                                                     and Kubilius, Jonas

@@ -4,6 +4,8 @@ import math
 import os
 from datetime import datetime
 
+import pytest
+
 from brainscore.submission.database import connect_db
 from brainscore.submission.evaluation import run_evaluation
 from brainscore.submission.models import Score, Model, Submission
@@ -20,7 +22,8 @@ logger = logging.getLogger(__name__)
 #     4: ID:36 Submission is installable, but model (Alexnet) is not scoreable (zip + json)
 #
 
-
+@pytest.mark.memory_intense
+@pytest.mark.private_access
 class TestIntegration:
     databse = 'brainscore-ohio-test'
 

@@ -17,7 +17,6 @@ def _MovshonFreemanZiemba2013Region(region, identifier_metric_suffix, similarity
                            assembly=assembly, similarity_metric=similarity_metric, visual_degrees=VISUAL_DEGREES,
                            ceiling_func=lambda: ceiler(assembly_repetition),
                            parent=region,
-                           paper_link='https://www.nature.com/articles/nn.3402',
                            bibtex="""﻿@Article{Freeman2013,
                                 author={Freeman, Jeremy
                                 and Ziemba, Corey M.

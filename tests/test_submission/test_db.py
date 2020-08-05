@@ -30,6 +30,8 @@ def clear_schema():
     User.delete().execute()
 
 
+@pytest.mark.memory_intense
+@pytest.mark.private_access
 @pytest.mark.parametrize('database', ['brainscore-ohio-test', 'brainscore-1-ohio-cred'])
 def test_evaluation(database, tmpdir):
     connect_db(database)
@@ -41,4 +43,5 @@ def test_evaluation(database, tmpdir):
                    benchmarks=['dicarlo.MajajHong2015.IT-pls'])
     scores = Score.select().dicts()
     assert len(scores) == 1
-    assert scores[0]['comment'] is None  # If comment is none the score was successfully stored, otherwise there would be an error message there
+    assert scores[0][
+               'comment'] is None  # If comment is none the score was successfully stored, otherwise there would be an error message there

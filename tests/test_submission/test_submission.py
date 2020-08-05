@@ -3,6 +3,7 @@ import os
 import tempfile
 from datetime import datetime
 
+import pytest
 from _pytest import tmpdir
 
 from brainscore.submission.configuration import object_decoder, BaseConfig
@@ -16,9 +17,10 @@ from tests.test_submission import base_model
 from tests.test_submission.test_db import clear_schema, init_user
 
 logger = logging.getLogger(__name__)
-# database = 'brainscore-1-ohio-cred'
 database = 'brainscore-ohio-test'
 
+@pytest.mark.memory_intense
+@pytest.mark.private_access
 class TestSubmission:
 
     @classmethod

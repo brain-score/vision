@@ -15,7 +15,7 @@ def _DicarloMajajHong2015Region(region, identifier_metric_suffix, similarity_met
     return NeuralBenchmark(identifier=f'dicarlo.MajajHong2015.{region}-{identifier_metric_suffix}', version=3,
                            assembly=assembly, similarity_metric=similarity_metric, visual_degrees=VISUAL_DEGREES,
                            ceiling_func=lambda: ceiler(assembly_repetition),
-                           parent=region, paper_link='http://www.jneurosci.org/content/35/39/13402.short', bibtex =
+                           bibtex =
                            """@article {Majaj13402,
                                 author = {Majaj, Najib J. and Hong, Ha and Solomon, Ethan A. and DiCarlo, James J.},
                                 title = {Simple Learned Weighted Sums of Inferior Temporal Neuronal Firing Rates Accurately Predict Human Core Object Recognition Performance},

@@ -58,4 +58,8 @@ def install_project(repo, package):
 
 
 def deinstall_project(module):
+    if 'models.brain_models' in sys.modules:
+        del sys.modules['models.brain_models']
+    if 'models.base_models' in sys.modules:
+        del sys.modules['models.base_models']
     subprocess.call([sys.executable, "-m", "pip", "uninstall", "-y", "-v", module], env=os.environ)

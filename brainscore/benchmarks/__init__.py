@@ -88,11 +88,11 @@ class BenchmarkBase(Benchmark):
         self._ceiling_func = ceiling_func
         self._version = version
         self.parent = parent
-        self.bibtex = bibtex
+        self._bibtex = bibtex
 
     @property
     def bibtex(self):
-        return self.bibtex
+        return self._bibtex
 
     @property
     def identifier(self):

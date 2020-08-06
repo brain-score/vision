@@ -24,7 +24,7 @@ class MultiConfig(BaseConfig):
     """
 
     def __init__(self, model_ids, **kwargs):
-        super(MultiConfig, self).__init__(self, **kwargs)
+        super(MultiConfig, self).__init__(**kwargs)
         self.models = []
         self.submission_entries = {}
         for id in model_ids:
@@ -41,7 +41,7 @@ class SubmissionConfig(BaseConfig):
     """
 
     def __init__(self, model_type, user_id, jenkins_id, public, **kwargs):
-        super(SubmissionConfig, self).__init__(self, jenkins_id=jenkins_id, **kwargs)
+        super(SubmissionConfig, self).__init__(jenkins_id=jenkins_id, **kwargs)
         self.submission = Submission.create(id=jenkins_id, submitter=user_id, timestamp=datetime.datetime.now(),
                                             model_type=model_type, status='running')
         self.public = public

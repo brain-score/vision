@@ -94,7 +94,7 @@ class TestSubmission:
 
     def test_run_submission(self):
         model_instances, submission = self.get_test_models()
-        run_submission(base_model, model_instances, ['dicarlo.MajajHong2015.IT-pls'], submission, submission.id)
+        run_submission(base_model, model_instances, ['dicarlo.MajajHong2015.IT-pls'], submission)
         bench_inst = BenchmarkInstance.get(benchmark_type_id='dicarlo.MajajHong2015.IT-pls')
         assert not isinstance(bench_inst, list)
         assert Score.get(benchmark=bench_inst)
@@ -163,10 +163,11 @@ class TestRepository:
         config = BaseConfig(TestRepository.working_dir, 33, '', TestRepository.config_dir)
         submission = Submission.create(id=33, submitter=1, timestamp=datetime.now(),
                                        model_type='BaseModel', status='running')
-        module = prepare_module(submission, config)
+        module, repo = prepare_module(submission, config)
         assert hasattr(module, 'get_model_list')
         assert hasattr(module, 'get_model')
         assert hasattr(module, 'get_bibtex')
+        assert repo == 'candidate_models'
         assert module.get_model('alexnet') is not None
 
     def test_extract_zip_file(self):

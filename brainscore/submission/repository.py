@@ -18,7 +18,7 @@ def prepare_module(submission: Submission, config: BaseConfig):
     repo = extract_zip_file(submission.id, config_path, config.work_dir)
     package = 'models.brain_models' if submission.model_type == 'BrainModel' else 'models.base_models'
     logger.info(f'We work with {submission.model_type} and access {package} in the submission folder')
-    return install_project(repo, package)
+    return install_project(repo, package), os.path.basename(repo)
 
 
 def extract_zip_file(id, config_path, work_dir):
@@ -50,12 +50,12 @@ def install_project(repo, package):
     logger.info('Start installing submitted the repository')
     try:
         assert 0 == subprocess.call([sys.executable, "-m", "pip", "install", "-v", repo], env=os.environ)
-        sys.path.insert(1, str(repo))
+        sys.path.insert(0, str(repo))
         logger.info(f'System paths {sys.path}')
         return import_module(package)
     except ImportError:
         return __import__(package)
 
 
-def deinstall_project(repo):
-    assert 0 == subprocess.call([sys.executable, "-m", "pip", "uninstall", "-v", repo], env=os.environ)
+def deinstall_project(module):
+    subprocess.call([sys.executable, "-m", "pip", "uninstall", "-y", "-v", module], env=os.environ)

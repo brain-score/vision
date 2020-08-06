@@ -13,7 +13,7 @@ from brainscore.submission.configuration import object_decoder, MultiConfig
 from brainscore.submission.database import connect_db
 from brainscore.submission.ml_pool import MLBrainPool, ModelLayers
 from brainscore.submission.models import Model, Score, BenchmarkInstance, BenchmarkType, Reference
-from brainscore.submission.repository import prepare_module
+from brainscore.submission.repository import prepare_module, deinstall_project
 from brainscore.utils import LazyLoad
 
 logger = logging.getLogger(__name__)
@@ -33,21 +33,33 @@ def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
 
     logger.info(f'Run with following configurations: {str(configs)}')
     test_benchmarks = all_benchmarks_list if benchmarks is None or len(benchmarks) == 0 else benchmarks
+    data = []
     if isinstance(submission_config, MultiConfig):
         # We rerun existing models, which potentially are defined in different submissions
         for submission in submission_config.submissions.values():
-            module = prepare_module(submission, submission_config)
-            logger.info('Successfully installed repository')
-            models = []
-            for model in submission_config.models:
-                if model.submission.id == submission.id:
-                    models.append(model)
-            assert len(models) > 0
-            run_submission(module, models, test_benchmarks, submission, submission_config.jenkins_id)
+            repo = None
+            try:
+                module, repo = prepare_module(submission, submission_config)
+                logger.info('Successfully installed repository')
+                models = []
+                for model in submission_config.models:
+                    if model.submission.id == submission.id:
+                        models.append(model)
+                assert len(models) > 0
+                sub_data = run_submission(module, models, test_benchmarks, submission)
+                data = data + sub_data
+                deinstall_project(repo)
+            except Exception as e:
+                if repo is not None:
+                    deinstall_project(repo)
+                logging.error(f'Could not install submission because of following error')
+                logging.error(e, exc_info=True)
+                raise e
     else:
         submission = submission_config.submission
+        repo = None
         try:
-            module = prepare_module(submission, submission_config)
+            module, repo = prepare_module(submission, submission_config)
             logger.info('Successfully installed repository')
             test_models = module.get_model_list() if models is None or len(models) == 0 else models
             assert len(test_models) > 0
@@ -61,16 +73,22 @@ def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
                 model_instances.append(
                     Model.create(name=model, owner=submission.submitter, public=submission_config.public,
                                  reference=reference, submission=submission))
-            run_submission(module, model_instances, test_benchmarks, submission, submission.id)
+            data = run_submission(module, model_instances, test_benchmarks, submission)
+            deinstall_project(repo)
         except Exception as e:
+            if repo is not None:
+                deinstall_project(repo)
             submission.status = 'failure'
             submission.save()
             logging.error(f'Could not install submission because of following error')
             logging.error(e, exc_info=True)
             raise e
+    df = pd.DataFrame(data)
+    # This is the result file we send to the user after the scoring process is done
+    df.to_csv(f'result_{jenkins_id}.csv', index=None, header=True)
 
 
-def run_submission(module, test_models, test_benchmarks, submission, jenkins_id):
+def run_submission(module, test_models, test_benchmarks, submission):
     ml_brain_pool = get_ml_pool(test_models, module, submission)
     data = []
     success = True
@@ -82,6 +100,7 @@ def run_submission(module, test_models, test_benchmarks, submission, jenkins_id)
                 try:
                     start = datetime.datetime.now()
                     bench_inst = get_benchmark_instance(benchmark)
+                    assert Score.get_or_none(benchmark=bench_inst, model=modelInst) is None
                     scoreInst = Score.create(benchmark=bench_inst, start_timestamp=start, model=modelInst)
                     logger.info(f"Scoring {model_id} on benchmark {benchmark}")
                     model = ml_brain_pool[model_id]
@@ -128,7 +147,6 @@ def run_submission(module, test_models, test_benchmarks, submission, jenkins_id)
                         scoreInst.comment = error
                         scoreInst.save()
     finally:
-        df = pd.DataFrame(data)
         if success:
             submission.status = 'success'
             logger.info(f'Submission is stored as successful')
@@ -136,8 +154,7 @@ def run_submission(module, test_models, test_benchmarks, submission, jenkins_id)
             submission.status = 'failure'
             logger.info(f'Submission was not entirely successful (some benchmarks could not be executed)')
         submission.save()
-        # This is the result file we send to the user after the scoring process is done
-        df.to_csv(f'result_{jenkins_id}.csv', index=None, header=True)
+        return data
 
 
 def get_ml_pool(test_models, module, submission):

@@ -97,7 +97,7 @@ class TestIntegration:
         assert exception
 
     def test_model_failure_evaluation(self, tmpdir):
-        os.environ['RESULTCACHING_DISABLE'] = 'brainscore.score_model,model_tools'
+        # os.environ['RESULTCACHING_DISABLE'] = 'brainscore.score_model,model_tools'
         working_dir = str(tmpdir.mkdir('sub'))
         config_dir = str(os.path.join(os.path.dirname(__file__), 'configs/'))
         run_evaluation(config_dir, working_dir, 36, TestIntegration.databse, models=['alexnet'],
@@ -113,4 +113,4 @@ class TestIntegration:
         model = Model.get()
         score = Score.get(model=model)
         assert score.comment is not None  # When there's a problem, the comment field contains an error message
-        os.environ['RESULTCACHING_DISABLE'] = '0'
+        # os.environ['RESULTCACHING_DISABLE'] = '0'

@@ -129,7 +129,7 @@ class TestPrecomputed:
         ('dicarlo.MajajHong2015.IT-pls', approx(.584053, abs=.005)),
     ])
     def test_MajajHong2015(self, benchmark, expected):
-        self.run_test(benchmark=benchmark, file='alexnet-MajajHong2015.private-features.12.pkl', expected=expected)
+        self.run_test(benchmark=benchmark, file='alexnet-majaj2015.private-features.12.pkl', expected=expected)
 
     def run_test(self, benchmark, file, expected):
         benchmark = benchmark_pool[benchmark]

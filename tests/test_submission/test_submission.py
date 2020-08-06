@@ -94,7 +94,7 @@ class TestSubmission:
 
     def test_run_submission(self):
         model_instances, submission = self.get_test_models()
-        run_submission(base_model, model_instances, ['dicarlo.MajajHong2015.IT-pls'], submission)
+        run_submission(base_model, model_instances, test_benchmarks=['dicarlo.MajajHong2015.IT-pls'], submission_entry=submission)
         bench_inst = BenchmarkInstance.get(benchmark_type_id='dicarlo.MajajHong2015.IT-pls')
         assert not isinstance(bench_inst, list)
         assert Score.get(benchmark=bench_inst)

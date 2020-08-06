@@ -179,9 +179,9 @@ def get_ml_pool(test_models, module, submission):
     return ml_brain_pool
 
 
-def get_benchmark_instance(benchmark):
-    benchmark = benchmark_pool[benchmark]
-    benchmark_type, created = BenchmarkType.get_or_create(identifier=benchmark, order=999)
+def get_benchmark_instance(benchmark_name):
+    benchmark = benchmark_pool[benchmark_name]
+    benchmark_type, created = BenchmarkType.get_or_create(identifier=benchmark_name, order=999)
     if created:
         try:
             parent = BenchmarkType.get(identifier=benchmark.parent)
@@ -189,7 +189,7 @@ def get_benchmark_instance(benchmark):
             benchmark_type.save()
         except DoesNotExist:
             logger.error(
-                f'Couldn\'t connect benchmark {benchmark} to parent {benchmark.parent} since parent doesn\'t exist')
+                f'Couldn\'t connect benchmark {benchmark_name} to parent {benchmark.parent} since parent doesn\'t exist')
         if hasattr(benchmark, 'bibtex') and benchmark.bibtex is not None:
             bibtex_string = benchmark.bibtex
             benchmark_type.reference = get_reference(bibtex_string)

@@ -20,8 +20,7 @@ BIBTEX = """@article {Majaj13402,
             issn = {0270-6474},
             URL = {https://www.jneurosci.org/content/35/39/13402},
             eprint = {https://www.jneurosci.org/content/35/39/13402.full.pdf},
-            journal = {Journal of Neuroscience}
-        }"""
+            journal = {Journal of Neuroscience}}"""
 
 
 def _DicarloMajajHong2015Region(region, identifier_metric_suffix, similarity_metric, ceiler):

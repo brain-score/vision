@@ -55,6 +55,9 @@ def install_project(repo, package):
         return import_module(package)
     except ImportError:
         return __import__(package)
+    except AssertionError as e:
+        logger.error('Installation of submitted models failed!')
+        raise e
 
 
 def deinstall_project(module):

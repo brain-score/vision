@@ -132,7 +132,7 @@ class TestConfig:
             "user_id": 1
         }
         submission_config = object_decoder(config, 'work_dir', 'config_path', 'db_secret', 33)
-        assert len(submission_config.submissions) == 1
+        assert len(submission_config.submission_entries) == 1
         assert len(submission_config.models) == 1
         assert submission_config.models[0].name == 'alexnet'
 

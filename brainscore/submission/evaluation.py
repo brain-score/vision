@@ -36,17 +36,17 @@ def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
     data = []
     if isinstance(submission_config, MultiConfig):
         # We rerun existing models, which potentially are defined in different submissions
-        for submission in submission_config.submissions.values():
+        for submission_entry in submission_config.submission_entries.values():
             repo = None
             try:
-                module, repo = prepare_module(submission, submission_config)
+                module, repo = prepare_module(submission_entry, submission_config)
                 logger.info('Successfully installed repository')
                 models = []
-                for model in submission_config.models:
-                    if model.submission.id == submission.id:
-                        models.append(model)
+                for model_entry in submission_config.models:
+                    if model_entry.submission.id == submission_entry.id:
+                        models.append(model_entry)
                 assert len(models) > 0
-                sub_data = run_submission(module, models, test_benchmarks, submission)
+                sub_data = run_submission(module, models, test_benchmarks, submission_entry)
                 data = data + sub_data
                 deinstall_project(repo)
             except Exception as e:
@@ -56,30 +56,30 @@ def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
                 logging.error(e, exc_info=True)
                 raise e
     else:
-        submission = submission_config.submission
+        submission_entry = submission_config.submission
         repo = None
         try:
-            module, repo = prepare_module(submission, submission_config)
+            module, repo = prepare_module(submission_entry, submission_config)
             logger.info('Successfully installed repository')
             test_models = module.get_model_list() if models is None or len(models) == 0 else models
             assert len(test_models) > 0
-            model_instances = []
+            model_entries = []
             logger.info(f'Create model instances')
-            for model in test_models:
+            for model_name in test_models:
                 reference = None
                 if hasattr(module, 'get_bibtex'):
-                    bibtex_string = module.get_bibtex(model)
+                    bibtex_string = module.get_bibtex(model_name)
                     reference = get_reference(bibtex_string)
-                model_instances.append(
-                    Model.create(name=model, owner=submission.submitter, public=submission_config.public,
-                                 reference=reference, submission=submission))
-            data = run_submission(module, model_instances, test_benchmarks, submission)
+                model_entries.append(
+                    Model.create(name=model_name, owner=submission_entry.submitter, public=submission_config.public,
+                                 reference=reference, submission=submission_entry))
+            data = run_submission(module, model_entries, test_benchmarks, submission_entry)
             deinstall_project(repo)
         except Exception as e:
             if repo is not None:
                 deinstall_project(repo)
-            submission.status = 'failure'
-            submission.save()
+            submission_entry.status = 'failure'
+            submission_entry.save()
             logging.error(f'Could not install submission because of following error')
             logging.error(e, exc_info=True)
             raise e
@@ -88,24 +88,24 @@ def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
     df.to_csv(f'result_{jenkins_id}.csv', index=None, header=True)
 
 
-def run_submission(module, test_models, test_benchmarks, submission):
-    ml_brain_pool = get_ml_pool(test_models, module, submission)
+def run_submission(module, test_models, test_benchmarks, submission_entry):
+    ml_brain_pool = get_ml_pool(test_models, module, submission_entry)
     data = []
     success = True
     try:
-        for modelInst in test_models:
-            model_id = modelInst.name
-            for benchmark in test_benchmarks:
-                scoreInst = None
+        for model_entry in test_models:
+            model_id = model_entry.name
+            for benchmark_name in test_benchmarks:
+                score_entry = None
                 try:
                     start = datetime.datetime.now()
-                    bench_inst = get_benchmark_instance(benchmark)
-                    assert Score.get_or_none(benchmark=bench_inst, model=modelInst) is None
-                    scoreInst = Score.create(benchmark=bench_inst, start_timestamp=start, model=modelInst)
-                    logger.info(f"Scoring {model_id} on benchmark {benchmark}")
+                    benchmark_entry = get_benchmark_instance(benchmark_name)
+                    assert Score.get_or_none(benchmark=benchmark_entry, model=model_entry) is None
+                    score_entry = Score.create(benchmark=benchmark_entry, start_timestamp=start, model=model_entry)
+                    logger.info(f"Scoring {model_id} on benchmark {benchmark_name}")
                     model = ml_brain_pool[model_id]
-                    score = score_model(model_id, benchmark, model)
-                    logger.info(f'Running benchmark {benchmark} on model {model_id} produced this score: {score}')
+                    score = score_model(model_id, benchmark_name, model)
+                    logger.info(f'Running benchmark {benchmark_name} on model {model_id} produced this score: {score}')
                     if not hasattr(score, 'ceiling'):
                         raw = score.sel(aggregation='center').item(0)
                         ceiled = None
@@ -117,43 +117,43 @@ def run_submission(module, test_models, test_benchmarks, submission):
                         error = score.sel(aggregation='error').item(0)
                     finished = datetime.datetime.now()
                     layer_commitment = str(
-                        model.layer_model.region_layer_map) if submission.model_type == 'BaseModel' else ''
+                        model.layer_model.region_layer_map) if submission_entry.model_type == 'BaseModel' else ''
                     result = {
                         'Model': model_id,
-                        'Benchmark': benchmark,
+                        'Benchmark': benchmark_name,
                         'raw_result': raw,
                         'ceiled_result': ceiled,
                         'error': error,
                         'finished_time': finished,
-                        'layer': layer_commitment
+                        'comment': {'layers': layer_commitment}
                     }
                     data.append(result)
-                    scoreInst.end_timestamp = finished
-                    scoreInst.error = error
-                    scoreInst.score_ceiled = ceiled
-                    scoreInst.score_raw = raw
-                    scoreInst.save()
+                    score_entry.end_timestamp = finished
+                    score_entry.error = error
+                    score_entry.score_ceiled = ceiled
+                    score_entry.score_raw = raw
+                    score_entry.save()
                 except Exception as e:
                     success = False
-                    error = f'Benchmark {benchmark} failed for model {model_id} because of this error: {e}'
+                    error = f'Benchmark {benchmark_name} failed for model {model_id} because of this error: {e}'
                     logging.error(f'Could not run model {model_id} because of following error')
                     logging.error(e, exc_info=True)
                     data.append({
-                        'Model': model_id, 'Benchmark': benchmark,
+                        'Model': model_id, 'Benchmark': benchmark_name,
                         'raw_result': 0, 'ceiled_result': 0,
                         'error': error, 'finished_time': datetime.datetime.now()
                     })
-                    if scoreInst:
-                        scoreInst.comment = error
-                        scoreInst.save()
+                    if score_entry:
+                        score_entry.comment = error
+                        score_entry.save()
     finally:
         if success:
-            submission.status = 'success'
+            submission_entry.status = 'success'
             logger.info(f'Submission is stored as successful')
         else:
-            submission.status = 'failure'
+            submission_entry.status = 'failure'
             logger.info(f'Submission was not entirely successful (some benchmarks could not be executed)')
-        submission.save()
+        submission_entry.save()
         return data
 
 
@@ -180,24 +180,24 @@ def get_ml_pool(test_models, module, submission):
 
 
 def get_benchmark_instance(benchmark):
-    bench = benchmark_pool[benchmark]
+    benchmark = benchmark_pool[benchmark]
     benchmark_type, created = BenchmarkType.get_or_create(identifier=benchmark, order=999)
     if created:
         try:
-            parent = BenchmarkType.get(identifier=bench.parent)
+            parent = BenchmarkType.get(identifier=benchmark.parent)
             benchmark_type.parent = parent
             benchmark_type.save()
         except DoesNotExist:
             logger.error(
-                f'Couldn\'t connect benchmark {benchmark} to parent {bench.parent} since parent doesn\'t exist')
-        if hasattr(bench, 'bibtex') and bench.bibtex is not None:
-            bibtex_string = bench.bibtex
+                f'Couldn\'t connect benchmark {benchmark} to parent {benchmark.parent} since parent doesn\'t exist')
+        if hasattr(benchmark, 'bibtex') and benchmark.bibtex is not None:
+            bibtex_string = benchmark.bibtex
             benchmark_type.reference = get_reference(bibtex_string)
             benchmark_type.save()
-    bench_inst, created = BenchmarkInstance.get_or_create(benchmark=benchmark_type, version=bench.version)
+    bench_inst, created = BenchmarkInstance.get_or_create(benchmark=benchmark_type, version=benchmark.version)
     if created:
         # the version has changed and the benchmark instance was not yet in the database
-        ceiling = bench.ceiling
+        ceiling = benchmark.ceiling
         bench_inst.ceiling = ceiling.sel(aggregation='center')
         bench_inst.ceiling_error = ceiling.sel(aggregation='error')
         bench_inst.save()
@@ -207,5 +207,6 @@ def get_benchmark_instance(benchmark):
 def get_reference(bibtex_string):
     parsed = bibtexparser.loads(bibtex_string)
     entry = list(parsed.entries)[0]
-    ref, create= Reference.get_or_create(bibtex=bibtex_string, author=entry['author'], url=entry['url'], year=entry['year'])
+    ref, create = Reference.get_or_create(bibtex=bibtex_string, author=entry['author'], url=entry['url'],
+                                          year=entry['year'])
     return ref

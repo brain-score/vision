@@ -32,7 +32,7 @@ def clear_schema():
 
 @pytest.mark.memory_intense
 @pytest.mark.private_access
-@pytest.mark.parametrize('database', ['brainscore-ohio-test', 'brainscore-1-ohio-cred'])
+@pytest.mark.parametrize('database', ['brainscore-ohio-test'])
 def test_evaluation(database, tmpdir):
     connect_db(database)
     clear_schema()

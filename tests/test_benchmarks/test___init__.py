@@ -19,8 +19,8 @@ class TestPoolList:
     @pytest.mark.parametrize('benchmark', [
         'movshon.FreemanZiemba2013.V1-pls',
         'movshon.FreemanZiemba2013public.V1-pls',
-        'dicarlo.Majaj2015.IT-pls',
-        'dicarlo.Majaj2015public.IT-pls',
+        'dicarlo.MajajHong2015.IT-pls',
+        'dicarlo.MajajHong2015public.IT-pls',
         'dicarlo.Rajalingham2018-i2n',
         'dicarlo.Rajalingham2018public-i2n',
         'fei-fei.Deng2009-top1',
@@ -30,7 +30,7 @@ class TestPoolList:
 
     @pytest.mark.parametrize('benchmark', [
         'movshon.FreemanZiemba2013public.V1-pls',
-        'dicarlo.Majaj2015public.IT-pls',
+        'dicarlo.MajajHong2015public.IT-pls',
         'dicarlo.Rajalingham2018public-i2n',
         'fei-fei.Deng2009-top1',
     ])
@@ -40,7 +40,7 @@ class TestPoolList:
     def test_exact_evaluation_pool(self):
         assert set(evaluation_benchmark_pool.keys()) == {
             'movshon.FreemanZiemba2013.V1-pls', 'movshon.FreemanZiemba2013.V2-pls',
-            'dicarlo.Majaj2015.V4-pls', 'dicarlo.Majaj2015.IT-pls', 'dicarlo.Kar2019-ost',
+            'dicarlo.MajajHong2015.V4-pls', 'dicarlo.MajajHong2015.IT-pls', 'dicarlo.Kar2019-ost',
             'dicarlo.Rajalingham2018-i2n',
             'fei-fei.Deng2009-top1',
         }
@@ -57,13 +57,13 @@ class TestStandardized:
                      marks=[pytest.mark.memory_intense]),
         pytest.param('movshon.FreemanZiemba2013.V2-rdm', approx(.856968, abs=.001),
                      marks=[pytest.mark.memory_intense]),
-        pytest.param('dicarlo.Majaj2015.V4-pls', approx(.89503, abs=.001),
+        pytest.param('dicarlo.MajajHong2015.V4-pls', approx(.89503, abs=.001),
                      marks=pytest.mark.memory_intense),
-        pytest.param('dicarlo.Majaj2015.IT-pls', approx(.821841, abs=.001),
+        pytest.param('dicarlo.MajajHong2015.IT-pls', approx(.821841, abs=.001),
                      marks=pytest.mark.memory_intense),
-        pytest.param('dicarlo.Majaj2015.V4-rdm', approx(.936473, abs=.001),
+        pytest.param('dicarlo.MajajHong2015.V4-rdm', approx(.936473, abs=.001),
                      marks=pytest.mark.memory_intense),
-        pytest.param('dicarlo.Majaj2015.IT-rdm', approx(.887618, abs=.001),
+        pytest.param('dicarlo.MajajHong2015.IT-rdm', approx(.887618, abs=.001),
                      marks=pytest.mark.memory_intense),
     ])
     def test_ceilings(self, benchmark, expected):
@@ -78,9 +78,9 @@ class TestStandardized:
                      marks=[pytest.mark.memory_intense]),
         pytest.param('tolias.Cadena2017-pls', 2, approx(.577474, abs=.005),
                      marks=pytest.mark.private_access),
-        pytest.param('dicarlo.Majaj2015.V4-pls', 8, approx(.923713, abs=.001),
+        pytest.param('dicarlo.MajajHong2015.V4-pls', 8, approx(.923713, abs=.001),
                      marks=pytest.mark.memory_intense),
-        pytest.param('dicarlo.Majaj2015.IT-pls', 8, approx(.823433, abs=.001),
+        pytest.param('dicarlo.MajajHong2015.IT-pls', 8, approx(.823433, abs=.001),
                      marks=pytest.mark.memory_intense),
     ])
     def test_self_regression(self, benchmark, visual_degrees, expected):
@@ -98,9 +98,9 @@ class TestStandardized:
                      marks=[pytest.mark.memory_intense]),
         pytest.param('movshon.FreemanZiemba2013.V2-rdm', 4, approx(1, abs=.001),
                      marks=[pytest.mark.memory_intense]),
-        pytest.param('dicarlo.Majaj2015.V4-rdm', 8, approx(1, abs=.001),
+        pytest.param('dicarlo.MajajHong2015.V4-rdm', 8, approx(1, abs=.001),
                      marks=pytest.mark.memory_intense),
-        pytest.param('dicarlo.Majaj2015.IT-rdm', 8, approx(1, abs=.001),
+        pytest.param('dicarlo.MajajHong2015.IT-rdm', 8, approx(1, abs=.001),
                      marks=pytest.mark.memory_intense),
     ])
     def test_self_rdm(self, benchmark, visual_degrees, expected):
@@ -125,11 +125,11 @@ class TestPrecomputed:
 
     @pytest.mark.memory_intense
     @pytest.mark.parametrize('benchmark, expected', [
-        ('dicarlo.Majaj2015.V4-pls', approx(.490236, abs=.005)),
-        ('dicarlo.Majaj2015.IT-pls', approx(.584053, abs=.005)),
+        ('dicarlo.MajajHong2015.V4-pls', approx(.490236, abs=.005)),
+        ('dicarlo.MajajHong2015.IT-pls', approx(.584053, abs=.005)),
     ])
-    def test_Majaj2015(self, benchmark, expected):
-        self.run_test(benchmark=benchmark, file='alexnet-majaj2015.private-features.12.pkl', expected=expected)
+    def test_MajajHong2015(self, benchmark, expected):
+        self.run_test(benchmark=benchmark, file='alexnet-MajajHong2015.private-features.12.pkl', expected=expected)
 
     def run_test(self, benchmark, file, expected):
         benchmark = benchmark_pool[benchmark]
@@ -197,21 +197,21 @@ class TestVisualDegrees:
                      approx(.314561, abs=.0001), marks=[]),
         pytest.param('movshon.FreemanZiemba2013public.V2-pls', 6, '21041db1f26c142812a66277c2957fb3e2070916',
                      approx(.23113, abs=.0001), marks=[]),
-        pytest.param('dicarlo.Majaj2015.V4-pls', 14, '40a786ed8e13db10185ddfdbe07759d83a589e1c',
+        pytest.param('dicarlo.MajajHong2015.V4-pls', 14, '40a786ed8e13db10185ddfdbe07759d83a589e1c',
                      approx(.251345, abs=.0001), marks=[pytest.mark.private_access]),
-        pytest.param('dicarlo.Majaj2015.V4-pls', 6, '40a786ed8e13db10185ddfdbe07759d83a589e1c',
+        pytest.param('dicarlo.MajajHong2015.V4-pls', 6, '40a786ed8e13db10185ddfdbe07759d83a589e1c',
                      approx(.0054886, abs=.0001), marks=[pytest.mark.private_access]),
-        pytest.param('dicarlo.Majaj2015public.V4-pls', 14, '8a72e2bfdb8c267b57232bf96f069374d5b21832',
+        pytest.param('dicarlo.MajajHong2015public.V4-pls', 14, '8a72e2bfdb8c267b57232bf96f069374d5b21832',
                      approx(.25071, abs=.0001), marks=[]),
-        pytest.param('dicarlo.Majaj2015public.V4-pls', 6, '8a72e2bfdb8c267b57232bf96f069374d5b21832',
+        pytest.param('dicarlo.MajajHong2015public.V4-pls', 6, '8a72e2bfdb8c267b57232bf96f069374d5b21832',
                      approx(.00460, abs=.0001), marks=[]),
-        pytest.param('dicarlo.Majaj2015.IT-pls', 14, '40a786ed8e13db10185ddfdbe07759d83a589e1c',
+        pytest.param('dicarlo.MajajHong2015.IT-pls', 14, '40a786ed8e13db10185ddfdbe07759d83a589e1c',
                      approx(.251345, abs=.0001), marks=[pytest.mark.private_access]),
-        pytest.param('dicarlo.Majaj2015.IT-pls', 6, '40a786ed8e13db10185ddfdbe07759d83a589e1c',
+        pytest.param('dicarlo.MajajHong2015.IT-pls', 6, '40a786ed8e13db10185ddfdbe07759d83a589e1c',
                      approx(.0054886, abs=.0001), marks=[pytest.mark.private_access]),
-        pytest.param('dicarlo.Majaj2015public.IT-pls', 14, '8a72e2bfdb8c267b57232bf96f069374d5b21832',
+        pytest.param('dicarlo.MajajHong2015public.IT-pls', 14, '8a72e2bfdb8c267b57232bf96f069374d5b21832',
                      approx(.25071, abs=.0001), marks=[]),
-        pytest.param('dicarlo.Majaj2015public.IT-pls', 6, '8a72e2bfdb8c267b57232bf96f069374d5b21832',
+        pytest.param('dicarlo.MajajHong2015public.IT-pls', 6, '8a72e2bfdb8c267b57232bf96f069374d5b21832',
                      approx(.00460, abs=.0001), marks=[]),
         pytest.param('dicarlo.Kar2019-ost', 14, '6d19b24c29832dfb28360e7731e3261c13a4287f',
                      approx(.225021, abs=.0001), marks=[pytest.mark.private_access]),

@@ -16,6 +16,7 @@ from brainscore import score_model
 from brainscore.benchmarks import evaluation_benchmark_pool
 from brainscore.submission.database import store_score
 from brainscore.submission.ml_pool import MLBrainPool, ModelLayers
+from brainscore.submission.utils import get_secret
 from brainscore.utils import LazyLoad
 
 logger = logging.getLogger(__name__)
@@ -26,6 +27,8 @@ all_benchmarks_list = [benchmark for benchmark in evaluation_benchmark_pool.keys
 
 def run_evaluation(config_file, work_dir, jenkins_id, db_secret, models=None,
                    benchmarks=None):
+    secret = get_secret(db_secret)
+    db_configs = json.loads(secret)
     config_file = Path(config_file).resolve()
     work_dir = Path(work_dir).resolve()
     with open(config_file) as file:
@@ -48,7 +51,7 @@ def run_evaluation(config_file, work_dir, jenkins_id, db_secret, models=None,
         layers = {}
         base_model_pool = {}
         for model in test_models:
-            function = lambda: module.get_model(model)
+            function = lambda model_inst=model: module.get_model(model_inst)
             base_model_pool[model] = LazyLoad(function)
             try:
                 layers[model] = module.get_layers(model)
@@ -63,10 +66,10 @@ def run_evaluation(config_file, work_dir, jenkins_id, db_secret, models=None,
     data = []
     try:
         for model_id in test_models:
+            model = ml_brain_pool[model_id]
             for benchmark in test_benchmarks:
+                logger.info(f"Scoring {model_id} on benchmark {benchmark}")
                 try:
-                    logger.info(f"Scoring {model_id} on benchmark {benchmark}")
-                    model = ml_brain_pool[model_id]
                     score = score_model(model_id, benchmark, model)
                     logger.info(f'Running benchmark {benchmark} on model {model_id} produced this score: {score}')
                     if not hasattr(score, 'ceiling'):
@@ -89,7 +92,7 @@ def run_evaluation(config_file, work_dir, jenkins_id, db_secret, models=None,
                         'layer' : str(model.layer_model.region_layer_map)
                     }
                     data.append(result)
-                    store_score(db_secret, {**result, **{'jenkins_id': jenkins_id,
+                    store_score(db_configs, {**result, **{'jenkins_id': jenkins_id,
                                                          'email': configs['email'],
                                                          'name': configs['name']}})
 
@@ -118,7 +121,6 @@ def extract_zip_file(config, config_path, work_dir):
 
 
 def find_correct_dir(work_dir, name):
-    print(name)
     list = os.listdir(work_dir)
     candidates = []
     for item in list:

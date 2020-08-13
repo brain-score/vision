@@ -32,4 +32,4 @@ def check_standard_format(assembly):
     assert hasattr(assembly, 'image_id')
     assert hasattr(assembly, 'neuroid_id')
     assert not np.isnan(assembly).any()
-    assert 'stimulus_set_name' in assembly.attrs
+    assert 'stimulus_set_identifier' in assembly.attrs

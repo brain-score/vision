@@ -125,7 +125,7 @@ def run_submission(module, test_models, test_benchmarks, submission_entry):
                         'ceiled_result': ceiled,
                         'error': error,
                         'finished_time': finished,
-                        'comment': {'layers': layer_commitment}
+                        'comment': f"layers: {layer_commitment}"
                     }
                     data.append(result)
                     score_entry.end_timestamp = finished

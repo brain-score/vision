@@ -66,7 +66,13 @@ class ActivationsExtractorHelper:
             self._logger.debug(f"self.identifier `{self.identifier}` or stimuli_identifier {stimuli_identifier} "
                                f"are not set, will not store")
             fnc = self._from_paths
-        return fnc(layers=layers, stimuli_paths=stimuli_paths)
+        # In case stimuli paths are duplicates (e.g. multiple trials), we first reduce them to only the paths that need
+        # to be run individually, compute activations for those, and then expand the activations to all paths again.
+        # This is done here, before storing, so that we only store the reduced activations.
+        reduced_paths = self._reduce_paths(stimuli_paths)
+        activations = fnc(layers=layers, stimuli_paths=reduced_paths)
+        activations = self._expand_paths(activations, original_paths=stimuli_paths)
+        return activations
 
     @store_xarray(identifier_ignore=['stimuli_paths', 'layers'], combine_fields={'layers': 'layer'})
     def _from_paths_stored(self, identifier, layers, stimuli_identifier, stimuli_paths):
@@ -77,6 +83,18 @@ class ActivationsExtractorHelper:
         layer_activations = self._get_activations_batched(stimuli_paths, layers=layers, batch_size=self._batch_size)
         self._logger.info('Packaging into assembly')
         return self._package(layer_activations, stimuli_paths)
+
+    def _reduce_paths(self, stimuli_paths):
+        return list(set(stimuli_paths))
+
+    def _expand_paths(self, activations, original_paths):
+        activations_paths = activations['stimulus_path'].values
+        argsort_indices = np.argsort(activations_paths)
+        sorted_x = activations_paths[argsort_indices]
+        sorted_index = np.searchsorted(sorted_x, original_paths)
+        index = [argsort_indices[i] for i in sorted_index]
+        return activations[{'stimulus_path': index}]
+
 
     def register_batch_activations_hook(self, hook):
         r"""

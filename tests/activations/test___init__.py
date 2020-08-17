@@ -1,11 +1,11 @@
 import functools
+import numpy as np
 import os
 import pickle
-
-import numpy as np
 import pytest
 
 from brainio_base.stimuli import StimulusSet
+from brainscore.benchmarks.trials import repeat_trials
 from model_tools.activations import KerasWrapper, PytorchWrapper, TensorflowSlimWrapper
 from model_tools.activations.core import flatten
 from model_tools.activations.pca import LayerPCA
@@ -126,15 +126,18 @@ def tfslim_vgg16():
                                  endpoints=endpoints, inputs=placeholder, session=session)
 
 
-@pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png'])
-@pytest.mark.parametrize(["pca_components", "logits"], [(None, True), (None, False), (5, False)])
-@pytest.mark.parametrize(["model_ctr", "layers"], [
+models_layers = [
     pytest.param(pytorch_custom, ['linear', 'relu2']),
     pytest.param(pytorch_alexnet, ['features.12', 'classifier.5'], marks=pytest.mark.memory_intense),
     pytest.param(keras_vgg19, ['block3_pool'], marks=pytest.mark.memory_intense),
     pytest.param(tfslim_custom, ['my_model/pool2'], marks=pytest.mark.memory_intense),
     pytest.param(tfslim_vgg16, ['vgg_16/pool5'], marks=pytest.mark.memory_intense),
-])
+]
+
+
+@pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png'])
+@pytest.mark.parametrize(["pca_components", "logits"], [(None, True), (None, False), (5, False)])
+@pytest.mark.parametrize(["model_ctr", "layers"], models_layers)
 def test_from_image_path(model_ctr, layers, image_name, pca_components, logits):
     stimuli_paths = [os.path.join(os.path.dirname(__file__), image_name)]
 
@@ -152,24 +155,23 @@ def test_from_image_path(model_ctr, layers, image_name, pca_components, logits):
     elif pca_components is not None:
         assert len(activations['neuroid']) == pca_components * len(layers)
     import gc
-    gc.collect()
+    gc.collect()  # free some memory, we're piling up a lot of activations at this point
     return activations
 
 
-@pytest.mark.parametrize("pca_components", [None, 5])
-@pytest.mark.parametrize(["model_ctr", "layers"], [
-    pytest.param(pytorch_custom, ['linear', 'relu2']),
-    pytest.param(pytorch_alexnet, ['features.12', 'classifier.5'], marks=pytest.mark.memory_intense),
-    pytest.param(keras_vgg19, ['block3_pool'], marks=pytest.mark.memory_intense),
-    pytest.param(tfslim_custom, ['my_model/pool2'], marks=pytest.mark.memory_intense),
-    pytest.param(tfslim_vgg16, ['vgg_16/pool5'], marks=pytest.mark.memory_intense),
-])
-def test_from_stimulus_set(model_ctr, layers, pca_components):
-    image_names = ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png']
+def _build_stimulus_set(image_names):
     stimulus_set = StimulusSet([{'image_id': image_name, 'some_meta': image_name[::-1]}
                                 for image_name in image_names])
     stimulus_set.image_paths = {image_name: os.path.join(os.path.dirname(__file__), image_name)
                                 for image_name in image_names}
+    return stimulus_set
+
+
+@pytest.mark.parametrize("pca_components", [None, 5])
+@pytest.mark.parametrize(["model_ctr", "layers"], models_layers)
+def test_from_stimulus_set(model_ctr, layers, pca_components):
+    image_names = ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png']
+    stimulus_set = _build_stimulus_set(image_names)
 
     activations_extractor = model_ctr()
     if pca_components:
@@ -182,6 +184,19 @@ def test_from_stimulus_set(model_ctr, layers, pca_components):
     assert len(np.unique(activations['layer'])) == len(layers)
     if pca_components is not None:
         assert len(activations['neuroid']) == pca_components * len(layers)
+
+
+@pytest.mark.parametrize(["model_ctr", "layers"], models_layers)
+def test_from_stimulus_set_repetitions(model_ctr, layers):
+    image_names = ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png']
+    stimulus_set = _build_stimulus_set(image_names)
+    stimulus_set = repeat_trials(stimulus_set, number_of_trials=10)
+
+    activations_extractor = model_ctr()
+    activations = activations_extractor.from_stimulus_set(stimulus_set, layers=layers, stimuli_identifier=False)
+
+    assert set(activations['image_id'].values) == set(image_names)
+    assert len(activations['presentation']) == len(stimulus_set)
 
 
 @pytest.mark.memory_intense

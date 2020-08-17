@@ -44,7 +44,10 @@ class LogitsBehavior(BrainModel):
         with open(os.path.join(os.path.dirname(__file__), 'imagenet_classes.txt')) as f:
             synsets = f.read().splitlines()
         prediction_synsets = [synsets[index] for index in prediction_indices]
-        return prediction_synsets
+        return BehavioralAssembly([prediction_synsets], coords={
+            **{coord: (dims, values) for coord, dims, values in walk_coords(logits['presentation'])},
+            **{'synset': ('choice', prediction_synsets), 'logit': ('choice', prediction_indices)}},
+                                  dims=['choice', 'presentation'])
 
 
 class ProbabilitiesMapping(BrainModel):

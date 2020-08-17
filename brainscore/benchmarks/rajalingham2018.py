@@ -2,11 +2,12 @@ import numpy as np
 
 import brainscore
 from brainscore.benchmarks import BenchmarkBase
+from brainscore.benchmarks.screen import place_on_screen
+from brainscore.benchmarks.trials import repeat_trials, average_trials
 from brainscore.metrics import Score
 from brainscore.metrics.image_level_behavior import I2n
 from brainscore.metrics.transformations import apply_aggregate
 from brainscore.model_interface import BrainModel
-from brainscore.benchmarks.screen import place_on_screen
 from brainscore.utils import LazyLoad
 
 
@@ -16,6 +17,7 @@ class DicarloRajalingham2018I2n(BenchmarkBase):
         self._fitting_stimuli = brainscore.get_stimulus_set('dicarlo.objectome.public')
         self._assembly = LazyLoad(lambda: load_assembly('private'))
         self._visual_degrees = 8
+        self._number_of_trials = 2
         super(DicarloRajalingham2018I2n, self).__init__(
             identifier='dicarlo.Rajalingham2018-i2n', version=2,
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
@@ -28,7 +30,9 @@ class DicarloRajalingham2018I2n(BenchmarkBase):
         candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli)
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
+        stimulus_set = repeat_trials(stimulus_set, number_of_trials=self._number_of_trials)
         probabilities = candidate.look_at(stimulus_set)
+        probabilities = average_trials(probabilities)
         score = self._metric(probabilities, self._assembly)
         score = self.ceil_score(score, self.ceiling)
         return score

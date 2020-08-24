@@ -39,7 +39,6 @@ def _MovshonFreemanZiemba2013Region(region, identifier_metric_suffix, similarity
                            assembly=assembly, similarity_metric=similarity_metric, parent=region,
                            ceiling_func=lambda: ceiler(assembly_repetition),
                            visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
-                           paper_link='https://www.nature.com/articles/nn.3402',
                            bibtex=BIBTEX)
 
 

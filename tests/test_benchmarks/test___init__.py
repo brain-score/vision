@@ -266,6 +266,38 @@ class TestVisualDegrees:
             pass
 
 
+class TestNumberOfTrials:
+    @pytest.mark.private_access
+    @pytest.mark.parametrize('benchmark_identifier', evaluation_benchmark_pool.keys())
+    def test_repetitions(self, benchmark_identifier):
+        """ Tests that all evaluation benchmarks have repetitions in the stimulus_set """
+        benchmark = benchmark_pool[benchmark_identifier]
+
+        class AssertRepeatCandidate(BrainModel):
+            class StopException(Exception):
+                pass
+
+            def visual_degrees(self):
+                return 8
+
+            def look_at(self, stimuli):
+                unique_images = set(stimuli.get_image(image_id) for image_id in stimuli['image_id'])
+                assert len(unique_images) < len(stimuli)
+                raise self.StopException()
+
+            def start_task(self, task: BrainModel.Task, fitting_stimuli):
+                pass
+
+            def start_recording(self, recording_target: BrainModel.RecordingTarget, time_bins=List[Tuple[int]]):
+                pass
+
+        candidate = AssertRepeatCandidate()
+        try:
+            benchmark(candidate)  # just call to get the stimuli
+        except AssertRepeatCandidate.StopException:  # but stop early
+            pass
+
+
 def lstrip_local(path):
     parts = path.split(os.sep)
     brainio_index = parts.index('.brainio')

@@ -7,6 +7,7 @@ from brainscore.metrics.regression import CrossRegressedCorrelation, mask_regres
 from brainscore.utils import LazyLoad
 
 VISUAL_DEGREES = 8
+NUMBER_OF_TRIALS = 50
 BIBTEX = """@article {Majaj13402,
             author = {Majaj, Najib J. and Hong, Ha and Solomon, Ethan A. and DiCarlo, James J.},
             title = {Simple Learned Weighted Sums of Inferior Temporal Neuronal Firing Rates Accurately Predict Human Core Object Recognition Performance},
@@ -27,7 +28,8 @@ def _DicarloMajajHong2015Region(region, identifier_metric_suffix, similarity_met
     assembly_repetition = LazyLoad(lambda region=region: load_assembly(average_repetitions=False, region=region))
     assembly = LazyLoad(lambda region=region: load_assembly(average_repetitions=True, region=region))
     return NeuralBenchmark(identifier=f'dicarlo.MajajHong2015.{region}-{identifier_metric_suffix}', version=3,
-                           assembly=assembly, similarity_metric=similarity_metric, visual_degrees=VISUAL_DEGREES,
+                           assembly=assembly, similarity_metric=similarity_metric,
+                           visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
                            ceiling_func=lambda: ceiler(assembly_repetition),
                            parent=region,
                            bibtex=BIBTEX)

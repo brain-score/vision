@@ -21,6 +21,10 @@ from brainscore.metrics.ceiling import InternalConsistency
 from brainscore.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation
 from brainscore.utils import LazyLoad
 from .freemanziemba2013 import load_assembly as load_freemanziemba2013, VISUAL_DEGREES as freemanziemba2013_degrees, \
+    NUMBER_OF_TRIALS as freemanziemba2013_trials
+from .majajhong2015 import load_assembly as load_majajhong2015, VISUAL_DEGREES as majajhong2015_degrees, \
+    NUMBER_OF_TRIALS as majajhong2015_trials
+from .freemanziemba2013 import load_assembly as load_freemanziemba2013, VISUAL_DEGREES as freemanziemba2013_degrees, \
     BIBTEX as freemanziemba2013_bibtex
 from .majajhong2015 import load_assembly as load_majajhong2015, VISUAL_DEGREES as majajhong2015_degrees, \
     BIBTEX as majajhong2015_bibtex
@@ -29,7 +33,7 @@ from .rajalingham2018 import load_assembly as load_rajalingham2018, DicarloRajal
 _logger = logging.getLogger(__name__)
 
 
-def _standard_benchmark(identifier, load_assembly, visual_degrees, stratification_coord, bibtex):
+def _standard_benchmark(identifier, load_assembly, visual_degrees, number_of_trials, stratification_coord, bibtex):
     assembly_repetition = LazyLoad(lambda: load_assembly(average_repetitions=False))
     assembly = LazyLoad(lambda: load_assembly(average_repetitions=True))
     similarity_metric = CrossRegressedCorrelation(
@@ -37,7 +41,8 @@ def _standard_benchmark(identifier, load_assembly, visual_degrees, stratificatio
         crossvalidation_kwargs=dict(stratification_coord=stratification_coord))
     ceiler = InternalConsistency()
     return NeuralBenchmark(identifier=f"{identifier}-pls", version=1,
-                           assembly=assembly, similarity_metric=similarity_metric, visual_degrees=visual_degrees,
+                           assembly=assembly, similarity_metric=similarity_metric,
+                           visual_degrees=visual_degrees, number_of_trials=number_of_trials,
                            ceiling_func=lambda: ceiler(assembly_repetition),
                            parent=None,
                            bibtex=bibtex)
@@ -46,29 +51,29 @@ def _standard_benchmark(identifier, load_assembly, visual_degrees, stratificatio
 def FreemanZiembaV1PublicBenchmark():
     return _standard_benchmark('movshon.FreemanZiemba2013.V1.public',
                                load_assembly=functools.partial(load_freemanziemba2013, region='V1', access='public'),
-                               visual_degrees=freemanziemba2013_degrees, stratification_coord='texture_type',
-                               bibtex=freemanziemba2013_bibtex)
+                               visual_degrees=freemanziemba2013_degrees, number_of_trials=freemanziemba2013_trials,
+                               stratification_coord='texture_type', bibtex=freemanziemba2013_bibtex)
 
 
 def FreemanZiembaV2PublicBenchmark():
     return _standard_benchmark('movshon.FreemanZiemba2013.V2.public',
                                load_assembly=functools.partial(load_freemanziemba2013, region='V2', access='public'),
-                               visual_degrees=freemanziemba2013_degrees, stratification_coord='texture_type',
-                               bibtex=freemanziemba2013_bibtex)
+                               visual_degrees=freemanziemba2013_degrees, number_of_trials=freemanziemba2013_trials,
+                               stratification_coord='texture_type', bibtex=freemanziemba2013_bibtex)
 
 
 def MajajHongV4PublicBenchmark():
     return _standard_benchmark('dicarlo.MajajHong2015.V4.public',
                                load_assembly=functools.partial(load_majajhong2015, region='V4', access='public'),
-                               visual_degrees=majajhong2015_degrees, stratification_coord='object_name',
-                               bibtex=majajhong2015_bibtex)
+                               visual_degrees=majajhong2015_degrees, number_of_trials=majajhong2015_trials,
+                               stratification_coord='object_name', bibtex=majajhong2015_bibtex)
 
 
 def MajajHongITPublicBenchmark():
     return _standard_benchmark('dicarlo.MajajHong2015.IT.public',
                                load_assembly=functools.partial(load_majajhong2015, region='IT', access='public'),
-                               visual_degrees=majajhong2015_degrees, stratification_coord='object_name',
-                               bibtex=majajhong2015_bibtex)
+                               visual_degrees=majajhong2015_degrees, number_of_trials=majajhong2015_trials,
+                               stratification_coord='object_name', bibtex=majajhong2015_bibtex)
 
 
 class RajalinghamMatchtosamplePublicBenchmark(DicarloRajalingham2018I2n):

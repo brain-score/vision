@@ -8,6 +8,7 @@ from brainscore.utils import LazyLoad
 from result_caching import store
 
 VISUAL_DEGREES = 4
+NUMBER_OF_TRIALS = 20
 
 BIBTEX = """﻿@Article{Freeman2013,
                 author={Freeman, Jeremy
@@ -35,9 +36,10 @@ def _MovshonFreemanZiemba2013Region(region, identifier_metric_suffix, similarity
     assembly_repetition = LazyLoad(lambda region=region: load_assembly(False, region=region))
     assembly = LazyLoad(lambda region=region: load_assembly(True, region=region))
     return NeuralBenchmark(identifier=f'movshon.FreemanZiemba2013.{region}-{identifier_metric_suffix}', version=2,
-                           assembly=assembly, similarity_metric=similarity_metric, visual_degrees=VISUAL_DEGREES,
+                           assembly=assembly, similarity_metric=similarity_metric, parent=region,
                            ceiling_func=lambda: ceiler(assembly_repetition),
-                           parent=region,
+                           visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
+                           paper_link='https://www.nature.com/articles/nn.3402',
                            bibtex=BIBTEX)
 
 

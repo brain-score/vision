@@ -207,6 +207,6 @@ def get_benchmark_instance(benchmark_name):
 def get_reference(bibtex_string):
     parsed = bibtexparser.loads(bibtex_string)
     entry = list(parsed.entries)[0]
-    ref, create = Reference.get_or_create(bibtex=bibtex_string, author=entry['author'], url=entry['url'],
-                                          year=entry['year'])
+    ref, create = Reference.get_or_create(bibtex=bibtex_string, author=entry.get('author', ''), url=entry.get('url' ,''),
+                                          year=entry.get('year', ""))
     return ref

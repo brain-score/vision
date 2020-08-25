@@ -11,7 +11,7 @@ class BaseModel(Model):
 class Reference(BaseModel):
     author = CharField()
     bibtex = TextField()
-    url = CharField()
+    url = CharField(primary_key=True)
     year = IntegerField()
 
     class Meta:

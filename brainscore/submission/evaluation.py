@@ -192,8 +192,10 @@ def get_benchmark_instance(benchmark_name):
                 f'Couldn\'t connect benchmark {benchmark_name} to parent {benchmark.parent} since parent doesn\'t exist')
         if hasattr(benchmark, 'bibtex') and benchmark.bibtex is not None:
             bibtex_string = benchmark.bibtex
-            benchmark_type.reference = get_reference(bibtex_string)
-            benchmark_type.save()
+            ref = get_reference(bibtex_string)
+            if ref:
+                benchmark_type.reference = ref
+                benchmark_type.save()
     bench_inst, created = BenchmarkInstance.get_or_create(benchmark=benchmark_type, version=benchmark.version)
     if created:
         # the version has changed and the benchmark instance was not yet in the database
@@ -206,7 +208,9 @@ def get_benchmark_instance(benchmark_name):
 
 def get_reference(bibtex_string):
     parsed = bibtexparser.loads(bibtex_string)
-    entry = list(parsed.entries)[0]
-    ref, create = Reference.get_or_create(bibtex=bibtex_string, author=entry.get('author', ''), url=entry.get('url' ,''),
-                                          year=entry.get('year', ""))
-    return ref
+    if len(parsed.entries) > 0:
+        entry = list(parsed.entries)[0]
+        ref, create = Reference.get_or_create(bibtex=bibtex_string, author=entry.get('author', ''), url=entry.get('url' ,''),
+                                              year=entry.get('year', ""))
+        return ref
+    return None

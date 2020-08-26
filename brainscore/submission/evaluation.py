@@ -95,6 +95,7 @@ def run_submission(module, test_models, test_benchmarks, submission_entry):
     try:
         for model_entry in test_models:
             model_id = model_entry.name
+            benchmark_success = False
             for benchmark_name in test_benchmarks:
                 score_entry = None
                 try:
@@ -133,6 +134,7 @@ def run_submission(module, test_models, test_benchmarks, submission_entry):
                     score_entry.score_ceiled = ceiled
                     score_entry.score_raw = raw
                     score_entry.save()
+                    benchmark_success = True
                 except Exception as e:
                     success = False
                     error = f'Benchmark {benchmark_name} failed for model {model_id} because of this error: {e}'
@@ -210,7 +212,8 @@ def get_reference(bibtex_string):
     parsed = bibtexparser.loads(bibtex_string)
     if len(parsed.entries) > 0:
         entry = list(parsed.entries)[0]
-        ref, create = Reference.get_or_create(bibtex=bibtex_string, author=entry.get('author', ''), url=entry.get('url' ,''),
-                                              year=entry.get('year', ""))
+        ref, create = Reference.get_or_create(url=entry.get('url', ''),
+                                              defaults={'bibtex': bibtex_string, 'author': entry.get('author', ''),
+                                                        'year': entry.get('year', "")})
         return ref
     return None

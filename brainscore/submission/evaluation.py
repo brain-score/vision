@@ -19,7 +19,7 @@ from brainscore.utils import LazyLoad
 logger = logging.getLogger(__name__)
 
 all_benchmarks_list = [benchmark for benchmark in evaluation_benchmark_pool.keys()
-                       if benchmark not in ['dicarlo.Kar2019-ost']]
+                       if benchmark not in ['dicarlo.Kar2019-ost', 'fei-fei.Deng2009-top1']]
 
 
 def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
@@ -70,9 +70,9 @@ def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
                 if hasattr(module, 'get_bibtex'):
                     bibtex_string = module.get_bibtex(model_name)
                     reference = get_reference(bibtex_string)
-                model_entries.append(
-                    Model.create(name=model_name, owner=submission_entry.submitter, public=submission_config.public,
-                                 reference=reference, submission=submission_entry))
+                model_entries.append(Model.get_or_create(name=model_name, owner=submission_entry.submitter,
+                                                         defaults={'public': submission_config.public,
+                                                                  'reference': reference, 'submission': submission_entry})[0])
             data = run_submission(module, model_entries, test_benchmarks, submission_entry)
             deinstall_project(repo)
         except Exception as e:
@@ -95,12 +95,12 @@ def run_submission(module, test_models, test_benchmarks, submission_entry):
     try:
         for model_entry in test_models:
             model_id = model_entry.name
-            benchmark_success = False
             for benchmark_name in test_benchmarks:
                 score_entry = None
                 try:
                     start = datetime.datetime.now()
                     benchmark_entry = get_benchmark_instance(benchmark_name)
+                    # Check if the model is already scored on the benchmark
                     assert Score.get_or_none(benchmark=benchmark_entry, model=model_entry) is None
                     score_entry = Score.create(benchmark=benchmark_entry, start_timestamp=start, model=model_entry)
                     logger.info(f"Scoring {model_id} on benchmark {benchmark_name}")
@@ -134,7 +134,6 @@ def run_submission(module, test_models, test_benchmarks, submission_entry):
                     score_entry.score_ceiled = ceiled
                     score_entry.score_raw = raw
                     score_entry.save()
-                    benchmark_success = True
                 except Exception as e:
                     success = False
                     error = f'Benchmark {benchmark_name} failed for model {model_id} because of this error: {e}'

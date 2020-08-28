@@ -24,68 +24,70 @@ all_benchmarks_list = [benchmark for benchmark in evaluation_benchmark_pool.keys
 
 def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
                    benchmarks=None):
-    connect_db(db_secret)
-    config_file = Path(f'{config_dir}/submission_{jenkins_id}.json').resolve()
-    with open(config_file) as file:
-        configs = json.load(file)
-    configs['config_file'] = str(config_file)
-    submission_config = object_decoder(configs, work_dir, config_file.parent, db_secret, jenkins_id)
-
-    logger.info(f'Run with following configurations: {str(configs)}')
-    test_benchmarks = all_benchmarks_list if benchmarks is None or len(benchmarks) == 0 else benchmarks
     data = []
-    if isinstance(submission_config, MultiConfig):
-        # We rerun existing models, which potentially are defined in different submissions
-        for submission_entry in submission_config.submission_entries.values():
+    try:
+        connect_db(db_secret)
+        config_file = Path(f'{config_dir}/submission_{jenkins_id}.json').resolve()
+        with open(config_file) as file:
+            configs = json.load(file)
+        configs['config_file'] = str(config_file)
+        submission_config = object_decoder(configs, work_dir, config_file.parent, db_secret, jenkins_id)
+
+        logger.info(f'Run with following configurations: {str(configs)}')
+        test_benchmarks = all_benchmarks_list if benchmarks is None or len(benchmarks) == 0 else benchmarks
+        if isinstance(submission_config, MultiConfig):
+            # We rerun existing models, which potentially are defined in different submissions
+            for submission_entry in submission_config.submission_entries.values():
+                repo = None
+                try:
+                    module, repo = prepare_module(submission_entry, submission_config)
+                    logger.info('Successfully installed repository')
+                    models = []
+                    for model_entry in submission_config.models:
+                        if model_entry.submission.id == submission_entry.id:
+                            models.append(model_entry)
+                    assert len(models) > 0
+                    sub_data = run_submission(module, models, test_benchmarks, submission_entry)
+                    data = data + sub_data
+                    deinstall_project(repo)
+                except Exception as e:
+                    if repo is not None:
+                        deinstall_project(repo)
+                    logging.error(f'Could not install submission because of following error')
+                    logging.error(e, exc_info=True)
+                    raise e
+        else:
+            submission_entry = submission_config.submission
             repo = None
             try:
                 module, repo = prepare_module(submission_entry, submission_config)
                 logger.info('Successfully installed repository')
-                models = []
-                for model_entry in submission_config.models:
-                    if model_entry.submission.id == submission_entry.id:
-                        models.append(model_entry)
-                assert len(models) > 0
-                sub_data = run_submission(module, models, test_benchmarks, submission_entry)
-                data = data + sub_data
+                test_models = module.get_model_list() if models is None or len(models) == 0 else models
+                assert len(test_models) > 0
+                model_entries = []
+                logger.info(f'Create model instances')
+                for model_name in test_models:
+                    reference = None
+                    if hasattr(module, 'get_bibtex'):
+                        bibtex_string = module.get_bibtex(model_name)
+                        reference = get_reference(bibtex_string)
+                    model_entries.append(Model.get_or_create(name=model_name, owner=submission_entry.submitter,
+                                                             defaults={'public': submission_config.public,
+                                                                      'reference': reference, 'submission': submission_entry})[0])
+                data = run_submission(module, model_entries, test_benchmarks, submission_entry)
                 deinstall_project(repo)
             except Exception as e:
                 if repo is not None:
                     deinstall_project(repo)
+                submission_entry.status = 'failure'
+                submission_entry.save()
                 logging.error(f'Could not install submission because of following error')
                 logging.error(e, exc_info=True)
                 raise e
-    else:
-        submission_entry = submission_config.submission
-        repo = None
-        try:
-            module, repo = prepare_module(submission_entry, submission_config)
-            logger.info('Successfully installed repository')
-            test_models = module.get_model_list() if models is None or len(models) == 0 else models
-            assert len(test_models) > 0
-            model_entries = []
-            logger.info(f'Create model instances')
-            for model_name in test_models:
-                reference = None
-                if hasattr(module, 'get_bibtex'):
-                    bibtex_string = module.get_bibtex(model_name)
-                    reference = get_reference(bibtex_string)
-                model_entries.append(Model.get_or_create(name=model_name, owner=submission_entry.submitter,
-                                                         defaults={'public': submission_config.public,
-                                                                  'reference': reference, 'submission': submission_entry})[0])
-            data = run_submission(module, model_entries, test_benchmarks, submission_entry)
-            deinstall_project(repo)
-        except Exception as e:
-            if repo is not None:
-                deinstall_project(repo)
-            submission_entry.status = 'failure'
-            submission_entry.save()
-            logging.error(f'Could not install submission because of following error')
-            logging.error(e, exc_info=True)
-            raise e
-    df = pd.DataFrame(data)
-    # This is the result file we send to the user after the scoring process is done
-    df.to_csv(f'result_{jenkins_id}.csv', index=None, header=True)
+    finally:
+        df = pd.DataFrame(data)
+        # This is the result file we send to the user after the scoring process is done
+        df.to_csv(f'result_{jenkins_id}.csv', index=None, header=True)
 
 
 def run_submission(module, test_models, test_benchmarks, submission_entry):

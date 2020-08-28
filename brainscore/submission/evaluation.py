@@ -103,8 +103,9 @@ def run_submission(module, test_models, test_benchmarks, submission_entry):
                     start = datetime.datetime.now()
                     benchmark_entry = get_benchmark_instance(benchmark_name)
                     # Check if the model is already scored on the benchmark
-                    assert Score.get_or_none(benchmark=benchmark_entry, model=model_entry) is None
-                    score_entry = Score.create(benchmark=benchmark_entry, start_timestamp=start, model=model_entry)
+                    score_entry, created = Score.get_or_create(benchmark=benchmark_entry, model=model_entry, defaults={'start_timestamp':start,})
+                    if not created:
+                        assert score_entry.score_raw is None, f'A score for model {model_id} and benchmark {benchmark_name} already exists'
                     logger.info(f"Scoring {model_id}, id {model_entry.id} on benchmark {benchmark_name}")
                     model = ml_brain_pool[model_id]
                     score = score_model(model_id, benchmark_name, model)
@@ -135,6 +136,7 @@ def run_submission(module, test_models, test_benchmarks, submission_entry):
                     score_entry.error = error
                     score_entry.score_ceiled = ceiled
                     score_entry.score_raw = raw
+                    score_entry.comment = None
                     score_entry.save()
                 except Exception as e:
                     success = False

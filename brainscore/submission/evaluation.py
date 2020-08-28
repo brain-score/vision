@@ -105,10 +105,10 @@ def run_submission(module, test_models, test_benchmarks, submission_entry):
                     # Check if the model is already scored on the benchmark
                     assert Score.get_or_none(benchmark=benchmark_entry, model=model_entry) is None
                     score_entry = Score.create(benchmark=benchmark_entry, start_timestamp=start, model=model_entry)
-                    logger.info(f"Scoring {model_id} on benchmark {benchmark_name}")
+                    logger.info(f"Scoring {model_id}, id {model_entry.id} on benchmark {benchmark_name}")
                     model = ml_brain_pool[model_id]
                     score = score_model(model_id, benchmark_name, model)
-                    logger.info(f'Running benchmark {benchmark_name} on model {model_id} produced this score: {score}')
+                    logger.info(f'Running benchmark {benchmark_name} on model {model_id} id({model_entry.id}) produced this score: {score}')
                     if not hasattr(score, 'ceiling'):
                         raw = score.sel(aggregation='center').item(0)
                         ceiled = None

@@ -104,25 +104,38 @@ def run_submission(module, test_models, test_benchmarks, submission_entry):
                     benchmark_entry = get_benchmark_instance(benchmark_name)
                     # Check if the model is already scored on the benchmark
                     score_entry, created = Score.get_or_create(benchmark=benchmark_entry, model=model_entry, defaults={'start_timestamp':start,})
-                    if not created:
-                        assert score_entry.score_raw is None, f'A score for model {model_id} and benchmark {benchmark_name} already exists'
-                        logger.warning('An entry already exists but was not evaluated successful, we rerun!')
-                    logger.info(f"Scoring {model_id}, id {model_entry.id} on benchmark {benchmark_name}")
-                    model = ml_brain_pool[model_id]
-                    score = score_model(model_id, benchmark_name, model)
-                    logger.info(f'Running benchmark {benchmark_name} on model {model_id} id({model_entry.id}) produced this score: {score}')
-                    if not hasattr(score, 'ceiling'):
-                        raw = score.sel(aggregation='center').item(0)
-                        ceiled = None
-                        error = None
+                    if not created and score_entry.score_raw is not None:
+                        logger.warning(f'A score for model {model_id} and benchmark {benchmark_name} already exists')
+                        raw = score_entry.score_raw
+                        ceiled = score_entry.score_ceiled
+                        error = score_entry.error
+                        finished = score_entry.end_timestamp
+                        layer_commitment = ''
                     else:
-                        assert score.raw.sel(aggregation='center') is not None
-                        raw = score.raw.sel(aggregation='center').item(0)
-                        ceiled = score.sel(aggregation='center').item(0)
-                        error = score.sel(aggregation='error').item(0)
-                    finished = datetime.datetime.now()
-                    layer_commitment = str(
-                        model.layer_model.region_layer_map) if submission_entry.model_type == 'BaseModel' else ''
+                        if not created:
+                            logger.warning('An entry already exists but was not evaluated successful, we rerun!')
+                        logger.info(f"Scoring {model_id}, id {model_entry.id} on benchmark {benchmark_name}")
+                        model = ml_brain_pool[model_id]
+                        score = score_model(model_id, benchmark_name, model)
+                        logger.info(f'Running benchmark {benchmark_name} on model {model_id} id({model_entry.id}) produced this score: {score}')
+                        if not hasattr(score, 'ceiling'):
+                            raw = score.sel(aggregation='center').item(0)
+                            ceiled = None
+                            error = None
+                        else:
+                            assert score.raw.sel(aggregation='center') is not None
+                            raw = score.raw.sel(aggregation='center').item(0)
+                            ceiled = score.sel(aggregation='center').item(0)
+                            error = score.sel(aggregation='error').item(0)
+                        finished = datetime.datetime.now()
+                        layer_commitment = str(
+                            model.layer_model.region_layer_map) if submission_entry.model_type == 'BaseModel' else ''
+                        score_entry.end_timestamp = finished
+                        score_entry.error = error
+                        score_entry.score_ceiled = ceiled
+                        score_entry.score_raw = raw
+                        score_entry.comment = None
+                        score_entry.save()
                     result = {
                         'Model': model_id,
                         'Benchmark': benchmark_name,
@@ -133,12 +146,6 @@ def run_submission(module, test_models, test_benchmarks, submission_entry):
                         'comment': f"layers: {layer_commitment}"
                     }
                     data.append(result)
-                    score_entry.end_timestamp = finished
-                    score_entry.error = error
-                    score_entry.score_ceiled = ceiled
-                    score_entry.score_raw = raw
-                    score_entry.comment = None
-                    score_entry.save()
                 except Exception as e:
                     success = False
                     error = f'Benchmark {benchmark_name} failed for model {model_id} because of this error: {e}'

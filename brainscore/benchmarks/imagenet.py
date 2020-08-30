@@ -22,7 +22,15 @@ class Imagenet2012(BenchmarkBase):
         super(Imagenet2012, self).__init__(identifier='fei-fei.Deng2009-top1', version=1,
                                            ceiling_func=lambda: ceiling,
                                            parent='ImageNet',
-                                           paper_link="https://ieeexplore.ieee.org/abstract/document/5206848")
+                                           bibtex="""@INPROCEEDINGS{5206848,  
+                                                author={J. {Deng} and W. {Dong} and R. {Socher} and L. {Li} and  {Kai Li} and  {Li Fei-Fei}},  
+                                                booktitle={2009 IEEE Conference on Computer Vision and Pattern Recognition},   
+                                                title={ImageNet: A large-scale hierarchical image database},   
+                                                year={2009},  
+                                                volume={},  
+                                                number={},  
+                                                pages={248-255},
+                                            }""")
 
     def __call__(self, candidate):
         # The proper `fitting_stimuli` to pass to the candidate would be the imagenet training set.

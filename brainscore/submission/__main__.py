@@ -12,9 +12,9 @@ logger = logging.getLogger(__name__)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--log_level', type=str, default='INFO')
-parser.add_argument('config_file', type=str, help='The configuration file for the repo containing the models')
+parser.add_argument('config_dir', type=str, help='The configuration directory for the repo containing the models')
 parser.add_argument('work_dir', type=str, help='A working directory to unpack/clone the model repo')
-parser.add_argument('jenkins_id', type=str,
+parser.add_argument('jenkins_id', type=int,
                     help='The id of the current jenkins run')
 parser.add_argument('--db_secret', type=str,
                     help='The name of the database credential secret loaded from AWS', default='brainscore-1-ohio-cred')
@@ -31,12 +31,13 @@ for disable_logger in ['s3transfer', 'botocore', 'boto3', 'urllib3', 'peewee', '
 
 def score_model_console():
     logger.info('Start scoring model process..')
-    assert Path(args.config_file).is_file(), 'Configuration file doesn\'t exist'
+    assert Path(args.config_dir).is_dir(), 'Configuration directory doesn\'t exist'
     assert Path(args.work_dir).is_dir(), 'Work directory is not a valid directory'
     assert args.db_secret is not None, 'The db connection file doesn\'t exist'
+    assert isinstance(args.jenkins_id, int)
     logger.info(f'Benchmarks configured: {args.benchmarks}')
     logger.info(f'Models configured: {args.models}')
-    run_evaluation(args.config_file, args.work_dir, args.jenkins_id, db_secret=args.db_secret,
+    run_evaluation(args.config_dir, args.work_dir, args.jenkins_id, db_secret=args.db_secret,
                  models=args.models, benchmarks=args.benchmarks)
 
 

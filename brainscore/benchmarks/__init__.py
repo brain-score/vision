@@ -18,6 +18,7 @@ class Benchmark(ABC):
     """
     Standard Benchmark interface defining the method interfaces.
     """
+
     def __call__(self, candidate: BrainModel):
         """
         Evaluate a candidate `BrainModel` and return a :class:`~brainscore.metrics.Score` denoting the brain-likeness of
@@ -33,6 +34,14 @@ class Benchmark(ABC):
         :return: a :class:`~brainscore.metrics.Score` of how brain-like the candidate model is under this benchmark. The
                 score is normalized by this benchmark's ceiling such that 1 means the model matches the data to ceiling
                 level.
+        """
+        raise NotImplementedError()
+
+    @property
+    def bibtex(self):
+        """
+        bibtex string to build the reference.
+        Should include an `url` to build a proper link.
         """
         raise NotImplementedError()
 
@@ -73,12 +82,17 @@ class BenchmarkBase(Benchmark):
     """
     Helper class for implementing standard functions of the `Benchmark` interface.
     """
-    def __init__(self, identifier, ceiling_func, version, parent=None, paper_link=None):
+
+    def __init__(self, identifier, ceiling_func, version, parent=None, bibtex=None):
         self._identifier = identifier
         self._ceiling_func = ceiling_func
         self._version = version
         self.parent = parent
-        self.paper_link = paper_link
+        self._bibtex = bibtex
+
+    @property
+    def bibtex(self):
+        return self._bibtex
 
     @property
     def identifier(self):

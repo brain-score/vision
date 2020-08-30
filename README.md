@@ -75,3 +75,6 @@ Use conda: `conda install netcdf4`
 results (scores, activations) are cached on disk using https://github.com/mschrimpf/result_caching.
 Delete the corresponding file or directory to clear the cache.
 </details>
+
+##CI environment
+Add CI related build commands to `test_setup.sh`. The script is executed in CI environment for unittests.

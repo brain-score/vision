@@ -1,22 +1,19 @@
-import zipfile
-from importlib import import_module
-
 import datetime
-import git
 import json
 import logging
-import os
-import pandas as pd
-import subprocess
-import sys
 from pathlib import Path
 
+import bibtexparser as bibtexparser
+import pandas as pd
+from peewee import DoesNotExist
 
 from brainscore import score_model
-from brainscore.benchmarks import evaluation_benchmark_pool
-from brainscore.submission.database import store_score
+from brainscore.benchmarks import evaluation_benchmark_pool, benchmark_pool
+from brainscore.submission.configuration import object_decoder, MultiConfig
+from brainscore.submission.database import connect_db
 from brainscore.submission.ml_pool import MLBrainPool, ModelLayers
-from brainscore.submission.utils import get_secret
+from brainscore.submission.models import Model, Score, BenchmarkInstance, BenchmarkType, Reference
+from brainscore.submission.repository import prepare_module, deinstall_project
 from brainscore.utils import LazyLoad
 
 logger = logging.getLogger(__name__)
@@ -25,53 +22,95 @@ all_benchmarks_list = [benchmark for benchmark in evaluation_benchmark_pool.keys
                        if benchmark not in ['dicarlo.Kar2019-ost', 'fei-fei.Deng2009-top1']]
 
 
-def run_evaluation(config_file, work_dir, jenkins_id, db_secret, models=None,
+def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
                    benchmarks=None):
-    secret = get_secret(db_secret)
-    db_configs = json.loads(secret)
-    config_file = Path(config_file).resolve()
-    work_dir = Path(work_dir).resolve()
-    with open(config_file) as file:
-        configs = json.load(file)
-    logger.info(f'Run with following configurations: {str(configs)}')
-    if configs['type'] == 'zip':
-        config_path = config_file.parent
-        logger.info('Start executing models in repo %s' % (configs['zip_filename']))
-        repo = extract_zip_file(configs, config_path, work_dir)
-    else:
-        logger.info(f'Start executing models in repo {configs["git_url"]}')
-        repo = clone_repo(configs, work_dir)
-    package = 'models.brain_models' if configs['model_type'] == 'BrainModel' else 'models.base_models'
-    module = install_project(repo, package)
-    test_benchmarks = all_benchmarks_list if benchmarks is None or len(benchmarks) == 0 else benchmarks
-    ml_brain_pool = {}
-    test_models = module.get_model_list() if models is None or len(models) == 0 else models
-    if configs['model_type'] == 'BaseModel':
-        logger.info(f"Start working with base models")
-        layers = {}
-        base_model_pool = {}
-        for model in test_models:
-            function = lambda model_inst=model: module.get_model(model_inst)
-            base_model_pool[model] = LazyLoad(function)
-            try:
-                layers[model] = module.get_layers(model)
-            except Exception:
-                logging.warning(f'Could not retrieve layer for model {model} -- skipping model')
-        model_layers = ModelLayers(layers)
-        ml_brain_pool = MLBrainPool(base_model_pool, model_layers)
-    else:
-        logger.info(f"Start working with brain models")
-        for model in test_models:
-            ml_brain_pool[model] = module.get_model(model)
     data = []
     try:
-        for model_id in test_models:
-            model = ml_brain_pool[model_id]
-            for benchmark in test_benchmarks:
-                logger.info(f"Scoring {model_id} on benchmark {benchmark}")
+        connect_db(db_secret)
+        config_file = Path(f'{config_dir}/submission_{jenkins_id}.json').resolve()
+        with open(config_file) as file:
+            configs = json.load(file)
+        configs['config_file'] = str(config_file)
+        submission_config = object_decoder(configs, work_dir, config_file.parent, db_secret, jenkins_id)
+
+        logger.info(f'Run with following configurations: {str(configs)}')
+        test_benchmarks = all_benchmarks_list if benchmarks is None or len(benchmarks) == 0 else benchmarks
+        if isinstance(submission_config, MultiConfig):
+            # We rerun existing models, which potentially are defined in different submissions
+            for submission_entry in submission_config.submission_entries.values():
+                repo = None
                 try:
-                    score = score_model(model_id, benchmark, model)
-                    logger.info(f'Running benchmark {benchmark} on model {model_id} produced this score: {score}')
+                    module, repo = prepare_module(submission_entry, submission_config)
+                    logger.info('Successfully installed repository')
+                    models = []
+                    for model_entry in submission_config.models:
+                        if model_entry.submission.id == submission_entry.id:
+                            models.append(model_entry)
+                    assert len(models) > 0
+                    sub_data = run_submission(module, models, test_benchmarks, submission_entry)
+                    data = data + sub_data
+                    deinstall_project(repo)
+                except Exception as e:
+                    if repo is not None:
+                        deinstall_project(repo)
+                    logging.error(f'Could not install submission because of following error')
+                    logging.error(e, exc_info=True)
+                    raise e
+        else:
+            submission_entry = submission_config.submission
+            repo = None
+            try:
+                module, repo = prepare_module(submission_entry, submission_config)
+                logger.info('Successfully installed repository')
+                test_models = module.get_model_list() if models is None or len(models) == 0 else models
+                assert len(test_models) > 0
+                model_entries = []
+                logger.info(f'Create model instances')
+                for model_name in test_models:
+                    reference = None
+                    if hasattr(module, 'get_bibtex'):
+                        bibtex_string = module.get_bibtex(model_name)
+                        reference = get_reference(bibtex_string)
+                    model_entries.append(Model.get_or_create(name=model_name, owner=submission_entry.submitter,
+                                                             defaults={'public': submission_config.public,
+                                                                      'reference': reference, 'submission': submission_entry})[0])
+                data = run_submission(module, model_entries, test_benchmarks, submission_entry)
+                deinstall_project(repo)
+            except Exception as e:
+                if repo is not None:
+                    deinstall_project(repo)
+                submission_entry.status = 'failure'
+                submission_entry.save()
+                logging.error(f'Could not install submission because of following error')
+                logging.error(e, exc_info=True)
+                raise e
+    finally:
+        df = pd.DataFrame(data)
+        # This is the result file we send to the user after the scoring process is done
+        df.to_csv(f'result_{jenkins_id}.csv', index=None, header=True)
+
+
+def run_submission(module, test_models, test_benchmarks, submission_entry):
+    ml_brain_pool = get_ml_pool(test_models, module, submission_entry)
+    data = []
+    success = True
+    try:
+        for model_entry in test_models:
+            model_id = model_entry.name
+            for benchmark_name in test_benchmarks:
+                score_entry = None
+                try:
+                    start = datetime.datetime.now()
+                    benchmark_entry = get_benchmark_instance(benchmark_name)
+                    # Check if the model is already scored on the benchmark
+                    score_entry, created = Score.get_or_create(benchmark=benchmark_entry, model=model_entry, defaults={'start_timestamp':start,})
+                    if not created:
+                        assert score_entry.score_raw is None, f'A score for model {model_id} and benchmark {benchmark_name} already exists'
+                        logger.warning('An entry already exists but was not evaluated successful, we rerun!')
+                    logger.info(f"Scoring {model_id}, id {model_entry.id} on benchmark {benchmark_name}")
+                    model = ml_brain_pool[model_id]
+                    score = score_model(model_id, benchmark_name, model)
+                    logger.info(f'Running benchmark {benchmark_name} on model {model_id} id({model_entry.id}) produced this score: {score}')
                     if not hasattr(score, 'ceiling'):
                         raw = score.sel(aggregation='center').item(0)
                         ceiled = None
@@ -82,70 +121,103 @@ def run_evaluation(config_file, work_dir, jenkins_id, db_secret, models=None,
                         ceiled = score.sel(aggregation='center').item(0)
                         error = score.sel(aggregation='error').item(0)
                     finished = datetime.datetime.now()
+                    layer_commitment = str(
+                        model.layer_model.region_layer_map) if submission_entry.model_type == 'BaseModel' else ''
                     result = {
                         'Model': model_id,
-                        'Benchmark': benchmark,
+                        'Benchmark': benchmark_name,
                         'raw_result': raw,
                         'ceiled_result': ceiled,
                         'error': error,
                         'finished_time': finished,
-                        'layer' : str(model.layer_model.region_layer_map)
+                        'comment': f"layers: {layer_commitment}"
                     }
                     data.append(result)
-                    store_score(db_configs, {**result, **{'jenkins_id': jenkins_id,
-                                                         'email': configs['email'],
-                                                         'name': configs['name']}})
-
+                    score_entry.end_timestamp = finished
+                    score_entry.error = error
+                    score_entry.score_ceiled = ceiled
+                    score_entry.score_raw = raw
+                    score_entry.comment = None
+                    score_entry.save()
                 except Exception as e:
-                    error = f'Benchmark {benchmark} failed for model {model_id} because of this error: {e}'
+                    success = False
+                    error = f'Benchmark {benchmark_name} failed for model {model_id} because of this error: {e}'
                     logging.error(f'Could not run model {model_id} because of following error')
                     logging.error(e, exc_info=True)
                     data.append({
-                        'Model': model_id, 'Benchmark': benchmark,
+                        'Model': model_id, 'Benchmark': benchmark_name,
                         'raw_result': 0, 'ceiled_result': 0,
                         'error': error, 'finished_time': datetime.datetime.now()
                     })
+                    if score_entry:
+                        score_entry.comment = error
+                        score_entry.save()
     finally:
-        df = pd.DataFrame(data)
-        # This is the result file we send to the user after the scoring process is done
-        df.to_csv(f'result_{jenkins_id}.csv', index=None, header=True)
+        if success:
+            submission_entry.status = 'successful'
+            logger.info(f'Submission is stored as successful')
+        else:
+            submission_entry.status = 'failure'
+            logger.info(f'Submission was not entirely successful (some benchmarks could not be executed)')
+        submission_entry.save()
+        return data
 
 
-def extract_zip_file(config, config_path, work_dir):
-    zip_file = Path('%s/%s' % (config_path, config['zip_filename']))
-    with zipfile.ZipFile(zip_file, 'r') as model_repo:
-        model_repo.extractall(path=work_dir)
-    #     Use the single directory in the zip file
-
-    return Path('%s/%s' % (work_dir, find_correct_dir(work_dir, config['zip_filename'].split('.zip')[0])))
-
-
-def find_correct_dir(work_dir, name):
-    list = os.listdir(work_dir)
-    candidates = []
-    for item in list:
-        if not item.startswith('.') and not item.startswith('_'):
-            candidates.append(item)
-    if len(candidates) is 1:
-        return candidates[0]
-    if name in candidates:
-        return name
-    logger.error('The zip file structure is not correct, we try to detect the correct directory')
-    if 'sample-model-submission' in candidates:
-        return 'sample-model-submission'
-    return candidates[0]
+def get_ml_pool(test_models, module, submission):
+    ml_brain_pool = {}
+    if submission.model_type == 'BaseModel':
+        logger.info(f"Start working with base models")
+        layers = {}
+        base_model_pool = {}
+        for model in test_models:
+            function = lambda model_inst=model.name: module.get_model(model_inst)
+            base_model_pool[model.name] = LazyLoad(function)
+            try:
+                layers[model.name] = module.get_layers(model.name)
+            except Exception:
+                logging.warning(f'Could not retrieve layer for model {model} -- skipping model')
+        model_layers = ModelLayers(layers)
+        ml_brain_pool = MLBrainPool(base_model_pool, model_layers)
+    else:
+        logger.info(f"Start working with brain models")
+        for model in test_models:
+            ml_brain_pool[model.name] = module.get_model(model.name)
+    return ml_brain_pool
 
 
-def clone_repo(config, work_dir):
-    git.Git(work_dir).clone(config['git_url'])
-    return Path('%s/%s' % (work_dir, os.listdir(work_dir)[0]))
+def get_benchmark_instance(benchmark_name):
+    benchmark = benchmark_pool[benchmark_name]
+    benchmark_type, created = BenchmarkType.get_or_create(identifier=benchmark_name, order=999)
+    if created:
+        try:
+            parent = BenchmarkType.get(identifier=benchmark.parent)
+            benchmark_type.parent = parent
+            benchmark_type.save()
+        except DoesNotExist:
+            logger.error(
+                f'Couldn\'t connect benchmark {benchmark_name} to parent {benchmark.parent} since parent doesn\'t exist')
+        if hasattr(benchmark, 'bibtex') and benchmark.bibtex is not None:
+            bibtex_string = benchmark.bibtex
+            ref = get_reference(bibtex_string)
+            if ref:
+                benchmark_type.reference = ref
+                benchmark_type.save()
+    bench_inst, created = BenchmarkInstance.get_or_create(benchmark=benchmark_type, version=benchmark.version)
+    if created:
+        # the version has changed and the benchmark instance was not yet in the database
+        ceiling = benchmark.ceiling
+        bench_inst.ceiling = ceiling.sel(aggregation='center')
+        bench_inst.ceiling_error = ceiling.sel(aggregation='error')
+        bench_inst.save()
+    return bench_inst
 
 
-def install_project(repo, package):
-    try:
-        assert 0 == subprocess.call([sys.executable, "-m", "pip", "install", "-v", repo], env=os.environ)
-        sys.path.insert(1, str(repo))
-        logger.info(f'System paths {sys.path}')
-        return import_module(package)
-    except ImportError:
-        return __import__(package)
+def get_reference(bibtex_string):
+    parsed = bibtexparser.loads(bibtex_string)
+    if len(parsed.entries) > 0:
+        entry = list(parsed.entries)[0]
+        ref, create = Reference.get_or_create(url=entry.get('url', ''),
+                                              defaults={'bibtex': bibtex_string, 'author': entry.get('author', ''),
+                                                        'year': entry.get('year', "")})
+        return ref
+    return None

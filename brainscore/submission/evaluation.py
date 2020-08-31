@@ -67,13 +67,16 @@ def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
                 model_entries = []
                 logger.info(f'Create model instances')
                 for model_name in test_models:
+                    model_entry, created = Model.get_or_create(name=model_name, owner=submission_entry.submitter,
+                                        defaults={'public': submission_config.public,
+                                                   'submission': submission_entry})
                     reference = None
-                    if hasattr(module, 'get_bibtex'):
+                    if hasattr(module, 'get_bibtex') and reference is None:
                         bibtex_string = module.get_bibtex(model_name)
                         reference = get_reference(bibtex_string)
-                    model_entries.append(Model.get_or_create(name=model_name, owner=submission_entry.submitter,
-                                                             defaults={'public': submission_config.public,
-                                                                      'reference': reference, 'submission': submission_entry})[0])
+                        model_entry.reference = reference
+                        model_entry.save()
+                    model_entries.append(model_entry)
                 data = run_submission(module, model_entries, test_benchmarks, submission_entry)
                 deinstall_project(repo)
             except Exception as e:

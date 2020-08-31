@@ -3,7 +3,7 @@ import json
 import logging
 from pathlib import Path
 
-import bibtexparser as bibtexparser
+from pybtex.database.input import bibtex
 import pandas as pd
 from peewee import DoesNotExist
 
@@ -116,6 +116,8 @@ def run_submission(module, test_models, test_benchmarks, submission_entry):
                         layer_commitment = ''
                     else:
                         if not created:
+                            score_entry.start_timestamp = datetime.datetime.now()
+                            score_entry.comment = None
                             logger.warning('An entry already exists but was not evaluated successful, we rerun!')
                         logger.info(f"Scoring {model_id}, id {model_entry.id} on benchmark {benchmark_name}")
                         model = ml_brain_pool[model_id]
@@ -223,11 +225,19 @@ def get_benchmark_instance(benchmark_name):
 
 
 def get_reference(bibtex_string):
-    parsed = bibtexparser.loads(bibtex_string)
-    if len(parsed.entries) > 0:
-        entry = list(parsed.entries)[0]
-        ref, create = Reference.get_or_create(url=entry.get('url', ''),
-                                              defaults={'bibtex': bibtex_string, 'author': entry.get('author', ''),
-                                                        'year': entry.get('year', "")})
+    def parse_bib(bibtex_str):
+        bib_parser = bibtex.Parser()
+        entry = bib_parser.parse_string(bibtex_str)
+        entry = entry.entries
+        assert len(entry) == 1
+        entry = entry.values()[0]
+        return entry
+    try:
+        entry = parse_bib(bibtex_string)
+        ref, create = Reference.get_or_create(url= entry.fields['url'],
+                                               defaults={'bibtex': bibtex_string, 'author': entry.persons["author"][0],
+                                                            'year':  entry.fields['year']})
         return ref
-    return None
+    except Exception as e:
+        logger.error('Couldn\'t load reference from bibtex string')
+        return None

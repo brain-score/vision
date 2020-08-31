@@ -30,6 +30,7 @@ class Imagenet2012(BenchmarkBase):
                                                 volume={},  
                                                 number={},  
                                                 pages={248-255},
+                                                url = {https://ieeexplore.ieee.org/document/5206848}
                                             }""")
 
     def __call__(self, candidate):

@@ -234,7 +234,7 @@ def get_reference(bibtex_string):
     try:
         entry = parse_bib(bibtex_string)
         ref, create = Reference.get_or_create(url= entry.fields['url'],
-                                               defaults={'bibtex': bibtex_string, 'author': entry.persons["author"][0].last(),
+                                               defaults={'bibtex': bibtex_string, 'author': entry.persons["author"][0].last()[0],
                                                             'year':  entry.fields['year']})
         return ref
     except Exception as e:

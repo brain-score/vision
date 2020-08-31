@@ -70,7 +70,7 @@ def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
                     model_entry, created = Model.get_or_create(name=model_name, owner=submission_entry.submitter,
                                         defaults={'public': submission_config.public,
                                                    'submission': submission_entry})
-                    if hasattr(module, 'get_bibtex') and hasattr(model_entry, reference):
+                    if hasattr(module, 'get_bibtex') and created:
                         bibtex_string = module.get_bibtex(model_name)
                         reference = get_reference(bibtex_string)
                         model_entry.reference = reference

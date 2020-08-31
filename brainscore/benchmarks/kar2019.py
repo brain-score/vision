@@ -51,7 +51,7 @@ class DicarloKar2019OST(BenchmarkBase):
 
         self._similarity_metric = OSTCorrelation()
         self._visual_degrees = VISUAL_DEGREES
-        self._number_of_trials = 2
+        self._number_of_trials = 44
 
 
     def __call__(self, candidate: BrainModel):

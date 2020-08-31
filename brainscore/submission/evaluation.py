@@ -3,7 +3,7 @@ import json
 import logging
 from pathlib import Path
 
-import bibtexparser as bibtexparser
+from pybtex.database.input import bibtex
 import pandas as pd
 from peewee import DoesNotExist
 
@@ -67,13 +67,15 @@ def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
                 model_entries = []
                 logger.info(f'Create model instances')
                 for model_name in test_models:
-                    reference = None
-                    if hasattr(module, 'get_bibtex'):
+                    model_entry, created = Model.get_or_create(name=model_name, owner=submission_entry.submitter,
+                                        defaults={'public': submission_config.public,
+                                                   'submission': submission_entry})
+                    if hasattr(module, 'get_bibtex') and created:
                         bibtex_string = module.get_bibtex(model_name)
                         reference = get_reference(bibtex_string)
-                    model_entries.append(Model.get_or_create(name=model_name, owner=submission_entry.submitter,
-                                                             defaults={'public': submission_config.public,
-                                                                      'reference': reference, 'submission': submission_entry})[0])
+                        model_entry.reference = reference
+                        model_entry.save()
+                    model_entries.append(model_entry)
                 data = run_submission(module, model_entries, test_benchmarks, submission_entry)
                 deinstall_project(repo)
             except Exception as e:
@@ -104,25 +106,40 @@ def run_submission(module, test_models, test_benchmarks, submission_entry):
                     benchmark_entry = get_benchmark_instance(benchmark_name)
                     # Check if the model is already scored on the benchmark
                     score_entry, created = Score.get_or_create(benchmark=benchmark_entry, model=model_entry, defaults={'start_timestamp':start,})
-                    if not created:
-                        assert score_entry.score_raw is None, f'A score for model {model_id} and benchmark {benchmark_name} already exists'
-                        logger.warning('An entry already exists but was not evaluated successful, we rerun!')
-                    logger.info(f"Scoring {model_id}, id {model_entry.id} on benchmark {benchmark_name}")
-                    model = ml_brain_pool[model_id]
-                    score = score_model(model_id, benchmark_name, model)
-                    logger.info(f'Running benchmark {benchmark_name} on model {model_id} id({model_entry.id}) produced this score: {score}')
-                    if not hasattr(score, 'ceiling'):
-                        raw = score.sel(aggregation='center').item(0)
-                        ceiled = None
-                        error = None
+                    if not created and score_entry.score_raw is not None:
+                        logger.warning(f'A score for model {model_id} and benchmark {benchmark_name} already exists')
+                        raw = score_entry.score_raw
+                        ceiled = score_entry.score_ceiled
+                        error = score_entry.error
+                        finished = score_entry.end_timestamp
+                        layer_commitment = ''
                     else:
-                        assert score.raw.sel(aggregation='center') is not None
-                        raw = score.raw.sel(aggregation='center').item(0)
-                        ceiled = score.sel(aggregation='center').item(0)
-                        error = score.sel(aggregation='error').item(0)
-                    finished = datetime.datetime.now()
-                    layer_commitment = str(
-                        model.layer_model.region_layer_map) if submission_entry.model_type == 'BaseModel' else ''
+                        if not created:
+                            score_entry.start_timestamp = datetime.datetime.now()
+                            score_entry.comment = None
+                            logger.warning('An entry already exists but was not evaluated successful, we rerun!')
+                        logger.info(f"Scoring {model_id}, id {model_entry.id} on benchmark {benchmark_name}")
+                        model = ml_brain_pool[model_id]
+                        score = score_model(model_id, benchmark_name, model)
+                        logger.info(f'Running benchmark {benchmark_name} on model {model_id} id({model_entry.id}) produced this score: {score}')
+                        if not hasattr(score, 'ceiling'):
+                            raw = score.sel(aggregation='center').item(0)
+                            ceiled = None
+                            error = None
+                        else:
+                            assert score.raw.sel(aggregation='center') is not None
+                            raw = score.raw.sel(aggregation='center').item(0)
+                            ceiled = score.sel(aggregation='center').item(0)
+                            error = score.sel(aggregation='error').item(0)
+                        finished = datetime.datetime.now()
+                        layer_commitment = str(
+                            model.layer_model.region_layer_map) if submission_entry.model_type == 'BaseModel' else ''
+                        score_entry.end_timestamp = finished
+                        score_entry.error = error
+                        score_entry.score_ceiled = ceiled
+                        score_entry.score_raw = raw
+                        score_entry.comment = None
+                        score_entry.save()
                     result = {
                         'Model': model_id,
                         'Benchmark': benchmark_name,
@@ -133,12 +150,6 @@ def run_submission(module, test_models, test_benchmarks, submission_entry):
                         'comment': f"layers: {layer_commitment}"
                     }
                     data.append(result)
-                    score_entry.end_timestamp = finished
-                    score_entry.error = error
-                    score_entry.score_ceiled = ceiled
-                    score_entry.score_raw = raw
-                    score_entry.comment = None
-                    score_entry.save()
                 except Exception as e:
                     success = False
                     error = f'Benchmark {benchmark_name} failed for model {model_id} because of this error: {e}'
@@ -213,11 +224,19 @@ def get_benchmark_instance(benchmark_name):
 
 
 def get_reference(bibtex_string):
-    parsed = bibtexparser.loads(bibtex_string)
-    if len(parsed.entries) > 0:
-        entry = list(parsed.entries)[0]
-        ref, create = Reference.get_or_create(url=entry.get('url', ''),
-                                              defaults={'bibtex': bibtex_string, 'author': entry.get('author', ''),
-                                                        'year': entry.get('year', "")})
+    def parse_bib(bibtex_str):
+        bib_parser = bibtex.Parser()
+        entry = bib_parser.parse_string(bibtex_str)
+        entry = entry.entries
+        assert len(entry) == 1
+        entry = entry.values()[0]
+        return entry
+    try:
+        entry = parse_bib(bibtex_string)
+        ref, create = Reference.get_or_create(url= entry.fields['url'],
+                                               defaults={'bibtex': bibtex_string, 'author': entry.persons["author"][0].last()[0],
+                                                            'year':  entry.fields['year']})
         return ref
-    return None
+    except Exception as e:
+        logger.error('Couldn\'t load reference from bibtex string')
+        return None

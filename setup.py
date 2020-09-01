@@ -25,10 +25,13 @@ requirements = [
     "fire",
     "networkx",
     "matplotlib",
-    "tensorflow==1.15",
+    "tensorflow",
     "result_caching @ git+https://github.com/mschrimpf/result_caching",
     "jupyter",
     "pandas==0.25.3",
+    "pybtex",
+    'peewee',
+    'psycopg2-binary'
 ]
 
 setup(

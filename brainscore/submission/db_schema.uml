@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>DATABASE</ID>
+  <OriginalElement>7285e97f-976b-4edb-9d1f-a06d9cfe240e.SCHEMA:dev.public</OriginalElement>
+  <nodes>
+    <node x="561.9351851851852" y="0.0">7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_user</node>
+    <node x="859.5393518518518" y="572.0">7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.auth_group_permissions</node>
+    <node x="1081.2916666666667" y="251.0">7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.django_admin_log</node>
+    <node x="1309.2916666666667" y="48.0">7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.django_content_type</node>
+    <node x="216.27083333333337" y="763.0">7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_score</node>
+    <node x="115.0" y="548.0">7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_benchmarkinstance</node>
+    <node x="0.0" y="1057.0">7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.django_migrations</node>
+    <node x="631.5393518518518" y="572.0">7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_user_groups</node>
+    <node x="1401.2916666666667" y="299.0">7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.auth_permission</node>
+    <node x="156.25" y="24.0">7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_reference</node>
+    <node x="1159.4143518518517" y="572.0">7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_user_user_permissions</node>
+    <node x="790.7893518518518" y="323.0">7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.auth_group</node>
+    <node x="312.0" y="1057.0">7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.django_session</node>
+    <node x="360.02083333333337" y="287.0">7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_submission</node>
+    <node x="79.0" y="299.0">7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_benchmarktype</node>
+    <node x="413.02083333333337" y="536.0">7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_model</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_score" target="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_model">
+      <point x="83.5" y="-124.5" />
+      <point x="466.77083333333337" y="738.0" />
+      <point x="505.52083333333337" y="738.0" />
+      <point x="0.0" y="88.5" />
+    </edge>
+    <edge source="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.auth_group_permissions" target="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.auth_group">
+      <point x="-52.0" y="-52.5" />
+      <point x="40.25" y="40.5" />
+    </edge>
+    <edge source="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_benchmarktype" target="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_reference">
+      <point x="0.0" y="-64.5" />
+      <point x="191.0" y="231.0" />
+      <point x="204.25" y="231.0" />
+      <point x="-48.0" y="76.5" />
+    </edge>
+    <edge source="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_benchmarkinstance" target="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_benchmarktype">
+      <point x="0.0" y="-76.5" />
+      <point x="56.0" y="64.5" />
+    </edge>
+    <edge source="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_user_groups" target="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_user">
+      <point x="-52.0" y="-52.5" />
+      <point x="683.5393518518518" y="231.0" />
+      <point x="704.4351851851852" y="231.0" />
+      <point x="0.0" y="100.5" />
+    </edge>
+    <edge source="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_submission" target="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_user">
+      <point x="0.0" y="-76.5" />
+      <point x="505.52083333333337" y="231.0" />
+      <point x="590.4351851851852" y="231.0" />
+      <point x="-114.0" y="100.5" />
+    </edge>
+    <edge source="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.auth_group_permissions" target="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.auth_permission">
+      <point x="52.0" y="-52.5" />
+      <point x="1015.5393518518518" y="506.0" />
+      <point x="1452.7916666666667" y="506.0" />
+      <point x="-51.5" y="64.5" />
+    </edge>
+    <edge source="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_user_groups" target="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.auth_group">
+      <point x="52.0" y="-52.5" />
+      <point x="787.5393518518518" y="516.0" />
+      <point x="831.0393518518518" y="516.0" />
+      <point x="-40.25" y="40.5" />
+    </edge>
+    <edge source="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_user_user_permissions" target="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.auth_permission">
+      <point x="72.0" y="-52.5" />
+      <point x="1375.4143518518517" y="516.0" />
+      <point x="1555.7916666666667" y="516.0" />
+      <point x="51.5" y="64.5" />
+    </edge>
+    <edge source="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_model" target="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_reference">
+      <point x="-61.66666666666663" y="-88.5" />
+      <point x="443.85416666666674" y="516.0" />
+      <point x="338.52083333333337" y="516.0" />
+      <point x="338.52083333333337" y="231.0" />
+      <point x="300.25" y="231.0" />
+      <point x="48.0" y="76.5" />
+    </edge>
+    <edge source="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.django_admin_log" target="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.django_content_type">
+      <point x="75.0" y="-112.5" />
+      <point x="1306.2916666666667" y="231.0" />
+      <point x="1357.2916666666667" y="231.0" />
+      <point x="-48.0" y="52.5" />
+    </edge>
+    <edge source="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_user_user_permissions" target="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_user">
+      <point x="-72.0" y="-52.5" />
+      <point x="1231.4143518518517" y="496.0" />
+      <point x="1070.7916666666667" y="496.0" />
+      <point x="1070.7916666666667" y="231.0" />
+      <point x="761.4351851851852" y="231.0" />
+      <point x="57.0" y="100.5" />
+    </edge>
+    <edge source="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_model" target="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_submission">
+      <point x="0.0" y="-88.5" />
+      <point x="0.0" y="76.5" />
+    </edge>
+    <edge source="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.django_admin_log" target="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_user">
+      <point x="-75.0" y="-112.5" />
+      <point x="1156.2916666666667" y="221.0" />
+      <point x="818.4351851851852" y="221.0" />
+      <point x="114.0" y="100.5" />
+    </edge>
+    <edge source="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_score" target="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_benchmarkinstance">
+      <point x="-83.5" y="-124.5" />
+      <point x="299.77083333333337" y="738.0" />
+      <point x="247.0" y="738.0" />
+      <point x="0.0" y="76.5" />
+    </edge>
+    <edge source="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_model" target="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_user">
+      <point x="61.66666666666663" y="-88.5" />
+      <point x="567.1875" y="516.0" />
+      <point x="661.5208333333334" y="516.0" />
+      <point x="661.5208333333334" y="231.0" />
+      <point x="647.4351851851852" y="231.0" />
+      <point x="-57.0" y="100.5" />
+    </edge>
+    <edge source="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_benchmarktype" target="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_benchmarktype">
+      <point x="-56.0" y="64.5" />
+      <point x="135.0" y="448.0" />
+      <point x="59.0" y="448.0" />
+      <point x="59.0" y="363.5" />
+      <point x="-112.0" y="-0.0" />
+    </edge>
+    <edge source="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.auth_permission" target="7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.django_content_type">
+      <point x="0.0" y="-64.5" />
+      <point x="1504.2916666666667" y="231.0" />
+      <point x="1453.2916666666667" y="231.0" />
+      <point x="48.0" y="52.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0402985074626865" x="804.0000000000002" y="593.0" />
+  <SelectedNodes>
+    <node>7285e97f-976b-4edb-9d1f-a06d9cfe240e.TABLE:dev.public.brainscore_model</node>
+  </SelectedNodes>
+  <Categories>
+    <Category>Key columns</Category>
+    <Category>Columns</Category>
+    <Category>Virtual foreign keys</Category>
+  </Categories>
+</Diagram>
+

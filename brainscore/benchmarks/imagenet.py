@@ -5,6 +5,7 @@ import pandas as pd
 
 from brainio_base.stimuli import StimulusSet
 from brainscore.benchmarks import BenchmarkBase
+from brainscore.benchmarks.trials import repeat_trials, average_trials
 from brainscore.metrics import Score
 from brainscore.metrics.accuracy import Accuracy
 from brainscore.model_interface import BrainModel
@@ -21,13 +22,25 @@ class Imagenet2012(BenchmarkBase):
         super(Imagenet2012, self).__init__(identifier='fei-fei.Deng2009-top1', version=1,
                                            ceiling_func=lambda: ceiling,
                                            parent='ImageNet',
-                                           paper_link="https://ieeexplore.ieee.org/abstract/document/5206848")
+                                           bibtex="""@INPROCEEDINGS{5206848,  
+                                                author={J. {Deng} and W. {Dong} and R. {Socher} and L. {Li} and  {Kai Li} and  {Li Fei-Fei}},  
+                                                booktitle={2009 IEEE Conference on Computer Vision and Pattern Recognition},   
+                                                title={ImageNet: A large-scale hierarchical image database},   
+                                                year={2009},  
+                                                volume={},  
+                                                number={},  
+                                                pages={248-255},
+                                                url = {https://ieeexplore.ieee.org/document/5206848}
+                                            }""")
 
     def __call__(self, candidate):
-        # the proper `fitting_stimuli` to pass to the candidate would be the imagenet training set.
-        # for now, since all models in our hands were trained with imagenet, we'll just short-cut this
+        # The proper `fitting_stimuli` to pass to the candidate would be the imagenet training set.
+        # For now, since almost all models in our hands were trained with imagenet, we'll just short-cut this
         # by telling the candidate to use its pre-trained imagenet weights.
         candidate.start_task(BrainModel.Task.label, 'imagenet')
-        predictions = candidate.look_at(self._stimulus_set[list(set(self._stimulus_set.columns) - {'synset'})])
+        stimulus_set = self._stimulus_set[list(set(self._stimulus_set.columns) - {'synset'})]  # do not show label
+        stimulus_set = repeat_trials(stimulus_set, number_of_trials=10)
+        predictions = candidate.look_at(stimulus_set)
+        predictions = average_trials(predictions)
         score = self._similarity_metric(predictions, self._stimulus_set['synset'].values)
         return score

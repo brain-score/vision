@@ -3,7 +3,7 @@ from pytest import approx
 
 from brainscore.benchmarks.public_benchmarks import list_public_assemblies, \
     FreemanZiembaV1PublicBenchmark, FreemanZiembaV2PublicBenchmark, \
-    MajajV4PublicBenchmark, MajajITPublicBenchmark
+    MajajHongV4PublicBenchmark, MajajHongITPublicBenchmark
 from tests.test_benchmarks import PrecomputedFeatures
 
 
@@ -12,9 +12,9 @@ from tests.test_benchmarks import PrecomputedFeatures
                  marks=[pytest.mark.memory_intense]),
     pytest.param(FreemanZiembaV2PublicBenchmark, 4, approx(.577498, abs=.001),
                  marks=[pytest.mark.memory_intense]),
-    pytest.param(MajajV4PublicBenchmark, 8, approx(.897956, abs=.001),
+    pytest.param(MajajHongV4PublicBenchmark, 8, approx(.897956, abs=.001),
                  marks=pytest.mark.memory_intense),
-    pytest.param(MajajITPublicBenchmark, 8, approx(.816251, abs=.001),
+    pytest.param(MajajHongITPublicBenchmark, 8, approx(.816251, abs=.001),
                  marks=pytest.mark.memory_intense),
 ])
 def test_self(benchmark_ctr, visual_degrees, expected):
@@ -26,6 +26,6 @@ def test_self(benchmark_ctr, visual_degrees, expected):
 
 def test_list():
     assemblies = list_public_assemblies()
-    assert set(assemblies) == {'dicarlo.Majaj2015.public', 'dicarlo.Majaj2015.temporal.public',
+    assert set(assemblies) == {'dicarlo.MajajHong2015.public', 'dicarlo.MajajHong2015.temporal.public',
                                'movshon.FreemanZiemba2013.public', 'movshon.FreemanZiemba2013.noaperture.public',
                                'dicarlo.Rajalingham2018.public'}

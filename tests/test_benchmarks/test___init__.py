@@ -77,6 +77,8 @@ class TestStandardized:
                      marks=pytest.mark.memory_intense),
         pytest.param('dicarlo.SanghaviMurty2020.IT-pls', approx(.875714, abs=.001),
                      marks=pytest.mark.memory_intense),
+        pytest.param('dicarlo.Rajalingham2020.IT-pls', approx(.561013, abs=.001),
+                     marks=pytest.mark.memory_intense),
     ])
     def test_ceilings(self, benchmark, expected):
         benchmark = benchmark_pool[benchmark]
@@ -105,6 +107,8 @@ class TestStandardized:
         pytest.param('dicarlo.SanghaviMurty2020.V4-pls', 5, approx(.978581, abs=.001),
                      marks=pytest.mark.memory_intense),
         pytest.param('dicarlo.SanghaviMurty2020.IT-pls', 5, approx(.9997532, abs=.001),
+                     marks=pytest.mark.memory_intense),
+        pytest.param('dicarlo.Rajalingham2020.IT-pls', 8, approx(.693463, abs=.005),
                      marks=pytest.mark.memory_intense),
     ])
     def test_self_regression(self, benchmark, visual_degrees, expected):
@@ -225,6 +229,13 @@ class TestPrecomputed:
     ])
     def test_SanghaviMurty2020(self, benchmark, expected):
         self.run_test(benchmark=benchmark, file='alexnet-sanghavimurty2020-features.12.pkl', expected=expected)
+
+    @pytest.mark.memory_intense
+    @pytest.mark.parametrize('benchmark, expected', [
+        ('dicarlo.Rajalingham2020.IT-pls', approx(.147549, abs=.01)),
+    ])
+    def test_SanghaviMurty2020(self, benchmark, expected):
+        self.run_test(benchmark=benchmark, file='alexnet-rajalingham2020-features.12.pkl', expected=expected)
 
 
 class TestVisualDegrees:

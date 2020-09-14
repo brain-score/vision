@@ -153,6 +153,9 @@ def _engineering_benchmark_pool():
     from .imagenet import Imagenet2012
     pool['fei-fei.Deng2009-top1'] = LazyLoad(Imagenet2012)
 
+    from .imagenet_c import Imagenet_C
+    pool['dietterich.Hendrycks2019-top1'] = LazyLoad(Imagenet_C)
+
     return pool
 
 

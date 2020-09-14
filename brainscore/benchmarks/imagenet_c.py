@@ -1,0 +1,152 @@
+import os
+
+import numpy as np
+import pandas as pd
+import xarray as xr
+
+import brainscore
+from brainscore.benchmarks import BenchmarkBase
+from brainscore.benchmarks.trials import repeat_trials, average_trials
+from brainscore.metrics import Score
+from brainscore.metrics.accuracy import Accuracy
+from brainscore.model_interface import BrainModel
+from brainio_base.stimuli import StimulusSet
+
+BIBTEX="""@ARTICLE{Hendrycks2019-di,
+   title         = "Benchmarking Neural Network Robustness to Common Corruptions
+                    and Perturbations",
+   author        = "Hendrycks, Dan and Dietterich, Thomas",
+   abstract      = "In this paper we establish rigorous benchmarks for image
+                    classifier robustness. Our first benchmark, ImageNet-C,
+                    standardizes and expands the corruption robustness topic,
+                    while showing which classifiers are preferable in
+                    safety-critical applications. Then we propose a new dataset
+                    called ImageNet-P which enables researchers to benchmark a
+                    classifier's robustness to common perturbations. Unlike
+                    recent robustness research, this benchmark evaluates
+                    performance on common corruptions and perturbations not
+                    worst-case adversarial perturbations. We find that there are
+                    negligible changes in relative corruption robustness from
+                    AlexNet classifiers to ResNet classifiers. Afterward we
+                    discover ways to enhance corruption and perturbation
+                    robustness. We even find that a bypassed adversarial defense
+                    provides substantial common perturbation robustness.
+                    Together our benchmarks may aid future work toward networks
+                    that robustly generalize.",
+   month         =  mar,
+   year          =  2019,
+   archivePrefix = "arXiv",
+   primaryClass  = "cs.LG",
+   eprint        = "1903.12261"
+}"""
+
+class Imagenet_C(BenchmarkBase):
+    """
+    Runs all the Imagenet C benchmarks
+    """
+    def __init__(self):
+        ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
+        super(Imagenet_C, self).__init__(identifier='dietterich.Hendrycks2019-top1', version=1,
+                                           ceiling_func=lambda: ceiling,
+                                           parent='ImageNet_C',
+                                           bibtex=BIBTEX)
+
+    def __call__(self, candidate):
+        scores = xr.concat([
+            Imagenet_C_Category(cat)(candidate)
+            for cat in ['noise', 'blur', 'weather', 'digital']
+        ], dim='presentation')
+        assert len(set(scores['noise_type'].values)) == 15
+        assert len(set(scores['name'].values)) == 75
+        center = np.mean(scores)
+        error = np.std(scores)
+        score = Score([center, error], coords={'aggregation': ['center', 'error']}, dims=('aggregation',))
+        score.attrs[Score.RAW_VALUES_KEY] = scores
+        import pdb; pdb.set_trace()
+        return score
+
+class Imagenet_C_Category(BenchmarkBase):
+    """
+    Runs all ImageNet C benchmarks within a perturbation category, ie: 
+    gaussian noise [1-5]
+    shot noise [1-5]
+    impulse noise [1-5]
+    """
+    def __init__(self, category):
+        self._category = category
+        self._category_groups = {
+            'noise' : ['gaussian_noise', 'shot_noise', 'impulse_noise'],
+            'blur' : ['glass_blur', 'motion_blur', 'zoom_blur', 'defocus_blur'],
+            'weather' : ['snow', 'frost', 'fog', 'brightness'],
+            'digital' : ['pixelate', 'contrast', 'elastic_transform', 'jpeg_compression']
+        }
+        ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
+        super(Imagenet_C_Category, self).__init__(identifier='dietterich.Hendrycks2019-top1', version=1,
+                                           ceiling_func=lambda: ceiling,
+                                           parent='ImageNet_C',
+                                           bibtex=BIBTEX)
+
+    def __call__(self, candidate):
+        score = xr.concat([
+            Imagenet_C_Group(group)(candidate)
+            for group in self._category_groups[self._category]
+        ], dim='presentation')
+        return score
+
+class Imagenet_C_Group(BenchmarkBase):
+    """
+    Runs a group in imnet C benchmarks, like gaussian noise [1-5]
+    """
+    def __init__(self, noise_type):
+        self._noise_type = noise_type
+        ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
+        super(Imagenet_C_Group, self).__init__(identifier='dietterich.Hendrycks2019-top1', version=1,
+                                           ceiling_func=lambda: ceiling,
+                                           parent=f'ImageNet_C_{noise_type}',
+                                           bibtex=BIBTEX)
+
+    def __call__(self, candidate):
+        score = xr.concat([
+            Imagenet_C_Individual(f'dietterich.Hendrycks2019.{self._noise_type}_{severity}', self._noise_type)(candidate)
+            for severity in range(1,6)
+        ], dim='presentation')
+        return score
+
+class Imagenet_C_Individual(BenchmarkBase):
+    """
+    Runs an individual ImageNet C benchmark, like "gaussian_noise_1"
+    """
+    def __init__(self, benchmark_name, noise_type):
+        stimulus_set = brainscore.get_stimulus_set(benchmark_name)
+        self._stimulus_set = stimulus_set[:100]
+        self._similarity_metric = Accuracy() # path with sortby's
+        self._benchmark_name = benchmark_name
+        self._noise_type = noise_type
+        ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
+        super(Imagenet_C_Individual, self).__init__(identifier='dietterich.Hendrycks2019-top1', version=1,
+                                           ceiling_func=lambda: ceiling,
+                                           parent=f'ImageNet_C_{noise_type}',
+                                           bibtex=BIBTEX)
+
+    def __call__(self, candidate):
+        # The proper `fitting_stimuli` to pass to the candidate would be the imagenet training set.
+        # For now, since almost all models in our hands were trained with imagenet, we'll just short-cut this
+        # by telling the candidate to use its pre-trained imagenet weights.
+        candidate.start_task(BrainModel.Task.label, 'imagenet')
+        stimulus_set = self._stimulus_set[list(set(self._stimulus_set.columns) - {'synset'})]  # do not show label
+        stimulus_set = repeat_trials(stimulus_set, number_of_trials=1)
+        predictions = candidate.look_at(stimulus_set)
+        predictions = average_trials(predictions)
+        score = self._similarity_metric(
+            predictions.sortby('filename'), 
+            self._stimulus_set.sort_values('filename')['synset'].values
+        ).raw
+        
+        score = score.assign_coords(
+            name=('presentation', [f'{self._benchmark_name}' for _ in range(len(score.presentation))])
+        )
+        score = score.assign_coords(
+            noise_type=('presentation', [f'{self._noise_type}' for _ in range(len(score.presentation))])
+        )
+
+        return score

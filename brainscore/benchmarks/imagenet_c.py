@@ -40,30 +40,23 @@ BIBTEX="""@ARTICLE{Hendrycks2019-di,
    eprint        = "1903.12261"
 }"""
 
-class Imagenet_C(BenchmarkBase):
-    """
-    Runs all the Imagenet C benchmarks
-    """
-    def __init__(self):
-        ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
-        super(Imagenet_C, self).__init__(identifier='dietterich.Hendrycks2019-top1', version=1,
-                                           ceiling_func=lambda: ceiling,
-                                           parent='ImageNet_C',
-                                           bibtex=BIBTEX)
+## TODO
+# remove debugging code
+# make unit tests
+#  - individual
+#  - top level w/ slow marker
 
-    def __call__(self, candidate):
-        scores = xr.concat([
-            Imagenet_C_Category(cat)(candidate)
-            for cat in ['noise', 'blur', 'weather', 'digital']
-        ], dim='presentation')
-        assert len(set(scores['noise_type'].values)) == 15
-        assert len(set(scores['name'].values)) == 75
-        center = np.mean(scores)
-        error = np.std(scores)
-        score = Score([center, error], coords={'aggregation': ['center', 'error']}, dims=('aggregation',))
-        score.attrs[Score.RAW_VALUES_KEY] = scores
-        import pdb; pdb.set_trace()
-        return score
+def Imagenet_C_Noise():
+    return Imagenet_C_Category('noise')
+
+def Imagenet_C_Blur():
+    return Imagenet_C_Category('blur')
+
+def Imagenet_C_Weather():
+    return Imagenet_C_Category('weather')
+
+def Imagenet_C_Digital():
+    return Imagenet_C_Category('digital')
 
 class Imagenet_C_Category(BenchmarkBase):
     """
@@ -73,13 +66,14 @@ class Imagenet_C_Category(BenchmarkBase):
     impulse noise [1-5]
     """
     def __init__(self, category):
-        self._category = category
-        self._category_groups = {
+        category_groups = {
             'noise' : ['gaussian_noise', 'shot_noise', 'impulse_noise'],
             'blur' : ['glass_blur', 'motion_blur', 'zoom_blur', 'defocus_blur'],
             'weather' : ['snow', 'frost', 'fog', 'brightness'],
             'digital' : ['pixelate', 'contrast', 'elastic_transform', 'jpeg_compression']
         }
+        self._category = category
+        self._groups = category_groups[category]
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         super(Imagenet_C_Category, self).__init__(identifier='dietterich.Hendrycks2019-top1', version=1,
                                            ceiling_func=lambda: ceiling,
@@ -87,10 +81,15 @@ class Imagenet_C_Category(BenchmarkBase):
                                            bibtex=BIBTEX)
 
     def __call__(self, candidate):
-        score = xr.concat([
+        scores = xr.concat([
             Imagenet_C_Group(group)(candidate)
-            for group in self._category_groups[self._category]
+            for group in self._groups
         ], dim='presentation')
+        assert len(set(scores['noise_type'].values)) == len(self._groups)
+        center = np.mean(scores)
+        error = np.std(scores)
+        score = Score([center, error], coords={'aggregation': ['center', 'error']}, dims=('aggregation',))
+        score.attrs[Score.RAW_VALUES_KEY] = scores
         return score
 
 class Imagenet_C_Group(BenchmarkBase):
@@ -118,8 +117,8 @@ class Imagenet_C_Individual(BenchmarkBase):
     """
     def __init__(self, benchmark_name, noise_type):
         stimulus_set = brainscore.get_stimulus_set(benchmark_name)
-        self._stimulus_set = stimulus_set[:100]
-        self._similarity_metric = Accuracy() # path with sortby's
+        self._stimulus_set = stimulus_set
+        self._similarity_metric = Accuracy() 
         self._benchmark_name = benchmark_name
         self._noise_type = noise_type
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])

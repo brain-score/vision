@@ -42,5 +42,8 @@ class Imagenet2012(BenchmarkBase):
         stimulus_set = repeat_trials(stimulus_set, number_of_trials=10)
         predictions = candidate.look_at(stimulus_set)
         predictions = average_trials(predictions)
-        score = self._similarity_metric(predictions, self._stimulus_set['synset'].values)
+        score = self._similarity_metric(
+            predictions.sortby('filename'), 
+            self._stimulus_set.sort_values('filename')['synset'].values
+        )
         return score

@@ -207,6 +207,7 @@ class TestPrecomputed:
         assert score.sel(aggregation='center') == approx(.136923, abs=.005)
 
     @pytest.mark.memory_intense
+    @pytest.mark.slow
     @pytest.mark.parametrize('benchmark, expected', [
         ('dicarlo.Sanghavi2020.V4-pls', approx(.551135, abs=.015)),
         ('dicarlo.Sanghavi2020.IT-pls', approx(.611347, abs=.015)),
@@ -215,6 +216,7 @@ class TestPrecomputed:
         self.run_test(benchmark=benchmark, file='alexnet-sanghavi2020-features.12.pkl', expected=expected)
 
     @pytest.mark.memory_intense
+    @pytest.mark.slow
     @pytest.mark.parametrize('benchmark, expected', [
         ('dicarlo.SanghaviJozwik2020.V4-pls', approx(.49235, abs=.005)),
         ('dicarlo.SanghaviJozwik2020.IT-pls', approx(.590543, abs=.005)),
@@ -231,6 +233,7 @@ class TestPrecomputed:
         self.run_test(benchmark=benchmark, file='alexnet-sanghavimurty2020-features.12.pkl', expected=expected)
 
     @pytest.mark.memory_intense
+    @pytest.mark.slow
     @pytest.mark.parametrize('benchmark, expected', [
         ('dicarlo.Rajalingham2020.IT-pls', approx(.147549, abs=.01)),
     ])

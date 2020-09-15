@@ -40,12 +40,6 @@ BIBTEX="""@ARTICLE{Hendrycks2019-di,
    eprint        = "1903.12261"
 }"""
 
-## TODO
-# remove debugging code
-# make unit tests
-#  - individual
-#  - top level w/ slow marker
-
 def Imagenet_C_Noise():
     return Imagenet_C_Category('noise')
 

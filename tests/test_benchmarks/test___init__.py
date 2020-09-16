@@ -78,7 +78,7 @@ class TestStandardized:
         pytest.param('dicarlo.SanghaviMurty2020.IT-pls', approx(.875714, abs=.001),
                      marks=pytest.mark.memory_intense),
         pytest.param('dicarlo.Rajalingham2020.IT-pls', approx(.561013, abs=.001),
-                     marks=pytest.mark.memory_intense),
+                     marks=[pytest.mark.memory_intense, pytest.mark.slow]),
     ])
     def test_ceilings(self, benchmark, expected):
         benchmark = benchmark_pool[benchmark]
@@ -109,7 +109,7 @@ class TestStandardized:
         pytest.param('dicarlo.SanghaviMurty2020.IT-pls', 5, approx(.9997532, abs=.001),
                      marks=pytest.mark.memory_intense),
         pytest.param('dicarlo.Rajalingham2020.IT-pls', 8, approx(.693463, abs=.005),
-                     marks=pytest.mark.memory_intense),
+                     marks=[pytest.mark.memory_intense, pytest.mark.slow]),
     ])
     def test_self_regression(self, benchmark, visual_degrees, expected):
         benchmark = benchmark_pool[benchmark]

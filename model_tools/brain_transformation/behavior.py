@@ -46,7 +46,7 @@ class LogitsBehavior(BrainModel):
         prediction_synsets = [synsets[index] for index in prediction_indices]
         return BehavioralAssembly([prediction_synsets], coords={
             **{coord: (dims, values) for coord, dims, values in walk_coords(logits['presentation'])},
-            **{'synset': ('choice', prediction_synsets), 'logit': ('choice', prediction_indices)}},
+            **{'synset': ('presentation', prediction_synsets), 'logit': ('presentation', prediction_indices)}},
                                   dims=['choice', 'presentation'])
 
 

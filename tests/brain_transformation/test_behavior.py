@@ -47,15 +47,16 @@ class TestLogitsBehavior:
         activations_model = model_ctr()
         brain_model = ModelCommitment(identifier=activations_model.identifier, activations_model=activations_model,
                                       layers=None, behavioral_readout_layer='dummy')  # not needed
-        stimuli = StimulusSet({'image_id': ['abc123'], 'filename': ['abc123']})
-        stimuli.image_paths = {'abc123': os.path.join(os.path.dirname(__file__), 'rgb1.jpg')}
+        stimuli = StimulusSet({'image_id': ['1', '2'], 'filename': ['rgb1', 'rgb2']})
+        stimuli.image_paths = {'1': os.path.join(os.path.dirname(__file__), 'rgb1.jpg'),
+                               '2': os.path.join(os.path.dirname(__file__), 'rgb2.jpg')}
         stimuli.identifier = 'test_logits_behavior.creates_synset'
         brain_model.start_task(BrainModel.Task.label, 'imagenet')
-        synsets = brain_model.look_at(stimuli)
-        assert isinstance(synsets, BehavioralAssembly)
-        assert synsets['image_id'].values.squeeze() == 'abc123'
-        assert len(synsets) == 1
-        assert synsets.values[0, 0].startswith('n')
+        behavior = brain_model.look_at(stimuli)
+        assert isinstance(behavior, BehavioralAssembly)
+        assert set(behavior['image_id'].values) == {'1', '2'}
+        assert len(behavior['synset']) == 2
+        assert behavior['synset'].values[0].startswith('n')
 
 
 class TestProbabilitiesMapping:

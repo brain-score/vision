@@ -37,7 +37,8 @@ BIBTEX="""@ARTICLE{Hendrycks2019-di,
    year          =  2019,
    archivePrefix = "arXiv",
    primaryClass  = "cs.LG",
-   eprint        = "1903.12261"
+   eprint        = "1903.12261",
+   url           = "https://arxiv.org/abs/1903.12261"
 }"""
 
 def Imagenet_C_Noise():

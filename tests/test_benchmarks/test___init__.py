@@ -302,7 +302,7 @@ class TestVisualDegrees:
             def visual_degrees(self):
                 return candidate_degrees
 
-            def look_at(self, stimuli):
+            def look_at(self, stimuli, number_of_trials):
                 image = stimuli.get_image(image_id)
                 image = Image.open(image)
                 image = np.array(image)

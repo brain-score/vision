@@ -29,7 +29,7 @@ class BrainModel:
         """
         raise NotImplementedError()
 
-    def look_at(self, stimuli: Union[StimulusSet, List[str]]):
+    def look_at(self, stimuli: Union[StimulusSet, List[str]], number_of_trials=1):
         """
         Digest a set of stimuli and return requested outputs. Which outputs to return is instructed by the
         :meth:`~brainscore.model_interface.BrainMode.start_task` and
@@ -37,6 +37,8 @@ class BrainModel:
 
         :param stimuli: A set of stimuli, passed as either a :class:`~brainio_base.stimuli.StimulusSet`
             or a list of image file paths
+        :param number_of_trials: The number of repeated trials of the stimuli that the model should average over.
+            E.g. 10 or 35. Non-stochastic models can likely ignore this parameter.
         :return: recordings or task behaviors as instructed
         """
         raise NotImplementedError()

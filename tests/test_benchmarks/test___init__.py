@@ -342,9 +342,8 @@ class TestNumberOfTrials:
             def visual_degrees(self):
                 return 8
 
-            def look_at(self, stimuli):
-                unique_images = set(stimuli.get_image(image_id) for image_id in stimuli['image_id'])
-                assert len(unique_images) < len(stimuli)
+            def look_at(self, stimuli, number_of_trials):
+                assert number_of_trials > 1
                 raise self.StopException()
 
             def start_task(self, task: BrainModel.Task, fitting_stimuli):

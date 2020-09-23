@@ -205,8 +205,8 @@ def get_benchmark_instance(benchmark_name):
             benchmark_type.parent = parent
             benchmark_type.save()
         except DoesNotExist:
-            logger.error(
-                f'Couldn\'t connect benchmark {benchmark_name} to parent {benchmark.parent} since parent doesn\'t exist')
+            logger.exception(f'Could not connect benchmark {benchmark_name} to parent {benchmark.parent} '
+                             f'since parent does not exist')
         if hasattr(benchmark, 'bibtex') and benchmark.bibtex is not None:
             bibtex_string = benchmark.bibtex
             ref = get_reference(bibtex_string)
@@ -237,6 +237,6 @@ def get_reference(bibtex_string):
                                                defaults={'bibtex': bibtex_string, 'author': entry.persons["author"][0].last()[0],
                                                             'year':  entry.fields['year']})
         return ref
-    except Exception as e:
-        logger.error('Couldn\'t load reference from bibtex string')
+    except Exception:
+        logger.exception('Could not load reference from bibtex string')
         return None

@@ -48,7 +48,8 @@ class ModelCommitment(BrainModel):
         else:
             self.do_behavior = False
 
-    def look_at(self, stimuli):
+    def look_at(self, stimuli, number_of_trials=1):
+        # ignore number_of_trials, do not forward (lower implementations use default=1)
         if self.do_behavior:
             return self.behavior_model.look_at(stimuli)
         else:

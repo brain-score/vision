@@ -19,7 +19,7 @@ class LayerMappedModel(BrainModel):
         self.region_layer_map = region_layer_map or {}
         self.recorded_regions = []
 
-    def look_at(self, stimuli):
+    def look_at(self, stimuli, number_of_trials=1):
         layer_regions = {}
         for region in self.recorded_regions:
             layers = self.region_layer_map[region]

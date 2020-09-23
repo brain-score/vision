@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 
 from typing import List, Tuple
@@ -5,6 +7,7 @@ from typing import List, Tuple
 from brainio_base.assemblies import merge_data_arrays
 
 from brainscore.model_interface import BrainModel
+from model_tools.utils import fullname
 
 
 class TemporalIgnore(BrainModel):
@@ -14,6 +17,7 @@ class TemporalIgnore(BrainModel):
     """
 
     def __init__(self, layer_model):
+        self._logger = logging.getLogger(fullname(self))
         self._layer_model = layer_model
         self.commit = self._layer_model.commit
         self.region_layer_map = self._layer_model.region_layer_map
@@ -28,9 +32,10 @@ class TemporalIgnore(BrainModel):
     def visual_degrees(self) -> int:
         return self._layer_model.visual_degrees()
 
-    def look_at(self, stimuli):
+    def look_at(self, stimuli, number_of_trials=1):
         responses = self._layer_model.look_at(stimuli)
         time_responses = []
+        self._logger.debug(f'Repeating single assembly across time bins {self._time_bins}')
         for time_bin in self._time_bins:
             time_bin = time_bin if not isinstance(time_bin, np.ndarray) else time_bin.tolist()
             time_bin_start, time_bin_end = time_bin

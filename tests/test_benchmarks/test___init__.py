@@ -302,7 +302,7 @@ class TestVisualDegrees:
             def visual_degrees(self):
                 return candidate_degrees
 
-            def look_at(self, stimuli, number_of_trials):
+            def look_at(self, stimuli, number_of_trials=1):
                 image = stimuli.get_image(image_id)
                 image = Image.open(image)
                 image = np.array(image)
@@ -342,7 +342,7 @@ class TestNumberOfTrials:
             def visual_degrees(self):
                 return 8
 
-            def look_at(self, stimuli, number_of_trials):
+            def look_at(self, stimuli, number_of_trials=1):
                 assert number_of_trials > 1
                 raise self.StopException()
 

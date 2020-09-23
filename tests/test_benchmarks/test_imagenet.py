@@ -16,7 +16,7 @@ class TestImagenet2012:
                 assert task == BrainModel.Task.label
                 assert fitting_stimuli == 'imagenet'  # shortcut
 
-            def look_at(self, stimuli, number_of_trials):
+            def look_at(self, stimuli, number_of_trials=1):
                 source_image_ids = source['image_id'].values
                 stimuli_image_ids = stimuli['image_id'].values
                 sorted_x = source_image_ids[np.argsort(source_image_ids)]

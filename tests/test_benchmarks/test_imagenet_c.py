@@ -7,7 +7,7 @@ from brainscore.benchmarks.imagenet import Imagenet2012
 from brainscore.benchmarks.imagenet_c import Imagenet_C_Individual, Imagenet_C_Noise, Imagenet_C_Blur, Imagenet_C_Weather, Imagenet_C_Digital
 from brainscore.model_interface import BrainModel
 
-#@pytest.mark.slow
+@pytest.mark.slow
 class TestImagenetC:
     def test_groundtruth(self):
         benchmarks = [

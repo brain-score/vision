@@ -45,7 +45,7 @@ class PrecomputedProbabilities(BrainModel):
         assert task == BrainModel.Task.probabilities
         assert len(fitting_stimuli) == 2160
 
-    def look_at(self, stimuli):
+    def look_at(self, stimuli, number_of_trials):
         assert set(self.probabilities['image_id'].values) == set(stimuli['image_id'].values)
         image_ids = self.probabilities['image_id'].values.tolist()
         probabilities = self.probabilities[[image_ids.index(image_id) for image_id in stimuli['image_id'].values], :]

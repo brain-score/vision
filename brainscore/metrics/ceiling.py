@@ -8,6 +8,7 @@ from brainscore.metrics.rdm import RDMMetric
 from brainscore.metrics.transformations import CrossValidationSingle
 from brainscore.metrics.xarray_utils import Defaults as XarrayDefaults
 from brainscore.metrics.xarray_utils import XarrayCorrelation
+from result_caching import store
 
 
 class Ceiling(object):
@@ -132,6 +133,18 @@ class TemporalCeiling:
         ceiling = Score.merge(*ceilings)
         return ceiling
 
+
+class NeuronalPropertyCeiling:
+    def __init__(self, similarity_metric):
+        self.similarity_metric = similarity_metric
+
+    def __call__(self, assembly):
+        self.assembly = assembly
+        return self._ceiling(self.similarity_metric.property_name)
+
+    @store()
+    def _ceiling(self, identifier):
+        return self.similarity_metric(self.assembly, self.assembly)
 
 ceilings = {
     'cons': InternalConsistency,

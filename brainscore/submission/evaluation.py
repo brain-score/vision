@@ -21,6 +21,8 @@ logger = logging.getLogger(__name__)
 all_benchmarks_list = [benchmark for benchmark in evaluation_benchmark_pool.keys()
                        if benchmark not in ['dicarlo.Kar2019-ost', 'fei-fei.Deng2009-top1']]
 
+SCORE_COMMENT_MAX_LENGTH = 1000
+
 
 def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
                    benchmarks=None):
@@ -68,8 +70,8 @@ def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
                 logger.info(f'Create model instances')
                 for model_name in test_models:
                     model_entry, created = Model.get_or_create(name=model_name, owner=submission_entry.submitter,
-                                        defaults={'public': submission_config.public,
-                                                   'submission': submission_entry})
+                                                               defaults={'public': submission_config.public,
+                                                                         'submission': submission_entry})
                     if hasattr(module, 'get_bibtex') and created:
                         bibtex_string = module.get_bibtex(model_name)
                         reference = get_reference(bibtex_string)
@@ -105,7 +107,8 @@ def run_submission(module, test_models, test_benchmarks, submission_entry):
                     start = datetime.datetime.now()
                     benchmark_entry = get_benchmark_instance(benchmark_name)
                     # Check if the model is already scored on the benchmark
-                    score_entry, created = Score.get_or_create(benchmark=benchmark_entry, model=model_entry, defaults={'start_timestamp':start,})
+                    score_entry, created = Score.get_or_create(benchmark=benchmark_entry, model=model_entry,
+                                                               defaults={'start_timestamp': start, })
                     if not created and score_entry.score_raw is not None:
                         logger.warning(f'A score for model {model_id} and benchmark {benchmark_name} already exists')
                         raw = score_entry.score_raw
@@ -121,7 +124,8 @@ def run_submission(module, test_models, test_benchmarks, submission_entry):
                         logger.info(f"Scoring {model_id}, id {model_entry.id} on benchmark {benchmark_name}")
                         model = ml_brain_pool[model_id]
                         score = score_model(model_id, benchmark_name, model)
-                        logger.info(f'Running benchmark {benchmark_name} on model {model_id} id({model_entry.id}) produced this score: {score}')
+                        logger.info(f'Running benchmark {benchmark_name} on model {model_id} (id {model_entry.id}) '
+                                    f'produced this score: {score}')
                         if not hasattr(score, 'ceiling'):
                             raw = score.sel(aggregation='center').item(0)
                             ceiled = None
@@ -161,7 +165,9 @@ def run_submission(module, test_models, test_benchmarks, submission_entry):
                         'error': error, 'finished_time': datetime.datetime.now()
                     })
                     if score_entry:
-                        score_entry.comment = error
+                        score_entry.comment = error if len(error) <= SCORE_COMMENT_MAX_LENGTH else \
+                            error[:int(SCORE_COMMENT_MAX_LENGTH / 2) - 5] + ' [...] ' + \
+                            error[-int(SCORE_COMMENT_MAX_LENGTH / 2) + 5:]
                         score_entry.save()
     finally:
         if success:
@@ -205,8 +211,8 @@ def get_benchmark_instance(benchmark_name):
             benchmark_type.parent = parent
             benchmark_type.save()
         except DoesNotExist:
-            logger.error(
-                f'Couldn\'t connect benchmark {benchmark_name} to parent {benchmark.parent} since parent doesn\'t exist')
+            logger.exception(f'Could not connect benchmark {benchmark_name} to parent {benchmark.parent} '
+                             f'since parent does not exist')
         if hasattr(benchmark, 'bibtex') and benchmark.bibtex is not None:
             bibtex_string = benchmark.bibtex
             ref = get_reference(bibtex_string)
@@ -231,12 +237,14 @@ def get_reference(bibtex_string):
         assert len(entry) == 1
         entry = entry.values()[0]
         return entry
+
     try:
         entry = parse_bib(bibtex_string)
-        ref, create = Reference.get_or_create(url= entry.fields['url'],
-                                               defaults={'bibtex': bibtex_string, 'author': entry.persons["author"][0].last()[0],
-                                                            'year':  entry.fields['year']})
+        ref, create = Reference.get_or_create(url=entry.fields['url'],
+                                              defaults={'bibtex': bibtex_string,
+                                                        'author': entry.persons["author"][0].last()[0],
+                                                        'year': entry.fields['year']})
         return ref
-    except Exception as e:
-        logger.error('Couldn\'t load reference from bibtex string')
+    except Exception:
+        logger.exception('Could not load reference from bibtex string')
         return None

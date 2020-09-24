@@ -21,9 +21,10 @@ class Reference(BaseModel):
 
 class BenchmarkType(BaseModel):
     identifier = CharField(primary_key=True)
+    reference = ForeignKeyField(column_name='reference_id', field='id', model=Reference)
     order = IntegerField()
     parent = ForeignKeyField(column_name='parent_id', field='identifier', model='self', null=True)
-    reference = ForeignKeyField(column_name='reference_id', field='id', model=Reference)
+    visible = BooleanField(default=False, null=False)
 
     class Meta:
         table_name = 'brainscore_benchmarktype'

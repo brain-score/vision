@@ -191,6 +191,17 @@ def _experimental_benchmark_pool():
     pool['dicarlo.Marques2020_Ringach2002.V1-maxac'] = LazyLoad(MarquesRingach2002V1MAXAC)
     pool['dicarlo.Marques2020_Ringach2002.V1-mod_ratio'] = LazyLoad(MarquesRingach2002V1MR)
     pool['dicarlo.Marques2020_Ringach2002.V1-baseline'] = LazyLoad(MarquesRingach2002V1BSLN)
+    from .sanghavi2020 import DicarloSanghavi2020V4PLS, DicarloSanghavi2020ITPLS
+    pool['dicarlo.Sanghavi2020.V4-pls'] = LazyLoad(DicarloSanghavi2020V4PLS)
+    pool['dicarlo.Sanghavi2020.IT-pls'] = LazyLoad(DicarloSanghavi2020ITPLS)
+    from .sanghavijozwik2020 import DicarloSanghaviJozwik2020V4PLS, DicarloSanghaviJozwik2020ITPLS
+    pool['dicarlo.SanghaviJozwik2020.V4-pls'] = LazyLoad(DicarloSanghaviJozwik2020V4PLS)
+    pool['dicarlo.SanghaviJozwik2020.IT-pls'] = LazyLoad(DicarloSanghaviJozwik2020ITPLS)
+    from .sanghavimurty2020 import DicarloSanghaviMurty2020V4PLS, DicarloSanghaviMurty2020ITPLS
+    pool['dicarlo.SanghaviMurty2020.V4-pls'] = LazyLoad(DicarloSanghaviMurty2020V4PLS)
+    pool['dicarlo.SanghaviMurty2020.IT-pls'] = LazyLoad(DicarloSanghaviMurty2020ITPLS)
+    from .rajalingham2020 import DicarloRajalingham2020ITPLS
+    pool['dicarlo.Rajalingham2020.IT-pls'] = LazyLoad(DicarloRajalingham2020ITPLS)
 
     return pool
 

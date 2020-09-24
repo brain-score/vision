@@ -3,7 +3,6 @@ import numpy as np
 import brainscore
 from brainscore.benchmarks import BenchmarkBase, ceil_score
 from brainscore.benchmarks.screen import place_on_screen
-from brainscore.benchmarks.trials import repeat_trials, average_trials
 from brainscore.metrics import Score
 from brainscore.metrics.ost import OSTCorrelation
 from brainscore.model_interface import BrainModel
@@ -18,7 +17,7 @@ class DicarloKar2019OST(BenchmarkBase):
         super(DicarloKar2019OST, self).__init__(identifier='dicarlo.Kar2019-ost', version=2,
                                                 ceiling_func=lambda: ceiling,
                                                 parent='IT-temporal',
-                                                bibtex= """@Article{Kar2019,
+                                                bibtex="""@Article{Kar2019,
                                                     author={Kar, Kohitij
                                                     and Kubilius, Jonas
                                                     and Schmidt, Kailyn
@@ -53,15 +52,12 @@ class DicarloKar2019OST(BenchmarkBase):
         self._visual_degrees = VISUAL_DEGREES
         self._number_of_trials = 44
 
-
     def __call__(self, candidate: BrainModel):
         time_bins = [(time_bin_start, time_bin_start + 10) for time_bin_start in range(70, 250, 10)]
         candidate.start_recording('IT', time_bins=time_bins)
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
-        stimulus_set = repeat_trials(stimulus_set, number_of_trials=self._number_of_trials)
-        recordings = candidate.look_at(stimulus_set)
-        recordings = average_trials(recordings)
+        recordings = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
         score = self._similarity_metric(recordings, self._assembly)
         score = ceil_score(score, self.ceiling)
         return score

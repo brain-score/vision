@@ -47,16 +47,18 @@ def find_correct_dir(work_dir):
 
 
 def install_project(repo, package):
-    logger.info('Start installing submitted the repository')
+    logger.info('Start installing the submitted repository')
     try:
-        assert 0 == subprocess.call([sys.executable, "-m", "pip", "install", "-v", repo], env=os.environ)
+        subprocess.check_output([sys.executable, "-m", "pip", "install", "-v", str(repo)], env=os.environ,
+                                stderr=subprocess.STDOUT)
         sys.path.insert(0, str(repo))
         logger.info(f'System paths {sys.path}')
         return import_module(package)
     except ImportError:
         return __import__(package)
-    except AssertionError as e:
+    except subprocess.CalledProcessError as e:
         logger.error('Installation of submitted models failed!')
+        logger.info(e.output)
         raise e
 
 

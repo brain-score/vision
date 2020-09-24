@@ -3,7 +3,6 @@ import numpy as np
 from brainio_base.assemblies import array_is_element, walk_coords
 from brainscore.benchmarks import BenchmarkBase, ceil_score
 from brainscore.benchmarks.screen import place_on_screen
-from brainscore.benchmarks.trials import repeat_trials, average_trials
 from brainscore.model_interface import BrainModel
 
 
@@ -24,11 +23,9 @@ class NeuralBenchmark(BenchmarkBase):
         candidate.start_recording(self.region, time_bins=self.timebins)
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
-        stimulus_set = repeat_trials(stimulus_set, number_of_trials=self._number_of_trials)
-        source_assembly = candidate.look_at(stimulus_set)
+        source_assembly = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
         if 'time_bin' in source_assembly.dims:
             source_assembly = source_assembly.squeeze('time_bin')  # static case for these benchmarks
-        source_assembly = average_trials(source_assembly)
         raw_score = self._similarity_metric(source_assembly, self._assembly)
         return explained_variance(raw_score, self.ceiling)
 

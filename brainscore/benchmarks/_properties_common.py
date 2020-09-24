@@ -5,7 +5,7 @@ from brainscore.benchmarks import BenchmarkBase, ceil_score
 from brainscore.model_interface import BrainModel
 from brainscore.benchmarks.screen import place_on_screen
 from brainio_collection.fetch import get_stimulus_set
-from brainscore.benchmarks.trials import repeat_trials, average_trials
+# from brainscore.benchmarks.trials import repeat_trials, average_trials
 from brainio_base.assemblies import DataAssembly
 
 BLANK_STIM_NAME = 'dicarlo.Marques2020_blank'
@@ -67,11 +67,11 @@ def get_firing_rates(model_identifier, model, region, stimulus_identifier, numbe
 def get_activations(model: BrainModel, stimulus_identifier, number_of_trials):
     stimulus_set = get_stimulus_set(stimulus_identifier)
     stimulus_set = place_on_screen(stimulus_set, target_visual_degrees=model.visual_degrees())
-    stimulus_set = repeat_trials(stimulus_set, number_of_trials=number_of_trials) # coment
-    activations = model.look_at(stimulus_set) #, number_of_trials)
+    # stimulus_set = repeat_trials(stimulus_set, number_of_trials=number_of_trials) # coment
+    activations = model.look_at(stimulus_set, number_of_trials) #, number_of_trials)
     if 'time_bin' in activations.dims:
         activations = activations.squeeze('time_bin')  # static case for these benchmarks
-    activations = average_trials(activations)  # coment
+    # activations = average_trials(activations)  # coment
     return activations
 
 

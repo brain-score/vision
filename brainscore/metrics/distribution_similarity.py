@@ -1,7 +1,7 @@
 import numpy as np
 from brainscore.metrics import Metric, Score
 
-NSAMPLES = 10
+NSAMPLES = 1000
 
 
 class BootstrapDistributionSimilarity(Metric):
@@ -11,11 +11,6 @@ class BootstrapDistributionSimilarity(Metric):
         self.ns = ns
 
     def __call__(self, model_property, data_property):
-        """
-        :param brainscore.assemblies.NeuroidAssembly assembly1:
-        :param brainscore.assemblies.NeuroidAssembly assembly2:
-        :return: brainscore.assemblies.DataAssembly
-        """
         bins = data_property.attrs[self.property_name+'_bins']
         data_property = data_property.loc[:, self.property_name].values
         model_property = model_property.loc[:, self.property_name].values

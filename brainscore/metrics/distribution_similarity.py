@@ -43,7 +43,7 @@ class BootstrapDistributionSimilarity(Metric):
         return score
 
 
-def ks_sim(p, q):
+def ks_similarity(p, q):
     z1 = np.zeros_like(p)
     z2 = np.zeros_like(p)
     z1[0] = 1

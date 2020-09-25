@@ -5,11 +5,10 @@ from brainscore.benchmarks import BenchmarkBase, ceil_score
 from brainscore.model_interface import BrainModel
 from brainscore.benchmarks.screen import place_on_screen
 from brainio_collection.fetch import get_stimulus_set
-# from brainscore.benchmarks.trials import repeat_trials, average_trials
 from brainio_base.assemblies import DataAssembly
 
 BLANK_STIM_NAME = 'dicarlo.Marques2020_blank'
-RF_STIM_NAME = 'dicarlo.Marques2020_rf'
+RF_STIM_NAME = 'dicarlo.Marques2020_receptive_field'
 ORIENTATION_STIM_NAME = 'dicarlo.Marques2020_orientation'
 
 RF_NUMBER_OF_TRIALS = 10
@@ -68,19 +67,17 @@ def get_firing_rates(model_identifier, model, region, stimulus_identifier, numbe
 def get_activations(model: BrainModel, stimulus_identifier, number_of_trials):
     stimulus_set = get_stimulus_set(stimulus_identifier)
     stimulus_set = place_on_screen(stimulus_set, target_visual_degrees=model.visual_degrees())
-    # stimulus_set = repeat_trials(stimulus_set, number_of_trials=number_of_trials) # coment
-    activations = model.look_at(stimulus_set, number_of_trials) #, number_of_trials)
+    activations = model.look_at(stimulus_set, number_of_trials)
     if 'time_bin' in activations.dims:
         activations = activations.squeeze('time_bin')  # static case for these benchmarks
-    # activations = average_trials(activations)  # coment
     return activations
 
 
-def get_stim_pos(activations):
-    pos_y = np.array(sorted(set(activations.pos_y.values)))
-    pos_x = np.array(sorted(set(activations.pos_x.values)))
-    assert len(pos_x) == 1 and len(pos_y) == 1
-    return np.array([pos_y[0], pos_x[0]])
+def get_stim_pos(stimulus_set):
+    position_y = np.array(sorted(set(stimulus_set.position_y.values)))
+    position_x = np.array(sorted(set(stimulus_set.position_x.values)))
+    assert len(position_x) == 1 and len(position_y) == 1
+    return np.array([position_y[0], position_x[0]])
 
 
 def filter_receptive_fields(model_identifier, model, region, pos, rf_delta=RF_DELTA):
@@ -101,14 +98,14 @@ def map_receptive_field_locations(model_identifier, model: BrainModel, region):
 
     _assert_grating_activations(rf_activations)
 
-    pos_y = np.array(sorted(set(rf_activations.pos_y.values)))
-    pos_x = np.array(sorted(set(rf_activations.pos_x.values)))
+    position_y = np.array(sorted(set(rf_activations.position_y.values)))
+    position_x = np.array(sorted(set(rf_activations.position_x.values)))
     n_neuroids = rf_activations.values.shape[0]
     neuroid_ids = rf_activations.neuroid.values
     rf_activations = rf_activations.values
     rf_activations[rf_activations < 0] = 0
 
-    rf_activations = rf_activations.reshape(n_neuroids, len(pos_y), len(pos_x), -1)
+    rf_activations = rf_activations.reshape(n_neuroids, len(position_y), len(position_x), -1)
     rf_activations = rf_activations - np.reshape(blank_activations, [n_neuroids] +
                                                  [1] * (len(rf_activations.shape) - 1))
 
@@ -130,12 +127,12 @@ def map_receptive_field_locations(model_identifier, model: BrainModel, region):
                 np.argwhere(exc_pos) * np.repeat(np.expand_dims(rf_map[n, exc_pos], axis=1), 2, axis=1),
                 axis=0) / np.sum(np.repeat(np.expand_dims(rf_map[n, exc_pos], axis=1), 2, axis=1), axis=0)
             # interpolates pos of rf centroid
-            rf_pos[n, 0] = np.interp(rf_coord[0], np.arange(len(pos_y)), pos_y)
-            rf_pos[n, 1] = np.interp(rf_coord[1], np.arange(len(pos_x)), pos_x)
+            rf_pos[n, 0] = np.interp(rf_coord[0], np.arange(len(position_y)), position_y)
+            rf_pos[n, 1] = np.interp(rf_coord[1], np.arange(len(position_x)), position_x)
 
     rf_pos = DataAssembly(rf_pos, coords={'neuroid': neuroid_ids, 'axis': ['y', 'x']}, dims=['neuroid', 'axis'])
-    rf_map = DataAssembly(rf_map, coords={'neuroid': neuroid_ids, 'pos_y': pos_y, 'pos_x': pos_x},
-                          dims=['neuroid', 'pos_y', 'pos_x'])
+    rf_map = DataAssembly(rf_map, coords={'neuroid': neuroid_ids, 'position_y': position_y, 'position_x': position_x},
+                          dims=['neuroid', 'position_y', 'position_x'])
 
     return rf_pos, rf_map
 
@@ -188,26 +185,77 @@ def firing_rates_affine(model_identifier, model: BrainModel, region):
 
 
 def _assert_grating_activations(activations):
-    pos_y = np.array(sorted(set(activations.pos_y.values)))
-    pos_x = np.array(sorted(set(activations.pos_x.values)))
+    position_y = np.array(sorted(set(activations.position_y.values)))
+    position_x = np.array(sorted(set(activations.position_x.values)))
     contrast = np.array(sorted(set(activations.contrast.values)))
     radius = np.array(sorted(set(activations.radius.values)))
-    sf = np.array(sorted(set(activations.sf.values)))
+    spatial_frequency = np.array(sorted(set(activations.spatial_frequency.values)))
     orientation = np.array(sorted(set(activations.orientation.values)))
     phase = np.array(sorted(set(activations.phase.values)))
     nStim = activations.values.shape[1]
 
-    assert np.sum(np.tile(phase, len(pos_y) * len(pos_x) * len(contrast) * len(radius) * len(sf) * len(orientation)) ==
-                  activations.phase.values) == nStim
-    assert np.sum(np.tile(np.repeat(orientation, len(phase)), len(pos_y) * len(pos_x) * len(contrast) * len(radius) *
-                          len(sf)) == activations.orientation.values) == nStim
-    assert np.sum(np.tile(np.repeat(sf, len(phase) * len(orientation)), len(pos_y) * len(pos_x) * len(contrast) *
-                          len(radius)) == activations.sf.values) == nStim
-    assert np.sum(np.tile(np.repeat(radius, len(phase) * len(orientation) * len(sf)), len(pos_y) * len(pos_x) *
-                          len(contrast)) == activations.radius.values) == nStim
-    assert np.sum(np.tile(np.repeat(contrast, len(phase) * len(orientation) * len(sf) * len(radius)), len(pos_y) *
-                          len(pos_x)) == activations.contrast.values) == nStim
-    assert np.sum(np.tile(np.repeat(pos_x, len(phase) * len(orientation) * len(sf) * len(radius) * len(contrast)),
-                          len(pos_y)) == activations.pos_x.values) == nStim
-    assert np.sum(np.repeat(pos_y, len(phase) * len(orientation) * len(sf) * len(radius) * len(contrast) * len(pos_x))
-                  == activations.pos_y.values) == nStim
+    assert np.sum(np.tile(phase, len(position_y) * len(position_x) * len(contrast) * len(radius) *
+                          len(spatial_frequency) * len(orientation)) == activations.phase.values) == nStim
+    assert np.sum(np.tile(np.repeat(orientation, len(phase)), len(position_y) * len(position_x) * len(contrast) *
+                          len(radius) * len(spatial_frequency)) == activations.orientation.values) == nStim
+    assert np.sum(np.tile(np.repeat(spatial_frequency, len(phase) * len(orientation)), len(position_y) *
+                          len(position_x) * len(contrast) * len(radius)) == activations.sf.values) == nStim
+    assert np.sum(np.tile(np.repeat(radius, len(phase) * len(orientation) * len(spatial_frequency)), len(position_y) *
+                          len(position_x) * len(contrast)) == activations.radius.values) == nStim
+    assert np.sum(np.tile(np.repeat(contrast, len(phase) * len(orientation) * len(spatial_frequency) * len(radius)),
+                          len(position_y) * len(position_x)) == activations.contrast.values) == nStim
+    assert np.sum(np.tile(np.repeat(position_x, len(phase) * len(orientation) * len(spatial_frequency) * len(radius) *
+                                    len(contrast)), len(position_y)) == activations.position_x.values) == nStim
+    assert np.sum(np.repeat(position_y, len(phase) * len(orientation) * len(spatial_frequency) * len(radius) *
+                            len(contrast) * len(position_x)) == activations.position_y.values) == nStim
+
+
+def calc_circular_variance(orientation_curve, orientation):
+    vect_sum = orientation_curve.dot(np.exp(1j * 2 * orientation / 180 * np.pi))
+    osi = np.absolute(vect_sum) / np.sum(np.absolute(orientation_curve))
+    return 1 - osi
+
+
+def calc_bandwidth(orientation_curve, orientation, filt_type='hanning', thrsh=0.5, mode='full'):
+    from scipy.interpolate import UnivariateSpline
+    or_ext = np.hstack((orientation - 180, orientation, orientation + 180))
+    or_curve_ext = np.tile(orientation_curve, (1, 3))
+
+    if filt_type == 'hanning':
+        w = np.array([0, 2/5, 1, 2/5, 0])
+    elif filt_type == 'flat':
+        w = np.array([1, 1, 1, 1, 1])
+    elif filt_type == 'smooth':
+        w = np.array([0, 1/5, 1, 1/5, 0])
+
+    if filt_type is not None:
+        or_curve_ext = np.convolve(w / w.sum(), np.squeeze(or_curve_ext), mode='same')
+    or_curve_spl = UnivariateSpline(or_ext, or_curve_ext, s=0.)
+
+    or_full = np.linspace(-180, 359, 540)
+    or_curve_full = or_curve_spl(or_full)
+    pref_or_fit = np.argmax(or_curve_full[181:360])
+    or_curve_max = or_curve_full[pref_or_fit + 181]
+
+    try:
+        less = np.where(or_curve_full <= or_curve_max * thrsh)[0][:]
+        p1 = or_full[less[np.where(less < pref_or_fit + 181)[0][-1]]]
+        p2 = or_full[less[np.where(less > pref_or_fit + 181)[0][0]]]
+        bw = (p2 - p1)
+        if bw > 180:
+            bw = np.nan
+    except:
+        bw = np.nan
+    if mode is 'half':
+        bw = bw / 2
+    return bw, pref_or_fit, or_full[181:360], or_curve_full[181:360]
+
+
+def calc_orthogonal_preferred_ratio(orientation_curve, orientation):
+    pref_orientation = np.argmax(orientation_curve)
+    orth_orientation = pref_orientation + int(len(orientation)/2)
+    if orth_orientation >= len(orientation):
+        orth_orientation -= len(orientation)
+    opr = orientation_curve[orth_orientation] / orientation_curve[pref_orientation]
+    return opr
+

@@ -115,7 +115,8 @@ def load_images(image_filepaths):
 
 def load_image(image_filepath):
     with Image.open(image_filepath) as pil_image:
-        if 'L' not in pil_image.mode.upper() and 'A' not in pil_image.mode.upper():  # not binary and not alpha
+        if 'L' not in pil_image.mode.upper() and 'A' not in pil_image.mode.upper()\
+                and 'P' not in pil_image.mode.upper():  # not binary and not alpha and not palletized
             # work around to https://github.com/python-pillow/Pillow/issues/1144,
             # see https://stackoverflow.com/a/30376272/2225200
             return pil_image.copy()

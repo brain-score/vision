@@ -135,7 +135,8 @@ models_layers = [
 ]
 
 
-@pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png'])
+@pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png',
+                                        'palletized.png'])
 @pytest.mark.parametrize(["pca_components", "logits"], [(None, True), (None, False), (5, False)])
 @pytest.mark.parametrize(["model_ctr", "layers"], models_layers)
 def test_from_image_path(model_ctr, layers, image_name, pca_components, logits):
@@ -170,7 +171,7 @@ def _build_stimulus_set(image_names):
 @pytest.mark.parametrize("pca_components", [None, 5])
 @pytest.mark.parametrize(["model_ctr", "layers"], models_layers)
 def test_from_stimulus_set(model_ctr, layers, pca_components):
-    image_names = ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png']
+    image_names = ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png', 'palletized.png']
     stimulus_set = _build_stimulus_set(image_names)
 
     activations_extractor = model_ctr()
@@ -188,7 +189,7 @@ def test_from_stimulus_set(model_ctr, layers, pca_components):
 
 @pytest.mark.parametrize(["model_ctr", "layers"], models_layers)
 def test_from_stimulus_set_repetitions(model_ctr, layers):
-    image_names = ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png']
+    image_names = ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png', 'palletized.png']
     stimulus_set = _build_stimulus_set(image_names)
     stimulus_set = repeat_trials(stimulus_set, number_of_trials=10)
 

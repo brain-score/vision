@@ -34,7 +34,7 @@ class PropertiesBenchmark(BenchmarkBase):
         self.timebins = TIMEBINS[self.region]
 
     def __call__(self, model: BrainModel):
-        model_identifier = model.layer_model.identifier
+        model_identifier = model.identifier
         model.start_recording(self.region, time_bins=self.timebins)
         stim_pos = get_stim_pos(self._assembly.stimulus_set)
         in_rf = filter_receptive_fields(model_identifier=model_identifier, model=model, region=self.region,

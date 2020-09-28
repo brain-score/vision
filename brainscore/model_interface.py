@@ -21,6 +21,15 @@ class BrainModel:
     task to perform
     """
 
+    @property
+    def identifier(self) -> str:
+        """
+        The unique identifier for this model.
+
+        :return: e.g. `'CORnet-S'`, or `'alexnet'`
+        """
+        raise NotImplementedError()
+
     def visual_degrees(self) -> int:
         """
         The visual degrees this model covers as a single scalar.

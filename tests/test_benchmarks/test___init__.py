@@ -167,12 +167,12 @@ class TestPrecomputed:
         with open(precomputed_features, 'rb') as f:
             precomputed_features = pickle.load(f)['data']
         precomputed_features = precomputed_features.stack(presentation=['stimulus_path'])
-        precomputed_paths = set(map(lstrip_local, precomputed_features['stimulus_path'].values))
+        precomputed_paths = list(map(lambda f: Path(f).name, precomputed_features['stimulus_path'].values))
         # attach stimulus set meta
         stimulus_set = benchmark._assembly.stimulus_set
-        expected_stimulus_paths = list(
-            map(lstrip_local, [stimulus_set.get_image(image_id) for image_id in stimulus_set['image_id']]))
-        assert (precomputed_paths == set(expected_stimulus_paths))
+        expected_stimulus_paths = [stimulus_set.get_image(image_id) for image_id in stimulus_set['image_id']]
+        expected_stimulus_paths = list(map(lambda f: Path(f).name, expected_stimulus_paths))
+        assert set(precomputed_paths) == set(expected_stimulus_paths)
         for column in stimulus_set.columns:
             precomputed_features[column] = 'presentation', stimulus_set[column].values
         precomputed_features = PrecomputedFeatures(precomputed_features,

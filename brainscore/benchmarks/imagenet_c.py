@@ -135,6 +135,7 @@ class Imagenet_C_Individual(BenchmarkBase):
         # by telling the candidate to use its pre-trained imagenet weights.
         candidate.start_task(BrainModel.Task.label, 'imagenet')
         stimulus_set = self._stimulus_set[list(set(self._stimulus_set.columns) - {'synset'})]  # do not show label
+        stimulus_set.identifier = None  # don't pass identifier to disable caching
         predictions = candidate.look_at(stimulus_set, number_of_trials=NUMBER_OF_TRIALS)
         score = self._similarity_metric(
             predictions.sortby('filename'),

@@ -105,7 +105,7 @@ class Imagenet_C_Group(BenchmarkBase):
 
     def __call__(self, candidate):
         score = xr.concat([
-            Imagenet_C_Individual(f'dietterich.Hendrycks2019.{self._noise_type}_{severity}', self._noise_type)(
+            Imagenet_C_Individual(identifier_suffix=f'{self._noise_type}_{severity}', noise_type=self._noise_type)(
                 candidate)
             for severity in range(1, 6)
         ], dim='presentation')

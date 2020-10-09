@@ -9,6 +9,8 @@ from brainscore.metrics import Score
 from brainscore.metrics.accuracy import Accuracy
 from brainscore.model_interface import BrainModel
 
+NUMBER_OF_TRIALS = 10
+
 
 class Imagenet2012(BenchmarkBase):
     def __init__(self):
@@ -16,7 +18,6 @@ class Imagenet2012(BenchmarkBase):
         stimulus_set = StimulusSet(stimulus_set)
         stimulus_set.image_paths = {row.image_id: row.filepath for row in stimulus_set.itertuples()}
         self._stimulus_set = stimulus_set
-        self._number_of_trials = 10
         self._similarity_metric = Accuracy()
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         super(Imagenet2012, self).__init__(identifier='fei-fei.Deng2009-top1', version=1,
@@ -39,6 +40,9 @@ class Imagenet2012(BenchmarkBase):
         # by telling the candidate to use its pre-trained imagenet weights.
         candidate.start_task(BrainModel.Task.label, 'imagenet')
         stimulus_set = self._stimulus_set[list(set(self._stimulus_set.columns) - {'synset'})]  # do not show label
-        predictions = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
-        score = self._similarity_metric(predictions, self._stimulus_set['synset'].values)
+        predictions = candidate.look_at(stimulus_set, number_of_trials=NUMBER_OF_TRIALS)
+        score = self._similarity_metric(
+            predictions.sortby('filename'),
+            self._stimulus_set.sort_values('filename')['synset'].values
+        )
         return score

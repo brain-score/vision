@@ -39,7 +39,7 @@ BIBTEX = """@article{Ringach2002,
 
 def _MarquesRingach2002V1Property(property_name, similarity_metric, ceil_func, parent):
     assembly = brainscore.get_assembly(ASSEMBLY_NAME)
-    return PropertiesBenchmark(identifier=f'dicarlo.Marques_ringach2002.V1-{property_name}', assembly=assembly,
+    return PropertiesBenchmark(identifier=f'dicarlo.Marques_ringach2002-{property_name}', assembly=assembly,
                                neuronal_property=ringach2002_properties, similarity_metric=similarity_metric,
                                timebins=TIMEBINS,
                                parent=parent, ceiling_func=ceil_func, bibtex=BIBTEX, version=1)

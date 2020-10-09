@@ -1,15 +1,17 @@
+import numpy as np
+
 import brainscore
+from brainio_base.assemblies import DataAssembly
 from brainscore.benchmarks._properties_common import PropertiesBenchmark, _assert_grating_activations
 from brainscore.benchmarks._properties_common import calc_circular_variance, calc_bandwidth, \
     calc_orthogonal_preferred_ratio
 from brainscore.metrics.ceiling import NeuronalPropertyCeiling
-from brainio_base.assemblies import DataAssembly
 from brainscore.metrics.distribution_similarity import BootstrapDistributionSimilarity, ks_similarity
 from result_caching import store
-import numpy as np
 
 ASSEMBLY_NAME = 'shapley.Ringach2002'
 REGION = 'V1'
+TIMEBINS = [(70, 170)]
 PARENT_ORIENTATION = 'V1-orientation'
 PARENT_MAGNITUDE = 'V1-magnitude'
 
@@ -39,13 +41,14 @@ def _MarquesRingach2002V1Property(property_name, similarity_metric, ceil_func, p
     assembly = brainscore.get_assembly(ASSEMBLY_NAME)
     return PropertiesBenchmark(identifier=f'dicarlo.Marques_ringach2002.V1-{property_name}', assembly=assembly,
                                neuronal_property=ringach2002_properties, similarity_metric=similarity_metric,
+                               timebins=TIMEBINS,
                                parent=parent, ceiling_func=ceil_func, bibtex=BIBTEX, version=1)
 
 
 def MarquesRingach2002V1CircularVariance():
     property_name = 'circular_variance'
     parent = PARENT_ORIENTATION
-    similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_sim, property_name=property_name)
+    similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_similarity, property_name=property_name)
     ceil_func = NeuronalPropertyCeiling(BootstrapDistributionSimilarity(similarity_func=ks_similarity,
                                                                         property_name=property_name))
     return _MarquesRingach2002V1Property(property_name=property_name, similarity_metric=similarity_metric,
@@ -55,7 +58,7 @@ def MarquesRingach2002V1CircularVariance():
 def MarquesRingach2002V1Bandwidth():
     property_name = 'bandwidth'
     parent = PARENT_ORIENTATION
-    similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_sim, property_name=property_name)
+    similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_similarity, property_name=property_name)
     ceil_func = NeuronalPropertyCeiling(BootstrapDistributionSimilarity(similarity_func=ks_similarity,
                                                                         property_name=property_name))
     return _MarquesRingach2002V1Property(property_name=property_name, similarity_metric=similarity_metric,
@@ -65,16 +68,17 @@ def MarquesRingach2002V1Bandwidth():
 def MarquesRingach2002V1OrthogonalPreferredRatio():
     property_name = 'orthogonal_preferred_ratio'
     parent = PARENT_ORIENTATION
-    similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_sim, property_name=property_name)
+    similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_similarity, property_name=property_name)
     ceil_func = NeuronalPropertyCeiling(BootstrapDistributionSimilarity(similarity_func=ks_similarity,
                                                                         property_name=property_name))
     return _MarquesRingach2002V1Property(property_name=property_name, similarity_metric=similarity_metric,
                                          ceil_func=ceil_func, parent=parent)
 
+
 def MarquesRingach2002V1OrientationSelective():
     property_name = 'orientation_selective'
     parent = PARENT_ORIENTATION
-    similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_sim, property_name=property_name)
+    similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_similarity, property_name=property_name)
     ceil_func = NeuronalPropertyCeiling(BootstrapDistributionSimilarity(similarity_func=ks_similarity,
                                                                         property_name=property_name))
     return _MarquesRingach2002V1Property(property_name=property_name, similarity_metric=similarity_metric,
@@ -84,7 +88,7 @@ def MarquesRingach2002V1OrientationSelective():
 def MarquesRingach2002V1MaxDC():
     property_name = 'max_dc'
     parent = PARENT_MAGNITUDE
-    similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_sim, property_name=property_name)
+    similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_similarity, property_name=property_name)
     ceil_func = NeuronalPropertyCeiling(BootstrapDistributionSimilarity(similarity_func=ks_similarity,
                                                                         property_name=property_name))
     return _MarquesRingach2002V1Property(property_name=property_name, similarity_metric=similarity_metric,
@@ -94,7 +98,7 @@ def MarquesRingach2002V1MaxDC():
 def MarquesRingach2002V1MaxAC():
     property_name = 'max_ac'
     parent = PARENT_MAGNITUDE
-    similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_sim, property_name=property_name)
+    similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_similarity, property_name=property_name)
     ceil_func = NeuronalPropertyCeiling(BootstrapDistributionSimilarity(similarity_func=ks_similarity,
                                                                         property_name=property_name))
     return _MarquesRingach2002V1Property(property_name=property_name, similarity_metric=similarity_metric,
@@ -104,7 +108,7 @@ def MarquesRingach2002V1MaxAC():
 def MarquesRingach2002V1ModulationRatio():
     property_name = 'modulation_ratio'
     parent = PARENT_MAGNITUDE
-    similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_sim, property_name=property_name)
+    similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_similarity, property_name=property_name)
     ceil_func = NeuronalPropertyCeiling(BootstrapDistributionSimilarity(similarity_func=ks_similarity,
                                                                         property_name=property_name))
     return _MarquesRingach2002V1Property(property_name=property_name, similarity_metric=similarity_metric,
@@ -114,7 +118,7 @@ def MarquesRingach2002V1ModulationRatio():
 def MarquesRingach2002V1Baseline():
     property_name = 'baseline'
     parent = PARENT_MAGNITUDE
-    similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_sim, property_name=property_name)
+    similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_similarity, property_name=property_name)
     ceil_func = NeuronalPropertyCeiling(BootstrapDistributionSimilarity(similarity_func=ks_similarity,
                                                                         property_name=property_name))
     return _MarquesRingach2002V1Property(property_name=property_name, similarity_metric=similarity_metric,
@@ -159,7 +163,7 @@ def ringach2002_properties(model_identifier, responses, baseline):
         min_dc[neur] = orientation_curve.min()
 
         circular_variance[neur] = calc_circular_variance(orientation_curve, orientation)
-        bandwidth[neur],  pref_or_fit, or_full, or_curve_full = \
+        bandwidth[neur], pref_or_fit, or_full, or_curve_full = \
             calc_bandwidth(orientation_curve, orientation, filt_type='hanning', thrsh=0.707, mode='half')
         orthogonal_preferred_ratio[neur] = calc_orthogonal_preferred_ratio(orientation_curve, orientation)
 
@@ -167,10 +171,12 @@ def ringach2002_properties(model_identifier, responses, baseline):
     modulation_ratio = max_ac / max_dc
     circular_variance_bandwidth_ratio = circular_variance / bandwidth
     orthogonal_preferred_ratio_circular_variance_difference = orthogonal_preferred_ratio - circular_variance
-    orthogonal_preferred_ratio_bandwidth_ratio = orthogonal_preferred_ratio/bandwidth
+    orthogonal_preferred_ratio_bandwidth_ratio = orthogonal_preferred_ratio / bandwidth
 
-    properties_data = np.concatenate((baseline, max_dc, min_dc, max_ac, modulation_ratio, circular_variance, bandwidth, orthogonal_preferred_ratio,
-                                      orientation_selective, circular_variance_bandwidth_ratio, orthogonal_preferred_ratio_circular_variance_difference, orthogonal_preferred_ratio_bandwidth_ratio), axis=1)
+    properties_data = np.concatenate(
+        (baseline, max_dc, min_dc, max_ac, modulation_ratio, circular_variance, bandwidth, orthogonal_preferred_ratio,
+         orientation_selective, circular_variance_bandwidth_ratio,
+         orthogonal_preferred_ratio_circular_variance_difference, orthogonal_preferred_ratio_bandwidth_ratio), axis=1)
     good_neuroids = max_dc > baseline + 5
     properties_data = properties_data[np.argwhere(good_neuroids)[:, 0], :]
 
@@ -179,4 +185,3 @@ def ringach2002_properties(model_identifier, responses, baseline):
                                                             'neuronal_property': PROPERTY_NAMES},
                                    dims=['neuroid', 'neuronal_property'])
     return properties_data
-

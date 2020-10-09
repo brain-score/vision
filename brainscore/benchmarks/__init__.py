@@ -176,21 +176,21 @@ def _experimental_benchmark_pool():
     from .cadena2017 import ToliasCadena2017PLS, ToliasCadena2017Mask
     pool['tolias.Cadena2017-pls'] = LazyLoad(ToliasCadena2017PLS)
     pool['tolias.Cadena2017-mask'] = LazyLoad(ToliasCadena2017Mask)
-    # V1 properties benchmarks
-    # V1 orientation benchmarks
+    # V1 properties benchmarks: orientation
     from .marques2020_ringach2002 import MarquesRingach2002V1CircularVariance, MarquesRingach2002V1Bandwidth, \
         MarquesRingach2002V1OrthogonalPreferredRatio, MarquesRingach2002V1OrientationSelective
     pool['dicarlo.Marques2020_Ringach2002.V1-circular_variance'] = LazyLoad(MarquesRingach2002V1CircularVariance)
     pool['dicarlo.Marques2020_Ringach2002.V1-bandwidth'] = LazyLoad(MarquesRingach2002V1Bandwidth)
     pool['dicarlo.Marques2020_Ringach2002.V1-orth_pref_ratio'] = LazyLoad(MarquesRingach2002V1OrthogonalPreferredRatio)
     pool['dicarlo.Marques2020_Ringach2002.V1-or_sel'] = LazyLoad(MarquesRingach2002V1OrientationSelective)
-    # V1 magnitude benchmarks
+    # V1 properties benchmarks: magnitude
     from .marques2020_ringach2002 import MarquesRingach2002V1MaxDC, MarquesRingach2002V1MaxAC, \
         MarquesRingach2002V1ModulationRatio, MarquesRingach2002V1Baseline
     pool['dicarlo.Marques2020_Ringach2002.V1-maxdc'] = LazyLoad(MarquesRingach2002V1MaxDC)
     pool['dicarlo.Marques2020_Ringach2002.V1-maxac'] = LazyLoad(MarquesRingach2002V1MaxAC)
     pool['dicarlo.Marques2020_Ringach2002.V1-mod_ratio'] = LazyLoad(MarquesRingach2002V1ModulationRatio)
     pool['dicarlo.Marques2020_Ringach2002.V1-baseline'] = LazyLoad(MarquesRingach2002V1Baseline)
+    # Sanghavi2020 benchmarks
     from .sanghavi2020 import DicarloSanghavi2020V4PLS, DicarloSanghavi2020ITPLS
     pool['dicarlo.Sanghavi2020.V4-pls'] = LazyLoad(DicarloSanghavi2020V4PLS)
     pool['dicarlo.Sanghavi2020.IT-pls'] = LazyLoad(DicarloSanghavi2020ITPLS)

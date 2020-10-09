@@ -1,11 +1,11 @@
 import numpy as np
 
-from result_caching import store
-from brainscore.benchmarks import BenchmarkBase, ceil_score
-from brainscore.model_interface import BrainModel
-from brainscore.benchmarks.screen import place_on_screen
-from brainio_collection.fetch import get_stimulus_set
 from brainio_base.assemblies import DataAssembly
+from brainscore import get_stimulus_set
+from brainscore.benchmarks import BenchmarkBase, ceil_score
+from brainscore.benchmarks.screen import place_on_screen
+from brainscore.model_interface import BrainModel
+from result_caching import store
 
 BLANK_STIM_NAME = 'dicarlo.Marques2020_blank'
 RF_STIM_NAME = 'dicarlo.Marques2020_receptive_field'
@@ -13,7 +13,6 @@ ORIENTATION_STIM_NAME = 'dicarlo.Marques2020_orientation'
 
 RF_NUMBER_OF_TRIALS = 10
 ORIENTATION_NUMBER_OF_TRIALS = 40
-TIMEBINS = {'V1': [(70, 170)]}
 RF_THRSH = 0.05
 RF_DELTA = 0.15
 MEDIAN_MAX_RESP = {'V1': 33.8}
@@ -21,7 +20,7 @@ MEDIAN_SPONTANEOUS = {'V1': 0.82}
 
 
 class PropertiesBenchmark(BenchmarkBase):
-    def __init__(self, identifier, assembly, neuronal_property, similarity_metric, **kwargs):
+    def __init__(self, identifier, assembly, neuronal_property, similarity_metric, timebins, **kwargs):
         super(PropertiesBenchmark, self).__init__(identifier=identifier, **kwargs)
         self._assembly = assembly
         self._neuronal_property = neuronal_property
@@ -31,22 +30,24 @@ class PropertiesBenchmark(BenchmarkBase):
         self.region = region[0]
         self._number_of_trials = int(self._assembly.attrs['number_of_trials'])
         self._visual_degrees = self._assembly.stimulus_set['degrees']
-        self.timebins = TIMEBINS[self.region]
+        self.timebins = timebins
 
     def __call__(self, model: BrainModel):
         model_identifier = model.identifier
         model.start_recording(self.region, time_bins=self.timebins)
-        stim_pos = get_stim_pos(self._assembly.stimulus_set)
+        stim_pos = get_stimulus_position(self._assembly.stimulus_set)
         in_rf = filter_receptive_fields(model_identifier=model_identifier, model=model, region=self.region,
                                         pos=stim_pos)
 
-        responses = get_firing_rates(model_identifier, model, self.region, self._assembly.stimulus_set.identifier,
-                                     self._number_of_trials, in_rf)
-        baseline = get_firing_rates(model_identifier, model, self.region, BLANK_STIM_NAME, self._number_of_trials,
-                                    in_rf)
+        responses = get_firing_rates(model_identifier=model_identifier, model=model, region=self.region,
+                                     stimulus_identifier=self._assembly.stimulus_set.identifier,
+                                     number_of_trials=self._number_of_trials, in_rf=in_rf)
+        baseline = get_firing_rates(model_identifier=model_identifier, model=model, region=self.region,
+                                    stimulus_identifier=BLANK_STIM_NAME,
+                                    number_of_trials=self._number_of_trials, in_rf=in_rf)
 
         model_property = self._neuronal_property(model_identifier=model_identifier, responses=responses,
-                                                    baseline=baseline)
+                                                 baseline=baseline)
         raw_score = self._similarity_metric(model_property, self._assembly)
         ceiling = self._ceiling_func(self._assembly)
         return ceil_score(raw_score, ceiling)
@@ -57,14 +58,14 @@ def get_firing_rates(model_identifier, model, region, stimulus_identifier, numbe
     affine_transformation = firing_rates_affine(model_identifier=model_identifier, model=model, region=region)
     affine_transformation = affine_transformation.values
 
-    activations = get_activations(model, stimulus_identifier, number_of_trials)
+    activations = record_from_model(model, stimulus_identifier, number_of_trials)
     activations = activations[in_rf]
     activations = affine_transformation[0] * activations + affine_transformation[1]
     activations.values[activations.values < 0] = 0
     return activations
 
 
-def get_activations(model: BrainModel, stimulus_identifier, number_of_trials):
+def record_from_model(model: BrainModel, stimulus_identifier, number_of_trials):
     stimulus_set = get_stimulus_set(stimulus_identifier)
     stimulus_set = place_on_screen(stimulus_set, target_visual_degrees=model.visual_degrees())
     activations = model.look_at(stimulus_set, number_of_trials)
@@ -73,7 +74,7 @@ def get_activations(model: BrainModel, stimulus_identifier, number_of_trials):
     return activations
 
 
-def get_stim_pos(stimulus_set):
+def get_stimulus_position(stimulus_set):
     position_y = np.array(sorted(set(stimulus_set.position_y.values)))
     position_x = np.array(sorted(set(stimulus_set.position_x.values)))
     assert len(position_x) == 1 and len(position_y) == 1
@@ -90,8 +91,8 @@ def filter_receptive_fields(model_identifier, model, region, pos, rf_delta=RF_DE
 
 @store(identifier_ignore=['model'])
 def map_receptive_field_locations(model_identifier, model: BrainModel, region):
-    blank_activations = get_activations(model, BLANK_STIM_NAME, RF_NUMBER_OF_TRIALS)
-    rf_activations = get_activations(model, RF_STIM_NAME, RF_NUMBER_OF_TRIALS)
+    blank_activations = record_from_model(model, BLANK_STIM_NAME, RF_NUMBER_OF_TRIALS)
+    rf_activations = record_from_model(model, RF_STIM_NAME, RF_NUMBER_OF_TRIALS)
 
     blank_activations = blank_activations.values
     blank_activations[blank_activations < 0] = 0
@@ -139,15 +140,15 @@ def map_receptive_field_locations(model_identifier, model: BrainModel, region):
 
 @store(identifier_ignore=['model'])
 def firing_rates_affine(model_identifier, model: BrainModel, region):
-    blank_activations = get_activations(model, BLANK_STIM_NAME, ORIENTATION_NUMBER_OF_TRIALS)
-    orientation_activations = get_activations(model, ORIENTATION_STIM_NAME, ORIENTATION_NUMBER_OF_TRIALS)
+    blank_activations = record_from_model(model, BLANK_STIM_NAME, ORIENTATION_NUMBER_OF_TRIALS)
+    orientation_activations = record_from_model(model, ORIENTATION_STIM_NAME, ORIENTATION_NUMBER_OF_TRIALS)
 
     blank_activations = blank_activations.values
     blank_activations[blank_activations < 0] = 0
 
     _assert_grating_activations(orientation_activations)
 
-    stim_pos = get_stim_pos(orientation_activations)
+    stim_pos = get_stimulus_position(orientation_activations)
 
     rf_pos, rf_map = map_receptive_field_locations(model_identifier=model_identifier, model=model, region=region)
     rf_pos = rf_pos.values
@@ -222,11 +223,11 @@ def calc_bandwidth(orientation_curve, orientation, filt_type='hanning', thrsh=0.
     or_curve_ext = np.tile(orientation_curve, (1, 3))
 
     if filt_type == 'hanning':
-        w = np.array([0, 2/5, 1, 2/5, 0])
+        w = np.array([0, 2 / 5, 1, 2 / 5, 0])
     elif filt_type == 'flat':
         w = np.array([1, 1, 1, 1, 1])
     elif filt_type == 'smooth':
-        w = np.array([0, 1/5, 1, 1/5, 0])
+        w = np.array([0, 1 / 5, 1, 1 / 5, 0])
 
     if filt_type is not None:
         or_curve_ext = np.convolve(w / w.sum(), np.squeeze(or_curve_ext), mode='same')
@@ -253,9 +254,8 @@ def calc_bandwidth(orientation_curve, orientation, filt_type='hanning', thrsh=0.
 
 def calc_orthogonal_preferred_ratio(orientation_curve, orientation):
     pref_orientation = np.argmax(orientation_curve)
-    orth_orientation = pref_orientation + int(len(orientation)/2)
+    orth_orientation = pref_orientation + int(len(orientation) / 2)
     if orth_orientation >= len(orientation):
         orth_orientation -= len(orientation)
     opr = orientation_curve[orth_orientation] / orientation_curve[pref_orientation]
     return opr
-

@@ -42,7 +42,7 @@ class TestPoolList:
             'movshon.FreemanZiemba2013.V1-pls', 'movshon.FreemanZiemba2013.V2-pls',
             'dicarlo.MajajHong2015.V4-pls', 'dicarlo.MajajHong2015.IT-pls', 'dicarlo.Kar2019-ost',
             'dicarlo.Rajalingham2018-i2n',
-            'fei-fei.Deng2009-top1', 
+            'fei-fei.Deng2009-top1',
             'dietterich.Hendrycks2019-noise-top1', 'dietterich.Hendrycks2019-blur-top1',
             'dietterich.Hendrycks2019-weather-top1', 'dietterich.Hendrycks2019-digital-top1'
         }
@@ -67,6 +67,7 @@ class TestStandardized:
                      marks=pytest.mark.memory_intense),
         pytest.param('dicarlo.MajajHong2015.IT-rdm', approx(.887618, abs=.001),
                      marks=pytest.mark.memory_intense),
+        # Sanghavi2020
         pytest.param('dicarlo.Sanghavi2020.V4-pls', approx(.8892049, abs=.001),
                      marks=pytest.mark.memory_intense),
         pytest.param('dicarlo.Sanghavi2020.IT-pls', approx(.868293, abs=.001),
@@ -81,6 +82,15 @@ class TestStandardized:
                      marks=pytest.mark.memory_intense),
         pytest.param('dicarlo.Rajalingham2020.IT-pls', approx(.561013, abs=.001),
                      marks=[pytest.mark.memory_intense, pytest.mark.slow]),
+        # V1 properties
+        pytest.param('dicarlo.Marques2020_Ringach2002-circular_variance', approx(..., abs=.001), marks=[]),
+        pytest.param('dicarlo.Marques2020_Ringach2002-bandwidth', approx(..., abs=.001), marks=[]),
+        pytest.param('dicarlo.Marques2020_Ringach2002-orth_pref_ratio', approx(..., abs=.001), marks=[]),
+        pytest.param('dicarlo.Marques2020_Ringach2002-or_sel', approx(..., abs=.001), marks=[]),
+        pytest.param('dicarlo.Marques2020_Ringach2002-maxdc', approx(..., abs=.001), marks=[]),
+        pytest.param('dicarlo.Marques2020_Ringach2002-maxac', approx(..., abs=.001), marks=[]),
+        pytest.param('dicarlo.Marques2020_Ringach2002-mod_ratio', approx(..., abs=.001), marks=[]),
+        pytest.param('dicarlo.Marques2020_Ringach2002-baseline', approx(..., abs=.001), marks=[]),
     ])
     def test_ceilings(self, benchmark, expected):
         benchmark = benchmark_pool[benchmark]
@@ -112,8 +122,17 @@ class TestStandardized:
                      marks=pytest.mark.memory_intense),
         pytest.param('dicarlo.Rajalingham2020.IT-pls', 8, approx(.693463, abs=.005),
                      marks=[pytest.mark.memory_intense, pytest.mark.slow]),
+        # V1 properties
+        pytest.param('dicarlo.Marques2020_Ringach2002-circular_variance', approx(..., abs=.001), marks=[]),
+        pytest.param('dicarlo.Marques2020_Ringach2002-bandwidth', approx(..., abs=.001), marks=[]),
+        pytest.param('dicarlo.Marques2020_Ringach2002-orth_pref_ratio', approx(..., abs=.001), marks=[]),
+        pytest.param('dicarlo.Marques2020_Ringach2002-or_sel', approx(..., abs=.001), marks=[]),
+        pytest.param('dicarlo.Marques2020_Ringach2002-maxdc', approx(..., abs=.001), marks=[]),
+        pytest.param('dicarlo.Marques2020_Ringach2002-maxac', approx(..., abs=.001), marks=[]),
+        pytest.param('dicarlo.Marques2020_Ringach2002-mod_ratio', approx(..., abs=.001), marks=[]),
+        pytest.param('dicarlo.Marques2020_Ringach2002-baseline', approx(..., abs=.001), marks=[]),
     ])
-    def test_self_regression(self, benchmark, visual_degrees, expected):
+    def test_self(self, benchmark, visual_degrees, expected):
         benchmark = benchmark_pool[benchmark]
         source = benchmark._assembly
         score = benchmark(PrecomputedFeatures(source, visual_degrees=visual_degrees)).raw
@@ -241,6 +260,21 @@ class TestPrecomputed:
     ])
     def test_Rajalingham2020(self, benchmark, expected):
         self.run_test(benchmark=benchmark, file='alexnet-rajalingham2020-features.12.pkl', expected=expected)
+
+    @pytest.mark.memory_intense
+    @pytest.mark.slow
+    @pytest.mark.parametrize('benchmark, expected', [
+        pytest.param('dicarlo.Marques2020_Ringach2002-circular_variance', approx(..., abs=.001)),
+        pytest.param('dicarlo.Marques2020_Ringach2002-bandwidth', approx(..., abs=.001)),
+        pytest.param('dicarlo.Marques2020_Ringach2002-orth_pref_ratio', approx(..., abs=.001)),
+        pytest.param('dicarlo.Marques2020_Ringach2002-or_sel', approx(..., abs=.001)),
+        pytest.param('dicarlo.Marques2020_Ringach2002-maxdc', approx(..., abs=.001)),
+        pytest.param('dicarlo.Marques2020_Ringach2002-maxac', approx(..., abs=.001)),
+        pytest.param('dicarlo.Marques2020_Ringach2002-mod_ratio', approx(..., abs=.001)),
+        pytest.param('dicarlo.Marques2020_Ringach2002-baseline', approx(..., abs=.001)),
+    ])
+    def test_Marques2020(self, benchmark, expected):
+        self.run_test(benchmark=benchmark, file='....pkl', expected=expected)
 
 
 class TestVisualDegrees:

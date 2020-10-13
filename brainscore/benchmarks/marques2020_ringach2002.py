@@ -129,7 +129,7 @@ def MarquesRingach2002V1Baseline():
 def ringach2002_properties(model_identifier, responses, baseline):
     _assert_grating_activations(responses)
     radius = np.array(sorted(set(responses.radius.values)))
-    sf = np.array(sorted(set(responses.sf.values)))
+    spatial_frequency = np.array(sorted(set(responses.spatial_frequency.values)))
     orientation = np.array(sorted(set(responses.orientation.values)))
     phase = np.array(sorted(set(responses.phase.values)))
 
@@ -138,7 +138,7 @@ def ringach2002_properties(model_identifier, responses, baseline):
     assert responses.shape[0] == baseline.shape[0]
     n_neuroids = responses.shape[0]
 
-    responses = responses.reshape((n_neuroids, len(radius), len(sf), len(orientation), len(phase)))
+    responses = responses.reshape((n_neuroids, len(radius), len(spatial_frequency), len(orientation), len(phase)))
     responses = np.concatenate((responses[:, 0:1, 2, :, :], responses[:, 1:2, 1, :, :], responses[:, 2:, 0, :, :]),
                                axis=1)
     responses_dc = responses.mean(axis=3)
@@ -154,12 +154,13 @@ def ringach2002_properties(model_identifier, responses, baseline):
     orientation_selective = np.ones((n_neuroids, 1))
 
     for neur in range(n_neuroids):
-        pref_sf, pref_orientation = np.unravel_index(np.argmax(responses_dc[neur, :, :]), (len(sf), len(orientation)))
+        pref_spatial_frequency, pref_orientation = np.unravel_index(np.argmax(responses_dc[neur, :, :]),
+                                                                    (len(spatial_frequency), len(orientation)))
 
-        max_dc[neur] = responses_dc[neur, pref_sf, pref_orientation]
-        max_ac[neur] = responses_ac[neur, pref_sf, pref_orientation]
+        max_dc[neur] = responses_dc[neur, pref_spatial_frequency, pref_orientation]
+        max_ac[neur] = responses_ac[neur, pref_spatial_frequency, pref_orientation]
 
-        orientation_curve = responses_dc[neur, pref_sf]
+        orientation_curve = responses_dc[neur, pref_spatial_frequency]
         min_dc[neur] = orientation_curve.min()
 
         circular_variance[neur] = calc_circular_variance(orientation_curve, orientation)

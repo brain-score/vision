@@ -150,13 +150,11 @@ def firing_rates_affine(model_identifier, model: BrainModel, region):
 
     stim_pos = get_stimulus_position(orientation_activations)
 
-    rf_pos, rf_map = map_receptive_field_locations(model_identifier=model_identifier, model=model, region=region)
-    rf_pos = rf_pos.values
-    in_rf = filter_receptive_fields(rf_pos=rf_pos, pos=stim_pos, rf_delta=RF_DELTA)
+    in_rf = filter_receptive_fields(model_identifier=model_identifier, model=model, region=region, pos=stim_pos)
     n_neuroids = len(in_rf)
 
     radius = sorted(set(orientation_activations.radius.values))
-    sf = sorted(set(orientation_activations.sf.values))
+    spatial_frequency = sorted(set(orientation_activations.spatial_frequency.values))
     orientation = sorted(set(orientation_activations.orientation.values))
     phase = sorted(set(orientation_activations.phase.values))
 
@@ -165,7 +163,7 @@ def firing_rates_affine(model_identifier, model: BrainModel, region):
 
     blank_activations = blank_activations[in_rf]
     orientation_activations = orientation_activations[in_rf]
-    orientation_activations = orientation_activations.reshape((n_neuroids, len(radius), len(sf),
+    orientation_activations = orientation_activations.reshape((n_neuroids, len(radius), len(spatial_frequency),
                                                                len(orientation), len(phase)))
     orientation_activations = orientation_activations.mean(axis=4)
     orientation_activations = np.concatenate(
@@ -200,7 +198,7 @@ def _assert_grating_activations(activations):
     assert np.sum(np.tile(np.repeat(orientation, len(phase)), len(position_y) * len(position_x) * len(contrast) *
                           len(radius) * len(spatial_frequency)) == activations.orientation.values) == nStim
     assert np.sum(np.tile(np.repeat(spatial_frequency, len(phase) * len(orientation)), len(position_y) *
-                          len(position_x) * len(contrast) * len(radius)) == activations.sf.values) == nStim
+                          len(position_x) * len(contrast) * len(radius)) == activations.spatial_frequency.values) == nStim
     assert np.sum(np.tile(np.repeat(radius, len(phase) * len(orientation) * len(spatial_frequency)), len(position_y) *
                           len(position_x) * len(contrast)) == activations.radius.values) == nStim
     assert np.sum(np.tile(np.repeat(contrast, len(phase) * len(orientation) * len(spatial_frequency) * len(radius)),

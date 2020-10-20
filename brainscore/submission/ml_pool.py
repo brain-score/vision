@@ -25,7 +25,7 @@ regions = ['V1', 'V2', 'V4', 'IT']
 
 
 class MLBrainPool(UniqueKeyDict):
-    def __init__(self, base_model_pool, model_layers, reload=True, stochastic=False):
+    def __init__(self, base_model_pool, model_layers, reload=True):
         super(MLBrainPool, self).__init__(reload)
         self.reload = True
         for basemodel_identifier, activations_model in base_model_pool.items():
@@ -38,14 +38,8 @@ class MLBrainPool(UniqueKeyDict):
             def load(identifier=basemodel_identifier, activations_model=activations_model, layers=model_layer):
                 assert hasattr(activations_model, 'reload')
                 activations_model.reload()
-                if stochastic:
-                    from candidate_models.model_commitments.stochastic import StochasticModelCommitment
-                    brain_model = StochasticModelCommitment(identifier=identifier, activations_model=activations_model,
-                                                            layers=layers)
-                else:
-                    from model_tools.brain_transformation import ModelCommitment
-                    brain_model = ModelCommitment(identifier=identifier, activations_model=activations_model,
-                                                  layers=layers)
+                from model_tools.brain_transformation import ModelCommitment
+                brain_model = ModelCommitment(identifier=identifier, activations_model=activations_model, layers=layers)
                 return brain_model
 
             self[basemodel_identifier] = LazyLoad(load)

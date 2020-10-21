@@ -209,6 +209,26 @@ def _assert_grating_activations(activations):
                             len(contrast) * len(position_x)) == activations.position_y.values) == nStim
 
 
+def _assert_texture_activations(activations):
+    activations = activations.sortby(['type', 'family', 'sample'])
+
+    type = np.array(sorted(set(activations.type.values)))
+    family = np.array(sorted(set(activations.family.values)))
+    sample = np.array(sorted(set(activations.sample.values)))
+
+    n_type = len(type)
+    n_family = len(family)
+    n_sample = len(sample)
+    nStim = n_type * n_family * n_sample
+
+    assert np.sum(np.tile(sample, n_type * n_family) ==
+                  activations.sample.values) == nStim
+    assert np.sum(np.tile(np.repeat(family, n_sample), n_type) ==
+                  activations.family.values) == nStim
+    assert np.sum(np.repeat(type, n_family * n_sample) ==
+                  activations.type.values) == nStim
+
+
 def calc_circular_variance(orientation_curve, orientation):
     vect_sum = orientation_curve.dot(np.exp(1j * 2 * orientation / 180 * np.pi))
     osi = np.absolute(vect_sum) / np.sum(np.absolute(orientation_curve))
@@ -257,3 +277,121 @@ def calc_orthogonal_preferred_ratio(orientation_curve, orientation):
         orth_orientation -= len(orientation)
     opr = orientation_curve[orth_orientation] / orientation_curve[pref_orientation]
     return opr
+
+
+def calc_spatial_frequency_tuning(y, sf, filt_type='triangle', thrsh=0.707, mode='ratio'):
+    from scipy.interpolate import UnivariateSpline
+    sf_log = np.log2(sf)
+    sf_values = y
+    sf_log_full = np.linspace(sf_log[0], sf_log[-1], num=100, endpoint=True)
+
+    if filt_type == 'hanning':
+        w = np.array([0, 2/5, 1, 2/5, 0])
+    elif filt_type == 'flat':
+        w = np.array([1, 1, 1, 1, 1])
+    elif filt_type == 'smooth':
+        w = np.array([0, 1/5, 1, 1/5, 0])
+    elif filt_type == 'triangle':
+        w = np.array([0.5, 0.75, 1, 0.75, 0.5])
+
+    if filt_type is not None:
+        sf_values = np.convolve(w / w.sum(), np.squeeze(np.concatenate((np.array([sf_values[0], sf_values[0]]),
+                                                                        sf_values, np.array([sf_values[-1],
+                                                                                             sf_values[-1]])))),
+                                mode='valid')
+    sf_curve_spl = UnivariateSpline(sf_log, sf_values, s=0.)
+
+    sf_curve_full = sf_curve_spl(sf_log_full)
+
+    pref_sf_fit = np.argmax(sf_curve_full)
+    sf_pk_log = sf_log_full[pref_sf_fit]
+
+    sf_curve_max = sf_curve_full[pref_sf_fit]
+    less = np.where(sf_curve_full <= sf_curve_max * thrsh)[0][:]
+
+    try:
+        p1_log = sf_log_full[less[np.where(less < pref_sf_fit)[0][-1]]]
+    except:
+        p1_log = np.nan
+    try:
+        p2_log = sf_log_full[less[np.where(less > pref_sf_fit)[0][0]]]
+    except:
+        p2_log = np.nan
+
+    if mode == 'oct':
+        bw = (2 ** p2_log) / (2 ** p1_log) - 1
+    else:
+        bw = (2 ** p1_log) / (2 ** p2_log) * 100
+
+    values_fitted = sf_curve_spl(np.log2(sf))
+    ss_res = np.sum((y - values_fitted) ** 2)
+    ss_tot = np.sum((y - np.mean(y)) ** 2)
+    r2 = 1 - (ss_res / ss_tot)
+
+    return bw, np.power(2, sf_pk_log), r2, np.power(2, sf_log_full), sf_curve_full
+
+
+def calc_size_tuning(size_curve, radius):
+    pref_rad = np.argmax(size_curve)
+    surr_peak_r = np.max(size_curve)
+    surr_plateau_r = size_curve[-1]
+    ssi = (surr_peak_r - surr_plateau_r) / surr_peak_r
+    if surr_peak_r > 0 and ssi > 0.1:
+        gsf = radius[np.where(size_curve >= (surr_peak_r * 0.95))[0][0]] * 2
+        thrsh = surr_plateau_r + 0.05 * np.absolute(surr_plateau_r)
+        surr_diam = radius[np.where(np.logical_and(size_curve <= thrsh, radius > radius[pref_rad]))[0][0]] * 2
+        surr_gsf_ratio = surr_diam / gsf
+    else:
+        gsf, surr_diam, surr_gsf_ratio = np.nan, np.nan, np.nan
+
+    return gsf, surr_diam, surr_gsf_ratio, ssi
+
+
+def calc_texture_modulation(response):
+    texture_modulation_family = (response[1, :] - response[0, :]) / (response[1, :] + response[0, :])
+    texture_modulation = np.nanmean(texture_modulation_family)
+    return texture_modulation, texture_modulation_family
+
+
+def calc_sparseness(response):
+    response = response.reshape(-1)
+    n_stim = response.shape[0]
+    sparseness = (1 - ((response.sum() / n_stim) ** 2) / ((response ** 2).sum() / n_stim)) / (1 - 1 / n_stim)
+    return sparseness
+
+
+def calc_variance_ratio(response):
+    residual_ms, sample_ms, family_ms = calc_variance(response)
+    response_shape = response.shape
+    if len(response_shape) == 3:
+        residual_variance = residual_ms
+        sample_variance = (sample_ms - residual_ms) / response_shape[2]
+        family_variance = (family_ms - sample_ms) / (response_shape[2]*response_shape[1])
+    else:
+        residual_variance = 0
+        sample_variance = sample_ms
+        family_variance = (family_ms - sample_ms) / response_shape[1]
+    total_variance = residual_variance + sample_variance + family_variance
+    variance_ratio = (family_variance / total_variance + 0.02) / (sample_variance / total_variance + 0.02)
+    return variance_ratio
+
+
+def calc_variance(response):
+    response_shape = response.shape
+    if len(response_shape) == 3:
+        a, b, n = response_shape
+        sample_mean = response.mean(axis=2)
+        family_mean = sample_mean.mean(axis=1)
+        all_mean = family_mean.mean()
+        residual_ms = np.sum((response - sample_mean.reshape(a, b, 1)) ** 2) / (a * b * (n - 1))
+        sample_ms = n * np.sum((sample_mean - family_mean.reshape(a, 1)) ** 2) / (a * (b - 1))
+        family_ms = b*n*np.sum((family_mean - all_mean) ** 2) / (a - 1)
+    else:
+        a, b = response_shape
+        sample_mean = response
+        family_mean = sample_mean.mean(axis=1)
+        all_mean = family_mean.mean()
+        residual_ms = np.nan
+        sample_ms = np.sum((sample_mean - family_mean.reshape(a, 1)) ** 2) / (a * (b - 1))
+        family_ms = b * np.sum((family_mean - all_mean) ** 2) / (a - 1)
+    return residual_ms, sample_ms, family_ms

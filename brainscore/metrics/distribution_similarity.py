@@ -15,28 +15,32 @@ class BootstrapDistributionSimilarity(Metric):
         data_property = data_property.loc[:, self.property_name].values
         model_property = model_property.loc[:, self.property_name].values
 
-        data_property = data_property[np.isfinite(data_property)]
-        model_property = model_property[np.isfinite(model_property)]
-
         data_property[data_property < bins[0]] = bins[0]
         data_property[data_property > bins[-1]] = bins[-1]
         model_property[model_property < bins[0]] = bins[0]
         model_property[model_property > bins[-1]] = bins[-1]
 
-        n_neuroids_data = data_property.shape[0]
+        n_neurons = data_property.shape[0]
 
-        data_hist = np.histogram(data_property, bins=bins)[0]/n_neuroids_data
+        data_hist = np.histogram(data_property, bins=bins)[0]
+        data_hist = data_hist / data_hist.sum()
 
         model_hist = np.zeros((self.ns, data_hist.shape[0]))
         dist_similarity = np.zeros(self.ns)
 
         for s in range(self.ns):
-            sample = np.random.choice(model_property, n_neuroids_data)
-            model_hist[s, :] = np.histogram(sample, bins=bins)[0]/n_neuroids_data
+            sample = np.random.choice(model_property, n_neurons)
+            model_hist[s, :] = np.histogram(sample, bins=bins)[0]
+            model_hist[s, :] = model_hist[s, :] / model_hist[s, :].sum()
             dist_similarity[s] = self.similarity_func(model_hist[s, :], data_hist)
 
-        center = np.mean(dist_similarity)
-        error = np.std(dist_similarity)
+        if np.isnan(dist_similarity).sum() > NSAMPLES / 10:
+            center = 0
+            error = 0
+        else:
+            center = np.nanmean(dist_similarity)
+            error = np.nanstd(dist_similarity)
+
         score = Score([center, error], coords={'aggregation': ['center', 'error']}, dims=('aggregation',))
         score.attrs[Score.RAW_VALUES_KEY] = dist_similarity
 

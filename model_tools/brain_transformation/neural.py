@@ -79,7 +79,7 @@ class LayerSelection:
             self._layer_scoring._activations_model.identifier = identifier
         return result
 
-    @store(identifier_ignore=['assembly'])
+    @store(identifier_ignore=['assembly', 'benchmark'])
     def _call(self, model_identifier, selection_identifier, benchmark):
         self._logger.debug("Finding best layer")
         layer_scores = self._layer_scoring(benchmark=benchmark, benchmark_identifier=selection_identifier,

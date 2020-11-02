@@ -1,10 +1,10 @@
 import numpy as np
 import pytest
+from brainio_base.assemblies import NeuroidAssembly
 from pytest import approx
 
-from brainio_base.assemblies import NeuroidAssembly
 from brainscore.metrics.regression import CrossRegressedCorrelation, pls_regression, linear_regression, \
-    pearsonr_correlation
+    pearsonr_correlation, ridge_regression
 
 
 class TestCrossRegressedCorrelation:
@@ -21,7 +21,7 @@ class TestCrossRegressedCorrelation:
 
 
 class TestRegression:
-    @pytest.mark.parametrize('regression_ctr', [pls_regression, linear_regression])
+    @pytest.mark.parametrize('regression_ctr', [pls_regression, linear_regression, ridge_regression])
     def test_small(self, regression_ctr):
         assembly = NeuroidAssembly((np.arange(30 * 25) + np.random.standard_normal(30 * 25)).reshape((30, 25)),
                                    coords={'image_id': ('presentation', np.arange(30)),

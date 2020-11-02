@@ -235,7 +235,7 @@ def get_reference(bibtex_string):
         entry = bib_parser.parse_string(bibtex_str)
         entry = entry.entries
         assert len(entry) == 1
-        entry = entry.values()[0]
+        entry = list(entry.values())[0]
         return entry
 
     try:

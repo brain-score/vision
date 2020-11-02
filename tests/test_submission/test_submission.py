@@ -39,7 +39,7 @@ class TestSubmission:
         clear_schema()
 
     def test_get_reference(self):
-        bibtex = """﻿@Article{Freeman2013,
+        bibtex = """@Article{Freeman2013,
                                 author={Freeman, Jeremy
                                 and Ziemba, Corey M.
                                 and Heeger, David J.

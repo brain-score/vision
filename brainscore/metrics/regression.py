@@ -1,7 +1,7 @@
 import scipy.stats
 import numpy as np
 from sklearn.cross_decomposition import PLSRegression
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.preprocessing import scale
 
 from brainio_base.assemblies import walk_coords
@@ -82,6 +82,12 @@ def pls_regression(regression_kwargs=None, xarray_kwargs=None):
 
 def linear_regression(xarray_kwargs=None):
     regression = LinearRegression()
+    xarray_kwargs = xarray_kwargs or {}
+    regression = XarrayRegression(regression, **xarray_kwargs)
+    return regression
+
+def ridge_regression(xarray_kwargs=None):
+    regression = Ridge()
     xarray_kwargs = xarray_kwargs or {}
     regression = XarrayRegression(regression, **xarray_kwargs)
     return regression

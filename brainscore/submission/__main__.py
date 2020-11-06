@@ -1,5 +1,4 @@
 import argparse
-import json
 import logging
 import sys
 from pathlib import Path
@@ -19,9 +18,9 @@ parser.add_argument('jenkins_id', type=int,
 parser.add_argument('--db_secret', type=str,
                     help='The name of the database credential secret loaded from AWS', default='brainscore-1-ohio-cred')
 parser.add_argument('--models', type=str, nargs='*', default=None,
-                    help='An optional list of the models to benchmark, if it doesn\'t exist all models are socred')
+                    help='An optional list of the models to benchmark, if it does not exist all models are socred')
 parser.add_argument('--benchmarks', type=str, nargs='*', default=None,
-                    help='An optional list of the benchmarks to run, if it doesn\'t exist all benchmarks are run')
+                    help='An optional list of the benchmarks to run, if it does not exist all benchmarks are run')
 args, remaining_args = parser.parse_known_args()
 logging.basicConfig(stream=sys.stdout, level=logging.getLevelName(args.log_level),
                     format='%(asctime)-15s %(levelname)s:%(name)s:%(message)s')
@@ -31,14 +30,14 @@ for disable_logger in ['s3transfer', 'botocore', 'boto3', 'urllib3', 'peewee', '
 
 def score_model_console():
     logger.info('Start scoring model process..')
-    assert Path(args.config_dir).is_dir(), 'Configuration directory doesn\'t exist'
-    assert Path(args.work_dir).is_dir(), 'Work directory is not a valid directory'
-    assert args.db_secret is not None, 'The db connection file doesn\'t exist'
+    assert Path(args.config_dir).is_dir(), f'Configuration directory {args.config_dir} does not exist'
+    assert Path(args.work_dir).is_dir(), f'Work directory {args.work_dir} is not a valid directory'
+    assert args.db_secret is not None, 'The db connection file does not exist'
     assert isinstance(args.jenkins_id, int)
     logger.info(f'Benchmarks configured: {args.benchmarks}')
     logger.info(f'Models configured: {args.models}')
     run_evaluation(args.config_dir, args.work_dir, args.jenkins_id, db_secret=args.db_secret,
-                 models=args.models, benchmarks=args.benchmarks)
+                   models=args.models, benchmarks=args.benchmarks)
 
 
 logger.info(f"Running {' '.join(sys.argv)}")

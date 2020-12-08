@@ -45,35 +45,35 @@ def MarquesDeValois1982V1PreferredOrientation():
 @store(identifier_ignore=['responses', 'baseline'])
 def devalois1982a_properties(model_identifier, responses, baseline):
     _assert_grating_activations(responses)
-    radius = np.array(sorted(set(responses.radius.values)))
     spatial_frequency = np.array(sorted(set(responses.spatial_frequency.values)))
     orientation = np.array(sorted(set(responses.orientation.values)))
     phase = np.array(sorted(set(responses.phase.values)))
+    nStim = responses.values.shape[1]
+    n_cycles = nStim // (len(phase) * len(orientation) * len(spatial_frequency))
 
     responses = responses.values
     baseline = baseline.values
     assert responses.shape[0] == baseline.shape[0]
     n_neuroids = responses.shape[0]
 
-    responses = responses.reshape((n_neuroids, len(radius), len(spatial_frequency), len(orientation), len(phase)))
-    responses = np.concatenate((responses[:, 0:1, 2, :, :], responses[:, 1:2, 1, :, :], responses[:, 2:, 0, :, :]),
-                               axis=1)
-    responses = responses.mean(axis=3)
+    responses = responses.reshape((n_neuroids, n_cycles, len(spatial_frequency), len(orientation), len(phase)))
+    responses = responses.mean(axis=4)
 
     preferred_orientation = np.zeros((n_neuroids, 1))
     max_response = responses.reshape((n_neuroids, -1)).max(axis=1, keepdims=True)
 
     for neur in range(n_neuroids):
-        pref_spatial_frequency, pref_orientation = np.unravel_index(np.argmax(responses[neur, :, :]),
-                                                                    (len(spatial_frequency), len(orientation)))
+        pref_cycle, pref_spatial_frequency, pref_orientation = np.unravel_index(np.argmax(responses[neur]),
+                                                                                (n_cycles, len(spatial_frequency),
+                                                                                 len(orientation)))
 
-        orientation_curve = responses[neur, pref_spatial_frequency, :]
+        orientation_curve = responses[neur, pref_cycle, pref_spatial_frequency, :]
 
         preferred_orientation[neur] = \
             calc_bandwidth(orientation_curve, orientation, filt_type='smooth', thrsh=0.5, mode='full')[1]
 
-    preferred_orientation[pref_orientation >= ORIENTATION_BIN_LIM] = \
-        preferred_orientation[pref_orientation >= ORIENTATION_BIN_LIM] - 180
+    preferred_orientation[preferred_orientation >= ORIENTATION_BIN_LIM] = \
+        preferred_orientation[preferred_orientation >= ORIENTATION_BIN_LIM] - 180
     properties_data = preferred_orientation
 
     good_neuroids = max_response > baseline + RESPONSE_THRESHOLD

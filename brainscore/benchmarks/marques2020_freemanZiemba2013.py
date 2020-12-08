@@ -12,12 +12,12 @@ ASSEMBLY_NAME = 'movshon.FreemanZiemba2013_V1_properties'
 REGION = 'V1'
 TIMEBINS = [(70, 170)]
 PARENT_TEXTURE_MODULATION = 'V1-texture_modulation'
-PARENT_TEXTURE_SELECTIVITY = 'V1-texture_selectivity'
+PARENT_SELECTIVITY = 'V1-selectivity'
 PARENT_MAGNITUDE = 'V1-magnitude'
 
 PROPERTY_NAMES = ['texture_modulation_index', 'absolute_texture_modulation_index', 'texture_selectivity',
-                  'noise_selectivity', 'texture_sparseness', 'noise_sparseness', 'variance_ratio',
-                  'max_texture', 'max_noise']
+                  'noise_selectivity', 'texture_sparseness', 'noise_sparseness', 'variance_ratio', 'sample_variance',
+                  'family_variance', 'max_texture', 'max_noise']
 
 BIBTEX = """@article{Freeman2013,
             author = {Freeman, Jeremy and Ziemba, Corey M. and Heeger, David J. and Simoncelli, E. P. and Movshon, J. A.},
@@ -44,7 +44,7 @@ def _MarquesFreemanZiemba2013V1Property(property_name, parent):
     ceil_func = NeuronalPropertyCeiling(BootstrapDistributionSimilarity(similarity_func=ks_similarity,
                                                                         property_name=property_name))
     return PropertiesBenchmark(identifier=f'dicarlo.Marques_freemanziemba2013-{property_name}', assembly=assembly,
-                               neuronal_property=freemanziemba20013_properties, similarity_metric=similarity_metric,
+                               neuronal_property=freemanziemba2013_properties, similarity_metric=similarity_metric,
                                timebins=TIMEBINS,
                                parent=parent, ceiling_func=ceil_func, bibtex=BIBTEX, version=1)
 
@@ -63,19 +63,31 @@ def MarquesFreemanZiemba2013V1AbsoluteTextureModulationIndex():
 
 def MarquesFreemanZiemba2013V1TextureSelectivity():
     property_name = 'texture_selectivity'
-    parent = PARENT_TEXTURE_SELECTIVITY
+    parent = PARENT_SELECTIVITY
     return _MarquesFreemanZiemba2013V1Property(property_name=property_name, parent=parent)
 
 
 def MarquesFreemanZiemba2013V1TextureSparseness():
     property_name = 'texture_sparseness'
-    parent = PARENT_TEXTURE_SELECTIVITY
+    parent = PARENT_SELECTIVITY
     return _MarquesFreemanZiemba2013V1Property(property_name=property_name, parent=parent)
 
 
 def MarquesFreemanZiemba2013V1VarianceRatio():
     property_name = 'variance_ratio'
-    parent = PARENT_TEXTURE_SELECTIVITY
+    parent = PARENT_SELECTIVITY
+    return _MarquesFreemanZiemba2013V1Property(property_name=property_name, parent=parent)
+
+
+def MarquesFreemanZiemba2013V1SampleVariance():
+    property_name = 'sample_variance'
+    parent = PARENT_SELECTIVITY
+    return _MarquesFreemanZiemba2013V1Property(property_name=property_name, parent=parent)
+
+
+def MarquesFreemanZiemba2013V1FamilyVariance():
+    property_name = 'family_variance'
+    parent = PARENT_SELECTIVITY
     return _MarquesFreemanZiemba2013V1Property(property_name=property_name, parent=parent)
 
 
@@ -92,9 +104,9 @@ def MarquesFreemanZiemba2013V1MaxNoise():
 
 
 @store(identifier_ignore=['responses', 'baseline'])
-def freemanziemba20013_properties(model_identifier, responses, baseline):
+def freemanziemba2013_properties(model_identifier, responses, baseline):
     _assert_texture_activations(responses)
-
+    responses = responses.sortby(['type', 'family', 'sample'])
     type = np.array(sorted(set(responses.type.values)))
     family = np.array(sorted(set(responses.family.values)))
     sample = np.array(sorted(set(responses.sample.values)))
@@ -121,6 +133,8 @@ def freemanziemba20013_properties(model_identifier, responses, baseline):
     texture_sparseness = np.zeros((n_neuroids, 1))
     noise_sparseness = np.zeros((n_neuroids, 1))
     variance_ratio = np.zeros((n_neuroids, 1))
+    sample_variance = np.zeros((n_neuroids, 1))
+    family_variance = np.zeros((n_neuroids, 1))
 
     for neur in range(n_neuroids):
         texture_modulation_index[neur] = calc_texture_modulation(responses_family[neur])[0]
@@ -128,13 +142,14 @@ def freemanziemba20013_properties(model_identifier, responses, baseline):
         noise_selectivity[neur] = calc_sparseness(responses_family[neur, 0])
         texture_sparseness[neur] = calc_sparseness(responses[neur, 1])
         noise_sparseness[neur] = calc_sparseness(responses[neur, 0])
-        variance_ratio[neur] = calc_variance_ratio(responses_spikes[neur, 1])
+        variance_ratio[neur], sample_variance[neur], family_variance[neur] = \
+            calc_variance_ratio(responses_spikes[neur, 1])
 
     absolute_texture_modulation_index = np.abs(texture_modulation_index)
 
     properties_data = np.concatenate((texture_modulation_index, absolute_texture_modulation_index, texture_selectivity,
                                       noise_selectivity, texture_sparseness, noise_sparseness, variance_ratio,
-                                      max_texture, max_noise), axis=1)
+                                      sample_variance, family_variance, max_texture, max_noise), axis=1)
 
     good_neuroids = max_response > RESPONSE_THRESHOLD
     properties_data = properties_data[np.argwhere(good_neuroids)[:, 0], :]

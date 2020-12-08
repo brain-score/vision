@@ -110,22 +110,21 @@ def MarquesRingach2002V1Baseline():
 @store(identifier_ignore=['responses', 'baseline'])
 def ringach2002_properties(model_identifier, responses, baseline):
     _assert_grating_activations(responses)
-    radius = np.array(sorted(set(responses.radius.values)))
     spatial_frequency = np.array(sorted(set(responses.spatial_frequency.values)))
     orientation = np.array(sorted(set(responses.orientation.values)))
     phase = np.array(sorted(set(responses.phase.values)))
+    nStim = responses.values.shape[1]
+    n_cycles = nStim // (len(phase) * len(orientation) * len(spatial_frequency))
 
     responses = responses.values
     baseline = baseline.values
     assert responses.shape[0] == baseline.shape[0]
     n_neuroids = responses.shape[0]
 
-    responses = responses.reshape((n_neuroids, len(radius), len(spatial_frequency), len(orientation), len(phase)))
-    responses = np.concatenate((responses[:, 0:1, 2, :, :], responses[:, 1:2, 1, :, :], responses[:, 2:, 0, :, :]),
-                               axis=1)
-    responses_dc = responses.mean(axis=3)
+    responses = responses.reshape((n_neuroids, n_cycles, len(spatial_frequency), len(orientation), len(phase)))
+    responses_dc = responses.mean(axis=4)
     responses_ac = np.absolute(np.fft.fft(responses)) / len(phase)
-    responses_ac = responses_ac[:, :, :, 1]
+    responses_ac = responses_ac[:, :, :, :, 1]
     del responses
 
     max_dc = np.zeros((n_neuroids, 1))
@@ -137,13 +136,14 @@ def ringach2002_properties(model_identifier, responses, baseline):
     orientation_selective = np.ones((n_neuroids, 1))
 
     for neur in range(n_neuroids):
-        pref_spatial_frequency, pref_orientation = np.unravel_index(np.argmax(responses_dc[neur, :, :]),
-                                                                    (len(spatial_frequency), len(orientation)))
+        pref_cycle, pref_spatial_frequency, pref_orientation = np.unravel_index(np.argmax(responses_dc[neur]),
+                                                                                (n_cycles, len(spatial_frequency),
+                                                                                 len(orientation)))
 
-        max_dc[neur] = responses_dc[neur, pref_spatial_frequency, pref_orientation]
-        max_ac[neur] = responses_ac[neur, pref_spatial_frequency, pref_orientation]
+        max_dc[neur] = responses_dc[neur, pref_cycle, pref_spatial_frequency, pref_orientation]
+        max_ac[neur] = responses_ac[neur, pref_cycle, pref_spatial_frequency, pref_orientation]
 
-        orientation_curve = responses_dc[neur, pref_spatial_frequency, :]
+        orientation_curve = responses_dc[neur, pref_cycle, pref_spatial_frequency, :]
         min_dc[neur] = orientation_curve.min()
 
         circular_variance[neur] = calc_circular_variance(orientation_curve, orientation)

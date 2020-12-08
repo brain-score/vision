@@ -44,7 +44,14 @@ class BootstrapDistributionSimilarity(Metric):
         score = Score([center, error], coords={'aggregation': ['center', 'error']}, dims=('aggregation',))
         score.attrs[Score.RAW_VALUES_KEY] = dist_similarity
 
+        self.data_hist = data_hist
+        self.model_hist = model_hist
+        self.bins = bins
+
         return score
+
+    def get_dists(self):
+        return self.data_hist, self.model_hist, self.bins
 
 
 def ks_similarity(p, q):

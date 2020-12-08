@@ -42,9 +42,6 @@ class TestPoolList:
             'movshon.FreemanZiemba2013.V1-pls', 'movshon.FreemanZiemba2013.V2-pls',
             'dicarlo.MajajHong2015.V4-pls', 'dicarlo.MajajHong2015.IT-pls', 'dicarlo.Kar2019-ost',
             'dicarlo.Rajalingham2018-i2n',
-            'fei-fei.Deng2009-top1',
-            'dietterich.Hendrycks2019-noise-top1', 'dietterich.Hendrycks2019-blur-top1',
-            'dietterich.Hendrycks2019-weather-top1', 'dietterich.Hendrycks2019-digital-top1'
         }
 
 
@@ -67,7 +64,6 @@ class TestStandardized:
                      marks=pytest.mark.memory_intense),
         pytest.param('dicarlo.MajajHong2015.IT-rdm', approx(.887618, abs=.001),
                      marks=pytest.mark.memory_intense),
-        # Sanghavi2020
         pytest.param('dicarlo.Sanghavi2020.V4-pls', approx(.8892049, abs=.001),
                      marks=pytest.mark.memory_intense),
         pytest.param('dicarlo.Sanghavi2020.IT-pls', approx(.868293, abs=.001),
@@ -142,7 +138,7 @@ class TestStandardized:
         pytest.param('dicarlo.Rajalingham2020.IT-pls', 8, approx(.693463, abs=.005),
                      marks=[pytest.mark.memory_intense, pytest.mark.slow]),
     ])
-    def test_self(self, benchmark, visual_degrees, expected):
+    def test_self_regression(self, benchmark, visual_degrees, expected):
         benchmark = benchmark_pool[benchmark]
         source = benchmark._assembly
         score = benchmark(PrecomputedFeatures(source, visual_degrees=visual_degrees)).raw

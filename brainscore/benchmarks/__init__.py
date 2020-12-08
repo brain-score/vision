@@ -302,7 +302,7 @@ check_all_disjoint(evaluation_benchmark_pool, engineering_benchmark_pool,
 
 # engineering benchmarks are part of both the public as well as the private evaluation pools
 public_benchmark_pool = {**public_benchmark_pool, **engineering_benchmark_pool}
-evaluation_benchmark_pool = {**evaluation_benchmark_pool, **engineering_benchmark_pool}
+evaluation_benchmark_pool = {**evaluation_benchmark_pool}
 # provide unifying pool
 benchmark_pool = {**public_benchmark_pool, **engineering_benchmark_pool,
                   **experimental_benchmark_pool, **evaluation_benchmark_pool}

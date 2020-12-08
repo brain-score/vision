@@ -1,6 +1,5 @@
 import functools
 
-import torchvision.models
 from model_tools.activations.pytorch import PytorchWrapper
 from model_tools.activations.pytorch import load_preprocess_images
 
@@ -20,7 +19,8 @@ def get_model_list():
 
 def get_model(name):
     assert name == 'alexnet'
-    model = torchvision.models.alexnet(pretrained=True)
+    from torchvision.models import alexnet
+    model = alexnet(pretrained=True)
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(identifier='alexnet', model=model, preprocessing=preprocessing)
     wrapper.image_size = 224

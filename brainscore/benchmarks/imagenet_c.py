@@ -72,14 +72,14 @@ class Imagenet_C_Category(BenchmarkBase):
         self._category = category
         self._groups = category_groups[category]
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
-        super(Imagenet_C_Category, self).__init__(identifier='dietterich.Hendrycks2019-top1', version=1,
+        super(Imagenet_C_Category, self).__init__(identifier=f'dietterich.Hendrycks2019-{category}-top1', version=1,
                                                   ceiling_func=lambda: ceiling,
-                                                  parent='ImageNet_C',
+                                                  parent='dietterich.Hendrycks2019-top1',
                                                   bibtex=BIBTEX)
 
     def __call__(self, candidate):
         scores = xr.concat([
-            Imagenet_C_Group(group)(candidate)
+            Imagenet_C_Group(group, parent_category=self._category)(candidate)
             for group in self._groups
         ], dim='presentation')
         assert len(set(scores['noise_type'].values)) == len(self._groups)
@@ -95,17 +95,17 @@ class Imagenet_C_Group(BenchmarkBase):
     Runs a group in imnet C benchmarks, like gaussian noise [1-5]
     """
 
-    def __init__(self, noise_type):
+    def __init__(self, noise_type, parent_category):
         self._noise_type = noise_type
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
-        super(Imagenet_C_Group, self).__init__(identifier='dietterich.Hendrycks2019-top1', version=1,
+        super(Imagenet_C_Group, self).__init__(identifier=f'dietterich.Hendrycks2019-{noise_type}-top1', version=1,
                                                ceiling_func=lambda: ceiling,
-                                               parent=f'ImageNet_C_{noise_type}',
+                                               parent=f'dietterich.Hendrycks2019-{parent_category}-top1',
                                                bibtex=BIBTEX)
 
     def __call__(self, candidate):
         score = xr.concat([
-            Imagenet_C_Individual(f'dietterich.Hendrycks2019.{self._noise_type}_{severity}', self._noise_type)(
+            Imagenet_C_Individual(identifier_suffix=f'{self._noise_type}_{severity}', noise_type=self._noise_type)(
                 candidate)
             for severity in range(1, 6)
         ], dim='presentation')
@@ -117,16 +117,17 @@ class Imagenet_C_Individual(BenchmarkBase):
     Runs an individual ImageNet C benchmark, like "gaussian_noise_1"
     """
 
-    def __init__(self, benchmark_name, noise_type):
-        stimulus_set = brainscore.get_stimulus_set(benchmark_name)
+    def __init__(self, identifier_suffix, noise_type):
+        identifier = f'dietterich.Hendrycks2019.{identifier_suffix}'
+        stimulus_set = brainscore.get_stimulus_set(identifier)
         self._stimulus_set = stimulus_set
         self._similarity_metric = Accuracy()
-        self._benchmark_name = benchmark_name
+        self._benchmark_name = identifier
         self._noise_type = noise_type
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
-        super(Imagenet_C_Individual, self).__init__(identifier='dietterich.Hendrycks2019-top1', version=1,
+        super(Imagenet_C_Individual, self).__init__(identifier=f"{identifier}-top1", version=1,
                                                     ceiling_func=lambda: ceiling,
-                                                    parent=f'ImageNet_C_{noise_type}',
+                                                    parent=f'dietterich.Hendrycks2019-{noise_type}-top1',
                                                     bibtex=BIBTEX)
 
     def __call__(self, candidate):

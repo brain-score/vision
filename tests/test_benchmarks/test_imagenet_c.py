@@ -35,8 +35,8 @@ class TestImagenetC:
 
 
 class TestImagenetCIndividual:
-    def test_groundtruth(self, name='dietterich.Hendrycks2019.gaussian_noise_1', noise_type='gaussian_noise'):
-        benchmark = Imagenet_C_Individual(name, noise_type)
+    def test_groundtruth(self, identifier_suffix='gaussian_noise_1', noise_type='gaussian_noise'):
+        benchmark = Imagenet_C_Individual(identifier_suffix=identifier_suffix, noise_type=noise_type)
         source = benchmark._stimulus_set
 
         class GroundTruth(BrainModel):

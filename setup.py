@@ -28,7 +28,7 @@ requirements = [
     "tensorflow",
     "result_caching @ git+https://github.com/mschrimpf/result_caching",
     "jupyter",
-    "pandas==0.25.3",
+    "pandas",
     "pybtex",
     'peewee',
     'psycopg2-binary'

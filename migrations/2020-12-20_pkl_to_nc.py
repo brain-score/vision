@@ -4,7 +4,8 @@ from pathlib import Path
 import boto3
 from brainio_collection.packaging import write_netcdf
 
-s3 = boto3.client("s3")
+session = boto3.session.Session(profile_name="dicarlolab_jjpr")
+s3 = session.client("s3")
 
 
 pkl_names = [
@@ -38,9 +39,9 @@ def main():
         with open(target_file_pkl, 'rb') as f:
             unpickled = pickle.load(f)
         #   write netcdf
-        write_netcdf(unpickled, target_file_nc)
+        write_netcdf(unpickled["data"], str(target_file_nc))
         #   upload
-        s3.upload_file(target_file_nc, bucket_name, object_key_nc)
+        s3.upload_file(str(target_file_nc), bucket_name, str(object_key_nc))
 
 
 if __name__ == '__main__':

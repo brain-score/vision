@@ -5,7 +5,6 @@ import pickle
 import pytest
 
 from brainio_base.stimuli import StimulusSet
-from brainscore.benchmarks.trials import repeat_trials
 from model_tools.activations import KerasWrapper, PytorchWrapper, TensorflowSlimWrapper
 from model_tools.activations.core import flatten
 from model_tools.activations.pca import LayerPCA
@@ -185,19 +184,6 @@ def test_from_stimulus_set(model_ctr, layers, pca_components):
     assert len(np.unique(activations['layer'])) == len(layers)
     if pca_components is not None:
         assert len(activations['neuroid']) == pca_components * len(layers)
-
-
-@pytest.mark.parametrize(["model_ctr", "layers"], models_layers)
-def test_from_stimulus_set_repetitions(model_ctr, layers):
-    image_names = ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png', 'palletized.png']
-    stimulus_set = _build_stimulus_set(image_names)
-    stimulus_set = repeat_trials(stimulus_set, number_of_trials=10)
-
-    activations_extractor = model_ctr()
-    activations = activations_extractor.from_stimulus_set(stimulus_set, layers=layers, stimuli_identifier=False)
-
-    assert set(activations['image_id'].values) == set(image_names)
-    assert len(activations['presentation']) == len(stimulus_set)
 
 
 @pytest.mark.memory_intense

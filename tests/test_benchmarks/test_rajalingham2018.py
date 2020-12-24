@@ -1,7 +1,9 @@
 import numpy as np
 import os
+from pathlib import Path
 
 import pandas as pd
+import xarray as xr
 import pytest
 from pytest import approx
 
@@ -25,9 +27,8 @@ class TestRajalingham2018:
                              ])
     def test_precomputed(self, model, expected_score):
         benchmark = DicarloRajalingham2018I2n()
-        probabilities = pd.read_pickle(os.path.join(os.path.dirname(__file__), '..', 'test_metrics',
-                                                    f'{model}-probabilities.pkl'))['data']
-        probabilities = BehavioralAssembly(probabilities)
+        probabilities = Path(__file__).parent.parent / 'test_metrics' / f'{model}-probabilities.nc'
+        probabilities = BehavioralAssembly(xr.load_dataarray(probabilities))
         candidate = PrecomputedProbabilities(probabilities)
         score = benchmark(candidate)
         assert score.raw.sel(aggregation='center') == approx(expected_score, abs=.005)

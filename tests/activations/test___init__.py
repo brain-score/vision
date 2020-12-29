@@ -63,6 +63,32 @@ def pytorch_alexnet_resize():
 
     return PytorchWrapper(alexnet(pretrained=True), preprocessing, identifier='alexnet-resize')
 
+def pytorch_transformer_substitute():
+    import torch
+    from torch import nn
+    from model_tools.activations.pytorch import load_preprocess_images
+
+    class MyTransformer(nn.Module):
+        def __init__(self):
+            super(MyTransformer, self).__init__()
+            self.conv = torch.nn.Conv1d(in_channels=3, out_channels=2, kernel_size=3)
+            self.relu1 = torch.nn.ReLU()
+            linear_input_size = (224**2 - 2) * 2
+            self.linear = torch.nn.Linear(int(linear_input_size), 1000)
+            self.relu2 = torch.nn.ReLU()  # logit out needs to be 1000
+
+        def forward(self, x):
+            x = x.view(*x.shape[:2], -1)
+            x = self.conv(x)
+            x = self.relu1(x)
+            x = x.view(x.shape[0], -1)
+            x = self.linear(x)
+            x = self.relu2(x)
+
+            return x
+
+    preprocessing = functools.partial(load_preprocess_images, image_size=224)
+    return PytorchWrapper(model=MyTransformer(), preprocessing=preprocessing)
 
 def keras_vgg19():
     import keras
@@ -128,6 +154,7 @@ def tfslim_vgg16():
 models_layers = [
     pytest.param(pytorch_custom, ['linear', 'relu2']),
     pytest.param(pytorch_alexnet, ['features.12', 'classifier.5'], marks=pytest.mark.memory_intense),
+    pytest.param(pytorch_transformer_substitute, ['relu1']),
     pytest.param(keras_vgg19, ['block3_pool'], marks=pytest.mark.memory_intense),
     pytest.param(tfslim_custom, ['my_model/pool2'], marks=pytest.mark.memory_intense),
     pytest.param(tfslim_vgg16, ['vgg_16/pool5'], marks=pytest.mark.memory_intense),
@@ -222,6 +249,14 @@ def test_mixed_layer_logits(model_ctr, internal_layers):
 def test_infer_identifier(model_ctr, expected_identifier):
     model = model_ctr()
     assert model.identifier == expected_identifier
+
+
+def test_transformer_meta():
+    model = pytorch_transformer_substitute()
+    activations = model(stimuli=[os.path.join(os.path.dirname(__file__), 'rgb.jpg')], layers=['relu1'])
+    assert hasattr(activations, 'channel')
+    assert hasattr(activations, 'embedding')
+    assert len(set(activations['neuroid_id'].values)) == len(activations['neuroid'])
 
 
 def test_convolution_meta():

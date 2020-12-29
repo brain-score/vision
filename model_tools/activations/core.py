@@ -190,10 +190,14 @@ class ActivationsExtractorHelper:
     def _package_layer(self, layer_activations, layer, stimuli_paths):
         assert layer_activations.shape[0] == len(stimuli_paths)
         activations, flatten_indices = flatten(layer_activations, return_index=True)  # collapse for single neuroid dim
-        assert flatten_indices.shape[1] in [1, 3]  # either convolutional or fully-connected
-        flatten_coord_names = ['channel', 'channel_x', 'channel_y']
-        flatten_coords = {flatten_coord_names[i]: [sample_index[i] if i < flatten_indices.shape[1] else np.nan
-                                                   for sample_index in flatten_indices]
+        assert flatten_indices.shape[1] in [1, 2, 3]
+        if flatten_indices.shape[1] == 1:    # FC
+            flatten_coord_names = ['channel', 'channel_x', 'channel_y']
+        elif flatten_indices.shape[1] == 2:  # Transformer
+            flatten_coord_names = ['channel', 'embedding']
+        elif flatten_indices.shape[1] == 3:  # 2DConv
+            flatten_coord_names = ['channel', 'channel_x', 'channel_y']
+        flatten_coords = {flatten_coord_names[i]: [sample_index[i] if i < flatten_indices.shape[1] else np.nan for sample_index in flatten_indices]
                           for i in range(len(flatten_coord_names))}
         layer_assembly = NeuroidAssembly(
             activations,

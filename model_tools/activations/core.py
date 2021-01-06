@@ -167,6 +167,9 @@ class ActivationsExtractorHelper:
         layer_assemblies = [self._package_layer(single_layer_activations, layer=layer, stimuli_paths=stimuli_paths) for
                             layer, single_layer_activations in tqdm(layer_activations.items(), desc='layer packaging')]
         # merge manually instead of using merge_data_arrays since `xarray.merge` is very slow with these large arrays
+        # complication: (non)neuroid_coords are taken from the structure of layer_assemblies[0] i.e. the 1st assembly;
+        # using these names/keys for all assemblies results in KeyError if the first layer contains flatten_coord_names
+        # (see _package_layer) not present in later layers, e.g. first layer = conv, later layer = transformer layer
         self._logger.debug("Merging layer assemblies")
         model_assembly = np.concatenate([a.values for a in layer_assemblies],
                                         axis=layer_assemblies[0].dims.index('neuroid'))
@@ -191,6 +194,7 @@ class ActivationsExtractorHelper:
         assert layer_activations.shape[0] == len(stimuli_paths)
         activations, flatten_indices = flatten(layer_activations, return_index=True)  # collapse for single neuroid dim
         assert flatten_indices.shape[1] in [1, 2, 3]
+        # see comment in _package for an explanation why we cannot simply have 'channel' for the FC layer
         if flatten_indices.shape[1] == 1:    # FC
             flatten_coord_names = ['channel', 'channel_x', 'channel_y']
         elif flatten_indices.shape[1] == 2:  # Transformer

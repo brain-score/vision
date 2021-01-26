@@ -16,6 +16,10 @@ from brainscore.utils import fullname
 
 
 class OSTCorrelation(Metric):
+    """
+    Object Solution Times (OST) metric, Kubilius & Schrimpf et al., NeurIPS 2019 https://papers.nips.cc/paper/9441-brain-like-object-recognition-with-high-performing-shallow-recurrent-anns
+    OST characterization, Kar et al. Nature Neuroscience 2019 https://www.nature.com/articles/s41593-019-0392-5.
+    """
     def __init__(self):
         self._cross_validation = CrossValidation(stratification_coord=None, splits=10, test_size=0.1)
         self._i1 = I1()

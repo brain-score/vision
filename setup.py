@@ -27,6 +27,7 @@ requirements = [
     "matplotlib",
     "tensorflow",
     "result_caching @ git+https://github.com/mschrimpf/result_caching",
+    "fire",
     "jupyter",
     "pybtex",
     'peewee',

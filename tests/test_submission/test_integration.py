@@ -60,8 +60,8 @@ class TestIntegration:
             assert self.compare(float(result_row[4]), 0.003155449372125895)
         scores = Score.select()
         assert len(scores) == 1
-        assert scores[
-                   0].comment is None  # If comment is none the score was successfully stored, otherwise there would be an error message there
+        # successful score comment should inform about which layers were used for which regions
+        assert scores[0].comment.startswith("layers:")
 
     def test_rerun_evaluation(self, tmpdir):
         working_dir = str(tmpdir.mkdir('sub'))

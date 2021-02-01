@@ -15,7 +15,7 @@ allows scoring candidate models of the brain on a range of assemblies and metric
 
 ## Quick setup
 
-Recommended for most users. Use Brain-Score as a library. You will need Python >= 3.6 and pip >= 18.1.
+Recommended for most users. Use Brain-Score as a library. You will need Python >= 3.7 and pip >= 18.1.
 
 `pip install git+https://github.com/brain-score/brain-score`
 

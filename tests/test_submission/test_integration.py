@@ -88,13 +88,9 @@ class TestIntegration:
     def test_failure_evaluation(self, tmpdir):
         working_dir = str(tmpdir.mkdir('sub'))
         config_dir = str(os.path.join(os.path.dirname(__file__), 'configs/'))
-        exception = False
-        try:
+        with pytest.raises(Exception):
             run_evaluation(config_dir, working_dir, 35, TestIntegration.databse, models=['alexnet'],
                            benchmarks=['dicarlo.Rajalingham2018-i2n'])
-        except:
-            exception = True
-        assert exception
 
     def test_model_failure_evaluation(self, tmpdir):
         # os.environ['RESULTCACHING_DISABLE'] = 'brainscore.score_model,model_tools'

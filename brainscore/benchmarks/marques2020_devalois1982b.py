@@ -57,7 +57,7 @@ def devalois1982b_properties(model_identifier, responses, baseline):
     responses = responses.reshape((n_neuroids, len(radius), len(spatial_frequency), len(orientation), len(phase)))
     responses_dc = responses.mean(axis=4) - baseline.reshape((-1, 1, 1, 1))
     responses_ac = np.absolute(np.fft.fft(responses)) / len(phase)
-    responses_ac = responses_ac[:, :, :, :, 1]
+    responses_ac = responses_ac[:, :, :, :, 1] * 2
     responses = np.zeros((n_neuroids, len(radius), len(spatial_frequency), len(orientation), 2))
     responses[:, :, :, :, 0] = responses_dc
     responses[:, :, :, :, 1] = responses_ac

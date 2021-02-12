@@ -28,7 +28,8 @@ from .freemanziemba2013 import load_assembly as load_freemanziemba2013, VISUAL_D
     BIBTEX as freemanziemba2013_bibtex
 from .majajhong2015 import load_assembly as load_majajhong2015, VISUAL_DEGREES as majajhong2015_degrees, \
     BIBTEX as majajhong2015_bibtex
-from .rajalingham2018 import load_assembly as load_rajalingham2018, DicarloRajalingham2018I2n
+from .rajalingham2018 import load_assembly as load_rajalingham2018, _DicarloRajalingham2018
+from brainscore.metrics.image_level_behavior import I2n
 
 _logger = logging.getLogger(__name__)
 
@@ -76,9 +77,9 @@ def MajajHongITPublicBenchmark():
                                stratification_coord='object_name', bibtex=majajhong2015_bibtex)
 
 
-class RajalinghamMatchtosamplePublicBenchmark(DicarloRajalingham2018I2n):
+class RajalinghamMatchtosamplePublicBenchmark(_DicarloRajalingham2018):
     def __init__(self):
-        super(RajalinghamMatchtosamplePublicBenchmark, self).__init__()
+        super(RajalinghamMatchtosamplePublicBenchmark, self).__init__(metric=I2n(), metric_name='i2n')
         self._assembly = LazyLoad(lambda: load_rajalingham2018(access='public'))
         self._ceiling_func = lambda: self._metric.ceiling(self._assembly, skipna=True)
 

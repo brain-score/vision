@@ -5,6 +5,7 @@ from tqdm import tqdm
 from brainio_base.assemblies import walk_coords
 from brainscore.metrics import Score
 from brainscore.metrics.rdm import RDMMetric
+from brainscore.metrics.cka import CKAMetric
 from brainscore.metrics.transformations import CrossValidationSingle
 from brainscore.metrics.xarray_utils import Defaults as XarrayDefaults
 from brainscore.metrics.xarray_utils import XarrayCorrelation
@@ -99,6 +100,15 @@ class RDMConsistency(Ceiling):
     def __init__(self):
         rdm = RDMMetric()
         self._consistency = _SplitHalvesConsistency(consistency=rdm)
+
+    def __call__(self, assembly):
+        return self._consistency(assembly)
+
+
+class CKAConsistency(Ceiling):
+    def __init__(self):
+        cka = CKAMetric()
+        self._consistency = _SplitHalvesConsistency(consistency=cka)
 
     def __call__(self, assembly):
         return self._consistency(assembly)

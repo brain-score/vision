@@ -175,10 +175,11 @@ def _experimental_benchmark_pool():
     pool['dicarlo.MajajHong2015.V4-rdm'] = LazyLoad(DicarloMajajHong2015V4RDM)
     pool['dicarlo.MajajHong2015.IT-rdm'] = LazyLoad(DicarloMajajHong2015ITRDM)
     from .freemanziemba2013 import MovshonFreemanZiemba2013V1RDM, MovshonFreemanZiemba2013V2RDM, \
-        MovshonFreemanZiemba2013V1Single
+        MovshonFreemanZiemba2013V1Single, MovshonFreemanZiemba2013V1CKA
     pool['movshon.FreemanZiemba2013.V1-rdm'] = LazyLoad(MovshonFreemanZiemba2013V1RDM)
     pool['movshon.FreemanZiemba2013.V2-rdm'] = LazyLoad(MovshonFreemanZiemba2013V2RDM)
     pool['movshon.FreemanZiemba2013.V1-single'] = LazyLoad(MovshonFreemanZiemba2013V1Single)
+    pool['movshon.FreemanZiemba2013.V1-cka'] = LazyLoad(MovshonFreemanZiemba2013V1CKA)
     from .cadena2017 import ToliasCadena2017PLS, ToliasCadena2017Mask
     pool['tolias.Cadena2017-pls'] = LazyLoad(ToliasCadena2017PLS)
     pool['tolias.Cadena2017-mask'] = LazyLoad(ToliasCadena2017Mask)
@@ -259,6 +260,15 @@ def _experimental_benchmark_pool():
     pool['dicarlo.SanghaviMurty2020.IT-pls'] = LazyLoad(DicarloSanghaviMurty2020ITPLS)
     from .rajalingham2020 import DicarloRajalingham2020ITPLS
     pool['dicarlo.Rajalingham2020.IT-pls'] = LazyLoad(DicarloRajalingham2020ITPLS)
+
+    # behavioral benchmarks
+    from .rajalingham2018 import DicarloRajalingham2018I1n, DicarloRajalingham2018O1, DicarloRajalingham2018O2, \
+        DicarloRajalingham2018I1, DicarloRajalingham2018I2
+    pool['dicarlo.Rajalingham2018-i1n'] = LazyLoad(DicarloRajalingham2018I1n)
+    pool['dicarlo.Rajalingham2018-o1'] = LazyLoad(DicarloRajalingham2018O1)
+    pool['dicarlo.Rajalingham2018-o2'] = LazyLoad(DicarloRajalingham2018O2)
+    pool['dicarlo.Rajalingham2018-i1'] = LazyLoad(DicarloRajalingham2018I1)
+    pool['dicarlo.Rajalingham2018-i2'] = LazyLoad(DicarloRajalingham2018I2)
 
     return pool
 

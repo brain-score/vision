@@ -124,7 +124,7 @@ def ringach2002_properties(model_identifier, responses, baseline):
     responses = responses.reshape((n_neuroids, n_cycles, len(spatial_frequency), len(orientation), len(phase)))
     responses_dc = responses.mean(axis=4)
     responses_ac = np.absolute(np.fft.fft(responses)) / len(phase)
-    responses_ac = responses_ac[:, :, :, :, 1]
+    responses_ac = responses_ac[:, :, :, :, 1] * 2
     del responses
 
     max_dc = np.zeros((n_neuroids, 1))

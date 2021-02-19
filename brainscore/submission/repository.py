@@ -49,8 +49,13 @@ def find_correct_dir(work_dir):
 def install_project(repo, package):
     logger.info('Start installing the submitted repository')
     try:
-        subprocess.check_output([sys.executable, "-m", "pip", "install", "-v", "--global-option='-vv'",
-                                 str(repo), "--user"], env=os.environ,
+        subprocess.check_output([sys.executable, "-m",
+                                 "pip", "install",
+                                 "-v", "--global-option='-vv'",
+                                 "--default-timeout=100",
+                                 str(repo),
+                                 "--user"],
+                                env=os.environ,
                                 stderr=subprocess.STDOUT)
         sys.path.insert(0, str(repo))
         logger.info(f'System paths {sys.path}')

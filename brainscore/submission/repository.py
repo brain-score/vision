@@ -51,8 +51,7 @@ def install_project(repo, package):
     try:
         subprocess.check_output([sys.executable, "-m",
                                  "pip", "install",
-                                 "-v", "--global-option='-vv'",
-                                 "--default-timeout=100",
+                                 "-v", "--default-timeout=3600",
                                  str(repo),
                                  "--user"],
                                 env=os.environ,

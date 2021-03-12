@@ -45,6 +45,7 @@ def score_model(model_identifier, benchmark_identifier, model):
     # model_identifier variable is not unused, the result caching component uses it to identify the cached results
     assert model is not None
     _logger.debug("retrieving benchmark")
+    
     benchmark = benchmark_pool[benchmark_identifier]
     _logger.debug("scoring model")
     score = benchmark(model)

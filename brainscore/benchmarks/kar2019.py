@@ -68,10 +68,10 @@ class DicarloKar2019OST(BenchmarkBase):
         # since it will not be able to predict temporal differences with the OST metric
         check_recordings = candidate.look_at(stimulus_set[:1], number_of_trials=self._number_of_trials)
         if not temporally_varying(check_recordings):
-            return Score([np.nan, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
-
-        recordings = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
-        score = self._similarity_metric(recordings, self._assembly)
+            score = Score([np.nan, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
+        else:
+            recordings = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
+            score = self._similarity_metric(recordings, self._assembly)
         score = ceil_score(score, self.ceiling)
         return score
 

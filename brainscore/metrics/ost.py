@@ -26,8 +26,6 @@ class OSTCorrelation(Metric):
         self._predicted_osts, self._target_osts = [], []
 
     def __call__(self, source_recordings, target_osts):
-        if len(set(source_recordings['time_bin'].values)) <= 1:  # short-cut for non-temporal models
-            return Score([np.nan, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         score = self._cross_validation(source_recordings, target_osts, apply=self.apply)
         return score
 

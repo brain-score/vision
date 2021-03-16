@@ -42,12 +42,20 @@ def DicarloMajajHong2015V4PLS_combined():
                                            crossvalidation_kwargs=dict(stratification_coord='object_name')),
                                        ceiler=InternalConsistency())
 
-
 def DicarloMajajHong2015ITPLS_combined():
     return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='pls',
                                        similarity_metric=CrossRegressedCorrelation(
                                            regression=pls_regression(), correlation=pearsonr_correlation(),
                                            crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                       ceiler=InternalConsistency())
+
+def DicarloMajajHong2015ITPLS_combined_split():
+    return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='pls',
+                                       similarity_metric=CrossRegressedCorrelation(
+                                           regression=pls_regression(), correlation=pearsonr_correlation(),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name',
+                                           csv_file ='__majajhonglocal_ty-tz_0.2_normalized.csv',
+                                           parent_folder = '/cifs/data/tserre_lrs/projects/prj_brainscore/tolerance/data/splits/')),
                                        ceiler=InternalConsistency())
 
 

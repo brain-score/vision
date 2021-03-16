@@ -4,7 +4,9 @@ import itertools
 import logging
 import math
 import numpy as np
+import os
 import xarray as xr
+import pandas as pd
 from brainio_base.assemblies import DataAssembly, walk_coords
 from brainio_collection.transform import subset
 from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit, KFold, StratifiedKFold
@@ -170,11 +172,13 @@ class Split:
         stratification_coord = 'object_name'  # cross-validation across images, balancing objects
         unique_split_values = False
         random_state = 1
+        parent_folder = None
+        csv_file = None
 
     def __init__(self,
                  splits=Defaults.splits, train_size=None, test_size=None,
                  split_coord=Defaults.split_coord, stratification_coord=Defaults.stratification_coord, kfold=False,
-                 unique_split_values=Defaults.unique_split_values, random_state=Defaults.random_state):
+                 unique_split_values=Defaults.unique_split_values, random_state=Defaults.random_state,**kwargs):
         super().__init__()
         if train_size is None and test_size is None:
             train_size = self.Defaults.train_size
@@ -270,6 +274,8 @@ class CrossValidationSingle(Transformation):
         split_scores = []
         for split_iterator, (train_indices, test_indices), done \
                 in tqdm(enumerate_done(splits), total=len(splits), desc='cross-validation'):
+            
+            
             train_values, test_values = cross_validation_values[train_indices], cross_validation_values[test_indices]
             train = subset(assembly, train_values, dims_must_match=False)
             test = subset(assembly, test_values, dims_must_match=False)
@@ -298,7 +304,25 @@ class CrossValidation(Transformation):
         self._stratification_coord = stratification_coord
         self._split = Split(*args, split_coord=split_coord, stratification_coord=stratification_coord, **kwargs)
         self._logger = logging.getLogger(fullname(self))
-
+        #argument to provide csv files with the indexes needed
+        self._given_indices_parent_folder = kwargs.get('parent_folder',None)
+        self._given_indices_file = kwargs.get('csv_file',None)
+        
+    def _build_splits_file(self,cross_validation_values):
+        parent = self._given_indices_parent_folder
+        train_file = os.path.join(parent,'train'+ self._given_indices_file.split('/')[-1])
+        test_file = os.path.join(parent,'test'+self._given_indices_file.split('/')[-1])
+        train_csv = pd.read_csv(train_file,names=['path','id','cat','full'])
+        test_csv = pd.read_csv(test_file,names=['path','id','cat','full'])
+        all_values = list(cross_validation_values['presentation'].values)
+        all_values = [a[0] for a in all_values]
+        train_ids = list(train_csv['id'])
+        test_ids = list(test_csv['id'])
+        both_train = set(all_values).intersection(train_ids)
+        both_test =  set(all_values).intersection(test_ids)
+        indices_train = [all_values.index(x) for x in both_train]
+        indices_test = [all_values.index(x) for x in both_test]
+        return [[indices_train,indices_test]]
     def pipe(self, source_assembly, target_assembly):
         # check only for equal values, alignment is given by metadata
         assert sorted(source_assembly[self._split_coord].values) == sorted(target_assembly[self._split_coord].values)
@@ -306,11 +330,19 @@ class CrossValidation(Transformation):
             assert hasattr(source_assembly, self._stratification_coord)
             assert sorted(source_assembly[self._stratification_coord].values) == \
                    sorted(target_assembly[self._stratification_coord].values)
+                   
+        
         cross_validation_values, splits = self._split.build_splits(target_assembly)
-
+        
+        if self._given_indices_file and self._given_indices_parent_folder:
+            splits = self._build_splits_file(cross_validation_values)
+        
         split_scores = []
+        
+        
         for split_iterator, (train_indices, test_indices), done \
                 in tqdm(enumerate_done(splits), total=len(splits), desc='cross-validation'):
+            
             train_values, test_values = cross_validation_values[train_indices], cross_validation_values[test_indices]
             train_source = subset(source_assembly, train_values, dims_must_match=False)
             train_target = subset(target_assembly, train_values, dims_must_match=False)

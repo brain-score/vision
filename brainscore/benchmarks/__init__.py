@@ -141,9 +141,10 @@ def _evaluation_benchmark_pool():
     from .rajalingham2018 import DicarloRajalingham2018I2n
     pool['dicarlo.Rajalingham2018-i2n'] = LazyLoad(DicarloRajalingham2018I2n)
     
-    from .combined_benchmarks import DicarloMajajHong2015V4PLS_combined, DicarloMajajHong2015ITPLS_combined
+    from .majajhong2015_combined import DicarloMajajHong2015V4PLS_combined, DicarloMajajHong2015ITPLS_combined,DicarloMajajHong2015ITPLS_combined_split
     pool['dicarlo.MajajHong2015.V4-pls_combined'] = LazyLoad(DicarloMajajHong2015V4PLS_combined)
     pool['dicarlo.MajajHong2015.IT-pls_combined'] = LazyLoad(DicarloMajajHong2015ITPLS_combined)
+    pool['dicarlo.MajajHong2015.IT-pls_combined_split'] = LazyLoad(DicarloMajajHong2015ITPLS_combined_split)
 
     return pool
 
@@ -175,6 +176,11 @@ def _experimental_benchmark_pool():
     from .majajhong2015 import DicarloMajajHong2015V4Mask, DicarloMajajHong2015ITMask, \
         DicarloMajajHong2015V4RDM, DicarloMajajHong2015ITRDM
     
+    from .majajhong2015_combined import DicarloMajajHong2015ITMask_combined, DicarloMajajHong2015ITRDM_combined, DicarloMajajHong2015V4Mask_combined
+    
+    pool['dicarlo.MajajHong2015.IT-mask_combined'] = LazyLoad(DicarloMajajHong2015ITMask_combined)
+    pool['dicarlo.MajajHong2015.IT-rdm_combined'] =  LazyLoad(DicarloMajajHong2015ITRDM_combined)
+    pool['dicarlo.MajajHong2015.V4Mask_combined'] =  LazyLoad(DicarloMajajHong2015V4Mask_combined)
     pool['dicarlo.MajajHong2015.V4-mask'] = LazyLoad(DicarloMajajHong2015V4Mask)
     pool['dicarlo.MajajHong2015.IT-mask'] = LazyLoad(DicarloMajajHong2015ITMask)
     pool['dicarlo.MajajHong2015.V4-rdm'] = LazyLoad(DicarloMajajHong2015V4RDM)

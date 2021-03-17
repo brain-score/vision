@@ -54,10 +54,54 @@ def DicarloMajajHong2015ITPLS_combined_split():
                                        similarity_metric=CrossRegressedCorrelation(
                                            regression=pls_regression(), correlation=pearsonr_correlation(),
                                            crossvalidation_kwargs=dict(stratification_coord='object_name',
-                                           csv_file ='__majajhonglocal_ty-tz_0.2_normalized.csv',
+                                           csv_file ='__majajhonglocal_halves_ty_0.1_neg.csv',
+                                           parent_folder = '/cifs/data/tserre_lrs/projects/prj_brainscore/tolerance/data/splits/')),
+                                       ceiler=InternalConsistency())
+    
+def DicarloMajajHong2015ITPLS_combined_split_ty_01_neg():
+    return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='pls',
+                                       similarity_metric=CrossRegressedCorrelation(
+                                           regression=pls_regression(), correlation=pearsonr_correlation(),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name',
+                                           csv_file ='__majajhonglocal_halves_ty_0.1_neg.csv',
+                                           parent_folder = '/cifs/data/tserre_lrs/projects/prj_brainscore/tolerance/data/splits/')),
+                                       ceiler=InternalConsistency())
+    
+def DicarloMajajHong2015ITPLS_combined_split_ty_01_pos():
+    return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='pls',
+                                       similarity_metric=CrossRegressedCorrelation(
+                                           regression=pls_regression(), correlation=pearsonr_correlation(),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name',
+                                           csv_file ='__majajhonglocal_halves_ty_0.1_pos.csv',
                                            parent_folder = '/cifs/data/tserre_lrs/projects/prj_brainscore/tolerance/data/splits/')),
                                        ceiler=InternalConsistency())
 
+def DicarloMajajHong2015ITPLS_combined_split_tz_01_neg():
+    return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='pls',
+                                       similarity_metric=CrossRegressedCorrelation(
+                                           regression=pls_regression(), correlation=pearsonr_correlation(),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name',
+                                           csv_file ='__majajhonglocal_halves_tz_0.1_neg.csv',
+                                           parent_folder = '/cifs/data/tserre_lrs/projects/prj_brainscore/tolerance/data/splits/')),
+                                       ceiler=InternalConsistency())
+    
+def DicarloMajajHong2015ITPLS_combined_split_tz_01_pos():
+    return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='pls',
+                                       similarity_metric=CrossRegressedCorrelation(
+                                           regression=pls_regression(), correlation=pearsonr_correlation(),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name',
+                                           csv_file ='__majajhonglocal_halves_tz_0.1_pos.csv',
+                                           parent_folder = '/cifs/data/tserre_lrs/projects/prj_brainscore/tolerance/data/splits/')),
+                                       ceiler=InternalConsistency())
+    
+def DicarloMajajHong2015ITPLS_combined_split_tz_01_neg():
+    return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='pls',
+                                       similarity_metric=CrossRegressedCorrelation(
+                                           regression=pls_regression(), correlation=pearsonr_correlation(),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name',
+                                           csv_file ='__majajhonglocal_halves_tz_0.1_neg.csv',
+                                           parent_folder = '/cifs/data/tserre_lrs/projects/prj_brainscore/tolerance/data/splits/')),
+                                       ceiler=InternalConsistency())
 
 def DicarloMajajHong2015V4Mask_combined():
     return _DicarloMajajHong2015Region_combined('V4', identifier_metric_suffix='mask',

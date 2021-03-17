@@ -323,6 +323,7 @@ class CrossValidation(Transformation):
         indices_train = [all_values.index(x) for x in both_train]
         indices_test = [all_values.index(x) for x in both_test]
         return [[indices_train,indices_test]]
+    
     def pipe(self, source_assembly, target_assembly):
         # check only for equal values, alignment is given by metadata
         assert sorted(source_assembly[self._split_coord].values) == sorted(target_assembly[self._split_coord].values)

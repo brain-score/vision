@@ -120,6 +120,7 @@ def ceil_score(score, ceiling):
     return ceiled_score
 
 
+
 # define functions creating the benchmark pools, with local imports to avoid circular imports
 
 def _evaluation_benchmark_pool():
@@ -142,9 +143,15 @@ def _evaluation_benchmark_pool():
     pool['dicarlo.Rajalingham2018-i2n'] = LazyLoad(DicarloRajalingham2018I2n)
     
     from .majajhong2015_combined import DicarloMajajHong2015V4PLS_combined, DicarloMajajHong2015ITPLS_combined,DicarloMajajHong2015ITPLS_combined_split
+    from .majajhong2015_combined import DicarloMajajHong2015ITPLS_combined_split_ty_01_neg, DicarloMajajHong2015ITPLS_combined_split_ty_01_pos
+    from .majajhong2015_combined import DicarloMajajHong2015ITPLS_combined_split_tz_01_neg, DicarloMajajHong2015ITPLS_combined_split_tz_01_pos
     pool['dicarlo.MajajHong2015.V4-pls_combined'] = LazyLoad(DicarloMajajHong2015V4PLS_combined)
     pool['dicarlo.MajajHong2015.IT-pls_combined'] = LazyLoad(DicarloMajajHong2015ITPLS_combined)
     pool['dicarlo.MajajHong2015.IT-pls_combined_split'] = LazyLoad(DicarloMajajHong2015ITPLS_combined_split)
+    pool['dicarlo.MajajHong2015.IT-pls_combined_split_tz_01_neg'] = LazyLoad(DicarloMajajHong2015ITPLS_combined_split_tz_01_neg)
+    pool['dicarlo.MajajHong2015.IT-pls_combined_split_tz_01_pos'] = LazyLoad(DicarloMajajHong2015ITPLS_combined_split_tz_01_pos)
+    pool['dicarlo.MajajHong2015.IT-pls_combined_split_ty_01_neg'] = LazyLoad(DicarloMajajHong2015ITPLS_combined_split_ty_01_neg)
+    pool['dicarlo.MajajHong2015.IT-pls_combined_split_ty_01_pos'] = LazyLoad(DicarloMajajHong2015ITPLS_combined_split_ty_01_pos)
 
     return pool
 

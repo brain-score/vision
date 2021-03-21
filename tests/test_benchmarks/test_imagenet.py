@@ -9,7 +9,7 @@ from brainscore.model_interface import BrainModel
 class TestImagenet2012:
     def test_groundtruth(self):
         benchmark = Imagenet2012()
-        source = benchmark._stimulus_set
+        source = benchmark._stimuli_val
 
         class GroundTruth(BrainModel):
             def start_task(self, task, fitting_stimuli):

@@ -203,7 +203,7 @@ def get_ml_pool(test_models, module, submission):
 
 def get_benchmark_instance(benchmark_name):
     benchmark = benchmark_pool[benchmark_name]
-    benchmark_type, created = BenchmarkType.get_or_create(identifier=benchmark_name, order=999)
+    benchmark_type, created = BenchmarkType.get_or_create(identifier=benchmark_name, defaults=dict(order=999))
     if created:
         try:
             parent = BenchmarkType.get(identifier=benchmark.parent)

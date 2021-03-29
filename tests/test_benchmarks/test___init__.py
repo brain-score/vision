@@ -1,5 +1,4 @@
 import os
-import pickle
 
 import numpy as np
 import pytest
@@ -7,10 +6,12 @@ from PIL import Image
 from pathlib import Path
 from pytest import approx
 from typing import List, Tuple
+import xarray as xr
 
 from brainscore.benchmarks import benchmark_pool, public_benchmark_pool, evaluation_benchmark_pool
 from brainscore.model_interface import BrainModel
 from tests.test_benchmarks import PrecomputedFeatures
+from brainio_base.assemblies import BehavioralAssembly
 
 
 class TestPoolList:
@@ -177,7 +178,7 @@ class TestPrecomputed:
         ('movshon.FreemanZiemba2013.V2-pls', approx(.459283, abs=.005)),
     ])
     def test_FreemanZiemba2013(self, benchmark, expected):
-        self.run_test(benchmark=benchmark, file='alexnet-freemanziemba2013.aperture-private.pkl', expected=expected)
+        self.run_test(benchmark=benchmark, file='alexnet-freemanziemba2013.aperture-private.nc', expected=expected)
 
     @pytest.mark.memory_intense
     @pytest.mark.parametrize('benchmark, expected', [
@@ -185,13 +186,12 @@ class TestPrecomputed:
         ('dicarlo.MajajHong2015.IT-pls', approx(.584053, abs=.005)),
     ])
     def test_MajajHong2015(self, benchmark, expected):
-        self.run_test(benchmark=benchmark, file='alexnet-majaj2015.private-features.12.pkl', expected=expected)
+        self.run_test(benchmark=benchmark, file='alexnet-majaj2015.private-features.12.nc', expected=expected)
 
     def run_test(self, benchmark, file, expected):
         benchmark = benchmark_pool[benchmark]
         precomputed_features = Path(__file__).parent / file
-        with open(precomputed_features, 'rb') as f:
-            precomputed_features = pickle.load(f)['data']
+        precomputed_features = BehavioralAssembly(xr.load_dataarray(precomputed_features))
         precomputed_features = precomputed_features.stack(presentation=['stimulus_path'])
         precomputed_paths = list(map(lambda f: Path(f).name, precomputed_features['stimulus_path'].values))
         # attach stimulus set meta
@@ -213,9 +213,8 @@ class TestPrecomputed:
     @pytest.mark.slow
     def test_Kar2019ost_cornet_s(self):
         benchmark = benchmark_pool['dicarlo.Kar2019-ost']
-        precomputed_features = Path(__file__).parent / 'cornet_s-kar2019.pkl'
-        with open(precomputed_features, 'rb') as f:
-            precomputed_features = pickle.load(f)['data']
+        precomputed_features = Path(__file__).parent / 'cornet_s-kar2019.nc'
+        precomputed_features = BehavioralAssembly(xr.load_dataarray(precomputed_features))
         precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
         # score
         score = benchmark(precomputed_features).raw
@@ -223,9 +222,8 @@ class TestPrecomputed:
 
     def test_Rajalingham2018public(self):
         # load features
-        precomputed_features = Path(__file__).parent / 'CORnetZ-rajalingham2018public.pkl'
-        with open(precomputed_features, 'rb') as f:
-            precomputed_features = pickle.load(f)['data']
+        precomputed_features = Path(__file__).parent / 'CORnetZ-rajalingham2018public.nc'
+        precomputed_features = BehavioralAssembly(xr.load_dataarray(precomputed_features))
         precomputed_features = PrecomputedFeatures(precomputed_features,
                                                    visual_degrees=8,  # doesn't matter, features are already computed
                                                    )
@@ -241,7 +239,7 @@ class TestPrecomputed:
         ('dicarlo.Sanghavi2020.IT-pls', approx(.611347, abs=.015)),
     ])
     def test_Sanghavi2020(self, benchmark, expected):
-        self.run_test(benchmark=benchmark, file='alexnet-sanghavi2020-features.12.pkl', expected=expected)
+        self.run_test(benchmark=benchmark, file='alexnet-sanghavi2020-features.12.nc', expected=expected)
 
     @pytest.mark.memory_intense
     @pytest.mark.slow
@@ -250,7 +248,7 @@ class TestPrecomputed:
         ('dicarlo.SanghaviJozwik2020.IT-pls', approx(.590543, abs=.005)),
     ])
     def test_SanghaviJozwik2020(self, benchmark, expected):
-        self.run_test(benchmark=benchmark, file='alexnet-sanghavijozwik2020-features.12.pkl', expected=expected)
+        self.run_test(benchmark=benchmark, file='alexnet-sanghavijozwik2020-features.12.nc', expected=expected)
 
     @pytest.mark.memory_intense
     @pytest.mark.parametrize('benchmark, expected', [
@@ -258,7 +256,7 @@ class TestPrecomputed:
         ('dicarlo.SanghaviMurty2020.IT-pls', approx(.53006, abs=.015)),
     ])
     def test_SanghaviMurty2020(self, benchmark, expected):
-        self.run_test(benchmark=benchmark, file='alexnet-sanghavimurty2020-features.12.pkl', expected=expected)
+        self.run_test(benchmark=benchmark, file='alexnet-sanghavimurty2020-features.12.nc', expected=expected)
 
     @pytest.mark.memory_intense
     @pytest.mark.slow
@@ -266,7 +264,7 @@ class TestPrecomputed:
         ('dicarlo.Rajalingham2020.IT-pls', approx(.147549, abs=.01)),
     ])
     def test_Rajalingham2020(self, benchmark, expected):
-        self.run_test(benchmark=benchmark, file='alexnet-rajalingham2020-features.12.pkl', expected=expected)
+        self.run_test(benchmark=benchmark, file='alexnet-rajalingham2020-features.12.nc', expected=expected)
 
     # @pytest.mark.memory_intense
     # @pytest.mark.slow

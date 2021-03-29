@@ -1,6 +1,8 @@
 import os
+from pathlib import Path
 
 import pandas as pd
+import xarray as xr
 import pytest
 from pytest import approx
 
@@ -20,9 +22,8 @@ class TestI2N:
     def test_model(self, model, expected_score):
         # assemblies
         objectome = load_assembly()
-        probabilities = pd.read_pickle(os.path.join(os.path.dirname(__file__),
-                                                    f'{model}-probabilities.pkl'))['data']
-        probabilities = BehavioralAssembly(probabilities)
+        probabilities = Path(__file__).parent / f'{model}-probabilities.nc'
+        probabilities = BehavioralAssembly(xr.load_dataarray(probabilities))
         # metric
         i2n = I2n()
         score = i2n(probabilities, objectome)

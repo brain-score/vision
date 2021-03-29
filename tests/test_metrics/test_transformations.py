@@ -154,14 +154,19 @@ class TestCartesianProduct:
         class RawMetricPlaceholder(Metric):
             def __call__(self, assembly, *args, **kwargs):
                 result = Score([assembly.values[0]], dims=['dim'])
-                raw = result.copy()
-                raw['dim_id'] = 'dim', [assembly.values[1]]
-                raw['division_coord'] = 'dim', [assembly.values[2]]
+                raw = Score(result.copy(), coords={
+                    'dim_id': ('dim', [assembly.values[1]]),
+                    'division_coord': ('dim', [assembly.values[2]])
+                })
                 result.attrs['raw'] = raw
                 return result
 
         metric = RawMetricPlaceholder()
         result = transformation(assembly, apply=metric)
+        assert result.dims == ("division_coord", "dim")
         assert hasattr(result, 'raw')
-        assert 'division_coord' not in result.raw  # no dimension
+        assert result.raw.dims == ("dim",)
+        assert 'division_coord' not in result.raw.dims  # no dimension
         assert hasattr(result.raw, 'division_coord')  # but a level
+        assert result.raw["dim"].variable.level_names == ["dim_id", "division_coord"]
+

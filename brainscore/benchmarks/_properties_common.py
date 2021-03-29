@@ -17,6 +17,7 @@ RF_THRSH = 0.05
 RF_DELTA = 0.15
 MEDIAN_MAX_RESP = {'V1': 33.8}
 MEDIAN_SPONTANEOUS = {'V1': 0.82}
+SINGLE_MAX_RESP = {'V1': 243.1}
 RESP_THRESH = {'V1': 5}
 LOW_INTERVAL_MAX_RESP = {'V1': 11.14}
 HIGH_INTERVAL_MAX_RESP = {'V1': 86.27}
@@ -175,8 +176,12 @@ def firing_rates_affine(model_identifier, model: BrainModel, region):
                                                                len(orientation), len(phase)))
     orientation_activations = orientation_activations.mean(axis=4).reshape((n_neuroids, -1)).max(axis=1)
 
-    responsive_neurons = orientation_activations > blank_activations[:, 0] + RESP_THRESH[region] / \
-                (MEDIAN_MAX_RESP[region] - MEDIAN_SPONTANEOUS[region])
+    responsive_neurons = (orientation_activations - blank_activations[:, 0]) >  \
+                         (RESP_THRESH[region] / SINGLE_MAX_RESP[region]) * \
+                         np.max(orientation_activations - blank_activations[:, 0])
+
+    # responsive_neurons = orientation_activations > blank_activations[:, 0] + RESP_THRESH[region] / \
+    #                      (MEDIAN_MAX_RESP[region] - MEDIAN_SPONTANEOUS[region])
 
     median_baseline = np.median(blank_activations[responsive_neurons])
     median_activations = np.median(orientation_activations[responsive_neurons])

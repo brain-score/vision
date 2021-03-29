@@ -78,7 +78,8 @@ class TestStandardized:
                      marks=pytest.mark.memory_intense),
         pytest.param('dicarlo.Rajalingham2020.IT-pls', approx(.561013, abs=.001),
                      marks=[pytest.mark.memory_intense, pytest.mark.slow]),
-        # V1 properties
+
+        # V1 properties Ceilings
         # pytest.param('dicarlo.Marques2020_Ringach2002-circular_variance', approx(0.959, abs=.01), marks=[]),
         # pytest.param('dicarlo.Marques2020_Ringach2002-or_bandwidth', approx(0.964, abs=.01), marks=[]),
         # pytest.param('dicarlo.Marques2020_Ringach2002-orth_pref_ratio', approx(0.961, abs=.01), marks=[]),
@@ -270,7 +271,7 @@ class TestPrecomputed:
     # @pytest.mark.memory_intense
     # @pytest.mark.slow
     # @pytest.mark.parametrize('benchmark, property_name, expected, file', [
-    #     ('dicarlo.Marques2020_Ringach2002-circular_variance', 'circular_variance', approx(.693, abs=.01)),
+    #     ('dicarlo.Marques2020_Ringach2002-circular_variance', approx(.693, abs=.01)),
     #     ('dicarlo.Marques2020_Ringach2002-or_bandwidth', approx(.696, abs=.01)),
     #     ('dicarlo.Marques2020_Ringach2002-orth_pref_ratio', approx(.916, abs=.01)),
     #     ('dicarlo.Marques2020_Ringach2002-or_selective', approx(.646, abs=.01)),
@@ -297,6 +298,8 @@ class TestPrecomputed:
     #     ('dicarlo.Marques2020_FreemanZiemba2013-max_noise', approx(.896, abs=.01)),
     # ])
     # def test_Marques2020(self, benchmark, property_name, expected, file):
+    #       self.run_test(benchmark=benchmark, file = {'blank': 'file1.nc', 'rf': 'file2.nc'})
+
     #     from brainscore.metrics.distribution_similarity import BootstrapDistributionSimilarity, ks_similarity
     #     similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_similarity, property_name=property_name)
     #     assembly = brainscore.get_assembly(ASSEMBLY_NAME)

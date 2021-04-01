@@ -3,7 +3,7 @@ from brainscore.benchmarks._neural_common import NeuralBenchmark, average_repeti
 from brainscore.metrics.ceiling import InternalConsistency, RDMConsistency
 from brainscore.metrics.rdm import RDMCrossValidated
 from brainscore.metrics.regression import CrossRegressedCorrelation, mask_regression, ScaledCrossRegressedCorrelation, \
-    pls_regression, pearsonr_correlation
+    pls_regression, gram_control_regression, pearsonr_correlation
 from brainscore.utils import LazyLoad
 
 VISUAL_DEGREES = 8
@@ -64,7 +64,7 @@ def DicarloMajajHong2015ITPLS_combined_split_ty_01_neg():
                                            regression=pls_regression(), correlation=pearsonr_correlation(),
                                            crossvalidation_kwargs=dict(stratification_coord='object_name',
                                            csv_file ='__majajhonglocal_halves_ty_0.1_neg.csv',
-                                           parent_folder = '/cifs/data/tserre_lrs/projects/prj_brainscore/tolerance/data/splits/')),
+                                           parent_folder = './data/splits/')),
                                        ceiler=InternalConsistency())
     
 def DicarloMajajHong2015ITPLS_combined_split_ty_01_pos():
@@ -73,7 +73,7 @@ def DicarloMajajHong2015ITPLS_combined_split_ty_01_pos():
                                            regression=pls_regression(), correlation=pearsonr_correlation(),
                                            crossvalidation_kwargs=dict(stratification_coord='object_name',
                                            csv_file ='__majajhonglocal_halves_ty_0.1_pos.csv',
-                                           parent_folder = '/cifs/data/tserre_lrs/projects/prj_brainscore/tolerance/data/splits/')),
+                                           parent_folder = './data/splits/')),
                                        ceiler=InternalConsistency())
 
 def DicarloMajajHong2015ITPLS_combined_split_tz_01_neg():
@@ -97,10 +97,10 @@ def DicarloMajajHong2015ITPLS_combined_split_tz_01_pos():
 def DicarloMajajHong2015ITPLS_combined_split_tz_01_neg():
     return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='pls',
                                        similarity_metric=CrossRegressedCorrelation(
-                                           regression=pls_regression(), correlation=pearsonr_correlation(),
+                                           regression=gram_control_regression(gram_control=False), correlation=pearsonr_correlation(),
                                            crossvalidation_kwargs=dict(stratification_coord='object_name',
                                            csv_file ='__majajhonglocal_halves_tz_0.1_neg.csv',
-                                           parent_folder = '/cifs/data/tserre_lrs/projects/prj_brainscore/tolerance/data/splits/')),
+                                           parent_folder = './data/splits/')),
                                        ceiler=InternalConsistency())
 
 def DicarloMajajHong2015V4Mask_combined():

@@ -1,13 +1,18 @@
 import scipy.stats
 import numpy as np
 from sklearn.cross_decomposition import PLSRegression
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression, Ridge
-from sklearn.preprocessing import scale
+from sklearn.preprocessing import StandardScaler
 
 from brainio_base.assemblies import walk_coords
 from brainscore.metrics.mask_regression import MaskRegression
 from brainscore.metrics.transformations import CrossValidation
 from .xarray_utils import XarrayRegression, XarrayCorrelation
+
+from collections import Counter
+
 
 
 class CrossRegressedCorrelation:
@@ -65,6 +70,94 @@ class SingleRegression():
         return Ypred
 
 
+class GramControlRegression():
+    def __init__(self, gram_control=False, channel_coord=None, scaler_kwargs=None, pca_kwargs=None, regression_kwargs=None):
+        self.gram_control = gram_control
+        self.channel_coord = channel_coord
+        self.scaler_kwargs = scaler_kwargs or {}
+        self.pca_kwargs = pca_kwargs or {}
+        self.regression_kwargs = regression_kwargs or {}
+        self.scaler_x = StandardScaler(**self.scaler_kwargs)
+        self.scaler_y = StandardScaler(**self.scaler_kwargs)
+        self.pca_x = PCA(**self.pca_kwargs)
+        self.pca_gram = PCA(**self.pca_kwargs)
+        self.control_regression = LinearRegression(**self.regression_kwargs)
+        self.main_regression = LinearRegression(**self.regression_kwargs)
+
+    def _preprocess_gram(self, X, fit=True):
+        # Center/scale
+        if fit:
+            self.scaler_x.fit(X)
+        X.values = self.scaler_x.transform(X)
+
+        # Determine which coordinate represents channels
+        if self.channel_coord == None:
+            # Hacky attempt to determine automatically (usually W==H != C)
+            X_shape = {
+                'channel': len(np.unique(X.channel.values)),
+                'channel_x': len(np.unique(X.channel_x.values)),
+                'channel_y': len(np.unique(X.channel_y.values))
+            }
+            frequencies = {key:Counter(X_shape.values())[value] for key, value in X_shape.items()}
+            if sorted(list(frequencies.values())) != [1,2,2]:
+                raise ValueError('channel_coord is None and failed to automatically determine it')
+            else:
+                channel_coord = [key for key, value in frequencies.items() if value==1][0]
+        else:
+            channel_coord = self.channel_coord
+
+        # Gram matrices
+        ims = X.shape[0]
+        X_grams = X.values.reshape(ims, -1, X_shape[channel_coord])
+        X_grams = np.transpose(X_grams, [0,2,1])
+        X_grams = np.einsum("ijk, ikl -> ijl", X_grams, np.transpose(X_grams, [0,2,1]))
+        #X_grams = X_grams/X.size # is this the right normalization?
+        X_grams = X_grams.reshape(ims, -1)
+
+        # PCA
+        if fit:
+            self.pca_gram.fit(X_grams)
+            self.pca_x.fit(X)
+        X_grams = self.pca_gram.transform(X_grams)
+        X = self.pca_x.transform(X)
+
+        # Residuals
+        if fit:
+            self.control_regression.fit(X_grams, X)
+        X = X - self.control_regression.predict(X_grams)
+
+        return X
+
+    def _preprocess(self, X, fit=True):
+        if fit:
+            self.scaler_x.fit(X)
+            self.pca_x.fit(X)
+        X = self.scaler_x.transform(X)
+        X = self.pca_x.transform(X)
+
+        return X
+
+
+    def fit(self, X, Y):
+        if self.gram_control:
+            X = self._preprocess_gram(X, fit=True)
+        else:
+            X = self._preprocess(X, fit=True)
+
+        Y = self.scaler_y.fit_transform(Y)
+        self.main_regression.fit(X, Y)
+
+
+    def predict(self, X):
+        if self.gram_control:
+            X = self._preprocess_gram(X, fit=False)
+        else:
+            X = self._preprocess(X, fit=False)
+
+        Ypred = self.main_regression.predict(X)
+        return self.scaler_y.inverse_transform(Ypred) # is this wise?
+
+
 def mask_regression():
     regression = MaskRegression()
     regression = XarrayRegression(regression)
@@ -78,6 +171,22 @@ def pls_regression(regression_kwargs=None, xarray_kwargs=None):
     xarray_kwargs = xarray_kwargs or {}
     regression = XarrayRegression(regression, **xarray_kwargs)
     return regression
+
+def gram_control_regression(gram_control, channel_coord=None, scaler_kwargs=None, pca_kwargs=None, regression_kwargs=None, xarray_kwargs=None):
+    scaler_defaults = dict(with_std=False)
+    pca_defaults = dict(n_components=25)
+    scaler_kwargs = {**scaler_defaults, **(scaler_kwargs or {})}
+    pca_kwargs = {**pca_defaults, **(pca_kwargs or {})}
+    regression_kwargs = regression_kwargs or {}
+    regression = GramControlRegression(gram_control=gram_control,
+                                       channel_coord=None,
+                                       scaler_kwargs=scaler_kwargs,
+                                       pca_kwargs=pca_kwargs,
+                                       regression_kwargs=regression_kwargs)
+    xarray_kwargs = xarray_kwargs or {}
+    regression = XarrayRegression(regression, **xarray_kwargs)
+    return regression
+
 
 
 def linear_regression(xarray_kwargs=None):

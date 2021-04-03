@@ -142,21 +142,20 @@ def _evaluation_benchmark_pool():
     from .rajalingham2018 import DicarloRajalingham2018I2n
     pool['dicarlo.Rajalingham2018-i2n'] = LazyLoad(DicarloRajalingham2018I2n)
     
-    from .majajhong2015_combined import DicarloMajajHong2015V4PLS_combined, DicarloMajajHong2015ITPLS_combined,DicarloMajajHong2015ITPLS_combined_split
+    from .majajhong2015_combined import DicarloMajajHong2015V4PLS_combined, DicarloMajajHong2015ITPLS_combined
     from .majajhong2015_combined import DicarloMajajHong2015ITPLS_combined_split_ty_01_neg, DicarloMajajHong2015ITPLS_combined_split_ty_01_pos
     from .majajhong2015_combined import DicarloMajajHong2015ITPLS_combined_split_tz_01_neg, DicarloMajajHong2015ITPLS_combined_split_tz_01_pos
 
-    from .majajhong2015_combined import DicarloMajajHong2015V4GCR_control_combined, DicarloMajajHong2015ITGCR_control_combined, DicarloMajajHong2015ITGCR_control_combined_split
+    from .majajhong2015_combined import DicarloMajajHong2015V4GCR_control_combined, DicarloMajajHong2015ITGCR_control_combined
     from .majajhong2015_combined import DicarloMajajHong2015ITGCR_control_combined_split_ty_01_neg, DicarloMajajHong2015ITGCR_control_combined_split_ty_01_pos
     from .majajhong2015_combined import DicarloMajajHong2015ITGCR_control_combined_split_tz_01_neg, DicarloMajajHong2015ITGCR_control_combined_split_tz_01_pos
 
-    from .majajhong2015_combined import DicarloMajajHong2015V4GCR_nocontrol_combined, DicarloMajajHong2015ITGCR_nocontrol_combined, DicarloMajajHong2015ITGCR_nocontrol_combined_split
+    from .majajhong2015_combined import DicarloMajajHong2015V4GCR_nocontrol_combined, DicarloMajajHong2015ITGCR_nocontrol_combined
     from .majajhong2015_combined import DicarloMajajHong2015ITGCR_nocontrol_combined_split_ty_01_neg, DicarloMajajHong2015ITGCR_nocontrol_combined_split_ty_01_pos
     from .majajhong2015_combined import DicarloMajajHong2015ITGCR_nocontrol_combined_split_tz_01_neg, DicarloMajajHong2015ITGCR_nocontrol_combined_split_tz_01_pos
 
     pool['dicarlo.MajajHong2015.V4-pls_combined'] = LazyLoad(DicarloMajajHong2015V4PLS_combined)
     pool['dicarlo.MajajHong2015.IT-pls_combined'] = LazyLoad(DicarloMajajHong2015ITPLS_combined)
-    pool['dicarlo.MajajHong2015.IT-pls_combined_split'] = LazyLoad(DicarloMajajHong2015ITPLS_combined_split)
     pool['dicarlo.MajajHong2015.IT-pls_combined_split_tz_01_neg'] = LazyLoad(DicarloMajajHong2015ITPLS_combined_split_tz_01_neg)
     pool['dicarlo.MajajHong2015.IT-pls_combined_split_tz_01_pos'] = LazyLoad(DicarloMajajHong2015ITPLS_combined_split_tz_01_pos)
     pool['dicarlo.MajajHong2015.IT-pls_combined_split_ty_01_neg'] = LazyLoad(DicarloMajajHong2015ITPLS_combined_split_ty_01_neg)
@@ -164,7 +163,6 @@ def _evaluation_benchmark_pool():
 
     pool['dicarlo.MajajHong2015.V4-gcr_control_combined'] = LazyLoad(DicarloMajajHong2015V4GCR_control_combined)
     pool['dicarlo.MajajHong2015.IT-gcr_control_combined'] = LazyLoad(DicarloMajajHong2015ITGCR_control_combined)
-    pool['dicarlo.MajajHong2015.IT-gcr_control_combined_split'] = LazyLoad(DicarloMajajHong2015ITGCR_control_combined_split)
     pool['dicarlo.MajajHong2015.IT-gcr_control_combined_split_tz_01_neg'] = LazyLoad(DicarloMajajHong2015ITGCR_control_combined_split_tz_01_neg)
     pool['dicarlo.MajajHong2015.IT-gcr_control_combined_split_tz_01_pos'] = LazyLoad(DicarloMajajHong2015ITGCR_control_combined_split_tz_01_pos)
     pool['dicarlo.MajajHong2015.IT-gcr_control_combined_split_ty_01_neg'] = LazyLoad(DicarloMajajHong2015ITGCR_control_combined_split_ty_01_neg)
@@ -172,7 +170,6 @@ def _evaluation_benchmark_pool():
 
     pool['dicarlo.MajajHong2015.V4-gcr_nocontrol_combined'] = LazyLoad(DicarloMajajHong2015V4GCR_nocontrol_combined)
     pool['dicarlo.MajajHong2015.IT-gcr_nocontrol_combined'] = LazyLoad(DicarloMajajHong2015ITGCR_nocontrol_combined)
-    pool['dicarlo.MajajHong2015.IT-gcr_nocontrol_combined_split'] = LazyLoad(DicarloMajajHong2015ITGCR_nocontrol_combined_split)
     pool['dicarlo.MajajHong2015.IT-gcr_nocontrol_combined_split_tz_01_neg'] = LazyLoad(DicarloMajajHong2015ITGCR_nocontrol_combined_split_tz_01_neg)
     pool['dicarlo.MajajHong2015.IT-gcr_nocontrol_combined_split_tz_01_pos'] = LazyLoad(DicarloMajajHong2015ITGCR_nocontrol_combined_split_tz_01_pos)
     pool['dicarlo.MajajHong2015.IT-gcr_nocontrol_combined_split_ty_01_neg'] = LazyLoad(DicarloMajajHong2015ITGCR_nocontrol_combined_split_ty_01_neg)

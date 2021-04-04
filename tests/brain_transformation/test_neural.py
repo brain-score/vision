@@ -43,7 +43,6 @@ class TestLayerSelection:
         activations_model = model_ctr()
         brain_model = ModelCommitment(identifier=activations_model.identifier, activations_model=activations_model,
                                       layers=layers)
-        brain_model.commit_region(region)
 
         brain_model.start_recording(region, [(70, 170)])
         predictions = brain_model.look_at([Path(__file__).parent / 'rgb1.jpg'])
@@ -58,8 +57,8 @@ class TestLayerMappedModel:
     ])
     def test_commit(self, model_ctr, layers, region):
         activations_model = model_ctr()
-        layer_model = LayerMappedModel(identifier=activations_model.identifier, activations_model=activations_model)
-        layer_model.commit(region, layers)
+        layer_model = LayerMappedModel(identifier=activations_model.identifier, activations_model=activations_model,
+                                       region_layer_map={region: layers})
 
         layer_model.start_recording(region)
         stimulus_set = StimulusSet([{'image_id': 'test'}])

@@ -12,11 +12,11 @@ from result_caching import store_xarray, store
 
 
 class LayerMappedModel(BrainModel):
-    def __init__(self, identifier, activations_model, visual_degrees=None, region_layer_map: Optional[dict] = None):
+    def __init__(self, identifier, activations_model, region_layer_map, visual_degrees=None):
         self.identifier = identifier
         self.activations_model = activations_model
         self._visual_degrees = visual_degrees
-        self.region_layer_map = region_layer_map or {}
+        self.region_layer_map = region_layer_map
         self.recorded_regions = []
 
     def look_at(self, stimuli, number_of_trials=1):
@@ -27,8 +27,12 @@ class LayerMappedModel(BrainModel):
             for layer in layers:
                 assert layer not in layer_regions, f"layer {layer} has already been assigned for {layer_regions[layer]}"
                 layer_regions[layer] = region
-        activations = self.activations_model(stimuli, layers=list(layer_regions.keys()))
+        activations = self.run_activations(stimuli, layers=list(layer_regions.keys()), number_of_trials=number_of_trials)
         activations['region'] = 'neuroid', [layer_regions[layer] for layer in activations['layer'].values]
+        return activations
+
+    def run_activations(self, stimuli, layers, number_of_trials=1):
+        activations = self.activations_model(stimuli, layers=layers)
         return activations
 
     def start_task(self, task):
@@ -36,14 +40,7 @@ class LayerMappedModel(BrainModel):
             raise NotImplementedError()
 
     def start_recording(self, recording_target: BrainModel.RecordingTarget):
-        if str(recording_target) not in self.region_layer_map:
-            raise NotImplementedError(f"Region {recording_target} is not committed")
         self.recorded_regions = [recording_target]
-
-    def commit(self, region: str, layer: Union[str, list, tuple]):
-        if isinstance(layer, list):
-            layer = tuple(layer)
-        self.region_layer_map[region] = layer
 
     def visual_degrees(self) -> int:
         return self._visual_degrees
@@ -111,9 +108,8 @@ class LayerScores:
               model, benchmark, layers, prerun=False):
         layer_scores = []
         for i, layer in enumerate(tqdm(layers, desc="layers")):
-            layer_model = LayerMappedModel(identifier=f"{model_identifier}-{layer}", visual_degrees=visual_degrees,
-                                           # per-layer identifier to avoid overlap
-                                           activations_model=model, region_layer_map={benchmark.region: layer})
+            layer_model = self._create_mapped_model(region=benchmark.region, layer=layer, model=model,
+                                                    model_identifier=model_identifier, visual_degrees=visual_degrees)
             layer_model = TemporalIgnore(layer_model)
             if i == 0 and prerun:  # pre-run activations together to avoid running every layer separately
                 # we can only pre-run stimuli in response to the benchmark, since we might otherwise be missing
@@ -126,6 +122,11 @@ class LayerScores:
         layer_scores = Score.merge(*layer_scores)
         layer_scores = layer_scores.sel(layer=layers)  # preserve layer ordering
         return layer_scores
+
+    def _create_mapped_model(self, region, layer, model, model_identifier, visual_degrees):
+        return LayerMappedModel(identifier=f"{model_identifier}-{layer}", visual_degrees=visual_degrees,
+                                # per-layer identifier to avoid overlap
+                                activations_model=model, region_layer_map={region: layer})
 
 
 class PreRunLayers:

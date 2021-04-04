@@ -6,6 +6,13 @@ from model_tools.brain_transformation.temporal import TemporalIgnore
 from .behavior import BehaviorArbiter, LogitsBehavior, ProbabilitiesMapping
 from .neural import LayerMappedModel, LayerSelection, LayerScores
 
+STANDARD_REGION_BENCHMARKS = {
+    'V1': LazyLoad(FreemanZiembaV1PublicBenchmark),
+    'V2': LazyLoad(FreemanZiembaV2PublicBenchmark),
+    'V4': LazyLoad(MajajHongV4PublicBenchmark),
+    'IT': LazyLoad(MajajHongITPublicBenchmark),
+}
+
 
 class ModelCommitment(BrainModel):
     """
@@ -13,20 +20,22 @@ class ModelCommitment(BrainModel):
     into a BrainModel (e.g. commitments on layer-to-region, pixel-to-degrees, ...).
     """
 
-    standard_region_benchmarks = {
-        'V1': LazyLoad(FreemanZiembaV1PublicBenchmark),
-        'V2': LazyLoad(FreemanZiembaV2PublicBenchmark),
-        'V4': LazyLoad(MajajHongV4PublicBenchmark),
-        'IT': LazyLoad(MajajHongITPublicBenchmark),
-    }
-
     def __init__(self, identifier,
-                 activations_model, layers, behavioral_readout_layer=None, region_benchmarks=None,
+                 activations_model, layers, behavioral_readout_layer=None, region_layer_map=None,
                  visual_degrees=8):
         self.layers = layers
         self.activations_model = activations_model
-        self.region_benchmarks = {**self.standard_region_benchmarks, **(region_benchmarks or {})}
-        layer_model = LayerMappedModel(identifier=identifier, activations_model=activations_model)
+        self._visual_degrees = visual_degrees
+        # region-layer mapping
+        if region_layer_map is None:
+            layer_selection = LayerSelection(model_identifier=identifier,
+                                             activations_model=activations_model, layers=layers,
+                                             visual_degrees=visual_degrees)
+            region_layer_map = RegionLayerMap(layer_selection=layer_selection,
+                                              region_benchmarks=STANDARD_REGION_BENCHMARKS)
+        # neural
+        layer_model = LayerMappedModel(identifier=identifier, activations_model=activations_model,
+                                       region_layer_map=region_layer_map)
         self.layer_model = TemporalIgnore(layer_model)
         logits_behavior = LogitsBehavior(identifier=identifier, activations_model=activations_model)
         behavioral_readout_layer = behavioral_readout_layer or layers[-1]
@@ -35,8 +44,6 @@ class ModelCommitment(BrainModel):
         self.behavior_model = BehaviorArbiter({BrainModel.Task.label: logits_behavior,
                                                BrainModel.Task.probabilities: probabilities_behavior})
         self.do_behavior = False
-
-        self._visual_degrees = visual_degrees
 
     def visual_degrees(self) -> int:
         return self._visual_degrees
@@ -55,19 +62,30 @@ class ModelCommitment(BrainModel):
         else:
             return self.layer_model.look_at(stimuli)
 
-    def commit_region(self, region):
-        layer_selection = LayerSelection(model_identifier=self.layer_model.identifier,
-                                         activations_model=self.layer_model.activations_model, layers=self.layers,
-                                         visual_degrees=self.visual_degrees())
-        benchmark = self.region_benchmarks[region]
-        best_layer = layer_selection(selection_identifier=region, benchmark=benchmark)
-        self.layer_model.commit(region, best_layer)
-
     def start_recording(self, recording_target, time_bins):
-        if recording_target not in self.layer_model.region_layer_map:  # not yet committed
-            self.commit_region(recording_target)
         return self.layer_model.start_recording(recording_target, time_bins)
 
     @property
     def identifier(self):
         return self.layer_model.identifier
+
+
+class RegionLayerMap(dict):
+    """
+    mapping of regions to layers that only evaluates lazily and only once.
+    """
+
+    def __init__(self, layer_selection, region_benchmarks):
+        super(RegionLayerMap, self).__init__()
+        self.layer_selection = layer_selection
+        self.region_benchmarks = region_benchmarks
+
+    def __getitem__(self, region):
+        if region not in self:  # not yet committed
+            self.commit_region(region)
+        return super(RegionLayerMap, self).__getitem__(region)
+
+    def commit_region(self, region):
+        benchmark = self.region_benchmarks[region]
+        best_layer = self.layer_selection(selection_identifier=region, benchmark=benchmark)
+        self[region] = best_layer

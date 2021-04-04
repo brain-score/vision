@@ -1,8 +1,9 @@
 import functools
 import numpy as np
 import os
-import pickle
 import pytest
+import xarray as xr
+from pathlib import Path
 
 from brainio_base.stimuli import StimulusSet
 from model_tools.activations import KerasWrapper, PytorchWrapper, TensorflowSlimWrapper
@@ -63,6 +64,7 @@ def pytorch_alexnet_resize():
 
     return PytorchWrapper(alexnet(pretrained=True), preprocessing, identifier='alexnet-resize')
 
+
 def pytorch_transformer_substitute():
     import torch
     from torch import nn
@@ -73,7 +75,7 @@ def pytorch_transformer_substitute():
             super(MyTransformer, self).__init__()
             self.conv = torch.nn.Conv1d(in_channels=3, out_channels=2, kernel_size=3)
             self.relu1 = torch.nn.ReLU()
-            linear_input_size = (224**2 - 2) * 2
+            linear_input_size = (224 ** 2 - 2) * 2
             self.linear = torch.nn.Linear(int(linear_input_size), 1000)
             self.relu2 = torch.nn.ReLU()  # logit out needs to be 1000
 
@@ -89,6 +91,7 @@ def pytorch_transformer_substitute():
 
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     return PytorchWrapper(model=MyTransformer(), preprocessing=preprocessing)
+
 
 def keras_vgg19():
     import keras
@@ -218,9 +221,9 @@ def test_from_stimulus_set(model_ctr, layers, pca_components):
 def test_exact_activations(pca_components):
     activations = test_from_image_path(model_ctr=pytorch_alexnet_resize, layers=['features.12', 'classifier.5'],
                                        image_name='rgb.jpg', pca_components=pca_components, logits=False)
-    with open(os.path.join(os.path.dirname(__file__), f'alexnet-rgb-{pca_components}.pkl'), 'rb') as f:
-        target = pickle.load(f)['activations']
-    assert (activations == target).all()
+    path_to_expected = Path(__file__).parent / f'alexnet-rgb-{pca_components}.nc'
+    expected = xr.load_dataarray(path_to_expected)
+    assert (activations == expected).all()
 
 
 @pytest.mark.memory_intense

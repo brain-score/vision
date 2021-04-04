@@ -19,7 +19,6 @@ class TemporalIgnore(BrainModel):
     def __init__(self, layer_model):
         self._logger = logging.getLogger(fullname(self))
         self._layer_model = layer_model
-        self.commit = self._layer_model.commit
         self.region_layer_map = self._layer_model.region_layer_map
         self.activations_model = self._layer_model.activations_model
         self.start_task = self._layer_model.start_task

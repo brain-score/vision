@@ -1,8 +1,9 @@
 import functools
 import numpy as np
 import os
-import pandas as pd
 import pytest
+import xarray as xr
+from pathlib import Path
 from pytest import approx
 
 from brainio_base.assemblies import BehavioralAssembly
@@ -98,8 +99,8 @@ class TestI2N:
 
         benchmark = UnceiledBenchmark()
         # features
-        feature_responses = pd.read_pickle(
-            os.path.join(os.path.dirname(__file__), f'identifier={model},stimuli_identifier=objectome-240.pkl'))['data']
+        path_to_expected = Path(__file__).parent / f'identifier={model},stimuli_identifier=objectome-240.nc'
+        feature_responses = xr.load_dataarray(path_to_expected)
         feature_responses['image_id'] = 'stimulus_path', [os.path.splitext(os.path.basename(path))[0]
                                                           for path in feature_responses['stimulus_path'].values]
         feature_responses = feature_responses.stack(presentation=['stimulus_path'])

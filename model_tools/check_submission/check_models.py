@@ -1,18 +1,15 @@
-import os
-
 import numpy as np
-from brainscore.benchmarks._neural_common import average_repetition, timebins_from_assembly
-from brainscore.metrics.ceiling import InternalConsistency
-from brainscore.metrics.transformations import Split
-
-from brainscore.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation
+import os
 
 from brainio_base.assemblies import NeuroidAssembly
 from brainio_base.stimuli import StimulusSet
 from brainscore.benchmarks import BenchmarkBase, ceil_score
-from brainscore.metrics import Score
+from brainscore.benchmarks._neural_common import average_repetition, timebins_from_assembly
+from brainscore.metrics.ceiling import InternalConsistency
+from brainscore.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation
+from brainscore.metrics.transformations import Split
 from brainscore.model_interface import BrainModel
-from model_tools.brain_transformation import ModelCommitment
+from model_tools.brain_transformation import ModelCommitment, LayerSelection, RegionLayerMap
 
 
 def check_brain_models(module):
@@ -44,14 +41,19 @@ def check_base_models(module):
         print('Test successful, you are ready to submit!')
 
 
-def check_processing(model, module):
+def check_processing(model_identifier, module):
     os.environ['RESULTCACHING_DISABLE'] = '1'
-    model_instance = module.get_model(model)
-    layers = module.get_layers(model)
-    brain_model = ModelCommitment(identifier=model, activations_model=model_instance,
-                                  layers=layers, region_benchmarks={'IT': _MockBenchmark()})
-    brain_model.commit_region('IT')
+    model_instance = module.get_model(model_identifier)
+    layers = module.get_layers(model_identifier)
     benchmark = _MockBenchmark()
+    layer_selection = LayerSelection(model_identifier=model_identifier,
+                                     activations_model=model_instance, layers=layers,
+                                     visual_degrees=8)
+    region_layer_map = RegionLayerMap(layer_selection=layer_selection,
+                                      region_benchmarks={'IT': benchmark})
+
+    brain_model = ModelCommitment(identifier=model_identifier, activations_model=model_instance,
+                                  layers=layers, region_layer_map=region_layer_map)
     score = benchmark(brain_model, do_behavior=True)
     assert score is not None
     assert score.sel(aggregation='center')
@@ -59,13 +61,12 @@ def check_processing(model, module):
 
 class _MockBenchmark(BenchmarkBase):
     def __init__(self):
-        ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         assembly_repetition = get_assembly()
         assert len(np.unique(assembly_repetition['region'])) == 1
         assert hasattr(assembly_repetition, 'repetition')
         self.region = 'IT'
         self.assembly = average_repetition(assembly_repetition)
-        self._assembly=self.assembly
+        self._assembly = self.assembly
         self.timebins = timebins_from_assembly(self.assembly)
 
         self._similarity_metric = CrossRegressedCorrelation(
@@ -74,13 +75,15 @@ class _MockBenchmark(BenchmarkBase):
             if hasattr(self.assembly, Split.Defaults.stratification_coord) else None))
         identifier = f'{assembly_repetition.name}-layer_selection'
         ceiler = InternalConsistency()
-        super(_MockBenchmark, self).__init__(identifier=identifier, ceiling_func=lambda: ceiler(assembly_repetition), version='1.0')
+        super(_MockBenchmark, self).__init__(identifier=identifier,
+                                             ceiling_func=lambda: ceiler(assembly_repetition),
+                                             version='1.0')
 
     def __call__(self, candidate: BrainModel, do_behavior=False):
-        # Do brain region task
+        # Check neural recordings
         candidate.start_recording(self.region, time_bins=self.timebins)
         source_assembly = candidate.look_at(self.assembly.stimulus_set)
-        # Do behavior task
+        # Check behavioral tasks
         if do_behavior:
             candidate.start_task(BrainModel.Task.probabilities, self.assembly.stimulus_set)
             candidate.look_at(self.assembly.stimulus_set)

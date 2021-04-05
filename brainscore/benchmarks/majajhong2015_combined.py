@@ -39,7 +39,8 @@ def DicarloMajajHong2015V4PLS_combined():
     return _DicarloMajajHong2015Region_combined('V4', identifier_metric_suffix='pls',
                                                 similarity_metric=CrossRegressedCorrelation(
                                                     regression=pls_regression(), correlation=pearsonr_correlation(),
-                                                    crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                                    crossvalidation_kwargs=dict(stratification_coord='object_name',
+                                                                                train_size=0.5)),
                                                 ceiler=InternalConsistency())
 
 
@@ -47,7 +48,8 @@ def DicarloMajajHong2015ITPLS_combined():
     return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='pls',
                                                 similarity_metric=CrossRegressedCorrelation(
                                                     regression=pls_regression(), correlation=pearsonr_correlation(),
-                                                    crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                                    crossvalidation_kwargs=dict(stratification_coord='object_name',
+                                                                                train_size=0.5)),
                                                 ceiler=InternalConsistency())
 
 
@@ -97,14 +99,14 @@ def DicarloMajajHong2015V4GCR_control_combined():
     return _DicarloMajajHong2015Region_combined('V4', identifier_metric_suffix='pls',
                                        similarity_metric=CrossRegressedCorrelation(
                                            regression=gram_control_regression(gram_control=True), correlation=pearsonr_correlation(),
-                                           crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name', train_size=0.5)),
                                        ceiler=InternalConsistency())
 
 def DicarloMajajHong2015ITGCR_control_combined():
     return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='pls',
                                        similarity_metric=CrossRegressedCorrelation(
                                            regression=gram_control_regression(gram_control=True), correlation=pearsonr_correlation(),
-                                           crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name', train_size=0.5)),
                                        ceiler=InternalConsistency())
 
 def DicarloMajajHong2015ITGCR_control_combined_split_ty_01_neg():
@@ -148,14 +150,14 @@ def DicarloMajajHong2015V4GCR_nocontrol_combined():
     return _DicarloMajajHong2015Region_combined('V4', identifier_metric_suffix='pls',
                                        similarity_metric=CrossRegressedCorrelation(
                                            regression=gram_control_regression(gram_control=False), correlation=pearsonr_correlation(),
-                                           crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name', train_size=0.5)),
                                        ceiler=InternalConsistency())
 
 def DicarloMajajHong2015ITGCR_nocontrol_combined():
     return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='pls',
                                        similarity_metric=CrossRegressedCorrelation(
                                            regression=gram_control_regression(gram_control=False), correlation=pearsonr_correlation(),
-                                           crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name', train_size=0.5)),
                                        ceiler=InternalConsistency())
 
 
@@ -200,7 +202,7 @@ def DicarloMajajHong2015V4GCR_control_combined():
     return _DicarloMajajHong2015Region_combined('V4', identifier_metric_suffix='pls',
                                        similarity_metric=CrossRegressedCorrelation(
                                            regression=gram_control_regression(gram_control=True), correlation=pearsonr_correlation(),
-                                           crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name', train_size=0.5)),
                                        ceiler=InternalConsistency())
 
 ########
@@ -210,14 +212,14 @@ def DicarloMajajHong2015V4GCPLS_control_combined():
     return _DicarloMajajHong2015Region_combined('V4', identifier_metric_suffix='pls',
                                        similarity_metric=CrossRegressedCorrelation(
                                            regression=gram_control_pls(gram_control=True), correlation=pearsonr_correlation(),
-                                           crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name', train_size=0.5)),
                                        ceiler=InternalConsistency())
 
 def DicarloMajajHong2015ITGCPLS_control_combined():
     return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='pls',
                                        similarity_metric=CrossRegressedCorrelation(
                                            regression=gram_control_pls(gram_control=True), correlation=pearsonr_correlation(),
-                                           crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name', train_size=0.5)),
                                        ceiler=InternalConsistency())
 
 def DicarloMajajHong2015ITGCPLS_control_combined_split_ty_01_neg():
@@ -261,14 +263,14 @@ def DicarloMajajHong2015V4GCPLS_nocontrol_combined():
     return _DicarloMajajHong2015Region_combined('V4', identifier_metric_suffix='pls',
                                        similarity_metric=CrossRegressedCorrelation(
                                            regression=gram_control_pls(gram_control=False), correlation=pearsonr_correlation(),
-                                           crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name', train_size=0.5)),
                                        ceiler=InternalConsistency())
 
 def DicarloMajajHong2015ITGCPLS_nocontrol_combined():
     return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='pls',
                                        similarity_metric=CrossRegressedCorrelation(
                                            regression=gram_control_pls(gram_control=False), correlation=pearsonr_correlation(),
-                                           crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name', train_size=0.5)),
                                        ceiler=InternalConsistency())
 
 
@@ -318,7 +320,8 @@ def DicarloMajajHong2015V4Mask_combined():
     return _DicarloMajajHong2015Region_combined('V4', identifier_metric_suffix='mask',
                                        similarity_metric=ScaledCrossRegressedCorrelation(
                                            regression=mask_regression(), correlation=pearsonr_correlation(),
-                                           crossvalidation_kwargs=dict(splits=2, stratification_coord='object_name')),
+                                           crossvalidation_kwargs=dict(splits=2, stratification_coord='object_name',
+                                                                       train_size=0.5)),
                                        ceiler=InternalConsistency())
 
 
@@ -326,21 +329,23 @@ def DicarloMajajHong2015ITMask_combined():
     return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='mask',
                                        similarity_metric=ScaledCrossRegressedCorrelation(
                                            regression=mask_regression(), correlation=pearsonr_correlation(),
-                                           crossvalidation_kwargs=dict(splits=2, stratification_coord='object_name')),
+                                           crossvalidation_kwargs=dict(splits=2, stratification_coord='object_name', train_size=0.5)),
                                        ceiler=InternalConsistency())
 
 
 def DicarloMajajHong2015V4RDM_combined():
     return _DicarloMajajHong2015Region_combined('V4', identifier_metric_suffix='rdm',
                                        similarity_metric=RDMCrossValidated(
-                                           crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name',
+                                                                       train_size=0.5)),
                                        ceiler=RDMConsistency())
 
 
 def DicarloMajajHong2015ITRDM_combined():
     return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='rdm',
                                        similarity_metric=RDMCrossValidated(
-                                           crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name',
+                                                                       train_size=0.5)),
                                        ceiler=RDMConsistency())
 
 

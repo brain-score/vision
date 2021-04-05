@@ -186,7 +186,7 @@ def _evaluation_benchmark_pool():
     pool['dicarlo.MajajHong2015.IT-gcr_nocontrol_combined_split_ty_01_pos'] = LazyLoad(DicarloMajajHong2015ITGCR_nocontrol_combined_split_ty_01_pos)
 
     pool['dicarlo.MajajHong2015.V4-gcls_control_combined'] = LazyLoad(DicarloMajajHong2015V4GCPLS_control_combined)
-    pool['dicarlo.MajajHong2015.IT-gcpls_control_combined'] = LazyLoad(DicarloMajajHong2015ITGCR_control_combined)
+    pool['dicarlo.MajajHong2015.IT-gcpls_control_combined'] = LazyLoad(DicarloMajajHong2015ITGCPLS_control_combined)
     pool['dicarlo.MajajHong2015.IT-gcpls_control_combined_split_tz_01_neg'] = LazyLoad(DicarloMajajHong2015ITGCPLS_control_combined_split_tz_01_neg)
     pool['dicarlo.MajajHong2015.IT-gcpls_control_combined_split_tz_01_pos'] = LazyLoad(DicarloMajajHong2015ITGCPLS_control_combined_split_tz_01_pos)
     pool['dicarlo.MajajHong2015.IT-gcpls_control_combined_split_ty_01_neg'] = LazyLoad(DicarloMajajHong2015ITGCPLS_control_combined_split_ty_01_neg)

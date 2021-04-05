@@ -187,6 +187,98 @@ class GramControlRegression():
         return self.scaler_y.inverse_transform(Ypred) # is this wise?
 
 
+class GramControlPLS():
+    def __init__(self, gram_control=False, channel_coord=None, regression_kwargs=None):
+        self.gram_control = gram_control
+        self.channel_coord = channel_coord
+        self.regression_kwargs = regression_kwargs or {}
+        self.control_regression = PLSRegression(**self.regression_kwargs)
+        self.main_regression = PLSRegression(**self.regression_kwargs)
+
+    def _unflatten(self, X, channel_coord=None):
+        """
+        Unflattens NeuroidAssembly of flattened model activations to
+        BxCxH*W (or BXCxW*H not sure, also not sure if it matters)
+
+        Using the information in coordinates channel, channel_x, channel_y which give the index along each
+        of the original axes
+
+        Order of coordinates (which one represents first axis, second, third) is determined by checking which one's
+        values change slowest (i.e., reverse sort by first occurence of a 1-value)
+        """
+
+        # Get coord:(original axis length, first occurence of 1
+        X_shape = OrderedDict({
+            'channel': (X.channel.values.max()+1, np.where(X.channel.values == 1)[0][0]),
+            'channel_x': (X.channel_x.values.max()+1, np.where(X.channel_x.values == 1)[0][0]),
+            'channel_y': (X.channel_y.values.max()+1, np.where(X.channel_y.values == 1)[0][0])
+        })
+
+        # Determine which coordinate represents channels
+        if self.channel_coord == None:
+            # Hacky attempt to determine automatically (usually W==H != C)
+            X_axis_sizes = [i[0] for i in X_shape.values()]
+            frequencies = {key:Counter(X_axis_sizes)[value[0]] for key, value in X_shape.items()}
+            if sorted(list(frequencies.values())) != [1,2,2]:
+                raise ValueError('channel_coord is None and failed to automatically determine it')
+            else:
+                channel_coord = [key for key, value in frequencies.items() if value==1][0]
+
+        # Sort coordinates such that first one represents first axis in original matrix, etc.
+        X_shape = OrderedDict(sorted(X_shape.items(), key=lambda x: x[1][1], reverse=True))
+
+        # Unflatten X
+        B = X.shape[0]
+        reshape_to = [B] + [value[0] for key, value in X_shape.items()]
+        X = X.values.reshape(reshape_to)
+
+        # Channels first and reshape to BxCxH*W (or W*H, not sure)
+        channel_index = [i for i, (key, value) in enumerate(X_shape.items()) if key==channel_coord][0]
+        channel_index = channel_index + 1 # bc very first is B
+        transpose_to = [0, channel_index]+ [i for i in [1,2,3] if i != channel_index]
+        X = np.transpose(X, transpose_to)
+        X = X.reshape(list(X.shape[0:2])+[-1])
+
+        return X
+
+    def _preprocess_gram(self, X, fit=True):
+
+        # Compute gram matrices
+        X_grams = self._unflatten(X, self.channel_coord) # Unflatten X to BxCxH*W (or W*H, not sure)
+        X_grams = np.einsum("ijk, ikl -> ijl", X_grams, np.transpose(X_grams, [0,2,1]))
+        #X_grams = X_grams/X.size # is this the right normalization?
+        X_grams = X_grams.reshape(X_grams.shape[0], -1)
+
+        # Residuals
+        if fit:
+            self.control_regression.fit(X_grams, X)
+        X = X - self.control_regression.predict(X_grams)
+
+        return X
+
+    def _preprocess(self, X, fit=True):
+        # I think all the preprocessing needed happens inside PLS?
+        return X
+
+
+    def fit(self, X, Y):
+        if self.gram_control:
+            X = self._preprocess_gram(X, fit=True)
+        else:
+            X = self._preprocess(X, fit=True)
+
+        self.main_regression.fit(X, Y)
+
+    def predict(self, X):
+        if self.gram_control:
+            X = self._preprocess_gram(X, fit=False)
+        else:
+            X = self._preprocess(X, fit=False)
+
+        Ypred = self.main_regression.predict(X)
+        return Ypred
+
+
 def mask_regression():
     regression = MaskRegression()
     regression = XarrayRegression(regression)
@@ -208,10 +300,18 @@ def gram_control_regression(gram_control, channel_coord=None, scaler_kwargs=None
     pca_kwargs = {**pca_defaults, **(pca_kwargs or {})}
     regression_kwargs = regression_kwargs or {}
     regression = GramControlRegression(gram_control=gram_control,
-                                       channel_coord=None,
+                                       channel_coord=channel_coord,
                                        scaler_kwargs=scaler_kwargs,
                                        pca_kwargs=pca_kwargs,
                                        regression_kwargs=regression_kwargs)
+    xarray_kwargs = xarray_kwargs or {}
+    regression = XarrayRegression(regression, **xarray_kwargs)
+    return regression
+
+def gram_control_pls(gram_control, channel_coord=None, regression_kwargs=None, xarray_kwargs=None):
+    regression_defaults = dict(n_components=25, scale=False)
+    regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
+    regression = GramControlPLS(gram_control=gram_control, channel_coord=channel_coord, regression_kwargs=regression_kwargs)
     xarray_kwargs = xarray_kwargs or {}
     regression = XarrayRegression(regression, **xarray_kwargs)
     return regression

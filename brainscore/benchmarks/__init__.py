@@ -146,6 +146,7 @@ def _evaluation_benchmark_pool():
     from .majajhong2015_combined import DicarloMajajHong2015ITPLS_combined_split_ty_01_neg, DicarloMajajHong2015ITPLS_combined_split_ty_01_pos
     from .majajhong2015_combined import DicarloMajajHong2015ITPLS_combined_split_tz_01_neg, DicarloMajajHong2015ITPLS_combined_split_tz_01_pos
 
+
     from .majajhong2015_combined import DicarloMajajHong2015V4GCR_control_combined, DicarloMajajHong2015ITGCR_control_combined
     from .majajhong2015_combined import DicarloMajajHong2015ITGCR_control_combined_split_ty_01_neg, DicarloMajajHong2015ITGCR_control_combined_split_ty_01_pos
     from .majajhong2015_combined import DicarloMajajHong2015ITGCR_control_combined_split_tz_01_neg, DicarloMajajHong2015ITGCR_control_combined_split_tz_01_pos
@@ -153,6 +154,15 @@ def _evaluation_benchmark_pool():
     from .majajhong2015_combined import DicarloMajajHong2015V4GCR_nocontrol_combined, DicarloMajajHong2015ITGCR_nocontrol_combined
     from .majajhong2015_combined import DicarloMajajHong2015ITGCR_nocontrol_combined_split_ty_01_neg, DicarloMajajHong2015ITGCR_nocontrol_combined_split_ty_01_pos
     from .majajhong2015_combined import DicarloMajajHong2015ITGCR_nocontrol_combined_split_tz_01_neg, DicarloMajajHong2015ITGCR_nocontrol_combined_split_tz_01_pos
+
+
+    from .majajhong2015_combined import DicarloMajajHong2015V4GCPLS_control_combined, DicarloMajajHong2015ITGCPLS_control_combined
+    from .majajhong2015_combined import DicarloMajajHong2015ITGCPLS_control_combined_split_ty_01_neg, DicarloMajajHong2015ITGCPLS_control_combined_split_ty_01_pos
+    from .majajhong2015_combined import DicarloMajajHong2015ITGCPLS_control_combined_split_tz_01_neg, DicarloMajajHong2015ITGCPLS_control_combined_split_tz_01_pos
+
+    from .majajhong2015_combined import DicarloMajajHong2015V4GCPLS_nocontrol_combined, DicarloMajajHong2015ITGCPLS_nocontrol_combined
+    from .majajhong2015_combined import DicarloMajajHong2015ITGCPLS_nocontrol_combined_split_ty_01_neg, DicarloMajajHong2015ITGCPLS_nocontrol_combined_split_ty_01_pos
+    from .majajhong2015_combined import DicarloMajajHong2015ITGCPLS_nocontrol_combined_split_tz_01_neg, DicarloMajajHong2015ITGCPLS_nocontrol_combined_split_tz_01_pos
 
     pool['dicarlo.MajajHong2015.V4-pls_combined'] = LazyLoad(DicarloMajajHong2015V4PLS_combined)
     pool['dicarlo.MajajHong2015.IT-pls_combined'] = LazyLoad(DicarloMajajHong2015ITPLS_combined)
@@ -174,6 +184,21 @@ def _evaluation_benchmark_pool():
     pool['dicarlo.MajajHong2015.IT-gcr_nocontrol_combined_split_tz_01_pos'] = LazyLoad(DicarloMajajHong2015ITGCR_nocontrol_combined_split_tz_01_pos)
     pool['dicarlo.MajajHong2015.IT-gcr_nocontrol_combined_split_ty_01_neg'] = LazyLoad(DicarloMajajHong2015ITGCR_nocontrol_combined_split_ty_01_neg)
     pool['dicarlo.MajajHong2015.IT-gcr_nocontrol_combined_split_ty_01_pos'] = LazyLoad(DicarloMajajHong2015ITGCR_nocontrol_combined_split_ty_01_pos)
+
+    pool['dicarlo.MajajHong2015.V4-gcls_control_combined'] = LazyLoad(DicarloMajajHong2015V4GCPLS_control_combined)
+    pool['dicarlo.MajajHong2015.IT-gcpls_control_combined'] = LazyLoad(DicarloMajajHong2015ITGCR_control_combined)
+    pool['dicarlo.MajajHong2015.IT-gcpls_control_combined_split_tz_01_neg'] = LazyLoad(DicarloMajajHong2015ITGCPLS_control_combined_split_tz_01_neg)
+    pool['dicarlo.MajajHong2015.IT-gcpls_control_combined_split_tz_01_pos'] = LazyLoad(DicarloMajajHong2015ITGCPLS_control_combined_split_tz_01_pos)
+    pool['dicarlo.MajajHong2015.IT-gcpls_control_combined_split_ty_01_neg'] = LazyLoad(DicarloMajajHong2015ITGCPLS_control_combined_split_ty_01_neg)
+    pool['dicarlo.MajajHong2015.IT-gcpls_control_combined_split_ty_01_pos'] = LazyLoad(DicarloMajajHong2015ITGCPLS_control_combined_split_ty_01_pos)
+
+    pool['dicarlo.MajajHong2015.V4-gcpls_nocontrol_combined'] = LazyLoad(DicarloMajajHong2015V4GCPLS_nocontrol_combined)
+    pool['dicarlo.MajajHong2015.IT-gcpls_nocontrol_combined'] = LazyLoad(DicarloMajajHong2015ITGCPLS_nocontrol_combined)
+    pool['dicarlo.MajajHong2015.IT-gcpls_nocontrol_combined_split_tz_01_neg'] = LazyLoad(DicarloMajajHong2015ITGCPLS_nocontrol_combined_split_tz_01_neg)
+    pool['dicarlo.MajajHong2015.IT-gcpls_nocontrol_combined_split_tz_01_pos'] = LazyLoad(DicarloMajajHong2015ITGCPLS_nocontrol_combined_split_tz_01_pos)
+    pool['dicarlo.MajajHong2015.IT-gcpls_nocontrol_combined_split_ty_01_neg'] = LazyLoad(DicarloMajajHong2015ITGCPLS_nocontrol_combined_split_ty_01_neg)
+    pool['dicarlo.MajajHong2015.IT-gcpls_nocontrol_combined_split_ty_01_pos'] = LazyLoad(DicarloMajajHong2015ITGCPLS_nocontrol_combined_split_ty_01_pos)
+
 
     return pool
 

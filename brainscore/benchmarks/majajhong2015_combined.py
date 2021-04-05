@@ -3,7 +3,7 @@ from brainscore.benchmarks._neural_common import NeuralBenchmark, average_repeti
 from brainscore.metrics.ceiling import InternalConsistency, RDMConsistency
 from brainscore.metrics.rdm import RDMCrossValidated
 from brainscore.metrics.regression import CrossRegressedCorrelation, mask_regression, ScaledCrossRegressedCorrelation, \
-    pls_regression, gram_control_regression, pearsonr_correlation
+    pls_regression, gram_control_regression, gram_control_pls, pearsonr_correlation
 from brainscore.utils import LazyLoad
 
 VISUAL_DEGREES = 8
@@ -90,8 +90,9 @@ def DicarloMajajHong2015ITPLS_combined_split_tz_01_pos():
                                                                                 csv_file='__majajhonglocal_halves_tz_0.1_pos.csv',
                                                                                 parent_folder='./data/splits/')),
                                                 ceiler=InternalConsistency())
-
-
+######
+# GCR
+######
 def DicarloMajajHong2015V4GCR_control_combined():
     return _DicarloMajajHong2015Region_combined('V4', identifier_metric_suffix='pls',
                                        similarity_metric=CrossRegressedCorrelation(
@@ -195,7 +196,122 @@ def DicarloMajajHong2015ITGCR_nocontrol_combined_split_tz_01_neg():
                                            parent_folder = './data/splits/')),
                                        ceiler=InternalConsistency())
 
+def DicarloMajajHong2015V4GCR_control_combined():
+    return _DicarloMajajHong2015Region_combined('V4', identifier_metric_suffix='pls',
+                                       similarity_metric=CrossRegressedCorrelation(
+                                           regression=gram_control_regression(gram_control=True), correlation=pearsonr_correlation(),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                       ceiler=InternalConsistency())
 
+########
+# GCPLS
+########
+def DicarloMajajHong2015V4GCPLS_control_combined():
+    return _DicarloMajajHong2015Region_combined('V4', identifier_metric_suffix='pls',
+                                       similarity_metric=CrossRegressedCorrelation(
+                                           regression=gram_control_pls(gram_control=True), correlation=pearsonr_correlation(),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                       ceiler=InternalConsistency())
+
+def DicarloMajajHong2015ITGCPLS_control_combined():
+    return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='pls',
+                                       similarity_metric=CrossRegressedCorrelation(
+                                           regression=gram_control_pls(gram_control=True), correlation=pearsonr_correlation(),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                       ceiler=InternalConsistency())
+
+def DicarloMajajHong2015ITGCPLS_control_combined_split_ty_01_neg():
+    return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='pls',
+                                       similarity_metric=CrossRegressedCorrelation(
+                                           regression=gram_control_pls(gram_control=True), correlation=pearsonr_correlation(),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name',
+                                           csv_file ='__majajhonglocal_halves_ty_0.1_neg.csv',
+                                           parent_folder = './data/splits/')),
+                                       ceiler=InternalConsistency())
+
+def DicarloMajajHong2015ITGCPLS_control_combined_split_ty_01_pos():
+    return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='pls',
+                                       similarity_metric=CrossRegressedCorrelation(
+                                           regression=gram_control_pls(gram_control=True), correlation=pearsonr_correlation(),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name',
+                                           csv_file ='__majajhonglocal_halves_ty_0.1_pos.csv',
+                                           parent_folder = './data/splits/')),
+                                       ceiler=InternalConsistency())
+
+
+def DicarloMajajHong2015ITGCPLS_control_combined_split_tz_01_pos():
+    return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='pls',
+                                       similarity_metric=CrossRegressedCorrelation(
+                                           regression=gram_control_pls(gram_control=True), correlation=pearsonr_correlation(),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name',
+                                           csv_file ='__majajhonglocal_halves_tz_0.1_pos.csv',
+                                           parent_folder = './data/splits/')),
+                                       ceiler=InternalConsistency())
+
+def DicarloMajajHong2015ITGCPLS_control_combined_split_tz_01_neg():
+    return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='pls',
+                                       similarity_metric=CrossRegressedCorrelation(
+                                           regression=gram_control_pls(gram_control=True), correlation=pearsonr_correlation(),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name',
+                                           csv_file ='__majajhonglocal_halves_tz_0.1_neg.csv',
+                                           parent_folder = './data/splits/')),
+                                       ceiler=InternalConsistency())
+
+def DicarloMajajHong2015V4GCPLS_nocontrol_combined():
+    return _DicarloMajajHong2015Region_combined('V4', identifier_metric_suffix='pls',
+                                       similarity_metric=CrossRegressedCorrelation(
+                                           regression=gram_control_pls(gram_control=False), correlation=pearsonr_correlation(),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                       ceiler=InternalConsistency())
+
+def DicarloMajajHong2015ITGCPLS_nocontrol_combined():
+    return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='pls',
+                                       similarity_metric=CrossRegressedCorrelation(
+                                           regression=gram_control_pls(gram_control=False), correlation=pearsonr_correlation(),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                       ceiler=InternalConsistency())
+
+
+def DicarloMajajHong2015ITGCPLS_nocontrol_combined_split_ty_01_neg():
+    return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='pls',
+                                       similarity_metric=CrossRegressedCorrelation(
+                                           regression=gram_control_pls(gram_control=False), correlation=pearsonr_correlation(),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name',
+                                           csv_file ='__majajhonglocal_halves_ty_0.1_neg.csv',
+                                           parent_folder = './data/splits/')),
+                                       ceiler=InternalConsistency())
+
+def DicarloMajajHong2015ITGCPLS_nocontrol_combined_split_ty_01_pos():
+    return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='pls',
+                                       similarity_metric=CrossRegressedCorrelation(
+                                           regression=gram_control_pls(gram_control=False), correlation=pearsonr_correlation(),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name',
+                                           csv_file ='__majajhonglocal_halves_ty_0.1_pos.csv',
+                                           parent_folder = './data/splits/')),
+                                       ceiler=InternalConsistency())
+
+
+def DicarloMajajHong2015ITGCPLS_nocontrol_combined_split_tz_01_pos():
+    return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='pls',
+                                       similarity_metric=CrossRegressedCorrelation(
+                                           regression=gram_control_pls(gram_control=False), correlation=pearsonr_correlation(),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name',
+                                           csv_file ='__majajhonglocal_halves_tz_0.1_pos.csv',
+                                           parent_folder = './data/splits/')),
+                                       ceiler=InternalConsistency())
+
+def DicarloMajajHong2015ITGCPLS_nocontrol_combined_split_tz_01_neg():
+    return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='pls',
+                                       similarity_metric=CrossRegressedCorrelation(
+                                           regression=gram_control_pls(gram_control=False), correlation=pearsonr_correlation(),
+                                           crossvalidation_kwargs=dict(stratification_coord='object_name',
+                                           csv_file ='__majajhonglocal_halves_tz_0.1_neg.csv',
+                                           parent_folder = './data/splits/')),
+                                       ceiler=InternalConsistency())
+
+########
+# Other
+########
 
 
 def DicarloMajajHong2015V4Mask_combined():

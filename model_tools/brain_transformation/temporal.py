@@ -32,7 +32,7 @@ class TemporalIgnore(BrainModel):
         return self._layer_model.visual_degrees()
 
     def look_at(self, stimuli, number_of_trials=1):
-        responses = self._layer_model.look_at(stimuli)
+        responses = self._layer_model.look_at(stimuli, number_of_trials=number_of_trials)
         time_responses = []
         self._logger.debug(f'Repeating single assembly across time bins {self._time_bins}')
         for time_bin in self._time_bins:

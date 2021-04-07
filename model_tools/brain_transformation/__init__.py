@@ -56,11 +56,10 @@ class ModelCommitment(BrainModel):
             self.do_behavior = False
 
     def look_at(self, stimuli, number_of_trials=1):
-        # ignore number_of_trials, do not forward (lower implementations use default=1)
         if self.do_behavior:
-            return self.behavior_model.look_at(stimuli)
+            return self.behavior_model.look_at(stimuli, number_of_trials=number_of_trials)
         else:
-            return self.layer_model.look_at(stimuli)
+            return self.layer_model.look_at(stimuli, number_of_trials=number_of_trials)
 
     def start_recording(self, recording_target, time_bins):
         return self.layer_model.start_recording(recording_target, time_bins)

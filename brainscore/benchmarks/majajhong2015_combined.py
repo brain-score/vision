@@ -1,6 +1,6 @@
 import brainscore
 from brainscore.benchmarks._neural_common import NeuralBenchmark, average_repetition
-from brainscore.metrics.ceiling import InternalConsistency, RDMConsistency
+from brainscore.metrics.ceiling import InternalConsistency, RDMConsistency, ToleranceConsistency
 from brainscore.metrics.rdm import RDMCrossValidated
 from brainscore.metrics.regression import CrossRegressedCorrelation, mask_regression, ScaledCrossRegressedCorrelation, \
     pls_regression, gram_control_regression, gram_control_pls, pearsonr_correlation
@@ -24,10 +24,10 @@ BIBTEX = """@article {Majaj13402,
             journal = {Journal of Neuroscience}}"""
 
 
-def _DicarloMajajHong2015Region_combined(region, identifier_metric_suffix, similarity_metric, ceiler):
+def _DicarloMajajHong2015Region_combined(region, identifier_metric_suffix, similarity_metric, ceiler, benchmark_identifier='dicarlo.MajajHong2015'):
     assembly_repetition = LazyLoad(lambda region=region: load_assembly(average_repetitions=False, region=region))
     assembly = LazyLoad(lambda region=region: load_assembly(average_repetitions=True, region=region))
-    return NeuralBenchmark(identifier=f'dicarlo.MajajHong2015', version=3,
+    return NeuralBenchmark(identifier=benchmark_identifier, version=3,
                            assembly=assembly, similarity_metric=similarity_metric,
                            visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
                            ceiling_func=lambda: ceiler(assembly_repetition),
@@ -92,6 +92,17 @@ def DicarloMajajHong2015ITPLS_combined_split_tz_01_pos():
                                                                                 csv_file='__majajhonglocal_halves_tz_0.1_pos.csv',
                                                                                 parent_folder='./data/splits/')),
                                                 ceiler=InternalConsistency())
+
+def Lore():
+    return _DicarloMajajHong2015Region_combined('IT', identifier_metric_suffix='pls',
+                                                similarity_metric=CrossRegressedCorrelation(
+                                                    regression=pls_regression(), correlation=pearsonr_correlation(),
+                                                    crossvalidation_kwargs=dict(stratification_coord='object_name',
+                                                                                csv_file='__majajhonglocal_halves_tz_0.1_pos.csv',
+                                                                                parent_folder='./data/splits/')),
+                                                ceiler=ToleranceConsistency(regression=pls_regression(),
+                                                                            correlation=pearsonr_correlation()),
+                                                benchmark_identifier='Lore')
 ######
 # GCR
 ######

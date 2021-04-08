@@ -79,6 +79,8 @@ def record_from_model(model: BrainModel, stimulus_identifier, number_of_trials):
     activations = model.look_at(stimulus_set, number_of_trials)
     if 'time_bin' in activations.dims:
         activations = activations.squeeze('time_bin')  # static case for these benchmarks
+    if not activations.values.flags['WRITEABLE']:
+        activations.values.setflags(write=1)
     return activations
 
 
@@ -100,10 +102,10 @@ def filter_receptive_fields(model_identifier, model, region, pos, rf_delta=RF_DE
 @store(identifier_ignore=['model'])
 def map_receptive_field_locations(model_identifier, model: BrainModel, region):
     blank_activations = record_from_model(model, BLANK_STIM_NAME, RF_NUMBER_OF_TRIALS)
-    rf_activations = record_from_model(model, RF_STIM_NAME, RF_NUMBER_OF_TRIALS)
-
     blank_activations = blank_activations.values
     blank_activations[blank_activations < 0] = 0
+
+    rf_activations = record_from_model(model, RF_STIM_NAME, RF_NUMBER_OF_TRIALS)
 
     _assert_grating_activations(rf_activations)
 
@@ -180,22 +182,12 @@ def firing_rates_affine(model_identifier, model: BrainModel, region):
                          (RESP_THRESH[region] / SINGLE_MAX_RESP[region]) * \
                          np.max(orientation_activations - blank_activations[:, 0])
 
-    # responsive_neurons = orientation_activations > blank_activations[:, 0] + RESP_THRESH[region] / \
-    #                      (MEDIAN_MAX_RESP[region] - MEDIAN_SPONTANEOUS[region])
-
     median_baseline = np.median(blank_activations[responsive_neurons])
     median_activations = np.median(orientation_activations[responsive_neurons])
 
     slope = (MEDIAN_MAX_RESP[region] - MEDIAN_SPONTANEOUS[region]) / \
             (median_activations - median_baseline)
     offset = MEDIAN_SPONTANEOUS[region] - slope * median_baseline
-
-    # low_interval_activations = np.percentile(orientation_activations[responsive_neurons], LOW_INTERVAL_PERCENTILE)
-    # high_interval_activations = np.percentile(orientation_activations[responsive_neurons], HIGH_INTERVAL_PERCENTILE)
-
-    # slope = (HIGH_INTERVAL_MAX_RESP[region] - LOW_INTERVAL_MAX_RESP[region]) / \
-    #         (high_interval_activations - low_interval_activations)
-    # offset = LOW_INTERVAL_MAX_RESP[region] - slope * low_interval_activations
 
     affine_transformation = np.array([slope, offset])
     affine_transformation = DataAssembly(affine_transformation)

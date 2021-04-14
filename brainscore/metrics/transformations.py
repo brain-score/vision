@@ -299,7 +299,7 @@ class CrossValidation(Transformation):
     """
 
     def __init__(self, *args, split_coord=Split.Defaults.split_coord,
-                 stratification_coord=Split.Defaults.stratification_coord, **kwargs):
+                 stratification_coord=Split.Defaults.stratification_coord, expecting_coveriate=False, **kwargs):
         self._split_coord = split_coord
         self._stratification_coord = stratification_coord
         self._split = Split(*args, split_coord=split_coord, stratification_coord=stratification_coord, **kwargs)
@@ -307,6 +307,10 @@ class CrossValidation(Transformation):
         #argument to provide csv files with the indexes needed
         self._given_indices_parent_folder = kwargs.get('parent_folder',None)
         self._given_indices_file = kwargs.get('csv_file',None)
+        if not expecting_coveriate:
+            self.pipe = self.pipe_default
+        else:
+            self.pipe = self.pipe_covariate
         
     def _build_splits_file(self,cross_validation_values):
         parent = self._given_indices_parent_folder
@@ -323,8 +327,51 @@ class CrossValidation(Transformation):
         indices_train = [all_values.index(x) for x in both_train]
         indices_test = [all_values.index(x) for x in both_test]
         return [[indices_train,indices_test]]
+
+
+    def pipe_covariate(self, source_assembly, covariate_assembly, target_assembly):
+        # check only for equal values, alignment is given by metadata
+
+        assert sorted(source_assembly[self._split_coord].values) == \
+               sorted(covariate_assembly[self._split_coord].values) == \
+               sorted(target_assembly[self._split_coord].values)
+
+        if self._split.do_stratify:
+            assert hasattr(source_assembly, self._stratification_coord)
+            assert sorted(source_assembly[self._stratification_coord].values) == \
+                   sorted(covariate_assembly[self._stratification_coord].values) == \
+                   sorted(target_assembly[self._stratification_coord].values)
+
+
+        cross_validation_values, splits = self._split.build_splits(target_assembly)
+
+        if self._given_indices_file and self._given_indices_parent_folder:
+            splits = self._build_splits_file(cross_validation_values)
+
+        split_scores = []
+
+        for split_iterator, (train_indices, test_indices), done \
+                in tqdm(enumerate_done(splits), total=len(splits), desc='cross-validation'):
+            train_values, test_values = cross_validation_values[train_indices], cross_validation_values[test_indices]
+            train_source = subset(source_assembly, train_values, dims_must_match=False)
+            train_covariate = subset(covariate_assembly, train_values, dims_must_match=False)
+            train_target = subset(target_assembly, train_values, dims_must_match=False)
+            assert len(train_source[self._split_coord])  == len(train_covariate[self._split_coord]) == len(train_target[self._split_coord])
+            test_source = subset(source_assembly, test_values, dims_must_match=False)
+            test_covariate = subset(covariate_assembly, test_values, dims_must_match=False)
+            test_target = subset(target_assembly, test_values, dims_must_match=False)
+            assert len(test_source[self._split_coord])  == len(test_covariate[self._split_coord]) == len(test_target[self._split_coord])
+
+            split_score = yield from self._get_result(train_source, train_covariate, train_target, test_source, test_covariate, test_target,
+                                                      done=done)
+            split_score = split_score.expand_dims('split')
+            split_score['split'] = [split_iterator]
+            split_scores.append(split_score)
+
+        split_scores = Score.merge(*split_scores)
+        yield split_scores
     
-    def pipe(self, source_assembly, target_assembly):
+    def pipe_default(self, source_assembly, target_assembly):
         # check only for equal values, alignment is given by metadata
         assert sorted(source_assembly[self._split_coord].values) == sorted(target_assembly[self._split_coord].values)
         if self._split.do_stratify:

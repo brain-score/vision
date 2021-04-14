@@ -1,5 +1,13 @@
 import scipy.stats
 import numpy as np
+import os
+
+from PIL import Image
+import matplotlib.gridspec as gridspec
+import matplotlib.pyplot as plt
+
+
+
 from sklearn.cross_decomposition import PLSRegression
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
@@ -85,7 +93,7 @@ class GramControlRegression():
         self.control_regression = LinearRegression(**self.regression_kwargs)
         self.main_regression = LinearRegression(**self.regression_kwargs)
 
-    def _unflatten(self, X, channel_coord=None):
+    def _unflatten(self, X, channel_coord=None, image_dir = None):
         """
         Unflattens NeuroidAssembly of flattened model activations to
         BxCxH*W (or BXCxW*H not sure, also not sure if it matters)
@@ -96,6 +104,16 @@ class GramControlRegression():
         Order of coordinates (which one represents first axis, second, third) is determined by checking which one's
         values change slowest (i.e., reverse sort by first occurence of a 1-value)
         """
+        n_viz = 10
+
+        # Get first n_viz image paths for visualizations
+        if image_dir:
+            vis_images_fnames = X.image_file_name.values[0:n_viz]
+            vis_images_fpaths = [os.path.join(image_dir, file_name) for file_name in vis_images_fnames]
+
+            dest_dir = "actvns_viz"
+            os.makedirs(dest_dir, exist_ok=True)
+            dest_fname = '_'.join([str(self.__class__.__name__), X.model.values[0], X.layer.values[0]]) + '.png'
 
         # Get coord:(original axis length, first occurence of 1
         X_shape = OrderedDict({
@@ -122,23 +140,51 @@ class GramControlRegression():
         reshape_to = [B] + [value[0] for key, value in X_shape.items()]
         X = X.values.reshape(reshape_to)
 
-        # Channels first and reshape to BxCxH*W (or W*H, not sure)
+        # Channels first
         channel_index = [i for i, (key, value) in enumerate(X_shape.items()) if key==channel_coord][0]
         channel_index = channel_index + 1 # bc very first is B
         transpose_to = [0, channel_index]+ [i for i in [1,2,3] if i != channel_index]
         X = np.transpose(X, transpose_to)
+
+        # Make visualizations
+        if image_dir:
+            actvns = X[0:n_viz, :,:,:].mean(axis=1)
+            actvns = np.split(actvns, n_viz, axis=0)
+            actvns = [np.squeeze(actvn) for actvn in actvns]
+
+            ims = [np.array(Image.open(fpath)) for fpath in vis_images_fpaths]
+
+            ims_actvns = [val for pair in zip(ims, actvns) for val in pair]
+
+            rows = n_viz
+            cols = 2
+            axes = []
+            fig = plt.figure(figsize=(2,10))
+
+            for i in range(rows * cols):
+                b = ims_actvns[i]
+                axes.append(fig.add_subplot(rows, cols, i + 1))
+                plt.imshow(b)
+
+            fig.set_figheight(50)
+            fig.set_figwidth(50)
+            plt.subplots_adjust(wspace=0, hspace=0)
+            plt.show()
+            plt.savefig(os.path.join(dest_dir, dest_fname))
+
+        # reshape to BxCxH*W (or W*H, not sure)
         X = X.reshape(list(X.shape[0:2])+[-1])
 
         return X
 
-    def _preprocess_gram(self, X, fit=True):
+    def _preprocess_gram(self, X, fit=True, image_dir=None):
         # Center/scale
         if fit:
             self.scaler_x.fit(X)
         X.values = self.scaler_x.transform(X)
 
         # Compute gram matrices
-        X_grams = self._unflatten(X, self.channel_coord) # Unflatten X to BxCxH*W (or W*H, not sure)
+        X_grams = self._unflatten(X, self.channel_coord, image_dir=image_dir) # Unflatten X to BxCxH*W (or W*H, not sure)
         X_grams = np.einsum("ijk, ikl -> ijl", X_grams, np.transpose(X_grams, [0,2,1]))
         #X_grams = X_grams/X.size # is this the right normalization?
         X_grams = X_grams.reshape(X_grams.shape[0], -1)
@@ -169,7 +215,7 @@ class GramControlRegression():
 
     def fit(self, X, Y):
         if self.gram_control:
-            X = self._preprocess_gram(X, fit=True)
+            X = self._preprocess_gram(X, fit=True, image_dir=os.path.dirname(Y.stimulus_set.get_image(Y.image_id.values[0])))
         else:
             X = self._preprocess(X, fit=True)
 
@@ -195,7 +241,7 @@ class GramControlPLS():
         self.control_regression = PLSRegression(**self.regression_kwargs)
         self.main_regression = PLSRegression(**self.regression_kwargs)
 
-    def _unflatten(self, X, channel_coord=None):
+    def _unflatten(self, X, channel_coord=None, image_dir=None):
         """
         Unflattens NeuroidAssembly of flattened model activations to
         BxCxH*W (or BXCxW*H not sure, also not sure if it matters)
@@ -206,6 +252,18 @@ class GramControlPLS():
         Order of coordinates (which one represents first axis, second, third) is determined by checking which one's
         values change slowest (i.e., reverse sort by first occurence of a 1-value)
         """
+
+        n_viz = 10
+
+        # Get first n_viz image paths for visualizations
+        if image_dir:
+            vis_images_fnames = X.image_file_name.values[0:n_viz]
+            vis_images_fpaths = [os.path.join(image_dir, file_name) for file_name in vis_images_fnames]
+
+            dest_dir = "actvns_viz"
+            os.makedirs(dest_dir, exist_ok=True)
+            dest_fname = '_'.join([str(self.__class__.__name__), X.model.values[0], X.layer.values[0]]) + '.png'
+
 
         # Get coord:(original axis length, first occurence of 1
         X_shape = OrderedDict({
@@ -232,19 +290,47 @@ class GramControlPLS():
         reshape_to = [B] + [value[0] for key, value in X_shape.items()]
         X = X.values.reshape(reshape_to)
 
-        # Channels first and reshape to BxCxH*W (or W*H, not sure)
+        # Channels first
         channel_index = [i for i, (key, value) in enumerate(X_shape.items()) if key==channel_coord][0]
         channel_index = channel_index + 1 # bc very first is B
         transpose_to = [0, channel_index]+ [i for i in [1,2,3] if i != channel_index]
         X = np.transpose(X, transpose_to)
+
+        # Make visualizations
+        if image_dir:
+            actvns = X[0:n_viz, :, :, :].mean(axis=1)
+            actvns = np.split(actvns, n_viz, axis=0)
+            actvns = [np.squeeze(actvn) for actvn in actvns]
+
+            ims = [np.array(Image.open(fpath)) for fpath in vis_images_fpaths]
+
+            ims_actvns = [val for pair in zip(ims, actvns) for val in pair]
+
+            rows = n_viz
+            cols = 2
+            axes = []
+            fig = plt.figure(figsize=(2, 10))
+
+            for i in range(rows * cols):
+                b = ims_actvns[i]
+                axes.append(fig.add_subplot(rows, cols, i + 1))
+                plt.imshow(b)
+
+            fig.set_figheight(50)
+            fig.set_figwidth(50)
+            plt.subplots_adjust(wspace=0, hspace=0)
+            plt.show()
+            plt.savefig(os.path.join(dest_dir, dest_fname))
+
+        # Reshape to BxCxH*W (or W*H, not sure)
         X = X.reshape(list(X.shape[0:2])+[-1])
 
         return X
 
-    def _preprocess_gram(self, X, fit=True):
+    def _preprocess_gram(self, X, fit=True, image_dir=None):
 
         # Compute gram matrices
-        X_grams = self._unflatten(X, self.channel_coord) # Unflatten X to BxCxH*W (or W*H, not sure)
+        X_grams = self._unflatten(X, self.channel_coord, image_dir) # Unflatten X to BxCxH*W (or W*H, not sure)
         X_grams = np.einsum("ijk, ikl -> ijl", X_grams, np.transpose(X_grams, [0,2,1]))
         #X_grams = X_grams/X.size # is this the right normalization?
         X_grams = X_grams.reshape(X_grams.shape[0], -1)
@@ -263,7 +349,7 @@ class GramControlPLS():
 
     def fit(self, X, Y):
         if self.gram_control:
-            X = self._preprocess_gram(X, fit=True)
+            X = self._preprocess_gram(X, fit=True, image_dir=os.path.dirname(Y.stimulus_set.get_image(Y.image_id.values[0])))
         else:
             X = self._preprocess(X, fit=True)
 
@@ -276,6 +362,7 @@ class GramControlPLS():
             X = self._preprocess(X, fit=False)
 
         Ypred = self.main_regression.predict(X)
+
         return Ypred
 
 

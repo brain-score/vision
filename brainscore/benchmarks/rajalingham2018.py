@@ -3,7 +3,6 @@ import numpy as np
 import brainscore
 from brainscore.benchmarks import BenchmarkBase
 from brainscore.benchmarks.screen import place_on_screen
-from brainscore.benchmarks.trials import repeat_trials, average_trials
 from brainscore.metrics import Score
 from brainscore.metrics.image_level_behavior import I2n
 from brainscore.metrics.transformations import apply_aggregate
@@ -43,9 +42,7 @@ class DicarloRajalingham2018I2n(BenchmarkBase):
         candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli)
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
-        stimulus_set = repeat_trials(stimulus_set, number_of_trials=self._number_of_trials)
-        probabilities = candidate.look_at(stimulus_set)
-        probabilities = average_trials(probabilities)
+        probabilities = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
         score = self._metric(probabilities, self._assembly)
         score = self.ceil_score(score, self.ceiling)
         return score

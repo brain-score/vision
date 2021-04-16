@@ -1,18 +1,14 @@
-import os
-
 import numpy as np
-import pandas as pd
 import xarray as xr
 
 import brainscore
 from brainscore.benchmarks import BenchmarkBase
-from brainscore.benchmarks.trials import repeat_trials, average_trials
+from brainscore.benchmarks.imagenet import NUMBER_OF_TRIALS
 from brainscore.metrics import Score
 from brainscore.metrics.accuracy import Accuracy
 from brainscore.model_interface import BrainModel
-from brainio_base.stimuli import StimulusSet
 
-BIBTEX="""@ARTICLE{Hendrycks2019-di,
+BIBTEX = """@ARTICLE{Hendrycks2019-di,
    title         = "Benchmarking Neural Network Robustness to Common Corruptions
                     and Perturbations",
    author        = "Hendrycks, Dan and Dietterich, Thomas",
@@ -37,7 +33,8 @@ BIBTEX="""@ARTICLE{Hendrycks2019-di,
    year          =  2019,
    archivePrefix = "arXiv",
    primaryClass  = "cs.LG",
-   eprint        = "1903.12261"
+   eprint        = "1903.12261",
+   url           = "https://arxiv.org/abs/1903.12261"
 }"""
 
 def Imagenet_C_Noise(sampling_factor=10):
@@ -51,6 +48,7 @@ def Imagenet_C_Weather(sampling_factor=10):
 
 def Imagenet_C_Digital(sampling_factor=10):
     return Imagenet_C_Category('digital', sampling_factor=sampling_factor)
+
 
 class Imagenet_C_Category(BenchmarkBase):
     """
@@ -77,9 +75,9 @@ class Imagenet_C_Category(BenchmarkBase):
 
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         super(Imagenet_C_Category, self).__init__(identifier='dietterich.Hendrycks2019-top1', version=1,
-                                           ceiling_func=lambda: ceiling,
-                                           parent='ImageNet_C',
-                                           bibtex=BIBTEX)
+                                                  ceiling_func=lambda: ceiling,
+                                                  parent='ImageNet_C',
+                                                  bibtex=BIBTEX)
 
     def __call__(self, candidate):
         scores = xr.concat([
@@ -113,6 +111,7 @@ class Imagenet_C_Type(BenchmarkBase):
         ], dim='presentation')
         return score
 
+
 class Imagenet_C_Individual(BenchmarkBase):
     """
     Runs an individual ImageNet C benchmark, like "gaussian_noise_1"
@@ -126,9 +125,9 @@ class Imagenet_C_Individual(BenchmarkBase):
         self._similarity_metric = Accuracy() 
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         super(Imagenet_C_Individual, self).__init__(identifier='dietterich.Hendrycks2019-top1', version=1,
-                                           ceiling_func=lambda: ceiling,
-                                           parent=f'ImageNet_C_{noise_type}',
-                                           bibtex=BIBTEX)
+                                                    ceiling_func=lambda: ceiling,
+                                                    parent=f'ImageNet_C_{noise_type}',
+                                                    bibtex=BIBTEX)
 
     def __call__(self, candidate):
         # The proper `fitting_stimuli` to pass to the candidate would be the imagenet training set.
@@ -137,14 +136,12 @@ class Imagenet_C_Individual(BenchmarkBase):
         candidate.start_task(BrainModel.Task.label, 'imagenet')
         stimulus_set = self.stimulus_set[list(set(self.stimulus_set.columns) - {'synset'})].copy().reset_index()  # do not show label
         stimulus_set.identifier = f'{self.benchmark_name}-{len(stimulus_set)}samples'
-        stimulus_set = repeat_trials(stimulus_set, number_of_trials=1)
-        predictions = candidate.look_at(stimulus_set)
-        predictions = average_trials(predictions)
+        predictions = candidate.look_at(stimulus_set, number_of_trials=NUMBER_OF_TRIALS)
         score = self._similarity_metric(
             predictions.sortby('filename'), 
             self.stimulus_set.sort_values('filename')['synset'].values
         ).raw
-        
+
         score = score.assign_coords(
             name=('presentation', [f'{self.benchmark_name}' for _ in range(len(score.presentation))])
         )

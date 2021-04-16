@@ -60,8 +60,8 @@ class TestIntegration:
             assert self.compare(float(result_row[4]), 0.003155449372125895)
         scores = Score.select()
         assert len(scores) == 1
-        assert scores[
-                   0].comment is None  # If comment is none the score was successfully stored, otherwise there would be an error message there
+        # successful score comment should inform about which layers were used for which regions
+        assert scores[0].comment.startswith("layers:")
 
     def test_rerun_evaluation(self, tmpdir):
         working_dir = str(tmpdir.mkdir('sub'))
@@ -88,13 +88,9 @@ class TestIntegration:
     def test_failure_evaluation(self, tmpdir):
         working_dir = str(tmpdir.mkdir('sub'))
         config_dir = str(os.path.join(os.path.dirname(__file__), 'configs/'))
-        exception = False
-        try:
+        with pytest.raises(Exception):
             run_evaluation(config_dir, working_dir, 35, TestIntegration.databse, models=['alexnet'],
                            benchmarks=['dicarlo.Rajalingham2018-i2n'])
-        except:
-            exception = True
-        assert exception
 
     def test_model_failure_evaluation(self, tmpdir):
         # os.environ['RESULTCACHING_DISABLE'] = 'brainscore.score_model,model_tools'

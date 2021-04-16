@@ -49,7 +49,12 @@ def find_correct_dir(work_dir):
 def install_project(repo, package):
     logger.info('Start installing the submitted repository')
     try:
-        subprocess.check_output([sys.executable, "-m", "pip", "install", "-v", str(repo)], env=os.environ,
+        subprocess.check_output([sys.executable, "-m",
+                                 "pip", "install",
+                                 "-v", "--default-timeout=3600",
+                                 str(repo),
+                                 "--user"],
+                                env=os.environ,
                                 stderr=subprocess.STDOUT)
         sys.path.insert(0, str(repo))
         logger.info(f'System paths {sys.path}')
@@ -67,4 +72,5 @@ def deinstall_project(module):
         del sys.modules['models.brain_models']
     if 'models.base_models' in sys.modules:
         del sys.modules['models.base_models']
-    subprocess.call([sys.executable, "-m", "pip", "uninstall", "-y", "-v", module], env=os.environ)
+    subprocess.call([sys.executable, "-m", "pip", "uninstall", "-y", "-v", module],
+                    env=os.environ)

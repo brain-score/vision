@@ -19,7 +19,8 @@ class PrecomputedFeatures(BrainModel):
         pass
 
     def look_at(self, stimuli, number_of_trials=1):
-        assert set(self.features['image_id'].values) == set(stimuli['image_id'].values)
+        missing_image_ids = set(stimuli['image_id'].values) - set(self.features['image_id'].values)
+        assert not missing_image_ids, f"stored features do not contain image_ids {missing_image_ids}"
         features = self.features.isel(presentation=[np.where(self.features['image_id'].values == image_id)[0][0]
                                                     for image_id in stimuli['image_id'].values])
         assert all(features['image_id'].values == stimuli['image_id'].values)

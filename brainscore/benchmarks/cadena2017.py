@@ -6,6 +6,18 @@ from brainscore.metrics.regression import CrossRegressedCorrelation, mask_regres
     pearsonr_correlation
 
 VISUAL_DEGREES = 2
+NUMBER_OF_TRIALS = 2
+BIBTEX = """@article{cadena2019deep,
+  title={Deep convolutional models improve predictions of macaque V1 responses to natural images},
+  author={Cadena, Santiago A and Denfield, George H and Walker, Edgar Y and Gatys, Leon A and Tolias, Andreas S and Bethge, Matthias and Ecker, Alexander S},
+  journal={PLoS computational biology},
+  volume={15},
+  number={4},
+  pages={e1006897},
+  year={2019},
+  url={https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1006897},
+  publisher={Public Library of Science San Francisco, CA USA}
+}"""
 
 
 def ToliasCadena2017PLS():
@@ -34,7 +46,8 @@ def ToliasCadena2017PLS():
 
     return NeuralBenchmark(identifier=identifier, version=1,
                            assembly=assembly, similarity_metric=similarity_metric,
-                           visual_degrees=VISUAL_DEGREES, number_of_trials=2,
+                           visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
+                           parent='V1', bibtex=BIBTEX,
                            ceiling_func=ceiling)
 
 
@@ -51,7 +64,9 @@ def ToliasCadena2017Mask():
     identifier = f'tolias.Cadena2017-mask'
     ceiler = InternalConsistency(split_coord='repetition_id')
     return NeuralBenchmark(identifier=identifier, version=1,
-                           assembly=assembly, similarity_metric=similarity_metric, visual_degrees=VISUAL_DEGREES,
+                           assembly=assembly, similarity_metric=similarity_metric,
+                           visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
+                           parent='V1', bibtex=BIBTEX,
                            ceiling_func=lambda: ceiler(assembly_repetition))
 
 

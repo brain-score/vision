@@ -18,8 +18,7 @@ from brainscore.utils import LazyLoad
 
 logger = logging.getLogger(__name__)
 
-all_benchmarks_list = [benchmark for benchmark in evaluation_benchmark_pool.keys()
-                       if benchmark not in ['dicarlo.Kar2019-ost', 'fei-fei.Deng2009-top1']]
+all_benchmarks_list = [benchmark for benchmark in evaluation_benchmark_pool.keys()]
 
 SCORE_COMMENT_MAX_LENGTH = 1000
 
@@ -115,7 +114,7 @@ def run_submission(module, test_models, test_benchmarks, submission_entry):
                         ceiled = score_entry.score_ceiled
                         error = score_entry.error
                         finished = score_entry.end_timestamp
-                        layer_commitment = ''
+                        comment = score_entry.comment
                     else:
                         if not created:
                             score_entry.start_timestamp = datetime.datetime.now()
@@ -126,23 +125,23 @@ def run_submission(module, test_models, test_benchmarks, submission_entry):
                         score = score_model(model_id, benchmark_name, model)
                         logger.info(f'Running benchmark {benchmark_name} on model {model_id} (id {model_entry.id}) '
                                     f'produced this score: {score}')
-                        if not hasattr(score, 'ceiling'):
+                        if not hasattr(score, 'ceiling'):  # many engineering benchmarks do not have a primate ceiling
                             raw = score.sel(aggregation='center').item(0)
                             ceiled = None
                             error = None
-                        else:
+                        else:  # score has a ceiling. Store ceiled as well as raw value
                             assert score.raw.sel(aggregation='center') is not None
                             raw = score.raw.sel(aggregation='center').item(0)
                             ceiled = score.sel(aggregation='center').item(0)
                             error = score.sel(aggregation='error').item(0)
                         finished = datetime.datetime.now()
-                        layer_commitment = str(
-                            model.layer_model.region_layer_map) if submission_entry.model_type == 'BaseModel' else ''
+                        comment = f"layers: {model.layer_model.region_layer_map}" \
+                            if submission_entry.model_type == 'BaseModel' else ''
                         score_entry.end_timestamp = finished
                         score_entry.error = error
                         score_entry.score_ceiled = ceiled
                         score_entry.score_raw = raw
-                        score_entry.comment = None
+                        score_entry.comment = comment
                         score_entry.save()
                     result = {
                         'Model': model_id,
@@ -151,7 +150,7 @@ def run_submission(module, test_models, test_benchmarks, submission_entry):
                         'ceiled_result': ceiled,
                         'error': error,
                         'finished_time': finished,
-                        'comment': f"layers: {layer_commitment}"
+                        'comment': comment,
                     }
                     data.append(result)
                 except Exception as e:
@@ -204,7 +203,7 @@ def get_ml_pool(test_models, module, submission):
 
 def get_benchmark_instance(benchmark_name):
     benchmark = benchmark_pool[benchmark_name]
-    benchmark_type, created = BenchmarkType.get_or_create(identifier=benchmark_name, order=999)
+    benchmark_type, created = BenchmarkType.get_or_create(identifier=benchmark_name, defaults=dict(order=999))
     if created:
         try:
             parent = BenchmarkType.get(identifier=benchmark.parent)
@@ -235,7 +234,7 @@ def get_reference(bibtex_string):
         entry = bib_parser.parse_string(bibtex_str)
         entry = entry.entries
         assert len(entry) == 1
-        entry = entry.values()[0]
+        entry = list(entry.values())[0]
         return entry
 
     try:

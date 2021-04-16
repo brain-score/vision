@@ -16,14 +16,16 @@ from brainscore.utils import fullname
 
 
 class OSTCorrelation(Metric):
+    """
+    Object Solution Times (OST) metric, Kubilius & Schrimpf et al., NeurIPS 2019 https://papers.nips.cc/paper/9441-brain-like-object-recognition-with-high-performing-shallow-recurrent-anns
+    OST characterization, Kar et al. Nature Neuroscience 2019 https://www.nature.com/articles/s41593-019-0392-5.
+    """
     def __init__(self):
         self._cross_validation = CrossValidation(stratification_coord=None, splits=10, test_size=0.1)
         self._i1 = I1()
         self._predicted_osts, self._target_osts = [], []
 
     def __call__(self, source_recordings, target_osts):
-        if len(set(source_recordings['time_bin'].values)) <= 1:  # short-cut for non-temporal models
-            return Score([np.nan, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         score = self._cross_validation(source_recordings, target_osts, apply=self.apply)
         return score
 

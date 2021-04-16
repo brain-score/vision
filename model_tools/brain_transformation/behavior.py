@@ -24,9 +24,13 @@ class BehaviorArbiter(BrainModel):
 
 class LogitsBehavior(BrainModel):
     def __init__(self, identifier, activations_model):
-        self.identifier = identifier
+        self._identifier = identifier
         self.activations_model = activations_model
         self.current_task = None
+
+    @property
+    def identifier(self):
+        return self._identifier
 
     def start_task(self, task: BrainModel.Task, fitting_stimuli):
         assert task in [BrainModel.Task.passive, BrainModel.Task.label]
@@ -57,11 +61,15 @@ class ProbabilitiesMapping(BrainModel):
         :param activations_model: the model from which to retrieve representations for stimuli
         :param layer: the single behavioral readout layer or a list of layers to read out of.
         """
-        self.identifier = identifier
+        self._identifier = identifier
         self.activations_model = activations_model
         self.readout = make_list(layer)
         self.classifier = ProbabilitiesMapping.ProbabilitiesClassifier()
         self.current_task = None
+
+    @property
+    def identifier(self):
+        return self._identifier
 
     def start_task(self, task: BrainModel.Task, fitting_stimuli):
         assert task in [BrainModel.Task.passive, BrainModel.Task.probabilities]

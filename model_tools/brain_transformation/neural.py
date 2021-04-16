@@ -13,11 +13,15 @@ from result_caching import store_xarray, store
 
 class LayerMappedModel(BrainModel):
     def __init__(self, identifier, activations_model, region_layer_map, visual_degrees=None):
-        self.identifier = identifier
+        self._identifier = identifier
         self.activations_model = activations_model
         self._visual_degrees = visual_degrees
         self.region_layer_map = region_layer_map
         self.recorded_regions = []
+
+    @property
+    def identifier(self):
+        return self._identifier
 
     def look_at(self, stimuli, number_of_trials=1):
         layer_regions = {}
@@ -76,7 +80,7 @@ class LayerSelection:
             self._layer_scoring._activations_model.identifier = identifier
         return result
 
-    @store(identifier_ignore=['assembly', 'benchmark'])
+    @store(identifier_ignore=['benchmark', 'benchmark'])
     def _call(self, model_identifier, selection_identifier, benchmark):
         self._logger.debug("Finding best layer")
         layer_scores = self._layer_scoring(benchmark=benchmark, benchmark_identifier=selection_identifier,

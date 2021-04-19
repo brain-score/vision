@@ -76,7 +76,7 @@ class Imagenet_C_Category(BenchmarkBase):
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         super(Imagenet_C_Category, self).__init__(identifier='dietterich.Hendrycks2019-top1', version=1,
                                                   ceiling_func=lambda: ceiling,
-                                                  parent='ImageNet_C',
+                                                  parent='dietterich.Hendrycks2019-top1',
                                                   bibtex=BIBTEX)
 
     def __call__(self, candidate):
@@ -101,7 +101,7 @@ class Imagenet_C_Type(BenchmarkBase):
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         super(Imagenet_C_Type, self).__init__(identifier='dietterich.Hendrycks2019-top1', version=1,
                                            ceiling_func=lambda: ceiling,
-                                           parent=f'ImageNet_C_{noise_category}',
+                                           parent='dietterich.Hendrycks2019-top1',
                                            bibtex=BIBTEX)
 
     def __call__(self, candidate):
@@ -126,13 +126,10 @@ class Imagenet_C_Individual(BenchmarkBase):
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         super(Imagenet_C_Individual, self).__init__(identifier='dietterich.Hendrycks2019-top1', version=1,
                                                     ceiling_func=lambda: ceiling,
-                                                    parent=f'ImageNet_C_{noise_type}',
+                                                    parent='dietterich.Hendrycks2019-top1',
                                                     bibtex=BIBTEX)
 
     def __call__(self, candidate):
-        # The proper `fitting_stimuli` to pass to the candidate would be the imagenet training set.
-        # For now, since almost all models in our hands were trained with imagenet, we'll just short-cut this
-        # by telling the candidate to use its pre-trained imagenet weights.
         candidate.start_task(BrainModel.Task.label, 'imagenet')
         stimulus_set = self.stimulus_set[list(set(self.stimulus_set.columns) - {'synset'})].copy().reset_index()  # do not show label
         stimulus_set.identifier = f'{self.benchmark_name}-{len(stimulus_set)}samples'

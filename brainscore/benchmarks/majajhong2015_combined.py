@@ -447,7 +447,7 @@ def DicarloMajajHong2015V4Drew_control_combined():
 
 def DicarloMajajHong2015ITDrew_control_combined():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
-                                                          region='IT', identifier_metric_suffix='covpls_control',
+                                                          region='IT', identifier_metric_suffix='Drew',
                                                           similarity_metric=CrossRegressedCorrelationDrew(
                                                               covariate_control=True,
                                                               regression=pls_regression(),
@@ -460,7 +460,7 @@ def DicarloMajajHong2015ITDrew_control_combined():
 
 def DicarloMajajHong2015ITDrew_control_combined_split_ty_01_neg():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
-                                                          region='IT', identifier_metric_suffix='covpls_control',
+                                                          region='IT', identifier_metric_suffix='Drew',
                                                           similarity_metric=CrossRegressedCorrelationDrew(
                                                               covariate_control=True,
                                                               regression=pls_regression(),
@@ -475,7 +475,7 @@ def DicarloMajajHong2015ITDrew_control_combined_split_ty_01_neg():
 
 def DicarloMajajHong2015ITDrew_control_combined_split_ty_01_pos():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
-                                                          region='IT', identifier_metric_suffix='covpls_control',
+                                                          region='IT', identifier_metric_suffix='Drew',
                                                           similarity_metric=CrossRegressedCorrelationDrew(
                                                               covariate_control=True,
                                                               regression=pls_regression(),
@@ -489,9 +489,9 @@ def DicarloMajajHong2015ITDrew_control_combined_split_ty_01_pos():
 
 def DicarloMajajHong2015ITDrew_control_combined_split_tz_01_pos():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
-                                                          region='IT', identifier_metric_suffix='covpls_control',
+                                                          region='IT', identifier_metric_suffix='Drew',
                                                           similarity_metric=CrossRegressedCorrelationDrew(
-                                                              covariate_control=False,
+                                                              covariate_control=True,
                                                               regression=pls_regression(),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(
@@ -504,9 +504,9 @@ def DicarloMajajHong2015ITDrew_control_combined_split_tz_01_pos():
 
 def DicarloMajajHong2015ITDrew_control_combined_split_tz_01_neg():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
-                                                          region='IT', identifier_metric_suffix='covpls_control',
+                                                          region='IT', identifier_metric_suffix='Drew',
                                                           similarity_metric=CrossRegressedCorrelationDrew(
-                                                              covariate_control=False,
+                                                              covariate_control=True,
                                                               regression=pls_regression(),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(
@@ -518,9 +518,10 @@ def DicarloMajajHong2015ITDrew_control_combined_split_tz_01_neg():
 
 def DicarloMajajHong2015V4Drew_nocontrol_combined():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
-                                                          region='V4', identifier_metric_suffix='covpls_nocontrol',
-                                                          similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=semipartial_pls(covariate_control=False),
+                                                          region='V4', identifier_metric_suffix='Drew',
+                                                          similarity_metric=CrossRegressedCorrelationDrew(
+                                                              covariate_control=False,
+                                                              regression=pls_regression(),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(stratification_coord='object_name',
                                                                                           train_size=0.5)),
@@ -528,7 +529,7 @@ def DicarloMajajHong2015V4Drew_nocontrol_combined():
 
 def DicarloMajajHong2015ITDrew_nocontrol_combined():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
-                                                          region='IT', identifier_metric_suffix='covpls_nocontrol',
+                                                          region='IT', identifier_metric_suffix='Drew',
                                                           similarity_metric=CrossRegressedCorrelationDrew(
                                                               covariate_control=False,
                                                               regression=pls_regression(),
@@ -540,7 +541,7 @@ def DicarloMajajHong2015ITDrew_nocontrol_combined():
 
 def DicarloMajajHong2015ITDrew_nocontrol_combined_split_ty_01_neg():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
-                                                          region='IT', identifier_metric_suffix='covpls_nocontrol',
+                                                          region='IT', identifier_metric_suffix='Drew',
                                                           similarity_metric=CrossRegressedCorrelationDrew(
                                                               covariate_control=False,
                                                               regression=pls_regression(),
@@ -555,7 +556,7 @@ def DicarloMajajHong2015ITDrew_nocontrol_combined_split_ty_01_neg():
 
 def DicarloMajajHong2015ITDrew_nocontrol_combined_split_ty_01_pos():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
-                                                          region='IT', identifier_metric_suffix='covpls_nocontrol',
+                                                          region='IT', identifier_metric_suffix='Drew',
                                                           similarity_metric=CrossRegressedCorrelationDrew(
                                                               covariate_control=False,
                                                               regression=pls_regression(),
@@ -569,7 +570,7 @@ def DicarloMajajHong2015ITDrew_nocontrol_combined_split_ty_01_pos():
 
 def DicarloMajajHong2015ITDrew_nocontrol_combined_split_tz_01_pos():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
-                                                          region='IT', identifier_metric_suffix='covpls_nocontrol',
+                                                          region='IT', identifier_metric_suffix='Drew',
                                                           similarity_metric=CrossRegressedCorrelationDrew(
                                                               covariate_control=False,
                                                               regression=pls_regression(),
@@ -583,7 +584,7 @@ def DicarloMajajHong2015ITDrew_nocontrol_combined_split_tz_01_pos():
 
 def DicarloMajajHong2015ITDrew_nocontrol_combined_split_tz_01_neg():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
-                                                          region='IT', identifier_metric_suffix='covpls_nocontrol',
+                                                          region='IT', identifier_metric_suffix='Drew',
                                                           similarity_metric=CrossRegressedCorrelationDrew(
                                                               covariate_control=False,
                                                               regression=pls_regression(),

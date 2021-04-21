@@ -14,12 +14,36 @@ from sklearn.preprocessing import StandardScaler
 
 from brainio_base.assemblies import walk_coords
 from brainscore.metrics.mask_regression import MaskRegression
-from brainscore.metrics.transformations import CrossValidation
+from brainscore.metrics.transformations import CrossValidation, ToleranceCrossValidation
 from brainscore.metrics.regression import pls_regression
 from .xarray_utils import XarrayRegression, XarrayCorrelation
 
 from .xarray_utils import Defaults
 from brainio_base.assemblies import NeuroidAssembly, array_is_element, walk_coords
+
+
+class ToleranceCrossRegressedCorrelation:
+    def __init__(self, regression, correlation, crossvalidation_kwargs=None):
+        regression = regression or pls_regression()
+        crossvalidation_defaults = dict(train_size=.9, test_size=None)
+        crossvalidation_kwargs = {**crossvalidation_defaults, **(crossvalidation_kwargs or {})}
+
+        self.cross_validation = ToleranceCrossValidation(**crossvalidation_kwargs)
+        self.regression = regression
+        self.correlation = correlation
+
+    def __call__(self, source, target):
+        return self.cross_validation(source, target, apply=self.apply, aggregate=self.aggregate)
+
+    def apply(self, source_train, target_train, source_test, target_test):
+        self.regression.fit(source_train, target_train)
+        prediction = self.regression.predict(source_test)
+        score = self.correlation(prediction, target_test)
+        return score
+
+    def aggregate(self, scores):
+        return scores.median(dim='neuroid')
+
 
 
 class CrossRegressedCorrelationCovariate:
@@ -130,8 +154,7 @@ class CovariatePLS():
             X = self._get_residuals(X, X_cov, fit=False)
 
         Ypred = self.main_regression.predict(X)
-        return self.scaler_y.inverse_transform(Ypred)  # is this wise?
-
+        return Ypred
 
 
 

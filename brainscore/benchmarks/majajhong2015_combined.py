@@ -493,6 +493,7 @@ def DicarloMajajHong2015ITDrew_control_combined_split_tz_01_pos():
                                                           similarity_metric=CrossRegressedCorrelationDrew(
                                                               covariate_control=False,
                                                               regression=pls_regression(),
+                                                              correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(
                                                                   stratification_coord='object_name',
                                                                   csv_file='__majajhonglocal_halves_tz_0.1_pos.csv',

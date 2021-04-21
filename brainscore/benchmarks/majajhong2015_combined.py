@@ -5,8 +5,8 @@ from brainscore.metrics.ceiling import InternalConsistency, RDMConsistency, Tole
 from brainscore.metrics.rdm import RDMCrossValidated
 from brainscore.metrics.regression import CrossRegressedCorrelation, mask_regression, ScaledCrossRegressedCorrelation, \
     pls_regression, gram_control_regression, gram_control_pls, pearsonr_correlation
-from brainscore.metrics.regression_extra import CrossRegressedCorrelationCovariate, covariate_regression, covariate_pls, \
-    ToleranceCrossValidation
+from brainscore.metrics.regression_extra import CrossRegressedCorrelationCovariate, semipartial_regression, semipartial_pls, \
+    ToleranceCrossValidation, CrossRegressedCorrelationDrew
 from brainscore.utils import LazyLoad
 
 VISUAL_DEGREES = 8
@@ -125,35 +125,35 @@ def DicarloMajajHong2015ITPLS_combined_split_tz_01_pos():
                                                 ceiler=InternalConsistency())
 
 #######
-# COVR
+# SPR
 ########
 
-def DicarloMajajHong2015V4COVR_control_combined():
+def DicarloMajajHong2015V4SPR_control_combined():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
                                                           region='V4', identifier_metric_suffix='covr_control',
                                                           similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=covariate_regression(covariate_control =True),
+                                                              regression=semipartial_regression(covariate_control =True),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(stratification_coord='object_name',
                                                                                           train_size=0.5)),
                                                           ceiler=InternalConsistency())
 
-def DicarloMajajHong2015ITCOVR_control_combined():
+def DicarloMajajHong2015ITSPR_control_combined():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
                                                           region='IT', identifier_metric_suffix='covr_control',
                                                           similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=covariate_regression(covariate_control =True),
+                                                              regression=semipartial_regression(covariate_control =True),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(stratification_coord='object_name',
                                                                                           train_size=0.5)),
                                                           ceiler=InternalConsistency())
 
 
-def DicarloMajajHong2015ITCOVR_control_combined_split_ty_01_neg():
+def DicarloMajajHong2015ITSPR_control_combined_split_ty_01_neg():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
                                                           region='IT', identifier_metric_suffix='covr_control',
                                                           similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=covariate_regression(covariate_control=True),
+                                                              regression=semipartial_regression(covariate_control=True),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(
                                                                   stratification_coord='object_name',
@@ -163,11 +163,11 @@ def DicarloMajajHong2015ITCOVR_control_combined_split_ty_01_neg():
                                                           ceiler=InternalConsistency())
 
 
-def DicarloMajajHong2015ITCOVR_control_combined_split_ty_01_pos():
+def DicarloMajajHong2015ITSPR_control_combined_split_ty_01_pos():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
                                                           region='IT', identifier_metric_suffix='covr_control',
                                                           similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=covariate_regression(covariate_control=True),
+                                                              regression=semipartial_regression(covariate_control=True),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(
                                                                   stratification_coord='object_name',
@@ -176,11 +176,11 @@ def DicarloMajajHong2015ITCOVR_control_combined_split_ty_01_pos():
                                                           ),
                                                           ceiler=InternalConsistency())
 
-def DicarloMajajHong2015ITCOVR_control_combined_split_tz_01_pos():
+def DicarloMajajHong2015ITSPR_control_combined_split_tz_01_pos():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
                                                           region='IT', identifier_metric_suffix='covr_control',
                                                           similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=covariate_regression(covariate_control=True),
+                                                              regression=semipartial_regression(covariate_control=True),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(
                                                                   stratification_coord='object_name',
@@ -189,11 +189,11 @@ def DicarloMajajHong2015ITCOVR_control_combined_split_tz_01_pos():
                                                           ),
                                                           ceiler=InternalConsistency())
 
-def DicarloMajajHong2015ITCOVR_control_combined_split_tz_01_neg():
+def DicarloMajajHong2015ITSPR_control_combined_split_tz_01_neg():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
                                                           region='IT', identifier_metric_suffix='covr_control',
                                                           similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=covariate_regression(covariate_control=True),
+                                                              regression=semipartial_regression(covariate_control=True),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(
                                                                   stratification_coord='object_name',
@@ -202,32 +202,32 @@ def DicarloMajajHong2015ITCOVR_control_combined_split_tz_01_neg():
                                                           ),
                                                           ceiler=InternalConsistency())
 
-def DicarloMajajHong2015V4COVR_nocontrol_combined():
+def DicarloMajajHong2015V4SPR_nocontrol_combined():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
                                                           region='V4', identifier_metric_suffix='covr_nocontrol',
                                                           similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=covariate_regression(covariate_control=False),
+                                                              regression=semipartial_regression(covariate_control=False),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(stratification_coord='object_name',
                                                                                           train_size=0.5)),
                                                           ceiler=InternalConsistency())
 
-def DicarloMajajHong2015ITCOVR_nocontrol_combined():
+def DicarloMajajHong2015ITSPR_nocontrol_combined():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
                                                           region='IT', identifier_metric_suffix='covr_nocontrol',
                                                           similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=covariate_regression(covariate_control=False),
+                                                              regression=semipartial_regression(covariate_control=False),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(stratification_coord='object_name',
                                                                                           train_size=0.5)),
                                                           ceiler=InternalConsistency())
 
 
-def DicarloMajajHong2015ITCOVR_nocontrol_combined_split_ty_01_neg():
+def DicarloMajajHong2015ITSPR_nocontrol_combined_split_ty_01_neg():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
                                                           region='IT', identifier_metric_suffix='covr_nocontrol',
                                                           similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=covariate_regression(covariate_control=False),
+                                                              regression=semipartial_regression(covariate_control=False),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(
                                                                   stratification_coord='object_name',
@@ -237,11 +237,11 @@ def DicarloMajajHong2015ITCOVR_nocontrol_combined_split_ty_01_neg():
                                                           ceiler=InternalConsistency())
 
 
-def DicarloMajajHong2015ITCOVR_nocontrol_combined_split_ty_01_pos():
+def DicarloMajajHong2015ITSPR_nocontrol_combined_split_ty_01_pos():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
                                                           region='IT', identifier_metric_suffix='covr_nocontrol',
                                                           similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=covariate_regression(covariate_control=False),
+                                                              regression=semipartial_regression(covariate_control=False),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(
                                                                   stratification_coord='object_name',
@@ -250,11 +250,11 @@ def DicarloMajajHong2015ITCOVR_nocontrol_combined_split_ty_01_pos():
                                                           ),
                                                           ceiler=InternalConsistency())
 
-def DicarloMajajHong2015ITCOVR_nocontrol_combined_split_tz_01_pos():
+def DicarloMajajHong2015ITSPR_nocontrol_combined_split_tz_01_pos():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
                                                           region='IT', identifier_metric_suffix='covr_nocontrol',
                                                           similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=covariate_regression(covariate_control=False),
+                                                              regression=semipartial_regression(covariate_control=False),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(
                                                                   stratification_coord='object_name',
@@ -263,11 +263,11 @@ def DicarloMajajHong2015ITCOVR_nocontrol_combined_split_tz_01_pos():
                                                           ),
                                                           ceiler=InternalConsistency())
 
-def DicarloMajajHong2015ITCOVR_nocontrol_combined_split_tz_01_neg():
+def DicarloMajajHong2015ITSPR_nocontrol_combined_split_tz_01_neg():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
                                                           region='IT', identifier_metric_suffix='covr_nocontrol',
                                                           similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=covariate_regression(covariate_control=False),
+                                                              regression=semipartial_regression(covariate_control=False),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(
                                                                   stratification_coord='object_name',
@@ -277,35 +277,35 @@ def DicarloMajajHong2015ITCOVR_nocontrol_combined_split_tz_01_neg():
                                                           ceiler=InternalConsistency())
 
 #########
-# COVPLS
+# SPPLS
 #########
 
-def DicarloMajajHong2015V4COVPLS_control_combined():
+def DicarloMajajHong2015V4SPPLS_control_combined():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
                                                           region='V4', identifier_metric_suffix='covpls_control',
                                                           similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=covariate_pls(covariate_control =True),
+                                                              regression=semipartial_pls(covariate_control =True),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(stratification_coord='object_name',
                                                                                           train_size=0.5)),
                                                           ceiler=InternalConsistency())
 
-def DicarloMajajHong2015ITCOVPLS_control_combined():
+def DicarloMajajHong2015ITSPPLS_control_combined():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
                                                           region='IT', identifier_metric_suffix='covpls_control',
                                                           similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=covariate_pls(covariate_control =True),
+                                                              regression=semipartial_pls(covariate_control =True),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(stratification_coord='object_name',
                                                                                           train_size=0.5)),
                                                           ceiler=InternalConsistency())
 
 
-def DicarloMajajHong2015ITCOVPLS_control_combined_split_ty_01_neg():
+def DicarloMajajHong2015ITSPPLS_control_combined_split_ty_01_neg():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
                                                           region='IT', identifier_metric_suffix='covpls_control',
                                                           similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=covariate_pls(covariate_control=True),
+                                                              regression=semipartial_pls(covariate_control=True),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(
                                                                   stratification_coord='object_name',
@@ -315,11 +315,11 @@ def DicarloMajajHong2015ITCOVPLS_control_combined_split_ty_01_neg():
                                                           ceiler=InternalConsistency())
 
 
-def DicarloMajajHong2015ITCOVPLS_control_combined_split_ty_01_pos():
+def DicarloMajajHong2015ITSPPLS_control_combined_split_ty_01_pos():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
                                                           region='IT', identifier_metric_suffix='covpls_control',
                                                           similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=covariate_pls(covariate_control=True),
+                                                              regression=semipartial_pls(covariate_control=True),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(
                                                                   stratification_coord='object_name',
@@ -328,11 +328,11 @@ def DicarloMajajHong2015ITCOVPLS_control_combined_split_ty_01_pos():
                                                           ),
                                                           ceiler=InternalConsistency())
 
-def DicarloMajajHong2015ITCOVPLS_control_combined_split_tz_01_pos():
+def DicarloMajajHong2015ITSPPLS_control_combined_split_tz_01_pos():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
                                                           region='IT', identifier_metric_suffix='covpls_control',
                                                           similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=covariate_pls(covariate_control=True),
+                                                              regression=semipartial_pls(covariate_control=True),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(
                                                                   stratification_coord='object_name',
@@ -341,11 +341,11 @@ def DicarloMajajHong2015ITCOVPLS_control_combined_split_tz_01_pos():
                                                           ),
                                                           ceiler=InternalConsistency())
 
-def DicarloMajajHong2015ITCOVPLS_control_combined_split_tz_01_neg():
+def DicarloMajajHong2015ITSPPLS_control_combined_split_tz_01_neg():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
                                                           region='IT', identifier_metric_suffix='covpls_control',
                                                           similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=covariate_pls(covariate_control=True),
+                                                              regression=semipartial_pls(covariate_control=True),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(
                                                                   stratification_coord='object_name',
@@ -354,32 +354,32 @@ def DicarloMajajHong2015ITCOVPLS_control_combined_split_tz_01_neg():
                                                           ),
                                                           ceiler=InternalConsistency())
 
-def DicarloMajajHong2015V4COVPLS_nocontrol_combined():
+def DicarloMajajHong2015V4SPPLS_nocontrol_combined():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
                                                           region='V4', identifier_metric_suffix='covpls_nocontrol',
                                                           similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=covariate_pls(covariate_control=False),
+                                                              regression=semipartial_pls(covariate_control=False),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(stratification_coord='object_name',
                                                                                           train_size=0.5)),
                                                           ceiler=InternalConsistency())
 
-def DicarloMajajHong2015ITCOVPLS_nocontrol_combined():
+def DicarloMajajHong2015ITSPPLS_nocontrol_combined():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
                                                           region='IT', identifier_metric_suffix='covpls_nocontrol',
                                                           similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=covariate_pls(covariate_control=False),
+                                                              regression=semipartial_pls(covariate_control=False),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(stratification_coord='object_name',
                                                                                           train_size=0.5)),
                                                           ceiler=InternalConsistency())
 
 
-def DicarloMajajHong2015ITCOVPLS_nocontrol_combined_split_ty_01_neg():
+def DicarloMajajHong2015ITSPPLS_nocontrol_combined_split_ty_01_neg():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
                                                           region='IT', identifier_metric_suffix='covpls_nocontrol',
                                                           similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=covariate_pls(covariate_control=False),
+                                                              regression=semipartial_pls(covariate_control=False),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(
                                                                   stratification_coord='object_name',
@@ -389,11 +389,11 @@ def DicarloMajajHong2015ITCOVPLS_nocontrol_combined_split_ty_01_neg():
                                                           ceiler=InternalConsistency())
 
 
-def DicarloMajajHong2015ITCOVPLS_nocontrol_combined_split_ty_01_pos():
+def DicarloMajajHong2015ITSPPLS_nocontrol_combined_split_ty_01_pos():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
                                                           region='IT', identifier_metric_suffix='covpls_nocontrol',
                                                           similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=covariate_pls(covariate_control=False),
+                                                              regression=semipartial_pls(covariate_control=False),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(
                                                                   stratification_coord='object_name',
@@ -402,11 +402,11 @@ def DicarloMajajHong2015ITCOVPLS_nocontrol_combined_split_ty_01_pos():
                                                           ),
                                                           ceiler=InternalConsistency())
 
-def DicarloMajajHong2015ITCOVPLS_nocontrol_combined_split_tz_01_pos():
+def DicarloMajajHong2015ITSPPLS_nocontrol_combined_split_tz_01_pos():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
                                                           region='IT', identifier_metric_suffix='covpls_nocontrol',
                                                           similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=covariate_pls(covariate_control=False),
+                                                              regression=semipartial_pls(covariate_control=False),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(
                                                                   stratification_coord='object_name',
@@ -415,11 +415,177 @@ def DicarloMajajHong2015ITCOVPLS_nocontrol_combined_split_tz_01_pos():
                                                           ),
                                                           ceiler=InternalConsistency())
 
-def DicarloMajajHong2015ITCOVPLS_nocontrol_combined_split_tz_01_neg():
+def DicarloMajajHong2015ITSPPLS_nocontrol_combined_split_tz_01_neg():
     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
                                                           region='IT', identifier_metric_suffix='covpls_nocontrol',
                                                           similarity_metric=CrossRegressedCorrelationCovariate(
-                                                              regression=covariate_pls(covariate_control=False),
+                                                              regression=semipartial_pls(covariate_control=False),
+                                                              correlation=pearsonr_correlation(),
+                                                              crossvalidation_kwargs=dict(
+                                                                  stratification_coord='object_name',
+                                                                  csv_file='__majajhonglocal_halves_tz_0.1_neg.csv',
+                                                                  parent_folder='./data/splits/')
+                                                          ),
+                                                          ceiler=InternalConsistency())
+
+#########
+# Drew
+#########
+
+def DicarloMajajHong2015V4Drew_control_combined():
+    return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
+                                                          region='V4', identifier_metric_suffix='Drew',
+                                                          similarity_metric=CrossRegressedCorrelationDrew(
+                                                              covariate_control=True,
+                                                              regression=pls_regression(),
+                                                              correlation=pearsonr_correlation(),
+                                                              crossvalidation_kwargs=dict(
+                                                                  stratification_coord='object_name',
+                                                                  train_size=0.5)),
+                                                          ceiler=InternalConsistency())
+
+
+def DicarloMajajHong2015ITDrew_control_combined():
+    return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
+                                                          region='IT', identifier_metric_suffix='covpls_control',
+                                                          similarity_metric=CrossRegressedCorrelationDrew(
+                                                              covariate_control=True,
+                                                              regression=pls_regression(),
+                                                              correlation=pearsonr_correlation(),
+                                                              crossvalidation_kwargs=dict(
+                                                                  stratification_coord='object_name',
+                                                                  train_size=0.5)),
+                                                          ceiler=InternalConsistency())
+
+
+def DicarloMajajHong2015ITDrew_control_combined_split_ty_01_neg():
+    return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
+                                                          region='IT', identifier_metric_suffix='covpls_control',
+                                                          similarity_metric=CrossRegressedCorrelationDrew(
+                                                              covariate_control=True,
+                                                              regression=pls_regression(),
+                                                              correlation=pearsonr_correlation(),
+                                                              crossvalidation_kwargs=dict(
+                                                                  stratification_coord='object_name',
+                                                                  csv_file='__majajhonglocal_halves_ty_0.1_neg.csv',
+                                                                  parent_folder='./data/splits/')
+                                                          ),
+                                                          ceiler=InternalConsistency())
+
+
+def DicarloMajajHong2015ITDrew_control_combined_split_ty_01_pos():
+    return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
+                                                          region='IT', identifier_metric_suffix='covpls_control',
+                                                          similarity_metric=CrossRegressedCorrelationDrew(
+                                                              covariate_control=True,
+                                                              regression=pls_regression(),
+                                                              correlation=pearsonr_correlation(),
+                                                              crossvalidation_kwargs=dict(
+                                                                  stratification_coord='object_name',
+                                                                  csv_file='__majajhonglocal_halves_ty_0.1_pos.csv',
+                                                                  parent_folder='./data/splits/')
+                                                          ),
+                                                          ceiler=InternalConsistency())
+
+def DicarloMajajHong2015ITDrew_control_combined_split_tz_01_pos():
+    return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
+                                                          region='IT', identifier_metric_suffix='covpls_control',
+                                                          similarity_metric=CrossRegressedCorrelationDrew(
+                                                              covariate_control=False,
+                                                              regression=pls_regression(),
+                                                              crossvalidation_kwargs=dict(
+                                                                  stratification_coord='object_name',
+                                                                  csv_file='__majajhonglocal_halves_tz_0.1_pos.csv',
+                                                                  parent_folder='./data/splits/')
+                                                          ),
+                                                          ceiler=InternalConsistency())
+
+
+def DicarloMajajHong2015ITDrew_control_combined_split_tz_01_neg():
+    return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
+                                                          region='IT', identifier_metric_suffix='covpls_control',
+                                                          similarity_metric=CrossRegressedCorrelationDrew(
+                                                              covariate_control=False,
+                                                              regression=pls_regression(),
+                                                              correlation=pearsonr_correlation(),
+                                                              crossvalidation_kwargs=dict(
+                                                                  stratification_coord='object_name',
+                                                                  csv_file='__majajhonglocal_halves_tz_0.1_neg.csv',
+                                                                  parent_folder='./data/splits/')
+                                                          ),
+                                                          ceiler=InternalConsistency())
+
+def DicarloMajajHong2015V4Drew_nocontrol_combined():
+    return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
+                                                          region='V4', identifier_metric_suffix='covpls_nocontrol',
+                                                          similarity_metric=CrossRegressedCorrelationCovariate(
+                                                              regression=semipartial_pls(covariate_control=False),
+                                                              correlation=pearsonr_correlation(),
+                                                              crossvalidation_kwargs=dict(stratification_coord='object_name',
+                                                                                          train_size=0.5)),
+                                                          ceiler=InternalConsistency())
+
+def DicarloMajajHong2015ITDrew_nocontrol_combined():
+    return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
+                                                          region='IT', identifier_metric_suffix='covpls_nocontrol',
+                                                          similarity_metric=CrossRegressedCorrelationDrew(
+                                                              covariate_control=False,
+                                                              regression=pls_regression(),
+                                                              correlation=pearsonr_correlation(),
+                                                              crossvalidation_kwargs=dict(stratification_coord='object_name',
+                                                                                          train_size=0.5)),
+                                                          ceiler=InternalConsistency())
+
+
+def DicarloMajajHong2015ITDrew_nocontrol_combined_split_ty_01_neg():
+    return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
+                                                          region='IT', identifier_metric_suffix='covpls_nocontrol',
+                                                          similarity_metric=CrossRegressedCorrelationDrew(
+                                                              covariate_control=False,
+                                                              regression=pls_regression(),
+                                                              correlation=pearsonr_correlation(),
+                                                              crossvalidation_kwargs=dict(
+                                                                  stratification_coord='object_name',
+                                                                  csv_file='__majajhonglocal_halves_ty_0.1_neg.csv',
+                                                                  parent_folder='./data/splits/')
+                                                          ),
+                                                          ceiler=InternalConsistency())
+
+
+def DicarloMajajHong2015ITDrew_nocontrol_combined_split_ty_01_pos():
+    return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
+                                                          region='IT', identifier_metric_suffix='covpls_nocontrol',
+                                                          similarity_metric=CrossRegressedCorrelationDrew(
+                                                              covariate_control=False,
+                                                              regression=pls_regression(),
+                                                              correlation=pearsonr_correlation(),
+                                                              crossvalidation_kwargs=dict(
+                                                                  stratification_coord='object_name',
+                                                                  csv_file='__majajhonglocal_halves_ty_0.1_pos.csv',
+                                                                  parent_folder='./data/splits/')
+                                                          ),
+                                                          ceiler=InternalConsistency())
+
+def DicarloMajajHong2015ITDrew_nocontrol_combined_split_tz_01_pos():
+    return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
+                                                          region='IT', identifier_metric_suffix='covpls_nocontrol',
+                                                          similarity_metric=CrossRegressedCorrelationDrew(
+                                                              covariate_control=False,
+                                                              regression=pls_regression(),
+                                                              correlation=pearsonr_correlation(),
+                                                              crossvalidation_kwargs=dict(
+                                                                  stratification_coord='object_name',
+                                                                  csv_file='__majajhonglocal_halves_tz_0.1_pos.csv',
+                                                                  parent_folder='./data/splits/')
+                                                          ),
+                                                          ceiler=InternalConsistency())
+
+def DicarloMajajHong2015ITDrew_nocontrol_combined_split_tz_01_neg():
+    return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir='image_dicarlo_hvm_bg',
+                                                          region='IT', identifier_metric_suffix='covpls_nocontrol',
+                                                          similarity_metric=CrossRegressedCorrelationDrew(
+                                                              covariate_control=False,
+                                                              regression=pls_regression(),
                                                               correlation=pearsonr_correlation(),
                                                               crossvalidation_kwargs=dict(
                                                                   stratification_coord='object_name',
@@ -645,6 +811,8 @@ def DicarloMajajHong2015ITGCPLS_nocontrol_combined_split_tz_01_neg():
                                            csv_file ='__majajhonglocal_halves_tz_0.1_neg.csv',
                                            parent_folder = './data/splits/')),
                                        ceiler=InternalConsistency())
+
+
 
 ########
 # Other

@@ -1,11 +1,12 @@
 import brainscore
 from brainscore.benchmarks._neural_common import NeuralBenchmark, average_repetition
-from brainscore.benchmarks._neural_common_extra import NeuralBenchmarkCovariate
+from brainscore.benchmarks._neural_common_extra import NeuralBenchmarkCovariate, ToleranceCeiling
 from brainscore.metrics.ceiling import InternalConsistency, RDMConsistency, ToleranceConsistency
 from brainscore.metrics.rdm import RDMCrossValidated
 from brainscore.metrics.regression import CrossRegressedCorrelation, mask_regression, ScaledCrossRegressedCorrelation, \
     pls_regression, gram_control_regression, gram_control_pls, pearsonr_correlation
-from brainscore.metrics.regression_extra import CrossRegressedCorrelationCovariate, covariate_regression, covariate_pls
+from brainscore.metrics.regression_extra import CrossRegressedCorrelationCovariate, covariate_regression, covariate_pls, \
+    ToleranceCrossValidation
 from brainscore.utils import LazyLoad
 
 VISUAL_DEGREES = 8
@@ -36,6 +37,14 @@ def _DicarloMajajHong2015Region_combined(region, identifier_metric_suffix, simil
                            parent=region,
                            bibtex=BIBTEX)
 
+def _DicarloMajajHong2015Region_combined_toleranceceiling(region, identifier_metric_suffix, similarity_metric, benchmark_identifier='dicarlo.MajajHong2015'):
+    assembly_repetition = LazyLoad(lambda region=region: load_assembly(average_repetitions=False, region=region))
+    return ToleranceCeiling(identifier=benchmark_identifier, version=3,
+                           assembly=assembly_repetition, similarity_metric=similarity_metric,
+                           visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
+                           parent=region,
+                           bibtex=BIBTEX)
+
 def _DicarloMajajHong2015Region_combined_masked(region, identifier_metric_suffix, similarity_metric, ceiler, benchmark_identifier='dicarlo.MajajHong2015'):
     assembly_repetition = LazyLoad(lambda region=region: load_assembly(average_repetitions=False, region=region, masked=True))
     assembly = LazyLoad(lambda region=region: load_assembly(average_repetitions=True, region=region, masked=True))
@@ -47,8 +56,8 @@ def _DicarloMajajHong2015Region_combined_masked(region, identifier_metric_suffix
                            bibtex=BIBTEX)
 
 def _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir, region, identifier_metric_suffix, similarity_metric, ceiler, benchmark_identifier='dicarlo.MajajHong2015'):
-    assembly_repetition = LazyLoad(lambda region=region: load_assembly(average_repetitions=False, region=region, masked=True))
-    assembly = LazyLoad(lambda region=region: load_assembly(average_repetitions=True, region=region, masked=True))
+    assembly_repetition = LazyLoad(lambda region=region: load_assembly(average_repetitions=False, region=region))
+    assembly = LazyLoad(lambda region=region: load_assembly(average_repetitions=True, region=region))
     return NeuralBenchmarkCovariate(identifier=benchmark_identifier, version=3,
                            assembly=assembly, similarity_metric=similarity_metric,
                            covariate_image_dir=covariate_image_dir,
@@ -640,15 +649,24 @@ def DicarloMajajHong2015ITGCPLS_nocontrol_combined_split_tz_01_neg():
 ########
 # Other
 ########
+# def Lore():
+#     return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir = 'image_dicarlo_hvm_masked', region='IT', identifier_metric_suffix='gcr',
+#                                                 similarity_metric=CrossRegressedCorrelationCovariate(
+#                                                     regression=covariate_regression(), correlation=pearsonr_correlation(),
+#                                                     crossvalidation_kwargs=dict(stratification_coord='object_name', train_size=0.5)),
+#                                                 # ceiler=ToleranceConsistency(regression=pls_regression(),
+#                                                 #                             correlation=pearsonr_correlation()),
+#                                                 ceiler=InternalConsistency(),
+#                                                 benchmark_identifier='Lore')
+
+
 def Lore():
-    return _DicarloMajajHong2015Region_combined_covariate(covariate_image_dir = 'image_dicarlo_hvm_masked', region='IT', identifier_metric_suffix='gcr',
-                                                similarity_metric=CrossRegressedCorrelationCovariate(
-                                                    regression=covariate_regression(), correlation=pearsonr_correlation(),
-                                                    crossvalidation_kwargs=dict(stratification_coord='object_name', train_size=0.5)),
-                                                # ceiler=ToleranceConsistency(regression=pls_regression(),
-                                                #                             correlation=pearsonr_correlation()),
-                                                ceiler=InternalConsistency(),
-                                                benchmark_identifier='Lore')
+    return _DicarloMajajHong2015Region_combined_toleranceceiling(region='IT', identifier_metric_suffix='toleranceceiling',
+                                                                 similarity_metric=ToleranceCrossValidation(
+                                                                     regression=pls_regression(),
+                                                                     correlation=pearsonr_correlation(),
+                                                                     crossvalidation_kwargs=dict(stratification_coord='object_name')
+                                                                 ))
 
 
 def DicarloMajajHong2015V4Mask_combined():
@@ -682,6 +700,9 @@ def DicarloMajajHong2015ITRDM_combined():
                                            crossvalidation_kwargs=dict(stratification_coord='object_name',
                                                                        train_size=0.5)),
                                        ceiler=RDMConsistency())
+
+
+
 
 
 def load_assembly(average_repetitions,region, masked = False):

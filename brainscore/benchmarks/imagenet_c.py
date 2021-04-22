@@ -117,7 +117,6 @@ class Imagenet_C_Individual(BenchmarkBase):
     Runs an individual ImageNet C benchmark, like "gaussian_noise_1"
     """
     def __init__(self, stimulus_set, noise_level, noise_type):
-        #stimulus_set = brainscore.get_stimulus_set(benchmark_name)
         self.stimulus_set = stimulus_set[stimulus_set['noise_level']==noise_level]
         self.noise_level = noise_level
         self.noise_type = noise_type

@@ -37,7 +37,7 @@ class TestImagenetC:
 class TestImagenetC_Category:
     def test_groundtruth(self):
         benchmarks = [
-            Imagenet_C_Blur(factor=1000),
+            Imagenet_C_Blur(sampling_factor=1000),
         ]
 
         class Static(BrainModel):

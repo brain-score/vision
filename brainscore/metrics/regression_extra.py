@@ -15,6 +15,7 @@ from sklearn.preprocessing import StandardScaler
 from brainio_base.assemblies import walk_coords
 from brainscore.metrics.mask_regression import MaskRegression
 from brainscore.metrics.transformations import CrossValidation, ToleranceCrossValidation
+from brainscore.metrics.transformations_extra import CrossValidationCustomPlusBaseline
 from brainscore.metrics.regression import pls_regression
 from .xarray_utils import XarrayRegression, XarrayCorrelation
 
@@ -74,10 +75,9 @@ class CrossRegressedCorrelationCovariate:
 class CrossRegressedCorrelationDrew:
     def __init__(self, regression, correlation, covariate_control=True, crossvalidation_kwargs=None):
         #regression = regression or pls_regression()
-        crossvalidation_defaults = dict(train_size=.9, test_size=None)
-        crossvalidation_kwargs = {**crossvalidation_defaults, **(crossvalidation_kwargs or {})}
+        crossvalidation_kwargs = crossvalidation_kwargs or {}
 
-        self.cross_validation = CrossValidation(expecting_coveriate=True, **crossvalidation_kwargs)
+        self.cross_validation = CrossValidationCustomPlusBaseline(expecting_coveriate=True, **crossvalidation_kwargs)
         self.main_regression = deepcopy(regression)
         self.control_regression = deepcopy(regression)
         self.correlation = correlation

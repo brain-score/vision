@@ -101,7 +101,7 @@ class Imagenet_C_Type(BenchmarkBase):
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         super(Imagenet_C_Type, self).__init__(identifier='dietterich.Hendrycks2019-top1', version=1,
                                            ceiling_func=lambda: ceiling,
-                                           parent='dietterich.Hendrycks2019-top1',
+                                           parent=f'dietterich.Hendrycks2019-top1-{noise_category}',
                                            bibtex=BIBTEX)
 
     def __call__(self, candidate):
@@ -125,7 +125,7 @@ class Imagenet_C_Individual(BenchmarkBase):
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         super(Imagenet_C_Individual, self).__init__(identifier='dietterich.Hendrycks2019-top1', version=1,
                                                     ceiling_func=lambda: ceiling,
-                                                    parent='dietterich.Hendrycks2019-top1',
+                                                    parent=f'dietterich.Hendrycks2019-top1-{noise_category}-{noise_type}',
                                                     bibtex=BIBTEX)
 
     def __call__(self, candidate):

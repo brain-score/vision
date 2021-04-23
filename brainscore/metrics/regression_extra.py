@@ -25,7 +25,7 @@ from copy import deepcopy
 import xarray as xr
 
 
-class ToleranceCrossRegressedCorrelation:
+class InternalCrossedRegressedCorrelation:
     def __init__(self, regression, correlation, crossvalidation_kwargs=None):
         regression = regression or pls_regression()
         crossvalidation_defaults = dict(train_size=.9, test_size=None)

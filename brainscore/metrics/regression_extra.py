@@ -77,7 +77,7 @@ class CrossRegressedCorrelationDrew:
         #regression = regression or pls_regression()
         crossvalidation_kwargs = crossvalidation_kwargs or {}
 
-        self.cross_validation = CrossValidationCustomPlusBaseline(expecting_coveriate=True, **crossvalidation_kwargs)
+        self.cross_validation = CrossValidation(expecting_coveriate=True, **crossvalidation_kwargs)
         self.main_regression = deepcopy(regression)
         self.control_regression = deepcopy(regression)
         self.correlation = correlation

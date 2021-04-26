@@ -7,6 +7,7 @@ from brainio_collection import list_stimulus_sets, list_assemblies
 from brainio_collection.fetch import get_assembly as brainio_get_assembly, get_stimulus_set
 from brainscore.benchmarks import benchmark_pool
 from result_caching import store
+from brainscore.tolerance import get_benchmark
 
 _logger = logging.getLogger(__name__)
 
@@ -19,7 +20,7 @@ def get_assembly(name):
 
 
 @store(identifier_ignore=['model', 'benchmark'])
-def score_model(model_identifier, benchmark_identifier, model):
+def score_model(model_identifier, benchmark_identifier, model, **kwargs):
     """
     Score a given model on a given benchmark.
     The model needs to implement the :class:`~brainscore.model_interface.BrainModel` interface so that the benchmark can
@@ -45,8 +46,14 @@ def score_model(model_identifier, benchmark_identifier, model):
     # model_identifier variable is not unused, the result caching component uses it to identify the cached results
     assert model is not None
     _logger.debug("retrieving benchmark")
-    
-    benchmark = benchmark_pool[benchmark_identifier]
+
+    # Check if it's as special identifier from the tolerance project
+    if benchmark_identifier.startswith('tol_'):
+        benchmark = get_benchmark(benchmark_identifier, **kwargs)
+    else:
+        benchmark = benchmark_pool[benchmark_identifier]
+
+
     _logger.debug("scoring model")
     score = benchmark(model)
     score.attrs['model_identifier'] = model_identifier

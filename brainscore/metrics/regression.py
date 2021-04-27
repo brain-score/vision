@@ -233,7 +233,7 @@ class GramControlRegression():
         return self.scaler_y.inverse_transform(Ypred) # is this wise?
 
 
-class GramControlPLS():
+class OldGramControlPLS():
     def __init__(self, gram_control=False, channel_coord=None, regression_kwargs=None):
         self.gram_control = gram_control
         self.channel_coord = channel_coord
@@ -366,6 +366,12 @@ class GramControlPLS():
         return Ypred
 
 
+
+
+
+
+
+
 def mask_regression():
     regression = MaskRegression()
     regression = XarrayRegression(regression)
@@ -395,10 +401,10 @@ def gram_control_regression(gram_control, channel_coord=None, scaler_kwargs=None
     regression = XarrayRegression(regression, **xarray_kwargs)
     return regression
 
-def gram_control_pls(gram_control, channel_coord=None, regression_kwargs=None, xarray_kwargs=None):
+def old_gram_control_pls(gram_control, channel_coord=None, regression_kwargs=None, xarray_kwargs=None):
     regression_defaults = dict(n_components=25, scale=False)
     regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
-    regression = GramControlPLS(gram_control=gram_control, channel_coord=channel_coord, regression_kwargs=regression_kwargs)
+    regression = OldGramControlPLS(gram_control=gram_control, channel_coord=channel_coord, regression_kwargs=regression_kwargs)
     xarray_kwargs = xarray_kwargs or {}
     regression = XarrayRegression(regression, **xarray_kwargs)
     return regression

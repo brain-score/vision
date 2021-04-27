@@ -23,6 +23,7 @@ from .xarray_utils import Defaults
 from brainio_base.assemblies import NeuroidAssembly, array_is_element, walk_coords
 from copy import deepcopy
 import xarray as xr
+from collections import OrderedDict, Counter
 
 
 class InternalCrossedRegressedCorrelation:
@@ -73,13 +74,13 @@ class CrossRegressedCorrelationCovariate:
 
 
 class CrossRegressedCorrelationDrew:
-    def __init__(self, regression, correlation, covariate_control=True, crossvalidation_kwargs=None):
+    def __init__(self, main_regression, control_regression, correlation, covariate_control=True, crossvalidation_kwargs=None):
         #regression = regression or pls_regression()
         crossvalidation_kwargs = crossvalidation_kwargs or {}
 
         self.cross_validation = CrossValidation(expecting_coveriate=True, **crossvalidation_kwargs)
-        self.main_regression = deepcopy(regression)
-        self.control_regression = deepcopy(regression)
+        self.main_regression = main_regression
+        self.control_regression = control_regression
         self.correlation = correlation
         self.covariate_control = covariate_control
 
@@ -92,46 +93,55 @@ class CrossRegressedCorrelationDrew:
         target_train = target_train.reset_index('stimulus', drop=True) # hacky, but all we need to align is the image_id and perhaps repetition.
         target_test = target_test.reset_index('stimulus', drop=True)
 
+        X1_train = source_train
+        X2_train = covariate_train
+        Y_train = target_train
+
+        X1_test = source_test
+        X2_test = covariate_test
+        Y_test = target_test
+
 
         if self.covariate_control:
             # FIT (train)
             ##############
 
             # 1) Regressing on the covariate (X2)
-            self.control_regression.fit(covariate_train, target_train)
+            self.control_regression.fit(X2_train, Y_train)
 
             # Residualize Y
-            cov_predictions_train = self.control_regression.predict(covariate_train)
-            target_train, cov_predictions = xr.align(target_train, cov_predictions_train)
-            assert(np.array_equal(target_train.image_id.values, cov_predictions.image_id.values))
+            Y_pred_train = self.control_regression.predict(X2_train)
+            Y_train, Y_pred_train = xr.align(Y_train, Y_pred_train)
+            assert(np.array_equal(Y_train.image_id.values, Y_pred_train.image_id.values))
 
-            target_residuals_train = target_train - cov_predictions_train
+            Y_residuals_train = Y_train - Y_pred_train
 
             # 2) Regressing the residuals on the source (X1)
-            self.main_regression.fit(source_train, target_residuals_train)
+            self.main_regression.fit(X1_train, Y_residuals_train)
 
             # PREDICTION (test)
             ####################
 
             # Residualize Y (wo refitting)
-            cov_predictions_test = self.control_regression.predict(covariate_test)
-            target_test, cov_predictions_test = xr.align(target_test, cov_predictions_test)
+            Y_pred_test = self.control_regression.predict(X2_test)
+            Y_test, Y_pred_test = xr.align(Y_test, Y_pred_test)
+            assert (np.array_equal(Y_test.image_id.values, Y_pred_test.image_id.values))
 
-            target_residuals_test = target_test - cov_predictions_test
+            Y_residuals_test = Y_test - Y_pred_test
 
             # Get predicted residuals and correlate to test residuals
-            prediction = self.main_regression.predict(source_test)
+            prediction = self.main_regression.predict(X1_test)
 
             #vv feels a little weird to me that neither are ground truth (both are result of soem regression)
             #vv we're no longer comparing directly to neural data, but to residuals of neural data, which feels like a big deviation from the original pipeline
-            score = self.correlation(prediction, target_residuals_test)
+            score = self.correlation(prediction, Y_residuals_test)
 
         else:
             # FIT (train)
-            self.main_regression.fit(source_train, target_train)
+            self.main_regression.fit(X1_train, Y_train)
             # PREDICT (test)
-            prediction = self.main_regression.predict(source_test)
-            score = self.correlation(prediction, target_test)
+            Y_pred = self.main_regression.predict(X1_test)
+            score = self.correlation(Y_pred, Y_test)
 
         return score
 
@@ -139,7 +149,37 @@ class CrossRegressedCorrelationDrew:
         return scores.median(dim='neuroid')
 
 
-
+# class DrewPLS():
+#     def __init__(self, covariate_control = False, regression_kwargs=None):
+#         self.covariate_control = covariate_control
+#         self.regression_kwargs = regression_kwargs or {}
+#         self.control_regression = PLSRegression(**self.regression_kwargs)
+#         self.main_regression = PLSRegression(**self.regression_kwargs)
+#
+#     def _get_residuals(self, X, X_cov, fit=True):
+#         # Residuals
+#         if fit:
+#             self.control_regression.fit(X_cov, X)
+#         X = X - self.control_regression.predict(X_cov)
+#
+#         return X
+#
+#     def fit(self, X, X_cov, Y):
+#
+#         # Residuals
+#         if self.covariate_control:
+#             X = self._get_residuals(X, X_cov, fit=True)
+#
+#         self.main_regression.fit(X, Y)
+#
+#     def predict(self, X, X_cov):
+#
+#         # Residuals
+#         if self.covariate_control:
+#             X = self._get_residuals(X, X_cov, fit=False)
+#
+#         Ypred = self.main_regression.predict(X)
+#         return Ypred
 
 
 class SemiPartialRegression():
@@ -229,61 +269,26 @@ class SemiPartialPLS():
         Ypred = self.main_regression.predict(X)
         return Ypred
 
-class DrewPLS():
-    def __init__(self, covariate_control = False, regression_kwargs=None):
-        self.covariate_control = covariate_control
+
+class GramPLS():
+    def __init__(self, channel_coord=None, regression_kwargs=None):
+        self.channel_coord = channel_coord
         self.regression_kwargs = regression_kwargs or {}
-        self.control_regression = PLSRegression(**self.regression_kwargs)
-        self.main_regression = PLSRegression(**self.regression_kwargs)
+        self.regression = PLSRegression(**self.regression_kwargs)
 
-    def _get_residuals(self, X, X_cov, fit=True):
-        # Residuals
-        if fit:
-            self.control_regression.fit(X_cov, X)
-        X = X - self.control_regression.predict(X_cov)
+    def fit(self, X, Y):
+        X = unflatten(X)
+        X = X.reshape(list(X.shape[0:2]) + [-1])
+        X = take_gram(X)
+        self.regression.fit(X, Y)
 
-        return X
-
-    def fit(self, X, X_cov, Y):
-
-        # Residuals
-        if self.covariate_control:
-            X = self._get_residuals(X, X_cov, fit=True)
-
-        self.main_regression.fit(X, Y)
-
-    def predict(self, X, X_cov):
-
-        # Residuals
-        if self.covariate_control:
-            X = self._get_residuals(X, X_cov, fit=False)
-
-        Ypred = self.main_regression.predict(X)
-        return Ypred
-
-
-
-def semipartial_regression(covariate_control=False, scaler_kwargs=None, pca_kwargs=None, regression_kwargs=None, xarray_kwargs=None):
-    scaler_defaults = dict(with_std=False)
-    pca_defaults = dict(n_components=25)
-    scaler_kwargs = {**scaler_defaults, **(scaler_kwargs or {})}
-    pca_kwargs = {**pca_defaults, **(pca_kwargs or {})}
-    regression_kwargs = regression_kwargs or {}
-    regression = SemiPartialRegression(covariate_control = covariate_control,
-                                       scaler_kwargs=scaler_kwargs,
-                                       pca_kwargs=pca_kwargs,
-                                       regression_kwargs=regression_kwargs)
-    xarray_kwargs = xarray_kwargs or {}
-    regression = XarrayCovariateRegression(regression, **xarray_kwargs)
-    return regression
-
-def semipartial_pls(covariate_control=False, regression_kwargs=None, xarray_kwargs=None):
-    regression_defaults = dict(n_components=25, scale=False)
-    regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
-    regression = SemiPartialPLS(covariate_control = covariate_control, regression_kwargs=regression_kwargs)
-    xarray_kwargs = xarray_kwargs or {}
-    regression = XarrayCovariateRegression(regression, **xarray_kwargs)
-    return regression
+    def predict(self, X):
+        X = unflatten(X)
+        # Reshape to BxCxH*W (or W*H, not sure)
+        X = X.reshape(list(X.shape[0:2]) + [-1])
+        X = take_gram(X)
+        Y_pred = self.regression.predict(X)
+        return Y_pred
 
 
 class XarrayCovariateRegression:
@@ -343,3 +348,138 @@ class XarrayCovariateRegression:
         assert set(assembly.dims) == set(self._expected_dims), \
             f"Expected {set(self._expected_dims)}, but got {set(assembly.dims)}"
         return assembly.transpose(*self._expected_dims)
+
+
+def semipartial_regression(covariate_control=False, scaler_kwargs=None, pca_kwargs=None, regression_kwargs=None, xarray_kwargs=None):
+    scaler_defaults = dict(with_std=False)
+    pca_defaults = dict(n_components=25)
+    scaler_kwargs = {**scaler_defaults, **(scaler_kwargs or {})}
+    pca_kwargs = {**pca_defaults, **(pca_kwargs or {})}
+    regression_kwargs = regression_kwargs or {}
+    regression = SemiPartialRegression(covariate_control = covariate_control,
+                                       scaler_kwargs=scaler_kwargs,
+                                       pca_kwargs=pca_kwargs,
+                                       regression_kwargs=regression_kwargs)
+    xarray_kwargs = xarray_kwargs or {}
+    regression = XarrayCovariateRegression(regression, **xarray_kwargs)
+    return regression
+
+
+def semipartial_pls(covariate_control=False, regression_kwargs=None, xarray_kwargs=None):
+    regression_defaults = dict(n_components=25, scale=False)
+    regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
+    regression = SemiPartialPLS(covariate_control = covariate_control, regression_kwargs=regression_kwargs)
+    xarray_kwargs = xarray_kwargs or {}
+    regression = XarrayCovariateRegression(regression, **xarray_kwargs)
+    return regression
+
+
+def gram_pls(regression_kwargs = None, xarray_kwargs=None):
+    regression_defaults = dict(n_components=25, scale=False)
+    regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
+    regression = GramPLS(regression_kwargs=regression_kwargs)
+    xarray_kwargs = xarray_kwargs or {}
+    regression = XarrayRegression(regression, **xarray_kwargs)
+    return regression
+
+
+
+
+def unflatten(X, channel_coord=None, image_dir=None):
+    """
+    Unflattens NeuroidAssembly of flattened model activations to
+    BxCxH*W (or BXCxW*H not sure, also not sure if it matters)
+
+    Using the information in coordinates channel, channel_x, channel_y which give the index along each
+    of the original axes
+
+    Order of coordinates (which one represents first axis, second, third) is determined by checking which one's
+    values change slowest (i.e., reverse sort by first occurence of a 1-value)
+    """
+
+    n_viz = 10
+
+    # Get first n_viz image paths for visualizations
+    if image_dir:
+        vis_images_fnames = X.image_file_name.values[0:n_viz]
+        vis_images_fpaths = [os.path.join(image_dir, file_name) for file_name in vis_images_fnames]
+
+        dest_dir = "actvns_viz"
+        os.makedirs(dest_dir, exist_ok=True)
+        dest_fname = 'activations.png'
+
+    # Get coord:(original axis length, first occurence of 1
+    X_shape = OrderedDict({
+        'channel': (X.channel.values.max() + 1, np.where(X.channel.values == 1)[0][0]),
+        'channel_x': (X.channel_x.values.max() + 1, np.where(X.channel_x.values == 1)[0][0]),
+        'channel_y': (X.channel_y.values.max() + 1, np.where(X.channel_y.values == 1)[0][0])
+    })
+
+    # Determine which coordinate represents channels
+    if channel_coord == None:
+        # Hacky attempt to determine automatically (usually W==H != C)
+        X_axis_sizes = [i[0] for i in X_shape.values()]
+        frequencies = {key: Counter(X_axis_sizes)[value[0]] for key, value in X_shape.items()}
+        if sorted(list(frequencies.values())) != [1, 2, 2]:
+            raise ValueError('channel_coord is None and failed to automatically determine it')
+        else:
+            channel_coord = [key for key, value in frequencies.items() if value == 1][0]
+
+    # Sort coordinates such that first one represents first axis in original matrix, etc.
+    X_shape = OrderedDict(sorted(X_shape.items(), key=lambda x: x[1][1], reverse=True))
+
+    # Unflatten X
+    B = X.shape[0]
+    reshape_to = [B] + [value[0] for key, value in X_shape.items()]
+    X = X.values.reshape(reshape_to)
+
+    # Channels first
+    channel_index = [i for i, (key, value) in enumerate(X_shape.items()) if key == channel_coord][0]
+    channel_index = channel_index + 1  # bc very first is B
+    transpose_to = [0, channel_index] + [i for i in [1, 2, 3] if i != channel_index]
+    X = np.transpose(X, transpose_to)
+
+    # Make visualizations
+    if image_dir:
+        actvns = X[0:n_viz, :, :, :].mean(axis=1)
+        actvns = np.split(actvns, n_viz, axis=0)
+        actvns = [np.squeeze(actvn) for actvn in actvns]
+
+        ims = [np.array(Image.open(fpath)) for fpath in vis_images_fpaths]
+
+        ims_actvns = [val for pair in zip(ims, actvns) for val in pair]
+
+        rows = n_viz
+        cols = 2
+        axes = []
+        fig = plt.figure(figsize=(2, 10))
+
+        for i in range(rows * cols):
+            b = ims_actvns[i]
+            axes.append(fig.add_subplot(rows, cols, i + 1))
+            plt.imshow(b)
+
+        fig.set_figheight(50)
+        fig.set_figwidth(50)
+        plt.subplots_adjust(wspace=0, hspace=0)
+        plt.show()
+        plt.savefig(os.path.join(dest_dir, dest_fname))
+
+
+
+    return X
+
+
+def take_gram(X):
+    """
+    X needs to be of shape:
+    BxCxH*W (or BXCxW*H not sure, also not sure if it matters)
+
+    Computes the gram matrix for each of B samples and flattens
+
+    """
+    X_grams = np.einsum("ijk, ikl -> ijl", X, np.transpose(X, [0, 2, 1]))
+    # X_grams = X_grams/X.size # is this the right normalization?
+    X_grams = X_grams.reshape(X_grams.shape[0], -1)
+
+    return X_grams

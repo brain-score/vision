@@ -16,8 +16,6 @@ with open('README.md') as readme_file:
 
 requirements = [
     "numpy>=1.17",
-    "brainio_base @ git+https://github.com/brain-score/brainio_base",
-    "brainio_collection @ git+https://github.com/brain-score/brainio_collection",
     "scikit-learn",
     "h5py",
     "tqdm",
@@ -26,7 +24,6 @@ requirements = [
     "networkx",
     "matplotlib",
     "tensorflow",
-    "result_caching @ git+https://github.com/mschrimpf/result_caching",
     "fire",
     "jupyter",
     "pybtex",

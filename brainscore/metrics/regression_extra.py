@@ -49,10 +49,9 @@ class InternalCrossedRegressedCorrelation:
         return scores.median(dim='neuroid')
 
 
-
 class CrossRegressedCorrelationCovariate:
     def __init__(self, regression, correlation, crossvalidation_kwargs=None):
-        #regression = regression or pls_regression()
+        # regression = regression or pls_regression()
         crossvalidation_defaults = dict(train_size=.9, test_size=None)
         crossvalidation_kwargs = {**crossvalidation_defaults, **(crossvalidation_kwargs or {})}
 
@@ -75,22 +74,23 @@ class CrossRegressedCorrelationCovariate:
 
 class CrossRegressedCorrelationDrew:
     def __init__(self, main_regression, control_regression, correlation, covariate_control=True, crossvalidation_kwargs=None):
-        #regression = regression or pls_regression()
-        crossvalidation_kwargs = crossvalidation_kwargs or {}
+        # regression = regression or pls_regression()
+        self.crossvalidation_kwargs = crossvalidation_kwargs or {}
 
-        self.cross_validation = CrossValidation(expecting_coveriate=True, **crossvalidation_kwargs)
+        self.cross_validation = CrossValidation(expecting_coveriate=True, **self.crossvalidation_kwargs)
         self.main_regression = main_regression
         self.control_regression = control_regression
         self.correlation = correlation
         self.covariate_control = covariate_control
+
 
     def __call__(self, source, covariate, target):
         return self.cross_validation(source, covariate, target, apply=self.apply, aggregate=self.aggregate)
 
     def apply(self, source_train, covariate_train, target_train, source_test, covariate_test, target_test):
         # vv Hacky but the model activation assemblies don't have the stimulus index and it makes the alignment fail
-        # vv All we need for alignment is image_id and neuroid anyway (and perhaps repition in some cases)
-        target_train = target_train.reset_index('stimulus', drop=True) # hacky, but all we need to align is the image_id and perhaps repetition.
+        # vv All we need for alignment is image_id and neuroid anyway (and perhaps repetition in some cases)
+        target_train = target_train.reset_index('stimulus', drop=True)
         target_test = target_test.reset_index('stimulus', drop=True)
 
         X1_train = source_train
@@ -100,7 +100,6 @@ class CrossRegressedCorrelationDrew:
         X1_test = source_test
         X2_test = covariate_test
         Y_test = target_test
-
 
         if self.covariate_control:
             # FIT (train)
@@ -112,7 +111,7 @@ class CrossRegressedCorrelationDrew:
             # Residualize Y
             Y_pred_train = self.control_regression.predict(X2_train)
             Y_train, Y_pred_train = xr.align(Y_train, Y_pred_train)
-            assert(np.array_equal(Y_train.image_id.values, Y_pred_train.image_id.values))
+            assert (np.array_equal(Y_train.image_id.values, Y_pred_train.image_id.values))
 
             Y_residuals_train = Y_train - Y_pred_train
 
@@ -132,8 +131,8 @@ class CrossRegressedCorrelationDrew:
             # Get predicted residuals and correlate to test residuals
             prediction = self.main_regression.predict(X1_test)
 
-            #vv feels a little weird to me that neither are ground truth (both are result of soem regression)
-            #vv we're no longer comparing directly to neural data, but to residuals of neural data, which feels like a big deviation from the original pipeline
+            # vv feels a little weird to me that neither are ground truth (both are result of soem regression)
+            # vv we're no longer comparing directly to neural data, but to residuals of neural data, which feels like a big deviation from the original pipeline
             score = self.correlation(prediction, Y_residuals_test)
 
         else:
@@ -183,7 +182,7 @@ class CrossRegressedCorrelationDrew:
 
 
 class SemiPartialRegression():
-    def __init__(self, covariate_control = False, scaler_kwargs=None, pca_kwargs=None, regression_kwargs=None):
+    def __init__(self, covariate_control=False, scaler_kwargs=None, pca_kwargs=None, regression_kwargs=None):
         self.covariate_control = covariate_control
         self.scaler_kwargs = scaler_kwargs or {}
         self.pca_kwargs = pca_kwargs or {}
@@ -238,7 +237,7 @@ class SemiPartialRegression():
 
 
 class SemiPartialPLS():
-    def __init__(self, covariate_control = False, regression_kwargs=None):
+    def __init__(self, covariate_control=False, regression_kwargs=None):
         self.covariate_control = covariate_control
         self.regression_kwargs = regression_kwargs or {}
         self.control_regression = PLSRegression(**self.regression_kwargs)
@@ -307,7 +306,8 @@ class XarrayCovariateRegression:
 
     def fit(self, source, covariate, target):
         source, covariate, target = self._align(source), self._align(covariate), self._align(target)
-        source, covariate, target = source.sortby(self._stimulus_coord), covariate.sortby(self._stimulus_coord), target.sortby(self._stimulus_coord)
+        source, covariate, target = source.sortby(self._stimulus_coord), covariate.sortby(
+            self._stimulus_coord), target.sortby(self._stimulus_coord)
 
         self._regression.fit(source, covariate, target)
 
@@ -350,13 +350,14 @@ class XarrayCovariateRegression:
         return assembly.transpose(*self._expected_dims)
 
 
-def semipartial_regression(covariate_control=False, scaler_kwargs=None, pca_kwargs=None, regression_kwargs=None, xarray_kwargs=None):
+def semipartial_regression(covariate_control=False, scaler_kwargs=None, pca_kwargs=None, regression_kwargs=None,
+                           xarray_kwargs=None):
     scaler_defaults = dict(with_std=False)
     pca_defaults = dict(n_components=25)
     scaler_kwargs = {**scaler_defaults, **(scaler_kwargs or {})}
     pca_kwargs = {**pca_defaults, **(pca_kwargs or {})}
     regression_kwargs = regression_kwargs or {}
-    regression = SemiPartialRegression(covariate_control = covariate_control,
+    regression = SemiPartialRegression(covariate_control=covariate_control,
                                        scaler_kwargs=scaler_kwargs,
                                        pca_kwargs=pca_kwargs,
                                        regression_kwargs=regression_kwargs)
@@ -368,21 +369,19 @@ def semipartial_regression(covariate_control=False, scaler_kwargs=None, pca_kwar
 def semipartial_pls(covariate_control=False, regression_kwargs=None, xarray_kwargs=None):
     regression_defaults = dict(n_components=25, scale=False)
     regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
-    regression = SemiPartialPLS(covariate_control = covariate_control, regression_kwargs=regression_kwargs)
+    regression = SemiPartialPLS(covariate_control=covariate_control, regression_kwargs=regression_kwargs)
     xarray_kwargs = xarray_kwargs or {}
     regression = XarrayCovariateRegression(regression, **xarray_kwargs)
     return regression
 
 
-def gram_pls(regression_kwargs = None, xarray_kwargs=None):
+def gram_pls(regression_kwargs=None, xarray_kwargs=None):
     regression_defaults = dict(n_components=25, scale=False)
     regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
     regression = GramPLS(regression_kwargs=regression_kwargs)
     xarray_kwargs = xarray_kwargs or {}
     regression = XarrayRegression(regression, **xarray_kwargs)
     return regression
-
-
 
 
 def unflatten(X, channel_coord=None, image_dir=None):
@@ -464,8 +463,6 @@ def unflatten(X, channel_coord=None, image_dir=None):
         plt.subplots_adjust(wspace=0, hspace=0)
         plt.show()
         plt.savefig(os.path.join(dest_dir, dest_fname))
-
-
 
     return X
 

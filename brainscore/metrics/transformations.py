@@ -410,45 +410,7 @@ class CrossValidation(Transformation):
         return self._split.aggregate(score)
 
 
-class ToleranceCrossValidation(Transformation):
-    def __init__(self,
-                 splits=Split.Defaults.splits, train_size=None, test_size=None,
-                 split_coord1='repetition', split_coord2='image_id', stratification_coord=Split.Defaults.stratification_coord,
-                 unique_split_values=Split.Defaults.unique_split_values, random_state=Split.Defaults.random_state):
-        super().__init__()
-        self._split1 = Split(splits=splits, split_coord=split_coord1,
-                            stratification_coord=stratification_coord, unique_split_values=unique_split_values,
-                            train_size=train_size, test_size=test_size, random_state=random_state)
 
-        self._split2 = Split(splits=splits, split_coord=split_coord2,
-                            stratification_coord=stratification_coord, unique_split_values=unique_split_values,
-                            train_size=train_size, test_size=test_size, random_state=random_state)
-
-        self._logger = logging.getLogger(fullname(self))
-
-    def pipe(self, assembly):
-        """
-        :param assembly: the assembly to cross-validate over
-        """
-        cross_validation_values, splits = self._split1.build_splits(assembly)
-
-        split_scores = []
-        for split_iterator, (train_indices, test_indices), done \
-                in tqdm(enumerate_done(splits), total=len(splits), desc='cross-validation'):
-            train_values, test_values = cross_validation_values[train_indices], cross_validation_values[test_indices]
-            train = subset(assembly, train_values, dims_must_match=False)
-            test = subset(assembly, test_values, dims_must_match=False)
-
-            split_score = yield from self._get_result(train, test, done=done)
-            split_score = split_score.expand_dims('split')
-            split_score['split'] = [split_iterator]
-            split_scores.append(split_score)
-
-        split_scores = Score.merge(*split_scores)
-        yield split_scores
-
-    def aggregate(self, score):
-        return self._split.aggregate(score)
 
 def standard_error_of_the_mean(values, dim):
     return values.std(dim) / math.sqrt(len(values[dim]))

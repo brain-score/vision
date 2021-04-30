@@ -362,8 +362,7 @@ class CrossValidation(Transformation):
             test_target = subset(target_assembly, test_values, dims_must_match=False)
             assert len(test_source[self._split_coord])  == len(test_covariate[self._split_coord]) == len(test_target[self._split_coord])
 
-            split_score = yield from self._get_result(train_source, train_covariate, train_target, test_source, test_covariate, test_target,
-                                                      done=done)
+            split_score = yield from self._get_result(train_source, train_covariate, train_target, test_source, test_covariate, test_target, done=done)
             split_score = split_score.expand_dims('split')
             split_score['split'] = [split_iterator]
             split_scores.append(split_score)
@@ -399,8 +398,7 @@ class CrossValidation(Transformation):
             test_target = subset(target_assembly, test_values, dims_must_match=False)
             assert len(test_source[self._split_coord]) == len(test_target[self._split_coord])
 
-            split_score = yield from self._get_result(train_source, train_target, test_source, test_target,
-                                                      done=done)
+            split_score = yield from self._get_result(train_source, train_target, test_source, test_target, done=done)
             split_score = split_score.expand_dims('split')
             split_score['split'] = [split_iterator]
             split_scores.append(split_score)

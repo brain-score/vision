@@ -4,9 +4,9 @@ from brainscore.benchmarks._neural_common_extra import NeuralBenchmarkCovariate,
 from brainscore.metrics.ceiling import InternalConsistency, RDMConsistency, ToleranceConsistency
 from brainscore.metrics.rdm import RDMCrossValidated
 from brainscore.metrics.regression import CrossRegressedCorrelation, mask_regression, ScaledCrossRegressedCorrelation, \
-    pls_regression, gram_control_regression, old_gram_control_pls, pearsonr_correlation
+    pls_regression, pearsonr_correlation
 from brainscore.metrics.regression_extra import CrossRegressedCorrelationCovariate, semipartial_regression, semipartial_pls, \
-    ToleranceCrossValidation, CrossRegressedCorrelationDrew
+    ToleranceCrossValidation, CrossRegressedCorrelationDrew, gram_control_regression, old_gram_control_pls
 from brainscore.utils import LazyLoad
 
 VISUAL_DEGREES = 8

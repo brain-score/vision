@@ -350,6 +350,317 @@ class XarrayCovariateRegression:
         return assembly.transpose(*self._expected_dims)
 
 
+class GramControlRegression():
+    def __init__(self, gram_control=False, channel_coord=None, scaler_kwargs=None, pca_kwargs=None, regression_kwargs=None):
+        self.gram_control = gram_control
+        self.channel_coord = channel_coord
+        self.scaler_kwargs = scaler_kwargs or {}
+        self.pca_kwargs = pca_kwargs or {}
+        self.regression_kwargs = regression_kwargs or {}
+        self.scaler_x = StandardScaler(**self.scaler_kwargs)
+        self.scaler_y = StandardScaler(**self.scaler_kwargs)
+        self.pca_x = PCA(**self.pca_kwargs)
+        self.pca_gram = PCA(**self.pca_kwargs)
+        self.control_regression = LinearRegression(**self.regression_kwargs)
+        self.main_regression = LinearRegression(**self.regression_kwargs)
+
+    def _unflatten(self, X, channel_coord=None, image_dir = None):
+        """
+        Unflattens NeuroidAssembly of flattened model activations to
+        BxCxH*W (or BXCxW*H not sure, also not sure if it matters)
+
+        Using the information in coordinates channel, channel_x, channel_y which give the index along each
+        of the original axes
+
+        Order of coordinates (which one represents first axis, second, third) is determined by checking which one's
+        values change slowest (i.e., reverse sort by first occurence of a 1-value)
+        """
+        n_viz = 10
+
+        # Get first n_viz image paths for visualizations
+        if image_dir:
+            vis_images_fnames = X.image_file_name.values[0:n_viz]
+            vis_images_fpaths = [os.path.join(image_dir, file_name) for file_name in vis_images_fnames]
+
+            dest_dir = "actvns_viz"
+            os.makedirs(dest_dir, exist_ok=True)
+            dest_fname = '_'.join([str(self.__class__.__name__), X.model.values[0], X.layer.values[0]]) + '.png'
+
+        # Get coord:(original axis length, first occurence of 1
+        X_shape = OrderedDict({
+            'channel': (X.channel.values.max()+1, np.where(X.channel.values == 1)[0][0]),
+            'channel_x': (X.channel_x.values.max()+1, np.where(X.channel_x.values == 1)[0][0]),
+            'channel_y': (X.channel_y.values.max()+1, np.where(X.channel_y.values == 1)[0][0])
+        })
+
+        # Determine which coordinate represents channels
+        if self.channel_coord == None:
+            # Hacky attempt to determine automatically (usually W==H != C)
+            X_axis_sizes = [i[0] for i in X_shape.values()]
+            frequencies = {key:Counter(X_axis_sizes)[value[0]] for key, value in X_shape.items()}
+            if sorted(list(frequencies.values())) != [1,2,2]:
+                raise ValueError('channel_coord is None and failed to automatically determine it')
+            else:
+                channel_coord = [key for key, value in frequencies.items() if value==1][0]
+
+        # Sort coordinates such that first one represents first axis in original matrix, etc.
+        X_shape = OrderedDict(sorted(X_shape.items(), key=lambda x: x[1][1], reverse=True))
+
+        # Unflatten X
+        B = X.shape[0]
+        reshape_to = [B] + [value[0] for key, value in X_shape.items()]
+        X = X.values.reshape(reshape_to)
+
+        # Channels first
+        channel_index = [i for i, (key, value) in enumerate(X_shape.items()) if key==channel_coord][0]
+        channel_index = channel_index + 1 # bc very first is B
+        transpose_to = [0, channel_index]+ [i for i in [1,2,3] if i != channel_index]
+        X = np.transpose(X, transpose_to)
+
+        # Make visualizations
+        if image_dir:
+            actvns = X[0:n_viz, :,:,:].mean(axis=1)
+            actvns = np.split(actvns, n_viz, axis=0)
+            actvns = [np.squeeze(actvn) for actvn in actvns]
+
+            ims = [np.array(Image.open(fpath)) for fpath in vis_images_fpaths]
+
+            ims_actvns = [val for pair in zip(ims, actvns) for val in pair]
+
+            rows = n_viz
+            cols = 2
+            axes = []
+            fig = plt.figure(figsize=(2,10))
+
+            for i in range(rows * cols):
+                b = ims_actvns[i]
+                axes.append(fig.add_subplot(rows, cols, i + 1))
+                plt.imshow(b)
+
+            fig.set_figheight(50)
+            fig.set_figwidth(50)
+            plt.subplots_adjust(wspace=0, hspace=0)
+            plt.show()
+            plt.savefig(os.path.join(dest_dir, dest_fname))
+
+        # reshape to BxCxH*W (or W*H, not sure)
+        X = X.reshape(list(X.shape[0:2])+[-1])
+
+        return X
+
+    def _preprocess_gram(self, X, fit=True, image_dir=None):
+        # Center/scale
+        if fit:
+            self.scaler_x.fit(X)
+        X.values = self.scaler_x.transform(X)
+
+        # Compute gram matrices
+        X_grams = self._unflatten(X, self.channel_coord, image_dir=image_dir) # Unflatten X to BxCxH*W (or W*H, not sure)
+        X_grams = np.einsum("ijk, ikl -> ijl", X_grams, np.transpose(X_grams, [0,2,1]))
+        #X_grams = X_grams/X.size # is this the right normalization?
+        X_grams = X_grams.reshape(X_grams.shape[0], -1)
+
+        # PCA
+        if fit:
+            self.pca_gram.fit(X_grams)
+            self.pca_x.fit(X)
+        X_grams = self.pca_gram.transform(X_grams)
+        X = self.pca_x.transform(X)
+
+        # Residuals
+        if fit:
+            self.control_regression.fit(X_grams, X)
+        X = X - self.control_regression.predict(X_grams)
+
+        return X
+
+    def _preprocess(self, X, fit=True):
+        if fit:
+            self.scaler_x.fit(X)
+            self.pca_x.fit(X)
+        X = self.scaler_x.transform(X)
+        X = self.pca_x.transform(X)
+
+        return X
+
+
+    def fit(self, X, Y):
+        if self.gram_control:
+            X = self._preprocess_gram(X, fit=True, image_dir=os.path.dirname(Y.stimulus_set.get_image(Y.image_id.values[0])))
+        else:
+            X = self._preprocess(X, fit=True)
+
+        Y = self.scaler_y.fit_transform(Y)
+        self.main_regression.fit(X, Y)
+
+
+    def predict(self, X):
+        if self.gram_control:
+            X = self._preprocess_gram(X, fit=False)
+        else:
+            X = self._preprocess(X, fit=False)
+
+        Ypred = self.main_regression.predict(X)
+        return self.scaler_y.inverse_transform(Ypred) # is this wise?
+
+
+class OldGramControlPLS():
+    def __init__(self, gram_control=False, channel_coord=None, regression_kwargs=None):
+        self.gram_control = gram_control
+        self.channel_coord = channel_coord
+        self.regression_kwargs = regression_kwargs or {}
+        self.control_regression = PLSRegression(**self.regression_kwargs)
+        self.main_regression = PLSRegression(**self.regression_kwargs)
+
+    def _unflatten(self, X, channel_coord=None, image_dir=None):
+        """
+        Unflattens NeuroidAssembly of flattened model activations to
+        BxCxH*W (or BXCxW*H not sure, also not sure if it matters)
+
+        Using the information in coordinates channel, channel_x, channel_y which give the index along each
+        of the original axes
+
+        Order of coordinates (which one represents first axis, second, third) is determined by checking which one's
+        values change slowest (i.e., reverse sort by first occurence of a 1-value)
+        """
+
+        n_viz = 10
+
+        # Get first n_viz image paths for visualizations
+        if image_dir:
+            vis_images_fnames = X.image_file_name.values[0:n_viz]
+            vis_images_fpaths = [os.path.join(image_dir, file_name) for file_name in vis_images_fnames]
+
+            dest_dir = "actvns_viz"
+            os.makedirs(dest_dir, exist_ok=True)
+            dest_fname = '_'.join([str(self.__class__.__name__), X.model.values[0], X.layer.values[0]]) + '.png'
+
+
+        # Get coord:(original axis length, first occurence of 1
+        X_shape = OrderedDict({
+            'channel': (X.channel.values.max()+1, np.where(X.channel.values == 1)[0][0]),
+            'channel_x': (X.channel_x.values.max()+1, np.where(X.channel_x.values == 1)[0][0]),
+            'channel_y': (X.channel_y.values.max()+1, np.where(X.channel_y.values == 1)[0][0])
+        })
+
+        # Determine which coordinate represents channels
+        if self.channel_coord == None:
+            # Hacky attempt to determine automatically (usually W==H != C)
+            X_axis_sizes = [i[0] for i in X_shape.values()]
+            frequencies = {key:Counter(X_axis_sizes)[value[0]] for key, value in X_shape.items()}
+            if sorted(list(frequencies.values())) != [1,2,2]:
+                raise ValueError('channel_coord is None and failed to automatically determine it')
+            else:
+                channel_coord = [key for key, value in frequencies.items() if value==1][0]
+
+        # Sort coordinates such that first one represents first axis in original matrix, etc.
+        X_shape = OrderedDict(sorted(X_shape.items(), key=lambda x: x[1][1], reverse=True))
+
+        # Unflatten X
+        B = X.shape[0]
+        reshape_to = [B] + [value[0] for key, value in X_shape.items()]
+        X = X.values.reshape(reshape_to)
+
+        # Channels first
+        channel_index = [i for i, (key, value) in enumerate(X_shape.items()) if key==channel_coord][0]
+        channel_index = channel_index + 1 # bc very first is B
+        transpose_to = [0, channel_index]+ [i for i in [1,2,3] if i != channel_index]
+        X = np.transpose(X, transpose_to)
+
+        # Make visualizations
+        if image_dir:
+            actvns = X[0:n_viz, :, :, :].mean(axis=1)
+            actvns = np.split(actvns, n_viz, axis=0)
+            actvns = [np.squeeze(actvn) for actvn in actvns]
+
+            ims = [np.array(Image.open(fpath)) for fpath in vis_images_fpaths]
+
+            ims_actvns = [val for pair in zip(ims, actvns) for val in pair]
+
+            rows = n_viz
+            cols = 2
+            axes = []
+            fig = plt.figure(figsize=(2, 10))
+
+            for i in range(rows * cols):
+                b = ims_actvns[i]
+                axes.append(fig.add_subplot(rows, cols, i + 1))
+                plt.imshow(b)
+
+            fig.set_figheight(50)
+            fig.set_figwidth(50)
+            plt.subplots_adjust(wspace=0, hspace=0)
+            plt.show()
+            plt.savefig(os.path.join(dest_dir, dest_fname))
+
+        # Reshape to BxCxH*W (or W*H, not sure)
+        X = X.reshape(list(X.shape[0:2])+[-1])
+
+        return X
+
+    def _preprocess_gram(self, X, fit=True, image_dir=None):
+
+        # Compute gram matrices
+        X_grams = self._unflatten(X, self.channel_coord, image_dir) # Unflatten X to BxCxH*W (or W*H, not sure)
+        X_grams = np.einsum("ijk, ikl -> ijl", X_grams, np.transpose(X_grams, [0,2,1]))
+        #X_grams = X_grams/X.size # is this the right normalization?
+        X_grams = X_grams.reshape(X_grams.shape[0], -1)
+
+        # Residuals
+        if fit:
+            self.control_regression.fit(X_grams, X)
+        X = X - self.control_regression.predict(X_grams)
+
+        return X
+
+    def _preprocess(self, X, fit=True):
+        # I think all the preprocessing needed happens inside PLS?
+        return X
+
+
+    def fit(self, X, Y):
+        if self.gram_control:
+            X = self._preprocess_gram(X, fit=True, image_dir=os.path.dirname(Y.stimulus_set.get_image(Y.image_id.values[0])))
+        else:
+            X = self._preprocess(X, fit=True)
+
+        self.main_regression.fit(X, Y)
+
+    def predict(self, X):
+        if self.gram_control:
+            X = self._preprocess_gram(X, fit=False)
+        else:
+            X = self._preprocess(X, fit=False)
+
+        Ypred = self.main_regression.predict(X)
+
+        return Ypred
+
+
+def gram_control_regression(gram_control, channel_coord=None, scaler_kwargs=None, pca_kwargs=None, regression_kwargs=None, xarray_kwargs=None):
+    scaler_defaults = dict(with_std=False)
+    pca_defaults = dict(n_components=25)
+    scaler_kwargs = {**scaler_defaults, **(scaler_kwargs or {})}
+    pca_kwargs = {**pca_defaults, **(pca_kwargs or {})}
+    regression_kwargs = regression_kwargs or {}
+    regression = GramControlRegression(gram_control=gram_control,
+                                       channel_coord=channel_coord,
+                                       scaler_kwargs=scaler_kwargs,
+                                       pca_kwargs=pca_kwargs,
+                                       regression_kwargs=regression_kwargs)
+    xarray_kwargs = xarray_kwargs or {}
+    regression = XarrayRegression(regression, **xarray_kwargs)
+    return regression
+
+def old_gram_control_pls(gram_control, channel_coord=None, regression_kwargs=None, xarray_kwargs=None):
+    regression_defaults = dict(n_components=25, scale=False)
+    regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
+    regression = OldGramControlPLS(gram_control=gram_control, channel_coord=channel_coord, regression_kwargs=regression_kwargs)
+    xarray_kwargs = xarray_kwargs or {}
+    regression = XarrayRegression(regression, **xarray_kwargs)
+    return regression
+
+
 def semipartial_regression(covariate_control=False, scaler_kwargs=None, pca_kwargs=None, regression_kwargs=None,
                            xarray_kwargs=None):
     scaler_defaults = dict(with_std=False)

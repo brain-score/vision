@@ -12,8 +12,8 @@ ASSEMBLY_NAME = 'movshon.FreemanZiemba2013_V1_properties'
 REGION = 'V1'
 TIMEBINS = [(70, 170)]
 PARENT_TEXTURE_MODULATION = 'V1-texture_modulation'
-PARENT_SELECTIVITY = 'V1-selectivity'
-PARENT_MAGNITUDE = 'V1-magnitude'
+PARENT_SELECTIVITY = 'V1-response_selectivity'
+PARENT_MAGNITUDE = 'V1-response_magnitude'
 
 PROPERTY_NAMES = ['texture_modulation_index', 'absolute_texture_modulation_index', 'texture_selectivity',
                   'noise_selectivity', 'texture_sparseness', 'noise_sparseness', 'variance_ratio', 'sample_variance',
@@ -75,18 +75,6 @@ def MarquesFreemanZiemba2013V1TextureSparseness():
 
 def MarquesFreemanZiemba2013V1VarianceRatio():
     property_name = 'variance_ratio'
-    parent = PARENT_SELECTIVITY
-    return _MarquesFreemanZiemba2013V1Property(property_name=property_name, parent=parent)
-
-
-def MarquesFreemanZiemba2013V1SampleVariance():
-    property_name = 'sample_variance'
-    parent = PARENT_SELECTIVITY
-    return _MarquesFreemanZiemba2013V1Property(property_name=property_name, parent=parent)
-
-
-def MarquesFreemanZiemba2013V1FamilyVariance():
-    property_name = 'family_variance'
     parent = PARENT_SELECTIVITY
     return _MarquesFreemanZiemba2013V1Property(property_name=property_name, parent=parent)
 

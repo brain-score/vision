@@ -207,14 +207,11 @@ def _experimental_benchmark_pool():
     pool['dicarlo.Marques2020_Schiller1976-sf_bandwidth'] = LazyLoad(MarquesSchiller1976V1SpatialFrequencyBandwidth)
     # V1 properties benchmarks: surround
     from .marques2020_cavanaugh2002a import MarquesCavanaugh2002V1GratingSummationField, \
-        MarquesCavanaugh2002V1SurroundDiameter, MarquesCavanaugh2002V1SurroundGratingSummationFieldRatio, \
-        MarquesCavanaugh2002V1SurroundSuppressionIndex
+        MarquesCavanaugh2002V1SurroundDiameter, MarquesCavanaugh2002V1SurroundSuppressionIndex
     pool['dicarlo.Marques2020_Cavanaugh2002-grating_summation_field'] = \
         LazyLoad(MarquesCavanaugh2002V1GratingSummationField)
     pool['dicarlo.Marques2020_Cavanaugh2002-surround_diameter'] = \
         LazyLoad(MarquesCavanaugh2002V1SurroundDiameter)
-    pool['dicarlo.Marques2020_Cavanaugh2002-sd_gsf_ratio'] = \
-        LazyLoad(MarquesCavanaugh2002V1SurroundGratingSummationFieldRatio)
     pool['dicarlo.Marques2020_Cavanaugh2002-surround_suppression_index'] = \
         LazyLoad(MarquesCavanaugh2002V1SurroundSuppressionIndex)
     # V1 properties benchmarks: texture modulation
@@ -226,26 +223,18 @@ def _experimental_benchmark_pool():
         LazyLoad(MarquesFreemanZiemba2013V1AbsoluteTextureModulationIndex)
     # V1 properties benchmarks: selectivity
     from .marques2020_freemanZiemba2013 import MarquesFreemanZiemba2013V1TextureSelectivity, \
-        MarquesFreemanZiemba2013V1TextureSparseness, MarquesFreemanZiemba2013V1VarianceRatio, \
-        MarquesFreemanZiemba2013V1SampleVariance, MarquesFreemanZiemba2013V1FamilyVariance
+        MarquesFreemanZiemba2013V1TextureSparseness, MarquesFreemanZiemba2013V1VarianceRatio
     pool['dicarlo.Marques2020_FreemanZiemba2013-texture_selectivity'] = \
         LazyLoad(MarquesFreemanZiemba2013V1TextureSelectivity)
     pool['dicarlo.Marques2020_FreemanZiemba2013-texture_sparseness'] = \
         LazyLoad(MarquesFreemanZiemba2013V1TextureSparseness)
     pool['dicarlo.Marques2020_FreemanZiemba2013-texture_variance_ratio'] = \
         LazyLoad(MarquesFreemanZiemba2013V1VarianceRatio)
-    pool['dicarlo.Marques2020_FreemanZiemba2013-texture_sample_variance'] = \
-        LazyLoad(MarquesFreemanZiemba2013V1SampleVariance)
-    pool['dicarlo.Marques2020_FreemanZiemba2013-texture_family_variance'] = \
-        LazyLoad(MarquesFreemanZiemba2013V1FamilyVariance)
     # V1 properties benchmarks: magnitude
-    from .marques2020_ringach2002 import MarquesRingach2002V1MaxDC, MarquesRingach2002V1MaxAC, \
-        MarquesRingach2002V1ModulationRatio, MarquesRingach2002V1Baseline
+    from .marques2020_ringach2002 import MarquesRingach2002V1MaxDC, MarquesRingach2002V1ModulationRatio
     from .marques2020_freemanZiemba2013 import MarquesFreemanZiemba2013V1MaxTexture, MarquesFreemanZiemba2013V1MaxNoise
     pool['dicarlo.Marques2020_Ringach2002-max_dc'] = LazyLoad(MarquesRingach2002V1MaxDC)
-    pool['dicarlo.Marques2020_Ringach2002-max_ac'] = LazyLoad(MarquesRingach2002V1MaxAC)
     pool['dicarlo.Marques2020_Ringach2002-modulation_ratio'] = LazyLoad(MarquesRingach2002V1ModulationRatio)
-    pool['dicarlo.Marques2020_Ringach2002-baseline'] = LazyLoad(MarquesRingach2002V1Baseline)
     pool['dicarlo.Marques2020_FreemanZiemba2013-max_texture'] = LazyLoad(MarquesFreemanZiemba2013V1MaxTexture)
     pool['dicarlo.Marques2020_FreemanZiemba2013-max_noise'] = LazyLoad(MarquesFreemanZiemba2013V1MaxNoise)
     # Sanghavi2020 benchmarks

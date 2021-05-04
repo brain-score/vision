@@ -13,7 +13,8 @@ ASSEMBLY_NAME = 'shapley.Ringach2002'
 REGION = 'V1'
 TIMEBINS = [(70, 170)]
 PARENT_ORIENTATION = 'V1-orientation'
-PARENT_MAGNITUDE = 'V1-magnitude'
+PARENT_MAGNITUDE = 'V1-response_magnitude'
+PARENT_SELECTIVITY = 'V1-response_selectivity'
 
 PROPERTY_NAMES = ['baseline', 'max_dc', 'min_dc', 'max_ac', 'modulation_ratio', 'circular_variance', 'bandwidth',
                   'orthogonal_preferred_ratio', 'orientation_selective', 'circular_variance_bandwidth_ratio',
@@ -89,22 +90,10 @@ def MarquesRingach2002V1MaxDC():
     return _MarquesRingach2002V1Property(property_name=property_name, parent=parent)
 
 
-def MarquesRingach2002V1MaxAC():
-    property_name = 'max_ac'
-    parent = PARENT_MAGNITUDE
-    return _MarquesRingach2002V1Property(property_name=property_name, parent=parent)
-
-
 def MarquesRingach2002V1ModulationRatio():
     property_name = 'modulation_ratio'
-    parent = PARENT_MAGNITUDE
+    parent = PARENT_SELECTIVITY
     return _MarquesRingach2002V1Property(property_name=property_name, parent=parent)
-
-
-def MarquesRingach2002V1Baseline():
-    property_name = 'baseline'
-    parent = PARENT_MAGNITUDE
-    return _MarquesRingach2002V1Property(property_name=property_name,  parent=parent)
 
 
 @store(identifier_ignore=['responses', 'baseline'])

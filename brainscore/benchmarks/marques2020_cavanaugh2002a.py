@@ -11,7 +11,8 @@ from result_caching import store
 ASSEMBLY_NAME = 'movshon.Cavanaugh2002a'
 REGION = 'V1'
 TIMEBINS = [(70, 170)]
-PARENT = 'V1-surround'
+PARENT_SURROUND = 'V1-surround_modulation'
+PARENT_RECEPTIVE_FIELD = 'V1-receptive_field_size'
 
 PROPERTY_NAMES = ['surround_suppression_index', 'strongly_suppressed', 'grating_summation_field', 'surround_diameter',
                   'surround_grating_summation_field_ratio']
@@ -36,12 +37,11 @@ BIBTEX = """@article{Cavanaugh2002,
 RESPONSE_THRESHOLD = 5
 
 
-def _MarquesCavanaugh2002V1Property(property_name):
+def _MarquesCavanaugh2002V1Property(property_name, parent):
     assembly = brainscore.get_assembly(ASSEMBLY_NAME)
     similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_similarity, property_name=property_name)
     ceil_func = NeuronalPropertyCeiling(BootstrapDistributionSimilarity(similarity_func=ks_similarity,
                                                                         property_name=property_name))
-    parent = PARENT
     return PropertiesBenchmark(identifier=f'dicarlo.Marques_cavanaugh2002-{property_name}', assembly=assembly,
                                neuronal_property=cavanaugh2002_properties, similarity_metric=similarity_metric,
                                timebins=TIMEBINS,
@@ -50,22 +50,20 @@ def _MarquesCavanaugh2002V1Property(property_name):
 
 def MarquesCavanaugh2002V1SurroundSuppressionIndex():
     property_name = 'surround_suppression_index'
-    return _MarquesCavanaugh2002V1Property(property_name=property_name)
+    parent = PARENT_SURROUND
+    return _MarquesCavanaugh2002V1Property(property_name=property_name, parent=parent)
 
 
 def MarquesCavanaugh2002V1GratingSummationField():
     property_name = 'grating_summation_field'
-    return _MarquesCavanaugh2002V1Property(property_name=property_name)
+    parent = PARENT_RECEPTIVE_FIELD
+    return _MarquesCavanaugh2002V1Property(property_name=property_name, parent=parent)
 
 
 def MarquesCavanaugh2002V1SurroundDiameter():
     property_name = 'surround_diameter'
-    return _MarquesCavanaugh2002V1Property(property_name=property_name)
-
-
-def MarquesCavanaugh2002V1SurroundGratingSummationFieldRatio():
-    property_name = 'surround_grating_summation_field_ratio'
-    return _MarquesCavanaugh2002V1Property(property_name=property_name)
+    parent = PARENT_RECEPTIVE_FIELD
+    return _MarquesCavanaugh2002V1Property(property_name=property_name, parent=parent)
 
 
 @store(identifier_ignore=['responses', 'baseline'])

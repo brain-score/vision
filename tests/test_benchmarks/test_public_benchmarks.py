@@ -20,6 +20,7 @@ from tests.test_benchmarks import PrecomputedFeatures
 def test_self(benchmark_ctr, visual_degrees, expected):
     benchmark = benchmark_ctr()
     source = benchmark._assembly.copy()
+    source = {benchmark._assembly.stimulus_set.identifier: source}
     score = benchmark(PrecomputedFeatures(source, visual_degrees=visual_degrees)).raw
     assert score.sel(aggregation='center') == expected
 

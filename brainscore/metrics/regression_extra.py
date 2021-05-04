@@ -14,7 +14,8 @@ from sklearn.preprocessing import StandardScaler
 
 from brainio_base.assemblies import walk_coords
 from brainscore.metrics.mask_regression import MaskRegression
-from brainscore.metrics.transformations import CrossValidation, ToleranceCrossValidation
+from brainscore.metrics.transformations import CrossValidation
+from brainscore.metrics.transformations_extra import ToleranceCrossValidation
 from brainscore.metrics.transformations_extra import CrossValidationCustomPlusBaseline
 from brainscore.metrics.regression import pls_regression
 from .xarray_utils import XarrayRegression, XarrayCorrelation
@@ -110,7 +111,7 @@ class CrossRegressedCorrelationDrew:
 
             # Residualize Y
             Y_pred_train = self.control_regression.predict(X2_train)
-            Y_train, Y_pred_train = xr.align(Y_train, Y_pred_train)
+            Y_train, Y_pred_train = xr.align(Y_train, Y_pred_train, join='exact')
             assert (np.array_equal(Y_train.image_id.values, Y_pred_train.image_id.values))
 
             Y_residuals_train = Y_train - Y_pred_train

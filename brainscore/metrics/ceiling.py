@@ -5,7 +5,8 @@ from tqdm import tqdm
 from brainio_base.assemblies import walk_coords
 from brainscore.metrics import Score
 from brainscore.metrics.rdm import RDMMetric
-from brainscore.metrics.transformations import CrossValidationSingle, ToleranceCrossValidation
+from brainscore.metrics.transformations import CrossValidationSingle
+from brainscore.metrics.transformations_extra import ToleranceCrossValidation
 from brainscore.metrics.xarray_utils import Defaults as XarrayDefaults
 from brainscore.metrics.xarray_utils import XarrayCorrelation
 

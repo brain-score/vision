@@ -1,7 +1,7 @@
 from brainscore.utils import LazyLoad
 from brainscore.benchmarks.majajhong2015_combined import _DicarloMajajHong2015Region_lmh, \
     _DicarloMajajHong2015Region_lmh_covariate, _DicarloMajajHong2015Region_lmh_masked, \
-    _DicarloMajajHong2015Region_lmh_toleranceceiling, _DicarloMajajHong2015Region_lmh_imagedir
+    _DicarloMajajHong2015Region_lmh_toleranceceiling, _DicarloMajajHong2015Region_lmh_imagedir, _DicarloMajajHong2015Region_lmh_covariate_gram
 from brainscore.metrics.ceiling import InternalConsistency, RDMConsistency, ToleranceConsistency
 from brainscore.metrics.rdm import RDMCrossValidated
 from brainscore.metrics.regression import CrossRegressedCorrelation, mask_regression, ScaledCrossRegressedCorrelation, \
@@ -23,6 +23,9 @@ def get_benchmark(benchmark_identifier, **kwargs):
 
     elif benchmark_identifier == 'tol_objects':
         return get_tol_imagedir(crossvalidation_kwargs, **kwargs)
+
+    elif benchmark_identifier == 'tol_99_gram':
+        return get_tol_99_gram(crossvalidation_kwargs, **kwargs)
 
     else:
         raise NotImplemented("This tolerance identifier has not been implemented yet")
@@ -97,6 +100,35 @@ def get_tol_99(crossvalidation_kwargs, **kwargs):
             similarity_metric=CrossRegressedCorrelationDrew(
                 covariate_control=kwargs['control'],
                 control_regression=gram_linear(gram=kwargs['gram']),
+                main_regression=pls_regression(),
+                correlation=pearsonr_correlation(),
+                crossvalidation_kwargs=crossvalidation_kwargs,
+                fname=kwargs.get('explained_variance_fname', None),
+                tag=kwargs.get('csv_file', None)),
+            ceiler=InternalConsistency()
+        )
+
+    return LazyLoad(top_function)
+
+
+def get_tol_99_gram(crossvalidation_kwargs, **kwargs):
+    '''
+    Similar to tol_drew, except the control regression is PCA + linear regression instead of PLS, and with all components
+    so we make sure all of the control variable is regressed out
+    '''
+
+    assert (kwargs.get('covariate_image_dir', None) is not None)
+    assert (kwargs.get('control', None) is not None)
+    assert (kwargs.get('gram', None) is not None)
+
+    def top_function():
+        return _DicarloMajajHong2015Region_lmh_covariate_gram(
+            covariate_image_dir=kwargs['covariate_image_dir'],
+            gram=kwargs.get('gram', False),
+            region='IT', identifier_metric_suffix='Drew',
+            similarity_metric=CrossRegressedCorrelationDrew(
+                covariate_control=kwargs['control'],
+                control_regression=gram_linear(gram=False),  # Gram will already be computed at higher level of the code
                 main_regression=pls_regression(),
                 correlation=pearsonr_correlation(),
                 crossvalidation_kwargs=crossvalidation_kwargs,

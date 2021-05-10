@@ -1,6 +1,7 @@
 import brainscore
 from brainscore.benchmarks._neural_common import NeuralBenchmark, average_repetition
-from brainscore.benchmarks._neural_common_extra import NeuralBenchmarkCovariate, ToleranceCeiling, NeuralBenchmarkImageDir
+from brainscore.benchmarks._neural_common_extra import NeuralBenchmarkCovariate, ToleranceCeiling, NeuralBenchmarkImageDir, \
+    NeuralBenchmarkCovariateGram
 from brainscore.metrics.ceiling import InternalConsistency, RDMConsistency, ToleranceConsistency
 from brainscore.metrics.rdm import RDMCrossValidated
 from brainscore.metrics.regression import CrossRegressedCorrelation, mask_regression, ScaledCrossRegressedCorrelation, \
@@ -76,6 +77,18 @@ def _DicarloMajajHong2015Region_lmh_covariate(covariate_image_dir, region, ident
                            ceiling_func=lambda: ceiler(assembly_repetition),
                            parent=region,
                            bibtex=BIBTEX)
+
+def _DicarloMajajHong2015Region_lmh_covariate_gram(covariate_image_dir, gram, region, identifier_metric_suffix, similarity_metric, ceiler, benchmark_identifier='dicarlo.MajajHong2015'):
+    assembly_repetition = LazyLoad(lambda region=region: load_assembly(average_repetitions=False, region=region))
+    assembly = LazyLoad(lambda region=region: load_assembly(average_repetitions=True, region=region))
+    return NeuralBenchmarkCovariateGram(identifier=benchmark_identifier, version=3,
+                                    assembly=assembly, similarity_metric=similarity_metric,
+                                    covariate_image_dir=covariate_image_dir,
+                                    visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
+                                    ceiling_func=lambda: ceiler(assembly_repetition),
+                                    parent=region,
+                                    bibtex=BIBTEX,
+                                    gram=gram)
 
 def DicarloMajajHong2015V4PLS_lmh():
     return _DicarloMajajHong2015Region_lmh('V4', identifier_metric_suffix='pls',

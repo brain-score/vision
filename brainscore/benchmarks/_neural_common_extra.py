@@ -97,7 +97,7 @@ class NeuralBenchmarkCovariateGram(BenchmarkBase):
         if self.gram:
             model = covariate_assembly.model.values[0]
             layer = covariate_assembly.layer.values[0]
-            fname = os.path.join(brainio_dir, self.covariate_image_dir, '_'.join([model, layer, covariate_assembly.stimulus_set_identifier, 'gram.nc']))
+            fname = os.path.join(brainio_dir, self.covariate_image_dir, '_'.join([model, layer.replace('/', '_'), covariate_assembly.stimulus_set_identifier, 'gram.nc']))
             covariate_assembly = gram_on_all(covariate_assembly, fname = fname)
             source_assembly, covariate_assembly = source_assembly.sortby('image_id'), covariate_assembly.sortby('image_id')
             covariate_assembly = covariate_assembly.rename({'image_id': 'presentation'})

@@ -41,7 +41,8 @@ def _gather_cv_kwargs(**kwargs):
         crossvalidation_kwargs = dict(
             stratification_coord='object_name',
             train_size=kwargs['train_size'],
-            test_size=kwargs['test_size'])
+            test_size=kwargs['test_size'],
+            splits=1)
 
     else:
         assert (kwargs.get('parent_folder', None) is not None)

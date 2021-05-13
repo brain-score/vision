@@ -353,34 +353,61 @@ class GramLinearRegression():
         self.n_components = None  # will get updated after the pca fit
 
     def fit(self, X, Y):
+        print('FITTING')
         if self.gram:
             t = time.time()
             X = unflatten(X, channel_coord=self.channel_coord)
             X = X.reshape(list(X.shape[0:2]) + [-1])
             X = take_gram(X)
-            print('getting gram took ', str(time.time() - t))
+            print('Getting gram took ', str(time.time() - t))
+            print('Gram shape is ', X.shape)
 
+        # Scale
+        t = time.time()
         X = self.scaler.fit_transform(X)
+        print('Fitting scaler took ', str(time.time() - t))
+
+        # PCA
+        t = time.time()
         X = self.pca.fit_transform(X)
         self.n_components = np.argmax(np.cumsum(self.pca.explained_variance_ratio_) >= self.pca_treshold) +1
         X = X[:, 0:self.n_components]
+        print('PCA took ', str(time.time() - t))
+
+        # Regression
+        t = time.time()
         self.regression.fit(X, Y)
+        print('Fitting regression took ', str(time.time() - t))
 
     def predict(self, X):
+        print('PREDICTING')
         if self.gram:
             t = time.time()
             X = unflatten(X, channel_coord=self.channel_coord)
             # Reshape to BxCxH*W (or W*H, not sure)
             X = X.reshape(list(X.shape[0:2]) + [-1])
             X = take_gram(X)
-            print('getting gram took ', str(time.time() - t))
+            print('Getting gram took ', str(time.time() - t))
+            print('Gram shape is ', X.shape)
 
+        # Scaling
+        t = time.time()
         X = self.scaler.transform(X)
+        print('Running scaler took ', str(time.time() - t))
+
+
+        # PCA
+        t = time.time()
         X = self.pca.transform(X)
         X = X[:, 0:self.n_components]
-        Y_pred = self.regression.predict(X)
-        return Y_pred
+        print('PCA took ', str(time.time() - t))
 
+        # Regression
+        t = time.time()
+        Y_pred = self.regression.predict(X)
+        print('Predicting from regression took ', str(time.time() - t))
+
+        return Y_pred
 
 
 class XarrayCovariateRegression:

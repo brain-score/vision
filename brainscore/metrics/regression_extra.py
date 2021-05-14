@@ -340,17 +340,15 @@ class GramPLS():
 
 
 class GramLinearRegression():
-    def __init__(self, gram=True, channel_coord=None, pca_treshold=0.99, scaler_kwargs=None, pca_kwargs=None, regression_kwargs=None):
+    def __init__(self, gram=True, channel_coord=None, scaler_kwargs=None, pca_kwargs=None, regression_kwargs=None):
         self.channel_coord = channel_coord
         self.regression_kwargs = regression_kwargs or {}
         self.pca_kwargs = pca_kwargs or {}
         self.scaler_kwargs = scaler_kwargs or {}
         self.regression = LinearRegression(**self.regression_kwargs)
-        self.pca = PCA(**self.regression_kwargs)
+        self.pca = PCA(**self.pca_kwargs)
         self.scaler = StandardScaler(**self.scaler_kwargs)
         self.gram = gram
-        self.pca_treshold = pca_treshold
-        self.n_components = None  # will get updated after the pca fit
 
     def fit(self, X, Y):
         print('FITTING')
@@ -370,8 +368,6 @@ class GramLinearRegression():
         # PCA
         t = time.time()
         X = self.pca.fit_transform(X)
-        self.n_components = np.argmax(np.cumsum(self.pca.explained_variance_ratio_) >= self.pca_treshold) +1
-        X = X[:, 0:self.n_components]
         print('PCA took ', str(time.time() - t))
 
         # Regression
@@ -399,7 +395,6 @@ class GramLinearRegression():
         # PCA
         t = time.time()
         X = self.pca.transform(X)
-        X = X[:, 0:self.n_components]
         print('PCA took ', str(time.time() - t))
 
         # Regression
@@ -818,14 +813,11 @@ def gram_pls(regression_kwargs=None, xarray_kwargs=None):
 def gram_linear(gram=True, pca_treshold=None, scaler_kwargs=None, pca_kwargs=None, regression_kwargs=None, xarray_kwargs=None):
     scaler_defaults = dict(with_std=False)
     pca_defaults = dict(n_components=None)  # instead of 25 because we are worried about how much variance is explained
-    pca_treshold_default = 0.99
     scaler_kwargs = {**scaler_defaults, **(scaler_kwargs or {})}
     pca_kwargs = {**pca_defaults, **(pca_kwargs or {})}
     regression_kwargs = regression_kwargs or {}
-    pca_treshold = pca_treshold or pca_treshold_default
     regression = GramLinearRegression(gram=gram,
                                       channel_coord=None,
-                                      pca_treshold=pca_treshold,
                                       scaler_kwargs=scaler_kwargs,
                                       pca_kwargs=pca_kwargs,
                                       regression_kwargs=regression_kwargs)
@@ -927,6 +919,8 @@ def take_gram(X):
     """
     X_grams = einsum("ijk, ikl -> ijl", X, np.transpose(X, [0, 2, 1]))
     # X_grams = X_grams/X.size # is this the right normalization?
+    C = X_grams.shape[1]
     X_grams = X_grams.reshape(X_grams.shape[0], -1)
+    X_grams = X_grams[:, np.ravel_multi_index(np.triu_indices(C), dims=(C,C))]
 
     return X_grams

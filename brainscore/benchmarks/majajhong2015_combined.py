@@ -28,6 +28,18 @@ BIBTEX = """@article {Majaj13402,
             journal = {Journal of Neuroscience}}"""
 
 
+def load_assembly(average_repetitions,region, name='dicarlo.MajajHong2015'):
+    assembly = brainscore.get_assembly(name=name)
+    assembly = assembly.sel(region=region)
+    assembly['region'] = 'neuroid', [region] * len(assembly['neuroid'])
+    assembly = assembly.squeeze("time_bin")
+    assembly.load()
+    assembly = assembly.transpose('presentation', 'neuroid')
+    if average_repetitions:
+        assembly = average_repetition(assembly)
+    return assembly
+
+
 def _DicarloMajajHong2015Region_lmh(region, identifier_metric_suffix, similarity_metric, ceiler, benchmark_identifier='dicarlo.MajajHong2015'):
     assembly_repetition = LazyLoad(lambda region=region: load_assembly(average_repetitions=False, region=region))
     assembly = LazyLoad(lambda region=region: load_assembly(average_repetitions=True, region=region))
@@ -57,20 +69,20 @@ def _DicarloMajajHong2015Region_lmh_toleranceceiling(region, identifier_metric_s
                            parent=region,
                            bibtex=BIBTEX)
 
-def _DicarloMajajHong2015Region_lmh_masked(region, identifier_metric_suffix, similarity_metric, ceiler, benchmark_identifier='dicarlo.MajajHong2015'):
-    assembly_repetition = LazyLoad(lambda region=region: load_assembly(average_repetitions=False, region=region, masked=True))
-    assembly = LazyLoad(lambda region=region: load_assembly(average_repetitions=True, region=region, masked=True))
-    return NeuralBenchmark(identifier=benchmark_identifier, version=3,
-                           assembly=assembly, similarity_metric=similarity_metric,
-                           visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
-                           ceiling_func=lambda: ceiler(assembly_repetition),
-                           parent=region,
-                           bibtex=BIBTEX)
+# def _DicarloMajajHong2015Region_lmh_masked(region, identifier_metric_suffix, similarity_metric, ceiler, benchmark_identifier='dicarlo.MajajHong2015'):
+#     assembly_repetition = LazyLoad(lambda region=region: load_assembly(average_repetitions=False, region=region, masked=True))
+#     assembly = LazyLoad(lambda region=region: load_assembly(average_repetitions=True, region=region, masked=True))
+#     return NeuralBenchmark(identifier=benchmark_identifier, version=3,
+#                            assembly=assembly, similarity_metric=similarity_metric,
+#                            visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
+#                            ceiling_func=lambda: ceiler(assembly_repetition),
+#                            parent=region,
+#                            bibtex=BIBTEX)
 
-def _DicarloMajajHong2015Region_lmh_covariate(covariate_image_dir, region, identifier_metric_suffix, similarity_metric, ceiler, benchmark_identifier='dicarlo.MajajHong2015'):
+def _DicarloMajajHong2015Region_lmh_covariate(covariate_image_dir, region, identifier_metric_suffix, similarity_metric, ceiler, assembly_name='dicarlo.MajajHong2015'):
     assembly_repetition = LazyLoad(lambda region=region: load_assembly(average_repetitions=False, region=region))
-    assembly = LazyLoad(lambda region=region: load_assembly(average_repetitions=True, region=region))
-    return NeuralBenchmarkCovariate(identifier=benchmark_identifier, version=3,
+    assembly = LazyLoad(lambda region=region: load_assembly(average_repetitions=True, region=region, name=assembly_name))
+    return NeuralBenchmarkCovariate(identifier=f'{assembly_name}.{region}-{identifier_metric_suffix}', version=3,
                            assembly=assembly, similarity_metric=similarity_metric,
                            covariate_image_dir=covariate_image_dir,
                            visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
@@ -79,7 +91,7 @@ def _DicarloMajajHong2015Region_lmh_covariate(covariate_image_dir, region, ident
                            bibtex=BIBTEX)
 
 def _DicarloMajajHong2015Region_lmh_covariate_gram(covariate_image_dir, gram, region, identifier_metric_suffix, similarity_metric, ceiler, benchmark_identifier='dicarlo.MajajHong2015'):
-    assembly_repetition = LazyLoad(lambda region=region: load_assembly(average_repetitions=False, region=region))
+    assembly_repetition = LazyLoad(lambda region=region: load_assembly(average_repetitions=False, region=region, name=benchmark_identifier))
     assembly = LazyLoad(lambda region=region: load_assembly(average_repetitions=True, region=region))
     return NeuralBenchmarkCovariateGram(identifier=benchmark_identifier, version=3,
                                     assembly=assembly, similarity_metric=similarity_metric,
@@ -1061,16 +1073,4 @@ def DicarloMajajHong2015ITRDM_lmh():
 
 
 
-def load_assembly(average_repetitions,region, masked = False):
-    if not masked:
-        assembly = brainscore.get_assembly(name=f'dicarlo.MajajHong2015')
-    else:
-        assembly = brainscore.get_assembly(name=f'dicarlo.MajajHong2015-masked')
-    assembly = assembly.sel(region=region)
-    assembly['region'] = 'neuroid', [region] * len(assembly['neuroid'])
-    assembly = assembly.squeeze("time_bin")
-    assembly.load()
-    assembly = assembly.transpose('presentation', 'neuroid')
-    if average_repetitions:
-        assembly = average_repetition(assembly)
-    return assembly
+

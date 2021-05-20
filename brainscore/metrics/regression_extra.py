@@ -921,7 +921,6 @@ def take_gram(X):
     # X_grams = X_grams/X.size # is this the right normalization?
     C = X_grams.shape[1]
     X_grams = X_grams.reshape(X_grams.shape[0], -1)
-    X_grams = X_grams[:, np.ravel_multi_index(np.triu_indices(C), dims=(C,C))]
-    print('Gram shape: ', X_grams.shape)
+    #X_grams = X_grams[:, np.ravel_multi_index(np.triu_indices(C), dims=(C,C))]
 
     return X_grams

@@ -922,5 +922,6 @@ def take_gram(X):
     C = X_grams.shape[1]
     X_grams = X_grams.reshape(X_grams.shape[0], -1)
     X_grams = X_grams[:, np.ravel_multi_index(np.triu_indices(C), dims=(C,C))]
+    print('Gram shape: ', X_grams.shape)
 
     return X_grams

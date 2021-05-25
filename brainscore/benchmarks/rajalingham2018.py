@@ -24,14 +24,14 @@ BIBTEX = """@article {Rajalingham240614,
 
 
 class _DicarloRajalingham2018(BenchmarkBase):
-    def __init__(self, metric, metric_name):
+    def __init__(self, metric, metric_identifier):
         self._metric = metric
         self._fitting_stimuli = brainscore.get_stimulus_set('dicarlo.objectome.public')
         self._assembly = LazyLoad(lambda: load_assembly('private'))
         self._visual_degrees = 8
         self._number_of_trials = 2
         super(_DicarloRajalingham2018, self).__init__(
-            identifier='dicarlo.Rajalingham2018-'+metric_name, version=2,
+            identifier='dicarlo.Rajalingham2018-' + metric_identifier, version=2,
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
             parent='behavior',
             bibtex=BIBTEX)

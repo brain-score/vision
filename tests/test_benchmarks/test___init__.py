@@ -268,7 +268,7 @@ class TestPrecomputed:
 
     @pytest.mark.memory_intense
     @pytest.mark.slow
-    @pytest.mark.parametrize('benchmark, property_name, expected, file', [
+    @pytest.mark.parametrize('benchmark, expected', [
         ('dicarlo.Marques2020_DeValois2002-pref_or', approx(.895, abs=.01)),
         ('dicarlo.Marques2020_Ringach2002-circular_variance', approx(.830, abs=.01)),
         ('dicarlo.Marques2020_Ringach2002-or_bandwidth', approx(.844, abs=.01)),
@@ -306,8 +306,8 @@ class TestPrecomputed:
         benchmark = benchmark_pool[benchmark]
         from brainscore import get_stimulus_set
 
-        stimulus_identifiers = ['dicarlo.Marques2020_blank', 'dicarlo.Marques2020_receptive_field',
-                                benchmark._assembly.stimulus_set.identifier]
+        stimulus_identifiers = np.unique(np.array(['dicarlo.Marques2020_blank', 'dicarlo.Marques2020_receptive_field',
+                                'dicarlo.Marques2020_orientation', benchmark._assembly.stimulus_set.identifier]))
         precomputed_features = {}
         for current_stimulus in stimulus_identifiers:
             stimulus_set = get_stimulus_set(current_stimulus)

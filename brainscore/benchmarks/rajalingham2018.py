@@ -66,27 +66,27 @@ class _DicarloRajalingham2018(BenchmarkBase):
 
 
 def DicarloRajalingham2018I2n():
-    return _DicarloRajalingham2018(metric=I2n(), metric_name='i2n')
+    return _DicarloRajalingham2018(metric=I2n(), metric_identifier='i2n')
 
 
 def DicarloRajalingham2018I1n():
-    return _DicarloRajalingham2018(metric=I1n(), metric_name='i1n')
+    return _DicarloRajalingham2018(metric=I1n(), metric_identifier='i1n')
 
 
 def DicarloRajalingham2018O1():
-    return _DicarloRajalingham2018(metric=O1(), metric_name='o1')
+    return _DicarloRajalingham2018(metric=O1(), metric_identifier='o1')
 
 
 def DicarloRajalingham2018O2():
-    return _DicarloRajalingham2018(metric=O2(), metric_name='o2')
+    return _DicarloRajalingham2018(metric=O2(), metric_identifier='o2')
 
 
 def DicarloRajalingham2018I2():
-    return _DicarloRajalingham2018(metric=I2(), metric_name='i2n')
+    return _DicarloRajalingham2018(metric=I2(), metric_identifier='i2n')
 
 
 def DicarloRajalingham2018I1():
-    return _DicarloRajalingham2018(metric=I1(), metric_name='i2n')
+    return _DicarloRajalingham2018(metric=I1(), metric_identifier='i2n')
 
 
 def load_assembly(access='private'):

@@ -80,7 +80,7 @@ class TestStandardized:
         pytest.param('dicarlo.Rajalingham2020.IT-pls', approx(.561013, abs=.001),
                      marks=[pytest.mark.memory_intense, pytest.mark.slow]),
         # V1 properties Ceilings
-        pytest.param('dicarlo.Marques2020_DeValois2002-pref_or', approx(0.962, abs=.005), marks=[]),
+        pytest.param('dicarlo.Marques2020_DeValois1982-pref_or', approx(0.962, abs=.005), marks=[]),
         pytest.param('dicarlo.Marques2020_Ringach2002-circular_variance', approx(0.959, abs=.005), marks=[]),
         pytest.param('dicarlo.Marques2020_Ringach2002-or_bandwidth', approx(0.964, abs=.005), marks=[]),
         pytest.param('dicarlo.Marques2020_Ringach2002-orth_pref_ratio', approx(0.962, abs=.005), marks=[]),
@@ -269,7 +269,8 @@ class TestPrecomputed:
     @pytest.mark.memory_intense
     @pytest.mark.slow
     @pytest.mark.parametrize('benchmark, expected', [
-        ('dicarlo.Marques2020_DeValois2002-pref_or', approx(.895, abs=.01)),
+        ('dicarlo.Marques2020_DeValois1982-pref_or', approx(.895, abs=.01)),
+        ('dicarlo.Marques2020_DeValois1982-pref_or', approx(.895, abs=.01)),
         ('dicarlo.Marques2020_Ringach2002-circular_variance', approx(.830, abs=.01)),
         ('dicarlo.Marques2020_Ringach2002-or_bandwidth', approx(.844, abs=.01)),
         ('dicarlo.Marques2020_Ringach2002-orth_pref_ratio', approx(.876, abs=.01)),

@@ -1,7 +1,7 @@
 import brainscore
 from brainscore.benchmarks._neural_common import NeuralBenchmark, average_repetition
 from brainscore.benchmarks._neural_common_extra import NeuralBenchmarkCovariate, ToleranceCeiling, NeuralBenchmarkImageDir, \
-    NeuralBenchmarkCovariateGram
+    NeuralBenchmarkCovariateGram, CacheFeaturesCovariate
 from brainscore.metrics.ceiling import InternalConsistency, RDMConsistency, ToleranceConsistency
 from brainscore.metrics.rdm import RDMCrossValidated
 from brainscore.metrics.regression import CrossRegressedCorrelation, mask_regression, ScaledCrossRegressedCorrelation, \
@@ -83,6 +83,17 @@ def _DicarloMajajHong2015Region_lmh_covariate(covariate_image_dir, region, ident
     assembly_repetition = LazyLoad(lambda region=region: load_assembly(average_repetitions=False, region=region))
     assembly = LazyLoad(lambda region=region: load_assembly(average_repetitions=True, region=region, name=assembly_name))
     return NeuralBenchmarkCovariate(identifier=f'{assembly_name}.{region}-{identifier_metric_suffix}', version=3,
+                           assembly=assembly, similarity_metric=similarity_metric,
+                           covariate_image_dir=covariate_image_dir,
+                           visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
+                           ceiling_func=lambda: ceiler(assembly_repetition),
+                           parent=region,
+                           bibtex=BIBTEX)
+
+def _DicarloMajajHong2015Region_lmh_covariate_cache_features(covariate_image_dir, region, identifier_metric_suffix, similarity_metric, ceiler, assembly_name='dicarlo.MajajHong2015'):
+    assembly_repetition = LazyLoad(lambda region=region: load_assembly(average_repetitions=False, region=region))
+    assembly = LazyLoad(lambda region=region: load_assembly(average_repetitions=True, region=region, name=assembly_name))
+    return CacheFeaturesCovariate(identifier=f'{assembly_name}.{region}-{identifier_metric_suffix}', version=3,
                            assembly=assembly, similarity_metric=similarity_metric,
                            covariate_image_dir=covariate_image_dir,
                            visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,

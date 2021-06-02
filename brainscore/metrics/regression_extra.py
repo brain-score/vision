@@ -368,8 +368,11 @@ class GramLinearRegression():
 
         # PCA
         t = time.time()
-        X_wo_gpu = self.pca.fit_transform(X)
+        #X_wo_gpu = self.pca.fit_transform(X)
+        #del(X_wo_gpu)
         print('PCA took ', str(time.time() - t))
+
+        import pdb; pdb.set_trace()
 
         # PCA GPU
         t = time.time()

@@ -18,7 +18,7 @@ requirements = [
     "numpy>=1.17",
     "brainio_base @ git+https://github.com/brain-score/brainio_base",
     "brainio_collection @ git+https://github.com/brain-score/brainio_collection",
-    "scikit-learn",
+    "scikit-learn<0.24",  # 0.24 breaks pls regression
     "h5py",
     "tqdm",
     "gitpython",

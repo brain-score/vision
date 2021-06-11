@@ -368,27 +368,22 @@ class GramLinearRegression():
 
         # PCA
         t = time.time()
-        #X_wo_gpu = self.pca.fit_transform(X)
-        #del(X_wo_gpu)
+        X = self.pca.fit_transform(X)
         print('PCA took ', str(time.time() - t))
 
-        import pdb; pdb.set_trace()
-
         # PCA GPU
-        t = time.time()
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        X = torch.from_numpy(X)
-        X = X.to(device=device)
-        u, s, v = torch.svd(X)
-        del(u)
-        del(s)
-        X = torch.matmul(X, v)
-        X = X.cpu().numpy()
-        n_components = np.argmax(np.cumsum(X.var(axis=0))/np.sum(X.var(axis=0))>=0.99) + 1
-        X = X[:,0:n_components]
-        print('PCA with gpu took ', str(time.time() - t))
-
-
+        # t = time.time()
+        # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        # X = torch.from_numpy(X)
+        # X = X.to(device=device)
+        # u, s, v = torch.svd(X)
+        # del(u)
+        # del(s)
+        # X = torch.matmul(X, v)
+        # X = X.cpu().numpy()
+        # n_components = np.argmax(np.cumsum(X.var(axis=0))/np.sum(X.var(axis=0))>=0.99) + 1
+        # X = X[:,0:n_components]
+        # print('PCA with gpu took ', str(time.time() - t))
 
         # Regression
         t = time.time()

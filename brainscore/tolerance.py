@@ -34,6 +34,9 @@ def get_benchmark(benchmark_identifier, **kwargs):
     elif benchmark_identifier == 'tol_99_gram':
         return get_tol_99_gram(crossvalidation_kwargs, **kwargs)
 
+    elif benchmark_identifier == 'tol_extract_features':
+        return get_tol_extract_features(crossvalidation_kwargs, **kwargs)
+
     else:
         raise NotImplemented("This tolerance identifier has not been implemented yet")
 

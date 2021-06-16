@@ -77,6 +77,121 @@ class CrossRegressedCorrelationCovariate:
         return scores.median(dim='neuroid')
 
 
+class CrossRegressedCorrelationSemiPartial:
+    def __init__(self, main_regression, control_regression, correlation, covariate_control=True, fname=None, tag=None, crossvalidation_kwargs=None):
+        # regression = regression or pls_regression()
+        self.crossvalidation_kwargs = crossvalidation_kwargs or {}
+
+        self.cross_validation = CrossValidation(expecting_coveriate=True, **self.crossvalidation_kwargs)
+        self.main_regression = main_regression
+        self.control_regression = control_regression
+        self.correlation = correlation
+        self.covariate_control = covariate_control
+        self.fname = fname
+        self.tag = tag  # just an extra tag to help keep track of what we're running and write it to fname. Doesn't have
+                        # any impact beyond the what is written to fname
+
+    def __call__(self, source, covariate, target):
+        return self.cross_validation(source, covariate, target, apply=self.apply, aggregate=self.aggregate)
+
+    def apply(self, source_train, covariate_train, target_train, source_test, covariate_test, target_test):
+        # vv Hacky but the model activation assemblies don't have the stimulus index and it makes the alignment fail
+        # vv All we need for alignment is image_id and neuroid anyway (and perhaps repetition in some cases)
+        target_train = target_train.reset_index('stimulus', drop=True)
+        target_test = target_test.reset_index('stimulus', drop=True)
+
+        X1_train = source_train
+        X2_train = covariate_train
+        Y_train = target_train
+
+        X1_test = source_test
+        X2_test = covariate_test
+        Y_test = target_test
+
+        if self.covariate_control:
+            # FIT (train)
+            ##############
+
+            # 1) Regressing on the covariate (X2)
+            self.control_regression.fit(X2_train, X1_train)
+
+            # Residualize X1
+            X1_pred_train = self.control_regression.predict(X2_train)
+            X1_pred_train = X1_pred_train.transpose(*X1_train.dims)
+            X1_train, X1_pred_train = xr.align(X1_train, X1_pred_train)
+            assert (np.array_equal(X1_train.image_id.values, X1_pred_train.image_id.values))
+            assert (np.array_equal(X1_train.image_id.values, Y_train.image_id.values))
+
+            X1_residuals_train = X1_train - X1_pred_train
+
+            # 2) Regressing Y on the residuals
+            self.main_regression.fit(X1_residuals_train, Y_train)
+
+            if self.fname:
+                dict_to_save = {}
+                dict_to_save['train'] = True
+                dict_to_save['explained_variance_control'] = explained_variance_score(X1_train, X1_pred_train)
+                dict_to_save['similarity_control'] = self.correlation(X1_pred_train, X1_train).median().item()
+                dict_to_save['model'] = X1_train.model.values[0]
+                dict_to_save['layer'] = X1_train.layer.values[0]
+                dict_to_save['covariate_identifier'] = X2_train.stimulus_set_identifier
+                self.write_to_file(dict_to_save, self.fname)
+
+
+
+            # PREDICTION (test)
+            ####################
+
+            # Residualize X1 (wo refitting)
+            X1_pred_test = self.control_regression.predict(X2_test)
+            X1_test, X1_pred_test = xr.align(Y_test, X1_pred_test)
+            assert (np.array_equal(X1_test.image_id.values, X1_pred_test.image_id.values))
+
+            X1_residuals_test = X1_test - X1_pred_test
+
+            # Get predicted Y
+            prediction = self.main_regression.predict(X1_residuals_test)
+
+            #
+            score = self.correlation(prediction, Y_test)
+
+            if self.fname:
+                dict_to_save = {}
+                dict_to_save['train'] = False
+                dict_to_save['explained_variance_control'] = explained_variance_score(X1_test, X1_pred_test)
+                dict_to_save['similarity_control'] = self.correlation(X1_pred_test, X1_test).median().item()
+                dict_to_save['model'] = X1_test.model.values[0]
+                dict_to_save['layer'] = X1_test.layer.values[0]
+                dict_to_save['covariate_identifier'] = X2_test.stimulus_set_identifier
+                self.write_to_file(dict_to_save, self.fname)
+
+        else:
+            # FIT (train)
+            self.main_regression.fit(X1_train, Y_train)
+            # PREDICT (test)
+            Y_pred = self.main_regression.predict(X1_test)
+            score = self.correlation(Y_pred, Y_test)
+
+        return score
+
+    def write_to_file(self, dict_to_save, fname):
+        dict_to_save['tag'] = self.tag
+        dict_to_save['class'] = self.__class__.__name__
+        dict_to_save['control_regression'] = self.control_regression._regression.__class__.__name__
+        dict_to_save['main_regression'] = self.main_regression._regression.__class__.__name__
+        dict_to_save['csv_file'] = self.crossvalidation_kwargs.get('csv_file', None)
+        dict_to_save['baseline'] = False if dict_to_save['csv_file'] else True
+        dict_to_save['gram'] = self.control_regression._regression.gram if hasattr(self.control_regression._regression, 'gram') else None
+        dict_to_save['control'] = self.covariate_control
+
+        df_to_save = pd.DataFrame(dict_to_save, index=[0])
+        with open(fname, 'a') as f:
+            df_to_save.to_csv(f, mode='a', header=f.tell() == 0)
+
+    def aggregate(self, scores):
+        return scores.median(dim='neuroid')
+
+
 class CrossRegressedCorrelationDrew:
     def __init__(self, main_regression, control_regression, correlation, covariate_control=True, fname=None, tag=None, crossvalidation_kwargs=None):
         # regression = regression or pls_regression()
@@ -188,8 +303,6 @@ class CrossRegressedCorrelationDrew:
         with open(fname, 'a') as f:
             df_to_save.to_csv(f, mode='a', header=f.tell() == 0)
 
-
-
     def aggregate(self, scores):
         return scores.median(dim='neuroid')
 
@@ -283,11 +396,13 @@ class SemiPartialRegression():
 
 
 class SemiPartialPLS():
-    def __init__(self, covariate_control=False, regression_kwargs=None):
+    def __init__(self, covariate_control=False, main_regression_kwargs=None, control_regression_kwargs=None):
         self.covariate_control = covariate_control
-        self.regression_kwargs = regression_kwargs or {}
-        self.control_regression = PLSRegression(**self.regression_kwargs)
-        self.main_regression = PLSRegression(**self.regression_kwargs)
+        self.main_regression_kwargs = main_regression_kwargs or {}
+        self.control_regression_kwargs = control_regression_kwargs or {}
+        self.main_regression = GramPLS(**self.main_regression_kwargs)
+        self.control_regression = GramPLS(**self.control_regression_kwargs)
+
 
     def _get_residuals(self, X, X_cov, fit=True):
         # Residuals
@@ -316,32 +431,53 @@ class SemiPartialPLS():
 
 
 class GramPLS():
-    def __init__(self, channel_coord=None, regression_kwargs=None):
+    def __init__(self, gram=True, use_max_components=False, channel_coord=None, regression_kwargs=None):
         self.channel_coord = channel_coord
         self.regression_kwargs = regression_kwargs or {}
         self.regression = PLSRegression(**self.regression_kwargs)
+        self.gram = gram
+        self.use_max_components = use_max_components
 
     def fit(self, X, Y):
+        print('FITTING')
+        if self.gram:
+            t = time.time()
+            X = unflatten(X, channel_coord=self.channel_coord)
+            X = X.reshape(list(X.shape[0:2]) + [-1])
+            X = take_gram(X)
+            print('Getting gram took ', str(time.time() - t))
+            print('Gram shape is ', X.shape)
+
+        if self.use_max_components:
+            n_samples = X.shape[0]
+            n_features = X.shape[1]
+            n_targets = Y.shape[1]
+            n_components = min(n_samples, n_features, n_targets)
+            self.regression.n_components = n_components
+
+        # Regression
         t = time.time()
-        X = unflatten(X, channel_coord=self.channel_coord)
-        X = X.reshape(list(X.shape[0:2]) + [-1])
-        X = take_gram(X)
-        print('getting gram took ', str(time.time()-t))
         self.regression.fit(X, Y)
+        print('Fitting regression took ', str(time.time() - t))
 
     def predict(self, X):
-        t = time.time()
-        X = unflatten(X, channel_coord=self.channel_coord)
-        # Reshape to BxCxH*W (or W*H, not sure)
-        X = X.reshape(list(X.shape[0:2]) + [-1])
-        X = take_gram(X)
-        print('getting gram took ', str(time.time() - t))
+        print('PREDICTING')
+        if self.gram:
+            t = time.time()
+            X = unflatten(X, channel_coord=self.channel_coord)
+            # Reshape to BxCxH*W (or W*H, not sure)
+            X = X.reshape(list(X.shape[0:2]) + [-1])
+            X = take_gram(X)
+            print('Getting gram took ', str(time.time() - t))
+            print('Gram shape is ', X.shape)
+
+        # Regression
         Y_pred = self.regression.predict(X)
         return Y_pred
 
 
 class GramLinearRegression():
-    def __init__(self, gram=True, channel_coord=None, scaler_kwargs=None, pca_kwargs=None, regression_kwargs=None):
+    def __init__(self, gram=True, with_pca=True, channel_coord=None, scaler_kwargs=None, pca_kwargs=None, regression_kwargs=None):
         self.channel_coord = channel_coord
         self.regression_kwargs = regression_kwargs or {}
         self.pca_kwargs = pca_kwargs or {}
@@ -350,6 +486,7 @@ class GramLinearRegression():
         self.pca = PCA(**self.pca_kwargs)
         self.scaler = StandardScaler(**self.scaler_kwargs)
         self.gram = gram
+        self.with_pca = with_pca
 
     def fit(self, X, Y):
         print('FITTING')
@@ -367,9 +504,10 @@ class GramLinearRegression():
         print('Fitting scaler took ', str(time.time() - t))
 
         # PCA
-        t = time.time()
-        X = self.pca.fit_transform(X)
-        print('PCA took ', str(time.time() - t))
+        if self.with_pca:
+            t = time.time()
+            X = self.pca.fit_transform(X)
+            print('PCA took ', str(time.time() - t))
 
         # PCA GPU
         # t = time.time()
@@ -408,9 +546,10 @@ class GramLinearRegression():
 
 
         # PCA
-        t = time.time()
-        X = self.pca.transform(X)
-        print('PCA took ', str(time.time() - t))
+        if self.with_pca:
+            t = time.time()
+            X = self.pca.transform(X)
+            print('PCA took ', str(time.time() - t))
 
         # Regression
         t = time.time()
@@ -807,31 +946,38 @@ def semipartial_regression(covariate_control=False, scaler_kwargs=None, pca_kwar
     return regression
 
 
-def semipartial_pls(covariate_control=False, regression_kwargs=None, xarray_kwargs=None):
+def semipartial_pls(covariate_control=False, main_regression_kwargs=None, control_regression_kwargs=None, xarray_kwargs=None):
     regression_defaults = dict(n_components=25, scale=False)
-    regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
-    regression = SemiPartialPLS(covariate_control=covariate_control, regression_kwargs=regression_kwargs)
+    main_regression_kwargs = {**regression_defaults, **(main_regression_kwargs or {})}
+    control_regression_kwargs = {**regression_defaults, **(control_regression_kwargs or {})}
+    regression = SemiPartialPLS(covariate_control=covariate_control,
+                                main_regression_kwargs=main_regression_kwargs,
+                                control_regression_kwargs=control_regression_kwargs)
     xarray_kwargs = xarray_kwargs or {}
     regression = XarrayCovariateRegression(regression, **xarray_kwargs)
     return regression
 
 
-def gram_pls(regression_kwargs=None, xarray_kwargs=None):
-    regression_defaults = dict(n_components=25, scale=False)
-    regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
-    regression = GramPLS(regression_kwargs=regression_kwargs)
+def gram_pls(gram=True, use_max_components=False, regression_kwargs=None, xarray_kwargs=None):
+    if use_max_components and regression_kwargs and 'n_components' in regression_kwargs:
+        raise ValueError("when use_max_components is true, n_components cannot be specified")
+    else:
+        regression_defaults = dict(n_components=25, scale=False)
+        regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
+    regression = GramPLS(gram=gram, use_max_components=use_max_components, regression_kwargs=regression_kwargs)
     xarray_kwargs = xarray_kwargs or {}
     regression = XarrayRegression(regression, **xarray_kwargs)
     return regression
 
 
-def gram_linear(gram=True, pca_treshold=None, scaler_kwargs=None, pca_kwargs=None, regression_kwargs=None, xarray_kwargs=None):
+def gram_linear(gram=True, with_pca=True, pca_treshold=None, scaler_kwargs=None, pca_kwargs=None, regression_kwargs=None, xarray_kwargs=None):
     scaler_defaults = dict(with_std=False)
     pca_defaults = dict(n_components=None)  # instead of 25 because we are worried about how much variance is explained
     scaler_kwargs = {**scaler_defaults, **(scaler_kwargs or {})}
     pca_kwargs = {**pca_defaults, **(pca_kwargs or {})}
     regression_kwargs = regression_kwargs or {}
     regression = GramLinearRegression(gram=gram,
+                                      with_pca=with_pca,
                                       channel_coord=None,
                                       scaler_kwargs=scaler_kwargs,
                                       pca_kwargs=pca_kwargs,

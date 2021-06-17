@@ -13,6 +13,7 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import r2_score
 
 from brainio_base.assemblies import walk_coords
 from brainscore.metrics.mask_regression import MaskRegression
@@ -120,7 +121,6 @@ class CrossRegressedCorrelationSemiPartial:
             X1_pred_train = X1_pred_train.transpose(*X1_train.dims)
             X1_train, X1_pred_train = xr.align(X1_train, X1_pred_train)
             assert (np.array_equal(X1_train.image_id.values, X1_pred_train.image_id.values))
-            assert (np.array_equal(X1_train.image_id.values, Y_train.image_id.values))
 
             X1_residuals_train = X1_train - X1_pred_train
 
@@ -132,6 +132,7 @@ class CrossRegressedCorrelationSemiPartial:
                 dict_to_save['train'] = True
                 dict_to_save['explained_variance_control'] = explained_variance_score(X1_train, X1_pred_train)
                 dict_to_save['similarity_control'] = self.correlation(X1_pred_train, X1_train).median().item()
+                dict_to_save['r2_sklearn'] = r2_score(X1_train, X1_pred_train)
                 dict_to_save['model'] = X1_train.model.values[0]
                 dict_to_save['layer'] = X1_train.layer.values[0]
                 dict_to_save['covariate_identifier'] = X2_train.stimulus_set_identifier
@@ -144,7 +145,8 @@ class CrossRegressedCorrelationSemiPartial:
 
             # Residualize X1 (wo refitting)
             X1_pred_test = self.control_regression.predict(X2_test)
-            X1_test, X1_pred_test = xr.align(Y_test, X1_pred_test)
+            X1_pred_test = X1_pred_test.transpose(*X1_test.dims)
+            X1_test, X1_pred_test = xr.align(X1_test, X1_pred_test)
             assert (np.array_equal(X1_test.image_id.values, X1_pred_test.image_id.values))
 
             X1_residuals_test = X1_test - X1_pred_test
@@ -160,6 +162,7 @@ class CrossRegressedCorrelationSemiPartial:
                 dict_to_save['train'] = False
                 dict_to_save['explained_variance_control'] = explained_variance_score(X1_test, X1_pred_test)
                 dict_to_save['similarity_control'] = self.correlation(X1_pred_test, X1_test).median().item()
+                dict_to_save['r2_sklearn'] = r2_score(X1_test, X1_pred_test)
                 dict_to_save['model'] = X1_test.model.values[0]
                 dict_to_save['layer'] = X1_test.layer.values[0]
                 dict_to_save['covariate_identifier'] = X2_test.stimulus_set_identifier
@@ -266,8 +269,14 @@ class CrossRegressedCorrelationDrew:
             # Get predicted residuals and correlate to test residuals
             prediction = self.main_regression.predict(X1_test)
 
+
+
             # vv feels a little weird to me that neither are ground truth (both are result of soem regression)
             # vv we're no longer comparing directly to neural data, but to residuals of neural data, which feels like a big deviation from the original pipeline
+
+            prediction, Y_residuals_test = xr.align(prediction, Y_residuals_test)
+            assert (np.array_equal(prediction.image_id.values, Y_residuals_test.image_id.values))
+
             score = self.correlation(prediction, Y_residuals_test)
 
             if self.fname:

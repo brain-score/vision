@@ -1,7 +1,7 @@
 import numpy as np
 
 from brainio_base.assemblies import NeuroidAssembly, DataAssembly
-from brainscore.metrics import Metric
+from brainscore.metrics import Metric, Score
 from brainscore.metrics.transformations import CartesianProduct, CrossValidation, \
     CrossValidationSingle
 
@@ -142,3 +142,31 @@ class TestCartesianProduct:
         for target in targets:
             match = any([actual == target] for actual in placeholder.assemblies)
             assert match, "expected divided assembly not found: {target}"
+
+    def test_no_expand_raw_level(self):
+        assembly = np.random.rand(3, 100)
+        assembly = NeuroidAssembly(
+            assembly,
+            coords={'neuroid': list(range(assembly.shape[1])), 'division_coord': list(range(assembly.shape[0]))},
+            dims=['division_coord', 'neuroid'])
+        transformation = CartesianProduct(dividers=['division_coord'])
+
+        class RawMetricPlaceholder(Metric):
+            def __call__(self, assembly, *args, **kwargs):
+                result = Score([assembly.values[0]], dims=['dim'])
+                raw = Score(result.copy(), coords={
+                    'dim_id': ('dim', [assembly.values[1]]),
+                    'division_coord': ('dim', [assembly.values[2]])
+                })
+                result.attrs['raw'] = raw
+                return result
+
+        metric = RawMetricPlaceholder()
+        result = transformation(assembly, apply=metric)
+        assert result.dims == ("division_coord", "dim")
+        assert hasattr(result, 'raw')
+        assert result.raw.dims == ("dim",)
+        assert 'division_coord' not in result.raw.dims  # no dimension
+        assert hasattr(result.raw, 'division_coord')  # but a level
+        assert result.raw["dim"].variable.level_names == ["dim_id", "division_coord"]
+

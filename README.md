@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.com/brain-score/brain-score.svg?token=vqt7d2yhhpLGwHsiTZvT&branch=master)](https://travis-ci.com/brain-score/brain-score)
+[![Documentation Status](https://readthedocs.org/projects/brain-score/badge/?version=latest)](https://brain-score.readthedocs.io/en/latest/?badge=latest)
 
 # Brain-Score
 
@@ -14,39 +15,40 @@ allows scoring candidate models of the brain on a range of assemblies and metric
 
 ## Quick setup
 
-Recommended for most users. Use Brain-Score as a library. You will need Python >= 3.6 and pip >= 18.1.
+Recommended for most users. Use Brain-Score as a library. You will need Python >= 3.7 and pip >= 18.1.
 
 `pip install git+https://github.com/brain-score/brain-score`
 
-To contribute code to Brain-Score, see the [Development Setup](#development-setup).
+To contribute to Brain-Score, please [send in a pull request](https://github.com/brain-score/brain-score/pulls).
 
 
 ## Basic Usage
 
 ```python
-$ import brainscore
-$ hvm = brainscore.get_assembly("dicarlo.Majaj2015")`
-$ hvm
-<xarray.NeuronRecordingAssembly 'dicarlo.Majaj2015' (neuroid: 296, presentation: 268800, time_bin: 1)>
-array([[[ 0.060929],
-        [-0.686162],
-        ...,
-Coordinates:
-  * neuroid          (neuroid) MultiIndex
-  - neuroid_id       (neuroid) object 'Chabo_L_M_5_9' 'Chabo_L_M_6_9' ...
-  ...
-$ ...
-$ metric = RDM()
-$ score = metric(assembly1=hvm, assembly2=hvm)
-Score(aggregation: 2)>
-array([1., 0.])
-Coordinates:
-  * aggregation    'center' 'error'
+import brainscore
+data = brainscore.get_assembly("dicarlo.MajajHong2015")
+data
+> <xarray.NeuronRecordingAssembly 'dicarlo.MajajHong2015' (neuroid: 296, presentation: 268800, time_bin: 1)>
+> array([[[ 0.060929],
+>         [-0.686162],
+>         ...,
+> Coordinates:
+>   * neuroid          (neuroid) MultiIndex
+>   - neuroid_id       (neuroid) object 'Chabo_L_M_5_9' 'Chabo_L_M_6_9' ...
+>   ...
+
+from brainscore.metrics.rdm import RDM
+metric = RDM()
+score = metric(assembly1=data, assembly2=data)
+> Score(aggregation: 2)>
+> array([1., 0.])
+> Coordinates:
+>   * aggregation    'center' 'error'
 ```
 
 Some steps may take minutes because data has to be downloaded during first-time use.
 
-More examples can be found in the [examples](examples/) directory.
+For more details, see [the documentation](https://brain-score.readthedocs.io).
 
 
 ## Environment Variables
@@ -55,21 +57,6 @@ More examples can be found in the [examples](examples/) directory.
 |------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
 | RESULTCACHING_HOME     | directory to cache results (benchmark ceilings) in, `~/.result_caching` by default (see https://github.com/mschrimpf/result_caching) |
 
-
-## Development setup
-
-Only necessary if you plan to change code.
-
-1. If you want to access private S3 data, get permissions for the DiCarlo Lab Amazon S3 account
-    1. The lab has several S3 accounts. You need to have access to the one numbered 613927419654. Ask [Chris Shay](cshay@mit.edu) to grant access to you
-    2. Configure your AWS credentials files using awscli:
-      1. Install awscli using `pip install awscli`
-      2. Run `aws configure`: region: `us-east-1`, output format: `json`
-2. Clone the Git repository to wherever you keep repositories:
-    * `cd ~/dev`
-    * `git clone git@github.com:dicarlolab/brain-score.git`
-3. Install the depencies (we suggest doing this in a [conda environment](https://conda.io/docs/user-guide/tasks/manage-environments.html)):
-    * `pip install -e .`
 
 
 ## License
@@ -88,3 +75,6 @@ Use conda: `conda install netcdf4`
 results (scores, activations) are cached on disk using https://github.com/mschrimpf/result_caching.
 Delete the corresponding file or directory to clear the cache.
 </details>
+
+##CI environment
+Add CI related build commands to `test_setup.sh`. The script is executed in CI environment for unittests.

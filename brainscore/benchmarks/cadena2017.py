@@ -5,12 +5,26 @@ from brainscore.metrics.ceiling import InternalConsistency
 from brainscore.metrics.regression import CrossRegressedCorrelation, mask_regression, pls_regression, \
     pearsonr_correlation
 
+VISUAL_DEGREES = 2
+NUMBER_OF_TRIALS = 2
+BIBTEX = """@article{cadena2019deep,
+  title={Deep convolutional models improve predictions of macaque V1 responses to natural images},
+  author={Cadena, Santiago A and Denfield, George H and Walker, Edgar Y and Gatys, Leon A and Tolias, Andreas S and Bethge, Matthias and Ecker, Alexander S},
+  journal={PLoS computational biology},
+  volume={15},
+  number={4},
+  pages={e1006897},
+  year={2019},
+  url={https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1006897},
+  publisher={Public Library of Science San Francisco, CA USA}
+}"""
+
 
 def ToliasCadena2017PLS():
     loader = AssemblyLoader()
     assembly_repetition = loader(average_repetition=False)
     assembly = loader(average_repetition=True)
-    assembly.stimulus_set.name = assembly.stimulus_set_name
+    assembly.stimulus_set.identifier = assembly.stimulus_set_identifier
 
     similarity_metric = CrossRegressedCorrelation(
         regression=pls_regression(),
@@ -31,14 +45,17 @@ def ToliasCadena2017PLS():
         return ceiler(assembly_nonan)
 
     return NeuralBenchmark(identifier=identifier, version=1,
-                           assembly=assembly, similarity_metric=similarity_metric, ceiling_func=ceiling)
+                           assembly=assembly, similarity_metric=similarity_metric,
+                           visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
+                           parent='V1', bibtex=BIBTEX,
+                           ceiling_func=ceiling)
 
 
 def ToliasCadena2017Mask():
     loader = AssemblyLoader()
     assembly_repetition = loader(average_repetition=False)
     assembly = loader(average_repetition=True)
-    assembly.stimulus_set.name = assembly.stimulus_set_name
+    assembly.stimulus_set.identifier = assembly.stimulus_set_identifier
 
     similarity_metric = CrossRegressedCorrelation(
         regression=mask_regression(),
@@ -48,6 +65,8 @@ def ToliasCadena2017Mask():
     ceiler = InternalConsistency(split_coord='repetition_id')
     return NeuralBenchmark(identifier=identifier, version=1,
                            assembly=assembly, similarity_metric=similarity_metric,
+                           visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
+                           parent='V1', bibtex=BIBTEX,
                            ceiling_func=lambda: ceiler(assembly_repetition))
 
 

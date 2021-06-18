@@ -1,5 +1,7 @@
+import numpy as np
 from pytest import approx
 
+from brainio_base.assemblies import BehavioralAssembly
 from brainscore.benchmarks.imagenet import Imagenet2012
 from brainscore.model_interface import BrainModel
 
@@ -14,9 +16,16 @@ class TestImagenet2012:
                 assert task == BrainModel.Task.label
                 assert fitting_stimuli == 'imagenet'  # shortcut
 
-            def look_at(self, stimuli):
-                aligned_source = source[source['image_id'] == stimuli['image_id']]
-                return aligned_source['synset'].values
+            def look_at(self, stimuli, number_of_trials=1):
+                source_image_ids = source['image_id'].values
+                stimuli_image_ids = stimuli['image_id'].values
+                sorted_x = source_image_ids[np.argsort(source_image_ids)]
+                sorted_index = np.searchsorted(sorted_x, stimuli_image_ids)
+                aligned_source = source.loc[sorted_index]
+                labels = aligned_source['synset'].values
+                return BehavioralAssembly([labels], coords={
+                    **{column: ('presentation', aligned_source[column].values) for column in aligned_source.columns},
+                    **{'choice': ('choice', ['dummy'])}}, dims=['choice', 'presentation'])
 
         candidate = GroundTruth()
         score = benchmark(candidate)

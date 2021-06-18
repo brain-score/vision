@@ -2,6 +2,8 @@ import numpy as np
 from scipy.stats import spearmanr
 
 from brainio_base.assemblies import DataAssembly, walk_coords
+
+from brainscore.metrics import Score
 from brainscore.metrics.transformations import TestOnlyCrossValidation
 from brainscore.metrics.xarray_utils import Defaults as XarrayDefaults
 
@@ -44,15 +46,15 @@ class RDMMetric:
 
     def __call__(self, assembly1, assembly2):
         """
-        :param brainscore.assemblies.NeuroidAssembly assembly1:
-        :param brainscore.assemblies.NeuroidAssembly assembly2:
-        :return: brainscore.assemblies.DataAssembly
+        :param brainio_base.assemblies.NeuroidAssembly assembly1:
+        :param brainio_base.assemblies.NeuroidAssembly assembly2:
+        :return: brainscore.metrics.Score
         """
 
         rdm1 = self._rdm(assembly1)
         rdm2 = self._rdm(assembly2)
         similarity = self._similarity(rdm1, rdm2)
-        return DataAssembly(similarity)
+        return Score(similarity)
 
 
 class RSA:
@@ -108,7 +110,11 @@ class RDMSimilarity(object):
 
     def _triangulars(self, values):
         assert len(values.shape) == 2 and values.shape[0] == values.shape[1]
-        np.testing.assert_almost_equal(np.diag(values), 0)
+        # ensure diagonal is zero
+        diag = np.diag(values)
+        diag = np.nan_to_num(diag, nan=0, copy=True)  # we also accept nans in the diagonal from correlating zeros
+        np.testing.assert_almost_equal(diag, 0)
+        # index and retrieve upper triangular
         triangular_indices = np.triu_indices(values.shape[0], k=1)
         return values[triangular_indices]
 

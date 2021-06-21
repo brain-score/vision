@@ -283,7 +283,7 @@ def get_tol_semi_partial(crossvalidation_kwargs, **kwargs):
 
     similarity_metric_kwargs = dict(
         covariate_control=kwargs['control'],
-        control_regression=gram_linear(gram=kwargs['gram'], with_pca=False),
+        control_regression=gram_linear(gram=kwargs['gram'], with_pca=True, pca_kwargs={'n_components':25}),
         main_regression=pls_regression(),
         correlation=pearsonr_correlation(),
         crossvalidation_kwargs=crossvalidation_kwargs,

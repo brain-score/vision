@@ -101,15 +101,57 @@ class CrossRegressedCorrelationSemiPartial:
         target_train = target_train.reset_index('stimulus', drop=True)
         target_test = target_test.reset_index('stimulus', drop=True)
 
-        X1_train = source_train
-        X2_train = covariate_train
-        Y_train = target_train
+        assert (target_train.dims == target_test.dims)
 
-        X1_test = source_test
-        X2_test = covariate_test
+        Y_train = target_train
         Y_test = target_test
 
+        X1_train = source_train.transpose(*Y_train.dims)
+        X2_train = covariate_train.transpose(*Y_train.dims)
+
+        X1_test = source_test.transpose(*Y_train.dims)
+        X2_test = covariate_test.transpose(*Y_train.dims)
+
+
         if self.covariate_control:
+
+            # Find n_components
+            params = np.linspace(25, min(X2_train.shape), 10, dtype='int')
+            fit_time = []
+            control_scores_train = []
+            control_scores_test = []
+            for n in params:
+                self.control_regression._regression.pca.n_components = n
+                t = time.time()
+                self.control_regression.fit(X2_train, X1_train)
+                fit_time.append(time.time()-t)
+                X1_pred_train = self.control_regression.predict(X2_train)
+                X1_pred_test = self.control_regression.predict(X2_test)
+                control_scores_train.append(self.correlation(X1_pred_train, X1_train).median().item())
+                control_scores_test.append(self.correlation(X1_pred_test, X1_test).median().item())
+                print(n)
+
+            best_idx = np.argmax(np.array(control_scores_test))
+            self.control_regression._regression.pca.n_components = params[best_idx]
+
+            # Plot
+            fix, ax = plt.subplots()
+            ax.scatter(params, control_scores_train, c='tab:blue', label='train')
+            ax.scatter(params, control_scores_test, c='tab:orange', label='test')
+            ax.legend()
+            plt.xlabel('n_components')
+            plt.ylabel('median r(X1_pred, X1)')
+            plt.title('Regressing usual activations onto background activations (' + X1_train.model[0].item() + ')')
+            plt.savefig(os.path.join(os.path.dirname(self.fname), 'regression_X1_X2_'+X1_train.model[0].item()+'.png'))
+
+            fix, ax = plt.subplots()
+            ax.scatter(params, fit_time, c='tab:green')
+            plt.xlabel('n_components')
+            plt.ylabel('time to fit pca + regr in seconds')
+            plt.title('Regressing usual activations onto background activations (' + X1_train.model[0].item() + ')')
+            plt.savefig(os.path.join(os.path.dirname(self.fname), 'regression_X1_X2_time_'+X1_train.model[0].item()+'.png'))
+
+
             # FIT (train)
             ##############
 
@@ -137,8 +179,6 @@ class CrossRegressedCorrelationSemiPartial:
                 dict_to_save['layer'] = X1_train.layer.values[0]
                 dict_to_save['covariate_identifier'] = X2_train.stimulus_set_identifier
                 self.write_to_file(dict_to_save, self.fname)
-
-
 
             # PREDICTION (test)
             ####################
@@ -193,6 +233,123 @@ class CrossRegressedCorrelationSemiPartial:
 
     def aggregate(self, scores):
         return scores.median(dim='neuroid')
+
+
+# class CrossRegressedCorrelationSemiPartial:
+#     def __init__(self, main_regression, control_regression, correlation, covariate_control=True, fname=None, tag=None, crossvalidation_kwargs=None):
+#         # regression = regression or pls_regression()
+#         self.crossvalidation_kwargs = crossvalidation_kwargs or {}
+#
+#         self.cross_validation = CrossValidation(expecting_coveriate=True, **self.crossvalidation_kwargs)
+#         self.main_regression = main_regression
+#         self.control_regression = control_regression
+#         self.correlation = correlation
+#         self.covariate_control = covariate_control
+#         self.fname = fname
+#         self.tag = tag  # just an extra tag to help keep track of what we're running and write it to fname. Doesn't have
+#                         # any impact beyond the what is written to fname
+#
+#     def __call__(self, source, covariate, target):
+#         return self.cross_validation(source, covariate, target, apply=self.apply, aggregate=self.aggregate)
+#
+#     def apply(self, source_train, covariate_train, target_train, source_test, covariate_test, target_test):
+#         # vv Hacky but the model activation assemblies don't have the stimulus index and it makes the alignment fail
+#         # vv All we need for alignment is image_id and neuroid anyway (and perhaps repetition in some cases)
+#         target_train = target_train.reset_index('stimulus', drop=True)
+#         target_test = target_test.reset_index('stimulus', drop=True)
+#
+#         X1_train = source_train
+#         X2_train = covariate_train
+#         Y_train = target_train
+#
+#         X1_test = source_test
+#         X2_test = covariate_test
+#         Y_test = target_test
+#
+#         if self.covariate_control:
+#             # FIT (train)
+#             ##############
+#
+#             # 1) Regressing on the covariate (X2)
+#             self.control_regression.fit(X2_train, X1_train)
+#
+#             # Residualize X1
+#             X1_pred_train = self.control_regression.predict(X2_train)
+#             X1_pred_train = X1_pred_train.transpose(*X1_train.dims)
+#             X1_train, X1_pred_train = xr.align(X1_train, X1_pred_train)
+#             assert (np.array_equal(X1_train.image_id.values, X1_pred_train.image_id.values))
+#
+#             X1_residuals_train = X1_train - X1_pred_train
+#
+#             # 2) Regressing Y on the residuals
+#             self.main_regression.fit(X1_residuals_train, Y_train)
+#
+#             if self.fname:
+#                 dict_to_save = {}
+#                 dict_to_save['train'] = True
+#                 dict_to_save['explained_variance_control'] = explained_variance_score(X1_train, X1_pred_train)
+#                 dict_to_save['similarity_control'] = self.correlation(X1_pred_train, X1_train).median().item()
+#                 dict_to_save['r2_sklearn'] = r2_score(X1_train, X1_pred_train)
+#                 dict_to_save['model'] = X1_train.model.values[0]
+#                 dict_to_save['layer'] = X1_train.layer.values[0]
+#                 dict_to_save['covariate_identifier'] = X2_train.stimulus_set_identifier
+#                 self.write_to_file(dict_to_save, self.fname)
+#
+#
+#
+#             # PREDICTION (test)
+#             ####################
+#
+#             # Residualize X1 (wo refitting)
+#             X1_pred_test = self.control_regression.predict(X2_test)
+#             X1_pred_test = X1_pred_test.transpose(*X1_test.dims)
+#             X1_test, X1_pred_test = xr.align(X1_test, X1_pred_test)
+#             assert (np.array_equal(X1_test.image_id.values, X1_pred_test.image_id.values))
+#
+#             X1_residuals_test = X1_test - X1_pred_test
+#
+#             # Get predicted Y
+#             prediction = self.main_regression.predict(X1_residuals_test)
+#
+#             #
+#             score = self.correlation(prediction, Y_test)
+#
+#             if self.fname:
+#                 dict_to_save = {}
+#                 dict_to_save['train'] = False
+#                 dict_to_save['explained_variance_control'] = explained_variance_score(X1_test, X1_pred_test)
+#                 dict_to_save['similarity_control'] = self.correlation(X1_pred_test, X1_test).median().item()
+#                 dict_to_save['r2_sklearn'] = r2_score(X1_test, X1_pred_test)
+#                 dict_to_save['model'] = X1_test.model.values[0]
+#                 dict_to_save['layer'] = X1_test.layer.values[0]
+#                 dict_to_save['covariate_identifier'] = X2_test.stimulus_set_identifier
+#                 self.write_to_file(dict_to_save, self.fname)
+#
+#         else:
+#             # FIT (train)
+#             self.main_regression.fit(X1_train, Y_train)
+#             # PREDICT (test)
+#             Y_pred = self.main_regression.predict(X1_test)
+#             score = self.correlation(Y_pred, Y_test)
+#
+#         return score
+#
+#     def write_to_file(self, dict_to_save, fname):
+#         dict_to_save['tag'] = self.tag
+#         dict_to_save['class'] = self.__class__.__name__
+#         dict_to_save['control_regression'] = self.control_regression._regression.__class__.__name__
+#         dict_to_save['main_regression'] = self.main_regression._regression.__class__.__name__
+#         dict_to_save['csv_file'] = self.crossvalidation_kwargs.get('csv_file', None)
+#         dict_to_save['baseline'] = False if dict_to_save['csv_file'] else True
+#         dict_to_save['gram'] = self.control_regression._regression.gram if hasattr(self.control_regression._regression, 'gram') else None
+#         dict_to_save['control'] = self.covariate_control
+#
+#         df_to_save = pd.DataFrame(dict_to_save, index=[0])
+#         with open(fname, 'a') as f:
+#             df_to_save.to_csv(f, mode='a', header=f.tell() == 0)
+#
+#     def aggregate(self, scores):
+#         return scores.median(dim='neuroid')
 
 
 class CrossRegressedCorrelationDrew:
@@ -979,7 +1136,7 @@ def gram_pls(gram=True, use_max_components=False, regression_kwargs=None, xarray
     return regression
 
 
-def gram_linear(gram=True, with_pca=True, pca_treshold=None, scaler_kwargs=None, pca_kwargs=None, regression_kwargs=None, xarray_kwargs=None):
+def gram_linear(gram=True, with_pca=True, scaler_kwargs=None, pca_kwargs=None, regression_kwargs=None, xarray_kwargs=None):
     scaler_defaults = dict(with_std=False)
     pca_defaults = dict(n_components=None)  # instead of 25 because we are worried about how much variance is explained
     scaler_kwargs = {**scaler_defaults, **(scaler_kwargs or {})}

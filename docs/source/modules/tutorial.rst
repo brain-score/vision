@@ -211,3 +211,43 @@ listed/resolved below, reach out to us at MIT and we can (most likely) help:
 - mferg@mit.edu
 - cshay@mit.edu
 
+Submit a Model to Brain-Score.org Part 1: Preparing the Model
+=============================================================
+
+By now you should have the **sample-model-submission** repo cloned and
+the dependencies installed. It is now time to prepare your model to be
+submitted! In this part we will submit a standard, generic form of AlexNet
+(implemented in Pytorch) in order to get a feel for the submission process.
+In Part 3 I will show you how to submit a custom Pytorch model, which is
+most helpful for those that want to submit their own model.
+
+- Navigate, using your IDE’s Project Window (usually the left side of the
+  screen that shows all the folders/files), into the
+  **sample-model-submission/examples/pytorch.py** Python file.
+  If you did the above steps correctly, you will be able to simply
+  hit run on this file and the "prepping" service will commence.
+  What does that mean? The code in this file downloads, prepares, and
+  "mock scores" your model on a benchmark of choice, in order to ensure
+  everything works correctly for the main Brain-Score site submission.
+  It is like a check: if all goes well running this code, then your model
+  is ready to submit to the site to be scored. (*Note: the first time running
+  the pytorch.py file will take a bit, because you have to download the model
+  (AlexNet in this case) weights/models from the site. This took about 15 mins
+  for me on my Macbook (around 5 on my desktop PC), and only occurs the first
+  time you download a pretrained model. Make sure your computer does not time out,
+  or the download process can halt and you might have to re-run the file, which
+  is a pain I am too familiar with unfortunately…*)
+- If this works correctly, then you will get a message on the Python console
+  declaring:
+    Test successful, you are ready to submit!
+  and you can jump down below to Part 2, but I recommend
+  reading the rest of the steps to understand what’s going on.
+  A common error regarding SSL might happen at this point and is #2 on the
+  **Common Errors: Setup** section, so check that out if you get that error.
+- Explore Further: navigate to **sample-model-submission/models/base_models.py** using
+  the project explorer. You will see that this is basically a blank version of the
+  **pytorch.py** file, and serves as a template to make new models to submit. The **pytorch.py**
+  file that you just successfully ran is an instance of this template, and this template
+  declares how models must be structured to be scored. For now, we will just submit the
+  AlexNet model as is.
+

@@ -175,7 +175,7 @@ linked in order to run setup for submission and scoring.
    is the repo cloned from our Github. You should now see something akin to below when you
    look at your version on your machine:
 
-    .. image:: C:\Users\Mike\Desktop\MIT\Brain-Score\brain-score_local\docs\source\modules\tutorial_screenshots\sms.png
+    .. image:: brain-score_local/docs/source/modules/tutorial_screenshots/sms.png
        :width: 600
 
 4. We will now install the pip packages that our code needs to run: things like ``scipy`` and
@@ -272,7 +272,7 @@ the folder and making sure the files to submit are in the right place.
    ``my_model_submissions`` located inside the project root (brainscore-brief),
    as seen below:
 
-    .. image:: C:\Users\Mike\Desktop\MIT\Brain-Score\brain-score_local\docs\source\modules\tutorial_screenshots\mms.png
+    .. image:: brain-score_local/docs/source/modules/tutorial_screenshots/mms.png
       :width: 600
 
 3. We are now going to make the sub-folders necessary for submission.
@@ -296,7 +296,7 @@ the folder and making sure the files to submit are in the right place.
    In that newly created folder, create (yet another) folder called ``models``.
    You can see we are building the package up as explained above.
    Your IDE file/project explorer should look something like this below at this point:
-    .. image:: C:\Users\Mike\Desktop\MIT\Brain-Score\brain-score_local\docs\source\modules\tutorial_screenshots\subfolders.png
+    .. image:: brain-score_local/docs/source/modules/tutorial_screenshots/subfolders.png
       :width: 600
 
 5. Next, we are going to add the ``setup.py`` file into the ``my_alexnet_submission`` folder.
@@ -307,7 +307,7 @@ the folder and making sure the files to submit are in the right place.
    the correct folder. It is important to paste it inside the
    ``my_alexnet_submission folder``, in order for it to be placed in the right spot.
    Your project should now look similiar to this:
-    .. image:: C:\Users\Mike\Desktop\MIT\Brain-Score\brain-score_local\docs\source\modules\tutorial_screenshots\setup.png
+    .. image:: brain-score_local/docs/source/modules/tutorial_screenshots/setup.png
       :width: 600
 
 6. After this we will make the ``__init__.py`` file and place it inside the same folder as ``setup.py`` above.
@@ -320,7 +320,7 @@ the folder and making sure the files to submit are in the right place.
    Name this file ``__init__.py`` and
    click enter.  In the file, hit a new line (enter) so that the ``__init__.py`` file is not blank.
    Your package should look akin to this:
-    .. image:: C:\Users\Mike\Desktop\MIT\Brain-Score\brain-score_local\docs\source\modules\tutorial_screenshots\init_py.png
+    .. image:: brain-score_local/docs/source/modules/tutorial_screenshots/init_py.png
       :width: 600
 7. We are almost done! Copy the ``__init__.py`` file you just made and place that
    *additional* copy inside the ``models`` folder. Finally, we want to add the
@@ -334,7 +334,7 @@ the folder and making sure the files to submit are in the right place.
    AlexNet model. You are basically done at this point, and your final package
    should look akin to the picture below. Remember, the actual model is now contained
    in the ``models/base_models.py`` file, and that is what is getting run on our site to get a score for you.
-    .. image:: C:\Users\Mike\Desktop\MIT\Brain-Score\brain-score_local\docs\source\modules\tutorial_screenshots\final_submit.png
+    .. image:: brain-score_local/docs/source/modules/tutorial_screenshots/final_submit.png
       :width: 600
 8. You are now ready to submit! Zip the folder named ``my_alexnet_subission``,
    navigate to http://www.brain-score.org/profile/, log in/create a new account,
@@ -413,15 +413,22 @@ submitting a custom model (vs. something like AlexNet), and just focus on what i
    and actually submit on our site! At this point, if you run into any errors,
    check out the ``Common Errors: Submission section`` of this guide, and if you can’t
    find a solution, feel free to email us!
-.. image:: C:\Users\Mike\Desktop\MIT\Brain-Score\brain-score_local\docs\source\modules\tutorial_screenshots\mit_logo.png
-    :width: 600
 |
-
-.. image:: C:\Users\Mike\Desktop\MIT\Brain-Score\brain-score_local\docs\source\modules\tutorial_screenshots\mibr_logo.png
-    :width: 600
 |
-.. image:: C:\Users\Mike\Desktop\MIT\Brain-Score\brain-score_local\docs\source\modules\tutorial_screenshots\bcs_logo.png
-    :width: 600
+.. image:: brain-score_local/docs/source/modules/tutorial_screenshots/mit_logo.png
+    :width: 300
+    :height: 200
+    :align: center
+|
+.. image:: brain-score_local/docs/source/modules/tutorial_screenshots/mibr_logo.png
+    :width: 300
+    :height: 200
+    :align: center
+|
+.. image:: brain-score_local/docs/source/modules/tutorial_screenshots/bcs2.jpg
+    :width: 300
+    :height: 75
+    :align: center
 
 
 

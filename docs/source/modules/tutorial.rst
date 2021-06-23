@@ -413,3 +413,64 @@ submitting a custom model (vs. something like AlexNet), and just focus on what i
    and actually submit on our site! At this point, if you run into any errors,
    check out the ``Common Errors: Submission section`` of this guide, and if you can’t
    find a solution, feel free to email us!
+.. image:: C:\Users\Mike\Desktop\MIT\Brain-Score\brain-score_local\docs\source\modules\tutorial_screenshots\mit_logo.png
+    :width: 600
+|
+
+.. image:: C:\Users\Mike\Desktop\MIT\Brain-Score\brain-score_local\docs\source\modules\tutorial_screenshots\mibr_logo.png
+    :width: 600
+|
+.. image:: C:\Users\Mike\Desktop\MIT\Brain-Score\brain-score_local\docs\source\modules\tutorial_screenshots\bcs_logo.png
+    :width: 600
+
+
+
+Common Errors: Setup
+====================
+
+Below are some common error that you might encouinter while setting up
+this project or doing this tutorial. We will add more soon!
+
+1. When running ``pip install .``, you get a message
+   from the terminal like::
+     Directory '.' is not installable. Neither 'setup.py' nor 'pyproject.toml' found.
+   *Cause*: Not running ``pip install .`` in the right
+   directory: most likely you are in the original ``brainscore-brief`` folder we created,
+   and not the ``sample_model_submission`` sub-folder that is the repo we should be in.
+
+   *Fix*: if you are in the main ``brainscore-brief``
+   folder, simply run::
+    cd sample_model_submission
+   and then rerun
+   the ::
+    pip install .
+   command. This navigates to the correct sample_model_submission subfolder and
+   installs the packages where they are supposed to be.
+   More generally: make sure you are in the ``sample_model_submission`` folder
+   (and not its parent or child folder) before you run the pip command above. This should fix the error.
+
+2. After install while running ``pytorch.py``
+   for the first time, you get::
+    ssl.SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1076)
+   *Cause*: Pytorch’s backend. The SSL certificate for downloading a pre-trained model has expired
+   from their end and pytorch should renew soon (usually ~4 hrs)
+
+   *Fix*: If you can’t wait, add the following lines of code to your ``pytorch.py``
+   (or whatever file is using the pretrained Pytorch models): *Note: Pycharm might throw a warning about this
+   line, but you can disregard)*::
+    import ssl
+    ssl._create_default_https_context = ssl._create_unverified_context
+
+
+
+Common Errors: Submission
+=========================
+
+1. It has been 24 hours since I submitted my model, and I have not gotten a score? What happened?
+
+   *Cause*: There are many issues that could cause this.
+
+   *Fix*:  If it happens, email ``mferg@mit.edu`` and I can check the logs
+   and tell you what happened. You will, very soon, be able to log in and check the logs yourself,
+   so stay tuned!
+

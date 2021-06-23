@@ -307,3 +307,51 @@ the folder and making sure the files to submit are in the right place.
    the correct folder. It is important to paste it inside the
    ``my_alexnet_submission folder``, in order for it to be placed in the right spot.
    Your project should now look similiar to this:
+    .. image:: C:\Users\Mike\Desktop\MIT\Brain-Score\brain-score_local\docs\source\modules\tutorial_screenshots\setup.png
+      :width: 600
+
+6. After this we will make the ``__init__.py`` file and place it inside the same folder as ``setup.py`` above.
+   This ``__init__.py`` file is basically just a blank Python file that the submission
+   needs in order to run. So, the easiest way to do this is to use your IDE to create
+   a new Python file inside the correct folder: in Pycharm, you can do this by highlighting
+   the ``my_alexnet_submission`` folder by clicking it, and it will be shown in blue.
+   From there::
+    right click -> new -> Python file
+   Name this file ``__init__.py`` and
+   click enter.  In the file, hit a new line (enter) so that the ``__init__.py`` file is not blank.
+   Your package should look akin to this:
+    .. image:: C:\Users\Mike\Desktop\MIT\Brain-Score\brain-score_local\docs\source\modules\tutorial_screenshots\init_py.png
+      :width: 600
+7. We are almost done! Copy the ``__init__.py`` file you just made and place that
+   *additional* copy inside the ``models`` folder. Finally, we want to add the
+   actual submission to the package. There are a few ways to do this, but
+   for now we are just going to copy the code from ``pytorch.py`` into a blank
+   Python file. Create a new Python file called ``base_models.py`` (note: the
+   creation process is identical to how you created the ``__init__.py`` file above,
+   just make sure this file is created inside the models folder), and paste the
+   code from ``pytorch.py`` into there. This creates another instance of the
+   ``base_models.py`` file, filled with ``pytorch.py`` ’s code, which is in this case the
+   AlexNet model. You are basically done at this point, and your final package
+   should look akin to the picture below. Remember, the actual model is now contained
+   in the ``models/base_models.py`` file, and that is what is getting run on our site to get a score for you.
+    .. image:: C:\Users\Mike\Desktop\MIT\Brain-Score\brain-score_local\docs\source\modules\tutorial_screenshots\final_submit.png
+      :width: 600
+8. You are now ready to submit! Zip the folder named ``my_alexnet_subission``,
+   navigate to http://www.brain-score.org/profile/, log in/create a new account,
+   and submit the model! Usually (depending on how busy the time of year is)
+   it will take around 1 hour or so to score, but might take longer. If you
+   do not see a score within 24 hours, contact us and we can send you
+   (soon you will have access to this yourself)
+   the error logs to resubmit. You have now successfully submitted a model!
+   Congrats, and we look forward to having more submissions from you.
+   In the future, you can just copy the submission package and paste
+   in your code into ``models/base_models.py``, and it should work (which
+   is why we had you make that whole package in the first place!)
+9. *Experiment Further*: Try submitting different pretrained models,
+   like ``vgg16``, ``Inception``, or ``RESNET``, that are available from
+   Pytorch. Keras works the same way, and for the most part this
+   tutorial can be followed to use ``keras.py`` instead of ``pytorch.py``; if you
+   use keras, just remember to add it to the ``setup.py`` file. Finally,
+   when using a different pretrained model (or a custom model) see the
+   section below on layer selection to get the layers needed in the actual model,
+   which will be different according to the model used.

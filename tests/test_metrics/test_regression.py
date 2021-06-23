@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from brainio_base.assemblies import NeuroidAssembly
+from brainio_core.assemblies import NeuroidAssembly
 from pytest import approx
 
 from brainscore.metrics.regression import CrossRegressedCorrelation, pls_regression, linear_regression, \

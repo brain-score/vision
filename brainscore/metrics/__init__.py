@@ -9,7 +9,7 @@ import warnings
 
 import logging
 
-from brainio_base.assemblies import DataAssembly, merge_data_arrays
+from brainio_core.assemblies import DataAssembly, merge_data_arrays
 
 
 class Metric:

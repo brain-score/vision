@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.stats
 
-from brainio_base.assemblies import NeuroidAssembly
+from brainio_core.assemblies import NeuroidAssembly
 from brainscore.metrics.regression import pls_regression, pearsonr_correlation
 from brainscore.metrics.temporal import TemporalRegressionAcrossTime, TemporalCorrelationAcrossImages, \
     TemporalCorrelationAcrossTime

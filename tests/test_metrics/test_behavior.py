@@ -6,7 +6,7 @@ import xarray as xr
 import pytest
 from pytest import approx
 
-from brainio_base.assemblies import BehavioralAssembly
+from brainio_core.assemblies import BehavioralAssembly
 from brainscore.benchmarks.rajalingham2018 import load_assembly
 from brainscore.metrics.image_level_behavior import I2n
 

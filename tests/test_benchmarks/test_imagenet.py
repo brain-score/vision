@@ -1,7 +1,7 @@
 import numpy as np
 from pytest import approx
 
-from brainio_base.assemblies import BehavioralAssembly
+from brainio_core.assemblies import BehavioralAssembly
 from brainscore.benchmarks.imagenet import Imagenet2012
 from brainscore.model_interface import BrainModel
 

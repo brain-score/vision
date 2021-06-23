@@ -22,6 +22,7 @@ from brainscore.metrics.transformations_extra import ToleranceCrossValidation
 from brainscore.metrics.transformations_extra import CrossValidationCustomPlusBaseline
 from brainscore.metrics.regression import pls_regression
 from .xarray_utils import XarrayRegression, XarrayCorrelation
+from .xarray_utils_extra import XarrayPearson
 
 from .xarray_utils import Defaults
 from brainio_base.assemblies import NeuroidAssembly, array_is_element, walk_coords
@@ -116,41 +117,56 @@ class CrossRegressedCorrelationSemiPartial:
         if self.covariate_control:
 
             # Find n_components
+            early_stopping = 3 # how many consecutive decreases in test performances before we quit
             params = np.linspace(25, min(X2_train.shape), 10, dtype='int')
             fit_time = []
             control_scores_train = []
             control_scores_test = []
-            for n in params:
-                self.control_regression._regression.pca.n_components = n
+            fast_correlation = XarrayPearson()
+            for i in range(len(params)):
+
+                # Set n_components
+                self.control_regression._regression.pca.n_components = params[i]
+
+                # Fit
                 t = time.time()
                 self.control_regression.fit(X2_train, X1_train)
                 fit_time.append(time.time()-t)
+
+                # Evaluate on train set
                 X1_pred_train = self.control_regression.predict(X2_train)
+                control_scores_train.append(fast_correlation(X1_pred_train, X1_train).median().item())
+
+                # Evaluate on test set
                 X1_pred_test = self.control_regression.predict(X2_test)
-                control_scores_train.append(self.correlation(X1_pred_train, X1_train).median().item())
-                control_scores_test.append(self.correlation(X1_pred_test, X1_test).median().item())
-                print(n)
+                control_scores_test.append(fast_correlation(X1_pred_test, X1_test).median().item())
+
+                #Early stopping
+                if i >= early_stopping +1:
+                    if is_decreasing(control_scores_test[-(early_stopping+1):]):
+                        break
+                print(i, params[i])
 
             best_idx = np.argmax(np.array(control_scores_test))
             self.control_regression._regression.pca.n_components = params[best_idx]
 
             # Plot
-            fix, ax = plt.subplots()
-            ax.scatter(params, control_scores_train, c='tab:blue', label='train')
-            ax.scatter(params, control_scores_test, c='tab:orange', label='test')
-            ax.legend()
-            plt.xlabel('n_components')
-            plt.ylabel('median r(X1_pred, X1)')
-            plt.title('Regressing usual activations onto background activations (' + X1_train.model[0].item() + ')')
-            plt.savefig(os.path.join(os.path.dirname(self.fname), 'regression_X1_X2_'+X1_train.model[0].item()+'.png'))
-
-            fix, ax = plt.subplots()
-            ax.scatter(params, fit_time, c='tab:green')
-            plt.xlabel('n_components')
-            plt.ylabel('time to fit pca + regr in seconds')
-            plt.title('Regressing usual activations onto background activations (' + X1_train.model[0].item() + ')')
-            plt.savefig(os.path.join(os.path.dirname(self.fname), 'regression_X1_X2_time_'+X1_train.model[0].item()+'.png'))
-
+            # fix, ax = plt.subplots()
+            # ax.scatter(params, control_scores_train, c='tab:blue', label='train')
+            # ax.scatter(params, control_scores_test, c='tab:orange', label='test')
+            # ax.legend()
+            # plt.xlabel('n_components')
+            # plt.ylabel('median r(X1_pred, X1)')
+            # plt.title('Regressing usual activations onto background activations (' + X1_train.model[0].item() + ')')
+            # plt.savefig(os.path.join(os.path.dirname(self.fname), 'regression_X1_X2_'+X1_train.model[0].item()+'.png'))
+            #
+            # fix, ax = plt.subplots()
+            # ax.scatter(params, fit_time, c='tab:green')
+            # plt.xlabel('n_components')
+            # plt.ylabel('time to fit pca + regr in seconds')
+            # plt.title('Regressing usual activations onto background activations (' + X1_train.model[0].item() + ')')
+            # plt.savefig(os.path.join(os.path.dirname(self.fname), 'regression_X1_X2_time_'+X1_train.model[0].item()+'.png'))
+            #
 
             # FIT (train)
             ##############
@@ -163,6 +179,7 @@ class CrossRegressedCorrelationSemiPartial:
             X1_pred_train = X1_pred_train.transpose(*X1_train.dims)
             X1_train, X1_pred_train = xr.align(X1_train, X1_pred_train)
             assert (np.array_equal(X1_train.image_id.values, X1_pred_train.image_id.values))
+            assert (np.array_equal(X1_train.neuroid_id.values, X1_pred_train.neuroid_id.values))
 
             X1_residuals_train = X1_train - X1_pred_train
 
@@ -172,6 +189,10 @@ class CrossRegressedCorrelationSemiPartial:
             if self.fname:
                 dict_to_save = {}
                 dict_to_save['train'] = True
+                dict_to_save['n_components'] = self.control_regression._regression.pca.n_components
+                dict_to_save['n_components_evaluated'] = [params[:len(control_scores_train)]]
+                dict_to_save['n_components_similarities'] = [control_scores_train]
+                dict_to_save['n_components_fit_times'] = [fit_time]
                 dict_to_save['explained_variance_control'] = explained_variance_score(X1_train, X1_pred_train)
                 dict_to_save['similarity_control'] = self.correlation(X1_pred_train, X1_train).median().item()
                 dict_to_save['r2_sklearn'] = r2_score(X1_train, X1_pred_train)
@@ -188,6 +209,8 @@ class CrossRegressedCorrelationSemiPartial:
             X1_pred_test = X1_pred_test.transpose(*X1_test.dims)
             X1_test, X1_pred_test = xr.align(X1_test, X1_pred_test)
             assert (np.array_equal(X1_test.image_id.values, X1_pred_test.image_id.values))
+            assert (np.array_equal(X1_test.neuroid_id.values, X1_pred_test.neuroid_id.values))
+
 
             X1_residuals_test = X1_test - X1_pred_test
 
@@ -200,6 +223,9 @@ class CrossRegressedCorrelationSemiPartial:
             if self.fname:
                 dict_to_save = {}
                 dict_to_save['train'] = False
+                dict_to_save['n_components'] = self.control_regression._regression.pca.n_components
+                dict_to_save['n_components_evaluated'] = [params[:len(control_scores_train)]]
+                dict_to_save['n_components_similarities'] = [control_scores_test]
                 dict_to_save['explained_variance_control'] = explained_variance_score(X1_test, X1_pred_test)
                 dict_to_save['similarity_control'] = self.correlation(X1_pred_test, X1_test).median().item()
                 dict_to_save['r2_sklearn'] = r2_score(X1_test, X1_pred_test)
@@ -1251,3 +1277,9 @@ def take_gram(X):
     X_grams = X_grams[:, np.ravel_multi_index(np.triu_indices(C), dims=(C,C))]
 
     return X_grams
+
+def is_decreasing(l):
+    for i in range(1, len(l)):
+        if l[i] > l[i-1]:
+            return False
+    return True

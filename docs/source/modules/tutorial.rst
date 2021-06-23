@@ -355,3 +355,61 @@ the folder and making sure the files to submit are in the right place.
    when using a different pretrained model (or a custom model) see the
    section below on layer selection to get the layers needed in the actual model,
    which will be different according to the model used.
+
+
+
+Submitting a Model to Brain-Score.org Part 3: Custom model (Optional)
+=====================================================================
+
+At this point, I would say that you are pretty comfortable with the submission,
+and hopefully you have submitted at least one model and gotten a score.
+So, in this section, I will skip some of the parts that are common with
+submitting a custom model (vs. something like AlexNet), and just focus on what is different.
+
+1. In short, submitting a custom model is not that difficult
+   for those that have already submitted a model like AlexNet
+   and have a submission package ready. If you have not done this,
+   I highly recommend going through this tutorial beforehand, or else you will
+   encounter some errors along the way.
+2. The entire package we submit will be the same as a pretrained model,
+   but with the ``models/base_models.py`` file different (as the model itself is different).
+   So, I would recommend just copying the ``my_alexnet_submission`` folder,
+   pasting it into the ``my_model_submissions`` folder, and renaming it to something
+   like ``my_custom_submission``. This will take care of all the tricky
+   submission stuff, and you can just focus on implementing the actual model inside ``models/base_models.py``.
+3. Now the fun part: scoring a model that you create! In this guide we will be implementing
+   a light-weight Pytorch model and submitting that. All this entails is adding
+   a little bit of extra stuff to ``models/base_models.py``.
+4. The easiest way to do this is to simply copy all the code in the file
+   from here, and I can walk you through the important stuff that is necessary
+   to understand how to submit a custom model. It is, in a nutshell, just a
+   slightly more complicated version of the original ``base_models.py`` template
+   in the ``sample-model-submissions`` folder.
+5. The first is the imports: you will most likely need all of them that
+   the code above has listed. If you try to run the above code in Google Colab
+   (which is basically a Google version of Jupyter Notebooks), it will not
+   run (due to packages not being installed), and is just for visual
+   purposes only; copy and paste the code into your ``models/base_models.py`` file.
+   Next, you see the class definition of the custom model in Pytorch, lines 19 - 35.
+   Line 39 deals with preprocessing, line 40 is the ``PytorchWrapper`` that
+   converts a model into a neuroscience-ready network to run benchmarks on,
+   and lines 41 - 43 are the layers of the network that will be scored.
+   These usually are all the layers, or you can just pick ones you specifically
+   want. You will need all of this, and most likely will only change the
+   actual layer names based on the network/what you want scored.
+6. Lines 47-55 are just the name of the model, and should be replaced
+   with whatever you want to call your model. Lines 59-73 tell the
+   code what to score, and you most likely will not have to
+   change this. Lines 76-89 is a layer function that simply returns a
+   list of the layers to consider, and will probably be identical to line 43.
+   Lines 92-98 deal with ``bibtex``, and you can replace this with your ``bibtex``
+   if your model has been published. Lastly, lines 101-104 are the main driver
+   code, and you shouldn't need to modify this.
+7. That’s it! You can change the actual model in lines 19-35, just make sure you
+   change the layer names as well. Run your ``models/base_models.py`` file,
+   and you should get the following message indicating you are good to submit::
+    Test successful, you are ready to submit!
+   At this point, all that is left is to zip the ``my_custom_submission`` folder
+   and actually submit on our site! At this point, if you run into any errors,
+   check out the ``Common Errors: Submission section`` of this guide, and if you can’t
+   find a solution, feel free to email us!

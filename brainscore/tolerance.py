@@ -28,7 +28,7 @@ def get_benchmark(benchmark_identifier, **kwargs):
     elif benchmark_identifier == 'tol_99':
         return get_tol_99(crossvalidation_kwargs, **kwargs)
 
-    elif benchmark_identifier == 'tol_objects':
+    elif benchmark_identifier == 'tol_imagedir':
         return get_tol_imagedir(crossvalidation_kwargs, **kwargs)
 
     elif benchmark_identifier == 'tol_99_gram':
@@ -254,18 +254,24 @@ def get_tol_imagedir(crossvalidation_kwargs, **kwargs):
     '''
 
     assert (kwargs.get('image_dir', None) is not None)
-    assert (kwargs.get('control', None) is not None)
+
+    similarity_metric_kwargs = dict(
+        regression=pls_regression(),
+        correlation=pearsonr_correlation(),
+        crossvalidation_kwargs=crossvalidation_kwargs,
+    )
+
+    top_function_kwargs = dict(
+        image_dir=kwargs['image_dir'],
+        region=kwargs.get('region'),
+        identifier_metric_suffix='tol_imagedir',
+        similarity_metric=CrossRegressedCorrelation(**similarity_metric_kwargs),
+        ceiler=InternalConsistency(),
+        assembly_name=kwargs.get('assembly_name')
+    )
 
     def top_function():
-        return _DicarloMajajHong2015Region_lmh_imagedir(
-            image_dir=kwargs['image_dir'],
-            region='IT',
-            identifier_metric_suffix='pls',
-            similarity_metric=CrossRegressedCorrelation(
-                regression=pls_regression(),
-                correlation=pearsonr_correlation(),
-                crossvalidation_kwargs=crossvalidation_kwargs),
-            ceiler=InternalConsistency())
+        return _DicarloMajajHong2015Region_lmh_imagedir(**top_function_kwargs)
 
     return LazyLoad(top_function)
 

@@ -380,32 +380,152 @@ submitting a custom model (vs. something like AlexNet), and just focus on what i
 3. Now the fun part: scoring a model that you create! In this section we will be implementing
    a light-weight Pytorch model and submitting that. All this entails is adding
    a little bit of extra stuff to ``models/base_models.py``.
-4. The easiest way to do this is to simply copy all the code in the file
-   from here, and I can walk you through the important stuff that is necessary
+4. The easiest way to do this is to simply copy all the code in the block below,
+   and I can walk you through the important stuff that is necessary
    to understand how to submit a custom model. It is, in a nutshell, just a
    slightly more complicated version of the original ``base_models.py`` template
-   in the ``sample-model-submissions`` folder.
+   in the ``sample-model-submissions`` folder. The code is listed below ::
+
+    # Custom Pytorch model from:
+    # https://github.com/brain-score/candidate_models/blob/master/examples/score-model.ipynb
+
+    from model_tools.check_submission import check_models
+    import numpy as np
+    import torch
+    from torch import nn
+    import functools
+    from model_tools.activations.pytorch import PytorchWrapper
+    from brainscore import score_model
+    from model_tools.brain_transformation import ModelCommitment
+    from model_tools.activations.pytorch import load_preprocess_images
+    from brainscore import score_model
+
+    """
+    Template module for a base model submission to brain-score
+    """
+
+    # define your custom model here:
+    class MyModel(nn.Module):
+        def __init__(self):
+            super(MyModel, self).__init__()
+            self.conv1 = torch.nn.Conv2d(in_channels=3, out_channels=2, kernel_size=3)
+            self.relu1 = torch.nn.ReLU()
+            linear_input_size = np.power((224 - 3 + 2 * 0) / 1 + 1, 2) * 2
+            self.linear = torch.nn.Linear(int(linear_input_size), 1000)
+            self.relu2 = torch.nn.ReLU()  # can't get named ReLU output otherwise
+
+        def forward(self, x):
+            x = self.conv1(x)
+            x = self.relu1(x)
+            x = x.view(x.size(0), -1)
+            x = self.linear(x)
+            x = self.relu2(x)
+            return x
+
+
+    # init the model and the preprocessing:
+    preprocessing = functools.partial(load_preprocess_images, image_size=224)
+
+    # convert the ANN in this case to a brain-model object to test neural benchmarks:
+    activations_model = PytorchWrapper(identifier='my-model', model=MyModel(), preprocessing=preprocessing)
+
+    # actually make the model, with the layers you want to see specified:
+    model = ModelCommitment(identifier='my-model', activations_model=activations_model,
+                            # specify layers to consider
+                            layers=['conv1', 'relu1', 'relu2'])
+
+
+    # The model names to consider. If you are making a custom model, then you most likley want to change
+    # the return value of this function.
+    def get_model_list():
+        """
+        This method defines all submitted model names. It returns a list of model names.
+        The name is then used in the get_model method to fetch the actual model instance.
+        If the submission contains only one model, return a one item list.
+        :return: a list of model string names
+        """
+
+        return ['my-model']
+
+
+    # get_model method actually gets the model. For a custom model, this is just linked to the
+    # model we defined above.
+    def get_model(name):
+        """
+        This method fetches an instance of a base model. The instance has to be callable and return a xarray object,
+        containing activations. There exist standard wrapper implementations for common libraries, like pytorch and
+        keras. Checkout the examples folder, to see more. For custom implementations check out the implementation of the
+        wrappers.
+        :param name: the name of the model to fetch
+        :return: the model instance
+        """
+        assert name == 'my-model'
+
+        # link the custom model to the wrapper object(activations_model above):
+        wrapper = activations_model
+        wrapper.image_size = 224
+        return wrapper
+
+
+    # get_layers method to tell the code what layers to consider. If you are submitting a custom
+    # model, then you will most likley need to change this method's return values.
+    def get_layers(name):
+        """
+        This method returns a list of string layer names to consider per model. The benchmarks maps brain regions to
+        layers and uses this list as a set of possible layers. The lists doesn't have to contain all layers, the less the
+        faster the benchmark process works. Additionally the given layers have to produce an activations vector of at least
+        size 25! The layer names are delivered back to the model instance and have to be resolved in there. For a pytorch
+        model, the layer name are for instance dot concatenated per module, e.g. "features.2".
+        :param name: the name of the model, to return the layers for
+        :return: a list of strings containing all layers, that should be considered as brain area.
+        """
+
+        # quick check to make sure the model is the correct one:
+        assert name == 'my-model'
+
+        # returns the layers you want to consider
+        return  ['conv1', 'relu1', 'relu2']
+
+    # Bibtex Method. For submitting a custom model, you can either put your own Bibtex if your
+    # model has been published, or just return a string like "N/A: Custom Model".
+    def get_bibtex(model_identifier):
+        """
+        A method returning the bibtex reference of the requested model as a string.
+        """
+
+        # from pytorch.py:
+        return "N/A: Custom Model"
+
+    # Main Method: In submitting a custom model, you should not have to mess with this.
+    if __name__ == '__main__':
+        # Use this method to ensure the correctness of the BaseModel implementations.
+        # It executes a mock run of brain-score benchmarks.
+        check_models.check_base_models(__name__)
+
+
+
+
 5. The first is the imports: you will most likely need all of them that
    the code above has listed. If you try to run the above code in Google Colab
    (which is basically a Google version of Jupyter Notebooks), it will not
    run (due to packages not being installed), and is just for visual
    purposes only; copy and paste the code into your ``models/base_models.py`` file.
-   Next, you see the class definition of the custom model in Pytorch, lines 19 - 35.
-   Line 39 deals with preprocessing, line 40 is the ``PytorchWrapper`` that
+   Next, you see the class definition of the custom model in Pytorch, followed by .
+   preprocessing, the ``PytorchWrapper`` that
    converts a model into a neuroscience-ready network to run benchmarks on,
-   and lines 41 - 43 are the layers of the network that will be scored.
+   and  the layers of the network that will be scored.
    These usually are all the layers, or you can just pick ones you specifically
    want. You will need all of this, and most likely will only change the
    actual layer names based on the network/what you want scored.
-6. Lines 47-55 are just the name of the model, and should be replaced
-   with whatever you want to call your model. Lines 59-73 tell the
+6. Next is the fucntion for "naming"  the model, and should be replaced
+   with whatever you want to call your model. The next function tells the
    code what to score, and you most likely will not have to
-   change this. Lines 76-89 is a layer function that simply returns a
-   list of the layers to consider, and will probably be identical to line 43.
-   Lines 92-98 deal with ``bibtex``, and you can replace this with your ``bibtex``
-   if your model has been published. Lastly, lines 101-104 are the main driver
+   change this. The is followed by a layer function that simply returns a
+   list of the layers to consider.
+   Next is is the ``bibtex`` method, and you can replace this with your ``bibtex``
+   if your model has been published. Lastly,the closing lines are the main driver
    code, and you shouldn't need to modify this.
-7. That’s it! You can change the actual model in lines 19-35, just make sure you
+7. That’s it! You can change the actual model in the class definition, just make sure you
    change the layer names as well. Run your ``models/base_models.py`` file,
    and you should get the following message indicating you are good to submit::
     Test successful, you are ready to submit!

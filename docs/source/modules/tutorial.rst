@@ -474,3 +474,53 @@ Common Errors: Submission
    and tell you what happened. You will, very soon, be able to log in and check the logs yourself,
    so stay tuned!
 
+
+
+Frequently Asked Questions
+==========================
+
+1. **What are all the numbers on the Brain-Score site?**
+
+   As of now on the leaderboard (Brain-Score), there are 6 numbers
+   that your model would get: ``average``, ``V1``, ``V2``, ``V4``, ``IT``, and ``Behavioral``.
+   Each one of these is a set of benchmarks that tests how "brain-like"
+   your model is to various cognitive and neural data- in essence,
+   it is a measure of how close the model is to the brain.
+   Models are also tested on "Engineering" benchmarks which are non-brain,
+   typically machine learning measures that the brain measures can be related
+   to (e.g. more V1-like → more robust to image perturbations).
+
+2. **What is the idea behind Brain-Score? Where can I learn more?**
+
+   The website is a great place to start, and for those who really
+   want to dive deep, I would recommend reading the technical paper(https://www.biorxiv.org/content/10.1101/407007v1)
+   and the perspective paper (https://www.cell.com/neuron/fulltext/S0896-6273(20)30605-X)
+   that outline the idea and the inner workings of how Brain-Score operates.
+
+3. **I was looking at the code and I found an error in the code/docs/etc. How can I contribute?**
+
+   Right now, the easiest way would be to fork (make a copy of the Brain-Score
+   project repos in your own Github) our brain-score repos,
+   edit your version, and submit a pull request (PR) to merge it
+   into our master branch. We will have to confirm that PR, but will thank you for contributing!
+
+4. **I really like Brain-Score, and I have some ideas that I would love to
+   talk to someone about. How do I get in touch/who do I talk to?**
+
+   Martin Schrimpf, the main creator of Brain-Score, would be a great place to start.
+   Chris Shay, the DiCarlo Lab manager, can also help, and if you need to
+   talk to Jim DiCarlo himself you can reach out as well.  All contact
+   info is on the lab website: http://dicarlolab.mit.edu/
+
+5. **I am a neuroscientist/cognitive scientist/cognitive-AI-neuro-computational-systems-scientist
+   and would love to talk theory or contribute to benchmarks, as I have collected data or
+   have theoretical questions. What should I do?**
+
+   I would reach out to Martin, Chris, or Jim directly, via the lab website as stated above.
+
+6. **Is there any reward for reaching the top overall brain-score? Or even a top
+   score on the individual benchmarks?**
+
+   We hope to set up a dedicated competition in the near future, but we
+   monitor the site and if you get a top score, we will know and reach out.
+   If you are local and get the top average score, we might even buy you a beer if you’re nice to us :)

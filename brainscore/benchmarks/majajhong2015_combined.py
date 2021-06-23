@@ -50,10 +50,10 @@ def _DicarloMajajHong2015Region_lmh(region, identifier_metric_suffix, similarity
                            parent=region,
                            bibtex=BIBTEX)
 
-def _DicarloMajajHong2015Region_lmh_imagedir(image_dir, region, identifier_metric_suffix, similarity_metric, ceiler, benchmark_identifier='dicarlo.MajajHong2015'):
+def _DicarloMajajHong2015Region_lmh_imagedir(image_dir, region, identifier_metric_suffix, similarity_metric, ceiler, assembly_name='dicarlo.MajajHong2015'):
     assembly_repetition = LazyLoad(lambda region=region: load_assembly(average_repetitions=False, region=region))
-    assembly = LazyLoad(lambda region=region: load_assembly(average_repetitions=True, region=region))
-    return NeuralBenchmarkImageDir(identifier=benchmark_identifier, version=3,
+    assembly = LazyLoad(lambda region=region: load_assembly(average_repetitions=True, region=region, name=assembly_name))
+    return NeuralBenchmarkImageDir(identifier=f'{assembly_name}.{region}-{identifier_metric_suffix}', version=3,
                            assembly=assembly, similarity_metric=similarity_metric,
                            image_dir=image_dir,
                            visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,

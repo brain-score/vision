@@ -7,11 +7,11 @@ Tutorial
 About
 =====
 Brain-Score is a novel way to measure how “brain-like" artificial neural networks are,
-from recurrent NNs to Spiking NNs and everything in between. It was developed by my colleagues
+from recurrent NNs to spiking NNs and everything in between. It was developed by my colleagues
 Martin Schrimpf and James DiCarlo, amongst others, at MIT, and I (Mike) was recently hired in
 June to maintain and add features to the code base. In a nutshell, Brain-Score attempts to map
 how similar models are to the brain, and gives a score (usually ranging from 0 to 1) on various
-brain regions and behavioral benchmarks. This guide is a quickstart for researchers and tinkerers
+brain regions and behavioral benchmarks. This guide is a tutrial for researchers and tinkerers
 alike that tries to outline the setup, submission, and feedback system for users.
 
 Overview
@@ -23,9 +23,9 @@ Brain-Score sounds great! How do I get started? What do I do next? How do I subm
 We will give you guidance below to try and walk you
 through the entire process, end-to-end. Start here if you have already
 (or would like to create) a model to submit and get a Brain-Score.
-This guide will walk you through from scratch to receiving a
+This guide will walk you through from downloading our code to receiving a
 submission score from the website. Completion of the tutorial
-should take about an hour, more or less.
+should take about an 15-20 minutes, more or less.
 
 What does Brain-Score look like, exactly?
 --------------------------------------------------------------------
@@ -34,7 +34,7 @@ on various repos, free for anyone to fork,
 clone, or download. The main page has 10 repos (9 visible to non-devs)
 that make up the entire source code base- this can be overwhelming, but
 fear not. I will walk you through what each does, as well as explain that
-you most likely will only need a few to get a model up and scored. It is
+you most likely will only need one to get a model up and scored. It is
 good to see, however, the structure of how Brain-Score operates with its
 various repos. They are:
 
@@ -44,7 +44,7 @@ various repos. They are:
 4. ``model-tools``: helper functions that translate from machine learning models
    to brain models to be tested on brain-score.
 5. ``brainio_collection``: the repo that packages and collects the stimuli/data.
-6. ``brainio_base``: repo that contains various data structures for BrainIO.
+6. ``brainio_base``: repo that contains various data structures for ``BrainIO``.
 7. ``result_caching``: a helper repo to store the results of function calls so they can
    be re-used without re-computing.
 8. ``brain-score.web``: website front and back end.
@@ -81,16 +81,16 @@ Why do you recommend installing and submitting the way outlined in this guide? I
 A reasonable question, and it is always good to be skeptical. The short answer
 is that using an IDE like Pycharm and virtual environments
 drastically cuts the error rate for install down, as well as makes the whole
-process of installing dependencies easier. Using a VENV also helps with headaches
+process of installing dependencies easier. Using a venv also helps with headaches
 caused by clashes between Anaconda and PIP, and Pycharm
 (or another IDE like VScode) takes care of that for you.
 
 Do I have to read/do this entire tutorial to submit a model?
 ------------------------------------------------------------
 
-No - You can skip to the quickstart guide below, if you do not
+No - You can skip to the Quickstart section below, if you do not
 wish to read/do this entire tutorial, but we recommend it in
-order to get the most out of brain-score and avoid errors that might pop up along the way.
+order to get the most out of Brain-Score and avoid errors that might pop up along the way.
 
 
 
@@ -104,24 +104,24 @@ entire tutorial, as it will help you in the future. This section also does not
 have pictures, which the other more lengthy sections below do. In this case,
 we will submit a version of AlexNet from Pytorch’s library; the main steps are outlined below:
 
-1. Get a copy of  the ``sample-model-submission`` repo from our Github. If you are wondering
-   about what the various repos on the main Brain-Score github do, check out the Overview section above.
-   Here is the command for a terminal ::
+1. Clone a copy of  the ``sample-model-submission`` repo from our Github. If you are wondering
+   about what the various repos on the main Brain-Score github do, check out the ``Overview`` section above.
+   Here is the command for a terminal: ::
      git clone https://github.com/brain-score/sample-model-submission.git
 2. Install the dependencies via pip. (Make sure to switch into the ``sample-model-submission`` folder
    that was created in step one above when you cloned the repo). You can read more about this in the
-   Install Brain-Score Repos and Dependencies section below. Again, the command for the terminal is ::
+   ``Install Brain-Score Repos and Dependencies`` section below. Again, the command for the terminal is: ::
      pip install .
 3. Specify the model to test. You can do this a few ways, but in this case, we can
    just use the model defined in ``pytorch.py``. More info on this step can be found in
-   the Submitting a Model to Brain-Score.org Part 1: Preparing the Model section of
+   the ``Submitting a Model to Brain-Score.org Part 1: Preparing the Model`` section of
    this guide. In essence, you need to implement the various functions outlined in
    the ``sample-model-submission/models/base_models.py`` file.
 4. Test the model on your machine. You can do this simply by hitting “run"
    on the ``pytorch.py`` file (in this case) or the file where you implemented
    the ``base_models.py`` template. If you followed the steps correctly, you should
    receive a message on the Python console indicating that you are ready to submit.
-5. Submit the package to brain-score.org. This step is slightly brittle as of now,
+5. Submit the package to ``brain-score.org``. This step is slightly brittle as of now,
    and is easy to do wrong; I recommend skipping down to ``Submitting a Model to
    Brain-Score.org Part 2: Upload`` section to see the structure of the zip file that
    our site needs in order to process your submission.
@@ -152,13 +152,13 @@ linked in order to run setup for submission and scoring.
    tells the computer how to run various Python commands) by setting up a Virtual Environment
    for you automatically. A venv is handy because installing the dependencies that Brain-Score
    needs will not conflict with other packages on your computer if you use a venv.
-   To the left on your screen, you will see your folder brainscore-brief that is the
+   To the left on your screen, you will see your folder ``brainscore-brief`` that is the
    project root. If you click to expand it, then you will see an orange folder marked ``venv``
    that contains all the venv files and whatnot. I would not mess with the ``venv`` folder or
    download anything in there. Again, your IDE will most likely be different if you do not use
    Pycharm, but the main points still hold.
 3. Next, we are going to clone the repos we need in order to get the code from Github for Brain-Score.
-   The easiest way to do this is to install Git on your computer from: https://git-scm.com/download/win.
+   The easiest way to do this is to install Git on your computer from (for Windows): https://git-scm.com/download/win.
    Once this is installed, open up your terminal and navigate into the ``brainscore-brief``
    folder. In my case, the commands are ::
      cd desktop -> cd brainscore-brief
@@ -179,22 +179,22 @@ linked in order to run setup for submission and scoring.
        :width: 600
 
 4. We will now install the pip packages that our code needs to run: things like ``scipy`` and
-   ``imageio`` , etc. In your IDE or using your main computer terminal, switch into your root
+   ``imageio`` , etc. In your IDE, or using your main computer terminal, switch into your root
    directory, in this case ``brainscore-brief``. Navigate into the repo directory,
    ``sample-model-submission``, using the command ::
      cd sample-model-submission
    (which should be one level down from the original created folder/directory).
    Once you are in this ``sample-model-submission`` repo,
    run the command below  (note the period; this tells pip to install all the dependencies you will
-   need: a nice and handy way to do this) ::
+   need, a nice and handy way to do this). ::
      pip install .
    In Pycharm, you can check to make sure these dependencies were installed correctly
    by going into ::
      Pycharm -> settings (preferences on Mac) -> project: brainscore-brief -> project interpreter
    where you will see a list of around 100 packages like ``toml``, ``xarray``, and
-   ``Keras-preprocessing``. (Note: installing all the dependencies will take around 2-5 mins
-   on your machine, depending on the hardware/internet). A different IDE will most likely
-   have a similar feature, but this tutorial gives Pycharm as an example.
+   ``Keras-preprocessing``. *(Note: installing all the dependencies will take around 2-5 mins
+   on your machine, depending on the hardware/internet)*. A different IDE will most likely
+   have a similar feature, but this tutorial uses Pycharm.
 5. Congrats! You now have completed the hardest part of install.
    Also remember before running the pip command, make sure to navigate
    using terminal into the correct folder using the ::
@@ -231,8 +231,8 @@ most helpful for those that want to submit their own model.
    everything works correctly for the main Brain-Score site submission.
    It is like a check: if all goes well running this code, then your model
    is ready to submit to the site to be scored. (*Note: the first time running
-   the ``pytorch.py`` file will take a bit, because you have to download the model
-   (AlexNet in this case) weights/models from the site. This took about 15 mins
+   this file will take a bit, because you have to download the model
+   (AlexNet in this case) weights/data from the site. This took about 15 mins
    for me on my Macbook (around 5 on my desktop PC), and only occurs the first
    time you download a pretrained model. Make sure your computer does not time out,
    or the download process can halt and you might have to re-run the file, which
@@ -261,7 +261,7 @@ If you made it this far, you are ready to upload your AlexNet model
 and get a Brain-Score! In a nutshell, all this step ensues is zipping
 the folder and making sure the files to submit are in the right place.
 
-1. Right now, the working code we have confirmed is ready to submit is
+1. Right now, the working code we have confirmed is ready to be submitted is
    in the ``pytorch.py`` file. This file is mainly an example file, and
    thus we do not really want to submit it - instead, we are going to
    make a copy of it, rename it, and submit *that* version.
@@ -269,7 +269,7 @@ the folder and making sure the files to submit are in the right place.
    root ``brainscore-brief`` directory to house all your submissions.
    This way, you can have a nice place to keep your submissions and
    reference them later if need be. For example, I made one called
-   ``my_model_submissions`` located inside the project root (brainscore-brief),
+   ``my_model_submissions`` located inside the project root (``brainscore-brief``),
    as seen below:
 
     .. image:: /docs/source/modules/tutorial_screenshots/mms.png
@@ -281,7 +281,7 @@ the folder and making sure the files to submit are in the right place.
    be able to parse the submission package and start running the correct code.
    So, this step in the guide is just about building this submission package.
    See below for the breakdown of zip file we will submit, with the various levels of the folders. Note the
-   *two* ``\__init__.py`` files in both the ``models`` folder and root: ::
+   *two* ``__init__.py`` files in both the ``models`` folder and root: ::
 
 
     my_alexnet_submission (main folder)
@@ -305,7 +305,7 @@ the folder and making sure the files to submit are in the right place.
    to copy that and place it inside of the ``my_alexnet_submission`` folder. You should
    be able to do this by just right clicking the file, copying, and then pasting inside
    the correct folder. It is important to paste it inside the
-   ``my_alexnet_submission folder``, in order for it to be placed in the right spot.
+   ``my_alexnet_submission`` folder, in order for it to be placed in the right spot.
    Your project should now look similiar to this:
     .. image:: /docs/source/modules/tutorial_screenshots/setup.png
       :width: 600
@@ -319,20 +319,20 @@ the folder and making sure the files to submit are in the right place.
     right click -> new -> Python file
    Name this file ``__init__.py`` and
    click enter.  In the file, hit a new line (enter) so that the ``__init__.py`` file is not blank.
-   Your package should look akin to this:
+   Your package should now look akin to this:
     .. image:: /docs/source/modules/tutorial_screenshots/init_py.png
       :width: 600
 7. We are almost done! Copy the ``__init__.py`` file you just made and place that
    *additional* copy inside the ``models`` folder. Finally, we want to add the
    actual submission to the package. There are a few ways to do this, but
    for now we are just going to copy the code from ``pytorch.py`` into a blank
-   Python file. Create a new Python file called ``base_models.py`` (note: the
+   Python file. Create a new Python file called ``base_models.py`` (the
    creation process is identical to how you created the ``__init__.py`` file above,
    just make sure this file is created inside the models folder), and paste the
    code from ``pytorch.py`` into there. This creates another instance of the
    ``base_models.py`` file, filled with ``pytorch.py`` ’s code, which is in this case the
    AlexNet model. You are basically done at this point, and your final package
-   should look akin to the picture below. Remember, the actual model is now contained
+   should look similiar to the picture below. Remember, the actual model is now contained
    in the ``models/base_models.py`` file, and that is what is getting run on our site to get a score for you.
     .. image:: /docs/source/modules/tutorial_screenshots/final_submit.png
       :width: 600
@@ -351,7 +351,7 @@ the folder and making sure the files to submit are in the right place.
    like ``vgg16``, ``Inception``, or ``RESNET``, that are available from
    Pytorch. Keras works the same way, and for the most part this
    tutorial can be followed to use ``keras.py`` instead of ``pytorch.py``; if you
-   use keras, just remember to add it to the ``setup.py`` file. Finally,
+   use Keras, just remember to add it to the ``setup.py`` file. Finally,
    when using a different pretrained model (or a custom model) see the
    section below on layer selection to get the layers needed in the actual model,
    which will be different according to the model used.
@@ -377,7 +377,7 @@ submitting a custom model (vs. something like AlexNet), and just focus on what i
    pasting it into the ``my_model_submissions`` folder, and renaming it to something
    like ``my_custom_submission``. This will take care of all the tricky
    submission stuff, and you can just focus on implementing the actual model inside ``models/base_models.py``.
-3. Now the fun part: scoring a model that you create! In this guide we will be implementing
+3. Now the fun part: scoring a model that you create! In this section we will be implementing
    a light-weight Pytorch model and submitting that. All this entails is adding
    a little bit of extra stuff to ``models/base_models.py``.
 4. The easiest way to do this is to simply copy all the code in the file
@@ -410,7 +410,7 @@ submitting a custom model (vs. something like AlexNet), and just focus on what i
    and you should get the following message indicating you are good to submit::
     Test successful, you are ready to submit!
    At this point, all that is left is to zip the ``my_custom_submission`` folder
-   and actually submit on our site! At this point, if you run into any errors,
+   and actually submit on our site! If you run into any errors,
    check out the ``Common Errors: Submission section`` of this guide, and if you can’t
    find a solution, feel free to email us!
 |
@@ -451,7 +451,7 @@ this project or doing this tutorial. We will add more soon!
    and then rerun
    the ::
     pip install .
-   command. This navigates to the correct sample_model_submission subfolder and
+   command. This navigates to the correct ``sample_model_submission`` subfolder and
    installs the packages where they are supposed to be.
    More generally: make sure you are in the ``sample_model_submission`` folder
    (and not its parent or child folder) before you run the pip command above. This should fix the error.
@@ -460,7 +460,7 @@ this project or doing this tutorial. We will add more soon!
    for the first time, you get::
     ssl.SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1076)
    *Cause*: Pytorch’s backend. The SSL certificate for downloading a pre-trained model has expired
-   from their end and pytorch should renew soon (usually ~4 hrs)
+   from their end and Pytorch should renew soon (usually ~4 hrs)
 
    *Fix*: If you can’t wait, add the following lines of code to your ``pytorch.py``
    (or whatever file is using the pretrained Pytorch models): *Note: Pycharm might throw a warning about this
@@ -507,7 +507,7 @@ Frequently Asked Questions
 3. **I was looking at the code and I found an error in the code/docs/etc. How can I contribute?**
 
    Right now, the easiest way would be to fork (make a copy of the Brain-Score
-   project repos in your own Github) our brain-score repos,
+   project repos in your own Github) our Brain-Score repos,
    edit your version, and submit a pull request (PR) to merge it
    into our master branch. We will have to confirm that PR, but will thank you for contributing!
 
@@ -525,7 +525,7 @@ Frequently Asked Questions
 
    I would reach out to Martin, Chris, or Jim directly, via the lab website as stated above.
 
-6. **Is there any reward for reaching the top overall brain-score? Or even a top
+6. **Is there any reward for reaching the top overall Brain-Ccore? Or even a top
    score on the individual benchmarks?**
 
    We hope to set up a dedicated competition in the near future, but we

@@ -1,6 +1,6 @@
 from xarray import DataArray
 
-from brainio_core.assemblies import merge_data_arrays, walk_coords
+from brainio.assemblies import merge_data_arrays, walk_coords
 from brainscore.metrics.transformations import apply_aggregate
 
 

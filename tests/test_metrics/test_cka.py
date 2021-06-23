@@ -1,5 +1,5 @@
 import numpy as np
-from brainio_core.assemblies import NeuroidAssembly
+from brainio.assemblies import NeuroidAssembly
 from pytest import approx
 
 from brainscore.metrics.cka import CKACrossValidated, CKAMetric

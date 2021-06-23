@@ -7,7 +7,7 @@ import scipy.stats
 from numpy.random.mtrand import RandomState
 from scipy.stats import pearsonr
 
-from brainio_core.assemblies import walk_coords, DataAssembly
+from brainio.assemblies import walk_coords, DataAssembly
 from brainscore.metrics import Metric, Score
 from brainscore.metrics.transformations import apply_aggregate
 from brainscore.utils import fullname

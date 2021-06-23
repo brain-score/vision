@@ -1,5 +1,5 @@
 import brainscore
-from brainio_core.assemblies import walk_coords, array_is_element
+from brainio.assemblies import walk_coords, array_is_element
 from brainscore.benchmarks._neural_common import NeuralBenchmark
 from brainscore.metrics.ceiling import InternalConsistency
 from brainscore.metrics.regression import CrossRegressedCorrelation, mask_regression, pls_regression, \

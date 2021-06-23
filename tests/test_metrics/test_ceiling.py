@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from pytest import approx
 
-from brainio_core.assemblies import NeuroidAssembly, DataAssembly
+from brainio.assemblies import NeuroidAssembly, DataAssembly
 from brainscore.benchmarks.majajhong2015 import load_assembly
 from brainscore.metrics.ceiling import NoCeiling, InternalConsistency, SplitHalfConsistency
 

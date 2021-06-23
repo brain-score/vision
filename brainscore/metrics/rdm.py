@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.stats import spearmanr
 
-from brainio_core.assemblies import DataAssembly, walk_coords
+from brainio.assemblies import DataAssembly, walk_coords
 
 from brainscore.metrics import Score
 from brainscore.metrics.transformations import TestOnlyCrossValidation

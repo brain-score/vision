@@ -32,7 +32,7 @@ we will submit a version of AlexNet from Pytorch’s library; the main steps are
      git clone https://github.com/brain-score/sample-model-submission.git
 2. Install the dependencies via pip. (Make sure to switch into the ``sample-model-submission`` folder
    that was created in step one above when you cloned the repo). You can read more about this in the
-   ``Install Brain-Score Repos and Dependencies`` section below. Again, the command for the terminal is: ::
+   ``Install Brain-Score Repos and Dependencies`` section below. The command for a terminal is: ::
      pip install .
 3. Specify the model to test. In this example, we can
    just use the model defined in ``pytorch.py``, located in the ``examples`` folder
@@ -71,7 +71,7 @@ The main code for Brain-Score is contained and hosted on Github (https://github.
 on various repos, free for anyone to fork,
 clone, or download. The main page has 10 repos (9 visible to non-devs)
 that make up the entire source code base- this can be overwhelming, but
-fear not. I will walk you through what each does, as well as explain that
+fear not. We will walk you through what each does, as well as explain that
 you most likely will only need one to get a model up and scored. It is
 good to see, however, the structure of how Brain-Score operates with its
 various repos. They are:
@@ -89,10 +89,10 @@ various repos. They are:
 9. ``Brainio_contrib`` (archived): used in the past to contribute stimuli and datasets
    (now part of ``brainio_collection``).
 
-Which repos will I use?
+Which repo(s) will I use?
 -----------------------
 When we get to the install guide, we will show you exactly how to
-clone/fork repos for your own project in the easiest way possible.
+clone/fork a repo for your own project in the easiest way possible.
 But for now, you will mainly only need the ``sample-model-submission`` repo.
 
 How do I get a Brain-Score for my model?
@@ -120,7 +120,7 @@ is that using an IDE like Pycharm or VSCode along with virtual environments
 drastically cuts the error rate for install down, as well as makes the whole
 process of installing dependencies easier. Using a venv also helps with headaches
 caused by clashes between Anaconda and PIP, and Pycharm
-(or another IDE like VScode) takes care of that.
+(or another IDE like VSCode) takes care of that.
 
 Do I have to read/do this entire tutorial to submit a model?
 ------------------------------------------------------------

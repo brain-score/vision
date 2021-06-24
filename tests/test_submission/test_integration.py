@@ -25,12 +25,12 @@ logger = logging.getLogger(__name__)
 @pytest.mark.memory_intense
 @pytest.mark.private_access
 class TestIntegration:
-    databse = 'brainscore-ohio-test'
+    database = 'brainscore-ohio-test'
 
     @classmethod
     def setup_class(cls):
         logger.info('Connect to database')
-        connect_db(TestIntegration.databse)
+        connect_db(TestIntegration.database)
         clear_schema()
 
     def setup_method(self):
@@ -47,7 +47,7 @@ class TestIntegration:
     def test_evaluation(self, tmpdir):
         working_dir = str(tmpdir.mkdir('sub'))
         config_dir = str(os.path.join(os.path.dirname(__file__), 'configs/'))
-        run_evaluation(config_dir, working_dir, 33, TestIntegration.databse, models=['alexnet'],
+        run_evaluation(config_dir, working_dir, 33, TestIntegration.database, models=['alexnet'],
                        benchmarks=['dicarlo.MajajHong2015.IT-pls'])
         with open('result_33.csv') as results:
             csv_reader = csv.reader(results, delimiter=',')
@@ -73,7 +73,7 @@ class TestIntegration:
         with open(f'{config_dir}submission_34.json', 'w') as rerun:
             rerun.write(f"""{{
             "model_ids": [{model.id}], "user_id": 1}}""")
-        run_evaluation(config_dir, working_dir, 34, TestIntegration.databse,
+        run_evaluation(config_dir, working_dir, 34, TestIntegration.database,
                        benchmarks=['dicarlo.Rajalingham2018-i2n'])
         with open('result_34.csv') as results:
             csv_reader = csv.reader(results, delimiter=',')
@@ -89,14 +89,14 @@ class TestIntegration:
         working_dir = str(tmpdir.mkdir('sub'))
         config_dir = str(os.path.join(os.path.dirname(__file__), 'configs/'))
         with pytest.raises(Exception):
-            run_evaluation(config_dir, working_dir, 35, TestIntegration.databse, models=['alexnet'],
+            run_evaluation(config_dir, working_dir, 35, TestIntegration.database, models=['alexnet'],
                            benchmarks=['dicarlo.Rajalingham2018-i2n'])
 
     def test_model_failure_evaluation(self, tmpdir):
         # os.environ['RESULTCACHING_DISABLE'] = 'brainscore.score_model,model_tools'
         working_dir = str(tmpdir.mkdir('sub'))
         config_dir = str(os.path.join(os.path.dirname(__file__), 'configs/'))
-        run_evaluation(config_dir, working_dir, 36, TestIntegration.databse, models=['alexnet'],
+        run_evaluation(config_dir, working_dir, 36, TestIntegration.database, models=['alexnet'],
                        benchmarks=['movshon.FreemanZiemba2013.V1-pls'])
         with open('result_36.csv') as results:
             csv_reader = csv.reader(results, delimiter=',')

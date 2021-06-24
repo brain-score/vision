@@ -8,7 +8,7 @@ from pytest import approx
 from typing import List, Tuple
 import xarray as xr
 
-from brainscore.benchmarks import benchmark_pool, public_benchmark_pool, evaluation_benchmark_pool
+from brainscore.benchmarks import benchmark_pool, public_benchmark_pool, evaluation_benchmark_pool, engineering_benchmark_pool
 from brainscore.model_interface import BrainModel
 from tests.test_benchmarks import PrecomputedFeatures
 from brainio_base.assemblies import BehavioralAssembly
@@ -43,6 +43,13 @@ class TestPoolList:
             'movshon.FreemanZiemba2013.V1-pls', 'movshon.FreemanZiemba2013.V2-pls',
             'dicarlo.MajajHong2015.V4-pls', 'dicarlo.MajajHong2015.IT-pls', 'dicarlo.Kar2019-ost',
             'dicarlo.Rajalingham2018-i2n',
+        }
+
+    def test_engineering_pool(self):
+        assert set(engineering_benchmark_pool.keys()) == {
+            'fei-fei.Deng2009-top1', 
+            'dietterich.Hendrycks2019-noise-top1', 'dietterich.Hendrycks2019-blur-top1',
+            'dietterich.Hendrycks2019-weather-top1', 'dietterich.Hendrycks2019-digital-top1'
         }
 
 

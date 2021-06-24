@@ -7,7 +7,7 @@ from brainscore.benchmarks.imagenet_c import Imagenet_C_Individual, Imagenet_C_N
     Imagenet_C_Weather, Imagenet_C_Digital
 from brainscore.model_interface import BrainModel
 
-
+# downloads all ImageNet C benchmarks (50.3G) and runs with default downsampling by a factor of 10
 @pytest.mark.slow
 class TestImagenetC:
     def test_groundtruth(self):
@@ -33,27 +33,25 @@ class TestImagenetC:
         scores = [benchmark(candidate) for benchmark in benchmarks]
         assert all([np.mean(score) == approx(0) for score in scores])
 
+# downloads ImageNet C blur benchmarks (7.1G) and downsamples with a factor of 1000
+@pytest.mark.travis_slow
+class TestImagenetC_Category:
+    def test_groundtruth(self):
+        benchmarks = [
+            Imagenet_C_Blur(sampling_factor=1000),
+        ]
 
-class TestImagenetCIndividual:
-    def test_groundtruth(self, identifier_suffix='gaussian_noise_1', noise_type='gaussian_noise'):
-        benchmark = Imagenet_C_Individual(identifier_suffix=identifier_suffix, noise_type=noise_type)
-        source = benchmark._stimulus_set
-
-        class GroundTruth(BrainModel):
+        class Static(BrainModel):
             def start_task(self, task, fitting_stimuli):
                 assert task == BrainModel.Task.label
                 assert fitting_stimuli == 'imagenet'  # shortcut
 
             def look_at(self, stimuli, number_of_trials=1):
-                source_image_ids = source['image_id'].values
-                stimuli_image_ids = stimuli['image_id'].values
-                sorted_x = source_image_ids[np.argsort(source_image_ids)]
-                sorted_index = np.searchsorted(sorted_x, stimuli_image_ids)
-                aligned_source = source.loc[sorted_index]
-                labels = aligned_source['synset'].values
+                labels = -np.ones_like(stimuli['image_id'].values)
                 return BehavioralAssembly([labels], coords={
-                    **{column: ('presentation', aligned_source[column].values) for column in aligned_source.columns},
+                    **{column: ('presentation', stimuli[column].values) for column in stimuli.columns},
                     **{'choice': ('choice', ['dummy'])}}, dims=['choice', 'presentation'])
 
-        candidate = GroundTruth()
-        assert np.mean(benchmark(candidate)) == approx(1)
+        candidate = Static()
+        scores = [benchmark(candidate) for benchmark in benchmarks]
+        assert all([np.mean(score) == approx(0) for score in scores])

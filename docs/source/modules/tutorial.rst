@@ -17,15 +17,16 @@ alike that outlines the setup, submission, and feedback system for users.
 
 Quickstart
 ==========
-In this section, we will provide a quick and easy way to get Brain-Score
-up and running. This is mainly for those who do not have the time to read
+In this section, we will provide a quick and easy way
+to get your model(s) ready for submission. This is mainly for those who do not have the time to read
 or do the whole tutorial, or for those who just want to go ahead and submit
-a model quickly; however, we do officially recommend that you read and do the
-entire tutorial, as it will help you in the future. This section also does not
-have pictures, which the other more lengthy sections below do. In this case,
+a model quickly; however, we recommend referring back to this tutorial,
+especially if you encounter errors. This section also does not
+have pictures, which the other more lengthy sections below do. As an example,
 we will submit a version of AlexNet from Pytorch’s library; the main steps are outlined below:
 
-1. Clone a copy of  the ``sample-model-submission`` repo from our Github. If you are wondering
+1. Clone a copy of  the ``sample-model-submission`` repo from from
+   https://github.com/brain-score/sample-model-submission. If you are wondering
    about what the various repos on the main Brain-Score github do, check out the ``Overview`` section below.
    Here is the command for a terminal: ::
      git clone https://github.com/brain-score/sample-model-submission.git
@@ -33,20 +34,22 @@ we will submit a version of AlexNet from Pytorch’s library; the main steps are
    that was created in step one above when you cloned the repo). You can read more about this in the
    ``Install Brain-Score Repos and Dependencies`` section below. Again, the command for the terminal is: ::
      pip install .
-3. Specify the model to test. You can do this a few ways, but in this case, we can
-   just use the model defined in ``pytorch.py``. More info on this step can be found in
+3. Specify the model to test. In this example, we can
+   just use the model defined in ``pytorch.py``, located in the ``examples`` folder
+   of this repository. More info on this step can be found in
    the ``Submitting a Model to Brain-Score.org Part 1: Preparing the Model`` section of
-   this guide. In essence, you need to implement the various functions outlined in
+   this guide. In essence, you need to implement the functions outlined in
    the ``sample-model-submission/models/base_models.py`` file.
-4. Test the model on your machine. You can do this simply by hitting “run"
-   on the ``pytorch.py`` file (in this case) or the file where you implemented
+4. Test the model on your machine. You can do this simply by running the ``pytorch.py`` file
+   (again, located in the ``examples`` folder)
+   or the file where you implemented
    the ``base_models.py`` template. If you followed the steps correctly, you should
    receive a message on the Python console indicating that you are ready to submit.
-5. Submit the package to ``brain-score.org``. This step is slightly brittle as of now,
+5. Submit to ``brain-score.org``. This step is slightly brittle as of now,
    and is easy to do wrong; we recommend skipping down to ``Submitting a Model to
    Brain-Score.org Part 2: Upload`` section to see the structure of the zip file that
    our site needs in order to process your submission.
-6. That’s it! Read more below to get a better idea of the process, or to help fix bugs that might come up.
+   That’s it! Read more below to get a better idea of the process, or to help fix bugs that might come up.
 
 
 Overview
@@ -97,11 +100,11 @@ How do I get a Brain-Score for my model?
 When you submit a model to our website, it is scored against all
 availible benchmarks (e.g. neural predictivity on IT recordings
 from Majaj*, Hong* et al. 2015; see benchmarks_ for more details). The (hierarchical) mean of
-all individual benchmark scores is the Brain-Score itself.
+individual benchmark scores is the Brain-Score itself.
 
 Before submitting your model, you might want to get a quick sense of its performance;
-to that end, we provide public benchmarks that you can run locally, which are different subsets
-of the larger benchamark dataset. This is mainly used to optimize your model before
+to that end, we provide *public* benchmarks that you can run locally, which are different subsets
+of the larger benchmark dataset. This is mainly used to optimize your model before
 submission, or if you want to score models locally on publicly available data.
 *Note: a submission is the only way to score models on private evaluation data.*
 
@@ -113,18 +116,18 @@ Why do you recommend installing and submitting the way outlined in this guide? I
 ------------------------------------------------------------------------------
 
 A reasonable question, and it is always good to be skeptical. The short answer
-is that using an IDE like Pycharm and virtual environments
+is that using an IDE like Pycharm or VSCode along with virtual environments
 drastically cuts the error rate for install down, as well as makes the whole
 process of installing dependencies easier. Using a venv also helps with headaches
 caused by clashes between Anaconda and PIP, and Pycharm
-(or another IDE like VScode) takes care of that for you.
+(or another IDE like VScode) takes care of that.
 
 Do I have to read/do this entire tutorial to submit a model?
 ------------------------------------------------------------
 
-No - You can just read the ``Quickstart``, if you do not
-wish to read/do this entire tutorial, but we recommend it in
-order to get the most out of Brain-Score and avoid errors that might pop up along the way.
+No - You can just read the ``Quickstart`` section, if you do not
+wish to read/do this entire tutorial. However, we recommend referring back to this
+tutorial to help with errors that might pop up along the way.
 
 
 
@@ -136,7 +139,7 @@ linked in order to run setup for submission and scoring.
 
 1. Download PyCharm (https://www.jetbrains.com/pycharm/download/#section=windows) or another IDE.
    *Note: you do not have to use Pycharm per se, but we recommend it, and this guide will show*
-   *you how to integrate Brain-Score with it. It is the easier way.*
+   *you how to integrate Brain-Score with it.*
    If you do not have experience with Pycharm, here’s a nice tutorial: https://www.tutorialspoint.com/pycharm/index.htm.
    Again, we recommend and like Pycharm, but this tutorial is neutral in the sense that you can use
    any IDE, as the steps are very similar for other environments, but this document will
@@ -157,11 +160,13 @@ linked in order to run setup for submission and scoring.
    that contains all the venv files and whatnot. I would not mess with the ``venv`` folder or
    download anything in there. Again, your IDE will most likely be different if you do not use
    Pycharm, but the main points still hold.
-3. Next, we are going to clone the repos we need in order to get the code from Github for Brain-Score.
+3. Next, we are going to clone the repo we need from Github for Brain-Score.
    The easiest way to do this is to install Git on your computer from (for Windows): https://git-scm.com/download/win.
+   On Mac, Git should already be insalled, but if not, visit https://git-scm.com/download/mac.
    Once this is installed, open up your terminal and navigate into the ``brainscore-brief``
    folder. In my case, the commands are ::
-     cd desktop -> cd brainscore-brief
+     cd desktop
+     cd brainscore-brief
 
    After you are in this folder,
    run::
@@ -232,11 +237,7 @@ most helpful for those that want to submit their own model.
    It is like a check: if all goes well running this code, then your model
    is ready to submit to the site to be scored. (*Note: the first time running
    this file will take a bit, because you have to download the model
-   (AlexNet in this case) weights/data from the site. This took about 15 mins
-   for me on my Macbook (around 5 on my desktop PC), and only occurs the first
-   time you download a pretrained model. Make sure your computer does not time out,
-   or the download process can halt and you might have to re-run the file, which
-   is a pain I am too familiar with unfortunately…*)
+   (AlexNet in this case) weights as well as ImageNet validation images (for PCA initialization).
 2. If this works correctly, then you will get a message on the Python console
    declaring::
      Test successful, you are ready to submit!
@@ -258,7 +259,7 @@ Submitting a Model to Brain-Score.org Part 2: Upload
 ====================================================
 
 If you made it this far, you are ready to upload your AlexNet model
-and get a Brain-Score! In a nutshell, all this step ensues is zipping
+and get a Brain-Score! In a nutshell, this step is simply zipping
 the folder and making sure the files to submit are in the right place.
 
 1. Right now, the working code we have confirmed is ready to be submitted is
@@ -347,15 +348,6 @@ the folder and making sure the files to submit are in the right place.
    In the future, you can just copy the submission package and paste
    in your code into ``models/base_models.py``, and it should work (which
    is why we had you make that whole package in the first place!)
-9. *Experiment Further*: Try submitting different pretrained models,
-   like ``vgg16``, ``Inception``, or ``RESNET``, that are available from
-   Pytorch. Keras works the same way, and for the most part this
-   tutorial can be followed to use ``keras.py`` instead of ``pytorch.py``; if you
-   use Keras, just remember to add it to the ``setup.py`` file. Finally,
-   when using a different pretrained model (or a custom model) see the
-   section below on layer selection to get the layers needed in the actual model,
-   which will be different according to the model used.
-
 
 
 Submitting a Model to Brain-Score.org Part 3: Custom model (Optional)
@@ -426,7 +418,7 @@ submitting a custom model (vs. something like AlexNet), and just focus on what i
     # init the model and the preprocessing:
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
 
-    # convert the ANN in this case to a brain-model object to test neural benchmarks:
+    # get an activations model from the Pytorch Wrapper
     activations_model = PytorchWrapper(identifier='my-model', model=MyModel(), preprocessing=preprocessing)
 
     # actually make the model, with the layers you want to see specified:
@@ -487,14 +479,14 @@ submitting a custom model (vs. something like AlexNet), and just focus on what i
         return  ['conv1', 'relu1', 'relu2']
 
     # Bibtex Method. For submitting a custom model, you can either put your own Bibtex if your
-    # model has been published, or just return a string like "N/A: Custom Model".
+    # model has been published, or leave the empty return value if there is no publication to refer to.
     def get_bibtex(model_identifier):
         """
         A method returning the bibtex reference of the requested model as a string.
         """
 
         # from pytorch.py:
-        return "N/A: Custom Model"
+        return ''
 
     # Main Method: In submitting a custom model, you should not have to mess with this.
     if __name__ == '__main__':
@@ -510,17 +502,17 @@ submitting a custom model (vs. something like AlexNet), and just focus on what i
    (which is basically a Google version of Jupyter Notebooks), it will not
    run (due to packages not being installed), and is just for visual
    purposes only; copy and paste the code into your ``models/base_models.py`` file.
-   Next, you see the class definition of the custom model in Pytorch, followed by .
+   Next, you see the class definition of the custom model in Pytorch, followed by model
    preprocessing, the ``PytorchWrapper`` that
-   converts a model into a neuroscience-ready network to run benchmarks on,
-   and  the layers of the network that will be scored.
-   These usually are all the layers, or you can just pick ones you specifically
-   want. You will need all of this, and most likely will only change the
+   converts a base model into an activations model to extract activations from,
+   and the ModelCommitment to convert the activations model into a BrainModel to run on the benchmarks.
+   We usually test the layers at the outputs of blocks, but this choice is up to you.
+   You will need all of this, and most likely will only change the
    actual layer names based on the network/what you want scored.
-6. Next is the fucntion for "naming"  the model, and should be replaced
+6. Next is the function for "naming" the model, and should be replaced
    with whatever you want to call your model. The next function tells the
    code what to score, and you most likely will not have to
-   change this. The is followed by a layer function that simply returns a
+   change this. This is followed by a layer function that simply returns a
    list of the layers to consider.
    Next is is the ``bibtex`` method, and you can replace this with your ``bibtex``
    if your model has been published. Lastly, the concluding lines contain and call

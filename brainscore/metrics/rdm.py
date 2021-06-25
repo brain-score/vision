@@ -46,8 +46,8 @@ class RDMMetric:
 
     def __call__(self, assembly1, assembly2):
         """
-        :param brainio_base.assemblies.NeuroidAssembly assembly1:
-        :param brainio_base.assemblies.NeuroidAssembly assembly2:
+        :param brainio.assemblies.NeuroidAssembly assembly1:
+        :param brainio.assemblies.NeuroidAssembly assembly2:
         :return: brainscore.metrics.Score
         """
 

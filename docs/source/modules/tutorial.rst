@@ -5,6 +5,11 @@
 .. _perspective paper: https://www.cell.com/neuron/fulltext/S0896-6273(20)30605-X
 .. _Pycharm: https://www.jetbrains.com/pycharm/download
 .. _introduction: https://www.tutorialspoint.com/pycharm/index.htm
+.. _sample-model-submission: https://github.com/brain-score/sample-model-submission
+.. _github: https://github.com/brain-score
+.. _windows: https://git-scm.com/download/win
+.. _mac: https://git-scm.com/download/mac
+.. _profile: http://www.brain-score.org/profile/
 
 ========
 Tutorial
@@ -31,8 +36,7 @@ especially if you encounter errors. This section also does not
 have pictures, which the other more lengthy sections below do. As an example,
 we will submit a version of AlexNet from Pytorch’s library; the main steps are outlined below:
 
-1. Clone a copy of  the ``sample-model-submission`` repo from from
-   https://github.com/brain-score/sample-model-submission. If you are wondering
+1. Clone a copy of  the `sample-model-submission`_ repo If you are wondering
    about what the various repos on the main Brain-Score github do, check out the `Overview`_ section below.
    Here is the command for a terminal: ::
      git clone https://github.com/brain-score/sample-model-submission.git
@@ -74,7 +78,7 @@ should take about 15-20 minutes.
 
 What does Brain-Score look like, exactly?
 --------------------------------------------------------------------
-The main code for Brain-Score is contained and hosted on Github (https://github.com/brain-score)
+The main code for Brain-Score is contained and hosted on `Github`_
 on various repos, free for anyone to fork,
 clone, or download. The main page has 10 repos (9 visible to non-devs)
 that make up the entire source code base- this can be overwhelming, but
@@ -172,8 +176,8 @@ linked in order to run setup for submission and scoring.
    download anything in there. Again, your IDE will most likely be different if you do not use
    Pycharm, but the main points still hold.
 3. Next, we are going to clone the repo we need from Github for Brain-Score.
-   The easiest way to do this is to install Git on your computer from (for Windows): https://git-scm.com/download/win.
-   On Mac, Git should already be insalled, but if not, visit https://git-scm.com/download/mac.
+   The easiest way to do this is to install Git on your computer (`Windows`_) or Mac (`Mac`_),
+   if it is not already installed.
    Once this is installed, open up your terminal and navigate into the ``brainscore-brief``
    folder. In my case, the commands are ::
      cd desktop
@@ -349,7 +353,7 @@ the folder and making sure the files to submit are in the right place.
     .. image:: tutorial_screenshots/final_submit.png
       :width: 600
 8. You are now ready to submit! Zip the folder named ``my_alexnet_subission``,
-   navigate to http://www.brain-score.org/profile/, log in/create a new account,
+   navigate to Brain-Score's `profile`_ page, log in/create a new account,
    and submit the model! Usually (depending on how busy the time of year is)
    it will take around 1 hour or so to score, but might take longer. If you
    do not see a score within 24 hours, contact us and we can send you

@@ -109,8 +109,7 @@ How do I get a Brain-Score for my model?
 ----------------------------------------
 When you submit a model to our website, it is scored against all
 availible benchmarks (e.g. neural predictivity on IT recordings
-from Majaj*, Hong* et al. 2015; see :doc:`benchmarks`
-or :ref:`modules/benchmarks`. for more details). The (hierarchical) mean of
+from Majaj*, Hong* et al. 2015; see :ref:`benchmarks` for more details). The (hierarchical) mean of
 individual benchmark scores is the Brain-Score itself.
 Before submitting your model, you might want to get a quick sense of its performance;
 to that end, we provide *public* benchmarks that you can run locally, which are different subsets

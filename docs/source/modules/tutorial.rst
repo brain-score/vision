@@ -1,4 +1,5 @@
 .. _Tutorial:
+.. _benchmarks: https://brain-score.readthedocs.io/en/latest/modules/benchmarks.html
 
 ========
 Tutorial
@@ -27,17 +28,17 @@ we will submit a version of AlexNet from Pytorch’s library; the main steps are
 
 1. Clone a copy of  the ``sample-model-submission`` repo from from
    https://github.com/brain-score/sample-model-submission. If you are wondering
-   about what the various repos on the main Brain-Score github do, check out the ``Overview`` section below.
+   about what the various repos on the main Brain-Score github do, check out the `Overview`_ section below.
    Here is the command for a terminal: ::
      git clone https://github.com/brain-score/sample-model-submission.git
 2. Install the dependencies via pip. (Make sure to switch into the ``sample-model-submission`` folder
    that was created in step one above when you cloned the repo). You can read more about this in the
-   ``Install Brain-Score Repos and Dependencies`` section below. The command for a terminal is: ::
+   `Install Brain-Score Repos and Dependencies`_ section below. The command for a terminal is: ::
      pip install .
 3. Specify the model to test. In this example, we can
    just use the model defined in ``pytorch.py``, located in the ``examples`` folder
    of this repository. More info on this step can be found in
-   the ``Submitting a Model to Brain-Score.org Part 1: Preparing the Model`` section of
+   the `Submitting a Model to Brain-Score.org Part 1: Preparing the Model`_ section of
    this guide. In essence, you need to implement the functions outlined in
    the ``sample-model-submission/models/base_models.py`` file.
 4. Test the model on your machine. You can do this simply by running the ``pytorch.py`` file
@@ -46,8 +47,9 @@ we will submit a version of AlexNet from Pytorch’s library; the main steps are
    the ``base_models.py`` template. If you followed the steps correctly, you should
    receive a message on the Python console indicating that you are ready to submit.
 5. Submit to ``brain-score.org``. This step is slightly brittle as of now,
-   and is easy to do wrong; we recommend skipping down to ``Submitting a Model to
-   Brain-Score.org Part 2: Upload`` section to see the structure of the zip file that
+   and is easy to do wrong; we recommend skipping down to
+   `Submitting a Model to Brain-Score.org Part 2: Upload`_
+   section to see the structure of the zip file that
    our site needs in order to process your submission.
    That’s it! Read more below to get a better idea of the process, or to help fix bugs that might come up.
 
@@ -102,6 +104,10 @@ availible benchmarks (e.g. neural predictivity on IT recordings
 from Majaj*, Hong* et al. 2015; see benchmarks_ for more details). The (hierarchical) mean of
 individual benchmark scores is the Brain-Score itself.
 
+
+
+
+
 Before submitting your model, you might want to get a quick sense of its performance;
 to that end, we provide *public* benchmarks that you can run locally, which are different subsets
 of the larger benchmark dataset. This is mainly used to optimize your model before
@@ -125,7 +131,7 @@ caused by clashes between Anaconda and PIP, and Pycharm
 Do I have to read/do this entire tutorial to submit a model?
 ------------------------------------------------------------
 
-No - You can just read the ``Quickstart`` section, if you do not
+No - You can just read the `Quickstart`_ section, if you do not
 wish to read/do this entire tutorial. However, we recommend referring back to this
 tutorial to help with errors that might pop up along the way.
 
@@ -137,7 +143,7 @@ Install Brain-Score Repos and Dependencies
 In this section, we will show you how to get packages installed and dependencies
 linked in order to run setup for submission and scoring.
 
-1. Download PyCharm (https://www.jetbrains.com/pycharm/download/#section=windows) or another IDE.
+1. Download PyCharm (https://www.jetbrains.com/pycharm/download) or another IDE.
    *Note: you do not have to use Pycharm per se, but we recommend it, and this guide will show*
    *you how to integrate Brain-Score with it.*
    If you do not have experience with Pycharm, here’s a nice tutorial: https://www.tutorialspoint.com/pycharm/index.htm.
@@ -205,7 +211,7 @@ linked in order to run setup for submission and scoring.
    using terminal into the correct folder using the ::
      cd sample-model-submission
    command to ensure it is installed in the right place- otherwise you get error #1
-   in the ``Common Errors: Setup`` section. Feel free to explore the various
+   in the `Common Errors: Setup`_ section. Feel free to explore the various
    files and get a feel for them.
 
 That’s it! You have downloaded and retrieved all of the files you need to submit a model!
@@ -216,7 +222,7 @@ listed/resolved below, reach out to us at MIT and we can (most likely) help:
 - mferg@mit.edu
 - cshay@mit.edu
 
-Submit a Model to Brain-Score.org Part 1: Preparing the Model
+Submitting a Model to Brain-Score.org Part 1: Preparing the Model
 =============================================================
 
 By now you should have the ``sample-model-submission`` repo cloned and
@@ -244,7 +250,7 @@ most helpful for those that want to submit their own model.
    and you can jump down below to Part 2, but we recommend
    reading the rest of the steps to understand what’s going on.
    A common error regarding SSL might happen at this point and is #2 on the
-   ``Common Errors: Setup`` section, so check that out if you get that error.
+   `Common Errors: Setup`_ section, so check that out if you get that error.
 3. Explore Further: navigate to ``sample-model-submission/models/base_models.py`` using
    the project explorer. You will see that this is basically a blank version of the
    ``pytorch.py`` file, and serves as a template to make new models to submit. The ``pytorch.py``
@@ -523,7 +529,7 @@ submitting a custom model (vs. something like AlexNet), and just focus on what i
     Test successful, you are ready to submit!
    At this point, all that is left is to zip the ``my_custom_submission`` folder
    and actually submit on our site! If you run into any errors,
-   check out the ``Common Errors: Submission section`` of this guide, and if you can’t
+   check out the `Common Errors: Submission`_ section of this guide, and if you can’t
    find a solution, feel free to email us!
 
 Common Errors: Setup

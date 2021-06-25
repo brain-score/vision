@@ -464,7 +464,8 @@ submitting a custom model (vs. something like AlexNet), and just focus on what i
    Next, you see the class definition of the custom model in Pytorch, followed by model
    preprocessing, the ``PytorchWrapper`` that
    converts a base model into an activations model to extract activations from,
-   and the ModelCommitment to convert the activations model into a BrainModel to run on the benchmarks.
+   and the ``ModelCommitment`` to convert the activations model into a ``BrainModel``
+   to run on the benchmarks.
    We usually test the layers at the outputs of blocks, but this choice is up to you.
    You will need all of this, and most likely will only change the
    actual layer names based on the network/what you want scored.

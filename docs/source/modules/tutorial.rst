@@ -35,7 +35,7 @@ especially if you encounter errors. This section also does not
 have pictures, which the other more lengthy sections below do. As an example,
 we will submit a version of AlexNet from Pytorch’s library; the main steps are outlined below:
 
-1. Clone a copy of  the `sample-model-submission`_ repo If you are wondering
+1. Clone a copy of  the `sample-model-submission`_ repo. If you are wondering
    about what the various repos on the main Brain-Score github do, check out the `Overview`_ section below.
    Here is the command for a terminal: ::
      git clone https://github.com/brain-score/sample-model-submission.git
@@ -68,7 +68,6 @@ Overview
 Brain-Score sounds great! How do I get started? What do I do next? How do I submit?
 --------------------------------------------------------------------
 
-This tutorial walks you through the entire process, end-to-end.
 Start here if you have already
 (or would like to create) a model to submit and get a Brain-Score.
 This guide will walk you through from downloading our code to receiving a
@@ -81,10 +80,10 @@ The main code for Brain-Score is contained and hosted on `Github`_
 on various repos, free for anyone to fork,
 clone, or download. The main page has 10 repos (9 visible to non-devs)
 that make up the entire source code base- this can be overwhelming, but
-fear not. We will walk you through what each does, as well as explain that
-you most likely will only need one to get a model up and scored. It is
+fear not. We will instroduce you to each one, as well as explain that
+you most likely will only need a single repo to get a model up and scored. It is
 good to see, however, the structure of how Brain-Score operates with its
-various repos. They are:
+various components. They are:
 
 1. ``brain-score``: the heart of the code that runs analysis and comparisons.
 2. ``sample-model-submission``: template and examples for model submissions.
@@ -190,7 +189,7 @@ linked in order to run setup for submission and scoring.
    look at your version on your machine:
     .. image:: tutorial_screenshots/sms.png
        :width: 600
-
+|
 4. We will now install the pip packages that our code needs to run: things like ``scipy`` and
    ``imageio`` , etc. In your IDE, or using your main computer terminal, switch into your root
    directory, in this case ``brainscore-brief``. Navigate into the repo directory,
@@ -243,9 +242,9 @@ most helpful for those that want to submit their own model.
    "mock scores" your model on a benchmark of choice, in order to ensure
    everything works correctly for the main Brain-Score site submission.
    It is like a check: if all goes well running this code, then your model
-   is ready to submit to the site to be scored. (*Note: the first time running
+   is ready to submit to the site to be scored. *(Note: the first time running
    this file will take a bit, because you have to download the model
-   (AlexNet in this case) weights as well as ImageNet validation images (for PCA initialization).
+   (AlexNet in this case) weights as well as ImageNet validation images (for PCA initialization).*
 2. If this works correctly, then you will get a message on the Python console
    declaring::
      Test successful, you are ready to submit!

@@ -97,36 +97,49 @@ class CrossRegressedCorrelationSemiPartial:
         return self.cross_validation(source, covariate, target, apply=self.apply, aggregate=self.aggregate)
 
     def apply(self, source_train, covariate_train, target_train, source_test, covariate_test, target_test):
+        ###############
+        # Prepare data
+        ###############
+
         # vv Hacky but the model activation assemblies don't have the stimulus index and it makes the alignment fail
         # vv All we need for alignment is image_id and neuroid anyway (and perhaps repetition in some cases)
         target_train = target_train.reset_index('stimulus', drop=True)
         target_test = target_test.reset_index('stimulus', drop=True)
-
         assert (target_train.dims == target_test.dims)
 
+        # Rename and transpose
         Y_train = target_train
         Y_test = target_test
 
-        X1_train = source_train.transpose(*Y_train.dims)
-        X2_train = covariate_train.transpose(*Y_train.dims)
+        X1_train = source_train.transpose(*Y_train.dims) # making sure dims of X are in the same order as Y
+        X2_train = covariate_train.transpose(*Y_train.dims) # making sure dims of X are in the same order as Y
 
-        X1_test = source_test.transpose(*Y_train.dims)
-        X2_test = covariate_test.transpose(*Y_train.dims)
+        X1_test = source_test.transpose(*Y_train.dims) # making sure dims of X are in the same order as Y
+        X2_test = covariate_test.transpose(*Y_train.dims) # making sure dims of X are in the same order as Y
 
+        ###############################################
+        # Statistically controlling for the covariate
+        ################################################
 
-        if self.covariate_control:
+        if self.covariate_control: # if not, do the usual brainscore thing
 
-            # Find n_components
-            early_stopping = 3 # how many consecutive decreases in test performances before we quit
-            params = np.linspace(25, min(X2_train.shape), 10, dtype='int')
+            # Select n_components
+            # ===================
+
+            # Settings
+            early_stopping = 3 # how many consecutive decreases in test performance before we quit
+            nc_values = np.linspace(25, min(X2_train.shape), 10, dtype='int') # n_components to evaluate
+            criterion = XarrayPearson() # LG added XarrayPearson(), faster than the original XarrayCorrelation
+
+            # Initializing
             fit_time = []
             control_scores_train = []
             control_scores_test = []
-            fast_correlation = XarrayPearson()
-            for i in range(len(params)):
+
+            for i in range(len(nc_values)):
 
                 # Set n_components
-                self.control_regression._regression.pca.n_components = params[i]
+                self.control_regression._regression.pca.n_components = nc_values[i]
 
                 # Fit
                 t = time.time()
@@ -135,41 +148,25 @@ class CrossRegressedCorrelationSemiPartial:
 
                 # Evaluate on train set
                 X1_pred_train = self.control_regression.predict(X2_train)
-                control_scores_train.append(fast_correlation(X1_pred_train, X1_train).median().item())
+                control_scores_train.append(criterion(X1_pred_train, X1_train).median().item())
 
                 # Evaluate on test set
                 X1_pred_test = self.control_regression.predict(X2_test)
-                control_scores_test.append(fast_correlation(X1_pred_test, X1_test).median().item())
+                control_scores_test.append(criterion(X1_pred_test, X1_test).median().item())
 
-                #Early stopping
+                # Early stopping
                 if i >= early_stopping +1:
                     if is_decreasing(control_scores_test[-(early_stopping+1):]):
                         break
-                print(i, params[i])
+                print(i, nc_values[i])
 
+            # Select best nc_value
             best_idx = np.argmax(np.array(control_scores_test))
-            self.control_regression._regression.pca.n_components = params[best_idx]
+            self.control_regression._regression.pca.n_components = nc_values[best_idx]
 
-            # Plot
-            # fix, ax = plt.subplots()
-            # ax.scatter(params, control_scores_train, c='tab:blue', label='train')
-            # ax.scatter(params, control_scores_test, c='tab:orange', label='test')
-            # ax.legend()
-            # plt.xlabel('n_components')
-            # plt.ylabel('median r(X1_pred, X1)')
-            # plt.title('Regressing usual activations onto background activations (' + X1_train.model[0].item() + ')')
-            # plt.savefig(os.path.join(os.path.dirname(self.fname), 'regression_X1_X2_'+X1_train.model[0].item()+'.png'))
-            #
-            # fix, ax = plt.subplots()
-            # ax.scatter(params, fit_time, c='tab:green')
-            # plt.xlabel('n_components')
-            # plt.ylabel('time to fit pca + regr in seconds')
-            # plt.title('Regressing usual activations onto background activations (' + X1_train.model[0].item() + ')')
-            # plt.savefig(os.path.join(os.path.dirname(self.fname), 'regression_X1_X2_time_'+X1_train.model[0].item()+'.png'))
-            #
 
-            # FIT (train)
-            ##############
+            # FIT two-step regression (Train)
+            # ===================================
 
             # 1) Regressing on the covariate (X2)
             self.control_regression.fit(X2_train, X1_train)
@@ -189,20 +186,23 @@ class CrossRegressedCorrelationSemiPartial:
             if self.fname:
                 dict_to_save = {}
                 dict_to_save['train'] = True
-                dict_to_save['n_components'] = self.control_regression._regression.pca.n_components
-                dict_to_save['n_components_evaluated'] = [params[:len(control_scores_train)]]
-                dict_to_save['n_components_similarities'] = [control_scores_train]
+                dict_to_save['pca_expl_var'] = self.control_regression._regression.pca.explained_variance_ratio_.sum()
+                dict_to_save['n_components_selected'] = self.control_regression._regression.pca.n_components
+                dict_to_save['n_components_evaluated'] = [nc_values[:len(control_scores_train)]]
+                dict_to_save['n_components_criterion'] = [control_scores_train]
                 dict_to_save['n_components_fit_times'] = [fit_time]
-                dict_to_save['explained_variance_control'] = explained_variance_score(X1_train, X1_pred_train)
-                dict_to_save['similarity_control'] = self.correlation(X1_pred_train, X1_train).median().item()
-                dict_to_save['r2_sklearn'] = r2_score(X1_train, X1_pred_train)
+                dict_to_save['ctrl_regr_expl_var'] = explained_variance_score(X1_train, X1_pred_train)
+                dict_to_save['ctrl_regr_similarity'] = self.correlation(X1_pred_train, X1_train).median().item()
+                dict_to_save['ctrl_regr_r2_sklearn'] = r2_score(X1_train, X1_pred_train)
                 dict_to_save['model'] = X1_train.model.values[0]
                 dict_to_save['layer'] = X1_train.layer.values[0]
                 dict_to_save['covariate_identifier'] = X2_train.stimulus_set_identifier
                 self.write_to_file(dict_to_save, self.fname)
 
-            # PREDICTION (test)
-            ####################
+            # PREDICT two-step regression (Test)
+            # ===================================
+
+            # 1)
 
             # Residualize X1 (wo refitting)
             X1_pred_test = self.control_regression.predict(X2_test)
@@ -211,29 +211,33 @@ class CrossRegressedCorrelationSemiPartial:
             assert (np.array_equal(X1_test.image_id.values, X1_pred_test.image_id.values))
             assert (np.array_equal(X1_test.neuroid_id.values, X1_pred_test.neuroid_id.values))
 
-
             X1_residuals_test = X1_test - X1_pred_test
+
+            # 2)
 
             # Get predicted Y
             prediction = self.main_regression.predict(X1_residuals_test)
 
-            #
+            # FINAL SCORE FOR CURRENT SPLIT
             score = self.correlation(prediction, Y_test)
 
             if self.fname:
                 dict_to_save = {}
                 dict_to_save['train'] = False
-                dict_to_save['n_components'] = self.control_regression._regression.pca.n_components
-                dict_to_save['n_components_evaluated'] = [params[:len(control_scores_train)]]
-                dict_to_save['n_components_similarities'] = [control_scores_test]
-                dict_to_save['explained_variance_control'] = explained_variance_score(X1_test, X1_pred_test)
-                dict_to_save['similarity_control'] = self.correlation(X1_pred_test, X1_test).median().item()
-                dict_to_save['r2_sklearn'] = r2_score(X1_test, X1_pred_test)
+                dict_to_save['n_components_selected'] = self.control_regression._regression.pca.n_components
+                dict_to_save['n_components_evaluated'] = [nc_values[:len(control_scores_train)]]
+                dict_to_save['n_components_criterion'] = [control_scores_test]
+                dict_to_save['ctrl_regr_expl_var'] = explained_variance_score(X1_test, X1_pred_test)
+                dict_to_save['ctrl_regr_similarity'] = self.correlation(X1_pred_test, X1_test).median().item()
+                dict_to_save['ctrl_regr_r2_sklearn'] = r2_score(X1_test, X1_pred_test)
                 dict_to_save['model'] = X1_test.model.values[0]
                 dict_to_save['layer'] = X1_test.layer.values[0]
                 dict_to_save['covariate_identifier'] = X2_test.stimulus_set_identifier
                 self.write_to_file(dict_to_save, self.fname)
 
+        #######################################
+        # Not controlling (original brainscore)
+        #######################################
         else:
             # FIT (train)
             self.main_regression.fit(X1_train, Y_train)
@@ -254,8 +258,10 @@ class CrossRegressedCorrelationSemiPartial:
         dict_to_save['control'] = self.covariate_control
 
         df_to_save = pd.DataFrame(dict_to_save, index=[0])
-        with open(fname, 'a') as f:
-            df_to_save.to_csv(f, mode='a', header=f.tell() == 0)
+
+        if os.path.isfile(fname):
+            df_to_save =pd.read_csv(fname).append(df_to_save, sort=True)
+        df_to_save.to_csv(fname, index=False)
 
     def aggregate(self, scores):
         return scores.median(dim='neuroid')

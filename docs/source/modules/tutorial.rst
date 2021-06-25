@@ -1,5 +1,10 @@
 .. _Tutorial:
-.. _benchmarks: https://brain-score.readthedocs.io/en/latest/modules/benchmarks.html
+.. _benchmarks:
+
+.. _technical paper: https://www.biorxiv.org/content/10.1101/407007v1
+.. _perspective paper: https://www.cell.com/neuron/fulltext/S0896-6273(20)30605-X
+.. _Pycharm: https://www.jetbrains.com/pycharm/download
+.. _introduction: https://www.tutorialspoint.com/pycharm/index.htm
 
 ========
 Tutorial
@@ -101,7 +106,7 @@ How do I get a Brain-Score for my model?
 ----------------------------------------
 When you submit a model to our website, it is scored against all
 availible benchmarks (e.g. neural predictivity on IT recordings
-from Majaj*, Hong* et al. 2015; see benchmarks_ for more details). The (hierarchical) mean of
+from Majaj*, Hong* et al. 2015; see :ref:`modules/benchmarks` for more details). The (hierarchical) mean of
 individual benchmark scores is the Brain-Score itself.
 
 
@@ -143,10 +148,10 @@ Install Brain-Score Repos and Dependencies
 In this section, we will show you how to get packages installed and dependencies
 linked in order to run setup for submission and scoring.
 
-1. Download PyCharm (https://www.jetbrains.com/pycharm/download) or another IDE.
+1. Download `Pycharm`_ or another IDE.
    *Note: you do not have to use Pycharm per se, but we recommend it, and this guide will show*
    *you how to integrate Brain-Score with it.*
-   If you do not have experience with Pycharm, here’s a nice tutorial: https://www.tutorialspoint.com/pycharm/index.htm.
+   If you do not have experience with Pycharm, here’s a nice `introduction`_.
    Again, we recommend and like Pycharm, but this tutorial is neutral in the sense that you can use
    any IDE, as the steps are very similar for other environments, but this document will
    feature Pycharm screenshots.
@@ -600,8 +605,8 @@ Frequently Asked Questions
 2. **What is the idea behind Brain-Score? Where can I learn more?**
 
    The website is a great place to start, and for those who really
-   want to dive deep, we would recommend reading the technical paper(https://www.biorxiv.org/content/10.1101/407007v1)
-   and the perspective paper (https://www.cell.com/neuron/fulltext/S0896-6273(20)30605-X)
+   want to dive deep, we would recommend reading the  `technical paper`_
+   and the `perspective paper`_.
    that outline the idea and the inner workings of how Brain-Score operates.
 
 3. **I was looking at the code and I found an error in the code/docs/etc. How can I contribute?**

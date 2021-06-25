@@ -188,7 +188,7 @@ linked in order to run setup for submission and scoring.
    is the folder that we created a few steps ago. The next level ``sample-model-submission``
    is the repo cloned from our Github. You should now see something akin to below when you
    look at your version on your machine:
-
+|
     .. image:: tutorial_screenshots/sms.png
        :width: 600
 

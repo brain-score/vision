@@ -151,7 +151,7 @@ linked in order to run setup for submission and scoring.
    If you do not have experience with Pycharm, here’s a nice `introduction`_.
    Again, we recommend and like Pycharm, but this tutorial is neutral in the sense that you can use
    any IDE, as the steps are very similar for other environments, but this document will
-   feature Pycharm screenshots.
+   feature a Pycharm screenshot.
 2. Once Pycharm (or your own IDE) is set up, we will start the install of Brain-Score
    and its various repos. First, in your file explorer, make a new file on your desktop
    or favorite place to save things. I personally made a folder called ``brainscore-brief``
@@ -163,15 +163,15 @@ linked in order to run setup for submission and scoring.
    tells the computer how to run various Python commands) by setting up a Virtual Environment
    for you automatically. A venv is handy because installing the dependencies that Brain-Score
    needs will not conflict with other packages on your computer if you use a venv.
-   To the left on your screen, you will see your folder ``brainscore-brief`` that is the
-   project root. If you click to expand it, then you will see an orange folder marked ``venv``
+   You should now see your folder ``brainscore-brief`` that is the
+   project root. If you click to expand it, then you will see  folder marked ``venv``
    that contains all the venv files and whatnot. I would not mess with the ``venv`` folder or
    download anything in there. Again, your IDE will most likely be different if you do not use
    Pycharm, but the main points still hold.
 3. Next, we are going to clone the repo we need from Github for Brain-Score.
    The easiest way to do this is to install Git on your computer (`Windows`_) or Mac (`Mac`_),
    if it is not already installed.
-   Once this is installed, open up your terminal and navigate into the ``brainscore-brief``
+   Once this is done, open up your terminal and navigate into the ``brainscore-brief``
    folder. In my case, the commands are ::
      cd desktop
      cd brainscore-brief
@@ -181,7 +181,7 @@ linked in order to run setup for submission and scoring.
      git clone https://github.com/brain-score/sample-model-submission.git
    This will copy our sample-model-submission code from Github into your local machine to run later on.
    Switching back to your IDE’s file explorer, you should now see a folder called ``sample-model-submission``
-   in your project folder. Clicking on/expanding this will show you the various files and
+   in your project root. Clicking on/expanding this will show you the various files and
    programs that are in our collection for the ``sample-model-submission`` repo.
    You can see the various folders in the image below: the top level ``brainscore-brief``
    is the folder that we created a few steps ago. The next level ``sample-model-submission``
@@ -244,7 +244,8 @@ most helpful for those that want to submit their own model.
    It is like a check: if all goes well running this code, then your model
    is ready to submit to the site to be scored. *(Note: the first time running
    this file will take a bit, because you have to download the model
-   (AlexNet in this case) weights as well as ImageNet validation images (for PCA initialization).*
+   weights as well as ImageNet validation images
+   for PCA initialization.*
 2. If this works correctly, then you will get a message on the Python console
    declaring::
      Test successful, you are ready to submit!

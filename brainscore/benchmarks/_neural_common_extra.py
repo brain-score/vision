@@ -183,6 +183,7 @@ class NeuralBenchmarkImageDir(BenchmarkBase):
                             os.path.basename(v)) for k, v in stimulus_set.image_paths.items()}
 
         source_assembly = candidate.look_at(stimulus_set_from_dir, number_of_trials=self._number_of_trials)
+        source_assembly.attrs['stimulus_set_identifier'] = stimulus_set_from_dir.identifier
 
         if 'time_bin' in source_assembly.dims:
             source_assembly = source_assembly.squeeze('time_bin')  # static case for these benchmarks

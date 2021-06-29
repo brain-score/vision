@@ -505,6 +505,136 @@ class CrossRegressedCorrelationDrew:
         return scores.median(dim='neuroid')
 
 
+class CrossRegressedCorrelationThomas:
+    def __init__(self, correlation, get_best_nc=True, fname=None, tag=None, crossvalidation_kwargs=None):
+        regression = gram_linear(gram=False, with_pca=True, pca_kwargs={'n_components':25}) # unless get_best_nc
+        crossvalidation_defaults = dict(train_size=.9, test_size=None)
+        self.crossvalidation_kwargs = {**crossvalidation_defaults, **(crossvalidation_kwargs or {})}
+
+        self.cross_validation = CrossValidation(**self.crossvalidation_kwargs)
+        self.regression = regression
+        self.correlation = correlation
+        self.get_best_nc = get_best_nc
+        self.fname = fname
+        self.tag = tag  # just an extra tag to help keep track of what we're running and write it to fname. Doesn't have
+                        # any impact beyond the what is written to fname
+
+    def __call__(self, source, target):
+        return self.cross_validation(source, target, apply=self.apply, aggregate=self.aggregate)
+
+    def apply(self, source_train, target_train, source_test, target_test):
+
+        # vv Hacky but the model activation assemblies don't have the stimulus index and it makes the alignment fail
+        # vv All we need for alignment is image_id and neuroid anyway (and perhaps repetition in some cases)
+        target_train = target_train.reset_index('stimulus', drop=True)
+        target_test = target_test.reset_index('stimulus', drop=True)
+        assert (target_train.dims == target_test.dims)
+
+        # Rename and transpose
+        Y_train = target_train
+        Y_test = target_test
+
+        X1_train = source_train.transpose(*Y_train.dims) # making sure dims of X are in the same order as Y
+
+        X1_test = source_test.transpose(*Y_train.dims) # making sure dims of X are in the same order as Y
+
+        if self.get_best_nc:
+
+            # Select n_components
+            # ===================
+
+            # Settings
+            early_stopping = 3 # how many consecutive decreases in test performance before we quit
+            nc_values = np.linspace(25, min(X1_train.shape), 10, dtype='int') # n_components to evaluate
+            criterion = XarrayPearson() # LG added XarrayPearson(), faster than the original XarrayCorrelation
+
+            # Initializing
+            fit_time = []
+            control_scores_train = []
+            control_scores_test = []
+
+            for i in range(len(nc_values)):
+
+                # Set n_components
+                self.regression._regression.pca.n_components = nc_values[i]
+
+                # Fit
+                t = time.time()
+                self.regression.fit(X1_train, Y_train)
+                fit_time.append(time.time()-t)
+
+                # Evaluate on train set
+                Y_pred_train = self.regression.predict(X1_train)
+                control_scores_train.append(criterion(Y_pred_train, Y_train).median().item())
+
+                # Evaluate on test set
+                Y_pred_test = self.regression.predict(X1_test)
+                control_scores_test.append(criterion(Y_pred_test, Y_test).median().item())
+
+                # Early stopping
+                if i >= early_stopping +1:
+                    if is_decreasing(control_scores_test[-(early_stopping+1):]):
+                        break
+                print(i, nc_values[i])
+
+            # Select best nc_value
+            best_idx = np.argmax(np.array(control_scores_test))
+            self.regression._regression.pca.n_components = nc_values[best_idx]
+
+            if self.fname:
+                dict_to_save = {}
+                dict_to_save['train'] = True
+                dict_to_save['pca_expl_var'] = self.regression._regression.pca.explained_variance_ratio_.sum()
+                dict_to_save['n_components_selected'] = self.regression._regression.pca.n_components
+                dict_to_save['n_components_evaluated'] = [nc_values[:len(control_scores_train)]]
+                dict_to_save['n_components_criterion'] = [control_scores_train]
+                dict_to_save['n_components_fit_times'] = [fit_time]
+                dict_to_save['regr_expl_var'] = explained_variance_score(Y_train, Y_pred_train)
+                dict_to_save['regr_similarity'] = self.correlation(Y_pred_train, Y_train).median().item()
+                dict_to_save['regr_r2_sklearn'] = r2_score(Y_train, Y_pred_train)
+                dict_to_save['model'] = X1_train.model.values[0]
+                dict_to_save['layer'] = X1_train.layer.values[0]
+                dict_to_save['stimulus_identifier'] = X1_train.stimulus_set_identifier
+
+                self.write_to_file(dict_to_save, self.fname)
+
+                dict_to_save = {}
+                dict_to_save['train'] = False
+                dict_to_save['n_components_selected'] = self.regression._regression.pca.n_components
+                dict_to_save['n_components_evaluated'] = [nc_values[:len(control_scores_train)]]
+                dict_to_save['n_components_criterion'] = [control_scores_test]
+                dict_to_save['ctrl_regr_expl_var'] = explained_variance_score(Y_test, Y_pred_test)
+                dict_to_save['ctrl_regr_similarity'] = self.correlation(Y_pred_test, Y_test).median().item()
+                dict_to_save['ctrl_regr_r2_sklearn'] = r2_score(Y_test, Y_pred_test)
+                dict_to_save['model'] = X1_test.model.values[0]
+                dict_to_save['layer'] = X1_test.layer.values[0]
+                dict_to_save['stimulus_identifier'] = X1_train.stimulus_set_identifier
+                self.write_to_file(dict_to_save, self.fname)
+
+        self.regression.fit(X1_train, Y_train)
+        prediction = self.regression.predict(X1_test)
+        score = self.correlation(prediction, Y_test)
+        return score
+
+    def write_to_file(self, dict_to_save, fname):
+        dict_to_save['tag'] = self.tag
+        dict_to_save['class'] = self.__class__.__name__
+        dict_to_save['regression'] = self.regression._regression.__class__.__name__
+        dict_to_save['csv_file'] = self.crossvalidation_kwargs.get('csv_file', None)
+        dict_to_save['baseline'] = False if dict_to_save['csv_file'] else True
+        dict_to_save['gram'] = self.regression._regression.gram if hasattr(self.regression._regression, 'gram') else None
+
+        df_to_save = pd.DataFrame(dict_to_save, index=[0])
+
+        if os.path.isfile(fname):
+            df_to_save =pd.read_csv(fname).append(df_to_save, sort=True)
+        df_to_save.to_csv(fname, index=False)
+
+    def aggregate(self, scores):
+        return scores.median(dim='neuroid')
+
+
+
 # class DrewPLS():
 #     def __init__(self, covariate_control = False, regression_kwargs=None):
 #         self.covariate_control = covariate_control

@@ -8,7 +8,7 @@ from brainscore.metrics.regression import CrossRegressedCorrelation, mask_regres
     pls_regression, pearsonr_correlation
 from brainscore.metrics.regression_extra import CrossRegressedCorrelationCovariate, semipartial_regression, \
     semipartial_pls, gram_pls, old_gram_control_regression, old_gram_control_pls, \
-    ToleranceCrossValidation, CrossRegressedCorrelationDrew, gram_linear, CrossRegressedCorrelationSemiPartial
+    ToleranceCrossValidation, CrossRegressedCorrelationDrew, gram_linear, CrossRegressedCorrelationSemiPartial, CrossRegressedCorrelationThomas
 
 from brainscore.benchmarks.majajhong2015 import load_assembly as load_majajhong2015, VISUAL_DEGREES as majajhong2015_degrees, \
     NUMBER_OF_TRIALS as majajhong2015_trials
@@ -39,6 +39,9 @@ def get_benchmark(benchmark_identifier, **kwargs):
 
     elif benchmark_identifier == 'tol_semi_partial':
         return get_tol_semi_partial(crossvalidation_kwargs, **kwargs)
+
+    elif benchmark_identifier == 'tol_thomas':
+        return get_tol_thomas(crossvalidation_kwargs, **kwargs)
 
     else:
         raise NotImplemented("This tolerance identifier has not been implemented yet")
@@ -327,5 +330,50 @@ def get_tol_semi_partial(crossvalidation_kwargs, **kwargs):
 
     return None
 
+def get_tol_thomas(crossvalidation_kwargs, **kwargs):
+    '''
+    PCA + Linear regression with the option to optimally select the number of components
 
+    '''
+
+    assert (kwargs.get('image_dir', None) is not None)
+
+    similarity_metric_kwargs = dict(
+        correlation=pearsonr_correlation(),
+        crossvalidation_kwargs=crossvalidation_kwargs,
+        fname=kwargs.get('explained_variance_fname', None),
+        tag=kwargs.get('csv_file', None)
+    )
+    if kwargs.get('get_best_nc'):
+        similarity_metric_kwargs['get_best_nc'] = kwargs['get_best_nc']
+
+    top_function_kwargs = dict(
+        image_dir = kwargs.get('image_dir'),
+        region=kwargs.get('region'),
+        identifier_metric_suffix='tol_thomas',
+        similarity_metric=CrossRegressedCorrelationThomas(**similarity_metric_kwargs),
+        ceiler=InternalConsistency(),
+        assembly_name=kwargs.get('assembly_name')
+    )
+
+    def top_function():
+        return _DicarloMajajHong2015Region_lmh_imagedir(**top_function_kwargs)
+        # return _DicarloMajajHong2015Region_lmh_covariate(
+        #     covariate_image_dir=kwargs['covariate_image_dir'],
+        #     region='IT', identifier_metric_suffix='Drew',
+        #     similarity_metric=CrossRegressedCorrelationDrew(
+        #         covariate_control=kwargs['control'],
+        #         control_regression=gram_linear(gram=kwargs['gram'], pca_kwargs={'n_components': 0.99}),
+        #         main_regression=pls_regression(),
+        #         correlation=pearsonr_correlation(),
+        #         crossvalidation_kwargs=crossvalidation_kwargs,
+        #         fname=kwargs.get('explained_variance_fname', None),
+        #         tag=kwargs.get('csv_file', None)),
+        #     ceiler=InternalConsistency()
+        # )
+
+    return LazyLoad(top_function)
+
+
+    return None
 

@@ -40,10 +40,10 @@ def load_assembly(average_repetitions,region, name='dicarlo.MajajHong2015'):
     return assembly
 
 
-def _DicarloMajajHong2015Region_lmh(region, identifier_metric_suffix, similarity_metric, ceiler, benchmark_identifier='dicarlo.MajajHong2015'):
+def _DicarloMajajHong2015Region_lmh(region, identifier_metric_suffix, similarity_metric, ceiler, assembly_name='dicarlo.MajajHong2015'):
     assembly_repetition = LazyLoad(lambda region=region: load_assembly(average_repetitions=False, region=region))
     assembly = LazyLoad(lambda region=region: load_assembly(average_repetitions=True, region=region))
-    return NeuralBenchmark(identifier=benchmark_identifier, version=3,
+    return NeuralBenchmark(identifier=f'{assembly_name}.{region}-{identifier_metric_suffix}', version=3,
                            assembly=assembly, similarity_metric=similarity_metric,
                            visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
                            ceiling_func=lambda: ceiler(assembly_repetition),

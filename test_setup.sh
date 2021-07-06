@@ -8,5 +8,5 @@ do
   aws --no-sign-request s3 cp s3://brain-score-tests/tests/test_benchmarks/${f} ${SCRIPT_DIR}/tests/test_benchmarks/
 done
 
-pip install git+https://github.com/brain-score/model-tools --no-deps
+pip install git+https://github.com/brain-score/model-tools@core_refactor --no-deps
 pip install torch torchvision

@@ -1,8 +1,8 @@
 import numpy as np
 import os
 
-from brainio_base.assemblies import NeuroidAssembly
-from brainio_base.stimuli import StimulusSet
+from brainio.assemblies import NeuroidAssembly
+from brainio.stimuli import StimulusSet
 from brainscore.benchmarks import BenchmarkBase, ceil_score
 from brainscore.benchmarks._neural_common import average_repetition, timebins_from_assembly
 from brainscore.metrics.ceiling import InternalConsistency

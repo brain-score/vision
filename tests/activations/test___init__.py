@@ -5,7 +5,7 @@ import pytest
 import xarray as xr
 from pathlib import Path
 
-from brainio_base.stimuli import StimulusSet
+from brainio.stimuli import StimulusSet
 from model_tools.activations import KerasWrapper, PytorchWrapper, TensorflowSlimWrapper
 from model_tools.activations.core import flatten
 from model_tools.activations.pca import LayerPCA

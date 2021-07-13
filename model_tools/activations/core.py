@@ -9,8 +9,8 @@ from multiprocessing.pool import ThreadPool
 import numpy as np
 from tqdm import tqdm
 
-from brainio_base.assemblies import NeuroidAssembly, walk_coords
-from brainio_base.stimuli import StimulusSet
+from brainio.assemblies import NeuroidAssembly, walk_coords
+from brainio.stimuli import StimulusSet
 from model_tools.utils import fullname
 from result_caching import store_xarray
 

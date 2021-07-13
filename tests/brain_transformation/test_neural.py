@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from brainio_base.stimuli import StimulusSet
+from brainio.stimuli import StimulusSet
 from model_tools.activations import PytorchWrapper
 from model_tools.brain_transformation import ModelCommitment, LayerMappedModel
 

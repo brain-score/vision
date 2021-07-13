@@ -4,7 +4,7 @@ from collections import OrderedDict
 import sklearn.linear_model
 import sklearn.multioutput
 
-from brainio_base.assemblies import walk_coords, array_is_element, BehavioralAssembly
+from brainio.assemblies import walk_coords, array_is_element, BehavioralAssembly
 from brainscore.model_interface import BrainModel
 from model_tools.utils import make_list
 

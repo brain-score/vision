@@ -3,7 +3,7 @@ from typing import List, Tuple
 import logging
 import numpy as np
 
-from brainio_base.assemblies import merge_data_arrays, walk_coords
+from brainio.assemblies import merge_data_arrays, walk_coords
 from brainscore.model_interface import BrainModel
 from model_tools.utils import fullname
 

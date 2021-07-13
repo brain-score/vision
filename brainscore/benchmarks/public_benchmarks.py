@@ -14,8 +14,8 @@ from botocore import UNSIGNED
 from botocore.config import Config
 from botocore.exceptions import ClientError
 
-import brainio_collection
-from brainio_collection.fetch import BotoFetcher
+import brainio
+from brainio.fetch import BotoFetcher
 from brainscore.benchmarks._neural_common import NeuralBenchmark
 from brainscore.metrics.ceiling import InternalConsistency
 from brainscore.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation
@@ -84,11 +84,11 @@ class RajalinghamMatchtosamplePublicBenchmark(DicarloRajalingham2018I2n):
 
 
 def list_public_assemblies():
-    all_assemblies = brainio_collection.list_assemblies()
+    all_assemblies = brainio.list_assemblies()
     public_assemblies = []
     for assembly in all_assemblies:
         # https://github.com/brain-score/brainio_collection/blob/7892b9ec66c9e744766c794de4b73ebdf61d585c/brainio_collection/fetch.py#L181
-        assy_model = brainio_collection.lookup.lookup_assembly(assembly)
+        assy_model = brainio.lookup.lookup_assembly(assembly)
         if assy_model['location_type'] != 'S3':
             _logger.warning(f"Unknown location_type in assembly {assy_model}")
             continue

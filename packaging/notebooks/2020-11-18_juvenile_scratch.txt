@@ -1,0 +1,556 @@
+ndarray () object :  
+    dict 1 {
+        data:  dict 2 {
+            bins_raw:  dict 3 {
+                0:  list 33 [
+                    ndarray (650, 109, 40) float64 
+                    ndarray (650, 109, 18) float64 
+                    ndarray (650, 64, 40) float64 
+                    ndarray (650, 37, 70) float64 
+                    ndarray (650, 33, 45) float64 
+                    ndarray (650, 26, 70) float64 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    ndarray (650, 109, 70) float64 
+                    ndarray (650, 52, 18) float64 
+                    ndarray (650, 32, 83) float64 
+                    NoneType 
+                    ndarray (650, 27, 65) float64 
+                    ndarray (650, 31, 59) float64 
+                    NoneType 
+                    ndarray (650, 21, 50) float64 
+                    ndarray (650, 10, 62) float64 
+                    NoneType 
+                    NoneType 
+                    ndarray (650, 27, 65) float64 
+                    ndarray (650, 31, 59) float64 
+                    ndarray (650, 31, 61) float32 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    ndarray (650, 29, 90) float64 
+                    ndarray (650, 30, 47) float64 
+                    ndarray (650, 29, 37) float32 
+                    ndarray (650, 30, 51) float32 
+                ]
+                3:  list 33 [
+                    ndarray (2570, 45, 40) float64 
+                    ndarray (2570, 45, 18) float64 
+                    ndarray (2570, 40, 40) float64 
+                    ndarray (2570, 40, 70) float64 
+                    ndarray (2570, 37, 45) float64 
+                    ndarray (2570, 37, 70) float64 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    ndarray (2570, 45, 70) float64 
+                    ndarray (2570, 40, 18) float64 
+                    ndarray (2570, 37, 83) float64 
+                    NoneType 
+                    ndarray (2570, 31, 65) float64 
+                    ndarray (2570, 44, 59) float64 
+                    NoneType 
+                    ndarray (2570, 13, 50) float64 
+                    ndarray (2570, 6, 62) float64 
+                    NoneType 
+                    NoneType 
+                    ndarray (2570, 31, 65) float64 
+                    ndarray (2570, 44, 59) float64 
+                    ndarray (2570, 44, 61) float32 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    ndarray (2570, 46, 90) float64 
+                    ndarray (2570, 51, 47) float64 
+                    ndarray (2570, 46, 37) float32 
+                    ndarray (2570, 51, 51) float32 
+                ]
+                6:  list 33 [
+                    ndarray (2570, 67, 40) float64 
+                    ndarray (2570, 67, 18) float64 
+                    ndarray (2570, 54, 40) float64 
+                    ndarray (2570, 54, 70) float64 
+                    ndarray (2570, 23, 45) float64 
+                    ndarray (2570, 33, 70) float64 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    ndarray (2570, 67, 70) float64 
+                    ndarray (2570, 45, 18) float64 
+                    ndarray (2570, 33, 83) float64 
+                    ndarray (2570, 15, 12) float64 
+                    ndarray (2570, 45, 65) float64 
+                    ndarray (2570, 48, 59) float64 
+                    NoneType 
+                    ndarray (2570, 15, 50) float64 
+                    ndarray (2570, 13, 62) float64 
+                    NoneType 
+                    ndarray (2570, 15, 12) float64 
+                    ndarray (2570, 45, 65) float64 
+                    ndarray (2570, 48, 59) float64 
+                    ndarray (2570, 48, 61) float32 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    ndarray (2570, 53, 90) float64 
+                    ndarray (2570, 39, 47) float64 
+                    ndarray (2570, 53, 37) float32 
+                    ndarray (2570, 39, 51) float32 
+                ]
+            }
+            bins:  dict 5 {
+                0:  list 35 [
+                    ndarray (640, 109, 40) float64 
+                    ndarray (640, 109, 18) float64 
+                    ndarray (640, 64, 40) float64 
+                    ndarray (640, 37, 70) float64 
+                    ndarray (640, 33, 45) float64 
+                    ndarray (640, 26, 70) float64 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    ndarray (640, 109, 70) float64 
+                    ndarray (640, 52, 18) float64 
+                    ndarray (640, 32, 83) float64 
+                    NoneType 
+                    ndarray (640, 27, 65) float64 
+                    ndarray (640, 31, 59) float64 
+                    NoneType 
+                    ndarray (640, 21, 50) float64 
+                    ndarray (640, 10, 62) float64 
+                    NoneType 
+                    NoneType 
+                    ndarray (640, 27, 65) float64 
+                    ndarray (640, 31, 59) float64 
+                    ndarray (640, 31, 61) float32 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    ndarray (640, 29, 90) float64 
+                    ndarray (640, 30, 47) float64 
+                    ndarray (640, 29, 37) float32 
+                    ndarray (640, 30, 51) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                ]
+                3:  list 99 [
+                    ndarray (2560, 45, 40) float64 
+                    ndarray (2560, 45, 18) float64 
+                    ndarray (2560, 40, 40) float64 
+                    ndarray (2560, 40, 70) float64 
+                    ndarray (2560, 37, 45) float64 
+                    ndarray (2560, 37, 70) float64 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    ndarray (2560, 45, 70) float64 
+                    ndarray (2560, 40, 18) float64 
+                    ndarray (2560, 37, 83) float64 
+                    NoneType 
+                    ndarray (2560, 31, 65) float64 
+                    ndarray (2560, 44, 59) float64 
+                    NoneType 
+                    ndarray (2560, 13, 50) float64 
+                    ndarray (2560, 6, 62) float64 
+                    NoneType 
+                    NoneType 
+                    ndarray (2560, 31, 65) float64 
+                    ndarray (2560, 44, 59) float64 
+                    ndarray (2560, 44, 61) float32 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    ndarray (2560, 46, 90) float64 
+                    ndarray (2560, 51, 47) float64 
+                    ndarray (2560, 46, 37) float32 
+                    ndarray (2560, 51, 51) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                ]
+                640:  list 99 [
+                    ndarray (640, 45, 40) float32 
+                    ndarray (640, 45, 18) float32 
+                    ndarray (640, 40, 40) float32 
+                    ndarray (640, 40, 70) float32 
+                    ndarray (640, 23, 45) float32 
+                    ndarray (640, 33, 70) float32 
+                    ndarray (640, 57, 25) float32 
+                    ndarray (640, 57, 47) float32 
+                    ndarray (640, 57, 32) float32 
+                    ndarray (640, 63, 16) float32 
+                    ndarray (640, 63, 32) float32 
+                    ndarray (640, 63, 59) float32 
+                    ndarray (640, 45, 70) float32 
+                    ndarray (640, 40, 18) float32 
+                    ndarray (640, 33, 83) float32 
+                    NoneType 
+                    ndarray (640, 31, 65) float32 
+                    ndarray (640, 44, 59) float32 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    ndarray (640, 50, 94) float64 
+                    NoneType 
+                    ndarray (640, 31, 65) float32 
+                    ndarray (640, 44, 59) float32 
+                    NoneType 
+                    ndarray (640, 47, 43) float32 
+                    ndarray (640, 47, 48) float32 
+                    ndarray (640, 47, 95) float32 
+                    ndarray (640, 67, 90) float32 
+                    ndarray (640, 94, 47) float32 
+                    NoneType 
+                    NoneType 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                    ndarray (640, 2560) float32 
+                ]
+                36:  list 99 [
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                    ndarray (5120, 2560) float32 
+                ]
+                6:  list 99 [
+                    ndarray (2560, 67, 40) float64 
+                    ndarray (2560, 67, 18) float64 
+                    ndarray (2560, 54, 40) float64 
+                    ndarray (2560, 54, 70) float64 
+                    ndarray (2560, 23, 45) float64 
+                    ndarray (2560, 33, 70) float64 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    ndarray (2560, 67, 70) float64 
+                    ndarray (2560, 45, 18) float64 
+                    ndarray (2560, 33, 83) float64 
+                    ndarray (2560, 15, 12) float64 
+                    ndarray (2560, 45, 65) float64 
+                    ndarray (2560, 48, 59) float64 
+                    NoneType 
+                    ndarray (2560, 15, 50) float64 
+                    ndarray (2560, 13, 62) float64 
+                    NoneType 
+                    ndarray (2560, 15, 12) float64 
+                    ndarray (2560, 45, 65) float64 
+                    ndarray (2560, 48, 59) float64 
+                    ndarray (2560, 48, 61) float32 
+                    NoneType 
+                    NoneType 
+                    NoneType 
+                    ndarray (2560, 53, 90) float64 
+                    ndarray (2560, 39, 47) float64 
+                    ndarray (2560, 53, 37) float32 
+                    ndarray (2560, 39, 51) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                    ndarray (2560, 2560) float32 
+                ]
+            }
+        }
+    }
+

@@ -11,7 +11,7 @@ import xarray as xr
 from brainscore.benchmarks import benchmark_pool, public_benchmark_pool, evaluation_benchmark_pool, engineering_benchmark_pool
 from brainscore.model_interface import BrainModel
 from tests.test_benchmarks import PrecomputedFeatures
-from brainio_base.assemblies import BehavioralAssembly
+from brainio.assemblies import BehavioralAssembly
 
 
 class TestPoolList:

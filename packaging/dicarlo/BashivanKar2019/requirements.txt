@@ -1,0 +1,4 @@
+brainio-base @ git+https://github.com/brain-score/brainio_base.git
+brainio-collection @ git+https://github.com/brain-score/brainio_collection.git
+Pillow
+tables

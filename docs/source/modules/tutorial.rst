@@ -80,7 +80,7 @@ The main code for Brain-Score is contained and hosted on `Github`_
 on various repos, free for anyone to fork,
 clone, or download. The main page has 10 repos (9 visible to non-devs)
 that make up the entire source code base- this can be overwhelming, but
-fear not. We will instroduce you to each one, as well as explain that
+fear not. We will introduce you to each one, as well as explain that
 you most likely will only need a single repo to get a model up and scored. It is
 good to see, however, the structure of how Brain-Score operates with its
 various components. They are:
@@ -90,13 +90,11 @@ various components. They are:
 3. ``candidate_models``: various pre-trained models/models that have already been scored.
 4. ``model-tools``: helper functions that translate from machine learning models
    to brain models to be tested on brain-score.
-5. ``brainio_collection``: the repo that packages and collects the stimuli/data.
-6. ``brainio_base``: repo that contains various data structures for ``BrainIO``.
+6. ``brainio``: the packaging and lookup system for data assemblies and stimulus sets.
 7. ``result_caching``: a helper repo to store the results of function calls so they can
    be re-used without re-computing.
 8. ``brain-score.web``: website front and back end.
-9. ``Brainio_contrib`` (archived): used in the past to contribute stimuli and datasets
-   (now part of ``brainio_collection``).
+9. ``brainio_base``, ``brainio_collection`` and ``brainio_contrib`` (archived): used in the past to manage stimuli and datasets.
 
 Which repo(s) will I use?
 -----------------------

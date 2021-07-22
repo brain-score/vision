@@ -106,4 +106,3 @@ as well as the respective benchmark sources.
   url={https://www.cell.com/neuron/fulltext/S0896-6273(20)30605-X}
 }
 ```
-

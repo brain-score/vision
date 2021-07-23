@@ -16,9 +16,14 @@ Tutorial
 
 About
 =====
-Brain-Score is a platform that measures how brain-like candidate models are.
-It is agnostic to the model class as long as models can make neural and/or
-behavioral predictions in response to visual stimuli. In a nutshell, Brain-Score evaluates
+The Brain-Score platform aims to yield strong computational models of the ventral stream.
+We enable researchers to quickly get a sense of how their model scores against
+standardized brain benchmarks on multiple dimensions and facilitate
+comparisons to other state-of-the-art models. At the same time, new brain
+data can quickly be tested against a wide range of models to determine how
+well existing models explain the data.
+
+In a nutshell, Brain-Score evaluates
 the similarity to brain regions in the primate ventral stream as well as behavioral outputs,
 and gives a score (usually ranging from 0 to 1) on these various
 brain regions and behavioral benchmarks. This guide is a tutorial for researchers and tinkerers
@@ -580,7 +585,7 @@ Frequently Asked Questions
 
    I would reach out to Martin, Chris, or Jim directly, via the lab website as stated above.
 
-6. **Is there any reward for reaching the top overall Brain-Ccore? Or even a top
+6. **Is there any reward for reaching the top overall Brain-Score? Or even a top
    score on the individual benchmarks?**
 
    We hope to set up a dedicated competition in the near future, but we

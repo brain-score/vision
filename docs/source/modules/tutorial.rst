@@ -90,16 +90,16 @@ you most likely will only need a single repo to get a model up and scored. It is
 good to see, however, the structure of how Brain-Score operates with its
 various components. They are:
 
-1. ``brain-score``: the heart of the code that runs analysis and comparisons.
-2. ``sample-model-submission``: template and examples for model submissions.
-3. ``candidate_models``: various pre-trained models/models that have already been scored.
-4. ``model-tools``: helper functions that translate from machine learning models
+#. ``brain-score``: the heart of the code that runs analysis and comparisons.
+#. ``sample-model-submission``: template and examples for model submissions.
+#. ``candidate_models``: various pre-trained models/models that have already been scored.
+#. ``model-tools``: helper functions that translate from machine learning models
    to brain models to be tested on brain-score.
-6. ``brainio``: the packaging and lookup system for data assemblies and stimulus sets.
-7. ``result_caching``: a helper repo to store the results of function calls so they can
+#. ``brainio``: the packaging and lookup system for data assemblies and stimulus sets.
+#. ``result_caching``: a helper repo to store the results of function calls so they can
    be re-used without re-computing.
-8. ``brain-score.web``: website front and back end.
-9. ``brainio_base``, ``brainio_collection`` and ``brainio_contrib`` (archived): used in the past to manage stimuli and datasets.
+#. ``brain-score.web``: website front and back end.
+#. ``brainio_base``, ``brainio_collection`` and ``brainio_contrib`` (archived): used in the past to manage stimuli and datasets.
 
 Which repo(s) will I use?
 -----------------------

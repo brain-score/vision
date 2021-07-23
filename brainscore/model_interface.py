@@ -32,7 +32,7 @@ class BrainModel:
     def look_at(self, stimuli: Union[StimulusSet, List[str]], number_of_trials=1):
         """
         Digest a set of stimuli and return requested outputs. Which outputs to return is instructed by the
-        :meth:`~brainscore.model_interface.BrainMode.start_task` and
+        :meth:`~brainscore.model_interface.BrainModel.start_task` and
         :meth:`~brainscore.model_interface.BrainModel.start_recording` methods.
 
         :param stimuli: A set of stimuli, passed as either a :class:`~brainio.stimuli.StimulusSet`

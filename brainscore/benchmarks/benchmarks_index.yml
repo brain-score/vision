@@ -1,0 +1,85 @@
+# index of benchmarks in this codebase in a YAML format.
+# upon adding a new benchmark to the codebase, create an entry
+# in this file for the benchmark to be recognized.
+# structure of the entries in this file is as below
+# ---
+## benchmark_pool_name: 
+##   # list of files that have implementations of benchmarks in them
+##   - source: filename[\.py] # file to import benchmarks below from
+##     benchmarks: # mapping of ID <--> benchmark class to be loaded
+##       benchmark_identifier_1: BenchmarkClassName1
+##       benchmark_identifier_2: BenchmarkClassName2
+# ---
+evaluation_benchmark_pool:
+  # neural:
+  - source: majajhong2015 
+    benchmarks:
+      dicarlo.MajajHong2015.V4-pls: DicarloMajajHong2015V4PLS
+      dicarlo.MajajHong2015.IT-pls: DicarloMajajHong2015ITPLS
+  - source: freemanziemba2013
+    benchmarks:
+      movshon.FreemanZiemba2013.V1-pls: MovshonFreemanZiemba2013V1PLS
+      movshon.FreemanZiemba2013.V2-pls: MovshonFreemanZiemba2013V2PLS
+  - source: kar2019
+    benchmarks:
+      dicarlo.Kar2019-ost: DicarloKar2019OST
+  # behavioral:
+  - source: rajalingham2018
+    benchmarks:
+      dicarlo.Rajalingham2018-i2n: DicarloRajalingham2018I2n
+enineering_benchmark_pool:
+  # neural:
+  - source: imagenet
+    benchmarks:
+      fei-fei.Deng2009-top1: Imagenet2012
+  - source: imagenet_c
+    benchmarks:
+      dietterich.Hendrycks2019-noise-top1: Imagenet_C_Noise
+      dietterich.Hendrycks2019-blur-top1: Imagenet_C_Blur
+      dietterich.Hendrycks2019-weather-top1: Imagenet_C_Weather
+      dietterich.Hendrycks2019-digital-top1: Imagenet_C_Digital
+  # behavioral:
+experimental_benchmark_pool:
+  # neural:
+  - source: majajhong2015
+    benchmarks:
+      dicarlo.MajajHong2015.V4-mask: DicarloMajajHong2015V4Mask
+      dicarlo.MajajHong2015.IT-mask: DicarloMajajHong2015ITMask
+      dicarlo.MajajHong2015.V4-rdm: DicarloMajajHong2015V4RDM
+      dicarlo.MajajHong2015.IT-rdm: DicarloMajajHong2015ITRDM 
+  - source: freemanziemba2013
+    benchmarks:
+      movshon.FreemanZiemba2013.V1-rdm: MovshonFreemanZiemba2013V1RDM
+      movshon.FreemanZiemba2013.V2-rdm: MovshonFreemanZiemba2013V2RDM
+      movshon.FreemanZiemba2013.V1-single: MovshonFreemanZiemba2013V1Single
+  - source: cadena2017
+    benchmarks:
+      tolias.Cadena2017-pls: ToliasCadena2017PLS
+      tolias.Cadena2017-mask: ToliasCadena2017Mask
+  - source: sanghavi2020
+    benchmarks:
+      dicarlo.Sanghavi2020.V4-pls: DicarloSanghavi2020V4PLS
+      dicarlo.Sanghavi2020.IT-pls: DicarloSanghavi2020ITPLS
+  - source: sanghavijozwik2020
+    benchmarks:
+      dicarlo.SanghaviJozwik2020.V4-pls: DicarloSanghaviJozwik2020V4PLS
+      dicarlo.SanghaviJozwik2020.IT-pls: DicarloSanghaviJozwik2020ITPLS
+  - source: sanghavimurty2020
+    benchmarks:
+      dicarlo.SanghaviMurty2020.V4-pls: DicarloSanghaviMurty2020V4PLS
+      dicarlo.SanghaviMurty2020.IT-pls: DicarloSanghaviMurty2020ITPLS
+  - source: rajalingham2020
+    benchmarks:
+      dicarlo.Rajalingham2020.IT-pls: DicarloRajalingham2020ITPLS
+public_benchmark_pool:
+  # neural:
+  - source: public_benchmarks
+    benchmarks:
+      movshon.FreemanZiemba2013public.V1-pls: FreemanZiembaV1PublicBenchmark
+      movshon.FreemanZiemba2013public.V2-pls: FreemanZiembaV2PublicBenchmark
+      dicarlo.MajajHong2015public.V4-pls: MajajHongV4PublicBenchmark
+      dicarlo.MajajHong2015public.IT-pls: MajajHongITPublicBenchmark
+  # behavioral
+  - source: public_benchmarks
+    benchmarks:
+      dicarlo.Rajalingham2018public-i2n: RajalinghamMatchtosamplePublicBenchmark

@@ -30,7 +30,8 @@ requirements = [
     "jupyter",
     "pybtex",
     'peewee',
-    'psycopg2-binary'
+    'psycopg2-binary',
+    'pyyaml'
 ]
 
 setup(

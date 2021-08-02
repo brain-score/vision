@@ -7,12 +7,14 @@ This score is normalized with data ceilings and the benchmark returns this ceile
 
 import itertools
 from abc import ABC
+from pathlib import Path
 
 from brainscore.metrics import Score
 from brainscore.model_interface import BrainModel
 from brainscore.utils import LazyLoad
 from result_caching import cache, store
 
+import yaml
 
 class Benchmark(ABC):
     """
@@ -120,108 +122,26 @@ def ceil_score(score, ceiling):
     return ceiled_score
 
 
-# define functions creating the benchmark pools, with local imports to avoid circular imports
+# use dynamic_import to import all the benchmarks listed in benchmarks_index.yml
+with (Path(__file__).parent / 'benchmarks_index.yml').open() as f:
+    benchmarks_index = yaml.load(f, Loader=yaml.Loader)
 
-def _evaluation_benchmark_pool():
-    """"
-    Standard benchmarks that are evaluated for the website.
-    """
-    pool = {}
-    # neural benchmarks
-    from .majajhong2015 import DicarloMajajHong2015V4PLS, DicarloMajajHong2015ITPLS
-    pool['dicarlo.MajajHong2015.V4-pls'] = LazyLoad(DicarloMajajHong2015V4PLS)
-    pool['dicarlo.MajajHong2015.IT-pls'] = LazyLoad(DicarloMajajHong2015ITPLS)
-    from .freemanziemba2013 import MovshonFreemanZiemba2013V1PLS, MovshonFreemanZiemba2013V2PLS
-    pool['movshon.FreemanZiemba2013.V1-pls'] = LazyLoad(MovshonFreemanZiemba2013V1PLS)
-    pool['movshon.FreemanZiemba2013.V2-pls'] = LazyLoad(MovshonFreemanZiemba2013V2PLS)
-    from .kar2019 import DicarloKar2019OST
-    pool['dicarlo.Kar2019-ost'] = LazyLoad(DicarloKar2019OST)
+evaluation_benchmark_pool = {}
+engineering_benchmark_pool = {}
+experimental_benchmark_pool = {}
+public_benchmark_pool = {}
 
-    # behavioral benchmarks
-    from .rajalingham2018 import DicarloRajalingham2018I2n
-    pool['dicarlo.Rajalingham2018-i2n'] = LazyLoad(DicarloRajalingham2018I2n)
-
-    return pool
-
-
-def _engineering_benchmark_pool():
-    """
-    Additional engineering (ML) benchmarks. These benchmarks are public, but are also be evaluated for the website.
-    """
-    pool = {}
-
-    from .imagenet import Imagenet2012
-    pool['fei-fei.Deng2009-top1'] = LazyLoad(Imagenet2012)
-
-    from .imagenet_c import Imagenet_C_Noise, Imagenet_C_Blur, Imagenet_C_Weather, Imagenet_C_Digital
-    pool['dietterich.Hendrycks2019-noise-top1'] = LazyLoad(Imagenet_C_Noise)
-    pool['dietterich.Hendrycks2019-blur-top1'] = LazyLoad(Imagenet_C_Blur)
-    pool['dietterich.Hendrycks2019-weather-top1'] = LazyLoad(Imagenet_C_Weather)
-    pool['dietterich.Hendrycks2019-digital-top1'] = LazyLoad(Imagenet_C_Digital)
-
-    return pool
-
-
-def _experimental_benchmark_pool():
-    """
-    Benchmarks that can be used, but are not evaluated for the website.
-    """
-    pool = {}
-    # neural benchmarks
-    from .majajhong2015 import DicarloMajajHong2015V4Mask, DicarloMajajHong2015ITMask, \
-        DicarloMajajHong2015V4RDM, DicarloMajajHong2015ITRDM
-    pool['dicarlo.MajajHong2015.V4-mask'] = LazyLoad(DicarloMajajHong2015V4Mask)
-    pool['dicarlo.MajajHong2015.IT-mask'] = LazyLoad(DicarloMajajHong2015ITMask)
-    pool['dicarlo.MajajHong2015.V4-rdm'] = LazyLoad(DicarloMajajHong2015V4RDM)
-    pool['dicarlo.MajajHong2015.IT-rdm'] = LazyLoad(DicarloMajajHong2015ITRDM)
-    from .freemanziemba2013 import MovshonFreemanZiemba2013V1RDM, MovshonFreemanZiemba2013V2RDM, \
-        MovshonFreemanZiemba2013V1Single
-    pool['movshon.FreemanZiemba2013.V1-rdm'] = LazyLoad(MovshonFreemanZiemba2013V1RDM)
-    pool['movshon.FreemanZiemba2013.V2-rdm'] = LazyLoad(MovshonFreemanZiemba2013V2RDM)
-    pool['movshon.FreemanZiemba2013.V1-single'] = LazyLoad(MovshonFreemanZiemba2013V1Single)
-    from .cadena2017 import ToliasCadena2017PLS, ToliasCadena2017Mask
-    pool['tolias.Cadena2017-pls'] = LazyLoad(ToliasCadena2017PLS)
-    pool['tolias.Cadena2017-mask'] = LazyLoad(ToliasCadena2017Mask)
-    from .sanghavi2020 import DicarloSanghavi2020V4PLS, DicarloSanghavi2020ITPLS
-    pool['dicarlo.Sanghavi2020.V4-pls'] = LazyLoad(DicarloSanghavi2020V4PLS)
-    pool['dicarlo.Sanghavi2020.IT-pls'] = LazyLoad(DicarloSanghavi2020ITPLS)
-    from .sanghavijozwik2020 import DicarloSanghaviJozwik2020V4PLS, DicarloSanghaviJozwik2020ITPLS
-    pool['dicarlo.SanghaviJozwik2020.V4-pls'] = LazyLoad(DicarloSanghaviJozwik2020V4PLS)
-    pool['dicarlo.SanghaviJozwik2020.IT-pls'] = LazyLoad(DicarloSanghaviJozwik2020ITPLS)
-    from .sanghavimurty2020 import DicarloSanghaviMurty2020V4PLS, DicarloSanghaviMurty2020ITPLS
-    pool['dicarlo.SanghaviMurty2020.V4-pls'] = LazyLoad(DicarloSanghaviMurty2020V4PLS)
-    pool['dicarlo.SanghaviMurty2020.IT-pls'] = LazyLoad(DicarloSanghaviMurty2020ITPLS)
-    from .rajalingham2020 import DicarloRajalingham2020ITPLS
-    pool['dicarlo.Rajalingham2020.IT-pls'] = LazyLoad(DicarloRajalingham2020ITPLS)
-
-    return pool
-
-
-def _public_benchmark_pool():
-    """
-    Benchmarks that are publicly usable, but are not used for the website.
-    """
-    pool = {}
-    # neural benchmarks
-    from .public_benchmarks import FreemanZiembaV1PublicBenchmark, FreemanZiembaV2PublicBenchmark, \
-        MajajHongV4PublicBenchmark, MajajHongITPublicBenchmark
-    pool['movshon.FreemanZiemba2013public.V1-pls'] = LazyLoad(FreemanZiembaV1PublicBenchmark)
-    pool['movshon.FreemanZiemba2013public.V2-pls'] = LazyLoad(FreemanZiembaV2PublicBenchmark)
-    pool['dicarlo.MajajHong2015public.V4-pls'] = LazyLoad(MajajHongV4PublicBenchmark)
-    pool['dicarlo.MajajHong2015public.IT-pls'] = LazyLoad(MajajHongITPublicBenchmark)
-
-    # behavioral benchmarks
-    from .public_benchmarks import RajalinghamMatchtosamplePublicBenchmark
-    pool['dicarlo.Rajalingham2018public-i2n'] = LazyLoad(RajalinghamMatchtosamplePublicBenchmark)
-
-    return pool
-
-
-evaluation_benchmark_pool = _evaluation_benchmark_pool()
-engineering_benchmark_pool = _engineering_benchmark_pool()
-experimental_benchmark_pool = _experimental_benchmark_pool()
-public_benchmark_pool = _public_benchmark_pool()
-
+for pool_name, pool_dict in [
+    ('evaluation_benchmark_pool', evaluation_benchmark_pool),
+    ('engineering_benchmark_pool', engineering_benchmark_pool),
+    ('experimental_benchmark_pool', experimental_benchmark_pool),
+    ('public_benchmark_pool', public_benchmark_pool),
+]:
+    # imports each respective benchmark class from its source file relative to pwd
+    for entry in benchmarks_index[pool_name]:
+        for benchmark_id, benchmark_cls in entry['benchmarks'].items():
+            benchmark_cls = __import__('brainscore.benchmarks.' + entry['source'], fromlist=[benchmark_cls])
+            pool_dict[benchmark_id] = LazyLoad(benchmark_cls)
 
 # make sure no identifiers overlap
 def check_all_disjoint(*pools):

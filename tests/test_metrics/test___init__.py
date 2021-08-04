@@ -35,8 +35,16 @@ class TestScoreRaw:
         mean_score = score.mean('a')
         np.testing.assert_array_equal(mean_score.raw['a'], [1, 1, 2, 2])
 
-    def test_mean_no_apply_raw(self):
+    def test_mean_apply_raw(self):
         score = Score([1, 2], coords={'a': [1, 2]}, dims=['a'])
         score.attrs['raw'] = DataAssembly([0, 2, 1, 3], coords={'a': [1, 1, 2, 2]}, dims=['a'])
         mean_score = score.mean('a', _apply_raw=True)
         assert mean_score.raw == 1.5
+
+    def test_squeeze_apply_raw(self):
+        score = Score([1, 2], coords={'a': [1, 2]}, dims=['a'])
+        score.attrs['raw'] = DataAssembly([[0], [2], [1], [3]], coords={'a': [1, 1, 2, 2]}, dims=['a', 'b'])
+        squeezed_score = score.squeeze()
+        assert squeezed_score.raw.shape == (4,)
+        np.testing.assert_array_equal(squeezed_score.raw, [0, 2, 1, 3])
+

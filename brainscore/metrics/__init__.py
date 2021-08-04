@@ -33,11 +33,20 @@ class Metric:
 
 _logger = logging.getLogger(__name__)  # cannot set directly on Score object
 
-_preserve_raw_funcs = ["sel", "isel", "squeeze", "expand_dims", "mean", "sum", "std", "min"]
+_preserve_raw_funcs = {
+    "sel": True,
+    "isel": True,
+    "squeeze": True,
+    "expand_dims": True,
+    "mean": False,
+    "sum": False,
+    "std": False,
+    "min": False,
+}
 
 
-def _wrap_for_raw(func_obj):
-    def wrapped(self, *args, _apply_raw=False, _ignore_errors=True, **kwargs):
+def _wrap_for_raw(func_obj, _apply_raw=False):
+    def wrapped(self, *args, _apply_raw=_apply_raw, _ignore_errors=True, **kwargs):
         result = func_obj(self, *args, **kwargs)
         if self.RAW_VALUES_KEY in self.attrs:
             raw = self.attrs[self.RAW_VALUES_KEY]
@@ -63,7 +72,8 @@ class InjectionOverrideMixin(object):
         for funcname in _preserve_raw_funcs:
             func = getattr(cls, funcname, None)
             if func is not None:
-                setattr(cls, funcname, _wrap_for_raw(func))
+                wrapped = _wrap_for_raw(func, _apply_raw=_preserve_raw_funcs[funcname])
+                setattr(cls, funcname, wrapped)
 
 
 class Score(InjectionOverrideMixin, DataAssembly):

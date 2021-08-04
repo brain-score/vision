@@ -33,56 +33,50 @@ class Metric:
 
 _logger = logging.getLogger(__name__)  # cannot set directly on Score object
 
+_preserve_raw_funcs = ["sel", "isel", "squeeze", "expand_dims", "mean", "sum", "std", "min"]
 
-class Score(DataAssembly):
+
+def _wrap_for_raw(func_obj):
+    def wrapped(self, *args, _apply_raw=False, _ignore_errors=True, **kwargs):
+        result = func_obj(self, *args, **kwargs)
+        if self.RAW_VALUES_KEY in self.attrs:
+            raw = self.attrs[self.RAW_VALUES_KEY]
+            if _apply_raw:
+                try:
+                    raw = getattr(raw, func_obj.__name__)(*args, **kwargs)
+                except Exception as e:
+                    if _ignore_errors:
+                        # ignore errors with warning. most users will likely only want to access the main score
+                        _logger.debug(f"{func_obj.__name__} on raw values failed: {repr(e)}")
+                    else:
+                        raise e
+            result.attrs[self.RAW_VALUES_KEY] = raw
+        return result
+    return wrapped
+
+
+class InjectionOverrideMixin(object):
+    __slots__ = ()
+
+    def __init_subclass__(cls, **kwargs):
+        super(InjectionOverrideMixin, cls).__init_subclass__(**kwargs)
+        for funcname in _preserve_raw_funcs:
+            func = getattr(cls, funcname, None)
+            if func is not None:
+                setattr(cls, funcname, _wrap_for_raw(func))
+
+
+class Score(InjectionOverrideMixin, DataAssembly):
     """
     Scores are used as the outputs of metrics, benchmarks, and ceilings. They indicate similarity or goodness-of-fit
     of sets of data. The high-level score is typically an aggregate of many smaller scores, e.g. the median of neuroid
     correlations. To keep records of these smaller scores, a score can store "raw" scores in its attributes
     (`score.attrs['raw']`).
     """
+    __slots__ = ()
 
     RAW_VALUES_KEY = 'raw'
 
-    def sel(self, *args, _apply_raw=True, **kwargs):
-        return self._preserve_raw('sel', *args, **kwargs, _apply_raw=_apply_raw)
-
-    def isel(self, *args, _apply_raw=True, **kwargs):
-        return self._preserve_raw('isel', *args, **kwargs, _apply_raw=_apply_raw)
-
-    def squeeze(self, *args, _apply_raw=True, **kwargs):
-        return self._preserve_raw('squeeze', *args, **kwargs, _apply_raw=_apply_raw)
-
-    def expand_dims(self, *args, _apply_raw=True, **kwargs):
-        return self._preserve_raw('expand_dims', *args, **kwargs, _apply_raw=_apply_raw)
-
-    def mean(self, *args, _apply_raw=False, **kwargs):
-        return self._preserve_raw('mean', *args, **kwargs, _apply_raw=_apply_raw)
-
-    def sum(self, *args, _apply_raw=False, **kwargs):
-        return self._preserve_raw('sum', *args, **kwargs, _apply_raw=_apply_raw)
-
-    def std(self, *args, _apply_raw=False, **kwargs):
-        return self._preserve_raw('std', *args, **kwargs, _apply_raw=_apply_raw)
-
-    def min(self, *args, _apply_raw=False, **kwargs):
-        return self._preserve_raw('min', *args, **kwargs, _apply_raw=_apply_raw)
-
-    def _preserve_raw(self, operation, *args, _apply_raw=False, _ignore_errors=True, **kwargs):
-        result = getattr(super(Score, self), operation)(*args, **kwargs)
-        if self.RAW_VALUES_KEY in self.attrs:
-            raw = self.attrs[self.RAW_VALUES_KEY]
-            if _apply_raw:
-                try:
-                    raw = getattr(raw, operation)(*args, **kwargs)
-                except Exception as e:
-                    if _ignore_errors:
-                        # ignore errors with warning. most users will likely only want to access the main score
-                        _logger.debug(f"{operation} on raw values failed: {repr(e)}")
-                    else:
-                        raise e
-            result.attrs[self.RAW_VALUES_KEY] = raw
-        return result
 
     def __setitem__(self, key, value, _apply_raw=True):
         super(Score, self).__setitem__(key, value)

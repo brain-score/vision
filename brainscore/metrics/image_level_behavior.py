@@ -39,11 +39,15 @@ class _I(Metric):
             distractor images. This implementation computes the false-alarms rate per object, and then takes the mean.
     """
 
-    def __init__(self, collapse_distractors, normalize, repetitions=2):
+    def __init__(self, collapse_distractors, normalize, repetitions=2,
+                 image_id_coord='image_id', sample_object_coord='sample_obj', distractor_object_coord='dist_obj'):
         super().__init__()
         self._collapse_distractors = collapse_distractors
         self._normalize = normalize
         self._repetitions = repetitions
+        self._image_id_coord = image_id_coord
+        self._sample_object_coord = sample_object_coord
+        self._distractor_object_coord = distractor_object_coord
         self._logger = logging.getLogger(fullname(self))
 
     def __call__(self, source_probabilities, target):
@@ -80,16 +84,19 @@ class _I(Metric):
         return self.correlate(*dprime_halves, skipna=skipna)
 
     def build_response_matrix_from_responses(self, responses):
-        num_choices = [(image_id, choice) for image_id, choice in zip(responses['image_id'].values, responses.values)]
+        num_choices = [(image_id, choice) for image_id, choice in zip(
+            responses[self._image_id_coord].values, responses.values)]
         num_choices = Counter(num_choices)
         num_objects = [[(image_id, sample_obj), (image_id, dist_obj)] for image_id, sample_obj, dist_obj in zip(
-            responses['image_id'].values, responses['sample_obj'].values, responses['dist_obj'].values)]
+            responses[self._image_id_coord].values,
+            responses[self._sample_object_coord].values,
+            responses[self._distractor_object_coord].values)]
         num_objects = Counter(itertools.chain(*num_objects))
 
         choices = np.unique(responses)
-        image_ids, indices = np.unique(responses['image_id'], return_index=True)
+        image_ids, indices = np.unique(responses[self._image_id_coord], return_index=True)
         truths = responses['truth'].values[indices]
-        image_dim = responses['image_id'].dims
+        image_dim = responses[self._image_id_coord].dims
         coords = {**{coord: (dims, value) for coord, dims, value in walk_coords(responses)},
                   **{'choice': ('choice', choices)}}
         coords = {coord: (dims, value if dims != image_dim else value[indices])  # align image_dim coords with indices
@@ -120,7 +127,7 @@ class _I(Metric):
         return response_matrix.mean(dim='choice', skipna=True)
 
     def target_distractor_scores(self, object_probabilities):
-        cached_object_probabilities = self._build_index(object_probabilities, ['image_id', 'choice'])
+        cached_object_probabilities = self._build_index(object_probabilities, [self._image_id_coord, 'choice'])
 
         def apply(p_choice, image_id, truth, choice, **_):
             if truth == choice:  # object == choice, ignore
@@ -130,7 +137,7 @@ class _I(Metric):
             p = p_choice / (p_choice + p_object)
             return p
 
-        result = object_probabilities.multi_dim_apply(['image_id', 'choice'], apply)
+        result = object_probabilities.multi_dim_apply([self._image_id_coord, 'choice'], apply)
         return result
 
     def dprime(self, response_matrix):
@@ -143,7 +150,7 @@ class _I(Metric):
             dprime = self.z_score(hit_rate) - self.z_score(false_alarms_rate_objects)
             return dprime
 
-        result = response_matrix.multi_dim_apply(['image_id', 'choice'], apply)
+        result = response_matrix.multi_dim_apply([self._image_id_coord, 'choice'], apply)
         return result
 
     def z_score(self, value):
@@ -153,13 +160,14 @@ class _I(Metric):
         result = scores.multi_dim_apply(['truth', 'choice'], lambda group, **_: group - np.nanmean(group))
         return result
 
-    @classmethod
-    def correlate(cls, source_response_matrix, target_response_matrix, skipna=False):
+    def correlate(self, source_response_matrix, target_response_matrix, skipna=False):
         # align
-        source_response_matrix = source_response_matrix.sortby('image_id').sortby('choice')
-        target_response_matrix = target_response_matrix.sortby('image_id').sortby('choice')
-        assert all(source_response_matrix['image_id'].values == target_response_matrix['image_id'].values)
-        assert all(source_response_matrix['choice'].values == target_response_matrix['choice'].values)
+        source_response_matrix = source_response_matrix.sortby(self._image_id_coord).sortby('choice')
+        target_response_matrix = target_response_matrix.sortby(self._image_id_coord).sortby('choice')
+        assert all(source_response_matrix[self._image_id_coord].values ==
+                   target_response_matrix[self._image_id_coord].values)
+        assert all(source_response_matrix['choice'].values ==
+                   target_response_matrix['choice'].values)
         # flatten and mask out NaNs
         source, target = source_response_matrix.values.flatten(), target_response_matrix.values.flatten()
         non_nan = ~np.isnan(target)
@@ -206,6 +214,6 @@ class _I(Metric):
 
     def add_source_meta(self, source_probabilities, target):
         image_meta = {image_id: meta_value for image_id, meta_value in
-                      zip(target['image_id'].values, target['truth'].values)}
-        meta_values = [image_meta[image_id] for image_id in source_probabilities['image_id'].values]
+                      zip(target[self._image_id_coord].values, target['truth'].values)}
+        meta_values = [image_meta[image_id] for image_id in source_probabilities[self._image_id_coord].values]
         source_probabilities['truth'] = 'presentation', meta_values

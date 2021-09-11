@@ -1,4 +1,3 @@
-import os
 import pytest
 
 import brainio
@@ -37,6 +36,8 @@ import brainio
         'dicarlo.Marques2020_spatial_frequency',
         'dicarlo.Marques2020_size',
         'movshon.FreemanZiemba2013_properties',
+        'dicarlo.Kar2018coco_color.public',
+        'dicarlo.Kar2018coco_color.private',
 ))
 def test_list_stimulus_set(stimulus_set):
     l = brainio.list_stimulus_sets()
@@ -99,3 +100,15 @@ class TestMarques2020V1Properties:
     def test_num_stimuli(self, identifier, num_stimuli):
         stimulus_set = brainio.get_stimulus_set(identifier)
         assert len(stimulus_set) == num_stimuli
+
+
+@pytest.mark.parametrize('access,num_images', [
+    pytest.param('public', 1_280, marks=[]),
+    pytest.param('private', 320, marks=[pytest.mark.private_access]),
+])
+def test_kar2018coco_color(access, num_images):
+    stimulus_set = brainio.get_stimulus_set(f'dicarlo.Kar2018coco_color.{access}')
+    assert len(stimulus_set) == num_images
+    assert len(set(stimulus_set['image_id'])) == num_images
+    assert set(stimulus_set['object_name']) == {'breed_pug', 'bear', 'zebra', 'ELEPHANT_M', '_001', 'f16', 'face0001',
+                                                'lo_poly_animal_CHICKDEE', 'alfa155', 'Apple_Fruit_obj'}

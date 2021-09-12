@@ -1,7 +1,7 @@
-import logging
 from collections import Counter
 
 import itertools
+import logging
 import numpy as np
 import scipy.stats
 from numpy.random.mtrand import RandomState
@@ -217,3 +217,20 @@ class _I(Metric):
                       zip(target[self._image_id_coord].values, target['truth'].values)}
         meta_values = [image_meta[image_id] for image_id in source_probabilities[self._image_id_coord].values]
         source_probabilities['truth'] = 'presentation', meta_values
+
+    def ceil_score(self, raw_score, ceiling):
+        assert set(raw_score.raw['split'].values) == set(ceiling.raw['split'].values)
+        split_scores = []
+        for split in ceiling.raw['split'].values:
+            split_score = raw_score.raw.sel(split=split)
+            split_ceiling = ceiling.raw.sel(split=split)
+            ceiled_split_score = split_score / np.sqrt(split_ceiling)
+            ceiled_split_score = ceiled_split_score.expand_dims('split')
+            ceiled_split_score['split'] = [split]
+            split_scores.append(ceiled_split_score)
+        split_scores = Score.merge(*split_scores)
+        split_scores = apply_aggregate(self.aggregate, split_scores)
+        split_scores.attrs[
+            Score.RAW_VALUES_KEY] = raw_score  # this will override raw per-split ceiled scores which is ok
+        split_scores.attrs['ceiling'] = ceiling
+        return split_scores

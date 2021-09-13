@@ -144,9 +144,9 @@ and the unit tests guard against that.
 
 There are already generic tests in place to which you can add your StimulusSet and assembly identifiers:
 
-#. :meth:`~tests.test_stimuli.test_list_stimulus_set`
-#. :meth:`~tests.test_assemblies.test_list_assembly`
-#. :meth:`~tests.test_assemblies.test_existence`
+#. :meth:`tests.test_stimuli.test_list_stimulus_set`
+#. :meth:`tests.test_assemblies.test_list_assembly`
+#. :meth:`tests.test_assemblies.test_existence`
 
 Simply add your identifiers to the list.
 
@@ -275,12 +275,12 @@ and can be maintained.
 We ask that all benchmarks test at least two things:
 
 #. The ceiling value of the benchmark for which the benchmark identifier and expected ceiling can simply be added to
-   the :meth:`~tests.test_benchmarks.test___init__.test_ceilings` method
+   the :meth:`tests.test_benchmarks.test___init__.test_ceilings` method
 #. The score of a couple of models with precomputed features:
 
 The idea for scores of precomputed features is to run a few models on the benchmark, store their features, and test that
 the stored features run on the benchmark will reproduce the same score.
-These tests are organized in :class:`~tests.test_benchmarks.test___init__.TestPrecomputed` where, for both neural and
+These tests are organized in :class:`tests.test_benchmarks.test___init__.TestPrecomputed` where, for both neural and
 behavioral benchmarks, standardized functions exist to make these tests as easy as possible.
 
 To add a new test, first store the features of select models.
@@ -314,7 +314,7 @@ To have these precomputed features downloaded when unit tests are run, please ad
 :code:`test_setup.sh` file.
 
 Finally, add a new method :code:`test_<authoryear-metric>` in
-:class:`~tests.test_benchmarks.test___init__.TestPrecomputed` which points to the precomputed features file, and tests
+:class:`tests.test_benchmarks.test___init__.TestPrecomputed` which points to the precomputed features file, and tests
 that an expected score is output by the benchmark.
 
 

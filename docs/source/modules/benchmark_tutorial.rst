@@ -327,5 +327,8 @@ Often, this step can highlight some issues in the code, so it can take some iter
 everything runs smoothly.
 We will also manually review the pull request before merging.
 
+If any stimuli or data should be made public, please let us know so that we can change the corresponding S3 bucket
+policy.
+
 After the PR has been merged, we will run all existing models on the new benchmark before making the benchmark public
 and integrating it into the set of standardly evaluated benchmarks.

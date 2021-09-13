@@ -9,7 +9,7 @@ from brainscore.utils import LazyLoad
 class DicarloKar2018cocoI2n(BenchmarkBase):
     def __init__(self):
         self._metric = I2n(sample_object_coord='sample_object', distractor_object_coord='distractor_object')
-        self._fitting_stimuli = brainscore.get_stimulus_set('dicarlo.Kar2018coco_color.public')
+        self._fitting_stimuli = LazyLoad(lambda: brainscore.get_stimulus_set('dicarlo.Kar2018coco_color.public'))
         self._assembly = LazyLoad(lambda: brainscore.get_assembly('dicarlo.Kar2018coco_behavior.private'))
         self._visual_degrees = 8
         self._number_of_trials = 2

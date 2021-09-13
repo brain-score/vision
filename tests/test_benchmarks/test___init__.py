@@ -1,17 +1,17 @@
-import os
-
 import numpy as np
+import os
 import pytest
+import xarray as xr
 from PIL import Image
 from pathlib import Path
 from pytest import approx
 from typing import List, Tuple
-import xarray as xr
 
-from brainscore.benchmarks import benchmark_pool, public_benchmark_pool, evaluation_benchmark_pool, engineering_benchmark_pool
+from brainio.assemblies import BehavioralAssembly, NeuroidAssembly
+from brainscore.benchmarks import benchmark_pool, public_benchmark_pool, evaluation_benchmark_pool, \
+    engineering_benchmark_pool
 from brainscore.model_interface import BrainModel
 from tests.test_benchmarks import PrecomputedFeatures
-from brainio.assemblies import BehavioralAssembly
 
 
 class TestPoolList:
@@ -47,7 +47,7 @@ class TestPoolList:
 
     def test_engineering_pool(self):
         assert set(engineering_benchmark_pool.keys()) == {
-            'fei-fei.Deng2009-top1', 
+            'fei-fei.Deng2009-top1',
             'dietterich.Hendrycks2019-noise-top1', 'dietterich.Hendrycks2019-blur-top1',
             'dietterich.Hendrycks2019-weather-top1', 'dietterich.Hendrycks2019-digital-top1'
         }
@@ -86,6 +86,8 @@ class TestStandardized:
                      marks=pytest.mark.memory_intense),
         pytest.param('dicarlo.Rajalingham2020.IT-pls', approx(.561013, abs=.001),
                      marks=[pytest.mark.memory_intense, pytest.mark.slow]),
+        pytest.param('dicarlo.Kar2018coco-i2n', approx(.25124318, abs=.001),
+                     marks=[pytest.mark.memory_intense]),
     ])
     def test_ceilings(self, benchmark, expected):
         benchmark = benchmark_pool[benchmark]
@@ -156,7 +158,8 @@ class TestPrecomputed:
         ('movshon.FreemanZiemba2013.V2-pls', approx(.459283, abs=.005)),
     ])
     def test_FreemanZiemba2013(self, benchmark, expected):
-        self.run_test(benchmark=benchmark, file='alexnet-freemanziemba2013.aperture-private.nc', expected=expected)
+        self.run_precomputed_neural(benchmark=benchmark, filename='alexnet-freemanziemba2013.aperture-private.nc',
+                                    expected=expected)
 
     @pytest.mark.memory_intense
     @pytest.mark.parametrize('benchmark, expected', [
@@ -164,12 +167,79 @@ class TestPrecomputed:
         ('dicarlo.MajajHong2015.IT-pls', approx(.584053, abs=.005)),
     ])
     def test_MajajHong2015(self, benchmark, expected):
-        self.run_test(benchmark=benchmark, file='alexnet-majaj2015.private-features.12.nc', expected=expected)
+        self.run_precomputed_neural(benchmark=benchmark, filename='alexnet-majaj2015.private-features.12.nc',
+                                    expected=expected)
 
-    def run_test(self, benchmark, file, expected):
-        benchmark = benchmark_pool[benchmark]
-        precomputed_features = Path(__file__).parent / file
+    @pytest.mark.memory_intense
+    @pytest.mark.private_access
+    @pytest.mark.slow
+    def test_Kar2019ost_cornet_s(self):
+        benchmark = benchmark_pool['dicarlo.Kar2019-ost']
+        precomputed_features = Path(__file__).parent / 'cornet_s-kar2019.nc'
         precomputed_features = BehavioralAssembly(xr.load_dataarray(precomputed_features))
+        precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
+        # score
+        score = benchmark(precomputed_features).raw
+        assert score.sel(aggregation='center') == approx(.316, abs=.005)
+
+    def test_Rajalingham2018public(self):
+        self.run_precomputed_behavioral(benchmark='dicarlo.Rajalingham2018public-i2n',
+                                        filename='CORnetZ-rajalingham2018public.nc',
+                                        expected_unceiled=approx(.136923, abs=.005))
+
+    @pytest.mark.memory_intense
+    @pytest.mark.slow
+    @pytest.mark.parametrize('benchmark, expected', [
+        ('dicarlo.Sanghavi2020.V4-pls', approx(.551135, abs=.015)),
+        ('dicarlo.Sanghavi2020.IT-pls', approx(.611347, abs=.015)),
+    ])
+    def test_Sanghavi2020(self, benchmark, expected):
+        self.run_precomputed_neural(benchmark=benchmark, filename='alexnet-sanghavi2020-features.12.nc',
+                                    expected=expected)
+
+    @pytest.mark.memory_intense
+    @pytest.mark.slow
+    @pytest.mark.parametrize('benchmark, expected', [
+        ('dicarlo.SanghaviJozwik2020.V4-pls', approx(.49235, abs=.005)),
+        ('dicarlo.SanghaviJozwik2020.IT-pls', approx(.590543, abs=.005)),
+    ])
+    def test_SanghaviJozwik2020(self, benchmark, expected):
+        self.run_precomputed_neural(benchmark=benchmark, filename='alexnet-sanghavijozwik2020-features.12.nc',
+                                    expected=expected)
+
+    @pytest.mark.memory_intense
+    @pytest.mark.parametrize('benchmark, expected', [
+        ('dicarlo.SanghaviMurty2020.V4-pls', approx(.357461, abs=.015)),
+        ('dicarlo.SanghaviMurty2020.IT-pls', approx(.53006, abs=.015)),
+    ])
+    def test_SanghaviMurty2020(self, benchmark, expected):
+        self.run_precomputed_neural(benchmark=benchmark, filename='alexnet-sanghavimurty2020-features.12.nc',
+                                    expected=expected)
+
+    @pytest.mark.memory_intense
+    @pytest.mark.slow
+    @pytest.mark.parametrize('benchmark, expected', [
+        ('dicarlo.Rajalingham2020.IT-pls', approx(.147549, abs=.01)),
+    ])
+    def test_Rajalingham2020(self, benchmark, expected):
+        self.run_precomputed_neural(benchmark=benchmark, filename='alexnet-rajalingham2020-features.12.nc',
+                                    expected=expected)
+
+    @pytest.mark.memory_intense
+    @pytest.mark.slow
+    @pytest.mark.parametrize('model, expected', [
+        ('CORnet-Z', approx(.12313881, abs=.01)),
+        ('alexnet', approx(.17457421, abs=.01)),
+    ])
+    def test_Kar2018i2n(self, model, expected):
+        self.run_precomputed_behavioral(benchmark='dicarlo.Kar2018coco-i2n',
+                                        filename=f'{model}-Kar2018coco.nc',
+                                        expected_unceiled=expected)
+
+    def run_precomputed_neural(self, benchmark, filename, expected):
+        benchmark = benchmark_pool[benchmark]
+        precomputed_features = Path(__file__).parent / filename
+        precomputed_features = NeuroidAssembly(xr.load_dataarray(precomputed_features))
         precomputed_features = precomputed_features.stack(presentation=['stimulus_path'])
         precomputed_paths = list(map(lambda f: Path(f).name, precomputed_features['stimulus_path'].values))
         # attach stimulus set meta
@@ -186,63 +256,17 @@ class TestPrecomputed:
         score = benchmark(precomputed_features).raw
         assert score.sel(aggregation='center') == expected
 
-    @pytest.mark.memory_intense
-    @pytest.mark.private_access
-    @pytest.mark.slow
-    def test_Kar2019ost_cornet_s(self):
-        benchmark = benchmark_pool['dicarlo.Kar2019-ost']
-        precomputed_features = Path(__file__).parent / 'cornet_s-kar2019.nc'
-        precomputed_features = BehavioralAssembly(xr.load_dataarray(precomputed_features))
-        precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
-        # score
-        score = benchmark(precomputed_features).raw
-        assert score.sel(aggregation='center') == approx(.316, abs=.005)
-
-    def test_Rajalingham2018public(self):
+    def run_precomputed_behavioral(self, benchmark, filename, expected_unceiled):
         # load features
-        precomputed_features = Path(__file__).parent / 'CORnetZ-rajalingham2018public.nc'
+        precomputed_features = Path(__file__).parent / filename
         precomputed_features = BehavioralAssembly(xr.load_dataarray(precomputed_features))
         precomputed_features = PrecomputedFeatures(precomputed_features,
                                                    visual_degrees=8,  # doesn't matter, features are already computed
                                                    )
         # score
-        benchmark = benchmark_pool['dicarlo.Rajalingham2018public-i2n']
+        benchmark = benchmark_pool[benchmark]
         score = benchmark(precomputed_features).raw
-        assert score.sel(aggregation='center') == approx(.136923, abs=.005)
-
-    @pytest.mark.memory_intense
-    @pytest.mark.slow
-    @pytest.mark.parametrize('benchmark, expected', [
-        ('dicarlo.Sanghavi2020.V4-pls', approx(.551135, abs=.015)),
-        ('dicarlo.Sanghavi2020.IT-pls', approx(.611347, abs=.015)),
-    ])
-    def test_Sanghavi2020(self, benchmark, expected):
-        self.run_test(benchmark=benchmark, file='alexnet-sanghavi2020-features.12.nc', expected=expected)
-
-    @pytest.mark.memory_intense
-    @pytest.mark.slow
-    @pytest.mark.parametrize('benchmark, expected', [
-        ('dicarlo.SanghaviJozwik2020.V4-pls', approx(.49235, abs=.005)),
-        ('dicarlo.SanghaviJozwik2020.IT-pls', approx(.590543, abs=.005)),
-    ])
-    def test_SanghaviJozwik2020(self, benchmark, expected):
-        self.run_test(benchmark=benchmark, file='alexnet-sanghavijozwik2020-features.12.nc', expected=expected)
-
-    @pytest.mark.memory_intense
-    @pytest.mark.parametrize('benchmark, expected', [
-        ('dicarlo.SanghaviMurty2020.V4-pls', approx(.357461, abs=.015)),
-        ('dicarlo.SanghaviMurty2020.IT-pls', approx(.53006, abs=.015)),
-    ])
-    def test_SanghaviMurty2020(self, benchmark, expected):
-        self.run_test(benchmark=benchmark, file='alexnet-sanghavimurty2020-features.12.nc', expected=expected)
-
-    @pytest.mark.memory_intense
-    @pytest.mark.slow
-    @pytest.mark.parametrize('benchmark, expected', [
-        ('dicarlo.Rajalingham2020.IT-pls', approx(.147549, abs=.01)),
-    ])
-    def test_Rajalingham2020(self, benchmark, expected):
-        self.run_test(benchmark=benchmark, file='alexnet-rajalingham2020-features.12.nc', expected=expected)
+        assert score.sel(aggregation='center') == expected_unceiled
 
 
 class TestVisualDegrees:

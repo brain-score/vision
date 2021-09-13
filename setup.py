@@ -41,7 +41,7 @@ setup(
     author="Brain-Score Team",
     author_email='mschrimpf@mit.edu, jjpr@mit.edu',
     url='https://github.com/brain-score/brain-score',
-    packages=find_packages(),  # exclude=['tests']
+    packages=find_packages(exclude=['tests']),
     include_package_data=True,
     install_requires=requirements,
     license="MIT license",

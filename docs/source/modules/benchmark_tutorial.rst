@@ -325,6 +325,8 @@ This will trigger server-side unit tests which ensure that all previous as well 
 successfully.
 Often, this step can highlight some issues in the code, so it can take some iterations on the code to make sure
 everything runs smoothly.
+Looking at other merged pull requests for reference could be helpful here:
+https://github.com/brain-score/brain-score/pulls.
 We will also manually review the pull request before merging.
 
 If any stimuli or data should be made public, please let us know so that we can change the corresponding S3 bucket

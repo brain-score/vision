@@ -71,6 +71,8 @@ html_static_path = ['_static']
 def skip(app, what, name, obj, would_skip, options):
     if name in ("__init__", "__call__"):
         return False
+    if name.startswith('test') or name.startswith('Test'):
+        return False
     return would_skip
 
 

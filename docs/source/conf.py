@@ -14,11 +14,10 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../..'))
 
-
 # -- Project information -----------------------------------------------------
 
 project = 'Brain-Score'
-copyright = '2020, Brain-Score Team'
+copyright = '2021, Brain-Score Team'
 author = 'Brain-Score Team'
 
 # The full version, including alpha/beta/rc tags
@@ -32,9 +31,11 @@ release = '0.2'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
     'recommonmark',
     'sphinx.ext.viewcode',
 ]
+autosummary_generate = True  # Turn on sphinx.ext.autosummary
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -67,6 +68,8 @@ html_static_path = ['_static']
 
 def skip(app, what, name, obj, would_skip, options):
     if name in ("__init__", "__call__"):
+        return False
+    if name.startswith('test') or name.startswith('Test'):
         return False
     return would_skip
 

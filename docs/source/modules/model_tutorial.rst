@@ -1,4 +1,4 @@
-.. _Tutorial:
+.. _model_tutorial:
 
 .. _technical paper: https://www.biorxiv.org/content/10.1101/407007v1
 .. _perspective paper: https://www.cell.com/neuron/fulltext/S0896-6273(20)30605-X
@@ -10,9 +10,9 @@
 .. _mac: https://git-scm.com/download/mac
 .. _profile: http://www.brain-score.org/profile/
 
-========
-Tutorial
-========
+==============
+Model Tutorial
+==============
 
 About
 =====

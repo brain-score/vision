@@ -1,5 +1,6 @@
 """
-The BrainModel interface is the central communication point between benchmarks and models.
+The :class:`~brainscore.model_interface.BrainModel` interface is the central communication point
+between benchmarks and models.
 """
 
 from enum import Enum

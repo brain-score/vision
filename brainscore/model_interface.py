@@ -1,3 +1,7 @@
+"""
+The BrainModel interface is the central communication point between benchmarks and models.
+"""
+
 from enum import Enum
 
 from brainio.stimuli import StimulusSet

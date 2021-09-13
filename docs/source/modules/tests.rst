@@ -3,6 +3,7 @@
 Tests
 -----
 
-.. automodule:: tests.test\_assemblies
+.. automodule:: tests.test_assemblies
     :members:
     :undoc-members:
+    :show-inheritance:

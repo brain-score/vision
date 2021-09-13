@@ -15,18 +15,6 @@ The primary method this library provides is the `score_model` function.
 
 .. autofunction:: brainscore.score_model
 
-.. autosummary::
-   :toctree: _autosummary
-   :recursive:
-
-   brainscore
-
-.. autosummary::
-   :toctree: _autosummary
-   :recursive:
-
-   tests
-
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
@@ -40,3 +28,15 @@ The primary method this library provides is the `score_model` function.
    modules/submission
    modules/utils
    modules/tests
+
+.. autosummary::
+   :toctree: _autosummary
+   :recursive:
+
+   brainscore
+
+.. autosummary::
+   :toctree: _autosummary
+   :recursive:
+
+   tests

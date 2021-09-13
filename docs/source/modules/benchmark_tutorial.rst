@@ -144,9 +144,9 @@ and the unit tests guard against that.
 
 There are already generic tests in place to which you can add your StimulusSet and assembly identifiers:
 
-#. `test_list_stimulus_set <https://github.com/brain-score/brain-score/blob/5d333f1629eeb4f624e884f60b22c9533ea04a32/tests/test_stimuli.py#L41>`_
-#. `test_list_assembly <https://github.com/brain-score/brain-score/blob/5d333f1629eeb4f624e884f60b22c9533ea04a32/tests/test_assemblies.py#L49>`_
-#. `test_existence <https://github.com/brain-score/brain-score/blob/5d333f1629eeb4f624e884f60b22c9533ea04a32/tests/test_assemblies.py#L88>`_
+#. :meth:`~tests.test_stimuli.test_list_stimulus_set`
+#. :meth:`~tests.test_assemblies.test_list_assembly``
+#. :meth:`~tests.test_assemblies.test_existence`
 
 Simply add your identifiers to the list.
 
@@ -196,7 +196,7 @@ commmonly used attributes. These attributes include
   (we are working on crediting benchmark submitters more prominently in addition to only the data source.)
 
 Here is an example of a behavioral benchmark that uses an already defined metric,
-:class:`~brainscore.metrics.I2n`, to compare image-level behaviors:
+:class:`~brainscore.metrics.image_level_behavior.I2n`, to compare image-level behaviors:
 
 .. code-block:: python
 
@@ -275,17 +275,17 @@ and can be maintained.
 We ask that all benchmarks test at least two things:
 
 #. The ceiling value of the benchmark for which the benchmark identifier and expected ceiling can simply be added to
-   the :meth:`tests.test_benchmarks.test___init__.test_ceilings` method
+   the :meth:`~tests.test_benchmarks.test___init__.test_ceilings` method
 #. The score of a couple of models with precomputed features:
 
 The idea for scores of precomputed features is to run a few models on the benchmark, store their features, and test that
 the stored features run on the benchmark will reproduce the same score.
-These tests are organized in :class:`tests.test_benchmarks.test___init__.TestPrecomputed` where, for both neural and
+These tests are organized in :class:`~tests.test_benchmarks.test___init__.TestPrecomputed` where, for both neural and
 behavioral benchmarks, standardized functions exist to make these tests as easy as possible.
 
 To add a new test, first store the features of select models.
-For neural benchmarks, run the benchmark on a model, then convert the pickled activations from :code:`result_caching`_
-into :code:`netcdf (.nc)`_ files:
+For neural benchmarks, run the benchmark on a model, then convert the pickled activations from :code:`result_caching`
+into :code:`netcdf (.nc)` files:
 
 .. code-block:: python
 
@@ -297,7 +297,7 @@ into :code:`netcdf (.nc)`_ files:
 
 
 For behavioral benchmarks, the only way right now is to store the predictions as you score a model on the benchmark,
-i.e. either by putting a breakpoint and storing the features or by adding code to the benchmark's :code:`__call__`_
+i.e. either by putting a breakpoint and storing the features or by adding code to the benchmark's :code:`__call__`
 method (before model predictions are scored with the metric).
 
 .. code-block:: python
@@ -306,15 +306,15 @@ method (before model predictions are scored with the metric).
         .to_netcdf('~/brain-score/tests/test_benchmarks/CORnet-Z-<authoryear>.nc')
 
 
-Next, upload these precomputed features to :code:`S3://brainscore-unittests/tests/test_benchmarks/`_
+Next, upload these precomputed features to :code:`S3://brainscore-unittests/tests/test_benchmarks/`
 (account 613927419654).
 Please reach out to us so that we can help you with the upload.
 
 To have these precomputed features downloaded when unit tests are run, please add the filenames to the
-:code:`test_setup.sh`_ file.
+:code:`test_setup.sh` file.
 
-Finally, add a new method :code:`test_<authoryear-metric>`_ in
-:class:`tests.test_benchmarks.test___init__.TestPrecomputed` which points to the precomputed features file, and tests
+Finally, add a new method :code:`test_<authoryear-metric>` in
+:class:`~tests.test_benchmarks.test___init__.TestPrecomputed` which points to the precomputed features file, and tests
 that an expected score is output by the benchmark.
 
 

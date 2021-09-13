@@ -145,7 +145,7 @@ and the unit tests guard against that.
 There are already generic tests in place to which you can add your StimulusSet and assembly identifiers:
 
 #. :meth:`~tests.test_stimuli.test_list_stimulus_set`
-#. :meth:`~tests.test_assemblies.test_list_assembly``
+#. :meth:`~tests.test_assemblies.test_list_assembly`
 #. :meth:`~tests.test_assemblies.test_existence`
 
 Simply add your identifiers to the list.

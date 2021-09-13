@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 # -- Project information -----------------------------------------------------
 
 project = 'Brain-Score'
-copyright = '2020, Brain-Score Team'
+copyright = '2021, Brain-Score Team'
 author = 'Brain-Score Team'
 
 # The full version, including alpha/beta/rc tags

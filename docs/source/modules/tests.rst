@@ -3,6 +3,6 @@
 Tests
 -----
 
-.. automodule:: tests.test_assemblies
+.. automodule:: tests.test\_assemblies
     :members:
     :undoc-members:

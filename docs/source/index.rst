@@ -20,7 +20,8 @@ The primary method this library provides is the `score_model` function.
    :caption: Contents:
 
    examples
-   modules/tutorial
+   modules/model_tutorial
+   modules/benchmark_tutorial
    modules/model_interface
    modules/benchmarks
    modules/metrics

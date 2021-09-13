@@ -27,3 +27,4 @@ The primary method this library provides is the `score_model` function.
    modules/metrics
    modules/submission
    modules/utils
+   modules/tests

@@ -1,4 +1,6 @@
 .. _Benchmark_Tutorial:
+.. |UnitTestSupport| replace:: We realize that unit tests can be a hurdle and we can take over this task for you.
+                                 Please let us know of any hurdles and we will do our best to support.
 
 ==================
 Benchmark Tutorial
@@ -73,7 +75,7 @@ Here is a slim example of creating and uploading a StimulusSet:
     stimuli.image_paths = image_paths
     stimuli.name = '<AuthorYear>'  # give the StimulusSet an identifier name
 
-    assert len(stimuli) == 1_600  # make sure the StimulusSet is what you would expect
+    assert len(stimuli) == 1600  # make sure the StimulusSet is what you would expect
 
     package_stimulus_set(stimuli, stimulus_set_identifier=stimuli.name)  # upload to S3
 
@@ -100,11 +102,6 @@ So far, we have encountered data in three forms:
   (e.g. "dog"/"cat", "left"/"right") in the assembly values.
 * PropertiesAssembly: any kind of data in a pre-processed form, such as a surround suppression index per :code:`neuroid`.
 
-Except for :code:`image_id`, you do not need to specify the stimulus coordinates on the :code:`presentation` dimension
-again, since they are `automatically merged from the assembly's associated StimulusSet
-<https://github.com/brain-score/brainio/blob/d0ac841779fb47fa7b8bdad3341b68357c8031d9/brainio/fetch.py#L125-L132>`_
-(although there is no harm in doing so).
-
 Here is an example of a BehavioralAssembly:
 
 .. code-block:: python
@@ -118,13 +115,16 @@ Here is an example of a BehavioralAssembly:
                                        'sample_object': ('presentation', ['dog', 'cat', 'cat', 'dog', ...]),
                                        'distractor_object': ('presentation', ['cat', 'dog', 'dog', 'cat', ...]),
                                        # ...more meta
+                                       # Note that meta from the StimulusSet will automatically be merged into the
+                                       #  presentation dimension:
+                                       #  https://github.com/brain-score/brainio/blob/d0ac841779fb47fa7b8bdad3341b68357c8031d9/brainio/fetch.py#L125-L132
                                    },
                                    dims=['presentation'])
     assembly.name = '<authoryear>'  # give the assembly an identifier name
 
     # make sure the assembly is what you would expect
-    assert len(assembly['presentation']) == 179_660
-    assert len(set(assembly['image_id'].values)) == 1_600
+    assert len(assembly['presentation']) == 179660
+    assert len(set(assembly['image_id'].values)) == 1600
     assert len(set(assembly['choice'].values)) == len(set(assembly['sample_object'].values)) \
            == len(set(assembly['distractor_object'].values)) == 2
 
@@ -141,6 +141,8 @@ Assembly). This will increase the utility of the data and make it a more valuabl
 We ask that packaged stimuli and assemblies are tested so that their validity can be confirmed for a long time, even as
 details in the system might change. For instance, we want to avoid accidental overwrite of a packaged experiment,
 and the unit tests guard against that.
+
+|UnitTestSupport|
 
 There are already generic tests in place to which you can add your StimulusSet and assembly identifiers:
 
@@ -231,13 +233,17 @@ Here is an example of a behavioral benchmark that uses an already defined metric
                 identifier='<AuthorYear>-i2n',
                 # the version number increases when changes to the benchmark are made; start with 1
                 version=1,
+                # the ceiling function outputs a ceiling estimate of how reliable the data is, or in other words, how
+                # well we would expect the perfect model to perform on this benchmark
                 ceiling_func=lambda: self._metric.ceiling(self._assembly),
                 parent='behavior',
                 bibtex=BIBTEX,
             )
 
-        # the __call__ method takes as input a candidate BrainModel and outputs a similarity score of how brain-like
-        # the candidate is under this benchmark
+        # The __call__ method takes as input a candidate BrainModel and outputs a similarity score of how brain-like
+        # the candidate is under this benchmark.
+        # A candidate here could be a model such as CORnet or brain-mapped Alexnet, but importantly the benchmark can be
+        # agnostic to the details of the candidate and instead only engage with the BrainModel interface.
         def __call__(self, candidate: BrainModel):
             # based on the visual degrees of the candidate
             fitting_stimuli = place_on_screen(self._fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
@@ -271,6 +277,8 @@ transfer it to the main benchmark pool.
 
 Like with the stimuli and data, we want to ensure the continued validity of the benchmark so that it remains valuable
 and can be maintained.
+
+|UnitTestSupport|
 
 We ask that all benchmarks test at least two things:
 

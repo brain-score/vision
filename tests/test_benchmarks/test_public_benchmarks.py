@@ -28,4 +28,4 @@ def test_list():
     assemblies = list_public_assemblies()
     assert set(assemblies) == {'dicarlo.MajajHong2015.public', 'dicarlo.MajajHong2015.temporal.public',
                                'movshon.FreemanZiemba2013.public', 'movshon.FreemanZiemba2013.noaperture.public',
-                               'dicarlo.Rajalingham2018.public'}
+                               'dicarlo.Rajalingham2018.public', 'dicarlo.Kar2018coco_behavior.public'}

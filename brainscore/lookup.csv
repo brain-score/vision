@@ -115,3 +115,9 @@ devalois.DeValois1982b,assembly,PropertyAssembly,S3,https://brainio.contrib.s3.a
 movshon.FreemanZiemba2013_V1_properties,assembly,PropertyAssembly,S3,https://brainio.contrib.s3.amazonaws.com/assy_movshon_FreemanZiemba2013_V1_properties.nc,e665522d9a32e6cd6c3ebc61ff65fd3899c8d3e6,movshon.FreemanZiemba2013_properties
 shapley.Ringach2002,assembly,PropertyAssembly,S3,https://brainio.contrib.s3.amazonaws.com/assy_shapley_Ringach2002.nc,0f3e19140bd9f930109879a38e574471d9576cf5,dicarlo.Marques2020_orientation
 schiller.Schiller1976c,assembly,PropertyAssembly,S3,https://brainio.contrib.s3.amazonaws.com/assy_schiller_Schiller1976c.nc,58daa02ba2680e75dcb11b37eb6085c4afb6576e,dicarlo.Marques2020_spatial_frequency
+dicarlo.Kar2018coco_color.public,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/image_dicarlo_Kar2018coco_color_public.csv,520d61fd90d78811c65a7663deeaa4914c531fd9,
+dicarlo.Kar2018coco_color.public,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/image_dicarlo_Kar2018coco_color_public.zip,813df950ea0cdfdd01ec3f4f23e886bbc8bfb40a,
+dicarlo.Kar2018coco_behavior.public,assembly,BehavioralAssembly,S3,https://brainio-brainscore.s3.amazonaws.com/assy_dicarlo_Kar2018coco_behavior_public.nc,3bcdec179b3771b6fef2af90e01be76cf4c9e478,dicarlo.Kar2018coco_color.public
+dicarlo.Kar2018coco_color.private,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/image_dicarlo_Kar2018coco_color_private.csv,f3ca422ca6bde42fdc1decc69977d0b4d61cebb7,
+dicarlo.Kar2018coco_color.private,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/image_dicarlo_Kar2018coco_color_private.zip,f9bb785c22a654305f1a9dd5e065fe4b01530410,
+dicarlo.Kar2018coco_behavior.private,assembly,BehavioralAssembly,S3,https://brainio-brainscore.s3.amazonaws.com/assy_dicarlo_Kar2018coco_behavior_private.nc,4b31983561dc97fcbb6e3cdd95a4766c1d50ae04,dicarlo.Kar2018coco_color.private

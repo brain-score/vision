@@ -1,3 +1,4 @@
+import brainscore
 import numpy as np
 import pytest
 from PIL import Image
@@ -45,6 +46,8 @@ import brainio
         'movshon.FreemanZiemba2013_V1_properties',
         'shapley.Ringach2002',
         'schiller.Schiller1976c',
+        'dicarlo.Kar2018coco_behavior.public',
+        'dicarlo.Kar2018coco_behavior.private',
 ))
 def test_list_assembly(assembly):
     l = brainio.list_assemblies()
@@ -70,6 +73,8 @@ def test_list_assembly(assembly):
     pytest.param('dicarlo.Kar2019', marks=[pytest.mark.private_access]),
     pytest.param('dicarlo.Kar2018hvm', marks=[pytest.mark.private_access]),
     pytest.param('dicarlo.Kar2018cocogray', marks=[pytest.mark.private_access]),
+    pytest.param('dicarlo.Kar2018coco_behavior.public', marks=[]),
+    pytest.param('dicarlo.Kar2018coco_behavior.private', marks=[pytest.mark.private_access]),
     pytest.param('klab.Zhang2018search_obj_array', marks=[pytest.mark.private_access]),
     pytest.param('aru.Kuzovkin2018', marks=[pytest.mark.private_access]),
     pytest.param('dicarlo.Rajalingham2020', marks=[pytest.mark.private_access]),
@@ -268,3 +273,16 @@ class TestMarques2020V1Properties:
         assert set(assembly['neuronal_property'].values) == set(properties)
         assert assembly.stimulus_set is not None
         assert assembly.stimulus_set.identifier == stimulus_set_identifier
+
+
+@pytest.mark.parametrize('access,num_images,num_trials', [
+    pytest.param('public', 1_280, 143_492, marks=[]),
+    pytest.param('private', 320, 36_168, marks=[pytest.mark.private_access]),
+])
+def test_kar2018coco_behavior(access, num_images, num_trials):
+    assembly = brainscore.get_assembly(f'dicarlo.Kar2018coco_behavior.{access}')
+    np.testing.assert_array_equal(assembly.dims, ['presentation'])
+    assert len(set(assembly['image_id'].values)) == num_images
+    assert len(assembly) == num_trials
+    assert assembly.stimulus_set is not None
+    assert len(assembly.stimulus_set) == num_images

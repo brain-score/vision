@@ -193,6 +193,9 @@ def _experimental_benchmark_pool():
     pool['dicarlo.SanghaviMurty2020.IT-pls'] = LazyLoad(DicarloSanghaviMurty2020ITPLS)
     from .rajalingham2020 import DicarloRajalingham2020ITPLS
     pool['dicarlo.Rajalingham2020.IT-pls'] = LazyLoad(DicarloRajalingham2020ITPLS)
+    # behavioral benchmarks
+    from .kar2018behavior import DicarloKar2018cocoI2n
+    pool['dicarlo.Kar2018coco-i2n'] = LazyLoad(DicarloKar2018cocoI2n)
 
     return pool
 

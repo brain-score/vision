@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 import pytest
-from brainio_base.assemblies import NeuroidAssembly, DataAssembly
+from brainio.assemblies import NeuroidAssembly, DataAssembly
 from pytest import approx
 
 from brainscore.metrics.rdm import RSA, RDMSimilarity, RDMMetric, RDMCrossValidated

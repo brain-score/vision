@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 
-from brainio_base.stimuli import StimulusSet
+from brainio.stimuli import StimulusSet
 from brainscore.benchmarks import BenchmarkBase
 from brainscore.metrics import Score
 from brainscore.metrics.accuracy import Accuracy

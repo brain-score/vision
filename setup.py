@@ -16,10 +16,9 @@ with open('README.md') as readme_file:
 
 requirements = [
     "numpy>=1.17",
+    "brainio @ git+https://github.com/brain-score/brainio",
+    "scikit-learn<0.24",  # 0.24 breaks pls regression
     "scipy",
-    "brainio_base @ git+https://github.com/brain-score/brainio_base",
-    "brainio_collection @ git+https://github.com/brain-score/brainio_collection",
-    "scikit-learn",
     "h5py",
     "tqdm",
     "gitpython",
@@ -27,7 +26,7 @@ requirements = [
     "networkx",
     "matplotlib",
     "tensorflow",
-    "result_caching @ git+https://github.com/mschrimpf/result_caching",
+    "result_caching @ git+https://github.com/brain-score/result_caching",
     "fire",
     "jupyter",
     "pybtex",
@@ -57,4 +56,9 @@ setup(
         'Programming Language :: Python :: 3.7',
     ],
     test_suite='tests',
+    entry_points={
+        'brainio_lookups': [
+            'brainio_brainscore = brainscore.entrypoint:brainio_brainscore',
+        ],
+    },
 )

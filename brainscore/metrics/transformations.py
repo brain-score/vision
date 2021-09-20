@@ -5,8 +5,8 @@ import logging
 import math
 import numpy as np
 import xarray as xr
-from brainio_base.assemblies import DataAssembly, walk_coords
-from brainio_collection.transform import subset
+from brainio.assemblies import DataAssembly, walk_coords
+from brainio.transform import subset
 from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit, KFold, StratifiedKFold
 from tqdm import tqdm
 

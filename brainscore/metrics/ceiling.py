@@ -2,7 +2,7 @@ import scipy.stats
 import xarray as xr
 from tqdm import tqdm
 
-from brainio_base.assemblies import walk_coords
+from brainio.assemblies import walk_coords
 from brainscore.metrics import Score
 from brainscore.metrics.rdm import RDMMetric
 from brainscore.metrics.cka import CKAMetric

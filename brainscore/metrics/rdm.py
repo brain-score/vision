@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.stats import spearmanr
 
-from brainio_base.assemblies import DataAssembly, walk_coords
+from brainio.assemblies import DataAssembly, walk_coords
 
 from brainscore.metrics import Score
 from brainscore.metrics.transformations import TestOnlyCrossValidation
@@ -46,8 +46,8 @@ class RDMMetric:
 
     def __call__(self, assembly1, assembly2):
         """
-        :param brainio_base.assemblies.NeuroidAssembly assembly1:
-        :param brainio_base.assemblies.NeuroidAssembly assembly2:
+        :param brainio.assemblies.NeuroidAssembly assembly1:
+        :param brainio.assemblies.NeuroidAssembly assembly2:
         :return: brainscore.metrics.Score
         """
 

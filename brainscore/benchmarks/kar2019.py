@@ -66,7 +66,9 @@ class DicarloKar2019OST(BenchmarkBase):
         # we will show one image and check whether the recordings vary over time at all or not.
         # If they don't we can quickly score the candidate with a failure state
         # since it will not be able to predict temporal differences with the OST metric
-        check_recordings = candidate.look_at(stimulus_set[:1], number_of_trials=self._number_of_trials)
+        check_stimulus_set = stimulus_set[:1]
+        check_stimulus_set.identifier = None  # unset identifier to avoid storing (interferes with actual stimulus_set)
+        check_recordings = candidate.look_at(check_stimulus_set, number_of_trials=self._number_of_trials)
         if not temporally_varying(check_recordings):
             score = Score([np.nan, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         else:

@@ -1,6 +1,6 @@
 import numpy as np
 
-from brainio_base.assemblies import NeuroidAssembly
+from brainio.assemblies import NeuroidAssembly
 from brainscore.model_interface import BrainModel
 
 

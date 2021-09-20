@@ -1,7 +1,7 @@
 import numpy as np
 
 import brainscore
-from brainio_base.assemblies import DataAssembly
+from brainio.assemblies import DataAssembly
 from brainscore.benchmarks._properties_common import PropertiesBenchmark, _assert_grating_activations
 from brainscore.benchmarks._properties_common import calc_circular_variance, calc_bandwidth, \
     calc_orthogonal_preferred_ratio
@@ -40,8 +40,7 @@ RESPONSE_THRESHOLD = 5
 def _MarquesRingach2002V1Property(property_name, parent):
     assembly = brainscore.get_assembly(ASSEMBLY_NAME)
     similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_similarity, property_name=property_name)
-    ceil_func = NeuronalPropertyCeiling(BootstrapDistributionSimilarity(similarity_func=ks_similarity,
-                                                                        property_name=property_name))
+    ceil_func = NeuronalPropertyCeiling(similarity_metric)
     return PropertiesBenchmark(identifier=f'dicarlo.Marques_ringach2002-{property_name}', assembly=assembly,
                                neuronal_property=ringach2002_properties, similarity_metric=similarity_metric,
                                timebins=TIMEBINS,

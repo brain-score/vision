@@ -1,6 +1,6 @@
 import numpy as np
 
-from brainio_base.assemblies import DataAssembly
+from brainio.assemblies import DataAssembly
 from brainscore import get_stimulus_set
 from brainscore.benchmarks import BenchmarkBase, ceil_score
 from brainscore.benchmarks.screen import place_on_screen

@@ -58,6 +58,11 @@ class PropertiesBenchmark(BenchmarkBase):
         ceiling = self._ceiling_func(self._assembly)
         return ceil_score(raw_score, ceiling)
 
+    @property
+    def ceiling(self):
+        return self._ceiling_func(self._assembly)
+
+
 
 @store(identifier_ignore=['model', 'in_rf'])
 def get_firing_rates(model_identifier, model, region, stimulus_identifier, number_of_trials, in_rf):

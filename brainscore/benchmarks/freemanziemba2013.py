@@ -66,13 +66,6 @@ def MovshonFreemanZiemba2013V1RDM():
                                            ceiler=RDMConsistency())
 
 
-def MovshonFreemanZiemba2013V1CKA():
-    return _MovshonFreemanZiemba2013Region('V1', identifier_metric_suffix='cka',
-                                           similarity_metric=CKACrossValidated(
-                                               crossvalidation_kwargs=dict(stratification_coord='texture_type')),
-                                           ceiler=CKAConsistency())
-
-
 def MovshonFreemanZiemba2013V2PLS():
     return _MovshonFreemanZiemba2013Region('V2', identifier_metric_suffix='pls',
                                            similarity_metric=CrossRegressedCorrelation(

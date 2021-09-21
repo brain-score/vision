@@ -4,7 +4,7 @@ import brainscore
 from brainscore.benchmarks import BenchmarkBase
 from brainscore.benchmarks.screen import place_on_screen
 from brainscore.metrics import Score
-from brainscore.metrics.image_level_behavior import I2n, I1n, O1, O2, I1, I2
+from brainscore.metrics.image_level_behavior import I2n
 from brainscore.metrics.transformations import apply_aggregate
 from brainscore.model_interface import BrainModel
 from brainscore.utils import LazyLoad

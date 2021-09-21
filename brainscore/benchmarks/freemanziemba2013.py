@@ -1,8 +1,7 @@
 import brainscore
 from brainscore.benchmarks._neural_common import NeuralBenchmark, average_repetition
-from brainscore.metrics.ceiling import InternalConsistency, RDMConsistency, CKAConsistency
+from brainscore.metrics.ceiling import InternalConsistency, RDMConsistency
 from brainscore.metrics.rdm import RDMCrossValidated
-from brainscore.metrics.cka import CKACrossValidated
 from brainscore.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation, \
     single_regression
 from brainscore.utils import LazyLoad

@@ -1,0 +1,1 @@
+git+git://github.com/brain-score/brain-score@c9e8c1e#egg=brain-score

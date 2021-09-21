@@ -1,0 +1,4 @@
+brain-score @ git+https://github.com/brain-score/brain-score@1e4eacb8e1a2c98e55083218ee68a1fc7680d0b0
+brainio-base @ git+https://github.com/brain-score/brainio_base@f6553fad46f3451ce51b8916386de1235630de72
+brainio-collection @ git+https://github.com/brain-score/brainio_collection@dad8991adb0def87e496553cfce9d0ee33b53c21
+tqdm==4.47.0

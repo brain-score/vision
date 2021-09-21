@@ -8,10 +8,11 @@ from pytest import approx
 from typing import List, Tuple
 import xarray as xr
 
-from brainscore.benchmarks import benchmark_pool, public_benchmark_pool, evaluation_benchmark_pool
+from brainscore.benchmarks import benchmark_pool, public_benchmark_pool, evaluation_benchmark_pool, \
+    engineering_benchmark_pool
 from brainscore.model_interface import BrainModel
 from tests.test_benchmarks import PrecomputedFeatures
-from brainio_base.assemblies import BehavioralAssembly
+from brainio.assemblies import BehavioralAssembly
 
 
 class TestPoolList:
@@ -43,6 +44,13 @@ class TestPoolList:
             'movshon.FreemanZiemba2013.V1-pls', 'movshon.FreemanZiemba2013.V2-pls',
             'dicarlo.MajajHong2015.V4-pls', 'dicarlo.MajajHong2015.IT-pls', 'dicarlo.Kar2019-ost',
             'dicarlo.Rajalingham2018-i2n',
+        }
+
+    def test_engineering_pool(self):
+        assert set(engineering_benchmark_pool.keys()) == {
+            'fei-fei.Deng2009-top1',
+            'dietterich.Hendrycks2019-noise-top1', 'dietterich.Hendrycks2019-blur-top1',
+            'dietterich.Hendrycks2019-weather-top1', 'dietterich.Hendrycks2019-digital-top1'
         }
 
 
@@ -105,7 +113,6 @@ class TestStandardized:
         pytest.param('dicarlo.Marques2020_FreemanZiemba2013-max_texture', approx(0.946, abs=.005), marks=[]),
         pytest.param('dicarlo.Marques2020_FreemanZiemba2013-max_noise', approx(0.945, abs=.005), marks=[]),
     ])
-
     def test_ceilings(self, benchmark, expected):
         benchmark = benchmark_pool[benchmark]
         ceiling = benchmark.ceiling
@@ -139,8 +146,7 @@ class TestStandardized:
     ])
     def test_self_regression(self, benchmark, visual_degrees, expected):
         benchmark = benchmark_pool[benchmark]
-        source = {benchmark._assembly.stimulus_set.identifier: benchmark._assembly}
-        score = benchmark(PrecomputedFeatures(source, visual_degrees=visual_degrees)).raw
+        score = benchmark(PrecomputedFeatures(benchmark._assembly, visual_degrees=visual_degrees)).raw
         assert score.sel(aggregation='center') == expected
         raw_values = score.attrs['raw']
         assert hasattr(raw_values, 'neuroid')
@@ -159,8 +165,7 @@ class TestStandardized:
     ])
     def test_self_rdm(self, benchmark, visual_degrees, expected):
         benchmark = benchmark_pool[benchmark]
-        source = {benchmark._assembly.stimulus_set.identifier: benchmark._assembly}
-        score = benchmark(PrecomputedFeatures(source, visual_degrees=visual_degrees)).raw
+        score = benchmark(PrecomputedFeatures(benchmark._assembly, visual_degrees=visual_degrees)).raw
         assert score.sel(aggregation='center') == expected
         raw_values = score.attrs['raw']
         assert hasattr(raw_values, 'split')
@@ -198,7 +203,6 @@ class TestPrecomputed:
         assert set(precomputed_paths) == set(expected_stimulus_paths)
         for column in stimulus_set.columns:
             precomputed_features[column] = 'presentation', stimulus_set[column].values
-        precomputed_features = {benchmark._assembly.stimulus_set.identifier: precomputed_features}
         precomputed_features = PrecomputedFeatures(precomputed_features,
                                                    visual_degrees=10,  # doesn't matter, features are already computed
                                                    )
@@ -213,7 +217,6 @@ class TestPrecomputed:
         benchmark = benchmark_pool['dicarlo.Kar2019-ost']
         precomputed_features = Path(__file__).parent / 'cornet_s-kar2019.nc'
         precomputed_features = BehavioralAssembly(xr.load_dataarray(precomputed_features))
-        precomputed_features = {benchmark._assembly.stimulus_set.identifier: precomputed_features}
         precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
         # score
         score = benchmark(precomputed_features).raw
@@ -224,7 +227,6 @@ class TestPrecomputed:
         # load features
         precomputed_features = Path(__file__).parent / 'CORnetZ-rajalingham2018public.nc'
         precomputed_features = BehavioralAssembly(xr.load_dataarray(precomputed_features))
-        precomputed_features = {benchmark._assembly.stimulus_set.identifier: precomputed_features}
         precomputed_features = PrecomputedFeatures(precomputed_features,
                                                    visual_degrees=8,  # doesn't matter, features are already computed
                                                    )
@@ -293,32 +295,33 @@ class TestPrecomputed:
         ('dicarlo.Marques2020_FreemanZiemba2013-max_texture', approx(.823, abs=.01)),
         ('dicarlo.Marques2020_FreemanZiemba2013-max_noise', approx(.684, abs=.01)),
     ])
-
     def test_Marques2020(self, benchmark, expected):
-          self.run_test_properties(benchmark=benchmark, files = {'dicarlo.Marques2020_blank': 'alexnet-dicarlo.Marques2020_blank.nc',
-                                                     'dicarlo.Marques2020_receptive_field': 'alexnet-dicarlo.Marques2020_receptive_field.nc',
-                                                     'dicarlo.Marques2020_orientation': 'alexnet-dicarlo.Marques2020_orientation.nc',
-                                                     'dicarlo.Marques2020_spatial_frequency': 'alexnet-dicarlo.Marques2020_spatial_frequency.nc',
-                                                     'dicarlo.Marques2020_size': 'alexnet-dicarlo.Marques2020_size.nc',
-                                                     'movshon.FreemanZiemba2013_properties': 'alexnet-movshon.FreemanZiemba2013_properties.nc',
-                                                     }, expected=expected)
+        self.run_test_properties(
+            benchmark=benchmark,
+            files={'dicarlo.Marques2020_blank': 'alexnet-dicarlo.Marques2020_blank.nc',
+                   'dicarlo.Marques2020_receptive_field': 'alexnet-dicarlo.Marques2020_receptive_field.nc',
+                   'dicarlo.Marques2020_orientation': 'alexnet-dicarlo.Marques2020_orientation.nc',
+                   'dicarlo.Marques2020_spatial_frequency': 'alexnet-dicarlo.Marques2020_spatial_frequency.nc',
+                   'dicarlo.Marques2020_size': 'alexnet-dicarlo.Marques2020_size.nc',
+                   'movshon.FreemanZiemba2013_properties': 'alexnet-movshon.FreemanZiemba2013_properties.nc',
+                   },
+            expected=expected)
 
     def run_test_properties(self, benchmark, files, expected):
         benchmark = benchmark_pool[benchmark]
         from brainscore import get_stimulus_set
 
         stimulus_identifiers = np.unique(np.array(['dicarlo.Marques2020_blank', 'dicarlo.Marques2020_receptive_field',
-                                'dicarlo.Marques2020_orientation', benchmark._assembly.stimulus_set.identifier]))
+                                                   'dicarlo.Marques2020_orientation',
+                                                   benchmark._assembly.stimulus_set.identifier]))
         precomputed_features = {}
         for current_stimulus in stimulus_identifiers:
             stimulus_set = get_stimulus_set(current_stimulus)
-            precomputed_features[current_stimulus] = Path(__file__).parent / files[current_stimulus]
-            precomputed_features[current_stimulus] = BehavioralAssembly(
-                xr.load_dataarray(precomputed_features[current_stimulus]))
-            precomputed_features[current_stimulus] = \
-                precomputed_features[current_stimulus].stack(presentation=['stimulus_path'])
-            precomputed_paths = list(map(lambda f: Path(f).name,
-                                         precomputed_features[current_stimulus]['stimulus_path'].values))
+            path = Path(__file__).parent / files[current_stimulus]
+            features = xr.load_dataarray(path)
+            features = BehavioralAssembly(features).stack(presentation=['stimulus_path'])
+            precomputed_features[current_stimulus] = features
+            precomputed_paths = [Path(f).name for f in precomputed_features[current_stimulus]['stimulus_path'].values]
             # attach stimulus set meta
             expected_stimulus_paths = [stimulus_set.get_image(image_id) for image_id in stimulus_set['image_id']]
             expected_stimulus_paths = list(map(lambda f: Path(f).name, expected_stimulus_paths))
@@ -330,28 +333,6 @@ class TestPrecomputed:
         # score
         score = benchmark(precomputed_features).raw
         assert score.sel(aggregation='center') == expected
-
-
-def run_test(self, benchmark, file, expected):
-    benchmark = benchmark_pool[benchmark]
-    precomputed_features = Path(__file__).parent / file
-    with open(precomputed_features, 'rb') as f:
-        precomputed_features = pickle.load(f)['data']
-    precomputed_features = precomputed_features.stack(presentation=['stimulus_path'])
-    precomputed_paths = list(map(lambda f: Path(f).name, precomputed_features['stimulus_path'].values))
-    # attach stimulus set meta
-    stimulus_set = benchmark._assembly.stimulus_set
-    expected_stimulus_paths = [stimulus_set.get_image(image_id) for image_id in stimulus_set['image_id']]
-    expected_stimulus_paths = list(map(lambda f: Path(f).name, expected_stimulus_paths))
-    assert set(precomputed_paths) == set(expected_stimulus_paths)
-    for column in stimulus_set.columns:
-        precomputed_features[column] = 'presentation', stimulus_set[column].values
-    precomputed_features = PrecomputedFeatures(precomputed_features,
-                                               visual_degrees=10,  # doesn't matter, features are already computed
-                                               )
-    # score
-    score = benchmark(precomputed_features).raw
-    assert score.sel(aggregation='center') == expected
 
 
 class TestVisualDegrees:

@@ -3,7 +3,7 @@ import pytest
 from numpy.random.mtrand import RandomState
 from pytest import approx
 
-from brainio_base.assemblies import DataAssembly
+from brainio.assemblies import DataAssembly
 from brainscore.benchmarks.kar2019 import DicarloKar2019OST
 from tests.test_benchmarks import PrecomputedFeatures
 
@@ -24,7 +24,6 @@ def test_no_time():
         'time_bin_end': ('time_bin', [170]),
     }, dims=['presentation', 'neuroid', 'time_bin'])
     source.name = __name__ + ".test_notime"
-    source = {benchmark._assembly.stimulus_set.identifier: source}
     score = benchmark(PrecomputedFeatures(source, visual_degrees=8))
     assert np.isnan(score.sel(aggregation='center'))  # not a temporal model
     assert np.isnan(score.raw.sel(aggregation='center'))  # not a temporal model
@@ -47,7 +46,6 @@ def test_random_time():
         'time_bin_end': ('time_bin', [90, 110, 130, 150, 170]),
     }, dims=['presentation', 'neuroid', 'time_bin'])
     source.name = __name__ + ".test_notime"
-    source = {benchmark._assembly.stimulus_set.identifier: source}
     score = benchmark(PrecomputedFeatures(source, visual_degrees=8))
     assert np.isnan(score.sel(aggregation='center'))  # not a temporal model
     assert np.isnan(score.raw.sel(aggregation='center'))  # not a temporal model

@@ -1,7 +1,7 @@
 import numpy as np
 
 import brainscore
-from brainio_base.assemblies import DataAssembly
+from brainio.assemblies import DataAssembly
 from brainscore.benchmarks._properties_common import PropertiesBenchmark, _assert_grating_activations
 from brainscore.benchmarks._properties_common import calc_spatial_frequency_tuning
 from brainscore.metrics.ceiling import NeuronalPropertyCeiling
@@ -33,8 +33,7 @@ def MarquesDeValois1982V1PeakSpatialFrequency():
     property_name = 'peak_spatial_frequency'
     parent = PARENT
     similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_similarity, property_name=property_name)
-    ceil_func = NeuronalPropertyCeiling(BootstrapDistributionSimilarity(similarity_func=ks_similarity,
-                                                                        property_name=property_name))
+    ceil_func = NeuronalPropertyCeiling(similarity_metric)
     return PropertiesBenchmark(identifier=f'dicarlo.Marques_devalois1982-{property_name}', assembly=assembly,
                                neuronal_property=devalois1982b_properties, similarity_metric=similarity_metric,
                                timebins=TIMEBINS,

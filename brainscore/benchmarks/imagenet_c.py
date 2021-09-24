@@ -7,6 +7,7 @@ from brainscore.benchmarks.imagenet import NUMBER_OF_TRIALS
 from brainscore.metrics import Score
 from brainscore.metrics.accuracy import Accuracy
 from brainscore.model_interface import BrainModel
+from brainscore.utils import LazyLoad
 
 BIBTEX = """@ARTICLE{Hendrycks2019-di,
    title         = "Benchmarking Neural Network Robustness to Common Corruptions
@@ -73,7 +74,7 @@ class Imagenet_C_Category(BenchmarkBase):
         self.stimulus_set_name = f'dietterich.Hendrycks2019.{noise_category}'
 
         # take every nth image, n=sampling_factor.
-        stimulus_set = brainscore.get_stimulus_set(self.stimulus_set_name)[::sampling_factor]
+        stimulus_set = LazyLoad(lambda: brainscore.get_stimulus_set(self.stimulus_set_name)[::sampling_factor])
         self.stimulus_set = stimulus_set
         self.noise_types = self.noise_category_map[noise_category]
 

@@ -1,3 +1,4 @@
 *.swp
 *.pyc
 *__pycache__*
+brainscore/submission/sample_images

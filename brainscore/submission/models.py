@@ -1,9 +1,10 @@
-from peewee import *
+from peewee import Model as PeeweeModel, Proxy, CharField, ForeignKeyField, IntegerField, BooleanField, DateTimeField, \
+    FloatField, TextField, PrimaryKeyField
 
 database = Proxy()
 
 
-class BaseModel(Model):
+class BaseModel(PeeweeModel):
     class Meta:
         database = database
 
@@ -56,7 +57,7 @@ class User(BaseModel):
 
 
 class Submission(BaseModel):
-    id = PrimaryKeyField() # We use jenkins id as id for the submission.
+    id = PrimaryKeyField()  # We use jenkins id as id for the submission.
     # IDs will not be incremental when resubmitting models
     submitter = ForeignKeyField(column_name='submitter_id', field='id', model=User)
     timestamp = DateTimeField(null=True)
@@ -71,9 +72,10 @@ class Submission(BaseModel):
 class Model(BaseModel):
     name = CharField()
     owner = ForeignKeyField(column_name='owner_id', field='id', model=User)
-    public = BooleanField()
     reference = ForeignKeyField(column_name='reference_id', field='id', model=Reference)
     submission = ForeignKeyField(column_name='submission_id', field='id', model=Submission)
+    visual_degrees = IntegerField(null=True)  # null during creation of new model without having model object loaded
+    public = BooleanField()
 
     class Meta:
         table_name = 'brainscore_model'

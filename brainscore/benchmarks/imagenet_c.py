@@ -7,6 +7,9 @@ from brainscore.benchmarks.imagenet import NUMBER_OF_TRIALS
 from brainscore.metrics import Score
 from brainscore.metrics.accuracy import Accuracy
 from brainscore.model_interface import BrainModel
+from brainio.fetch import StimulusSetLoader
+
+LOCAL_STIMULUS_DIRECTORY = '/braintree/data2/active/common/imagenet-c-brainscore-stimuli/'
 
 BIBTEX = """@ARTICLE{Hendrycks2019-di,
    title         = "Benchmarking Neural Network Robustness to Common Corruptions
@@ -58,8 +61,8 @@ class Imagenet_C_Category(BenchmarkBase):
     impulse noise [1-5]
     """
     noise_category_map = {
-        'noise' : ['gaussian_noise', 'shot_noise', 'impulse_noise'],
-        'blur' : ['glass_blur', 'motion_blur', 'zoom_blur', 'defocus_blur'],
+        'noise'   : ['gaussian_noise', 'shot_noise', 'impulse_noise'],
+        'blur'    : ['glass_blur', 'motion_blur', 'zoom_blur', 'defocus_blur'],
         'weather' : ['snow', 'frost', 'fog', 'brightness'],
         'digital' : ['pixelate', 'contrast', 'elastic_transform', 'jpeg_compression']
     }
@@ -69,8 +72,7 @@ class Imagenet_C_Category(BenchmarkBase):
         self.stimulus_set_name = f'dietterich.Hendrycks2019.{noise_category}'
         
         # take every nth image, n=sampling_factor.
-        stimulus_set = brainscore.get_stimulus_set(self.stimulus_set_name)[::sampling_factor]
-        self.stimulus_set = stimulus_set
+        self.stimulus_set = self.load_stimulus_set()[::sampling_factor]
         self.noise_types = self.noise_category_map[noise_category]
 
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
@@ -78,6 +80,29 @@ class Imagenet_C_Category(BenchmarkBase):
                                                   ceiling_func=lambda: ceiling,
                                                   parent='dietterich.Hendrycks2019-top1',
                                                   bibtex=BIBTEX)
+
+
+    def load_stimulus_set(self):
+        """
+        ImageNet-C is quite large, and thus cumbersome to download each time the benchmark is run.
+        Here we try loading a local copy first, before proceeding to download the AWS copy.
+        """
+        try:
+            category_path = os.path.join(
+                LOCAL_STIMULUS_DIRECTORY, 
+                f'image_dietterich_Hendrycks2019_{self.noise_category}'
+            )
+            loader = StimulusSetLoader(
+                csv_path=os.path.join(category_path, f'image_dietterich_Hendrycks2019_{self.noise_category}.csv'), 
+                stimuli_directory=category_path, 
+                cls=None
+            )
+
+            return loader.load()
+        
+        except OSError as error:
+            print(f'Excepted {error}. Attempting to access {self.stimulus_set_name} through Brainscore.')
+            return brainscore.get_stimulus_set(self.stimulus_set_name)
 
     def __call__(self, candidate):
         scores = xr.concat([

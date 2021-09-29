@@ -4,12 +4,12 @@ from peewee import Model as PeeweeModel, Proxy, CharField, ForeignKeyField, Inte
 database = Proxy()
 
 
-class BaseModel(PeeweeModel):
+class PeeweeBase(PeeweeModel):
     class Meta:
         database = database
 
 
-class Reference(BaseModel):
+class Reference(PeeweeBase):
     author = CharField()
     bibtex = TextField()
     url = CharField()
@@ -20,7 +20,7 @@ class Reference(BaseModel):
         schema = 'public'
 
 
-class BenchmarkType(BaseModel):
+class BenchmarkType(PeeweeBase):
     identifier = CharField(primary_key=True)
     reference = ForeignKeyField(column_name='reference_id', field='id', model=Reference)
     order = IntegerField()
@@ -32,18 +32,30 @@ class BenchmarkType(BaseModel):
         schema = 'public'
 
 
-class BenchmarkInstance(BaseModel):
+class BenchmarkMeta(PeeweeBase):
+    number_of_images = IntegerField(null=True)
+    number_of_recording_sites = IntegerField(null=True)
+    recording_sites = CharField(max_length=100, null=True)
+    behavioral_task = CharField(max_length=100, null=True)
+
+    class Meta:
+        table_name = 'brainscore_benchmarkmeta'
+        schema = 'public'
+
+
+class BenchmarkInstance(PeeweeBase):
     benchmark = ForeignKeyField(column_name='benchmark_type_id', field='identifier', model=BenchmarkType)
     ceiling = FloatField(null=True)
     ceiling_error = FloatField(null=True)
     version = IntegerField(null=True)
+    meta = ForeignKeyField(model=BenchmarkMeta)
 
     class Meta:
         table_name = 'brainscore_benchmarkinstance'
         schema = 'public'
 
 
-class User(BaseModel):
+class User(PeeweeBase):
     email = CharField(index=True, null=True)
     is_active = BooleanField()
     is_staff = BooleanField()
@@ -56,7 +68,7 @@ class User(BaseModel):
         schema = 'public'
 
 
-class Submission(BaseModel):
+class Submission(PeeweeBase):
     id = PrimaryKeyField()  # We use jenkins id as id for the submission.
     # IDs will not be incremental when resubmitting models
     submitter = ForeignKeyField(column_name='submitter_id', field='id', model=User)
@@ -69,7 +81,7 @@ class Submission(BaseModel):
         schema = 'public'
 
 
-class Model(BaseModel):
+class Model(PeeweeBase):
     name = CharField()
     owner = ForeignKeyField(column_name='owner_id', field='id', model=User)
     reference = ForeignKeyField(column_name='reference_id', field='id', model=Reference)
@@ -82,7 +94,7 @@ class Model(BaseModel):
         schema = 'public'
 
 
-class Score(BaseModel):
+class Score(PeeweeBase):
     benchmark = ForeignKeyField(column_name='benchmark_id', field='id', model=BenchmarkInstance)
     end_timestamp = DateTimeField(null=True)
     error = FloatField(null=True)

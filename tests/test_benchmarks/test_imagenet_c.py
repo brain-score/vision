@@ -34,6 +34,7 @@ class TestImagenetC:
         assert all([np.mean(score) == approx(0) for score in scores])
 
 # downloads ImageNet C blur benchmarks (7.1G) and downsamples with a factor of 1000
+@pytest.mark.travis_slow
 class TestImagenetC_Category:
     def test_groundtruth(self):
         benchmarks = [

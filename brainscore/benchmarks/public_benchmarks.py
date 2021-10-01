@@ -14,8 +14,8 @@ from botocore import UNSIGNED
 from botocore.config import Config
 from botocore.exceptions import ClientError
 
-import brainio_collection
-from brainio_collection.fetch import BotoFetcher
+import brainio
+from brainio.fetch import BotoFetcher
 from brainscore.benchmarks._neural_common import NeuralBenchmark
 from brainscore.metrics.ceiling import InternalConsistency
 from brainscore.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation
@@ -28,7 +28,8 @@ from .freemanziemba2013 import load_assembly as load_freemanziemba2013, VISUAL_D
     BIBTEX as freemanziemba2013_bibtex
 from .majajhong2015 import load_assembly as load_majajhong2015, VISUAL_DEGREES as majajhong2015_degrees, \
     BIBTEX as majajhong2015_bibtex
-from .rajalingham2018 import load_assembly as load_rajalingham2018, DicarloRajalingham2018I2n
+from .rajalingham2018 import load_assembly as load_rajalingham2018, _DicarloRajalingham2018
+from brainscore.metrics.image_level_behavior import I2n
 
 _logger = logging.getLogger(__name__)
 
@@ -76,19 +77,18 @@ def MajajHongITPublicBenchmark():
                                stratification_coord='object_name', bibtex=majajhong2015_bibtex)
 
 
-class RajalinghamMatchtosamplePublicBenchmark(DicarloRajalingham2018I2n):
+class RajalinghamMatchtosamplePublicBenchmark(_DicarloRajalingham2018):
     def __init__(self):
-        super(RajalinghamMatchtosamplePublicBenchmark, self).__init__()
+        super(RajalinghamMatchtosamplePublicBenchmark, self).__init__(metric=I2n(), metric_identifier='i2n')
         self._assembly = LazyLoad(lambda: load_rajalingham2018(access='public'))
         self._ceiling_func = lambda: self._metric.ceiling(self._assembly, skipna=True)
 
 
 def list_public_assemblies():
-    all_assemblies = brainio_collection.list_assemblies()
+    all_assemblies = brainio.list_assemblies()
     public_assemblies = []
     for assembly in all_assemblies:
-        # https://github.com/brain-score/brainio_collection/blob/7892b9ec66c9e744766c794de4b73ebdf61d585c/brainio_collection/fetch.py#L181
-        assy_model = brainio_collection.lookup.lookup_assembly(assembly)
+        assy_model = brainio.lookup.lookup_assembly(assembly)
         if assy_model['location_type'] != 'S3':
             _logger.warning(f"Unknown location_type in assembly {assy_model}")
             continue

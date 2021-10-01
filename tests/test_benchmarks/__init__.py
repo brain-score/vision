@@ -1,11 +1,18 @@
 import numpy as np
+from typing import Union
 
-from brainio_base.assemblies import NeuroidAssembly
+from brainio.assemblies import NeuroidAssembly, DataAssembly
 from brainscore.model_interface import BrainModel
 
 
 class PrecomputedFeatures(BrainModel):
-    def __init__(self, features, visual_degrees):
+    def __init__(self, features: Union[DataAssembly, dict], visual_degrees):
+        """
+        :param features: The precomputed features. Either an assembly of features, indexable with `image_id` or
+            a dictionary mapping from stimulus identifier to feature assemblies.
+        :param visual_degrees: Some visual degrees to use for the precomputed features. Since features are precomputed,
+            this should only affect the `place_on_screen` in the benchmark's __call__ method.
+        """
         self.features = features
         self._visual_degrees = visual_degrees
 
@@ -19,12 +26,14 @@ class PrecomputedFeatures(BrainModel):
         pass
 
     def look_at(self, stimuli, number_of_trials=1):
-        missing_image_ids = set(stimuli['image_id'].values) - set(self.features['image_id'].values)
+        features = self.features[stimuli.identifier] if isinstance(self.features, dict) else self.features
+        missing_image_ids = set(stimuli['image_id'].values) - set(features['image_id'].values)
         assert not missing_image_ids, f"stored features do not contain image_ids {missing_image_ids}"
-        features = self.features.isel(presentation=[np.where(self.features['image_id'].values == image_id)[0][0]
-                                                    for image_id in stimuli['image_id'].values])
+        image_indices = [np.where(features['image_id'].values == image_id)[0][0]
+                         for image_id in stimuli['image_id'].values]
+        features = features.isel(presentation=image_indices)
         assert all(features['image_id'].values == stimuli['image_id'].values)
-        return self.features
+        return features
 
 
 def check_standard_format(assembly):

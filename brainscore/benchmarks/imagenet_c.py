@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import xarray as xr
 
@@ -73,10 +75,12 @@ class Imagenet_C_Category(BenchmarkBase):
         
         # take every nth image, n=sampling_factor.
         self.stimulus_set = self.load_stimulus_set()[::sampling_factor]
+        print(f'Loaded local {self.noise_category} stimulus set')
         self.noise_types = self.noise_category_map[noise_category]
 
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
-        super(Imagenet_C_Category, self).__init__(identifier=f'dietterich.Hendrycks2019-{noise_category}-top1', version=1,
+        super(Imagenet_C_Category, self).__init__(identifier=f'dietterich.Hendrycks2019-{noise_category}-top1', 
+                                                  version=2,
                                                   ceiling_func=lambda: ceiling,
                                                   parent='dietterich.Hendrycks2019-top1',
                                                   bibtex=BIBTEX)
@@ -88,6 +92,7 @@ class Imagenet_C_Category(BenchmarkBase):
         Here we try loading a local copy first, before proceeding to download the AWS copy.
         """
         try:
+            print(f'Try loading local Imagenet-C {self.noise_category}')
             category_path = os.path.join(
                 LOCAL_STIMULUS_DIRECTORY, 
                 f'image_dietterich_Hendrycks2019_{self.noise_category}'
@@ -116,24 +121,26 @@ class Imagenet_C_Category(BenchmarkBase):
         score.attrs[Score.RAW_VALUES_KEY] = scores
         return score
 
+
 class Imagenet_C_Type(BenchmarkBase):
     """
     Runs a group in imnet C benchmarks, like gaussian noise [1-5]
     """
     def __init__(self, stimulus_set, noise_type, noise_category):
-        self.stimulus_set = stimulus_set[stimulus_set['noise_type']==noise_type]
+        self.stimulus_set = stimulus_set[stimulus_set['noise_type'] == noise_type]
         self.noise_type = noise_type
         self.noise_category = noise_category
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
-        super(Imagenet_C_Type, self).__init__(identifier=f'dietterich.Hendrycks2019-{noise_category}-{noise_type}-top1', version=1,
-                                           ceiling_func=lambda: ceiling,
-                                           parent=f'dietterich.Hendrycks2019-{noise_category}-top1',
-                                           bibtex=BIBTEX)
+        super(Imagenet_C_Type, self).__init__(identifier=f'dietterich.Hendrycks2019-{noise_category}-{noise_type}-top1',
+                                              version=2,
+                                              ceiling_func=lambda: ceiling,
+                                              parent=f'dietterich.Hendrycks2019-{noise_category}-top1',
+                                              bibtex=BIBTEX)
 
     def __call__(self, candidate):
         score = xr.concat([
             Imagenet_C_Individual(self.stimulus_set, noise_level, self.noise_type, self.noise_category)(candidate)
-            for noise_level in range(1,6)
+            for noise_level in range(1, 6)
         ], dim='presentation')
         return score
 
@@ -142,25 +149,27 @@ class Imagenet_C_Individual(BenchmarkBase):
     """
     Runs an individual ImageNet C benchmark, like "gaussian_noise_1"
     """
+
     def __init__(self, stimulus_set, noise_level, noise_type, noise_category):
-        self.stimulus_set = stimulus_set[stimulus_set['noise_level']==noise_level]
+        self.stimulus_set = stimulus_set[stimulus_set['noise_level'] == noise_level]
         self.noise_level = noise_level
         self.noise_type = noise_type
         self.benchmark_name = f'dietterich.Hendrycks2019-{noise_category}-{noise_type}-{noise_level}-top1'
-        self._similarity_metric = Accuracy() 
+        self._similarity_metric = Accuracy()
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
-        super(Imagenet_C_Individual, self).__init__(identifier=self.benchmark_name, version=1,
+        super(Imagenet_C_Individual, self).__init__(identifier=self.benchmark_name, version=2,
                                                     ceiling_func=lambda: ceiling,
                                                     parent=f'dietterich.Hendrycks2019-{noise_category}-{noise_type}-top1',
                                                     bibtex=BIBTEX)
 
     def __call__(self, candidate):
         candidate.start_task(BrainModel.Task.label, 'imagenet')
-        stimulus_set = self.stimulus_set[list(set(self.stimulus_set.columns) - {'synset'})].copy().reset_index()  # do not show label
+        stimulus_set = self.stimulus_set[
+            list(set(self.stimulus_set.columns) - {'synset'})].copy().reset_index()  # do not show label
         stimulus_set.identifier = f'{self.benchmark_name}-{len(stimulus_set)}samples'
         predictions = candidate.look_at(stimulus_set, number_of_trials=NUMBER_OF_TRIALS)
         score = self._similarity_metric(
-            predictions.sortby('filename'), 
+            predictions.sortby('filename'),
             self.stimulus_set.sort_values('filename')['synset'].values
         ).raw
 

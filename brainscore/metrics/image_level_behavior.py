@@ -4,10 +4,11 @@ from collections import Counter
 import itertools
 import numpy as np
 import scipy.stats
+import xarray
 from numpy.random.mtrand import RandomState
 from scipy.stats import pearsonr
 
-from brainio_base.assemblies import walk_coords, DataAssembly
+from brainio.assemblies import walk_coords, DataAssembly
 from brainscore.metrics import Metric, Score
 from brainscore.metrics.transformations import apply_aggregate
 from brainscore.utils import fullname
@@ -29,7 +30,29 @@ def I2n(*args, **kwargs):
     return _I(*args, collapse_distractors=False, normalize=True, **kwargs)
 
 
-class _I(Metric):
+def O1(*args, **kwargs):
+    return _O(*args, collapse_distractors=True, normalize=False, **kwargs)
+
+
+def O2(*args, **kwargs):
+    return _O(*args, collapse_distractors=False, normalize=False, **kwargs)
+
+
+# From Martin's fork
+def _o2(assembly):
+    i2n = I2n()
+    false_alarm_rates = i2n.target_distractor_scores(assembly)
+    false_alarm_rates_object = false_alarm_rates.groupby('truth').mean('presentation')
+    false_alarm_rates_object = false_alarm_rates_object.rename({'truth': 'task_left', 'choice': 'task_right'})
+    # hit rates are one minus the flipped false alarm rates, e.g. HR(dog, cat) = 1 - FAR(cat, dog)
+    hit_rates_object = 1 - false_alarm_rates_object.rename({'task_left': 'task_right', 'task_right': 'task_left'})
+    dprime_false_alarms_rates_object = xarray.apply_ufunc(i2n.z_score, false_alarm_rates_object)
+    dprime_hit_rates_object = xarray.apply_ufunc(i2n.z_score, hit_rates_object)
+    o2 = dprime_hit_rates_object - dprime_false_alarms_rates_object
+    return o2
+
+
+class _Behavior_Metric(Metric):
     """
     Rajalingham & Issa et al., 2018 http://www.jneurosci.org/content/early/2018/07/13/JNEUROSCI.0388-18.2018
     modified by Schrimpf & Kubilius et al., 2018 https://www.biorxiv.org/content/early/2018/09/05/407007:
@@ -38,8 +61,7 @@ class _I(Metric):
         - for computing dprime scores, Rajalingham et al. computed the false-alarms rate across the flat vector of all
             distractor images. This implementation computes the false-alarms rate per object, and then takes the mean.
     """
-
-    def __init__(self, collapse_distractors, normalize, repetitions=2):
+    def __init__(self, collapse_distractors, normalize=False, repetitions=2):
         super().__init__()
         self._collapse_distractors = collapse_distractors
         self._normalize = normalize
@@ -62,9 +84,9 @@ class _I(Metric):
         target_response_matrix = self.dprimes(target_response_matrix)
         if self._collapse_distractors:
             target_response_matrix = self.collapse_distractors(target_response_matrix)
-            raise NotImplementedError("correlation for I1 not implemented")
 
-        correlation = self.correlate(source_response_matrix, target_response_matrix)
+        correlation = self.correlate(source_response_matrix, target_response_matrix,
+                                     collapse_distractors=self._collapse_distractors)
         return correlation
 
     def ceiling(self, assembly, skipna=False):
@@ -76,8 +98,10 @@ class _I(Metric):
         for half in self.generate_halves(assembly, random_state=random_state):
             half = self.build_response_matrix_from_responses(half)
             half = self.dprimes(half)
+            if self._collapse_distractors:
+                half = self.collapse_distractors(half)
             dprime_halves.append(half)
-        return self.correlate(*dprime_halves, skipna=skipna)
+        return self.correlate(*dprime_halves, skipna=skipna, collapse_distractors=self._collapse_distractors)
 
     def build_response_matrix_from_responses(self, responses):
         num_choices = [(image_id, choice) for image_id, choice in zip(responses['image_id'].values, responses.values)]
@@ -116,9 +140,6 @@ class _I(Metric):
             dprime_scores_normalized = self.subtract_mean(dprime_scores_clipped)
             return dprime_scores_normalized
 
-    def collapse_distractors(self, response_matrix):
-        return response_matrix.mean(dim='choice', skipna=True)
-
     def target_distractor_scores(self, object_probabilities):
         cached_object_probabilities = self._build_index(object_probabilities, ['image_id', 'choice'])
 
@@ -133,41 +154,12 @@ class _I(Metric):
         result = object_probabilities.multi_dim_apply(['image_id', 'choice'], apply)
         return result
 
-    def dprime(self, response_matrix):
-        truth_choice_values = self._build_index(response_matrix, ['truth', 'choice'])
-
-        def apply(false_alarms_rate_images, choice, truth, **_):
-            hit_rate = 1 - false_alarms_rate_images
-            inverse_choice = truth_choice_values[(choice, truth)]
-            false_alarms_rate_objects = np.nanmean(inverse_choice)
-            dprime = self.z_score(hit_rate) - self.z_score(false_alarms_rate_objects)
-            return dprime
-
-        result = response_matrix.multi_dim_apply(['image_id', 'choice'], apply)
-        return result
-
     def z_score(self, value):
         return scipy.stats.norm.ppf(value)
 
     def subtract_mean(self, scores):
         result = scores.multi_dim_apply(['truth', 'choice'], lambda group, **_: group - np.nanmean(group))
         return result
-
-    @classmethod
-    def correlate(cls, source_response_matrix, target_response_matrix, skipna=False):
-        # align
-        source_response_matrix = source_response_matrix.sortby('image_id').sortby('choice')
-        target_response_matrix = target_response_matrix.sortby('image_id').sortby('choice')
-        assert all(source_response_matrix['image_id'].values == target_response_matrix['image_id'].values)
-        assert all(source_response_matrix['choice'].values == target_response_matrix['choice'].values)
-        # flatten and mask out NaNs
-        source, target = source_response_matrix.values.flatten(), target_response_matrix.values.flatten()
-        non_nan = ~np.isnan(target)
-        non_nan = np.logical_and(non_nan, (~np.isnan(source) if skipna else 1))
-        source, target = source[non_nan], target[non_nan]
-        assert not any(np.isnan(source))
-        correlation, p = pearsonr(source, target)
-        return correlation
 
     @classmethod
     def aggregate(cls, scores):
@@ -209,3 +201,95 @@ class _I(Metric):
                       zip(target['image_id'].values, target['truth'].values)}
         meta_values = [image_meta[image_id] for image_id in source_probabilities['image_id'].values]
         source_probabilities['truth'] = 'presentation', meta_values
+
+
+class _I(_Behavior_Metric):
+    """
+    Rajalingham & Issa et al., 2018 http://www.jneurosci.org/content/early/2018/07/13/JNEUROSCI.0388-18.2018
+    modified by Schrimpf & Kubilius et al., 2018 https://www.biorxiv.org/content/early/2018/09/05/407007:
+        - Rajalingham et al. generated model trials by using different train-test splits.
+            This implementation fixes the train-test split, and thus computes a fixed response matrix without trials.
+        - for computing dprime scores, Rajalingham et al. computed the false-alarms rate across the flat vector of all
+            distractor images. This implementation computes the false-alarms rate per object, and then takes the mean.
+    """
+
+    def collapse_distractors(self, response_matrix):
+        return response_matrix.mean(dim='choice', skipna=True)
+
+    def dprime(self, response_matrix):
+        truth_choice_values = self._build_index(response_matrix, ['truth', 'choice'])
+
+        def apply(false_alarms_rate_images, choice, truth, **_):
+            hit_rate = 1 - false_alarms_rate_images
+            inverse_choice = truth_choice_values[(choice, truth)]
+            false_alarms_rate_objects = np.nanmean(inverse_choice)
+            dprime = self.z_score(hit_rate) - self.z_score(false_alarms_rate_objects)
+            return dprime
+
+        result = response_matrix.multi_dim_apply(['image_id', 'choice'], apply)
+        return result
+
+    @classmethod
+    def correlate(cls, source_response_matrix, target_response_matrix, skipna=False, collapse_distractors=False):
+        # align
+        if collapse_distractors:
+            source_response_matrix = source_response_matrix.sortby('image_id')
+            target_response_matrix = target_response_matrix.sortby('image_id')
+        else:
+            source_response_matrix = source_response_matrix.sortby('image_id').sortby('choice')
+            target_response_matrix = target_response_matrix.sortby('image_id').sortby('choice')
+            assert all(source_response_matrix['choice'].values == target_response_matrix['choice'].values)
+        assert all(source_response_matrix['image_id'].values == target_response_matrix['image_id'].values)
+        # flatten and mask out NaNs
+        source, target = source_response_matrix.values.flatten(), target_response_matrix.values.flatten()
+        non_nan = ~np.isnan(target)
+        non_nan = np.logical_and(non_nan, (~np.isnan(source) if skipna else 1))
+        source, target = source[non_nan], target[non_nan]
+        assert not any(np.isnan(source))
+        correlation, p = pearsonr(source, target)
+        return correlation
+
+
+class _O(_Behavior_Metric):
+    """
+    Rajalingham & Issa et al., 2018 http://www.jneurosci.org/content/early/2018/07/13/JNEUROSCI.0388-18.2018
+    modified by Schrimpf & Kubilius et al., 2018 https://www.biorxiv.org/content/early/2018/09/05/407007:
+        - Rajalingham et al. generated model trials by using different train-test splits.
+            This implementation fixes the train-test split, and thus computes a fixed response matrix without trials.
+        - for computing dprime scores, Rajalingham et al. computed the false-alarms rate across the flat vector of all
+            distractor images. This implementation computes the false-alarms rate per object, and then takes the mean.
+    """
+
+    def collapse_distractors(self, response_matrix):
+        return response_matrix.mean(dim='task_left', skipna=True)
+
+    def dprime(self, response_matrix):
+        false_alarm_rates_object = response_matrix.groupby('truth').mean('presentation')
+        false_alarm_rates_object = false_alarm_rates_object.rename({'truth': 'task_left', 'choice': 'task_right'})
+        hit_rates_object = 1 - false_alarm_rates_object.rename({'task_left': 'task_right', 'task_right': 'task_left'})
+
+        dprime_false_alarms_rates_object = xarray.apply_ufunc(self.z_score, false_alarm_rates_object)
+        dprime_hit_rates_object = xarray.apply_ufunc(self.z_score, hit_rates_object)
+
+        result = dprime_hit_rates_object - dprime_false_alarms_rates_object
+        return result
+
+    @classmethod
+    def correlate(cls, source_response_matrix, target_response_matrix, skipna=False, collapse_distractors=False):
+        # align
+        if collapse_distractors:
+            source_response_matrix = source_response_matrix.sortby('task_right')
+            target_response_matrix = target_response_matrix.sortby('task_right')
+        else:
+            source_response_matrix = source_response_matrix.sortby('task_right').sortby('task_left')
+            target_response_matrix = target_response_matrix.sortby('task_right').sortby('task_left')
+            assert all(source_response_matrix['task_left'].values == target_response_matrix['task_left'].values)
+        assert all(source_response_matrix['task_right'].values == target_response_matrix['task_right'].values)
+        # flatten and mask out NaNs
+        source, target = source_response_matrix.values.flatten(), target_response_matrix.values.flatten()
+        non_nan = ~np.isnan(target)
+        non_nan = np.logical_and(non_nan, (~np.isnan(source) if skipna else 1))
+        source, target = source[non_nan], target[non_nan]
+        assert not any(np.isnan(source))
+        correlation, p = pearsonr(source, target)
+        return correlation

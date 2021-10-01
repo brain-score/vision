@@ -34,13 +34,12 @@ class MLBrainPool(UniqueKeyDict):
                 continue
             model_layer = model_layers[basemodel_identifier]
 
-            from model_tools.brain_transformation import ModelCommitment
             # enforce early parameter binding: https://stackoverflow.com/a/3431699/2225200
             def load(identifier=basemodel_identifier, activations_model=activations_model, layers=model_layer):
                 assert hasattr(activations_model, 'reload')
                 activations_model.reload()
-                brain_model = ModelCommitment(identifier=identifier, activations_model=activations_model,
-                                              layers=layers)
+                from model_tools.brain_transformation import ModelCommitment
+                brain_model = ModelCommitment(identifier=identifier, activations_model=activations_model, layers=layers)
                 return brain_model
 
             self[basemodel_identifier] = LazyLoad(load)

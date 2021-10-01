@@ -1,6 +1,11 @@
+"""
+The :class:`~brainscore.model_interface.BrainModel` interface is the central communication point
+between benchmarks and models.
+"""
+
 from enum import Enum
 
-from brainio_base.stimuli import StimulusSet
+from brainio.stimuli import StimulusSet
 from typing import List, Tuple, Union
 
 
@@ -21,6 +26,15 @@ class BrainModel:
     task to perform
     """
 
+    @property
+    def identifier(self) -> str:
+        """
+        The unique identifier for this model.
+
+        :return: e.g. `'CORnet-S'`, or `'alexnet'`
+        """
+        raise NotImplementedError()
+
     def visual_degrees(self) -> int:
         """
         The visual degrees this model covers as a single scalar.
@@ -35,7 +49,7 @@ class BrainModel:
         :meth:`~brainscore.model_interface.BrainMode.start_task` and
         :meth:`~brainscore.model_interface.BrainModel.start_recording` methods.
 
-        :param stimuli: A set of stimuli, passed as either a :class:`~brainio_base.stimuli.StimulusSet`
+        :param stimuli: A set of stimuli, passed as either a :class:`~brainio.stimuli.StimulusSet`
             or a list of image file paths
         :param number_of_trials: The number of repeated trials of the stimuli that the model should average over.
             E.g. 10 or 35. Non-stochastic models can likely ignore this parameter.
@@ -59,12 +73,12 @@ class BrainModel:
         Instructs the model to begin recording in a specified
         :data:`~brainscore.model_interface.BrainModel.RecordingTarget` and return the specified `time_bins`.
         For all followings call of :meth:`~brainscore.model_interface.BrainModel.look_at`, the model returns the
-        corresponding recordings. These recordings are a :class:`~brainio_base.assemblies.NeuroidAssembly` with exactly
+        corresponding recordings. These recordings are a :class:`~brainio.assemblies.NeuroidAssembly` with exactly
         3 dimensions:
 
         - `presentation`: the presented stimuli (cf. stimuli argument of
-          :meth:`~brainscore.model_interface.BrainModel.look_at`). If a :class:`~brainio_base.stimuli.StimulusSet`
-          was passed, the recordings should contain all of the :class:`~brainio_base.stimuli.StimulusSet` columns as
+          :meth:`~brainscore.model_interface.BrainModel.look_at`). If a :class:`~brainio.stimuli.StimulusSet`
+          was passed, the recordings should contain all of the :class:`~brainio.stimuli.StimulusSet` columns as
           coordinates on this dimension. The `image_id` coordinate is required in either case.
         - `neuroid`: the recorded neuroids (neurons or mixtures thereof). They should all be part of the
           specified :data:`~brainscore.model_interface.BrainModel.RecordingTarget`. The coordinates of this

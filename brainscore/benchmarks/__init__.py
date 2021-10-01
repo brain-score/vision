@@ -1,6 +1,6 @@
 """
 A :class:`~brainscore.benchmarks.Benchmark` runs an experiment on a :class:`~brainscore.model_interface.BrainModel`
-and tests the resulting measurements against primate `data <https://github.com/brain-score/brainio_collection>`_.
+and tests the resulting measurements against primate `data <https://github.com/brain-score/brainio>`_.
 This comparison is done by a :class:`~brainscore.metrics.Metric` which outputs a score of how well model and data match.
 This score is normalized with data ceilings and the benchmark returns this ceiled score.
 """
@@ -182,6 +182,61 @@ def _experimental_benchmark_pool():
     from .cadena2017 import ToliasCadena2017PLS, ToliasCadena2017Mask
     pool['tolias.Cadena2017-pls'] = LazyLoad(ToliasCadena2017PLS)
     pool['tolias.Cadena2017-mask'] = LazyLoad(ToliasCadena2017Mask)
+    # V1 properties benchmarks: orientation
+    from .marques2020_ringach2002 import MarquesRingach2002V1CircularVariance, MarquesRingach2002V1Bandwidth, \
+        MarquesRingach2002V1OrthogonalPreferredRatio, MarquesRingach2002V1OrientationSelective, \
+        MarquesRingach2002V1CircularVarianceBandwidthRatio, \
+        MarquesRingach2002V1OrthogonalPrefferredRatioCircularVarianceDifference
+    from .marques2020_devalois1982a import MarquesDeValois1982V1PreferredOrientation
+    pool['dicarlo.Marques2020_Ringach2002-circular_variance'] = LazyLoad(MarquesRingach2002V1CircularVariance)
+    pool['dicarlo.Marques2020_Ringach2002-or_bandwidth'] = LazyLoad(MarquesRingach2002V1Bandwidth)
+    pool['dicarlo.Marques2020_Ringach2002-orth_pref_ratio'] = LazyLoad(MarquesRingach2002V1OrthogonalPreferredRatio)
+    pool['dicarlo.Marques2020_Ringach2002-or_selective'] = LazyLoad(MarquesRingach2002V1OrientationSelective)
+    pool['dicarlo.Marques2020_Ringach2002-cv_bandwidth_ratio'] = \
+        LazyLoad(MarquesRingach2002V1CircularVarianceBandwidthRatio)
+    pool['dicarlo.Marques2020_Ringach2002-opr_cv_diff'] = \
+        LazyLoad(MarquesRingach2002V1OrthogonalPrefferredRatioCircularVarianceDifference)
+    pool['dicarlo.Marques2020_DeValois1982-pref_or'] = LazyLoad(MarquesDeValois1982V1PreferredOrientation)
+    # V1 properties benchmarks: spatial frequency
+    from .marques2020_devalois1982b import MarquesDeValois1982V1PeakSpatialFrequency
+    from .marques2020_schiller1976 import MarquesSchiller1976V1SpatialFrequencyBandwidth, \
+        MarquesSchiller1976V1SpatialFrequencySelective
+    pool['dicarlo.Marques2020_DeValois1982-peak_sf'] = LazyLoad(MarquesDeValois1982V1PeakSpatialFrequency)
+    pool['dicarlo.Marques2020_Schiller1976-sf_selective'] = LazyLoad(MarquesSchiller1976V1SpatialFrequencySelective)
+    pool['dicarlo.Marques2020_Schiller1976-sf_bandwidth'] = LazyLoad(MarquesSchiller1976V1SpatialFrequencyBandwidth)
+    # V1 properties benchmarks: surround
+    from .marques2020_cavanaugh2002a import MarquesCavanaugh2002V1GratingSummationField, \
+        MarquesCavanaugh2002V1SurroundDiameter, MarquesCavanaugh2002V1SurroundSuppressionIndex
+    pool['dicarlo.Marques2020_Cavanaugh2002-grating_summation_field'] = \
+        LazyLoad(MarquesCavanaugh2002V1GratingSummationField)
+    pool['dicarlo.Marques2020_Cavanaugh2002-surround_diameter'] = \
+        LazyLoad(MarquesCavanaugh2002V1SurroundDiameter)
+    pool['dicarlo.Marques2020_Cavanaugh2002-surround_suppression_index'] = \
+        LazyLoad(MarquesCavanaugh2002V1SurroundSuppressionIndex)
+    # V1 properties benchmarks: texture modulation
+    from .marques2020_freemanZiemba2013 import MarquesFreemanZiemba2013V1TextureModulationIndex, \
+        MarquesFreemanZiemba2013V1AbsoluteTextureModulationIndex
+    pool['dicarlo.Marques2020_FreemanZiemba2013-texture_modulation_index'] = \
+        LazyLoad(MarquesFreemanZiemba2013V1TextureModulationIndex)
+    pool['dicarlo.Marques2020_FreemanZiemba2013-abs_texture_modulation_index'] = \
+        LazyLoad(MarquesFreemanZiemba2013V1AbsoluteTextureModulationIndex)
+    # V1 properties benchmarks: selectivity
+    from .marques2020_freemanZiemba2013 import MarquesFreemanZiemba2013V1TextureSelectivity, \
+        MarquesFreemanZiemba2013V1TextureSparseness, MarquesFreemanZiemba2013V1VarianceRatio
+    pool['dicarlo.Marques2020_FreemanZiemba2013-texture_selectivity'] = \
+        LazyLoad(MarquesFreemanZiemba2013V1TextureSelectivity)
+    pool['dicarlo.Marques2020_FreemanZiemba2013-texture_sparseness'] = \
+        LazyLoad(MarquesFreemanZiemba2013V1TextureSparseness)
+    pool['dicarlo.Marques2020_FreemanZiemba2013-texture_variance_ratio'] = \
+        LazyLoad(MarquesFreemanZiemba2013V1VarianceRatio)
+    # V1 properties benchmarks: magnitude
+    from .marques2020_ringach2002 import MarquesRingach2002V1MaxDC, MarquesRingach2002V1ModulationRatio
+    from .marques2020_freemanZiemba2013 import MarquesFreemanZiemba2013V1MaxTexture, MarquesFreemanZiemba2013V1MaxNoise
+    pool['dicarlo.Marques2020_Ringach2002-max_dc'] = LazyLoad(MarquesRingach2002V1MaxDC)
+    pool['dicarlo.Marques2020_Ringach2002-modulation_ratio'] = LazyLoad(MarquesRingach2002V1ModulationRatio)
+    pool['dicarlo.Marques2020_FreemanZiemba2013-max_texture'] = LazyLoad(MarquesFreemanZiemba2013V1MaxTexture)
+    pool['dicarlo.Marques2020_FreemanZiemba2013-max_noise'] = LazyLoad(MarquesFreemanZiemba2013V1MaxNoise)
+    # Sanghavi2020 benchmarks
     from .sanghavi2020 import DicarloSanghavi2020V4PLS, DicarloSanghavi2020ITPLS
     pool['dicarlo.Sanghavi2020.V4-pls'] = LazyLoad(DicarloSanghavi2020V4PLS)
     pool['dicarlo.Sanghavi2020.IT-pls'] = LazyLoad(DicarloSanghavi2020ITPLS)

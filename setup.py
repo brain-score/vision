@@ -56,4 +56,9 @@ setup(
         'Programming Language :: Python :: 3.7',
     ],
     test_suite='tests',
+    entry_points={
+        'brainio_lookups': [
+            'brainio_brainscore = brainscore.entrypoint:brainio_brainscore',
+        ],
+    },
 )

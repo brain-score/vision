@@ -1,4 +1,5 @@
 import os
+import logging
 
 import numpy as np
 import xarray as xr
@@ -11,6 +12,7 @@ from brainscore.metrics.accuracy import Accuracy
 from brainscore.model_interface import BrainModel
 from brainio.fetch import StimulusSetLoader
 
+_logger = logging.getLogger(__name__)
 LOCAL_STIMULUS_DIRECTORY = '/braintree/data2/active/common/imagenet-c-brainscore-stimuli/'
 
 BIBTEX = """@ARTICLE{Hendrycks2019-di,
@@ -75,7 +77,6 @@ class Imagenet_C_Category(BenchmarkBase):
         
         # take every nth image, n=sampling_factor.
         self.stimulus_set = self.load_stimulus_set()[::sampling_factor]
-        print(f'Loaded local {self.noise_category} stimulus set')
         self.noise_types = self.noise_category_map[noise_category]
 
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
@@ -92,7 +93,7 @@ class Imagenet_C_Category(BenchmarkBase):
         Here we try loading a local copy first, before proceeding to download the AWS copy.
         """
         try:
-            print(f'Try loading local Imagenet-C {self.noise_category}')
+            _logger.debug(f'Loading local Imagenet-C {self.noise_category}')
             category_path = os.path.join(
                 LOCAL_STIMULUS_DIRECTORY, 
                 f'image_dietterich_Hendrycks2019_{self.noise_category}'
@@ -106,7 +107,7 @@ class Imagenet_C_Category(BenchmarkBase):
             return loader.load()
         
         except OSError as error:
-            print(f'Excepted {error}. Attempting to access {self.stimulus_set_name} through Brainscore.')
+            _logger.debug(f'Excepted {error}. Attempting to access {self.stimulus_set_name} through Brainscore.')
             return brainscore.get_stimulus_set(self.stimulus_set_name)
 
     def __call__(self, candidate):

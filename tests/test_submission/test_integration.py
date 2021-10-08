@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 @pytest.mark.memory_intense
 @pytest.mark.private_access
 class TestIntegration:
-    database = 'brainscore-1-ohio-cred'  # dev database
+    database = 'brainscore-ohio-test'  # test database
 
     @classmethod
     def setup_class(cls):

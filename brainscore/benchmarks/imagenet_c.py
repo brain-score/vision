@@ -191,7 +191,6 @@ class SampledStimulusSetLoader(StimulusSetLoader):
         self.sampling_factor = sampling_factor
 
     def load(self):
-        print(self.sampling_factor)
         stimulus_set = pd.read_csv(self.csv_path)[::self.sampling_factor]
         stimulus_set = StimulusSet(stimulus_set)
         stimulus_set.image_paths = {row['image_id']: os.path.join(self.stimuli_directory, row['filename'])

@@ -11,7 +11,7 @@ from brainscore.submission.database import connect_db
 from brainscore.submission.evaluation import get_reference, get_benchmark_instance, get_ml_pool, \
     run_submission
 from brainscore.submission.models import Reference, BenchmarkType, Submission, Model, BenchmarkInstance, Score
-from brainscore.submission.repository import prepare_module, extract_zip_file, find_correct_dir
+from brainscore.submission.repository import prepare_module, extract_zip_file, find_submission_directory
 from model_tools.brain_transformation import ModelCommitment
 from tests.test_submission import base_model
 from tests.test_submission.test_db import clear_schema, init_user

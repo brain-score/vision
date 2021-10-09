@@ -181,12 +181,12 @@ class TestRepository:
         f1 = open(f'{TestRepository.working_dir}/.temp', "w+")
         f2 = open(f'{TestRepository.working_dir}/_MACOS', "w+")
         f3 = open(f'{TestRepository.working_dir}/candidate_models', "w+")
-        dir = find_correct_dir(TestRepository.working_dir)
+        dir = find_submission_directory(TestRepository.working_dir)
         assert dir == 'candidate_models'
         exception = False
         try:
             f4 = open(f'{TestRepository.working_dir}/candidate_models2', "w+")
-            dir = find_correct_dir(TestRepository.working_dir)
+            dir = find_submission_directory(TestRepository.working_dir)
         except:
             exception = True
         assert exception

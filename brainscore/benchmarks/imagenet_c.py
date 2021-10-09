@@ -2,6 +2,7 @@ import os
 import logging
 
 import numpy as np
+import pandas as pd
 import xarray as xr
 
 import brainscore
@@ -10,6 +11,7 @@ from brainscore.benchmarks.imagenet import NUMBER_OF_TRIALS
 from brainscore.metrics import Score
 from brainscore.metrics.accuracy import Accuracy
 from brainscore.model_interface import BrainModel
+from brainio.stimuli import StimulusSet
 from brainio.fetch import StimulusSetLoader
 
 _logger = logging.getLogger(__name__)
@@ -75,8 +77,8 @@ class Imagenet_C_Category(BenchmarkBase):
         self.noise_category = noise_category
         self.stimulus_set_name = f'dietterich.Hendrycks2019.{noise_category}'
         
-        # take every nth image, n=sampling_factor.
-        self.stimulus_set = self.load_stimulus_set()[::sampling_factor]
+        self.sampling_factor = sampling_factor
+        self.stimulus_set = self.load_stimulus_set()
         self.noise_types = self.noise_category_map[noise_category]
 
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
@@ -98,10 +100,10 @@ class Imagenet_C_Category(BenchmarkBase):
                 LOCAL_STIMULUS_DIRECTORY, 
                 f'image_dietterich_Hendrycks2019_{self.noise_category}'
             )
-            loader = StimulusSetLoader(
+            loader = SampledStimulusSetLoader(
                 csv_path=os.path.join(category_path, f'image_dietterich_Hendrycks2019_{self.noise_category}.csv'), 
                 stimuli_directory=category_path, 
-                cls=None
+                sampling_factor=self.sampling_factor
             )
 
             return loader.load()
@@ -179,3 +181,19 @@ class Imagenet_C_Individual(BenchmarkBase):
         )
 
         return score
+
+class SampledStimulusSetLoader(StimulusSetLoader):
+    """
+    Subclass of StimulusSetLoader that allows for downsampling of the stimulus set before loading.
+    """
+    def __init__(self, csv_path, stimuli_directory, sampling_factor):
+        super().__init__(csv_path, stimuli_directory, cls=None)
+        self.sampling_factor = sampling_factor
+
+    def load(self):
+        stimulus_set = pd.read_csv(self.csv_path)[::self.sampling_factor]
+        stimulus_set = StimulusSet(stimulus_set)
+        stimulus_set.image_paths = {row['image_id']: os.path.join(self.stimuli_directory, row['filename'])
+                                    for _, row in stimulus_set.iterrows()}
+        assert all(os.path.isfile(image_path) for image_path in stimulus_set.image_paths.values())
+        return stimulus_set

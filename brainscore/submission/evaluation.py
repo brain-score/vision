@@ -125,7 +125,7 @@ def run_submission(module, test_models, test_benchmarks, submission_entry):
                         model = ml_brain_pool[model_id]
                         # query for visual_degrees to keep this meta in the database
                         if not model_entry.visual_degrees:  # if not already set
-                            model_entry.visual_degrees = model.visual_degrees
+                            model_entry.visual_degrees = model.visual_degrees()
                             model_entry.save()
                         # run model on benchmark
                         score = score_model(model_id, benchmark_name, model)

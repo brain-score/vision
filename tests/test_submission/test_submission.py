@@ -11,13 +11,13 @@ from brainscore.submission.database import connect_db
 from brainscore.submission.evaluation import get_reference, get_benchmark_instance, get_ml_pool, \
     run_submission
 from brainscore.submission.models import Reference, BenchmarkType, Submission, Model, BenchmarkInstance, Score
-from brainscore.submission.repository import prepare_module, extract_zip_file, find_correct_dir
+from brainscore.submission.repository import prepare_module, extract_zip_file, find_submission_directory
 from model_tools.brain_transformation import ModelCommitment
 from tests.test_submission import base_model
 from tests.test_submission.test_db import clear_schema, init_user
 
 logger = logging.getLogger(__name__)
-database = 'brainscore-ohio-test'
+database = 'brainscore-ohio-test'  # test database
 
 
 @pytest.mark.memory_intense
@@ -181,12 +181,12 @@ class TestRepository:
         f1 = open(f'{TestRepository.working_dir}/.temp', "w+")
         f2 = open(f'{TestRepository.working_dir}/_MACOS', "w+")
         f3 = open(f'{TestRepository.working_dir}/candidate_models', "w+")
-        dir = find_correct_dir(TestRepository.working_dir)
+        dir = find_submission_directory(TestRepository.working_dir)
         assert dir == 'candidate_models'
         exception = False
         try:
             f4 = open(f'{TestRepository.working_dir}/candidate_models2', "w+")
-            dir = find_correct_dir(TestRepository.working_dir)
+            dir = find_submission_directory(TestRepository.working_dir)
         except:
             exception = True
         assert exception

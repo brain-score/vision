@@ -115,3 +115,12 @@ devalois.DeValois1982b,assembly,PropertyAssembly,S3,https://brainio.contrib.s3.a
 movshon.FreemanZiemba2013_V1_properties,assembly,PropertyAssembly,S3,https://brainio.contrib.s3.amazonaws.com/assy_movshon_FreemanZiemba2013_V1_properties.nc,e665522d9a32e6cd6c3ebc61ff65fd3899c8d3e6,movshon.FreemanZiemba2013_properties
 shapley.Ringach2002,assembly,PropertyAssembly,S3,https://brainio.contrib.s3.amazonaws.com/assy_shapley_Ringach2002.nc,0f3e19140bd9f930109879a38e574471d9576cf5,dicarlo.Marques2020_orientation
 schiller.Schiller1976c,assembly,PropertyAssembly,S3,https://brainio.contrib.s3.amazonaws.com/assy_schiller_Schiller1976c.nc,58daa02ba2680e75dcb11b37eb6085c4afb6576e,dicarlo.Marques2020_spatial_frequency
+dicarlo.domain_transfer,stimulus_set,StimulusSet,S3,https://brainio.dicarlo.s3.amazonaws.com/image_dicarlo_domain_transfer.csv,d63b24c47ac69902adfea725b3be2dd8ebd5ad85,
+dicarlo.domain_transfer,stimulus_set,,S3,https://brainio.dicarlo.s3.amazonaws.com/image_dicarlo_domain_transfer.zip,ca971841d3624de5bd51fd3328dcd4b46e3e7296,
+dicarlo.Sanghavi2021.domain_transfer,assembly,NeuronRecordingAssembly,S3,https://brainio.dicarlo.s3.amazonaws.com/assy_dicarlo_Sanghavi2021_domain_transfer.nc,93059106c8bf0af6ecdd15a6341344dafa22cb90,dicarlo.domain_transfer
+dicarlo.objectome_full,stimulus_set,StimulusSet,S3,https://brainio.dicarlo.s3.amazonaws.com/image_dicarlo_objectome_full.csv,ac1fe43c78737bc34e20ed25679c23c0c9c3df05,
+dicarlo.objectome_full,stimulus_set,,S3,https://brainio.dicarlo.s3.amazonaws.com/image_dicarlo_objectome_full.zip,4fef3b83f10b2e91ed93824558cf0ffa4d3f1446,
+dicarlo.Sanghavi2021.objectome_full,assembly,NeuronRecordingAssembly,S3,https://brainio.dicarlo.s3.amazonaws.com/assy_dicarlo_Sanghavi2021_objectome_full.nc,08d75574fcb0827c65618ea52b568eb653bd5bad,dicarlo.objectome_full
+dicarlo.oasis900,stimulus_set,StimulusSet,S3,https://brainio.dicarlo.s3.amazonaws.com/image_dicarlo_oasis900.csv,6608669e100dc10b57fc8903023e9c0699cd7cdf,
+dicarlo.oasis900,stimulus_set,,S3,https://brainio.dicarlo.s3.amazonaws.com/image_dicarlo_oasis900.zip,9da8ef7e384fc1d2fefc928026d0a2a20b44827e,
+dicarlo.Sanghavi2021.oasis900,assembly,NeuronRecordingAssembly,S3,https://brainio.dicarlo.s3.amazonaws.com/assy_dicarlo_Sanghavi2021_oasis900.nc,011ef648bfabc18943e8af7b75ed040f345322bf,dicarlo.oasis900

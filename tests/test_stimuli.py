@@ -37,6 +37,9 @@ import brainio
         'dicarlo.Marques2020_spatial_frequency',
         'dicarlo.Marques2020_size',
         'movshon.FreemanZiemba2013_properties',
+        'dicarlo.domain_transfer',
+        'dicarlo.objectome_full',
+        'dicarlo.oasis900',
 ))
 def test_list_stimulus_set(stimulus_set):
     l = brainio.list_stimulus_sets()
@@ -99,3 +102,17 @@ class TestMarques2020V1Properties:
     def test_num_stimuli(self, identifier, num_stimuli):
         stimulus_set = brainio.get_stimulus_set(identifier)
         assert len(stimulus_set) == num_stimuli
+
+
+@pytest.mark.private_access
+class TestSanghavi2021:
+    @pytest.mark.parametrize('identifier,num_stimuli', [
+        ('dicarlo.domain_transfer', 3138),
+        ('dicarlo.objectome_full', 2500),
+        ('dicarlo.oasis900', 900),
+    ])
+    def test_num_stimuli(self, identifier, num_stimuli):
+        stimulus_set = brainio.get_stimulus_set(identifier)
+        assert len(stimulus_set) == num_stimuli
+
+

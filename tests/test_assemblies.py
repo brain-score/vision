@@ -45,6 +45,9 @@ import brainio
         'movshon.FreemanZiemba2013_V1_properties',
         'shapley.Ringach2002',
         'schiller.Schiller1976c',
+        'dicarlo.Sanghavi2021.domain_transfer',
+        'dicarlo.Sanghavi2021.objectome_full',
+        'dicarlo.Sanghavi2021.oasis900',
 ))
 def test_list_assembly(assembly):
     l = brainio.list_assemblies()
@@ -84,6 +87,9 @@ def test_list_assembly(assembly):
     pytest.param('dicarlo.Rust2012.array', marks=[pytest.mark.private_access]),
     pytest.param('dicarlo.BashivanKar2019.naturalistic', marks=[pytest.mark.private_access]),
     pytest.param('dicarlo.BashivanKar2019.synthetic', marks=[pytest.mark.private_access]),
+    pytest.param('dicarlo.Sanghavi2021.domain_transfer', marks=[pytest.mark.private_access]),
+    pytest.param('dicarlo.Sanghavi2021.objectome_full', marks=[pytest.mark.private_access]),
+    pytest.param('dicarlo.Sanghavi2021.oasis900', marks=[pytest.mark.private_access]),
 ])
 def test_existence(assembly_identifier):
     assert brainio.get_assembly(assembly_identifier) is not None
@@ -268,3 +274,16 @@ class TestMarques2020V1Properties:
         assert set(assembly['neuronal_property'].values) == set(properties)
         assert assembly.stimulus_set is not None
         assert assembly.stimulus_set.identifier == stimulus_set_identifier
+
+
+@pytest.mark.private_access
+class TestSanghavi2021:
+    @pytest.mark.parametrize('identifier', [
+        ('dicarlo.Sanghavi2021.domain_transfer'),
+        ('dicarlo.Sanghavi2021.objectome_full'),
+        ('dicarlo.Sanghavi2021.oasis900'),
+    ])
+    def test_assembly(self, identifier):
+        assembly = brainio.get_assembly(identifier)
+
+

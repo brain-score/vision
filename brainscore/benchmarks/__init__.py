@@ -136,52 +136,6 @@ def _evaluation_benchmark_pool():
     pool['movshon.FreemanZiemba2013.V2-pls'] = LazyLoad(MovshonFreemanZiemba2013V2PLS)
     from .kar2019 import DicarloKar2019OST
     pool['dicarlo.Kar2019-ost'] = LazyLoad(DicarloKar2019OST)
-
-    # behavioral benchmarks
-    from .rajalingham2018 import DicarloRajalingham2018I2n
-    pool['dicarlo.Rajalingham2018-i2n'] = LazyLoad(DicarloRajalingham2018I2n)
-
-    return pool
-
-
-def _engineering_benchmark_pool():
-    """
-    Additional engineering (ML) benchmarks. These benchmarks are public, but are also be evaluated for the website.
-    """
-    pool = {}
-
-    from .imagenet import Imagenet2012
-    pool['fei-fei.Deng2009-top1'] = LazyLoad(Imagenet2012)
-
-    from .imagenet_c import Imagenet_C_Noise, Imagenet_C_Blur, Imagenet_C_Weather, Imagenet_C_Digital
-    pool['dietterich.Hendrycks2019-noise-top1'] = LazyLoad(Imagenet_C_Noise)
-    pool['dietterich.Hendrycks2019-blur-top1'] = LazyLoad(Imagenet_C_Blur)
-    pool['dietterich.Hendrycks2019-weather-top1'] = LazyLoad(Imagenet_C_Weather)
-    pool['dietterich.Hendrycks2019-digital-top1'] = LazyLoad(Imagenet_C_Digital)
-
-    return pool
-
-
-def _experimental_benchmark_pool():
-    """
-    Benchmarks that can be used, but are not evaluated for the website.
-    """
-    pool = {}
-    # neural benchmarks
-    from .majajhong2015 import DicarloMajajHong2015V4Mask, DicarloMajajHong2015ITMask, \
-        DicarloMajajHong2015V4RDM, DicarloMajajHong2015ITRDM
-    pool['dicarlo.MajajHong2015.V4-mask'] = LazyLoad(DicarloMajajHong2015V4Mask)
-    pool['dicarlo.MajajHong2015.IT-mask'] = LazyLoad(DicarloMajajHong2015ITMask)
-    pool['dicarlo.MajajHong2015.V4-rdm'] = LazyLoad(DicarloMajajHong2015V4RDM)
-    pool['dicarlo.MajajHong2015.IT-rdm'] = LazyLoad(DicarloMajajHong2015ITRDM)
-    from .freemanziemba2013 import MovshonFreemanZiemba2013V1RDM, MovshonFreemanZiemba2013V2RDM, \
-        MovshonFreemanZiemba2013V1Single
-    pool['movshon.FreemanZiemba2013.V1-rdm'] = LazyLoad(MovshonFreemanZiemba2013V1RDM)
-    pool['movshon.FreemanZiemba2013.V2-rdm'] = LazyLoad(MovshonFreemanZiemba2013V2RDM)
-    pool['movshon.FreemanZiemba2013.V1-single'] = LazyLoad(MovshonFreemanZiemba2013V1Single)
-    from .cadena2017 import ToliasCadena2017PLS, ToliasCadena2017Mask
-    pool['tolias.Cadena2017-pls'] = LazyLoad(ToliasCadena2017PLS)
-    pool['tolias.Cadena2017-mask'] = LazyLoad(ToliasCadena2017Mask)
     # V1 properties benchmarks: orientation
     from .marques2020_ringach2002 import MarquesRingach2002V1CircularVariance, MarquesRingach2002V1Bandwidth, \
         MarquesRingach2002V1OrthogonalPreferredRatio, MarquesRingach2002V1OrientationSelective, \
@@ -236,6 +190,52 @@ def _experimental_benchmark_pool():
     pool['dicarlo.Marques2020_Ringach2002-modulation_ratio'] = LazyLoad(MarquesRingach2002V1ModulationRatio)
     pool['dicarlo.Marques2020_FreemanZiemba2013-max_texture'] = LazyLoad(MarquesFreemanZiemba2013V1MaxTexture)
     pool['dicarlo.Marques2020_FreemanZiemba2013-max_noise'] = LazyLoad(MarquesFreemanZiemba2013V1MaxNoise)
+
+    # behavioral benchmarks
+    from .rajalingham2018 import DicarloRajalingham2018I2n
+    pool['dicarlo.Rajalingham2018-i2n'] = LazyLoad(DicarloRajalingham2018I2n)
+
+    return pool
+
+
+def _engineering_benchmark_pool():
+    """
+    Additional engineering (ML) benchmarks. These benchmarks are public, but are also be evaluated for the website.
+    """
+    pool = {}
+
+    from .imagenet import Imagenet2012
+    pool['fei-fei.Deng2009-top1'] = LazyLoad(Imagenet2012)
+
+    from .imagenet_c import Imagenet_C_Noise, Imagenet_C_Blur, Imagenet_C_Weather, Imagenet_C_Digital
+    pool['dietterich.Hendrycks2019-noise-top1'] = LazyLoad(Imagenet_C_Noise)
+    pool['dietterich.Hendrycks2019-blur-top1'] = LazyLoad(Imagenet_C_Blur)
+    pool['dietterich.Hendrycks2019-weather-top1'] = LazyLoad(Imagenet_C_Weather)
+    pool['dietterich.Hendrycks2019-digital-top1'] = LazyLoad(Imagenet_C_Digital)
+
+    return pool
+
+
+def _experimental_benchmark_pool():
+    """
+    Benchmarks that can be used, but are not evaluated for the website.
+    """
+    pool = {}
+    # neural benchmarks
+    from .majajhong2015 import DicarloMajajHong2015V4Mask, DicarloMajajHong2015ITMask, \
+        DicarloMajajHong2015V4RDM, DicarloMajajHong2015ITRDM
+    pool['dicarlo.MajajHong2015.V4-mask'] = LazyLoad(DicarloMajajHong2015V4Mask)
+    pool['dicarlo.MajajHong2015.IT-mask'] = LazyLoad(DicarloMajajHong2015ITMask)
+    pool['dicarlo.MajajHong2015.V4-rdm'] = LazyLoad(DicarloMajajHong2015V4RDM)
+    pool['dicarlo.MajajHong2015.IT-rdm'] = LazyLoad(DicarloMajajHong2015ITRDM)
+    from .freemanziemba2013 import MovshonFreemanZiemba2013V1RDM, MovshonFreemanZiemba2013V2RDM, \
+        MovshonFreemanZiemba2013V1Single
+    pool['movshon.FreemanZiemba2013.V1-rdm'] = LazyLoad(MovshonFreemanZiemba2013V1RDM)
+    pool['movshon.FreemanZiemba2013.V2-rdm'] = LazyLoad(MovshonFreemanZiemba2013V2RDM)
+    pool['movshon.FreemanZiemba2013.V1-single'] = LazyLoad(MovshonFreemanZiemba2013V1Single)
+    from .cadena2017 import ToliasCadena2017PLS, ToliasCadena2017Mask
+    pool['tolias.Cadena2017-pls'] = LazyLoad(ToliasCadena2017PLS)
+    pool['tolias.Cadena2017-mask'] = LazyLoad(ToliasCadena2017Mask)
     # Sanghavi2020 benchmarks
     from .sanghavi2020 import DicarloSanghavi2020V4PLS, DicarloSanghavi2020ITPLS
     pool['dicarlo.Sanghavi2020.V4-pls'] = LazyLoad(DicarloSanghavi2020V4PLS)

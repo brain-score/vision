@@ -41,8 +41,33 @@ class TestPoolList:
 
     def test_exact_evaluation_pool(self):
         assert set(evaluation_benchmark_pool.keys()) == {
-            'movshon.FreemanZiemba2013.V1-pls', 'movshon.FreemanZiemba2013.V2-pls',
-            'dicarlo.MajajHong2015.V4-pls', 'dicarlo.MajajHong2015.IT-pls', 'dicarlo.Kar2019-ost',
+            'movshon.FreemanZiemba2013.V1-pls',
+            'dicarlo.Marques2020_Ringach2002-or_bandwidth',
+            'dicarlo.Marques2020_Ringach2002-or_selective',
+            'dicarlo.Marques2020_Ringach2002-circular_variance',
+            'dicarlo.Marques2020_Ringach2002-orth_pref_ratio',
+            'dicarlo.Marques2020_Ringach2002-cv_bandwidth_ratio',
+            'dicarlo.Marques2020_DeValois1982-pref_or',
+            'dicarlo.Marques2020_Ringach2002-opr_cv_diff',
+            'dicarlo.Marques2020_Schiller1976-sf_bandwidth',
+            'dicarlo.Marques2020_Schiller1976-sf_selective',
+            'dicarlo.Marques2020_DeValois1982-peak_sf',
+            'dicarlo.Marques2020_FreemanZiemba2013-texture_sparseness',
+            'dicarlo.Marques2020_FreemanZiemba2013-texture_selectivity',
+            'dicarlo.Marques2020_FreemanZiemba2013-texture_variance_ratio',
+            'dicarlo.Marques2020_Ringach2002-modulation_ratio',
+            'dicarlo.Marques2020_Cavanaugh2002-grating_summation_field',
+            'dicarlo.Marques2020_Cavanaugh2002-surround_diameter',
+            'dicarlo.Marques2020_Cavanaugh2002-surround_suppression_index',
+            'dicarlo.Marques2020_FreemanZiemba2013-texture_modulation_index',
+            'dicarlo.Marques2020_FreemanZiemba2013-abs_texture_modulation_index',
+            'dicarlo.Marques2020_FreemanZiemba2013-max_noise',
+            'dicarlo.Marques2020_FreemanZiemba2013-max_texture',
+            'dicarlo.Marques2020_Ringach2002-max_dc',
+            'movshon.FreemanZiemba2013.V2-pls',
+            'dicarlo.MajajHong2015.V4-pls',
+            'dicarlo.MajajHong2015.IT-pls',
+            'dicarlo.Kar2019-ost',
             'dicarlo.Rajalingham2018-i2n',
         }
 
@@ -432,6 +457,9 @@ class TestNumberOfTrials:
         class AssertRepeatCandidate(BrainModel):
             class StopException(Exception):
                 pass
+
+            def identifier(self) -> str:
+                return 'assert-repeat-candidate'
 
             def visual_degrees(self):
                 return 8

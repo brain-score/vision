@@ -458,6 +458,9 @@ class TestNumberOfTrials:
             class StopException(Exception):
                 pass
 
+            def identifier(self) -> str:
+                return 'assert-repeat-candidate'
+
             def visual_degrees(self):
                 return 8
 

@@ -68,6 +68,7 @@ def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
                 model_entries = []
                 logger.info(f'Create model instances')
                 for model_name in test_models:
+                    # revisit for future compeitions
                     model_entry, created = Model.get_or_create(name=model_name, owner=submission_entry.submitter,
                                                                defaults={'public': submission_config.public,
                                                                          'submission': submission_entry,

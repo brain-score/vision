@@ -62,5 +62,5 @@ def object_decoder(config, work_dir, config_path, db_secret, jenkins_id):
                                 config_path=config_path,
                                 jenkins_id=jenkins_id, db_secret=db_secret,
                                 public=config['public'] == "True",
-                                competition_submission=config['competition'] == "cosyne2022")
+                                competition_submission=config['competition'])
 

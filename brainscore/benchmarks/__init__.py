@@ -190,6 +190,16 @@ def _evaluation_benchmark_pool():
     pool['dicarlo.Marques2020_Ringach2002-modulation_ratio'] = LazyLoad(MarquesRingach2002V1ModulationRatio)
     pool['dicarlo.Marques2020_FreemanZiemba2013-max_texture'] = LazyLoad(MarquesFreemanZiemba2013V1MaxTexture)
     pool['dicarlo.Marques2020_FreemanZiemba2013-max_noise'] = LazyLoad(MarquesFreemanZiemba2013V1MaxNoise)
+    # Sanghavi2020 benchmarks
+    from .sanghavi2020 import DicarloSanghavi2020V4PLS, DicarloSanghavi2020ITPLS
+    pool['dicarlo.Sanghavi2020.V4-pls'] = LazyLoad(DicarloSanghavi2020V4PLS)
+    pool['dicarlo.Sanghavi2020.IT-pls'] = LazyLoad(DicarloSanghavi2020ITPLS)
+    from .sanghavijozwik2020 import DicarloSanghaviJozwik2020V4PLS, DicarloSanghaviJozwik2020ITPLS
+    pool['dicarlo.SanghaviJozwik2020.V4-pls'] = LazyLoad(DicarloSanghaviJozwik2020V4PLS)
+    pool['dicarlo.SanghaviJozwik2020.IT-pls'] = LazyLoad(DicarloSanghaviJozwik2020ITPLS)
+    from .sanghavimurty2020 import DicarloSanghaviMurty2020V4PLS, DicarloSanghaviMurty2020ITPLS
+    pool['dicarlo.SanghaviMurty2020.V4-pls'] = LazyLoad(DicarloSanghaviMurty2020V4PLS)
+    pool['dicarlo.SanghaviMurty2020.IT-pls'] = LazyLoad(DicarloSanghaviMurty2020ITPLS)
 
     # behavioral benchmarks
     from .rajalingham2018 import DicarloRajalingham2018I2n
@@ -236,16 +246,6 @@ def _experimental_benchmark_pool():
     from .cadena2017 import ToliasCadena2017PLS, ToliasCadena2017Mask
     pool['tolias.Cadena2017-pls'] = LazyLoad(ToliasCadena2017PLS)
     pool['tolias.Cadena2017-mask'] = LazyLoad(ToliasCadena2017Mask)
-    # Sanghavi2020 benchmarks
-    from .sanghavi2020 import DicarloSanghavi2020V4PLS, DicarloSanghavi2020ITPLS
-    pool['dicarlo.Sanghavi2020.V4-pls'] = LazyLoad(DicarloSanghavi2020V4PLS)
-    pool['dicarlo.Sanghavi2020.IT-pls'] = LazyLoad(DicarloSanghavi2020ITPLS)
-    from .sanghavijozwik2020 import DicarloSanghaviJozwik2020V4PLS, DicarloSanghaviJozwik2020ITPLS
-    pool['dicarlo.SanghaviJozwik2020.V4-pls'] = LazyLoad(DicarloSanghaviJozwik2020V4PLS)
-    pool['dicarlo.SanghaviJozwik2020.IT-pls'] = LazyLoad(DicarloSanghaviJozwik2020ITPLS)
-    from .sanghavimurty2020 import DicarloSanghaviMurty2020V4PLS, DicarloSanghaviMurty2020ITPLS
-    pool['dicarlo.SanghaviMurty2020.V4-pls'] = LazyLoad(DicarloSanghaviMurty2020V4PLS)
-    pool['dicarlo.SanghaviMurty2020.IT-pls'] = LazyLoad(DicarloSanghaviMurty2020ITPLS)
     from .rajalingham2020 import DicarloRajalingham2020ITPLS
     pool['dicarlo.Rajalingham2020.IT-pls'] = LazyLoad(DicarloRajalingham2020ITPLS)
 

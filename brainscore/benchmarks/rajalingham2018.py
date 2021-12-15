@@ -23,15 +23,15 @@ BIBTEX = """@article {Rajalingham240614,
             }"""
 
 
-class DicarloRajalingham2018I2n(BenchmarkBase):
-    def __init__(self):
-        self._metric = I2n()
+class _DicarloRajalingham2018(BenchmarkBase):
+    def __init__(self, metric, metric_identifier):
+        self._metric = metric
         self._fitting_stimuli = brainscore.get_stimulus_set('dicarlo.objectome.public')
         self._assembly = LazyLoad(lambda: load_assembly('private'))
         self._visual_degrees = 8
         self._number_of_trials = 2
-        super(DicarloRajalingham2018I2n, self).__init__(
-            identifier='dicarlo.Rajalingham2018-i2n', version=2,
+        super(_DicarloRajalingham2018, self).__init__(
+            identifier='dicarlo.Rajalingham2018-' + metric_identifier, version=2,
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
             parent='behavior',
             bibtex=BIBTEX)
@@ -44,7 +44,8 @@ class DicarloRajalingham2018I2n(BenchmarkBase):
                                        source_visual_degrees=self._visual_degrees)
         probabilities = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
         score = self._metric(probabilities, self._assembly)
-        score = self.ceil_score(score, self.ceiling)
+        ceiling = self.ceiling
+        score = self.ceil_score(score, ceiling)
         return score
 
     def ceil_score(self, score, ceiling):
@@ -62,6 +63,10 @@ class DicarloRajalingham2018I2n(BenchmarkBase):
         split_scores.attrs[Score.RAW_VALUES_KEY] = score  # this will override raw per-split ceiled scores which is ok
         split_scores.attrs['ceiling'] = ceiling
         return split_scores
+
+
+def DicarloRajalingham2018I2n():
+    return _DicarloRajalingham2018(metric=I2n(), metric_identifier='i2n')
 
 
 def load_assembly(access='private'):

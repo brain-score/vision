@@ -1,3 +1,8 @@
+"""
+The :class:`~brainscore.model_interface.BrainModel` interface is the central communication point
+between benchmarks and models.
+"""
+
 from enum import Enum
 
 from brainio.stimuli import StimulusSet
@@ -20,6 +25,15 @@ class BrainModel:
     """
     task to perform
     """
+
+    @property
+    def identifier(self) -> str:
+        """
+        The unique identifier for this model.
+
+        :return: e.g. `'CORnet-S'`, or `'alexnet'`
+        """
+        raise NotImplementedError()
 
     def visual_degrees(self) -> int:
         """

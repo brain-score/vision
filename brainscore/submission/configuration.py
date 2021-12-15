@@ -40,10 +40,11 @@ class SubmissionConfig(BaseConfig):
     Configuration properties for newly submitted models, which also have a submission entry in database.
     """
 
-    def __init__(self, model_type, user_id, jenkins_id, public, **kwargs):
+    def __init__(self, model_type, user_id, jenkins_id, public: bool, competition_submission: str, **kwargs):
         super(SubmissionConfig, self).__init__(jenkins_id=jenkins_id, **kwargs)
         self.submission = Submission.create(id=jenkins_id, submitter=user_id, timestamp=datetime.datetime.now(),
                                             model_type=model_type, status='running')
+        self.competition_submission = competition_submission
         self.public = public
 
 
@@ -60,4 +61,6 @@ def object_decoder(config, work_dir, config_path, db_secret, jenkins_id):
         return SubmissionConfig(model_type=config['model_type'], user_id=config['user_id'], work_dir=work_dir,
                                 config_path=config_path,
                                 jenkins_id=jenkins_id, db_secret=db_secret,
-                                public=config['public'] == "True")
+                                public=config['public'] == "True",
+                                competition_submission=config['competition'])
+

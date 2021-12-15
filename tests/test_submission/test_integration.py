@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 @pytest.mark.memory_intense
 @pytest.mark.private_access
 class TestIntegration:
-    database = 'brainscore-ohio-test'
+    database = 'brainscore-ohio-test'  # test database
 
     @classmethod
     def setup_class(cls):
@@ -81,9 +81,9 @@ class TestIntegration:
             result_row = next(csv_reader)
             assert result_row[0] == 'alexnet'
             assert result_row[1] == 'dicarlo.Rajalingham2018-i2n'
-            assert  self.compare(float(result_row[2]), 0.25771746331458695)
-            assert  self.compare(float(result_row[3]), 0.3701702418190641)
-            assert  self.compare(float(result_row[4]), 0.011129032024657565)
+            assert self.compare(float(result_row[2]), 0.25771746331458695)
+            assert self.compare(float(result_row[3]), 0.3701702418190641)
+            assert self.compare(float(result_row[4]), 0.011129032024657565)
 
     def test_failure_evaluation(self, tmpdir):
         working_dir = str(tmpdir.mkdir('sub'))

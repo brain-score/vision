@@ -70,8 +70,9 @@ def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
                 for model_name in test_models:
                     model_entry, created = Model.get_or_create(name=model_name, owner=submission_entry.submitter,
                                                                defaults={'public': submission_config.public,
-                                                                         'submission': submission_entry})
-                    if hasattr(module, 'get_bibtex') and created:
+                                                                         'submission': submission_entry,
+                                                                         'competition': submission_config.competition_submission})
+                    if hasattr(module, 'get_bibtex') and created:  # model entry was just created and we can add bibtex
                         bibtex_string = module.get_bibtex(model_name)
                         reference = get_reference(bibtex_string)
                         model_entry.reference = reference
@@ -121,7 +122,13 @@ def run_submission(module, test_models, test_benchmarks, submission_entry):
                             score_entry.comment = None
                             logger.warning('An entry already exists but was not evaluated successful, we rerun!')
                         logger.info(f"Scoring {model_id}, id {model_entry.id} on benchmark {benchmark_name}")
+                        # retrieve model from pool of models
                         model = ml_brain_pool[model_id]
+                        # query for visual_degrees to keep this meta in the database
+                        if not model_entry.visual_degrees:  # if not already set
+                            model_entry.visual_degrees = model.visual_degrees()
+                            model_entry.save()
+                        # run model on benchmark
                         score = score_model(model_id, benchmark_name, model)
                         logger.info(f'Running benchmark {benchmark_name} on model {model_id} (id {model_entry.id}) '
                                     f'produced this score: {score}')

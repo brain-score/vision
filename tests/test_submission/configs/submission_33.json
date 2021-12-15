@@ -1,5 +1,6 @@
 {
   "model_type": "BaseModel",
   "user_id": 1,
-  "public": "False"
+  "public": "False",
+  "competition": null
 }

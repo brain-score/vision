@@ -23,15 +23,20 @@ def prepare_module(submission: Submission, config: BaseConfig):
 
 def extract_zip_file(id, config_path, work_dir):
     logger.info(f'Unpack zip file')
-    zip_file = Path('%s/submission_%s.zip' % (config_path, id))
+    zip_file = Path(f'{config_path}/submission_{id}.zip')
     with zipfile.ZipFile(zip_file, 'r') as model_repo:
         model_repo.extractall(path=str(work_dir))
-    #     Use the single directory in the zip file
+    # Use the single directory in the zip file
     full_path = Path(work_dir).absolute()
-    return Path('%s/%s' % (str(full_path), find_correct_dir(work_dir)))
+    submission_directory = find_submission_directory(work_dir)
+    return full_path / submission_directory
 
 
-def find_correct_dir(work_dir):
+def find_submission_directory(work_dir):
+    """
+    Find the single directory inside a directory that corresponds to the submission file.
+    Ignores hidden directories, e.g. those prefixed with `.` and `_`
+    """
     list = os.listdir(work_dir)
     candidates = []
     for item in list:
@@ -47,13 +52,14 @@ def find_correct_dir(work_dir):
 
 
 def install_project(repo, package):
-    logger.info('Start installing the submitted repository')
+    install_repo_command = [sys.executable, "-m",
+                            "pip", "install",
+                            "-v", "--default-timeout=3600",
+                            str(repo),
+                            "--user"]
+    logger.info(f"Install submitted repository: {install_repo_command}")
     try:
-        subprocess.check_output([sys.executable, "-m",
-                                 "pip", "install",
-                                 "-v", "--default-timeout=3600",
-                                 str(repo),
-                                 "--user"],
+        subprocess.check_output(install_repo_command,
                                 env=os.environ,
                                 stderr=subprocess.STDOUT)
         sys.path.insert(0, str(repo))

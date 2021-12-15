@@ -119,7 +119,8 @@ class TestConfig:
     def test_base_config(self):
         config = {"model_type": "BaseModel",
                   "user_id": 1,
-                  "public": "False"}
+                  "public": "False",
+                  "competition": "cosyne2022"}
         submission_config = object_decoder(config, 'work_dir', 'config_path', 'db_secret', 33)
         assert submission_config.db_secret == 'db_secret'
         assert submission_config.work_dir == 'work_dir'
@@ -131,7 +132,8 @@ class TestConfig:
         model = Model.create(id=19, name='alexnet', public=True, submission=33, owner=1)
         config = {
             "model_ids": [model.id],
-            "user_id": 1
+            "user_id": 1,
+            "competition": "cosyne2022"
         }
         submission_config = object_decoder(config, 'work_dir', 'config_path', 'db_secret', 33)
         assert len(submission_config.submission_entries) == 1

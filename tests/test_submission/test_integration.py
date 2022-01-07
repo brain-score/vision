@@ -44,6 +44,29 @@ class TestIntegration:
     def compare(self, a, b):
         return abs(a - b) <= 0.0001
 
+    def test_competition_field(self, tmpdir):
+        working_dir = str(tmpdir.mkdir('sub'))
+        config_dir = str(os.path.join(os.path.dirname(__file__), 'configs/'))
+        run_evaluation(config_dir, working_dir, 33, TestIntegration.database, models=['alexnet'],
+                       benchmarks=['dicarlo.MajajHong2015.IT-pls'])
+        model = Model.get()
+        assert model.competition == "cosyne2022"
+
+    def test_competition_field_none(self, tmpdir):
+        working_dir = str(tmpdir.mkdir('sub'))
+        config_dir = str(os.path.join(os.path.dirname(__file__), 'configs/'))
+        submission = Submission.create(id=33, submitter=1, timestamp=datetime.now(),
+                                       model_type='BaseModel', status='running')
+        model = Model.create(name='alexnet', owner=submission.submitter, public=False,
+                             submission=submission)
+        with open(f'{config_dir}submission_40.json', 'w') as rerun:
+            rerun.write(f"""{{
+                "model_ids": [{model.id}], "user_id": 1, "competition": null}}""")
+        run_evaluation(config_dir, working_dir, 40, TestIntegration.database,
+                       benchmarks=['dicarlo.Rajalingham2018-i2n'])
+        model = Model.get()
+        assert model.competition is None
+
     def test_evaluation(self, tmpdir):
         working_dir = str(tmpdir.mkdir('sub'))
         config_dir = str(os.path.join(os.path.dirname(__file__), 'configs/'))

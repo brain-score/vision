@@ -10,26 +10,23 @@ import functools
 import logging
 
 import boto3
+import brainio
 from botocore import UNSIGNED
 from botocore.config import Config
 from botocore.exceptions import ClientError
-
-import brainio
 from brainio.fetch import BotoFetcher
+
 from brainscore.benchmarks._neural_common import NeuralBenchmark
 from brainscore.metrics.ceiling import InternalConsistency
+from brainscore.metrics.image_level_behavior import I2n
 from brainscore.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation
 from brainscore.utils import LazyLoad
 from .freemanziemba2013 import load_assembly as load_freemanziemba2013, VISUAL_DEGREES as freemanziemba2013_degrees, \
-    NUMBER_OF_TRIALS as freemanziemba2013_trials
+    NUMBER_OF_TRIALS as freemanziemba2013_trials, BIBTEX as freemanziemba2013_bibtex
+from .kar2018 import load_assembly as load_kar2018, _DicarloKar2018
 from .majajhong2015 import load_assembly as load_majajhong2015, VISUAL_DEGREES as majajhong2015_degrees, \
-    NUMBER_OF_TRIALS as majajhong2015_trials
-from .freemanziemba2013 import load_assembly as load_freemanziemba2013, VISUAL_DEGREES as freemanziemba2013_degrees, \
-    BIBTEX as freemanziemba2013_bibtex
-from .majajhong2015 import load_assembly as load_majajhong2015, VISUAL_DEGREES as majajhong2015_degrees, \
-    BIBTEX as majajhong2015_bibtex
+    NUMBER_OF_TRIALS as majajhong2015_trials, BIBTEX as majajhong2015_bibtex
 from .rajalingham2018 import load_assembly as load_rajalingham2018, _DicarloRajalingham2018
-from brainscore.metrics.image_level_behavior import I2n
 
 _logger = logging.getLogger(__name__)
 
@@ -77,11 +74,18 @@ def MajajHongITPublicBenchmark():
                                stratification_coord='object_name', bibtex=majajhong2015_bibtex)
 
 
-class RajalinghamMatchtosamplePublicBenchmark(_DicarloRajalingham2018):
+class Rajalingham2018MatchtosamplePublicBenchmark(_DicarloRajalingham2018):
     def __init__(self):
-        super(RajalinghamMatchtosamplePublicBenchmark, self).__init__(metric=I2n(), metric_identifier='i2n')
+        super(Rajalingham2018MatchtosamplePublicBenchmark, self).__init__(metric=I2n(), metric_identifier='i2n')
         self._assembly = LazyLoad(lambda: load_rajalingham2018(access='public'))
         self._ceiling_func = lambda: self._metric.ceiling(self._assembly, skipna=True)
+
+
+class Kar2018MatchtosamplePublicBenchmark(_DicarloKar2018):
+    def __init__(self):
+        super(Kar2018MatchtosamplePublicBenchmark, self).__init__(metric=I2n(), metric_identifier='i2n')
+        self._assembly = LazyLoad(lambda: load_kar2018(access='public'))
+        self._ceiling_func = lambda: self._metric.ceiling(self._assembly)
 
 
 def list_public_assemblies():

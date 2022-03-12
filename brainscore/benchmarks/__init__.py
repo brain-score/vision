@@ -204,6 +204,8 @@ def _evaluation_benchmark_pool():
     # behavioral benchmarks
     from .rajalingham2018 import DicarloRajalingham2018I2n
     pool['dicarlo.Rajalingham2018-i2n'] = LazyLoad(DicarloRajalingham2018I2n)
+    from .kar2018 import DicarloKar2018I2n
+    pool['dicarlo.Kar2018-i2n'] = LazyLoad(DicarloKar2018I2n)
 
     return pool
 
@@ -266,8 +268,9 @@ def _public_benchmark_pool():
     pool['dicarlo.MajajHong2015public.IT-pls'] = LazyLoad(MajajHongITPublicBenchmark)
 
     # behavioral benchmarks
-    from .public_benchmarks import RajalinghamMatchtosamplePublicBenchmark
-    pool['dicarlo.Rajalingham2018public-i2n'] = LazyLoad(RajalinghamMatchtosamplePublicBenchmark)
+    from .public_benchmarks import Rajalingham2018MatchtosamplePublicBenchmark, Kar2018MatchtosamplePublicBenchmark
+    pool['dicarlo.Rajalingham2018public-i2n'] = LazyLoad(Rajalingham2018MatchtosamplePublicBenchmark)
+    pool['dicarlo.Kar2018public-i2n'] = LazyLoad(Kar2018MatchtosamplePublicBenchmark)
 
     return pool
 

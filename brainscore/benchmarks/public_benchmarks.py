@@ -85,7 +85,7 @@ class Kar2018MatchtosamplePublicBenchmark(_DicarloKar2018):
     def __init__(self):
         super(Kar2018MatchtosamplePublicBenchmark, self).__init__(metric=I2n(), metric_identifier='i2n')
         self._assembly = LazyLoad(lambda: load_kar2018(access='public'))
-        self._ceiling_func = lambda: self._metric.ceiling(self._assembly)
+        self._ceiling_func = lambda: self._metric.ceiling(self._assembly, skipna=True)
 
 
 def list_public_assemblies():

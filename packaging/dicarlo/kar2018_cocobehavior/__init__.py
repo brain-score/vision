@@ -30,8 +30,9 @@ def collect_stimuli(data_path, stimuli_dir):
             sample_number = int(f[sample_number][0][0])
             object_number = int(f[object_number][0][0])
             filename = ''.join([chr(i[0]) for i in f[filename]])
+            filename_base = Path(filename).stem
             stimuli.append({
-                'image_path_within_store': filename,
+                'image_path_within_store': filename_base,
                 'image_id': image_id,
                 'object_name': object_name,
                 'obj': object_name,
@@ -100,7 +101,7 @@ def main():
            == len(set(assembly['dist_obj'].values)) == 10
 
     assembly.name = 'dicarlo.Kar2018coco_behavior'
-    stimuli.name = 'dicarlo.Kar2018coco_color'
+    stimuli.identifier = 'dicarlo.Kar2018coco_color'
 
     # split into public/private
     # Rajalingham2018 has 585_511 public and 341_785 private trials, with 2_160 unique public and 240 private images.
@@ -111,7 +112,7 @@ def main():
     public_idx, private_idx = next(split.split(stimuli['image_id'].values, stimuli['obj'].values))
     public_stimuli, private_stimuli = stimuli.iloc[public_idx], stimuli.iloc[private_idx]
     assert len(public_stimuli) == 1_280 and len(private_stimuli) == 320
-    public_stimuli.name, private_stimuli.name = stimuli.name + '.public', stimuli.name + '.private'
+    public_stimuli.identifier, private_stimuli.identifier = stimuli.identifier + '.public', stimuli.identifier + '.private'
     public_assembly = assembly[{'presentation': [image_id in public_stimuli['image_id'].values
                                                  for image_id in assembly['image_id'].values]}]
     private_assembly = assembly[{'presentation': [image_id in private_stimuli['image_id'].values
@@ -120,12 +121,12 @@ def main():
     public_assembly.name, private_assembly.name = assembly.name + '.public', assembly.name + '.private'
 
     # package
-    return
+    return public_assembly, private_assembly, public_stimuli, private_stimuli
     print("Packaging")
     for stimuli, assembly in zip([public_stimuli, private_stimuli], [public_assembly, private_assembly]):
-        package_stimulus_set(stimuli, stimulus_set_identifier=stimuli.name,
+        package_stimulus_set(stimuli, stimulus_set_identifier=stimuli.identifier,
                              bucket_name="brainio.dicarlo")
-        package_data_assembly(assembly, assembly_identifier=assembly.name, stimulus_set_identifier=stimuli.name,
+        package_data_assembly(assembly, assembly_identifier=assembly.name, stimulus_set_identifier=stimuli.identifier,
                               assembly_class='BehavioralAssembly', bucket_name="brainio.dicarlo")
 
 

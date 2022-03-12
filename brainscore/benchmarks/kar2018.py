@@ -1,3 +1,8 @@
+"""
+This data was collected by Kohitij Kar on Amazon mechanical turk.
+It was first used in Kubilius*, Schrimpf*, et al. NeurIPS (2019)
+https://papers.nips.cc/paper/9441-brain-like-object-recognition-with-high-performing-shallow-recurrent-anns.
+"""
 import numpy as np
 
 import brainscore
@@ -15,13 +20,17 @@ BIBTEX = None
 class _DicarloKar2018(BenchmarkBase):
     def __init__(self, metric, metric_identifier):
         self._metric = metric
-        self._fitting_stimuli = brainscore.get_stimulus_set('dicarlo.Kar2018coco_color.public')
+        # self._fitting_stimuli = brainscore.get_stimulus_set('dicarlo.Kar2018coco_color.public')
+        # FIXME
+        from packaging.dicarlo.kar2018_cocobehavior import main as load_assemblies
+        _, _, public_stimuli, private_stimuli = load_assemblies()
+        self._fitting_stimuli = public_stimuli
         self._assembly = LazyLoad(lambda: load_assembly('private'))
         self._visual_degrees = 8
         self._number_of_trials = 2
         super(_DicarloKar2018, self).__init__(
             identifier='dicarlo.Kar2018-' + metric_identifier, version=1,
-            ceiling_func=lambda: self._metric.ceiling(self._assembly),
+            ceiling_func=lambda: self._metric.ceiling(self._assembly, skipna=True),
             parent='behavior',
             bibtex=BIBTEX)
 
@@ -59,6 +68,12 @@ def DicarloKar2018I2n():
 
 
 def load_assembly(access='private'):
-    assembly = brainscore.get_assembly(f'dicarlo.Kar2018coco_behavior.{access}')
+    # FIXME
+    from packaging.dicarlo.kar2018_cocobehavior import main as load_assemblies
+    public, private, public_stimuli, private_stimuli = load_assemblies()
+    public.attrs['stimulus_set'], private.attrs['stimulus_set'] = public_stimuli, private_stimuli
+    assemblies = {'public': public, 'private': private}
+    assembly = assemblies[access]
+    # assembly = brainscore.get_assembly(f'dicarlo.Kar2018coco_behavior.{access}')
     assembly['correct'] = assembly['choice'] == assembly['sample_obj']
     return assembly

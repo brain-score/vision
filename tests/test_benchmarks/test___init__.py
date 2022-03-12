@@ -32,8 +32,11 @@ class TestPoolList:
 
     @pytest.mark.parametrize('benchmark', [
         'movshon.FreemanZiemba2013public.V1-pls',
+        'movshon.FreemanZiemba2013public.V2-pls',
+        'dicarlo.MajajHong2015public.V4-pls',
         'dicarlo.MajajHong2015public.IT-pls',
         'dicarlo.Rajalingham2018public-i2n',
+        'dicarlo.Kar2018public-i2n',
         'fei-fei.Deng2009-top1',
     ])
     def test_contained_public(self, benchmark):
@@ -69,6 +72,7 @@ class TestPoolList:
             'dicarlo.MajajHong2015.IT-pls',
             'dicarlo.Kar2019-ost',
             'dicarlo.Rajalingham2018-i2n',
+            'dicarlo.Kar2018-i2n',
         }
 
     def test_engineering_pool(self):
@@ -137,6 +141,9 @@ class TestStandardized:
         pytest.param('dicarlo.Marques2020_Ringach2002-max_dc', approx(0.968, abs=.005), marks=[]),
         pytest.param('dicarlo.Marques2020_FreemanZiemba2013-max_texture', approx(0.946, abs=.005), marks=[]),
         pytest.param('dicarlo.Marques2020_FreemanZiemba2013-max_noise', approx(0.945, abs=.005), marks=[]),
+        # behavioral ceilings
+        pytest.param('dicarlo.Kar2018public-i2n', approx(0.27447742, abs=.005), marks=[]),
+        pytest.param('dicarlo.Kar2018-i2n', approx(0.25124318, abs=.005), marks=[]),
     ])
     def test_ceilings(self, benchmark, expected):
         benchmark = benchmark_pool[benchmark]
@@ -258,6 +265,26 @@ class TestPrecomputed:
         # score
         score = benchmark(precomputed_features).raw
         assert score.sel(aggregation='center') == approx(.136923, abs=.005)
+
+    @pytest.mark.parametrize('access, model, expected', [
+        pytest.param('public', 'CORnetZ', approx(.26476201, abs=.01), marks=[]),
+        pytest.param('public', 'alexnet', approx(.33547396, abs=.01), marks=[]),
+        pytest.param('private', 'CORnetZ', approx(.24558591, abs=.01), marks=[pytest.mark.private_access]),
+        pytest.param('private', 'alexnet', approx(.34789246, abs=.01), marks=[pytest.mark.private_access]),
+    ])
+    def test_Kar2018(self, access, model, expected):
+        prefix_identifiers = {'public': 'dicarlo.Kar2018public', 'private': 'dicarlo.Kar2018'}
+        prefix_identifier = prefix_identifiers[access]
+        benchmark = benchmark_pool[prefix_identifier + '-i2n']
+        # load features
+        precomputed_features = Path(__file__).parent / f'{model}-{prefix_identifier}.nc'
+        precomputed_features = BehavioralAssembly(xr.load_dataarray(precomputed_features))
+        precomputed_features = PrecomputedFeatures(precomputed_features,
+                                                   visual_degrees=8,  # doesn't matter, features are already computed
+                                                   )
+        # score
+        score = benchmark(precomputed_features)
+        assert score.sel(aggregation='center') == expected
 
     @pytest.mark.memory_intense
     @pytest.mark.slow

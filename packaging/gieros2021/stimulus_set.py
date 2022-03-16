@@ -2,9 +2,9 @@ from pathlib import Path
 from brainio.stimuli import StimulusSet
 from brainio.packaging import package_stimulus_set
 
-stimuli = []  # collect meta
-image_paths = {}  # collect mapping of image_id to filepath
-stimuli_directory = 'Geiros_Behavioral/sketch/dnn/session-1'
+stimuli = []
+image_paths = {}
+stimuli_directory = 'Geirhos_Behavioral/sketch/dnn/session-1'
 
 
 '''
@@ -57,12 +57,12 @@ for filepath in Path(stimuli_directory).glob('*.png'):
         # optionally you can set 'image_path_within_store' to define the filename in the packaged stimuli
     })
 
-
 stimuli = StimulusSet(stimuli)
 stimuli.image_paths = image_paths
-stimuli.name = 'geiros2021_sketch'  # give the StimulusSet an identifier name
+stimuli.name = 'Geirhos2021_sketch'  # give the StimulusSet an identifier name
 
-# 800 images in dataset
-assert len(stimuli) == 800  # make sure the StimulusSet is what you would expect
+# Ensure 800 images in dataset
+assert len(stimuli) == 800
 
-package_stimulus_set(stimuli, stimulus_set_identifier=stimuli.name)  # upload to S3
+# upload to S3
+package_stimulus_set(stimuli, stimulus_set_identifier=stimuli.name)

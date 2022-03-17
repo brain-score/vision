@@ -46,6 +46,7 @@ for filepath in Path(stimuli_directory).glob('*.png'):
 
     image_paths[image_id] = filepath
     stimuli.append({
+        'image_id': image_id,
         'image_number': image_number,
         'experiment_code': experiment_code,
         'subject': subject,

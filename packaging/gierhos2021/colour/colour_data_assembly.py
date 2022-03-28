@@ -12,7 +12,7 @@ assembly = BehavioralAssembly(['dog', 'dog', 'cat', 'dog', ...],
                                    #  https://github.com/brain-score/brainio/blob/d0ac841779fb47fa7b8bdad3341b68357c8031d9/brainio/fetch.py#L125-L132
                                },
                                dims=['presentation'])
-assembly.name = '<authoryear>'  # give the assembly an identifier name
+assembly.name = 'Geirhos2021_Sketch'  # give the assembly an identifier name
 
 # make sure the assembly is what you would expect
 assert len(assembly['presentation']) == 179660

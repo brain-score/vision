@@ -37,6 +37,8 @@ import brainio
         'dicarlo.Marques2020_spatial_frequency',
         'dicarlo.Marques2020_size',
         'movshon.FreemanZiemba2013_properties',
+        'Geirhos2021_colour'
+        'Geirhos2021_sketch'
 ))
 def test_list_stimulus_set(stimulus_set):
     l = brainio.list_stimulus_sets()
@@ -99,3 +101,12 @@ class TestMarques2020V1Properties:
     def test_num_stimuli(self, identifier, num_stimuli):
         stimulus_set = brainio.get_stimulus_set(identifier)
         assert len(stimulus_set) == num_stimuli
+
+
+@pytest.mark.private_access
+@pytest.mark.slow
+class TestGeirhos2021:
+    def test_colour(self):
+        stimulus_set = brainio.get_stimulus_set('Geirhos2021_colour')
+        assert len(stimulus_set) == 1280
+

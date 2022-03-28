@@ -110,3 +110,7 @@ class TestGeirhos2021:
         stimulus_set = brainio.get_stimulus_set('Geirhos2021_colour')
         assert len(stimulus_set) == 1280
 
+    def test_contrast(self):
+        stimulus_set = brainio.get_stimulus_set('Geirhos2021_contrast')
+        assert len(stimulus_set) == 1280
+

@@ -4,7 +4,7 @@ from brainio.packaging import package_stimulus_set
 
 stimuli = []
 image_paths = {}
-stimuli_directory = 'Geirhos_Behavioral/sketch/dnn/session-1'
+stimuli_directory = '../datasets/sketch/dnn/session-1'
 
 
 '''
@@ -24,6 +24,7 @@ This is a concatenation of the following information (separated by '_'):
     6) a number (just ignore it)
     7) image identifier in the form a_b.JPEG (or a_b.png), with a being the 
        WNID (WordNet ID) of the corresponding synset and b being an integer.
+       
 '''
 
 for filepath in Path(stimuli_directory).glob('*.png'):
@@ -42,7 +43,7 @@ for filepath in Path(stimuli_directory).glob('*.png'):
     condition = split_name[3]
     category_ground_truth = split_name[4]
     random_number = split_name[5]
-    wordnetID_integer = split_name[6]
+    full_image_name = split_name[6]
 
     image_paths[image_id] = filepath
     stimuli.append({
@@ -53,7 +54,7 @@ for filepath in Path(stimuli_directory).glob('*.png'):
         'condition': condition,
         'category_ground_truth': category_ground_truth,
         'random_number': random_number,
-        'wordnetID_integer': wordnetID_integer,
+        'full_image_name': full_image_name,
 
         # optionally you can set 'image_path_within_store' to define the filename in the packaged stimuli
     })
@@ -66,4 +67,5 @@ stimuli.name = 'Geirhos2021_sketch'  # give the StimulusSet an identifier name
 assert len(stimuli) == 800
 
 # upload to S3
-package_stimulus_set(stimuli, stimulus_set_identifier=stimuli.name)
+package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,
+                     bucket_name="brainio-brainscore")

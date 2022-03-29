@@ -70,5 +70,5 @@ stimuli.name = 'Geirhos2021_colour'  # give the StimulusSet an identifier name
 assert len(stimuli) == 1280
 
 # upload to S3
-# package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,
-#                      bucket_name="brainio-brainscore")
+package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,
+                     bucket_name="brainio-brainscore")

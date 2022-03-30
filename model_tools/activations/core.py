@@ -7,7 +7,7 @@ from collections import OrderedDict
 from multiprocessing.pool import ThreadPool
 
 import numpy as np
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
 from brainio.assemblies import NeuroidAssembly, walk_coords
 from brainio.stimuli import StimulusSet
@@ -47,11 +47,11 @@ class ActivationsExtractorHelper:
         :param stimuli_identifier: a stimuli identifier for the stored results file.
             False to disable saving. None to use `stimulus_set.identifier`
         """
-        if stimuli_identifier is None:
+        if stimuli_identifier is None and hasattr(stimulus_set, 'identifier'):
             stimuli_identifier = stimulus_set.identifier
         for hook in self._stimulus_set_hooks.copy().values():  # copy to avoid stale handles
             stimulus_set = hook(stimulus_set)
-        stimuli_paths = [stimulus_set.get_image(image_id) for image_id in stimulus_set['image_id']]
+        stimuli_paths = [str(stimulus_set.get_image(image_id)) for image_id in stimulus_set['image_id']]
         activations = self.from_paths(stimuli_paths=stimuli_paths, layers=layers, stimuli_identifier=stimuli_identifier)
         activations = attach_stimulus_set_meta(activations, stimulus_set)
         return activations
@@ -79,6 +79,8 @@ class ActivationsExtractorHelper:
         return self._from_paths(layers=layers, stimuli_paths=stimuli_paths)
 
     def _from_paths(self, layers, stimuli_paths):
+        if len(layers) == 0:
+            raise ValueError("No layers passed to retrieve activations from")
         self._logger.info('Running stimuli')
         layer_activations = self._get_activations_batched(stimuli_paths, layers=layers, batch_size=self._batch_size)
         self._logger.info('Packaging into assembly')
@@ -162,7 +164,7 @@ class ActivationsExtractorHelper:
 
     def _package(self, layer_activations, stimuli_paths):
         shapes = [a.shape for a in layer_activations.values()]
-        self._logger.debug('Activations shapes: {}'.format(shapes))
+        self._logger.debug(f"Activations shapes: {shapes}")
         self._logger.debug("Packaging individual layers")
         layer_assemblies = [self._package_layer(single_layer_activations, layer=layer, stimuli_paths=stimuli_paths) for
                             layer, single_layer_activations in tqdm(layer_activations.items(), desc='layer packaging')]
@@ -170,7 +172,7 @@ class ActivationsExtractorHelper:
         # complication: (non)neuroid_coords are taken from the structure of layer_assemblies[0] i.e. the 1st assembly;
         # using these names/keys for all assemblies results in KeyError if the first layer contains flatten_coord_names
         # (see _package_layer) not present in later layers, e.g. first layer = conv, later layer = transformer layer
-        self._logger.debug("Merging layer assemblies")
+        self._logger.debug(f"Merging {len(layer_assemblies)} layer assemblies")
         model_assembly = np.concatenate([a.values for a in layer_assemblies],
                                         axis=layer_assemblies[0].dims.index('neuroid'))
         nonneuroid_coords = {coord: (dims, values) for coord, dims, values in walk_coords(layer_assemblies[0])
@@ -255,7 +257,7 @@ def lstrip_local(path):
 
 
 def attach_stimulus_set_meta(assembly, stimulus_set):
-    stimulus_paths = [stimulus_set.get_image(image_id) for image_id in stimulus_set['image_id']]
+    stimulus_paths = [str(stimulus_set.get_image(image_id)) for image_id in stimulus_set['image_id']]
     stimulus_paths = [lstrip_local(path) for path in stimulus_paths]
     assembly_paths = [lstrip_local(path) for path in assembly['stimulus_path'].values]
     assert (np.array(assembly_paths) == np.array(stimulus_paths)).all()

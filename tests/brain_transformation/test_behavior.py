@@ -3,13 +3,14 @@ import numpy as np
 import os
 import pytest
 import xarray as xr
+from brainio.assemblies import BehavioralAssembly
+from brainio.stimuli import StimulusSet
 from pathlib import Path
 from pytest import approx
 
-from brainio.assemblies import BehavioralAssembly
-from brainio.stimuli import StimulusSet
-from brainscore.benchmarks.rajalingham2018 import DicarloRajalingham2018I2n
+from brainscore.benchmarks.rajalingham2018 import _DicarloRajalingham2018
 from brainscore.benchmarks.screen import place_on_screen
+from brainscore.metrics.image_level_behavior import I2n
 from brainscore.model_interface import BrainModel
 from model_tools.activations import PytorchWrapper
 from model_tools.brain_transformation import ModelCommitment, ProbabilitiesMapping
@@ -90,7 +91,10 @@ class TestI2N:
                                  ('resnet18', .3638),
                              ])
     def test_model(self, model, expected_score):
-        class UnceiledBenchmark(DicarloRajalingham2018I2n):
+        class UnceiledBenchmark(_DicarloRajalingham2018):
+            def __init__(self):
+                super(UnceiledBenchmark, self).__init__(metric=I2n(), metric_identifier='i2n')
+
             def __call__(self, candidate: BrainModel):
                 candidate.start_task(BrainModel.Task.probabilities, self._fitting_stimuli)
                 probabilities = candidate.look_at(self._assembly.stimulus_set)

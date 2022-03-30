@@ -119,5 +119,3 @@ Geirhos2021_colour,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.ama
 Geirhos2021_colour,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/image_Geirhos2021_colour.zip,2d0386e74d164f41354d65ba3b865b398c56aece,,brainio_brainscore
 Geirhos2021_contrast,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/image_Geirhos2021_contrast.csv,1727b77c5abd5c15a660e82494c60bcd23381989,,brainio_brainscore
 Geirhos2021_contrast,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/image_Geirhos2021_contrast.zip,48b6c7cb9d26bf87b99a7d87a9331e071fb1ca70,,brainio_brainscore
-Geirhos2021_sketch,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/image_Geirhos2021_sketch.csv,8b96e158f6d4024248b93b77b642c6bebd5040a3,,brainio_brainscore
-Geirhos2021_sketch,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/image_Geirhos2021_sketch.zip,dc06d938ea0d85c90098e8e475a5806948ea8acd,,brainio_brainscore

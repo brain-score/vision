@@ -11,19 +11,18 @@ stimuli_directory = '../datasets/sketch/dnn/session-1'
 Dataset Meta Info (from https://github.com/rgeirhos/generalisation-humans-DNNs)
 
 Sample image from dataset:
-3841_eid_dnn_1-0-10_knife_10_n03041632_32377.JPEG
+0001_ske_dnn_0_airplane_00_airplane-0001-sketch-0.png
 
 This is a concatenation of the following information (separated by '_'):
 
     1) a four-digit number starting with 0000 for the first image in an experiment; 
        the last image therefore has the number n-1 if n is the number of images in a certain experiment
     2) short code for experiment name, e.g. 'eid' for eidolon-experiment
-    3) either e.g. 's01' for 'subject-01', or 'dnn' for DNNs
+    3) subject: either e.g. 's01' for 'subject-01', or 'dnn' for DNNs
     4) condition
     5) category (ground truth)
     6) a number (just ignore it)
-    7) image identifier in the form a_b.JPEG (or a_b.png), with a being the 
-       WNID (WordNet ID) of the corresponding synset and b being an integer.
+    7) image lookup ID: the exact image shown to the subject
        
 '''
 
@@ -36,14 +35,14 @@ for filepath in Path(stimuli_directory).glob('*.png'):
     # ensure proper metadata length per image in set
     assert len(split_name) == 7
 
-    # Dataset image data, 1-7 from above:
+    # Dataset image data, 1-6 from above:
     image_number = split_name[0]
     experiment_code = split_name[1]
     subject = split_name[2]
     condition = split_name[3]
     category_ground_truth = split_name[4]
     random_number = split_name[5]
-    full_image_name = split_name[6]
+    image_lookup_id = split_name[6] + ".png"  # this is the same as data assembly's image_lookup_id
 
     image_paths[image_id] = filepath
     stimuli.append({
@@ -54,9 +53,7 @@ for filepath in Path(stimuli_directory).glob('*.png'):
         'condition': condition,
         'category_ground_truth': category_ground_truth,
         'random_number': random_number,
-        'full_image_name': full_image_name,
-
-        # optionally you can set 'image_path_within_store' to define the filename in the packaged stimuli
+        'image_lookup_id': image_lookup_id,
     })
 
 stimuli = StimulusSet(stimuli)
@@ -67,5 +64,5 @@ stimuli.name = 'Geirhos2021_sketch'  # give the StimulusSet an identifier name
 assert len(stimuli) == 800
 
 # upload to S3
-package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,
-                     bucket_name="brainio-brainscore")
+# package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,
+#                      bucket_name="brainio-brainscore")

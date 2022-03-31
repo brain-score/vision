@@ -115,3 +115,5 @@ devalois.DeValois1982b,assembly,PropertyAssembly,S3,https://brainio.contrib.s3.a
 movshon.FreemanZiemba2013_V1_properties,assembly,PropertyAssembly,S3,https://brainio.contrib.s3.amazonaws.com/assy_movshon_FreemanZiemba2013_V1_properties.nc,e665522d9a32e6cd6c3ebc61ff65fd3899c8d3e6,movshon.FreemanZiemba2013_properties
 shapley.Ringach2002,assembly,PropertyAssembly,S3,https://brainio.contrib.s3.amazonaws.com/assy_shapley_Ringach2002.nc,0f3e19140bd9f930109879a38e574471d9576cf5,dicarlo.Marques2020_orientation
 schiller.Schiller1976c,assembly,PropertyAssembly,S3,https://brainio.contrib.s3.amazonaws.com/assy_schiller_Schiller1976c.nc,58daa02ba2680e75dcb11b37eb6085c4afb6576e,dicarlo.Marques2020_spatial_frequency
+katz.BarbuMayo2019,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/image_katz_BarbuMayo2019.csv,ed847044bde99667d409a3247cfb6015eaf68fc0,,brainio_brainscore
+katz.BarbuMayo2019,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/image_katz_BarbuMayo2019.zip,63ced845bdada039e1463f9457763f2cf4ecb0ef,,brainio_brainscore

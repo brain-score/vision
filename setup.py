@@ -30,8 +30,9 @@ requirements = [
     "fire",
     "jupyter",
     "pybtex",
-    'peewee',
-    'psycopg2-binary'
+    "peewee",
+    "pillow<9.0.0",
+    "psycopg2-binary"
 ]
 
 setup(

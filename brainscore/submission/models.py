@@ -88,6 +88,7 @@ class Model(PeeweeBase):
     submission = ForeignKeyField(column_name='submission_id', field='id', model=Submission)
     visual_degrees = IntegerField(null=True)  # null during creation of new model without having model object loaded
     public = BooleanField()
+    competition = CharField(max_length=200, default=None, null=True)
 
     class Meta:
         table_name = 'brainscore_model'

@@ -41,6 +41,7 @@ class TestPoolList:
 
     def test_exact_evaluation_pool(self):
         assert set(evaluation_benchmark_pool.keys()) == {
+            # V1
             'movshon.FreemanZiemba2013.V1-pls',
             'dicarlo.Marques2020_Ringach2002-or_bandwidth',
             'dicarlo.Marques2020_Ringach2002-or_selective',
@@ -64,10 +65,20 @@ class TestPoolList:
             'dicarlo.Marques2020_FreemanZiemba2013-max_noise',
             'dicarlo.Marques2020_FreemanZiemba2013-max_texture',
             'dicarlo.Marques2020_Ringach2002-max_dc',
+            # V2
             'movshon.FreemanZiemba2013.V2-pls',
+            # V4
             'dicarlo.MajajHong2015.V4-pls',
+            'dicarlo.Sanghavi2020.V4-pls',
+            'dicarlo.SanghaviJozwik2020.V4-pls',
+            'dicarlo.SanghaviMurty2020.V4-pls',
+            # IT
             'dicarlo.MajajHong2015.IT-pls',
+            'dicarlo.Sanghavi2020.IT-pls',
+            'dicarlo.SanghaviJozwik2020.IT-pls',
+            'dicarlo.SanghaviMurty2020.IT-pls',
             'dicarlo.Kar2019-ost',
+            # behavior
             'dicarlo.Rajalingham2018-i2n',
         }
 

@@ -17,6 +17,7 @@ before_install:
 - pip install awscli
 - bash test_setup.sh
 install:
+- pip install setuptools==60.5.0
 - pip install .
 - pip list # list installed package versions
 script:

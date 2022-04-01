@@ -58,11 +58,11 @@ for filepath in Path(stimuli_directory).glob('*.png'):
 
 stimuli = StimulusSet(stimuli)
 stimuli.image_paths = image_paths
-stimuli.name = 'Geirhos2021_sketch'  # give the StimulusSet an identifier name
+stimuli.name = 'brendel.Geirhos2021_sketch'
 
 # Ensure 800 images in dataset
 assert len(stimuli) == 800
 
 # upload to S3
-# package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,
-#                      bucket_name="brainio-brainscore")
+package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,
+                     bucket_name="brainio-brainscore")

@@ -1,4 +1,6 @@
 import os
+
+import brainscore
 import pytest
 
 import brainio
@@ -37,8 +39,9 @@ import brainio
         'dicarlo.Marques2020_spatial_frequency',
         'dicarlo.Marques2020_size',
         'movshon.FreemanZiemba2013_properties',
-        'Geirhos2021_colour'
-        'Geirhos2021_sketch'
+        'brendel.Geirhos2021_colour',
+        'brendel.Geirhos2021_contrast',
+        'brendel.Geirhos2021_sketch',
 ))
 def test_list_stimulus_set(stimulus_set):
     l = brainio.list_stimulus_sets()
@@ -106,11 +109,13 @@ class TestMarques2020V1Properties:
 @pytest.mark.private_access
 @pytest.mark.slow
 class TestGeirhos2021:
-    def test_colour(self):
-        stimulus_set = brainio.get_stimulus_set('Geirhos2021_colour')
-        assert len(stimulus_set) == 1280
+    @pytest.mark.parametrize('identifier, num_stimuli', [
+        ('brendel.Geirhos2021_colour', 1280),
+        ('brendel.Geirhos2021_contrast', 1280),
+        ('brendel.Geirhos2021_sketch', 800),
 
-    def test_contrast(self):
-        stimulus_set = brainio.get_stimulus_set('Geirhos2021_contrast')
-        assert len(stimulus_set) == 1280
+    ])
+    def test_stimulus_set_size(self, identifier, num_stimuli):
+        stimulus_set = brainscore.get_stimulus_set(identifier)
+        assert len(stimulus_set) == num_stimuli
 

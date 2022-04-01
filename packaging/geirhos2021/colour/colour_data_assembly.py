@@ -1,0 +1,83 @@
+import numpy as np
+
+from brainio.assemblies import BehavioralAssembly
+from brainio.packaging import package_data_assembly
+import pandas as pd
+
+'''
+Experiment Information:
+https://arxiv.org/pdf/1706.06969.pdf
+
+ - 4 subjects 
+ - 1280 images each
+ - 5120 total images shown 
+ - match to sample task 
+ - 16 image categories
+ - for the this benchmark (colour) subjects saw the EXACT image indicated with the variable/column name
+   image_lookup_id, and not a variation of it (no distortions, editing, etc). B/W or Color is indicated in the 
+   condition column of this df/assembly.
+
+'''
+
+# initial csv to dataframe processing:
+subject_1 = pd.read_csv('data_assemblies/colour_subject-01_session_1.csv')
+subject_2 = pd.read_csv('data_assemblies/colour_subject-02_session_1.csv')
+subject_3 = pd.read_csv('data_assemblies/colour_subject-03_session_1.csv')
+subject_4 = pd.read_csv('data_assemblies/colour_subject-04_session_1.csv')
+
+all_subjects = pd.concat([subject_1, subject_2, subject_3, subject_4])
+
+# parse df for the image lookup id. This relates the data assembly with the stimulus set.
+split_cols = all_subjects['imagename'].str.split("_", expand=True)
+drop_cols = split_cols.drop(split_cols.columns[[0, 1, 2]], axis=1)
+all_subjects['image_lookup_id'] = drop_cols.agg("_".join, axis=1)
+
+
+# construct the assembly
+assembly = BehavioralAssembly(all_subjects['object_response'].to_numpy().flatten(),
+                              coords={
+                                  'image_id': ('presentation', all_subjects['imagename'].to_numpy().flatten()),
+                                  'image_lookup_id': ('presentation', all_subjects['image_lookup_id'].to_numpy().flatten()),
+                                  'ground_truth': ('presentation', all_subjects['category'].to_numpy().flatten()),
+                                  'condition': ('presentation', all_subjects['condition'].to_numpy().flatten()),
+                                  'response_time': ('presentation', all_subjects['rt'].to_numpy().flatten()),
+                                  'trial': ('presentation', all_subjects['trial'].to_numpy().flatten()),
+                                  'subject': ('presentation', all_subjects['subj'].to_numpy().flatten()),
+                                  'session': ('presentation', all_subjects['Session'].to_numpy().flatten()),
+                              },
+                              dims=['presentation']
+                              )
+
+# give the assembly an identifier name
+assembly.name = 'brendel.Geirhos2021_colour'
+
+# make sure assembly dims are correct length
+assert len(assembly['presentation']) == 5120
+
+# make sure assembly coords are correct length
+assert len(assembly['image_id']) == 5120
+assert len(assembly['image_lookup_id']) == 5120
+assert len(assembly['ground_truth']) == 5120
+assert len(assembly['condition']) == 5120
+assert len(assembly['response_time']) == 5120
+assert len(assembly['trial']) == 5120
+assert len(assembly['subject']) == 5120
+assert len(assembly['session']) == 5120
+
+
+# # make sure there are 1280 unique images (shown 1 time for each  of 4 subjects, total of 4 * 1280 = 5120 images shown)
+assert len(np.unique(assembly['image_lookup_id'].values)) == 1280
+
+# make sure there are 7 unique subjects:
+assert len(np.unique(assembly['subject'].values)) == 4
+
+# make sure there are 16 unique object categories (ground truths):
+assert len(np.unique(assembly['ground_truth'].values)) == 16
+
+# make sure there is only two conditions (image variations), color and black & white:
+assert len(np.unique(assembly['condition'].values)) == 2
+
+# upload to S3
+# package_data_assembly(assembly, assembly_identifier=assembly.name, ,
+#                       assembly_class='BehavioralAssembly'
+#                       stimulus_set_identifier=stimuli.name)  # link to the StimulusSet

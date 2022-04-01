@@ -4,14 +4,14 @@ from brainio.packaging import package_stimulus_set
 
 stimuli = []
 image_paths = {}
-stimuli_directory = '../datasets/contrast/dnn/session-1'
+stimuli_directory = '../datasets/colour/dnn/session-1'
 
 
 '''
 Dataset Meta Info (from https://github.com/rgeirhos/generalisation-humans-DNNs)
 
 Sample image from dataset:
-3841_eid_dnn_1-0-10_knife_10_n03041632_32377.JPEG
+0001_cl_s01_cr_oven_40_n04111531_14126.png
 
 This is a concatenation of the following information (separated by '_'):
 
@@ -47,9 +47,15 @@ for filepath in Path(stimuli_directory).glob('*.png'):
     wordnet_a = split_name[6]
     wordnet_b = split_name[7]
 
+    # image lookup ID, same as data assembly. This is the exact image shown to participant.
+    # This is needed, as the raw images have "dnn" in the subject field, even when a human subject
+    # was used. Otherwise, the image name data in the raw data table and the image names themselves are the same.
+    image_lookup_id = "_".join(split_name[3:]) + ".png"
+
     image_paths[image_id] = filepath
     stimuli.append({
         'image_id': image_id,
+        'image_lookup_id': image_lookup_id,
         'image_number': image_number,
         'experiment_code': experiment_code,
         'subject': subject,
@@ -59,11 +65,12 @@ for filepath in Path(stimuli_directory).glob('*.png'):
         'wordnet_a': wordnet_a,
         'wordnet_b': wordnet_b,
 
+        # optionally you can set 'image_path_within_store' to define the filename in the packaged stimuli
     })
 
 stimuli = StimulusSet(stimuli)
 stimuli.image_paths = image_paths
-stimuli.name = 'Geirhos2021_contrast'  # give the StimulusSet an identifier name
+stimuli.name = 'brendel.Geirhos2021_colour'  # give the StimulusSet an identifier name
 
 # Ensure 1280 images in dataset
 assert len(stimuli) == 1280

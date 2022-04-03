@@ -1,6 +1,5 @@
 import csv
 import logging
-import math
 import os
 from datetime import datetime
 
@@ -9,7 +8,7 @@ import pytest
 from brainscore.submission.database import connect_db
 from brainscore.submission.evaluation import run_evaluation
 from brainscore.submission.models import Score, Model, Submission
-from tests.test_submission.test_db import clear_schema, init_user
+from tests.test_submission.test_db import clear_schema, init_user, init_benchmark_parents
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +35,7 @@ class TestIntegration:
     def setup_method(self):
         logger.info('Initialize database')
         init_user()
+        init_benchmark_parents()
 
     def teardown_method(self):
         logger.info('Clean database')

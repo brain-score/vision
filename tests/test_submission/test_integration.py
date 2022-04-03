@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 
 import pytest
+from pytest import approx
 
 from brainscore.submission.database import connect_db
 from brainscore.submission.evaluation import run_evaluation
@@ -41,9 +42,6 @@ class TestIntegration:
         logger.info('Clean database')
         clear_schema()
 
-    def compare(self, a, b):
-        return abs(a - b) <= 0.0001
-
     def test_competition_field(self, tmpdir):
         working_dir = str(tmpdir.mkdir('sub'))
         config_dir = str(os.path.join(os.path.dirname(__file__), 'configs/'))
@@ -78,9 +76,9 @@ class TestIntegration:
             result_row = next(csv_reader)
             assert result_row[0] == 'alexnet'
             assert result_row[1] == 'dicarlo.MajajHong2015.IT-pls'
-            assert self.compare(float(result_row[2]), 0.5857491098187586)
-            assert self.compare(float(result_row[3]), 0.5079816726934638)
-            assert self.compare(float(result_row[4]), 0.003155449372125895)
+            assert float(result_row[2]) == approx(0.5857491098187586, abs=0.0001)
+            assert float(result_row[3]) == approx(0.5079816726934638, abs=0.0001)
+            assert float(result_row[4]) == approx(0.003155449372125895, abs=0.0001)
         scores = Score.select()
         assert len(scores) == 1
         # successful score comment should inform about which layers were used for which regions
@@ -104,9 +102,9 @@ class TestIntegration:
             result_row = next(csv_reader)
             assert result_row[0] == 'alexnet'
             assert result_row[1] == 'dicarlo.Rajalingham2018-i2n'
-            assert self.compare(float(result_row[2]), 0.25771746331458695)
-            assert self.compare(float(result_row[3]), 0.3701702418190641)
-            assert self.compare(float(result_row[4]), 0.011129032024657565)
+            assert float(result_row[2]) == approx(0.25771746331458695, abs=0.0001)
+            assert float(result_row[3]) == approx(0.3701702418190641, abs=0.0001)
+            assert float(result_row[4]) == approx(0.011129032024657565, abs=0.0001)
 
     def test_failure_evaluation(self, tmpdir):
         working_dir = str(tmpdir.mkdir('sub'))

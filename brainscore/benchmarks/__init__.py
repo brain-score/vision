@@ -249,6 +249,10 @@ def _experimental_benchmark_pool():
     from .rajalingham2020 import DicarloRajalingham2020ITPLS
     pool['dicarlo.Rajalingham2020.IT-pls'] = LazyLoad(DicarloRajalingham2020ITPLS)
 
+    from .geirhos2021_sketch import Geirhos2021SketchI1
+    pool['brendel.Geirhos2021_sketch-i1'] = LazyLoad(Geirhos2021SketchI1)
+
+
     return pool
 
 

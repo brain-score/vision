@@ -38,7 +38,8 @@ assembly = BehavioralAssembly(all_subjects['object_response'],
                               coords={
                                   'image_id': ('presentation', all_subjects['imagename']),
                                   'image_lookup_id': ('presentation', all_subjects['image_lookup_id']),
-                                  'ground_truth': ('presentation', all_subjects['category']),
+                                  'truth': ('presentation', all_subjects['category']),
+                                  'choice': ('presentation', all_subjects['object_response']),
                                   'category': ('presentation', all_subjects['category']),
                                   'condition': ('presentation', all_subjects['condition']),
                                   'response_time': ('presentation', all_subjects['rt']),
@@ -52,7 +53,7 @@ assembly = BehavioralAssembly(all_subjects['object_response'],
 # give the assembly an identifier name
 assembly.name = 'brendel.Geirhos2021_contrast'
 
-# make sure assembly dims are correct length
+# make sure assembly dim is correct length
 assert len(assembly['presentation']) == 5120
 
 # make sure assembly coords are correct length
@@ -70,7 +71,7 @@ assert len(assembly['session']) == 5120
 # # make sure there are 1280 unique images (shown 1 time for each  of 4 subjects, total of 4 * 1280 = 5120 images shown)
 assert len(np.unique(assembly['image_lookup_id'].values)) == 1280
 
-# make sure there are 7 unique subjects:
+# make sure there are 4 unique subjects:
 assert len(np.unique(assembly['subject'].values)) == 4
 
 # make sure there are 16 unique object categories (ground truths):

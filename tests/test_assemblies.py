@@ -45,6 +45,9 @@ import brainio
         'movshon.FreemanZiemba2013_V1_properties',
         'shapley.Ringach2002',
         'schiller.Schiller1976c',
+        'Geirhos2021_colour',
+        'Geirhos2021_contrast',
+        'Geirhos2021_sketch'
 ))
 def test_list_assembly(assembly):
     l = brainio.list_assemblies()
@@ -83,7 +86,9 @@ def test_list_assembly(assembly):
     pytest.param('dicarlo.Rust2012.single', marks=[pytest.mark.private_access]),
     pytest.param('dicarlo.Rust2012.array', marks=[pytest.mark.private_access]),
     pytest.param('dicarlo.BashivanKar2019.naturalistic', marks=[pytest.mark.private_access]),
-    pytest.param('dicarlo.BashivanKar2019.synthetic', marks=[pytest.mark.private_access]),
+    pytest.param('Geirhos2021_colour', marks=[pytest.mark.private_access]),
+    pytest.param('Geirhos2021_contrast', marks=[pytest.mark.private_access]),
+    pytest.param('Geirhos2021_sketch', marks=[pytest.mark.private_access]),
 ])
 def test_existence(assembly_identifier):
     assert brainio.get_assembly(assembly_identifier) is not None
@@ -268,3 +273,44 @@ class TestMarques2020V1Properties:
         assert set(assembly['neuronal_property'].values) == set(properties)
         assert assembly.stimulus_set is not None
         assert assembly.stimulus_set.identifier == stimulus_set_identifier
+
+
+class TestGeirhos2021:
+    @pytest.mark.parametrize('identifier, num_images, num_subjects, stimulus_set_identifier', [
+        ('brendel.Geirhos2021_colour', 1280, 4, 'brendel.Geirhos2021_colour'),
+        ('brendel.Geirhos2021_contrast', 1280, 4, 'brendel.Geirhos2021_contrast'),
+        ('brendel.Geirhos2021_sketch', 800, 7, 'brendel.Geirhos2021_sketch'),
+
+    ])
+    def test_assembly(self, identifier, num_images, num_subjects, stimulus_set_identifier):
+        assembly = brainio.get_assembly(identifier)
+        assembly_length = num_subjects * num_images
+        assert len(np.unique(assembly['image_lookup_id'].values)) == num_images
+
+        # test stimulus set:
+        assert assembly.stimulus_set is not None
+        assert assembly.stimulus_set.identifier == stimulus_set_identifier
+
+        # test assembly dims:
+        assert set(assembly.dims) == {'presentation'}
+        assert len(assembly["presentation"]) == assembly_length
+
+        # test assembly coords
+        assert len(assembly['image_id']) == assembly_length
+        assert len(assembly['image_lookup_id']) == assembly_length
+        assert len(assembly['subject_response']) == assembly_length
+        assert len(assembly['ground_truth']) == assembly_length
+        assert len(assembly['condition']) == assembly_length
+        assert len(assembly['response_time']) == assembly_length
+        assert len(assembly['trial']) == assembly_length
+        assert len(assembly['subject']) == assembly_length
+        assert len(assembly['session']) == assembly_length
+
+        # make sure there are num_images number of unique images (shown 1 time for each subject)
+        assert len(np.unique(assembly['image_lookup_id'].values)) == assembly_length
+
+        # make sure there are num_subjects number of unique subjects
+        assert len(np.unique(assembly['subject'].values)) == num_subjects
+
+        # make sure there are 16 unique object categories (ground truths)
+        assert len(np.unique(assembly['ground_truth'].values)) == 16

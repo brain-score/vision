@@ -15,9 +15,14 @@ def init_user():
                 last_login=datetime.now(), password='abcdef')
 
 
-def init_benchmark():
-    BenchmarkType.create(identifier='neural', order=0, )
-    BenchmarkType.create(identifier='behavior', order=1, )
+def init_benchmark_parents():
+    BenchmarkType.create(identifier='neural', order=0)
+    BenchmarkType.create(identifier='V1', parent='neural', order=0)
+    BenchmarkType.create(identifier='V2', parent='neural', order=1)
+    BenchmarkType.create(identifier='V4', parent='neural', order=2)
+    BenchmarkType.create(identifier='IT', parent='neural', order=3)
+
+    BenchmarkType.create(identifier='behavior', order=1)
 
 
 def clear_schema():

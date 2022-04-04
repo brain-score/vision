@@ -32,16 +32,17 @@ all_subjects = pd.concat([subject_1, subject_2, subject_3, subject_4, subject_5,
 all_subjects['image_lookup_id'] = all_subjects['imagename'].str.split("_").str[-1]
 
 # construct the assembly
-assembly = BehavioralAssembly(all_subjects['object_response'].to_numpy().flatten(),
+assembly = BehavioralAssembly(all_subjects['object_response'],
                               coords={
-                                  'image_id': ('presentation', all_subjects['imagename'].to_numpy().flatten()),
-                                  'image_lookup_id': ('presentation', all_subjects['image_lookup_id'].to_numpy().flatten()),
-                                  'ground_truth': ('presentation', all_subjects['category'].to_numpy().flatten()),
-                                  'condition': ('presentation', all_subjects['condition'].to_numpy().flatten()),
-                                  'response_time': ('presentation', all_subjects['rt'].to_numpy().flatten()),
-                                  'trial': ('presentation', all_subjects['trial'].to_numpy().flatten()),
-                                  'subject': ('presentation', all_subjects['subj'].to_numpy().flatten()),
-                                  'session': ('presentation', all_subjects['session'].to_numpy().flatten()),
+                                  'image_id': ('presentation', all_subjects['imagename']),
+                                  'image_lookup_id': ('presentation', all_subjects['image_lookup_id']),
+                                  'ground_truth': ('presentation', all_subjects['category']),
+                                  'category': ('presentation', all_subjects['category']),
+                                  'condition': ('presentation', all_subjects['condition']),
+                                  'response_time': ('presentation', all_subjects['rt']),
+                                  'trial': ('presentation', all_subjects['trial']),
+                                  'subject': ('presentation', all_subjects['subj']),
+                                  'session': ('presentation', all_subjects['session']),
                               },
                               dims=['presentation']
                               )
@@ -56,6 +57,7 @@ assert len(assembly['presentation']) == 5600
 assert len(assembly['image_id']) == 5600
 assert len(assembly['image_lookup_id']) == 5600
 assert len(assembly['ground_truth']) == 5600
+assert len(assembly['category']) == 5600
 assert len(assembly['condition']) == 5600
 assert len(assembly['response_time']) == 5600
 assert len(assembly['trial']) == 5600
@@ -71,6 +73,7 @@ assert len(np.unique(assembly['subject'].values)) == 7
 
 # make sure there are 16 unique object categories (ground truths)
 assert len(np.unique(assembly['ground_truth'].values)) == 16
+assert len(np.unique(assembly['category'].values)) == 16
 
 # make sure there is only one condition (i.e. no image variations added after presentation)
 assert len(np.unique(assembly['condition'].values)) == 1

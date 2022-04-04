@@ -12,6 +12,7 @@ matrix:
     - AWS_DEFAULT_REGION=us-east-1
 before_install:
 - pip install --upgrade pip
+- pip install setuptools==60.5.0
 - pip install pytest
 # download large files
 - pip install awscli

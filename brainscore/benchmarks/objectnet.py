@@ -1,14 +1,17 @@
 import os
+import logging
 
 import numpy as np
 import pandas as pd
 
+import brainscore
 from brainio.stimuli import StimulusSet
 from brainscore.benchmarks import BenchmarkBase
 from brainscore.metrics import Score
 from brainscore.metrics.accuracy import Accuracy
 from brainscore.model_interface import BrainModel
 from brainio.fetch import StimulusSetLoader
+from brainio.lookup import lookup_stimulus_set
 
 NUMBER_OF_TRIALS = 10
 
@@ -17,13 +20,11 @@ LOCAL_STIMULUS_DIRECTORY = '/braintree/data2/active/common/objectnet-stimuli/'
 
 class Objectnet(BenchmarkBase):
     def __init__(self):
-        self.stimulus_set_name = f'katz.BarbuMayo2019.{noise_category}'
-        self.stimulus_set = self.load_stimulus_set()
-
+        self._stimulus_set = brainscore.get_stimulus_set('katz.BarbuMayo2019')
         self._similarity_metric = Accuracy()
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
        
-        super(Objectnet, self).__init__(identifier='barbu_mayo2019-top1', version=1,
+        super(Objectnet, self).__init__(identifier='katz.BarbuMayo2019-top1', version=1,
                                            ceiling_func=lambda: ceiling,
                                            parent='ObjectNet',
                                            bibtex="""@inproceedings{DBLP:conf/nips/BarbuMALWGTK19,
@@ -43,26 +44,6 @@ class Objectnet(BenchmarkBase):
                                                     url       = {https://proceedings.neurips.cc/paper/2019/hash/97af07a14cacba681feacf3012730892-Abstract.html},
                                                     }""")
 
-    def load_stimulus_set(self):
-        """
-        ObjectNet is quite large, and thus cumbersome to download each time the benchmark is run.
-        Here we try loading a local copy first, before proceeding to download the AWS copy.
-        """
-        try:
-            _logger.debug(f'Loading local ObjectNet')
-            loader = StimulusSetLoader(
-                csv_path=os.path.join(
-                            LOCAL_STIMULUS_DIRECTORY, 
-                            f'katz.BarbuMayo2019.csv'
-                        )
-                stimuli_directory=LOCAL_STIMULUS_DIRECTORY
-            )
-
-            return loader.load()
-        
-        except OSError as error:
-            _logger.debug(f'Excepted {error}. Attempting to access {self.stimulus_set_name} through Brainscore.')
-            return brainscore.get_stimulus_set(self.stimulus_set_name)
 
     def __call__(self, candidate):
         # The proper `fitting_stimuli` to pass to the candidate would be the imagenet training set.

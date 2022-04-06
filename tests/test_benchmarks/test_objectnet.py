@@ -1,5 +1,5 @@
 import numpy as np
-from pytest import approx
+import pytest
 
 from brainio.assemblies import BehavioralAssembly
 from brainscore.benchmarks.objectnet import Objectnet
@@ -29,4 +29,4 @@ class TestObjectnet:
 
         candidate = GroundTruth()
         score = benchmark(candidate)
-        assert score.sel(aggregation='center') == approx(1)
+        assert score.sel(aggregation='center') == pytest.approx(1)

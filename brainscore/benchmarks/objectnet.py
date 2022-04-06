@@ -26,7 +26,7 @@ class Objectnet(BenchmarkBase):
        
         super(Objectnet, self).__init__(identifier='katz.BarbuMayo2019-top1', version=1,
                                            ceiling_func=lambda: ceiling,
-                                           parent='Engineering',
+                                           parent='engineering',
                                            bibtex="""@inproceedings{DBLP:conf/nips/BarbuMALWGTK19,
                                                     author    = {Andrei Barbu and
                                                                 David Mayo and

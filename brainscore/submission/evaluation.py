@@ -217,8 +217,8 @@ def get_benchmark_instance(benchmark_name):
             benchmark_type.parent = parent
             benchmark_type.save()
         except DoesNotExist:
-            logger.exception(f'Could not connect benchmark {benchmark_name} to parent {benchmark.parent} '
-                             f'since parent does not exist')
+            logger.warning(f'Could not connect benchmark {benchmark_name} to parent {benchmark.parent} '
+                           f'since parent does not exist')
         if hasattr(benchmark, 'bibtex') and benchmark.bibtex is not None:
             bibtex_string = benchmark.bibtex
             ref = get_reference(bibtex_string)

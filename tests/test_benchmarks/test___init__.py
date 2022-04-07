@@ -85,6 +85,7 @@ class TestPoolList:
     def test_engineering_pool(self):
         assert set(engineering_benchmark_pool.keys()) == {
             'fei-fei.Deng2009-top1',
+            'katz.BarbuMayo2019-top1',
             'dietterich.Hendrycks2019-noise-top1', 'dietterich.Hendrycks2019-blur-top1',
             'dietterich.Hendrycks2019-weather-top1', 'dietterich.Hendrycks2019-digital-top1'
         }

@@ -5,7 +5,7 @@ from brainio.assemblies import BehavioralAssembly
 from brainscore.benchmarks.objectnet import Objectnet
 from brainscore.model_interface import BrainModel
 
-@pytest.mark.private_acces
+@pytest.mark.private_access
 class TestObjectnet:
     def test_groundtruth(self):
         benchmark = Objectnet()

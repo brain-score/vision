@@ -285,7 +285,6 @@ class TestGeirhos2021:
     def test_assembly(self, identifier, num_images, num_subjects, stimulus_set_identifier):
         assembly = brainio.get_assembly(identifier)
         assembly_length = num_subjects * num_images
-        assert len(np.unique(assembly['image_lookup_id'].values)) == num_images
 
         # test stimulus set:
         assert assembly.stimulus_set is not None
@@ -298,8 +297,8 @@ class TestGeirhos2021:
         # test assembly coords
         assert len(assembly['image_id']) == assembly_length
         assert len(assembly['image_lookup_id']) == assembly_length
-        assert len(assembly['subject_response']) == assembly_length
-        assert len(assembly['ground_truth']) == assembly_length
+        assert len(assembly['choice']) == assembly_length
+        assert len(assembly['truth']) == assembly_length
         assert len(assembly['condition']) == assembly_length
         assert len(assembly['response_time']) == assembly_length
         assert len(assembly['trial']) == assembly_length
@@ -307,10 +306,10 @@ class TestGeirhos2021:
         assert len(assembly['session']) == assembly_length
 
         # make sure there are num_images number of unique images (shown 1 time for each subject)
-        assert len(np.unique(assembly['image_lookup_id'].values)) == assembly_length
+        assert len(np.unique(assembly['image_lookup_id'].values)) == num_images
 
         # make sure there are num_subjects number of unique subjects
         assert len(np.unique(assembly['subject'].values)) == num_subjects
 
         # make sure there are 16 unique object categories (ground truths)
-        assert len(np.unique(assembly['ground_truth'].values)) == 16
+        assert len(np.unique(assembly['truth'].values)) == 16

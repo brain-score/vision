@@ -59,7 +59,7 @@ assert len(assembly['presentation']) == 5120
 # make sure assembly coords are correct length
 assert len(assembly['image_id']) == 5120
 assert len(assembly['image_lookup_id']) == 5120
-assert len(assembly['ground_truth']) == 5120
+assert len(assembly['truth']) == 5120
 assert len(assembly['category']) == 5120
 assert len(assembly['condition']) == 5120
 assert len(assembly['response_time']) == 5120
@@ -75,11 +75,11 @@ assert len(np.unique(assembly['image_lookup_id'].values)) == 1280
 assert len(np.unique(assembly['subject'].values)) == 4
 
 # make sure there are 16 unique object categories (ground truths):
-assert len(np.unique(assembly['ground_truth'].values)) == 16
+assert len(np.unique(assembly['truth'].values)) == 16
 assert len(np.unique(assembly['category'].values)) == 16
 
 
 # upload to S3
-# package_data_assembly(assembly, assembly_identifier=assembly.name, ,
-#                       assembly_class='BehavioralAssembly'
-#                       stimulus_set_identifier=stimuli.name)  # link to the StimulusSet
+package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
+                      stimulus_set_identifier="brendel.Geirhos2021_contrast",
+                      assembly_class="BehavioralAssembly", bucket_name="brainio.contrib")

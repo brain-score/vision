@@ -36,7 +36,8 @@ assembly = BehavioralAssembly(all_subjects['object_response'],
                               coords={
                                   'image_id': ('presentation', all_subjects['imagename']),
                                   'image_lookup_id': ('presentation', all_subjects['image_lookup_id']),
-                                  'ground_truth': ('presentation', all_subjects['category']),
+                                  'truth': ('presentation', all_subjects['category']),
+                                  'choice': ('presentation', all_subjects['object_response']),
                                   'category': ('presentation', all_subjects['category']),
                                   'condition': ('presentation', all_subjects['condition']),
                                   'response_time': ('presentation', all_subjects['rt']),
@@ -56,7 +57,8 @@ assert len(assembly['presentation']) == 5600
 # make sure assembly coords are correct length
 assert len(assembly['image_id']) == 5600
 assert len(assembly['image_lookup_id']) == 5600
-assert len(assembly['ground_truth']) == 5600
+assert len(assembly['truth']) == 5600
+assert len(assembly['choice']) == 5600
 assert len(assembly['category']) == 5600
 assert len(assembly['condition']) == 5600
 assert len(assembly['response_time']) == 5600
@@ -72,7 +74,7 @@ assert len(np.unique(assembly['image_lookup_id'].values)) == 800
 assert len(np.unique(assembly['subject'].values)) == 7
 
 # make sure there are 16 unique object categories (ground truths)
-assert len(np.unique(assembly['ground_truth'].values)) == 16
+assert len(np.unique(assembly['truth'].values)) == 16
 assert len(np.unique(assembly['category'].values)) == 16
 
 # make sure there is only one condition (i.e. no image variations added after presentation)

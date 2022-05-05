@@ -281,6 +281,7 @@ class TestGeirhos2021:
         ('brendel.Geirhos2021_contrast', 1280, 4, 'brendel.Geirhos2021_contrast'),
         ('brendel.Geirhos2021_eidolonI', 1280, 4, 'brendel.Geirhos2021_eidolonI'),
         ('brendel.Geirhos2021_eidolonII', 1280, 4, 'brendel.Geirhos2021_eidolonII'),
+        ('brendel.Geirhos2021_eidolonIII', 1280, 4, 'brendel.Geirhos2021_eidolonIII'),
         ('brendel.Geirhos2021_sketch', 800, 7, 'brendel.Geirhos2021_sketch'),
 
     ])

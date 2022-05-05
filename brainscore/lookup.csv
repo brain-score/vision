@@ -127,3 +127,6 @@ brendel.Geirhos2021_contrast,assembly,BehavioralAssembly,S3,https://brainio.cont
 brendel.Geirhos2021_eidolonI,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/image_brendel_Geirhos2021_eidolonI.csv,26ffc3da87ce247c86006ecc63eef37bcb132fcc,,brainio_brainscore
 brendel.Geirhos2021_eidolonI,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/image_brendel_Geirhos2021_eidolonI.zip,a96534fd570389ada395651e3a04045ce1b80e01,,brainio_brainscore
 brendel.Geirhos2021_eidolonI,assembly,BehavioralAssembly,S3,https://brainio.contrib.s3.amazonaws.com/assy_brendel_Geirhos2021_eidolonI.nc,7b4f4833d8db3201255bf4f8917feb731db5a837,brendel.Geirhos2021_eidolonI,brainio_brainscore
+brendel.Geirhos2021_eidolonII,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/image_brendel_Geirhos2021_eidolonII.csv,ede53f7548998077611b3323c47f12128124e0ff,,brainio_brainscore
+brendel.Geirhos2021_eidolonII,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/image_brendel_Geirhos2021_eidolonII.zip,e27bc760cb8e5c4db8fb9d89d9353e4896d56111,,brainio_brainscore
+brendel.Geirhos2021_eidolonII,assembly,BehavioralAssembly,S3,https://brainio.contrib.s3.amazonaws.com/assy_brendel_Geirhos2021_eidolonII.nc,2072afc907f2aee3de338d64f88080e75b260380,brendel.Geirhos2021_eidolonII,brainio_brainscore

@@ -73,8 +73,15 @@ def Geirhos2021SketchI1():
 
 def load_assembly():
     assembly = brainscore.get_assembly('brendel.Geirhos2021_sketch')
-    assembly['choice'] = ('presentation', assembly.values)  # TODO: keep this either here, or put it in packaging
-    assembly['truth'] = assembly['category']  # TODO: as above
+
+    # add needed fields to assembly:
+    assembly['choice'] = ('presentation', assembly.values)
+    assembly['truth'] = assembly['category']
     assembly['sample_obj'] = assembly['category']
     assembly['correct'] = assembly['choice'] == assembly['truth']
-    return assembly
+    # assembly['dist_obj'] = assembly['correct']
+
+    # drop the 40 rows with "na" as subject response -> cannot use for correlations, etc.
+    assembly_processed = assembly.where(assembly.choice != "na", drop=True)
+
+    return assembly_processed

@@ -223,6 +223,9 @@ def _engineering_benchmark_pool():
     pool['dietterich.Hendrycks2019-weather-top1'] = LazyLoad(Imagenet_C_Weather)
     pool['dietterich.Hendrycks2019-digital-top1'] = LazyLoad(Imagenet_C_Digital)
 
+    from .objectnet import Objectnet
+    pool['katz.BarbuMayo2019-top1'] = LazyLoad(Objectnet)
+
     return pool
 
 

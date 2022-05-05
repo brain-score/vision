@@ -11,19 +11,26 @@ https://arxiv.org/pdf/1706.06969.pdf
  - 4 subjects 
  - 1280 images each
  - 5120 total images shown 
- - match to sample task 
+ - match to sample task, 16AFC
  - 16 image categories
- - for the this benchmark (colour) subjects saw the EXACT image indicated with the variable/column name
-   image_lookup_id, and not a variation of it (no distortions, editing, etc). B/W or Color is indicated in the 
-   condition column of this df/assembly.
+ - for the this benchmark (eidolonI) subjects saw the EXACT image indicated with the variable/column name
+   image_lookup_id, and not a variation of it (no distortions, editing, etc). Condition is a three-number
+   set, like 129-10-10, describing the eidolonI parameters:
+   
+   eidolon-experiment: in the form 'a-b-c', indicating:
+
+   a is the parameter value for 'reach', in {1,2,4,8,...128}
+   b in {0,3,10} for coherence value of 0.0, 0.3, or 1.0; these are referred 
+   to as Eidolon III, Eidolon II and Eidolon I in the paper.
+   c = 10 for grain value of 10.0 (not varied in this experiment)
 
 '''
 
 # initial csv to dataframe processing:
-subject_1 = pd.read_csv('data_assemblies/colour_subject-01_session_1.csv')
-subject_2 = pd.read_csv('data_assemblies/colour_subject-02_session_1.csv')
-subject_3 = pd.read_csv('data_assemblies/colour_subject-03_session_1.csv')
-subject_4 = pd.read_csv('data_assemblies/colour_subject-04_session_1.csv')
+subject_1 = pd.read_csv('data_assemblies/eidolonI_subject-01_session_1.csv')
+subject_2 = pd.read_csv('data_assemblies/eidolonI_subject-02_session_1.csv')
+subject_3 = pd.read_csv('data_assemblies/eidolonI_subject-03_session_1.csv')
+subject_4 = pd.read_csv('data_assemblies/eidolonI_subject-04_session_1.csv')
 
 all_subjects = pd.concat([subject_1, subject_2, subject_3, subject_4])
 
@@ -51,9 +58,9 @@ assembly = BehavioralAssembly(all_subjects['object_response'],
                               )
 
 # give the assembly an identifier name
-assembly.name = 'brendel.Geirhos2021_colour'
+assembly.name = 'brendel.Geirhos2021_eidolonI'
 
-# make sure assembly dims are correct length
+# make sure assembly dim is correct length
 assert len(assembly['presentation']) == 5120
 
 # make sure assembly coords are correct length
@@ -71,17 +78,15 @@ assert len(assembly['session']) == 5120
 # # make sure there are 1280 unique images (shown 1 time for each  of 4 subjects, total of 4 * 1280 = 5120 images shown)
 assert len(np.unique(assembly['image_lookup_id'].values)) == 1280
 
-# make sure there are 7 unique subjects:
+# make sure there are 4 unique subjects:
 assert len(np.unique(assembly['subject'].values)) == 4
 
 # make sure there are 16 unique object categories (ground truths):
 assert len(np.unique(assembly['truth'].values)) == 16
 assert len(np.unique(assembly['category'].values)) == 16
 
-# make sure there is only two conditions (image variations), color and black & white:
-assert len(np.unique(assembly['condition'].values)) == 2
 
 # upload to S3
 package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
-                      stimulus_set_identifier="brendel.Geirhos2021_colour",
+                      stimulus_set_identifier="brendel.Geirhos2021_eidolonI",
                       assembly_class="BehavioralAssembly", bucket_name="brainio.contrib")

@@ -286,6 +286,7 @@ class TestGeirhos2021:
         ('brendel.Geirhos2021_high-pass', 1280, 4, 'brendel.Geirhos2021_high-pass'),
         ('brendel.Geirhos2021_low-pass', 1280, 4, 'brendel.Geirhos2021_low-pass'),
         ('brendel.Geirhos2021_phase-scrambling', 1120, 4, 'brendel.Geirhos2021_phase-scrambling'),
+        ('brendel.Geirhos2021_power-equalisation', 1120, 4, 'brendel.Geirhos2021_power-equalisation'),
         ('brendel.Geirhos2021_sketch', 800, 7, 'brendel.Geirhos2021_sketch'),
 
     ])

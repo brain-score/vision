@@ -116,6 +116,7 @@ class TestGeirhos2021:
         ('brendel.Geirhos2021_eidolonII', 1280),
         ('brendel.Geirhos2021_eidolonIII', 1280),
         ('brendel.Geirhos2021_false-colour', 1120),
+        ('brendel.Geirhos2021_high-pass', 1280),
         ('brendel.Geirhos2021_sketch', 800),
 
     ])

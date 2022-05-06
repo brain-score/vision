@@ -290,6 +290,7 @@ class TestGeirhos2021:
         ('brendel.Geirhos2021_rotation', 1280, 4, 'brendel.Geirhos2021_rotation'),
         ('brendel.Geirhos2021_stylized', 800, 5, 'brendel.Geirhos2021_stylized'),
         ('brendel.Geirhos2021_sketch', 800, 7, 'brendel.Geirhos2021_sketch'),
+        ('brendel.Geirhos2021_uniform-noise', 1280, 4, 'brendel.Geirhos2021_uniform-noise'),
 
     ])
     def test_assembly(self, identifier, num_images, num_subjects, stimulus_set_identifier):

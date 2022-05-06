@@ -157,3 +157,6 @@ brendel.Geirhos2021_stylized,assembly,BehavioralAssembly,S3,https://brainio.cont
 brendel.Geirhos2021_uniform-noise,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/image_brendel_Geirhos2021_uniform-noise.csv,e5fecd7e630cec32aa429bf1957e44c4fbfca899,,brainio_brainscore
 brendel.Geirhos2021_uniform-noise,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/image_brendel_Geirhos2021_uniform-noise.zip,644b3df89862b651fe06540505500a82356d5adc,,brainio_brainscore
 brendel.Geirhos2021_uniform-noise,assembly,BehavioralAssembly,S3,https://brainio.contrib.s3.amazonaws.com/assy_brendel_Geirhos2021_uniform-noise.nc,e4433de463341024f1e594a8cf51958a13a7e398,brendel.Geirhos2021_uniform-noise,brainio_brainscore
+brendel.Geirhos2021_edge,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/image_brendel_Geirhos2021_edge.csv,8d988007b24bfbb8e30cfa6c8a3599a649727b04,,brainio_brainscore
+brendel.Geirhos2021_edge,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/image_brendel_Geirhos2021_edge.zip,6c1199d90836a26be454aa799864a63c5efacaa1,,brainio_brainscore
+brendel.Geirhos2021_edge,assembly,BehavioralAssembly,S3,https://brainio.contrib.s3.amazonaws.com/assy_brendel_Geirhos2021_edge.nc,3949ba26f8a9f770cde0e42f3e78f026d7e52826,brendel.Geirhos2021_edge,brainio_brainscore

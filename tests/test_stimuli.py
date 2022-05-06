@@ -112,6 +112,7 @@ class TestGeirhos2021:
     @pytest.mark.parametrize('identifier, num_stimuli', [
         ('brendel.Geirhos2021_colour', 1280),
         ('brendel.Geirhos2021_contrast', 1280),
+        ('brendel.Geirhos2021_edge', 160),
         ('brendel.Geirhos2021_eidolonI', 1280),
         ('brendel.Geirhos2021_eidolonII', 1280),
         ('brendel.Geirhos2021_eidolonIII', 1280),

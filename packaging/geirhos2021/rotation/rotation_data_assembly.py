@@ -9,20 +9,19 @@ Experiment Information:
 https://arxiv.org/pdf/1706.06969.pdf
 
  - 4 subjects 
- - 1120 images each
- - 4480 total images shown 
+ - 1280 images each
+ - 5120 total images shown 
  - match to sample task, 16AFC
  - 16 image categories
- - for the this benchmark (phase-scrambling) subjects saw the EXACT image indicated with the variable/column name
-   image_lookup_id, and not a variation of it (no distortions, editing, etc). Condition is again unclear based on 
-   documentation fromm source repo, needs follow up. 
+ - for the this benchmark (rotation) subjects saw the EXACT image indicated with the variable/column name
+   image_lookup_id, and not a variation of it (no distortions, editing, etc). Condition is the angle of rotation.
 '''
 
 # initial csv to dataframe processing:
-subject_1 = pd.read_csv('data_assemblies/phase-scrambling_subject-01_session_1.csv')
-subject_2 = pd.read_csv('data_assemblies/phase-scrambling_subject-02_session_1.csv')
-subject_3 = pd.read_csv('data_assemblies/phase-scrambling_subject-03_session_1.csv')
-subject_4 = pd.read_csv('data_assemblies/phase-scrambling_subject-04_session_1.csv')
+subject_1 = pd.read_csv('data_assemblies/rotation_subject-01_session_1.csv')
+subject_2 = pd.read_csv('data_assemblies/rotation_subject-02_session_1.csv')
+subject_3 = pd.read_csv('data_assemblies/rotation_subject-03_session_1.csv')
+subject_4 = pd.read_csv('data_assemblies/rotation_subject-04_session_1.csv')
 
 all_subjects = pd.concat([subject_1, subject_2, subject_3, subject_4])
 
@@ -50,28 +49,32 @@ assembly = BehavioralAssembly(all_subjects['object_response'],
                               )
 
 # give the assembly an identifier name
-assembly.name = 'brendel.Geirhos2021_phase-scrambling'
+assembly.name = 'brendel.Geirhos2021_rotation'
 
 # make sure assembly dim is correct length
-assert len(assembly['presentation']) == 4480
+assert len(assembly['presentation']) == 5120
 
 # make sure assembly coords are correct length
-assert len(assembly['image_id']) == 4480
-assert len(assembly['image_lookup_id']) == 4480
-assert len(assembly['truth']) == 4480
-assert len(assembly['category']) == 4480
-assert len(assembly['condition']) == 4480
-assert len(assembly['response_time']) == 4480
-assert len(assembly['trial']) == 4480
-assert len(assembly['subject']) == 4480
-assert len(assembly['session']) == 4480
+assert len(assembly['image_id']) == 5120
+assert len(assembly['image_lookup_id']) == 5120
+assert len(assembly['truth']) == 5120
+assert len(assembly['category']) == 5120
+assert len(assembly['condition']) == 5120
+assert len(assembly['response_time']) == 5120
+assert len(assembly['trial']) == 5120
+assert len(assembly['subject']) == 5120
+assert len(assembly['session']) == 5120
 
 
-# make sure there are 1120 unique images (shown 1 time for each  of 4 subjects, total of 4 * 1120 = 4480 images shown)
-assert len(np.unique(assembly['image_lookup_id'].values)) == 1120
+# make sure there are 1280 unique images (shown 1 time for each  of 4 subjects, total of 4 * 1280 = 5120 images shown)
+assert len(np.unique(assembly['image_lookup_id'].values)) == 1280
 
 # make sure there are 4 unique subjects:
 assert len(np.unique(assembly['subject'].values)) == 4
+
+# make sure there are only 2 possible conditions, 0, 90, 180, 270
+assert len(np.unique(assembly['condition'].values)) == 4
+
 
 # make sure there are 16 unique object categories (ground truths):
 assert len(np.unique(assembly['truth'].values)) == 16
@@ -80,5 +83,5 @@ assert len(np.unique(assembly['category'].values)) == 16
 
 # upload to S3
 package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
-                      stimulus_set_identifier="brendel.Geirhos2021_phase-scrambling",
+                      stimulus_set_identifier="brendel.Geirhos2021_rotation",
                       assembly_class="BehavioralAssembly", bucket_name="brainio.contrib")

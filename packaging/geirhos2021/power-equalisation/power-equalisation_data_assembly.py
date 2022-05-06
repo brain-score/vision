@@ -9,8 +9,8 @@ Experiment Information:
 https://arxiv.org/pdf/1706.06969.pdf
 
  - 4 subjects 
- - 1280 images each
- - 5120 total images shown 
+ - 1120 images each
+ - 4480 total images shown 
  - match to sample task, 16AFC
  - 16 image categories
  - for the this benchmark (power-equalisation) subjects saw the EXACT image indicated with the variable/column name
@@ -67,7 +67,7 @@ assert len(assembly['subject']) == 4480
 assert len(assembly['session']) == 4480
 
 
-# make sure there are 1280 unique images (shown 1 time for each  of 4 subjects, total of 4 * 1280 = 5120 images shown)
+# make sure there are 1120 unique images (shown 1 time for each  of 4 subjects, total of 4 * 1120 = 4480 images shown)
 assert len(np.unique(assembly['image_lookup_id'].values)) == 1120
 
 # make sure there are 4 unique subjects:

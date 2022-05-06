@@ -142,3 +142,6 @@ brendel.Geirhos2021_high-pass,assembly,BehavioralAssembly,S3,https://brainio.con
 brendel.Geirhos2021_low-pass,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/image_brendel_Geirhos2021_low-pass.csv,737ae15b7d4c903469871de03ebda8a886f06d5b,,brainio_brainscore
 brendel.Geirhos2021_low-pass,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/image_brendel_Geirhos2021_low-pass.zip,c8ee3122342509dcb4337a0a7f828dd2e022b6b2,,brainio_brainscore
 brendel.Geirhos2021_low-pass,assembly,BehavioralAssembly,S3,https://brainio.contrib.s3.amazonaws.com/assy_brendel_Geirhos2021_low-pass.nc,a3a3cc13747fa6c5d2c80384124fb16ff31bb9d2,brendel.Geirhos2021_low-pass,brainio_brainscore
+brendel.Geirhos2021_phase-scrambling,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/image_brendel_Geirhos2021_phase-scrambling.csv,f49f3d50ecae3f2bc2d39e557e97d4f06466b423,,brainio_brainscore
+brendel.Geirhos2021_phase-scrambling,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/image_brendel_Geirhos2021_phase-scrambling.zip,dcf096223d22c11e3e18f67bd97457eb1f147152,,brainio_brainscore
+brendel.Geirhos2021_phase-scrambling,assembly,BehavioralAssembly,S3,https://brainio.contrib.s3.amazonaws.com/assy_brendel_Geirhos2021_phase-scrambling.nc,f0d095d29fbeb18927b66f2d006b0d7277771b11,brendel.Geirhos2021_phase-scrambling,brainio_brainscore

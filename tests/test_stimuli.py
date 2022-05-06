@@ -122,6 +122,7 @@ class TestGeirhos2021:
         ('brendel.Geirhos2021_phase-scrambling', 1120),
         ('brendel.Geirhos2021_power-equalisation', 1120),
         ('brendel.Geirhos2021_rotation', 1280),
+        ('brendel.Geirhos2021_silhouette', 160),
         ('brendel.Geirhos2021_stylized', 800),
         ('brendel.Geirhos2021_sketch', 800),
         ('brendel.Geirhos2021_uniform-noise', 1280),

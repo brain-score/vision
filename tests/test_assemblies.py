@@ -289,6 +289,7 @@ class TestGeirhos2021:
         ('brendel.Geirhos2021_phase-scrambling', 1120, 4, 'brendel.Geirhos2021_phase-scrambling'),
         ('brendel.Geirhos2021_power-equalisation', 1120, 4, 'brendel.Geirhos2021_power-equalisation'),
         ('brendel.Geirhos2021_rotation', 1280, 4, 'brendel.Geirhos2021_rotation'),
+        ('brendel.Geirhos2021_silhouette', 160, 10, 'brendel.Geirhos2021_silhouette'),
         ('brendel.Geirhos2021_stylized', 800, 5, 'brendel.Geirhos2021_stylized'),
         ('brendel.Geirhos2021_sketch', 800, 7, 'brendel.Geirhos2021_sketch'),
         ('brendel.Geirhos2021_uniform-noise', 1280, 4, 'brendel.Geirhos2021_uniform-noise'),

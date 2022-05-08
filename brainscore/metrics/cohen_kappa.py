@@ -76,12 +76,6 @@ class CohensKappa(Metric):
         # from https://github.com/bethgelab/model-vs-human/blob/745046c4d82ff884af618756bd6a5f47b6f36c45/modelvshuman/plotting/analyses.py#L147-L158
         """Return error consistency as measured by Cohen's kappa."""
 
-        assert expected_consistency >= 0.0
-        assert expected_consistency <= 1.0
-        assert observed_consistency >= 0.0
-        assert observed_consistency <= 1.0
-
-        if observed_consistency == 1.0:
-            return 1.0
-        else:
-            return (observed_consistency - expected_consistency) / (1.0 - expected_consistency)
+        assert 0.0 <= expected_consistency <= 1.0
+        assert 0.0 <= observed_consistency <= 1.0
+        return (observed_consistency - expected_consistency) / (1.0 - expected_consistency)

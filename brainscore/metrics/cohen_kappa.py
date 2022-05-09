@@ -31,17 +31,24 @@ class CohensKappa(Metric):
 
     def ceiling(self, assembly):
         """
-        Computes subject consistency by comparing all subjects pairwise.
+        Computes subject consistency by comparing each subject to all other subjects.
         """
         subjects = self.extract_subjects(assembly)
         subject_scores = []
-        for subject1, subject2 in itertools.combinations(subjects, 2):
-            subject1_assembly, subject2_assembly = assembly.sel(subject=subject1), assembly.sel(subject=subject2)
-            pairwise_score = self.compare_single_subject(subject1_assembly, subject2_assembly, mask_both=True)
-            pairwise_score = pairwise_score.expand_dims('subject')
-            pairwise_score['subject_left'] = 'subject', [subject1]
-            pairwise_score['subject_right'] = 'subject', [subject2]
-            subject_scores.append(Score(pairwise_score))
+        for subject1 in subjects:
+            subject1_scores = []
+            for subject2 in [subject for subject in subjects if subject != subject1]:
+                subject1_assembly, subject2_assembly = assembly.sel(subject=subject1), assembly.sel(subject=subject2)
+                score = self.compare_single_subject(subject1_assembly, subject2_assembly, mask_both=True)
+                score = score.expand_dims('subject')
+                score['subject_left'] = 'subject', [subject1]
+                score['subject_right'] = 'subject', [subject2]
+                subject1_scores.append(Score(score))
+            subject1_scores = Score.merge(*subject1_scores)
+            subject1_scores = apply_aggregate(aggregate_fnc=lambda scores: scores.mean(), values=subject1_scores)
+            subject1_scores = subject1_scores.expand_dims('subject')
+            subject1_scores['subject'] = [subject1]
+            subject_scores.append(subject1_scores)
         subject_scores = Score.merge(*subject_scores)
         subject_scores = apply_aggregate(aggregate_fnc=lambda scores: scores.mean(), values=subject_scores)
         return subject_scores

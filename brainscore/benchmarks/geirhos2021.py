@@ -14,17 +14,27 @@ BIBTEX = """@article{geirhos2021partial,
               year={2021}
         }"""
 
+DATASETS = ['colour', 'contrast', 'edge',  # FIXME 'colour', 'contrast', 'cue-conflict', 'edge',
+            'eidolonI', 'eidolonII', 'eidolonIII',
+            'false-colour', 'high-pass', 'low-pass', 'phase-scrambling', 'power-equalisation',
+            'rotation', 'silhouette', 'sketch', 'stylized', 'uniform-noise']
 
-class Geirhos2021Sketch(BenchmarkBase):
-    def __init__(self):
+# create functions so that users can import individual benchmarks as e.g. Geirhos2021sketchCohenKappa
+for dataset in DATASETS:
+    identifier = f"Geirhos2021{dataset.replace('-', '')}CohenKappa"
+    globals()[identifier] = lambda dataset=dataset: _Geirhos2021CohenKappa(dataset)
+
+
+class _Geirhos2021CohenKappa(BenchmarkBase):
+    def __init__(self, dataset):
         self._metric = CohensKappa()
-        self._assembly = LazyLoad(load_assembly)
+        self._assembly = LazyLoad(lambda: load_assembly(dataset))
         self._visual_degrees = 3
 
         self._number_of_trials = 1
 
-        super(Geirhos2021Sketch, self).__init__(
-            identifier='brendel.Geirhos2021sketch-cohen_kappa', version=1,
+        super(_Geirhos2021CohenKappa, self).__init__(
+            identifier=f'brendel.Geirhos2021{dataset}-cohen_kappa', version=1,
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
             parent='behavior',
             bibtex=BIBTEX)
@@ -44,8 +54,8 @@ class Geirhos2021Sketch(BenchmarkBase):
         return score
 
 
-def load_assembly():
-    assembly = brainscore.get_assembly('brendel.Geirhos2021_sketch')
+def load_assembly(dataset):
+    assembly = brainscore.get_assembly(f'brendel.Geirhos2021_{dataset}')
     # FIXME
     stimulus_set = assembly.stimulus_set
     assembly = type(assembly)(assembly.values, coords={
@@ -56,7 +66,8 @@ def load_assembly():
     stimulus_set['image_id'] = stimulus_set['image_lookup_id']
     stimulus_set.image_paths = {image_id_to_lookup[image_id]: path
                                 for image_id, path in stimulus_set.image_paths.items()}
-    stimulus_set['truth'] = stimulus_set['category_ground_truth']
+    stimulus_set['truth'] = stimulus_set[
+        'image_category' if 'image_category' in stimulus_set.columns else 'category_ground_truth']
     assembly.attrs['stimulus_set'] = stimulus_set
     # drop the 40 rows with "na" as subject response -> cannot use for correlations, etc.
     assembly = assembly.where(assembly.choice != "na", drop=True)

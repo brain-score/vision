@@ -1,3 +1,5 @@
+import numpy as np
+
 import brainscore
 from brainio.assemblies import walk_coords
 from brainscore.benchmarks import BenchmarkBase
@@ -18,6 +20,24 @@ DATASETS = ['colour', 'contrast', 'edge',  # FIXME 'colour', 'contrast', 'cue-co
             'eidolonI', 'eidolonII', 'eidolonIII',
             'false-colour', 'high-pass', 'low-pass', 'phase-scrambling', 'power-equalisation',
             'rotation', 'silhouette', 'sketch', 'stylized', 'uniform-noise']
+
+# exclusion criteria: (from https://github.com/bethgelab/model-vs-human/blob/1a2dc996349cc6560bb8a98734d2882b3b308585/modelvshuman/plotting/plot.py#L43)
+# - not OOD: control condition without manipulation (e.g. 100% contrast)
+# - mean human accuracy < 0.2 (error consistency etc. not meaningful)
+EXCLUDE_CONDITIONS = {
+    "colour": ["cr"],
+    "contrast": ["c100", "c03", "c01"],
+    "high-pass": [np.inf, 0.55, 0.45, 0.4],
+    "low-pass": [0, 15, 40],
+    "phase-scrambling": [0, 150, 180],
+    "power-equalisation": ["0"],
+    "false-colour": ["True"],
+    "rotation": [0],
+    "eidolonI": ["1-10-10", "64-10-10", "128-10-10"],
+    "eidolonII": ["1-3-10", "32-3-10", "64-3-10", "128-3-10"],
+    "eidolonIII": ["1-0-10", "16-0-10", "32-0-10", "64-0-10", "128-0-10"],
+    "uniform-noise": [0.0, 0.6, 0.9]
+}
 
 # create functions so that users can import individual benchmarks as e.g. Geirhos2021sketchCohenKappa
 for dataset in DATASETS:
@@ -69,6 +89,9 @@ def load_assembly(dataset):
     stimulus_set['truth'] = stimulus_set[
         'image_category' if 'image_category' in stimulus_set.columns else 'category_ground_truth']
     assembly.attrs['stimulus_set'] = stimulus_set
-    # drop the 40 rows with "na" as subject response -> cannot use for correlations, etc.
-    assembly = assembly.where(assembly.choice != "na", drop=True)
+    # exclude conditions following the paper
+    if dataset in EXCLUDE_CONDITIONS:
+        excluded = EXCLUDE_CONDITIONS[dataset]
+        assert all(condition in assembly['condition'].values for condition in excluded)
+        assembly = assembly[{'presentation': ~np.isin(assembly['condition'], excluded)}]
     return assembly

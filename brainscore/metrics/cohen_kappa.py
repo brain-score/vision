@@ -19,13 +19,17 @@ class CohensKappa(Metric):
 
         subject_scores = []
         for subject in self.extract_subjects(target):
-            subject_target = target.sel(subject=subject)
-            subject_score = self.compare_single_subject(source, subject_target)
-            subject_score = subject_score.expand_dims('subject')
-            subject_score['subject'] = [subject]
-            subject_scores.append(subject_score)
+            for condition in sorted(set(target['condition'].values)):  # TODO: remove from metric
+                this_source = source.sel(condition=condition)
+                this_target = target.sel(subject=subject, condition=condition)
+                subject_score = self.compare_single_subject(this_source, this_target)
+                subject_score = subject_score.expand_dims('subject').expand_dims('condition')
+                subject_score['subject'] = [subject]
+                subject_score['condition'] = [condition]
+                subject_scores.append(subject_score)
         subject_scores = Score.merge(*subject_scores)
-        subject_scores = apply_aggregate(aggregate_fnc=lambda scores: scores.mean(), values=subject_scores)
+        subject_scores = apply_aggregate(aggregate_fnc=lambda scores: scores.mean('condition').mean('subject'),
+                                         values=subject_scores)
         return subject_scores
 
     def ceiling(self, assembly):

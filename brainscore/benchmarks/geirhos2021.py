@@ -49,7 +49,7 @@ class _Geirhos2021CohenKappa(BenchmarkBase):
     def __init__(self, dataset):
         self._metric = CohensKappa()
         self._assembly = LazyLoad(lambda: load_assembly(dataset))
-        self._visual_degrees = 3
+        self._visual_degrees = 8  # FIXME: 3
 
         self._number_of_trials = 1
 
@@ -78,6 +78,7 @@ def load_assembly(dataset):
     assembly = brainscore.get_assembly(f'brendel.Geirhos2021_{dataset}')
     # FIXME
     stimulus_set = assembly.stimulus_set
+    # fix: use unique image_id referencing between assembly + stimulus_set
     assembly = type(assembly)(assembly.values, coords={
         coord: (dims, values) for coord, dims, values in walk_coords(assembly) if coord != 'image_id'},
                               dims=assembly.dims)
@@ -86,9 +87,14 @@ def load_assembly(dataset):
     stimulus_set['image_id'] = stimulus_set['image_lookup_id']
     stimulus_set.image_paths = {image_id_to_lookup[image_id]: path
                                 for image_id, path in stimulus_set.image_paths.items()}
+    # fix: add truth
     stimulus_set['truth'] = stimulus_set[
         'image_category' if 'image_category' in stimulus_set.columns else 'category_ground_truth']
+    # fix: add condition
+    image_id_to_condition = dict(zip(assembly['image_id'].values, assembly['condition'].values))
+    stimulus_set['condition'] = [image_id_to_condition[image_id] for image_id in stimulus_set['image_id']]
     assembly.attrs['stimulus_set'] = stimulus_set
+
     # exclude conditions following the paper
     if dataset in EXCLUDE_CONDITIONS:
         excluded = EXCLUDE_CONDITIONS[dataset]

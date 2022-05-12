@@ -59,7 +59,7 @@ for filepath in Path(stimuli_directory).glob('*.png'):
         'image_id_long': image_id_long,
         'image_number': image_number,
         'experiment_code': experiment_code,
-        'subject': subject,
+        'condition': condition,
         'truth': category_ground_truth,
         'category_ground_truth': category_ground_truth,
         'random_number': random_number,

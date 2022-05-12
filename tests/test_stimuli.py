@@ -113,24 +113,46 @@ class TestGeirhos2021:
     @pytest.mark.parametrize('identifier, num_stimuli', [
         ('brendel.Geirhos2021_colour', 1280),
         ('brendel.Geirhos2021_contrast', 1280),
-        # ('brendel.Geirhos2021_edge', 160),
-        # ('brendel.Geirhos2021_eidolonI', 1280),
-        # ('brendel.Geirhos2021_eidolonII', 1280),
-        # ('brendel.Geirhos2021_eidolonIII', 1280),
-        # ('brendel.Geirhos2021_false-colour', 1120),
-        # ('brendel.Geirhos2021_high-pass', 1280),
-        # ('brendel.Geirhos2021_low-pass', 1280),
-        # ('brendel.Geirhos2021_phase-scrambling', 1120),
-        # ('brendel.Geirhos2021_power-equalisation', 1120),
-        # ('brendel.Geirhos2021_rotation', 1280),
-        # ('brendel.Geirhos2021_silhouette', 160),
-        # ('brendel.Geirhos2021_stylized', 800),
+        #('brendel.Geirhos2021_edge', 160),
+        ('brendel.Geirhos2021_eidolonI', 1280),
+        ('brendel.Geirhos2021_eidolonII', 1280),
+        ('brendel.Geirhos2021_eidolonIII', 1280),
+        #('brendel.Geirhos2021_false-colour', 1120),
+        ('brendel.Geirhos2021_high-pass', 1280),
+        ('brendel.Geirhos2021_low-pass', 1280),
+        ('brendel.Geirhos2021_phase-scrambling', 1120),
+        ('brendel.Geirhos2021_power-equalisation', 1120),
+        ('brendel.Geirhos2021_rotation', 1280),
+        #('brendel.Geirhos2021_silhouette', 160),
+        ('brendel.Geirhos2021_stylized', 800),
         ('brendel.Geirhos2021_sketch', 800),
-        # ('brendel.Geirhos2021_uniform-noise', 1280),
+        ('brendel.Geirhos2021_uniform-noise', 1280),
 
     ])
     def test_stimulus_set_size(self, identifier, num_stimuli):
         stimulus_set = brainscore.get_stimulus_set(identifier)
-        assert len(stimulus_set["truth"]) == num_stimuli
+
+        # confirm lengths
         assert len(stimulus_set) == num_stimuli
+        assert len(stimulus_set) == num_stimuli
+        assert len(stimulus_set['image_id']) == num_stimuli
+        assert len(stimulus_set['image_id_long']) == num_stimuli
+        assert len(stimulus_set['image_number']) == num_stimuli
+        assert len(stimulus_set['experiment_code']) == num_stimuli
+        assert len(stimulus_set['condition']) == num_stimuli
+        assert len(stimulus_set['truth']) == num_stimuli
+        assert len(stimulus_set['category_ground_truth']) == num_stimuli
+        assert len(stimulus_set['random_number']) == num_stimuli
+
+        # make sure the condition in false-color is of type string
+        if identifier == "brendel.Geirhos2021_false-colour":
+            assert all(isinstance(s, str) for s in stimulus_set["condition"].values)
+
+        # same checks, but for edge, silhouette, and cue-conflict
+        # which have a different stimulus set:
+        # if num_stimuli < 500:
+        #     assert len(stimulus_set['image_id']) == num_stimuli
+        #     assert len(stimulus_set['image_id_long']) == num_stimuli
+        #     assert len(stimulus_set['image_number']) == num_stimuli
+
 

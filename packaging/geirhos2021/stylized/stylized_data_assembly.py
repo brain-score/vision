@@ -28,13 +28,15 @@ subject_5 = pd.read_csv('data_assemblies/stylized_subject-05_session_1.csv')
 all_subjects = pd.concat([subject_1, subject_2, subject_3, subject_4, subject_5])
 
 # parse for the image lookup id. This relates the data assembly with the stimulus set.
-all_subjects['image_lookup_id'] = all_subjects['imagename'].str.split("_").str[-1]
+split_cols = all_subjects['imagename'].str.split("_", expand=True)
+drop_cols = split_cols.drop(split_cols.columns[[0, 1, 2]], axis=1)
+all_subjects['image_lookup_id'] = drop_cols.agg("_".join, axis=1).str.replace(".png", "")
 
 # construct the assembly
 assembly = BehavioralAssembly(all_subjects['object_response'],
                               coords={
-                                  'image_id': ('presentation', all_subjects['imagename']),
-                                  'image_lookup_id': ('presentation', all_subjects['image_lookup_id']),
+                                  'image_id': ('presentation', all_subjects['image_lookup_id']),
+                                  'image_id_long': ('presentation', all_subjects['imagename']),
                                   'truth': ('presentation', all_subjects['category']),
                                   'choice': ('presentation', all_subjects['object_response']),
                                   'category': ('presentation', all_subjects['category']),
@@ -55,7 +57,7 @@ assert len(assembly['presentation']) == 4000
 
 # make sure assembly coords are correct length
 assert len(assembly['image_id']) == 4000
-assert len(assembly['image_lookup_id']) == 4000
+assert len(assembly['image_id_long']) == 4000
 assert len(assembly['truth']) == 4000
 assert len(assembly['choice']) == 4000
 assert len(assembly['category']) == 4000
@@ -67,7 +69,7 @@ assert len(assembly['session']) == 4000
 
 
 # make sure there are 800 unique images (shown 1 time for each  of 5 subjects, total of 5 * 800 = 4000 images shown)
-assert len(np.unique(assembly['image_lookup_id'].values)) == 800
+assert len(np.unique(assembly['image_id'].values)) == 800
 
 # make sure there are 5 unique subjects
 assert len(np.unique(assembly['subject'].values)) == 5

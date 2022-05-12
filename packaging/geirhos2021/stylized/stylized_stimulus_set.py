@@ -30,6 +30,7 @@ for filepath in Path(stimuli_directory).glob('*.png'):
 
     # entire name of image file:
     image_id = filepath.stem
+    image_id_long = image_id
     split_name = filepath.stem.split('_')
 
     # ensure proper metadata length per image in set
@@ -42,22 +43,27 @@ for filepath in Path(stimuli_directory).glob('*.png'):
     condition = split_name[3]
     category_ground_truth = split_name[4]
     random_number = split_name[5]
-    image_lookup_id = split_name[6] + ".png"  # this is the same as data assembly's image_lookup_id
+
+    # this is the same as data assembly's image_lookup_id
+    image_lookup_id = f"{condition}_{category_ground_truth}_{random_number}_{split_name[6]}"
 
     image_paths[image_id] = filepath
     stimuli.append({
-        'image_id': image_id,
-        'image_number': image_number,
+        'image_id': image_lookup_id,
+        'image_id_long': image_id_long,
         'experiment_code': experiment_code,
-        'subject': subject,
         'condition': condition,
+        'truth': category_ground_truth,
         'category_ground_truth': category_ground_truth,
         'random_number': random_number,
         'image_lookup_id': image_lookup_id,
     })
 
 stimuli = StimulusSet(stimuli)
+image_id_to_lookup = dict(zip(stimuli['image_id_long'], stimuli['image_id']))
 stimuli.image_paths = image_paths
+stimuli.image_paths = {image_id_to_lookup[image_id]: path
+                       for image_id, path in stimuli.image_paths.items()}
 stimuli.name = 'brendel.Geirhos2021_stylized'
 
 # Ensure 800 images in dataset

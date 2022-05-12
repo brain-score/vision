@@ -100,4 +100,7 @@ def load_assembly(dataset):
         excluded = EXCLUDE_CONDITIONS[dataset]
         assert all(condition in assembly['condition'].values for condition in excluded)
         assembly = assembly[{'presentation': ~np.isin(assembly['condition'], excluded)}]
+        stimulus_set = assembly.attrs['stimulus_set']
+        stimulus_set = stimulus_set[stimulus_set['image_id'].isin(set(assembly['image_id'].values))]
+        assembly.attrs['stimulus_set'] = stimulus_set
     return assembly

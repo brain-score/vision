@@ -1,18 +1,18 @@
 import os
+from pathlib import Path
+from typing import List, Tuple
 
 import numpy as np
 import pytest
-from PIL import Image
-from pathlib import Path
-from pytest import approx
-from typing import List, Tuple
 import xarray as xr
+from PIL import Image
+from pytest import approx
 
+from brainio.assemblies import BehavioralAssembly
 from brainscore.benchmarks import benchmark_pool, public_benchmark_pool, evaluation_benchmark_pool, \
     engineering_benchmark_pool
 from brainscore.model_interface import BrainModel
 from tests.test_benchmarks import PrecomputedFeatures
-from brainio.assemblies import BehavioralAssembly
 
 
 class TestPoolList:
@@ -227,6 +227,40 @@ class TestPrecomputed:
     def test_MajajHong2015(self, benchmark, expected):
         self.run_test(benchmark=benchmark, file='alexnet-majaj2015.private-features.12.nc', expected=expected)
 
+    @pytest.mark.memory_intense
+    @pytest.mark.slow
+    @pytest.mark.parametrize('benchmark, expected', [
+        ('dicarlo.Sanghavi2020.V4-pls', approx(.551135, abs=.015)),
+        ('dicarlo.Sanghavi2020.IT-pls', approx(.611347, abs=.015)),
+    ])
+    def test_Sanghavi2020(self, benchmark, expected):
+        self.run_test(benchmark=benchmark, file='alexnet-sanghavi2020-features.12.nc', expected=expected)
+
+    @pytest.mark.memory_intense
+    @pytest.mark.slow
+    @pytest.mark.parametrize('benchmark, expected', [
+        ('dicarlo.SanghaviJozwik2020.V4-pls', approx(.49235, abs=.005)),
+        ('dicarlo.SanghaviJozwik2020.IT-pls', approx(.590543, abs=.005)),
+    ])
+    def test_SanghaviJozwik2020(self, benchmark, expected):
+        self.run_test(benchmark=benchmark, file='alexnet-sanghavijozwik2020-features.12.nc', expected=expected)
+
+    @pytest.mark.memory_intense
+    @pytest.mark.parametrize('benchmark, expected', [
+        ('dicarlo.SanghaviMurty2020.V4-pls', approx(.357461, abs=.015)),
+        ('dicarlo.SanghaviMurty2020.IT-pls', approx(.53006, abs=.015)),
+    ])
+    def test_SanghaviMurty2020(self, benchmark, expected):
+        self.run_test(benchmark=benchmark, file='alexnet-sanghavimurty2020-features.12.nc', expected=expected)
+
+    @pytest.mark.memory_intense
+    @pytest.mark.slow
+    @pytest.mark.parametrize('benchmark, expected', [
+        ('dicarlo.Rajalingham2020.IT-pls', approx(.147549, abs=.01)),
+    ])
+    def test_Rajalingham2020(self, benchmark, expected):
+        self.run_test(benchmark=benchmark, file='alexnet-rajalingham2020-features.12.nc', expected=expected)
+
     def run_test(self, benchmark, file, expected):
         benchmark = benchmark_pool[benchmark]
         precomputed_features = Path(__file__).parent / file
@@ -270,40 +304,6 @@ class TestPrecomputed:
         # score
         score = benchmark(precomputed_features).raw
         assert score.sel(aggregation='center') == approx(.136923, abs=.005)
-
-    @pytest.mark.memory_intense
-    @pytest.mark.slow
-    @pytest.mark.parametrize('benchmark, expected', [
-        ('dicarlo.Sanghavi2020.V4-pls', approx(.551135, abs=.015)),
-        ('dicarlo.Sanghavi2020.IT-pls', approx(.611347, abs=.015)),
-    ])
-    def test_Sanghavi2020(self, benchmark, expected):
-        self.run_test(benchmark=benchmark, file='alexnet-sanghavi2020-features.12.nc', expected=expected)
-
-    @pytest.mark.memory_intense
-    @pytest.mark.slow
-    @pytest.mark.parametrize('benchmark, expected', [
-        ('dicarlo.SanghaviJozwik2020.V4-pls', approx(.49235, abs=.005)),
-        ('dicarlo.SanghaviJozwik2020.IT-pls', approx(.590543, abs=.005)),
-    ])
-    def test_SanghaviJozwik2020(self, benchmark, expected):
-        self.run_test(benchmark=benchmark, file='alexnet-sanghavijozwik2020-features.12.nc', expected=expected)
-
-    @pytest.mark.memory_intense
-    @pytest.mark.parametrize('benchmark, expected', [
-        ('dicarlo.SanghaviMurty2020.V4-pls', approx(.357461, abs=.015)),
-        ('dicarlo.SanghaviMurty2020.IT-pls', approx(.53006, abs=.015)),
-    ])
-    def test_SanghaviMurty2020(self, benchmark, expected):
-        self.run_test(benchmark=benchmark, file='alexnet-sanghavimurty2020-features.12.nc', expected=expected)
-
-    @pytest.mark.memory_intense
-    @pytest.mark.slow
-    @pytest.mark.parametrize('benchmark, expected', [
-        ('dicarlo.Rajalingham2020.IT-pls', approx(.147549, abs=.01)),
-    ])
-    def test_Rajalingham2020(self, benchmark, expected):
-        self.run_test(benchmark=benchmark, file='alexnet-rajalingham2020-features.12.nc', expected=expected)
 
     @pytest.mark.memory_intense
     @pytest.mark.slow

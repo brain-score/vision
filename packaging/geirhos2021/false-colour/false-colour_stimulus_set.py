@@ -6,7 +6,6 @@ stimuli = []
 image_paths = {}
 stimuli_directory = '../datasets/false-colour/dnn/session-1'
 
-
 '''
 Dataset Meta Info (from https://github.com/rgeirhos/generalisation-humans-DNNs)
 
@@ -40,7 +39,13 @@ for filepath in Path(stimuli_directory).glob('*.png'):
     image_number = split_name[0]
     experiment_code = split_name[1]
     subject = split_name[2]
+
     condition = split_name[3]
+    if condition == "false":
+        condition = 0
+    else:
+        condition = 1
+
     category_ground_truth = split_name[4]
     random_number = split_name[5]
 
@@ -72,7 +77,6 @@ image_id_to_lookup = dict(zip(stimuli['image_id_long'], stimuli['image_id']))
 stimuli.image_paths = image_paths
 stimuli.image_paths = {image_id_to_lookup[image_id]: path
                        for image_id, path in stimuli.image_paths.items()}
-stimuli.name = 'brendel.Geirhos2021_colour'  # give the StimulusSet an identifier name
 stimuli.name = 'brendel.Geirhos2021_false-colour'  # give the StimulusSet an identifier name
 
 # Ensure 1120 images in dataset

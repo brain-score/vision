@@ -6,7 +6,6 @@ stimuli = []
 image_paths = {}
 stimuli_directory = '../datasets/false-colour/dnn/session-1'
 
-
 '''
 Dataset Meta Info (from https://github.com/rgeirhos/generalisation-humans-DNNs)
 
@@ -30,6 +29,7 @@ for filepath in Path(stimuli_directory).glob('*.png'):
 
     # entire name of image file:
     image_id = filepath.stem
+    image_id_long = image_id
     split_name = filepath.stem.split('_')
 
     # ensure proper metadata length per image in set
@@ -39,7 +39,13 @@ for filepath in Path(stimuli_directory).glob('*.png'):
     image_number = split_name[0]
     experiment_code = split_name[1]
     subject = split_name[2]
+
     condition = split_name[3]
+    if condition == "false":
+        condition = 0
+    else:
+        condition = 1
+
     category_ground_truth = split_name[4]
     random_number = split_name[5]
 
@@ -50,30 +56,32 @@ for filepath in Path(stimuli_directory).glob('*.png'):
     # image lookup ID, same as data assembly. This is the exact image shown to participant.
     # This is needed, as the raw images have "dnn" in the subject field, even when a human subject
     # was used. Otherwise, the image name data in the raw data table and the image names themselves are the same.
-    image_lookup_id = "_".join(split_name[3:]) + ".png"
+    image_lookup_id = "_".join(split_name[3:])
 
     image_paths[image_id] = filepath
     stimuli.append({
-        'image_id': image_id,
-        'image_lookup_id': image_lookup_id,
+        'image_id': image_lookup_id,
+        'image_id_long': image_id_long,
         'image_number': image_number,
         'experiment_code': experiment_code,
-        'subject': subject,
         'condition': condition,
+        'truth': category_ground_truth,
         'category_ground_truth': category_ground_truth,
         'random_number': random_number,
         'wordnet_a': wordnet_a,
         'wordnet_b': wordnet_b,
-
     })
 
 stimuli = StimulusSet(stimuli)
+image_id_to_lookup = dict(zip(stimuli['image_id_long'], stimuli['image_id']))
 stimuli.image_paths = image_paths
+stimuli.image_paths = {image_id_to_lookup[image_id]: path
+                       for image_id, path in stimuli.image_paths.items()}
 stimuli.name = 'brendel.Geirhos2021_false-colour'  # give the StimulusSet an identifier name
 
 # Ensure 1120 images in dataset
 assert len(stimuli) == 1120
 
 # upload to S3
-# package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,
-#                      bucket_name="brainio-brainscore")
+package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,
+                     bucket_name="brainio-brainscore")

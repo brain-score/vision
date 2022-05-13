@@ -42,14 +42,14 @@ all_subjects = pd.concat([subject_1, subject_2, subject_3, subject_4, subject_5,
 
 # parse df for the image lookup id. This relates the data assembly with the stimulus set.
 split_cols = all_subjects['imagename'].str.split("_", expand=True)
-all_subjects["image_lookup_id"] = split_cols[6]
+all_subjects["image_id_long"] = split_cols[6].str.replace(".png", "")
 
 
 # construct the assembly
 assembly = BehavioralAssembly(all_subjects['object_response'],
                               coords={
-                                  'image_id': ('presentation', all_subjects['imagename']),
-                                  'image_lookup_id': ('presentation', all_subjects['image_lookup_id']),
+                                  'image_id': ('presentation', all_subjects['image_id_long']),
+                                  'image_id_long': ('presentation', all_subjects['imagename']),
                                   'truth': ('presentation', all_subjects['category']),
                                   'choice': ('presentation', all_subjects['object_response']),
                                   'category': ('presentation', all_subjects['category']),
@@ -70,7 +70,7 @@ assert len(assembly['presentation']) == 1600
 
 # make sure assembly coords are correct length
 assert len(assembly['image_id']) == 1600
-assert len(assembly['image_lookup_id']) == 1600
+assert len(assembly['image_id_long']) == 1600
 assert len(assembly['truth']) == 1600
 assert len(assembly['category']) == 1600
 assert len(assembly['condition']) == 1600
@@ -81,7 +81,7 @@ assert len(assembly['session']) == 1600
 
 
 # # make sure there are 160 unique images (shown 1 time for each  of 10 subjects, total of 16 * 10 = 160 images shown)
-assert len(np.unique(assembly['image_lookup_id'].values)) == 160
+assert len(np.unique(assembly['image_id'].values)) == 160
 
 # make sure there are 10 unique subjects:
 assert len(np.unique(assembly['subject'].values)) == 10

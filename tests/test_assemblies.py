@@ -280,7 +280,7 @@ class TestGeirhos2021:
         ('brendel.Geirhos2021_colour', 1280, 4, 'brendel.Geirhos2021_colour'),
         ('brendel.Geirhos2021_contrast', 1280, 4, 'brendel.Geirhos2021_contrast'),
         # ('brendel.Geirhos2021_cue-conflict', 160, 10, 'brendel.Geirhos2021_conflict'),
-        # ('brendel.Geirhos2021_edge', 160, 10, 'brendel.Geirhos2021_edge'),
+        ('brendel.Geirhos2021_edge', 160, 10, 'brendel.Geirhos2021_edge'),
         ('brendel.Geirhos2021_eidolonI', 1280, 4, 'brendel.Geirhos2021_eidolonI'),
         ('brendel.Geirhos2021_eidolonII', 1280, 4, 'brendel.Geirhos2021_eidolonII'),
         ('brendel.Geirhos2021_eidolonIII', 1280, 4, 'brendel.Geirhos2021_eidolonIII'),
@@ -290,7 +290,7 @@ class TestGeirhos2021:
         ('brendel.Geirhos2021_phase-scrambling', 1120, 4, 'brendel.Geirhos2021_phase-scrambling'),
         ('brendel.Geirhos2021_power-equalisation', 1120, 4, 'brendel.Geirhos2021_power-equalisation'),
         ('brendel.Geirhos2021_rotation', 1280, 4, 'brendel.Geirhos2021_rotation'),
-        # ('brendel.Geirhos2021_silhouette', 160, 10, 'brendel.Geirhos2021_silhouette'),
+        ('brendel.Geirhos2021_silhouette', 160, 10, 'brendel.Geirhos2021_silhouette'),
         ('brendel.Geirhos2021_stylized', 800, 5, 'brendel.Geirhos2021_stylized'),
         ('brendel.Geirhos2021_sketch', 800, 7, 'brendel.Geirhos2021_sketch'),
         ('brendel.Geirhos2021_uniform-noise', 1280, 4, 'brendel.Geirhos2021_uniform-noise'),
@@ -308,28 +308,36 @@ class TestGeirhos2021:
         assert set(assembly.dims) == {'presentation'}
         assert len(assembly["presentation"]) == assembly_length
 
-        # test assembly coords
-        assert len(assembly['image_id']) == assembly_length
-        assert len(assembly['image_id_long']) == assembly_length
-        assert len(assembly['choice']) == assembly_length
-        assert len(assembly['truth']) == assembly_length
-        assert len(assembly['condition']) == assembly_length
-        assert len(assembly['response_time']) == assembly_length
-        assert len(assembly['trial']) == assembly_length
-        assert len(assembly['subject']) == assembly_length
-        assert len(assembly['session']) == assembly_length
+        # same checks, but for edge, silhouette, and cue-conflict
+        # which have a different stimulus set:
+        if num_images < 500:
+            assert len(assembly['image_id']) == assembly_length
+            assert len(assembly['image_category']) == assembly_length
+            assert len(assembly['image_variation']) == assembly_length
+        else:
+            # test assembly coords
+            assert len(assembly['image_id']) == assembly_length
+            assert len(assembly['image_id_long']) == assembly_length
+            assert len(assembly['choice']) == assembly_length
+            assert len(assembly['truth']) == assembly_length
+            assert len(assembly['condition']) == assembly_length
+            assert len(assembly['response_time']) == assembly_length
+            assert len(assembly['trial']) == assembly_length
+            assert len(assembly['subject']) == assembly_length
+            assert len(assembly['session']) == assembly_length
+
+            # make sure there are num_subjects number of unique subjects
+            assert len(np.unique(assembly['subject'].values)) == num_subjects
+
+            # make sure there are 16 unique object categories (ground truths)
+            assert len(np.unique(assembly['truth'].values)) == 16
+
+            # make sure there is a truth value in the stimulus_set
+            assert assembly.stimulus_set.truth is not None
 
         # make sure there are num_images number of unique images (shown 1 time for each subject)
         assert len(np.unique(assembly['image_id'].values)) == num_images
 
-        # make sure there are num_subjects number of unique subjects
-        assert len(np.unique(assembly['subject'].values)) == num_subjects
-
-        # make sure there are 16 unique object categories (ground truths)
-        assert len(np.unique(assembly['truth'].values)) == 16
-
         # make sure images are aligned
         assert set(assembly.stimulus_set['image_id']) == set(assembly['image_id'].values)
 
-        # make sure there is a truth value in the stimulus_set
-        assert assembly.stimulus_set.truth is not None

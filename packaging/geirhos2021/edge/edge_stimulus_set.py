@@ -48,15 +48,10 @@ for filepath in Path(stimuli_directory).glob('*.png'):
     image_category = split_name[0]
     image_variation = split_name[1]
 
-    # note the split, for a total of 8 metadata fields:
-
-    # for edge experiment, image_lookup_id is the same as image_id (same for the assembly)
-    image_lookup_id = image_id + ".png"
 
     image_paths[image_id] = filepath
     stimuli.append({
         'image_id': image_id,
-        'image_lookup_id': image_lookup_id,
         'image_category': image_category,
         'image_variation': image_variation,
 

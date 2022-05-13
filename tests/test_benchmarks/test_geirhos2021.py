@@ -12,11 +12,11 @@ class TestBehavioral:
 
     @pytest.mark.parametrize('dataset', DATASETS)
     def test_in_pool(self, dataset):
-        identifier = f"brendel.Geirhos2021{dataset.replace('-', '')}-cohen_kappa"
+        identifier = f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency"
         assert identifier in benchmark_pool
 
     def test_mean_ceiling(self):
-        benchmarks = [f"brendel.Geirhos2021{dataset.replace('-', '')}-cohen_kappa" for dataset in DATASETS]
+        benchmarks = [f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency" for dataset in DATASETS]
         benchmarks = [benchmark_pool[benchmark] for benchmark in benchmarks]
         ceilings = [benchmark.ceiling for benchmark in benchmarks]
         mean_ceiling = np.mean(ceilings)
@@ -42,7 +42,7 @@ class TestBehavioral:
         ('uniform-noise', approx(0.43406, abs=0.001)),
     ])
     def test_dataset_ceiling(self, dataset, expected_ceiling):
-        benchmark = f"brendel.Geirhos2021{dataset.replace('-', '')}-cohen_kappa"
+        benchmark = f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency"
         benchmark = benchmark_pool[benchmark]
         ceiling = benchmark.ceiling
         assert ceiling.values.item() == expected_ceiling

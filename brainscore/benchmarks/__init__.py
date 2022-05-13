@@ -212,8 +212,8 @@ def _evaluation_benchmark_pool():
     from . import geirhos2021
     for dataset in geirhos2021.DATASETS:
         assembly_identifier = f'Geirhos2021{dataset}'.replace('-', '')
-        benchmark_ctr = getattr(geirhos2021, f"{assembly_identifier}CohenKappa")
-        pool[f"brendel.{assembly_identifier}-cohen_kappa"] = LazyLoad(
+        benchmark_ctr = getattr(geirhos2021, f"{assembly_identifier}ErrorConsistency")
+        pool[f"brendel.{assembly_identifier}-error_consistency"] = LazyLoad(
             # use lambda parameter-binding to avoid `benchmark_ctr` being re-assigned in the next loop iteration
             lambda benchmark_ctr=benchmark_ctr: benchmark_ctr())
 

@@ -120,11 +120,12 @@ class TestGeirhos2021:
     @pytest.mark.parametrize('identifier, num_stimuli', [
         ('brendel.Geirhos2021_colour', 1280),
         ('brendel.Geirhos2021_contrast', 1280),
+        ('brendel.Geirhos2021_cue-conflict', 1280),
         ('brendel.Geirhos2021_edge', 160),
         ('brendel.Geirhos2021_eidolonI', 1280),
         ('brendel.Geirhos2021_eidolonII', 1280),
         ('brendel.Geirhos2021_eidolonIII', 1280),
-        #('brendel.Geirhos2021_false-colour', 1120),
+        # ('brendel.Geirhos2021_false-colour', 1120),
         ('brendel.Geirhos2021_high-pass', 1280),
         ('brendel.Geirhos2021_low-pass', 1280),
         ('brendel.Geirhos2021_phase-scrambling', 1120),
@@ -138,16 +139,15 @@ class TestGeirhos2021:
     ])
     def test_stimulus_set_size(self, identifier, num_stimuli):
         stimulus_set = brainscore.get_stimulus_set(identifier)
+        assert len(stimulus_set) == num_stimuli
 
-        # same checks, but for edge, silhouette, and cue-conflict
-        # which have a different stimulus set:
+        # checks for edge, silhouette, and cue-conflict
         if num_stimuli < 500:
             assert len(stimulus_set['image_id']) == num_stimuli
             assert len(stimulus_set['image_category']) == num_stimuli
             assert len(stimulus_set['image_variation']) == num_stimuli
-        else:
-            assert len(stimulus_set) == num_stimuli
-            assert len(stimulus_set) == num_stimuli
+        elif identifier != 'brendel.Geirhos2021_cue-conflict':
+            # tests for 14 other sets (not edge, silhouette, or cue-conflict)
             assert len(stimulus_set['image_id']) == num_stimuli
             assert len(stimulus_set['image_id_long']) == num_stimuli
             assert len(stimulus_set['image_number']) == num_stimuli
@@ -157,10 +157,16 @@ class TestGeirhos2021:
             assert len(stimulus_set['truth']) == num_stimuli
             assert len(stimulus_set['category_ground_truth']) == num_stimuli
             assert len(stimulus_set['random_number']) == num_stimuli
+        else:
+            # tests for cue-conflict set:
+            assert len(stimulus_set['image_id']) == num_stimuli
+            assert len(stimulus_set['original_image']) == num_stimuli
+            assert len(stimulus_set['conflict_image']) == num_stimuli
+            assert len(stimulus_set['original_image_category']) == num_stimuli
+            assert len(stimulus_set['original_image_variation']) == num_stimuli
+            assert len(stimulus_set['conflict_image_category']) == num_stimuli
+            assert len(stimulus_set['conflict_image_variation']) == num_stimuli
 
-        # # make sure the condition in false-color is of type string
-        # if identifier == "brendel.Geirhos2021_false-colour":
-        #     assert all(isinstance(s, str) for s in stimulus_set["condition"].values)
 
 
 

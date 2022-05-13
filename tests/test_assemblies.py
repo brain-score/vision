@@ -279,7 +279,7 @@ class TestGeirhos2021:
     @pytest.mark.parametrize('identifier, num_images, num_subjects, stimulus_set_identifier', [
         ('brendel.Geirhos2021_colour', 1280, 4, 'brendel.Geirhos2021_colour'),
         ('brendel.Geirhos2021_contrast', 1280, 4, 'brendel.Geirhos2021_contrast'),
-        # ('brendel.Geirhos2021_cue-conflict', 160, 10, 'brendel.Geirhos2021_conflict'),
+        ('brendel.Geirhos2021_cue-conflict', 1280, 10, 'brendel.Geirhos2021_cue-conflict'),
         ('brendel.Geirhos2021_edge', 160, 10, 'brendel.Geirhos2021_edge'),
         ('brendel.Geirhos2021_eidolonI', 1280, 4, 'brendel.Geirhos2021_eidolonI'),
         ('brendel.Geirhos2021_eidolonII', 1280, 4, 'brendel.Geirhos2021_eidolonII'),
@@ -332,8 +332,15 @@ class TestGeirhos2021:
             # make sure there are 16 unique object categories (ground truths)
             assert len(np.unique(assembly['truth'].values)) == 16
 
-            # make sure there is a truth value in the stimulus_set
-            assert assembly.stimulus_set.truth is not None
+        # separate checks for cue-conflict:
+        if identifier == 'brendel.Geirhos2021_cue-conflict':
+            assert len(assembly['image_id']) == assembly_length
+            assert len(assembly['original_image']) == assembly_length
+            assert len(assembly['conflict_image']) == assembly_length
+            assert len(assembly['original_image_category']) == assembly_length
+            assert len(assembly['original_image_variation']) == assembly_length
+            assert len(assembly['conflict_image_category']) == assembly_length
+            assert len(assembly['conflict_image_variation']) == assembly_length
 
         # make sure there are num_images number of unique images (shown 1 time for each subject)
         assert len(np.unique(assembly['image_id'].values)) == num_images

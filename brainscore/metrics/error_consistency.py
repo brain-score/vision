@@ -6,10 +6,9 @@ from brainscore.metrics import Metric, Score
 from brainscore.metrics.transformations import apply_aggregate
 
 
-class CohensKappa(Metric):
+class ErrorConsistency(Metric):
     """
-    Computes the error consistency using Cohen's Kappa.
-    Cohen, 1960 https://doi.org/10.1177%2F001316446002000104
+    Computes the error consistency using :meth:`~brainscore.metrics.error_consistency.cohens_kappa`
     implemented in Geirhos et al., 2020 https://arxiv.org/abs/2006.16736
     """
 
@@ -19,7 +18,7 @@ class CohensKappa(Metric):
 
         subject_scores = []
         for subject in self.extract_subjects(target):
-            for condition in sorted(set(target['condition'].values)):  # TODO: remove from metric
+            for condition in sorted(set(target['condition'].values)):
                 this_source = source.sel(condition=condition)
                 this_target = target.sel(subject=subject, condition=condition)
                 subject_score = self.compare_single_subject(this_source, this_target)
@@ -39,7 +38,7 @@ class CohensKappa(Metric):
         subjects = self.extract_subjects(assembly)
         subject_scores = []
         for subject1, subject2 in itertools.combinations(subjects, 2):
-            for condition in sorted(set(assembly['condition'].values)):  # TODO: remove from metric
+            for condition in sorted(set(assembly['condition'].values)):
                 subject1_assembly = assembly.sel(subject=subject1, condition=condition)
                 subject2_assembly = assembly.sel(subject=subject2, condition=condition)
                 pairwise_score = self.compare_single_subject(subject1_assembly, subject2_assembly)
@@ -69,14 +68,17 @@ class CohensKappa(Metric):
 
         expected_consistency = accuracy_source * accuracy_target + (1 - accuracy_source) * (1 - accuracy_target)
         observed_consistency = (correct_source == correct_target).sum() / len(target)
-        error_consistency = self.error_consistency(expected_consistency=expected_consistency,
-                                                   observed_consistency=observed_consistency)
+        error_consistency = cohens_kappa(expected_consistency=expected_consistency,
+                                         observed_consistency=observed_consistency)
         return Score(error_consistency)
 
-    def error_consistency(self, expected_consistency, observed_consistency):
-        # from https://github.com/bethgelab/model-vs-human/blob/745046c4d82ff884af618756bd6a5f47b6f36c45/modelvshuman/plotting/analyses.py#L147-L158
-        """Return error consistency as measured by Cohen's kappa."""
 
-        assert 0.0 <= expected_consistency <= 1.0
-        assert 0.0 <= observed_consistency <= 1.0
-        return (observed_consistency - expected_consistency) / (1.0 - expected_consistency)
+def cohens_kappa(expected_consistency, observed_consistency):
+    """
+    Computes the error consistency using Cohen's Kappa.
+    Cohen, 1960 https://doi.org/10.1177%2F001316446002000104
+    """
+    # from https://github.com/bethgelab/model-vs-human/blob/745046c4d82ff884af618756bd6a5f47b6f36c45/modelvshuman/plotting/analyses.py#L147-L158
+    assert 0.0 <= expected_consistency <= 1.0
+    assert 0.0 <= observed_consistency <= 1.0
+    return (observed_consistency - expected_consistency) / (1.0 - expected_consistency)

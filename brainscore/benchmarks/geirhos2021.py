@@ -4,7 +4,9 @@ import brainscore
 from brainio.assemblies import walk_coords
 from brainscore.benchmarks import BenchmarkBase
 from brainscore.benchmarks.screen import place_on_screen
-from brainscore.metrics.cohen_kappa import CohensKappa
+from brainscore.metrics import Score
+from brainscore.metrics.accuracy import Accuracy
+from brainscore.metrics.error_consistency import ErrorConsistency
 from brainscore.model_interface import BrainModel
 from brainscore.utils import LazyLoad
 
@@ -16,7 +18,7 @@ BIBTEX = """@article{geirhos2021partial,
               year={2021}
         }"""
 
-DATASETS = ['colour', 'contrast', 'edge',  # FIXME 'colour', 'contrast', 'cue-conflict', 'edge',
+DATASETS = ['colour', 'contrast', 'cue-conflict', 'edge',
             'eidolonI', 'eidolonII', 'eidolonIII',
             'false-colour', 'high-pass', 'low-pass', 'phase-scrambling', 'power-equalisation',
             'rotation', 'silhouette', 'sketch', 'stylized', 'uniform-noise']
@@ -39,24 +41,29 @@ EXCLUDE_CONDITIONS = {
     "uniform-noise": [0.0, 0.6, 0.9]
 }
 
-# create functions so that users can import individual benchmarks as e.g. Geirhos2021sketchCohenKappa
+# create functions so that users can import individual benchmarks as e.g. Geirhos2021sketchErrorConsistency
 for dataset in DATASETS:
-    identifier = f"Geirhos2021{dataset.replace('-', '')}CohenKappa"
-    globals()[identifier] = lambda dataset=dataset: _Geirhos2021CohenKappa(dataset)
+    # behavioral benchmark
+    identifier = f"Geirhos2021{dataset.replace('-', '')}ErrorConsistency"
+    globals()[identifier] = lambda dataset=dataset: _Geirhos2021ErrorConsistency(dataset)
+    # engineering benchmark
+    identifier = f"Geirhos2021{dataset.replace('-', '')}Accuracy"
+    globals()[identifier] = lambda dataset=dataset: _Geirhos2021Accuracy(dataset)
 
 
-class _Geirhos2021CohenKappa(BenchmarkBase):
+class _Geirhos2021ErrorConsistency(BenchmarkBase):
+    # behavioral benchmark
     def __init__(self, dataset):
-        self._metric = CohensKappa()
+        self._metric = ErrorConsistency()
         self._assembly = LazyLoad(lambda: load_assembly(dataset))
         self._visual_degrees = 8  # FIXME: 3
 
         self._number_of_trials = 1
 
-        super(_Geirhos2021CohenKappa, self).__init__(
-            identifier=f'brendel.Geirhos2021{dataset}-cohen_kappa', version=1,
+        super(_Geirhos2021ErrorConsistency, self).__init__(
+            identifier=f'brendel.Geirhos2021{dataset}-error_consistency', version=1,
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
-            parent='behavior',
+            parent='brendel.Geirhos2021',
             bibtex=BIBTEX)
 
     def __call__(self, candidate: BrainModel):
@@ -74,30 +81,57 @@ class _Geirhos2021CohenKappa(BenchmarkBase):
         return score
 
 
+class _Geirhos2021Accuracy(BenchmarkBase):
+    # engineering/ML benchmark
+    def __init__(self, dataset):
+        self._metric = Accuracy()
+        self._stimulus_set = LazyLoad(lambda: load_assembly(dataset).stimulus_set)
+        super(_Geirhos2021Accuracy, self).__init__(
+            identifier=f'brendel.Geirhos2021{dataset}-accuracy', version=1,
+            ceiling_func=lambda: Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation']),
+            parent='brendel.Geirhos2021-top1',
+            bibtex=BIBTEX)
+
+    def __call__(self, candidate: BrainModel):
+        choice_labels = set(self._stimulus_set['truth'].values)
+        choice_labels = list(sorted(choice_labels))
+        candidate.start_task(BrainModel.Task.label, choice_labels)
+        labels = candidate.look_at(self._stimulus_set, number_of_trials=10)
+        score = self._metric(labels, target=self._stimulus_set['truth'].values)
+        return score
+
+
 def load_assembly(dataset):
     assembly = brainscore.get_assembly(f'brendel.Geirhos2021_{dataset}')
     # FIXME
     stimulus_set = assembly.stimulus_set
-    # fix: use unique image_id referencing between assembly + stimulus_set
-    assembly = type(assembly)(assembly.values, coords={
-        coord: (dims, values) for coord, dims, values in walk_coords(assembly) if coord != 'image_id'},
-                              dims=assembly.dims)
-    assembly['image_id'] = 'presentation', assembly['image_lookup_id'].values
-    image_id_to_lookup = dict(zip(stimulus_set['image_id'], stimulus_set['image_lookup_id']))
-    stimulus_set['image_id'] = stimulus_set['image_lookup_id']
-    stimulus_set.image_paths = {image_id_to_lookup[image_id]: path
-                                for image_id, path in stimulus_set.image_paths.items()}
-    # fix: add truth
-    stimulus_set['truth'] = stimulus_set[
-        'image_category' if 'image_category' in stimulus_set.columns else 'category_ground_truth']
-    # fix: add condition
-    image_id_to_condition = dict(zip(assembly['image_id'].values, assembly['condition'].values))
-    stimulus_set['condition'] = [image_id_to_condition[image_id] for image_id in stimulus_set['image_id']]
-    assembly.attrs['stimulus_set'] = stimulus_set
+    if set(assembly['image_id'].values) != set(assembly.stimulus_set['image_id'].values):
+        # fix: use unique image_id referencing between assembly + stimulus_set
+        assembly = type(assembly)(assembly.values, coords={
+            coord: (dims, values) for coord, dims, values in walk_coords(assembly) if coord != 'image_id'},
+                                  dims=assembly.dims)
+        assembly['image_id'] = 'presentation', assembly['image_lookup_id'].values
+        image_id_to_lookup = dict(zip(stimulus_set['image_id'], stimulus_set['image_lookup_id']))
+        stimulus_set['image_id'] = stimulus_set['image_lookup_id']
+        stimulus_set.image_paths = {image_id_to_lookup[image_id]: path
+                                    for image_id, path in stimulus_set.image_paths.items()}
+    if 'truth' not in stimulus_set.columns:
+        # fix: add truth
+        stimulus_set['truth'] = stimulus_set[
+            'image_category' if 'image_category' in stimulus_set.columns else 'category_ground_truth']
+    if 'condition' not in stimulus_set.columns:
+        # fix: add condition
+        image_id_to_condition = dict(zip(assembly['image_id'].values, assembly['condition'].values))
+        stimulus_set['condition'] = [image_id_to_condition[image_id] for image_id in stimulus_set['image_id']]
+
+        assembly.attrs['stimulus_set'] = stimulus_set
 
     # exclude conditions following the paper
     if dataset in EXCLUDE_CONDITIONS:
         excluded = EXCLUDE_CONDITIONS[dataset]
         assert all(condition in assembly['condition'].values for condition in excluded)
         assembly = assembly[{'presentation': ~np.isin(assembly['condition'], excluded)}]
+        stimulus_set = assembly.attrs['stimulus_set']
+        stimulus_set = stimulus_set[stimulus_set['image_id'].isin(set(assembly['image_id'].values))]
+        assembly.attrs['stimulus_set'] = stimulus_set
     return assembly

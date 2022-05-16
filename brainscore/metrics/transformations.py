@@ -75,7 +75,7 @@ class Transformation(object):
 class Alignment(Transformation):
     class Defaults:
         order_dimensions = ('presentation', 'neuroid')
-        alignment_dim = 'image_id'
+        alignment_dim = 'stimulus_id'
         repeat = False
 
     def __init__(self, order_dimensions=Defaults.order_dimensions, alignment_dim=Defaults.alignment_dim,
@@ -166,7 +166,7 @@ class Split:
     class Defaults:
         splits = 10
         train_size = .9
-        split_coord = 'image_id'
+        split_coord = 'stimulus_id'
         stratification_coord = 'object_name'  # cross-validation across images, balancing objects
         unique_split_values = False
         random_state = 1

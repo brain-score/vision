@@ -23,7 +23,7 @@ class TestI2N:
         # assemblies
         objectome = load_assembly()
         probabilities = Path(__file__).parent / f'{model}-probabilities.nc'
-        probabilities = BehavioralAssembly(xr.load_dataarray(probabilities))
+        probabilities = BehavioralAssembly.from_files(probabilities, stimulus_set_identifier=objectome.attrs['stimulus_set_identifier'], stimulus_set=objectome.attrs['stimulus_set'])
         # metric
         i2n = I2n()
         score = i2n(probabilities, objectome)

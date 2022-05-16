@@ -59,20 +59,20 @@ Here is a slim example of creating and uploading a StimulusSet:
     from brainio.packaging import package_stimulus_set
 
     stimuli = []  # collect meta
-    image_paths = {}  # collect mapping of image_id to filepath
+    stimulus_paths = {}  # collect mapping of stimulus_id to filepath
     for filepath in Path(stimuli_directory).glob('*.png'):
-        image_id = filepath.stem
+        stimulus_id = filepath.stem
         object_name = filepath.stem.split('_')[0]  # if the filepath contains meta, this can come from anywhere
         # ...and other metadata
-        image_paths[image_id] = filepath
+        stimulus_paths[stimulus_id] = filepath
         stimuli.append({
-            'image_id': image_id,
+            'stimulus_id': stimulus_id,
             'object_name': object_name,
             # ...and other metadata
-            # optionally you can set 'image_path_within_store' to define the filename in the packaged stimuli
+            # optionally you can set 'stimulus_path_within_store' to define the filename in the packaged stimuli
         })
     stimuli = StimulusSet(stimuli)
-    stimuli.image_paths = image_paths
+    stimuli.stimulus_paths = stimulus_paths
     stimuli.name = '<AuthorYear>'  # give the StimulusSet an identifier name
 
     assert len(stimuli) == 1600  # make sure the StimulusSet is what you would expect
@@ -111,7 +111,7 @@ Here is an example of a BehavioralAssembly:
 
     assembly = BehavioralAssembly(['dog', 'dog', 'cat', 'dog', ...],
                                    coords={
-                                       'image_id': ('presentation', ['image1', 'image2', 'image3', 'image4', ...]),
+                                       'stimulus_id': ('presentation', ['image1', 'image2', 'image3', 'image4', ...]),
                                        'sample_object': ('presentation', ['dog', 'cat', 'cat', 'dog', ...]),
                                        'distractor_object': ('presentation', ['cat', 'dog', 'dog', 'cat', ...]),
                                        # ...more meta
@@ -124,7 +124,7 @@ Here is an example of a BehavioralAssembly:
 
     # make sure the assembly is what you would expect
     assert len(assembly['presentation']) == 179660
-    assert len(set(assembly['image_id'].values)) == 1600
+    assert len(set(assembly['stimulus_id'].values)) == 1600
     assert len(set(assembly['choice'].values)) == len(set(assembly['sample_object'].values)) \
            == len(set(assembly['distractor_object'].values)) == 2
 
@@ -161,7 +161,7 @@ assembly:
     def test_<authoryear>:
         stimulus_set = brainio.get_stimulus_set('<authoryear>')
         assert len(stimulus_set) == 123  # check number of stimuli
-        assert len(set(stimulus_set['image_id'])) == 12  # check number of unique stimuli
+        assert len(set(stimulus_set['stimulus_id'])) == 12  # check number of unique stimuli
         assert set(stimulus_set['object_name']) == {'dog', 'cat'}
         # etc
 
@@ -170,7 +170,7 @@ assembly:
     def test_<authoryear>:
         assembly = brainscore.get_assembly('<authoryear>')
         np.testing.assert_array_equal(assembly.dims, ['presentation'])
-        assert len(set(assembly['image_id'].values)) == 123  # check number of stimuli
+        assert len(set(assembly['stimulus_id'].values)) == 123  # check number of stimuli
         assert len(assembly) == 123456  # check number of trials
         assert assembly.stimulus_set is not None
         assert len(assembly.stimulus_set) == 123  # make sure number of stimuli in stimulus_set lines up with assembly

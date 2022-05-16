@@ -35,7 +35,7 @@ class OSTCorrelation(Metric):
         score = self.correlate(predicted_osts, test_osts.values)
         return score
 
-    def _align(self, source, target, on='image_id'):
+    def _align(self, source, target, on='stimulus_id'):
         return source.isel(presentation=[np.where(source[on].values == key)[0][0] for key in target[on].values])
 
     def compute_osts(self, train_source, test_source, test_osts):
@@ -51,7 +51,7 @@ class OSTCorrelation(Metric):
             prediction_probabilities = classifier.predict_proba(time_test_source)
             classifier.close()
             source_i1 = self.i1(prediction_probabilities)
-            assert all(source_i1['image_id'].values == test_osts['image_id'].values)
+            assert all(source_i1['stimulus_id'].values == test_osts['stimulus_id'].values)
             for i, (image_source_i1, threshold_i1) in enumerate(zip(
                     source_i1.values, test_osts['i1'].values)):
                 if hit_osts[i] is None:

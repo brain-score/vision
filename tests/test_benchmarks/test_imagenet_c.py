@@ -24,7 +24,7 @@ class TestImagenetC:
                 assert fitting_stimuli == 'imagenet'  # shortcut
 
             def look_at(self, stimuli, number_of_trials=1):
-                labels = -np.ones_like(stimuli['image_id'].values)
+                labels = -np.ones_like(stimuli['stimulus_id'].values)
                 return BehavioralAssembly([labels], coords={
                     **{column: ('presentation', stimuli[column].values) for column in stimuli.columns},
                     **{'choice': ('choice', ['dummy'])}}, dims=['choice', 'presentation'])
@@ -47,7 +47,7 @@ class TestImagenetC_Category:
                 assert fitting_stimuli == 'imagenet'  # shortcut
 
             def look_at(self, stimuli, number_of_trials=1):
-                labels = -np.ones_like(stimuli['image_id'].values)
+                labels = -np.ones_like(stimuli['stimulus_id'].values)
                 return BehavioralAssembly([labels], coords={
                     **{column: ('presentation', stimuli[column].values) for column in stimuli.columns},
                     **{'choice': ('choice', ['dummy'])}}, dims=['choice', 'presentation'])

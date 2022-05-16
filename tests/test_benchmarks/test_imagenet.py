@@ -17,8 +17,8 @@ class TestImagenet2012:
                 assert fitting_stimuli == 'imagenet'  # shortcut
 
             def look_at(self, stimuli, number_of_trials=1):
-                source_image_ids = source['image_id'].values
-                stimuli_image_ids = stimuli['image_id'].values
+                source_image_ids = source['stimulus_id'].values
+                stimuli_image_ids = stimuli['stimulus_id'].values
                 sorted_x = source_image_ids[np.argsort(source_image_ids)]
                 sorted_index = np.searchsorted(sorted_x, stimuli_image_ids)
                 aligned_source = source.loc[sorted_index]

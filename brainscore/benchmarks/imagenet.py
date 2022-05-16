@@ -16,7 +16,7 @@ class Imagenet2012(BenchmarkBase):
     def __init__(self):
         stimulus_set = pd.read_csv(os.path.join(os.path.dirname(__file__), 'imagenet2012.csv'))
         stimulus_set = StimulusSet(stimulus_set)
-        stimulus_set.image_paths = {row.image_id: row.filepath for row in stimulus_set.itertuples()}
+        stimulus_set.image_paths = {row.stimulus_id: row.filepath for row in stimulus_set.itertuples()}
         self._stimulus_set = stimulus_set
         self._similarity_metric = Accuracy()
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])

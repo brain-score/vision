@@ -62,11 +62,14 @@ for filepath in Path(stimuli_directory).glob('*.png'):
     stimuli.append({
         'image_id': image_id,
         'original_image': original_image,
+        'truth': original_image,
+        'category': original_image,
         'conflict_image': conflict_image,
         'original_image_category': original_image_category,
         'original_image_variation': original_image_variation,
         'conflict_image_category': conflict_image_category,
         'conflict_image_variation': conflict_image_variation,
+        'condition': 0,
 
     })
 

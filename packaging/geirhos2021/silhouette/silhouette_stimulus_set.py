@@ -54,8 +54,9 @@ for filepath in Path(stimuli_directory).glob('*.png'):
     stimuli.append({
         'image_id': image_id,
         'image_category': image_category,
+        'truth': image_category,
         'image_variation': image_variation,
-
+        'condition': 0,
     })
 
 stimuli = StimulusSet(stimuli)

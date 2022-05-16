@@ -311,20 +311,22 @@ class TestGeirhos2021:
         # same checks, but for edge, silhouette, and cue-conflict
         # which have a different stimulus set:
         if num_images < 500:
-            assert len(assembly['image_id']) == assembly_length
-            assert len(assembly['image_category']) == assembly_length
-            assert len(assembly['image_variation']) == assembly_length
+            assert len(assembly['image_id'].values) == assembly_length
+            assert len(assembly['image_category'].values) == assembly_length
+            assert len(assembly['truth'].values) == assembly_length
+            assert len(assembly['image_variation'].values) == assembly_length
+            assert len(assembly['condition'].values) == assembly_length
         else:
             # test assembly coords
-            assert len(assembly['image_id']) == assembly_length
-            assert len(assembly['image_id_long']) == assembly_length
-            assert len(assembly['choice']) == assembly_length
-            assert len(assembly['truth']) == assembly_length
-            assert len(assembly['condition']) == assembly_length
-            assert len(assembly['response_time']) == assembly_length
-            assert len(assembly['trial']) == assembly_length
-            assert len(assembly['subject']) == assembly_length
-            assert len(assembly['session']) == assembly_length
+            assert len(assembly['image_id'].values) == assembly_length
+            assert len(assembly['image_id_long'].values) == assembly_length
+            assert len(assembly['choice'].values) == assembly_length
+            assert len(assembly['truth'].values) == assembly_length
+            assert len(assembly['condition'].values) == assembly_length
+            assert len(assembly['response_time'].values) == assembly_length
+            assert len(assembly['trial'].values) == assembly_length
+            assert len(assembly['subject'].values) == assembly_length
+            assert len(assembly['session'].values) == assembly_length
 
             # make sure there are num_subjects number of unique subjects
             assert len(np.unique(assembly['subject'].values)) == num_subjects
@@ -334,17 +336,24 @@ class TestGeirhos2021:
 
         # separate checks for cue-conflict:
         if identifier == 'brendel.Geirhos2021_cue-conflict':
-            assert len(assembly['image_id']) == assembly_length
-            assert len(assembly['original_image']) == assembly_length
-            assert len(assembly['conflict_image']) == assembly_length
-            assert len(assembly['original_image_category']) == assembly_length
-            assert len(assembly['original_image_variation']) == assembly_length
-            assert len(assembly['conflict_image_category']) == assembly_length
-            assert len(assembly['conflict_image_variation']) == assembly_length
+            assert len(assembly['image_id'].values) == assembly_length
+            assert len(assembly['original_image'].values) == assembly_length
+            assert len(assembly['truth'].values) == assembly_length
+            assert len(assembly['category'].values) == assembly_length
+            assert len(assembly['conflict_image'].values) == assembly_length
+            assert len(assembly['original_image_category'].values) == assembly_length
+            assert len(assembly['original_image_variation'].values) == assembly_length
+            assert len(assembly['conflict_image_category'].values) == assembly_length
+            assert len(assembly['conflict_image_variation'].values) == assembly_length
+            assert len(assembly['condition'].values) == assembly_length
+
 
         # make sure there are num_images number of unique images (shown 1 time for each subject)
         assert len(np.unique(assembly['image_id'].values)) == num_images
 
         # make sure images are aligned
         assert set(assembly.stimulus_set['image_id']) == set(assembly['image_id'].values)
+
+        # make sure conditions are aligned
+        assert set(assembly.stimulus_set['condition']) == set(assembly['condition'].values)
 

@@ -143,29 +143,34 @@ class TestGeirhos2021:
 
         # checks for edge, silhouette, and cue-conflict
         if num_stimuli < 500:
-            assert len(stimulus_set['image_id']) == num_stimuli
-            assert len(stimulus_set['image_category']) == num_stimuli
-            assert len(stimulus_set['image_variation']) == num_stimuli
+            assert len(stimulus_set['image_id'].values) == num_stimuli
+            assert len(stimulus_set['image_category'].values) == num_stimuli
+            assert len(stimulus_set['truth'].values) == num_stimuli
+            assert len(stimulus_set['image_variation'].values) == num_stimuli
+            assert len(stimulus_set['condition'].values) == num_stimuli
         elif identifier != 'brendel.Geirhos2021_cue-conflict':
             # tests for 14 other sets (not edge, silhouette, or cue-conflict)
-            assert len(stimulus_set['image_id']) == num_stimuli
-            assert len(stimulus_set['image_id_long']) == num_stimuli
-            assert len(stimulus_set['image_number']) == num_stimuli
-            assert len(stimulus_set['condition']) == num_stimuli
-            assert len(stimulus_set['experiment_code']) == num_stimuli
-            assert len(stimulus_set['condition']) == num_stimuli
-            assert len(stimulus_set['truth']) == num_stimuli
-            assert len(stimulus_set['category_ground_truth']) == num_stimuli
-            assert len(stimulus_set['random_number']) == num_stimuli
+            assert len(stimulus_set['image_id'].values) == num_stimuli
+            assert len(stimulus_set['image_id_long'].values) == num_stimuli
+            assert len(stimulus_set['image_number'].values) == num_stimuli
+            assert len(stimulus_set['condition'].values) == num_stimuli
+            assert len(stimulus_set['experiment_code'].values) == num_stimuli
+            assert len(stimulus_set['condition'].values) == num_stimuli
+            assert len(stimulus_set['truth'].values) == num_stimuli
+            assert len(stimulus_set['category_ground_truth'].values) == num_stimuli
+            assert len(stimulus_set['random_number'].values) == num_stimuli
         else:
             # tests for cue-conflict set:
-            assert len(stimulus_set['image_id']) == num_stimuli
-            assert len(stimulus_set['original_image']) == num_stimuli
-            assert len(stimulus_set['conflict_image']) == num_stimuli
-            assert len(stimulus_set['original_image_category']) == num_stimuli
-            assert len(stimulus_set['original_image_variation']) == num_stimuli
-            assert len(stimulus_set['conflict_image_category']) == num_stimuli
-            assert len(stimulus_set['conflict_image_variation']) == num_stimuli
+            assert len(stimulus_set['image_id'].values) == num_stimuli
+            assert len(stimulus_set['original_image'].values) == num_stimuli
+            assert len(stimulus_set['truth'].values) == num_stimuli
+            assert len(stimulus_set['category'].values) == num_stimuli
+            assert len(stimulus_set['conflict_image'].values) == num_stimuli
+            assert len(stimulus_set['original_image_category'].values) == num_stimuli
+            assert len(stimulus_set['original_image_variation'].values) == num_stimuli
+            assert len(stimulus_set['conflict_image_category'].values) == num_stimuli
+            assert len(stimulus_set['conflict_image_variation'].values) == num_stimuli
+            assert len(stimulus_set['condition'].values) == num_stimuli
 
 
 

@@ -42,9 +42,9 @@ for filepath in Path(stimuli_directory).glob('*.png'):
 
     condition = split_name[3]
     if condition == "false":
-        condition = 0
+        condition = "Normal-Image"
     else:
-        condition = 1
+        condition = "False-Colour"
 
     category_ground_truth = split_name[4]
     random_number = split_name[5]

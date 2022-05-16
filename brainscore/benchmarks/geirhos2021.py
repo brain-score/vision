@@ -55,7 +55,7 @@ class _Geirhos2021ErrorConsistency(BenchmarkBase):
     def __init__(self, dataset):
         self._metric = ErrorConsistency()
         self._assembly = LazyLoad(lambda: load_assembly(dataset))
-        self._visual_degrees = 8  # FIXME: 3
+        self._visual_degrees = 3
 
         self._number_of_trials = 1
 

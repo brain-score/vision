@@ -84,29 +84,20 @@ class TestBehavioral:
         assert score == expected_raw_score
 
     @pytest.mark.parametrize('model, expected_raw_score', [
-        ('resnet-50-pytorch', approx(0.20834, abs=0.001)),
+        ('resnet-50-pytorch-3deg', approx(0.20834, abs=0.001)),
+        ('resnet-50-pytorch-8deg', approx(0.10102, abs=0.001)),
     ])
-    def test_model_3degrees_mean(self, model, expected_raw_score):
+    def test_model_mean(self, model, expected_raw_score):
         scores = []
         for dataset in DATASETS:
             benchmark = benchmark_pool[f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency"]
-            precomputed_features = Path(__file__).parent / f'{model}-3deg-Geirhos2021_{dataset}.nc'
+            precomputed_features = Path(__file__).parent / f'{model}-Geirhos2021_{dataset}.nc'
             precomputed_features = BehavioralAssembly(xr.load_dataarray(precomputed_features))
             precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
             score = benchmark(precomputed_features).raw
             scores.append(score)
         mean_score = np.mean(scores)
         assert mean_score == expected_raw_score
-
-    # @pytest.mark.parametrize('dataset, model, expected_raw_score', [
-    #     ('edge', 'resnet-50-pytorch', approx(..., abs=0.001)),
-    #     ('sketch', 'resnet-50-pytorch', approx(..., abs=0.001)),
-    #     ('silhouette', 'resnet-50-pytorch', approx(..., abs=0.001)),
-    # ])
-    # def test_model_8degrees(self, dataset, model, expected_raw_score):
-    #     # TODO
-    #     score = ...
-    #     assert score.raw == expected_raw_score
 
 
 class TestEngineering:

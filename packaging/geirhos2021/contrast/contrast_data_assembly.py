@@ -7,7 +7,6 @@ import pandas as pd
 '''
 Experiment Information:
 https://arxiv.org/pdf/1706.06969.pdf
-
  - 4 subjects 
  - 1280 images each
  - 5120 total images shown 
@@ -16,7 +15,6 @@ https://arxiv.org/pdf/1706.06969.pdf
  - for the this benchmark (contrast) subjects saw the EXACT image indicated with the variable/column name
    image_lookup_id, and not a variation of it (no distortions, editing, etc). B/W or Color is indicated in the 
    condition column of this df/assembly.
-
 '''
 
 # initial csv to dataframe processing:

@@ -117,61 +117,123 @@ class TestMarques2020V1Properties:
 @pytest.mark.private_access
 @pytest.mark.slow
 class TestGeirhos2021:
-    @pytest.mark.parametrize('identifier, num_stimuli', [
-        ('brendel.Geirhos2021_colour', 1280),
-        ('brendel.Geirhos2021_contrast', 1280),
-        ('brendel.Geirhos2021_cue-conflict', 1280),
-        ('brendel.Geirhos2021_edge', 160),
-        ('brendel.Geirhos2021_eidolonI', 1280),
-        ('brendel.Geirhos2021_eidolonII', 1280),
-        ('brendel.Geirhos2021_eidolonIII', 1280),
-        ('brendel.Geirhos2021_false-colour', 1120),
-        ('brendel.Geirhos2021_high-pass', 1280),
-        ('brendel.Geirhos2021_low-pass', 1280),
-        ('brendel.Geirhos2021_phase-scrambling', 1120),
-        ('brendel.Geirhos2021_power-equalisation', 1120),
-        ('brendel.Geirhos2021_rotation', 1280),
-        ('brendel.Geirhos2021_silhouette', 160),
-        ('brendel.Geirhos2021_stylized', 800),
-        ('brendel.Geirhos2021_sketch', 800),
-        ('brendel.Geirhos2021_uniform-noise', 1280),
 
+    # test stimulus_set data:
+    @pytest.mark.parametrize('identifier', [
+        'colour',
+        'contrast',
+        'cue-conflict',
+        'edge',
+        'eidolonI',
+        'eidolonII',
+        'eidolonIII',
+        'false-colour',
+        'high-pass',
+        'low-pass',
+        'phase-scrambling',
+        'power-equalisation',
+        'rotation',
+        'silhouette',
+        'stylized',
+        'sketch',
+        'uniform-noise',
     ])
-    def test_stimulus_set_size(self, identifier, num_stimuli):
-        stimulus_set = brainscore.get_stimulus_set(identifier)
-        assert len(stimulus_set) == num_stimuli
+    def test_stimulus_set_exist(self, identifier):
+        full_name = f"brendel.Geirhos2021_{identifier}"
+        stimulus_set = brainio.get_stimulus_set(full_name)
+        assert stimulus_set is not None
+        assert stimulus_set.identifier == full_name
 
-        # checks for edge, silhouette, and cue-conflict
-        if num_stimuli < 500:
-            assert len(stimulus_set['image_id'].values) == num_stimuli
-            assert len(stimulus_set['image_category'].values) == num_stimuli
-            assert len(stimulus_set['truth'].values) == num_stimuli
-            assert len(stimulus_set['image_variation'].values) == num_stimuli
-            assert len(stimulus_set['condition'].values) == num_stimuli
-        elif identifier != 'brendel.Geirhos2021_cue-conflict':
-            # tests for 14 other sets (not edge, silhouette, or cue-conflict)
-            assert len(stimulus_set['image_id'].values) == num_stimuli
-            assert len(stimulus_set['image_id_long'].values) == num_stimuli
-            assert len(stimulus_set['image_number'].values) == num_stimuli
-            assert len(stimulus_set['condition'].values) == num_stimuli
-            assert len(stimulus_set['experiment_code'].values) == num_stimuli
-            assert len(stimulus_set['condition'].values) == num_stimuli
-            assert len(stimulus_set['truth'].values) == num_stimuli
-            assert len(stimulus_set['category_ground_truth'].values) == num_stimuli
-            assert len(stimulus_set['random_number'].values) == num_stimuli
-        else:
-            # tests for cue-conflict set:
-            assert len(stimulus_set['image_id'].values) == num_stimuli
-            assert len(stimulus_set['original_image'].values) == num_stimuli
-            assert len(stimulus_set['truth'].values) == num_stimuli
-            assert len(stimulus_set['category'].values) == num_stimuli
-            assert len(stimulus_set['conflict_image'].values) == num_stimuli
-            assert len(stimulus_set['original_image_category'].values) == num_stimuli
-            assert len(stimulus_set['original_image_variation'].values) == num_stimuli
-            assert len(stimulus_set['conflict_image_category'].values) == num_stimuli
-            assert len(stimulus_set['conflict_image_variation'].values) == num_stimuli
-            assert len(stimulus_set['condition'].values) == num_stimuli
+    # test the number of images
+    @pytest.mark.parametrize('identifier, num_images', [
+        ('colour', 1280),
+        ('contrast', 1280),
+        ('cue-conflict', 1280),
+        ('edge', 160),
+        ('eidolonI', 1280),
+        ('eidolonII', 1280),
+        ('eidolonIII', 1280),
+        ('false-colour', 1120),
+        ('high-pass', 1280),
+        ('low-pass', 1280),
+        ('phase-scrambling', 1120),
+        ('power-equalisation', 1120),
+        ('rotation', 1280),
+        ('silhouette', 160),
+        ('stylized', 800),
+        ('sketch', 800),
+        ('uniform-noise', 1280),
+    ])
+    def test_num_images(self, identifier, num_images):
+        stimulus_set = brainscore.get_stimulus_set(f"brendel.Geirhos2021_{identifier}")
+        assert len(np.unique(stimulus_set['image_id'].values)) == num_images
 
+    # tests assembly coords for the 14 "normal" sets:
+    @pytest.mark.parametrize('identifier, length', [
+        ('colour', 1280),
+        ('contrast', 1280),
+        ('eidolonI', 1280),
+        ('eidolonII', 1280),
+        ('eidolonIII', 1280),
+        ('false-colour', 1120),
+        ('high-pass', 1280),
+        ('low-pass', 1280),
+        ('phase-scrambling', 1120),
+        ('power-equalisation', 1120),
+        ('rotation', 1280),
+        ('stylized', 800),
+        ('sketch', 800),
+        ('uniform-noise', 1280),
+    ])
+    @pytest.mark.parametrize('field', [
+        'image_id',
+        'image_id_long',
+        'image_number',
+        'experiment_code',
+        'condition',
+        'truth',
+        'category_ground_truth',
+        'random_number',
+    ])
+    def test_fields_present(self, identifier, field, length):
+        stimulus_set = brainscore.get_stimulus_set(f"brendel.Geirhos2021_{identifier}")
+        assert len(stimulus_set[field].values) == length
+
+    # tests assembly coords for the 2 "abnormal" sets:
+    @pytest.mark.parametrize('identifier, length', [
+        ('edge', 1600),
+        ('silhouette', 1600),
+    ])
+    @pytest.mark.parametrize('field', [
+        'image_id',
+        'image_category',
+        'truth',
+        'image_variation',
+        'condition',
+    ])
+    def test_fields_present2(self, identifier, field, length):
+        stimulus_set = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
+        assert len(stimulus_set[field].values) == length
+
+    # test assembly fields for cue-conflict's odd stimulus_set:
+    @pytest.mark.parametrize('identifier, length', [
+        ('cue-conflict', 12800),
+    ])
+    @pytest.mark.parametrize('field', [
+        'image_id',
+        'original_image',
+        'truth',
+        'category',
+        'conflict_image',
+        'original_image_category',
+        'original_image_variation',
+        'conflict_image_category',
+        'conflict_image_variation',
+        'condition',
+    ])
+    def test_fields_present3(self, identifier, field, length):
+        stimulus_set = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
+        assert len(stimulus_set[field].values) == length
 
 
 

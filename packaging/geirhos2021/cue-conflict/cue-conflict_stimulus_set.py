@@ -63,11 +63,13 @@ for filepath in Path(stimuli_directory).glob('*.png'):
         'image_id': image_id,
         'original_image': original_image,
         'conflict_image': conflict_image,
+        'truth': original_image_category,
+        'category': original_image_category,
         'original_image_category': original_image_category,
         'original_image_variation': original_image_variation,
         'conflict_image_category': conflict_image_category,
         'conflict_image_variation': conflict_image_variation,
-
+        'condition': 0,
     })
 
 stimuli = StimulusSet(stimuli)

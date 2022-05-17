@@ -3,7 +3,7 @@ from brainscore.benchmarks.public_benchmarks import FreemanZiembaV1PublicBenchma
 from brainscore.model_interface import BrainModel
 from brainscore.utils import LazyLoad
 from model_tools.brain_transformation.temporal import TemporalIgnore
-from .behavior import BehaviorArbiter, LogitsBehavior, ProbabilitiesMapping
+from .behavior import BehaviorArbiter, LabelBehavior, ProbabilitiesMapping
 from .neural import LayerMappedModel, LayerSelection, LayerScores
 
 STANDARD_REGION_BENCHMARKS = {
@@ -37,7 +37,7 @@ class ModelCommitment(BrainModel):
         layer_model = LayerMappedModel(identifier=identifier, activations_model=activations_model,
                                        region_layer_map=region_layer_map)
         self.layer_model = TemporalIgnore(layer_model)
-        logits_behavior = LogitsBehavior(identifier=identifier, activations_model=activations_model)
+        logits_behavior = LabelBehavior(identifier=identifier, activations_model=activations_model)
         behavioral_readout_layer = behavioral_readout_layer or layers[-1]
         probabilities_behavior = ProbabilitiesMapping(identifier=identifier, activations_model=activations_model,
                                                       layer=behavioral_readout_layer)

@@ -28,7 +28,24 @@ for f in \
     resnet-50-pytorch-3deg-Geirhos2021_silhouette.nc \
     resnet-50-pytorch-3deg-Geirhos2021_sketch.nc \
     resnet-50-pytorch-3deg-Geirhos2021_stylized.nc \
-    resnet-50-pytorch-3deg-Geirhos2021_uniformnoise.nc
+    resnet-50-pytorch-3deg-Geirhos2021_uniformnoise.nc \
+    resnet-50-pytorch-8deg-Geirhos2021_colour.nc \
+    resnet-50-pytorch-8deg-Geirhos2021_contrast.nc \
+    resnet-50-pytorch-8deg-Geirhos2021_cueconflict.nc \
+    resnet-50-pytorch-8deg-Geirhos2021_edge.nc \
+    resnet-50-pytorch-8deg-Geirhos2021_eidolonI.nc \
+    resnet-50-pytorch-8deg-Geirhos2021_eidolonII.nc \
+    resnet-50-pytorch-8deg-Geirhos2021_eidolonIII.nc \
+    resnet-50-pytorch-8deg-Geirhos2021_falsecolour.nc \
+    resnet-50-pytorch-8deg-Geirhos2021_highpass.nc \
+    resnet-50-pytorch-8deg-Geirhos2021_lowpass.nc \
+    resnet-50-pytorch-8deg-Geirhos2021_phasescrambling.nc \
+    resnet-50-pytorch-8deg-Geirhos2021_powerequalisation.nc \
+    resnet-50-pytorch-8deg-Geirhos2021_rotation.nc \
+    resnet-50-pytorch-8deg-Geirhos2021_silhouette.nc \
+    resnet-50-pytorch-8deg-Geirhos2021_sketch.nc \
+    resnet-50-pytorch-8deg-Geirhos2021_stylized.nc \
+    resnet-50-pytorch-8deg-Geirhos2021_uniformnoise.nc
 do
   aws --no-sign-request s3 cp s3://brain-score-tests/tests/test_benchmarks/${f} ${SCRIPT_DIR}/tests/test_benchmarks/
 done

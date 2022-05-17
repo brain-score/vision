@@ -1,7 +1,6 @@
 import numpy as np
 
 import brainscore
-from brainio.assemblies import walk_coords
 from brainscore.benchmarks import BenchmarkBase
 from brainscore.benchmarks.screen import place_on_screen
 from brainscore.metrics import Score
@@ -33,7 +32,7 @@ EXCLUDE_CONDITIONS = {
     "low-pass": [0, 15, 40],
     "phase-scrambling": [0, 150, 180],
     "power-equalisation": ["0"],
-    "false-colour": ["True"],
+    "false-colour": ["False-Colour"],
     "rotation": [0],
     "eidolonI": ["1-10-10", "64-10-10", "128-10-10"],
     "eidolonII": ["1-3-10", "32-3-10", "64-3-10", "128-3-10"],
@@ -56,7 +55,7 @@ class _Geirhos2021ErrorConsistency(BenchmarkBase):
     def __init__(self, dataset):
         self._metric = ErrorConsistency()
         self._assembly = LazyLoad(lambda: load_assembly(dataset))
-        self._visual_degrees = 8  # FIXME: 3
+        self._visual_degrees = 3
 
         self._number_of_trials = 1
 
@@ -103,28 +102,6 @@ class _Geirhos2021Accuracy(BenchmarkBase):
 
 def load_assembly(dataset):
     assembly = brainscore.get_assembly(f'brendel.Geirhos2021_{dataset}')
-    # FIXME
-    stimulus_set = assembly.stimulus_set
-    if set(assembly['image_id'].values) != set(assembly.stimulus_set['image_id'].values):
-        # fix: use unique image_id referencing between assembly + stimulus_set
-        assembly = type(assembly)(assembly.values, coords={
-            coord: (dims, values) for coord, dims, values in walk_coords(assembly) if coord != 'image_id'},
-                                  dims=assembly.dims)
-        assembly['image_id'] = 'presentation', assembly['image_lookup_id'].values
-        image_id_to_lookup = dict(zip(stimulus_set['image_id'], stimulus_set['image_lookup_id']))
-        stimulus_set['image_id'] = stimulus_set['image_lookup_id']
-        stimulus_set.image_paths = {image_id_to_lookup[image_id]: path
-                                    for image_id, path in stimulus_set.image_paths.items()}
-    if 'truth' not in stimulus_set.columns:
-        # fix: add truth
-        stimulus_set['truth'] = stimulus_set[
-            'image_category' if 'image_category' in stimulus_set.columns else 'category_ground_truth']
-    if 'condition' not in stimulus_set.columns:
-        # fix: add condition
-        image_id_to_condition = dict(zip(assembly['image_id'].values, assembly['condition'].values))
-        stimulus_set['condition'] = [image_id_to_condition[image_id] for image_id in stimulus_set['image_id']]
-
-        assembly.attrs['stimulus_set'] = stimulus_set
 
     # exclude conditions following the paper
     if dataset in EXCLUDE_CONDITIONS:

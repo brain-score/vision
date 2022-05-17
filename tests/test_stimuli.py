@@ -43,7 +43,21 @@ import brainio
         'movshon.FreemanZiemba2013_properties',
         'brendel.Geirhos2021_colour',
         'brendel.Geirhos2021_contrast',
+        'brendel.Geirhos2021_cue-conflict',
+        'brendel.Geirhos2021_edge',
+        'brendel.Geirhos2021_eidolonI',
+        'brendel.Geirhos2021_eidolonII',
+        'brendel.Geirhos2021_eidolonIII',
+        'brendel.Geirhos2021_false-colour',
+        'brendel.Geirhos2021_high-pass',
+        'brendel.Geirhos2021_low-pass',
+        'brendel.Geirhos2021_phase-scrambling',
+        'brendel.Geirhos2021_power-equalisation',
+        'brendel.Geirhos2021_rotation',
+        'brendel.Geirhos2021_silhouette',
+        'brendel.Geirhos2021_stylized',
         'brendel.Geirhos2021_sketch',
+        'brendel.Geirhos2021_uniform-noise',
 ))
 def test_list_stimulus_set(stimulus_set):
     l = brainio.list_stimulus_sets()

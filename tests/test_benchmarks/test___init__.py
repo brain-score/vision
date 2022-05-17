@@ -423,7 +423,7 @@ class TestVisualDegrees:
         pytest.param('tolias.Cadena2017-pls', 6, '0fe27ddd5b9ea701e380063dc09b91234eba3551', approx(.29641, abs=.0001),
                      marks=[pytest.mark.private_access]),
     ])
-    def test_amount_gray(self, benchmark, candidate_degrees, image_id, expected):
+    def test_amount_gray(self, benchmark, candidate_degrees, image_id, expected, brainio_home, resultcaching_home, brainscore_home):
         benchmark = benchmark_pool[benchmark]
 
         class DummyCandidate(BrainModel):

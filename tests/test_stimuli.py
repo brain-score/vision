@@ -128,7 +128,6 @@ class TestMarques2020V1Properties:
         assert len(stimulus_set) == num_stimuli
 
 
-@pytest.mark.private_access
 @pytest.mark.slow
 class TestGeirhos2021:
 
@@ -182,22 +181,22 @@ class TestGeirhos2021:
         stimulus_set = brainscore.get_stimulus_set(f"brendel.Geirhos2021_{identifier}")
         assert len(np.unique(stimulus_set['image_id'].values)) == num_images
 
-    # tests assembly coords for the 14 "normal" sets:
-    @pytest.mark.parametrize('identifier, length', [
-        ('colour', 1280),
-        ('contrast', 1280),
-        ('eidolonI', 1280),
-        ('eidolonII', 1280),
-        ('eidolonIII', 1280),
-        ('false-colour', 1120),
-        ('high-pass', 1280),
-        ('low-pass', 1280),
-        ('phase-scrambling', 1120),
-        ('power-equalisation', 1120),
-        ('rotation', 1280),
-        ('stylized', 800),
-        ('sketch', 800),
-        ('uniform-noise', 1280),
+    # tests stimulus_set coords for the 14 "normal" sets:
+    @pytest.mark.parametrize('identifier', [
+        'colour',
+        'contrast',
+        'eidolonI',
+        'eidolonII',
+        'eidolonIII',
+        'false-colour',
+        'high-pass',
+        'low-pass',
+        'phase-scrambling',
+        'power-equalisation',
+        'rotation',
+        'stylized',
+        'sketch',
+        'uniform-noise',
     ])
     @pytest.mark.parametrize('field', [
         'image_id',
@@ -209,14 +208,14 @@ class TestGeirhos2021:
         'category_ground_truth',
         'random_number',
     ])
-    def test_fields_present(self, identifier, field, length):
+    def test_fields_present(self, identifier, field):
         stimulus_set = brainscore.get_stimulus_set(f"brendel.Geirhos2021_{identifier}")
-        assert len(stimulus_set[field].values) == length
+        assert hasattr(stimulus_set, field)
 
     # tests assembly coords for the 2 "abnormal" sets:
-    @pytest.mark.parametrize('identifier, length', [
-        ('edge', 1600),
-        ('silhouette', 1600),
+    @pytest.mark.parametrize('identifier', [
+        'edge',
+        'silhouette',
     ])
     @pytest.mark.parametrize('field', [
         'image_id',
@@ -225,13 +224,13 @@ class TestGeirhos2021:
         'image_variation',
         'condition',
     ])
-    def test_fields_present2(self, identifier, field, length):
+    def test_fields_present2(self, identifier, field):
         stimulus_set = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
-        assert len(stimulus_set[field].values) == length
+        assert hasattr(stimulus_set, field)
 
     # test assembly fields for cue-conflict's odd stimulus_set:
-    @pytest.mark.parametrize('identifier, length', [
-        ('cue-conflict', 12800),
+    @pytest.mark.parametrize('identifier', [
+        'cue-conflict',
     ])
     @pytest.mark.parametrize('field', [
         'image_id',
@@ -245,9 +244,9 @@ class TestGeirhos2021:
         'conflict_image_variation',
         'condition',
     ])
-    def test_fields_present3(self, identifier, field, length):
+    def test_fields_present3(self, identifier, field):
         stimulus_set = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
-        assert len(stimulus_set[field].values) == length
+        assert hasattr(stimulus_set, field)
 
 
 

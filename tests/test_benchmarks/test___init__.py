@@ -80,6 +80,23 @@ class TestPoolList:
             'dicarlo.Kar2019-ost',
             # behavior
             'dicarlo.Rajalingham2018-i2n',
+            'brendel.Geirhos2021_colour-error_consistency',
+            'brendel.Geirhos2021_contrast-error_consistency',
+            'brendel.Geirhos2021_cue-conflict-error_consistency',
+            'brendel.Geirhos2021_edge-error_consistency',
+            'brendel.Geirhos2021_eidolonI-error_consistency',
+            'brendel.Geirhos2021_eidolonII-error_consistency',
+            'brendel.Geirhos2021_eidolonIII-error_consistency',
+            'brendel.Geirhos2021_false-colour-error_consistency',
+            'brendel.Geirhos2021_high-pass-error_consistency',
+            'brendel.Geirhos2021_low-pass-error_consistency',
+            'brendel.Geirhos2021_phase-scrambling-error_consistency',
+            'brendel.Geirhos2021_power-equalisation-error_consistency',
+            'brendel.Geirhos2021_rotation-error_consistency',
+            'brendel.Geirhos2021_silhouette-error_consistency',
+            'brendel.Geirhos2021_stylized-error_consistency',
+            'brendel.Geirhos2021_sketch-error_consistency',
+            'brendel.Geirhos2021_uniform-noise-error_consistency',
         }
 
     def test_engineering_pool(self):
@@ -87,7 +104,24 @@ class TestPoolList:
             'fei-fei.Deng2009-top1',
             'katz.BarbuMayo2019-top1',
             'dietterich.Hendrycks2019-noise-top1', 'dietterich.Hendrycks2019-blur-top1',
-            'dietterich.Hendrycks2019-weather-top1', 'dietterich.Hendrycks2019-digital-top1'
+            'dietterich.Hendrycks2019-weather-top1', 'dietterich.Hendrycks2019-digital-top1',
+            'brendel.Geirhos2021_colour-top1',
+            'brendel.Geirhos2021_contrast-top1',
+            'brendel.Geirhos2021_cue-conflict-top1',
+            'brendel.Geirhos2021_edge-top1',
+            'brendel.Geirhos2021_eidolonI-top1',
+            'brendel.Geirhos2021_eidolonII-top1',
+            'brendel.Geirhos2021_eidolonIII-top1',
+            'brendel.Geirhos2021_false-colour-top1',
+            'brendel.Geirhos2021_high-pass-top1',
+            'brendel.Geirhos2021_low-pass-top1',
+            'brendel.Geirhos2021_phase-scrambling-top1',
+            'brendel.Geirhos2021_power-equalisation-top1',
+            'brendel.Geirhos2021_rotation-top1',
+            'brendel.Geirhos2021_silhouette-top1',
+            'brendel.Geirhos2021_stylized-top1',
+            'brendel.Geirhos2021_sketch-top1',
+            'brendel.Geirhos2021_uniform-noise-top1',
         }
 
 

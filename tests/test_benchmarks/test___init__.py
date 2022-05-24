@@ -121,7 +121,7 @@ class TestPoolList:
             'brendel.Geirhos2021silhouette-top1',
             'brendel.Geirhos2021stylized-top1',
             'brendel.Geirhos2021sketch-top1',
-            'brendel.Geirhos2021uniform-noise-top1',
+            'brendel.Geirhos2021uniformnoise-top1',
         }
 
 
@@ -495,9 +495,49 @@ class TestVisualDegrees:
 
 class TestNumberOfTrials:
     @pytest.mark.private_access
-    @pytest.mark.parametrize('benchmark_identifier', evaluation_benchmark_pool.keys())
+    @pytest.mark.parametrize('benchmark_identifier', [
+        # V1
+        'movshon.FreemanZiemba2013.V1-pls',
+        'dicarlo.Marques2020_Ringach2002-or_bandwidth',
+        'dicarlo.Marques2020_Ringach2002-or_selective',
+        'dicarlo.Marques2020_Ringach2002-circular_variance',
+        'dicarlo.Marques2020_Ringach2002-orth_pref_ratio',
+        'dicarlo.Marques2020_Ringach2002-cv_bandwidth_ratio',
+        'dicarlo.Marques2020_DeValois1982-pref_or',
+        'dicarlo.Marques2020_Ringach2002-opr_cv_diff',
+        'dicarlo.Marques2020_Schiller1976-sf_bandwidth',
+        'dicarlo.Marques2020_Schiller1976-sf_selective',
+        'dicarlo.Marques2020_DeValois1982-peak_sf',
+        'dicarlo.Marques2020_FreemanZiemba2013-texture_sparseness',
+        'dicarlo.Marques2020_FreemanZiemba2013-texture_selectivity',
+        'dicarlo.Marques2020_FreemanZiemba2013-texture_variance_ratio',
+        'dicarlo.Marques2020_Ringach2002-modulation_ratio',
+        'dicarlo.Marques2020_Cavanaugh2002-grating_summation_field',
+        'dicarlo.Marques2020_Cavanaugh2002-surround_diameter',
+        'dicarlo.Marques2020_Cavanaugh2002-surround_suppression_index',
+        'dicarlo.Marques2020_FreemanZiemba2013-texture_modulation_index',
+        'dicarlo.Marques2020_FreemanZiemba2013-abs_texture_modulation_index',
+        'dicarlo.Marques2020_FreemanZiemba2013-max_noise',
+        'dicarlo.Marques2020_FreemanZiemba2013-max_texture',
+        'dicarlo.Marques2020_Ringach2002-max_dc',
+        # V2
+        'movshon.FreemanZiemba2013.V2-pls',
+        # V4
+        'dicarlo.MajajHong2015.V4-pls',
+        'dicarlo.Sanghavi2020.V4-pls',
+        'dicarlo.SanghaviJozwik2020.V4-pls',
+        'dicarlo.SanghaviMurty2020.V4-pls',
+        # IT
+        'dicarlo.MajajHong2015.IT-pls',
+        'dicarlo.Sanghavi2020.IT-pls',
+        'dicarlo.SanghaviJozwik2020.IT-pls',
+        'dicarlo.SanghaviMurty2020.IT-pls',
+        'dicarlo.Kar2019-ost',
+        # behavior
+        'dicarlo.Rajalingham2018-i2n',  # Geirhos2021 are single-trial, i.e. not included here
+    ])
     def test_repetitions(self, benchmark_identifier):
-        """ Tests that all evaluation benchmarks have repetitions in the stimulus_set """
+        """ Tests that benchmarks have repetitions in the stimulus_set """
         benchmark = benchmark_pool[benchmark_identifier]
 
         class AssertRepeatCandidate(BrainModel):

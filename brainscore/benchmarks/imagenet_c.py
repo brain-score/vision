@@ -184,6 +184,7 @@ class Imagenet_C_Individual(BenchmarkBase):
 
         return score
 
+
 class SampledStimulusSetLoader(StimulusSetLoader):
     """
     Subclass of StimulusSetLoader that allows for downsampling of the stimulus set before loading.
@@ -198,5 +199,6 @@ class SampledStimulusSetLoader(StimulusSetLoader):
         stimulus_set = self.stimulus_set_class(stimulus_set)
         stimulus_set.stimulus_paths = {row['stimulus_id']: Path(self.stimuli_directory) / row['filename']
                                        for _, row in stimulus_set.iterrows()}
+        # make sure that all the stimulus files a loaded StimulusSet offers access to are actually available
         assert all(stimulus_path.is_file() for stimulus_path in stimulus_set.stimulus_paths.values())
         return stimulus_set

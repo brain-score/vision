@@ -53,7 +53,7 @@ def test_klab_Zhang2018search():
     # present at 6 different locations in a specified search image.
     # Therefore, a total of 300 * 2 + 6 images are there in the stimulus set.
     assert len(stimulus_set) == 606
-    assert len(set(stimulus_set['image_id'])) == 606
+    assert len(set(stimulus_set['stimulus_id'])) == 606
 
 
 @pytest.mark.private_access

@@ -8,7 +8,7 @@ from brainscore.model_interface import BrainModel
 class PrecomputedFeatures(BrainModel):
     def __init__(self, features: Union[DataAssembly, dict], visual_degrees):
         """
-        :param features: The precomputed features. Either an assembly of features, indexable with `image_id` or
+        :param features: The precomputed features. Either an assembly of features, indexable with `stimulus_id` or
             a dictionary mapping from stimulus identifier to feature assemblies.
         :param visual_degrees: Some visual degrees to use for the precomputed features. Since features are precomputed,
             this should only affect the `place_on_screen` in the benchmark's __call__ method.
@@ -27,19 +27,19 @@ class PrecomputedFeatures(BrainModel):
 
     def look_at(self, stimuli, number_of_trials=1):
         features = self.features[stimuli.identifier] if isinstance(self.features, dict) else self.features
-        missing_image_ids = set(stimuli['image_id'].values) - set(features['image_id'].values)
-        assert not missing_image_ids, f"stored features do not contain image_ids {missing_image_ids}"
-        image_indices = [np.where(features['image_id'].values == image_id)[0][0]
-                         for image_id in stimuli['image_id'].values]
+        missing_stimulus_ids = set(stimuli['stimulus_id'].values) - set(features['stimulus_id'].values)
+        assert not missing_stimulus_ids, f"stored features do not contain stimulus_ids {missing_stimulus_ids}"
+        image_indices = [np.where(features['stimulus_id'].values == image_id)[0][0]
+                         for image_id in stimuli['stimulus_id'].values]
         features = features.isel(presentation=image_indices)
-        assert all(features['image_id'].values == stimuli['image_id'].values)
+        assert all(features['stimulus_id'].values == stimuli['stimulus_id'].values)
         return features
 
 
 def check_standard_format(assembly):
     assert isinstance(assembly, NeuroidAssembly)
     assert set(assembly.dims).issuperset({'presentation', 'neuroid'})
-    assert hasattr(assembly, 'image_id')
+    assert hasattr(assembly, 'stimulus_id')
     assert hasattr(assembly, 'neuroid_id')
     assert not np.isnan(assembly).any()
     assert 'stimulus_set_identifier' in assembly.attrs

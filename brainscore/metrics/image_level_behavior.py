@@ -104,16 +104,16 @@ class _Behavior_Metric(Metric):
         return self.correlate(*dprime_halves, skipna=skipna, collapse_distractors=self._collapse_distractors)
 
     def build_response_matrix_from_responses(self, responses):
-        num_choices = [(image_id, choice) for image_id, choice in zip(responses['image_id'].values, responses.values)]
+        num_choices = [(image_id, choice) for image_id, choice in zip(responses['stimulus_id'].values, responses.values)]
         num_choices = Counter(num_choices)
         num_objects = [[(image_id, sample_obj), (image_id, dist_obj)] for image_id, sample_obj, dist_obj in zip(
-            responses['image_id'].values, responses['sample_obj'].values, responses['dist_obj'].values)]
+            responses['stimulus_id'].values, responses['sample_obj'].values, responses['dist_obj'].values)]
         num_objects = Counter(itertools.chain(*num_objects))
 
         choices = np.unique(responses)
-        image_ids, indices = np.unique(responses['image_id'], return_index=True)
+        image_ids, indices = np.unique(responses['stimulus_id'], return_index=True)
         truths = responses['truth'].values[indices]
-        image_dim = responses['image_id'].dims
+        image_dim = responses['stimulus_id'].dims
         coords = {**{coord: (dims, value) for coord, dims, value in walk_coords(responses)},
                   **{'choice': ('choice', choices)}}
         coords = {coord: (dims, value if dims != image_dim else value[indices])  # align image_dim coords with indices
@@ -141,7 +141,7 @@ class _Behavior_Metric(Metric):
             return dprime_scores_normalized
 
     def target_distractor_scores(self, object_probabilities):
-        cached_object_probabilities = self._build_index(object_probabilities, ['image_id', 'choice'])
+        cached_object_probabilities = self._build_index(object_probabilities, ['stimulus_id', 'choice'])
 
         def apply(p_choice, image_id, truth, choice, **_):
             if truth == choice:  # object == choice, ignore
@@ -151,7 +151,7 @@ class _Behavior_Metric(Metric):
             p = p_choice / (p_choice + p_object)
             return p
 
-        result = object_probabilities.multi_dim_apply(['image_id', 'choice'], apply)
+        result = object_probabilities.multi_dim_apply(['stimulus_id', 'choice'], apply)
         return result
 
     def z_score(self, value):
@@ -198,8 +198,8 @@ class _Behavior_Metric(Metric):
 
     def add_source_meta(self, source_probabilities, target):
         image_meta = {image_id: meta_value for image_id, meta_value in
-                      zip(target['image_id'].values, target['truth'].values)}
-        meta_values = [image_meta[image_id] for image_id in source_probabilities['image_id'].values]
+                      zip(target['stimulus_id'].values, target['truth'].values)}
+        meta_values = [image_meta[image_id] for image_id in source_probabilities['stimulus_id'].values]
         source_probabilities['truth'] = 'presentation', meta_values
 
 
@@ -226,20 +226,20 @@ class _I(_Behavior_Metric):
             dprime = self.z_score(hit_rate) - self.z_score(false_alarms_rate_objects)
             return dprime
 
-        result = response_matrix.multi_dim_apply(['image_id', 'choice'], apply)
+        result = response_matrix.multi_dim_apply(['stimulus_id', 'choice'], apply)
         return result
 
     @classmethod
     def correlate(cls, source_response_matrix, target_response_matrix, skipna=False, collapse_distractors=False):
         # align
         if collapse_distractors:
-            source_response_matrix = source_response_matrix.sortby('image_id')
-            target_response_matrix = target_response_matrix.sortby('image_id')
+            source_response_matrix = source_response_matrix.sortby('stimulus_id')
+            target_response_matrix = target_response_matrix.sortby('stimulus_id')
         else:
-            source_response_matrix = source_response_matrix.sortby('image_id').sortby('choice')
-            target_response_matrix = target_response_matrix.sortby('image_id').sortby('choice')
+            source_response_matrix = source_response_matrix.sortby('stimulus_id').sortby('choice')
+            target_response_matrix = target_response_matrix.sortby('stimulus_id').sortby('choice')
             assert all(source_response_matrix['choice'].values == target_response_matrix['choice'].values)
-        assert all(source_response_matrix['image_id'].values == target_response_matrix['image_id'].values)
+        assert all(source_response_matrix['stimulus_id'].values == target_response_matrix['stimulus_id'].values)
         # flatten and mask out NaNs
         source, target = source_response_matrix.values.flatten(), target_response_matrix.values.flatten()
         non_nan = ~np.isnan(target)

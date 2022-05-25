@@ -230,12 +230,12 @@ class TestPrecomputed:
     def run_test(self, benchmark, file, expected):
         benchmark = benchmark_pool[benchmark]
         precomputed_features = Path(__file__).parent / file
-        precomputed_features = BehavioralAssembly(xr.load_dataarray(precomputed_features))
+        precomputed_features = BehavioralAssembly.from_files(precomputed_features, stimulus_set_identifier=benchmark._assembly.stimulus_set.identifier, stimulus_set=benchmark._assembly.stimulus_set)
         precomputed_features = precomputed_features.stack(presentation=['stimulus_path'])
         precomputed_paths = list(map(lambda f: Path(f).name, precomputed_features['stimulus_path'].values))
         # attach stimulus set meta
         stimulus_set = benchmark._assembly.stimulus_set
-        expected_stimulus_paths = [stimulus_set.get_image(image_id) for image_id in stimulus_set['image_id']]
+        expected_stimulus_paths = [stimulus_set.get_stimulus(image_id) for image_id in stimulus_set['stimulus_id']]
         expected_stimulus_paths = list(map(lambda f: Path(f).name, expected_stimulus_paths))
         assert set(precomputed_paths) == set(expected_stimulus_paths)
         for column in stimulus_set.columns:
@@ -253,7 +253,7 @@ class TestPrecomputed:
     def test_Kar2019ost_cornet_s(self):
         benchmark = benchmark_pool['dicarlo.Kar2019-ost']
         precomputed_features = Path(__file__).parent / 'cornet_s-kar2019.nc'
-        precomputed_features = BehavioralAssembly(xr.load_dataarray(precomputed_features))
+        precomputed_features = BehavioralAssembly.from_files(precomputed_features, stimulus_set_identifier=benchmark._assembly.stimulus_set.identifier, stimulus_set=benchmark._assembly.stimulus_set)
         precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
         # score
         score = benchmark(precomputed_features).raw
@@ -263,7 +263,7 @@ class TestPrecomputed:
         benchmark = benchmark_pool['dicarlo.Rajalingham2018public-i2n']
         # load features
         precomputed_features = Path(__file__).parent / 'CORnetZ-rajalingham2018public.nc'
-        precomputed_features = BehavioralAssembly(xr.load_dataarray(precomputed_features))
+        precomputed_features = BehavioralAssembly.from_files(precomputed_features, stimulus_set_identifier=benchmark._assembly.stimulus_set.identifier, stimulus_set=benchmark._assembly.stimulus_set)
         precomputed_features = PrecomputedFeatures(precomputed_features,
                                                    visual_degrees=8,  # doesn't matter, features are already computed
                                                    )
@@ -355,12 +355,12 @@ class TestPrecomputed:
         for current_stimulus in stimulus_identifiers:
             stimulus_set = get_stimulus_set(current_stimulus)
             path = Path(__file__).parent / files[current_stimulus]
-            features = xr.load_dataarray(path)
-            features = BehavioralAssembly(features).stack(presentation=['stimulus_path'])
+            features = BehavioralAssembly.from_files(path, stimulus_set_identifier=stimulus_set.identifier, stimulus_set=stimulus_set)
+            features = features.stack(presentation=['stimulus_path'])
             precomputed_features[current_stimulus] = features
             precomputed_paths = [Path(f).name for f in precomputed_features[current_stimulus]['stimulus_path'].values]
             # attach stimulus set meta
-            expected_stimulus_paths = [stimulus_set.get_image(image_id) for image_id in stimulus_set['image_id']]
+            expected_stimulus_paths = [stimulus_set.get_image(image_id) for image_id in stimulus_set['stimulus_id']]
             expected_stimulus_paths = list(map(lambda f: Path(f).name, expected_stimulus_paths))
             assert set(precomputed_paths) == set(expected_stimulus_paths)
             for column in stimulus_set.columns:
@@ -423,7 +423,7 @@ class TestVisualDegrees:
         pytest.param('tolias.Cadena2017-pls', 6, '0fe27ddd5b9ea701e380063dc09b91234eba3551', approx(.29641, abs=.0001),
                      marks=[pytest.mark.private_access]),
     ])
-    def test_amount_gray(self, benchmark, candidate_degrees, image_id, expected):
+    def test_amount_gray(self, benchmark, candidate_degrees, image_id, expected, brainio_home, resultcaching_home, brainscore_home):
         benchmark = benchmark_pool[benchmark]
 
         class DummyCandidate(BrainModel):
@@ -434,7 +434,7 @@ class TestVisualDegrees:
                 return candidate_degrees
 
             def look_at(self, stimuli, number_of_trials=1):
-                image = stimuli.get_image(image_id)
+                image = stimuli.get_stimulus(image_id)
                 image = Image.open(image)
                 image = np.array(image)
                 amount_gray = 0

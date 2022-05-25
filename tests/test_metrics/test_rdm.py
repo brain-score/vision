@@ -12,7 +12,7 @@ from tests.test_metrics import load_hvm
 class TestRDMCrossValidated:
     def test_small(self):
         assembly = NeuroidAssembly((np.arange(30 * 25) + np.random.standard_normal(30 * 25)).reshape((30, 25)),
-                                   coords={'image_id': ('presentation', np.arange(30)),
+                                   coords={'stimulus_id': ('presentation', np.arange(30)),
                                            'object_name': ('presentation', ['a', 'b', 'c'] * 10),
                                            'neuroid_id': ('neuroid', np.arange(25)),
                                            'region': ('neuroid', [None] * 25)},
@@ -57,7 +57,7 @@ class TestRSA:
 
     def test_alignment(self):
         assembly = NeuroidAssembly([[1, 2], [1, 2], [4, 3], [4, 3]],
-                                   coords={'image_id': ('presentation', list(range(4))),
+                                   coords={'stimulus_id': ('presentation', list(range(4))),
                                            'image_meta': ('presentation', list(range(4))),
                                            'neuroid_id': ('neuroid', list(range(2))),
                                            'neuroid_meta': ('neuroid', list(range(2)))},
@@ -70,7 +70,7 @@ class TestRSA:
                                  [1., 1., -1., -1.],
                                  [-1., -1., 1., 1.],
                                  [-1., -1., 1., 1.]],
-                                coords={'image_id': ('presentation', list(range(4))),
+                                coords={'stimulus_id': ('presentation', list(range(4))),
                                         'image_meta': ('presentation', list(range(4)))},
                                 dims=['presentation', 'presentation'])
         np.testing.assert_array_almost_equal(matrix.values, expected.values)  # does not take ordering into account
@@ -80,7 +80,7 @@ class TestRDMSimilarity(object):
     def test_2d_equal20(self):
         rdm = np.random.rand(20, 20)  # not mirrored across diagonal, but fine for unit test
         np.fill_diagonal(rdm, 0)
-        rdm = NeuroidAssembly(rdm, coords={'image_id': ('presentation', list(range(20))),
+        rdm = NeuroidAssembly(rdm, coords={'stimulus_id': ('presentation', list(range(20))),
                                            'object_name': ('presentation', ['A', 'B'] * 10)},
                               dims=['presentation', 'presentation'])
         similarity = RDMSimilarity()
@@ -90,7 +90,7 @@ class TestRDMSimilarity(object):
     def test_2d_equal100(self):
         rdm = np.random.rand(100, 100)  # not mirrored across diagonal, but fine for unit test
         np.fill_diagonal(rdm, 0)
-        rdm = NeuroidAssembly(rdm, coords={'image_id': ('presentation', list(range(100))),
+        rdm = NeuroidAssembly(rdm, coords={'stimulus_id': ('presentation', list(range(100))),
                                            'object_name': ('presentation', ['A', 'B'] * 50)},
                               dims=['presentation', 'presentation'])
         similarity = RDMSimilarity()

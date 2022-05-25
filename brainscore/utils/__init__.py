@@ -87,3 +87,5 @@ class LazyLoad:
     def __class__(self):
         self._ensure_loaded()
         return self.content.__class__
+
+

@@ -1,5 +1,6 @@
 import os
 import logging
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -101,6 +102,7 @@ class Imagenet_C_Category(BenchmarkBase):
                 f'image_dietterich_Hendrycks2019_{self.noise_category}'
             )
             loader = SampledStimulusSetLoader(
+                cls=StimulusSet,
                 csv_path=os.path.join(category_path, f'image_dietterich_Hendrycks2019_{self.noise_category}.csv'), 
                 stimuli_directory=category_path, 
                 sampling_factor=self.sampling_factor
@@ -182,18 +184,21 @@ class Imagenet_C_Individual(BenchmarkBase):
 
         return score
 
+
 class SampledStimulusSetLoader(StimulusSetLoader):
     """
     Subclass of StimulusSetLoader that allows for downsampling of the stimulus set before loading.
     """
-    def __init__(self, csv_path, stimuli_directory, sampling_factor):
-        super().__init__(csv_path, stimuli_directory, cls=None)
+    def __init__(self, cls, csv_path, stimuli_directory, sampling_factor):
+        super().__init__(cls, csv_path, stimuli_directory)
         self.sampling_factor = sampling_factor
 
     def load(self):
         stimulus_set = pd.read_csv(self.csv_path)[::self.sampling_factor]
-        stimulus_set = StimulusSet(stimulus_set)
-        stimulus_set.image_paths = {row['image_id']: os.path.join(self.stimuli_directory, row['filename'])
-                                    for _, row in stimulus_set.iterrows()}
-        assert all(os.path.isfile(image_path) for image_path in stimulus_set.image_paths.values())
+        self.correct_stimulus_id_name(stimulus_set)
+        stimulus_set = self.stimulus_set_class(stimulus_set)
+        stimulus_set.stimulus_paths = {row['stimulus_id']: Path(self.stimuli_directory) / row['filename']
+                                       for _, row in stimulus_set.iterrows()}
+        # make sure that all the stimulus files a loaded StimulusSet offers access to are actually available
+        assert all(stimulus_path.is_file() for stimulus_path in stimulus_set.stimulus_paths.values())
         return stimulus_set

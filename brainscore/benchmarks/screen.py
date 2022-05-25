@@ -51,17 +51,17 @@ def _place_on_screen(stimuli_identifier: str, stimulus_set: StimulusSet,
     image_converter = ImageConverter(target_dir=target_dir)
 
     converted_image_paths = {}
-    for image_id, image_degrees in tqdm(zip(stimulus_set['image_id'], source_visual_degrees),
+    for image_id, image_degrees in tqdm(zip(stimulus_set['stimulus_id'], source_visual_degrees),
                                         total=len(stimulus_set), desc='convert image degrees'):
-        converted_image_path = image_converter.convert_image(image_path=stimulus_set.get_image(image_id),
+        converted_image_path = image_converter.convert_image(image_path=stimulus_set.get_stimulus(image_id),
                                                              source_degrees=image_degrees,
                                                              target_degrees=target_visual_degrees)
         converted_image_paths[image_id] = converted_image_path
     converted_stimuli = StimulusSet(stimulus_set.copy(deep=True))  # without copy, it will link to the previous stim set
-    converted_stimuli.image_paths = converted_image_paths
+    converted_stimuli.stimulus_paths = converted_image_paths
     converted_stimuli.identifier = converted_stimuli_id
     converted_stimuli['degrees'] = target_visual_degrees
-    converted_stimuli.original_paths = copy.deepcopy(stimulus_set.image_paths)
+    converted_stimuli.original_paths = copy.deepcopy(stimulus_set.stimulus_paths)
     return converted_stimuli
 
 

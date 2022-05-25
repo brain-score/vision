@@ -2,7 +2,6 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-import xarray as xr
 from pytest import approx
 
 from brainio.assemblies import BehavioralAssembly
@@ -75,7 +74,7 @@ class TestBehavioral:
         benchmark = benchmark_pool[f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency"]
         # load features
         precomputed_features = Path(__file__).parent / f'{model}-3deg-Geirhos2021_{dataset}.nc'
-        precomputed_features = BehavioralAssembly(xr.load_dataarray(precomputed_features))
+        precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)
         precomputed_features = PrecomputedFeatures(precomputed_features,
                                                    visual_degrees=8,  # doesn't matter, features are already computed
                                                    )
@@ -92,7 +91,7 @@ class TestBehavioral:
         for dataset in DATASETS:
             benchmark = benchmark_pool[f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency"]
             precomputed_features = Path(__file__).parent / f'{model}-Geirhos2021_{dataset}.nc'
-            precomputed_features = BehavioralAssembly(xr.load_dataarray(precomputed_features))
+            precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)
             precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
             score = benchmark(precomputed_features).raw
             scores.append(score)
@@ -124,7 +123,7 @@ class TestEngineering:
         benchmark = benchmark_pool[f"brendel.Geirhos2021{dataset.replace('-', '')}-top1"]
         # load features
         precomputed_features = Path(__file__).parent / f'{model}-3deg-Geirhos2021_{dataset}.nc'
-        precomputed_features = BehavioralAssembly(xr.load_dataarray(precomputed_features))
+        precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)
         precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=None)
         # score
         score = benchmark(precomputed_features)

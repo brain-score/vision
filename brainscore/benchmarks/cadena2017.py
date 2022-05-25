@@ -85,7 +85,7 @@ class AssemblyLoader:
         return assembly
 
     def _align_stimuli(self, stimulus_set, image_ids):
-        stimulus_set = stimulus_set.loc[stimulus_set['image_id'].isin(image_ids)]
+        stimulus_set = stimulus_set.loc[stimulus_set['stimulus_id'].isin(image_ids)]
         return stimulus_set
 
     def average_repetition(self, assembly):
@@ -101,5 +101,5 @@ class AssemblyLoader:
 
     def dropna(self, assembly, stimulus_set):
         assembly = assembly.dropna('presentation')  # discard any images with NaNs (~14%)
-        stimulus_set = self._align_stimuli(stimulus_set, assembly.image_id.values)
+        stimulus_set = self._align_stimuli(stimulus_set, assembly.stimulus_id.values)
         return assembly, stimulus_set

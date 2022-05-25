@@ -79,7 +79,7 @@ class BrainModel:
         - `presentation`: the presented stimuli (cf. stimuli argument of
           :meth:`~brainscore.model_interface.BrainModel.look_at`). If a :class:`~brainio.stimuli.StimulusSet`
           was passed, the recordings should contain all of the :class:`~brainio.stimuli.StimulusSet` columns as
-          coordinates on this dimension. The `image_id` coordinate is required in either case.
+          coordinates on this dimension. The `stimulus_id` coordinate is required in either case.
         - `neuroid`: the recorded neuroids (neurons or mixtures thereof). They should all be part of the
           specified :data:`~brainscore.model_interface.BrainModel.RecordingTarget`. The coordinates of this
           dimension should again include as much information as is available, at the very least a `neuroid_id`.

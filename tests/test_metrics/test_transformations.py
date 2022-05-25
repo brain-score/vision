@@ -20,7 +20,7 @@ class TestCrossValidationSingle:
 
     def test_presentation_neuroid(self):
         assembly = NeuroidAssembly(np.random.rand(500, 10),
-                                   coords={'image_id': ('presentation', list(range(500))),
+                                   coords={'stimulus_id': ('presentation', list(range(500))),
                                            'image_meta': ('presentation', [0] * 500),
                                            'neuroid_id': ('neuroid', list(range(10))),
                                            'neuroid_meta': ('neuroid', [0] * 10)},
@@ -36,7 +36,7 @@ class TestCrossValidationSingle:
         necessary for cross-validation over RDMs
         """
         assembly = NeuroidAssembly(np.random.rand(50, 50),
-                                   coords={'image_id': ('presentation', list(range(50))),
+                                   coords={'stimulus_id': ('presentation', list(range(50))),
                                            'image_meta': ('presentation', [0] * 50)},
                                    dims=['presentation', 'presentation'])
         cv = CrossValidationSingle(splits=10, train_size=.9, stratification_coord=None)
@@ -58,8 +58,8 @@ class TestCrossValidation:
             self.test_target_assemblies = []
 
         def __call__(self, train_source, train_target, test_source, test_target):
-            assert sorted(train_source['image_id'].values) == sorted(train_target['image_id'].values)
-            assert sorted(test_source['image_id'].values) == sorted(test_target['image_id'].values)
+            assert sorted(train_source['stimulus_id'].values) == sorted(train_target['stimulus_id'].values)
+            assert sorted(test_source['stimulus_id'].values) == sorted(test_target['stimulus_id'].values)
             self.train_source_assemblies.append(train_source)
             self.train_target_assemblies.append(train_target)
             self.test_source_assemblies.append(test_source)
@@ -68,12 +68,12 @@ class TestCrossValidation:
 
     def test_misaligned(self):
         jumbled_source = NeuroidAssembly(np.random.rand(500, 10),
-                                         coords={'image_id': ('presentation', list(reversed(range(500)))),
+                                         coords={'stimulus_id': ('presentation', list(reversed(range(500)))),
                                                  'image_meta': ('presentation', [0] * 500),
                                                  'neuroid_id': ('neuroid', list(reversed(range(10)))),
                                                  'neuroid_meta': ('neuroid', [0] * 10)},
                                          dims=['presentation', 'neuroid'])
-        target = jumbled_source.sortby(['image_id', 'neuroid_id'])
+        target = jumbled_source.sortby(['stimulus_id', 'neuroid_id'])
         cv = CrossValidation(splits=10, stratification_coord=None)
         metric = self.MetricPlaceholder()
         score = cv(jumbled_source, target, apply=metric)

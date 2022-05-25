@@ -130,7 +130,7 @@ def test_klab_Zhang2018search():
     assembly = brainio.get_assembly('klab.Zhang2018search_obj_array')
     assert set(assembly.dims) == {'presentation', 'fixation', 'position'}
     assert len(assembly['presentation']) == 4500
-    assert len(set(assembly['image_id'].values)) == 300
+    assert len(set(assembly['stimulus_id'].values)) == 300
     assert len(set(assembly['subjects'].values)) == 15
     assert len(assembly['fixation']) == 8
     assert len(assembly['position']) == 2
@@ -147,7 +147,7 @@ class TestFreemanZiemba:
         v1 = assembly[{'neuroid': [region == 'V1' for region in assembly['region'].values]}]
         v2 = assembly[{'neuroid': [region == 'V2' for region in assembly['region'].values]}]
         assert len(v1['presentation']) == len(v2['presentation'])
-        assert set(v1['image_id'].values) == set(v2['image_id'].values)
+        assert set(v1['stimulus_id'].values) == set(v2['stimulus_id'].values)
 
     @pytest.mark.parametrize('identifier', [
         pytest.param('movshon.FreemanZiemba2013.public', marks=[]),
@@ -180,7 +180,7 @@ class TestFreemanZiemba:
         """ test a random image for the correct amount of gray pixels """
         assembly = brainio.get_assembly(identifier)
         stimulus_set = assembly.stimulus_set
-        image_path = Path(stimulus_set.get_image(image_id))
+        image_path = Path(stimulus_set.get_stimulus(image_id))
         assert image_path.is_file()
         # count number of gray pixels in image
         image = Image.open(image_path)
@@ -208,7 +208,7 @@ class TestSeibert:
     @pytest.mark.private_access
     def test_coords(self):
         assembly = brainio.get_assembly('dicarlo.Seibert2019')
-        assert len(set(assembly['image_id'].values)) == 5760
+        assert len(set(assembly['stimulus_id'].values)) == 5760
         assert len(set(assembly['neuroid_id'].values)) == 258
         assert len(set(assembly['animal'].values)) == 3
         assert len(set(assembly['region'].values)) == 2
@@ -220,7 +220,7 @@ class TestSeibert:
         assert np.count_nonzero(np.isnan(assembly)) == 19118720
         assert assembly.stimulus_set_identifier == "dicarlo.hvm"
         hvm = assembly.stimulus_set
-        assert hvm.shape == (5760, 18)
+        assert hvm.shape == (5760, 19)
 
 
 class TestRustSingle:
@@ -236,7 +236,7 @@ class TestRustSingle:
     @pytest.mark.private_access
     def test_coords(self):
         assembly = brainio.get_assembly('dicarlo.Rust2012.single')
-        assert len(set(assembly['image_id'].values)) == 300
+        assert len(set(assembly['stimulus_id'].values)) == 300
         assert len(set(assembly['neuroid_id'].values)) == 285
         assert len(set(assembly['region'].values)) == 2
 
@@ -254,7 +254,7 @@ class TestRustArray:
     @pytest.mark.private_access
     def test_coords(self):
         assembly = brainio.get_assembly('dicarlo.Rust2012.array')
-        assert len(set(assembly['image_id'].values)) == 300
+        assert len(set(assembly['stimulus_id'].values)) == 300
         assert len(set(assembly['neuroid_id'].values)) == 296
         assert len(set(assembly['animal'].values)) == 2
         assert len(set(assembly['region'].values)) == 2

@@ -41,9 +41,9 @@ class DicarloKar2019OST(BenchmarkBase):
                                                 bibtex=BIBTEX)
         assembly = brainscore.get_assembly('dicarlo.Kar2019')
         # drop duplicate images
-        _, index = np.unique(assembly['image_id'], return_index=True)
+        _, index = np.unique(assembly['stimulus_id'], return_index=True)
         assembly = assembly.isel(presentation=index)
-        assembly.attrs['stimulus_set'] = assembly.stimulus_set.drop_duplicates('image_id')
+        assembly.attrs['stimulus_set'] = assembly.stimulus_set.drop_duplicates('stimulus_id')
 
         assembly = assembly.sel(decoder='svm')
 

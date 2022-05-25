@@ -15,7 +15,7 @@ def test_no_time():
     rnd = RandomState(0)
     stimuli = benchmark._assembly.stimulus_set
     source = DataAssembly(rnd.rand(len(stimuli), 5, 1), coords={
-        'image_id': ('presentation', stimuli['image_id']),
+        'stimulus_id': ('presentation', stimuli['stimulus_id']),
         'image_label': ('presentation', stimuli['image_label']),
         'truth': ('presentation', stimuli['truth']),
         'neuroid_id': ('neuroid', list(range(5))),
@@ -37,7 +37,7 @@ def test_random_time():
     rnd = RandomState(0)
     stimuli = benchmark._assembly.stimulus_set
     source = DataAssembly(rnd.rand(len(stimuli), 5, 5), coords={
-        'image_id': ('presentation', stimuli['image_id']),
+        'stimulus_id': ('presentation', stimuli['stimulus_id']),
         'image_label': ('presentation', stimuli['image_label']),
         'truth': ('presentation', stimuli['truth']),
         'neuroid_id': ('neuroid', list(range(5))),

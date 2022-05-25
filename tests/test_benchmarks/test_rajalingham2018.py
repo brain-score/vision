@@ -28,7 +28,7 @@ class TestRajalingham2018:
     def test_precomputed(self, model, expected_score):
         benchmark = DicarloRajalingham2018I2n()
         probabilities = Path(__file__).parent.parent / 'test_metrics' / f'{model}-probabilities.nc'
-        probabilities = BehavioralAssembly(xr.load_dataarray(probabilities))
+        probabilities = BehavioralAssembly.from_files(probabilities, stimulus_set_identifier=benchmark._assembly.stimulus_set.identifier, stimulus_set=benchmark._assembly.stimulus_set)
         candidate = PrecomputedProbabilities(probabilities)
         score = benchmark(candidate)
         assert score.raw.sel(aggregation='center') == approx(expected_score, abs=.005)
@@ -47,8 +47,8 @@ class PrecomputedProbabilities(BrainModel):
         assert len(fitting_stimuli) == 2160
 
     def look_at(self, stimuli, number_of_trials=1):
-        assert set(self.probabilities['image_id'].values) == set(stimuli['image_id'].values)
-        image_ids = self.probabilities['image_id'].values.tolist()
-        probabilities = self.probabilities[[image_ids.index(image_id) for image_id in stimuli['image_id'].values], :]
-        assert all(probabilities['image_id'].values == stimuli['image_id'].values)
+        assert set(self.probabilities['stimulus_id'].values) == set(stimuli['stimulus_id'].values)
+        image_ids = self.probabilities['stimulus_id'].values.tolist()
+        probabilities = self.probabilities[[image_ids.index(image_id) for image_id in stimuli['stimulus_id'].values], :]
+        assert all(probabilities['stimulus_id'].values == stimuli['stimulus_id'].values)
         return probabilities

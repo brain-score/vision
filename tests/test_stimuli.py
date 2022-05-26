@@ -130,7 +130,6 @@ class TestMarques2020V1Properties:
 
 @pytest.mark.slow
 class TestGeirhos2021:
-
     # test stimulus_set data:
     @pytest.mark.parametrize('identifier', [
         'colour',

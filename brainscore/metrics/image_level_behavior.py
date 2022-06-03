@@ -143,11 +143,11 @@ class _Behavior_Metric(Metric):
     def target_distractor_scores(self, object_probabilities):
         cached_object_probabilities = self._build_index(object_probabilities, ['stimulus_id', 'choice'])
 
-        def apply(p_choice, image_id, truth, choice, **_):
+        def apply(p_choice, stimulus_id, truth, choice, **_):
             if truth == choice:  # object == choice, ignore
                 return np.nan
             # probability that something else was chosen rather than object (p_choice == p_distractor after above check)
-            p_object = cached_object_probabilities[(image_id, truth)]
+            p_object = cached_object_probabilities[(stimulus_id, truth)]
             p = p_choice / (p_choice + p_object)
             return p
 

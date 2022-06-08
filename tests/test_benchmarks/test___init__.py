@@ -12,7 +12,7 @@ from brainscore.benchmarks import benchmark_pool, public_benchmark_pool, evaluat
     engineering_benchmark_pool
 from brainscore.model_interface import BrainModel
 from tests.test_benchmarks import PrecomputedFeatures
-from brainio.assemblies import BehavioralAssembly
+from brainio.assemblies import BehavioralAssembly, DataAssembly
 
 
 class TestPoolList:
@@ -230,7 +230,7 @@ class TestPrecomputed:
     def run_test(self, benchmark, file, expected):
         benchmark = benchmark_pool[benchmark]
         precomputed_features = Path(__file__).parent / file
-        precomputed_features = BehavioralAssembly.from_files(precomputed_features, stimulus_set_identifier=benchmark._assembly.stimulus_set.identifier, stimulus_set=benchmark._assembly.stimulus_set)
+        precomputed_features = DataAssembly.from_files(precomputed_features, stimulus_set_identifier=benchmark._assembly.stimulus_set.identifier, stimulus_set=None)
         precomputed_features = precomputed_features.stack(presentation=['stimulus_path'])
         precomputed_paths = list(map(lambda f: Path(f).name, precomputed_features['stimulus_path'].values))
         # attach stimulus set meta

@@ -96,7 +96,7 @@ def get_assembly():
     for i in range(1, 21):
         image_names.append(f'images/{i}.png')
     assembly = NeuroidAssembly((np.arange(40 * 5) + np.random.standard_normal(40 * 5)).reshape((5, 40, 1)),
-                               coords={'image_id': (
+                               coords={'stimulus_id': (
                                    'presentation',
                                    image_names * 2),
                                    'object_name': ('presentation', ['a'] * 40),
@@ -108,10 +108,10 @@ def get_assembly():
                                },
                                dims=['neuroid', 'presentation', 'time_bin'])
     labels = ['a'] * 10 + ['b'] * 10
-    stimulus_set = StimulusSet([{'image_id': image_names[i], 'object_name': 'a', 'image_label': labels[i]}
+    stimulus_set = StimulusSet([{'stimulus_id': image_names[i], 'object_name': 'a', 'image_label': labels[i]}
                                 for i in range(20)])
-    stimulus_set.image_paths = {image_name: os.path.join(os.path.dirname(__file__), image_name)
-                                for image_name in image_names}
+    stimulus_set.stimulus_paths = {image_name: os.path.join(os.path.dirname(__file__), image_name)
+                                   for image_name in image_names}
     stimulus_set.identifier = 'test'
     assembly.attrs['stimulus_set'] = stimulus_set
     assembly.attrs['stimulus_set_name'] = stimulus_set.identifier

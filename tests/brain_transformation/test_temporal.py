@@ -15,7 +15,7 @@ class LayerMappedModelMock:
         pass
 
     def look_at(self, *args, **kwargs):
-        return NeuroidAssembly([[1, 2, 3], [1, 2, 3]], coords={'image_id': ('presentation', ['image1', 'image2']),
+        return NeuroidAssembly([[1, 2, 3], [1, 2, 3]], coords={'stimulus_id': ('presentation', ['image1', 'image2']),
                                                                'object_name': (
                                                                    'presentation', ['number', 'number']),
                                                                'neuroid_id': ('neuroid', [1, 2, 3]),

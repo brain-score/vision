@@ -190,10 +190,10 @@ def test_from_image_path(model_ctr, layers, image_name, pca_components, logits):
 
 
 def _build_stimulus_set(image_names):
-    stimulus_set = StimulusSet([{'image_id': image_name, 'some_meta': image_name[::-1]}
+    stimulus_set = StimulusSet([{'stimulus_id': image_name, 'some_meta': image_name[::-1]}
                                 for image_name in image_names])
-    stimulus_set.image_paths = {image_name: os.path.join(os.path.dirname(__file__), image_name)
-                                for image_name in image_names}
+    stimulus_set.stimulus_paths = {image_name: os.path.join(os.path.dirname(__file__), image_name)
+                                   for image_name in image_names}
     return stimulus_set
 
 
@@ -209,7 +209,7 @@ def test_from_stimulus_set(model_ctr, layers, pca_components):
     activations = activations_extractor.from_stimulus_set(stimulus_set, layers=layers, stimuli_identifier=False)
 
     assert activations is not None
-    assert set(activations['image_id'].values) == set(image_names)
+    assert set(activations['stimulus_id'].values) == set(image_names)
     assert all(activations['some_meta'].values == [image_name[::-1] for image_name in image_names])
     assert len(np.unique(activations['layer'])) == len(layers)
     if pca_components is not None:

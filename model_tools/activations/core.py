@@ -51,7 +51,7 @@ class ActivationsExtractorHelper:
             stimuli_identifier = stimulus_set.identifier
         for hook in self._stimulus_set_hooks.copy().values():  # copy to avoid stale handles
             stimulus_set = hook(stimulus_set)
-        stimuli_paths = [str(stimulus_set.get_image(image_id)) for image_id in stimulus_set['image_id']]
+        stimuli_paths = [str(stimulus_set.get_stimulus(stimulus_id)) for stimulus_id in stimulus_set['stimulus_id']]
         activations = self.from_paths(stimuli_paths=stimuli_paths, layers=layers, stimuli_identifier=stimuli_identifier)
         activations = attach_stimulus_set_meta(activations, stimulus_set)
         return activations
@@ -257,15 +257,15 @@ def lstrip_local(path):
 
 
 def attach_stimulus_set_meta(assembly, stimulus_set):
-    stimulus_paths = [str(stimulus_set.get_image(image_id)) for image_id in stimulus_set['image_id']]
+    stimulus_paths = [str(stimulus_set.get_stimulus(stimulus_id)) for stimulus_id in stimulus_set['stimulus_id']]
     stimulus_paths = [lstrip_local(path) for path in stimulus_paths]
     assembly_paths = [lstrip_local(path) for path in assembly['stimulus_path'].values]
     assert (np.array(assembly_paths) == np.array(stimulus_paths)).all()
-    assembly['stimulus_path'] = stimulus_set['image_id'].values
-    assembly = assembly.rename({'stimulus_path': 'image_id'})
+    assembly['stimulus_path'] = stimulus_set['stimulus_id'].values
+    assembly = assembly.rename({'stimulus_path': 'stimulus_id'})
     for column in stimulus_set.columns:
-        assembly[column] = 'image_id', stimulus_set[column].values
-    assembly = assembly.stack(presentation=('image_id',))
+        assembly[column] = 'stimulus_id', stimulus_set[column].values
+    assembly = assembly.stack(presentation=('stimulus_id',))
     return assembly
 
 

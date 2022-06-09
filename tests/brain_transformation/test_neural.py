@@ -61,8 +61,8 @@ class TestLayerMappedModel:
                                        region_layer_map={region: layers})
 
         layer_model.start_recording(region)
-        stimulus_set = StimulusSet([{'image_id': 'test'}])
-        stimulus_set.image_paths = {'test': os.path.join(os.path.dirname(__file__), 'rgb1.jpg')}
+        stimulus_set = StimulusSet([{'stimulus_id': 'test'}])
+        stimulus_set.stimulus_paths = {'test': os.path.join(os.path.dirname(__file__), 'rgb1.jpg')}
         stimulus_set.identifier = self.__class__.__name__
         predictions = layer_model.look_at(stimulus_set)
         assert set(predictions['region'].values) == {region}

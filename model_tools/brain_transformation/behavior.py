@@ -143,8 +143,8 @@ class ProbabilitiesMapping(BrainModel):
 
         fitting_features = self.activations_model(fitting_stimuli, layers=self.readout)
         fitting_features = fitting_features.transpose('presentation', 'neuroid')
-        assert all(fitting_features['image_id'].values == fitting_stimuli['image_id'].values), \
-            "image_id ordering is incorrect"
+        assert all(fitting_features['stimulus_id'].values == fitting_stimuli['stimulus_id'].values), \
+            "stimulus_id ordering is incorrect"
         self.classifier.fit(fitting_features, fitting_stimuli['image_label'])
 
     def look_at(self, stimuli, number_of_trials=1):

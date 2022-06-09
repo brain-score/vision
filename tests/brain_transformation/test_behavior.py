@@ -55,7 +55,7 @@ class TestLabelBehavior:
         brain_model.start_task(BrainModel.Task.label, 'imagenet')
         behavior = brain_model.look_at(stimuli)
         assert isinstance(behavior, BehavioralAssembly)
-        assert set(behavior['image_id'].values) == {'1', '2'}
+        assert set(behavior['stimulus_id'].values) == {'1', '2'}
         assert len(behavior['synset']) == 2
         assert behavior['synset'].values[0].startswith('n')
 
@@ -69,16 +69,16 @@ class TestLabelBehavior:
         brain_model.start_task(BrainModel.Task.label, choice_labels)
         behavior = brain_model.look_at(stimuli)
         assert isinstance(behavior, BehavioralAssembly)
-        assert set(behavior['image_id'].values) == {'1', '2'}
+        assert set(behavior['stimulus_id'].values) == {'1', '2'}
         assert all(choice in choice_labels for choice in behavior.squeeze().values)
         # these two labels do not necessarily make sense since we're working with a random model
-        assert behavior.sel(image_id='1').values.item() == 'bear'
-        assert behavior.sel(image_id='2').values.item() == 'bird'
+        assert behavior.sel(stimulus_id='1').values.item() == 'bear'
+        assert behavior.sel(stimulus_id='2').values.item() == 'bird'
 
     def mock_stimulus_set(self):
-        stimuli = StimulusSet({'image_id': ['1', '2'], 'filename': ['rgb1', 'rgb2']})
-        stimuli.image_paths = {'1': os.path.join(os.path.dirname(__file__), 'rgb1.jpg'),
-                               '2': os.path.join(os.path.dirname(__file__), 'rgb2.jpg')}
+        stimuli = StimulusSet({'stimulus_id': ['1', '2'], 'filename': ['rgb1', 'rgb2']})
+        stimuli.stimulus_paths = {'1': os.path.join(os.path.dirname(__file__), 'rgb1.jpg'),
+                                  '2': os.path.join(os.path.dirname(__file__), 'rgb2.jpg')}
         stimuli.identifier = 'TestLabelBehavior.rgb_1_2'
         return stimuli
 
@@ -88,9 +88,9 @@ class TestProbabilitiesMapping:
         activations_model = pytorch_custom()
         brain_model = ModelCommitment(identifier=activations_model.identifier, activations_model=activations_model,
                                       layers=None, behavioral_readout_layer='relu2')
-        fitting_stimuli = StimulusSet({'image_id': ['rgb1', 'rgb2'], 'image_label': ['label1', 'label2']})
-        fitting_stimuli.image_paths = {'rgb1': os.path.join(os.path.dirname(__file__), 'rgb1.jpg'),
-                                       'rgb2': os.path.join(os.path.dirname(__file__), 'rgb2.jpg')}
+        fitting_stimuli = StimulusSet({'stimulus_id': ['rgb1', 'rgb2'], 'image_label': ['label1', 'label2']})
+        fitting_stimuli.stimulus_paths = {'rgb1': os.path.join(os.path.dirname(__file__), 'rgb1.jpg'),
+                                          'rgb2': os.path.join(os.path.dirname(__file__), 'rgb2.jpg')}
         fitting_stimuli.identifier = 'test_probabilities_mapping.creates_probabilities'
         fitting_stimuli = place_on_screen(fitting_stimuli, target_visual_degrees=brain_model.visual_degrees(),
                                           source_visual_degrees=8)
@@ -98,10 +98,10 @@ class TestProbabilitiesMapping:
         probabilities = brain_model.look_at(fitting_stimuli)
         np.testing.assert_array_equal(probabilities.dims, ['presentation', 'choice'])
         np.testing.assert_array_equal(probabilities.shape, [2, 2])
-        np.testing.assert_array_almost_equal(probabilities.sel(image_id='rgb1', choice='label1').values,
-                                             probabilities.sel(image_id='rgb2', choice='label2').values)
-        assert probabilities.sel(image_id='rgb1', choice='label1') + \
-               probabilities.sel(image_id='rgb1', choice='label2') == approx(1)
+        np.testing.assert_array_almost_equal(probabilities.sel(stimulus_id='rgb1', choice='label1').values,
+                                             probabilities.sel(stimulus_id='rgb2', choice='label2').values)
+        assert probabilities.sel(stimulus_id='rgb1', choice='label1') + \
+               probabilities.sel(stimulus_id='rgb1', choice='label2') == approx(1)
 
 
 @pytest.mark.private_access
@@ -127,8 +127,8 @@ class TestI2N:
         # features
         path_to_expected = Path(__file__).parent / f'identifier={model},stimuli_identifier=objectome-240.nc'
         feature_responses = xr.load_dataarray(path_to_expected)
-        feature_responses['image_id'] = 'stimulus_path', [os.path.splitext(os.path.basename(path))[0]
-                                                          for path in feature_responses['stimulus_path'].values]
+        feature_responses['stimulus_id'] = 'stimulus_path', [os.path.splitext(os.path.basename(path))[0]
+                                                             for path in feature_responses['stimulus_path'].values]
         feature_responses = feature_responses.stack(presentation=['stimulus_path'])
         assert len(np.unique(feature_responses['layer'])) == 1  # only penultimate layer
 
@@ -138,8 +138,8 @@ class TestI2N:
 
             def __call__(self, stimuli, layers):
                 np.testing.assert_array_equal(layers, ['behavioral-layer'])
-                self_image_ids = self.features['image_id'].values.tolist()
-                indices = [self_image_ids.index(image_id) for image_id in stimuli['image_id'].values]
+                self_stimulus_ids = self.features['stimulus_id'].values.tolist()
+                indices = [self_stimulus_ids.index(stimulus_id) for stimulus_id in stimuli['stimulus_id'].values]
                 features = self.features[{'presentation': indices}]
                 return features
 

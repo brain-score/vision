@@ -1,7 +1,10 @@
 # Unit Tests
 ## Precomputed files
 Some files have been pre-computed, but are too large to add to git.
-They are automatically downloaded by executing `bash download_test_files.sh`.
+They are on S3 instead and are automatically downloaded by executing `bash test_setup.sh`.
+
+When adding new files, they need to be made publicly accessible on S3: 
+select all files that you have added > Actions > Make public using ACL > Make public.
 
 ## Markers
 Unit tests have various markers that denote possible issues in the travis build:

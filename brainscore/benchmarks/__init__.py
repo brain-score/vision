@@ -4,14 +4,14 @@ and tests the resulting measurements against primate `data <https://github.com/b
 This comparison is done by a :class:`~brainscore.metrics.Metric` which outputs a score of how well model and data match.
 This score is normalized with data ceilings and the benchmark returns this ceiled score.
 """
-
 import itertools
 from abc import ABC
+
+from result_caching import cache, store
 
 from brainscore.metrics import Score
 from brainscore.model_interface import BrainModel
 from brainscore.utils import LazyLoad
-from result_caching import cache, store
 
 
 class Benchmark(ABC):
@@ -127,10 +127,13 @@ def _evaluation_benchmark_pool():
     Standard benchmarks that are evaluated for the website.
     """
     pool = {}
+
     # neural benchmarks
+    # MajajHong2015
     from .majajhong2015 import DicarloMajajHong2015V4PLS, DicarloMajajHong2015ITPLS
     pool['dicarlo.MajajHong2015.V4-pls'] = LazyLoad(DicarloMajajHong2015V4PLS)
     pool['dicarlo.MajajHong2015.IT-pls'] = LazyLoad(DicarloMajajHong2015ITPLS)
+    # FreemanZiemba2013
     from .freemanziemba2013 import MovshonFreemanZiemba2013V1PLS, MovshonFreemanZiemba2013V2PLS
     pool['movshon.FreemanZiemba2013.V1-pls'] = LazyLoad(MovshonFreemanZiemba2013V1PLS)
     pool['movshon.FreemanZiemba2013.V2-pls'] = LazyLoad(MovshonFreemanZiemba2013V2PLS)
@@ -202,8 +205,17 @@ def _evaluation_benchmark_pool():
     pool['dicarlo.SanghaviMurty2020.IT-pls'] = LazyLoad(DicarloSanghaviMurty2020ITPLS)
 
     # behavioral benchmarks
+    # Rajalingham2018
     from .rajalingham2018 import DicarloRajalingham2018I2n
     pool['dicarlo.Rajalingham2018-i2n'] = LazyLoad(DicarloRajalingham2018I2n)
+    # Geirhos2021-error_consistency
+    from . import geirhos2021
+    for dataset in geirhos2021.DATASETS:
+        assembly_identifier = f'Geirhos2021{dataset}'.replace('-', '')
+        benchmark_ctr = getattr(geirhos2021, f"{assembly_identifier}ErrorConsistency")
+        pool[f"brendel.{assembly_identifier}-error_consistency"] = LazyLoad(
+            # use lambda parameter-binding to avoid `benchmark_ctr` being re-assigned in the next loop iteration
+            lambda benchmark_ctr=benchmark_ctr: benchmark_ctr())
 
     return pool
 
@@ -214,17 +226,29 @@ def _engineering_benchmark_pool():
     """
     pool = {}
 
+    # ImageNet
     from .imagenet import Imagenet2012
     pool['fei-fei.Deng2009-top1'] = LazyLoad(Imagenet2012)
 
+    # ImageNet-C
     from .imagenet_c import Imagenet_C_Noise, Imagenet_C_Blur, Imagenet_C_Weather, Imagenet_C_Digital
     pool['dietterich.Hendrycks2019-noise-top1'] = LazyLoad(Imagenet_C_Noise)
     pool['dietterich.Hendrycks2019-blur-top1'] = LazyLoad(Imagenet_C_Blur)
     pool['dietterich.Hendrycks2019-weather-top1'] = LazyLoad(Imagenet_C_Weather)
     pool['dietterich.Hendrycks2019-digital-top1'] = LazyLoad(Imagenet_C_Digital)
 
+    # ObjectNet
     from .objectnet import Objectnet
     pool['katz.BarbuMayo2019-top1'] = LazyLoad(Objectnet)
+
+    # Geirhos2021
+    from . import geirhos2021
+    for dataset in geirhos2021.DATASETS:
+        assembly_identifier = f'Geirhos2021{dataset}'.replace('-', '')
+        benchmark_ctr = getattr(geirhos2021, f"{assembly_identifier}Accuracy")
+        pool[f"brendel.{assembly_identifier}-top1"] = LazyLoad(
+            # use lambda parameter-binding to avoid `benchmark_ctr` being re-assigned in the next loop iteration
+            lambda benchmark_ctr=benchmark_ctr: benchmark_ctr())
 
     return pool
 

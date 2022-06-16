@@ -27,6 +27,26 @@ def test_self(benchmark_ctr, visual_degrees, expected):
 
 def test_list():
     assemblies = list_public_assemblies()
-    assert set(assemblies) == {'dicarlo.MajajHong2015.public', 'dicarlo.MajajHong2015.temporal.public',
-                               'movshon.FreemanZiemba2013.public', 'movshon.FreemanZiemba2013.noaperture.public',
-                               'dicarlo.Rajalingham2018.public'}
+    assert set(assemblies) == {'dicarlo.MajajHong2015.public',
+                               'dicarlo.MajajHong2015.temporal.public',
+                               'movshon.FreemanZiemba2013.public',
+                               'movshon.FreemanZiemba2013.noaperture.public',
+                               'dicarlo.Rajalingham2018.public',
+                               'brendel.Geirhos2021_colour',
+                               'brendel.Geirhos2021_contrast',
+                               'brendel.Geirhos2021_cue-conflict',
+                               'brendel.Geirhos2021_edge',
+                               'brendel.Geirhos2021_eidolonI',
+                               'brendel.Geirhos2021_eidolonII',
+                               'brendel.Geirhos2021_eidolonIII',
+                               'brendel.Geirhos2021_false-colour',
+                               'brendel.Geirhos2021_high-pass',
+                               'brendel.Geirhos2021_low-pass',
+                               'brendel.Geirhos2021_phase-scrambling',
+                               'brendel.Geirhos2021_power-equalisation',
+                               'brendel.Geirhos2021_rotation',
+                               'brendel.Geirhos2021_silhouette',
+                               'brendel.Geirhos2021_stylized',
+                               'brendel.Geirhos2021_sketch',
+                               'brendel.Geirhos2021_uniform-noise',
+                               }

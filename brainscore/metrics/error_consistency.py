@@ -33,7 +33,7 @@ class ErrorConsistency(Metric):
     @classmethod
     def aggregate(cls, scores):
         center = scores.mean('condition').mean('subject')
-        error = scores.std(['condition', 'subject'])
+        error = scores.std(['condition', 'subject'])  # note that the original paper did not have error estimates
         return Score([center, error], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
 
     def ceiling(self, assembly):

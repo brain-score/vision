@@ -78,6 +78,13 @@ class LabelBehavior(BrainModel):
         return BehavioralAssembly([choices], coords=coords, dims=['choice', 'presentation'])
 
 
+LogitsBehavior = LabelBehavior  # LogitsBehavior is deprecated. Use LabelBehavior instead.
+"""
+legacy support; still used in old candidate_models submissions
+https://github.com/brain-score/candidate_models/blob/fa965c452bd17c6bfcca5b991fdbb55fd5db618f/candidate_models/model_commitments/cornets.py#L13
+"""
+
+
 class LabelToImagenetIndices:
     airplane_indices = [404]
     bear_indices = [294, 295, 296, 297]

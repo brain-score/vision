@@ -2,13 +2,12 @@ import functools
 import numpy as np
 import os
 import pytest
-import torch.random
 import xarray as xr
-from brainio.assemblies import BehavioralAssembly
-from brainio.stimuli import StimulusSet
 from pathlib import Path
 from pytest import approx
 
+from brainio.assemblies import BehavioralAssembly
+from brainio.stimuli import StimulusSet
 from brainscore.benchmarks.rajalingham2018 import _DicarloRajalingham2018
 from brainscore.benchmarks.screen import place_on_screen
 from brainscore.metrics.image_level_behavior import I2n
@@ -51,7 +50,7 @@ class TestLabelBehavior:
         activations_model = model_ctr()
         brain_model = ModelCommitment(identifier=activations_model.identifier, activations_model=activations_model,
                                       layers=None, behavioral_readout_layer='dummy')  # not needed
-        stimuli = self.mock_stimulus_set()
+        stimuli = mock_stimulus_set()
         brain_model.start_task(BrainModel.Task.label, 'imagenet')
         behavior = brain_model.look_at(stimuli)
         assert isinstance(behavior, BehavioralAssembly)
@@ -64,7 +63,7 @@ class TestLabelBehavior:
         activations_model = model_ctr()
         brain_model = ModelCommitment(identifier=activations_model.identifier, activations_model=activations_model,
                                       layers=['relu1', 'relu2'], behavioral_readout_layer='relu2')
-        stimuli = self.mock_stimulus_set()
+        stimuli = mock_stimulus_set()
         choice_labels = ['dog', 'cat', 'bear', 'bird']
         brain_model.start_task(BrainModel.Task.label, choice_labels)
         behavior = brain_model.look_at(stimuli)
@@ -75,12 +74,39 @@ class TestLabelBehavior:
         assert behavior.sel(stimulus_id='1').values.item() == 'bear'
         assert behavior.sel(stimulus_id='2').values.item() == 'bird'
 
-    def mock_stimulus_set(self):
-        stimuli = StimulusSet({'stimulus_id': ['1', '2'], 'filename': ['rgb1', 'rgb2']})
-        stimuli.stimulus_paths = {'1': os.path.join(os.path.dirname(__file__), 'rgb1.jpg'),
-                                  '2': os.path.join(os.path.dirname(__file__), 'rgb2.jpg')}
-        stimuli.identifier = 'TestLabelBehavior.rgb_1_2'
-        return stimuli
+
+def mock_stimulus_set():
+    stimuli = StimulusSet({'stimulus_id': ['1', '2'], 'filename': ['rgb1', 'rgb2']})
+    stimuli.stimulus_paths = {'1': os.path.join(os.path.dirname(__file__), 'rgb1.jpg'),
+                              '2': os.path.join(os.path.dirname(__file__), 'rgb2.jpg')}
+    stimuli.identifier = 'TestLabelBehavior.rgb_1_2'
+    return stimuli
+
+
+class TestLogitsBehavior:
+    """
+    legacy support for LogitsBehavior; still used in old candidate_models submissions
+    https://github.com/brain-score/candidate_models/blob/fa965c452bd17c6bfcca5b991fdbb55fd5db618f/candidate_models/model_commitments/cornets.py#L13
+    """
+
+    def test_import(self):
+        # noinspection PyUnresolvedReferences
+        from model_tools.brain_transformation.behavior import LogitsBehavior
+
+    def test_imagenet(self):
+        from model_tools.brain_transformation.behavior import LogitsBehavior
+
+        activations_model = pytorch_custom()
+        logits_behavior = LogitsBehavior(
+            identifier='pytorch-custom', activations_model=activations_model)
+
+        stimuli = mock_stimulus_set()
+        logits_behavior.start_task(BrainModel.Task.label, 'imagenet')
+        behavior = logits_behavior.look_at(stimuli)
+        assert isinstance(behavior, BehavioralAssembly)
+        assert set(behavior['stimulus_id'].values) == {'1', '2'}
+        assert len(behavior['synset']) == 2
+        assert behavior['synset'].values[0].startswith('n')
 
 
 class TestProbabilitiesMapping:

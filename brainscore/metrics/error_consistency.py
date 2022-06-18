@@ -27,9 +27,14 @@ class ErrorConsistency(Metric):
                 subject_score['condition'] = [condition]
                 subject_scores.append(subject_score)
         subject_scores = Score.merge(*subject_scores)
-        subject_scores = apply_aggregate(aggregate_fnc=lambda scores: scores.mean('condition').mean('subject'),
-                                         values=subject_scores)
+        subject_scores = apply_aggregate(aggregate_fnc=self.aggregate, values=subject_scores)
         return subject_scores
+
+    @classmethod
+    def aggregate(cls, scores):
+        center = scores.mean('condition').mean('subject')
+        error = scores.std(['condition', 'subject'])  # note that the original paper did not have error estimates
+        return Score([center, error], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
 
     def ceiling(self, assembly):
         """

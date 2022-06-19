@@ -87,7 +87,7 @@ class TestBehavioral:
 
     @pytest.mark.parametrize('model, expected_raw_score', [
         ('resnet-50-pytorch-3deg', approx(0.20834, abs=0.001)),
-        ('resnet-50-pytorch-8deg', approx(0.10102, abs=0.001)),
+        ('resnet-50-pytorch-8deg', approx(0.10256, abs=0.001)),
     ])
     def test_model_mean(self, model, expected_raw_score):
         scores = []

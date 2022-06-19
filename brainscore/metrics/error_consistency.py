@@ -33,6 +33,10 @@ class ErrorConsistency(Metric):
     def aggregate(cls, scores):
         center = scores.mean('condition').mean('subject')
         error = scores.std(['condition', 'subject'])  # note that the original paper did not have error estimates
+        # This deviates from the original paper which did not deal with scores < 0
+        # (neither for a single subject/condition, nor in the aggregate).
+        # We here avoid negative scores, so that we comply with all 0 <= scores <= 1.
+        center = np.abs(center)
         return Score([center, error], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
 
     def ceiling(self, assembly):
@@ -52,8 +56,7 @@ class ErrorConsistency(Metric):
                 pairwise_score['condition'] = [condition]
                 subject_scores.append(Score(pairwise_score))
         subject_scores = Score.merge(*subject_scores)
-        subject_scores = apply_aggregate(aggregate_fnc=lambda scores: subject_scores.mean('condition').mean('subject'),
-                                         values=subject_scores)
+        subject_scores = apply_aggregate(aggregate_fnc=self.aggregate, values=subject_scores)
         return subject_scores
 
     def extract_subjects(self, assembly):
@@ -74,7 +77,7 @@ class ErrorConsistency(Metric):
         observed_consistency = (correct_source == correct_target).sum() / len(target)
         error_consistency = cohens_kappa(expected_consistency=expected_consistency,
                                          observed_consistency=observed_consistency)
-        error_consistency = np.abs(error_consistency)  # deviation from paper to keep 0 <= scores <= 1
+        error_consistency = error_consistency
         return Score(error_consistency)
 
 

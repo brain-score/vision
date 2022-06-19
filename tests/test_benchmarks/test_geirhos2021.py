@@ -22,7 +22,7 @@ class TestBehavioral:
     def test_mean_ceiling(self):
         benchmarks = [f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency" for dataset in DATASETS]
         benchmarks = [benchmark_pool[benchmark] for benchmark in benchmarks]
-        ceilings = [benchmark.ceiling for benchmark in benchmarks]
+        ceilings = [benchmark.ceiling.sel(aggregation='center') for benchmark in benchmarks]
         mean_ceiling = np.mean(ceilings)
         assert mean_ceiling == approx(0.43122, abs=0.001)
 
@@ -49,7 +49,7 @@ class TestBehavioral:
         benchmark = f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency"
         benchmark = benchmark_pool[benchmark]
         ceiling = benchmark.ceiling
-        assert ceiling.values.item() == expected_ceiling
+        assert ceiling.sel(aggregation='center').values.item() == expected_ceiling
 
     @pytest.mark.parametrize('dataset, model, expected_raw_score', [
         ('colour', 'resnet-50-pytorch', approx(0.21135, abs=0.001)),

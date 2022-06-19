@@ -74,7 +74,7 @@ class _Geirhos2021ErrorConsistency(BenchmarkBase):
         labels = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
         raw_score = self._metric(labels, self._assembly)
         ceiling = self.ceiling
-        score = raw_score / ceiling
+        score = raw_score / ceiling.sel(aggregation='center')
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling
         return score

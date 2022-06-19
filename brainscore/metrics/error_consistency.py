@@ -14,8 +14,7 @@ class ErrorConsistency(Metric):
 
     def __call__(self, source, target):
         assert len(set(source['image_id'].values)) == len(set(target['image_id'].values))
-        # from https://github.com/bethgelab/model-vs-human/blob/745046c4d82ff884af618756bd6a5f47b6f36c45/modelvshuman/plotting/analyses.py#L161
-
+        # https://github.com/bethgelab/model-vs-human/blob/745046c4d82ff884af618756bd6a5f47b6f36c45/modelvshuman/plotting/analyses.py#L161
         subject_scores = []
         for subject in self.extract_subjects(target):
             for condition in sorted(set(target['condition'].values)):
@@ -34,6 +33,10 @@ class ErrorConsistency(Metric):
     def aggregate(cls, scores):
         center = scores.mean('condition').mean('subject')
         error = scores.std(['condition', 'subject'])  # note that the original paper did not have error estimates
+        # This deviates from the original paper which did not deal with scores < 0
+        # (neither for a single subject/condition, nor in the aggregate).
+        # We here avoid negative scores, so that we comply with all 0 <= scores <= 1.
+        center = np.abs(center)
         return Score([center, error], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
 
     def ceiling(self, assembly):
@@ -53,8 +56,7 @@ class ErrorConsistency(Metric):
                 pairwise_score['condition'] = [condition]
                 subject_scores.append(Score(pairwise_score))
         subject_scores = Score.merge(*subject_scores)
-        subject_scores = apply_aggregate(aggregate_fnc=lambda scores: subject_scores.mean('condition').mean('subject'),
-                                         values=subject_scores)
+        subject_scores = apply_aggregate(aggregate_fnc=self.aggregate, values=subject_scores)
         return subject_scores
 
     def extract_subjects(self, assembly):
@@ -75,6 +77,7 @@ class ErrorConsistency(Metric):
         observed_consistency = (correct_source == correct_target).sum() / len(target)
         error_consistency = cohens_kappa(expected_consistency=expected_consistency,
                                          observed_consistency=observed_consistency)
+        error_consistency = error_consistency
         return Score(error_consistency)
 
 
@@ -83,7 +86,7 @@ def cohens_kappa(expected_consistency, observed_consistency):
     Computes the error consistency using Cohen's Kappa.
     Cohen, 1960 https://doi.org/10.1177%2F001316446002000104
     """
-    # from https://github.com/bethgelab/model-vs-human/blob/745046c4d82ff884af618756bd6a5f47b6f36c45/modelvshuman/plotting/analyses.py#L147-L158
+    # https://github.com/bethgelab/model-vs-human/blob/745046c4d82ff884af618756bd6a5f47b6f36c45/modelvshuman/plotting/analyses.py#L147-L158
     assert 0.0 <= expected_consistency <= 1.0
     assert 0.0 <= observed_consistency <= 1.0
     return (observed_consistency - expected_consistency) / (1.0 - expected_consistency)

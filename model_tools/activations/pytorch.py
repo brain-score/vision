@@ -1,6 +1,6 @@
-import logging
 from collections import OrderedDict
 
+import logging
 import numpy as np
 from PIL import Image
 
@@ -11,7 +11,7 @@ SUBMODULE_SEPARATOR = '.'
 
 
 class PytorchWrapper:
-    def __init__(self, model, preprocessing, identifier=None, *args, **kwargs):
+    def __init__(self, model, preprocessing, identifier=None, forward_kwargs=None, *args, **kwargs):
         import torch
         logger = logging.getLogger(fullname(self))
         self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -22,6 +22,7 @@ class PytorchWrapper:
         self._extractor = self._build_extractor(
             identifier=identifier, preprocessing=preprocessing, get_activations=self.get_activations, *args, **kwargs)
         self._extractor.insert_attrs(self)
+        self._forward_kwargs = forward_kwargs or {}
 
     def _build_extractor(self, identifier, preprocessing, get_activations, *args, **kwargs):
         return ActivationsExtractorHelper(
@@ -42,7 +43,7 @@ class PytorchWrapper:
     def get_activations(self, images, layer_names):
         import torch
         from torch.autograd import Variable
-        images = [torch.from_numpy(image) for image in images]
+        images = [torch.from_numpy(image) if not isinstance(image, torch.Tensor) else image for image in images]
         images = Variable(torch.stack(images))
         images = images.to(self._device)
         self._model.eval()
@@ -55,7 +56,8 @@ class PytorchWrapper:
             hook = self.register_hook(layer, layer_name, target_dict=layer_results)
             hooks.append(hook)
 
-        self._model(images)
+        with torch.no_grad():
+            self._model(images, **self._forward_kwargs)
         for hook in hooks:
             hook.remove()
         return layer_results
@@ -115,7 +117,7 @@ def load_images(image_filepaths):
 
 def load_image(image_filepath):
     with Image.open(image_filepath) as pil_image:
-        if 'L' not in pil_image.mode.upper() and 'A' not in pil_image.mode.upper()\
+        if 'L' not in pil_image.mode.upper() and 'A' not in pil_image.mode.upper() \
                 and 'P' not in pil_image.mode.upper():  # not binary and not alpha and not palletized
             # work around to https://github.com/python-pillow/Pillow/issues/1144,
             # see https://stackoverflow.com/a/30376272/2225200

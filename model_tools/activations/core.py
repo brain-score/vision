@@ -97,7 +97,6 @@ class ActivationsExtractorHelper:
         index = [argsort_indices[i] for i in sorted_index]
         return activations[{'stimulus_path': index}]
 
-
     def register_batch_activations_hook(self, hook):
         r"""
         The hook will be called every time a batch of activations is retrieved.
@@ -195,26 +194,32 @@ class ActivationsExtractorHelper:
     def _package_layer(self, layer_activations, layer, stimuli_paths):
         assert layer_activations.shape[0] == len(stimuli_paths)
         activations, flatten_indices = flatten(layer_activations, return_index=True)  # collapse for single neuroid dim
-        assert flatten_indices.shape[1] in [1, 2, 3]
-        # see comment in _package for an explanation why we cannot simply have 'channel' for the FC layer
-        if flatten_indices.shape[1] == 1:    # FC
+        flatten_coord_names = None
+        if flatten_indices.shape[1] == 1:  # fully connected, e.g. classifier
+            # see comment in _package for an explanation why we cannot simply have 'channel' for the FC layer
             flatten_coord_names = ['channel', 'channel_x', 'channel_y']
-        elif flatten_indices.shape[1] == 2:  # Transformer
+        elif flatten_indices.shape[1] == 2:  # Transformer, e.g. ViT
             flatten_coord_names = ['channel', 'embedding']
-        elif flatten_indices.shape[1] == 3:  # 2DConv
+        elif flatten_indices.shape[1] == 3:  # 2DConv, e.g. resnet
             flatten_coord_names = ['channel', 'channel_x', 'channel_y']
-        flatten_coords = {flatten_coord_names[i]: [sample_index[i] if i < flatten_indices.shape[1] else np.nan for sample_index in flatten_indices]
-                          for i in range(len(flatten_coord_names))}
-        layer_assembly = NeuroidAssembly(
-            activations,
-            coords={**{'stimulus_path': stimuli_paths,
-                       'neuroid_num': ('neuroid', list(range(activations.shape[1]))),
-                       'model': ('neuroid', [self.identifier] * activations.shape[1]),
-                       'layer': ('neuroid', [layer] * activations.shape[1]),
-                       },
-                    **{coord: ('neuroid', values) for coord, values in flatten_coords.items()}},
-            dims=['stimulus_path', 'neuroid']
-        )
+        elif flatten_indices.shape[1] == 4:  # temporal sliding window, e.g. omnivron
+            flatten_coord_names = ['channel_temporal', 'channel_x', 'channel_y', 'channel']
+        else:
+            # we still package the activations, but are unable to provide channel information
+            self._logger.debug(f"Unknown layer activations shape {layer_activations.shape}, not inferring channels")
+
+        # build assembly
+        coords = {'stimulus_path': stimuli_paths,
+                  'neuroid_num': ('neuroid', list(range(activations.shape[1]))),
+                  'model': ('neuroid', [self.identifier] * activations.shape[1]),
+                  'layer': ('neuroid', [layer] * activations.shape[1]),
+                  }
+        if flatten_coord_names:
+            flatten_coords = {flatten_coord_names[i]: [sample_index[i] if i < flatten_indices.shape[1] else np.nan
+                                                       for sample_index in flatten_indices]
+                              for i in range(len(flatten_coord_names))}
+            coords = {**coords, **{coord: ('neuroid', values) for coord, values in flatten_coords.items()}}
+        layer_assembly = NeuroidAssembly(activations, coords=coords, dims=['stimulus_path', 'neuroid'])
         neuroid_id = [".".join([f"{value}" for value in values]) for values in zip(*[
             layer_assembly[coord].values for coord in ['model', 'layer', 'neuroid_num']])]
         layer_assembly['neuroid_id'] = 'neuroid', neuroid_id

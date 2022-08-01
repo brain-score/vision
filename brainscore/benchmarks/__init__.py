@@ -249,6 +249,11 @@ def _engineering_benchmark_pool():
         pool[f"brendel.{assembly_identifier}-top1"] = LazyLoad(
             # use lambda parameter-binding to avoid `benchmark_ctr` being re-assigned in the next loop iteration
             lambda benchmark_ctr=benchmark_ctr: benchmark_ctr())
+        
+    # Hermann2020
+    from . import hermann2020
+    pool['brendel.Hermann2020cueconflict-shape_bias'] = LazyLoad(hermann2020.Hermann2020cueconflictShapeBias)
+    pool['brendel.Hermann2020cueconflict-shape_match'] = LazyLoad(hermann2020.Hermann2020cueconflictShapeMatch)
 
     return pool
 

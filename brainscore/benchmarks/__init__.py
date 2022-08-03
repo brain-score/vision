@@ -19,7 +19,7 @@ class Benchmark(ABC):
     Standard Benchmark interface defining the method interfaces.
     """
 
-    def __call__(self, candidate: BrainModel):
+    def __call__(self, candidate: BrainModel) -> Score:
         """
         Evaluate a candidate `BrainModel` and return a :class:`~brainscore.metrics.Score` denoting the brain-likeness of
         the model under this benchmark. Typically this involves reproducing the experiment on the model and then
@@ -38,7 +38,7 @@ class Benchmark(ABC):
         raise NotImplementedError()
 
     @property
-    def bibtex(self):
+    def bibtex(self) -> str:
         """
         bibtex string to build the reference.
         Should include an `url` to build a proper link.
@@ -46,7 +46,7 @@ class Benchmark(ABC):
         raise NotImplementedError()
 
     @property
-    def identifier(self):
+    def identifier(self) -> str:
         """
         Unique identifier for this benchmark.
         Standard format is `<data identifier>-<metric identifier>`, e.g. `dicarlo.Rajalingham2018-i2n`.
@@ -56,7 +56,7 @@ class Benchmark(ABC):
         raise NotImplementedError()
 
     @property
-    def version(self):
+    def version(self) -> str:
         """
         Optional, but strongly encouraged.
 
@@ -66,7 +66,7 @@ class Benchmark(ABC):
         raise NotImplementedError()
 
     @property
-    def ceiling(self):
+    def ceiling(self) -> Score:
         """
         The ceiling of this benchmark. Scores need to be normalized by this value.
         Typically this represents the signal in the data and how well we expect the best possible model to score.

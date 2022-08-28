@@ -15,9 +15,9 @@ with open('README.md') as readme_file:
     readme = readme_file.read()
 
 requirements = [
-    "numpy>=1.17",
+    "numpy",
     "brainio @ git+https://github.com/brain-score/brainio",
-    "scikit-learn<0.24",  # 0.24 breaks pls regression
+    "scikit-learn",
     "scipy",
     "h5py",
     "tqdm",
@@ -31,7 +31,7 @@ requirements = [
     "jupyter",
     "pybtex",
     "peewee",
-    "pillow<9.0.0",
+    "pillow",
     "psycopg2-binary"
 ]
 

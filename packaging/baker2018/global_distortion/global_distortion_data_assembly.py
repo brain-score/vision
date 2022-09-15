@@ -1,5 +1,3 @@
-import numpy as np
-
 from brainio.assemblies import BehavioralAssembly
 from brainio.packaging import package_data_assembly
 import pandas as pd
@@ -27,8 +25,8 @@ assembly = BehavioralAssembly(all_subjects.values,
                               coords={
                                   'category': ('presentation', images),
                                   'stimulus_id': ('presentation', ["scr" + image for image in images]),
-                                  'subject': ('subject', list(range(1, 11))),
-                                  'subject_species': ('subject', ['human'] * 10),
+                                  'subject_number': ('subject', list(range(1, 11))),
+                                  'species': ('subject', ['human'] * 10),
                               },
                               dims=['presentation', 'subject']
                               )
@@ -40,9 +38,7 @@ assembly.name = 'kellmen.Baker2018_global_distortion'
 assert len(assembly['presentation']) == 6
 assert len(assembly['subject']) == 10
 
-
-#
-# # upload to S3
-# package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
-#                       stimulus_set_identifier="brendel.Geirhos2021_colour",
-#                       assembly_class="BehavioralAssembly", bucket_name="brainio-brainscore")
+# upload to S3
+package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
+                      stimulus_set_identifier="kellmen.Baker2018_global_distortion",
+                      assembly_class="BehavioralAssembly", bucket_name="brainio-brainscore")

@@ -1,6 +1,6 @@
 from pathlib import Path
-# from brainio.stimuli import StimulusSet
-# from brainio.packaging import package_stimulus_set
+from brainio.stimuli import StimulusSet
+from brainio.packaging import package_stimulus_set
 
 stimuli = []
 image_paths = {}

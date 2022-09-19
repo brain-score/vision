@@ -33,14 +33,19 @@ for condition in condition:
     else:
         abbreviated.append("f")
 all_subjects["condition"] = abbreviated
+all_subjects["condition_image"] = all_subjects['condition'] + all_subjects['Animal']
+
+# ignore subject 33, per Nick Baker himself:
+all_subjects = all_subjects.drop(all_subjects[all_subjects.Subj == 33].index)
 
 # construct the assembly
 assembly = BehavioralAssembly(all_subjects['Correct?'],
                               coords={
-                                  'image_id': ('presentation', all_subjects['Animal']),
+                                  'image_id': ('presentation', all_subjects['condition_image']),
                                   'truth': ('presentation', all_subjects['Animal']),
                                   'condition': ('presentation', all_subjects['condition']),
                                   'condition_full': ('presentation', all_subjects['Frankensteinonfig']),
+                                  'condition_image': ('presentation', all_subjects['condition_image']),
                                   'correct': ('presentation', all_subjects['Correct?']),
                                   'subject': ('presentation', all_subjects['Subj']),
                               },
@@ -51,25 +56,29 @@ assembly = BehavioralAssembly(all_subjects['Correct?'],
 assembly.name = 'kellmen.Baker2022_local_configural'
 
 # make sure assembly dims are correct length
-assert len(assembly['presentation']) == 3820
+assert len(assembly['presentation']) == 3706
 
 # make sure assembly coords are correct length
-assert len(assembly['image_id']) == 3820
-assert len(assembly['truth']) == 3820
-assert len(assembly['condition']) == 3820
-assert len(assembly['condition_full']) == 3820
-assert len(assembly['correct']) == 3820
-assert len(assembly['subject']) == 3820
+assert len(assembly['image_id']) == 3706
+assert len(assembly['truth']) == 3706
+assert len(assembly['condition']) == 3706
+assert len(assembly['condition_full']) == 3706
+assert len(assembly['correct']) == 3706
+assert len(assembly['subject']) == 3706
 
 # make sure there are 9 unique image categories
 assert len(np.unique(assembly['truth'].values)) == 9
 
 # make sure there are 32 unique subjects
-assert len(np.unique(assembly['subject'].values)) == 33
+assert len(np.unique(assembly['subject'].values)) == 32
 
 # make sure there are 3 unique conditions
 assert len(np.unique(assembly['condition'].values)) == 3
 assert len(np.unique(assembly['condition_full'].values)) == 3
+
+# make sure there are 27  (9 categories * 3 conditions) unique image types:
+assert len(np.unique(assembly['condition_image'].values)) == 27
+
 
 # upload to S3
 # package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,

@@ -14,8 +14,8 @@ class AboveChanceAgreement(Metric):
         subject_scores = []
         for subject in self.extract_subjects(target):
             for category in sorted(set(target['Animal'].values)):
-                this_source = source.sel(condition=category)
-                this_target = target.sel(subject=subject, condition=category)
+                this_source = source.sel(category=category)
+                this_target = target.sel(subject=subject, category=category)
                 subject_score = self.compare_single_subject(this_source, this_target)
                 subject_score = subject_score.expand_dims('subject').expand_dims('condition')
                 subject_score['subject'] = [subject]
@@ -43,13 +43,13 @@ class AboveChanceAgreement(Metric):
         subject_scores = []
         for subject1, subject2 in itertools.combinations(subjects, 2):
             for category in sorted(set(assembly['Animal'].values)):
-                subject1_assembly = assembly.sel(subject=subject1, condition=category)
-                subject2_assembly = assembly.sel(subject=subject2, condition=category)
+                subject1_assembly = assembly.sel(subject=subject1, category=category)
+                subject2_assembly = assembly.sel(subject=subject2, category=category)
                 pairwise_score = self.compare_single_subject(subject1_assembly, subject2_assembly)
-                pairwise_score = pairwise_score.expand_dims('subject').expand_dims('condition')
+                pairwise_score = pairwise_score.expand_dims('subject').expand_dims('category')
                 pairwise_score['subject_left'] = 'subject', [subject1]
                 pairwise_score['subject_right'] = 'subject', [subject2]
-                pairwise_score['condition'] = [category]
+                pairwise_score['category'] = [category]
                 subject_scores.append(Score(pairwise_score))
         subject_scores = Score.merge(*subject_scores)
         subject_scores = apply_aggregate(aggregate_fnc=self.aggregate, values=subject_scores)

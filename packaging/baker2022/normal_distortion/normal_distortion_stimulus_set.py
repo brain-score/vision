@@ -12,7 +12,7 @@ Dataset Information:
 
 - From Baker 2022: https://www.sciencedirect.com/science/article/pii/S2589004222011853#sec9
 - 120 * 9 = 1080 images
-- normal distortion -> contians the three classes of distortion:
+- normal distortion -> contains the three classes of distortion:
     1) normal image
     2) fragmented image
     3) frankenstein image
@@ -23,7 +23,7 @@ Dataset Information:
 Fields:
 
 1) ground_truth: the base object, in set above
-2) image_type:  a string in the set {n, f, o} for {normal, frankenstein, fragmented} respectively. 
+2) image_type:  a string in the set {w, f, o} for {whole, frankenstein, fragmented} respectively. 
 3) image_number: a number {1,2...40} indicates the image variation
 
 '''
@@ -49,7 +49,7 @@ for filepath in Path(stimuli_directory).glob('*.jpg'):
 
     # parse the needed image type letter
     if ground_truth in categories:
-        image_type = "n"
+        image_type = "w"
     else:
         image_type = ground_truth[0]
         ground_truth = ground_truth[1:]

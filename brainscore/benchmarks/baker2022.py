@@ -31,7 +31,7 @@ DATASETS = ['whole', 'fragmented', 'frankenstein',
 # create functions so that users can import individual benchmarks as e.g. Baker2022wholeAboveChanceAgreement
 for dataset in DATASETS:
     # behavioral benchmark
-    identifier = f"Baker2022{dataset.replace('-', '')}AboveChanceAgreement"
+    identifier = f"Baker2022{dataset.replace('_', '')}AboveChanceAgreement"
     globals()[identifier] = lambda dataset=dataset: _Baker2022AboveChanceAgreement(dataset)
 
 
@@ -45,7 +45,7 @@ class _Baker2022AboveChanceAgreement(BenchmarkBase):
         self._number_of_trials = 1
 
         super(_Baker2022AboveChanceAgreement, self).__init__(
-            identifier=f'kellmen.Baker2022{dataset}-above-chance-agreement', version=1,
+            identifier=f'kellmen.Baker2022{dataset}-above_chance_agreement', version=1,
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
             parent='kellmen.Baker2022',
             bibtex=BIBTEX)

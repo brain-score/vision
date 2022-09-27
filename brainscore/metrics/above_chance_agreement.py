@@ -73,5 +73,3 @@ class AboveChanceAgreement(Metric):
         observed_consistency = (correct_source == correct_target).sum() / len(target)
         aca = observed_consistency - expected_consistency
         return Score(aca)
-
-

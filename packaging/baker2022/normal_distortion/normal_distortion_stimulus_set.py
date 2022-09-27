@@ -60,6 +60,7 @@ for filepath in Path(stimuli_directory).glob('*.jpg'):
         'ground_truth': ground_truth,
         'image_type': image_type,
         'image_number': image_number,
+        'condition_image': ground_truth + image_type,
     })
 
 stimuli = StimulusSet(stimuli)

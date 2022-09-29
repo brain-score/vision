@@ -68,6 +68,9 @@ class Score(DataAssembly):
     def min(self, *args, _apply_raw=False, **kwargs):
         return self._preserve_raw('min', *args, **kwargs, _apply_raw=_apply_raw)
 
+    def reduce(self, *args, _apply_raw=False, **kwargs):
+        return self._preserve_raw('reduce', *args, **kwargs, _apply_raw=_apply_raw)
+
     def _preserve_raw(self, operation, *args, _apply_raw=False, _ignore_errors=True, **kwargs):
         result = getattr(super(Score, self), operation)(*args, **kwargs)
         if self.RAW_VALUES_KEY in self.attrs:

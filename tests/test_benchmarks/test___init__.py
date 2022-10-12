@@ -121,6 +121,8 @@ class TestPoolList:
             'brendel.Geirhos2021stylized-top1',
             'brendel.Geirhos2021sketch-top1',
             'brendel.Geirhos2021uniformnoise-top1',
+            'brendel.Hermann2020cueconflict-shape_bias',
+            'brendel.Hermann2020cueconflict-shape_match',
         }
 
 

@@ -49,7 +49,7 @@ class Hermann2020cueconflictShapeBias(BenchmarkBase):
         self.shape_benchmark = _Hermann2020Match("shape_match", "original_image_category")
         self.texture_benchmark = _Hermann2020Match("texture_match", "conflict_image_category")
         super(Hermann2020cueconflictShapeBias, self).__init__(
-            identifier=f'brendel.Hermann2020-{metric_identifier}', version=1,
+            identifier=f'brendel.Hermann2020-shape_bias', version=1,
             ceiling_func=lambda: Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation']),
             parent='brendel.Hermann2020',
             bibtex=BIBTEX)

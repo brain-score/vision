@@ -44,11 +44,20 @@ class _Hermann2020Match(BenchmarkBase):
         return score
 
 
-def _shape_bias(candidate):
-    shape_match = _Hermann2020Match("shape_match", "original_image_category")(candidate)
-    texture_match = _Hermann2020Match("texture_match", "conflict_image_category")(candidate)
-    return shape_match / (shape_match + texture_match)
+class Hermann2020cueconflictShapeBias(BenchmarkBase):
+    def __init__(self):
+        self.shape_benchmark = _Hermann2020Match("shape_match", "original_image_category")
+        self.texture_benchmark = _Hermann2020Match("texture_match", "conflict_image_category")
+        super(Hermann2020cueconflictShapeBias, self).__init__(
+            identifier=f'brendel.Hermann2020-{metric_identifier}', version=1,
+            ceiling_func=lambda: Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation']),
+            parent='brendel.Hermann2020',
+            bibtex=BIBTEX)
+
+    def __call__(self, candidate: BrainModel):
+        shape_match = self.shape_benchmark(candidate)
+        texture_match = self.texture_benchmark(candidate)
+        return shape_match / (shape_match + texture_match)
 
 
 Hermann2020cueconflictShapeMatch = lambda: _Hermann2020Match("shape_match", "original_image_category")
-Hermann2020cueconflictShapeBias = lambda: _shape_bias

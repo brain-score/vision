@@ -252,8 +252,8 @@ def _engineering_benchmark_pool():
 
     # Hermann2020
     from .hermann2020 import Hermann2020cueconflictShapeBias, Hermann2020cueconflictShapeMatch
-    pool['brendel.Hermann2020cueconflict-shape_bias'] = LazyLoad(Hermann2020cueconflictShapeBias)
-    pool['brendel.Hermann2020cueconflict-shape_match'] = LazyLoad(Hermann2020cueconflictShapeMatch)
+    pool['kornblith.Hermann2020cueconflict-shape_bias'] = LazyLoad(Hermann2020cueconflictShapeBias)
+    pool['kornblith.Hermann2020cueconflict-shape_match'] = LazyLoad(Hermann2020cueconflictShapeMatch)
 
     return pool
 

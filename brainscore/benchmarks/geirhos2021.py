@@ -15,7 +15,8 @@ BIBTEX = """@article{geirhos2021partial,
               author={Geirhos, Robert and Narayanappa, Kantharaju and Mitzkus, Benjamin and Thieringer, Tizian and Bethge, Matthias and Wichmann, Felix A and Brendel, Wieland},
               journal={Advances in Neural Information Processing Systems},
               volume={34},
-              year={2021}
+              year={2021},
+              url={https://openreview.net/forum?id=QkljT4mrfs}
         }"""
 
 DATASETS = ['colour', 'contrast', 'cue-conflict', 'edge',

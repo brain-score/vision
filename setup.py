@@ -17,6 +17,7 @@ with open('README.md') as readme_file:
 requirements = [
     "numpy",
     "brainio @ git+https://github.com/brain-score/brainio",
+    "importlib-metadata<5",  # workaround to https://github.com/brain-score/brainio/issues/28
     "scikit-learn",
     "scipy",
     "h5py",

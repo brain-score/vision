@@ -27,7 +27,7 @@ all_subjects = all_subjects[all_subjects['final_answer'].notna()]
 # construct the assembly
 assembly = BehavioralAssembly(all_subjects['ground truth answer'],
                               coords={
-                                  'image_id': ('presentation', all_subjects['image_id']),
+                                  'stimulus_id': ('presentation', all_subjects['image_id']),
                                   'truth': ('presentation', all_subjects['ground truth answer']),
                                   'choice': ('presentation', all_subjects['final_answer']),
                               },

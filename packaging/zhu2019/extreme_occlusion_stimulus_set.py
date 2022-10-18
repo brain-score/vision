@@ -41,7 +41,7 @@ for filepath in Path(stimuli_directory).glob('*.png'):
 
     image_paths[image_id] = filepath
     stimuli.append({
-        'image_id': image_id,
+        'stimulus_id': image_id,
         'ground_truth': ground_truth,
         'occlusion_strength': occlusion_strength,
         'word_image': word_image,
@@ -49,12 +49,9 @@ for filepath in Path(stimuli_directory).glob('*.png'):
     })
 
 stimuli = StimulusSet(stimuli)
-stimuli.image_paths = image_paths
+stimuli.stimuli_paths = image_paths
 stimuli.name = 'yuille.Zhu2019_extreme_occlusion'  # give the StimulusSet an identifier name
 
-# Ensure 1280 images in dataset
-assert len(stimuli) == 500
-
 # upload to S3
-# package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,
-#                      bucket_name="brainio-brainscore")
+package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,
+                     bucket_name="brainio-brainscore")

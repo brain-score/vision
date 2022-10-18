@@ -58,6 +58,7 @@ import brainio
         'brendel.Geirhos2021_stylized',
         'brendel.Geirhos2021_sketch',
         'brendel.Geirhos2021_uniform-noise',
+        'yuille.Zhu2019_extreme_occlusion',
 ))
 def test_list_stimulus_set(stimulus_set):
     l = brainio.list_stimulus_sets()
@@ -248,4 +249,25 @@ class TestGeirhos2021:
         assert hasattr(stimulus_set, field)
 
 
+class TestZhu2019:
 
+    def test_stimulus_set_exist(self):
+        full_name = 'yuille.Zhu2019_extreme_occlusion'
+        stimulus_set = brainio.get_stimulus_set(full_name)
+        assert stimulus_set is not None
+        assert stimulus_set.identifier == full_name
+
+    def test_num_images(self):
+        stimulus_set = brainscore.get_stimulus_set('yuille.Zhu2019_extreme_occlusion')
+        assert len(np.unique(stimulus_set['stimulus_id'].values)) == 500
+
+    @pytest.mark.parametrize('field', [
+        'stimulus_id',
+        'ground_truth',
+        'occlusion_strength',
+        'word_image',
+        'image_number',
+    ])
+    def test_fields_present(self, field):
+        stimulus_set = brainscore.get_stimulus_set('yuille.Zhu2019_extreme_occlusion')
+        assert hasattr(stimulus_set, field)

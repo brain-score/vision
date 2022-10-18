@@ -64,6 +64,7 @@ import brainscore
         'brendel.Geirhos2021_stylized',
         'brendel.Geirhos2021_sketch',
         'brendel.Geirhos2021_uniform-noise',
+        "yuille.Zhu2019_extreme_occlusion",
 ))
 def test_list_assembly(assembly):
     l = brainio.list_assemblies()
@@ -482,3 +483,33 @@ class TestGeirhos2021:
     def test_fields_present_cue_conflict(self, identifier, field):
         assembly = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
         assert hasattr(assembly, field)
+
+
+class TestZhu2019:
+
+    def test_stimulus_set_assembly_alignment(self):
+        full_name = 'yuille.Zhu2019_extreme_occlusion'
+        assembly = brainscore.get_assembly(full_name)
+        assert assembly.stimulus_set is not None
+        assert assembly.stimulus_set.identifier == full_name
+        assert set(assembly.stimulus_set["ground_truth"].values) == set(assembly["truth"].values)
+        assert set(assembly.stimulus_set["stimulus_id"].values) == set(assembly["stimulus_id"].values)
+
+    def test_length(self):
+        assembly = brainscore.get_assembly('yuille.Zhu2019_extreme_occlusion')
+        assert len(assembly['presentation']) == 19587
+
+    @pytest.mark.parametrize('field', [
+        'stimulus_id',
+        'truth',
+        'choice',
+    ])
+    def test_fields_present(self, field):
+        assembly = brainscore.get_assembly('yuille.Zhu2019_extreme_occlusion')
+        assert hasattr(assembly, field)
+
+    def test_number_categories(self):
+        assembly = brainscore.get_assembly('yuille.Zhu2019_extreme_occlusion')
+        assert len(set(assembly["truth"].values)) == 5
+        assert len(set(assembly["choice"].values)) == 5
+

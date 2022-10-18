@@ -17,7 +17,7 @@ BIBTEX = """@article{zhu2019robustness,
 
 DATASETS = ['extreme_occlusion']
 
-# create functions so that users can import individual benchmarks as e.g. Geirhos2021sketchErrorConsistency
+# create functions so that users can import individual benchmarks as e.g. Zhu2019RDM
 for dataset in DATASETS:
     # behavioral benchmark
     identifier = f"Zhu2021{dataset.replace('-', '')}RDM"
@@ -25,7 +25,6 @@ for dataset in DATASETS:
 
 
 class _Zhu2019RDM(BenchmarkBase):
-    # behavioral benchmark
     def __init__(self, dataset):
         self._metric = RDM()
         self._assembly = LazyLoad(lambda: load_assembly(dataset))

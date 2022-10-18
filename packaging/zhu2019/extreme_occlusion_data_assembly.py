@@ -15,19 +15,21 @@ https://arxiv.org/pdf/1905.04598.pdf
 '''
 
 # initial csv to dataframe processing:
-all_subjects = pd.read_csv('human_data/Mturk_results.csv')
+all_subjects = pd.read_csv('human_data/final_results.csv')
 
 # grab the image_id from 1st column:
 image_field = all_subjects['Input.image'].str.split("/", expand=True)
 all_subjects["image_id"] = image_field[5].str.replace(".png", "")
+
+# drop answer is nan columns
+all_subjects = all_subjects[all_subjects['final_answer'].notna()]
 
 # construct the assembly
 assembly = BehavioralAssembly(all_subjects['ground truth answer'],
                               coords={
                                   'image_id': ('presentation', all_subjects['image_id']),
                                   'truth': ('presentation', all_subjects['ground truth answer']),
-                                  'choice': ('presentation', all_subjects['Answer.Img_Main']),
-                                  #'subject': ('presentation', all_subjects['subj']),
+                                  'choice': ('presentation', all_subjects['final_answer']),
                               },
                               dims=['presentation']
                               )
@@ -36,22 +38,19 @@ assembly = BehavioralAssembly(all_subjects['ground truth answer'],
 assembly.name = 'yuille.Zhu2019_extreme_occlusion'
 
 # make sure assembly dim is correct length
-assert len(assembly['presentation']) == 25000
+assert len(assembly['presentation']) == 19587
 
 # make sure assembly coords are correct length
-assert len(assembly['image_id']) == 25000
-assert len(assembly['truth']) == 25000
-assert len(assembly['choice']) == 25000
+assert len(assembly['image_id']) == 19587
+assert len(assembly['truth']) == 19587
+assert len(assembly['choice']) == 19587
 
 # # make sure there are 500 unique images
 assert len(np.unique(assembly['image_id'].values)) == 500
 
-# # make sure there are 25 unique subjects:
-# assert len(np.unique(assembly['subject'].values)) == 25
-
-# make sure there are 16 unique object categories (ground truths):
-# assert len(np.unique(assembly['truth'].values)) == 5
-# assert len(np.unique(assembly['category'].values)) == 5
+# make sure there are 5 unique object categories (ground truths):
+assert len(np.unique(assembly['truth'].values)) == 5
+assert len(set(assembly['choice'].values)) == 5
 
 
 # upload to S3

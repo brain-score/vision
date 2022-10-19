@@ -49,7 +49,7 @@ for filepath in Path(stimuli_directory).glob('*.png'):
     })
 
 stimuli = StimulusSet(stimuli)
-stimuli.stimuli_paths = image_paths
+stimuli.stimulus_paths = image_paths
 stimuli.name = 'yuille.Zhu2019_extreme_occlusion'  # give the StimulusSet an identifier name
 
 # upload to S3

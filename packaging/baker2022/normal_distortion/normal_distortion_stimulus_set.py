@@ -11,14 +11,15 @@ stimuli_directory = '../images'
 Dataset Information:
 
 - From Baker 2022: https://www.sciencedirect.com/science/article/pii/S2589004222011853#sec9
-- 1800 images
-- normal distortion -> contains the three classes of distortion:
+- 1800 images total: 1080 normal distortion, 720 inverted distortion
+- normal/inverted distortion -> contains the three classes of distortion:
     1) normal image
     2) fragmented image
     3) frankenstein image
 
-- There are 40 images/condition, with 9 categories. 
-- categories are: {bear, bunny, cat, elephant, frog, lizard, tiger, turtle, wolf}
+- For the normal distortion, there are 40 images/condition, with 9 categories: 
+    categories are: {bear, bunny, cat, elephant, frog, lizard, tiger, turtle, wolf}
+- For inverted distortion, there are a variable number of images/condition, but 720 total unique images
 
 Fields:
 
@@ -60,13 +61,14 @@ for filepath in Path(stimuli_directory).glob('*.jpg'):
         'ground_truth': ground_truth,
         'image_type': image_type,
         'image_number': image_number,
+        "orientation": "normal" if "inv" not in image_id else "inverted",
     })
 
 stimuli = StimulusSet(stimuli)
 stimuli.image_paths = image_paths
-stimuli.name = 'kellmen.Baker2022_local_configural'  # give the StimulusSet an identifier name
+stimuli.name = 'kellmen.Baker2022_shape_distortions'  # give the StimulusSet an identifier name
 
-# Ensure 1080 images in dataset
+# Ensure 1800 images in dataset
 assert len(stimuli) == 1800
 
 # upload to S3

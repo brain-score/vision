@@ -1,10 +1,11 @@
 from pathlib import Path
 from brainio.stimuli import StimulusSet
 from brainio.packaging import package_stimulus_set
+import numpy as np
 
 stimuli = []
 image_paths = {}
-stimuli_directory = '../images'
+stimuli_directory = 'images'
 
 
 '''
@@ -55,11 +56,16 @@ for filepath in Path(stimuli_directory).glob('*.jpg'):
         image_type = ground_truth[0]
         ground_truth = ground_truth[1:]
 
+    if "inv" in ground_truth:
+        ground_truth = ground_truth.replace("inv", "")
+    elif "nv" in ground_truth:
+        ground_truth = ground_truth.replace("nv", "")
+
     image_paths[image_id] = filepath
     stimuli.append({
         'stimulus_id': image_id,
-        'ground_truth': ground_truth,
-        'image_type': image_type,
+        'animal': ground_truth,
+        'image_type': "w" if image_type is "i" else image_type,
         'image_number': image_number,
         "orientation": "normal" if "inv" not in image_id else "inverted",
     })
@@ -68,8 +74,6 @@ stimuli = StimulusSet(stimuli)
 stimuli.stimulus_paths = image_paths
 stimuli.name = 'kellmen.Baker2022_shape_distortion'  # give the StimulusSet an identifier name
 
-# Ensure 1800 images in dataset
-assert len(stimuli) == 1800
 
 # upload to S3
 package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,

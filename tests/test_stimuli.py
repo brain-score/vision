@@ -58,6 +58,7 @@ import brainio
         'brendel.Geirhos2021_stylized',
         'brendel.Geirhos2021_sketch',
         'brendel.Geirhos2021_uniform-noise',
+        'kellmen.Baker2022_shape_distortion',
 ))
 def test_list_stimulus_set(stimulus_set):
     l = brainio.list_stimulus_sets()
@@ -248,4 +249,44 @@ class TestGeirhos2021:
         assert hasattr(stimulus_set, field)
 
 
+class TestBaker2022:
+
+    def test_stimulus_set_exist(self):
+        full_name = 'kellmen.Baker2022_shape_distortion'
+        stimulus_set = brainio.get_stimulus_set(full_name)
+        assert stimulus_set is not None
+        assert stimulus_set.identifier == full_name
+
+    def test_num_stimuli(self):
+        stimulus_set = brainio.get_stimulus_set('kellmen.Baker2022_shape_distortion')
+        assert len(stimulus_set) == 1800
+        assert len(np.unique(stimulus_set["stimulus_id"])) == 1800
+
+    @pytest.mark.parametrize('field', [
+        'stimulus_id',
+        'animal',
+        'image_type',
+        'image_number',
+        "orientation",
+    ])
+    def test_fields_present(self, field):
+        stimulus_set = brainscore.get_stimulus_set('kellmen.Baker2022_shape_distortion')
+        assert hasattr(stimulus_set, field)
+
+    def test_normal_vs_inverted_count(self):
+        stimulus_set = brainscore.get_stimulus_set('kellmen.Baker2022_shape_distortion')
+        assert list(stimulus_set["orientation"].values).count("normal") == 1080
+        assert list(stimulus_set["orientation"].values).count("inverted") == 720
+
+    def test_distortion_types(self):
+        stimulus_set = brainscore.get_stimulus_set('kellmen.Baker2022_shape_distortion')
+        assert len(np.unique(stimulus_set["image_type"])) == 3
+
+    def test_ground_truth_types(self):
+        stimulus_set = brainscore.get_stimulus_set('kellmen.Baker2022_shape_distortion')
+        assert len(np.unique(stimulus_set["animal"])) == 9
+
+    def test_image_types(self):
+        stimulus_set = brainscore.get_stimulus_set('kellmen.Baker2022_shape_distortion')
+        assert len(np.unique(stimulus_set["image_number"])) == 40
 

@@ -57,7 +57,7 @@ for filepath in Path(stimuli_directory).glob('*.jpg'):
 
     image_paths[image_id] = filepath
     stimuli.append({
-        'stimuli_id': image_id,
+        'stimulus_id': image_id,
         'ground_truth': ground_truth,
         'image_type': image_type,
         'image_number': image_number,
@@ -65,8 +65,8 @@ for filepath in Path(stimuli_directory).glob('*.jpg'):
     })
 
 stimuli = StimulusSet(stimuli)
-stimuli.image_paths = image_paths
-stimuli.name = 'kellmen.Baker2022_shape_distortions'  # give the StimulusSet an identifier name
+stimuli.stimulus_paths = image_paths
+stimuli.name = 'kellmen.Baker2022_shape_distortion'  # give the StimulusSet an identifier name
 
 # Ensure 1800 images in dataset
 assert len(stimuli) == 1800

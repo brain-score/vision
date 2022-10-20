@@ -11,7 +11,7 @@ stimuli_directory = '../images'
 Dataset Information:
 
 - From Baker 2022: https://www.sciencedirect.com/science/article/pii/S2589004222011853#sec9
-- 120 * 9 = 1080 images
+- 1800 images
 - normal distortion -> contains the three classes of distortion:
     1) normal image
     2) fragmented image
@@ -56,11 +56,10 @@ for filepath in Path(stimuli_directory).glob('*.jpg'):
 
     image_paths[image_id] = filepath
     stimuli.append({
-        'image_id': image_id,
+        'stimuli_id': image_id,
         'ground_truth': ground_truth,
         'image_type': image_type,
         'image_number': image_number,
-        'condition_image': ground_truth + image_type,
     })
 
 stimuli = StimulusSet(stimuli)
@@ -68,8 +67,8 @@ stimuli.image_paths = image_paths
 stimuli.name = 'kellmen.Baker2022_local_configural'  # give the StimulusSet an identifier name
 
 # Ensure 1080 images in dataset
-assert len(stimuli) == 1080
+assert len(stimuli) == 1800
 
 # upload to S3
-# package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,
-#                      bucket_name="brainio-brainscore")
+package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,
+                     bucket_name="brainio-brainscore")

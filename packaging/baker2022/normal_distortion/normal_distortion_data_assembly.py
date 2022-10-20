@@ -41,7 +41,7 @@ all_subjects = all_subjects.drop(all_subjects[all_subjects.Subj == 33].index)
 # construct the assembly
 assembly = BehavioralAssembly(all_subjects['Correct?'],
                               coords={
-                                  'image_id': ('presentation', all_subjects['condition_image']),
+                                  'stimulus_id': ('presentation', all_subjects['condition_image']),
                                   'truth': ('presentation', all_subjects['Animal']),
                                   'condition': ('presentation', all_subjects['condition']),
                                   'condition_full': ('presentation', all_subjects['Frankensteinonfig']),

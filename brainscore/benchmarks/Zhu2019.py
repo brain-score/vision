@@ -40,14 +40,11 @@ class _Zhu2019RDM(BenchmarkBase):
             bibtex=BIBTEX)
 
     def __call__(self, candidate: BrainModel):
-        choice_labels = set(self._assembly['truth'].values)
-        choice_labels = list(sorted(choice_labels))
         fitting_stimuli = place_on_screen(self._fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
                                           source_visual_degrees=self._visual_degrees)
         candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli)
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
-        candidate.start_task(BrainModel.Task.label, choice_labels)
         labels = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
         raw_score = self._metric(labels, self._assembly)
         ceiling = self.ceiling

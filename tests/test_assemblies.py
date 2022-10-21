@@ -64,6 +64,7 @@ import brainscore
         'brendel.Geirhos2021_stylized',
         'brendel.Geirhos2021_sketch',
         'brendel.Geirhos2021_uniform-noise',
+        'kellmen.Baker2022_normal_distortion'
 ))
 def test_list_assembly(assembly):
     l = brainio.list_assemblies()
@@ -482,3 +483,20 @@ class TestGeirhos2021:
     def test_fields_present_cue_conflict(self, identifier, field):
         assembly = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
         assert hasattr(assembly, field)
+
+
+class TestBaker2022:
+
+    @pytest.mark.parametrize('identifier', [
+        'normal',
+    ])
+    def test_stimulus_set_assembly_alignment(self, identifier):
+        full_name = f'kellmen.Baker2022_{identifier}_distortion'
+        assembly = brainscore.get_assembly(full_name)
+        assert assembly.stimulus_set is not None
+        assert assembly.stimulus_set.identifier == f'kellmen.Baker2022_shape_distortion'
+        assert set(assembly.stimulus_set["stimulus_id"]) == set(assembly["stimulus_id"].values)
+        assert set(assembly.stimulus_set["animal"]) == set(assembly["truth"].values)
+
+
+

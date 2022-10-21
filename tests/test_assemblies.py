@@ -503,6 +503,8 @@ class TestZhu2019:
         'stimulus_id',
         'truth',
         'choice',
+        'subject',
+        'correct',
     ])
     def test_fields_present(self, field):
         assembly = brainscore.get_assembly('yuille.Zhu2019_extreme_occlusion')
@@ -513,3 +515,11 @@ class TestZhu2019:
         assert len(set(assembly["truth"].values)) == 5
         assert len(set(assembly["choice"].values)) == 5
 
+    def test_number_subjects(self):
+        assembly = brainscore.get_assembly('yuille.Zhu2019_extreme_occlusion')
+        assert len(set(assembly["subject"].values)) == 25
+
+    def test_correct_responses(self):
+        assembly = brainscore.get_assembly('yuille.Zhu2019_extreme_occlusion')
+        assert len(set(assembly["correct"].values)) == 2
+        assert set(assembly["correct"].values) == [0, 1]

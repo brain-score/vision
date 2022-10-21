@@ -30,6 +30,8 @@ assembly = BehavioralAssembly(all_subjects['ground truth answer'],
                                   'stimulus_id': ('presentation', all_subjects['stimulus_id']),
                                   'truth': ('presentation', all_subjects['ground truth answer']),
                                   'choice': ('presentation', all_subjects['final_answer']),
+                                  'correct': ('presentation', all_subjects['correct']),
+                                  'subject': ('presentation', all_subjects['subject']),
                               },
                               dims=['presentation']
                               )

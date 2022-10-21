@@ -258,6 +258,7 @@ class TestZhu2019:
         assert stimulus_set.identifier == full_name
 
     def test_num_images(self):
+        brainio.get_stimulus_set('yuille.Zhu2019_extreme_occlusion')
         stimulus_set = brainio.get_stimulus_set('yuille.Zhu2019_extreme_occlusion')
         assert len(np.unique(stimulus_set['stimulus_id'].values)) == 500
 

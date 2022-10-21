@@ -34,7 +34,7 @@ class _Zhu2019RDM(BenchmarkBase):
         self._number_of_trials = 1
 
         super(_Zhu2019RDM, self).__init__(
-            identifier=f'yuille.Zhu2019_{dataset}-RDM', version=1,
+            identifier=f'yuille.Zhu2019_{dataset}-rdm',
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
             parent='yuille.Zhu2019',
             bibtex=BIBTEX)
@@ -45,8 +45,8 @@ class _Zhu2019RDM(BenchmarkBase):
         candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli)
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
-        labels = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
-        raw_score = self._metric(labels, self._assembly)
+        label_predictions = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
+        raw_score = self._metric(label_predictions, self._assembly)
         ceiling = self.ceiling
         score = raw_score / ceiling.sel(aggregation='center')
         score.attrs['raw'] = raw_score

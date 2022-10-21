@@ -522,4 +522,4 @@ class TestZhu2019:
     def test_correct_responses(self):
         assembly = brainscore.get_assembly('yuille.Zhu2019_extreme_occlusion')
         assert len(set(assembly["correct"].values)) == 2
-        assert set(assembly["correct"].values) == [0, 1]
+        assert set(assembly["correct"].values) == {0, 1}

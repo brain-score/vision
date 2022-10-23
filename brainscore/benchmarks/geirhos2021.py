@@ -116,6 +116,7 @@ def load_assembly(dataset):
     # convert condition float to string to avoid xarray indexing errors.
     # See https://app.travis-ci.com/github/brain-score/brain-score/builds/256059224
     assembly = cast_coordinate_type(assembly, coordinate='condition', newtype=str)
+    assembly.attrs['stimulus_set']['condition'] = assembly.attrs['stimulus_set']['condition'].astype(str)
     return assembly
 
 

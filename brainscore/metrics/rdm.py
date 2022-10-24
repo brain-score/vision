@@ -2,7 +2,6 @@ import numpy as np
 from scipy.stats import spearmanr
 
 from brainio.assemblies import DataAssembly, walk_coords
-
 from brainscore.metrics import Score
 from brainscore.metrics.transformations import TestOnlyCrossValidation
 from brainscore.metrics.xarray_utils import Defaults as XarrayDefaults
@@ -15,9 +14,9 @@ class RDMCrossValidated:
     Kriegeskorte et al., 2008 https://doi.org/10.3389/neuro.06.004.2008
     """
 
-    def __init__(self, neuroid_dim=XarrayDefaults.neuroid_dim, comparison_coord=XarrayDefaults.stimulus_coord,
+    def __init__(self, representation_dim=XarrayDefaults.neuroid_dim, comparison_coord=XarrayDefaults.stimulus_coord,
                  crossvalidation_kwargs=None):
-        self._metric = RDMMetric(neuroid_dim=neuroid_dim, comparison_coord=comparison_coord)
+        self._metric = RDMMetric(representation_dim=representation_dim, comparison_coord=comparison_coord)
         crossvalidation_defaults = dict(test_size=.9)  # leave 10% out
         crossvalidation_kwargs = {**crossvalidation_defaults, **(crossvalidation_kwargs or {})}
         self._cross_validation = TestOnlyCrossValidation(**crossvalidation_kwargs)
@@ -39,42 +38,18 @@ class RDMMetric:
     Kriegeskorte et al., 2008 https://doi.org/10.3389/neuro.06.004.2008
     """
 
-    def __init__(self, neuroid_dim=XarrayDefaults.neuroid_dim, comparison_coord=XarrayDefaults.stimulus_coord):
-        self._neuroid_dim = neuroid_dim
-        self._rdm = RDM(neuroid_dim=neuroid_dim)
+    def __init__(self,
+                 representation_dim: str = XarrayDefaults.neuroid_dim,
+                 comparison_coord: str = XarrayDefaults.stimulus_coord):
+        self._representation_dim = representation_dim
+        self._rdm = RDM(representation_dim=representation_dim)
         self._similarity = RDMSimilarity(comparison_coord=comparison_coord)
 
-    def __call__(self, assembly1, assembly2):
-        """
-        :param brainio.assemblies.NeuroidAssembly assembly1:
-        :param brainio.assemblies.NeuroidAssembly assembly2:
-        :return: brainscore.metrics.Score
-        """
-
+    def __call__(self, assembly1: DataAssembly, assembly2: DataAssembly) -> Score:
         rdm1 = self._rdm(assembly1)
         rdm2 = self._rdm(assembly2)
         similarity = self._similarity(rdm1, rdm2)
         return Score(similarity)
-
-
-class RSA:
-    """
-    Representational Similarity Analysis.
-    Converts an assembly of `presentation x neuroid` into a `neuroid x neuroid` RSA matrix.
-
-    Kriegeskorte et al., 2008 https://doi.org/10.3389/neuro.06.004.2008
-    """
-
-    def __init__(self, neuroid_dim=XarrayDefaults.neuroid_dim):
-        self._neuroid_dim = neuroid_dim
-
-    def __call__(self, assembly):
-        assert len(assembly.dims) == 2
-        correlations = np.corrcoef(assembly) if assembly.dims[-1] == self._neuroid_dim else np.corrcoef(assembly.T).T
-        coords = {coord: coord_value for coord, coord_value in assembly.coords.items() if coord != self._neuroid_dim}
-        dims = [dim if dim != self._neuroid_dim else assembly.dims[(i - 1) % len(assembly.dims)]
-                for i, dim in enumerate(assembly.dims)]
-        return DataAssembly(correlations, coords=coords, dims=dims)
 
 
 class RDM:
@@ -88,16 +63,38 @@ class RDM:
     def __init__(self, *args, **kwargs):
         self._rsa = RSA(*args, **kwargs)
 
-    def __call__(self, assembly):
+    def __call__(self, assembly: DataAssembly) -> DataAssembly:
         rsa = self._rsa(assembly)
         return 1 - rsa
 
 
-class RDMSimilarity(object):
-    def __init__(self, comparison_coord=XarrayDefaults.stimulus_coord):
+class RSA:
+    """
+    Representational Similarity Analysis.
+    Converts an assembly of `presentation x neuroid` into a `neuroid x neuroid` RSA matrix.
+
+    Kriegeskorte et al., 2008 https://doi.org/10.3389/neuro.06.004.2008
+    """
+
+    def __init__(self, representation_dim: str = XarrayDefaults.neuroid_dim):
+        self._representation_dim = representation_dim
+
+    def __call__(self, assembly: DataAssembly) -> DataAssembly:
+        assert len(assembly.dims) == 2
+        assembly = assembly.transpose(..., self._representation_dim)  # ensure last dim is self._representation_dim
+        correlations = np.corrcoef(assembly)
+        coords = {coord: coord_value for coord, coord_value in assembly.coords.items() if
+                  coord != self._representation_dim}
+        dims = [dim if dim != self._representation_dim else assembly.dims[(i - 1) % len(assembly.dims)]
+                for i, dim in enumerate(assembly.dims)]
+        return DataAssembly(correlations, coords=coords, dims=dims)
+
+
+class RDMSimilarity:
+    def __init__(self, comparison_coord: str = XarrayDefaults.stimulus_coord):
         self._comparison_coord = comparison_coord
 
-    def __call__(self, rdm_assembly1, rdm_assembly2):
+    def __call__(self, rdm_assembly1: DataAssembly, rdm_assembly2: DataAssembly) -> float:
         # align
         rdm_assembly1 = self.multishape_preserved_sort(rdm_assembly1)
         rdm_assembly2 = self.multishape_preserved_sort(rdm_assembly2)

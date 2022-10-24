@@ -217,6 +217,10 @@ def _evaluation_benchmark_pool():
             # use lambda parameter-binding to avoid `benchmark_ctr` being re-assigned in the next loop iteration
             lambda benchmark_ctr=benchmark_ctr: benchmark_ctr())
 
+    # Zhu2019
+    from .zhu2019 import Zhu2019RDM
+    pool['yuille.Zhu2019-rdm'] = LazyLoad(Zhu2019RDM)
+
     return pool
 
 

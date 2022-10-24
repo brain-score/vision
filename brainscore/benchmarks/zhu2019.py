@@ -4,7 +4,7 @@ import brainscore
 from brainscore.benchmarks import BenchmarkBase
 from brainscore.benchmarks.screen import place_on_screen
 from brainscore.metrics import Score
-from brainscore.metrics.rdm import RDM
+from brainscore.metrics.rdm import RDMMetric
 from brainscore.model_interface import BrainModel
 from brainscore.utils import LazyLoad
 
@@ -20,13 +20,13 @@ DATASETS = ['extreme_occlusion']
 # create functions so that users can import individual benchmarks as e.g. Zhu2019RDM
 for dataset in DATASETS:
     # behavioral benchmark
-    identifier = f"Zhu2021{dataset.replace('-', '')}RDM"
+    identifier = f"Zhu2019{dataset.replace('-', '')}RDM"
     globals()[identifier] = lambda dataset=dataset: _Zhu2019RDM(dataset)
 
 
 class _Zhu2019RDM(BenchmarkBase):
     def __init__(self, dataset):
-        self._metric = RDM()
+        self._metric = RDMMetric()
         self._assembly = LazyLoad(lambda: load_assembly(dataset))
         self._fitting_stimuli = brainscore.get_stimulus_set('yuille.Zhu2019_extreme_occlusion')
         self._visual_degrees = 8
@@ -37,7 +37,7 @@ class _Zhu2019RDM(BenchmarkBase):
             identifier=f'yuille.Zhu2019_{dataset}-rdm',
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
             parent='yuille.Zhu2019',
-            bibtex=BIBTEX)
+            bibtex=BIBTEX, version=1)
 
     def __call__(self, candidate: BrainModel):
         fitting_stimuli = place_on_screen(self._fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
@@ -52,6 +52,10 @@ class _Zhu2019RDM(BenchmarkBase):
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling
         return score
+
+
+def Zhu2019RDM():
+    return _Zhu2019RDM(dataset='extreme_occlusion')
 
 
 def load_assembly(dataset):

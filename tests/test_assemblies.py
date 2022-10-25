@@ -523,3 +523,8 @@ class TestZhu2019:
         assembly = brainscore.get_assembly('yuille.Zhu2019_extreme_occlusion')
         assert len(set(assembly["correct"].values)) == 2
         assert set(assembly["correct"].values) == {0, 1}
+
+    def test_response_alignment(self):
+        assembly = brainscore.get_assembly('yuille.Zhu2019_extreme_occlusion')
+        assert list(assembly.values) == list(assembly["choice"].values)
+        assert list(assembly.values) != list(assembly["truth"].values)

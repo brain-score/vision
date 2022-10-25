@@ -25,7 +25,7 @@ all_subjects["stimulus_id"] = image_field[5].str.replace(".png", "")
 all_subjects = all_subjects[all_subjects['final_answer'].notna()]
 
 # construct the assembly
-assembly = BehavioralAssembly(all_subjects['ground truth answer'],
+assembly = BehavioralAssembly(all_subjects['final_answer'],
                               coords={
                                   'stimulus_id': ('presentation', all_subjects['stimulus_id']),
                                   'truth': ('presentation', all_subjects['ground truth answer']),

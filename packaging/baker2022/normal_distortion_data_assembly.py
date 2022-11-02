@@ -20,6 +20,8 @@ https://www.sciencedirect.com/science/article/pii/S2589004222011853#sec9
 # initial csv to dataframe processing:
 all_subjects = pd.read_csv('human_data_normal/human_data.csv')
 
+# all images presented in this assembly are normal (non-inverted)
+all_subjects["orientation"] = "normal"
 
 # construct the assembly
 assembly = BehavioralAssembly(all_subjects['Correct?'],
@@ -29,6 +31,7 @@ assembly = BehavioralAssembly(all_subjects['Correct?'],
                                   'condition': ('presentation', all_subjects['Frankensteinonfig']),
                                   'truth': ('presentation', all_subjects['Animal']),
                                   'correct': ('presentation', all_subjects['Correct?']),
+                                  'orientation': ('presentation', all_subjects['orientation']),
                               },
                               dims=['presentation']
                               )
@@ -39,5 +42,5 @@ assembly.name = 'kellmen.Baker2022_normal_distortion'
 
 # upload to S3
 package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
-                      stimulus_set_identifier='kellmen.Baker2022_shape_distortion',
+                      stimulus_set_identifier='kellmen.Baker2022_normal_distortion',
                       assembly_class_name="BehavioralAssembly", bucket_name="brainio-brainscore")

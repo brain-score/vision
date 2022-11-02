@@ -168,3 +168,8 @@ brendel.Geirhos2021_stylized,assembly,BehavioralAssembly,S3,https://brainio-brai
 brendel.Geirhos2021_uniform-noise,assembly,BehavioralAssembly,S3,https://brainio-brainscore.s3.amazonaws.com/assy_brendel_Geirhos2021_uniform-noise.nc,f5e8b2636738f978c71591b8df6f8a21a66b72d1,brendel.Geirhos2021_uniform-noise,brainio_brainscore
 katz.BarbuMayo2019,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/image_katz_BarbuMayo2019.csv,e4d8888ccb6beca28636e6698e7beb130e278e12,,brainio_brainscore
 katz.BarbuMayo2019,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/image_katz_BarbuMayo2019.zip,1365eb2a7231516806127a7d2a908343a7ac9464,,brainio_brainscore
+kellmen.Baker2022_inverted_distortion,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_kellmen_Baker2022_inverted_distortion.csv,9210c379cc138b48e65ff2d2c1edd42d0f09a5d4,,
+kellmen.Baker2022_inverted_distortion,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_kellmen_Baker2022_inverted_distortion.zip,b0bfe3a8c34d894e10880b22997f921e6798ae70,,
+kellmen.Baker2022_normal_distortion,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_kellmen_Baker2022_normal_distortion.csv,f9288397269a81f729e6d5d52984917e86d12087,,
+kellmen.Baker2022_normal_distortion,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_kellmen_Baker2022_normal_distortion.zip,860ae654c6abb8c4ae88d731b692a4c86b2f59f5,,
+kellmen.Baker2022_normal_distortion,assembly,BehavioralAssembly,S3,https://brainio-brainscore.s3.amazonaws.com/assy_kellmen_Baker2022_normal_distortion.nc,9f3c5bd91c107d40c162a7b384672a027feff0e3,kellmen.Baker2022_normal_distortion,

@@ -71,13 +71,13 @@ for filepath in Path(stimuli_directory).glob('*.jpg'):
     })
 
 stimuli = StimulusSet(stimuli)
+stimuli.stimulus_paths = image_paths
 
 # remove all inverted stimuli
 stimuli = stimuli[stimuli["orientation"] == "inverted"]
 
-stimuli.stimulus_paths = image_paths
-stimuli.name = 'kellmen.Baker2022_inverted_distortion'  # give the StimulusSet an identifier name
-
+# give the StimulusSet an identifier name
+stimuli.name = 'kellmen.Baker2022_inverted_distortion'
 
 # upload to S3
 package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,

@@ -250,7 +250,6 @@ class TestGeirhos2021:
 
 
 class TestBaker2022:
-
     def test_stimulus_set_exist(self):
         full_name = 'kellmen.Baker2022_shape_distortion'
         stimulus_set = brainio.get_stimulus_set(full_name)

@@ -12,7 +12,7 @@ stimuli_directory = 'images'
 Dataset Information:
 
 - From Baker 2022: https://www.sciencedirect.com/science/article/pii/S2589004222011853#sec9
-- 1800 images total: 1080 normal distortion, 720 inverted distortion
+- 1800 images total: 1080 normal distortion (** this stimulus set **), 720 inverted distortion
 - normal/inverted distortion -> contains the three classes of distortion:
     1) normal image
     2) fragmented image
@@ -71,9 +71,12 @@ for filepath in Path(stimuli_directory).glob('*.jpg'):
     })
 
 stimuli = StimulusSet(stimuli)
-stimuli.stimulus_paths = image_paths
-stimuli.name = 'kellmen.Baker2022_shape_distortion'  # give the StimulusSet an identifier name
 
+# remove all inverted stimuli
+stimuli = stimuli[stimuli["orientation"] == "normal"]
+
+stimuli.stimulus_paths = image_paths
+stimuli.name = 'kellmen.Baker2022_normal_distortion'  # give the StimulusSet an identifier name
 
 # upload to S3
 package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,

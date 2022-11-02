@@ -487,6 +487,7 @@ class TestGeirhos2021:
 
 class TestBaker2022:
 
+    # tests alignments that are the same across normal and inverted assemblies
     @pytest.mark.parametrize('identifier', [
         'normal',
     ])
@@ -495,8 +496,29 @@ class TestBaker2022:
         assembly = brainscore.get_assembly(full_name)
         assert assembly.stimulus_set is not None
         assert assembly.stimulus_set.identifier == f'kellmen.Baker2022_shape_distortion'
-        assert set(assembly.stimulus_set["stimulus_id"]) == set(assembly["stimulus_id"].values)
         assert set(assembly.stimulus_set["animal"]) == set(assembly["truth"].values)
 
+    # tests counts that are the same across normal and inverted assemblies
+    @pytest.mark.parametrize('identifier', [
+        'normal',
+    ])
+    def test_counts(self, identifier):
+        full_name = f'kellmen.Baker2022_{identifier}_distortion'
+        assembly = brainscore.get_assembly(full_name)
+        assert len(np.unique(assembly.stimulus_set["stimulus_id"].values)) == 1800
+        assert len(assembly["stimulus_id"]) == 3706
+        assert len(set((assembly.stimulus_set["animal"]).values)) == 9
+        assert len(set((assembly.stimulus_set["orientation"]).values)) == 2
+        assert len(set((assembly.stimulus_set["image_type"]).values)) == 3
+
+    # tests normal/inverted alignments (differ from each other)
+    @pytest.mark.parametrize('identifier, length', [
+        ('normal', 3706),
+    ])
+    def test_subtypes(self, identifier, length):
+        full_name = f'kellmen.Baker2022_{identifier}_distortion'
+        assembly = brainscore.get_assembly(full_name)
+        assembly = assembly.stimulus_set[assembly.stimulus_set["orientation"] == identifier]
+        assert len(assembly.values) == length
 
 

@@ -25,7 +25,8 @@ Dataset Information:
 Fields:
 
 1) ground_truth: the base object, in set above
-2) image_type:  a string in the set {w, f, o} for {whole, frankenstein, fragmented} respectively. 
+2) image_type:  a string in the set {w, f} for {whole, frankenstein} respectively.
+    Note: inverted only hase whole and frankenstein images, no fragmented 
 3) image_number: a number {1,2...40} indicates the image variation
 
 '''

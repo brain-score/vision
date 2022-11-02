@@ -107,6 +107,7 @@ def test_Katz_BarbuMayo2019():
     assert len(stimulus_set) == 17261
     assert len(set(stimulus_set['synset'])) == 104
 
+
 @pytest.mark.private_access
 def test_feifei_Deng2009():
     stimulus_set = brainio.get_stimulus_set('fei-fei.Deng2009')
@@ -250,17 +251,27 @@ class TestGeirhos2021:
 
 
 class TestBaker2022:
-    def test_stimulus_set_exist(self):
-        full_name = 'kellmen.Baker2022_shape_distortion'
+
+    @pytest.mark.parametrize('identifier', [
+        'normal',
+        'inverted'
+    ])
+    def test_stimulus_set_exist(self, identifier):
+        full_name = f'kellmen.Baker2022_{identifier}_distortion'
         stimulus_set = brainio.get_stimulus_set(full_name)
         assert stimulus_set is not None
         assert stimulus_set.identifier == full_name
 
-    def test_num_stimuli(self):
-        stimulus_set = brainio.get_stimulus_set('kellmen.Baker2022_shape_distortion')
-        assert len(stimulus_set) == 1800
-        assert len(np.unique(stimulus_set["stimulus_id"])) == 1800
+    @pytest.mark.parametrize('identifier, num_images', [
+        ('normal', 1080),
+        ('inverted', 720),
+    ])
+    def test_num_stimuli(self, identifier, num_images):
+        stimulus_set = brainio.get_stimulus_set(f'kellmen.Baker2022_{identifier}_distortion')
+        assert len(stimulus_set) == num_images
+        assert len(np.unique(stimulus_set["stimulus_id"])) == num_images
 
+    # tests stimulus_set coords for the 14 "normal" sets:
     @pytest.mark.parametrize('field', [
         'stimulus_id',
         'animal',
@@ -268,24 +279,36 @@ class TestBaker2022:
         'image_number',
         "orientation",
     ])
-    def test_fields_present(self, field):
-        stimulus_set = brainscore.get_stimulus_set('kellmen.Baker2022_shape_distortion')
+    @pytest.mark.parametrize('identifier', [
+        'normal',
+        'inverted',
+    ])
+    def test_fields_present(self, identifier, field):
+        stimulus_set = brainscore.get_stimulus_set(f'kellmen.Baker2022_{identifier}_distortion')
+        assert set(stimulus_set["orientation"].values) == {identifier}
         assert hasattr(stimulus_set, field)
 
-    def test_normal_vs_inverted_count(self):
-        stimulus_set = brainscore.get_stimulus_set('kellmen.Baker2022_shape_distortion')
-        assert list(stimulus_set["orientation"].values).count("normal") == 1080
-        assert list(stimulus_set["orientation"].values).count("inverted") == 720
+    @pytest.mark.parametrize('identifier, count', [
+        ('normal', 3),
+        ('inverted', 2),
+    ])
+    def test_distortion_counts(self, identifier, count):
+        stimulus_set = brainscore.get_stimulus_set(f'kellmen.Baker2022_{identifier}_distortion')
+        assert len(np.unique(stimulus_set["image_type"])) == count
+        assert "w", "f" in set(stimulus_set["image_type"])
 
-    def test_distortion_types(self):
-        stimulus_set = brainscore.get_stimulus_set('kellmen.Baker2022_shape_distortion')
-        assert len(np.unique(stimulus_set["image_type"])) == 3
-
-    def test_ground_truth_types(self):
-        stimulus_set = brainscore.get_stimulus_set('kellmen.Baker2022_shape_distortion')
+    @pytest.mark.parametrize('identifier', [
+        'normal',
+        'inverted',
+    ])
+    def test_ground_truth_types(self, identifier):
+        stimulus_set = brainscore.get_stimulus_set(f'kellmen.Baker2022_{identifier}_distortion')
         assert len(np.unique(stimulus_set["animal"])) == 9
 
-    def test_image_types(self):
-        stimulus_set = brainscore.get_stimulus_set('kellmen.Baker2022_shape_distortion')
+    @pytest.mark.parametrize('identifier', [
+        'normal',
+        'inverted',
+    ])
+    def test_image_types(self, identifier):
+        stimulus_set = brainscore.get_stimulus_set(f'kellmen.Baker2022_{identifier}_distortion')
         assert len(np.unique(stimulus_set["image_number"])) == 40
-

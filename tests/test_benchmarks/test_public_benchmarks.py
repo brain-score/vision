@@ -1,7 +1,7 @@
 import pytest
 from pytest import approx
 
-from brainscore.benchmarks.public_benchmarks import list_public_assemblies, \
+from brainscore_vision.benchmarks.public_benchmarks import list_public_assemblies, \
     FreemanZiembaV1PublicBenchmark, FreemanZiembaV2PublicBenchmark, \
     MajajHongV4PublicBenchmark, MajajHongITPublicBenchmark
 from tests.test_benchmarks import PrecomputedFeatures

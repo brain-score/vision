@@ -2,10 +2,10 @@ import numpy as np
 import scipy.stats
 
 from brainio.assemblies import NeuroidAssembly
-from brainscore.metrics.regression import pls_regression, pearsonr_correlation
-from brainscore.metrics.temporal import TemporalRegressionAcrossTime, TemporalCorrelationAcrossImages, \
+from brainscore_vision.metrics.regression import pls_regression, pearsonr_correlation
+from brainscore_vision.metrics.temporal import TemporalRegressionAcrossTime, TemporalCorrelationAcrossImages, \
     TemporalCorrelationAcrossTime
-from brainscore.metrics.xarray_utils import XarrayCorrelation
+from brainscore_vision.metrics.xarray_utils import XarrayCorrelation
 
 
 class TestTemporalRegressionAcrossTime:

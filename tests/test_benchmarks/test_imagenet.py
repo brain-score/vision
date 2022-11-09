@@ -2,8 +2,8 @@ import numpy as np
 from pytest import approx
 
 from brainio.assemblies import BehavioralAssembly
-from brainscore.benchmarks.imagenet import Imagenet2012
-from brainscore.model_interface import BrainModel
+from brainscore_vision.benchmarks.imagenet import Imagenet2012
+from brainscore_vision.model_interface import BrainModel
 
 
 class TestImagenet2012:

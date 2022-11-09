@@ -8,8 +8,8 @@ import pytest
 from pytest import approx
 
 from brainio.assemblies import BehavioralAssembly
-from brainscore.benchmarks.rajalingham2018 import DicarloRajalingham2018I2n
-from brainscore.model_interface import BrainModel
+from brainscore_vision.benchmarks.rajalingham2018 import DicarloRajalingham2018I2n
+from brainscore_vision.model_interface import BrainModel
 
 
 @pytest.mark.private_access

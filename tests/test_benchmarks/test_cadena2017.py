@@ -1,6 +1,6 @@
 import pytest
 
-from brainscore.benchmarks.cadena2017 import AssemblyLoader
+from brainscore_vision.benchmarks.cadena2017 import AssemblyLoader
 from . import check_standard_format
 
 

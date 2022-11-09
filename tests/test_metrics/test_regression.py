@@ -3,7 +3,7 @@ import pytest
 from brainio.assemblies import NeuroidAssembly
 from pytest import approx
 
-from brainscore.metrics.regression import CrossRegressedCorrelation, pls_regression, linear_regression, \
+from brainscore_vision.metrics.regression import CrossRegressedCorrelation, pls_regression, linear_regression, \
     pearsonr_correlation, ridge_regression
 
 

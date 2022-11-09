@@ -2,7 +2,7 @@ from pathlib import Path
 import pytest
 from pytest import approx
 from brainio.assemblies import BehavioralAssembly
-from brainscore import benchmark_pool
+from brainscore_vision import benchmark_pool
 from tests.test_benchmarks import PrecomputedFeatures
 
 

@@ -3,9 +3,9 @@ import pytest
 from pytest import approx
 
 from brainio.assemblies import BehavioralAssembly
-from brainscore.benchmarks.imagenet_c import Imagenet_C_Individual, Imagenet_C_Noise, Imagenet_C_Blur, \
+from brainscore_vision.benchmarks.imagenet_c import Imagenet_C_Individual, Imagenet_C_Noise, Imagenet_C_Blur, \
     Imagenet_C_Weather, Imagenet_C_Digital
-from brainscore.model_interface import BrainModel
+from brainscore_vision.model_interface import BrainModel
 
 # downloads all ImageNet C benchmarks (50.3G) and runs with default downsampling by a factor of 10
 @pytest.mark.slow

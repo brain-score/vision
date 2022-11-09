@@ -6,7 +6,7 @@ from PIL import Image
 from pathlib import Path
 from pytest import approx
 
-from brainscore.benchmarks.screen import ImageConverter
+from brainscore_vision.benchmarks.screen import ImageConverter
 
 
 class TestImageConverter:

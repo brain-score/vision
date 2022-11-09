@@ -6,7 +6,7 @@ from pytest import approx
 
 import brainio
 
-import brainscore
+import brainscore_vision
 
 
 @pytest.mark.parametrize('assembly', (
@@ -335,7 +335,7 @@ class TestGeirhos2021:
     ])
     def test_stimulus_set_assembly_alignment(self, identifier, field):
         full_name = f"brendel.Geirhos2021_{identifier}"
-        assembly = brainscore.get_assembly(full_name)
+        assembly = brainscore_vision.get_assembly(full_name)
         assert assembly.stimulus_set is not None
         assert assembly.stimulus_set.identifier == full_name
         assert set(assembly.stimulus_set[field]) == set(assembly[field].values)
@@ -361,7 +361,7 @@ class TestGeirhos2021:
         ('uniform-noise', 4),
     ])
     def test_num_subjects(self, identifier, num_subjects):
-        assembly = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
+        assembly = brainscore_vision.get_assembly(f"brendel.Geirhos2021_{identifier}")
         assert len(np.unique(assembly['subject'].values)) == num_subjects
 
     # test the number of images
@@ -385,7 +385,7 @@ class TestGeirhos2021:
         ('uniform-noise', 1280),
     ])
     def test_num_images(self, identifier, num_images):
-        assembly = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
+        assembly = brainscore_vision.get_assembly(f"brendel.Geirhos2021_{identifier}")
         assert len(np.unique(assembly['image_id'].values)) == num_images
 
     # tests assembly dim for ALL 17 sets:
@@ -409,7 +409,7 @@ class TestGeirhos2021:
         ('uniform-noise', 5120),
     ])
     def test_length(self, identifier, length):
-        assembly = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
+        assembly = brainscore_vision.get_assembly(f"brendel.Geirhos2021_{identifier}")
         assert len(assembly['presentation']) == length
 
     # test assembly coords present in ALL 17 sets:
@@ -444,7 +444,7 @@ class TestGeirhos2021:
         'session',
     ])
     def test_fields_present(self, identifier, field):
-        assembly = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
+        assembly = brainscore_vision.get_assembly(f"brendel.Geirhos2021_{identifier}")
         assert hasattr(assembly, field)
 
     # tests assembly coords for the 2 "abnormal" sets:
@@ -460,7 +460,7 @@ class TestGeirhos2021:
         'condition',
     ])
     def test_fields_present_abnormal_sets(self, identifier, field):
-        assembly = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
+        assembly = brainscore_vision.get_assembly(f"brendel.Geirhos2021_{identifier}")
         assert hasattr(assembly, field)
 
     # tests assembly coords for the cue-conflict different set:
@@ -480,5 +480,5 @@ class TestGeirhos2021:
         'condition',
     ])
     def test_fields_present_cue_conflict(self, identifier, field):
-        assembly = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
+        assembly = brainscore_vision.get_assembly(f"brendel.Geirhos2021_{identifier}")
         assert hasattr(assembly, field)

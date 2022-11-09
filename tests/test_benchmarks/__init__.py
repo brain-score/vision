@@ -2,7 +2,7 @@ import numpy as np
 from typing import Union
 
 from brainio.assemblies import NeuroidAssembly, DataAssembly
-from brainscore.model_interface import BrainModel
+from brainscore_vision.model_interface import BrainModel
 
 
 class PrecomputedFeatures(BrainModel):

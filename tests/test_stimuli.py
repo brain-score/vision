@@ -1,6 +1,6 @@
 import os
 
-import brainscore
+import brainscore_vision
 import pytest
 import numpy as np
 
@@ -177,7 +177,7 @@ class TestGeirhos2021:
         ('uniform-noise', 1280),
     ])
     def test_num_images(self, identifier, num_images):
-        stimulus_set = brainscore.get_stimulus_set(f"brendel.Geirhos2021_{identifier}")
+        stimulus_set = brainscore_vision.get_stimulus_set(f"brendel.Geirhos2021_{identifier}")
         assert len(np.unique(stimulus_set['image_id'].values)) == num_images
 
     # tests stimulus_set coords for the 14 "normal" sets:
@@ -208,7 +208,7 @@ class TestGeirhos2021:
         'random_number',
     ])
     def test_fields_present(self, identifier, field):
-        stimulus_set = brainscore.get_stimulus_set(f"brendel.Geirhos2021_{identifier}")
+        stimulus_set = brainscore_vision.get_stimulus_set(f"brendel.Geirhos2021_{identifier}")
         assert hasattr(stimulus_set, field)
 
     # tests assembly coords for the 2 "abnormal" sets:
@@ -224,7 +224,7 @@ class TestGeirhos2021:
         'condition',
     ])
     def test_fields_present2(self, identifier, field):
-        stimulus_set = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
+        stimulus_set = brainscore_vision.get_assembly(f"brendel.Geirhos2021_{identifier}")
         assert hasattr(stimulus_set, field)
 
     # test assembly fields for cue-conflict's odd stimulus_set:
@@ -244,7 +244,7 @@ class TestGeirhos2021:
         'condition',
     ])
     def test_fields_present3(self, identifier, field):
-        stimulus_set = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
+        stimulus_set = brainscore_vision.get_assembly(f"brendel.Geirhos2021_{identifier}")
         assert hasattr(stimulus_set, field)
 
 

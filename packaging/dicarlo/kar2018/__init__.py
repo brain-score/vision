@@ -1,5 +1,5 @@
-from brainscore.metrics.ceiling import InternalConsistency
-from brainscore.metrics.transformations import CrossValidation
+from brainscore_vision.metrics.ceiling import InternalConsistency
+from brainscore_vision.metrics.transformations import CrossValidation
 
 
 def filter_neuroids(assembly, threshold):

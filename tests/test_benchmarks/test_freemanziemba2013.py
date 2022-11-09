@@ -1,6 +1,6 @@
 import pytest
 
-from brainscore.benchmarks.freemanziemba2013 import load_assembly
+from brainscore_vision.benchmarks.freemanziemba2013 import load_assembly
 from . import check_standard_format
 
 

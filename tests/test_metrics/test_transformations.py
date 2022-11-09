@@ -1,8 +1,8 @@
 import numpy as np
 
 from brainio.assemblies import NeuroidAssembly, DataAssembly
-from brainscore.metrics import Metric, Score
-from brainscore.metrics.transformations import CartesianProduct, CrossValidation, \
+from brainscore_vision.metrics import Metric, Score
+from brainscore_vision.metrics.transformations import CartesianProduct, CrossValidation, \
     CrossValidationSingle
 
 

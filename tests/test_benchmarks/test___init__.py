@@ -8,9 +8,9 @@ from PIL import Image
 from pytest import approx
 
 from brainio.assemblies import BehavioralAssembly, NeuroidAssembly, PropertyAssembly
-from brainscore.benchmarks import benchmark_pool, public_benchmark_pool, evaluation_benchmark_pool, \
+from brainscore_vision.benchmarks import benchmark_pool, public_benchmark_pool, evaluation_benchmark_pool, \
     engineering_benchmark_pool
-from brainscore.model_interface import BrainModel
+from brainscore_vision.model_interface import BrainModel
 from tests.test_benchmarks import PrecomputedFeatures
 
 
@@ -390,7 +390,7 @@ class TestPrecomputed:
 
     def run_test_properties(self, benchmark, files, expected):
         benchmark = benchmark_pool[benchmark]
-        from brainscore import get_stimulus_set
+        from brainscore_vision import get_stimulus_set
 
         stimulus_identifiers = np.unique(np.array(['dicarlo.Marques2020_blank', 'dicarlo.Marques2020_receptive_field',
                                                    'dicarlo.Marques2020_orientation',

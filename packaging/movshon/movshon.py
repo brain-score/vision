@@ -3,16 +3,16 @@ import re
 import zipfile
 from glob import glob
 
-import brainscore
+import brainscore_vision
 import h5py
 import numpy as np
 import pandas as pd
 import xarray as xr
 
-from brainscore.knownfile import KnownFile as kf
-from brainscore.lookup import pwdb
-from brainscore.assemblies import AssemblyModel, AssemblyStoreMap, AssemblyStoreModel
-from brainscore.stimuli import ImageModel, AttributeModel, ImageMetaModel, StimulusSetModel, ImageStoreModel, \
+from brainscore_vision.knownfile import KnownFile as kf
+from brainscore_vision.lookup import pwdb
+from brainscore_vision.assemblies import AssemblyModel, AssemblyStoreMap, AssemblyStoreModel
+from brainscore_vision.stimuli import ImageModel, AttributeModel, ImageMetaModel, StimulusSetModel, ImageStoreModel, \
     StimulusSetImageMap, ImageStoreMap
 
 # from FreemanZiemba2013_V1V2data_readme.m
@@ -87,7 +87,7 @@ def load_responses(response_file, stimuli_directory):
         sha1s.append(im_kf.sha1)
     assembly["image_id"] = ("presentation", sha1s)
 
-    return brainscore.assemblies.NeuronRecordingAssembly(assembly)
+    return brainscore_vision.assemblies.NeuronRecordingAssembly(assembly)
 
 
 def write_netcdf(assembly, target_netcdf_file):

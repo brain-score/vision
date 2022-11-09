@@ -6,7 +6,7 @@ on their match to brain measurements in primate vision.
 The intent of Brain-Score is to adopt many (ideally all) the experimental benchmarks in the field
 for the purpose of model testing, falsification, and comparison.
 To that end, Brain-Score operationalizes experimental data into quantitative benchmarks 
-that any model candidate following the [`BrainModel`](brainscore/model_interface.py) interface can be scored on.
+that any model candidate following the [`BrainModel`](brainscore_vision/model_interface.py) interface can be scored on.
 
 See the [Documentation](https://brain-score.readthedocs.io) for more details 
 and the [Tutorial](https://brain-score.readthedocs.io/en/latest/modules/tutorial.html) 
@@ -26,21 +26,22 @@ To score a model on all benchmarks, submit it via the [brain-score.org website](
 `pip install git+https://github.com/brain-score/brain-score`
 
 Score a model on a public benchmark:
+
 ```python
-from brainscore.benchmarks import public_benchmark_pool
+from brainscore_vision.benchmarks import public_benchmark_pool
 
 benchmark = public_benchmark_pool['dicarlo.MajajHong2015public.IT-pls']
 model = my_model()
 score = benchmark(model)
-#>  <xarray.Score (aggregation: 2)>
-#>  array([0.32641998, 0.0207475])
-#>  Coordinates:
-#>    * aggregation  (aggregation) <U6 'center' 'error'
-#>  Attributes:
-#>      raw:                   <xarray.Score (aggregation: 2)>\narray([0.4278365 ...
-#>      ceiling:               <xarray.Score (aggregation: 2)>\narray([0.7488407 ...
-#>      model_identifier:      my-model
-#>      benchmark_identifier:  dicarlo.MajajHong2015public.IT-pls
+# >  <xarray.Score (aggregation: 2)>
+# >  array([0.32641998, 0.0207475])
+# >  Coordinates:
+# >    * aggregation  (aggregation) <U6 'center' 'error'
+# >  Attributes:
+# >      raw:                   <xarray.Score (aggregation: 2)>\narray([0.4278365 ...
+# >      ceiling:               <xarray.Score (aggregation: 2)>\narray([0.7488407 ...
+# >      model_identifier:      my-model
+# >      benchmark_identifier:  dicarlo.MajajHong2015public.IT-pls
 ```
 
 Some steps may take minutes because data has to be downloaded during first-time use.

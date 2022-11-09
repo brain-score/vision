@@ -5,8 +5,8 @@ import pytest
 from pytest import approx
 
 from brainio.assemblies import BehavioralAssembly
-from brainscore import benchmark_pool
-from brainscore.benchmarks.geirhos2021 import DATASETS, cast_coordinate_type
+from brainscore_vision import benchmark_pool
+from brainscore_vision.benchmarks.geirhos2021 import DATASETS, cast_coordinate_type
 from tests.test_benchmarks import PrecomputedFeatures
 
 

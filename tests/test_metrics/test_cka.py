@@ -2,7 +2,7 @@ import numpy as np
 from brainio.assemblies import NeuroidAssembly
 from pytest import approx
 
-from brainscore.metrics.cka import CKACrossValidated, CKAMetric
+from brainscore_vision.metrics.cka import CKACrossValidated, CKAMetric
 
 
 class TestCKACrossValidated:

@@ -1,7 +1,7 @@
 import brainio
 import pytest
 
-from brainscore.benchmarks import screen
+from brainscore_vision.benchmarks import screen
 
 
 @pytest.fixture

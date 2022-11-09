@@ -5,8 +5,8 @@ import pytest
 from pytest import approx
 
 from brainio.assemblies import NeuroidAssembly, DataAssembly
-from brainscore.benchmarks.majajhong2015 import load_assembly
-from brainscore.metrics.ceiling import NoCeiling, InternalConsistency, SplitHalfConsistency
+from brainscore_vision.benchmarks.majajhong2015 import load_assembly
+from brainscore_vision.metrics.ceiling import NoCeiling, InternalConsistency, SplitHalfConsistency
 
 
 class TestNoCeiling:

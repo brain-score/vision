@@ -4,7 +4,7 @@ from numpy.random.mtrand import RandomState
 from pytest import approx
 
 from brainio.assemblies import DataAssembly
-from brainscore.benchmarks.kar2019 import DicarloKar2019OST
+from brainscore_vision.benchmarks.kar2019 import DicarloKar2019OST
 from tests.test_benchmarks import PrecomputedFeatures
 
 

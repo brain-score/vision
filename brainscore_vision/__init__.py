@@ -11,13 +11,6 @@ from result_caching import store
 _logger = logging.getLogger(__name__)
 
 
-def get_assembly(name):
-    assembly = brainio_get_assembly(name)
-    assert hasattr(assembly.stimulus_set, 'identifier')
-    assert assembly.stimulus_set.identifier == assembly.stimulus_set_identifier
-    return assembly
-
-
 @store(identifier_ignore=['model', 'benchmark'])
 def score_model(model_identifier, benchmark_identifier, model):
     """

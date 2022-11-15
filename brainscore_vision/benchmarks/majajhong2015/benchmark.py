@@ -1,5 +1,8 @@
+import functools
+
 import brainscore_vision
 from brainscore_vision.benchmarks._neural_common import NeuralBenchmark, average_repetition
+from brainscore_vision.benchmarks.public_benchmarks import _standard_benchmark
 from brainscore_vision.metrics.ceiling import InternalConsistency, RDMConsistency
 from brainscore_vision.metrics.rdm import RDMCrossValidated
 from brainscore_vision.metrics.regression import CrossRegressedCorrelation, mask_regression, ScaledCrossRegressedCorrelation, \
@@ -80,9 +83,22 @@ def DicarloMajajHong2015ITRDM():
                                            crossvalidation_kwargs=dict(stratification_coord='object_name')),
                                        ceiler=RDMConsistency())
 
+def MajajHongV4PublicBenchmark():
+    return _standard_benchmark('dicarlo.MajajHong2015.V4.public',
+                               load_assembly=functools.partial(load_assembly, region='V4', access='public'),
+                               visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
+                               stratification_coord='object_name', bibtex=BIBTEX)
+
+
+def MajajHongITPublicBenchmark():
+    return _standard_benchmark('dicarlo.MajajHong2015.IT.public',
+                               load_assembly=functools.partial(load_assembly, region='IT', access='public'),
+                               visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
+                               stratification_coord='object_name', bibtex=BIBTEX)
+
 
 def load_assembly(average_repetitions, region, access='private'):
-    assembly = brainscore_vision.get_assembly(name=f'dicarlo.MajajHong2015.{access}')
+    assembly = brainscore_vision.load_data(f'dicarlo.MajajHong2015.{access}')
     assembly = assembly.sel(region=region)
     assembly['region'] = 'neuroid', [region] * len(assembly['neuroid'])
     assembly = assembly.squeeze("time_bin")

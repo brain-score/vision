@@ -129,10 +129,6 @@ def _evaluation_benchmark_pool():
     pool = {}
 
     # neural benchmarks
-    # MajajHong2015
-    from .majajhong2015 import DicarloMajajHong2015V4PLS, DicarloMajajHong2015ITPLS
-    pool['dicarlo.MajajHong2015.V4-pls'] = LazyLoad(DicarloMajajHong2015V4PLS)
-    pool['dicarlo.MajajHong2015.IT-pls'] = LazyLoad(DicarloMajajHong2015ITPLS)
     # FreemanZiemba2013
     from .freemanziemba2013 import MovshonFreemanZiemba2013V1PLS, MovshonFreemanZiemba2013V2PLS
     pool['movshon.FreemanZiemba2013.V1-pls'] = LazyLoad(MovshonFreemanZiemba2013V1PLS)
@@ -264,12 +260,6 @@ def _experimental_benchmark_pool():
     """
     pool = {}
     # neural benchmarks
-    from .majajhong2015 import DicarloMajajHong2015V4Mask, DicarloMajajHong2015ITMask, \
-        DicarloMajajHong2015V4RDM, DicarloMajajHong2015ITRDM
-    pool['dicarlo.MajajHong2015.V4-mask'] = LazyLoad(DicarloMajajHong2015V4Mask)
-    pool['dicarlo.MajajHong2015.IT-mask'] = LazyLoad(DicarloMajajHong2015ITMask)
-    pool['dicarlo.MajajHong2015.V4-rdm'] = LazyLoad(DicarloMajajHong2015V4RDM)
-    pool['dicarlo.MajajHong2015.IT-rdm'] = LazyLoad(DicarloMajajHong2015ITRDM)
     from .freemanziemba2013 import MovshonFreemanZiemba2013V1RDM, MovshonFreemanZiemba2013V2RDM, \
         MovshonFreemanZiemba2013V1Single
     pool['movshon.FreemanZiemba2013.V1-rdm'] = LazyLoad(MovshonFreemanZiemba2013V1RDM)
@@ -289,15 +279,6 @@ def _public_benchmark_pool():
     Benchmarks that are publicly usable, but are not used for the website.
     """
     pool = {}
-    # neural benchmarks
-    from .public_benchmarks import FreemanZiembaV1PublicBenchmark, FreemanZiembaV2PublicBenchmark, \
-        MajajHongV4PublicBenchmark, MajajHongITPublicBenchmark
-    pool['movshon.FreemanZiemba2013public.V1-pls'] = LazyLoad(FreemanZiembaV1PublicBenchmark)
-    pool['movshon.FreemanZiemba2013public.V2-pls'] = LazyLoad(FreemanZiembaV2PublicBenchmark)
-    pool['dicarlo.MajajHong2015public.V4-pls'] = LazyLoad(MajajHongV4PublicBenchmark)
-    pool['dicarlo.MajajHong2015public.IT-pls'] = LazyLoad(MajajHongITPublicBenchmark)
-
-    # behavioral benchmarks
     from .public_benchmarks import RajalinghamMatchtosamplePublicBenchmark
     pool['dicarlo.Rajalingham2018public-i2n'] = LazyLoad(RajalinghamMatchtosamplePublicBenchmark)
 

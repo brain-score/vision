@@ -22,7 +22,6 @@ from brainscore_vision.metrics.regression import CrossRegressedCorrelation, pls_
 from brainscore_vision.utils import LazyLoad
 from .freemanziemba2013 import load_assembly as load_freemanziemba2013, NUMBER_OF_TRIALS as freemanziemba2013_trials, \
     VISUAL_DEGREES as freemanziemba2013_degrees, BIBTEX as freemanziemba2013_bibtex
-from .rajalingham2018 import load_assembly as load_rajalingham2018, _DicarloRajalingham2018
 from brainscore_vision.metrics.image_level_behavior import I2n
 
 _logger = logging.getLogger(__name__)
@@ -56,12 +55,6 @@ def FreemanZiembaV2PublicBenchmark():
                                visual_degrees=freemanziemba2013_degrees, number_of_trials=freemanziemba2013_trials,
                                stratification_coord='texture_type', bibtex=freemanziemba2013_bibtex)
 
-
-class RajalinghamMatchtosamplePublicBenchmark(_DicarloRajalingham2018):
-    def __init__(self):
-        super(RajalinghamMatchtosamplePublicBenchmark, self).__init__(metric=I2n(), metric_identifier='i2n')
-        self._assembly = LazyLoad(lambda: load_rajalingham2018(access='public'))
-        self._ceiling_func = lambda: self._metric.ceiling(self._assembly, skipna=True)
 
 
 def list_public_assemblies():

@@ -201,9 +201,6 @@ def _evaluation_benchmark_pool():
     pool['dicarlo.SanghaviMurty2020.IT-pls'] = LazyLoad(DicarloSanghaviMurty2020ITPLS)
 
     # behavioral benchmarks
-    # Rajalingham2018
-    from .rajalingham2018 import DicarloRajalingham2018I2n
-    pool['dicarlo.Rajalingham2018-i2n'] = LazyLoad(DicarloRajalingham2018I2n)
     # Geirhos2021-error_consistency
     from . import geirhos2021
     for dataset in geirhos2021.DATASETS:
@@ -274,21 +271,9 @@ def _experimental_benchmark_pool():
     return pool
 
 
-def _public_benchmark_pool():
-    """
-    Benchmarks that are publicly usable, but are not used for the website.
-    """
-    pool = {}
-    from .public_benchmarks import RajalinghamMatchtosamplePublicBenchmark
-    pool['dicarlo.Rajalingham2018public-i2n'] = LazyLoad(RajalinghamMatchtosamplePublicBenchmark)
-
-    return pool
-
-
 evaluation_benchmark_pool = _evaluation_benchmark_pool()
 engineering_benchmark_pool = _engineering_benchmark_pool()
 experimental_benchmark_pool = _experimental_benchmark_pool()
-public_benchmark_pool = _public_benchmark_pool()
 
 
 # make sure no identifiers overlap
@@ -299,15 +284,12 @@ def check_all_disjoint(*pools):
         raise ValueError(f"Duplicate identifiers in pools: {duplicates}")
 
 
-check_all_disjoint(evaluation_benchmark_pool, engineering_benchmark_pool,
-                   experimental_benchmark_pool, public_benchmark_pool)
+check_all_disjoint(evaluation_benchmark_pool, engineering_benchmark_pool, experimental_benchmark_pool)
 
 # engineering benchmarks are part of both the public as well as the private evaluation pools
-public_benchmark_pool = {**public_benchmark_pool, **engineering_benchmark_pool}
 evaluation_benchmark_pool = {**evaluation_benchmark_pool}
 # provide unifying pool
-benchmark_pool = {**public_benchmark_pool, **engineering_benchmark_pool,
-                  **experimental_benchmark_pool, **evaluation_benchmark_pool}
+benchmark_pool = {**engineering_benchmark_pool, **experimental_benchmark_pool, **evaluation_benchmark_pool}
 
 
 @cache()

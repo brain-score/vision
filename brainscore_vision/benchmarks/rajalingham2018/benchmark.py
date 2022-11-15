@@ -69,6 +69,13 @@ def DicarloRajalingham2018I2n():
     return _DicarloRajalingham2018(metric=I2n(), metric_identifier='i2n')
 
 
+class RajalinghamMatchtosamplePublicBenchmark(_DicarloRajalingham2018):
+    def __init__(self):
+        super(RajalinghamMatchtosamplePublicBenchmark, self).__init__(metric=I2n(), metric_identifier='i2n')
+        self._assembly = LazyLoad(lambda: load_assembly(access='public'))
+        self._ceiling_func = lambda: self._metric.ceiling(self._assembly, skipna=True)
+
+
 def load_assembly(access='private'):
     assembly = brainscore_vision.get_assembly(f'dicarlo.Rajalingham2018.{access}')
     assembly['correct'] = assembly['choice'] == assembly['sample_obj']

@@ -1,14 +1,52 @@
 import logging
+from typing import Dict, Any, Union, Callable
 
-# The following imports provide convenience methods.
-# noinspection PyUnresolvedReferences
-from brainio import list_stimulus_sets, list_assemblies
-# noinspection PyUnresolvedReferences
-from brainio.fetch import get_assembly as brainio_get_assembly, get_stimulus_set
-from brainscore_vision.benchmarks import benchmark_pool
+from brainio.assemblies import DataAssembly
+from brainscore_core.benchmarks import Benchmark
+from brainscore_core.metrics import Metric
+from brainscore_core.plugin_management.import_plugin import import_plugin
 from result_caching import store
 
+from brainscore_vision.benchmarks import benchmark_pool
+from brainscore_vision.model_interface import BrainModel
+
 _logger = logging.getLogger(__name__)
+
+data_registry: Dict[str, Callable[[], Union[DataAssembly, Any]]] = {}
+""" Pool of available data """
+
+metric_registry: Dict[str, Callable[[], Metric]] = {}
+""" Pool of available metrics """
+
+benchmark_registry: Dict[str, Callable[[], Benchmark]] = {}
+""" Pool of available benchmarks """
+
+model_registry: Dict[str, Callable[[], BrainModel]] = {}
+""" Pool of available models """
+
+
+def load_dataset(identifier: str) -> Union[DataAssembly, Any]:
+    import_plugin('data', identifier)
+
+    return data_registry[identifier]()
+
+
+def load_metric(identifier: str, *args, **kwargs) -> Metric:
+    import_plugin('metrics', identifier)
+
+    return metric_registry[identifier](*args, **kwargs)
+
+
+def load_benchmark(identifier: str) -> Benchmark:
+    import_plugin('benchmarks', identifier)
+
+    return benchmark_registry[identifier]()
+
+
+def load_model(identifier: str) -> BrainModel:
+    import_plugin('models', identifier)
+
+    return model_registry[identifier]()
 
 
 @store(identifier_ignore=['model', 'benchmark'])

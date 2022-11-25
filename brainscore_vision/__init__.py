@@ -8,7 +8,6 @@ from brainscore_core.metrics import Score
 from brainscore_core.plugin_management.conda_score import wrap_score
 from brainscore_core.plugin_management.import_plugin import import_plugin
 
-from brainscore_vision.benchmarks import benchmark_pool
 from brainscore_vision.model_interface import BrainModel
 
 _logger = logging.getLogger(__name__)
@@ -27,25 +26,25 @@ model_registry: Dict[str, Callable[[], BrainModel]] = {}
 
 
 def load_dataset(identifier: str) -> Union[DataAssembly, Any]:
-    import_plugin('data', identifier)
+    import_plugin('brainscore_vision', 'data', identifier)
 
     return data_registry[identifier]()
 
 
 def load_metric(identifier: str, *args, **kwargs) -> Metric:
-    import_plugin('metrics', identifier)
+    import_plugin('brainscore_vision', 'metrics', identifier)
 
     return metric_registry[identifier](*args, **kwargs)
 
 
 def load_benchmark(identifier: str) -> Benchmark:
-    import_plugin('benchmarks', identifier)
+    import_plugin('brainscore_vision', 'benchmarks', identifier)
 
     return benchmark_registry[identifier]()
 
 
 def load_model(identifier: str) -> BrainModel:
-    import_plugin('models', identifier)
+    import_plugin('brainscore_vision', 'models', identifier)
 
     return model_registry[identifier]()
 

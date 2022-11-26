@@ -3,6 +3,7 @@ Provide generic helper classes.
 """
 
 import copy
+from .sample_stimuli import *
 
 
 def fullname(obj):
@@ -87,5 +88,3 @@ class LazyLoad:
     def __class__(self):
         self._ensure_loaded()
         return self.content.__class__
-
-

@@ -1,0 +1,86 @@
+################################################################
+#### project config ####
+################################################################
+
+[project]
+name = "brainscore_vision"
+version = "1.4"
+description = "The Brain-Score platform evaluates computational models of primate vision on their alignment to behavioral and neural measurements."
+authors = ["Brain-Score Team <info.brainscore@gmail.com>"]
+license = { 'file' = 'LICENSE' }
+readme = "README.md"
+requires-python = ">=3.7"
+
+dependencies = [
+    "numpy>=1.17",
+    "brainscore_core@git+https://github.com/brain-score/core.git@main",
+    "result_caching @ git+https://github.com/brain-score/result_caching",
+    "importlib-metadata<5",  # workaround to https://github.com/brain-score/brainio/issues/28
+    "scikit-learn<0.24",  # 0.24 breaks pls regression
+    "scipy",
+    "h5py",
+    "tqdm",
+    "gitpython",
+    "fire",
+    "networkx",
+    "matplotlib",
+    "fire",
+    "jupyter",
+    "pybtex",
+    "peewee",
+    "pillow<9.0.0",
+    "psycopg2-binary",
+    # model_helpers dependencies
+    "tensorflow",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-check",
+]
+
+[build-system]
+requires = [
+    "setuptools>=65.*",
+    "wheel"
+]
+
+
+################################################################
+#### mypy type-checking config ####
+################################################################
+
+[tool.mypy]
+ignore_missing_imports = true
+
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests"
+]
+
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::FutureWarning"
+]
+
+markers = [
+    "private_access",
+    "memory_intense",
+    "requires_gpu",
+    "slow",
+    "travis_slow",
+]
+
+
+################################################################
+#### setuptools packaging config ####
+################################################################
+
+[tool.setuptools.package-data]
+# include non-python files (e.g. 'requirements.txt') in package install
+"brainscore_vision.benchmarks" = ["**"]
+"brainscore_vision.data" = ["**"]
+"brainscore_vision.metrics" = ["**"]
+"brainscore_vision.models" = ["**"]

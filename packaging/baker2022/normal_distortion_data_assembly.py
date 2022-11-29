@@ -6,8 +6,8 @@ import pandas as pd
 
 '''
 Experiment Information:
-https://www.sciencedirect.com/science/article/pii/S2589004222011853#sec9
- - (Data/subjects are from experiment 1 in paper above)
+ - https://www.sciencedirect.com/science/article/pii/S2589004222011853#sec9
+ - Data/subjects are from experiment 1 in paper above
 
  - 32 subjects 
  - 40 images for each condition (whole, fragmented, frankenstein) = 120 images/subject shown
@@ -18,7 +18,7 @@ https://www.sciencedirect.com/science/article/pii/S2589004222011853#sec9
 '''
 
 # initial csv to dataframe processing:
-all_subjects = pd.read_csv('human_data_normal/human_data.csv')
+all_subjects = pd.read_csv('human_data/human_data.csv')
 
 # all images presented in this assembly are normal (non-inverted)
 all_subjects["orientation"] = "normal"

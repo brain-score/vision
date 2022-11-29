@@ -217,6 +217,9 @@ def _evaluation_benchmark_pool():
             # use lambda parameter-binding to avoid `benchmark_ctr` being re-assigned in the next loop iteration
             lambda benchmark_ctr=benchmark_ctr: benchmark_ctr())
 
+    from .baker2022 import Baker2022AboveChanceAgreement
+    pool['kellmen.Baker2022-aca'] = LazyLoad(Baker2022AboveChanceAgreement)
+
     return pool
 
 

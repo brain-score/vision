@@ -24,13 +24,10 @@ BIBTEX = """@article{BAKER2022104913,
                 A hallmark of human object perception is sensitivity to the holistic configuration of the local shape features of an object. Deep convolutional neural networks (DCNNs) are currently the dominant models for object recognition processing in the visual cortex, but do they capture this configural sensitivity? To answer this question, we employed a dataset of animal silhouettes and created a variant of this dataset that disrupts the configuration of each object while preserving local features. While human performance was impacted by this manipulation, DCNN performance was not, indicating insensitivity to object configuration. Modifications to training and architecture to make networks more brain-like did not lead to configural processing, and none of the networks were able to accurately predict trial-by-trial human object judgements. We speculate that to match human configural sensitivity, networks must be trained to solve a broader range of object tasks beyond category recognition.}
         }"""
 
-DATASETS = ['whole', 'fragmented', 'frankenstein',
-            'whole_inverted', 'fragmented_inverted', 'frankenstein_inverted']
-
+DATASETS = ['normal']
 
 # create functions so that users can import individual benchmarks as e.g. Baker2022wholeAboveChanceAgreement
 for dataset in DATASETS:
-    # behavioral benchmark
     identifier = f"Baker2022{dataset.replace('_', '')}AboveChanceAgreement"
     globals()[identifier] = lambda dataset=dataset: _Baker2022AboveChanceAgreement(dataset)
 
@@ -40,7 +37,7 @@ class _Baker2022AboveChanceAgreement(BenchmarkBase):
     def __init__(self, dataset):
         self._metric = AboveChanceAgreement()
         self._assembly = LazyLoad(lambda: load_assembly(dataset))
-        self._visual_degrees = 8.8
+        self._visual_degrees = 8
 
         self._number_of_trials = 1
 
@@ -57,14 +54,18 @@ class _Baker2022AboveChanceAgreement(BenchmarkBase):
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
         labels = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
-        raw_score = self._metric(labels, self._assembly)
+        # raw_score = self._metric(labels, self._assembly)
         ceiling = self.ceiling
-        score = raw_score / ceiling.sel(aggregation='center')
-        score.attrs['raw'] = raw_score
-        score.attrs['ceiling'] = ceiling
+        score = raw_score / ceiling
+        # score.attrs['raw'] = raw_score
+        # score.attrs['ceiling'] = ceiling
         return score
 
 
+def Baker2022AboveChanceAgreement():
+    return _Baker2022AboveChanceAgreement(dataset='normal')
+
+
 def load_assembly(dataset):
-    assembly = brainscore.get_assembly(f'kellmen.Baker2022_{dataset}')
+    assembly = brainscore.get_assembly(f'kellmen.Baker2022_{dataset}_distortion')
     return assembly

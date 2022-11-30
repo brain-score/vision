@@ -1,3 +1,4 @@
+name: packaging_sanghavi
 channels:
   - defaults
 dependencies:
@@ -25,9 +26,11 @@ dependencies:
   - pip:
     - boto3==1.14.16
     - git+https://github.com/brain-score/brain-score
-    - git+https://github.com/brain-score/brainio.git
+    - git+https://github.com/brain-score/brainio_base.git
+    - git+https://github.com/brain-score/brainio_collection.git
     - pandas==0.25.3
     - xarray==0.12.0
     - dataset
     - ipyvolume
+prefix: /Users/etotheipiplusone/miniconda3/envs/packaging_sanghavi
 

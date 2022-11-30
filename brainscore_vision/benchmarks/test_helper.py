@@ -13,7 +13,7 @@ from brainscore_vision.model_interface import BrainModel
 from tests.test_benchmarks import PrecomputedFeatures
 
 
-# should this be changed to test benchmark registry?
+# TODO: discuss with Martin
 class TestPoolList:
     """ ensures that the right benchmarks are in the right benchmark pool """
 
@@ -22,6 +22,11 @@ class TestPoolList:
 
     def test_contained_public(self, benchmark):
         assert benchmark in public_benchmark_pool
+
+
+class TestBenchmarkRegistry:
+    def test_benchmark_registry(self, benchmark):
+        assert benchmark in benchmark_registry
 
 
 class TestStandardized:
@@ -70,6 +75,36 @@ class TestPrecomputed:
         precomputed_features = PrecomputedFeatures(precomputed_features,
                                                    visual_degrees=10,  # doesn't matter, features are already computed
                                                    )
+        # score
+        score = benchmark(precomputed_features).raw
+        assert score.sel(aggregation='center') == expected
+
+    def run_test_properties(self, benchmark, files, expected):
+        benchmark = benchmark_registry[benchmark]
+        from brainscore_vision import get_stimulus_set
+
+        stimulus_identifiers = np.unique(np.array(['dicarlo.Marques2020_blank', 'dicarlo.Marques2020_receptive_field',
+                                                   'dicarlo.Marques2020_orientation',
+                                                   benchmark._assembly.stimulus_set.identifier]))
+        precomputed_features = {}
+        for current_stimulus in stimulus_identifiers:
+            stimulus_set = get_stimulus_set(current_stimulus)
+            path = Path(__file__).parent / files[current_stimulus]
+            features = PropertyAssembly.from_files(path,
+                                                   stimulus_set_identifier=stimulus_set.identifier,
+                                                   stimulus_set=stimulus_set)
+            features = features.stack(presentation=['stimulus_path'])
+            precomputed_features[current_stimulus] = features
+            precomputed_paths = [Path(f).name for f in precomputed_features[current_stimulus]['stimulus_path'].values]
+            # attach stimulus set meta
+            expected_stimulus_paths = [stimulus_set.get_stimulus(stimulus_id)
+                                       for stimulus_id in stimulus_set['stimulus_id']]
+            expected_stimulus_paths = list(map(lambda f: Path(f).name, expected_stimulus_paths))
+            assert set(precomputed_paths) == set(expected_stimulus_paths)
+            for column in stimulus_set.columns:
+                precomputed_features[current_stimulus][column] = 'presentation', stimulus_set[column].values
+
+        precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
         # score
         score = benchmark(precomputed_features).raw
         assert score.sel(aggregation='center') == expected

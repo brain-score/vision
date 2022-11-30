@@ -20,8 +20,8 @@ def DicarloSanghaviMurty2020ITPLS():
 
 class _DicarloSanghaviMurty2020Region(NeuralBenchmark):
     def __init__(self, region: str):
-        self._assembly_repetition = LazyLoad(lambda region=region: self._load_assembly(region, average_repetitions=False))
-        self._assembly = LazyLoad(lambda region=region: self._load_assembly(region, average_repetitions=True))
+        self._assembly_repetition = self._load_assembly(region, average_repetitions=False)
+        self._assembly = self._load_assembly(region, average_repetitions=True)
         self._identifier_metric_suffix = 'pls'
         self._similarity_metric = CrossRegressedCorrelation(
             regression=pls_regression(), correlation=pearsonr_correlation(),

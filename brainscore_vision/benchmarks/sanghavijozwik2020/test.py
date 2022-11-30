@@ -1,10 +1,19 @@
 import pytest
 from pytest import approx
-from brainscore_vision.benchmarks.test_helper import TestStandardized, TestPrecomputed, TestNumberOfTrials
+from brainscore_vision.benchmarks.test_helper import TestStandardized, TestPrecomputed, TestNumberOfTrials, \
+    TestBenchmarkRegistry
 
 standardized_tests = TestStandardized()
 precomputed_test = TestPrecomputed()
 num_trials_test = TestNumberOfTrials()
+registry_test = TestBenchmarkRegistry()
+
+@pytest.mark.parametrize('benchmark', [
+        'dicarlo.SanghaviJozwik2020.V4-pls',
+        'dicarlo.SanghaviJozwik2020.IT-pls'
+    ])
+def test_benchmark_registry(benchmark):
+    registry_test.test_benchmark_registry(benchmark)
 
 
 @pytest.mark.parametrize('benchmark, expected', [

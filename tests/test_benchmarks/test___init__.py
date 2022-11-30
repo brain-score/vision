@@ -38,6 +38,7 @@ class TestPoolList:
     def test_contained_public(self, benchmark):
         assert benchmark in public_benchmark_pool
 
+    # TODO: is this ever used? should something similar be made in test_helper
     def test_exact_evaluation_pool(self):
         assert set(evaluation_benchmark_pool.keys()) == {
             # V1

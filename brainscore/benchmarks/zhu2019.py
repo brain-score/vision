@@ -11,6 +11,7 @@ from brainscore.metrics import Score
 from brainscore.metrics.accuracy import Accuracy
 from brainscore.model_interface import BrainModel
 from brainscore.utils import LazyLoad
+from brainscore.metrics.error_consistency import ErrorConsistency
 
 BIBTEX = """@article{zhu2019robustness,
             title={Robustness of object recognition under extreme occlusion in humans and computational models},
@@ -54,14 +55,14 @@ class _Zhu2019Accuracy(BenchmarkBase):
         candidate.start_task(BrainModel.Task.label, categories)
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
-        human_results = _human_assembly_categorical_distribution(self._assembly)
+        human_results = _human_assembly_categorical_distribution(self._assembly, collapse=False)
         model_results = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
 
         # compare model to human
         raw_score = self._metric(model_results, human_results)
 
-        ceiling = self.ceiling
-        score = raw_score / ceiling.sel(aggregation='center')
+        ceiling = calculate_ceiling(self._assembly, self._metric)
+        score = raw_score / ceiling
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling
         return score
@@ -102,7 +103,7 @@ class _Zhu2019Accuracy_Engineering(BenchmarkBase):
         return score
 
 
-def _human_assembly_categorical_distribution(assembly: DataAssembly) -> DataAssembly:
+def _human_assembly_categorical_distribution(assembly: DataAssembly, collapse) -> DataAssembly:
     # We here convert from 19587 trials across 25 subjects to a 500 images x 5 choices assembly
     categories = ["car", "aeroplane", "motorbike", "bicycle", "bus"]
 
@@ -116,6 +117,11 @@ def _human_assembly_categorical_distribution(assembly: DataAssembly) -> DataAsse
                        'occlusion_strength', 'image_number', 'word_image']
     categorical_assembly = assembly.multi_groupby(stimulus_coords).map(categorical)
     labels = get_choices(categorical_assembly, categories=categories)
+
+    if collapse:
+        categorical_assembly = categorical_assembly.groupby('image_label').sum('presentation')
+        return categorical_assembly
+
     return labels
 
 
@@ -128,6 +134,28 @@ def get_choices(predictions, categories):
         choices.append(choice)
     return np.array(choices)
 
+
+def calculate_ceiling(assembly, metric):
+    import random
+    from scipy.stats import pearsonr
+    ceilings = []
+    while len(ceilings) < 10:
+        half1_subjects = random.sample(range(1, 26), 12)
+        half1 = assembly[
+            {'presentation': [subject in half1_subjects for subject in assembly['subject'].values]}]
+        half2 = assembly[
+            {'presentation': [subject not in half1_subjects for subject in assembly['subject'].values]}]
+
+        categorical_assembly1 = _human_assembly_categorical_distribution(half1, collapse=True)
+        categorical_assembly2 = _human_assembly_categorical_distribution(half2, collapse=True)
+
+        try:
+            ceiling = pearsonr(categorical_assembly1.values.flatten(), categorical_assembly2.values.flatten())[0]
+            ceilings.append(ceiling)
+        except ValueError:
+            pass
+
+    return np.mean(ceilings)
 
 def Zhu2019Accuracy():
     return _Zhu2019Accuracy(dataset='extreme_occlusion')

@@ -218,8 +218,8 @@ def _evaluation_benchmark_pool():
             lambda benchmark_ctr=benchmark_ctr: benchmark_ctr())
 
     # Zhu2019
-    from .zhu2019 import Zhu2019RDM
-    pool['yuille.Zhu2019-rdm'] = LazyLoad(Zhu2019RDM)
+    from .zhu2019 import Zhu2019Accuracy
+    pool['yuille.Zhu2019-accuracy'] = LazyLoad(Zhu2019Accuracy)
 
     return pool
 
@@ -258,6 +258,10 @@ def _engineering_benchmark_pool():
     from .hermann2020 import Hermann2020cueconflictShapeBias, Hermann2020cueconflictShapeMatch
     pool['kornblith.Hermann2020cueconflict-shape_bias'] = LazyLoad(Hermann2020cueconflictShapeBias)
     pool['kornblith.Hermann2020cueconflict-shape_match'] = LazyLoad(Hermann2020cueconflictShapeMatch)
+
+    # Zhu2019
+    from .zhu2019 import Zhu2019Accuracy_Engineering
+    pool['yuille.Zhu2019-accuracy-engineering'] = LazyLoad(Zhu2019Accuracy_Engineering)
 
     return pool
 

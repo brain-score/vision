@@ -29,7 +29,9 @@ RESPONSE_THRESHOLD = 5
 
 
 def MarquesDeValois1982V1PeakSpatialFrequency():
+    # TODO: will be changed when load from s3 made for vision
     assembly = brainscore_vision.get_assembly(ASSEMBLY_NAME)
+
     property_name = 'peak_spatial_frequency'
     parent = PARENT
     similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_similarity, property_name=property_name)

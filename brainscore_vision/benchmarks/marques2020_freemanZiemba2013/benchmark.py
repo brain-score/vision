@@ -39,7 +39,9 @@ RESPONSE_THRESHOLD = 5
 
 
 def _MarquesFreemanZiemba2013V1Property(property_name, parent):
+    # TODO: will be changed when load from s3 made for vision
     assembly = brainscore_vision.get_assembly(ASSEMBLY_NAME)
+
     similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_similarity, property_name=property_name)
     ceil_func = NeuronalPropertyCeiling(similarity_metric)
     return PropertiesBenchmark(identifier=f'dicarlo.Marques_freemanziemba2013-{property_name}', assembly=assembly,

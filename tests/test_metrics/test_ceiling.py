@@ -1,11 +1,9 @@
 from string import ascii_lowercase as alphabet
 
 import numpy as np
-import pytest
+from brainio.assemblies import NeuroidAssembly, DataAssembly
 from pytest import approx
 
-from brainio.assemblies import NeuroidAssembly, DataAssembly
-from brainscore_vision.benchmarks.majajhong2015 import load_assembly
 from brainscore_vision.metrics.ceiling import NoCeiling, InternalConsistency, SplitHalfConsistency
 
 
@@ -28,13 +26,6 @@ class TestInternalConsistency:
         ceiler = InternalConsistency()
         ceiling = ceiler(data)
         assert ceiling.sel(aggregation='center') == 1
-
-    @pytest.mark.private_access
-    def test_majajhong2015_it(self):
-        assembly_repetitions = load_assembly(average_repetitions=False, region='IT')
-        ceiler = InternalConsistency()
-        ceiling = ceiler(assembly_repetitions)
-        assert ceiling.sel(aggregation='center') == approx(.82, abs=.01)
 
 
 class TestSplitHalfConsistency:

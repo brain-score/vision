@@ -43,9 +43,6 @@ class TestPoolList:
         assert set(evaluation_benchmark_pool.keys()) == {
             # V1
             'movshon.FreemanZiemba2013.V1-pls',
-            'dicarlo.Marques2020_Cavanaugh2002-grating_summation_field',
-            'dicarlo.Marques2020_Cavanaugh2002-surround_diameter',
-            'dicarlo.Marques2020_Cavanaugh2002-surround_suppression_index',
             # V2
             'movshon.FreemanZiemba2013.V2-pls',
             # V4
@@ -123,10 +120,6 @@ class TestStandardized:
                      marks=pytest.mark.memory_intense),
         pytest.param('dicarlo.Rajalingham2020.IT-pls', approx(.561013, abs=.001),
                      marks=[pytest.mark.memory_intense, pytest.mark.slow]),
-        # V1 properties Ceilings
-        pytest.param('dicarlo.Marques2020_Cavanaugh2002-grating_summation_field', approx(0.956, abs=.005), marks=[]),
-        pytest.param('dicarlo.Marques2020_Cavanaugh2002-surround_diameter', approx(0.955, abs=.005), marks=[]),
-        pytest.param('dicarlo.Marques2020_Cavanaugh2002-surround_suppression_index', approx(0.958, abs=.005), marks=[]),
     ])
     def test_ceilings(self, benchmark, expected):
         benchmark = benchmark_pool[benchmark]
@@ -257,9 +250,7 @@ class TestPrecomputed:
     @pytest.mark.memory_intense
     @pytest.mark.slow
     @pytest.mark.parametrize('benchmark, expected', [
-        ('dicarlo.Marques2020_Cavanaugh2002-grating_summation_field', approx(.599, abs=.01)),
-        ('dicarlo.Marques2020_Cavanaugh2002-surround_diameter', approx(.367, abs=.01)),
-        ('dicarlo.Marques2020_Cavanaugh2002-surround_suppression_index', approx(.365, abs=.01)),
+
     ])
     def test_Marques2020(self, benchmark, expected):
         self.run_test_properties(
@@ -397,9 +388,6 @@ class TestNumberOfTrials:
     @pytest.mark.parametrize('benchmark_identifier', [
         # V1
         'movshon.FreemanZiemba2013.V1-pls',
-        'dicarlo.Marques2020_Cavanaugh2002-grating_summation_field',
-        'dicarlo.Marques2020_Cavanaugh2002-surround_diameter',
-        'dicarlo.Marques2020_Cavanaugh2002-surround_suppression_index',
         # V2
         'movshon.FreemanZiemba2013.V2-pls',
         # V4

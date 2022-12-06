@@ -14,6 +14,11 @@ from tests.test_benchmarks import PrecomputedFeatures
 
 
 # TODO: discuss with Martin
+
+
+# try to run this and see if tests are run or not.. might have to move all tests to respective directories
+
+
 class TestPoolList:
     """ ensures that the right benchmarks are in the right benchmark pool """
 

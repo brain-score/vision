@@ -130,11 +130,7 @@ def _evaluation_benchmark_pool():
 
     # neural benchmarks
     # FreemanZiemba2013
-    from .freemanziemba2013 import MovshonFreemanZiemba2013V1PLS, MovshonFreemanZiemba2013V2PLS
-    pool['movshon.FreemanZiemba2013.V1-pls'] = LazyLoad(MovshonFreemanZiemba2013V1PLS)
-    pool['movshon.FreemanZiemba2013.V2-pls'] = LazyLoad(MovshonFreemanZiemba2013V2PLS)
-    from .kar2019 import DicarloKar2019OST
-    pool['dicarlo.Kar2019-ost'] = LazyLoad(DicarloKar2019OST)
+
 
     # behavioral benchmarks
     # Rajalingham2018

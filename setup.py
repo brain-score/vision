@@ -63,7 +63,7 @@ setup(
     test_suite='tests',
     entry_points={
         'brainio_lookups': [
-            'brainio_brainscore = brainscore.entrypoint:brainio_brainscore',
+            'brainio_brainscore = brainscore_vision.entrypoint:brainio_brainscore',
         ],
     },
 )

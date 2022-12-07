@@ -3,8 +3,7 @@ from typing import Dict, Any, Union, Callable
 
 from brainio.assemblies import DataAssembly
 from brainscore_core.benchmarks import Benchmark
-from brainscore_core.metrics import Metric
-from brainscore_core.metrics import Score
+from brainscore_core.metrics import Metric, Score
 from brainscore_core.plugin_management.conda_score import wrap_score
 from brainscore_core.plugin_management.import_plugin import import_plugin
 

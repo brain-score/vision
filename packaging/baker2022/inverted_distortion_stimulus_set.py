@@ -1,7 +1,7 @@
 from pathlib import Path
 from brainio.stimuli import StimulusSet
 from brainio.packaging import package_stimulus_set
-import numpy as np
+import pandas as pd
 
 stimuli = []
 image_paths = {}
@@ -10,20 +10,12 @@ stimuli_directory = 'images'
 
 '''
 Dataset Information:
-
 - From Baker 2022: https://www.sciencedirect.com/science/article/pii/S2589004222011853#sec9
-- 1800 images total: 1080 normal distortion, 720 inverted distortion (** this stimulus set **)
-- normal/inverted distortion -> contains the three classes of distortion:
-    1) normal image
-    2) fragmented image
-    3) frankenstein image
-
-- For the normal distortion, there are 40 images/condition, with 9 categories: 
-    categories are: {bear, bunny, cat, elephant, frog, lizard, tiger, turtle, wolf}
-- For inverted distortion, there are a variable number of images/condition, but 720 total unique images
+- 4320 trials total, across 12 subjects. Each subject saw the same 360 images, composed of:
+    - 90 inverted-whole, 90 inverted-frankenstein, 90-normal frankenstein, 90-normal whole.
+    - of those 4 subtypes, they are further broken into the same 10 images of the set of 9 categories below.
 
 Fields:
-
 1) ground_truth: the base object, in set above
 2) image_type:  a string in the set {w, f} for {whole, frankenstein} respectively.
     Note: inverted only hase whole and frankenstein images, no fragmented 
@@ -31,51 +23,54 @@ Fields:
 
 '''
 categories = ['bear', 'bunny', 'cat', 'elephant', 'frog', 'lizard', 'tiger', 'turtle', 'wolf']
+images_actually_shown = pd.read_csv('human_data/inverted.csv')
+images_actually_shown = set(images_actually_shown["FileName"].values)
 
 for filepath in Path(stimuli_directory).glob('*.jpg'):
 
     # entire name of image file:
     image_id = filepath.stem
 
-    import re
-    match = re.match(r"([a-z]+)([0-9]+)", image_id, re.I)
-    if match:
-        items = match.groups()
+    if image_id in images_actually_shown:
+        import re
+        match = re.match(r"([a-z]+)([0-9]+)", image_id, re.I)
+        if match:
+            items = match.groups()
+        else:
+            items = ["", ""]
+
+        # ground truth
+        ground_truth = items[0]
+
+        # image_number:
+        image_number = items[1]
+
+        # parse the needed image type letter
+        if ground_truth in categories:
+            image_type = "w"
+        else:
+            image_type = ground_truth[0]
+            ground_truth = ground_truth[1:]
+
+        if "inv" in ground_truth:
+            ground_truth = ground_truth.replace("inv", "")
+        elif "nv" in ground_truth:
+            ground_truth = ground_truth.replace("nv", "")
+
+        image_paths[image_id] = filepath
+        stimuli.append({
+            'stimulus_id': image_id,
+            'animal': ground_truth,
+            'image_type': "w" if image_type is "i" else image_type,
+            'image_number': image_number,
+            "orientation": "normal" if "inv" not in image_id else "inverted",
+        })
     else:
-        items = ["", ""]
-
-    # ground truth
-    ground_truth = items[0]
-
-    # image_number:
-    image_number = items[1]
-
-    # parse the needed image type letter
-    if ground_truth in categories:
-        image_type = "w"
-    else:
-        image_type = ground_truth[0]
-        ground_truth = ground_truth[1:]
-
-    if "inv" in ground_truth:
-        ground_truth = ground_truth.replace("inv", "")
-    elif "nv" in ground_truth:
-        ground_truth = ground_truth.replace("nv", "")
-
-    image_paths[image_id] = filepath
-    stimuli.append({
-        'stimulus_id': image_id,
-        'animal': ground_truth,
-        'image_type': "w" if image_type is "i" else image_type,
-        'image_number': image_number,
-        "orientation": "normal" if "inv" not in image_id else "inverted",
-    })
+        pass
 
 stimuli = StimulusSet(stimuli)
 stimuli.stimulus_paths = image_paths
 
-# remove all normal stimuli
-stimuli = stimuli[stimuli["orientation"] == "inverted"]
 
 # give the StimulusSet an identifier name
 stimuli.name = 'kellmen.Baker2022_inverted_distortion'

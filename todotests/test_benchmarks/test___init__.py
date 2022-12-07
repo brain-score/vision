@@ -22,8 +22,6 @@ class TestPoolList:
         'movshon.FreemanZiemba2013public.V1-pls',
         'dicarlo.MajajHong2015.IT-pls',
         'dicarlo.MajajHong2015public.IT-pls',
-        'dicarlo.Rajalingham2018-i2n',
-        'dicarlo.Rajalingham2018public-i2n',
         'fei-fei.Deng2009-top1',
     ])
     def test_contained_global(self, benchmark):
@@ -32,7 +30,6 @@ class TestPoolList:
     @pytest.mark.parametrize('benchmark', [
         'movshon.FreemanZiemba2013public.V1-pls',
         'dicarlo.MajajHong2015public.IT-pls',
-        'dicarlo.Rajalingham2018public-i2n',
         'fei-fei.Deng2009-top1',
     ])
     def test_contained_public(self, benchmark):
@@ -110,8 +107,6 @@ class TestStandardized:
                      marks=pytest.mark.memory_intense),
         pytest.param('dicarlo.MajajHong2015.IT-rdm', approx(.887618, abs=.001),
                      marks=pytest.mark.memory_intense),
-        pytest.param('dicarlo.Rajalingham2020.IT-pls', approx(.561013, abs=.001),
-                     marks=[pytest.mark.memory_intense, pytest.mark.slow]),
     ])
     def test_ceilings(self, benchmark, expected):
         benchmark = benchmark_pool[benchmark]
@@ -125,8 +120,6 @@ class TestStandardized:
                      marks=pytest.mark.memory_intense),
         pytest.param('dicarlo.MajajHong2015.IT-pls', 8, approx(.823433, abs=.001),
                      marks=pytest.mark.memory_intense),
-        pytest.param('dicarlo.Rajalingham2020.IT-pls', 8, approx(.693463, abs=.005),
-                     marks=[pytest.mark.memory_intense, pytest.mark.slow]),
     ])
     def test_self_regression(self, benchmark, visual_degrees, expected):
         benchmark = benchmark_pool[benchmark]
@@ -213,20 +206,6 @@ class TestPrecomputed:
         score = benchmark(precomputed_features).raw
         assert score.sel(aggregation='center') == approx(.316, abs=.005)
 
-    def test_Rajalingham2018public(self):
-        benchmark = benchmark_pool['dicarlo.Rajalingham2018public-i2n']
-        # load features
-        precomputed_features = Path(__file__).parent / 'CORnetZ-rajalingham2018public.nc'
-        precomputed_features = BehavioralAssembly.from_files(
-            precomputed_features,
-            stimulus_set_identifier=benchmark._assembly.stimulus_set.identifier,
-            stimulus_set=benchmark._assembly.stimulus_set)
-        precomputed_features = PrecomputedFeatures(precomputed_features,
-                                                   visual_degrees=8,  # doesn't matter, features are already computed
-                                                   )
-        # score
-        score = benchmark(precomputed_features).raw
-        assert score.sel(aggregation='center') == approx(.136923, abs=.005)
 
     @pytest.mark.memory_intense
     @pytest.mark.slow
@@ -298,14 +277,6 @@ class TestVisualDegrees:
                      approx(.225021, abs=.0001), marks=[pytest.mark.private_access]),
         pytest.param('dicarlo.Kar2019-ost', 6, '6d19b24c29832dfb28360e7731e3261c13a4287f',
                      approx(.001248, abs=.0001), marks=[pytest.mark.private_access]),
-        pytest.param('dicarlo.Rajalingham2018-i2n', 14, '0223bf9e5db0edad21976b16494fe9396a5ef145',
-                     approx(.225023, abs=.0001), marks=[pytest.mark.private_access]),
-        pytest.param('dicarlo.Rajalingham2018-i2n', 6, '0223bf9e5db0edad21976b16494fe9396a5ef145',
-                     approx(.002244, abs=.0001), marks=[pytest.mark.private_access]),
-        pytest.param('dicarlo.Rajalingham2018public-i2n', 14, '0020cef91bd626e9fbbabd853494ee444e5c9ecb',
-                     approx(.22486, abs=.0001), marks=[]),
-        pytest.param('dicarlo.Rajalingham2018public-i2n', 6, '0020cef91bd626e9fbbabd853494ee444e5c9ecb',
-                     approx(.00097, abs=.0001), marks=[]),
         pytest.param('tolias.Cadena2017-pls', 14, '0fe27ddd5b9ea701e380063dc09b91234eba3551', approx(.32655, abs=.0001),
                      marks=[pytest.mark.private_access]),
         pytest.param('tolias.Cadena2017-pls', 6, '0fe27ddd5b9ea701e380063dc09b91234eba3551', approx(.29641, abs=.0001),
@@ -356,8 +327,6 @@ class TestNumberOfTrials:
         # IT
         'dicarlo.MajajHong2015.IT-pls',
         'dicarlo.Kar2019-ost',
-        # behavior
-        'dicarlo.Rajalingham2018-i2n',  # Geirhos2021 are single-trial, i.e. not included here
     ])
     def test_repetitions(self, benchmark_identifier):
         """ Tests that benchmarks have repetitions in the stimulus_set """

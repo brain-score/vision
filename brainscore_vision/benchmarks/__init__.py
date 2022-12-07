@@ -134,14 +134,7 @@ def _evaluation_benchmark_pool():
     # Rajalingham2018
     from .rajalingham2018 import DicarloRajalingham2018I2n
     pool['dicarlo.Rajalingham2018-i2n'] = LazyLoad(DicarloRajalingham2018I2n)
-    # Geirhos2021-error_consistency
-    from . import geirhos2021
-    for dataset in geirhos2021.DATASETS:
-        assembly_identifier = f'Geirhos2021{dataset}'.replace('-', '')
-        benchmark_ctr = getattr(geirhos2021, f"{assembly_identifier}ErrorConsistency")
-        pool[f"brendel.{assembly_identifier}-error_consistency"] = LazyLoad(
-            # use lambda parameter-binding to avoid `benchmark_ctr` being re-assigned in the next loop iteration
-            lambda benchmark_ctr=benchmark_ctr: benchmark_ctr())
+
 
     return pool
 
@@ -167,20 +160,6 @@ def _engineering_benchmark_pool():
     from .objectnet import Objectnet
     pool['katz.BarbuMayo2019-top1'] = LazyLoad(Objectnet)
 
-    # Geirhos2021
-    from . import geirhos2021
-    for dataset in geirhos2021.DATASETS:
-        assembly_identifier = f'Geirhos2021{dataset}'.replace('-', '')
-        benchmark_ctr = getattr(geirhos2021, f"{assembly_identifier}Accuracy")
-        pool[f"brendel.{assembly_identifier}-top1"] = LazyLoad(
-            # use lambda parameter-binding to avoid `benchmark_ctr` being re-assigned in the next loop iteration
-            lambda benchmark_ctr=benchmark_ctr: benchmark_ctr())
-
-    # Hermann2020
-    from .hermann2020 import Hermann2020cueconflictShapeBias, Hermann2020cueconflictShapeMatch
-    pool['kornblith.Hermann2020cueconflict-shape_bias'] = LazyLoad(Hermann2020cueconflictShapeBias)
-    pool['kornblith.Hermann2020cueconflict-shape_match'] = LazyLoad(Hermann2020cueconflictShapeMatch)
-
     return pool
 
 
@@ -198,8 +177,6 @@ def _experimental_benchmark_pool():
     from .cadena2017 import ToliasCadena2017PLS, ToliasCadena2017Mask
     pool['tolias.Cadena2017-pls'] = LazyLoad(ToliasCadena2017PLS)
     pool['tolias.Cadena2017-mask'] = LazyLoad(ToliasCadena2017Mask)
-    from .rajalingham2020 import DicarloRajalingham2020ITPLS
-    pool['dicarlo.Rajalingham2020.IT-pls'] = LazyLoad(DicarloRajalingham2020ITPLS)
 
     return pool
 

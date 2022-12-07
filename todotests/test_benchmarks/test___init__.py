@@ -114,8 +114,6 @@ class TestStandardized:
         assert ceiling.sel(aggregation='center') == expected
 
     @pytest.mark.parametrize('benchmark, visual_degrees, expected', [
-        pytest.param('tolias.Cadena2017-pls', 2, approx(.577474, abs=.005),
-                     marks=pytest.mark.private_access),
         pytest.param('dicarlo.MajajHong2015.V4-pls', 8, approx(.923713, abs=.001),
                      marks=pytest.mark.memory_intense),
         pytest.param('dicarlo.MajajHong2015.IT-pls', 8, approx(.823433, abs=.001),
@@ -160,13 +158,6 @@ class TestPrecomputed:
     def test_MajajHong2015(self, benchmark, expected):
         self.run_test(benchmark=benchmark, file='alexnet-majaj2015.private-features.12.nc', expected=expected)
 
-    @pytest.mark.memory_intense
-    @pytest.mark.slow
-    @pytest.mark.parametrize('benchmark, expected', [
-        ('dicarlo.Rajalingham2020.IT-pls', approx(.147549, abs=.01)),
-    ])
-    def test_Rajalingham2020(self, benchmark, expected):
-        self.run_test(benchmark=benchmark, file='alexnet-rajalingham2020-features.12.nc', expected=expected)
 
     def run_test(self, benchmark, file, expected):
         benchmark = benchmark_pool[benchmark]
@@ -277,10 +268,6 @@ class TestVisualDegrees:
                      approx(.225021, abs=.0001), marks=[pytest.mark.private_access]),
         pytest.param('dicarlo.Kar2019-ost', 6, '6d19b24c29832dfb28360e7731e3261c13a4287f',
                      approx(.001248, abs=.0001), marks=[pytest.mark.private_access]),
-        pytest.param('tolias.Cadena2017-pls', 14, '0fe27ddd5b9ea701e380063dc09b91234eba3551', approx(.32655, abs=.0001),
-                     marks=[pytest.mark.private_access]),
-        pytest.param('tolias.Cadena2017-pls', 6, '0fe27ddd5b9ea701e380063dc09b91234eba3551', approx(.29641, abs=.0001),
-                     marks=[pytest.mark.private_access]),
     ])
     def test_amount_gray(self, benchmark, candidate_degrees, image_id, expected, brainio_home, resultcaching_home,
                          brainscore_home):

@@ -168,16 +168,6 @@ def _experimental_benchmark_pool():
     Benchmarks that can be used, but are not evaluated for the website.
     """
     pool = {}
-    # neural benchmarks
-    from .freemanziemba2013 import MovshonFreemanZiemba2013V1RDM, MovshonFreemanZiemba2013V2RDM, \
-        MovshonFreemanZiemba2013V1Single
-    pool['movshon.FreemanZiemba2013.V1-rdm'] = LazyLoad(MovshonFreemanZiemba2013V1RDM)
-    pool['movshon.FreemanZiemba2013.V2-rdm'] = LazyLoad(MovshonFreemanZiemba2013V2RDM)
-    pool['movshon.FreemanZiemba2013.V1-single'] = LazyLoad(MovshonFreemanZiemba2013V1Single)
-    from .cadena2017 import ToliasCadena2017PLS, ToliasCadena2017Mask
-    pool['tolias.Cadena2017-pls'] = LazyLoad(ToliasCadena2017PLS)
-    pool['tolias.Cadena2017-mask'] = LazyLoad(ToliasCadena2017Mask)
-
     return pool
 
 
@@ -186,9 +176,6 @@ def _public_benchmark_pool():
     Benchmarks that are publicly usable, but are not used for the website.
     """
     pool = {}
-    from .public_benchmarks import RajalinghamMatchtosamplePublicBenchmark
-    pool['dicarlo.Rajalingham2018public-i2n'] = LazyLoad(RajalinghamMatchtosamplePublicBenchmark)
-
     return pool
 
 

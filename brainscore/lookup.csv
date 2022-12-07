@@ -170,7 +170,7 @@ katz.BarbuMayo2019,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.ama
 katz.BarbuMayo2019,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/image_katz_BarbuMayo2019.zip,1365eb2a7231516806127a7d2a908343a7ac9464,,brainio_brainscore
 kellmen.Baker2022_inverted_distortion,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_kellmen_Baker2022_inverted_distortion.csv,9210c379cc138b48e65ff2d2c1edd42d0f09a5d4,,
 kellmen.Baker2022_inverted_distortion,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_kellmen_Baker2022_inverted_distortion.zip,b0bfe3a8c34d894e10880b22997f921e6798ae70,,
-kellmen.Baker2022_normal_distortion,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_kellmen_Baker2022_normal_distortion.csv,f9288397269a81f729e6d5d52984917e86d12087,,
-kellmen.Baker2022_normal_distortion,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_kellmen_Baker2022_normal_distortion.zip,860ae654c6abb8c4ae88d731b692a4c86b2f59f5,,
-kellmen.Baker2022_normal_distortion,assembly,BehavioralAssembly,S3,https://brainio-brainscore.s3.amazonaws.com/assy_kellmen_Baker2022_normal_distortion.nc,f75c227bd78eafaafa286db6fe42abb38b73f677,kellmen.Baker2022_normal_distortion,
 kellmen.Baker2022_inverted_distortion,assembly,BehavioralAssembly,S3,https://brainio-brainscore.s3.amazonaws.com/assy_kellmen_Baker2022_inverted_distortion.nc,faf1dce1abfd49a295fd390f1de26b663f034611,kellmen.Baker2022_inverted_distortion,
+kellmen.Baker2022_normal_distortion,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_kellmen_Baker2022_normal_distortion.csv,f0a21dbd7253a9144f8ee0ce3af44542139cbe8f,,
+kellmen.Baker2022_normal_distortion,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_kellmen_Baker2022_normal_distortion.zip,c8ac4190fb7a08d22793f98bcb91db5d68a5abd0,,
+kellmen.Baker2022_normal_distortion,assembly,BehavioralAssembly,S3,https://brainio-brainscore.s3.amazonaws.com/assy_kellmen_Baker2022_normal_distortion.nc,4c41d0d8e227b72dddfbd60dd3e3a1bc7a29e7f7,kellmen.Baker2022_normal_distortion,

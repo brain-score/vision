@@ -1,7 +1,7 @@
 from pathlib import Path
 from brainio.stimuli import StimulusSet
 from brainio.packaging import package_stimulus_set
-import numpy as np
+import pandas as pd
 
 stimuli = []
 image_paths = {}
@@ -30,45 +30,51 @@ Fields:
 
 '''
 categories = ['bear', 'bunny', 'cat', 'elephant', 'frog', 'lizard', 'tiger', 'turtle', 'wolf']
+images_actually_shown = pd.read_csv('human_data/images_shown.csv')
+images_actually_shown = pd.concat([images_actually_shown[col] for col in images_actually_shown]).values
 
 for filepath in Path(stimuli_directory).glob('*.jpg'):
 
     # entire name of image file:
     image_id = filepath.stem
 
-    import re
-    match = re.match(r"([a-z]+)([0-9]+)", image_id, re.I)
-    if match:
-        items = match.groups()
+    if f"{image_id}.jpg" in images_actually_shown:
+        import re
+
+        match = re.match(r"([a-z]+)([0-9]+)", image_id, re.I)
+        if match:
+            items = match.groups()
+        else:
+            items = ["", ""]
+
+        # ground truth
+        ground_truth = items[0]
+
+        # image_number:
+        image_number = items[1]
+
+        # parse the needed image type letter
+        if ground_truth in categories:
+            image_type = "w"
+        else:
+            image_type = ground_truth[0]
+            ground_truth = ground_truth[1:]
+
+        if "inv" in ground_truth:
+            ground_truth = ground_truth.replace("inv", "")
+        elif "nv" in ground_truth:
+            ground_truth = ground_truth.replace("nv", "")
+
+        image_paths[image_id] = filepath
+        stimuli.append({
+            'stimulus_id': image_id,
+            'animal': ground_truth,
+            'image_type': "w" if image_type is "i" else image_type,
+            'image_number': image_number,
+            "orientation": "normal" if "inv" not in image_id else "inverted",
+        })
     else:
-        items = ["", ""]
-
-    # ground truth
-    ground_truth = items[0]
-
-    # image_number:
-    image_number = items[1]
-
-    # parse the needed image type letter
-    if ground_truth in categories:
-        image_type = "w"
-    else:
-        image_type = ground_truth[0]
-        ground_truth = ground_truth[1:]
-
-    if "inv" in ground_truth:
-        ground_truth = ground_truth.replace("inv", "")
-    elif "nv" in ground_truth:
-        ground_truth = ground_truth.replace("nv", "")
-
-    image_paths[image_id] = filepath
-    stimuli.append({
-        'stimulus_id': image_id,
-        'animal': ground_truth,
-        'image_type': "w" if image_type is "i" else image_type,
-        'image_number': image_number,
-        "orientation": "normal" if "inv" not in image_id else "inverted",
-    })
+        pass
 
 stimuli = StimulusSet(stimuli)
 

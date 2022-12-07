@@ -264,14 +264,14 @@ class TestBaker2022:
         assert stimulus_set.identifier == full_name
 
     # tests number of images
-    @pytest.mark.parametrize('identifier, num_images', [
-        ('normal', 1080),
-        ('inverted', 720),
+    @pytest.mark.parametrize('identifier', [
+        'normal',
+        'inverted',
     ])
-    def test_num_stimuli(self, identifier, num_images):
+    def test_num_stimuli(self, identifier):
         stimulus_set = brainio.get_stimulus_set(f'kellmen.Baker2022_{identifier}_distortion')
-        assert len(stimulus_set) == num_images
-        assert len(np.unique(stimulus_set["stimulus_id"])) == num_images
+        assert len(stimulus_set) == 720
+        assert len(np.unique(stimulus_set["stimulus_id"])) == 720
 
     # tests stimulus_set coords. Ensure normal/inverted only have their respective stimuli
     @pytest.mark.parametrize('field', [

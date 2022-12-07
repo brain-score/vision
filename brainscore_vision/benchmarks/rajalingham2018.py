@@ -1,6 +1,6 @@
+import brainio
 import numpy as np
 
-import brainscore_vision
 from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.benchmarks.screen import place_on_screen
 from brainscore_vision.metrics import Score
@@ -26,7 +26,7 @@ BIBTEX = """@article {Rajalingham240614,
 class _DicarloRajalingham2018(BenchmarkBase):
     def __init__(self, metric, metric_identifier):
         self._metric = metric
-        self._fitting_stimuli = brainscore_vision.get_stimulus_set('dicarlo.objectome.public')
+        self._fitting_stimuli = brainio.get_stimulus_set('dicarlo.objectome.public')
         self._assembly = LazyLoad(lambda: load_assembly('private'))
         self._visual_degrees = 8
         self._number_of_trials = 2
@@ -70,6 +70,6 @@ def DicarloRajalingham2018I2n():
 
 
 def load_assembly(access='private'):
-    assembly = brainscore_vision.get_assembly(f'dicarlo.Rajalingham2018.{access}')
+    assembly = brainio.get_assembly(f'dicarlo.Rajalingham2018.{access}')
     assembly['correct'] = assembly['choice'] == assembly['sample_obj']
     return assembly

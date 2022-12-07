@@ -490,6 +490,7 @@ class TestBaker2022:
     # tests alignments that are the same across normal and inverted assemblies
     @pytest.mark.parametrize('identifier, length', [
         ('normal', 3706),
+        ('inverted', 4320),
     ])
     def test_stimulus_set_assembly_alignment(self, identifier, length):
         full_name = f'kellmen.Baker2022_{identifier}_distortion'
@@ -502,29 +503,33 @@ class TestBaker2022:
     # tests counts that are the same across normal and inverted assemblies
     @pytest.mark.parametrize('identifier', [
         'normal',
+        'inverted',
     ])
     def test_same_counts(self, identifier):
         full_name = f'kellmen.Baker2022_{identifier}_distortion'
         assembly = brainscore.get_assembly(full_name)
-        assert len(assembly["stimulus_id"]) == 3706
-        assert len({x for x in set((assembly["animal"]).values) if x==x}) == 9
-        assert len({x for x in set((assembly["image_type"]).values) if x==x}) == 3
-        assert len({x for x in set((assembly["image_number"]).values) if x==x}) == 40
-        assert len(set((assembly["condition"]).values)) == 3
-        assert len(set((assembly["subject"]).values)) == 32
-        assert set(assembly.orientation.values) == {f'{identifier}'}
-        assert len(set((assembly["orientation"]).values)) == 1
-        assert len(set((assembly["truth"]).values)) == 9
+        assert len({x for x in set((assembly["truth"]).values) if x==x}) == 9
         assert len(set((assembly["correct"]).values)) == 2
 
-    # tests assembly sizes
-    @pytest.mark.parametrize('identifier, length', [
-        ('normal', 3706),
+    # tests number of subjects
+    @pytest.mark.parametrize('identifier, num_subjects', [
+        ('normal', 32),
+        ('inverted', 12),
     ])
-    def test_subtypes(self, identifier, length):
+    def test_subjects(self, identifier, num_subjects):
         full_name = f'kellmen.Baker2022_{identifier}_distortion'
         assembly = brainscore.get_assembly(full_name)
-        assert len(assembly.presentation) == length
+        assert len(set((assembly["subject"]).values)) == num_subjects
+
+    # tests number of configurations in {whole, fragmented, frankenstein} Inverted does not have fragmented)
+    @pytest.mark.parametrize('identifier, num_configs', [
+        ('normal', 3),
+        ('inverted', 2),
+    ])
+    def test_configs(self, identifier, num_configs):
+        full_name = f'kellmen.Baker2022_{identifier}_distortion'
+        assembly = brainscore.get_assembly(full_name)
+        assert len(set((assembly["condition"]).values)) == num_configs
 
 
 

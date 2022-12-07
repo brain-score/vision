@@ -173,3 +173,4 @@ kellmen.Baker2022_inverted_distortion,stimulus_set,,S3,https://brainio-brainscor
 kellmen.Baker2022_normal_distortion,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_kellmen_Baker2022_normal_distortion.csv,f9288397269a81f729e6d5d52984917e86d12087,,
 kellmen.Baker2022_normal_distortion,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_kellmen_Baker2022_normal_distortion.zip,860ae654c6abb8c4ae88d731b692a4c86b2f59f5,,
 kellmen.Baker2022_normal_distortion,assembly,BehavioralAssembly,S3,https://brainio-brainscore.s3.amazonaws.com/assy_kellmen_Baker2022_normal_distortion.nc,f75c227bd78eafaafa286db6fe42abb38b73f677,kellmen.Baker2022_normal_distortion,
+kellmen.Baker2022_inverted_distortion,assembly,BehavioralAssembly,S3,https://brainio-brainscore.s3.amazonaws.com/assy_kellmen_Baker2022_inverted_distortion.nc,faf1dce1abfd49a295fd390f1de26b663f034611,kellmen.Baker2022_inverted_distortion,

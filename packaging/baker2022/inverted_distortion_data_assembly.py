@@ -18,26 +18,26 @@ https://www.sciencedirect.com/science/article/pii/S2589004222011853#sec9
 '''
 
 # initial csv to dataframe processing:
-all_subjects = pd.read_csv('human_data_normal/human_data.csv')
+all_subjects = pd.read_csv('human_data/inverted.csv')
 
 
 # construct the assembly
-assembly = BehavioralAssembly(all_subjects['Correct?'],
+assembly = BehavioralAssembly(all_subjects['RSP'],
                               coords={
-                                  'stimulus_id': ('presentation', all_subjects['image_shown']),
+                                  'stimulus_id': ('presentation', all_subjects['FileName']),
                                   'subject': ('presentation', all_subjects['Subj']),
-                                  'condition': ('presentation', all_subjects['Frankensteinonfig']),
+                                  'orientation': ('presentation', all_subjects['Inv']),
+                                  'condition': ('presentation', all_subjects['Config']),
                                   'truth': ('presentation', all_subjects['Animal']),
-                                  'correct': ('presentation', all_subjects['Correct?']),
+                                  'correct': ('presentation', all_subjects['RSP']),
                               },
                               dims=['presentation']
                               )
 
 # give the assembly an identifier name
-assembly.name = 'kellmen.Baker2022_normal_distortion'
-
+assembly.name = 'kellmen.Baker2022_inverted_distortion'
 
 # upload to S3
 package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
-                      stimulus_set_identifier='kellmen.Baker2022_shape_distortion',
+                      stimulus_set_identifier='kellmen.Baker2022_inverted_distortion',
                       assembly_class_name="BehavioralAssembly", bucket_name="brainio-brainscore")

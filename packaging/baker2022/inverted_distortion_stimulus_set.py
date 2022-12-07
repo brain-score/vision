@@ -74,7 +74,7 @@ for filepath in Path(stimuli_directory).glob('*.jpg'):
 stimuli = StimulusSet(stimuli)
 stimuli.stimulus_paths = image_paths
 
-# remove all inverted stimuli
+# remove all normal stimuli
 stimuli = stimuli[stimuli["orientation"] == "inverted"]
 
 # give the StimulusSet an identifier name

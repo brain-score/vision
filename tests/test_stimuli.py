@@ -252,6 +252,7 @@ class TestGeirhos2021:
 
 class TestBaker2022:
 
+    # general tests
     @pytest.mark.parametrize('identifier', [
         'normal',
         'inverted'
@@ -262,6 +263,7 @@ class TestBaker2022:
         assert stimulus_set is not None
         assert stimulus_set.identifier == full_name
 
+    # tests number of images
     @pytest.mark.parametrize('identifier, num_images', [
         ('normal', 1080),
         ('inverted', 720),
@@ -271,7 +273,7 @@ class TestBaker2022:
         assert len(stimulus_set) == num_images
         assert len(np.unique(stimulus_set["stimulus_id"])) == num_images
 
-    # tests stimulus_set coords for the 14 "normal" sets:
+    # tests stimulus_set coords. Ensure normal/inverted only have their respective stimuli
     @pytest.mark.parametrize('field', [
         'stimulus_id',
         'animal',
@@ -288,6 +290,7 @@ class TestBaker2022:
         assert set(stimulus_set["orientation"].values) == {identifier}
         assert hasattr(stimulus_set, field)
 
+    # make sure there are at least whole, frankenstein in each stimulus_set. Inverted does not have fragmented stimuli.
     @pytest.mark.parametrize('identifier, count', [
         ('normal', 3),
         ('inverted', 2),
@@ -297,6 +300,7 @@ class TestBaker2022:
         assert len(np.unique(stimulus_set["image_type"])) == count
         assert "w", "f" in set(stimulus_set["image_type"])
 
+    # make sure there are 9 possible animals in each stimulus_set -> 9 way AFC
     @pytest.mark.parametrize('identifier', [
         'normal',
         'inverted',
@@ -305,6 +309,7 @@ class TestBaker2022:
         stimulus_set = brainscore.get_stimulus_set(f'kellmen.Baker2022_{identifier}_distortion')
         assert len(np.unique(stimulus_set["animal"])) == 9
 
+    # make sure there are 40 unique image numbers
     @pytest.mark.parametrize('identifier', [
         'normal',
         'inverted',

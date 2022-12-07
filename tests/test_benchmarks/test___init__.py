@@ -102,14 +102,6 @@ class TestPoolList:
 @pytest.mark.private_access
 class TestStandardized:
     @pytest.mark.parametrize('benchmark, expected', [
-        pytest.param('movshon.FreemanZiemba2013.V1-pls', approx(.873345, abs=.001),
-                     marks=[pytest.mark.memory_intense]),
-        pytest.param('movshon.FreemanZiemba2013.V2-pls', approx(.824836, abs=.001),
-                     marks=[pytest.mark.memory_intense]),
-        pytest.param('movshon.FreemanZiemba2013.V1-rdm', approx(.918672, abs=.001),
-                     marks=[pytest.mark.memory_intense]),
-        pytest.param('movshon.FreemanZiemba2013.V2-rdm', approx(.856968, abs=.001),
-                     marks=[pytest.mark.memory_intense]),
         pytest.param('dicarlo.MajajHong2015.V4-pls', approx(.89503, abs=.001),
                      marks=pytest.mark.memory_intense),
         pytest.param('dicarlo.MajajHong2015.IT-pls', approx(.821841, abs=.001),
@@ -127,10 +119,6 @@ class TestStandardized:
         assert ceiling.sel(aggregation='center') == expected
 
     @pytest.mark.parametrize('benchmark, visual_degrees, expected', [
-        pytest.param('movshon.FreemanZiemba2013.V1-pls', 4, approx(.668491, abs=.001),
-                     marks=[pytest.mark.memory_intense]),
-        pytest.param('movshon.FreemanZiemba2013.V2-pls', 4, approx(.553155, abs=.001),
-                     marks=[pytest.mark.memory_intense]),
         pytest.param('tolias.Cadena2017-pls', 2, approx(.577474, abs=.005),
                      marks=pytest.mark.private_access),
         pytest.param('dicarlo.MajajHong2015.V4-pls', 8, approx(.923713, abs=.001),
@@ -170,13 +158,6 @@ class TestStandardized:
 
 @pytest.mark.private_access
 class TestPrecomputed:
-    @pytest.mark.memory_intense
-    @pytest.mark.parametrize('benchmark, expected', [
-        ('movshon.FreemanZiemba2013.V1-pls', approx(.466222, abs=.005)),
-        ('movshon.FreemanZiemba2013.V2-pls', approx(.459283, abs=.005)),
-    ])
-    def test_FreemanZiemba2013(self, benchmark, expected):
-        self.run_test(benchmark=benchmark, file='alexnet-freemanziemba2013.aperture-private.nc', expected=expected)
 
     @pytest.mark.memory_intense
     @pytest.mark.parametrize('benchmark, expected', [
@@ -297,22 +278,6 @@ class TestPrecomputed:
 
 class TestVisualDegrees:
     @pytest.mark.parametrize('benchmark, candidate_degrees, image_id, expected', [
-        pytest.param('movshon.FreemanZiemba2013.V1-pls', 14, 'c3a633a13e736394f213ddf44bf124fe80cabe07',
-                     approx(.31429, abs=.0001), marks=[pytest.mark.private_access]),
-        pytest.param('movshon.FreemanZiemba2013.V1-pls', 6, 'c3a633a13e736394f213ddf44bf124fe80cabe07',
-                     approx(.22966, abs=.0001), marks=[pytest.mark.private_access]),
-        pytest.param('movshon.FreemanZiemba2013public.V1-pls', 14, '21041db1f26c142812a66277c2957fb3e2070916',
-                     approx(.314561, abs=.0001), marks=[]),
-        pytest.param('movshon.FreemanZiemba2013public.V1-pls', 6, '21041db1f26c142812a66277c2957fb3e2070916',
-                     approx(.23113, abs=.0001), marks=[]),
-        pytest.param('movshon.FreemanZiemba2013.V2-pls', 14, 'c3a633a13e736394f213ddf44bf124fe80cabe07',
-                     approx(.31429, abs=.0001), marks=[pytest.mark.private_access]),
-        pytest.param('movshon.FreemanZiemba2013.V2-pls', 6, 'c3a633a13e736394f213ddf44bf124fe80cabe07',
-                     approx(.22966, abs=.0001), marks=[pytest.mark.private_access]),
-        pytest.param('movshon.FreemanZiemba2013public.V2-pls', 14, '21041db1f26c142812a66277c2957fb3e2070916',
-                     approx(.314561, abs=.0001), marks=[]),
-        pytest.param('movshon.FreemanZiemba2013public.V2-pls', 6, '21041db1f26c142812a66277c2957fb3e2070916',
-                     approx(.23113, abs=.0001), marks=[]),
         pytest.param('dicarlo.MajajHong2015.V4-pls', 14, '40a786ed8e13db10185ddfdbe07759d83a589e1c',
                      approx(.251345, abs=.0001), marks=[pytest.mark.private_access]),
         pytest.param('dicarlo.MajajHong2015.V4-pls', 6, '40a786ed8e13db10185ddfdbe07759d83a589e1c',
@@ -386,10 +351,6 @@ class TestVisualDegrees:
 class TestNumberOfTrials:
     @pytest.mark.private_access
     @pytest.mark.parametrize('benchmark_identifier', [
-        # V1
-        'movshon.FreemanZiemba2013.V1-pls',
-        # V2
-        'movshon.FreemanZiemba2013.V2-pls',
         # V4
         'dicarlo.MajajHong2015.V4-pls',
         # IT

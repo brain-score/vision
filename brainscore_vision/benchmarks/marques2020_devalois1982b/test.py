@@ -14,7 +14,7 @@ registry_test = TestBenchmarkRegistry()
         'dicarlo.Marques2020_DeValois1982-peak_sf',
     ])
 def test_benchmark_registry(benchmark):
-    registry_test.test_benchmark_registry(benchmark)
+    registry_test.test_benchmark_in_registry(benchmark)
 
 
 @pytest.mark.parametrize('benchmark, expected', [

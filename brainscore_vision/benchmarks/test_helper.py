@@ -30,7 +30,7 @@ class TestPoolList:
 
 
 class TestBenchmarkRegistry:
-    def test_benchmark_registry(self, benchmark):
+    def test_benchmark_in_registry(self, benchmark):
         assert benchmark in benchmark_registry
 
 

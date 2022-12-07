@@ -20,7 +20,7 @@ registry_test = TestBenchmarkRegistry()
     'dicarlo.Marques2020_FreemanZiemba2013-max_texture',
 ])
 def test_benchmark_registry(benchmark):
-    registry_test.test_benchmark_registry(benchmark)
+    registry_test.test_benchmark_in_registry(benchmark)
 
 
 @pytest.mark.parametrize('benchmark, expected', [

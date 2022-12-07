@@ -15,7 +15,7 @@ registry_test = TestBenchmarkRegistry()
         'dicarlo.Sanghavi2020.IT-pls'
     ])
 def test_benchmark_registry(benchmark):
-    registry_test.test_benchmark_registry(benchmark)
+    registry_test.test_benchmark_in_registry(benchmark)
 
 @pytest.mark.parametrize('benchmark, expected', [
     pytest.param('dicarlo.Sanghavi2020.V4-pls', approx(.8892049, abs=.001),

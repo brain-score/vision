@@ -129,8 +129,6 @@ def _evaluation_benchmark_pool():
     pool = {}
 
     # neural benchmarks
-    # FreemanZiemba2013
-
 
     # behavioral benchmarks
     # Rajalingham2018

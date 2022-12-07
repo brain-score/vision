@@ -14,7 +14,7 @@ registry_test = TestBenchmarkRegistry()
         'dicarlo.Marques2020_DeValois1982-pref_or',
     ])
 def test_benchmark_registry(benchmark):
-    registry_test.test_benchmark_registry(benchmark)
+    registry_test.test_benchmark_in_registry(benchmark)
 
 @pytest.mark.parametrize('benchmark, expected', [
     pytest.param('dicarlo.Marques2020_DeValois1982-pref_or', approx(0.962, abs=.005), marks=[]),

@@ -1,5 +1,5 @@
 # from brainscore_vision import benchmark_registry
-# from .benchmark import DicarloSanghavi2020V4PLS, DicarloSanghavi2020ITPLS
+# from .benchmark import
 #
 # DATASETS = ['colour', 'contrast', 'cue-conflict', 'edge',
 #             'eidolonI', 'eidolonII', 'eidolonIII',

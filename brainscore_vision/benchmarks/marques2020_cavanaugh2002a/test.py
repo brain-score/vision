@@ -16,7 +16,7 @@ registry_test = TestBenchmarkRegistry()
         'dicarlo.Marques2020_Cavanaugh2002-surround_suppression_index',
     ])
 def test_benchmark_registry(benchmark):
-    registry_test.test_benchmark_registry(benchmark)
+    registry_test.test_benchmark_in_registry(benchmark)
 
 @pytest.mark.parametrize('benchmark, expected', [
     pytest.param('dicarlo.Marques2020_Cavanaugh2002-grating_summation_field', approx(0.956, abs=.005), marks=[]),

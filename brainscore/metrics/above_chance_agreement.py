@@ -9,15 +9,18 @@ from brainscore.metrics.transformations import apply_aggregate
 class AboveChanceAgreement(Metric):
 
     def __call__(self, source, target):
-        assert len(set(source['image_id'].values)) == len(set(target['image_id'].values))
+        assert len(set(source['stimulus_id'].values)) == len(set(target['stimulus_id'].values))
         # https://github.com/bethgelab/model-vs-human/blob/745046c4d82ff884af618756bd6a5f47b6f36c45/modelvshuman/plotting/analyses.py#L161
         subject_scores = []
+        image_type = "w"
         for subject in self.extract_subjects(target):
-            for category in sorted(set(target['Animal'].values)):
-                this_source = source.sel(category=category)
-                this_target = target.sel(subject=subject, category=category)
+            for category in sorted(set(target['animal'].values)):
+                this_target = target.sel(subject=1, animal=category, image_type=image_type)
+                source_images = this_target["stimulus_id"].values
+                mask = source["stimulus_id"].isin(source_images)
+                this_source = source.where(mask).dropna("presentation").sel(image_type=image_type)
                 subject_score = self.compare_single_subject(this_source, this_target)
-                subject_score = subject_score.expand_dims('subject').expand_dims('condition')
+                subject_score = subject_score.expand_dims('subject').expand_dims('category')
                 subject_score['subject'] = [subject]
                 subject_score['category'] = [category]
                 subject_scores.append(subject_score)
@@ -60,16 +63,15 @@ class AboveChanceAgreement(Metric):
 
     def compare_single_subject(self, source, target):
         assert len(source['presentation']) == len(target['presentation'])
-        source = source.sortby('image_id')
-        target = target.sortby('image_id')
-        assert all(source['image_id'].values == target['image_id'].values)
-
-        correct_source = source.values == source['truth'].values
-        correct_target = target.values == target['truth'].values
+        source = source.sortby('stimulus_id')
+        target = target.sortby('stimulus_id')
+        assert all(source['stimulus_id'].values == target['stimulus_id'].values)
+        correct_source = source.values == source['animal'].values
+        correct_target = target.values == target['correct'].values
         accuracy_source = np.mean(correct_source)
         accuracy_target = np.mean(correct_target)
 
         expected_consistency = accuracy_source * accuracy_target + (1 - accuracy_source) * (1 - accuracy_target)
         observed_consistency = (correct_source == correct_target).sum() / len(target)
-        aca = observed_consistency - expected_consistency
+        aca = observed_consistency
         return Score(aca)

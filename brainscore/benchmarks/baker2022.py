@@ -60,9 +60,9 @@ class _Baker2022AboveChanceAgreement(BenchmarkBase):
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
         labels = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
-        raw_score = self._metric(labels, self._assembly)
-        ceiling = self.ceiling
-        score = raw_score / ceiling
+        raw_score = self._metric(labels, self._assembly, image_type="w")
+        ceiling = self._metric.ceiling(self._assembly, image_type="w"),
+        score = raw_score[0] / ceiling[0]
         # score.attrs['raw'] = raw_score
         # score.attrs['ceiling'] = ceiling
         return score

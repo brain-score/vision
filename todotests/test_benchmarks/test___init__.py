@@ -313,7 +313,6 @@ class TestNumberOfTrials:
         'dicarlo.MajajHong2015.V4-pls',
         # IT
         'dicarlo.MajajHong2015.IT-pls',
-        'dicarlo.Kar2019-ost',
     ])
     def test_repetitions(self, benchmark_identifier):
         """ Tests that benchmarks have repetitions in the stimulus_set """

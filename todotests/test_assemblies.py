@@ -25,14 +25,10 @@ import brainscore_vision
         'dicarlo.Kar2018hvm',
         'dicarlo.Kar2018cocogray',
         'klab.Zhang2018search_obj_array',
-        'aru.Kuzovkin2018',
-        'aru.Kuzovkin2018',
         'dicarlo.Seibert2019',
         'aru.Cichy2019',
         'dicarlo.Rust2012.single',
         'dicarlo.Rust2012.array',
-        'dicarlo.BashivanKar2019.naturalistic',
-        'dicarlo.BashivanKar2019.synthetic',
         'movshon.Cavanaugh2002a',
         'devalois.DeValois1982a',
         'devalois.DeValois1982b',
@@ -62,13 +58,10 @@ def test_list_assembly(assembly):
     pytest.param('dicarlo.Kar2018hvm', marks=[pytest.mark.private_access]),
     pytest.param('dicarlo.Kar2018cocogray', marks=[pytest.mark.private_access]),
     pytest.param('klab.Zhang2018search_obj_array', marks=[pytest.mark.private_access]),
-    pytest.param('aru.Kuzovkin2018', marks=[pytest.mark.private_access]),
     pytest.param('dicarlo.Seibert2019', marks=[pytest.mark.private_access]),
     pytest.param('aru.Cichy2019', marks=[pytest.mark.private_access]),
     pytest.param('dicarlo.Rust2012.single', marks=[pytest.mark.private_access]),
     pytest.param('dicarlo.Rust2012.array', marks=[pytest.mark.private_access]),
-    pytest.param('dicarlo.BashivanKar2019.naturalistic', marks=[pytest.mark.private_access]),
-    pytest.param('dicarlo.BashivanKar2019.synthetic', marks=[pytest.mark.private_access]),
 ])
 def test_existence(assembly_identifier):
     assert brainio.get_assembly(assembly_identifier) is not None
@@ -207,15 +200,5 @@ class TestRustArray:
         assert len(set(assembly['neuroid_id'].values)) == 296
         assert len(set(assembly['animal'].values)) == 2
         assert len(set(assembly['region'].values)) == 2
-
-
-@pytest.mark.parametrize('assembly,shape,nans', [
-    pytest.param('dicarlo.BashivanKar2019.naturalistic', (24320, 233, 1), 309760, marks=[pytest.mark.private_access]),
-    pytest.param('dicarlo.BashivanKar2019.synthetic', (21360, 233, 1), 4319940, marks=[pytest.mark.private_access]),
-])
-def test_BashivanKar2019(assembly, shape, nans):
-    assy = brainio.get_assembly(assembly)
-    assert assy.shape == shape
-    assert np.count_nonzero(np.isnan(assy)) == nans
 
 

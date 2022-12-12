@@ -10,7 +10,7 @@ from brainscore_vision.benchmarks import benchmark_pool, public_benchmark_pool, 
     engineering_benchmark_pool
 from brainscore_vision import benchmark_registry
 from brainscore_vision.model_interface import BrainModel
-from tests.test_benchmarks import PrecomputedFeatures
+from todotests.test_benchmarks import PrecomputedFeatures
 
 
 # TODO: discuss with Martin
@@ -22,26 +22,31 @@ from tests.test_benchmarks import PrecomputedFeatures
 class TestPoolList:
     """ ensures that the right benchmarks are in the right benchmark pool """
 
-    def test_contained_global(self, benchmark):
+    def test_contained_global(self, benchmark: str):
         assert benchmark in benchmark_pool
 
-    def test_contained_public(self, benchmark):
+    def test_contained_public(self, benchmark: str):
         assert benchmark in public_benchmark_pool
 
 
 class TestBenchmarkRegistry:
-    def test_benchmark_in_registry(self, benchmark):
+    def test_benchmark_in_registry(self, benchmark: str):
         assert benchmark in benchmark_registry
 
 
 class TestStandardized:
 
-    def test_ceilings(self, benchmark, expected):
+    def test_ceilings(self, benchmark: str, expected: float):
+        """
+
+        @param benchmark:
+        @param expected:
+        """
         benchmark = benchmark_registry[benchmark]
         ceiling = benchmark.ceiling
         assert ceiling.sel(aggregation='center') == expected
 
-    def test_self_regression(self, benchmark, visual_degrees, expected):
+    def test_self_regression(self, benchmark: str, visual_degrees: int, expected: float):
         benchmark = benchmark_registry[benchmark]
         score = benchmark(PrecomputedFeatures(benchmark._assembly, visual_degrees=visual_degrees)).raw
         assert score.sel(aggregation='center') == expected
@@ -50,7 +55,7 @@ class TestStandardized:
         assert hasattr(raw_values, 'split')
         assert len(raw_values['split']) == 10
 
-    def test_self_rdm(self, benchmark, visual_degrees, expected):
+    def test_self_rdm(self, benchmark: str, visual_degrees: int, expected: float):
         benchmark = benchmark_registry[benchmark]
         score = benchmark(PrecomputedFeatures(benchmark._assembly, visual_degrees=visual_degrees)).raw
         assert score.sel(aggregation='center') == expected
@@ -61,7 +66,7 @@ class TestStandardized:
 
 class TestPrecomputed:
 
-    def run_test(self, benchmark, file, expected):
+    def run_test(self, benchmark: str, file: str, expected: float):
         benchmark = benchmark_registry[benchmark]
         precomputed_features = Path(__file__).parent / file
         precomputed_features = NeuroidAssembly.from_files(
@@ -84,7 +89,7 @@ class TestPrecomputed:
         score = benchmark(precomputed_features).raw
         assert score.sel(aggregation='center') == expected
 
-    def run_test_properties(self, benchmark, files, expected):
+    def run_test_properties(self, benchmark: str, files: dict, expected: float):
         benchmark = benchmark_registry[benchmark]
         from brainscore_vision import get_stimulus_set
 
@@ -117,8 +122,8 @@ class TestPrecomputed:
 
 class TestVisualDegrees:
 
-    def test_amount_gray(self, benchmark, candidate_degrees, image_id, expected, brainio_home, resultcaching_home,
-                         brainscore_home):
+    def test_amount_gray(self, benchmark: str, candidate_degrees: int, image_id: str, expected: float,
+                         brainio_home: Path, resultcaching_home: Path, brainscore_home: Path):
         benchmark = benchmark_registry[benchmark]
 
         class DummyCandidate(BrainModel):
@@ -156,7 +161,7 @@ class TestVisualDegrees:
 
 class TestNumberOfTrials:
 
-    def test_repetitions(self, benchmark_identifier):
+    def test_repetitions(self, benchmark_identifier: str):
         """ Tests that benchmarks have repetitions in the stimulus_set """
         benchmark = benchmark_registry[benchmark_identifier]
 

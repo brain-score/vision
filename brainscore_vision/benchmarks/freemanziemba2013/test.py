@@ -3,7 +3,8 @@ from pytest import approx
 from brainscore_vision import benchmark_registry
 from brainscore_vision.benchmarks.test_helper import TestStandardized, TestPrecomputed, TestNumberOfTrials, \
     TestBenchmarkRegistry, TestVisualDegrees
-from tests.test_benchmarks import PrecomputedFeatures
+from .benchmarks.public_benchmarks import FreemanZiembaV1PublicBenchmark, FreemanZiembaV2PublicBenchmark
+from todotests.test_benchmarks import PrecomputedFeatures
 
 # should these be in function definitions
 standardized_tests = TestStandardized()
@@ -20,7 +21,7 @@ visual_degrees_test = TestVisualDegrees()
     'movshon.FreemanZiemba2013.V2-pls', # are these what should be checked for? what about public vs. private
 ])
 def test_benchmark_registry(benchmark):
-    registry_test.test_benchmark_in_registry(benchmark)
+    registry_test.benchmark_in_registry(benchmark)
 
 
 @pytest.mark.parametrize('benchmark, expected', [
@@ -34,7 +35,7 @@ def test_benchmark_registry(benchmark):
                  marks=[pytest.mark.memory_intense]),
 ])
 def test_ceilings(benchmark, expected):
-    standardized_tests.test_ceilings(benchmark, expected)
+    standardized_tests.ceilings_test(benchmark, expected)
 
 
 @pytest.mark.parametrize('benchmark, visual_degrees, expected', [
@@ -44,7 +45,7 @@ def test_ceilings(benchmark, expected):
                  marks=[pytest.mark.memory_intense]),
 ])
 def test_self_regression(benchmark, visual_degrees, expected):
-    standardized_tests.test_self_regression(benchmark, visual_degrees, expected)
+    standardized_tests.self_regression_test(benchmark, visual_degrees, expected)
 
 
 @pytest.mark.parametrize('benchmark, visual_degrees, expected', [
@@ -91,7 +92,7 @@ def test_FreemanZiemba2013(benchmark, expected):
 ])
 def test_amount_gray(benchmark, candidate_degrees, image_id, expected, brainio_home, resultcaching_home,
                      brainscore_home):
-    visual_degrees_test.test_amount_gray(benchmark, candidate_degrees, image_id, expected, brainio_home,
+    visual_degrees_test.amount_gray_test(benchmark, candidate_degrees, image_id, expected, brainio_home,
                                          resultcaching_home, brainscore_home)
 
 @pytest.mark.private_access
@@ -100,4 +101,19 @@ def test_amount_gray(benchmark, candidate_degrees, image_id, expected, brainio_h
     'movshon.FreemanZiemba2013.V2-pls',
 ])
 def test_repetitions(benchmark_identifier):
-    num_trials_test.test_repetitions(benchmark_identifier)
+    num_trials_test.repetitions_test(benchmark_identifier)
+
+
+# tests for public benchmarks
+@pytest.mark.parametrize('benchmark_ctr, visual_degrees, expected', [
+    pytest.param(FreemanZiembaV1PublicBenchmark, 4, approx(.679954, abs=.001),
+                 marks=[pytest.mark.memory_intense]),
+    pytest.param(FreemanZiembaV2PublicBenchmark, 4, approx(.577498, abs=.001),
+                 marks=[pytest.mark.memory_intense]),
+])
+def test_self(benchmark_ctr, visual_degrees, expected):
+    benchmark = benchmark_ctr()
+    source = benchmark._assembly.copy()
+    source = {benchmark._assembly.stimulus_set.identifier: source}
+    score = benchmark(PrecomputedFeatures(source, visual_degrees=visual_degrees)).raw
+    assert score.sel(aggregation='center') == expected

@@ -12,7 +12,7 @@ visual_degrees_test = TestVisualDegrees()
                  marks=pytest.mark.private_access),
 ])
 def test_self_regression(benchmark, visual_degrees, expected):
-    standardized_tests.test_self_regression(benchmark, visual_degrees, expected)
+    standardized_tests.self_regression_test(benchmark, visual_degrees, expected)
 
 
 @pytest.mark.parametrize('benchmark, candidate_degrees, image_id, expected', [
@@ -23,5 +23,5 @@ def test_self_regression(benchmark, visual_degrees, expected):
 ])
 def test_amount_gray(benchmark, candidate_degrees, image_id, expected, brainio_home, resultcaching_home,
                      brainscore_home):
-    visual_degrees_test.test_amount_gray(benchmark, candidate_degrees, image_id, expected, brainio_home,
+    visual_degrees_test.amount_gray_test(benchmark, candidate_degrees, image_id, expected, brainio_home,
                                          resultcaching_home, brainscore_home)

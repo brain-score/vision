@@ -14,39 +14,31 @@ from todotests.test_benchmarks import PrecomputedFeatures
 
 
 # TODO: discuss with Martin
-
-
-# try to run this and see if tests are run or not.. might have to move all tests to respective directories
-
-
+# seems to work when test is not first word in these functions
+# can I just delete TestPoolList if we're using benchmark registry
 class TestPoolList:
     """ ensures that the right benchmarks are in the right benchmark pool """
 
-    def test_contained_global(self, benchmark: str):
+    def contained_global_test(self, benchmark: str):
         assert benchmark in benchmark_pool
 
-    def test_contained_public(self, benchmark: str):
+    def contained_public_test(self, benchmark: str):
         assert benchmark in public_benchmark_pool
 
 
 class TestBenchmarkRegistry:
-    def test_benchmark_in_registry(self, benchmark: str):
+    def benchmark_in_registry(self, benchmark: str):
         assert benchmark in benchmark_registry
 
 
 class TestStandardized:
 
-    def test_ceilings(self, benchmark: str, expected: float):
-        """
-
-        @param benchmark:
-        @param expected:
-        """
+    def ceilings_test(self, benchmark: str, expected: float):
         benchmark = benchmark_registry[benchmark]
         ceiling = benchmark.ceiling
         assert ceiling.sel(aggregation='center') == expected
 
-    def test_self_regression(self, benchmark: str, visual_degrees: int, expected: float):
+    def self_regression_test(self, benchmark: str, visual_degrees: int, expected: float):
         benchmark = benchmark_registry[benchmark]
         score = benchmark(PrecomputedFeatures(benchmark._assembly, visual_degrees=visual_degrees)).raw
         assert score.sel(aggregation='center') == expected
@@ -55,7 +47,7 @@ class TestStandardized:
         assert hasattr(raw_values, 'split')
         assert len(raw_values['split']) == 10
 
-    def test_self_rdm(self, benchmark: str, visual_degrees: int, expected: float):
+    def self_rdm_test(self, benchmark: str, visual_degrees: int, expected: float):
         benchmark = benchmark_registry[benchmark]
         score = benchmark(PrecomputedFeatures(benchmark._assembly, visual_degrees=visual_degrees)).raw
         assert score.sel(aggregation='center') == expected
@@ -122,7 +114,7 @@ class TestPrecomputed:
 
 class TestVisualDegrees:
 
-    def test_amount_gray(self, benchmark: str, candidate_degrees: int, image_id: str, expected: float,
+    def amount_gray_test(self, benchmark: str, candidate_degrees: int, image_id: str, expected: float,
                          brainio_home: Path, resultcaching_home: Path, brainscore_home: Path):
         benchmark = benchmark_registry[benchmark]
 
@@ -161,7 +153,7 @@ class TestVisualDegrees:
 
 class TestNumberOfTrials:
 
-    def test_repetitions(self, benchmark_identifier: str):
+    def repetitions_test(self, benchmark_identifier: str):
         """ Tests that benchmarks have repetitions in the stimulus_set """
         benchmark = benchmark_registry[benchmark_identifier]
 

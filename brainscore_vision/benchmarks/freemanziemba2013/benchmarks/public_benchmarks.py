@@ -9,21 +9,12 @@ held-out private data.
 import functools
 import logging
 
-import boto3
-from botocore import UNSIGNED
-from botocore.config import Config
-from botocore.exceptions import ClientError
-
-import brainio
-from brainio.fetch import BotoFetcher
-from brainscore_vision.benchmarks._neural_common import NeuralBenchmark
+from brainscore_vision.benchmarks.benchmark_helpers._neural_common import NeuralBenchmark
 from brainscore_vision.metrics.ceiling import InternalConsistency
 from brainscore_vision.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation
 from brainscore_vision.utils import LazyLoad
-from .freemanziemba2013 import load_assembly as load_freemanziemba2013, NUMBER_OF_TRIALS as freemanziemba2013_trials, \
+from .benchmark import load_assembly as load_freemanziemba2013, NUMBER_OF_TRIALS as freemanziemba2013_trials, \
     VISUAL_DEGREES as freemanziemba2013_degrees, BIBTEX as freemanziemba2013_bibtex
-from .rajalingham2018 import load_assembly as load_rajalingham2018, _DicarloRajalingham2018
-from brainscore_vision.metrics.image_level_behavior import I2n
 
 _logger = logging.getLogger(__name__)
 
@@ -57,34 +48,4 @@ def FreemanZiembaV2PublicBenchmark():
                                stratification_coord='texture_type', bibtex=freemanziemba2013_bibtex)
 
 
-class RajalinghamMatchtosamplePublicBenchmark(_DicarloRajalingham2018):
-    def __init__(self):
-        super(RajalinghamMatchtosamplePublicBenchmark, self).__init__(metric=I2n(), metric_identifier='i2n')
-        self._assembly = LazyLoad(lambda: load_rajalingham2018(access='public'))
-        self._ceiling_func = lambda: self._metric.ceiling(self._assembly, skipna=True)
 
-
-def list_public_assemblies():
-    all_assemblies = brainio.list_assemblies()
-    public_assemblies = []
-    for assembly in all_assemblies:
-        assy_model = brainio.lookup.lookup_assembly(assembly)
-        if assy_model['location_type'] != 'S3':
-            _logger.warning(f"Unknown location_type in assembly {assy_model}")
-            continue
-        probe_fetcher = _ProbeBotoFetcher(location=assy_model['location'], local_filename='probe')  # filename is unused
-        if probe_fetcher.has_access():
-            public_assemblies.append(assembly)
-    return public_assemblies
-
-
-class _ProbeBotoFetcher(BotoFetcher):
-    def has_access(self):
-        s3 = boto3.resource('s3', config=Config(signature_version=UNSIGNED))
-        obj = s3.Object(self.bucketname, self.relative_path)
-        try:
-            # noinspection PyStatementEffect
-            obj.content_length  # probe
-            return True
-        except ClientError:
-            return False

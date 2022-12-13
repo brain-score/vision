@@ -5,7 +5,8 @@ import pytest
 
 
 @pytest.mark.parametrize('assembly', (
-    'dicarlo.Kar2019',
+    'dicarlo.Kar2018hvm',
+    'dicarlo.Kar2018cocogray',
 ))
 def test_list_assembly(assembly):
     l = brainscore_vision.list_assemblies()
@@ -13,7 +14,8 @@ def test_list_assembly(assembly):
 
 
 @pytest.mark.parametrize('assembly_identifier', [
-    pytest.param('dicarlo.Kar2019', marks=[pytest.mark.private_access]),
+    pytest.param('dicarlo.Kar2018hvm', marks=[pytest.mark.private_access]),
+    pytest.param('dicarlo.Kar2018cocogray', marks=[pytest.mark.private_access]),
 ])
 def test_existence(assembly_identifier):
     assert brainscore_vision.get_assembly(assembly_identifier) is not None

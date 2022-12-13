@@ -1,5 +1,3 @@
-# current active tests are checking that 'dicarlo.Sanghavi2020.V4-pls' and 'dicarlo.Sanghavi2020.IT-pls'
-# are in set(evaluation_benchmark_pool.keys()) TODO add these
 import pytest
 from pytest import approx
 from brainscore_vision.benchmarks.test_helper import TestStandardized, TestPrecomputed, TestNumberOfTrials, \
@@ -10,6 +8,7 @@ precomputed_test = TestPrecomputed()
 num_trials_test = TestNumberOfTrials()
 registry_test = TestBenchmarkRegistry()
 
+
 @pytest.mark.parametrize('benchmark', [
     'dicarlo.Sanghavi2020.V4-pls',
     'dicarlo.Sanghavi2020.IT-pls',
@@ -19,7 +18,8 @@ registry_test = TestBenchmarkRegistry()
     'dicarlo.SanghaviMurty2020.IT-pls',
     ])
 def test_benchmark_registry(benchmark):
-    registry_test.test_benchmark_in_registry(benchmark)
+    registry_test.benchmark_in_registry(benchmark)
+
 
 @pytest.mark.parametrize('benchmark, expected', [
     pytest.param('dicarlo.Sanghavi2020.V4-pls', approx(.8892049, abs=.001),
@@ -36,7 +36,7 @@ def test_benchmark_registry(benchmark):
                  marks=pytest.mark.memory_intense),
 ])
 def test_ceilings(benchmark, expected):
-    standardized_tests.test_ceilings(benchmark, expected)
+    standardized_tests.ceilings_test(benchmark, expected)
 
 
 @pytest.mark.parametrize('benchmark, visual_degrees, expected', [
@@ -54,7 +54,7 @@ def test_ceilings(benchmark, expected):
                  marks=pytest.mark.memory_intense),
 ])
 def test_self_regression(benchmark, visual_degrees, expected):
-    standardized_tests.test_self_regression(benchmark, visual_degrees, expected)
+    standardized_tests.self_regression_test(benchmark, visual_degrees, expected)
 
 
 @pytest.mark.memory_intense
@@ -81,4 +81,4 @@ def test_Sanghavi2020(benchmark, expected):
     'dicarlo.SanghaviMurty2020.IT-pls',
 ])
 def test_repetitions(benchmark_identifier):
-    num_trials_test.test_repetitions(benchmark_identifier)
+    num_trials_test.repetitions_test(benchmark_identifier)

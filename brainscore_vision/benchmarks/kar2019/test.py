@@ -39,14 +39,14 @@ def test_Kar2019ost_cornet_s():
 ])
 def test_amount_gray(benchmark, candidate_degrees, image_id, expected, brainio_home, resultcaching_home,
                      brainscore_home):
-    visual_degrees.test_amount_gray(benchmark, candidate_degrees, image_id, expected, brainio_home,
+    visual_degrees.amount_gray_test(benchmark, candidate_degrees, image_id, expected, brainio_home,
                                     resultcaching_home, brainscore_home)
 
 
 @pytest.mark.private_access
 @pytest.mark.parametrize('benchmark_identifier', ['dicarlo.Kar2019-ost'])
 def test_repetitions(benchmark_identifier):
-    number_trials.test_repetitions(benchmark_identifier)
+    number_trials.repetitions_test(benchmark_identifier)
 
 
 @pytest.mark.memory_intense

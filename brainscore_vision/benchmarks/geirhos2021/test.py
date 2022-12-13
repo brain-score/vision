@@ -49,7 +49,7 @@ registry_test = TestBenchmarkRegistry()
     'brendel.Geirhos2021uniformnoise-top1',
 ])
 def test_benchmark_registry(benchmark):
-    registry_test.test_benchmark_in_registry(benchmark)
+    registry_test.benchmark_in_registry(benchmark)
 
 
 class TestBehavioral:

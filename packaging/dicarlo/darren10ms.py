@@ -7,6 +7,7 @@ import xarray as xr
 from brainio_base.assemblies import NeuroidAssembly
 from brainio_contrib.packaging import package_data_assembly
 
+# TODO: should this be moved into majajhong2015
 
 def create_xarray(savepath):
     '''Packages the DataArray (stimulus set the same as HvM). Returns an xarray of ["neuroid", "presentation", "time_bin"]

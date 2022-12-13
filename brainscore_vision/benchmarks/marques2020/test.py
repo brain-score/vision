@@ -35,7 +35,7 @@ registry_test = TestBenchmarkRegistry()
     'dicarlo.Marques2020_Schiller1976-sf_selective',
 ])
 def test_benchmark_registry(benchmark):
-    registry_test.test_benchmark_in_registry(benchmark)
+    registry_test.benchmark_in_registry(benchmark)
 
 @pytest.mark.parametrize('benchmark, expected', [
     pytest.param('dicarlo.Marques2020_Cavanaugh2002-grating_summation_field', approx(0.956, abs=.005), marks=[]),
@@ -64,7 +64,7 @@ def test_benchmark_registry(benchmark):
     pytest.param('dicarlo.Marques2020_Schiller1976-sf_bandwidth', approx(0.933, abs=.005), marks=[]),
 ])
 def test_ceilings(benchmark, expected):
-    standardized_tests.test_ceilings(benchmark, expected)
+    standardized_tests.ceilings_test(benchmark, expected)
 
 @pytest.mark.memory_intense
 @pytest.mark.slow
@@ -130,4 +130,4 @@ def test_Marques2020(benchmark, expected):
     'dicarlo.Marques2020_Schiller1976-sf_selective',
 ])
 def test_repetitions(benchmark_identifier):
-    num_trials_test.test_repetitions(benchmark_identifier)
+    num_trials_test.repetitions_test(benchmark_identifier)

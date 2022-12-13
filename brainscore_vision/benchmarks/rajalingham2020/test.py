@@ -12,7 +12,7 @@ precomputed_test = TestPrecomputed()
                  marks=[pytest.mark.memory_intense, pytest.mark.slow]),
 ])
 def test_ceilings(benchmark, expected):
-    standardized_tests.test_ceilings(benchmark, expected)
+    standardized_tests.ceilings_test(benchmark, expected)
 
 
 @pytest.mark.parametrize('benchmark, visual_degrees, expected', [
@@ -20,7 +20,7 @@ def test_ceilings(benchmark, expected):
                  marks=[pytest.mark.memory_intense, pytest.mark.slow]),
 ])
 def test_self_regression(benchmark, visual_degrees, expected):
-    standardized_tests.test_self_regression(benchmark, visual_degrees, expected)
+    standardized_tests.self_regression_test(benchmark, visual_degrees, expected)
 
 
 @pytest.mark.memory_intense

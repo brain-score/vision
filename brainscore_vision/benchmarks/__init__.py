@@ -131,10 +131,6 @@ def _evaluation_benchmark_pool():
     # neural benchmarks
 
     # behavioral benchmarks
-    # Rajalingham2018
-    from .rajalingham2018 import DicarloRajalingham2018I2n
-    pool['dicarlo.Rajalingham2018-i2n'] = LazyLoad(DicarloRajalingham2018I2n)
-
 
     return pool
 

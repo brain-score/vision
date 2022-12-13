@@ -1,10 +1,11 @@
 import pytest
 from pytest import approx
 
-from brainscore_vision.benchmarks.public_benchmarks import list_public_assemblies, \
-    FreemanZiembaV1PublicBenchmark, FreemanZiembaV2PublicBenchmark, \
-    MajajHongV4PublicBenchmark, MajajHongITPublicBenchmark
-from tests.test_benchmarks import PrecomputedFeatures
+from brainscore_vision.benchmarks.benchmark_helpers.public_benchmark_helper import list_public_assemblies
+from brainscore_vision.benchmarks.freemanziemba2013.benchmarks.public_benchmarks import FreemanZiembaV1PublicBenchmark, \
+    FreemanZiembaV2PublicBenchmark
+from brainscore_vision.benchmarks.majajhong2015.benchmark import MajajHongV4PublicBenchmark, MajajHongITPublicBenchmark
+from todotests.test_benchmarks import PrecomputedFeatures
 
 
 @pytest.mark.parametrize('benchmark_ctr, visual_degrees, expected', [

@@ -24,7 +24,7 @@ in_registry = TestBenchmarkRegistry()
     'dicarlo.Rajalingham2018public-i2n',
 ])
 def test_benchmark_registry(benchmark):
-    in_registry.test_benchmark_in_registry(benchmark)
+    in_registry.benchmark_in_registry(benchmark)
 
 
 @pytest.mark.private_access
@@ -98,11 +98,11 @@ def test_Rajalingham2018public():
 ])
 def test_amount_gray(benchmark, candidate_degrees, image_id, expected, brainio_home, resultcaching_home,
                      brainscore_home):
-    visual_degrees.test_amount_gray(benchmark, candidate_degrees, image_id, expected, brainio_home,
+    visual_degrees.amount_gray_test(benchmark, candidate_degrees, image_id, expected, brainio_home,
                                     resultcaching_home, brainscore_home)
 
 
 @pytest.mark.private_access
 @pytest.mark.parametrize('benchmark_identifier', ['dicarlo.Rajalingham2018-i2n'])
 def test_repetitions(benchmark_identifier):
-    number_trials.test_repetitions(benchmark_identifier)
+    number_trials.repetitions_test(benchmark_identifier)

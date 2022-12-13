@@ -129,89 +129,8 @@ def _evaluation_benchmark_pool():
     pool = {}
 
     # neural benchmarks
-    # FreemanZiemba2013
-    from .freemanziemba2013 import MovshonFreemanZiemba2013V1PLS, MovshonFreemanZiemba2013V2PLS
-    pool['movshon.FreemanZiemba2013.V1-pls'] = LazyLoad(MovshonFreemanZiemba2013V1PLS)
-    pool['movshon.FreemanZiemba2013.V2-pls'] = LazyLoad(MovshonFreemanZiemba2013V2PLS)
-    from .kar2019 import DicarloKar2019OST
-    pool['dicarlo.Kar2019-ost'] = LazyLoad(DicarloKar2019OST)
-    # V1 properties benchmarks: orientation
-    from .marques2020_ringach2002 import MarquesRingach2002V1CircularVariance, MarquesRingach2002V1Bandwidth, \
-        MarquesRingach2002V1OrthogonalPreferredRatio, MarquesRingach2002V1OrientationSelective, \
-        MarquesRingach2002V1CircularVarianceBandwidthRatio, \
-        MarquesRingach2002V1OrthogonalPrefferredRatioCircularVarianceDifference
-    from .marques2020_devalois1982a import MarquesDeValois1982V1PreferredOrientation
-    pool['dicarlo.Marques2020_Ringach2002-circular_variance'] = LazyLoad(MarquesRingach2002V1CircularVariance)
-    pool['dicarlo.Marques2020_Ringach2002-or_bandwidth'] = LazyLoad(MarquesRingach2002V1Bandwidth)
-    pool['dicarlo.Marques2020_Ringach2002-orth_pref_ratio'] = LazyLoad(MarquesRingach2002V1OrthogonalPreferredRatio)
-    pool['dicarlo.Marques2020_Ringach2002-or_selective'] = LazyLoad(MarquesRingach2002V1OrientationSelective)
-    pool['dicarlo.Marques2020_Ringach2002-cv_bandwidth_ratio'] = \
-        LazyLoad(MarquesRingach2002V1CircularVarianceBandwidthRatio)
-    pool['dicarlo.Marques2020_Ringach2002-opr_cv_diff'] = \
-        LazyLoad(MarquesRingach2002V1OrthogonalPrefferredRatioCircularVarianceDifference)
-    pool['dicarlo.Marques2020_DeValois1982-pref_or'] = LazyLoad(MarquesDeValois1982V1PreferredOrientation)
-    # V1 properties benchmarks: spatial frequency
-    from .marques2020_devalois1982b import MarquesDeValois1982V1PeakSpatialFrequency
-    from .marques2020_schiller1976 import MarquesSchiller1976V1SpatialFrequencyBandwidth, \
-        MarquesSchiller1976V1SpatialFrequencySelective
-    pool['dicarlo.Marques2020_DeValois1982-peak_sf'] = LazyLoad(MarquesDeValois1982V1PeakSpatialFrequency)
-    pool['dicarlo.Marques2020_Schiller1976-sf_selective'] = LazyLoad(MarquesSchiller1976V1SpatialFrequencySelective)
-    pool['dicarlo.Marques2020_Schiller1976-sf_bandwidth'] = LazyLoad(MarquesSchiller1976V1SpatialFrequencyBandwidth)
-    # V1 properties benchmarks: surround
-    from .marques2020_cavanaugh2002a import MarquesCavanaugh2002V1GratingSummationField, \
-        MarquesCavanaugh2002V1SurroundDiameter, MarquesCavanaugh2002V1SurroundSuppressionIndex
-    pool['dicarlo.Marques2020_Cavanaugh2002-grating_summation_field'] = \
-        LazyLoad(MarquesCavanaugh2002V1GratingSummationField)
-    pool['dicarlo.Marques2020_Cavanaugh2002-surround_diameter'] = \
-        LazyLoad(MarquesCavanaugh2002V1SurroundDiameter)
-    pool['dicarlo.Marques2020_Cavanaugh2002-surround_suppression_index'] = \
-        LazyLoad(MarquesCavanaugh2002V1SurroundSuppressionIndex)
-    # V1 properties benchmarks: texture modulation
-    from .marques2020_freemanZiemba2013 import MarquesFreemanZiemba2013V1TextureModulationIndex, \
-        MarquesFreemanZiemba2013V1AbsoluteTextureModulationIndex
-    pool['dicarlo.Marques2020_FreemanZiemba2013-texture_modulation_index'] = \
-        LazyLoad(MarquesFreemanZiemba2013V1TextureModulationIndex)
-    pool['dicarlo.Marques2020_FreemanZiemba2013-abs_texture_modulation_index'] = \
-        LazyLoad(MarquesFreemanZiemba2013V1AbsoluteTextureModulationIndex)
-    # V1 properties benchmarks: selectivity
-    from .marques2020_freemanZiemba2013 import MarquesFreemanZiemba2013V1TextureSelectivity, \
-        MarquesFreemanZiemba2013V1TextureSparseness, MarquesFreemanZiemba2013V1VarianceRatio
-    pool['dicarlo.Marques2020_FreemanZiemba2013-texture_selectivity'] = \
-        LazyLoad(MarquesFreemanZiemba2013V1TextureSelectivity)
-    pool['dicarlo.Marques2020_FreemanZiemba2013-texture_sparseness'] = \
-        LazyLoad(MarquesFreemanZiemba2013V1TextureSparseness)
-    pool['dicarlo.Marques2020_FreemanZiemba2013-texture_variance_ratio'] = \
-        LazyLoad(MarquesFreemanZiemba2013V1VarianceRatio)
-    # V1 properties benchmarks: magnitude
-    from .marques2020_ringach2002 import MarquesRingach2002V1MaxDC, MarquesRingach2002V1ModulationRatio
-    from .marques2020_freemanZiemba2013 import MarquesFreemanZiemba2013V1MaxTexture, MarquesFreemanZiemba2013V1MaxNoise
-    pool['dicarlo.Marques2020_Ringach2002-max_dc'] = LazyLoad(MarquesRingach2002V1MaxDC)
-    pool['dicarlo.Marques2020_Ringach2002-modulation_ratio'] = LazyLoad(MarquesRingach2002V1ModulationRatio)
-    pool['dicarlo.Marques2020_FreemanZiemba2013-max_texture'] = LazyLoad(MarquesFreemanZiemba2013V1MaxTexture)
-    pool['dicarlo.Marques2020_FreemanZiemba2013-max_noise'] = LazyLoad(MarquesFreemanZiemba2013V1MaxNoise)
-    # Sanghavi2020 benchmarks
-    from .sanghavi2020 import DicarloSanghavi2020V4PLS, DicarloSanghavi2020ITPLS
-    pool['dicarlo.Sanghavi2020.V4-pls'] = LazyLoad(DicarloSanghavi2020V4PLS)
-    pool['dicarlo.Sanghavi2020.IT-pls'] = LazyLoad(DicarloSanghavi2020ITPLS)
-    from .sanghavijozwik2020 import DicarloSanghaviJozwik2020V4PLS, DicarloSanghaviJozwik2020ITPLS
-    pool['dicarlo.SanghaviJozwik2020.V4-pls'] = LazyLoad(DicarloSanghaviJozwik2020V4PLS)
-    pool['dicarlo.SanghaviJozwik2020.IT-pls'] = LazyLoad(DicarloSanghaviJozwik2020ITPLS)
-    from .sanghavimurty2020 import DicarloSanghaviMurty2020V4PLS, DicarloSanghaviMurty2020ITPLS
-    pool['dicarlo.SanghaviMurty2020.V4-pls'] = LazyLoad(DicarloSanghaviMurty2020V4PLS)
-    pool['dicarlo.SanghaviMurty2020.IT-pls'] = LazyLoad(DicarloSanghaviMurty2020ITPLS)
 
     # behavioral benchmarks
-    # Rajalingham2018
-    from .rajalingham2018 import DicarloRajalingham2018I2n
-    pool['dicarlo.Rajalingham2018-i2n'] = LazyLoad(DicarloRajalingham2018I2n)
-    # Geirhos2021-error_consistency
-    from . import geirhos2021
-    for dataset in geirhos2021.DATASETS:
-        assembly_identifier = f'Geirhos2021{dataset}'.replace('-', '')
-        benchmark_ctr = getattr(geirhos2021, f"{assembly_identifier}ErrorConsistency")
-        pool[f"brendel.{assembly_identifier}-error_consistency"] = LazyLoad(
-            # use lambda parameter-binding to avoid `benchmark_ctr` being re-assigned in the next loop iteration
-            lambda benchmark_ctr=benchmark_ctr: benchmark_ctr())
 
     return pool
 
@@ -222,34 +141,7 @@ def _engineering_benchmark_pool():
     """
     pool = {}
 
-    # ImageNet
-    from .imagenet import Imagenet2012
-    pool['fei-fei.Deng2009-top1'] = LazyLoad(Imagenet2012)
 
-    # ImageNet-C
-    from .imagenet_c import Imagenet_C_Noise, Imagenet_C_Blur, Imagenet_C_Weather, Imagenet_C_Digital
-    pool['dietterich.Hendrycks2019-noise-top1'] = LazyLoad(Imagenet_C_Noise)
-    pool['dietterich.Hendrycks2019-blur-top1'] = LazyLoad(Imagenet_C_Blur)
-    pool['dietterich.Hendrycks2019-weather-top1'] = LazyLoad(Imagenet_C_Weather)
-    pool['dietterich.Hendrycks2019-digital-top1'] = LazyLoad(Imagenet_C_Digital)
-
-    # ObjectNet
-    from .objectnet import Objectnet
-    pool['katz.BarbuMayo2019-top1'] = LazyLoad(Objectnet)
-
-    # Geirhos2021
-    from . import geirhos2021
-    for dataset in geirhos2021.DATASETS:
-        assembly_identifier = f'Geirhos2021{dataset}'.replace('-', '')
-        benchmark_ctr = getattr(geirhos2021, f"{assembly_identifier}Accuracy")
-        pool[f"brendel.{assembly_identifier}-top1"] = LazyLoad(
-            # use lambda parameter-binding to avoid `benchmark_ctr` being re-assigned in the next loop iteration
-            lambda benchmark_ctr=benchmark_ctr: benchmark_ctr())
-
-    # Hermann2020
-    from .hermann2020 import Hermann2020cueconflictShapeBias, Hermann2020cueconflictShapeMatch
-    pool['kornblith.Hermann2020cueconflict-shape_bias'] = LazyLoad(Hermann2020cueconflictShapeBias)
-    pool['kornblith.Hermann2020cueconflict-shape_match'] = LazyLoad(Hermann2020cueconflictShapeMatch)
 
     return pool
 
@@ -259,18 +151,6 @@ def _experimental_benchmark_pool():
     Benchmarks that can be used, but are not evaluated for the website.
     """
     pool = {}
-    # neural benchmarks
-    from .freemanziemba2013 import MovshonFreemanZiemba2013V1RDM, MovshonFreemanZiemba2013V2RDM, \
-        MovshonFreemanZiemba2013V1Single
-    pool['movshon.FreemanZiemba2013.V1-rdm'] = LazyLoad(MovshonFreemanZiemba2013V1RDM)
-    pool['movshon.FreemanZiemba2013.V2-rdm'] = LazyLoad(MovshonFreemanZiemba2013V2RDM)
-    pool['movshon.FreemanZiemba2013.V1-single'] = LazyLoad(MovshonFreemanZiemba2013V1Single)
-    from .cadena2017 import ToliasCadena2017PLS, ToliasCadena2017Mask
-    pool['tolias.Cadena2017-pls'] = LazyLoad(ToliasCadena2017PLS)
-    pool['tolias.Cadena2017-mask'] = LazyLoad(ToliasCadena2017Mask)
-    from .rajalingham2020 import DicarloRajalingham2020ITPLS
-    pool['dicarlo.Rajalingham2020.IT-pls'] = LazyLoad(DicarloRajalingham2020ITPLS)
-
     return pool
 
 
@@ -279,9 +159,6 @@ def _public_benchmark_pool():
     Benchmarks that are publicly usable, but are not used for the website.
     """
     pool = {}
-    from .public_benchmarks import RajalinghamMatchtosamplePublicBenchmark
-    pool['dicarlo.Rajalingham2018public-i2n'] = LazyLoad(RajalinghamMatchtosamplePublicBenchmark)
-
     return pool
 
 

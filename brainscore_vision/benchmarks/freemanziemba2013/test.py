@@ -1,0 +1,119 @@
+import pytest
+from pytest import approx
+from brainscore_vision import benchmark_registry
+from brainscore_vision.benchmarks.test_helper import TestStandardized, TestPrecomputed, TestNumberOfTrials, \
+    TestBenchmarkRegistry, TestVisualDegrees
+from .benchmarks.public_benchmarks import FreemanZiembaV1PublicBenchmark, FreemanZiembaV2PublicBenchmark
+from todotests.test_benchmarks import PrecomputedFeatures
+
+# should these be in function definitions
+standardized_tests = TestStandardized()
+precomputed_test = TestPrecomputed()
+num_trials_test = TestNumberOfTrials()
+registry_test = TestBenchmarkRegistry()
+visual_degrees_test = TestVisualDegrees()
+
+# TODO: Not sure what FreemanZiemba tests should be kept (discuss public/private w/ martin further)
+
+
+@pytest.mark.parametrize('benchmark', [
+    'movshon.FreemanZiemba2013.V1-pls',
+    'movshon.FreemanZiemba2013.V2-pls', # are these what should be checked for? what about public vs. private
+])
+def test_benchmark_registry(benchmark):
+    registry_test.benchmark_in_registry(benchmark)
+
+
+@pytest.mark.parametrize('benchmark, expected', [
+    pytest.param('movshon.FreemanZiemba2013.V1-pls', approx(.873345, abs=.001),
+                 marks=[pytest.mark.memory_intense]),
+    pytest.param('movshon.FreemanZiemba2013.V2-pls', approx(.824836, abs=.001),
+                 marks=[pytest.mark.memory_intense]),
+    pytest.param('movshon.FreemanZiemba2013.V1-rdm', approx(.918672, abs=.001),
+                 marks=[pytest.mark.memory_intense]),
+    pytest.param('movshon.FreemanZiemba2013.V2-rdm', approx(.856968, abs=.001),
+                 marks=[pytest.mark.memory_intense]),
+])
+def test_ceilings(benchmark, expected):
+    standardized_tests.ceilings_test(benchmark, expected)
+
+
+@pytest.mark.parametrize('benchmark, visual_degrees, expected', [
+    pytest.param('movshon.FreemanZiemba2013.V1-pls', 4, approx(.668491, abs=.001),
+                 marks=[pytest.mark.memory_intense]),
+    pytest.param('movshon.FreemanZiemba2013.V2-pls', 4, approx(.553155, abs=.001),
+                 marks=[pytest.mark.memory_intense]),
+])
+def test_self_regression(benchmark, visual_degrees, expected):
+    standardized_tests.self_regression_test(benchmark, visual_degrees, expected)
+
+
+@pytest.mark.parametrize('benchmark, visual_degrees, expected', [
+    pytest.param('movshon.FreemanZiemba2013.V1-rdm', 4, approx(1, abs=.001),
+                 marks=[pytest.mark.memory_intense]),
+    pytest.param('movshon.FreemanZiemba2013.V2-rdm', 4, approx(1, abs=.001),
+                 marks=[pytest.mark.memory_intense]),
+])
+def test_self_rdm(benchmark, visual_degrees, expected):
+    benchmark = benchmark_registry[benchmark]
+    score = benchmark(PrecomputedFeatures(benchmark._assembly, visual_degrees=visual_degrees)).raw
+    assert score.sel(aggregation='center') == expected
+    raw_values = score.attrs['raw']
+    assert hasattr(raw_values, 'split')
+    assert len(raw_values['split']) == 10
+
+
+@pytest.mark.memory_intense
+@pytest.mark.parametrize('benchmark, expected', [
+    ('movshon.FreemanZiemba2013.V1-pls', approx(.466222, abs=.005)),
+    ('movshon.FreemanZiemba2013.V2-pls', approx(.459283, abs=.005)),
+])
+def test_FreemanZiemba2013(benchmark, expected):
+    precomputed_test.run_test(benchmark=benchmark, file='alexnet-freemanziemba2013.aperture-private.nc', expected=expected)
+
+
+@pytest.mark.parametrize('benchmark, candidate_degrees, image_id, expected', [
+    pytest.param('movshon.FreemanZiemba2013.V1-pls', 14, 'c3a633a13e736394f213ddf44bf124fe80cabe07',
+                 approx(.31429, abs=.0001), marks=[pytest.mark.private_access]),
+    pytest.param('movshon.FreemanZiemba2013.V1-pls', 6, 'c3a633a13e736394f213ddf44bf124fe80cabe07',
+                 approx(.22966, abs=.0001), marks=[pytest.mark.private_access]),
+    pytest.param('movshon.FreemanZiemba2013public.V1-pls', 14, '21041db1f26c142812a66277c2957fb3e2070916',
+                 approx(.314561, abs=.0001), marks=[]),
+    pytest.param('movshon.FreemanZiemba2013public.V1-pls', 6, '21041db1f26c142812a66277c2957fb3e2070916',
+                 approx(.23113, abs=.0001), marks=[]),
+    pytest.param('movshon.FreemanZiemba2013.V2-pls', 14, 'c3a633a13e736394f213ddf44bf124fe80cabe07',
+                 approx(.31429, abs=.0001), marks=[pytest.mark.private_access]),
+    pytest.param('movshon.FreemanZiemba2013.V2-pls', 6, 'c3a633a13e736394f213ddf44bf124fe80cabe07',
+                 approx(.22966, abs=.0001), marks=[pytest.mark.private_access]),
+    pytest.param('movshon.FreemanZiemba2013public.V2-pls', 14, '21041db1f26c142812a66277c2957fb3e2070916',
+                 approx(.314561, abs=.0001), marks=[]),
+    pytest.param('movshon.FreemanZiemba2013public.V2-pls', 6, '21041db1f26c142812a66277c2957fb3e2070916',
+                 approx(.23113, abs=.0001), marks=[]),
+])
+def test_amount_gray(benchmark, candidate_degrees, image_id, expected, brainio_home, resultcaching_home,
+                     brainscore_home):
+    visual_degrees_test.amount_gray_test(benchmark, candidate_degrees, image_id, expected, brainio_home,
+                                         resultcaching_home, brainscore_home)
+
+@pytest.mark.private_access
+@pytest.mark.parametrize('benchmark_identifier', [
+    'movshon.FreemanZiemba2013.V1-pls',
+    'movshon.FreemanZiemba2013.V2-pls',
+])
+def test_repetitions(benchmark_identifier):
+    num_trials_test.repetitions_test(benchmark_identifier)
+
+
+# tests for public benchmarks
+@pytest.mark.parametrize('benchmark_ctr, visual_degrees, expected', [
+    pytest.param(FreemanZiembaV1PublicBenchmark, 4, approx(.679954, abs=.001),
+                 marks=[pytest.mark.memory_intense]),
+    pytest.param(FreemanZiembaV2PublicBenchmark, 4, approx(.577498, abs=.001),
+                 marks=[pytest.mark.memory_intense]),
+])
+def test_self(benchmark_ctr, visual_degrees, expected):
+    benchmark = benchmark_ctr()
+    source = benchmark._assembly.copy()
+    source = {benchmark._assembly.stimulus_set.identifier: source}
+    score = benchmark(PrecomputedFeatures(source, visual_degrees=visual_degrees)).raw
+    assert score.sel(aggregation='center') == expected

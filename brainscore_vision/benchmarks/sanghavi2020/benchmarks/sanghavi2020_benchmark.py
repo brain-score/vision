@@ -1,56 +1,53 @@
 import numpy as np
 
 import brainscore_vision
-from brainscore_vision.benchmarks._neural_common import NeuralBenchmark, average_repetition
+from brainscore_vision.benchmarks.benchmark_helpers._neural_common import NeuralBenchmark, average_repetition
 from brainscore_vision.metrics.ceiling import InternalConsistency
 from brainscore_vision.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation
 from brainscore_vision.utils import LazyLoad
-# from brainscore_vision import load_dataset  # need a load_dataset
 
+
+VISUAL_DEGREES = 8
+NUMBER_OF_TRIALS = 28
 BIBTEX = """"""
 
 
+def _DicarloSanghavi2020Region(region, identifier_metric_suffix, similarity_metric, ceiler):
+    assembly_repetition = LazyLoad(lambda region=region: load_assembly(average_repetitions=False, region=region))
+    assembly = LazyLoad(lambda region=region: load_assembly(average_repetitions=True, region=region))
+    return NeuralBenchmark(identifier=f'dicarlo.Sanghavi2020.{region}-{identifier_metric_suffix}', version=1,
+                           assembly=assembly, similarity_metric=similarity_metric,
+                           visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
+                           ceiling_func=lambda: ceiler(assembly_repetition),
+                           parent=region,
+                           bibtex=BIBTEX)
+
+
 def DicarloSanghavi2020V4PLS():
-    return _DicarloSanghavi2020Region('V4')
+    return _DicarloSanghavi2020Region('V4', identifier_metric_suffix='pls',
+                                      similarity_metric=CrossRegressedCorrelation(
+                                          regression=pls_regression(), correlation=pearsonr_correlation(),
+                                          crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                      ceiler=InternalConsistency())
 
 
 def DicarloSanghavi2020ITPLS():
-    return _DicarloSanghavi2020Region('IT')
+    return _DicarloSanghavi2020Region('IT', identifier_metric_suffix='pls',
+                                      similarity_metric=CrossRegressedCorrelation(
+                                          regression=pls_regression(), correlation=pearsonr_correlation(),
+                                          crossvalidation_kwargs=dict(stratification_coord='object_name')),
+                                      ceiler=InternalConsistency())
 
 
-class _DicarloSanghavi2020Region(NeuralBenchmark):
-    def __init__(self, region: str):
-        self._assembly_repetition = self._load_assembly(region, average_repetitions=False)
-        self._assembly = self._load_assembly(region, average_repetitions=True)
-        self._identifier_metric_suffix = 'pls'
-        self._similarity_metric = CrossRegressedCorrelation(
-                                      regression=pls_regression(), correlation=pearsonr_correlation(),
-                                      crossvalidation_kwargs=dict(stratification_coord='object_name'))
-        self._ceiler = InternalConsistency()
-        self._visual_degrees = 8
-        self._number_of_trials = 28
-        super(_DicarloSanghavi2020Region, self).__init__(
-            identifier=f'dicarlo.Sanghavi2020.{region}-{self._identifier_metric_suffix}', version=1,
-            assembly=self._assembly, similarity_metric=self._similarity_metric,
-            visual_degrees=self._visual_degrees, number_of_trials=self._number_of_trials,
-            ceiling_func=lambda: self._ceiler(self._assembly_repetition),
-            parent=region,
-            bibtex=BIBTEX
-        )
-
-    def _load_assembly(self, region, average_repetitions):
-        # 'load_dataset' must be created within brainscore_vision
-        assembly = brainscore_vision.load_dataset('dicarlo.Sanghavi2020')
-
-        assembly = assembly.sel(region=region)
-        assembly['region'] = 'neuroid', [region] * len(assembly['neuroid'])
-        assembly.load()
-        assembly = assembly.sel(time_bin_id=0)  # 70-170ms
-        assembly = assembly.squeeze('time_bin')
-        assert self._number_of_trials == len(np.unique(assembly.coords['repetition']))
-        assert self._visual_degrees == assembly.attrs['image_size_degree']
-        if average_repetitions:
-            assembly = average_repetition(assembly)
-        return assembly
-
-
+def load_assembly(average_repetitions, region):
+    assembly = brainscore_vision.get_assembly(name=f'dicarlo.Sanghavi2020')
+    assembly = assembly.sel(region=region)
+    assembly['region'] = 'neuroid', [region] * len(assembly['neuroid'])
+    assembly.load()
+    assembly = assembly.sel(time_bin_id=0)  # 70-170ms
+    assembly = assembly.squeeze('time_bin')
+    assert NUMBER_OF_TRIALS == len(np.unique(assembly.coords['repetition']))
+    assert VISUAL_DEGREES == assembly.attrs['image_size_degree']
+    if average_repetitions:
+        assembly = average_repetition(assembly)
+    return assembly

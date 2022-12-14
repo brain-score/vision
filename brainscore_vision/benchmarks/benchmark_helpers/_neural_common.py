@@ -2,7 +2,7 @@ import numpy as np
 
 from brainio.assemblies import array_is_element, walk_coords
 from brainscore_vision.benchmarks import BenchmarkBase, ceil_score
-from brainscore_vision.benchmarks.screen import place_on_screen
+from .screen import place_on_screen
 from brainscore_vision.model_interface import BrainModel
 
 

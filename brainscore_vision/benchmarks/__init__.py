@@ -11,7 +11,6 @@ from result_caching import cache, store
 
 from brainscore_vision.metrics import Score
 from brainscore_vision.model_interface import BrainModel
-from brainscore_vision.utils import LazyLoad
 
 
 class Benchmark(ABC):

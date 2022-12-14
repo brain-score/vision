@@ -8,7 +8,7 @@ import xarray as xr
 
 import brainscore_vision
 from brainscore_vision.benchmarks import BenchmarkBase
-from brainscore_vision.benchmarks.imagenet import NUMBER_OF_TRIALS
+from brainscore_vision.benchmarks.imagenet.benchmark import NUMBER_OF_TRIALS
 from brainscore_vision.metrics import Score
 from brainscore_vision.metrics.accuracy import Accuracy
 from brainscore_vision.model_interface import BrainModel

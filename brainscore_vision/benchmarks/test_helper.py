@@ -1,13 +1,11 @@
-import os
 from pathlib import Path
 from typing import List, Tuple
 
 import numpy as np
 from PIL import Image
 
-from brainio.assemblies import BehavioralAssembly, NeuroidAssembly, PropertyAssembly
-from brainscore_vision.benchmarks import benchmark_pool, public_benchmark_pool, evaluation_benchmark_pool, \
-    engineering_benchmark_pool
+from brainio.assemblies import NeuroidAssembly, PropertyAssembly
+# from brainscore_vision.benchmarks import benchmark_pool, public_benchmark_pool
 from brainscore_vision import benchmark_registry
 from brainscore_vision.model_interface import BrainModel
 from todotests.test_benchmarks import PrecomputedFeatures
@@ -16,14 +14,14 @@ from todotests.test_benchmarks import PrecomputedFeatures
 # TODO: discuss with Martin
 # seems to work when test is not first word in these functions
 # can I just delete TestPoolList if we're using benchmark registry
-class TestPoolList:
-    """ ensures that the right benchmarks are in the right benchmark pool """
-
-    def contained_global_test(self, benchmark: str):
-        assert benchmark in benchmark_pool
-
-    def contained_public_test(self, benchmark: str):
-        assert benchmark in public_benchmark_pool
+# class TestPoolList:
+#     """ ensures that the right benchmarks are in the right benchmark pool """
+#
+#     def contained_global_test(self, benchmark: str):
+#         assert benchmark in benchmark_pool
+#
+#     def contained_public_test(self, benchmark: str):
+#         assert benchmark in public_benchmark_pool
 
 
 class TestBenchmarkRegistry:

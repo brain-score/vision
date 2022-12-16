@@ -2,7 +2,7 @@ from brainscore_vision import data_registry
 from brainscore_vision.utils.s3 import load_from_s3
 
 
-# TODO: add correct version id and sha1
+# TODO: add correct version id
 data_registry['aru.Kuzovkin2018'] = lambda: load_from_s3(
     identifier="aru.Kuzovkin2018",
     version_id="",

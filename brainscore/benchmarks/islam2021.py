@@ -20,7 +20,7 @@ BIBTEX = """@inproceedings{
 
 
 TIME_BIN_ST, TIME_BIN_END = 0, 100 #arbitrary values, just to collect model activations
-SEED = 1751 #turn this benchmark into a deterministic one
+SEED = 1751 #turn this benchmark into a deterministic one 
 
 class Islam2021Dimensionality(BenchmarkBase):
     def __init__(self,region,factor,deterministic=True):

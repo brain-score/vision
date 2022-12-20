@@ -25,8 +25,22 @@ BIBTEX = """@Article{Kar2019,
             url={https://doi.org/10.1038/s41593-019-0392-5}
             }"""
 
-# TODO: add correct version id and sha1
+# TODO: add correct version id
+# DataAssembly
 data_registry['dicarlo.Kar2019'] = lambda: load_from_s3(
     identifier="dicarlo.Kar2019",
     version_id="",
-    sha1="")
+    sha1="147717ce397e11d56164d472063a84a83bbcbb94")
+
+# Stimulus set
+# DataAssembly
+data_registry['dicarlo.Kar2019'] = lambda: load_from_s3(
+    identifier="dicarlo.Kar2019",
+    version_id="",
+    sha1="147717ce397e11d56164d472063a84a83bbcbb94")
+
+# DataAssembly
+data_registry['dicarlo.Kar2019'] = lambda: load_from_s3(
+    identifier="dicarlo.Kar2019",
+    version_id="",
+    sha1="147717ce397e11d56164d472063a84a83bbcbb94")

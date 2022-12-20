@@ -30,7 +30,6 @@ def collect_stylizedvoc_stimuli(data_dir):
     assert os.path.exists(data_dir)
     for filepath in Path(data_dir).glob('*.jpg'):
         assert len(filepath.stem.split('_')) == 4
-        filename = filepath.name
         image_id = filepath.stem
         original_image_id = filepath.stem.split('_')[2] + "_" + filepath.stem.split('_')[3]  #corresponds to the original voc dataset
         texture_class = int(filepath.stem.split('_')[0])
@@ -56,12 +55,9 @@ def collect_stylizedvoc_stimuli(data_dir):
     
     
 if __name__ == '__main__':
-    #dir = "brainscore/brain-score/packaging/stylizedvoc2012"
     dir = "./packaging/stylizedvoc2012"
     stimuli = collect_stylizedvoc_stimuli(dir)
-    #print("finished collecting stimuli")
-    # upload to S3
-    #package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.identifier, bucket_name="brainio.contrib")
+    #upload to S3
     #package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.identifier,bucket_name="brainio-brainscore")
 
 

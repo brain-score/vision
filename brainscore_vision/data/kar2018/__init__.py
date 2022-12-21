@@ -1,18 +1,38 @@
+from brainio.assemblies import NeuronRecordingAssembly
+
 from brainscore_vision import data_registry
 from brainscore_vision.metrics.ceiling import InternalConsistency
 from brainscore_vision.metrics.transformations import CrossValidation
-from brainscore_vision.utils.s3 import load_from_s3
+from brainscore_vision.utils.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
 
-# TODO: add correct version id
-data_registry['dicarlo.Kar2018hvm'] = lambda: load_from_s3(
+
+# TODO: add correct version ids... is dicarlo.hvm separate? this assembly uses dicarlo.hvm stimulus set
+# assemblies: hvm
+data_registry['dicarlo.Kar2018hvm'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.Kar2018hvm",
     version_id="",
-    sha1="96ccacc76c5fa30ee68bdc8736d1d43ace93f3e7")
+    sha1="96ccacc76c5fa30ee68bdc8736d1d43ace93f3e7",
+    bucket="brainio.dicarlo",
+    cls=NeuronRecordingAssembly)
 
-data_registry['dicarlo.Kar2018cocogray'] = lambda: load_from_s3(
+# assemblies: cocogray
+data_registry['dicarlo.Kar2018cocogray'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.Kar2018cocogray",
     version_id="",
-    sha1="4202cb3992a5d71f71a7ca9e28ba3f8b27937b43")
+    sha1="4202cb3992a5d71f71a7ca9e28ba3f8b27937b43",
+    bucket="brainio.dicarlo",
+    cls=NeuronRecordingAssembly)
+
+# stimulus set: cocogray
+data_registry['dicarlo.Kar2018cocogray'] = lambda: load_stimulus_set_from_s3(
+    identifier="dicarlo.Kar2018cocogray",
+    bucket="brainio.dicarlo",
+    csv_sha1="be9bb267b80fd7ee36a88d025b73ae8a849165da",
+    zip_sha1="1457003ee9b27ed51c018237009fe148c6e71fd3",
+    csv_version_id="",
+    zip_version_id="")
+
+
 
 
 def filter_neuroids(assembly, threshold):

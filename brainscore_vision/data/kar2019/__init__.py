@@ -1,7 +1,9 @@
 import logging
 
+from brainio.assemblies import DataAssembly
+
 from brainscore_vision import data_registry
-from brainscore_vision.utils.s3 import load_from_s3
+from brainscore_vision.utils.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
 
 _logger = logging.getLogger(__name__)
 
@@ -26,21 +28,19 @@ BIBTEX = """@Article{Kar2019,
             }"""
 
 # TODO: add correct version id
-# DataAssembly
-data_registry['dicarlo.Kar2019'] = lambda: load_from_s3(
+# assembly
+data_registry['dicarlo.Kar2019'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.Kar2019",
     version_id="",
-    sha1="147717ce397e11d56164d472063a84a83bbcbb94")
+    sha1="147717ce397e11d56164d472063a84a83bbcbb94",
+    bucket="brainio.dicarlo",
+    cls=DataAssembly)
 
-# Stimulus set
-# DataAssembly
-data_registry['dicarlo.Kar2019'] = lambda: load_from_s3(
+# stimulus set
+data_registry['dicarlo.Kar2019'] = lambda: load_stimulus_set_from_s3(
     identifier="dicarlo.Kar2019",
-    version_id="",
-    sha1="147717ce397e11d56164d472063a84a83bbcbb94")
-
-# DataAssembly
-data_registry['dicarlo.Kar2019'] = lambda: load_from_s3(
-    identifier="dicarlo.Kar2019",
-    version_id="",
-    sha1="147717ce397e11d56164d472063a84a83bbcbb94")
+    bucket="brainio.dicarlo",
+    csv_sha1="7f705bdea02c0a72a76d7f5e7b6963531df818a6",
+    zip_sha1="75ab7b8b499fc8e86c813f717b79d268bcb986be",
+    csv_version_id="",
+    zip_version_id="")

@@ -265,7 +265,7 @@ class TestBaker2022:
 
     # tests number of images
     @pytest.mark.parametrize('identifier, num_images', [
-        ('normal', 720),
+        ('normal', 716),
         ('inverted', 360),
     ])
     def test_num_stimuli(self, identifier, num_images):

@@ -45,28 +45,34 @@ class AboveChanceAgreement(Metric):
         """
         subjects = sorted(set(assembly['subject'].values))
         subject_scores = []
-        for subject1, subject2 in itertools.combinations(subjects, 2):
+        for subject1 in subjects:
             for category in sorted(set(assembly['animal'].values)):
-
+                # get correct images
                 subject1_assembly = assembly.sel(subject=subject1, animal=category, image_type=image_type)
-                subject2_assembly = assembly.sel(subject=subject2, animal=category, image_type=image_type)
+                sub1_images = list(set(subject1_assembly["stimulus_id"].values))
 
-                trials_in_common = list(set(subject1_assembly["stimulus_id"].values).intersection(subject2_assembly["stimulus_id"].values))
+                pool_mask = assembly["stimulus_id"].isin(sub1_images)
+                pool_trials = assembly.where(pool_mask).dropna("presentation")
+                pool_trials = pool_trials.where(pool_trials['subject'] != subject1).dropna('presentation')
 
-                # if the two subjects did not see the same images, pass
-                if len(trials_in_common) == 0:
-                    break
+                # get the subject correct vector
+                sub1 = subject1_assembly["correct"].values
+                subject_pool = set(pool_trials["subject"].values)
 
-                # get the images where the subjects are in common:
-                mask1 = subject1_assembly["stimulus_id"].isin(trials_in_common)
-                mask2 = subject2_assembly["stimulus_id"].isin(trials_in_common)
+                assert set(pool_trials["stimulus_id"].values) == set(sub1_images)
 
-                sub1 = subject1_assembly.where(mask1).dropna("presentation")
-                sub2 = subject2_assembly.where(mask2).dropna("presentation")
-                pairwise_score = self.compare_single_subject(sub1, sub2, is_ceiling=True)
-                pairwise_score = pairwise_score.expand_dims('subject').expand_dims('category')
+                print(f"comparing  subject {subject1} to subject pool{subject_pool}")
+
+                # get the mode vector over subjects who saw same images:
+                modes = []
+                for image in subject1_assembly["stimulus_id"].values:
+                    mode = scipy.stats.mode(pool_trials.sel(stimulus_id=image)["correct"].values)[0][0]
+                    modes.append(mode)
+
+                pairwise_score = self.compare_single_subject(sub1, np.array(modes), is_ceiling=True)
+                pairwise_score = pairwise_score.expand_dims('subject').expand_dims("category")
                 pairwise_score['subject_left'] = 'subject', [subject1]
-                pairwise_score['subject_right'] = 'subject', [subject2]
+                pairwise_score['subject_pool'] = 'subject', [str(subject_pool)]
                 pairwise_score['category'] = [category]
                 subject_scores.append(Score(pairwise_score))
         subject_scores = Score.merge(*subject_scores)
@@ -77,28 +83,21 @@ class AboveChanceAgreement(Metric):
         return list(sorted(set(assembly['subject'].values)))
 
     def compare_single_subject(self, source, target, is_ceiling=False):
-        assert len(source['presentation']) == len(target['presentation'])
-        source = source.sortby('stimulus_id')
-        target = target.sortby('stimulus_id')
-        assert all(source['stimulus_id'].values == target['stimulus_id'].values)
+
         if is_ceiling:
-            correct_source = source['correct'].values
-            correct_target = target['correct'].values
+            correct_source = source
+            correct_target = target
         else:
+            assert len(source['presentation']) == len(target['presentation'])
+            source = source.sortby('stimulus_id')
+            target = target.sortby('stimulus_id')
+            assert all(source['stimulus_id'].values == target['stimulus_id'].values)
             correct_source = source.values == source['animal'].values
             correct_target = target['correct'].values
+
         accuracy_source = np.mean(correct_source)
         accuracy_target = np.mean(correct_target)
         expected_consistency = accuracy_source * accuracy_target + (1 - accuracy_source) * (1 - accuracy_target)
         observed_consistency = (correct_source == correct_target).sum() / len(target)
         aca = observed_consistency - expected_consistency
         return Score(aca)
-
-def get_mode(*args, **kwargs):
-    vals = scipy.stats.mode(*args, **kwargs)
-    # only return the mode (discard the count)
-    return vals[0][0]
-
-def mode(obj, dim):
-    final = xr.apply_ufunc(get_mode, obj, input_core_dims=[[dim]])
-    return final

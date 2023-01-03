@@ -9,7 +9,7 @@ To that end, Brain-Score operationalizes experimental data into quantitative ben
 that any model candidate following the [`BrainModel`](brainscore/model_interface.py) interface can be scored on.
 
 See the [Documentation](https://brain-score.readthedocs.io) for more details 
-and the [Tutorial](https://brain-score.readthedocs.io/en/latest/modules/tutorial.html) 
+and the [Tutorial](https://brain-score.readthedocs.io/en/latest/modules/model_tutorial.html) 
 and [Examples](https://github.com/brain-score/candidate_models/blob/master/examples/score-model.ipynb)
 for submitting a model to Brain-Score.
 

@@ -6,7 +6,7 @@ from pytest import approx
 
 from brainio.assemblies import BehavioralAssembly
 from brainscore import benchmark_pool
-from brainscore.benchmarks.geirhos2021 import DATASETS
+from brainscore.benchmarks.geirhos2021 import DATASETS, cast_coordinate_type
 from tests.test_benchmarks import PrecomputedFeatures
 
 
@@ -75,6 +75,9 @@ class TestBehavioral:
         # load features
         precomputed_features = Path(__file__).parent / f'{model}-3deg-Geirhos2021_{dataset}.nc'
         precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)
+        # these features were packaged with condition as int/float. Current xarray versions have trouble when
+        # selecting for a float coordinate however, so we had to change the type to string.
+        precomputed_features = cast_coordinate_type(precomputed_features, 'condition', newtype=str)
         precomputed_features = PrecomputedFeatures(precomputed_features,
                                                    visual_degrees=8,  # doesn't matter, features are already computed
                                                    )
@@ -95,6 +98,9 @@ class TestBehavioral:
             benchmark = benchmark_pool[f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency"]
             precomputed_features = Path(__file__).parent / f'{model}-Geirhos2021_{dataset}.nc'
             precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)
+            # these features were packaged with condition as int/float. Current xarray versions have trouble when
+            # selecting for a float coordinate however, so we had to change the type to string.
+            precomputed_features = cast_coordinate_type(precomputed_features, 'condition', newtype=str)
             precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
             score = benchmark(precomputed_features).raw
             scores.append(score.sel(aggregation='center'))

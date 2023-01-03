@@ -134,6 +134,7 @@ class _Behavior_Metric(Metric):
     def dprimes(self, response_matrix, cap=5):
         dprime_scores = self.dprime(response_matrix)
         dprime_scores_clipped = dprime_scores.clip(-cap, cap)
+        dprime_scores_clipped = type(dprime_scores)(dprime_scores_clipped)  # make sure type is preserved
         if not self._normalize:
             return dprime_scores_clipped
         else:

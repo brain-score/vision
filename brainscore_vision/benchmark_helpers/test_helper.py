@@ -5,23 +5,9 @@ import numpy as np
 from PIL import Image
 
 from brainio.assemblies import NeuroidAssembly, PropertyAssembly
-# from brainscore_vision.benchmarks import benchmark_pool, public_benchmark_pool
 from brainscore_vision import benchmark_registry
 from brainscore_vision.model_interface import BrainModel
 from todotests.test_benchmarks import PrecomputedFeatures
-
-
-# TODO: discuss with Martin
-# seems to work when test is not first word in these functions
-# can I just delete TestPoolList if we're using benchmark registry
-# class TestPoolList:
-#     """ ensures that the right benchmarks are in the right benchmark pool """
-#
-#     def contained_global_test(self, benchmark: str):
-#         assert benchmark in benchmark_pool
-#
-#     def contained_public_test(self, benchmark: str):
-#         assert benchmark in public_benchmark_pool
 
 
 class TestBenchmarkRegistry:
@@ -81,14 +67,14 @@ class TestPrecomputed:
 
     def run_test_properties(self, benchmark: str, files: dict, expected: float):
         benchmark = benchmark_registry[benchmark]
-        from brainscore_vision import get_stimulus_set
+        from brainscore_vision import load_stimulus_set
 
         stimulus_identifiers = np.unique(np.array(['dicarlo.Marques2020_blank', 'dicarlo.Marques2020_receptive_field',
                                                    'dicarlo.Marques2020_orientation',
                                                    benchmark._assembly.stimulus_set.identifier]))
         precomputed_features = {}
         for current_stimulus in stimulus_identifiers:
-            stimulus_set = get_stimulus_set(current_stimulus)
+            stimulus_set = load_stimulus_set(current_stimulus)
             path = Path(__file__).parent / files[current_stimulus]
             features = PropertyAssembly.from_files(path,
                                                    stimulus_set_identifier=stimulus_set.identifier,

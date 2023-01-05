@@ -1,9 +1,6 @@
 import numpy as np
-import os
 from pathlib import Path
 
-import pandas as pd
-import xarray as xr
 import pytest
 from pytest import approx
 

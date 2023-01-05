@@ -1,11 +1,4 @@
-import numpy as np
-from brainio_base.assemblies import walk_coords, array_is_element
-from numpy.random.mtrand import RandomState
-from sklearn.model_selection import StratifiedShuffleSplit
-from xarray import DataArray
-
 from brainio_collection.fetch import fetch_assembly, get_assembly
-from brainio_collection.transform import subset
 from brainio_contrib.packaging import package_data_assembly, package_stimulus_set
 
 
@@ -33,33 +26,6 @@ def apply_keep_attrs(assembly, fnc):  # workaround to keeping attrs
     attrs = assembly.attrs
     assembly = fnc(assembly)
     assembly.attrs = attrs
-    return assembly
-
-
-def package_Movshon_datasets(name):
-    assembly = load_assembly(name)
-    assembly.load()
-    base_assembly = assembly
-    _, unique_indices = np.unique(base_assembly['image_id'].values, return_index=True)
-    unique_indices = np.sort(unique_indices)  # preserve order
-    image_ids = base_assembly['image_id'].values[unique_indices]
-    stratification_values = base_assembly['texture_type'].values[unique_indices]
-    rng = RandomState(seed=12)
-    splitter = StratifiedShuffleSplit(n_splits=1, train_size=.3, test_size=None, random_state=rng)
-    split = next(splitter.split(np.zeros(len(image_ids)), stratification_values))
-    access_indices = {assembly_type: image_indices
-                      for assembly_type, image_indices in zip(['public', 'private'], split)}
-    for access in ['public', 'private']:
-        indices = access_indices[access]
-        subset_image_ids = image_ids[indices]
-        assembly = base_assembly[
-            {'presentation': [image_id in subset_image_ids for image_id in base_assembly['image_id'].values]}]
-        adapt_stimulus_set(assembly, access)
-        package_stimulus_set(assembly.attrs['stimulus_set'], stimulus_set_name=assembly.attrs['stimulus_set_name'])
-        del assembly.attrs['stimulus_set']
-        package_data_assembly(assembly, f"{name}.{access}", stimulus_set_name=assembly.attrs['stimulus_set_name'])
-
-    # not really sure if this is necessary
     return assembly
 
 
@@ -97,4 +63,3 @@ def package_dicarlo_datasets(name):
 if __name__ == '__main__':
     package_dicarlo_datasets(name='dicarlo.Majaj2015')
     package_dicarlo_datasets(name='dicarlo.Majaj2015.temporal')
-    package_Movshon_datasets(name='movshon.FreemanZiemba2013')

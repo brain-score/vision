@@ -50,6 +50,34 @@ data_registry['dicarlo.SanghaviMurty2020THINGS2'] = lambda: load_assembly_from_s
     cls=NeuronRecordingAssembly)
 
 
+# stimulus set: dicarlo.BOLD5000 - can put in sanghavi
+data_registry['dicarlo.BOLD5000'] = lambda: load_stimulus_set_from_s3(
+    identifier="dicarlo.BOLD5000",
+    bucket="brainio.dicarlo",
+    csv_sha1="51ac47ea03ed2e72864a95065494c2fabe779f6e",
+    zip_sha1="1a2e6d782dcd21bbe60460d85d83b13fa76a9543",
+    csv_version_id="",
+    zip_version_id="")
+
+# stimulus set: dicarlo.THINGS1
+data_registry['dicarlo.THINGS1'] = lambda: load_stimulus_set_from_s3(
+    identifier="dicarlo.THINGS1",
+    bucket="brainio.dicarlo",
+    csv_sha1="e02469d805e1b9c1a18403e9b0b8a37ee6da5130",
+    zip_sha1="fb716eb58c303157dd577a70caad5c8079e74e9b",
+    csv_version_id="",
+    zip_version_id="")
+
+# stimulus set: dicarlo.THINGS2
+data_registry['dicarlo.THINGS2'] = lambda: load_stimulus_set_from_s3(
+    identifier="dicarlo.THINGS2",
+    bucket="brainio.dicarlo",
+    csv_sha1="86c8beda8f495cd69ed047d3457902dd98e4904c",
+    zip_sha1="e7918dd10102b67464bc652fdb3ced25ee1fbe7a",
+    csv_version_id="",
+    zip_version_id="")
+
+
 def filter_neuroids(assembly, threshold):
     ceiler = InternalConsistency()
     ceiling = ceiler(assembly)

@@ -14,6 +14,9 @@ _logger = logging.getLogger(__name__)
 data_registry: Dict[str, Callable[[], Union[DataAssembly, Any]]] = {}
 """ Pool of available data """
 
+stimulus_set_registry: Dict[str, Callable[[], Any]] = {}
+""" Pool of available stimulus sets"""
+
 metric_registry: Dict[str, Callable[[], Metric]] = {}
 """ Pool of available metrics """
 
@@ -28,6 +31,10 @@ def load_dataset(identifier: str) -> Union[DataAssembly, Any]:
     import_plugin('brainscore_vision', 'data', identifier)
 
     return data_registry[identifier]()
+
+
+def load_stimulus_set(identifier: str) -> Any:
+    return stimulus_set_registry[identifier]()
 
 
 def load_metric(identifier: str, *args, **kwargs) -> Metric:

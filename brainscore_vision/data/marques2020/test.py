@@ -1,5 +1,6 @@
 import pytest
 import brainscore_vision
+from brainscore_vision import load_stimulus_set
 
 
 @pytest.mark.private_access
@@ -36,3 +37,19 @@ class TestMarques2020V1Properties:
         assert set(assembly['neuronal_property'].values) == set(properties)
         assert assembly.stimulus_set is not None
         assert assembly.stimulus_set.identifier == stimulus_set_identifier
+
+
+@pytest.mark.private_access
+class TestMarques2020V1Properties:
+    @pytest.mark.parametrize('identifier,num_stimuli', [
+        ('dicarlo.Marques2020_blank', 1),
+        ('dicarlo.Marques2020_receptive_field', 3528),
+        ('dicarlo.Marques2020_orientation', 1152),
+        ('dicarlo.Marques2020_spatial_frequency', 2112),
+        ('dicarlo.Marques2020_size', 2304),
+        ('movshon.FreemanZiemba2013_properties', 450),
+    ])
+    def test_num_stimuli(self, identifier, num_stimuli):
+        stimulus_set = load_stimulus_set(identifier)
+        assert len(stimulus_set) == num_stimuli
+

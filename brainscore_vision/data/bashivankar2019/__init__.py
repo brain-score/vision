@@ -1,5 +1,5 @@
 from brainio.assemblies import NeuronRecordingAssembly
-from brainscore_vision import data_registry
+from brainscore_vision import data_registry, stimulus_set_registry
 from brainscore_vision.utils.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
 
 
@@ -22,7 +22,7 @@ data_registry['dicarlo.BashivanKar2019.synthetic'] = lambda: load_assembly_from_
 # TODO: make sure stimulus set packaging is moved in to data packaging folder
 # stimulus sets
 # naturalistic
-data_registry['dicarlo.BashivanKar2019.naturalistic'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['dicarlo.BashivanKar2019.naturalistic'] = lambda: load_stimulus_set_from_s3(
     identifier="dicarlo.BashivanKar2019.naturalistic",
     bucket="brainio.dicarlo",
     csv_sha1="48ef84282552b8796142ffe7d0d2c632f8ef061a",
@@ -31,7 +31,7 @@ data_registry['dicarlo.BashivanKar2019.naturalistic'] = lambda: load_stimulus_se
     zip_version_id="")
 
 # synthetic
-data_registry['dicarlo.BashivanKar2019.synthetic'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['dicarlo.BashivanKar2019.synthetic'] = lambda: load_stimulus_set_from_s3(
     identifier="dicarlo.BashivanKar2019.synthetic",
     bucket="brainio.dicarlo",
     csv_sha1="81da195e9b2a128b228fc4867e23ae6b21bd7abd",

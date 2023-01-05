@@ -26,3 +26,12 @@ data_registry['dicarlo.Rajalingham2020'] = lambda: load_stimulus_set_from_s3(
     zip_sha1="6097086901032e20f8ae764e9cc06e0a891a3e18",
     csv_version_id="",
     zip_version_id="")
+
+# stimulus set: orthographic_IT
+data_registry['dicarlo.Rajalingham2020orthographic_IT'] = lambda: load_stimulus_set_from_s3(
+    identifier="dicarlo.Rajalingham2020orthographic_IT",
+    bucket="brainio.dicarlo",
+    csv_sha1="3ac9ab73b653ac9cf839f9bfde131354a3766ccd",
+    zip_sha1="0e025f6f8b06e803a6d8d1a17bd25a41af3e81db",
+    csv_version_id="",
+    zip_version_id="")

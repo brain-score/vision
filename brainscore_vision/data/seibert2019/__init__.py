@@ -9,5 +9,5 @@ data_registry['dicarlo.Seibert2019'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.Seibert2019",
     version_id="",
     sha1="eef41bb1f3d83c0e60ebf0e91511ce71ef5fee32",
-    bucket="brainio.dicarlo",
+    bucket="brainio-brainscore",
     cls=NeuronRecordingAssembly)

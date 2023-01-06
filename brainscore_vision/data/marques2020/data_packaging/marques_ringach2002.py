@@ -87,7 +87,7 @@ def main():
     assembly.name = ASSEMBLY_NAME
     print('Packaging assembly')
     package_data_assembly(xarray.DataArray(assembly), assembly_identifier=assembly.name, stimulus_set_identifier=ORIENTATION_STIM_NAME,
-                          assembly_class='PropertyAssembly', bucket_name='brainio.contrib')
+                          assembly_class='PropertyAssembly', bucket_name='brainio-brainscore')
 
 
 if __name__ == '__main__':

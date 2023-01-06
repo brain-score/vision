@@ -96,7 +96,7 @@ def main():
 
     print('Packaging assembly')
     package_data_assembly(assembly, assembly_identifier=assembly.name, stimulus_set_identifier=stimuli.identifier,
-                          bucket_name='brainio.dicarlo')
+                          bucket_name='brainio-brainscore')
 
 
 if __name__ == '__main__':

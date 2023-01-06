@@ -85,10 +85,10 @@ def main():
     assembly.name = 'dicarlo.Rajalingham2020'
 
     print('Packaging stimuli')
-    package_stimulus_set(stimuli, stimulus_set_identifier=stimuli.identifier, bucket_name='brainio.dicarlo')
+    package_stimulus_set(stimuli, stimulus_set_identifier=stimuli.identifier, bucket_name='brainio-brainscore')
     print('Packaging assembly')
     package_data_assembly(assembly, assembly_identifier=assembly.name, stimulus_set_identifier=stimuli.identifier,
-                          bucket_name='brainio.dicarlo')
+                          bucket_name='brainio-brainscore')
 
     return
 

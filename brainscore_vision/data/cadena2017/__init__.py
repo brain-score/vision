@@ -14,13 +14,13 @@ data_registry['tolias.Cadena2017'] = lambda: load_assembly_from_s3(
     identifier="tolias.Cadena2017",
     version_id="",
     sha1="69bcaaa9370dceb0027beaa06235ef418c3d7063",
-    bucket="brainio.contrib",
+    bucket="brainio-brainscore",
     cls=NeuronRecordingAssembly)
 
 # stimulus set
 data_registry['tolias.Cadena2017'] = lambda: load_stimulus_set_from_s3(
     identifier="tolias.Cadena2017",
-    bucket="brainio.contrib",
+    bucket="brainio-brainscore",
     csv_sha1="f55b174cc4540e5612cfba5e695324328064b051",
     zip_sha1="88cc2ce3ef5e197ffd1477144a2e6a68d424ef6c",
     csv_version_id="",

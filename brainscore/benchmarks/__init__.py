@@ -218,11 +218,15 @@ def _evaluation_benchmark_pool():
             lambda benchmark_ctr=benchmark_ctr: benchmark_ctr())
 
     # Baker 2022
-    from .baker2022 import Baker2022AboveChanceAgreement
-    pool['kellmen.Baker2022-aca'] = LazyLoad(Baker2022AboveChanceAgreement)
+    from .baker2022 import Baker2022AccuracyDeltaFrankenstein
+    pool['kellmen.Baker2022-accuracy_delta_frankenstein'] = LazyLoad(Baker2022AccuracyDeltaFrankenstein)
 
-    from .baker2022 import Baker2022InvertedAboveChanceAgreement
-    pool['kellmen.Baker2022_Inverted-aca'] = LazyLoad(Baker2022InvertedAboveChanceAgreement)
+    from .baker2022 import Baker2022AccuracyDeltaFragmented
+    pool['kellmen.Baker2022-accuracy_delta_fragmented'] = LazyLoad(Baker2022AccuracyDeltaFragmented)
+
+    #
+    # from .baker2022 import Baker2022InvertedAboveChanceAgreement
+    # pool['kellmen.Baker2022_Inverted-aca'] = LazyLoad(Baker2022InvertedAboveChanceAgreement)
 
     return pool
 

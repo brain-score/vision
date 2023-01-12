@@ -7,9 +7,9 @@ from pytest import approx
 from brainio.assemblies import BehavioralAssembly
 from brainscore_vision.benchmarks.rajalingham2018 import DicarloRajalingham2018I2n
 from brainscore_vision.model_interface import BrainModel
-from brainscore_vision import benchmark_registry
-from todotests.test_benchmarks import PrecomputedFeatures
-from brainscore_vision.benchmarks.test_helper import TestVisualDegrees, TestNumberOfTrials, TestBenchmarkRegistry
+from brainscore_vision import benchmark_registry, load_benchmark
+from brainscore_vision.benchmark_helpers import PrecomputedFeatures
+from brainscore_vision.benchmark_helpers.test_helper import TestVisualDegrees, TestNumberOfTrials, TestBenchmarkRegistry
 
 visual_degrees = TestVisualDegrees()
 number_trials = TestNumberOfTrials()
@@ -66,9 +66,8 @@ class PrecomputedProbabilities(BrainModel):
         return probabilities
 
 
-# TODO: question arises again w/ public
 def test_Rajalingham2018public():
-    benchmark = benchmark_registry['dicarlo.Rajalingham2018public-i2n']
+    benchmark = load_benchmark('dicarlo.Rajalingham2018public-i2n')
     # load features
     precomputed_features = Path(__file__).parent / 'CORnetZ-rajalingham2018public.nc'
     precomputed_features = BehavioralAssembly.from_files(

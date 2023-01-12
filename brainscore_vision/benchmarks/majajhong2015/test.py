@@ -1,10 +1,10 @@
 import pytest
 from pytest import approx
 
-from brainscore_vision.benchmarks.test_helper import TestStandardized, TestPrecomputed, TestNumberOfTrials, \
+from brainscore_vision.benchmark_helpers.test_helper import TestStandardized, TestPrecomputed, TestNumberOfTrials, \
     TestBenchmarkRegistry, TestVisualDegrees
-from brainscore_vision.benchmarks.mschrimpf.majajhong2015.benchmark import MajajHongV4PublicBenchmark, MajajHongITPublicBenchmark
-from todotests.test_benchmarks import PrecomputedFeatures
+from brainscore_vision.benchmarks.majajhong2015.benchmark import MajajHongV4PublicBenchmark, MajajHongITPublicBenchmark
+from brainscore_vision.benchmark_helpers import PrecomputedFeatures
 
 # should these be in function definitions
 standardized_tests = TestStandardized()

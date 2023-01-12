@@ -3,7 +3,7 @@ import numpy as np
 import brainscore_vision
 from brainio.assemblies import walk_coords
 from brainscore_vision.benchmarks import BenchmarkBase
-from brainscore_vision.benchmarks.screen import place_on_screen
+from brainscore_vision.benchmark_helpers.screen import place_on_screen
 from brainscore_vision.metrics import Score
 from brainscore_vision.metrics.accuracy import Accuracy
 from brainscore_vision.metrics.error_consistency import ErrorConsistency
@@ -103,7 +103,7 @@ class _Geirhos2021Accuracy(BenchmarkBase):
 
 
 def load_assembly(dataset):
-    assembly = brainscore_vision.get_assembly(f'brendel.Geirhos2021_{dataset}')
+    assembly = brainscore_vision.load_dataset(f'brendel.Geirhos2021_{dataset}')
 
     # exclude conditions following the paper
     if dataset in EXCLUDE_CONDITIONS:

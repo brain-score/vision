@@ -2,7 +2,7 @@ import numpy as np
 
 import brainscore_vision
 from brainscore_vision.benchmarks import BenchmarkBase, ceil_score
-from brainscore_vision.benchmarks.screen import place_on_screen
+from brainscore_vision.benchmark_helpers.screen import place_on_screen
 from brainscore_vision.metrics import Score
 from brainscore_vision.metrics.ost import OSTCorrelation
 from brainscore_vision.model_interface import BrainModel
@@ -39,7 +39,7 @@ class DicarloKar2019OST(BenchmarkBase):
                                                 ceiling_func=lambda: ceiling,
                                                 parent='IT',
                                                 bibtex=BIBTEX)
-        assembly = brainscore_vision.get_assembly('dicarlo.Kar2019')
+        assembly = brainscore_vision.load_dataset('dicarlo.Kar2019')
         # drop duplicate images
         _, index = np.unique(assembly['stimulus_id'], return_index=True)
         assembly = assembly.isel(presentation=index)

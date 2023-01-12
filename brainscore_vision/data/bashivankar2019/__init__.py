@@ -3,6 +3,16 @@ from brainscore_vision import data_registry, stimulus_set_registry
 from brainscore_vision.utils.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
 from brainscore_vision.data.data_helpers.helper import version_id_df, build_filename
 
+BIBTEX = """@article{bashivan2019neural,
+  title={Neural population control via deep image synthesis},
+  author={Bashivan, Pouya and Kar, Kohitij and DiCarlo, James J},
+  journal={Science},
+  volume={364},
+  number={6439},
+  pages={eaav9436},
+  year={2019},
+  publisher={American Association for the Advancement of Science}
+}"""
 
 # assemblies
 data_registry['dicarlo.BashivanKar2019.naturalistic'] = lambda: load_assembly_from_s3(

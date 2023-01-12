@@ -4,6 +4,16 @@ from brainscore_vision import data_registry
 from brainscore_vision.utils.s3 import load_assembly_from_s3
 from brainscore_vision.data.data_helpers.helper import version_id_df, build_filename
 
+BIBTEX = """@article{lee2019sensitivity,
+  title={Sensitivity of inferotemporal cortex to naturalistic image statistics in developing macaques},
+  author={Lee, Gerick M and Seibert, Darren A and Majaj, Najib J and Movshon, J Anthony and Kiorpes, Lynne},
+  journal={Journal of Vision},
+  volume={19},
+  number={10},
+  pages={124--124},
+  year={2019},
+  publisher={The Association for Research in Vision and Ophthalmology}
+}"""
 
 # assembly: uses dicarlo.hvm
 data_registry['dicarlo.Seibert2019'] = lambda: load_assembly_from_s3(

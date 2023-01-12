@@ -5,6 +5,17 @@ from brainscore_vision.utils.s3 import load_stimulus_set_from_s3, load_assembly_
 from brainscore_vision.data.data_helpers.helper import version_id_df, build_filename
 
 
+BIBTEX = """@article{majaj2015simple,
+  title={Simple learned weighted sums of inferior temporal neuronal firing rates accurately predict human core object recognition performance},
+  author={Majaj, Najib J and Hong, Ha and Solomon, Ethan A and DiCarlo, James J},
+  journal={Journal of Neuroscience},
+  volume={35},
+  number={39},
+  pages={13402--13418},
+  year={2015},
+  publisher={Soc Neuroscience}
+}"""
+
 # assembly: dicarlo.MajajHong2015
 data_registry['dicarlo.MajajHong2015'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.MajajHong2015",
@@ -88,3 +99,4 @@ stimulus_set_registry['dicarlo.hvm-private'] = lambda: load_stimulus_set_from_s3
     zip_sha1="d7b1ca1876dad87e15b0242b4c82c0203ff3cbd3",
     csv_version_id=version_id_df.at[build_filename('dicarlo.hvm-private', '.csv'), 'version_id'],
     zip_version_id=version_id_df.at[build_filename('dicarlo.hvm-private', '.zip'), 'version_id'])
+

@@ -1,8 +1,8 @@
 import pytest
 
-from brainscore_vision.data.majajhong2015.data_packaging.data_packaging import load_assembly
+from brainscore_vision.benchmarks.majajhong2015.benchmark import load_assembly
 from brainscore_vision import load_dataset
-from todotests.test_benchmarks import check_standard_format
+from brainscore_vision.benchmark_helpers import check_standard_format
 
 
 @pytest.mark.private_access

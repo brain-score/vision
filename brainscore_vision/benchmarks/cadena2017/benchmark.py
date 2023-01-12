@@ -1,6 +1,6 @@
 import brainscore_vision
 from brainio.assemblies import walk_coords, array_is_element
-from brainscore_vision.benchmarks._neural_common import NeuralBenchmark
+from brainscore_vision.benchmark_helpers._neural_common import NeuralBenchmark
 from brainscore_vision.metrics.ceiling import InternalConsistency
 from brainscore_vision.metrics.regression import CrossRegressedCorrelation, mask_regression, pls_regression, \
     pearsonr_correlation
@@ -74,7 +74,7 @@ class AssemblyLoader:
     name = 'tolias.Cadena2017'
 
     def __call__(self, average_repetition=True):
-        assembly = brainscore_vision.get_assembly(name='tolias.Cadena2017')
+        assembly = brainscore_vision.load_dataset(identifier='tolias.Cadena2017')
         assembly = assembly.rename({'neuroid': 'neuroid_id'}).stack(neuroid=['neuroid_id'])
         assembly.load()
         assembly['region'] = 'neuroid', ['V1'] * len(assembly['neuroid'])

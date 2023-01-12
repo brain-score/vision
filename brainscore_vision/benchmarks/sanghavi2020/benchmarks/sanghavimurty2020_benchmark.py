@@ -1,7 +1,7 @@
 import numpy as np
 
 import brainscore_vision
-from brainscore_vision.benchmarks._neural_common import NeuralBenchmark, average_repetition
+from brainscore_vision.benchmark_helpers._neural_common import NeuralBenchmark, average_repetition
 from brainscore_vision.metrics.ceiling import InternalConsistency
 from brainscore_vision.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation
 from brainscore_vision.utils import LazyLoad
@@ -40,7 +40,7 @@ def DicarloSanghaviMurty2020ITPLS():
 
 
 def load_assembly(average_repetitions, region):
-    assembly = brainscore_vision.get_assembly(name=f'dicarlo.SanghaviMurty2020')
+    assembly = brainscore_vision.load_dataset(f'dicarlo.SanghaviMurty2020')
     assembly = assembly.sel(region=region)
     assembly['region'] = 'neuroid', [region] * len(assembly['neuroid'])
     assembly.load()

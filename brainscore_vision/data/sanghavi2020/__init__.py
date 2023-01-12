@@ -7,7 +7,15 @@ from brainscore_vision.utils.s3 import load_stimulus_set_from_s3, load_assembly_
 from brainscore_vision.data.data_helpers.helper import version_id_df, build_filename
 
 
-BIBTEX = """"""
+BIBTEX = """  @misc{Sanghavi_Murty_DiCarlo_2021,
+  title={SanghaviMurty2020},
+  url={osf.io/fchme},
+  DOI={10.17605/OSF.IO/FCHME},
+  publisher={OSF},
+  author={Sanghavi, Sachi and Murty, N A R and DiCarlo, James J},
+  year={2021},
+  month={Nov}
+}"""
 
 # assemblies: dicarlo.Sanghavi2020 uses dicarlo.hvm
 data_registry['dicarlo.Sanghavi2020'] = lambda: load_assembly_from_s3(

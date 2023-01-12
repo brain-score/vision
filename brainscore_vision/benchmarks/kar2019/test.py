@@ -3,10 +3,10 @@ import numpy as np
 from pathlib import Path
 from pytest import approx
 
-from brainscore_vision import benchmark_registry
+from brainscore_vision import benchmark_registry, load_benchmark
 from brainio.assemblies import NeuroidAssembly, DataAssembly
-from todotests.test_benchmarks import PrecomputedFeatures
-from brainscore_vision.benchmarks.test_helper import TestVisualDegrees, TestNumberOfTrials
+from brainscore_vision.benchmark_helpers import PrecomputedFeatures
+from brainscore_vision.benchmark_helpers.test_helper import TestVisualDegrees, TestNumberOfTrials
 from numpy.random.mtrand import RandomState
 from brainscore_vision.benchmarks.kar2019 import DicarloKar2019OST
 
@@ -18,7 +18,7 @@ number_trials = TestNumberOfTrials()
 @pytest.mark.private_access
 @pytest.mark.slow
 def test_Kar2019ost_cornet_s():
-    benchmark = benchmark_registry['dicarlo.Kar2019-ost']
+    benchmark = load_benchmark('dicarlo.Kar2019-ost')
     # might have to change parent here
     precomputed_features = Path(__file__).parent / 'cornet_s-kar2019.nc'
     precomputed_features = NeuroidAssembly.from_files(

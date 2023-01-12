@@ -4,6 +4,16 @@ from brainscore_vision import data_registry, stimulus_set_registry
 from brainscore_vision.utils.s3 import load_stimulus_set_from_s3, load_assembly_from_s3
 from brainscore_vision.data.data_helpers.helper import version_id_df, build_filename
 
+BIBTEX = """@article{rust2012balanced,
+  title={Balanced increases in selectivity and tolerance produce constant sparseness along the ventral visual stream},
+  author={Rust, Nicole C and DiCarlo, James J},
+  journal={Journal of Neuroscience},
+  volume={32},
+  number={30},
+  pages={10170--10182},
+  year={2012},
+  publisher={Soc Neuroscience}
+}"""
 
 # dicarlo.Rust2012.single assembly
 data_registry['dicarlo.Rust2012.single'] = lambda: load_assembly_from_s3(

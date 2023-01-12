@@ -4,6 +4,17 @@ from brainscore_vision import data_registry, stimulus_set_registry
 from brainscore_vision.utils.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
 from brainscore_vision.data.data_helpers.helper import version_id_df, build_filename
 
+BIBTEX = """@article{david2004evaluation,
+  title={Evaluation of different measures of functional connectivity using a neural mass model},
+  author={David, Olivier and Cosmelli, Diego and Friston, Karl J},
+  journal={Neuroimage},
+  volume={21},
+  number={2},
+  pages={659--673},
+  year={2004},
+  publisher={Elsevier}
+}"""
+
 # extract version ids from version_ids csv
 assembly_version = version_id_df.at[build_filename('gallant.David2004', '.nc'), 'version_id']
 csv_version = version_id_df.at[build_filename('gallant.David2004', '.csv'), 'version_id']

@@ -31,7 +31,7 @@ class TestMarques2020V1Properties:
          'dicarlo.Marques2020_spatial_frequency'),
     ])
     def test_assembly(self, identifier, num_neuroids, properties, stimulus_set_identifier):
-        assembly = brainscore_vision.get_assembly(identifier)
+        assembly = brainscore_vision.load_dataset(identifier)
         assert set(assembly.dims) == {'neuroid', 'neuronal_property'}
         assert len(assembly['neuroid']) == num_neuroids
         assert set(assembly['neuronal_property'].values) == set(properties)

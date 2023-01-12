@@ -2,6 +2,13 @@ from brainscore_vision import stimulus_set_registry
 from brainscore_vision.utils.s3 import load_stimulus_set_from_s3
 from brainscore_vision.data.data_helpers.helper import version_id_df, build_filename
 
+BIBTEX = """@article{hendrycks2019benchmarking,
+  title={Benchmarking neural network robustness to common corruptions and perturbations},
+  author={Hendrycks, Dan and Dietterich, Thomas},
+  journal={arXiv preprint arXiv:1903.12261},
+  year={2019}
+}"""
+
 # stimulus set: dietterich.Hendrycks2019.noise
 stimulus_set_registry['dietterich.Hendrycks2019.noise'] = lambda: load_stimulus_set_from_s3(
     identifier="dietterich.Hendrycks2019.noise",

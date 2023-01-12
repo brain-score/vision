@@ -5,7 +5,14 @@ from brainscore_vision.utils.s3 import load_stimulus_set_from_s3, load_assembly_
 from brainscore_vision.data.data_helpers.helper import version_id_df, build_filename
 
 
-BIBTEX = """"""
+BIBTEX = """@article{dapello2020simulating,
+  title={Simulating a primary visual cortex at the front of CNNs improves robustness to image perturbations},
+  author={Dapello, Joel and Marques, Tiago and Schrimpf, Martin and Geiger, Franziska and Cox, David and DiCarlo, James J},
+  journal={Advances in Neural Information Processing Systems},
+  volume={33},
+  pages={13073--13087},
+  year={2020}
+}"""
 
 # movshon.cav assembly : uses dicarlo.Marques2020_size stimuli
 data_registry['movshon.Cavanaugh2002a'] = lambda: load_assembly_from_s3(

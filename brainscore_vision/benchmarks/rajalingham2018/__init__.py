@@ -6,3 +6,5 @@ benchmark_registry['dicarlo.Rajalingham2018-i2n'] = DicarloRajalingham2018I2n
 
 # public benchmark
 from.benchmarks.public_benchmark import RajalinghamMatchtosamplePublicBenchmark
+
+benchmark_registry['dicarlo.Rajalingham2018public-i2n'] = RajalinghamMatchtosamplePublicBenchmark

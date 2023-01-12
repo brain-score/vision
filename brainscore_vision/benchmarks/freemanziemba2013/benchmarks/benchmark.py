@@ -1,5 +1,5 @@
 import brainscore_vision
-from brainscore_vision.benchmarks._neural_common import NeuralBenchmark, average_repetition
+from brainscore_vision.benchmark_helpers._neural_common import NeuralBenchmark, average_repetition
 from brainscore_vision.metrics.ceiling import InternalConsistency, RDMConsistency
 from brainscore_vision.metrics.rdm import RDMCrossValidated
 from brainscore_vision.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation, \
@@ -82,7 +82,7 @@ def MovshonFreemanZiemba2013V2RDM():
 
 @store()
 def load_assembly(average_repetitions, region, access='private'):
-    assembly = brainscore_vision.get_assembly(f'movshon.FreemanZiemba2013.{access}')
+    assembly = brainscore_vision.load_dataset(f'movshon.FreemanZiemba2013.{access}')
     assembly = assembly.sel(region=region)
     assembly = assembly.stack(neuroid=['neuroid_id'])  # work around xarray multiindex issues
     assembly['region'] = 'neuroid', [region] * len(assembly['neuroid'])

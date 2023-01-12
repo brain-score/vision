@@ -1,6 +1,6 @@
 import pytest
 from pytest import approx
-from brainscore_vision.benchmarks.test_helper import TestStandardized, TestVisualDegrees
+from brainscore_vision.benchmark_helpers.test_helper import TestStandardized, TestVisualDegrees
 
 # should these be in function definitions
 standardized_tests = TestStandardized()

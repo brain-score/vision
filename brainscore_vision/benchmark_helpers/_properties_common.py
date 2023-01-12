@@ -1,5 +1,6 @@
 import numpy as np
 
+import brainscore_vision
 from brainio.assemblies import DataAssembly
 from brainscore_vision.benchmarks import BenchmarkBase, ceil_score
 from .screen import place_on_screen
@@ -78,7 +79,7 @@ def get_firing_rates(model_identifier, model, region, stimulus_identifier, numbe
 
 
 def record_from_model(model: BrainModel, stimulus_identifier, number_of_trials):
-    stimulus_set = brainscore_vision.get_stimulus_set(stimulus_identifier)
+    stimulus_set = brainscore_vision.load_stimulus_set(stimulus_identifier)
     stimulus_set = place_on_screen(stimulus_set, target_visual_degrees=model.visual_degrees())
     activations = model.look_at(stimulus_set, number_of_trials)
     if 'time_bin' in activations.dims:

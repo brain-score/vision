@@ -1,10 +1,10 @@
 import pytest
 from pytest import approx
-from brainscore_vision import benchmark_registry
-from brainscore_vision.benchmarks.test_helper import TestStandardized, TestPrecomputed, TestNumberOfTrials, \
+from brainscore_vision import benchmark_registry, load_benchmark
+from brainscore_vision.benchmark_helpers.test_helper import TestStandardized, TestPrecomputed, TestNumberOfTrials, \
     TestBenchmarkRegistry, TestVisualDegrees
 from .benchmarks.public_benchmarks import FreemanZiembaV1PublicBenchmark, FreemanZiembaV2PublicBenchmark
-from todotests.test_benchmarks import PrecomputedFeatures
+from brainscore_vision.benchmark_helpers import PrecomputedFeatures
 
 # should these be in function definitions
 standardized_tests = TestStandardized()
@@ -12,8 +12,6 @@ precomputed_test = TestPrecomputed()
 num_trials_test = TestNumberOfTrials()
 registry_test = TestBenchmarkRegistry()
 visual_degrees_test = TestVisualDegrees()
-
-# TODO: Not sure what FreemanZiemba tests should be kept (discuss public/private w/ martin further)
 
 
 @pytest.mark.parametrize('benchmark', [
@@ -55,7 +53,7 @@ def test_self_regression(benchmark, visual_degrees, expected):
                  marks=[pytest.mark.memory_intense]),
 ])
 def test_self_rdm(benchmark, visual_degrees, expected):
-    benchmark = benchmark_registry[benchmark]
+    benchmark = load_benchmark(benchmark)
     score = benchmark(PrecomputedFeatures(benchmark._assembly, visual_degrees=visual_degrees)).raw
     assert score.sel(aggregation='center') == expected
     raw_values = score.attrs['raw']

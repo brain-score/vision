@@ -2,10 +2,19 @@ from brainscore_vision import stimulus_set_registry
 from brainscore_vision.utils.s3 import load_stimulus_set_from_s3
 from brainscore_vision.data.data_helpers.helper import version_id_df, build_filename
 
+BIBTEX = """@INPROCEEDINGS{5206848,
+  author={Deng, Jia and Dong, Wei and Socher, Richard and Li, Li-Jia and Kai Li and Li Fei-Fei},
+  booktitle={2009 IEEE Conference on Computer Vision and Pattern Recognition}, 
+  title={ImageNet: A large-scale hierarchical image database}, 
+  year={2009},
+  volume={},
+  number={},
+  pages={248-255},
+  doi={10.1109/CVPR.2009.5206848}}"""
+
 # extract version ids from version_ids csv
 csv_version = version_id_df.at[build_filename('fei-fei.Deng2009', '.csv'), 'version_id']
 zip_version = version_id_df.at[build_filename('fei-fei.Deng2009', '.zip'), 'version_id']
-
 
 # stimulus set
 stimulus_set_registry['fei-fei.Deng2009'] = lambda: load_stimulus_set_from_s3(

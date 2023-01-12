@@ -8,8 +8,16 @@ from brainscore_vision.data.data_helpers.helper import version_id_df, build_file
 
 _logger = logging.getLogger(__name__)
 
-BIBTEX = """"""
-
+BIBTEX = """@article{rajalingham2020inferior,
+  title={The inferior temporal cortex is a potential cortical precursor of orthographic processing in untrained monkeys},
+  author={Rajalingham, Rishi and Kar, Kohitij and Sanghavi, Sachi and Dehaene, Stanislas and DiCarlo, James J},
+  journal={Nature communications},
+  volume={11},
+  number={1},
+  pages={1--13},
+  year={2020},
+  publisher={Nature Publishing Group}
+}"""
 
 # assembly: uses below stimulus set
 data_registry['dicarlo.Rajalingham2020'] = lambda: load_assembly_from_s3(

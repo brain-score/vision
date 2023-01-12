@@ -4,6 +4,8 @@ from brainscore_vision import data_registry, stimulus_set_registry
 from brainscore_vision.utils.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
 from brainscore_vision.data.data_helpers.helper import version_id_df, build_filename
 
+BIBTEX = """"""
+
 # extract version ids from version_ids csv
 assembly_version = version_id_df.at[build_filename('klab.Zhang2018search_obj_array', '.nc'), 'version_id']
 csv_version = version_id_df.at[build_filename('klab.Zhang2018search_obj_array', '.csv'), 'version_id']

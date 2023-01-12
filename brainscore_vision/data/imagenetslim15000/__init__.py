@@ -2,6 +2,7 @@ from brainscore_vision import stimulus_set_registry
 from brainscore_vision.utils.s3 import load_stimulus_set_from_s3
 from brainscore_vision.data.data_helpers.helper import version_id_df, build_filename
 
+BIBTEX = """"""
 
 # extract version ids from version_ids csv
 csv_version = version_id_df.at[build_filename('dicarlo.ImageNetSlim15000', '.csv'), 'version_id']

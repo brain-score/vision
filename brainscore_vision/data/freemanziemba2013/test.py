@@ -6,7 +6,7 @@ from pytest import approx
 
 from brainscore_vision.benchmarks.freemanziemba2013.benchmarks.benchmark import load_assembly
 from brainscore_vision import load_dataset
-from todotests.test_benchmarks import check_standard_format
+from brainscore_vision.benchmark_helpers import check_standard_format
 
 
 @pytest.mark.parametrize('assembly_identifier', [

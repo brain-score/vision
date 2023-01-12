@@ -2,8 +2,8 @@ import numpy as np
 
 import brainscore_vision
 from brainio.assemblies import DataAssembly
-from brainscore_vision.benchmarks._properties_common import PropertiesBenchmark, _assert_grating_activations
-from brainscore_vision.benchmarks._properties_common import calc_bandwidth
+from brainscore_vision.benchmark_helpers._properties_common import PropertiesBenchmark, _assert_grating_activations
+from brainscore_vision.benchmark_helpers._properties_common import calc_bandwidth
 from brainscore_vision.metrics.ceiling import NeuronalPropertyCeiling
 from brainscore_vision.metrics.distribution_similarity import BootstrapDistributionSimilarity, ks_similarity
 from result_caching import store
@@ -30,7 +30,7 @@ ORIENTATION_BIN_LIM = 157.5
 
 
 def MarquesDeValois1982V1PreferredOrientation():
-    assembly = brainscore_vision.get_assembly(ASSEMBLY_NAME)
+    assembly = brainscore_vision.load_dataset(ASSEMBLY_NAME)
     property_name = 'preferred_orientation'
     parent = PARENT
     similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_similarity, property_name=property_name)

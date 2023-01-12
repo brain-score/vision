@@ -6,6 +6,18 @@ from brainscore_vision.metrics.transformations import CrossValidation
 from brainscore_vision.utils.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
 from brainscore_vision.data.data_helpers.helper import version_id_df, build_filename
 
+BIBTEX = """@article {19,
+    title = {Evidence that recurrent circuits are critical to the ventral stream{\textquoteright}s execution of core object recognition behavior},
+    journal = {bioRxiv},
+    year = {2018},
+    month = {06/2018},
+    type = {preprint},
+    abstract = {<p>Non-recurrent deep convolutional neural networks (DCNNs) are currently the best models of core object recognition; a behavior supported by the densely recurrent primate ventral stream, culminating in the inferior temporal (IT) cortex. Are these recurrent circuits critical to ventral stream\&$\#$39;s execution of this behavior? We reasoned that, if recurrence is critical, then primates should outperform feedforward-only DCNNs for some images, and that these images should require additional processing time beyond the feedforward IT response. Here we first used behavioral methods to discover hundreds of these \&quot;challenge\&quot; images. Second, using large-scale IT electrophysiology in animals performing core recognition tasks, we observed that behaviorally-sufficient, linearly-decodable object identity solutions emerged ~30ms (on average) later in IT for challenge images compared to DCNN and primate performance-matched \&quot;control\&quot; images. We observed these same late solutions even during passive viewing. Third, consistent with a failure of feedforward computations, the behaviorally-critical late-phase IT population response patterns evoked by the challenge images were poorly predicted by DCNN activations. Interestingly, deeper CNNs better predicted these late IT responses, suggesting a functional equivalence between recurrence and additional nonlinear transformations. Our results argue that automatically-evoked recurrent circuits are critical even for rapid object identification. By precisely comparing current DCNNs, primate behavior and IT population dynamics, we provide guidance for future recurrent model development.</p>
+},
+    doi = {https://doi.org/10.1101/354753},
+    url = {https://www.biorxiv.org/content/10.1101/354753v1.full.pdf},
+    author = {Kar, Kohitij and Kubilius, Jonas and Schmidt, Kailyn and Issa, Elias B and DiCarlo, James J.}
+}"""
 
 # assemblies: hvm
 data_registry['dicarlo.Kar2018hvm'] = lambda: load_assembly_from_s3(

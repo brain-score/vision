@@ -1,4 +1,3 @@
-import logging
 import pandas as pd
 from brainio.assemblies import BehavioralAssembly
 
@@ -6,7 +5,14 @@ from brainscore_vision import data_registry, stimulus_set_registry
 from brainscore_vision.utils.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
 from brainscore_vision.data.data_helpers.helper import version_id_df, build_filename
 
-_logger = logging.getLogger(__name__)
+BIBTEX = """@article{geirhos2021partial,
+  title={Partial success in closing the gap between human and machine vision},
+  author={Geirhos, Robert and Narayanappa, Kantharaju and Mitzkus, Benjamin and Thieringer, Tizian and Bethge, Matthias and Wichmann, Felix A and Brendel, Wieland},
+  journal={Advances in Neural Information Processing Systems},
+  volume={34},
+  pages={23885--23899},
+  year={2021}
+}"""
 
 DATASETS = ['colour', 'contrast', 'cue-conflict', 'edge',
             'eidolonI', 'eidolonII', 'eidolonIII',

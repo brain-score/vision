@@ -4,6 +4,16 @@ from brainscore_vision import data_registry, stimulus_set_registry
 from brainscore_vision.utils.s3 import load_stimulus_set_from_s3, load_assembly_from_s3
 from brainscore_vision.data.data_helpers.helper import version_id_df, build_filename
 
+BIBTEX = """@article{freeman2013functional,
+  title={A functional and perceptual signature of the second visual area in primates},
+  author={Freeman, Jeremy and Ziemba, Corey M and Heeger, David J and Simoncelli, Eero P and Movshon, J Anthony},
+  journal={Nature neuroscience},
+  volume={16},
+  number={7},
+  pages={974--981},
+  year={2013},
+  publisher={Nature Publishing Group}
+}"""
 
 # assembly: movshon.FreemanZiemba2013.noaperture
 data_registry['movshon.FreemanZiemba2013.noaperture'] = lambda: load_assembly_from_s3(

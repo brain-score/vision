@@ -2,6 +2,18 @@ from brainscore_vision import stimulus_set_registry
 from brainscore_vision.utils.s3 import load_stimulus_set_from_s3
 from brainscore_vision.data.data_helpers.helper import version_id_df, build_filename
 
+BIBTEX = """@inproceedings{NEURIPS2019_97af07a1,
+ author = {Barbu, Andrei and Mayo, David and Alverio, Julian and Luo, William and Wang, Christopher and Gutfreund, Dan and Tenenbaum, Josh and Katz, Boris},
+ booktitle = {Advances in Neural Information Processing Systems},
+ editor = {H. Wallach and H. Larochelle and A. Beygelzimer and F. d\textquotesingle Alch\'{e}-Buc and E. Fox and R. Garnett},
+ pages = {},
+ publisher = {Curran Associates, Inc.},
+ title = {ObjectNet: A large-scale bias-controlled dataset for pushing the limits of object recognition models},
+ url = {https://proceedings.neurips.cc/paper/2019/file/97af07a14cacba681feacf3012730892-Paper.pdf},
+ volume = {32},
+ year = {2019}
+}"""
+
 
 # extract version ids from version_ids csv
 csv_version = version_id_df.at[build_filename('katz.BarbuMayo2019', '.csv'), 'version_id']

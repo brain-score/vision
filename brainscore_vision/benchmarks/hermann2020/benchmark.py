@@ -20,7 +20,7 @@ class _Hermann2020Match(BenchmarkBase):
     def __init__(self, metric_identifier, stimulus_column):
         assert metric_identifier in ["shape_match", "texture_match"]
         assert stimulus_column in ["original_image_category", "conflict_image_category"]
-        self._stimulus_set = brainscore_vision.get_stimulus_set("brendel.Geirhos2021_cue-conflict")
+        self._stimulus_set = brainscore_vision.load_stimulus_set("brendel.Geirhos2021_cue-conflict")
         self._metric = Accuracy()
         self._number_of_trials = 1
         self._stimulus_column = stimulus_column

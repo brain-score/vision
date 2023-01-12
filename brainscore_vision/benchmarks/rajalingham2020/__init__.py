@@ -1,6 +1,4 @@
 from brainscore_vision import benchmark_registry
 from .benchmark import DicarloRajalingham2020ITPLS
-from brainscore_vision.benchmarks.public_benchmarks import RajalinghamMatchtosamplePublicBenchmark
 
 benchmark_registry['dicarlo.Rajalingham2020.IT-pls'] = DicarloRajalingham2020ITPLS
-benchmark_registry['dicarlo.Rajalingham2018public-i2n'] = RajalinghamMatchtosamplePublicBenchmark

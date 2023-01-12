@@ -6,33 +6,9 @@ from pytest import approx
 
 import brainscore_vision
 from brainio.assemblies import BehavioralAssembly
-from brainscore_vision import benchmark_registry, load_stimulus_set, load_dataset
+from brainscore_vision import benchmark_registry, load_stimulus_set, load_dataset, load_benchmark
 from brainscore_vision.benchmarks.geirhos2021.benchmark import DATASETS, cast_coordinate_type
-from todotests.test_benchmarks import PrecomputedFeatures
-
-
-@pytest.mark.parametrize('assembly', (
-    'brendel.Geirhos2021_colour',
-    'brendel.Geirhos2021_contrast',
-    'brendel.Geirhos2021_cue-conflict',
-    'brendel.Geirhos2021_edge',
-    'brendel.Geirhos2021_eidolonI',
-    'brendel.Geirhos2021_eidolonII',
-    'brendel.Geirhos2021_eidolonIII',
-    'brendel.Geirhos2021_false-colour',
-    'brendel.Geirhos2021_high-pass',
-    'brendel.Geirhos2021_low-pass',
-    'brendel.Geirhos2021_phase-scrambling',
-    'brendel.Geirhos2021_power-equalisation',
-    'brendel.Geirhos2021_rotation',
-    'brendel.Geirhos2021_silhouette',
-    'brendel.Geirhos2021_stylized',
-    'brendel.Geirhos2021_sketch',
-    'brendel.Geirhos2021_uniform-noise',
-))
-def test_list_assembly(assembly):
-    l = brainscore_vision.list_assemblies()
-    assert assembly in l
+from brainscore_vision.benchmark_helpers import PrecomputedFeatures
 
 
 @pytest.mark.parametrize('assembly_identifier', [
@@ -394,7 +370,7 @@ class TestBehavioral:
     ])
     def test_dataset_ceiling(self, dataset, expected_ceiling):
         benchmark = f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency"
-        benchmark = benchmark_registry[benchmark]
+        benchmark = load_benchmark(benchmark)
         ceiling = benchmark.ceiling
         assert ceiling.sel(aggregation='center').values.item() == expected_ceiling
 
@@ -418,7 +394,7 @@ class TestBehavioral:
         ('uniform-noise', 'resnet-50-pytorch', approx(0.19839, abs=0.001)),
     ])
     def test_model_3degrees(self, dataset, model, expected_raw_score):
-        benchmark = benchmark_registry[f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency"]
+        benchmark = load_benchmark(f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency")
         # load features
         precomputed_features = Path(__file__).parent / f'{model}-3deg-Geirhos2021_{dataset}.nc'
         precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)
@@ -442,7 +418,7 @@ class TestBehavioral:
     def test_model_mean(self, model, expected_raw_score):
         scores = []
         for dataset in DATASETS:
-            benchmark = benchmark_registry[f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency"]
+            benchmark = load_benchmark(f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency")
             precomputed_features = Path(__file__).parent / f'{model}-Geirhos2021_{dataset}.nc'
             precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)
             # these features were packaged with condition as int/float. Current xarray versions have trouble when
@@ -476,7 +452,7 @@ class TestEngineering:
         ('uniform-noise', 'resnet-50-pytorch', approx(0.44500, abs=0.001)),
     ])
     def test_accuracy(self, dataset, model, expected_accuracy):
-        benchmark = benchmark_registry[f"brendel.Geirhos2021{dataset.replace('-', '')}-top1"]
+        benchmark = load_benchmark(f"brendel.Geirhos2021{dataset.replace('-', '')}-top1")
         # load features
         precomputed_features = Path(__file__).parent / f'{model}-3deg-Geirhos2021_{dataset}.nc'
         precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)

@@ -3,24 +3,13 @@ import brainio
 import pytest
 import numpy as np
 
-# TODO: add more tests to look at size/contents of assembly
-
-
-@pytest.mark.parametrize('assembly', (
-    'dicarlo.BashivanKar2019.naturalistic',
-    'dicarlo.BashivanKar2019.synthetic',
-))
-def test_list_assembly(assembly):
-    l = brainscore_vision.list_assemblies()
-    assert assembly in l
-
 
 @pytest.mark.parametrize('assembly_identifier', [
     pytest.param('dicarlo.BashivanKar2019.naturalistic', marks=[pytest.mark.private_access]),
     pytest.param('dicarlo.BashivanKar2019.synthetic', marks=[pytest.mark.private_access]),
 ])
 def test_existence(assembly_identifier):
-    assert brainscore_vision.get_assembly(assembly_identifier) is not None
+    assert brainscore_vision.load_dataset(assembly_identifier) is not None
 
 
 @pytest.mark.parametrize('assembly,shape,nans', [

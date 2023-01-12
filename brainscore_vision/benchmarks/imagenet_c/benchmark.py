@@ -112,7 +112,7 @@ class Imagenet_C_Category(BenchmarkBase):
         
         except OSError as error:
             _logger.debug(f'Excepted {error}. Attempting to access {self.stimulus_set_name} through Brainscore.')
-            return brainscore_vision.get_stimulus_set(self.stimulus_set_name)
+            return brainscore_vision.load_stimulus_set(self.stimulus_set_name)
 
     def __call__(self, candidate):
         scores = xr.concat([

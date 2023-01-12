@@ -9,7 +9,7 @@ held-out private data.
 import functools
 import logging
 
-from brainscore_vision.benchmarks.benchmark_helpers._neural_common import NeuralBenchmark
+from brainscore_vision.benchmark_helpers._neural_common import NeuralBenchmark
 from brainscore_vision.metrics.ceiling import InternalConsistency
 from brainscore_vision.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation
 from brainscore_vision.utils import LazyLoad

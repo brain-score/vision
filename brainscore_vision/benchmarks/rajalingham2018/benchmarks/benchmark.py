@@ -2,7 +2,7 @@ import brainio
 import numpy as np
 
 from brainscore_vision.benchmarks import BenchmarkBase
-from brainscore_vision.benchmarks.screen import place_on_screen
+from brainscore_vision.benchmark_helpers.screen import place_on_screen
 from brainscore_vision.metrics import Score
 from brainscore_vision.metrics.image_level_behavior import I2n
 from brainscore_vision.metrics.transformations import apply_aggregate

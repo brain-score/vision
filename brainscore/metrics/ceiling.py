@@ -183,7 +183,6 @@ class SplitHalvesConsistencyBaker:
         consistencies, uncorrected_consistencies = [], []
         splits = range(self.num_splits)
         for _ in splits:
-            print(_)
             num_subjects = len(set(assembly["subject"].values))
             half1_subjects = random.sample(range(1, num_subjects), (num_subjects // 2))
             half1 = assembly[

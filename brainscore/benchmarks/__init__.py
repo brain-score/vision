@@ -224,9 +224,9 @@ def _evaluation_benchmark_pool():
     from .baker2022 import Baker2022AccuracyDeltaFragmented
     pool['kellmen.Baker2022-accuracy_delta_fragmented'] = LazyLoad(Baker2022AccuracyDeltaFragmented)
 
-    #
-    # from .baker2022 import Baker2022InvertedAboveChanceAgreement
-    # pool['kellmen.Baker2022_Inverted-aca'] = LazyLoad(Baker2022InvertedAboveChanceAgreement)
+    # Baker 2022
+    from .baker2022 import Baker2022InvertedAccuracyDelta
+    pool['kellmen.Baker2022-inverted_accuracy_delta'] = LazyLoad(Baker2022InvertedAccuracyDelta)
 
     return pool
 

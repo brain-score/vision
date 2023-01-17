@@ -1,7 +1,7 @@
 import pandas as pd
+from pathlib import Path
 
-
-version_id_path = '../data_helpers/version_ids.csv'
+version_id_path = Path(__file__).parent / 'version_ids.csv'
 version_id_df = pd.read_csv(version_id_path, index_col='Unnamed: 0')
 
 

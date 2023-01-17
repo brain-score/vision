@@ -14,7 +14,7 @@ import random
 import numpy as np
 
 
-class Ceiling(object):
+class Ceiling:
     def __call__(self, *args, **kwargs):
         raise NotImplementedError()
 

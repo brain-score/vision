@@ -87,7 +87,7 @@ class _Baker2022AccuracyDelta(BenchmarkBase):
                                        source_visual_degrees=self._visual_degrees)
         labels = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
         raw_score = self._metric(labels, self._assembly, image_types=self.image_types)
-        ceiling = self._ceiling(self._assembly)
+        ceiling, ceiling_error = self._ceiling(self._assembly)
         score = raw_score / ceiling
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling
@@ -110,18 +110,20 @@ This has 12 subjects, who saw 4 types of images in the combinations of the sets:
 """
 
 
-class _Baker2022InvertedAboveChanceAgreement(BenchmarkBase):
+class _Baker2022InvertedAccuracyDelta(BenchmarkBase):
 
-    def __init__(self, dataset):
-        self._metric = AboveChanceAgreement()
+    def __init__(self, dataset, image_types):
+        self._metric = AccuracyDelta()
+        self.image_types = image_types
+        self._ceiling = SplitHalvesConsistencyBaker(num_splits=100, consistency_metric=AccuracyDelta(),
+                                                    split_coordinate="subject", image_types=self.image_types)
         self._assembly = LazyLoad(lambda: load_assembly(dataset))
-        self._visual_degrees = 8
-
+        self._visual_degrees = 8.8
         self._number_of_trials = 1
 
-        super(_Baker2022InvertedAboveChanceAgreement, self).__init__(
-            identifier=f'kellmen.Baker2022_Inverted{dataset}-above_chance_agreement', version=1,
-            ceiling_func=lambda: self._metric.ceiling(self._assembly),
+        super(_Baker2022InvertedAccuracyDelta, self).__init__(
+            identifier=f'kellmen.Baker2022{dataset}-_accuracy_delta', version=1,
+            ceiling_func=lambda: self._ceiling(assembly=self._assembly),
             parent='kellmen.Baker2022',
             bibtex=BIBTEX)
 
@@ -131,17 +133,19 @@ class _Baker2022InvertedAboveChanceAgreement(BenchmarkBase):
         candidate.start_task(BrainModel.Task.label, choice_labels)
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
-        labels = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
-        raw_score = self._metric(labels, self._assembly)
+        inverted_stimuli = stimulus_set[stimulus_set["orientation"] == "inverted"]
+        labels = candidate.look_at(inverted_stimuli, number_of_trials=self._number_of_trials)
+        inverted_assembly = self._assembly[self._assembly["orientation"] == "inverted"]
+        raw_score = self._metric(labels, inverted_assembly, image_types=self.image_types)
         ceiling = self._ceiling(self._assembly)
         score = raw_score / ceiling
-        # score.attrs['raw'] = raw_score
-        # score.attrs['ceiling'] = ceiling
+        score.attrs['raw'] = raw_score
+        score.attrs['ceiling'] = ceiling
         return score
 
 
-def Baker2022InvertedAboveChanceAgreement():
-    return _Baker2022InvertedAboveChanceAgreement(dataset='inverted')
+def Baker2022InvertedAccuracyDelta():
+    return _Baker2022InvertedAccuracyDelta(dataset='inverted', image_types=["w", "f"])
 
 
 def load_assembly(dataset):

@@ -10,6 +10,8 @@ from brainscore.metrics.transformations import CrossValidationSingle
 from brainscore.metrics.xarray_utils import Defaults as XarrayDefaults
 from brainscore.metrics.xarray_utils import XarrayCorrelation
 from result_caching import store
+import random
+import numpy as np
 
 
 class Ceiling(object):
@@ -181,7 +183,9 @@ class SplitHalvesConsistencyBaker:
         consistencies, uncorrected_consistencies = [], []
         splits = range(self.num_splits)
         for _ in splits:
-            half1_subjects = random.sample(range(1, 32), 16)
+            print(_)
+            num_subjects = len(set(assembly["subject"].values))
+            half1_subjects = random.sample(range(1, num_subjects), (num_subjects // 2))
             half1 = assembly[
                 {'presentation': [subject in half1_subjects for subject in assembly['subject'].values]}]
             half2 = assembly[
@@ -196,4 +200,5 @@ class SplitHalvesConsistencyBaker:
         average_consistency = consistencies.median('split')
         average_consistency.attrs['raw'] = consistencies
         average_consistency.attrs['uncorrected_consistencies'] = uncorrected_consistencies
-        return average_consistency
+        ceiling_error = np.std(consistencies)
+        return average_consistency, ceiling_error

@@ -37,10 +37,10 @@ assembly = BehavioralAssembly(all_subjects['Correct?'],
                               )
 
 # give the assembly an identifier name
-assembly.name = 'kellmen.Baker2022_normal_distortion'
+assembly.name = 'Baker2022_normal_distortion'
 
 
 # upload to S3
 package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
-                      stimulus_set_identifier='kellmen.Baker2022_normal_distortion',
+                      stimulus_set_identifier='Baker2022_normal_distortion',
                       assembly_class_name="BehavioralAssembly", bucket_name="brainio-brainscore")

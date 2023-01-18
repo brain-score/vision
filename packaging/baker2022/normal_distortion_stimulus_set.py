@@ -82,7 +82,7 @@ stimuli.stimulus_paths = image_paths
 
 # remove all inverted stimuli
 stimuli = stimuli[stimuli["orientation"] == "normal"]
-stimuli.name = 'kellmen.Baker2022_normal_distortion'  # give the StimulusSet an identifier name
+stimuli.name = 'Baker2022_normal_distortion'  # give the StimulusSet an identifier name
 
 # upload to S3
 package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,

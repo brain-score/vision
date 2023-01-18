@@ -73,7 +73,7 @@ stimuli.stimulus_paths = image_paths
 
 
 # give the StimulusSet an identifier name
-stimuli.name = 'kellmen.Baker2022_inverted_distortion'
+stimuli.name = 'Baker2022_inverted_distortion'
 
 # upload to S3
 package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,

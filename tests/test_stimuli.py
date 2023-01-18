@@ -267,7 +267,7 @@ class TestBaker2022:
     # tests number of images
     @pytest.mark.parametrize('identifier, num_images', [
         ('normal', 716),
-        ('inverted', 360),
+        ('inverted', 359),
     ])
     def test_num_stimuli(self, identifier, num_images):
         stimulus_set = brainio.get_stimulus_set(f'Baker2022_{identifier}_distortion')

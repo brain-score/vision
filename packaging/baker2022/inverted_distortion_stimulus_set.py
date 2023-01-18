@@ -62,6 +62,7 @@ for filepath in Path(stimuli_directory).glob('*.jpg'):
             'stimulus_id': image_id,
             'animal': ground_truth,
             'image_type': "w" if image_type is "i" else image_type,
+            'image_type_entire': "whole" if image_type is "w" else "frankenstein",
             'image_number': image_number,
             "orientation": "normal" if "inv" not in image_id else "inverted",
         })

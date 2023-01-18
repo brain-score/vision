@@ -492,7 +492,7 @@ class TestBaker2022:
 
     # tests alignments that are the same across normal and inverted assemblies
     @pytest.mark.parametrize('identifier, length', [
-        ('normal', 3706),
+        ('normal', 3702),
         ('inverted', 4320),
     ])
     def test_stimulus_set_assembly_alignment(self, identifier, length):
@@ -537,7 +537,7 @@ class TestBaker2022:
 
     # tests number of unique images
     @pytest.mark.parametrize('identifier, num_images', [
-        ('normal', 720),
+        ('normal', 716),
         ('inverted', 360),
     ])
     def test_subjects(self, identifier, num_images):

@@ -65,11 +65,19 @@ for filepath in Path(stimuli_directory).glob('*.jpg'):
         elif "nv" in ground_truth:
             ground_truth = ground_truth.replace("nv", "")
 
+        if image_type is "w":
+            image_type_entire = "whole"
+        elif image_type is "o":
+            image_type_entire = "fragmented"
+        else:
+            image_type_entire = "frankenstein"
+
         image_paths[image_id] = filepath
         stimuli.append({
             'stimulus_id': image_id,
             'animal': ground_truth,
             'image_type': "w" if image_type is "i" else image_type,
+            'image_type_entire': image_type_entire,
             'image_number': image_number,
             "orientation": "normal" if "inv" not in image_id else "inverted",
         })

@@ -4,7 +4,10 @@ import numpy as np
 
 from brainscore.metrics import Metric, Score
 import random
-from brainscore.metrics.ceiling import SplitHalvesConsistencyBaker
+
+
+# controls how many half-splits are averaged together to get human delta.
+HUMAN_SPLITS = 100
 
 
 class AccuracyDelta(Metric):
@@ -22,15 +25,11 @@ class AccuracyDelta(Metric):
             scores = []
 
             # calculate score over average of 100 sub splits of human delta
-            for i in range(100):
+            for i in range(HUMAN_SPLITS):
                 human_delta = self.get_human_delta(target, image_types)
                 score = max((1 - ((np.abs(human_delta - model_delta)) / human_delta)), 0)
                 scores.append(score)
-
-            # calculate mean:
             score = np.mean(scores)
-
-            # calculate error
             error = np.std(scores)
 
             return Score([score, error], coords={'aggregation': ['center', 'error']}, dims=('aggregation',))
@@ -40,7 +39,7 @@ class AccuracyDelta(Metric):
 
     def get_human_delta(self, target, image_types):
         # calculate human accuracies for [whole, condition]
-        condition_scores_human = []
+        condition_scores_human = {}
 
         # pull half of subjects. This is outside loop to make sure
         # the same half of subjects are used in w and f conditions.
@@ -58,10 +57,11 @@ class AccuracyDelta(Metric):
                 correct_count = np.count_nonzero(this_target.values)
                 accuracy = correct_count / len(this_target)
                 scores.append(accuracy)
-            condition_scores_human.append(scores)
+            condition_scores_human[image_type] = scores
 
         # calculate 16-human pairwise accuracy:
-        delta_vector = [a_i - b_i for a_i, b_i in zip(condition_scores_human[0], condition_scores_human[1])]
+        condition = image_types[1]
+        delta_vector = [a_i - b_i for a_i, b_i in zip(condition_scores_human["w"], condition_scores_human[condition])]
 
         # return mean of delta vector. This is equal to the mean of half of subject deltas (random half)
         return np.mean(delta_vector)

@@ -64,7 +64,8 @@ import brainscore
         'brendel.Geirhos2021_stylized',
         'brendel.Geirhos2021_sketch',
         'brendel.Geirhos2021_uniform-noise',
-        'kellmen.Baker2022_normal_distortion'
+        'Baker2022_normal_distortion',
+        'Baker2022_inverted_distortion'
 ))
 def test_list_assembly(assembly):
     l = brainio.list_assemblies()
@@ -121,6 +122,8 @@ def test_list_assembly(assembly):
     pytest.param('brendel.Geirhos2021_stylized', marks=[pytest.mark.private_access]),
     pytest.param('brendel.Geirhos2021_sketch', marks=[pytest.mark.private_access]),
     pytest.param('brendel.Geirhos2021_uniform-noise', marks=[pytest.mark.private_access]),
+    pytest.param('Baker2022_normal_distortion', marks=[pytest.mark.private_access]),
+    pytest.param('Baker2022_inverted_distortion', marks=[pytest.mark.private_access])
 ])
 def test_existence(assembly_identifier):
     assert brainio.get_assembly(assembly_identifier) is not None
@@ -493,10 +496,10 @@ class TestBaker2022:
         ('inverted', 4320),
     ])
     def test_stimulus_set_assembly_alignment(self, identifier, length):
-        full_name = f'kellmen.Baker2022_{identifier}_distortion'
+        full_name = f'Baker2022_{identifier}_distortion'
         assembly = brainscore.get_assembly(full_name)
         assert assembly.stimulus_set is not None
-        assert assembly.stimulus_set.identifier == f'kellmen.Baker2022_{identifier}_distortion'
+        assert assembly.stimulus_set.identifier == f'Baker2022_{identifier}_distortion'
         assert set(assembly.stimulus_set["animal"]) == set(assembly["truth"].values)
         assert set(assembly.stimulus_set["stimulus_id"]) == set(assembly["stimulus_id"].values)
         assert len(assembly.presentation) == length
@@ -507,7 +510,7 @@ class TestBaker2022:
         'inverted',
     ])
     def test_same_counts(self, identifier):
-        full_name = f'kellmen.Baker2022_{identifier}_distortion'
+        full_name = f'Baker2022_{identifier}_distortion'
         assembly = brainscore.get_assembly(full_name)
         assert len({x for x in set((assembly["truth"]).values) if x==x}) == 9
         assert len(set((assembly["correct"]).values)) == 2
@@ -518,7 +521,7 @@ class TestBaker2022:
         ('inverted', 12),
     ])
     def test_subjects(self, identifier, num_subjects):
-        full_name = f'kellmen.Baker2022_{identifier}_distortion'
+        full_name = f'Baker2022_{identifier}_distortion'
         assembly = brainscore.get_assembly(full_name)
         assert len(set((assembly["subject"]).values)) == num_subjects
 
@@ -528,7 +531,7 @@ class TestBaker2022:
         ('inverted', 2),
     ])
     def test_configs(self, identifier, num_configs):
-        full_name = f'kellmen.Baker2022_{identifier}_distortion'
+        full_name = f'Baker2022_{identifier}_distortion'
         assembly = brainscore.get_assembly(full_name)
         assert len(set((assembly["condition"]).values)) == num_configs
 
@@ -538,7 +541,7 @@ class TestBaker2022:
         ('inverted', 360),
     ])
     def test_subjects(self, identifier, num_images):
-        full_name = f'kellmen.Baker2022_{identifier}_distortion'
+        full_name = f'Baker2022_{identifier}_distortion'
         assembly = brainscore.get_assembly(full_name)
         assert len(set((assembly["stimulus_id"]).values)) == num_images
 

@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.random
 
 import brainscore
 from brainscore.benchmarks import BenchmarkBase
@@ -7,7 +8,6 @@ from brainscore.metrics import Score
 from brainscore.metrics.accuracy_delta import AccuracyDelta
 from brainscore.model_interface import BrainModel
 from brainscore.utils import LazyLoad
-from brainscore.metrics.ceiling import SplitHalvesConsistencyBaker
 
 BIBTEX = """@article{BAKER2022104913,
                 title = {Deep learning models fail to capture the configural nature of human shape perception},
@@ -94,5 +94,43 @@ def Baker2022InvertedAccuracyDelta():
 
 
 def load_assembly(dataset):
-    assembly = brainscore.get_assembly(f'kellmen.Baker2022_{dataset}_distortion')
+    assembly = brainscore.get_assembly(f'Baker2022_{dataset}_distortion')
     return assembly
+
+
+# ceiling method:
+class SplitHalvesConsistencyBaker:
+    def __init__(self, num_splits: int, split_coordinate: str, consistency_metric, image_types):
+        """
+        :param num_splits: how many times to create two halves
+        :param split_coordinate: over which coordinate to split the assembly into halves
+        :param consistency_metric: which metric to use to compute the consistency of two halves
+        """
+        self.num_splits = num_splits
+        self.split_coordinate = split_coordinate
+        self.consistency_metric = consistency_metric
+        self.image_types = image_types
+
+    def __call__(self, assembly) -> Score:
+        random_state = np.random.RandomState(0)
+        consistencies, uncorrected_consistencies = [], []
+        splits = range(self.num_splits)
+        for _ in splits:
+            num_subjects = len(set(assembly["subject"].values))
+            half1_subjects = random_state.choice(range(1, num_subjects), (num_subjects // 2))
+            half1 = assembly[
+                {'presentation': [subject in half1_subjects for subject in assembly['subject'].values]}]
+            half2 = assembly[
+                {'presentation': [subject not in half1_subjects for subject in assembly['subject'].values]}]
+            consistency = self.consistency_metric(half1, half2, image_types=self.image_types, isCeiling=True)
+            uncorrected_consistencies.append(consistency)
+            # Spearman-Brown correction for sub-sampling
+            corrected_consistency = 2 * consistency / (1 + (2 - 1) * consistency)
+            consistencies.append(corrected_consistency)
+        consistencies = Score(consistencies, coords={'split': splits}, dims=['split'])
+        uncorrected_consistencies = Score(uncorrected_consistencies, coords={'split': splits}, dims=['split'])
+        average_consistency = consistencies.median('split')
+        average_consistency.attrs['raw'] = consistencies
+        average_consistency.attrs['uncorrected_consistencies'] = uncorrected_consistencies
+        ceiling_error = np.std(consistencies)
+        return average_consistency, ceiling_error

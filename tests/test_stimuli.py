@@ -58,7 +58,8 @@ import brainio
         'brendel.Geirhos2021_stylized',
         'brendel.Geirhos2021_sketch',
         'brendel.Geirhos2021_uniform-noise',
-        'kellmen.Baker2022_shape_distortion',
+        'Baker2022_normal_distortion',
+        'Baker2022_inverted_distortion'
 ))
 def test_list_stimulus_set(stimulus_set):
     l = brainio.list_stimulus_sets()
@@ -258,7 +259,7 @@ class TestBaker2022:
         'inverted'
     ])
     def test_stimulus_set_exist(self, identifier):
-        full_name = f'kellmen.Baker2022_{identifier}_distortion'
+        full_name = f'Baker2022_{identifier}_distortion'
         stimulus_set = brainio.get_stimulus_set(full_name)
         assert stimulus_set is not None
         assert stimulus_set.identifier == full_name
@@ -269,7 +270,7 @@ class TestBaker2022:
         ('inverted', 360),
     ])
     def test_num_stimuli(self, identifier, num_images):
-        stimulus_set = brainio.get_stimulus_set(f'kellmen.Baker2022_{identifier}_distortion')
+        stimulus_set = brainio.get_stimulus_set(f'Baker2022_{identifier}_distortion')
         assert len(stimulus_set) == num_images
         assert len(np.unique(stimulus_set["stimulus_id"])) == num_images
 
@@ -286,7 +287,7 @@ class TestBaker2022:
         'inverted',
     ])
     def test_fields_present(self, identifier, field):
-        stimulus_set = brainscore.get_stimulus_set(f'kellmen.Baker2022_{identifier}_distortion')
+        stimulus_set = brainscore.get_stimulus_set(f'Baker2022_{identifier}_distortion')
         assert hasattr(stimulus_set, field)
 
     # make sure there are at least whole, frankenstein in each stimulus_set. Inverted does not have fragmented stimuli.
@@ -295,7 +296,7 @@ class TestBaker2022:
         ('inverted', 2),
     ])
     def test_distortion_counts(self, identifier, count):
-        stimulus_set = brainscore.get_stimulus_set(f'kellmen.Baker2022_{identifier}_distortion')
+        stimulus_set = brainscore.get_stimulus_set(f'Baker2022_{identifier}_distortion')
         assert len(np.unique(stimulus_set["image_type"])) == count
         assert "w", "f" in set(stimulus_set["image_type"])
 
@@ -305,7 +306,7 @@ class TestBaker2022:
         'inverted',
     ])
     def test_ground_truth_types(self, identifier):
-        stimulus_set = brainscore.get_stimulus_set(f'kellmen.Baker2022_{identifier}_distortion')
+        stimulus_set = brainscore.get_stimulus_set(f'Baker2022_{identifier}_distortion')
         assert len(np.unique(stimulus_set["animal"])) == 9
 
     # make sure there are 40 unique image numbers
@@ -314,5 +315,5 @@ class TestBaker2022:
         'inverted',
     ])
     def test_image_types(self, identifier):
-        stimulus_set = brainscore.get_stimulus_set(f'kellmen.Baker2022_{identifier}_distortion')
+        stimulus_set = brainscore.get_stimulus_set(f'Baker2022_{identifier}_distortion')
         assert len(np.unique(stimulus_set["image_number"])) == 40

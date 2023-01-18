@@ -2,7 +2,7 @@ from brainio.assemblies import NeuronRecordingAssembly
 
 from brainscore_vision import data_registry, stimulus_set_registry
 from brainscore_vision.utils.s3 import load_stimulus_set_from_s3, load_assembly_from_s3
-from brainscore_vision.data.data_helpers.helper import version_id_df, build_filename
+from brainscore_vision.data_helpers.helper import version_id_df, build_filename
 
 
 BIBTEX = """@article{majaj2015simple,

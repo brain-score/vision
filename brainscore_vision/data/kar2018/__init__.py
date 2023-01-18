@@ -4,7 +4,7 @@ from brainscore_vision import data_registry, stimulus_set_registry
 from brainscore_vision.metrics.ceiling import InternalConsistency
 from brainscore_vision.metrics.transformations import CrossValidation
 from brainscore_vision.utils.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
-from brainscore_vision.data.data_helpers.helper import version_id_df, build_filename
+from brainscore_vision.data_helpers.helper import version_id_df, build_filename
 
 BIBTEX = """@article {19,
     title = {Evidence that recurrent circuits are critical to the ventral stream{\textquoteright}s execution of core object recognition behavior},

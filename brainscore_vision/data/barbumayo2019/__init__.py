@@ -1,6 +1,6 @@
 from brainscore_vision import stimulus_set_registry
 from brainscore_vision.utils.s3 import load_stimulus_set_from_s3
-from brainscore_vision.data.data_helpers.helper import version_id_df, build_filename
+from brainscore_vision.data_helpers.helper import version_id_df, build_filename
 
 BIBTEX = """@inproceedings{NEURIPS2019_97af07a1,
  author = {Barbu, Andrei and Mayo, David and Alverio, Julian and Luo, William and Wang, Christopher and Gutfreund, Dan and Tenenbaum, Josh and Katz, Boris},

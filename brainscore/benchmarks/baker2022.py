@@ -60,11 +60,11 @@ class _Baker2022AccuracyDelta(BenchmarkBase):
             labels = candidate.look_at(inverted_stimuli, number_of_trials=self._number_of_trials)
             inverted_assembly = self._assembly[self._assembly["orientation"] == "inverted"]
             raw_score = self._metric(labels, inverted_assembly)
-            ceiling, ceiling_error = self._ceiling(inverted_assembly)
+            ceiling = self._ceiling(inverted_assembly)
         else:
             labels = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
             raw_score = self._metric(labels, self._assembly)
-            ceiling, ceiling_error = self._ceiling(self._assembly)
+            ceiling = self._ceiling(self._assembly)
         score = raw_score / ceiling
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling

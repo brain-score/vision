@@ -5,7 +5,7 @@ import brainscore
 from brainscore.benchmarks import BenchmarkBase
 from brainscore.benchmarks.screen import place_on_screen
 from brainscore.metrics import Score
-from brainscore.metrics.accuracy_delta import AccuracyDelta
+from brainscore.metrics.accuracy_delta import AccuracyDelta, AccuracyDeltaCeiling
 from brainscore.model_interface import BrainModel
 from brainscore.utils import LazyLoad
 
@@ -27,28 +27,18 @@ BIBTEX = """@article{BAKER2022104913,
 
 DATASETS = ['normal', 'inverted']
 
-# create functions so that users can import individual benchmarks as e.g. Baker2022wholeAccuracyDelta
-for dataset in DATASETS:
-    # normal experiment
-    identifier = f"Baker2022{dataset.replace('_', '')}AccuracyDelta"
-    globals()[identifier] = lambda dataset=dataset: _Baker2022AccuracyDelta(dataset)
-
-    # # inverted experiment
-    # identifier = f"Baker2022_Inverted{dataset.replace('_', '')}AccuracyDelta"
-    # globals()[identifier] = lambda dataset=dataset: _Baker2022InvertedAccuracyDelta(dataset)
-
 
 class _Baker2022AccuracyDelta(BenchmarkBase):
 
     def __init__(self, dataset: str, image_types: list):
-        self._metric = AccuracyDelta()
+        self._metric = AccuracyDelta(image_types=image_types)
 
         # image types: list[str]. Either ["w", "f"] for frankenstein delta or ["w", "o"] for fragmented delta.
         self.image_types = image_types
         self.orientation = dataset
-
-        self._ceiling = SplitHalvesConsistencyBaker(num_splits=100, consistency_metric=AccuracyDelta(),
-                                               split_coordinate="subject", image_types=self.image_types)
+        self._ceiling = SplitHalvesConsistencyBaker(num_splits=100,
+                                                    consistency_metric=AccuracyDeltaCeiling(self.image_types),
+                                                    split_coordinate="subject", image_types=self.image_types)
         self._assembly = LazyLoad(lambda: load_assembly(dataset))
         self._visual_degrees = 8.8
         self._number_of_trials = 1
@@ -69,11 +59,11 @@ class _Baker2022AccuracyDelta(BenchmarkBase):
             inverted_stimuli = stimulus_set[stimulus_set["orientation"] == "inverted"]
             labels = candidate.look_at(inverted_stimuli, number_of_trials=self._number_of_trials)
             inverted_assembly = self._assembly[self._assembly["orientation"] == "inverted"]
-            raw_score = self._metric(labels, inverted_assembly, image_types=self.image_types)
+            raw_score = self._metric(labels, inverted_assembly)
             ceiling, ceiling_error = self._ceiling(inverted_assembly)
         else:
             labels = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
-            raw_score = self._metric(labels, self._assembly, image_types=self.image_types)
+            raw_score = self._metric(labels, self._assembly)
             ceiling, ceiling_error = self._ceiling(self._assembly)
         score = raw_score / ceiling
         score.attrs['raw'] = raw_score
@@ -112,17 +102,18 @@ class SplitHalvesConsistencyBaker:
         self.image_types = image_types
 
     def __call__(self, assembly) -> Score:
-        random_state = np.random.RandomState(0)
+
         consistencies, uncorrected_consistencies = [], []
         splits = range(self.num_splits)
+        random_state = np.random.RandomState(0)
         for _ in splits:
             num_subjects = len(set(assembly["subject"].values))
-            half1_subjects = random_state.choice(range(1, num_subjects), (num_subjects // 2))
+            half1_subjects = random_state.choice(range(1, num_subjects), (num_subjects // 2), replace=False)
             half1 = assembly[
                 {'presentation': [subject in half1_subjects for subject in assembly['subject'].values]}]
             half2 = assembly[
                 {'presentation': [subject not in half1_subjects for subject in assembly['subject'].values]}]
-            consistency = self.consistency_metric(half1, half2, image_types=self.image_types, isCeiling=True)
+            consistency = self.consistency_metric(half1, half2)
             uncorrected_consistencies.append(consistency)
             # Spearman-Brown correction for sub-sampling
             corrected_consistency = 2 * consistency / (1 + (2 - 1) * consistency)
@@ -132,5 +123,4 @@ class SplitHalvesConsistencyBaker:
         average_consistency = consistencies.median('split')
         average_consistency.attrs['raw'] = consistencies
         average_consistency.attrs['uncorrected_consistencies'] = uncorrected_consistencies
-        ceiling_error = np.std(consistencies)
-        return average_consistency, ceiling_error
+        return average_consistency

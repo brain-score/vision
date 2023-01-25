@@ -5,6 +5,8 @@ Unit tests have various markers that denote possible issues in the travis build:
 * **private_access**: tests that require access to a private ressource, such as assemblies on S3 (travis pull request builds can not have private access)
 * **memory_intense**: tests requiring more memory than is available in the travis sandbox (currently 3 GB, https://docs.travis-ci.com/user/common-build-problems/#my-build-script-is-killed-without-any-error)
 * **requires_gpu**: tests requiring a GPU to run or to run in a reasonable time (travis does not support GPUs/CUDA)
+* **slow**: tests leading to runtimes that are not possible on the openmind cluster (>1 hour per test) 
+* **travis_slow**: tests running for more than 10 minutes without output (which leads travis to error)
 
 Use the following syntax to mark a test:
 ```
@@ -19,6 +21,7 @@ To skip multiple markers, run e.g. `pytest -m "not private_access and not memory
 
 ## Precomputed features
 For many benchmark tests, it can be useful to evaluate on "reasonable" features that have been computed beforehand.
+They are on S3 instead and are automatically downloaded by executing `bash test_setup.sh`.
 Often these precomputed features are taken from models that were run on the benchmark.
 
 To capture a model's activations, you can use the following steps:

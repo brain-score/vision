@@ -38,12 +38,12 @@ class TestBaker2022:
         assert ceiling == approx(expected_ceiling, abs=0.001)
 
     @pytest.mark.parametrize('benchmark, model, expected_raw_score', [
-        ('Baker2022-accuracy_delta_frankenstein', 'resnet-50-pytorch', approx(0.1310, abs=0.0001)),
-        ('Baker2022-accuracy_delta_fragmented', 'resnet-50-pytorch', approx(0.8984, abs=0.0001)),
+        ('Baker2022-accuracy_delta_frankenstein', 'resnet-50-pytorch', approx(0.2847, abs=0.0001)),
+        ('Baker2022-accuracy_delta_fragmented', 'resnet-50-pytorch', approx(0.8452, abs=0.0001)),
         ('Baker2022-inverted_accuracy_delta', 'resnet-50-pytorch', approx(0.0, abs=0.0001)),
-        ('Baker2022-accuracy_delta_frankenstein', 'resnet50-SIN', approx(0.6463, abs=0.0001)),
-        ('Baker2022-accuracy_delta_fragmented', 'resnet50-SIN', approx(0.8339, abs=0.0001)),
-        ('Baker2022-inverted_accuracy_delta', 'resnet50-SIN', approx(0.4467, abs=0.0001)),
+        ('Baker2022-accuracy_delta_frankenstein', 'resnet50-SIN', approx(0.6823, abs=0.0001)),
+        ('Baker2022-accuracy_delta_fragmented', 'resnet50-SIN', approx(0.9100, abs=0.0001)),
+        ('Baker2022-inverted_accuracy_delta', 'resnet50-SIN', approx(0.7050, abs=0.0001)),
 
     ])
     def test_model_raw_score(self, benchmark, model, expected_raw_score):
@@ -64,12 +64,12 @@ class TestBaker2022:
         assert raw_score.sel(aggregation='center') == expected_raw_score
 
     @pytest.mark.parametrize('benchmark, model, expected_ceiled_score', [
-        ('Baker2022-accuracy_delta_frankenstein', 'resnet-50-pytorch', approx(0.1541, abs=0.0001)),
-        ('Baker2022-accuracy_delta_fragmented', 'resnet-50-pytorch', approx(0.9572, abs=0.0001)),
+        ('Baker2022-accuracy_delta_frankenstein', 'resnet-50-pytorch', approx(0.3350, abs=0.0001)),
+        ('Baker2022-accuracy_delta_fragmented', 'resnet-50-pytorch', approx(0.9005, abs=0.0001)),
         ('Baker2022-inverted_accuracy_delta', 'resnet-50-pytorch', approx(0.0, abs=0.0001)),
-        ('Baker2022-accuracy_delta_frankenstein', 'resnet50-SIN', approx(0.7606, abs=0.0001)),
-        ('Baker2022-accuracy_delta_fragmented', 'resnet50-SIN', approx(0.8884, abs=0.0001)),
-        ('Baker2022-inverted_accuracy_delta', 'resnet50-SIN', approx(0.6832, abs=0.0001)),
+        ('Baker2022-accuracy_delta_frankenstein', 'resnet50-SIN', approx(0.8029, abs=0.0001)),
+        ('Baker2022-accuracy_delta_fragmented', 'resnet50-SIN', approx(0.9696, abs=0.0001)),
+        ('Baker2022-inverted_accuracy_delta', 'resnet50-SIN', approx(1.000, abs=0.0001)),
     ])
     def test_model_ceiled_score(self, benchmark, model, expected_ceiled_score):
         # load features

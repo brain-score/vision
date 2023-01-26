@@ -36,10 +36,10 @@ To capture a model's activations, you can use the following steps:
     ```
 4. upload the `.nc` file to the S3 brain-score-tests 
    [bucket](https://s3.console.aws.amazon.com/s3/buckets/brain-score-tests?region=us-east-1&prefix=tests/test_benchmarks/&showversions=false) 
-   (drag and drop in browser is likely easiest; you might have to ask an admin to upload)
-5. make the file publicly accessible on S3: 
-   select all files that you have added > Actions > Make public using ACL > Make public
-6. add filename to [`test_setup.sh`](https://github.com/brain-score/brain-score/blob/master/test_setup.sh) 
-7. write your unit test (see e.g. 
+   (drag and drop in browser is likely easiest; you might have to ask an admin to upload.)
+   In the upload, make sure to make the file(s) publicly accessible: 
+   under Permissions > Predefined ACLs > Grant public-read access
+5. add filename to [`test_setup.sh`](https://github.com/brain-score/brain-score/blob/master/test_setup.sh) 
+6. write your unit test (see e.g. 
    [here](https://github.com/brain-score/brain-score/blob/9ba55450a9d1c2b695c393df92aba2102ccdb169/tests/test_benchmarks/test_geirhos2021.py#L73) 
    for an example)

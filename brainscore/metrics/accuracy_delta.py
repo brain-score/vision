@@ -23,7 +23,7 @@ class AccuracyDelta(Metric):
 
         # calculate score over average of 100 sub splits of human delta
         for i in range(HUMAN_SPLITS):
-            human_delta = get_human_delta(target, self.image_types)
+            human_delta = get_human_delta(target, self.image_types, random_state=i)
             score = max((1 - ((np.abs(human_delta - model_delta)) / human_delta)), 0)
             scores.append(score)
         score = np.mean(scores)
@@ -36,7 +36,7 @@ def extract_subjects(assembly):
     return list(sorted(set(assembly['subject'].values)))
 
 
-def get_human_delta(target, image_types, isCeiling=False):
+def get_human_delta(target, image_types, random_state=0, isCeiling=False):
     # calculate human accuracies for [whole, condition]
     condition_scores_human = {}
 
@@ -45,8 +45,9 @@ def get_human_delta(target, image_types, isCeiling=False):
     else:
         # pull half of subjects. This is outside loop to make sure
         # the same half of subjects are used in w and f conditions.
+        random_state = np.random.RandomState(random_state)
         num_subjects = len(set(target["subject"].values))
-        half1_subjects = random.sample(range(1, num_subjects), num_subjects // 2)
+        half1_subjects = random_state.choice(range(1, num_subjects), (num_subjects // 2), replace=False)
         half1 = target[{'presentation': [subject in half1_subjects for subject in target['subject'].values]}]
 
     # for whole condition, and other condition (frank or frag)

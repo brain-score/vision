@@ -11,7 +11,7 @@ stimuli_directory = 'images'
 Dataset Information:
 - From Jacob 2020: https://www.nature.com/articles/s41467-021-22078-3
 
-- This stimulus set is only six (6) images - two cubes, 2 "y's, and 2 squares.
+- This stimulus set is only six (6) images - two cubes, 2 "y"s, and 2 squares.
 - Naming Convention - sample name: cube_1.jpg
     
 
@@ -20,7 +20,7 @@ Fields:
 2) number - int in the set {1, 2} indicating shape variation 
 '''
 
-for filepath in Path(stimuli_directory).glob('*.jpg'):
+for filepath in Path(stimuli_directory).glob('*.png'):
 
     # entire name of image file:
     image_id = filepath.stem

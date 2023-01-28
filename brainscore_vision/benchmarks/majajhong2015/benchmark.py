@@ -1,12 +1,9 @@
-import functools
-
 import brainscore_vision
-
 from brainscore_vision.benchmark_helpers._neural_common import NeuralBenchmark, average_repetition
+from brainscore_vision.metrics import Metric
 from brainscore_vision.metrics.ceiling import InternalConsistency, RDMConsistency
 from brainscore_vision.metrics.rdm import RDMCrossValidated
-from brainscore_vision.metrics.regression import CrossRegressedCorrelation, mask_regression, ScaledCrossRegressedCorrelation, \
-    pls_regression, pearsonr_correlation
+from brainscore_vision.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation
 
 VISUAL_DEGREES = 8
 NUMBER_OF_TRIALS = 50
@@ -26,10 +23,23 @@ BIBTEX = """@article {Majaj13402,
             journal = {Journal of Neuroscience}}"""
 
 
-def _DicarloMajajHong2015Region(region, identifier_metric_suffix, similarity_metric, ceiler):
+def majajhong2015_plsmetric():
+    return CrossRegressedCorrelation(
+        regression=pls_regression(), correlation=pearsonr_correlation(),
+        crossvalidation_kwargs=dict(stratification_coord='object_name'))
+
+
+def majajhong2015_rdmmetric():
+    return RDMCrossValidated(
+        crossvalidation_kwargs=dict(stratification_coord='object_name'))
+
+
+def _DicarloMajajHong2015Region(region: str, access: str, identifier_metric_suffix: str,
+                                similarity_metric: Metric, ceiler):
     assembly_repetition = lambda region=region: load_assembly(average_repetitions=False, region=region)
-    assembly = lambda region=region: load_assembly(average_repetitions=True, region=region)
-    return NeuralBenchmark(identifier=f'dicarlo.MajajHong2015.{region}-{identifier_metric_suffix}', version=3,
+    assembly = lambda region=region: load_assembly(average_repetitions=True, region=region, access=access)
+    benchmark_identifier = f'dicarlo.MajajHong2015.{region}' + ('.public' if access == 'public' else '')
+    return NeuralBenchmark(identifier=f'{benchmark_identifier}-{identifier_metric_suffix}', version=3,
                            assembly=assembly, similarity_metric=similarity_metric,
                            visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
                            ceiling_func=lambda: ceiler(assembly_repetition),
@@ -38,63 +48,39 @@ def _DicarloMajajHong2015Region(region, identifier_metric_suffix, similarity_met
 
 
 def DicarloMajajHong2015V4PLS():
-    return _DicarloMajajHong2015Region('V4', identifier_metric_suffix='pls',
-                                       similarity_metric=CrossRegressedCorrelation(
-                                           regression=pls_regression(), correlation=pearsonr_correlation(),
-                                           crossvalidation_kwargs=dict(stratification_coord='object_name')),
+    return _DicarloMajajHong2015Region(region='V4', access='private', identifier_metric_suffix='pls',
+                                       similarity_metric=majajhong2015_plsmetric(),
                                        ceiler=InternalConsistency())
 
 
 def DicarloMajajHong2015ITPLS():
-    return _DicarloMajajHong2015Region('IT', identifier_metric_suffix='pls',
-                                       similarity_metric=CrossRegressedCorrelation(
-                                           regression=pls_regression(), correlation=pearsonr_correlation(),
-                                           crossvalidation_kwargs=dict(stratification_coord='object_name')),
-                                       ceiler=InternalConsistency())
-
-
-def DicarloMajajHong2015V4Mask():
-    return _DicarloMajajHong2015Region('V4', identifier_metric_suffix='mask',
-                                       similarity_metric=ScaledCrossRegressedCorrelation(
-                                           regression=mask_regression(), correlation=pearsonr_correlation(),
-                                           crossvalidation_kwargs=dict(splits=2, stratification_coord='object_name')),
-                                       ceiler=InternalConsistency())
-
-
-def DicarloMajajHong2015ITMask():
-    return _DicarloMajajHong2015Region('IT', identifier_metric_suffix='mask',
-                                       similarity_metric=ScaledCrossRegressedCorrelation(
-                                           regression=mask_regression(), correlation=pearsonr_correlation(),
-                                           crossvalidation_kwargs=dict(splits=2, stratification_coord='object_name')),
+    return _DicarloMajajHong2015Region(region='IT', access='private', identifier_metric_suffix='pls',
+                                       similarity_metric=majajhong2015_plsmetric(),
                                        ceiler=InternalConsistency())
 
 
 def DicarloMajajHong2015V4RDM():
-    return _DicarloMajajHong2015Region('V4', identifier_metric_suffix='rdm',
-                                       similarity_metric=RDMCrossValidated(
-                                           crossvalidation_kwargs=dict(stratification_coord='object_name')),
+    return _DicarloMajajHong2015Region(region='V4', access='private', identifier_metric_suffix='rdm',
+                                       similarity_metric=majajhong2015_rdmmetric(),
                                        ceiler=RDMConsistency())
 
 
 def DicarloMajajHong2015ITRDM():
-    return _DicarloMajajHong2015Region('IT', identifier_metric_suffix='rdm',
-                                       similarity_metric=RDMCrossValidated(
-                                           crossvalidation_kwargs=dict(stratification_coord='object_name')),
+    return _DicarloMajajHong2015Region(region='IT', access='private', identifier_metric_suffix='rdm',
+                                       similarity_metric=majajhong2015_rdmmetric(),
                                        ceiler=RDMConsistency())
 
 
 def MajajHongV4PublicBenchmark():
-    return _standard_benchmark('dicarlo.MajajHong2015.V4.public',
-                               load_assembly=functools.partial(load_assembly, region='V4', access='public'),
-                               visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
-                               stratification_coord='object_name', bibtex=BIBTEX)
+    return _DicarloMajajHong2015Region(region='V4', access='public', identifier_metric_suffix='pls',
+                                       similarity_metric=majajhong2015_plsmetric(),
+                                       ceiler=InternalConsistency())
 
 
 def MajajHongITPublicBenchmark():
-    return _standard_benchmark('dicarlo.MajajHong2015.IT.public',
-                               load_assembly=functools.partial(load_assembly, region='IT', access='public'),
-                               visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
-                               stratification_coord='object_name', bibtex=BIBTEX)
+    return _DicarloMajajHong2015Region(region='IT', access='public', identifier_metric_suffix='pls',
+                                       similarity_metric=majajhong2015_plsmetric(),
+                                       ceiler=InternalConsistency())
 
 
 def load_assembly(average_repetitions, region, access='private'):
@@ -107,19 +93,3 @@ def load_assembly(average_repetitions, region, access='private'):
     if average_repetitions:
         assembly = average_repetition(assembly)
     return assembly
-
-
-def _standard_benchmark(identifier, load_assembly, visual_degrees, number_of_trials, stratification_coord, bibtex):
-    assembly_repetition = lambda: load_assembly(average_repetitions=False)
-    assembly = lambda: load_assembly(average_repetitions=True)
-    similarity_metric = CrossRegressedCorrelation(
-        regression=pls_regression(), correlation=pearsonr_correlation(),
-        crossvalidation_kwargs=dict(stratification_coord=stratification_coord))
-    ceiler = InternalConsistency()
-    return NeuralBenchmark(identifier=f"{identifier}-pls", version=1,
-                           assembly=assembly, similarity_metric=similarity_metric,
-                           visual_degrees=visual_degrees, number_of_trials=number_of_trials,
-                           ceiling_func=lambda: ceiler(assembly_repetition),
-                           parent=None,
-                           bibtex=bibtex)
-

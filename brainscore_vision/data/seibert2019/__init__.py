@@ -2,7 +2,7 @@ from brainio.assemblies import NeuronRecordingAssembly
 
 from brainscore_vision import data_registry
 from brainscore_vision.data_helpers.s3 import load_assembly_from_s3
-from brainscore_vision.data_helpers.helper import version_id_df, build_filename
+from brainscore_vision.data_helpers.lookup_legacy import version_id_df, build_filename
 
 BIBTEX = """@article{lee2019sensitivity,
   title={Sensitivity of inferotemporal cortex to naturalistic image statistics in developing macaques},

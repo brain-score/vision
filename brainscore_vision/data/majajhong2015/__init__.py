@@ -3,7 +3,7 @@ from brainio.assemblies import NeuronRecordingAssembly
 import brainscore_vision
 from brainscore_vision import data_registry, stimulus_set_registry
 from brainscore_vision.data_helpers.s3 import load_stimulus_set_from_s3, load_assembly_from_s3
-from brainscore_vision.data_helpers.helper import version_id_df, build_filename
+from brainscore_vision.data_helpers.lookup_legacy import version_id_df, build_filename
 
 BIBTEX = """@article{majajhong2015simple,
   title={Simple learned weighted sums of inferior temporal neuronal firing rates accurately predict human core object recognition performance},

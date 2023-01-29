@@ -1,6 +1,6 @@
 from brainscore_vision import stimulus_set_registry
 from brainscore_vision.data_helpers.s3 import load_stimulus_set_from_s3
-from brainscore_vision.data_helpers.helper import version_id_df, build_filename
+from brainscore_vision.data_helpers.lookup_legacy import version_id_df, build_filename
 
 BIBTEX = """@article{hendrycks2019benchmarking,
   title={Benchmarking neural network robustness to common corruptions and perturbations},

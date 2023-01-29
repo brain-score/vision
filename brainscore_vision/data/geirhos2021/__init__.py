@@ -3,7 +3,7 @@ from brainio.assemblies import BehavioralAssembly
 
 from brainscore_vision import data_registry, stimulus_set_registry
 from brainscore_vision.data_helpers.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
-from brainscore_vision.data_helpers.helper import version_id_df, build_filename
+from brainscore_vision.data_helpers.lookup_legacy import version_id_df, build_filename
 
 BIBTEX = """@article{geirhos2021partial,
   title={Partial success in closing the gap between human and machine vision},

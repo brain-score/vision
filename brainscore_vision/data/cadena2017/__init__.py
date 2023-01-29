@@ -2,7 +2,7 @@ import logging
 
 from brainio.assemblies import NeuronRecordingAssembly
 from brainscore_vision import data_registry
-from brainscore_vision.utils.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
+from brainscore_vision.data_helpers.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
 from brainscore_vision.data_helpers.helper import version_id_df, build_filename
 
 # extract version ids from version_ids csv

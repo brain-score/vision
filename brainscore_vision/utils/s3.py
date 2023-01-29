@@ -5,15 +5,15 @@ and whatever helpers are needed.
 Should provide similar functionality to brainio/lookup.py and brainio/fetch.py,
 but without use of lookup.csv
 """
-
-import os
+import functools
 import logging
-
-from brainio.assemblies import DataAssembly, AssemblyLoader
-from brainio.fetch import fetch_file, unzip, resolve_stimulus_set_class
-from brainio.stimuli import StimulusSetLoader
+import os
 from pathlib import Path
+from typing import Callable
 
+from brainio.assemblies import DataAssembly, AssemblyLoader, StimulusMergeAssemblyLoader
+from brainio.fetch import fetch_file, unzip, resolve_stimulus_set_class
+from brainio.stimuli import StimulusSetLoader, StimulusSet
 
 _logger = logging.getLogger(__name__)
 
@@ -37,9 +37,16 @@ def get_path(identifier: str, file_type: str, bucket: str, version_id: str, sha1
     return file_path
 
 
-def load_assembly_from_s3(identifier: str, version_id: str, sha1: str, bucket: str, cls) -> DataAssembly:
+def load_assembly_from_s3(identifier: str, version_id: str, sha1: str, bucket: str, cls: type,
+                          stimulus_set_loader: Callable[[], StimulusSet] = None) -> DataAssembly:
     file_path = get_path(identifier, 'nc', bucket, version_id, sha1)
-    loader = AssemblyLoader(cls=cls, file_path=file_path)
+    if stimulus_set_loader:  # merge stimulus set meta into assembly if `stimulus_set_loader` is passed
+        stimulus_set = stimulus_set_loader()
+        loader_class = functools.partial(StimulusMergeAssemblyLoader,
+                                         stimulus_set_identifier=stimulus_set.identifier, stimulus_set=stimulus_set)
+    else:  # if no `stimulus_set_loader` passed, just load assembly
+        loader_class = AssemblyLoader
+    loader = loader_class(cls=cls, file_path=file_path)
     assembly = loader.load()
     assembly.attrs['identifier'] = identifier
     return assembly
@@ -63,5 +70,3 @@ def load_stimulus_set_from_s3(identifier: str, bucket: str, csv_sha1: str, zip_s
     assert set(stimulus_set.stimulus_paths.values()) == set(stimuli_paths), \
         "Inconsistency: unzipped stimuli paths do not match csv paths"
     return stimulus_set
-
-

@@ -1,11 +1,11 @@
 from brainio.assemblies import NeuronRecordingAssembly
 
+import brainscore_vision
 from brainscore_vision import data_registry, stimulus_set_registry
 from brainscore_vision.utils.s3 import load_stimulus_set_from_s3, load_assembly_from_s3
 from brainscore_vision.data_helpers.helper import version_id_df, build_filename
 
-
-BIBTEX = """@article{majaj2015simple,
+BIBTEX = """@article{majajhong2015simple,
   title={Simple learned weighted sums of inferior temporal neuronal firing rates accurately predict human core object recognition performance},
   author={Majaj, Najib J and Hong, Ha and Solomon, Ethan A and DiCarlo, James J},
   journal={Journal of Neuroscience},
@@ -22,7 +22,9 @@ data_registry['dicarlo.MajajHong2015'] = lambda: load_assembly_from_s3(
     version_id=version_id_df.at[build_filename('dicarlo.MajajHong2015', '.nc'), 'version_id'],
     sha1="bf8f8d01010d727e3db3f85a9bd5f95f9456b7ec",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: brainscore_vision.load_stimulus_set('dicarlo.hvm'),
+)
 
 # assembly: dicarlo.MajajHong2015.temporal
 data_registry['dicarlo.MajajHong2015.temporal'] = lambda: load_assembly_from_s3(
@@ -30,7 +32,9 @@ data_registry['dicarlo.MajajHong2015.temporal'] = lambda: load_assembly_from_s3(
     version_id=version_id_df.at[build_filename('dicarlo.MajajHong2015.temporal', '.nc'), 'version_id'],
     sha1="4c5cfe25ad53162c5c716d64004de269162eff38",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: brainscore_vision.load_stimulus_set('dicarlo.hvm'),
+)
 
 # assembly: dicarlo.MajajHong2015.temporal-10ms
 data_registry['dicarlo.MajajHong2015.temporal-10ms'] = lambda: load_assembly_from_s3(
@@ -38,7 +42,9 @@ data_registry['dicarlo.MajajHong2015.temporal-10ms'] = lambda: load_assembly_fro
     version_id=version_id_df.at[build_filename('dicarlo.MajajHong2015.temporal-10ms', '.nc'), 'version_id'],
     sha1="3a43db05db722b456d156f53b7215413c994e5b5",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: brainscore_vision.load_stimulus_set('dicarlo.hvm'),
+)
 
 # assembly: dicarlo.MajajHong2015.public
 data_registry['dicarlo.MajajHong2015.public'] = lambda: load_assembly_from_s3(
@@ -46,7 +52,9 @@ data_registry['dicarlo.MajajHong2015.public'] = lambda: load_assembly_from_s3(
     version_id=version_id_df.at[build_filename('dicarlo.MajajHong2015.public', '.nc'), 'version_id'],
     sha1="13d28ca0ce88ee550b54db3004374ae19096e9b9",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: brainscore_vision.load_stimulus_set('dicarlo.hvm-public'),
+)
 
 # assembly: dicarlo.MajajHong2015.private
 data_registry['dicarlo.MajajHong2015.private'] = lambda: load_assembly_from_s3(
@@ -54,7 +62,9 @@ data_registry['dicarlo.MajajHong2015.private'] = lambda: load_assembly_from_s3(
     version_id=version_id_df.at[build_filename('dicarlo.MajajHong2015.private', '.nc'), 'version_id'],
     sha1="7a40d16148d6f82939155f0bd976d310857fb156",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: brainscore_vision.load_stimulus_set('dicarlo.hvm-private'),
+)
 
 # assembly: dicarlo.MajajHong2015.temporal.public
 data_registry['dicarlo.MajajHong2015.temporal.public'] = lambda: load_assembly_from_s3(
@@ -62,7 +72,9 @@ data_registry['dicarlo.MajajHong2015.temporal.public'] = lambda: load_assembly_f
     version_id=version_id_df.at[build_filename('dicarlo.MajajHong2015.temporal.public', '.nc'), 'version_id'],
     sha1="093ac35b3e8464c676d24cf38238415d4d6a9448",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: brainscore_vision.load_stimulus_set('dicarlo.hvm-public'),
+)
 
 # assembly: dicarlo.MajajHong2015.temporal.private
 data_registry['dicarlo.MajajHong2015.temporal.private'] = lambda: load_assembly_from_s3(
@@ -70,10 +82,11 @@ data_registry['dicarlo.MajajHong2015.temporal.private'] = lambda: load_assembly_
     version_id=version_id_df.at[build_filename('dicarlo.MajajHong2015.temporal.private', '.nc'), 'version_id'],
     sha1="804ea9e7c08ae9ab7a7d705c9c7e68582750e2ea",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: brainscore_vision.load_stimulus_set('dicarlo.hvm-private'),
+)
 
-
-# stimulus set: dicarlo.hvm  - majajhong2015
+# stimulus set: dicarlo.hvm - majajhong2015
 stimulus_set_registry['dicarlo.hvm'] = lambda: load_stimulus_set_from_s3(
     identifier="dicarlo.hvm",
     bucket="brainio-brainscore",
@@ -99,4 +112,3 @@ stimulus_set_registry['dicarlo.hvm-private'] = lambda: load_stimulus_set_from_s3
     zip_sha1="d7b1ca1876dad87e15b0242b4c82c0203ff3cbd3",
     csv_version_id=version_id_df.at[build_filename('dicarlo.hvm-private', '.csv'), 'version_id'],
     zip_version_id=version_id_df.at[build_filename('dicarlo.hvm-private', '.zip'), 'version_id'])
-

@@ -488,7 +488,7 @@ class TestGeirhos2021:
 class TestZhu2019:
 
     def test_stimulus_set_assembly_alignment(self):
-        full_name = 'yuille.Zhu2019_extreme_occlusion'
+        full_name = 'Zhu2019_extreme_occlusion'
         assembly = brainscore.get_assembly(full_name)
         assert assembly.stimulus_set is not None
         assert assembly.stimulus_set.identifier == full_name
@@ -496,7 +496,7 @@ class TestZhu2019:
         assert set(assembly.stimulus_set["stimulus_id"].values) == set(assembly["stimulus_id"].values)
 
     def test_length(self):
-        assembly = brainscore.get_assembly('yuille.Zhu2019_extreme_occlusion')
+        assembly = brainscore.get_assembly('Zhu2019_extreme_occlusion')
         assert len(assembly['presentation']) == 19587
 
     @pytest.mark.parametrize('field', [
@@ -507,24 +507,24 @@ class TestZhu2019:
         'correct',
     ])
     def test_fields_present(self, field):
-        assembly = brainscore.get_assembly('yuille.Zhu2019_extreme_occlusion')
+        assembly = brainscore.get_assembly('Zhu2019_extreme_occlusion')
         assert hasattr(assembly, field)
 
     def test_number_categories(self):
-        assembly = brainscore.get_assembly('yuille.Zhu2019_extreme_occlusion')
+        assembly = brainscore.get_assembly('Zhu2019_extreme_occlusion')
         assert len(set(assembly["truth"].values)) == 5
         assert len(set(assembly["choice"].values)) == 5
 
     def test_number_subjects(self):
-        assembly = brainscore.get_assembly('yuille.Zhu2019_extreme_occlusion')
+        assembly = brainscore.get_assembly('Zhu2019_extreme_occlusion')
         assert len(set(assembly["subject"].values)) == 25
 
     def test_correct_responses(self):
-        assembly = brainscore.get_assembly('yuille.Zhu2019_extreme_occlusion')
+        assembly = brainscore.get_assembly('Zhu2019_extreme_occlusion')
         assert len(set(assembly["correct"].values)) == 2
         assert set(assembly["correct"].values) == {0, 1}
 
     def test_response_alignment(self):
-        assembly = brainscore.get_assembly('yuille.Zhu2019_extreme_occlusion')
+        assembly = brainscore.get_assembly('Zhu2019_extreme_occlusion')
         assert list(assembly.values) == list(assembly["choice"].values)
         assert list(assembly.values) != list(assembly["truth"].values)

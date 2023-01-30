@@ -252,14 +252,14 @@ class TestGeirhos2021:
 class TestZhu2019:
 
     def test_stimulus_set_exist(self):
-        full_name = 'yuille.Zhu2019_extreme_occlusion'
+        full_name = 'Zhu2019_extreme_occlusion'
         stimulus_set = brainio.get_stimulus_set(full_name)
         assert stimulus_set is not None
         assert stimulus_set.identifier == full_name
 
     def test_num_images(self):
-        brainio.get_stimulus_set('yuille.Zhu2019_extreme_occlusion')
-        stimulus_set = brainio.get_stimulus_set('yuille.Zhu2019_extreme_occlusion')
+        brainio.get_stimulus_set('Zhu2019_extreme_occlusion')
+        stimulus_set = brainio.get_stimulus_set('Zhu2019_extreme_occlusion')
         assert len(np.unique(stimulus_set['stimulus_id'].values)) == 500
 
     @pytest.mark.parametrize('field', [
@@ -270,5 +270,5 @@ class TestZhu2019:
         'image_number',
     ])
     def test_fields_present(self, field):
-        stimulus_set = brainio.get_stimulus_set('yuille.Zhu2019_extreme_occlusion')
+        stimulus_set = brainio.get_stimulus_set('Zhu2019_extreme_occlusion')
         assert hasattr(stimulus_set, field)

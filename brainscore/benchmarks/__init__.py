@@ -219,7 +219,7 @@ def _evaluation_benchmark_pool():
 
     # Zhu2019
     from .zhu2019 import Zhu2019Accuracy
-    pool['yuille.Zhu2019-accuracy'] = LazyLoad(Zhu2019Accuracy)
+    pool['Zhu2019-accuracy'] = LazyLoad(Zhu2019Accuracy)
 
     return pool
 
@@ -261,7 +261,7 @@ def _engineering_benchmark_pool():
 
     # Zhu2019
     from .zhu2019 import Zhu2019Accuracy_Engineering
-    pool['yuille.Zhu2019-accuracy-engineering'] = LazyLoad(Zhu2019Accuracy_Engineering)
+    pool['Zhu2019-accuracy-engineering'] = LazyLoad(Zhu2019Accuracy_Engineering)
 
     return pool
 

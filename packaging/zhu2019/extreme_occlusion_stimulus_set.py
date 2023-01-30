@@ -51,7 +51,7 @@ for filepath in Path(stimuli_directory).glob('*.png'):
 
 stimuli = StimulusSet(stimuli)
 stimuli.stimulus_paths = image_paths
-stimuli.name = 'yuille.Zhu2019_extreme_occlusion'  # give the StimulusSet an identifier name
+stimuli.name = 'Zhu2019_extreme_occlusion'  # give the StimulusSet an identifier name
 
 # upload to S3
 package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,

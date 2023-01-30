@@ -37,9 +37,9 @@ assembly = BehavioralAssembly(all_subjects['final_answer'],
                               )
 
 # give the assembly an identifier name
-assembly.name = 'yuille.Zhu2019_extreme_occlusion'
+assembly.name = 'Zhu2019_extreme_occlusion'
 
 # upload to S3
 package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
-                      stimulus_set_identifier='yuille.Zhu2019_extreme_occlusion',
+                      stimulus_set_identifier='Zhu2019_extreme_occlusion',
                       assembly_class_name="BehavioralAssembly", bucket_name="brainio-brainscore")

@@ -46,7 +46,12 @@ def _determine_visual_degrees(visual_degrees, stimulus_set):
 @store(identifier_ignore=['stimulus_set'])
 def _place_on_screen(stimuli_identifier: str, stimulus_set: StimulusSet,
                      target_visual_degrees: Union[int, float], source_visual_degrees: Union[int, float, None] = None):
-    converted_stimuli_id = f"{stimuli_identifier}--target{target_visual_degrees:.2f}--source{source_visual_degrees:.2f}"
+
+    # make sure we do not try to print a None with 2 decimal places
+    if source_visual_degrees is None:
+        converted_stimuli_id = f"{stimuli_identifier}--target{target_visual_degrees:.2f}--source{source_visual_degrees}"
+    else:
+        converted_stimuli_id = f"{stimuli_identifier}--target{target_visual_degrees:.2f}--source{source_visual_degrees:.2f}"
     source_visual_degrees = _determine_visual_degrees(source_visual_degrees, stimulus_set)
 
     target_dir = root_path / converted_stimuli_id

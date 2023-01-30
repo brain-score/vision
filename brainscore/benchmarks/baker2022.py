@@ -68,7 +68,8 @@ class _Baker2022AccuracyDelta(BenchmarkBase):
         score = raw_score / ceiling
 
         # cap score at 1 if ceiled score > 1
-        score[0] = 1 if score[0] > 1 else score[0]
+        if score[(score['aggregation'] == 'center')] > 1:
+            score.__setitem__({'aggregation': score['aggregation'] == 'center'}, 1)
 
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling

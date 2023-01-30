@@ -96,6 +96,9 @@ class TestPoolList:
             'brendel.Geirhos2021stylized-error_consistency',
             'brendel.Geirhos2021sketch-error_consistency',
             'brendel.Geirhos2021uniformnoise-error_consistency',
+            'Baker2022-accuracy_delta_frankenstein',
+            'Baker2022-accuracy_delta_fragmented',
+            'Baker2022-inverted_accuracy_delta',
         }
 
     def test_engineering_pool(self):

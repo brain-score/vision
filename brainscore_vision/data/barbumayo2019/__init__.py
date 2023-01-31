@@ -1,6 +1,5 @@
 from brainscore_vision import stimulus_set_registry
 from brainscore_vision.data_helpers.s3 import load_stimulus_set_from_s3
-from brainscore_vision.data_helpers.lookup_legacy import version_id_df, build_filename
 
 BIBTEX = """@inproceedings{NEURIPS2019_97af07a1,
  author = {Barbu, Andrei and Mayo, David and Alverio, Julian and Luo, William and Wang, Christopher and Gutfreund, Dan and Tenenbaum, Josh and Katz, Boris},
@@ -15,16 +14,12 @@ BIBTEX = """@inproceedings{NEURIPS2019_97af07a1,
 }"""
 
 
-# extract version ids from version_ids csv
-csv_version = version_id_df.at[build_filename('katz.BarbuMayo2019', '.csv'), 'version_id']
-zip_version = version_id_df.at[build_filename('katz.BarbuMayo2019', '.zip'), 'version_id']
-
 # stimulus set
 stimulus_set_registry['katz.BarbuMayo2019'] = lambda: load_stimulus_set_from_s3(
     identifier="katz.BarbuMayo2019",
     bucket="brainio-brainscore",
     csv_sha1="e4d8888ccb6beca28636e6698e7beb130e278e12",
     zip_sha1="1365eb2a7231516806127a7d2a908343a7ac9464",
-    csv_version_id=csv_version,
-    zip_version_id=zip_version)
+    csv_version_id="z2_yFBqD9rtNv3S5l3BFN_Ijk6Vj_oGz",
+    zip_version_id="SS3vLphOlh23KoNpYBEC89h3aCrsOARM")
 

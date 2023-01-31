@@ -34,7 +34,7 @@ BIBTEX = """@Article{Kar2019,
 # assembly
 data_registry['dicarlo.Kar2019'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.Kar2019",
-    version_id=assembly_version,
+    version_id="mQZ1nNRfE_m_IjFbox.xvlJvbudFwsWo",
     sha1="147717ce397e11d56164d472063a84a83bbcbb94",
     bucket="brainio-brainscore",
     cls=DataAssembly)
@@ -45,5 +45,5 @@ stimulus_set_registry['dicarlo.Kar2019'] = lambda: load_stimulus_set_from_s3(
     bucket="brainio-brainscore",
     csv_sha1="7f705bdea02c0a72a76d7f5e7b6963531df818a6",
     zip_sha1="75ab7b8b499fc8e86c813f717b79d268bcb986be",
-    csv_version_id=csv_version,
-    zip_version_id=zip_version)
+    csv_version_id="CkijGNImwMjh2uTQ2iLzkPSlDCJcURHn",
+    zip_version_id="0JL0S_SGuysrnJ4zuGH_pYo8kmIvksFJ")

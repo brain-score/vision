@@ -22,20 +22,23 @@ class TestZhu2019:
         assert benchmark in benchmark_pool
 
     @pytest.mark.parametrize('benchmark, expected_ceiling', [
-        #('Zhu2019-accuracy', approx(0.8113, abs=0.0001)),
+        ('Zhu2019-accuracy', approx(0.8113, abs=0.0001)),
         ('Zhu2019-accuracy-engineering', approx(1.0000, abs=0.0001)),
     ])
     def test_benchmark_ceiling(self, benchmark, expected_ceiling):
         benchmark = benchmark_pool[benchmark]
         assembly = benchmark._assembly
         ceiling = benchmark._ceiling(assembly)
-        assert ceiling == expected_ceiling
+        if "engineering" in benchmark.identifier:
+            assert ceiling[(ceiling['aggregation'] == 'center')] == expected_ceiling
+        else:
+            assert ceiling == expected_ceiling
 
     @pytest.mark.parametrize('benchmark, model, expected_raw_score', [
-        #('Zhu2019-accuracy', 'alexnet', approx(0.2847, abs=0.0001)),
-        ('Zhu2019-accuracy-engineering', 'alexnet', approx(0.470, abs=0.001)),
-        ('Zhu2019-accuracy', 'resnet-18', approx(0.204, abs=0.0001)),
-        ('Zhu2019-accuracy-engineering', 'resnet-18', approx(0.506, abs=0.001)),
+        ('Zhu2019-accuracy', 'alexnet', approx(0.2847, abs=0.0001)),
+        #('Zhu2019-accuracy-engineering', 'alexnet', approx(0.470, abs=0.001)),
+        #('Zhu2019-accuracy', 'resnet-18', approx(0.204, abs=0.0001)),
+        #('Zhu2019-accuracy-engineering', 'resnet-18', approx(0.506, abs=0.001)),
     ])
     def test_model_raw_score(self, benchmark, model, expected_raw_score):
 

@@ -47,8 +47,8 @@ class _Zhu2019Accuracy(BenchmarkBase):
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
         source = _human_assembly_categorical_distribution(self._assembly, collapse=False)
-        target = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
-        raw_score = self._metric(target, source)
+        labels = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
+        raw_score = self._metric(labels, source)
         ceiling = self._ceiling(self._assembly)
         score = raw_score / ceiling
         score.attrs['raw'] = raw_score
@@ -78,11 +78,11 @@ class _Zhu2019Accuracy_Engineering(BenchmarkBase):
         candidate.start_task(BrainModel.Task.label, categories)
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
-        model_results = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
-        ground_truth = model_results["ground_truth"]
+        labels = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
+        ground_truth = labels["ground_truth"]
 
         # compare model with stimulus_set (ground_truth)
-        raw_score = self._metric(model_results, ground_truth)
+        raw_score = self._metric(labels, ground_truth)
         ceiling = self.ceiling
         score = raw_score / ceiling.sel(aggregation='center')
         score.attrs['raw'] = raw_score

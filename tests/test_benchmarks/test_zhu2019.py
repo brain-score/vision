@@ -35,10 +35,10 @@ class TestZhu2019:
             assert ceiling == expected_ceiling
 
     @pytest.mark.parametrize('benchmark, model, expected_raw_score', [
-        ('Zhu2019-accuracy', 'alexnet', approx(0.2847, abs=0.0001)),
-        #('Zhu2019-accuracy-engineering', 'alexnet', approx(0.470, abs=0.001)),
-        #('Zhu2019-accuracy', 'resnet-18', approx(0.204, abs=0.0001)),
-        #('Zhu2019-accuracy-engineering', 'resnet-18', approx(0.506, abs=0.001)),
+        ('Zhu2019-accuracy', 'alexnet', approx(0.1880, abs=0.0001)),
+        ('Zhu2019-accuracy-engineering', 'alexnet', approx(0.470, abs=0.001)),
+        ('Zhu2019-accuracy', 'resnet-18', approx(0.204, abs=0.0001)),
+        ('Zhu2019-accuracy-engineering', 'resnet-18', approx(0.506, abs=0.001)),
     ])
     def test_model_raw_score(self, benchmark, model, expected_raw_score):
 
@@ -58,9 +58,9 @@ class TestZhu2019:
         assert raw_score.sel(aggregation='center') == expected_raw_score
 
     @pytest.mark.parametrize('benchmark, model, expected_ceiled_score', [
-        #('Zhu2019-accuracy', 'alexnet', approx(0.470, abs=0.0001)),
+        ('Zhu2019-accuracy', 'alexnet', approx(0.232, abs=0.001)),
         ('Zhu2019-accuracy-engineering', 'alexnet', approx(0.470, abs=0.001)),
-        #('Zhu2019-accuracy', 'resnet-18', approx(0.506, abs=0.0001)),
+        ('Zhu2019-accuracy', 'resnet-18', approx(0.251, abs=0.001)),
         ('Zhu2019-accuracy-engineering', 'resnet-18', approx(0.506, abs=0.001)),
     ])
     def test_model_ceiled_score(self, benchmark, model, expected_ceiled_score):
@@ -69,7 +69,7 @@ class TestZhu2019:
         benchmark = benchmark_pool[benchmark]
         precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)
         precomputed_features = PrecomputedFeatures(precomputed_features,
-                                                   visual_degrees=8.8,  # doesn't matter, features are already computed
+                                                   visual_degrees=8.0,  # doesn't matter, features are already computed
                                                    )
         score = benchmark(precomputed_features)
         assert score[0] == expected_ceiled_score

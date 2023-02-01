@@ -58,7 +58,7 @@ import brainio
         'brendel.Geirhos2021_stylized',
         'brendel.Geirhos2021_sketch',
         'brendel.Geirhos2021_uniform-noise',
-        'yuille.Zhu2019_extreme_occlusion',
+        'Zhu2019_extreme_occlusion',
 ))
 def test_list_stimulus_set(stimulus_set):
     l = brainio.list_stimulus_sets()

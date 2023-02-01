@@ -64,7 +64,7 @@ import brainscore
         'brendel.Geirhos2021_stylized',
         'brendel.Geirhos2021_sketch',
         'brendel.Geirhos2021_uniform-noise',
-        "yuille.Zhu2019_extreme_occlusion",
+        "Zhu2019_extreme_occlusion",
 ))
 def test_list_assembly(assembly):
     l = brainio.list_assemblies()

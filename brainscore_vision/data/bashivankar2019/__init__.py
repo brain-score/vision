@@ -1,7 +1,6 @@
 from brainio.assemblies import NeuronRecordingAssembly
-from brainscore_vision import data_registry, stimulus_set_registry
+from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set
 from brainscore_vision.data_helpers.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
-from brainscore_vision.data_helpers.lookup_legacy import version_id_df, build_filename
 
 BIBTEX = """@article{bashivan2019neural,
   title={Neural population control via deep image synthesis},
@@ -20,14 +19,18 @@ data_registry['dicarlo.BashivanKar2019.naturalistic'] = lambda: load_assembly_fr
     version_id="jDlQnpuhORCtzITHfOFcJiogR7jg8ihJ",
     sha1="1ec2f32ef800f0c6e15879d883be1d55b51b8b67",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('dicarlo.BashivanKar2019.naturalistic'),
+)
 
 data_registry['dicarlo.BashivanKar2019.synthetic'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.BashivanKar2019.synthetic",
     version_id="30CNHSBYS_HN5tEuM1aa5hDFlFKq6gbI",
     sha1="f687c8d26f8943dc379dbcbe94d3feb148400c6b",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('dicarlo.BashivanKar2019.synthetic'),
+)
 
 # stimulus sets
 # naturalistic

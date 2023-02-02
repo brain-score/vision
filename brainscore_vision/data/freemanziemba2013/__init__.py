@@ -1,6 +1,6 @@
 from brainio.assemblies import NeuronRecordingAssembly
 
-from brainscore_vision import data_registry, stimulus_set_registry
+from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set
 from brainscore_vision.data_helpers.s3 import load_stimulus_set_from_s3, load_assembly_from_s3
 
 BIBTEX = """@article{freeman2013functional,
@@ -20,7 +20,9 @@ data_registry['movshon.FreemanZiemba2013.noaperture'] = lambda: load_assembly_fr
     version_id="3Icsm_HjYeVfzfvsaUJ5qdUT94EaXa5A",
     sha1="6176fd435ab840d284c2c426742c8211622739b5",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('movshon.FreemanZiemba2013'),
+)
 
 # assembly: movshon.FreemanZiemba2013.noaperture.public
 data_registry['movshon.FreemanZiemba2013.noaperture.public'] = lambda: load_assembly_from_s3(
@@ -28,7 +30,9 @@ data_registry['movshon.FreemanZiemba2013.noaperture.public'] = lambda: load_asse
     version_id="ggkwDaFLsKesxL0MZY7fMpHuw3gwaEjs",
     sha1="68dd9e1da7207dc2ae17dbbb1adf628e922d15fa",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('movshon.FreemanZiemba2013-public'),
+)
 
 # assembly: movshon.FreemanZiemba2013.noaperture.private
 data_registry['movshon.FreemanZiemba2013.noaperture.private'] = lambda: load_assembly_from_s3(
@@ -36,7 +40,9 @@ data_registry['movshon.FreemanZiemba2013.noaperture.private'] = lambda: load_ass
     version_id="SBtg_vxBS_7VsFOy5lBs_.6K_pQnyM40",
     sha1="9ffa772ce61754f6f5b7b391436680ebc25bb8dd",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('movshon.FreemanZiemba2013-private'),
+)
 
 # assembly: movshon.FreemanZiemba2013.public
 data_registry['movshon.FreemanZiemba2013.public'] = lambda: load_assembly_from_s3(
@@ -44,7 +50,9 @@ data_registry['movshon.FreemanZiemba2013.public'] = lambda: load_assembly_from_s
     version_id="Ff3BssTYdRYSXv2hO8ByirYIxsbW1__s",
     sha1="761c08f796db4e342555cdb60eef23a4f19ead43",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('movshon.FreemanZiemba2013.aperture-public'),
+)
 
 # assembly: movshon.FreemanZiemba2013.private
 data_registry['movshon.FreemanZiemba2013.private'] = lambda: load_assembly_from_s3(
@@ -52,7 +60,9 @@ data_registry['movshon.FreemanZiemba2013.private'] = lambda: load_assembly_from_
     version_id="3t5ehf.WHJWKX2vUuESVI3PY7ZIUDBkY",
     sha1="63f636fa2e2b51b47a676768a69b06ce95efdd8f",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('movshon.FreemanZiemba2013.aperture-private'),
+)
 
 # assembly: movshon.FreemanZiemba2013
 data_registry['movshon.FreemanZiemba2013'] = lambda: load_assembly_from_s3(
@@ -60,7 +70,9 @@ data_registry['movshon.FreemanZiemba2013'] = lambda: load_assembly_from_s3(
     version_id="knfzP5wWG3BRWgD0PGy1CXCadExElV0f",
     sha1="f03f1630f0ab1e2dbd51816b47fbf2916876134e",
     bucket="brainio.contriib",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('movshon.FreemanZiemba2013.aperture'),
+)
 
 
 # stimulus set: movshon.FreemanZiemba2013

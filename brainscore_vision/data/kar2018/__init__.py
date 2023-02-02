@@ -1,6 +1,6 @@
 from brainio.assemblies import NeuronRecordingAssembly
 
-from brainscore_vision import data_registry, stimulus_set_registry
+from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set
 from brainscore_vision.metrics.ceiling import InternalConsistency
 from brainscore_vision.metrics.transformations import CrossValidation
 from brainscore_vision.data_helpers.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
@@ -24,7 +24,9 @@ data_registry['dicarlo.Kar2018hvm'] = lambda: load_assembly_from_s3(
     version_id="4sytUtSGiyB.G0oBmPCVnnQ6l4FChj8z",
     sha1="96ccacc76c5fa30ee68bdc8736d1d43ace93f3e7",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('dicarlo.hvm'),
+)
 
 # assemblies: cocogray
 data_registry['dicarlo.Kar2018cocogray'] = lambda: load_assembly_from_s3(
@@ -32,7 +34,9 @@ data_registry['dicarlo.Kar2018cocogray'] = lambda: load_assembly_from_s3(
     version_id="RxiK296HHAe2ql_STmZ2K..uEsfCuHtF",
     sha1="4202cb3992a5d71f71a7ca9e28ba3f8b27937b43",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('dicarlo.Kar2018cocogray'),
+)
 
 # stimulus set: cocogray
 stimulus_set_registry['dicarlo.Kar2018cocogray'] = lambda: load_stimulus_set_from_s3(

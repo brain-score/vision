@@ -1,6 +1,6 @@
 from brainio.assemblies import DataAssembly
 
-from brainscore_vision import data_registry, stimulus_set_registry
+from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set
 from brainscore_vision.data_helpers.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
 from brainscore_vision.data_helpers.lookup_legacy import version_id_df, build_filename
 
@@ -37,7 +37,9 @@ data_registry['dicarlo.Kar2019'] = lambda: load_assembly_from_s3(
     version_id="mQZ1nNRfE_m_IjFbox.xvlJvbudFwsWo",
     sha1="147717ce397e11d56164d472063a84a83bbcbb94",
     bucket="brainio-brainscore",
-    cls=DataAssembly)
+    cls=DataAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('dicarlo.Kar2019'),
+)
 
 # stimulus set
 stimulus_set_registry['dicarlo.Kar2019'] = lambda: load_stimulus_set_from_s3(

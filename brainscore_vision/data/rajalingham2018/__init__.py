@@ -1,8 +1,7 @@
 from brainio.assemblies import BehavioralAssembly
 
-from brainscore_vision import data_registry, stimulus_set_registry
+from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set
 from brainscore_vision.data_helpers.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
-from brainscore_vision.data_helpers.lookup_legacy import version_id_df, build_filename
 
 
 BIBTEX = """@article{rajalingham2018large,
@@ -23,7 +22,9 @@ data_registry['dicarlo.Rajalingham2018.public'] = lambda: load_assembly_from_s3(
     version_id="WEBNb7Azz4CWpzO25JanNjdPSLArltS2",
     sha1="34c6a8b6f7c523589c1861e4123232e5f7c7df4c",
     bucket="brainio-brainscore",
-    cls=BehavioralAssembly)
+    cls=BehavioralAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('dicarlo.objectome.public'),
+)
 
 # private assembly: uses dicarlo.objectome.private stimuli
 data_registry['dicarlo.Rajalingham2018.private'] = lambda: load_assembly_from_s3(
@@ -31,7 +32,9 @@ data_registry['dicarlo.Rajalingham2018.private'] = lambda: load_assembly_from_s3
     version_id="gwBpHTT2al4FN35Yje7MU2d_ByA_HphX",
     sha1="516f13793d1c5b72bb445bb4008448ce97a02d23",
     bucket="brainio-brainscore",
-    cls=BehavioralAssembly)
+    cls=BehavioralAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('dicarlo.objectome.private'),
+)
 
 
 # stimulus set: dicarlo.objectome.public - rajalingham2018

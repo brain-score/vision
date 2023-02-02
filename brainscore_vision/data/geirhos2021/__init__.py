@@ -1,6 +1,6 @@
 from brainio.assemblies import BehavioralAssembly
 
-from brainscore_vision import data_registry, stimulus_set_registry
+from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set
 from brainscore_vision.data_helpers.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
 
 BIBTEX = """@article{geirhos2021partial,
@@ -25,7 +25,9 @@ data_registry['brendel.Geirhos2021_colour'] = lambda: load_assembly_from_s3(
     version_id="RDjCFAFt_J5mMwFBN9Ifo0OyNPKlToqf",
     sha1="258862d82467614e45cc1e488a5ac909eb6e122d",
     bucket="brainio-brainscore",
-    cls=BehavioralAssembly)
+    cls=BehavioralAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('brendel.Geirhos2021_colour'),
+)
 
 # stimulus set
 stimulus_set_registry['brendel.Geirhos2021_colour'] = lambda: load_stimulus_set_from_s3(
@@ -43,7 +45,9 @@ data_registry['brendel.Geirhos2021_contrast'] = lambda: load_assembly_from_s3(
     version_id="JMyi4jtdirYkdIQEIZRJ2024NQ1McQXc",
     sha1="1e114c987dc035ccca43781ff8cee9689acd3c3f",
     bucket="brainio-brainscore",
-    cls=BehavioralAssembly)
+    cls=BehavioralAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('brendel.Geirhos2021_contrast'),
+)
 
 # stimulus set
 stimulus_set_registry['brendel.Geirhos2021_contrast'] = lambda: load_stimulus_set_from_s3(
@@ -61,7 +65,9 @@ data_registry['brendel.Geirhos2021_cue-conflict'] = lambda: load_assembly_from_s
     version_id="WCGAQqS86x2z5CXGlegLPHu3XsH.tEk3",
     sha1="cc214e3595d34565b13963c5f56049769a39a5c9",
     bucket="brainio-brainscore",
-    cls=BehavioralAssembly)
+    cls=BehavioralAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('brendel.Geirhos2021_cue-conflict'),
+)
 
 # stimulus set
 stimulus_set_registry['brendel.Geirhos2021_cue-conflict'] = lambda: load_stimulus_set_from_s3(
@@ -79,7 +85,9 @@ data_registry['brendel.Geirhos2021_edge'] = lambda: load_assembly_from_s3(
     version_id="gTmCANJ797ZNcfKzecCnwlnUYcgl1.xa",
     sha1="ab1dc9e188e248da07215b375eb3dbcc58fde7fb",
     bucket="brainio-brainscore",
-    cls=BehavioralAssembly)
+    cls=BehavioralAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('brendel.Geirhos2021_edge'),
+)
 
 # stimulus set
 stimulus_set_registry['brendel.Geirhos2021_edge'] = lambda: load_stimulus_set_from_s3(
@@ -97,7 +105,9 @@ data_registry['brendel.Geirhos2021_eidolonI'] = lambda: load_assembly_from_s3(
     version_id="rVmuuTXAi6XqVI3hdyhe7WqSJNFOsFA4",
     sha1="0f01f351ae19eafc2cb5e504d98e5cd01b4c07b4",
     bucket="brainio-brainscore",
-    cls=BehavioralAssembly)
+    cls=BehavioralAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('brendel.Geirhos2021_eidolonI'),
+)
 
 # stimulus set
 stimulus_set_registry['brendel.Geirhos2021_eidolonI'] = lambda: load_stimulus_set_from_s3(
@@ -115,7 +125,9 @@ data_registry['brendel.Geirhos2021_eidolonII'] = lambda: load_assembly_from_s3(
     version_id="yOXPugtdV6fx0_BAEY4NeYlzwfCChIaR",
     sha1="499eea0f0c0817d02b5b97d2ebab89bc4c40a153",
     bucket="brainio-brainscore",
-    cls=BehavioralAssembly)
+    cls=BehavioralAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('brendel.Geirhos2021_eidolonII'),
+)
 
 # stimulus set
 stimulus_set_registry['brendel.Geirhos2021_eidolonII'] = lambda: load_stimulus_set_from_s3(
@@ -133,7 +145,9 @@ data_registry['brendel.Geirhos2021_eidolonIII'] = lambda: load_assembly_from_s3(
     version_id="zkbswpduS0z51_OrUF_XA7UaKb_4bYkN",
     sha1="e7c9a49e729f8666f8aedc6e47c746fbbe2ebe36",
     bucket="brainio-brainscore",
-    cls=BehavioralAssembly)
+    cls=BehavioralAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('brendel.Geirhos2021_eidolonIII'),
+)
 
 # stimulus set
 stimulus_set_registry['brendel.Geirhos2021_eidolonIII'] = lambda: load_stimulus_set_from_s3(
@@ -151,7 +165,9 @@ data_registry['brendel.Geirhos2021_false-colour'] = lambda: load_assembly_from_s
     version_id="GmYh1SBFUiEBLzkf1eRvA_GdXs1kCqtO",
     sha1="4dc072264651c81575564ba4818a12b8e8039c65",
     bucket="brainio-brainscore",
-    cls=BehavioralAssembly)
+    cls=BehavioralAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('brendel.Geirhos2021_false-colour'),
+)
 
 # stimulus set
 stimulus_set_registry['brendel.Geirhos2021_false-colour'] = lambda: load_stimulus_set_from_s3(
@@ -169,7 +185,9 @@ data_registry['brendel.Geirhos2021_high-pass'] = lambda: load_assembly_from_s3(
     version_id="FB_uDoX3nMZR1Qb6vcR4Y.PdEKKa1eKo",
     sha1="5df45c69127758f1ba3391671c521711050e3b4d",
     bucket="brainio-brainscore",
-    cls=BehavioralAssembly)
+    cls=BehavioralAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('brendel.Geirhos2021_high-pass'),
+)
 
 # stimulus set
 stimulus_set_registry['brendel.Geirhos2021_high-pass'] = lambda: load_stimulus_set_from_s3(
@@ -187,7 +205,9 @@ data_registry['brendel.Geirhos2021_low-pass'] = lambda: load_assembly_from_s3(
     version_id="qUX5BRBV1rWK75m4QKH5aL1CVKs8x7u7",
     sha1="75ab628d9e6d0d634290567b1cb261d7f8dc61e2",
     bucket="brainio-brainscore",
-    cls=BehavioralAssembly)
+    cls=BehavioralAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('brendel.Geirhos2021_low-pass'),
+)
 
 # stimulus set
 stimulus_set_registry['brendel.Geirhos2021_low-pass'] = lambda: load_stimulus_set_from_s3(
@@ -205,7 +225,9 @@ data_registry['brendel.Geirhos2021_phase-scrambling'] = lambda: load_assembly_fr
     version_id="Dg4Je4uHy4pYe7_CIN27fWgeVNonHlZP",
     sha1="4124f9f5b86fb6ed82c98197d292eef50b608aba",
     bucket="brainio-brainscore",
-    cls=BehavioralAssembly)
+    cls=BehavioralAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('brendel.Geirhos2021_phase-scrambling'),
+)
 
 # stimulus set
 stimulus_set_registry['brendel.Geirhos2021_phase-scrambling'] = lambda: load_stimulus_set_from_s3(
@@ -223,7 +245,9 @@ data_registry['brendel.Geirhos2021_power-equalisation'] = lambda: load_assembly_
     version_id="XKaUgVEpoBaTNL0qpFFRNyTq3WRcPQJY",
     sha1="0aba1b50a7e0802d76c41d332a121a3f96ef4f7d",
     bucket="brainio-brainscore",
-    cls=BehavioralAssembly)
+    cls=BehavioralAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('brendel.Geirhos2021_power-equalisation'),
+)
 
 # stimulus set
 stimulus_set_registry['brendel.Geirhos2021_power-equalisation'] = lambda: load_stimulus_set_from_s3(
@@ -241,7 +265,9 @@ data_registry['brendel.Geirhos2021_rotation'] = lambda: load_assembly_from_s3(
     version_id="zkIC2EQlN5oDwhtLDbnl_THME74mtFfc",
     sha1="e51a5c3bc95ade159e71aa602232063730bcd57b",
     bucket="brainio-brainscore",
-    cls=BehavioralAssembly)
+    cls=BehavioralAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('brendel.Geirhos2021_rotation'),
+)
 
 # stimulus set
 stimulus_set_registry['brendel.Geirhos2021_rotation'] = lambda: load_stimulus_set_from_s3(
@@ -259,7 +285,9 @@ data_registry['brendel.Geirhos2021_silhouette'] = lambda: load_assembly_from_s3(
     version_id="xlpXfo7iy8_nssKR4OwM4199E6wCA0nA",
     sha1="7dc94991465fe8009244e0d6fb8283419a1f9885",
     bucket="brainio-brainscore",
-    cls=BehavioralAssembly)
+    cls=BehavioralAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('brendel.Geirhos2021_silhouette'),
+)
 
 # stimulus set
 stimulus_set_registry['brendel.Geirhos2021_silhouette'] = lambda: load_stimulus_set_from_s3(
@@ -277,7 +305,9 @@ data_registry['brendel.Geirhos2021_sketch'] = lambda: load_assembly_from_s3(
     version_id="w7_3YJYTmVMYWbNY6SQvzRvYb45mRqte",
     sha1="6709850864cea16d99a29fb31ae3c4a489983562",
     bucket="brainio-brainscore",
-    cls=BehavioralAssembly)
+    cls=BehavioralAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('brendel.Geirhos2021_sketch'),
+)
 
 # stimulus set
 stimulus_set_registry['brendel.Geirhos2021_sketch'] = lambda: load_stimulus_set_from_s3(
@@ -295,7 +325,9 @@ data_registry['brendel.Geirhos2021_stylized'] = lambda: load_assembly_from_s3(
     version_id="0ESwWyMc5wODloonsSkzURncuYYJMxql",
     sha1="dcf15f292e787a88e1e0f271e6b2838d6bdadfd3",
     bucket="brainio-brainscore",
-    cls=BehavioralAssembly)
+    cls=BehavioralAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('brendel.Geirhos2021_stylized'),
+)
 
 # stimulus set
 stimulus_set_registry['brendel.Geirhos2021_stylized'] = lambda: load_stimulus_set_from_s3(
@@ -313,7 +345,9 @@ data_registry['brendel.Geirhos2021_uniform-noise'] = lambda: load_assembly_from_
     version_id="89aJ7jLIB68QCNCEcQsBjchKbv.31YWH",
     sha1="f5e8b2636738f978c71591b8df6f8a21a66b72d1",
     bucket="brainio-brainscore",
-    cls=BehavioralAssembly)
+    cls=BehavioralAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('brendel.Geirhos2021_uniform-noise'),
+)
 
 # stimulus set
 stimulus_set_registry['brendel.Geirhos2021_uniform-noise'] = lambda: load_stimulus_set_from_s3(

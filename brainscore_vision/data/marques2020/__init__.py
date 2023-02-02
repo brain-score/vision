@@ -1,6 +1,6 @@
 from brainio.assemblies import PropertyAssembly
 
-from brainscore_vision import data_registry, stimulus_set_registry
+from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set
 from brainscore_vision.data_helpers.s3 import load_stimulus_set_from_s3, load_assembly_from_s3
 
 
@@ -19,7 +19,9 @@ data_registry['movshon.Cavanaugh2002a'] = lambda: load_assembly_from_s3(
     version_id="2vAgf8I9mx0dAZ6E.v9_wQ1qjqXlBIlG",
     sha1="d4b24f4bbf8a14138a8e98391ab03796c2c05e7d",
     bucket="brainio-brainscore",
-    cls=PropertyAssembly)
+    cls=PropertyAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('dicarlo.Marques2020_size'),
+)
 
 # movshon.freemanziemba2013 assembly : uses movshon.FreemanZiemba2013_properties stimuli
 data_registry['movshon.FreemanZiemba2013_V1_properties'] = lambda: load_assembly_from_s3(
@@ -27,7 +29,9 @@ data_registry['movshon.FreemanZiemba2013_V1_properties'] = lambda: load_assembly
     version_id="fmhJH37ozlGbGPW16B0NSgdm2fz17aEc",
     sha1="e665522d9a32e6cd6c3ebc61ff65fd3899c8d3e6",
     bucket="brainio-brainscore",
-    cls=PropertyAssembly)
+    cls=PropertyAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('movshon.FreemanZiemba2013_properties'),
+)
 
 # devalois.DeValois1982a assembly : uses dicarlo.Marques2020_orientation stimuli
 data_registry['devalois.DeValois1982a'] = lambda: load_assembly_from_s3(
@@ -35,7 +39,9 @@ data_registry['devalois.DeValois1982a'] = lambda: load_assembly_from_s3(
     version_id="d_IU4t6LbkvxsaEEsu9VzhTm9jX3AhSI",
     sha1="8f4fd70e987c3c566b5b6c6bf15ef27637618b2c",
     bucket="brainio-brainscore",
-    cls=PropertyAssembly)
+    cls=PropertyAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('dicarlo.Marques2020_orientation'),
+)
 
 # devalois.DeValois1982b assembly : uses dicarlo.Marques2020_spatial_frequency stimuli
 data_registry['devalois.DeValois1982b'] = lambda: load_assembly_from_s3(
@@ -43,7 +49,9 @@ data_registry['devalois.DeValois1982b'] = lambda: load_assembly_from_s3(
     version_id="jG7loVtkn3vsH0hT6wl4Qv24EsJJJSDt",
     sha1="611176eefdac09feaa4c07f081784c24067629e1",
     bucket="brainio-brainscore",
-    cls=PropertyAssembly)
+    cls=PropertyAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('dicarlo.Marques2020_spatial_frequency'),
+)
 
 # shapley.Ringach2002 assembly : uses dicarlo.Marques2020_orientation stimuli
 data_registry['shapley.Ringach2002'] = lambda: load_assembly_from_s3(
@@ -51,7 +59,9 @@ data_registry['shapley.Ringach2002'] = lambda: load_assembly_from_s3(
     version_id="aMkWQinb7JEhJCJb0RhfGJegTwbya6Yw",
     sha1="0f3e19140bd9f930109879a38e574471d9576cf5",
     bucket="brainio-brainscore",
-    cls=PropertyAssembly)
+    cls=PropertyAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('dicarlo.Marques2020_orientation'),
+)
 
 # schiller.Schiller1976c assembly : uses dicarlo.Marques2020_spatial_frequency stimuli
 data_registry['schiller.Schiller1976c'] = lambda: load_assembly_from_s3(
@@ -59,7 +69,9 @@ data_registry['schiller.Schiller1976c'] = lambda: load_assembly_from_s3(
     version_id="tJUZfDfz5G1E3UtEjptQeI7Esbg2aArD",
     sha1="58daa02ba2680e75dcb11b37eb6085c4afb6576e",
     bucket="brainio-brainscore",
-    cls=PropertyAssembly)
+    cls=PropertyAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('dicarlo.Marques2020_spatial_frequency'),
+)
 
 
 # stimulus sets: dicarlo.Marques2020_blank

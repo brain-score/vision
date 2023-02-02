@@ -1,7 +1,7 @@
 import logging
 
 from brainio.assemblies import NeuronRecordingAssembly
-from brainscore_vision import data_registry
+from brainscore_vision import data_registry, load_stimulus_set
 from brainscore_vision.data_helpers.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
 
 
@@ -27,7 +27,9 @@ data_registry['tolias.Cadena2017'] = lambda: load_assembly_from_s3(
     version_id="94KHymrNxUzoF6q56DYWg6n0vCdkLUEU",
     sha1="69bcaaa9370dceb0027beaa06235ef418c3d7063",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('tolias.Cadena2017'),
+)
 
 # stimulus set
 data_registry['tolias.Cadena2017'] = lambda: load_stimulus_set_from_s3(

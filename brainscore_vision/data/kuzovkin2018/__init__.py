@@ -1,6 +1,6 @@
 from brainio.assemblies import NeuronRecordingAssembly
 
-from brainscore_vision import data_registry, stimulus_set_registry
+from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set
 from brainscore_vision.data_helpers.s3 import load_stimulus_set_from_s3, load_assembly_from_s3
 
 BIBTEX = """@article{kuzovkin2018activations,
@@ -21,7 +21,9 @@ data_registry['aru.Kuzovkin2018'] = lambda: load_assembly_from_s3(
     version_id="nk5w.m3N1D4fWg2PeY9_AJb5yY6UtPeM",
     sha1="5fae8b283a043562ce9925d48ad99db151f39067",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('aru.Kuzovkin2018'),
+)
 
 # stimulus set
 stimulus_set_registry['aru.Kuzovkin2018'] = lambda: load_stimulus_set_from_s3(

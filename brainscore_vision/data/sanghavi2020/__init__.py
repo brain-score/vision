@@ -2,9 +2,8 @@ from brainio.assemblies import NeuronRecordingAssembly
 
 from brainscore_vision.metrics.ceiling import InternalConsistency
 from brainscore_vision.metrics.transformations import CrossValidation
-from brainscore_vision import data_registry, stimulus_set_registry
+from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set
 from brainscore_vision.data_helpers.s3 import load_stimulus_set_from_s3, load_assembly_from_s3
-from brainscore_vision.data_helpers.lookup_legacy import version_id_df, build_filename
 
 
 BIBTEX = """  @misc{Sanghavi_Murty_DiCarlo_2021,
@@ -23,7 +22,9 @@ data_registry['dicarlo.Sanghavi2020'] = lambda: load_assembly_from_s3(
     version_id="RZz2m5wUm.wgYyMEDY9UCMuyYjZKDuzw",
     sha1="12e94e9dcda797c851021dfe818b64615c785866",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('dicarlo.hvm'),
+)
 
 # assemblies: dicarlo.SanghaviJozwik2020 uses dicarlo.BOLD5000
 data_registry['dicarlo.SanghaviJozwik2020'] = lambda: load_assembly_from_s3(
@@ -31,7 +32,9 @@ data_registry['dicarlo.SanghaviJozwik2020'] = lambda: load_assembly_from_s3(
     version_id="j5AiLVh8xbchFP2CxVxFoifAeJy1vwHA",
     sha1="c5841f1e7d2cf0544a6ee010e56e4e2eb0994ee0",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('dicarlo.BOLD5000'),
+)
 
 # assemblies: dicarlo.SanghaviMurty2020 uses dicarlo.Rust2012
 data_registry['dicarlo.SanghaviMurty2020'] = lambda: load_assembly_from_s3(
@@ -39,7 +42,9 @@ data_registry['dicarlo.SanghaviMurty2020'] = lambda: load_assembly_from_s3(
     version_id="yvyTo2fM8kLsa7h7WMWC8jcqC2uAx.kp",
     sha1="6cb8e054688066d1d86d4944e1385efc6a69ebd4",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('dicarlo.Rust2012'),
+)
 
 # assemblies: dicarlo.SanghaviMurty2020THINGS1 uses dicarlo.THINGS1
 data_registry['dicarlo.SanghaviMurty2020THINGS1'] = lambda: load_assembly_from_s3(
@@ -47,7 +52,9 @@ data_registry['dicarlo.SanghaviMurty2020THINGS1'] = lambda: load_assembly_from_s
     version_id=".n3o2r4SKG4fO829jJPl9zz1UaSM7okH",
     sha1="718def227d38c8425f449512e47a2df81c04de62",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('dicarlo.THINGS1'),
+)
 
 # assemblies: dicarlo.SanghaviMurty2020THINGS2 uses dicarlo.THINGS2
 data_registry['dicarlo.SanghaviMurty2020THINGS2'] = lambda: load_assembly_from_s3(
@@ -55,7 +62,9 @@ data_registry['dicarlo.SanghaviMurty2020THINGS2'] = lambda: load_assembly_from_s
     version_id="z_MWZd12fk.AIcQzwRh6.vOIHhxInWRl",
     sha1="80962139823cb145e2385c344e3945e99ed97fa2",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('dicarlo.THINGS2'),
+)
 
 
 # stimulus set: dicarlo.BOLD5000 - can put in sanghavi

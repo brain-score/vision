@@ -1,6 +1,6 @@
 from brainio.assemblies import NeuronRecordingAssembly
 
-from brainscore_vision import data_registry, stimulus_set_registry
+from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set
 from brainscore_vision.data_helpers.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
 
 BIBTEX = """@article{david2004evaluation,
@@ -20,7 +20,9 @@ data_registry['gallant.David2004'] = lambda: load_assembly_from_s3(
     version_id="8getDVrrr1iT0DA385T8ZdSzCcuM3_m0",
     sha1="d2ed9834c054da2333f5d894285c9841a1f27313",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('gallant.David2004'),
+)
 
 # stimulus set
 stimulus_set_registry['gallant.David2004'] = lambda: load_stimulus_set_from_s3(

@@ -1,6 +1,6 @@
 from brainio.assemblies import BehavioralAssembly
 
-from brainscore_vision import data_registry, stimulus_set_registry
+from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set
 from brainscore_vision.data_helpers.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
 
 BIBTEX = """"""
@@ -11,7 +11,9 @@ data_registry['klab.Zhang2018search_obj_array'] = lambda: load_assembly_from_s3(
     version_id="EDRblSpQTmoaKRdiY4JEoQ.1UO8mo0Tk",
     sha1="84400dc814b79df8d8eca99a557df5f741cce4b9",
     bucket="brainio-brainscore",
-    cls=BehavioralAssembly)
+    cls=BehavioralAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('klab.Zhang2018.search_obj_array'),
+)
 
 # stimulus set: klab.Zhang2018.search_obj_array
 stimulus_set_registry['klab.Zhang2018.search_obj_array'] = lambda: load_stimulus_set_from_s3(

@@ -1,6 +1,6 @@
 from brainio.assemblies import NeuronRecordingAssembly
 
-from brainscore_vision import data_registry
+from brainscore_vision import data_registry, load_stimulus_set
 from brainscore_vision.data_helpers.s3 import load_assembly_from_s3
 
 BIBTEX = """@article{lee2019sensitivity,
@@ -20,4 +20,6 @@ data_registry['dicarlo.Seibert2019'] = lambda: load_assembly_from_s3(
     version_id="vSUte2bpVhGxPRKocfk_MP0s3LAPElBi",
     sha1="eef41bb1f3d83c0e60ebf0e91511ce71ef5fee32",
     bucket="brainio-brainscore",
-    cls=NeuronRecordingAssembly)
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('dicarlo.hvm'),
+)

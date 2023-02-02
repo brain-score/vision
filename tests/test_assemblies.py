@@ -487,7 +487,7 @@ class TestGeirhos2021:
         assembly = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
         assert hasattr(assembly, field)
 
-
+@pytest.mark.private_access
 class TestBaker2022:
 
     # tests alignments that are the same across normal and inverted assemblies

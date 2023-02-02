@@ -250,7 +250,7 @@ class TestGeirhos2021:
         stimulus_set = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
         assert hasattr(stimulus_set, field)
 
-
+@pytest.mark.private_access
 class TestBaker2022:
 
     # general tests

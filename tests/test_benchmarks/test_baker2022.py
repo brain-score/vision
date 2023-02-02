@@ -9,7 +9,7 @@ from brainscore import benchmark_pool
 from brainscore.benchmarks.baker2022 import DATASETS
 from tests.test_benchmarks import PrecomputedFeatures
 
-
+@pytest.mark.private_access
 class TestBaker2022:
     def test_count(self):
         assert len(DATASETS) == 2

@@ -23,7 +23,7 @@ def main():
 
 def package(stimulus_set):
     print("Packaging stimuli")
-    package_stimulus_set(stimulus_set, stimulus_set_identifier=stimulus_set.identifier, bucket_name = 'brainio-brainscore')
+    package_stimulus_set(stimulus_set, stimulus_set_identifier=stimulus_set.identifier, bucket_name= 'brainio.requested')
 
 
 if __name__ == '__main__':

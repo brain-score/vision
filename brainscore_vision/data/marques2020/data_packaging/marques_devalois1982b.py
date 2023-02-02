@@ -46,7 +46,7 @@ def main():
     print('Packaging assembly')
     package_data_assembly(xarray.DataArray(assembly), assembly_identifier=assembly.name,
                           stimulus_set_identifier=SPATIAL_FREQUENCY_STIM_NAME, assembly_class='PropertyAssembly',
-                          bucket_name='brainio-brainscore')
+                          bucket_name='brainio.contrib')
 
 
 if __name__ == '__main__':

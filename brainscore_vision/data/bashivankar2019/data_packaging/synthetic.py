@@ -141,11 +141,11 @@ def main():
         responses_nat_concat,
         assembly_identifier="dicarlo.BashivanKar2019.naturalistic",
         stimulus_set_identifier=stimuli_nat.identifier,
-        bucket_name='brainio-brainscore'
+        bucket_name='brainio-dicarlo'
     )
 
     _logger.debug('Packaging synthetic stimuli')
-    package_stimulus_set(stimuli_synth, stimulus_set_identifier=stimuli_synth.identifier, bucket_name='brainio-brainscore')
+    package_stimulus_set(stimuli_synth, stimulus_set_identifier=stimuli_synth.identifier, bucket_name='brainio-dicarlo')
 
     _logger.debug('Packaging synthetic assembly')
     responses_synth_concat = xr.concat(responses_synth_d.values(), dim="presentation")
@@ -154,7 +154,7 @@ def main():
         responses_synth_concat,
         assembly_identifier="dicarlo.BashivanKar2019.synthetic",
         stimulus_set_identifier=stimuli_synth.identifier,
-        bucket_name='brainio-brainscore'
+        bucket_name='brainio-dicarlo'
     )
 
 

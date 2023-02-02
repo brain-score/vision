@@ -93,7 +93,7 @@ def main():
 
     print('Packaging assembly')
     package_data_assembly(assembly, assembly_identifier=assembly.name, stimulus_set_identifier=stimuli.identifier,
-                          bucket_name='brainio-brainscore')
+                          bucket_name='brainio.dicarlo')
     return
 
 

@@ -26,7 +26,7 @@ def main():
     stimuli.identifier = 'fei-fei.Deng2009'
 
     print('Packaging stimuli')
-    package_stimulus_set(stimuli, stimulus_set_identifier=stimuli.identifier, bucket_name='brainio-brainscore')
+    package_stimulus_set(stimuli, stimulus_set_identifier=stimuli.identifier, bucket_name='brainio.contrib')
 
 
 if __name__ == '__main__':

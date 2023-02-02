@@ -71,7 +71,7 @@ def main():
         gen_blank_stim(degrees=DEGREES, size_px=448, save_dir=blank_dir)
     stimuli = load_stim_info(BLANK_STIM_NAME, blank_dir)
     print('Packaging stimuli:' + stimuli.identifier)
-    package_stimulus_set(stimuli, stimulus_set_identifier=stimuli.identifier, bucket_name='brainio-brainscore')
+    package_stimulus_set(stimuli, stimulus_set_identifier=stimuli.identifier, bucket_name='brainio.dicarlo')
 
     for stim_name in STIM_NAMES:
         stim_dir = DATA_DIR + os.sep + stim_name
@@ -80,14 +80,14 @@ def main():
                              save_dir=stim_dir)
         stimuli = load_stim_info(stim_name, stim_dir)
         print('Packaging stimuli:' + stimuli.identifier)
-        package_stimulus_set(stimuli, stimulus_set_identifier=stimuli.identifier, bucket_name='brainio-brainscore')
+        package_stimulus_set(stimuli, stimulus_set_identifier=stimuli.identifier, bucket_name='brainio.dicarlo')
 
     texture_dir = DATA_DIR + os.sep + TEXTURE_STIM_NAME
     if not (os.path.isdir(texture_dir)):
         gen_texture_stim(degrees=TEXTURE_DEGREES, stim_pos=np.array([POS[0], POS[0]]), save_dir=texture_dir)
     stimuli = load_stim_info(TEXTURE_STIM_NAME, texture_dir)
     print('Packaging stimuli:' + stimuli.identifier)
-    package_stimulus_set(stimuli, stimulus_set_identifier=stimuli.identifier, bucket_name='brainio-brainscore')
+    package_stimulus_set(stimuli, stimulus_set_identifier=stimuli.identifier, bucket_name='brainio.contrib')
     return
 
 

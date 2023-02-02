@@ -93,10 +93,10 @@ def main():
 
     print("Packaging stimuli")
     package_stimulus_set(stimuli, stimulus_set_identifier=stimuli.name,
-                         bucket_name="brainio-brainscore")
+                         bucket_name="brainio.contrib")
     print("Packaging assembly")
     package_data_assembly(assembly, assembly_identifier=assembly.name, stimulus_set_identifier=stimuli.name,
-                          bucket_name="brainio-brainscore")
+                          bucket_name="brainio.contrib")
 
 
 if __name__ == '__main__':

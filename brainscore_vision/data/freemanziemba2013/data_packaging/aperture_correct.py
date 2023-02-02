@@ -138,13 +138,13 @@ def main(access):
     mapping = stimulus_set_new.id_mapping
     _logger.debug(f"Packaging stimuli: {stimulus_set_new.name}")
     package_stimulus_set(stimulus_set_new, stimulus_set_name=stimulus_set_new.name,
-                         bucket_name="brainio-brainscore")
+                         bucket_name="brainio-contrib")
 
     data_assembly_existing = get_assembly(data_assembly_name_existing)
     proto_data_assembly_new = convert_assembly(data_assembly_existing, data_assembly_name_new, stimulus_set_new, mapping)
     _logger.debug(f"Packaging assembly: {data_assembly_name_new}")
     package_data_assembly(proto_data_assembly_new, data_assembly_name_new, stimulus_set_name_new,
-                          bucket_name="brainio-brainscore")
+                          bucket_name="brainio-contrib")
 
 
 if __name__ == '__main__':

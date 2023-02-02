@@ -249,6 +249,7 @@ class TestGeirhos2021:
         assert hasattr(stimulus_set, field)
 
 
+@pytest.mark.private_access
 class TestZhu2019:
 
     def test_stimulus_set_exist(self):

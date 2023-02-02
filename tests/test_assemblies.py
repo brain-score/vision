@@ -484,7 +484,7 @@ class TestGeirhos2021:
         assembly = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
         assert hasattr(assembly, field)
 
-
+@pytest.mark.private_access
 class TestZhu2019:
 
     def test_stimulus_set_assembly_alignment(self):

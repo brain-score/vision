@@ -45,7 +45,11 @@ for f in \
     resnet-50-pytorch-8deg-Geirhos2021_silhouette.nc \
     resnet-50-pytorch-8deg-Geirhos2021_sketch.nc \
     resnet-50-pytorch-8deg-Geirhos2021_stylized.nc \
-    resnet-50-pytorch-8deg-Geirhos2021_uniform-noise.nc
+    resnet-50-pytorch-8deg-Geirhos2021_uniform-noise.nc \
+    alexnet-Zhu2019-accuracy.nc \
+    alexnet-Zhu2019-accuracy-engineering.nc \
+    resnet-18-Zhu2019-accuracy.nc \
+    resnet-18-Zhu2019-accuracy-engineering.nc
 do
   aws --no-sign-request s3 cp s3://brain-score-tests/tests/test_benchmarks/${f} ${SCRIPT_DIR}/tests/test_benchmarks/
 done

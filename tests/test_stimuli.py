@@ -252,17 +252,20 @@ class TestGeirhos2021:
 @pytest.mark.private_access
 class TestZhu2019:
 
+    # make sure the stimulus_set is there
     def test_stimulus_set_exist(self):
         full_name = 'Zhu2019_extreme_occlusion'
         stimulus_set = brainio.get_stimulus_set(full_name)
         assert stimulus_set is not None
         assert stimulus_set.identifier == full_name
 
+    # test number of images
     def test_num_images(self):
         brainio.get_stimulus_set('Zhu2019_extreme_occlusion')
         stimulus_set = brainio.get_stimulus_set('Zhu2019_extreme_occlusion')
         assert len(np.unique(stimulus_set['stimulus_id'].values)) == 500
 
+    # make sure stimulus_set has correct fields
     @pytest.mark.parametrize('field', [
         'stimulus_id',
         'ground_truth',

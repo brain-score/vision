@@ -16,8 +16,8 @@ for submission_zip in "${SUBMISSIONS[@]}"; do
   counter=$((counter + 1))
 
   # unzip
-  rm -rf --- "$TEMPORARY_UNZIP_DIRECTORY"/*                      # clear temporary directory
-  unzip $submission_zip -d $TEMPORARY_UNZIP_DIRECTORY >/dev/null # unzip, do not print stdout
+  rm -rf --- "${TEMPORARY_UNZIP_DIRECTORY:?}"/*                      # clear temporary directory
+  unzip "$submission_zip" -d "$TEMPORARY_UNZIP_DIRECTORY" >/dev/null # unzip, do not print stdout
 
   # retrieve contents of zip file
   zip_contents=$(find "$TEMPORARY_UNZIP_DIRECTORY"/* -maxdepth 0 -type d)

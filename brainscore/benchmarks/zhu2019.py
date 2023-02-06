@@ -9,6 +9,7 @@ from brainscore.metrics.accuracy import Accuracy
 from brainscore.model_interface import BrainModel
 from brainscore.utils import LazyLoad
 from scipy.stats import pearsonr
+import csv
 
 BIBTEX = """@article{zhu2019robustness,
             title={Robustness of object recognition under extreme occlusion in humans and computational models},
@@ -26,19 +27,35 @@ class _Zhu2019Accuracy(BenchmarkBase):
     # Behavioral benchmark: compares model to average humans.
     # human ceiling is calculated by taking NUM_SPLIT split-half reliabilities with *category-level* responses.
 
-    def __init__(self, dataset):
-        self._assembly = LazyLoad(lambda: load_assembly(dataset))
+    def __init__(self):
+        self._assembly = LazyLoad(lambda: load_assembly('extreme_occlusion'))
         self._fitting_stimuli = brainscore.get_stimulus_set('Zhu2019_extreme_occlusion')
-        self._stimulus_set = LazyLoad(lambda: load_assembly(dataset).stimulus_set)
+        self._stimulus_set = LazyLoad(lambda: load_assembly('extreme_occlusion').stimulus_set)
         self._visual_degrees = 8
         self._number_of_trials = 1
         self._metric = Accuracy()
-        self._ceiling = SplitHalvesConsistencyZhu(num_splits=NUM_SPLITS, split_coordinate="subject")
+
+        '''
+        Precomputed ceiling:
+        
+        We use a precomputed ceiling (scalar value 0.8113) instead of calculating a ceiling on each scoring run. 
+        This is because the ceiling will be identical on each run, independent of the model, and is very slow 
+        to calculate. It is much faster to precompute then to call each session. 
+        '''
+        splits = open("zhu_precomputed_celing.txt", "r")
+        reader = csv.reader(splits)
+        data = [row for row in reader]
+        self.precomputed_ceiling_splits = [float(x) for x in data[0]]
+        self._ceiling = Score(np.median(self.precomputed_ceiling_splits))
+        self._ceiling.attrs['raw'] = self.precomputed_ceiling_splits
+
+        # manually calculate ceiling - *** unnecessary if using precomputed ceiling ***
+        # self._ceiling = SplitHalvesConsistencyZhu(num_splits=NUM_SPLITS, split_coordinate="subject")
 
         super(_Zhu2019Accuracy, self).__init__(
-            identifier=f'Zhu2019_{dataset}-accuracy',
+            identifier='Zhu2019_extreme_occlusion-accuracy',
             parent='Zhu2019',
-            ceiling_func=lambda: self._ceiling(assembly=self._assembly),
+            ceiling_func=self._ceiling,
             bibtex=BIBTEX, version=1)
 
     def __call__(self, candidate: BrainModel):
@@ -49,7 +66,7 @@ class _Zhu2019Accuracy(BenchmarkBase):
         source = _human_assembly_categorical_distribution(self._assembly, collapse=False)
         labels = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
         raw_score = self._metric(labels, source)
-        ceiling = self._ceiling(self._assembly)
+        ceiling = self._ceiling
         score = raw_score / ceiling
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling
@@ -58,17 +75,17 @@ class _Zhu2019Accuracy(BenchmarkBase):
 
 class _Zhu2019Accuracy_Engineering(BenchmarkBase):
     # engineering benchmark: compares model to ground_truth
-    def __init__(self, dataset):
-        self._assembly = LazyLoad(lambda: load_assembly(dataset))
+    def __init__(self):
+        self._assembly = LazyLoad(lambda: load_assembly('extreme_occlusion'))
         self._fitting_stimuli = brainscore.get_stimulus_set('Zhu2019_extreme_occlusion')
-        self._stimulus_set = LazyLoad(lambda: load_assembly(dataset).stimulus_set)
+        self._stimulus_set = LazyLoad(lambda: load_assembly('extreme_occlusion').stimulus_set)
         self._visual_degrees = 8
         self._number_of_trials = 1
 
         self._metric = Accuracy()
 
         super(_Zhu2019Accuracy_Engineering, self).__init__(
-            identifier=f'Zhu2019_{dataset}-accuracy-engineering',
+            identifier='Zhu2019_extreme_occlusion-accuracy-engineering',
             parent='Zhu2019',
             ceiling_func=lambda: Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation']),
             bibtex=BIBTEX, version=1)
@@ -178,11 +195,11 @@ class SplitHalvesConsistencyZhu:
 
 
 def Zhu2019Accuracy():
-    return _Zhu2019Accuracy(dataset='extreme_occlusion')
+    return _Zhu2019Accuracy()
 
 
 def Zhu2019Accuracy_Engineering():
-    return _Zhu2019Accuracy_Engineering(dataset='extreme_occlusion')
+    return _Zhu2019Accuracy_Engineering()
 
 
 def load_assembly(dataset):

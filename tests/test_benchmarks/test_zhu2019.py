@@ -9,9 +9,12 @@ from brainscore import benchmark_pool
 from brainscore.benchmarks.zhu2019 import DATASETS
 from tests.test_benchmarks import PrecomputedFeatures
 
+'''
+Tests all use a precomputed ceiling. See Zhu2019.py for more details.
+'''
+
 
 @pytest.mark.private_access
-@pytest.mark.slow
 class TestZhu2019:
     def test_count(self):
         assert len(DATASETS) == 1
@@ -29,11 +32,13 @@ class TestZhu2019:
     ])
     def test_benchmark_ceiling(self, benchmark, expected_ceiling):
         benchmark = benchmark_pool[benchmark]
-        assembly = benchmark._assembly
-        ceiling = benchmark._ceiling(assembly)
+
         if "engineering" in benchmark.identifier:
+            assembly = benchmark._assembly
+            ceiling = benchmark._ceiling(assembly)
             assert ceiling[(ceiling['aggregation'] == 'center')] == expected_ceiling
         else:
+            ceiling = benchmark._ceiling
             assert ceiling == expected_ceiling
 
     @pytest.mark.parametrize('benchmark, model, expected_raw_score', [

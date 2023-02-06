@@ -11,6 +11,7 @@ from tests.test_benchmarks import PrecomputedFeatures
 
 
 @pytest.mark.private_access
+@pytest.mark.slow
 class TestZhu2019:
     def test_count(self):
         assert len(DATASETS) == 1

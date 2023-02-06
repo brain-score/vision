@@ -10,6 +10,7 @@ from brainscore.model_interface import BrainModel
 from brainscore.utils import LazyLoad
 from scipy.stats import pearsonr
 import csv
+from pathlib import Path
 
 BIBTEX = """@article{zhu2019robustness,
             title={Robustness of object recognition under extreme occlusion in humans and computational models},
@@ -42,7 +43,7 @@ class _Zhu2019Accuracy(BenchmarkBase):
         This is because the ceiling will be identical on each run, independent of the model, and is very slow 
         to calculate. It is much faster to precompute then to call each session. 
         '''
-        splits = open("zhu_precomputed_celing.txt", "r")
+        splits = open(Path(__file__).parent / "zhu_precomputed_ceiling.txt", "r")
         reader = csv.reader(splits)
         data = [row for row in reader]
         self.precomputed_ceiling_splits = [float(x) for x in data[0]]

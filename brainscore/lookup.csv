@@ -168,6 +168,6 @@ brendel.Geirhos2021_stylized,assembly,BehavioralAssembly,S3,https://brainio-brai
 brendel.Geirhos2021_uniform-noise,assembly,BehavioralAssembly,S3,https://brainio-brainscore.s3.amazonaws.com/assy_brendel_Geirhos2021_uniform-noise.nc,f5e8b2636738f978c71591b8df6f8a21a66b72d1,brendel.Geirhos2021_uniform-noise,brainio_brainscore
 katz.BarbuMayo2019,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/image_katz_BarbuMayo2019.csv,e4d8888ccb6beca28636e6698e7beb130e278e12,,brainio_brainscore
 katz.BarbuMayo2019,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/image_katz_BarbuMayo2019.zip,1365eb2a7231516806127a7d2a908343a7ac9464,,brainio_brainscore
-Jacob2020_3d_processing,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_Jacob2020_3d_processing.csv,109c569e30151feed81136c83cfc311158b6bd3e,,
-Jacob2020_3d_processing,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_Jacob2020_3d_processing.zip,74b78c6b5ac6ac69161a906b814abc7ec52b2462,,
-Jacob2020_3d_processing,assembly,BehavioralAssembly,S3,https://brainio-brainscore.s3.amazonaws.com/assy_Jacob2020_3d_processing.nc,58353247b1490f26e948ceef266b43359ac87168,Jacob2020_3d_processing,
+Jacob2020_3dpi,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_Jacob2020_3dpi.csv,109c569e30151feed81136c83cfc311158b6bd3e,,
+Jacob2020_3dpi,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_Jacob2020_3dpi.zip,74b78c6b5ac6ac69161a906b814abc7ec52b2462,,
+Jacob2020_3dpi,assembly,BehavioralAssembly,S3,https://brainio-brainscore.s3.amazonaws.com/assy_Jacob2020_3dpi.nc,1579957236820fe75f99a2e6f3c89133132423d5,Jacob2020_3dpi,

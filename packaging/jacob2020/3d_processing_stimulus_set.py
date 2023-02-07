@@ -47,7 +47,7 @@ stimuli = StimulusSet(stimuli)
 stimuli.stimulus_paths = image_paths
 
 # give the StimulusSet an identifier name
-stimuli.name = 'Jacob2020_3d_processing'
+stimuli.name = 'Jacob2020_3dpi'
 
 # upload to S3
 package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,

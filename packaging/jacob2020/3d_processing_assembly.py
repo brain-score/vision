@@ -26,23 +26,24 @@ all_subjects = pd.read_csv('human_data/data.csv')
 
 
 # construct the assembly
-assembly = BehavioralAssembly(all_subjects['mean_rt'],
+assembly = BehavioralAssembly(all_subjects['reported_slope'],
                               coords={
-                                  'stimulus_id': ('presentation', all_subjects['stimuli']),
+                                  'shape_family': ('presentation', all_subjects['shape_family']),
                                   'response_time': ('presentation', all_subjects['mean_rt']),
                                   'response_time_error': ('presentation', all_subjects['rt_error']),
                                   'num_subjects': ('presentation', all_subjects['num_subjects']),
                                   'target_trial': ('presentation', all_subjects['target_trial']),
                                   'display_size': ('presentation', all_subjects['display_size']),
                                   'error_rate': ('presentation', all_subjects['error_rate']),
+                                  'mean_response_time_slope': ('presentation', all_subjects['reported_slope']),
                               },
                               dims=['presentation']
                               )
 
 # give the assembly an identifier name
-assembly.name = 'Jacob2020_3d_processing'
+assembly.name = 'Jacob2020_3dpi'
 
 # upload to S3
 package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
-                      stimulus_set_identifier='Jacob2020_3d_processing',
+                      stimulus_set_identifier='Jacob2020_3dpi',
                       assembly_class_name="BehavioralAssembly", bucket_name="brainio-brainscore")

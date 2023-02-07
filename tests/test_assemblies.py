@@ -483,59 +483,62 @@ class TestGeirhos2021:
         assembly = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
         assert hasattr(assembly, field)
 
-class TestJacob2020:
-
-    # tests alignments that are the same across normal and inverted assemblies
-    @pytest.mark.parametrize('identifier, length', [
-        ('normal', 3702),
-        ('inverted', 4320),
-    ])
-    def test_stimulus_set_assembly_alignment(self, identifier, length):
-        full_name = f'Baker2022_{identifier}_distortion'
-        assembly = brainscore.get_assembly(full_name)
-        assert assembly.stimulus_set is not None
-        assert assembly.stimulus_set.identifier == f'Baker2022_{identifier}_distortion'
-        assert set(assembly.stimulus_set["animal"]) == set(assembly["truth"].values)
-        assert set(assembly.stimulus_set["stimulus_id"]) == set(assembly["stimulus_id"].values)
-        assert len(assembly.presentation) == length
-
-    # tests counts that are the same across normal and inverted assemblies
-    @pytest.mark.parametrize('identifier', [
-        'normal',
-        'inverted',
-    ])
-    def test_same_counts(self, identifier):
-        full_name = f'Baker2022_{identifier}_distortion'
-        assembly = brainscore.get_assembly(full_name)
-        assert len({x for x in set((assembly["truth"]).values) if x==x}) == 9
-        assert len(set((assembly["correct"]).values)) == 2
-
-    # tests number of subjects
-    @pytest.mark.parametrize('identifier, num_subjects', [
-        ('normal', 32),
-        ('inverted', 12),
-    ])
-    def test_subjects(self, identifier, num_subjects):
-        full_name = f'Baker2022_{identifier}_distortion'
-        assembly = brainscore.get_assembly(full_name)
-        assert len(set((assembly["subject"]).values)) == num_subjects
-
-    # tests number of configurations in {whole, fragmented, frankenstein} Inverted does not have fragmented)
-    @pytest.mark.parametrize('identifier, num_configs', [
-        ('normal', 3),
-        ('inverted', 2),
-    ])
-    def test_configs(self, identifier, num_configs):
-        full_name = f'Baker2022_{identifier}_distortion'
-        assembly = brainscore.get_assembly(full_name)
-        assert len(set((assembly["condition"]).values)) == num_configs
-
-    # tests number of unique images
-    @pytest.mark.parametrize('identifier, num_images', [
-        ('normal', 716),
-        ('inverted', 360),
-    ])
-    def test_subjects(self, identifier, num_images):
-        full_name = f'Baker2022_{identifier}_distortion'
-        assembly = brainscore.get_assembly(full_name)
-        assert len(set((assembly["stimulus_id"]).values)) == num_images
+# class TestJacob2020:
+#
+#     # tests general alignment
+#     @pytest.mark.parametrize('identifier, num_images', [
+#         ('3d_processing', 6),
+#
+#         # future benchmarks:
+#         # ('occlusions', 6),
+#         # ('object_parts', 6),
+#     ])
+#     def test_stimulus_set_assembly_alignment(self, identifier, num_images):
+#         full_name = f'Jacob2020_{identifier}'
+#         assembly = brainscore.get_assembly(full_name)
+#         assert assembly.stimulus_set is not None
+#         assert assembly.stimulus_set.identifier == f'Jacob2020_{identifier}'
+#         assert set(assembly.stimulus_set["stimulus_id"].values) == set(assembly["stimuli"].values)
+#         assert set(assembly.stimulus_set["stimulus_id"]) == set(assembly["stimulus_id"].values)
+#         assert len(assembly.presentation) == length
+#
+#     # tests counts that are the same across normal and inverted assemblies
+#     @pytest.mark.parametrize('identifier', [
+#         'normal',
+#         'inverted',
+#     ])
+#     def test_same_counts(self, identifier):
+#         full_name = f'Baker2022_{identifier}_distortion'
+#         assembly = brainscore.get_assembly(full_name)
+#         assert len({x for x in set((assembly["truth"]).values) if x==x}) == 9
+#         assert len(set((assembly["correct"]).values)) == 2
+#
+#     # tests number of subjects
+#     @pytest.mark.parametrize('identifier, num_subjects', [
+#         ('normal', 32),
+#         ('inverted', 12),
+#     ])
+#     def test_subjects(self, identifier, num_subjects):
+#         full_name = f'Baker2022_{identifier}_distortion'
+#         assembly = brainscore.get_assembly(full_name)
+#         assert len(set((assembly["subject"]).values)) == num_subjects
+#
+#     # tests number of configurations in {whole, fragmented, frankenstein} Inverted does not have fragmented)
+#     @pytest.mark.parametrize('identifier, num_configs', [
+#         ('normal', 3),
+#         ('inverted', 2),
+#     ])
+#     def test_configs(self, identifier, num_configs):
+#         full_name = f'Baker2022_{identifier}_distortion'
+#         assembly = brainscore.get_assembly(full_name)
+#         assert len(set((assembly["condition"]).values)) == num_configs
+#
+#     # tests number of unique images
+#     @pytest.mark.parametrize('identifier, num_images', [
+#         ('normal', 716),
+#         ('inverted', 360),
+#     ])
+#     def test_subjects(self, identifier, num_images):
+#         full_name = f'Baker2022_{identifier}_distortion'
+#         assembly = brainscore.get_assembly(full_name)
+#        assert len(set((assembly["stimulus_id"]).values)) == num_images

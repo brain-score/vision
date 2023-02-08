@@ -39,9 +39,12 @@ class _Zhu2019Accuracy(BenchmarkBase):
         '''
         Precomputed ceiling:
         
-        We use a precomputed ceiling (scalar value 0.8113) instead of calculating a ceiling on each scoring run. 
+        We use a precomputed ceiling instead of calculating a ceiling on each scoring run. 
         This is because the ceiling will be identical on each run, independent of the model, and is very slow 
-        to calculate. It is much faster to precompute then to call each session. 
+        to calculate. It is much faster to precompute then to call each session. The ceiling field itself has
+        two components: a vector of NUM_SPLITS numbers, representing the split halves of the ceiling computation, 
+        and this vector's median value, representing the ceiling itself. Use score.attrs['ceiling'] to access this 
+        vector. 
         '''
         splits = open(Path(__file__).parent / "zhu_precomputed_ceiling.txt", "r")
         reader = csv.reader(splits)

@@ -28,7 +28,7 @@ all_subjects = pd.read_csv('human_data/data.csv')
 # construct the assembly
 assembly = BehavioralAssembly(all_subjects['reported_slope'],
                               coords={
-                                  'shape_family': ('presentation', all_subjects['shape_family']),
+                                  'stimulus_id': ('presentation', all_subjects['shape_family']),
                                   'response_time': ('presentation', all_subjects['mean_rt']),
                                   'response_time_error': ('presentation', all_subjects['rt_error']),
                                   'num_subjects': ('presentation', all_subjects['num_subjects']),

@@ -5,7 +5,7 @@ import brainscore
 from brainscore.benchmarks import BenchmarkBase
 from brainscore.benchmarks.screen import place_on_screen
 from brainscore.metrics import Score
-from brainscore.metrics.accuracy import Accuracy
+from brainscore.metrics.data_cloud_comparision import DataCloudComparison
 from brainscore.model_interface import BrainModel
 from brainscore.metrics import accuracy
 from brainscore.utils import LazyLoad
@@ -26,13 +26,14 @@ DATASETS = ['3dpi']
 
 class _Jacob20203DProcessingIndex(BenchmarkBase):
 
-    def __init__(self):
-        self._metric = Accuracy()
+    def __init__(self, shape):
         self._assembly = LazyLoad(lambda: load_assembly('Jacob2020_3dpi'))
 
         # confirm VD
         self._visual_degrees = 8.0
 
+        self.shape = shape
+        self._metric = DataCloudComparison(shape=self.shape)
         self._number_of_trials = 1
 
         super(_Jacob20203DProcessingIndex, self).__init__(
@@ -61,30 +62,26 @@ class _Jacob20203DProcessingIndex(BenchmarkBase):
             d_2 = candidate.response_time(image_1=control_1, image_2=control_2)
             return (d_1 - d_2) / (d_1 + d_2)
 
-        square_index = calculate_indexes("square")
-        y_index = calculate_indexes("y")
+        model_index = calculate_indexes(self.shape)
 
-        human_index = 0.76
-
-        # per condition:
-        model_score = max((1 - ((np.abs(human_index - y_index)) / human_index)), 0)
+        raw_score, ceiling = self._metric(model_index, self._assembly)
 
 
-        raw_score = self._metric(labels, self._assembly)
-        #     ceiling = self._ceiling(self._assembly)
-        # score = raw_score / ceiling
-        #
-        # # cap score at 1 if ceiled score > 1
-        # score[0] = 1 if score[0] > 1 else score[0]
-        #
-        # score.attrs['raw'] = raw_score
-        # score.attrs['ceiling'] = ceiling
-        # return score
-        return 1
 
 
-def Jacob20203dpi():
-    return _Jacob20203DProcessingIndex()
+        score = raw_score / ceiling.sel(aggregation='center')
+        score.attrs['raw'] = raw_score
+        score.attrs['ceiling'] = ceiling
+
+        return raw_score
+
+
+def Jacob20203dpi_square():
+    return _Jacob20203DProcessingIndex(shape="square")
+
+
+def Jacob20203dpi_y():
+    return _Jacob20203DProcessingIndex(shape="y")
 
 
 def load_assembly(dataset):
@@ -95,41 +92,3 @@ def load_assembly(dataset):
 def load_stimulus_set(dataset):
     stimulus_set = brainscore.get_stimulus_set(dataset)
     return stimulus_set
-#
-#
-# # ceiling method:
-# class SplitHalvesConsistencyBaker:
-#     def __init__(self, num_splits: int, split_coordinate: str, consistency_metric, image_types):
-#         """
-#         :param num_splits: how many times to create two halves
-#         :param split_coordinate: over which coordinate to split the assembly into halves
-#         :param consistency_metric: which metric to use to compute the consistency of two halves
-#         """
-#         self.num_splits = num_splits
-#         self.split_coordinate = split_coordinate
-#         self.consistency_metric = consistency_metric
-#         self.image_types = image_types
-#
-#     def __call__(self, assembly) -> Score:
-#
-#         consistencies, uncorrected_consistencies = [], []
-#         splits = range(self.num_splits)
-#         random_state = np.random.RandomState(0)
-#         for _ in splits:
-#             num_subjects = len(set(assembly["subject"].values))
-#             half1_subjects = random_state.choice(range(1, num_subjects), (num_subjects // 2), replace=False)
-#             half1 = assembly[
-#                 {'presentation': [subject in half1_subjects for subject in assembly['subject'].values]}]
-#             half2 = assembly[
-#                 {'presentation': [subject not in half1_subjects for subject in assembly['subject'].values]}]
-#             consistency = self.consistency_metric(half1, half2)
-#             uncorrected_consistencies.append(consistency)
-#             # Spearman-Brown correction for sub-sampling
-#             corrected_consistency = 2 * consistency / (1 + (2 - 1) * consistency)
-#             consistencies.append(corrected_consistency)
-#         consistencies = Score(consistencies, coords={'split': splits}, dims=['split'])
-#         uncorrected_consistencies = Score(uncorrected_consistencies, coords={'split': splits}, dims=['split'])
-#         average_consistency = consistencies.median('split')
-#         average_consistency.attrs['raw'] = consistencies
-#         average_consistency.attrs['uncorrected_consistencies'] = uncorrected_consistencies
-#         return average_consistency

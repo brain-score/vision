@@ -217,8 +217,13 @@ def _evaluation_benchmark_pool():
             # use lambda parameter-binding to avoid `benchmark_ctr` being re-assigned in the next loop iteration
             lambda benchmark_ctr=benchmark_ctr: benchmark_ctr())
 
-    from .jacob2022 import Jacob20203dpi
-    pool['Jacob2020-3dpi'] = LazyLoad(Jacob20203dpi)
+
+    # Jacob 2020 benchmarks
+    from .jacob2022 import Jacob20203dpi_square
+    pool['Jacob2020-3dpi_square'] = LazyLoad(Jacob20203dpi_square)
+
+    from .jacob2022 import Jacob20203dpi_y
+    pool['Jacob2020-3dpi_y'] = LazyLoad(Jacob20203dpi_y)
 
     return pool
 

@@ -483,21 +483,21 @@ class TestGeirhos2021:
         assembly = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
         assert hasattr(assembly, field)
 
-# class TestJacob2020:
-#
-#     # tests general alignment
-#     @pytest.mark.parametrize('identifier, num_images', [
-#         ('3d_processing', 6),
-#
-#         # future benchmarks:
-#         # ('occlusions', 6),
-#         # ('object_parts', 6),
-#     ])
-#     def test_stimulus_set_assembly_alignment(self, identifier, num_images):
-#         full_name = f'Jacob2020_{identifier}'
-#         assembly = brainscore.get_assembly(full_name)
-#         assert assembly.stimulus_set is not None
-#         assert assembly.stimulus_set.identifier == f'Jacob2020_{identifier}'
+class TestJacob2020:
+
+    # tests general alignment
+    @pytest.mark.parametrize('identifier, num_images', [
+        ('3dpi', 6),
+
+        # future benchmarks:
+        # ('occlusions', 6),
+        # ('object_parts', 6),
+    ])
+    def test_stimulus_set_assembly_alignment(self, identifier, num_images):
+        full_name = f'Jacob2020_{identifier}'
+        assembly = brainscore.get_assembly(full_name)
+        assert assembly.stimulus_set is not None
+        assert assembly.stimulus_set.identifier == f'Jacob2020_{identifier}'
 #         assert set(assembly.stimulus_set["stimulus_id"].values) == set(assembly["stimuli"].values)
 #         assert set(assembly.stimulus_set["stimulus_id"]) == set(assembly["stimulus_id"].values)
 #         assert len(assembly.presentation) == length

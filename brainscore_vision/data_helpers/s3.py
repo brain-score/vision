@@ -11,7 +11,8 @@ import os
 from pathlib import Path
 from typing import Callable
 
-from brainio.assemblies import DataAssembly, AssemblyLoader, StimulusMergeAssemblyLoader
+from brainio.assemblies import DataAssembly, AssemblyLoader, StimulusMergeAssemblyLoader, \
+    StimulusReferenceAssemblyLoader
 from brainio.fetch import fetch_file, unzip, resolve_stimulus_set_class
 from brainio.stimuli import StimulusSetLoader, StimulusSet
 
@@ -38,11 +39,13 @@ def get_path(identifier: str, file_type: str, bucket: str, version_id: str, sha1
 
 
 def load_assembly_from_s3(identifier: str, version_id: str, sha1: str, bucket: str, cls: type,
-                          stimulus_set_loader: Callable[[], StimulusSet] = None) -> DataAssembly:
+                          stimulus_set_loader: Callable[[], StimulusSet] = None,
+                          merge_stimulus_set_meta: bool = True) -> DataAssembly:
     file_path = get_path(identifier, 'nc', bucket, version_id, sha1)
     if stimulus_set_loader:  # merge stimulus set meta into assembly if `stimulus_set_loader` is passed
         stimulus_set = stimulus_set_loader()
-        loader_class = functools.partial(StimulusMergeAssemblyLoader,
+        loader_base_class = StimulusMergeAssemblyLoader if merge_stimulus_set_meta else StimulusReferenceAssemblyLoader
+        loader_class = functools.partial(loader_base_class,
                                          stimulus_set_identifier=stimulus_set.identifier, stimulus_set=stimulus_set)
     else:  # if no `stimulus_set_loader` passed, just load assembly
         loader_class = AssemblyLoader

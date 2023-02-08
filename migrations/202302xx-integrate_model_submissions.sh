@@ -4,7 +4,10 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 TARGET_DIRECTORY=$(realpath "$SCRIPT_DIR"/../brainscore_vision/models/)
 TEMPORARY_UNZIP_DIRECTORY=$(realpath "$TARGET_DIRECTORY"/../models_unzip_temp)
 SUBMISSIONS_DIRECTORY=/braintree/data2/active/common/brainscore_submissions
+
+# TODO: filter for only successful submissions using database
 SUBMISSIONS=("$SUBMISSIONS_DIRECTORY"/*.zip)
+
 NUM_SUBMISSIONS=${#SUBMISSIONS[@]}
 echo "Number of submission directories: $NUM_SUBMISSIONS"
 echo "Unzipping to $TEMPORARY_UNZIP_DIRECTORY, moving to $TARGET_DIRECTORY"
@@ -83,7 +86,7 @@ for submission_zip in "${SUBMISSIONS[@]}"; do
   end_line=$((end_line + starting_line - 1))
   model_list_python=$(sed -n "$starting_line,$end_line"p "$models_file")
   identifiers=$(python -c "$model_list_python
-print(' '.join(get_model_list()))")
+print(' '.join(get_model_list()))") || printf "\n>> FAILED: %s\n" "$submission_zip"
   for identifier in $identifiers; do
     # TODO: find a way to pre-select all the layers
     echo "model_registry['$identifier'] = ModelCommitment(identifier='$identifier', activations_model=get_model('$identifier'), layers=get_layers('$identifier'))" >>"$init_file"
@@ -92,7 +95,9 @@ print(' '.join(get_model_list()))")
   # restructure: add base `test.py`
   # TODO
 
-  break
+  if [ $counter -ge 30 ]; then
+    break
+  fi
 done
 
 # TODO: figure out namespaces. root namespace and user namespaces? --> do this after initial move

@@ -34,7 +34,8 @@ def load_dataset(identifier: str) -> Union[DataAssembly, Any]:
 
 
 def load_stimulus_set(identifier: str) -> Any:
-    import_plugin('brainscore_vision', 'data', identifier)  # dataset and stimulus_set are kept in the same directory
+    # dataset and stimulus_set are kept in the same directory
+    import_plugin('brainscore_vision', 'data', identifier, registry_prefix='stimulus_set')
 
     return stimulus_set_registry[identifier]()
 

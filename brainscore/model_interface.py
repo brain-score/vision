@@ -57,19 +57,6 @@ class BrainModel:
         """
         raise NotImplementedError()
 
-    def look_at_2(self, stimuli: Union[StimulusSet, List[str]], number_of_trials=1):
-        """
-        Digest a set of stimuli and return requested outputs. Which outputs to return is instructed by the
-        :meth:`~brainscore.model_interface.BrainMode.start_task` and
-        :meth:`~brainscore.model_interface.BrainModel.start_recording` methods.
-
-        :param stimuli: A set of stimuli, passed as either a :class:`~brainio.stimuli.StimulusSet`
-            or a list of image file paths
-        :param number_of_trials: The number of repeated trials of the stimuli that the model should average over.
-            E.g. 10 or 35. Non-stochastic models can likely ignore this parameter.
-        :return: recordings or task behaviors as instructed
-        """
-        raise NotImplementedError()
 
     def start_task(self, task: Task, fitting_stimuli):
         """
@@ -108,7 +95,7 @@ class BrainModel:
         """
         raise NotImplementedError()
 
-    def response_time(self, image_1: Union[StimulusSet, List[str]], image_2: Union[StimulusSet, List[str]]):
+    def response_time_proxy(self, stimuli: Union[StimulusSet, List[str]]):
         """
                 I will fill this in later
         """

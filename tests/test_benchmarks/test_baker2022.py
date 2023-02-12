@@ -11,9 +11,12 @@ from tests.test_benchmarks import PrecomputedFeatures
 
 @pytest.mark.private_access
 class TestBaker2022:
+
+    # ensure normal and inverted datasets are there
     def test_count(self):
         assert len(DATASETS) == 2
 
+    # ensure the three benchmarks themselves are there
     @pytest.mark.parametrize('benchmark', [
         'Baker2022-inverted_accuracy_delta',
         'Baker2022-accuracy_delta_fragmented',
@@ -22,6 +25,7 @@ class TestBaker2022:
     def test_in_pool(self, benchmark):
         assert benchmark in benchmark_pool
 
+    # Test expected ceiling
     @pytest.mark.parametrize('benchmark, expected_ceiling', [
         ('Baker2022-accuracy_delta_frankenstein', 0.8498),
         ('Baker2022-accuracy_delta_fragmented', 0.9385),
@@ -37,6 +41,7 @@ class TestBaker2022:
             ceiling = benchmark._ceiling(assembly)
         assert ceiling == approx(expected_ceiling, abs=0.001)
 
+    # Test raw scores
     @pytest.mark.parametrize('benchmark, model, expected_raw_score', [
         ('Baker2022-accuracy_delta_frankenstein', 'resnet-50-pytorch', approx(0.2847, abs=0.0001)),
         ('Baker2022-accuracy_delta_fragmented', 'resnet-50-pytorch', approx(0.8452, abs=0.0001)),
@@ -63,6 +68,7 @@ class TestBaker2022:
         assert score.sel(aggregation='center') >= raw_score.sel(aggregation='center')
         assert raw_score.sel(aggregation='center') == expected_raw_score
 
+    # test ceiled score
     @pytest.mark.parametrize('benchmark, model, expected_ceiled_score', [
         ('Baker2022-accuracy_delta_frankenstein', 'resnet-50-pytorch', approx(0.3350, abs=0.0001)),
         ('Baker2022-accuracy_delta_fragmented', 'resnet-50-pytorch', approx(0.9005, abs=0.0001)),

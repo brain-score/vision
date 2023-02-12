@@ -3,11 +3,10 @@ import itertools
 import numpy as np
 
 from brainscore.metrics import Metric, Score
-import random
-from brainio.assemblies import BehavioralAssembly
-import random
+from scipy.spatial import distance
 import scipy.stats
-NUM_LINES = 50
+NUM_LINES = 500
+NUM_POINTS = 100
 
 
 class DataCloudComparison(Metric):
@@ -16,18 +15,23 @@ class DataCloudComparison(Metric):
 
     def __call__(self, source: float, target):
 
-        clouds = []
-        for i in range(6):
-            mean, std = get_mean_std(target)
-            cloud = make_new_data(mean, std)
-            clouds.append(cloud)
+        # use cube 2 if shape is y. Cube 2's slope value is 12, which is what is needed
+        if self.shape == "y":
+            cube_means, cube_stds = get_means_stds("cube_2", target)
+        else:
+            cube_means, cube_stds = get_means_stds("cube_1", target)
 
-        human_indexes = generate_human_data(clouds)
+        shape_means, shape_stds = get_means_stds(f"{self.shape}_1", target)
+        data_clouds_cube = make_new_data(cube_means, cube_stds)
+        data_clouds_shape = make_new_data(shape_means, shape_stds)
+
+        human_indexes = generate_human_data(data_clouds_cube, data_clouds_shape)
 
         # calculate model scores based on each sample human score, to get errors around model score:
         raw_scores = []
         for human_score in human_indexes:
-            raw_score = max((1 - ((np.abs(human_score - source)) / human_score)), 0)
+            #raw_score = max((1 - ((np.abs(human_score - source)) / human_score)), 0)
+            raw_score = max((1 - distance.euclidean(human_score, source)), 0)
             raw_scores.append(raw_score)
 
         raw_score, model_error = np.mean(raw_scores), np.std(raw_scores)
@@ -39,33 +43,62 @@ class DataCloudComparison(Metric):
         return raw_score, ceiling
 
 
-def make_new_data(mean, std):
-    data_points = np.random.normal(mean, std, size=(1, NUM_LINES))
-    return data_points
+# grab means and standard deviations from assembly:
+def get_means_stds(shape, assembly):
+
+    shape_trials = assembly.sel(stimulus_id=f'{shape}')
+    means = shape_trials["response_time"].values
+
+    # calculate standard deviations from standard error means
+    num_subjects = set(assembly["num_subjects"].values)
+    stds = (shape_trials["response_time_error"] * np.sqrt(num_subjects.pop())).values
+
+    return means, stds
 
 
-def get_avg_slope(cloud_1, cloud_2, cloud_3):
+# generates NUM_POINTS number of possible points in the range of mean +/- std
+def make_new_data(means, stds):
+    points = []
+    random_state = np.random.RandomState(0)
+    for i in range(len(means)):
+        data_points = random_state.normal(means[i], stds[i], size=(1, NUM_POINTS))[0]
+        points.append(data_points)
+    return points
+
+
+def get_avg_slope(outer_i, cloud_1, cloud_2, cloud_3):
     slopes = []
-    for i in range(NUM_LINES):
-        point_1 = random.choice(list(cloud_1)[0])
-        point_2 = random.choice(list(cloud_2)[0])
-        point_3 = random.choice(list(cloud_3)[0])
+    upper_limit = outer_i * NUM_POINTS
+    lower_limit = upper_limit - NUM_POINTS
+    for i in range(lower_limit, upper_limit):
+        random_state = np.random.RandomState(i)
+        point_1 = random_state.choice(list(cloud_1))
+        point_2 = random_state.choice(list(cloud_2))
+        point_3 = random_state.choice(list(cloud_3))
         x_vals = [1, 6, 12]
         y_vals = [point_1, point_2, point_3]
         slope_of_best_fit = scipy.stats.linregress(x_vals, y_vals)[0]
         slopes.append(slope_of_best_fit)
 
-    avg_slope = np.mean(slopes)
-    return avg_slope
+    return np.mean(slopes)
 
 
-def generate_human_data(cloud_list):
-    NUM_TRIALS = 250
-    proc_indexes = []
-    for i in range(NUM_TRIALS):
-        print(i)
-        d1 = 1 / get_avg_slope(cloud_list[0], cloud_list[1], cloud_list[2])
-        d2 = 1 / get_avg_slope(cloud_list[3], cloud_list[4], cloud_list[5])
+def generate_human_data(cubes_cloud, shapes_cloud):
+    indexes = []
+    for i in range(1, NUM_LINES + 1):
+        d1 = 1 / get_avg_slope(i, cubes_cloud[0], cubes_cloud[1], cubes_cloud[2])
+        d2 = 1 / get_avg_slope(i, shapes_cloud[0], shapes_cloud[1], shapes_cloud[2])
+
+        # square test
+        # d1 = 1 / get_avg_slope(i, 500, 587, 580)
+        # d2 = 1 / get_avg_slope(i, 515, 925, 1085)
+
+        # y test
+        # d1 = 1 / get_avg_slope(i, 576, 656, 709)
+        # d2 = 1 / get_avg_slope(i, 517, 708, 828)
+
         proc_index = (d1 - d2) / (d1 + d2)
-        proc_indexes.append(proc_index)
-    return proc_indexes
+        indexes.append(proc_index)
+    return indexes
+
+

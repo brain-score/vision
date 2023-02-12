@@ -16,6 +16,7 @@ echo "Number of submissions: $NUM_SUBMISSIONS"
 echo "Unzipping to $TEMPORARY_UNZIP_DIRECTORY, moving to $TARGET_DIRECTORY"
 
 counter=1
+failures=()
 for submission_id in "${SUBMISSION_IDS[@]}"; do
   submission_zip="$SUBMISSIONS_DIRECTORY"/submission_"$submission_id".zip
   # log
@@ -90,7 +91,7 @@ for submission_id in "${SUBMISSION_IDS[@]}"; do
   end_line=$((end_line + starting_line - 1))
   model_list_python=$(sed -n "$starting_line,$end_line"p "$models_file")
   identifiers=$(python -c "$model_list_python
-print(' '.join(get_model_list()))") || printf "\n>> FAILED: %s\n" "$submission_zip"
+print(' '.join(get_model_list()))") || { printf "\n>> FAILED: %s\n" "$submission_zip"; failures+=("$submission_zip"); }
   for identifier in $identifiers; do
     # TODO: find a way to pre-select all the layers
     echo "model_registry['$identifier'] = ModelCommitment(identifier='$identifier', activations_model=get_model('$identifier'), layers=get_layers('$identifier'))" >>"$init_file"
@@ -103,6 +104,8 @@ print(' '.join(get_model_list()))") || printf "\n>> FAILED: %s\n" "$submission_z
     break
   fi
 done
+
+echo "Failures: ${failures[*]}"
 
 # TODO: figure out namespaces. root namespace and user namespaces? --> do this after initial move
 # TODO: email users to get their OK (or objection) to making code public

@@ -5,15 +5,19 @@ TARGET_DIRECTORY=$(realpath "$SCRIPT_DIR"/../brainscore_vision/models/)
 TEMPORARY_UNZIP_DIRECTORY=$(realpath "$TARGET_DIRECTORY"/../models_unzip_temp)
 SUBMISSIONS_DIRECTORY=/braintree/data2/active/common/brainscore_submissions
 
-# TODO: filter for only successful submissions using database
-SUBMISSIONS=("$SUBMISSIONS_DIRECTORY"/*.zip)
+# retrieve submission ids to work with (these are all the successful submissions with a score only)
+SUBMISSION_IDS=()
+while IFS=',' read -ra array; do
+  SUBMISSION_IDS+=("${array[0]}")
+done <"$SCRIPT_DIR"/20230211_submission_ids.csv
+NUM_SUBMISSIONS="${#SUBMISSION_IDS[@]}"
+echo "Number of submissions: $NUM_SUBMISSIONS"
 
-NUM_SUBMISSIONS=${#SUBMISSIONS[@]}
-echo "Number of submission directories: $NUM_SUBMISSIONS"
 echo "Unzipping to $TEMPORARY_UNZIP_DIRECTORY, moving to $TARGET_DIRECTORY"
 
 counter=1
-for submission_zip in "${SUBMISSIONS[@]}"; do
+for submission_id in "${SUBMISSION_IDS[@]}"; do
+  submission_zip="$SUBMISSIONS_DIRECTORY"/submission_"$submission_id".zip
   # log
   echo "Processing $submission_zip ($counter/$NUM_SUBMISSIONS)"
   counter=$((counter + 1))

@@ -96,7 +96,6 @@ for submission_id in "${SUBMISSION_IDS[@]}"; do
   identifiers=$(python -c "$model_list_python
 print(' '.join(get_model_list()))") || { printf "\n>> FAILED: %s\n" "$submission_zip"; failures+=("$submission_zip"); }
   for identifier in $identifiers; do
-    # TODO: find a way to pre-select all the layers
     echo "model_registry['$identifier'] = ModelCommitment(identifier='$identifier', activations_model=get_model('$identifier'), layers=get_layers('$identifier'))" >>"$init_file"
   done
 
@@ -108,6 +107,3 @@ print(' '.join(get_model_list()))") || { printf "\n>> FAILED: %s\n" "$submission
 done
 
 echo "Failures: ${failures[*]}"
-
-# TODO: figure out namespaces. root namespace and user namespaces? --> do this after initial move
-# TODO: email users to get their OK (or objection) to making code public

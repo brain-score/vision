@@ -100,11 +100,10 @@ print(' '.join(get_model_list()))") || { printf "\n>> FAILED: %s\n" "$submission
     echo "model_registry['$identifier'] = ModelCommitment(identifier='$identifier', activations_model=get_model('$identifier'), layers=get_layers('$identifier'))" >>"$init_file"
   done
 
-  # restructure: add base `test.py`
-  # TODO
-
-  if [ $counter -ge 30 ]; then
-    break
+  # add empty `test.py`
+  test_file="$plugin_dir"/test.py
+  if [[ ! -e "$test_file" ]]; then
+    echo "# Left empty as part of 2023 models migration" > "$test_file"
   fi
 done
 

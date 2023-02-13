@@ -26,11 +26,14 @@ for submission_id in "${SUBMISSION_IDS[@]}"; do
   # unzip
   rm -rf --- "${TEMPORARY_UNZIP_DIRECTORY:?}"/*                      # clear temporary directory
   unzip "$submission_zip" -d "$TEMPORARY_UNZIP_DIRECTORY" >/dev/null # unzip, do not print stdout
+  chmod -R ugo+w "$TEMPORARY_UNZIP_DIRECTORY"
+  rm -rf "${TEMPORARY_UNZIP_DIRECTORY:?}"/__MACOSX  # clear Apple leftovers
 
   # retrieve contents of zip file
+  num_directories=$(find "$TEMPORARY_UNZIP_DIRECTORY"/* -maxdepth 0 -type d | wc -l)
   zip_contents=$(find "$TEMPORARY_UNZIP_DIRECTORY"/* -maxdepth 0 -type d)
-  if [ "${#zip_contents[@]}" -ne 1 ]; then
-    echo "Expected exactly one directory, got ${#zip_contents[@]}: $zip_contents"
+  if [ "$num_directories" -ne 1 ]; then
+    echo "Expected exactly one directory, got $num_directories: $zip_contents"
     exit 1
   fi
 

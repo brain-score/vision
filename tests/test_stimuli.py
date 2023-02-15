@@ -273,6 +273,6 @@ class TestZhu2019:
         'word_image',
         'image_number',
     ])
-    def test_fields_present(self, field):
+    def test_field_present(self, field):
         stimulus_set = brainio.get_stimulus_set('Zhu2019_extreme_occlusion')
         assert hasattr(stimulus_set, field)

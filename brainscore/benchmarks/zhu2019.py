@@ -6,11 +6,13 @@ from brainscore.benchmarks import BenchmarkBase
 from brainscore.benchmarks.screen import place_on_screen
 from brainscore.metrics import Score
 from brainscore.metrics.accuracy import Accuracy
+from brainscore.metrics.response_match import ResponseMatch
 from brainscore.model_interface import BrainModel
 from brainscore.utils import LazyLoad
 from scipy.stats import pearsonr
 import csv
 from pathlib import Path
+from brainio.assemblies import walk_coords, BehavioralAssembly
 
 BIBTEX = """@article{zhu2019robustness,
             title={Robustness of object recognition under extreme occlusion in humans and computational models},
@@ -19,32 +21,36 @@ BIBTEX = """@article{zhu2019robustness,
             year={2019}
         }"""
 
-DATASETS = ['extreme_occlusion']
+VISUAL_DEGREES = 8
+NUMBER_OF_TRIALS = 1
 NUM_SPLITS = 50
 
 
-class _Zhu2019Accuracy(BenchmarkBase):
+class _Zhu2019ResponseMatch(BenchmarkBase):
 
-    # Behavioral benchmark: compares model to average humans.
-    # human ceiling is calculated by taking NUM_SPLIT split-half reliabilities with *category-level* responses.
+    """
+        Behavioral benchmark: compares model to average humans.
+        human ceiling is calculated by taking `NUM_SPLIT` split-half reliabilities with *category-level* responses.
+    """
 
     def __init__(self):
-        self._assembly = LazyLoad(lambda: load_assembly('extreme_occlusion'))
+        self._assembly = LazyLoad(lambda: brainscore.get_assembly(f'Zhu2019_extreme_occlusion'))
         self._fitting_stimuli = brainscore.get_stimulus_set('Zhu2019_extreme_occlusion')
-        self._stimulus_set = LazyLoad(lambda: load_assembly('extreme_occlusion').stimulus_set)
-        self._visual_degrees = 8
-        self._number_of_trials = 1
-        self._metric = Accuracy()
+        self._stimulus_set = LazyLoad(lambda: self._assembly.stimulus_set)
+        self._visual_degrees = VISUAL_DEGREES
+        self._number_of_trials = NUMBER_OF_TRIALS
+        self._metric = ResponseMatch()
 
         '''
-        Precomputed ceiling:
+        Precomputed ceiling, computed via 
+        ceiling = SplitHalvesConsistencyZhu(num_splits=NUM_SPLITS, split_coordinate="subject")
         
         We use a precomputed ceiling instead of calculating a ceiling on each scoring run. 
         This is because the ceiling will be identical on each run, independent of the model, and is very slow 
-        to calculate. It is much faster to precompute then to call each session. The ceiling field itself has
-        two components: a vector of NUM_SPLITS numbers, representing the split halves of the ceiling computation, 
-        and this vector's median value, representing the ceiling itself. Use score.attrs['ceiling'] to access this 
-        vector. 
+        to calculate. It is much faster to use a precomputed value than to compute it every time. 
+        The ceiling field itself has two components: a vector of NUM_SPLITS numbers, representing the split halves 
+        of the ceiling computation, and this vector's median value, representing the ceiling itself. 
+        Use score.attrs['ceiling'] to access this vector. 
         '''
         splits = open(Path(__file__).parent / "zhu_precomputed_ceiling.txt", "r")
         reader = csv.reader(splits)
@@ -53,13 +59,10 @@ class _Zhu2019Accuracy(BenchmarkBase):
         self._ceiling = Score(np.median(self.precomputed_ceiling_splits))
         self._ceiling.attrs['raw'] = self.precomputed_ceiling_splits
 
-        # manually calculate ceiling - *** unnecessary if using precomputed ceiling ***
-        # self._ceiling = SplitHalvesConsistencyZhu(num_splits=NUM_SPLITS, split_coordinate="subject")
-
-        super(_Zhu2019Accuracy, self).__init__(
-            identifier='Zhu2019_extreme_occlusion-accuracy',
+        super(_Zhu2019ResponseMatch, self).__init__(
+            identifier='Zhu2019_extreme_occlusion-response_match',
             parent='Zhu2019',
-            ceiling_func=self._ceiling,
+            ceiling_func=lambda: self._ceiling,
             bibtex=BIBTEX, version=1)
 
     def __call__(self, candidate: BrainModel):
@@ -67,9 +70,10 @@ class _Zhu2019Accuracy(BenchmarkBase):
         candidate.start_task(BrainModel.Task.label, categories)
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
-        source = _human_assembly_categorical_distribution(self._assembly, collapse=False)
-        labels = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
-        raw_score = self._metric(labels, source)
+        human_responses = _human_assembly_categorical_distribution(self._assembly, collapse=False)
+        predictions = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
+        predictions = predictions.sortby("stimulus_id")
+        raw_score = self._metric(predictions, human_responses)
         ceiling = self._ceiling
         score = raw_score / ceiling
         score.attrs['raw'] = raw_score
@@ -77,19 +81,20 @@ class _Zhu2019Accuracy(BenchmarkBase):
         return score
 
 
-class _Zhu2019Accuracy_Engineering(BenchmarkBase):
+class _Zhu2019Accuracy(BenchmarkBase):
+
     # engineering benchmark: compares model to ground_truth
     def __init__(self):
-        self._assembly = LazyLoad(lambda: load_assembly('extreme_occlusion'))
         self._fitting_stimuli = brainscore.get_stimulus_set('Zhu2019_extreme_occlusion')
-        self._stimulus_set = LazyLoad(lambda: load_assembly('extreme_occlusion').stimulus_set)
-        self._visual_degrees = 8
-        self._number_of_trials = 1
+        self._stimulus_set = LazyLoad(lambda: brainscore.get_assembly(f'Zhu2019_extreme_occlusion').stimulus_set)
+        self._assembly = LazyLoad(lambda: brainscore.get_assembly(f'Zhu2019_extreme_occlusion'))
+        self._visual_degrees = VISUAL_DEGREES
+        self._number_of_trials = NUMBER_OF_TRIALS
 
         self._metric = Accuracy()
 
-        super(_Zhu2019Accuracy_Engineering, self).__init__(
-            identifier='Zhu2019_extreme_occlusion-accuracy-engineering',
+        super(_Zhu2019Accuracy, self).__init__(
+            identifier='Zhu2019_extreme_occlusion-accuracy',
             parent='Zhu2019',
             ceiling_func=lambda: Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation']),
             bibtex=BIBTEX, version=1)
@@ -99,11 +104,11 @@ class _Zhu2019Accuracy_Engineering(BenchmarkBase):
         candidate.start_task(BrainModel.Task.label, categories)
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
-        labels = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
-        ground_truth = labels["ground_truth"]
+        predictions = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
+        ground_truth = predictions["ground_truth"]
 
         # compare model with stimulus_set (ground_truth)
-        raw_score = self._metric(labels, ground_truth)
+        raw_score = self._metric(predictions, ground_truth)
         ceiling = self.ceiling
         score = raw_score / ceiling.sel(aggregation='center')
         score.attrs['raw'] = raw_score
@@ -111,13 +116,13 @@ class _Zhu2019Accuracy_Engineering(BenchmarkBase):
         return score
 
 
-"""
-Convert from 19587 trials across 25 subjects to a 500 images x 5 choices assembly.
-This is needed, as not every subject saw every image, and this allows a cross-category comparison
-"""
-
-
 def _human_assembly_categorical_distribution(assembly: DataAssembly, collapse) -> DataAssembly:
+
+    """
+    Convert from 19587 trials across 25 subjects to a 500 images x 5 choices assembly.
+    This is needed, as not every subject saw every image, and this allows a cross-category comparison
+    """
+
     categories = ["car", "aeroplane", "motorbike", "bicycle", "bus"]
 
     def categorical(image_responses):
@@ -138,14 +143,19 @@ def _human_assembly_categorical_distribution(assembly: DataAssembly, collapse) -
     return labels
 
 
-# takes 5-way response vector and returns category of highest response
+# takes 5-way softmax vector and returns category of highest response
 def get_choices(predictions, categories):
-    choices = []
-    for prediction in predictions:
-        choice_index = list(prediction.values).index(max(prediction))
-        choice = categories[choice_index]
-        choices.append(choice)
-    return np.array(choices)
+    indexes = list(range(0,5))
+    mapping = dict(zip(indexes, categories))
+    extra_coords = {}
+    prediction_indices = predictions.values.argmax(axis=1)
+    choices = [mapping[index] for index in prediction_indices]
+    extra_coords['computed_choice'] = ('presentation', choices)
+    coords = {**{coord: (dims, values) for coord, dims, values in walk_coords(predictions['presentation'])},
+              **{'label': ('presentation', choices)},
+              **extra_coords}
+    final = BehavioralAssembly([choices], coords=coords, dims=['choice', 'presentation'])
+    return final.sortby("stimulus_id")
 
 
 # ceiling method:
@@ -198,14 +208,10 @@ class SplitHalvesConsistencyZhu:
         return average_consistency
 
 
+def Zhu2019ResponseMatch():
+    return _Zhu2019ResponseMatch()
+
+
 def Zhu2019Accuracy():
     return _Zhu2019Accuracy()
 
-
-def Zhu2019Accuracy_Engineering():
-    return _Zhu2019Accuracy_Engineering()
-
-
-def load_assembly(dataset):
-    assembly = brainscore.get_assembly(f'Zhu2019_{dataset}')
-    return assembly

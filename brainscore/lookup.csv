@@ -168,9 +168,6 @@ brendel.Geirhos2021_stylized,assembly,BehavioralAssembly,S3,https://brainio-brai
 brendel.Geirhos2021_uniform-noise,assembly,BehavioralAssembly,S3,https://brainio-brainscore.s3.amazonaws.com/assy_brendel_Geirhos2021_uniform-noise.nc,f5e8b2636738f978c71591b8df6f8a21a66b72d1,brendel.Geirhos2021_uniform-noise,brainio_brainscore
 katz.BarbuMayo2019,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/image_katz_BarbuMayo2019.csv,e4d8888ccb6beca28636e6698e7beb130e278e12,,brainio_brainscore
 katz.BarbuMayo2019,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/image_katz_BarbuMayo2019.zip,1365eb2a7231516806127a7d2a908343a7ac9464,,brainio_brainscore
-kellmen.Baker2022_shape_distortion,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_kellmen_Baker2022_shape_distortion.csv,2ded98d7ff2ab69a154138329af62a8beb6f83d9,,
-kellmen.Baker2022_shape_distortion,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_kellmen_Baker2022_shape_distortion.zip,a76de7bed7cb4b570e4e4125e7c23526cc2c77d1,,
-kellmen.Baker2022_normal_distortion,assembly,BehavioralAssembly,S3,https://brainio-brainscore.s3.amazonaws.com/assy_kellmen_Baker2022_normal_distortion.nc,1154331bb0d65819b74324a6b86fde9214128e48,kellmen.Baker2022_shape_distortion,
 Zhu2019_extreme_occlusion,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_Zhu2019_extreme_occlusion.csv,ba875087c9faa6fff273ee7e62ebfdfd18051590,,
 Zhu2019_extreme_occlusion,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_Zhu2019_extreme_occlusion.zip,06e649618a02de65b2b0cd969ffa39c2b4cfddf8,,
 Zhu2019_extreme_occlusion,assembly,BehavioralAssembly,S3,https://brainio-brainscore.s3.amazonaws.com/assy_Zhu2019_extreme_occlusion.nc,82e1b9afb41e2f60adc238f6398807ea1671fd05,Zhu2019_extreme_occlusion,

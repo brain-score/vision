@@ -96,7 +96,7 @@ class TestPoolList:
             'brendel.Geirhos2021stylized-error_consistency',
             'brendel.Geirhos2021sketch-error_consistency',
             'brendel.Geirhos2021uniformnoise-error_consistency',
-            'Zhu2019-accuracy'
+            'Zhu2019-accuracy_match'
         }
 
     def test_engineering_pool(self):
@@ -124,7 +124,7 @@ class TestPoolList:
             'brendel.Geirhos2021uniformnoise-top1',
             'kornblith.Hermann2020cueconflict-shape_bias',
             'kornblith.Hermann2020cueconflict-shape_match',
-            'Zhu2019-accuracy-engineering'
+            'Zhu2019-accuracy'
         }
 
 

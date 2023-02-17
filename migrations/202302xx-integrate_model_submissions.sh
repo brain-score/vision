@@ -27,7 +27,7 @@ for submission_id in "${SUBMISSION_IDS[@]}"; do
   rm -rf --- "${TEMPORARY_UNZIP_DIRECTORY:?}"/*                      # clear temporary directory
   unzip "$submission_zip" -d "$TEMPORARY_UNZIP_DIRECTORY" >/dev/null # unzip, do not print stdout
   chmod -R ugo+w "$TEMPORARY_UNZIP_DIRECTORY"
-  rm -rf "${TEMPORARY_UNZIP_DIRECTORY:?}"/__MACOSX  # clear Apple leftovers
+  rm -rf "${TEMPORARY_UNZIP_DIRECTORY:?}"/__MACOSX # clear Apple leftovers
 
   # retrieve contents of zip file
   num_directories=$(find "$TEMPORARY_UNZIP_DIRECTORY"/* -maxdepth 0 -type d | wc -l)
@@ -89,13 +89,27 @@ for submission_id in "${SUBMISSION_IDS[@]}"; do
   # Since this part is in a python file, the easiest would be to load the file. But that requires loading dependencies
   # which takes forever, and is unstable and can lead to inconsistencies. Instead we will create a temporary file
   # that includes only the list for us to load.
+  # Some submissions define the model identifier at the very top of the file, so we'll also collect that when present
+  identifier_line=$(sed -n -E '/^(MODEL_NAME|MODEL_IDENTIFIER|model_identifier|IDENTIFIER|Identifier) ?=/{=;q;}' "$models_file")
+  identifier_line_start=$(sed -n -E '/^(INPUT_SIZE|args_arch) ?=/{=;q;}' "$models_file") # some submissions set hyperparams first
+  if [ -z "$identifier_line_start" ]; then
+    identifier_line_start="$identifier_line"
+  fi
+  identifier_code=""
+  if [ -n "$identifier_line" ]; then
+    identifier_code=$(sed -n "$identifier_line_start,$identifier_line"p "$models_file")
+  fi
   starting_line=$(sed -n '/^def get_model_list/{=;q;}' "$models_file")
   end_line=$(tail -n+"$((starting_line + 1))" "$models_file" | sed -n -E '/^(def|class) /{=;q;}')
   end_line=$((end_line + starting_line - 1))
-  model_list_python=$(sed -n "$starting_line,$end_line"p "$models_file")
+  model_list_code=$(sed -n "$starting_line,$end_line"p "$models_file")
   identifiers=$(python -c "from typing import List
-$model_list_python
-print(' '.join(get_model_list()))") || { printf "\n>> FAILED: %s\n" "$submission_zip"; failures+=("$submission_zip"); }
+$identifier_code
+$model_list_code
+print(' '.join(get_model_list()))") || {
+    printf "\n>> FAILED: %s\n" "$submission_zip"
+    failures+=("$submission_zip")
+  }
   for identifier in $identifiers; do
     echo "model_registry['$identifier'] = ModelCommitment(identifier='$identifier', activations_model=get_model('$identifier'), layers=get_layers('$identifier'))" >>"$init_file"
   done
@@ -103,7 +117,7 @@ print(' '.join(get_model_list()))") || { printf "\n>> FAILED: %s\n" "$submission
   # add empty `test.py`
   test_file="$plugin_dir"/test.py
   if [[ ! -e "$test_file" ]]; then
-    echo "# Left empty as part of 2023 models migration" > "$test_file"
+    echo "# Left empty as part of 2023 models migration" >"$test_file"
   fi
 done
 

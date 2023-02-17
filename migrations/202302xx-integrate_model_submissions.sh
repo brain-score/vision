@@ -53,7 +53,7 @@ for submission_id in "${SUBMISSION_IDS[@]}"; do
   # restructure: move `models/base_models.py` -> `model.py`, delete `brain_models.py`, and delete `models/` if empty
   models_file="$plugin_dir"/model.py
   mv "$plugin_dir"/models/base_models.py "$models_file"
-  rm "$plugin_dir"/models/brain_models.py
+  rm -f "$plugin_dir"/models/brain_models.py # -f to avoid error message if doesn't exist
   if [ -z "$(ls -A "$plugin_dir"/models)" ]; then
     rm -r "$plugin_dir"/models
   fi
@@ -90,10 +90,11 @@ for submission_id in "${SUBMISSION_IDS[@]}"; do
   # which takes forever, and is unstable and can lead to inconsistencies. Instead we will create a temporary file
   # that includes only the list for us to load.
   starting_line=$(sed -n '/^def get_model_list/{=;q;}' "$models_file")
-  end_line=$(tail -n+"$((starting_line + 1))" "$models_file" | sed -n '/^def /{=;q;}')
+  end_line=$(tail -n+"$((starting_line + 1))" "$models_file" | sed -n -E '/^(def|class) /{=;q;}')
   end_line=$((end_line + starting_line - 1))
   model_list_python=$(sed -n "$starting_line,$end_line"p "$models_file")
-  identifiers=$(python -c "$model_list_python
+  identifiers=$(python -c "from typing import List
+$model_list_python
 print(' '.join(get_model_list()))") || { printf "\n>> FAILED: %s\n" "$submission_zip"; failures+=("$submission_zip"); }
   for identifier in $identifiers; do
     echo "model_registry['$identifier'] = ModelCommitment(identifier='$identifier', activations_model=get_model('$identifier'), layers=get_layers('$identifier'))" >>"$init_file"

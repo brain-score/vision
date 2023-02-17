@@ -1,14 +1,14 @@
 import numpy as np
+from brainio.assemblies import DataAssembly, walk_coords
 from scipy.stats import spearmanr
 
-from brainio.assemblies import DataAssembly, walk_coords
-
+from brainscore_vision.metrics import Metric
 from brainscore_vision.metrics import Score
 from brainscore_vision.metrics.transformations import TestOnlyCrossValidation
 from brainscore_vision.metrics.xarray_utils import Defaults as XarrayDefaults
 
 
-class RDMCrossValidated:
+class RDMCrossValidated(Metric):
     """
     Computes a coefficient for the similarity between two `RDM`s, using the upper triangular regions
 

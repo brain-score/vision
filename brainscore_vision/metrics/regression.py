@@ -1,16 +1,17 @@
-import scipy.stats
 import numpy as np
+import scipy.stats
+from brainio.assemblies import walk_coords
 from sklearn.cross_decomposition import PLSRegression
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.preprocessing import scale
 
-from brainio.assemblies import walk_coords
+from brainscore_vision.metrics import Metric
 from brainscore_vision.metrics.mask_regression import MaskRegression
 from brainscore_vision.metrics.transformations import CrossValidation
 from .xarray_utils import XarrayRegression, XarrayCorrelation
 
 
-class CrossRegressedCorrelation:
+class CrossRegressedCorrelation(Metric):
     def __init__(self, regression, correlation, crossvalidation_kwargs=None):
         regression = regression or pls_regression()
         crossvalidation_defaults = dict(train_size=.9, test_size=None)
@@ -33,7 +34,7 @@ class CrossRegressedCorrelation:
         return scores.median(dim='neuroid')
 
 
-class ScaledCrossRegressedCorrelation:
+class ScaledCrossRegressedCorrelation(Metric):
     def __init__(self, *args, **kwargs):
         self.cross_regressed_correlation = CrossRegressedCorrelation(*args, **kwargs)
         self.aggregate = self.cross_regressed_correlation.aggregate
@@ -45,7 +46,7 @@ class ScaledCrossRegressedCorrelation:
         return self.cross_regressed_correlation(source, target)
 
 
-class SingleRegression():
+class SingleRegression:
     def __init__(self):
         self.mapping = []
 
@@ -56,7 +57,7 @@ class SingleRegression():
         _, n_neuron = Y.shape
         r = np.zeros((n_neuron, n_neuroid))
         for neuron in range(n_neuron):
-            r[neuron, :] = pearsonr(X, Y[:, neuron:neuron+1])
+            r[neuron, :] = pearsonr(X, Y[:, neuron:neuron + 1])
         self.mapping = np.nanargmax(r, axis=1)
 
     def predict(self, X):
@@ -85,6 +86,7 @@ def linear_regression(xarray_kwargs=None):
     xarray_kwargs = xarray_kwargs or {}
     regression = XarrayRegression(regression, **xarray_kwargs)
     return regression
+
 
 def ridge_regression(xarray_kwargs=None):
     regression = Ridge()
@@ -115,6 +117,6 @@ def pearsonr(x, y):
     normxm = scipy.linalg.norm(xm, axis=0, keepdims=True)
     normym = scipy.linalg.norm(ym, axis=0, keepdims=True)
 
-    r = ((xm/normxm)*(ym/normym)).sum(axis=0)
+    r = ((xm / normxm) * (ym / normym)).sum(axis=0)
 
     return r

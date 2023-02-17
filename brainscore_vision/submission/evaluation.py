@@ -7,8 +7,9 @@ from pybtex.database.input import bibtex
 import pandas as pd
 from peewee import DoesNotExist
 
-from brainscore_vision import score_model
+from brainscore_vision import score as _score_function
 from brainscore_vision.benchmarks import evaluation_benchmark_pool, benchmark_pool
+from brainscore_vision import load_benchmark
 from brainscore_vision.submission.configuration import object_decoder, MultiConfig
 from brainscore_vision.submission.database import connect_db
 from brainscore_vision.submission.ml_pool import MLBrainPool, ModelLayers
@@ -18,6 +19,7 @@ from brainscore_vision.utils import LazyLoad
 
 logger = logging.getLogger(__name__)
 
+# TODO: Leave for Martin
 all_benchmarks_list = [benchmark for benchmark in evaluation_benchmark_pool.keys()]
 
 SCORE_COMMENT_MAX_LENGTH = 1000
@@ -129,7 +131,7 @@ def run_submission(module, test_models, test_benchmarks, submission_entry):
                             model_entry.visual_degrees = model.visual_degrees()
                             model_entry.save()
                         # run model on benchmark
-                        score = score_model(model_id, benchmark_name, model)
+                        score = _score_function(model_id, benchmark_name)
                         logger.info(f'Running benchmark {benchmark_name} on model {model_id} (id {model_entry.id}) '
                                     f'produced this score: {score}')
                         if not hasattr(score, 'ceiling'):  # many engineering benchmarks do not have a primate ceiling
@@ -209,7 +211,7 @@ def get_ml_pool(test_models, module, submission):
 
 
 def get_benchmark_instance(benchmark_name):
-    benchmark = benchmark_pool[benchmark_name]
+    benchmark = load_benchmark(benchmark_name)
     benchmark_type, created = BenchmarkType.get_or_create(identifier=benchmark_name, defaults=dict(order=999))
     if created:
         try:

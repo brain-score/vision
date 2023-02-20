@@ -1,0 +1,8 @@
+# Setup base paths for different hosts
+
+node16-ccncluster: '/data/eliwang/'
+node19-ccncluster: '/data5/eliwang/'
+physion-eli-1: '/mnt/fs4/eliwang/'
+physion-eli-2: '/mnt/fs4/eliwang/'
+physion-eli-3: '/mnt/fs4/eliwang/'
+physion-eli-4: '/mnt/fs4/eliwang/'

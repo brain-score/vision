@@ -1,0 +1,25 @@
+#!/bin/bash
+#SBATCH --job-name=behavior_plot
+#SBATCH --output=output/behavior_plot%j.out
+#SBATCH --error=output/behavior_plot%j.err
+#SBATCH --mem=16000
+#SBATCH --cpus-per-task=4
+#SBATCH --array=1,2,3,4,5
+#SBATCH --time=10:00:00
+#SBATCH --gres=gpu:1
+#SBATCH --exclude=node037,node093,node094,node098,node097
+#SBATCH --constraint=11GB
+#SBATCH --partition=mcdermott
+
+module add openmind/miniconda/2020-01-29-py3.7
+module add openmind/cudnn/9.1-7.0.5
+module add openmind/cuda/9.1
+
+
+export CONDA_ENVS_PATH=~/my-envs:/om4/group/mcdermott/user/jfeather/conda_envs_files
+source activate /om4/group/mcdermott/user/jfeather/conda_envs_files/pytorch
+
+cp /om4/group/mcdermott/user/jfeather/projects/robust_audio_networks/robustness/analysis_scripts_metamers_paper/ensemble_eval_range_eps_imagenet.py .
+
+python ensemble_eval_range_eps_imagenet.py -R $SLURM_ARRAY_TASK_ID -N 1024 -I 64 -E 1 -B 32 -A -T '2' -D 8 -L -3 -M 1
+python ensemble_eval_range_eps_imagenet.py -R $SLURM_ARRAY_TASK_ID -N 1024 -I 64 -E 1 -B 32 -A -T 'inf' -D 8

@@ -1,0 +1,54 @@
+DATA_SPACE:
+    MODULE: physion.data_space
+    SEEDS: (0,)
+    KWARGS:
+        scenarios: ['Collide', 'Contain', 'Dominoes', 'Drape', 'Drop', 'Link', 'Roll', 'Support']
+        pretraining:
+            train:
+                dir: 'physion_data/pretraining_train'
+            test:
+                dir: 'physion_data/pretraining_val'
+        readout:
+            train:
+                dir: 'physion_data/readout_train_redyellow'
+            test:
+                dir: 'physion_data/readout_test_redyellow'
+        pretraining_protocols: ['all']
+        readout_protocol: 'minimal'
+
+PRETRAINING:
+    VAL_FREQ: 5000
+    CKPT_FREQ: 5000
+    OBJECTIVE_MODULE: physion.objective.FitVid
+    MODEL_NAME: 'FitVid'
+    TRAIN_STEPS: 1000000
+    BATCH_SIZE: 8
+    TRAIN:
+        LR: 1.e-3
+        ACCUMULATION_BATCH_SIZE: 128
+        # VIS_FREQ: 1000
+    MODEL:
+        z_dim: 10
+        beta: 1.e-4
+        g_dim: 128
+        rnn_size: 256
+        num_channels: 64
+    DATA:
+        IMSIZE: 64
+        STATE_LEN: 5
+        SEQ_LEN: 16
+        SUBSAMPLE_FACTOR: 9
+
+EXTRACTION:
+    OBJECTIVE_MODULE: physion.objective.FitVid
+    LOAD_STEP: 700000
+    NOTE: 'original pred'
+SKIP_PRETRAINING: True
+
+READOUT:
+    PROTOCOLS: ['simulated', 'observed', 'input']
+
+CONFIG:
+    EXPERIMENT_NAME: 'physion-fitvid'
+    POSTGRES:
+        DBNAME: 'physion-physopt'

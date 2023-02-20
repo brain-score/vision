@@ -1,0 +1,5 @@
+from brainscore_vision import model_registry
+from brainscore_vision.model_helpers import ModelCommitment
+from .model import get_model, get_layers
+
+model_registry['TESTtf_efficientnet_b1_ns_robust_linf_littleaug_untargeted_e1_324x288'] = ModelCommitment(identifier='TESTtf_efficientnet_b1_ns_robust_linf_littleaug_untargeted_e1_324x288', activations_model=get_model('TESTtf_efficientnet_b1_ns_robust_linf_littleaug_untargeted_e1_324x288'), layers=get_layers('TESTtf_efficientnet_b1_ns_robust_linf_littleaug_untargeted_e1_324x288'))

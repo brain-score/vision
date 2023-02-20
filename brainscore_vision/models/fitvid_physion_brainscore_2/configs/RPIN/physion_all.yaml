@@ -1,0 +1,86 @@
+DATA_SPACE:
+    MODULE: physion.data_space
+    SEEDS: (0,)
+    KWARGS:
+        # scenarios: ['Collide', 'Contain', 'Dominoes', 'Drape', 'Drop', 'Link', 'Roll', 'Support']
+        scenarios: ['Collide'] 
+        pretraining:
+            train:
+                dir: 'physion_data/pretraining_train'
+                # dir: 'physion_data/pretraining_train_debug_new'
+            test:
+                dir: 'physion_data/pretraining_val'
+                # dir: 'physion_data/pretraining_train_debug_new'
+        readout:
+            train:
+                # dir: 'physion_data/pretraining_train_debug_new'
+                dir: 'physion_data/readout_train_redyellow'
+            test:
+                dir: 'physion_data/readout_test_redyellow'
+        # pretraining_protocols: ['all']
+        pretraining_protocols: ['only']
+        readout_protocol: 'minimal'
+
+PRETRAINING:
+    VAL_FREQ: 5000
+    CKPT_FREQ: 1000
+    OBJECTIVE_MODULE: physion.objective.RPIN
+    MODEL_NAME: 'RPIN'
+    TRAIN_STEPS: 1000000
+    BATCH_SIZE: 16
+    TRAIN:
+        VIS_FREQ: 1
+        LR: 2.e-6
+        WEIGHT_DECAY: 1.e-6
+    MODEL:
+        RPIN:
+            BACKBONE: 'hourglass'
+            ARCH: 'rpin'
+            VE_FEAT_DIM: 256
+            IN_FEAT_DIM: 256
+            # prediction setting:
+            INPUT_SIZE: 5 # should match STATE_LEN
+            # PRED_SIZE_TRAIN: 11 # SEQ_LEN - STATE_LEN
+            # PRED_SIZE_TEST: 11 # SEQ_LEN - STATE_LEN
+            PRED_SIZE_TRAIN: 1 # SEQ_LEN - STATE_LEN
+            PRED_SIZE_TEST: 1 # SEQ_LEN - STATE_LEN
+            # input setting:
+            INPUT_HEIGHT: 256
+            INPUT_WIDTH: 256
+            NUM_OBJS: 10
+            # data augmentation
+            HORIZONTAL_FLIP: False # True
+            VERTICAL_FLIP: False # True
+            # loss weight
+            OFFSET_LOSS_WEIGHT: 100.0
+            POSITION_LOSS_WEIGHT: 1.0
+            # ----- image feature
+            IMAGE_UP: False # True
+            ROI_POOL_SIZE: 3 # 1
+            # ----- coordinate feature
+            COOR_FEATURE: True
+            COOR_FEATURE_EMBEDDING: True
+            # ----- conditional computation
+            IN_CONDITION: True
+            # ----- vae setting
+            VAE: False
+            VAE_KL_LOSS_WEIGHT: 3e-5
+            DISCOUNT_TAU: 0.01
+    DATA:
+        IMSIZE: 256 # 224
+        STATE_LEN: 5
+        SEQ_LEN: 16
+        SUBSAMPLE_FACTOR: 9
+
+EXTRACTION:
+    OBJECTIVE_MODULE: physion.objective.RPIN
+#     LOAD_STEP: 5000
+# SKIP_PRETRAINING: True
+
+READOUT:
+    PROTOCOLS: ['simulated', 'observed', 'input']
+
+CONFIG:
+    EXPERIMENT_NAME: 'physion-rpin'
+    POSTGRES:
+        DBNAME: 'physion-physopt'

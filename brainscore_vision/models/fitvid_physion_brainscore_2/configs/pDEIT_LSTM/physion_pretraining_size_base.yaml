@@ -1,0 +1,44 @@
+DATA_SPACE:
+    MODULE: physion.data_space
+    SEEDS: [0,1,2]
+    KWARGS:
+        scenarios: ['Collide', 'Contain', 'Dominoes', 'Drape', 'Drop', 'Link', 'Roll', 'Support']
+        file_pattern: '*.hdf5'
+        pretraining:
+            train:
+                dir: 'physion_data/pretraining_train'
+            test:
+                dir: 'physion_data/pretraining_val'
+        readout:
+            train:
+                dir: 'physion_data/readout_train_redyellow'
+            test:
+                dir: 'physion_data/readout_test_redyellow'
+        pretraining_protocols: ['all']
+        readout_protocol: 'full'
+
+PRETRAINING:
+    OBJECTIVE_MODULE: physion.objective.FROZEN
+    MODEL_NAME: 'pDEIT_LSTM'
+    TRAIN_STEPS: 1000
+    BATCH_SIZE: 32
+    VAL_FREQ: 1000
+    CKPT_FREQ: 100
+    TRAIN:
+        LR: 1.e-2
+    DATA: 
+        STATE_LEN: 7
+        SEQ_LEN: 25
+        IMSIZE: 224
+        SUBSAMPLE_FACTOR: 6
+    BATCH_SIZE: 32
+
+EXTRACTION:
+    OBJECTIVE_MODULE: physion.objective.FROZEN
+
+READOUT:
+    MODEL: {}
+    PROTOCOLS: ['simulated']
+
+CONFIG:
+    POSTGRES: {}

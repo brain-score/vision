@@ -1,0 +1,35 @@
+DATA_SPACE:
+    MODULE: physion.data_space
+    SEEDS: (0,1,2,3)
+    KWARGS: 
+        pretraining_train_dir: 'curiophysion_train_data'
+        pretraining_test_dir: 'curiophysion_test_data'
+        pretraining_scenarios: ('support_random1','support_random2')
+        pretraining_protocols: ('only',) 
+        readout_train_dir: 'physion_train_data/readout_training'
+        readout_test_dir: 'physion_test_data/model_testing'
+        # readout_train_dir: 'physion_data/readout_train_redyellow'
+        # readout_test_dir: 'physion_data/readout_test_redyellow'
+        readout_scenarios: ('Support_split',)
+        readout_protocol: 'full'
+
+PRETRAINING:
+    OBJECTIVE_MODULE: physion.objective.FROZEN
+    MODEL_NAME: 'pVGG_LSTM'
+    TRAIN_STEPS: 100
+    BATCH_SIZE: 32
+    TRAIN:
+        LR: 1.e-2
+    DATA:
+        STATE_LEN: 7
+        SEQ_LEN: 25
+        IMSIZE: 224
+        SUBSAMPLE_FACTOR: 6
+
+EXTRACTION:
+    OBJECTIVE_MODULE: physion.objective.FROZEN
+
+CONFIG:
+    EXPERIMENT_NAME: 'curiophysion-v2'
+    POSTGRES:
+        DBNAME: 'physion-physopt'

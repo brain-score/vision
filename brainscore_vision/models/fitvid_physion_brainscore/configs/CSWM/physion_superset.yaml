@@ -1,0 +1,60 @@
+DATA_SPACE:
+    MODULE: physion.data_space
+    SEEDS: [0]
+    KWARGS:
+        file_pattern: '*.hdf5'
+        pretraining:
+            scenarios: ['Collide', 'Contain', 'Dominoes', 'Drape', 'Drop', 'Link', 'Roll', 'Support']
+            train:
+                dir: 'physion_data/pretraining_train'
+            test:
+                dir: 'physion_data/pretraining_val'
+        readout:
+            file_pattern: '*/*.hdf5'
+            train:
+                # scenarios: ['Collide_val2', 'Contain_val2', 'Dominoes_val2', 'Drape_val2', 'Drop_val2', 'Link_val2', 'Roll_val2', 'Support_val2']
+                scenarios: ['Drop_human']
+                dir: 'physion_data/readout_train_redyellow'
+            test:
+                # scenarios: ['Collide', 'Contain', 'Dominoes', 'Drape', 'Drop', 'Link', 'Roll', 'Support']
+                scenarios: ['Drop']
+                dir: 'physion_data/readout_human_redyellow'
+        pretraining_protocols: ['all']
+        readout_protocol: 'full'
+
+SKIP_PRETRAINING: True
+PRETRAINING:
+    OBJECTIVE_MODULE: physion.objective.CSWM
+    MODEL_NAME: 'CSWM'
+    TRAIN_STEPS: 10000
+    BATCH_SIZE: 32
+    VAL_FREQ: 1000
+    CKPT_FREQ: 100
+    TRAIN:
+        LR: 5.e-4
+    MODEL: 
+        ENCODER: 'medium'
+        SIGMA: 0.5
+        HINGE: 1. 
+        HIDDEN_DIM: 512
+        EMBEDDING_DIM: 128
+        NUM_OBJECTS: 10
+        ACTION_DIM: 0 
+        IGNORE_ACTION: True
+    DATA:
+        STATE_LEN: 7
+        SEQ_LEN: 25
+        IMSIZE: 224
+        SUBSAMPLE_FACTOR: 6
+
+EXTRACTION:
+    OBJECTIVE_MODULE: physion.objective.CSWM
+    LOAD_STEP: 1000
+
+READOUT:
+    PROTOCOLS: ['simulated']
+
+CONFIG:
+    EXPERIMENT_NAME: 'physion-pretraining-steps'
+    POSTGRES:
+        DBNAME: 'physion-pretraining-size'

@@ -1,6 +1,5 @@
 from pathlib import Path
 
-import numpy as np
 import pytest
 from pytest import approx
 
@@ -13,14 +12,14 @@ from tests.test_benchmarks import PrecomputedFeatures
 class TestZhu2019:
 
     @pytest.mark.parametrize('benchmark', [
-        'Zhu2019-accuracy_match',
+        'Zhu2019-response_match',
         'Zhu2019-accuracy',
     ])
     def test_in_pool(self, benchmark):
         assert benchmark in benchmark_pool
 
     @pytest.mark.parametrize('benchmark, expected_ceiling', [
-        ('Zhu2019-accuracy_match', approx(0.8113, abs=0.0001)),
+        ('Zhu2019-response_match', approx(0.8113, abs=0.0001)),
         ('Zhu2019-accuracy', 1),
     ])
     def test_benchmark_ceiling(self, benchmark, expected_ceiling):
@@ -35,9 +34,9 @@ class TestZhu2019:
             assert ceiling == expected_ceiling
 
     @pytest.mark.parametrize('benchmark, model, expected_raw_score', [
-        ('Zhu2019-accuracy_match', 'alexnet', approx(0.1880, abs=0.0001)),
+        ('Zhu2019-response_match', 'alexnet', approx(0.470, abs=0.0001)),
         ('Zhu2019-accuracy', 'alexnet', approx(0.470, abs=0.001)),
-        ('Zhu2019-accuracy_match', 'resnet-18', approx(0.204, abs=0.0001)),
+        ('Zhu2019-response_match', 'resnet-18', approx(0.504, abs=0.0001)),
         ('Zhu2019-accuracy', 'resnet-18', approx(0.506, abs=0.001)),
     ])
     def test_model_raw_score(self, benchmark, model, expected_raw_score):
@@ -57,9 +56,9 @@ class TestZhu2019:
         assert raw_score.sel(aggregation='center') == expected_raw_score
 
     @pytest.mark.parametrize('benchmark, model, expected_ceiled_score', [
-        ('Zhu2019-accuracy_match', 'alexnet', approx(0.232, abs=0.001)),
+        ('Zhu2019-response_match', 'alexnet', approx(0.579, abs=0.001)),
         ('Zhu2019-accuracy', 'alexnet', approx(0.470, abs=0.001)),
-        ('Zhu2019-accuracy_match', 'resnet-18', approx(0.251, abs=0.001)),
+        ('Zhu2019-response_match', 'resnet-18', approx(0.621, abs=0.001)),
         ('Zhu2019-accuracy', 'resnet-18', approx(0.506, abs=0.001)),
     ])
     def test_model_ceiled_score(self, benchmark, model, expected_ceiled_score):

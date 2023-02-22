@@ -27,7 +27,6 @@ NUM_SPLITS = 50
 
 
 class _Zhu2019ResponseMatch(BenchmarkBase):
-
     """
         Behavioral benchmark: compares model to average humans.
         human ceiling is calculated by taking `NUM_SPLIT` split-half reliabilities with *category-level* responses.
@@ -65,6 +64,10 @@ class _Zhu2019ResponseMatch(BenchmarkBase):
             ceiling_func=lambda: self._ceiling,
             bibtex=BIBTEX, version=1)
 
+    '''
+    The response_match benchmark compares the top average human response (out of 5 categories) per image to 
+    The model response per image.
+    '''
     def __call__(self, candidate: BrainModel):
         categories = ["car", "aeroplane", "motorbike", "bicycle", "bus"]
         candidate.start_task(BrainModel.Task.label, categories)
@@ -100,12 +103,17 @@ class _Zhu2019Accuracy(BenchmarkBase):
             bibtex=BIBTEX, version=1)
 
     def __call__(self, candidate: BrainModel):
+
+        # hard code categories, as sorting alphabetically leads to mismatched IDs
         categories = ["car", "aeroplane", "motorbike", "bicycle", "bus"]
         candidate.start_task(BrainModel.Task.label, categories)
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
         predictions = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
-        ground_truth = predictions["ground_truth"]
+        predictions = predictions.sortby("stimulus_id")
+
+        # grab ground_truth from predictions (linked via stimulus_id) instead of stimulus set, to ensure sort
+        ground_truth = predictions["ground_truth"].sortby("stimulus_id")
 
         # compare model with stimulus_set (ground_truth)
         raw_score = self._metric(predictions, ground_truth)
@@ -117,7 +125,6 @@ class _Zhu2019Accuracy(BenchmarkBase):
 
 
 def _human_assembly_categorical_distribution(assembly: DataAssembly, collapse) -> DataAssembly:
-
     """
     Convert from 19587 trials across 25 subjects to a 500 images x 5 choices assembly.
     This is needed, as not every subject saw every image, and this allows a cross-category comparison
@@ -134,6 +141,8 @@ def _human_assembly_categorical_distribution(assembly: DataAssembly, collapse) -
     stimulus_coords = ['stimulus_id', 'truth', 'filename', 'image_label', 'ground_truth',
                        'occlusion_strength', 'image_number', 'word_image']
     categorical_assembly = assembly.multi_groupby(stimulus_coords).map(categorical)
+
+    # get top average human response, across categories per image.
     labels = get_choices(categorical_assembly, categories=categories)
 
     if collapse:
@@ -145,7 +154,7 @@ def _human_assembly_categorical_distribution(assembly: DataAssembly, collapse) -
 
 # takes 5-way softmax vector and returns category of highest response
 def get_choices(predictions, categories):
-    indexes = list(range(0,5))
+    indexes = list(range(0, 5))
     mapping = dict(zip(indexes, categories))
     extra_coords = {}
     prediction_indices = predictions.values.argmax(axis=1)
@@ -214,4 +223,3 @@ def Zhu2019ResponseMatch():
 
 def Zhu2019Accuracy():
     return _Zhu2019Accuracy()
-

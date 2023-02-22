@@ -34,6 +34,7 @@ class _Zhu2019ResponseMatch(BenchmarkBase):
 
     def __init__(self):
         self._assembly = LazyLoad(lambda: brainscore.get_assembly(f'Zhu2019_extreme_occlusion'))
+        self._ceiling = SplitHalvesConsistencyZhu(1, "subject")
         self._fitting_stimuli = brainscore.get_stimulus_set('Zhu2019_extreme_occlusion')
         self._stimulus_set = LazyLoad(lambda: self._assembly.stimulus_set)
         self._visual_degrees = VISUAL_DEGREES
@@ -55,8 +56,8 @@ class _Zhu2019ResponseMatch(BenchmarkBase):
         reader = csv.reader(splits)
         data = [row for row in reader]
         self.precomputed_ceiling_splits = [float(x) for x in data[0]]
-        self._ceiling = Score(np.median(self.precomputed_ceiling_splits))
-        self._ceiling.attrs['raw'] = self.precomputed_ceiling_splits
+        # self._ceiling = Score(np.median(self.precomputed_ceiling_splits))
+        # self._ceiling.attrs['raw'] = self.precomputed_ceiling_splits
 
         super(_Zhu2019ResponseMatch, self).__init__(
             identifier='Zhu2019_extreme_occlusion-response_match',
@@ -77,7 +78,7 @@ class _Zhu2019ResponseMatch(BenchmarkBase):
         predictions = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
         predictions = predictions.sortby("stimulus_id")
         raw_score = self._metric(predictions, human_responses)
-        ceiling = self._ceiling
+        ceiling = self._ceiling(self._assembly)
         score = raw_score / ceiling
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling
@@ -181,32 +182,29 @@ class SplitHalvesConsistencyZhu:
     def __call__(self, assembly) -> Score:
 
         consistencies, uncorrected_consistencies = [], []
-        splits = range(self.num_splits)
-        random_state = np.random.RandomState(0)
+        splits = len(set(assembly["subject"].values))
 
-        # loops through until (self.num_splits) of splits have occurred
-        i = 0
-        while i < self.num_splits:
-            print(i)
-            num_subjects = len(set(assembly["subject"].values))
-            half1_subjects = random_state.choice(range(1, num_subjects), (num_subjects // 2), replace=False)
-            half1 = assembly[
-                {'presentation': [subject in half1_subjects for subject in assembly['subject'].values]}]
-            half2 = assembly[
-                {'presentation': [subject not in half1_subjects for subject in assembly['subject'].values]}]
-            categorical_assembly1 = _human_assembly_categorical_distribution(half1, collapse=True)
-            categorical_assembly2 = _human_assembly_categorical_distribution(half2, collapse=True)
+        for subject in set(assembly["subject"].values):
+            print(subject)
+            single_subject = [subject]
+            single_subject_assembly = assembly[
+                {'presentation': [subject in single_subject for subject in assembly['subject'].values]}]
+            pool_assembly = assembly[
+                {'presentation': [subject not in single_subject for subject in assembly['subject'].values]}]
+            single_categorical = _human_assembly_categorical_distribution(single_subject_assembly, collapse=True)
+            pool_categorical = _human_assembly_categorical_distribution(pool_assembly, collapse=True)
 
-            # the two categorical assemblies should be 5x5. however, during a split, subjects might not see all images
-            # the others do. In which case, we pass.
+            category_seen = single_categorical["image_label"].values
+
+            pool_seen_assembly = pool_categorical[pool_categorical["image_label"] == category_seen]
+
             try:
-                consistency = pearsonr(categorical_assembly1.values.flatten(), categorical_assembly2.values.flatten())[
+                consistency = pearsonr(single_categorical.values.flatten(), pool_seen_assembly.values.flatten())[
                     0]
                 uncorrected_consistencies.append(consistency)
                 # Spearman-Brown correction for sub-sampling
                 corrected_consistency = 2 * consistency / (1 + (2 - 1) * consistency)
                 consistencies.append(corrected_consistency)
-                i += 1
             except ValueError:
                 pass
         consistencies = Score(consistencies, coords={'split': splits}, dims=['split'])

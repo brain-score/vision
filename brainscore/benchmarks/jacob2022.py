@@ -54,23 +54,21 @@ class _Jacob20203DProcessingIndex(BenchmarkBase):
             bibtex=BIBTEX)
 
     def __call__(self, candidate: BrainModel):
-        candidate.start_task(BrainModel.Task.response_time)
-        response_times = candidate.look_at(stimuli)
+        choice_labels = ["cube", "square", "y"]
+        candidate.start_task(BrainModel.Task.label, choice_labels)
 
+        def get_shapes(shape):
+            shapes = self._assembly.stimulus_set[self._assembly.stimulus_set["image_shape"] == shape]
+            shape_stimuli = place_on_screen(shapes, target_visual_degrees=candidate.visual_degrees(),
+                                           source_visual_degrees=self._visual_degrees)
+            return shape_stimuli
 
-
-        # def get_shapes(shape):
-        #     shapes = self._assembly.stimulus_set[self._assembly.stimulus_set["image_shape"] == shape]
-        #     shape_stimuli = place_on_screen(shapes, target_visual_degrees=candidate.visual_degrees(),
-        #                                    source_visual_degrees=self._visual_degrees)
-        #     return shape_stimuli
-        #
-        # def calculate_indexes():
-        #     cube_stimuli = get_shapes(shape="cube")
-        #     shape_stimuli = get_shapes(shape=self.shape)
-        #     d_1 = candidate.response_time_proxy(stimuli=cube_stimuli)
-        #     d_2 = candidate.response_time_proxy(stimuli=shape_stimuli)
-        #     return (d_1 - d_2) / (d_1 + d_2)
+        def calculate_indexes():
+            cube_stimuli = get_shapes(shape="cube")
+            shape_stimuli = get_shapes(shape=self.shape)
+            d_1 = candidate.response_time_proxy(stimuli=cube_stimuli)
+            d_2 = candidate.response_time_proxy(stimuli=shape_stimuli)
+            return (d_1 - d_2) / (d_1 + d_2)
 
         model_index = calculate_indexes()
 

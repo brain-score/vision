@@ -21,7 +21,7 @@ class BrainModel:
     location to record from
     """
 
-    Task = Enum('Task', " ".join(['passive', 'probabilities', 'label', "response_time"]))
+    Task = Enum('Task', " ".join(['passive', 'probabilities', 'label']))
     """
     task to perform
     """

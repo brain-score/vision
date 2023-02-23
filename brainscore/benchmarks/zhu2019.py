@@ -184,28 +184,33 @@ class SplitHalvesConsistencyZhu:
         consistencies, uncorrected_consistencies = [], []
         splits = len(set(assembly["subject"].values))
 
+        '''
+        # For each subject, compare that subject's responses to the pool of other subjects that also saw 
+        # that cateogory. 
+        '''
+
         for subject in set(assembly["subject"].values):
-            print(subject)
             single_subject = [subject]
             single_subject_assembly = assembly[
                 {'presentation': [subject in single_subject for subject in assembly['subject'].values]}]
             pool_assembly = assembly[
                 {'presentation': [subject not in single_subject for subject in assembly['subject'].values]}]
             single_categorical = _human_assembly_categorical_distribution(single_subject_assembly, collapse=True)
-            pool_categorical = _human_assembly_categorical_distribution(pool_assembly, collapse=True)
-
             category_seen = single_categorical["image_label"].values
-
-            pool_seen_assembly = pool_categorical[pool_categorical["image_label"] == category_seen]
+            pool_seen_assembly = pool_assembly[pool_assembly["image_label"] == category_seen]
+            pool_seen_subjects = set(pool_seen_assembly["subject"].values)
+            pool_categorical = _human_assembly_categorical_distribution(pool_seen_assembly, collapse=True)
 
             try:
-                consistency = pearsonr(single_categorical.values.flatten(), pool_seen_assembly.values.flatten())[
+                print(f"comparing subject {subject} to pool of subjects {pool_seen_subjects}")
+                consistency = pearsonr(single_categorical.values.flatten(), pool_categorical.values.flatten())[
                     0]
                 uncorrected_consistencies.append(consistency)
                 # Spearman-Brown correction for sub-sampling
                 corrected_consistency = 2 * consistency / (1 + (2 - 1) * consistency)
                 consistencies.append(corrected_consistency)
             except ValueError:
+                print("had to pass")
                 pass
         consistencies = Score(consistencies, coords={'split': splits}, dims=['split'])
         uncorrected_consistencies = Score(uncorrected_consistencies, coords={'split': splits}, dims=['split'])

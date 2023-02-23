@@ -30,8 +30,8 @@ class DataCloudComparison(Metric):
         # calculate model scores based on each sample human score, to get errors around model score:
         raw_scores = []
         for human_score in human_indexes:
-            #raw_score = max((1 - ((np.abs(human_score - source)) / human_score)), 0)
-            raw_score = max((1 - distance.euclidean(human_score, source)), 0)
+            raw_score = max((1 - ((np.abs(human_score - source)) / human_score)), 0)
+            #raw_score = max((1 - distance.euclidean(human_score, source)), 0)
             raw_scores.append(raw_score)
 
         raw_score, model_error = np.mean(raw_scores), np.std(raw_scores)

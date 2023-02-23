@@ -28,18 +28,6 @@ class _Jacob20203DProcessingIndex(BenchmarkBase):
     def __init__(self, shape):
         self._assembly = LazyLoad(lambda: load_assembly('Jacob2020_3dpi'))
 
-        # import matplotlib.pyplot as plt
-        # models = [-1, -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0.0,
-        #           0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-        # # bs = [0, 0, 0, 0, 0, 0.060, .1599, .26, 0.36, 0.4599, 0.56,
-        # #       0.66, 0.76, 0.86, 0.96, 0.94, 0.84, 0.74, 0.64, 0.54, 0.44]
-        #
-        # bs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0.100, 0.20,
-        #           0.30, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 0.9, 0.8]
-        # plt.scatter(models, bs)
-        # plt.show()
-
-
         # confirm VD
         self._visual_degrees = 8
 
@@ -54,23 +42,21 @@ class _Jacob20203DProcessingIndex(BenchmarkBase):
             bibtex=BIBTEX)
 
     def __call__(self, candidate: BrainModel):
-        choice_labels = ["cube", "square", "y"]
-        candidate.start_task(BrainModel.Task.label, choice_labels)
 
-        def get_shapes(shape):
-            shapes = self._assembly.stimulus_set[self._assembly.stimulus_set["image_shape"] == shape]
-            shape_stimuli = place_on_screen(shapes, target_visual_degrees=candidate.visual_degrees(),
-                                           source_visual_degrees=self._visual_degrees)
-            return shape_stimuli
+        # calculates the maximum distance between two images by adding each of their distances from 0
+        def calculate_distance(response_times, shape):
+            image_1_distance = 0.3 * (response_times.sel(stimulus_id=f"{shape}_1").values[0][0]) - 900
+            image_2_distance = 0.3 * (response_times.sel(stimulus_id=f"{shape}_2").values[0][0]) - 900
+            distance = image_1_distance + image_2_distance
+            return distance
 
-        def calculate_indexes():
-            cube_stimuli = get_shapes(shape="cube")
-            shape_stimuli = get_shapes(shape=self.shape)
-            d_1 = candidate.response_time_proxy(stimuli=cube_stimuli)
-            d_2 = candidate.response_time_proxy(stimuli=shape_stimuli)
-            return (d_1 - d_2) / (d_1 + d_2)
-
-        model_index = calculate_indexes()
+        stimuli = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
+                                        source_visual_degrees=self._visual_degrees)
+        candidate.start_task(BrainModel.Task.response_time, stimuli)
+        response_times = candidate.look_at(stimuli, number_of_trials=1)
+        d1 = calculate_distance(response_times, "cube")
+        d2 = calculate_distance(response_times, self.shape)
+        model_index = (d1 - d2) / (d1 + d2)
 
         raw_score, ceiling = self._metric(model_index, self._assembly)
 

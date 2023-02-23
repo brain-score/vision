@@ -34,35 +34,17 @@ class _Zhu2019ResponseMatch(BenchmarkBase):
 
     def __init__(self):
         self._assembly = LazyLoad(lambda: brainscore.get_assembly(f'Zhu2019_extreme_occlusion'))
-        self._ceiling = SplitHalvesConsistencyZhu(1, "subject")
+        self._ceiling = SplitHalvesConsistencyZhu("subject")
         self._fitting_stimuli = brainscore.get_stimulus_set('Zhu2019_extreme_occlusion')
         self._stimulus_set = LazyLoad(lambda: self._assembly.stimulus_set)
         self._visual_degrees = VISUAL_DEGREES
         self._number_of_trials = NUMBER_OF_TRIALS
         self._metric = ResponseMatch()
 
-        '''
-        Precomputed ceiling, computed via 
-        ceiling = SplitHalvesConsistencyZhu(num_splits=NUM_SPLITS, split_coordinate="subject")
-        
-        We use a precomputed ceiling instead of calculating a ceiling on each scoring run. 
-        This is because the ceiling will be identical on each run, independent of the model, and is very slow 
-        to calculate. It is much faster to use a precomputed value than to compute it every time. 
-        The ceiling field itself has two components: a vector of NUM_SPLITS numbers, representing the split halves 
-        of the ceiling computation, and this vector's median value, representing the ceiling itself. 
-        Use score.attrs['ceiling'] to access this vector. 
-        '''
-        splits = open(Path(__file__).parent / "zhu_precomputed_ceiling.txt", "r")
-        reader = csv.reader(splits)
-        data = [row for row in reader]
-        self.precomputed_ceiling_splits = [float(x) for x in data[0]]
-        # self._ceiling = Score(np.median(self.precomputed_ceiling_splits))
-        # self._ceiling.attrs['raw'] = self.precomputed_ceiling_splits
-
         super(_Zhu2019ResponseMatch, self).__init__(
             identifier='Zhu2019_extreme_occlusion-response_match',
             parent='Zhu2019',
-            ceiling_func=lambda: self._ceiling,
+            ceiling_func=lambda: self._ceiling(assembly=self._assembly),
             bibtex=BIBTEX, version=1)
 
     '''
@@ -170,23 +152,22 @@ def get_choices(predictions, categories):
 
 # ceiling method:
 class SplitHalvesConsistencyZhu:
-    def __init__(self, num_splits: int, split_coordinate: str):
+    def __init__(self, split_coordinate: str):
         """
         :param num_splits: how many times to create two halves
         :param split_coordinate: over which coordinate to split the assembly into halves
         :param consistency_metric: which metric to use to compute the consistency of two halves
         """
-        self.num_splits = num_splits
         self.split_coordinate = split_coordinate
 
     def __call__(self, assembly) -> Score:
 
         consistencies, uncorrected_consistencies = [], []
-        splits = len(set(assembly["subject"].values))
+        splits = range(len(set(assembly["subject"].values)))
 
         '''
         # For each subject, compare that subject's responses to the pool of other subjects that also saw 
-        # that cateogory. 
+        # that category. 
         '''
 
         for subject in set(assembly["subject"].values):
@@ -198,20 +179,13 @@ class SplitHalvesConsistencyZhu:
             single_categorical = _human_assembly_categorical_distribution(single_subject_assembly, collapse=True)
             category_seen = single_categorical["image_label"].values
             pool_seen_assembly = pool_assembly[pool_assembly["image_label"] == category_seen]
-            pool_seen_subjects = set(pool_seen_assembly["subject"].values)
             pool_categorical = _human_assembly_categorical_distribution(pool_seen_assembly, collapse=True)
-
-            try:
-                print(f"comparing subject {subject} to pool of subjects {pool_seen_subjects}")
-                consistency = pearsonr(single_categorical.values.flatten(), pool_categorical.values.flatten())[
-                    0]
-                uncorrected_consistencies.append(consistency)
-                # Spearman-Brown correction for sub-sampling
-                corrected_consistency = 2 * consistency / (1 + (2 - 1) * consistency)
-                consistencies.append(corrected_consistency)
-            except ValueError:
-                print("had to pass")
-                pass
+            consistency = pearsonr(single_categorical.values.flatten(), pool_categorical.values.flatten())[
+                0]
+            uncorrected_consistencies.append(consistency)
+            # Spearman-Brown correction for sub-sampling
+            corrected_consistency = 2 * consistency / (1 + (2 - 1) * consistency)
+            consistencies.append(corrected_consistency)
         consistencies = Score(consistencies, coords={'split': splits}, dims=['split'])
         uncorrected_consistencies = Score(uncorrected_consistencies, coords={'split': splits}, dims=['split'])
         average_consistency = consistencies.median('split')

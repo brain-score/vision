@@ -7,7 +7,14 @@ from brainscore.benchmarks.screen import place_on_screen
 from brainscore.metrics import Score
 from brainscore.metrics.data_cloud_comparision import DataCloudComparison
 from brainscore.model_interface import BrainModel
+from scipy.spatial import distance
+
 from brainscore.utils import LazyLoad
+'''
+
+
+'''
+
 
 BIBTEX = """@article{jacob2021qualitative,
               title={Qualitative similarities and differences in visual object representations between brains and deep networks},
@@ -24,7 +31,33 @@ DATASETS = ['3dpi']
 
 
 class _Jacob20203DProcessingIndex(BenchmarkBase):
+    """
+    INFORMATION:
 
+    Fundamentally, humans and models are performing different tasks in this benchmark. Models are passively viewing
+    a stimuli (and having those activations retrieved from IT), whereas humans performed a visual search task
+    in the papers listed below. The reasons for doing so are to replicate benchmark work done in Jacob et al 2020.
+
+    Following Jacobs et al. 2020, we retrieve internal neural activity from the model (layer IT)
+    rather than having the model perform the same visual search task that humans were performing
+    in the behavioral experiment from which we take the behavioral data to compare against (below):
+
+     1) Square Benchmark:
+        - Enns and Rensink 1991
+        - https://www2.psych.ubc.ca/~rensink/publications/download/E&R-PsychRev-91.pdf -> Page 4, Experiment 1
+     2) Y Benchmark:
+        - Enns and Rensink 1990
+        - https://www.jstor.org/stable/40062736?seq=2 -> Page 324, Experiment 1
+
+    Benchmark Choices:
+
+    1) The Recording Target (IT) is an unfounded choice, but IT is generally considered a high-level representation
+        that is only a linear step away from behavior (cf. Majaj*, Hong*, et al. 2015)
+    2)  Time bins 70-170ms: unfounded choice. 70-170ms is generally considered the standard feedforward
+        pass in the visual ventral stream.
+    3) Number of Trials: 30- Unfounded choice because the data we test against is behavioral. 30 Seemed reasonable.
+
+    """
     def __init__(self, shape):
         self._assembly = LazyLoad(lambda: load_assembly('Jacob2020_3dpi'))
 
@@ -42,28 +75,26 @@ class _Jacob20203DProcessingIndex(BenchmarkBase):
             bibtex=BIBTEX)
 
     def __call__(self, candidate: BrainModel):
-
-        # calculates the maximum distance between two images by adding each of their distances from 0
-        def calculate_distance(response_times, shape):
-            image_1_distance = 0.3 * (response_times.sel(stimulus_id=f"{shape}_1").values[0][0]) - 900
-            image_2_distance = 0.3 * (response_times.sel(stimulus_id=f"{shape}_2").values[0][0]) - 900
-            distance = image_1_distance + image_2_distance
-            return distance
-
+        candidate.start_recording(recording_target="IT",time_bins=[(70, 170)])
         stimuli = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
-                                        source_visual_degrees=self._visual_degrees)
-        candidate.start_task(BrainModel.Task.response_time, stimuli)
-        response_times = candidate.look_at(stimuli, number_of_trials=1)
-        d1 = calculate_distance(response_times, "cube")
-        d2 = calculate_distance(response_times, self.shape)
+                                  source_visual_degrees=self._visual_degrees)
+        it_recordings = candidate.look_at(stimuli, number_of_trials=30)
+
+        # grab activations per image (4 images total) from region IT
+        cube_1_activations = it_recordings.sel(stimulus_id="cube_1")
+        cube_2_activations = it_recordings.sel(stimulus_id="cube_2")
+        shape_1_activations = it_recordings.sel(stimulus_id=f"{self.shape}_1")
+        shape_2_activations = it_recordings.sel(stimulus_id=f"{self.shape}_2")
+
+        # calculate distance between cubes, shapes.
+        d1 = distance.euclidean(cube_1_activations, cube_2_activations)
+        d2 = distance.euclidean(shape_1_activations, shape_2_activations)
+
         model_index = (d1 - d2) / (d1 + d2)
-
         raw_score, ceiling = self._metric(model_index, self._assembly)
-
         score = raw_score / ceiling.sel(aggregation='center')
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling
-
         return raw_score
 
 

@@ -57,7 +57,6 @@ class BrainModel:
         """
         raise NotImplementedError()
 
-
     def start_task(self, task: Task, fitting_stimuli):
         """
         Instructs the model to begin one of the tasks specified in :data:`~brainscore.model_interface.BrainModel.Task`.
@@ -94,5 +93,3 @@ class BrainModel:
             e.g. `[(50, 100), (100, 150), (150, 200)]` or `[(70, 170)]`
         """
         raise NotImplementedError()
-
-

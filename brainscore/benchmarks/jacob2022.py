@@ -27,6 +27,7 @@ BIBTEX = """@article{jacob2021qualitative,
               publisher={Nature Publishing Group UK London}
             }"""
 
+# add occlusion_depth_ordering here
 DATASETS = ['3dpi']
 
 
@@ -104,6 +105,12 @@ def Jacob20203dpi_square():
 
 def Jacob20203dpi_y():
     return _Jacob20203DProcessingIndex(shape="y")
+
+
+# add class here
+
+
+# add stubs here
 
 
 def load_assembly(dataset):

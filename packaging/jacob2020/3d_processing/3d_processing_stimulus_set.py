@@ -4,7 +4,7 @@ from brainio.packaging import package_stimulus_set
 
 stimuli = []
 image_paths = {}
-stimuli_directory = 'images'
+stimuli_directory = '3d_processing/images'
 
 
 '''

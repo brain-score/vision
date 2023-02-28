@@ -5,6 +5,8 @@ from brainio.packaging import package_data_assembly
 import pandas as pd
 
 '''
+
+TODO STILL:*****
 Experiment Information:
 
 - This assembly is slightly different from normal assemblies, as the data is very sparse. 

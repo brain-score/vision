@@ -33,8 +33,8 @@ class _Zhu2019ResponseMatch(BenchmarkBase):
     """
 
     def __init__(self):
-        self._assembly = LazyLoad(lambda: brainscore.get_assembly(f'Zhu2019_extreme_occlusion'))
-        self._ceiling = SplitHalvesConsistencyZhu("subject")
+        self._assembly = LazyLoad(lambda: brainscore.get_assembly('Zhu2019_extreme_occlusion'))
+        self._ceiling = OneVsManyZhu(split_coordinate="subject")
         self._fitting_stimuli = brainscore.get_stimulus_set('Zhu2019_extreme_occlusion')
         self._stimulus_set = LazyLoad(lambda: self._assembly.stimulus_set)
         self._visual_degrees = VISUAL_DEGREES
@@ -102,6 +102,11 @@ class _Zhu2019Accuracy(BenchmarkBase):
         raw_score = self._metric(predictions, ground_truth)
         ceiling = self.ceiling
         score = raw_score / ceiling.sel(aggregation='center')
+
+        # cap score at 1 if ceiled score > 1
+        if score[(score['aggregation'] == 'center')] > 1:
+            score.__setitem__({'aggregation': score['aggregation'] == 'center'}, 1)
+
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling
         return score
@@ -151,7 +156,7 @@ def get_choices(predictions, categories):
 
 
 # ceiling method:
-class SplitHalvesConsistencyZhu:
+class OneVsManyZhu:
     def __init__(self, split_coordinate: str):
         """
         :param num_splits: how many times to create two halves

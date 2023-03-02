@@ -5,7 +5,7 @@ import brainscore
 from brainscore.benchmarks import BenchmarkBase
 from brainscore.benchmarks.screen import place_on_screen
 from brainscore.metrics import Score
-from brainscore.metrics.accuracy_delta import AccuracyDelta, AccuracyDeltaCeiling
+from brainscore.metrics.accuracy_delta import BakerAccuracyDelta, compute_ceiling
 from brainscore.model_interface import BrainModel
 from brainscore.utils import LazyLoad
 from typing import List
@@ -37,7 +37,7 @@ class _Baker2022AccuracyDelta(BenchmarkBase):
         :param dataset: orientation of stimuli. Either 'normal' or 'inverted'
         :param image_types: Either ["w", "f"] for frankenstein delta or ["w", "o"] for fragmented delta
         """
-        self._metric = AccuracyDelta(image_types=image_types)
+        self._metric = BakerAccuracyDelta(image_types=image_types)
 
         # image types: list[str]. Either ["w", "f"] for frankenstein delta or ["w", "o"] for fragmented delta.
         self.image_types = image_types
@@ -47,9 +47,8 @@ class _Baker2022AccuracyDelta(BenchmarkBase):
         Different consistency metric then normal benchmark (AccuracyDelta vs. AccuracyDeltaCeiling)
         due to ceilin
         '''
-        self._ceiling = SplitHalvesConsistencyBaker(num_splits=100,
-                                                    consistency_metric=AccuracyDeltaCeiling(self.image_types),
-                                                    split_coordinate="subject", image_types=self.image_types)
+        self._ceiling = SplitHalvesConsistencyBaker(num_splits=100,split_coordinate="subject",
+                                                    image_types=self.image_types)
         self._assembly = LazyLoad(lambda: load_assembly(dataset))
         self._visual_degrees = 8.8
         self._number_of_trials = 1
@@ -101,15 +100,13 @@ def load_assembly(dataset):
 
 # ceiling method:
 class SplitHalvesConsistencyBaker:
-    def __init__(self, num_splits: int, split_coordinate: str, consistency_metric, image_types):
+    def __init__(self, num_splits: int, split_coordinate: str, image_types):
         """
         :param num_splits: how many times to create two halves
         :param split_coordinate: over which coordinate to split the assembly into halves
-        :param consistency_metric: which metric to use to compute the consistency of two halves
         """
         self.num_splits = num_splits
         self.split_coordinate = split_coordinate
-        self.consistency_metric = consistency_metric
         self.image_types = image_types
 
     def __call__(self, assembly: DataAssembly) -> Score:
@@ -123,7 +120,7 @@ class SplitHalvesConsistencyBaker:
                 {'presentation': [subject in half1_subjects for subject in assembly['subject'].values]}]
             half2 = assembly[
                 {'presentation': [subject not in half1_subjects for subject in assembly['subject'].values]}]
-            consistency = self.consistency_metric(half1, half2)
+            consistency = compute_ceiling(half1, half2, self.image_types)
             uncorrected_consistencies.append(consistency)
             # Spearman-Brown correction for sub-sampling
             corrected_consistency = 2 * consistency / (1 + (2 - 1) * consistency)

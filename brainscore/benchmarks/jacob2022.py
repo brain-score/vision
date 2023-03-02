@@ -67,7 +67,7 @@ class _Jacob20203DProcessingIndex(BenchmarkBase):
 
         self.shape = shape
         self._metric = DataCloudComparison(shape=self.shape)
-        self._number_of_trials = 1
+        self._number_of_trials = 30
 
         super(_Jacob20203DProcessingIndex, self).__init__(
             identifier='Jacob2020_3dpi', version=1,
@@ -79,7 +79,7 @@ class _Jacob20203DProcessingIndex(BenchmarkBase):
         candidate.start_recording(recording_target="IT",time_bins=[(70, 170)])
         stimuli = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                   source_visual_degrees=self._visual_degrees)
-        it_recordings = candidate.look_at(stimuli, number_of_trials=30)
+        it_recordings = candidate.look_at(stimuli, number_of_trials=self._number_of_trials)
 
         # grab activations per image (4 images total) from region IT
         cube_1_activations = it_recordings.sel(stimulus_id="cube_1")
@@ -96,7 +96,7 @@ class _Jacob20203DProcessingIndex(BenchmarkBase):
         score = raw_score / ceiling.sel(aggregation='center')
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling
-        return raw_score
+        return score
 
 
 def Jacob20203dpi_square():

@@ -42,6 +42,11 @@ class _Baker2022AccuracyDelta(BenchmarkBase):
         # image types: list[str]. Either ["w", "f"] for frankenstein delta or ["w", "o"] for fragmented delta.
         self.image_types = image_types
         self.orientation = dataset
+
+        '''
+        Different consistency metric then normal benchmark (AccuracyDelta vs. AccuracyDeltaCeiling)
+        due to ceilin
+        '''
         self._ceiling = SplitHalvesConsistencyBaker(num_splits=100,
                                                     consistency_metric=AccuracyDeltaCeiling(self.image_types),
                                                     split_coordinate="subject", image_types=self.image_types)
@@ -61,16 +66,11 @@ class _Baker2022AccuracyDelta(BenchmarkBase):
         candidate.start_task(BrainModel.Task.label, choice_labels)
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
-        if self.orientation == "inverted":
-            inverted_stimuli = stimulus_set[stimulus_set["orientation"] == "inverted"]
-            labels = candidate.look_at(inverted_stimuli, number_of_trials=self._number_of_trials)
-            inverted_assembly = self._assembly[self._assembly["orientation"] == "inverted"]
-            raw_score = self._metric(labels, inverted_assembly)
-            ceiling = self._ceiling(inverted_assembly)
-        else:
-            labels = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
-            raw_score = self._metric(labels, self._assembly)
-            ceiling = self._ceiling(self._assembly)
+        stimuli = stimulus_set[stimulus_set["orientation"] == self.orientation]
+        labels = candidate.look_at(stimuli, number_of_trials=self._number_of_trials)
+        assembly = self._assembly[self._assembly["orientation"] == self.orientation]
+        raw_score = self._metric(labels, assembly)
+        ceiling = self._ceiling(assembly)
         score = raw_score / ceiling
 
         # cap score at 1 if ceiled score > 1

@@ -40,6 +40,7 @@ class TestBaker2022:
         else:
             ceiling = benchmark._ceiling(assembly)
         assert ceiling == approx(expected_ceiling, abs=0.001)
+        assert benchmark.ceiling == approx(expected_ceiling, abs=0.001)
 
     # Test raw scores
     @pytest.mark.parametrize('benchmark, model, expected_raw_score', [

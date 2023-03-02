@@ -512,7 +512,7 @@ class TestBaker2022:
     def test_same_counts(self, identifier):
         full_name = f'Baker2022_{identifier}_distortion'
         assembly = brainscore.get_assembly(full_name)
-        assert len({x for x in set((assembly["truth"]).values) if x==x}) == 9
+        assert len(set((assembly["truth"]).values)) == 9
         assert set((assembly["correct"]).values) == {0, 1}
 
     # tests number of subjects
@@ -526,14 +526,14 @@ class TestBaker2022:
         assert len(set((assembly["subject"]).values)) == num_subjects
 
     # tests number of configurations in {whole, fragmented, frankenstein} Inverted does not have fragmented)
-    @pytest.mark.parametrize('identifier, num_configs', [
-        ('normal', 3),
-        ('inverted', 2),
+    @pytest.mark.parametrize('identifier, conditions', [
+        ('normal', {'whole', 'fragmented', 'Frankenstein'}),
+        ('inverted', {'whole', 'Frankenstein'}),
     ])
-    def test_configs(self, identifier, num_configs):
+    def test_conditions(self, identifier, conditions):
         full_name = f'Baker2022_{identifier}_distortion'
         assembly = brainscore.get_assembly(full_name)
-        assert len(set((assembly["condition"]).values)) == num_configs
+        assert set((assembly["condition"]).values) == conditions
 
     # tests number of unique images
     @pytest.mark.parametrize('identifier, num_images', [

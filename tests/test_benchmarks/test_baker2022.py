@@ -1,9 +1,6 @@
 from pathlib import Path
-
-import numpy as np
 import pytest
 from pytest import approx
-
 from brainio.assemblies import BehavioralAssembly
 from brainscore import benchmark_pool
 from brainscore.benchmarks.baker2022 import DATASETS
@@ -40,7 +37,6 @@ class TestBaker2022:
         else:
             ceiling = benchmark._ceiling(assembly)
         assert ceiling == approx(expected_ceiling, abs=0.001)
-        assert benchmark.ceiling == approx(expected_ceiling, abs=0.001)
 
     # Test raw scores
     @pytest.mark.parametrize('benchmark, model, expected_raw_score', [

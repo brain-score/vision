@@ -12,12 +12,10 @@ HUMAN_SPLITS = 100
 
 
 class AccuracyDelta(Metric):
-
     def __init__(self, image_types: list):
         self.image_types = image_types
 
     def __call__(self, source: BehavioralAssembly, target: BehavioralAssembly):
-
         model_delta = get_model_delta(source, self.image_types)
         scores = []
 
@@ -29,7 +27,9 @@ class AccuracyDelta(Metric):
         score = np.mean(scores)
         error = np.std(scores)
 
-        return Score([score, error], coords={'aggregation': ['center', 'error']}, dims=('aggregation',))
+        score = Score([score, error], coords={'aggregation': ['center', 'error']}, dims=('aggregation',))
+        score.attrs['raw'] = scores
+        return score
 
 
 def extract_subjects(assembly):
@@ -50,7 +50,7 @@ def get_human_delta(target, image_types, random_state=0, isCeiling=False):
         half1_subjects = random_state.choice(range(1, num_subjects), (num_subjects // 2), replace=False)
         half1 = target[{'presentation': [subject in half1_subjects for subject in target['subject'].values]}]
 
-    # for whole condition, and other condition (frank or frag)
+    # for whole condition, and other condition (frankenstein or fragmented)
     for image_type in image_types:
         scores = []
 

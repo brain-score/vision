@@ -298,7 +298,8 @@ class TestBaker2022:
     def test_distortion_counts(self, identifier, count):
         stimulus_set = brainscore.get_stimulus_set(f'Baker2022_{identifier}_distortion')
         assert len(np.unique(stimulus_set["image_type"])) == count
-        assert "w", "f" in set(stimulus_set["image_type"])
+        assert "w" in set(stimulus_set["image_type"])
+        assert "f" in set(stimulus_set["image_type"])
 
     # make sure there are 9 possible animals in each stimulus_set -> 9 way AFC
     @pytest.mark.parametrize('identifier', [

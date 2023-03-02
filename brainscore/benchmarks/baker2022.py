@@ -8,6 +8,8 @@ from brainscore.metrics import Score
 from brainscore.metrics.accuracy_delta import AccuracyDelta, AccuracyDeltaCeiling
 from brainscore.model_interface import BrainModel
 from brainscore.utils import LazyLoad
+from typing import List
+from brainio.assemblies import DataAssembly
 
 BIBTEX = """@article{BAKER2022104913,
                 title = {Deep learning models fail to capture the configural nature of human shape perception},
@@ -30,7 +32,11 @@ DATASETS = ['normal', 'inverted']
 
 class _Baker2022AccuracyDelta(BenchmarkBase):
 
-    def __init__(self, dataset: str, image_types: list):
+    def __init__(self, dataset: str, image_types: List[str]):
+        """
+        :param dataset: orientation of stimuli. Either 'normal' or 'inverted'
+        :param image_types: Either ["w", "f"] for frankenstein delta or ["w", "o"] for fragmented delta
+        """
         self._metric = AccuracyDelta(image_types=image_types)
 
         # image types: list[str]. Either ["w", "f"] for frankenstein delta or ["w", "o"] for fragmented delta.
@@ -106,8 +112,7 @@ class SplitHalvesConsistencyBaker:
         self.consistency_metric = consistency_metric
         self.image_types = image_types
 
-    def __call__(self, assembly) -> Score:
-
+    def __call__(self, assembly: DataAssembly) -> Score:
         consistencies, uncorrected_consistencies = [], []
         splits = range(self.num_splits)
         random_state = np.random.RandomState(0)

@@ -2,6 +2,7 @@ from pathlib import Path
 from brainio.stimuli import StimulusSet
 from brainio.packaging import package_stimulus_set
 import pandas as pd
+import re
 
 stimuli = []
 image_paths = {}
@@ -39,8 +40,6 @@ for filepath in Path(stimuli_directory).glob('*.jpg'):
     image_id = filepath.stem
 
     if f"{image_id}.jpg" in images_actually_shown:
-        import re
-
         match = re.match(r"([a-z]+)([0-9]+)", image_id, re.I)
         if match:
             items = match.groups()
@@ -81,8 +80,6 @@ for filepath in Path(stimuli_directory).glob('*.jpg'):
             'image_number': image_number,
             "orientation": "normal" if "inv" not in image_id else "inverted",
         })
-    else:
-        pass
 
 stimuli = StimulusSet(stimuli)
 

@@ -52,7 +52,6 @@ class TestBaker2022:
 
     ])
     def test_model_raw_score(self, benchmark, model, expected_raw_score):
-
         # load features
         precomputed_features = Path(__file__).parent / f'{model}-{benchmark}.nc'
         benchmark = benchmark_pool[benchmark]
@@ -62,11 +61,10 @@ class TestBaker2022:
                                                    )
         score = benchmark(precomputed_features)
         raw_score = score.raw
-        assert raw_score[0] == expected_raw_score
+        assert raw_score.sel(aggregation='center') == expected_raw_score
 
         # division by ceiling <= 1 should result in higher score
         assert score.sel(aggregation='center') >= raw_score.sel(aggregation='center')
-        assert raw_score.sel(aggregation='center') == expected_raw_score
 
     # test ceiled score
     @pytest.mark.parametrize('benchmark, model, expected_ceiled_score', [
@@ -86,4 +84,4 @@ class TestBaker2022:
                                                    visual_degrees=8.8,  # doesn't matter, features are already computed
                                                    )
         score = benchmark(precomputed_features)
-        assert score[0] == expected_ceiled_score
+        assert score.sel(aggregation='center') == expected_ceiled_score

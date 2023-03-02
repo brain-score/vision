@@ -513,7 +513,7 @@ class TestBaker2022:
         full_name = f'Baker2022_{identifier}_distortion'
         assembly = brainscore.get_assembly(full_name)
         assert len({x for x in set((assembly["truth"]).values) if x==x}) == 9
-        assert len(set((assembly["correct"]).values)) == 2
+        assert set((assembly["correct"]).values) == {0, 1}
 
     # tests number of subjects
     @pytest.mark.parametrize('identifier, num_subjects', [

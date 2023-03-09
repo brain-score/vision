@@ -104,6 +104,7 @@ class BenchmarkBase(Benchmark):
 
     @property
     def ceiling(self):
+        # call secondary method to store the output of the ceiling function and not have to recompute it
         return self._ceiling(identifier=self.identifier)
 
     @store()

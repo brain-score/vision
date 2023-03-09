@@ -1,7 +1,9 @@
 import numpy as np
-from numpy.random import RandomState
+from scipy.stats import pearsonr
+
 import brainscore
 from brainio.assemblies import DataAssembly
+from brainio.assemblies import walk_coords, BehavioralAssembly
 from brainscore.benchmarks import BenchmarkBase
 from brainscore.benchmarks.screen import place_on_screen
 from brainscore.metrics import Score
@@ -9,10 +11,6 @@ from brainscore.metrics.accuracy import Accuracy
 from brainscore.metrics.response_match import ResponseMatch
 from brainscore.model_interface import BrainModel
 from brainscore.utils import LazyLoad
-from scipy.stats import pearsonr
-import csv
-from pathlib import Path
-from brainio.assemblies import walk_coords, BehavioralAssembly
 
 BIBTEX = """@article{zhu2019robustness,
             title={Robustness of object recognition under extreme occlusion in humans and computational models},
@@ -28,13 +26,15 @@ NUM_SPLITS = 50
 
 class _Zhu2019ResponseMatch(BenchmarkBase):
     """
-        Behavioral benchmark: compares model to average humans.
-        human ceiling is calculated by taking `NUM_SPLIT` split-half reliabilities with *category-level* responses.
+    Behavioral benchmark: compares model to average humans.
+    human ceiling is calculated by taking `NUM_SPLIT` split-half reliabilities with *category-level* responses.
+    This response_match benchmark compares the top average human response (out of 5 categories) per image to
+    the model response per image.
     """
 
     def __init__(self):
         self._assembly = LazyLoad(lambda: brainscore.get_assembly('Zhu2019_extreme_occlusion'))
-        self._ceiling = OneVsManyZhu(split_coordinate="subject")
+        self._ceiler = OneVsManyZhu(split_coordinate="subject")
         self._fitting_stimuli = brainscore.get_stimulus_set('Zhu2019_extreme_occlusion')
         self._stimulus_set = LazyLoad(lambda: self._assembly.stimulus_set)
         self._visual_degrees = VISUAL_DEGREES
@@ -44,13 +44,9 @@ class _Zhu2019ResponseMatch(BenchmarkBase):
         super(_Zhu2019ResponseMatch, self).__init__(
             identifier='Zhu2019_extreme_occlusion-response_match',
             parent='Zhu2019',
-            ceiling_func=lambda: self._ceiling(assembly=self._assembly),
+            ceiling_func=lambda: self._ceiler(assembly=self._assembly),
             bibtex=BIBTEX, version=1)
 
-    '''
-    The response_match benchmark compares the top average human response (out of 5 categories) per image to 
-    The model response per image.
-    '''
     def __call__(self, candidate: BrainModel):
         categories = ["car", "aeroplane", "motorbike", "bicycle", "bus"]
         candidate.start_task(BrainModel.Task.label, categories)
@@ -60,7 +56,7 @@ class _Zhu2019ResponseMatch(BenchmarkBase):
         predictions = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
         predictions = predictions.sortby("stimulus_id")
         raw_score = self._metric(predictions, human_responses)
-        ceiling = self._ceiling(self._assembly)
+        ceiling = self._ceiler(self._assembly)
         score = raw_score / ceiling
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling
@@ -68,8 +64,8 @@ class _Zhu2019ResponseMatch(BenchmarkBase):
 
 
 class _Zhu2019Accuracy(BenchmarkBase):
+    """ engineering benchmark: compares model to ground truth image labels """
 
-    # engineering benchmark: compares model to ground_truth
     def __init__(self):
         self._fitting_stimuli = brainscore.get_stimulus_set('Zhu2019_extreme_occlusion')
         self._stimulus_set = LazyLoad(lambda: brainscore.get_assembly(f'Zhu2019_extreme_occlusion').stimulus_set)
@@ -86,7 +82,6 @@ class _Zhu2019Accuracy(BenchmarkBase):
             bibtex=BIBTEX, version=1)
 
     def __call__(self, candidate: BrainModel):
-
         # hard code categories, as sorting alphabetically leads to mismatched IDs
         categories = ["car", "aeroplane", "motorbike", "bicycle", "bus"]
         candidate.start_task(BrainModel.Task.label, categories)
@@ -159,34 +154,28 @@ def get_choices(predictions, categories):
 class OneVsManyZhu:
     def __init__(self, split_coordinate: str):
         """
-        :param num_splits: how many times to create two halves
         :param split_coordinate: over which coordinate to split the assembly into halves
-        :param consistency_metric: which metric to use to compute the consistency of two halves
         """
         self.split_coordinate = split_coordinate
 
     def __call__(self, assembly) -> Score:
-
         consistencies, uncorrected_consistencies = [], []
         splits = range(len(set(assembly["subject"].values)))
 
-        '''
-        # For each subject, compare that subject's responses to the pool of other subjects that also saw 
+        # For each subject, compare that subject's responses to the pool of other subjects that also saw
         # that category. 
-        '''
-
         for subject in set(assembly["subject"].values):
-            single_subject = [subject]
             single_subject_assembly = assembly[
-                {'presentation': [subject in single_subject for subject in assembly['subject'].values]}]
+                {'presentation': [_subject == subject for _subject in assembly['subject'].values]}]
+            subject_seen_categories = set(single_subject_assembly["image_label"].values)
             pool_assembly = assembly[
-                {'presentation': [subject not in single_subject for subject in assembly['subject'].values]}]
+                {'presentation': [_subject != subject for _subject in assembly['subject'].values]}]
+            # filter to only those stimuli that the held-out subject has also seen
+            pool_assembly = pool_assembly[pool_assembly["image_label"] in subject_seen_categories]
+            # compute categoricals and compare
             single_categorical = _human_assembly_categorical_distribution(single_subject_assembly, collapse=True)
-            category_seen = single_categorical["image_label"].values
-            pool_seen_assembly = pool_assembly[pool_assembly["image_label"] == category_seen]
-            pool_categorical = _human_assembly_categorical_distribution(pool_seen_assembly, collapse=True)
-            consistency = pearsonr(single_categorical.values.flatten(), pool_categorical.values.flatten())[
-                0]
+            pool_categorical = _human_assembly_categorical_distribution(pool_assembly, collapse=True)
+            consistency, _ = pearsonr(single_categorical.values.flatten(), pool_categorical.values.flatten())
             uncorrected_consistencies.append(consistency)
             # Spearman-Brown correction for sub-sampling
             corrected_consistency = 2 * consistency / (1 + (2 - 1) * consistency)

@@ -170,7 +170,8 @@ class OneVsManyZhu:
             pool_assembly = assembly[
                 {'presentation': [_subject != subject for _subject in assembly['subject'].values]}]
             # filter to only those stimuli that the held-out subject has also seen
-            pool_assembly = pool_assembly[pool_assembly["image_label"] in subject_seen_categories]
+            pool_assembly = pool_assembly[[label in subject_seen_categories
+                                           for label in pool_assembly["image_label"].values]]
             # compute categoricals and compare
             single_categorical = _human_assembly_categorical_distribution(single_subject_assembly, collapse=True)
             pool_categorical = _human_assembly_categorical_distribution(pool_assembly, collapse=True)

@@ -1,10 +1,11 @@
 import numpy as np
 
-from brainscore.metrics import Score
+from brainio.assemblies import DataAssembly
+from brainscore.metrics import Score, Metric
 
 
-class ResponseMatch:
-    def __call__(self, source, target):
+class ResponseMatch(Metric):
+    def __call__(self, source: DataAssembly, target: DataAssembly) -> Score:
         match = source.values == target.values
         center = np.mean(match)
         error = np.std(match)

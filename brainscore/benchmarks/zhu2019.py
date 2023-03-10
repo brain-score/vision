@@ -43,7 +43,7 @@ class _Zhu2019ResponseMatch(BenchmarkBase):
 
         super(_Zhu2019ResponseMatch, self).__init__(
             identifier='Zhu2019_extreme_occlusion-response_match',
-            parent='Zhu2019',
+            parent='Ferguson2023',
             ceiling_func=lambda: self._ceiler(assembly=self._assembly),
             bibtex=BIBTEX, version=1)
 
@@ -56,10 +56,9 @@ class _Zhu2019ResponseMatch(BenchmarkBase):
         predictions = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
         predictions = predictions.sortby("stimulus_id")
         raw_score = self._metric(predictions, human_responses)
-        ceiling = self._ceiler(self._assembly)
-        score = raw_score / ceiling
+        score = raw_score / self.ceiling
         score.attrs['raw'] = raw_score
-        score.attrs['ceiling'] = ceiling
+        score.attrs['ceiling'] = self.ceiling
         return score
 
 

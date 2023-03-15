@@ -1,5 +1,0 @@
-from brainscore_vision import model_registry
-from brainscore_vision.model_helpers import ModelCommitment
-from .model import get_model, get_layers
-
-model_registry['konkle_alexnetgn_ipcl_ref12_supervised_ipcl_aug'] = ModelCommitment(identifier='konkle_alexnetgn_ipcl_ref12_supervised_ipcl_aug', activations_model=get_model('konkle_alexnetgn_ipcl_ref12_supervised_ipcl_aug'), layers=get_layers('konkle_alexnetgn_ipcl_ref12_supervised_ipcl_aug'))

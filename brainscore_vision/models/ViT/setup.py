@@ -24,7 +24,6 @@ VERSION = '0.0.7'
 REQUIRED = [
     'torch',
     "numpy",
-    'xarray==0.16.1',
 ]
 
 # What packages are optional?

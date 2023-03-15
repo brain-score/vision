@@ -1,5 +1,0 @@
-from brainscore_vision import model_registry
-from brainscore_vision.model_helpers import ModelCommitment
-from .model import get_model, get_layers
-
-model_registry['tf_efficientnetv2_s_in21ft1k_robust_linf16255_400x400'] = ModelCommitment(identifier='tf_efficientnetv2_s_in21ft1k_robust_linf16255_400x400', activations_model=get_model('tf_efficientnetv2_s_in21ft1k_robust_linf16255_400x400'), layers=get_layers('tf_efficientnetv2_s_in21ft1k_robust_linf16255_400x400'))

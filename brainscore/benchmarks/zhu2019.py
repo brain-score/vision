@@ -11,6 +11,9 @@ from brainscore.metrics.accuracy import Accuracy
 from brainscore.metrics.response_match import ResponseMatch
 from brainscore.model_interface import BrainModel
 from brainscore.utils import LazyLoad
+from brainscore.metrics.ceiling import SpearmanBrownCorrection
+from tqdm import tqdm
+from numpy.random import RandomState
 
 BIBTEX = """@article{zhu2019robustness,
             title={Robustness of object recognition under extreme occlusion in humans and computational models},
@@ -34,7 +37,7 @@ class _Zhu2019ResponseMatch(BenchmarkBase):
 
     def __init__(self):
         self._assembly = LazyLoad(lambda: brainscore.get_assembly('Zhu2019_extreme_occlusion'))
-        self._ceiler = OneVsManyZhu(split_coordinate="subject")
+        self._ceiler = HalvesZhu(metric=ResponseMatch(), split_coordinate="subject")
         self._fitting_stimuli = brainscore.get_stimulus_set('Zhu2019_extreme_occlusion')
         self._stimulus_set = LazyLoad(lambda: self._assembly.stimulus_set)
         self._visual_degrees = VISUAL_DEGREES
@@ -48,14 +51,20 @@ class _Zhu2019ResponseMatch(BenchmarkBase):
             bibtex=BIBTEX, version=1)
 
     def __call__(self, candidate: BrainModel):
-        categories = ["car", "aeroplane", "motorbike", "bicycle", "bus"]
-        candidate.start_task(BrainModel.Task.label, categories)
-        stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
-                                       source_visual_degrees=self._visual_degrees)
-        human_responses = _human_assembly_categorical_distribution(self._assembly, collapse=False)
-        predictions = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
-        predictions = predictions.sortby("stimulus_id")
-        raw_score = self._metric(predictions, human_responses)
+        # choice_labels = set(self._assembly['truth'].values)
+        # choice_labels = list(sorted(choice_labels))
+        # candidate.start_task(BrainModel.Task.label, choice_labels)
+        # stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
+        #                                source_visual_degrees=self._visual_degrees)
+        # human_responses = _human_assembly_categorical_distribution(self._assembly, collapse=False)
+        # predictions = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
+        # predictions = predictions.sortby("stimulus_id")
+        #
+        # # ensure alignment of data:
+        # assert set(predictions["stimulus_id"].values == human_responses["stimulus_id"].values) == {True}
+        #
+        # raw_score = self._metric(predictions, human_responses)
+        ceiling = self._ceiling(self._assembly)
         score = raw_score / self.ceiling
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = self.ceiling
@@ -81,9 +90,11 @@ class _Zhu2019Accuracy(BenchmarkBase):
             bibtex=BIBTEX, version=1)
 
     def __call__(self, candidate: BrainModel):
-        # hard code categories, as sorting alphabetically leads to mismatched IDs
-        categories = ["car", "aeroplane", "motorbike", "bicycle", "bus"]
-        candidate.start_task(BrainModel.Task.label, categories)
+
+        choice_labels = set(self._assembly['truth'].values)
+        choice_labels = list(sorted(choice_labels))
+
+        candidate.start_task(BrainModel.Task.label, choice_labels)
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
         predictions = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
@@ -112,7 +123,8 @@ def _human_assembly_categorical_distribution(assembly: DataAssembly, collapse) -
     This is needed, as not every subject saw every image, and this allows a cross-category comparison
     """
 
-    categories = ["car", "aeroplane", "motorbike", "bicycle", "bus"]
+    choice_labels = set(assembly['truth'].values)
+    categories = list(sorted(choice_labels))
 
     def categorical(image_responses):
         frequency = np.array([sum(image_responses.values == category) for category in categories])
@@ -136,6 +148,10 @@ def _human_assembly_categorical_distribution(assembly: DataAssembly, collapse) -
 
 # takes 5-way softmax vector and returns category of highest response
 def get_choices(predictions, categories):
+
+    # make sure predictions (choices) are aligned with categories:
+    assert set(predictions["choice"].values == categories) == {True}
+
     indexes = list(range(0, 5))
     mapping = dict(zip(indexes, categories))
     extra_coords = {}
@@ -150,35 +166,66 @@ def get_choices(predictions, categories):
 
 
 # ceiling method:
-class OneVsManyZhu:
-    def __init__(self, split_coordinate: str):
+#class OneVsManyZhu:
+    # def __init__(self, split_coordinate: str):
+    #     """
+    #     :param split_coordinate: over which coordinate to split the assembly into halves
+    #     """
+    #     self.split_coordinate = split_coordinate
+
+    # def __call__(self, assembly) -> Score:
+class HalvesZhu:
+    def __init__(self, metric, split_coordinate: str, num_splits: int = 10):
         """
+        :param metric: compare assembly splits
         :param split_coordinate: over which coordinate to split the assembly into halves
+        :param num_splits: how many splits to estimate the consistency over
         """
+        self.metric = metric
         self.split_coordinate = split_coordinate
+        self.num_splits = num_splits
+        self.correction = SpearmanBrownCorrection()
 
     def __call__(self, assembly) -> Score:
         consistencies, uncorrected_consistencies = [], []
-        splits = range(len(set(assembly["subject"].values)))
+        subjects = list(sorted(set(assembly["subject"].values)))
+        splits = list(range(self.num_splits))
+        random_state = RandomState(0)
 
-        # For each subject, compare that subject's responses to the pool of other subjects that also saw
-        # that category. 
-        for subject in set(assembly["subject"].values):
-            single_subject_assembly = assembly[
-                {'presentation': [_subject == subject for _subject in assembly['subject'].values]}]
-            subject_seen_categories = set(single_subject_assembly["image_label"].values)
-            pool_assembly = assembly[
-                {'presentation': [_subject != subject for _subject in assembly['subject'].values]}]
-            # filter to only those stimuli that the held-out subject has also seen
-            pool_assembly = pool_assembly[[label in subject_seen_categories
-                                           for label in pool_assembly["image_label"].values]]
+        # For each split, compare a random half of subjects to the other half
+        #for split in tqdm(splits, desc="subject splits"):
+        # for subject in subjects:
+        # subject = 1
+        for image in set(assembly['stimulus_id'].values):
+
+            single_image_assembly = assembly[
+                {'presentation': [_image == image for _image in assembly['stimulus_id'].values]}]
+            #subject_seen_images = list(set(single_subject_assembly["stimulus_id"].values))
+
+            half1 = random_state.choice(single_image_assembly.presentation, size=len(single_image_assembly.presentation.values) // 2, replace=False)
+            half1_assembly = single_subject_assembly[{'presentation': [image in half1 for image in single_subject_assembly['stimulus_id'].values]}]
+
+            half2_assembly = single_subject_assembly[
+                {'presentation': [image not in half1 for image in single_subject_assembly['stimulus_id'].values]}]
+
+            # confirm images are the same:
+            assert set(half1_assembly["stimulus_id"].values).union(set(half2_assembly["stimulus_id"].values)) == \
+                   set(single_subject_assembly["stimulus_id"].values)
+
             # compute categoricals and compare
-            single_categorical = _human_assembly_categorical_distribution(single_subject_assembly, collapse=True)
-            pool_categorical = _human_assembly_categorical_distribution(pool_assembly, collapse=True)
+            half_1_responses = _human_assembly_categorical_distribution(half1_assembly, collapse=False)
+            half_2_responses = _human_assembly_categorical_distribution(half2_assembly, collapse=False)
+            consistency = self.metric(half_1_responses, half_2_responses)
+
+
+
             consistency, _ = pearsonr(single_categorical.values.flatten(), pool_categorical.values.flatten())
+
+            consistency = self.metric(categorical1, categorical2)
+            consistency = consistency.sel(aggregation='center')
             uncorrected_consistencies.append(consistency)
             # Spearman-Brown correction for sub-sampling
-            corrected_consistency = 2 * consistency / (1 + (2 - 1) * consistency)
+            corrected_consistency = self.correction(consistency, n=2)
             consistencies.append(corrected_consistency)
         consistencies = Score(consistencies, coords={'split': splits}, dims=['split'])
         uncorrected_consistencies = Score(uncorrected_consistencies, coords={'split': splits}, dims=['split'])
@@ -186,7 +233,6 @@ class OneVsManyZhu:
         average_consistency.attrs['raw'] = consistencies
         average_consistency.attrs['uncorrected_consistencies'] = uncorrected_consistencies
         return average_consistency
-
 
 def Zhu2019ResponseMatch():
     return _Zhu2019ResponseMatch()

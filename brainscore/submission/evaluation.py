@@ -18,7 +18,7 @@ from brainscore.utils import LazyLoad
 
 logger = logging.getLogger(__name__)
 
-submission_benchmarks_list = list(evaluation_benchmark_pool.keys()) + list(engineering_benchmark_pool.keys)
+submission_benchmarks_list = list(evaluation_benchmark_pool.keys()) + list(engineering_benchmark_pool.keys())
 
 SCORE_COMMENT_MAX_LENGTH = 1000
 

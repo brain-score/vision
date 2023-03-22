@@ -168,3 +168,5 @@ brendel.Geirhos2021_stylized,assembly,BehavioralAssembly,S3,https://brainio-brai
 brendel.Geirhos2021_uniform-noise,assembly,BehavioralAssembly,S3,https://brainio-brainscore.s3.amazonaws.com/assy_brendel_Geirhos2021_uniform-noise.nc,f5e8b2636738f978c71591b8df6f8a21a66b72d1,brendel.Geirhos2021_uniform-noise,brainio_brainscore
 katz.BarbuMayo2019,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/image_katz_BarbuMayo2019.csv,e4d8888ccb6beca28636e6698e7beb130e278e12,,brainio_brainscore
 katz.BarbuMayo2019,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/image_katz_BarbuMayo2019.zip,1365eb2a7231516806127a7d2a908343a7ac9464,,brainio_brainscore
+neil.Islam2021,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_neil_Islam2021.csv,93ab0f6386d8d5fb56640da45980a819c7dd6efc,,
+neil.Islam2021,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_neil_Islam2021.zip,e55b673117a472f463e0705ac3e330ef8dfd938b,,

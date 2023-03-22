@@ -248,50 +248,27 @@ class TestGeirhos2021:
         assert hasattr(stimulus_set, field)
 
 
-class TestJacob2020:
+class TestJacob2020_3DProcessing:
 
-    # tests existence
-    @pytest.mark.parametrize('identifier', [
-        '3d_processing',
-
-        # future benchmarks:
-        # 'occlusions',
-        # 'object_parts',
-    ])
-    def test_stimulus_set_exist(self, identifier):
-        full_name = f'Jacob2020_{identifier}'
-        stimulus_set = brainio.get_stimulus_set(full_name)
+    # make sure there is a stimulus set with that name
+    def test_stimulus_set_exist(self):
+        stimulus_set = brainio.get_stimulus_set("Jacob2020_3dpi")
         assert stimulus_set is not None
-        assert stimulus_set.identifier == full_name
+        assert stimulus_set.identifier == "Jacob2020_3dpi"
 
-    # tests number of images
-    @pytest.mark.parametrize('identifier, num_images', [
-        ('3d_processing', 6),
+    def test_num_stimuli(self):
+        stimulus_set = brainio.get_stimulus_set("Jacob2020_3dpi")
+        assert len(stimulus_set) == 6
+        assert len(np.unique(stimulus_set["stimulus_id"])) == 6
 
-        # future benchmarks:
-        # ('occlusions', 6),
-        # ('object_parts', 6),
-    ])
-    def test_num_stimuli(self, identifier, num_images):
-        stimulus_set = brainio.get_stimulus_set(f'Jacob2020_{identifier}')
-        assert len(stimulus_set) == num_images
-        assert len(np.unique(stimulus_set["stimulus_id"])) == num_images
-
-    # tests stimulus_set coords
-    @pytest.mark.parametrize('identifier', [
-        '3d_processing',
-
-        # future benchmarks:
-        # 'occlusions',
-        # 'object_parts',
-    ])
+    # make sure the right stimulus set fields are there:
     @pytest.mark.parametrize('field', [
         'stimulus_id',
         'image_shape',
         'image_number',
     ])
-    def test_fields_present(self, field, identifier):
-        stimulus_set = brainio.get_stimulus_set(f'Jacob2020_{identifier}')
+    def test_fields_present(self, field):
+        stimulus_set = brainio.get_stimulus_set("Jacob2020_3dpi")
         assert hasattr(stimulus_set, field)
 
     # make sure there is 2 cubes, 2 squares, 2 ys in 3d_processing
@@ -301,7 +278,7 @@ class TestJacob2020:
         'y',
     ])
     def test_shape_counts(self, shape):
-        stimulus_set = brainscore.get_stimulus_set(f'Jacob2020_3d_processing')
+        stimulus_set = brainscore.get_stimulus_set("Jacob2020_3dpi")
         assert len(np.unique(stimulus_set["image_shape"])) == 3
         assert shape in set(stimulus_set["image_shape"].values)
         assert list(stimulus_set["image_shape"].values).count(shape) == 2

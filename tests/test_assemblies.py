@@ -484,38 +484,35 @@ class TestGeirhos2021:
         assert hasattr(assembly, field)
 
 
-class TestJacob2020:
+class TestJacob2020_3DProcessing:
 
-    # tests general alignment
-    @pytest.mark.parametrize('identifier, num_images', [
-        ('3dpi', 6),
-
-        # future benchmarks:
-        # ('occlusions', 6),
-        # ('object_parts', 6),
-    ])
-    def test_stimulus_set_assembly_alignment(self, identifier, num_images):
-        full_name = f'Jacob2020_{identifier}'
-        assembly = brainscore.get_assembly(full_name)
+    # makes sure that the same images are in both stimulus_set and assembly
+    def test_stimulus_set_assembly_alignment(self):
+        assembly = brainscore.get_assembly('Jacob2020_3dpi')
         assert assembly.stimulus_set is not None
-        assert assembly.stimulus_set.identifier == f'Jacob2020_{identifier}'
-        assert set(assembly.stimulus_set["stimulus_id"].values) == set(assembly["stimulus_id"].values)
-        assert len(set(assembly.stimulus_set["stimulus_id"].values)) == num_images
+        assert assembly.stimulus_set.identifier == 'Jacob2020_3dpi'
+        assert set(assembly.stimulus_set["stimulus_id"]) == {"cube_1", "cube_2", "y_1", "y_2", "square_1", "square_2"}
+        assert set(assembly.stimulus_set["stimulus_id"]) == set(assembly["stimulus_id"].values)
 
-        # make sure there are 3 trials for each stimuli presented:
-        assert len(assembly["stimulus_id"].values) == 3 * len(assembly.stimulus_set["stimulus_id"].values)
-
-    # tests assembly lengths (presentation)
-    @pytest.mark.parametrize('identifier, num_trials', [
-        ('3dpi', 18),
-
-        # future benchmarks:
-        # ('occlusions', 6),
-        # ('object_parts', 6),
+    # ensures that the correct assembly fields exist:
+    @pytest.mark.parametrize('field', [
+        'stimulus_id',
+        'response_time',
+        'response_time_error',
+        'num_subjects',
+        'target_trial',
+        'display_size',
+        'error_rate',
+        'mean_response_time_slope',
     ])
-    def test_stimulus_set_assembly_alignment(self, identifier, num_trials):
-        full_name = f'Jacob2020_{identifier}'
-        assembly = brainscore.get_assembly(full_name)
-        assert len(assembly.presentation) == num_trials
-        assert len(assembly["stimulus_id"].values) == num_trials
+    def test_fields_present_cue_conflict(self, field):
+        assembly = brainscore.get_assembly('Jacob2020_3dpi')
+        assert hasattr(assembly, field)
+
+    # ensures the right values are in place for certain fields:
+    def test_values(self):
+        assembly = brainscore.get_assembly('Jacob2020_3dpi')
+        assert set(assembly["num_subjects"].values) == {10}
+        assert set(assembly["target_trial"].values) == {"absent", "present"}
+        assert set(assembly["display_size"].values) == {1, 6, 12}
 

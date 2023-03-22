@@ -10,10 +10,6 @@ from brainscore.model_interface import BrainModel
 from scipy.spatial import distance
 
 from brainscore.utils import LazyLoad
-'''
-
-
-'''
 
 
 BIBTEX = """@article{jacob2021qualitative,
@@ -71,12 +67,12 @@ class _Jacob20203DProcessingIndex(BenchmarkBase):
 
         super(_Jacob20203DProcessingIndex, self).__init__(
             identifier='Jacob2020_3dpi', version=1,
-            ceiling_func=lambda: Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation']),
+            ceiling_func=lambda: self._metric.ceiling(self._assembly),
             parent='Jacob2020',
             bibtex=BIBTEX)
 
     def __call__(self, candidate: BrainModel):
-        candidate.start_recording(recording_target="IT",time_bins=[(70, 170)])
+        candidate.start_recording(recording_target="IT", time_bins=[(70, 170)])
         stimuli = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                   source_visual_degrees=self._visual_degrees)
         it_recordings = candidate.look_at(stimuli, number_of_trials=self._number_of_trials)
@@ -92,7 +88,8 @@ class _Jacob20203DProcessingIndex(BenchmarkBase):
         d2 = distance.euclidean(shape_1_activations, shape_2_activations)
 
         model_index = (d1 - d2) / (d1 + d2)
-        raw_score, ceiling = self._metric(model_index, self._assembly)
+        raw_score = self._metric(model_index, self._assembly)
+        ceiling = self._ceiling(self._assembly)
         score = raw_score / ceiling.sel(aggregation='center')
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling
@@ -105,12 +102,6 @@ def Jacob20203dpi_square():
 
 def Jacob20203dpi_y():
     return _Jacob20203DProcessingIndex(shape="y")
-
-
-# add class here
-
-
-# add stubs here
 
 
 def load_assembly(dataset):

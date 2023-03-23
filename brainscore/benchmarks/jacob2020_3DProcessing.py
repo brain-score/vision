@@ -1,7 +1,10 @@
+import numpy as np
+
 import brainscore
 from brainscore.benchmarks import BenchmarkBase
 from brainscore.benchmarks.screen import place_on_screen
-from brainscore.metrics.data_cloud_comparision import DataCloudComparison
+from brainscore.metrics import Score
+from brainscore.metrics.data_cloud_comparision import DataCloudComparison, get_means_stds, data_to_indexes
 from brainscore.model_interface import BrainModel
 from scipy.spatial import distance
 
@@ -48,19 +51,20 @@ class _Jacob20203DProcessingIndex(BenchmarkBase):
     3) Number of Trials: 30- Unfounded choice because the data we test against is behavioral. 30 Seemed reasonable.
 
     """
-    def __init__(self, shape):
+    def __init__(self, discriminator):
         self._assembly = LazyLoad(lambda: load_assembly('Jacob2020_3dpi'))
 
         # confirm VD
         self._visual_degrees = 8
 
-        self.shape = shape
-        self._metric = DataCloudComparison(shape=self.shape)
+        self.discriminator = discriminator  # shape: y or square
+        self.display_sizes = [1, 2, 6]  # used for slope calculations
+        self._metric = DataCloudComparison()
         self._number_of_trials = 30
 
         super(_Jacob20203DProcessingIndex, self).__init__(
             identifier='Jacob2020_3dpi', version=1,
-            ceiling_func=lambda: self._metric.ceiling(self._assembly),
+            ceiling_func=lambda: Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation']),
             parent='Jacob2020',
             bibtex=BIBTEX)
 
@@ -73,16 +77,25 @@ class _Jacob20203DProcessingIndex(BenchmarkBase):
         # grab activations per image (4 images total) from region IT
         cube_1_activations = it_recordings.sel(stimulus_id="cube_1")
         cube_2_activations = it_recordings.sel(stimulus_id="cube_2")
-        shape_1_activations = it_recordings.sel(stimulus_id=f"{self.shape}_1")
-        shape_2_activations = it_recordings.sel(stimulus_id=f"{self.shape}_2")
+        shape_1_activations = it_recordings.sel(stimulus_id=f"{self.discriminator}_1")
+        shape_2_activations = it_recordings.sel(stimulus_id=f"{self.discriminator}_2")
 
         # calculate distance between cubes, shapes.
         d1 = distance.euclidean(cube_1_activations, cube_2_activations)
         d2 = distance.euclidean(shape_1_activations, shape_2_activations)
 
         model_index = (d1 - d2) / (d1 + d2)
-        raw_score = self._metric(model_index, self._assembly)
-        ceiling = self._ceiling(self._assembly)
+
+        # use cube 2 if shape is y. Cube 2's slope value is 12, which is what is needed
+        if self.discriminator == "y":
+            cube_means, cube_stds = get_means_stds("cube_2", self._assembly)
+        else:
+            cube_means, cube_stds = get_means_stds("cube_1", self._assembly)
+        shape_means, shape_stds = get_means_stds(f"{self.discriminator}_1", self._assembly)
+        human_indexes = data_to_indexes(self.display_sizes, cube_means, cube_stds, shape_means, shape_stds)
+
+        raw_score = self._metric(model_index, human_indexes)
+        ceiling = self._metric.ceiling(human_indexes)
         score = raw_score / ceiling.sel(aggregation='center')
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling
@@ -90,11 +103,11 @@ class _Jacob20203DProcessingIndex(BenchmarkBase):
 
 
 def Jacob20203dpi_square():
-    return _Jacob20203DProcessingIndex(shape="square")
+    return _Jacob20203DProcessingIndex(discriminator="square")
 
 
 def Jacob20203dpi_y():
-    return _Jacob20203DProcessingIndex(shape="y")
+    return _Jacob20203DProcessingIndex(discriminator="y")
 
 
 def load_assembly(dataset):

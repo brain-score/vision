@@ -4,9 +4,11 @@ from brainscore.benchmarks.screen import place_on_screen
 from brainscore.metrics.data_cloud_comparision import DataCloudComparison
 from brainscore.model_interface import BrainModel
 from scipy.spatial import distance
+from brainscore.metrics import Score
+import numpy as np
 
 from brainscore.utils import LazyLoad
-
+from brainscore.metrics.data_cloud_comparision import DataCloudComparison, get_means_stds, data_to_indexes
 
 BIBTEX = """@article{jacob2021qualitative,
               title={Qualitative similarities and differences in visual object representations between brains and deep networks},
@@ -50,17 +52,19 @@ class _Jacob2020OcclusionDepthOrdering(BenchmarkBase):
     """
     def __init__(self, discriminator):
         self._assembly = LazyLoad(lambda: load_assembly('Jacob2020_occlusion_depth_ordering'))
+        self.display_sizes = [2, 8, 14]
 
         # confirm VD
         self._visual_degrees = 8
 
         self.discriminator = discriminator
-        self._metric = DataCloudComparison(shape=self.discriminator)
+        self._metric = DataCloudComparison()
         self._number_of_trials = 30
 
         super(_Jacob2020OcclusionDepthOrdering, self).__init__(
             identifier='Jacob2020_occlusion_depth_ordering', version=1,
-            ceiling_func=lambda: self._metric.ceiling(self._assembly),
+            ceiling_func=lambda: Score([1, np.nan], coords={'aggregation': ['center', 'error']},
+                                       dims=['aggregation']),
             parent='Jacob2020',
             bibtex=BIBTEX)
 
@@ -84,8 +88,14 @@ class _Jacob2020OcclusionDepthOrdering(BenchmarkBase):
         # calculate model index, based on d1, d2
         # TODO
 
+        # process assembly to get correct indexes:
+        # occluded_means, occluded_stds = get_means_stds(f"{self.discriminator}_occluded", self._assembly)
+        # notched_means, notched_stds = get_means_stds(f"{self.discriminator}_notched", self._assembly)
+        #
+        # human_indexes = data_to_indexes(self.display_sizes, occluded_means, occluded_stds, notched_means, notched_stds)
+
         # score the benchmark on the metric:
-        # TODO
+        #  raw_score = self._metric(model_index, human_indexes)
 
         # Calculate the ceiling:
         # TODO

@@ -1,5 +1,4 @@
 import numpy as np
-
 import brainscore
 from brainscore.benchmarks import BenchmarkBase
 from brainscore.benchmarks.screen import place_on_screen
@@ -7,7 +6,6 @@ from brainscore.metrics import Score
 from brainscore.metrics.data_cloud_comparision import DataCloudComparison, get_means_stds, data_to_indexes
 from brainscore.model_interface import BrainModel
 from scipy.spatial import distance
-
 from brainscore.utils import LazyLoad
 
 
@@ -50,6 +48,12 @@ class _Jacob20203DProcessingIndex(BenchmarkBase):
         pass in the visual ventral stream.
     3) Number of Trials: 30- Unfounded choice because the data we test against is behavioral. 30 Seemed reasonable.
 
+    NOTES:
+    1) Jacob 2020 Reports a Square Human Baseline (from paper 1 above) of 0.76
+        - Current Metric (Data Cloud Comparison) is generating an overage of 0.741, STD of 0.066
+    2) Jacob 2020 reports a Y Human baseline (from paper 2 above) of 0.40
+        - Current Metric (Data Cloud Comparison) is generating an average of 0.419, STD of 0.059
+
     """
     def __init__(self, discriminator):
         self._assembly = LazyLoad(lambda: load_assembly('Jacob2020_3dpi'))
@@ -58,7 +62,7 @@ class _Jacob20203DProcessingIndex(BenchmarkBase):
         self._visual_degrees = 8
 
         self.discriminator = discriminator  # shape: y or square
-        self.display_sizes = [1, 2, 6]  # used for slope calculations
+        self.display_sizes = [1, 6, 12]  # used for slope calculations
         self._metric = DataCloudComparison()
         self._number_of_trials = 30
 
@@ -93,10 +97,16 @@ class _Jacob20203DProcessingIndex(BenchmarkBase):
             cube_means, cube_stds = get_means_stds("cube_1", self._assembly)
         shape_means, shape_stds = get_means_stds(f"{self.discriminator}_1", self._assembly)
         human_indexes = data_to_indexes(self.display_sizes, cube_means, cube_stds, shape_means, shape_stds)
+        human_indexes_average, human_indexes_error = np.mean(human_indexes), np.std(human_indexes)
 
         raw_score = self._metric(model_index, human_indexes)
         ceiling = self._metric.ceiling(human_indexes)
         score = raw_score / ceiling.sel(aggregation='center')
+
+        # cap score at 1 if ceiled score > 1
+        if score[(score['aggregation'] == 'center')] > 1:
+            score.__setitem__({'aggregation': score['aggregation'] == 'center'}, 1)
+
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling
         return score

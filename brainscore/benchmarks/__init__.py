@@ -216,7 +216,12 @@ def _evaluation_benchmark_pool():
         pool[f"brendel.{assembly_identifier}-error_consistency"] = LazyLoad(
             # use lambda parameter-binding to avoid `benchmark_ctr` being re-assigned in the next loop iteration
             lambda benchmark_ctr=benchmark_ctr: benchmark_ctr())
+    # Jacob 2020 Occulsion Depth Ordering Benchmarks:
+    from .jacob2020_Occlusion_Depth_Ordering import Jacob2020_Occlusion
+    pool['Jacob2020-Occlusion'] = LazyLoad(Jacob2020_Occlusion)
 
+    from .jacob2020_Occlusion_Depth_Ordering import Jacob2020_Depth_Ordering
+    pool['Jacob2020-Depth'] = LazyLoad(Jacob2020_Depth_Ordering)
     return pool
 
 

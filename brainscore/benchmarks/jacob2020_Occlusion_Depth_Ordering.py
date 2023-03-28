@@ -69,44 +69,45 @@ class _Jacob2020OcclusionDepthOrdering(BenchmarkBase):
             bibtex=BIBTEX)
 
     def __call__(self, candidate: BrainModel):
-
-        # tell the model to start recording:
-        # TODO
-
-        # place the stimuli on screen/convert to visual degrees:
-        # TODO
-
-        # have the model look at the stimuli and generate the IT recordings
-        # TODO
+        candidate.start_recording(recording_target="IT", time_bins=[(70, 170)])
+        stimuli = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
+                                  source_visual_degrees=self._visual_degrees)
+        it_recordings = candidate.look_at(stimuli, number_of_trials=self._number_of_trials)
 
         # grab activations per image (3 images total) from region IT
-        # TODO
+        adjacent_img_activation = it_recordings.sel(stimulus_id=f"{self.discriminator}_adjacent")
+        notched_img_activation = it_recordings.sel(stimulus_id=f"{self.discriminator}_notched")
+        occluded_img_activation = it_recordings.sel(stimulus_id=f"{self.discriminator}_occluded")
 
         # calculate euclidean distance between images.
-        # TODO
+        d1 = distance.euclidean(adjacent_img_activation, occluded_img_activation)
+        d2 = distance.euclidean(adjacent_img_activation, notched_img_activation)
 
         # calculate model index, based on d1, d2
-        # TODO
+        model_index = (d1 - d2) / (d1 + d2)
 
         # process assembly to get correct indexes:
-        # occluded_means, occluded_stds = get_means_stds(f"{self.discriminator}_occluded", self._assembly)
-        # notched_means, notched_stds = get_means_stds(f"{self.discriminator}_notched", self._assembly)
+        occluded_means, occluded_stds = get_means_stds(f"{self.discriminator}_occluded", self._assembly)
+        notched_means, notched_stds = get_means_stds(f"{self.discriminator}_notched", self._assembly)
         #
-        # human_indexes = data_to_indexes(self.display_sizes, occluded_means, occluded_stds, notched_means, notched_stds)
+        human_indexes = data_to_indexes(self.display_sizes, occluded_means, occluded_stds, notched_means, notched_stds)
 
         # score the benchmark on the metric:
-        #  raw_score = self._metric(model_index, human_indexes)
+        raw_score = self._metric(model_index, human_indexes)
 
         # Calculate the ceiling:
-        # TODO
+        ceiling = self._metric.ceiling(human_indexes)
 
         # divide raw score by ceiling to get score:
-        # TODO
+        score = raw_score / ceiling.sel(aggregation='center')
 
         # make sure score's attrs are set and return score:
-        # TODO
+        if score[(score['aggregation'] == 'center')] > 1:
+            score.__setitem__({'aggregation': score['aggregation'] == 'center'}, 1)
 
-        return 1
+        score.attrs['raw'] = raw_score
+        score.attrs['ceiling'] = ceiling
+        return score
 
 
 def Jacob2020_Occlusion():
@@ -114,7 +115,7 @@ def Jacob2020_Occlusion():
 
 
 def Jacob2020_Depth_Ordering():
-    return _Jacob2020OcclusionDepthOrdering(discriminator="depth_ordering")
+    return _Jacob2020OcclusionDepthOrdering(discriminator="depth")
 
 
 def load_assembly(dataset):

@@ -23,20 +23,14 @@ Experiment Information:
         - target_trial: indicates whether or not the image was actually present in the field of distractors
         - display_size: number of distractor objects in visual search task
         - mean_accuracy: mean accuracy across 10 subjects as a percentage
-        - reported slope: response time measured as a function of display size (2, 8, 14).
+        - reported_slope: response time measured as a function of display size (2, 8, 14).
         - displayed_against: what the distractor images were in the visual search task.
      
 '''
 
 
-
-'''
-TODO JERRY, BELOW:
-
-'''
-
 # initial csv to dataframe processing:
-all_subjects = pd.read_csv('occlusion_depth_ordering/human_data/data.csv')
+all_subjects = pd.read_csv('data.csv')
 
 
 # construct the assembly
@@ -48,16 +42,18 @@ assembly = BehavioralAssembly(all_subjects['mean_rt'],
                                   'num_subjects': ('presentation', all_subjects['num_subjects']),
                                   'target_trial': ('presentation', all_subjects['target_trial']),
                                   'display_size': ('presentation', all_subjects['display_size']),
-                                  'error_rate': ('presentation', all_subjects['error_rate']),
-                                  'mean_response_time_slope': ('presentation', all_subjects['reported_slope']),
+                                  'mean_accuracy': ('presentation', all_subjects['mean_accuracy']),
+                                  'reported_slope': ('presentation', all_subjects['reported_slope']),
+
+                                  'displayed_against': ('presentation', all_subjects['displayed_against'])
                               },
                               dims=['presentation']
                               )
 
 # give the assembly an identifier name
-assembly.name = 'Jacob2020_3dpi'
+assembly.name = 'Jacob2020_occlusion_depth_ordering'
 
 # upload to S3
 package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
-                      stimulus_set_identifier='Jacob2020_3dpi',
+                      stimulus_set_identifier='Jacob2020_occlusion_depth_ordering_3',
                       assembly_class_name="BehavioralAssembly", bucket_name="brainio-brainscore")

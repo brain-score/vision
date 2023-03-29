@@ -482,3 +482,48 @@ class TestGeirhos2021:
     def test_fields_present_cue_conflict(self, identifier, field):
         assembly = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
         assert hasattr(assembly, field)
+
+
+# TODO: Jerry fill in!
+class TestJacob2020_OcclusionDepthOrdering:
+
+    # makes sure that the same images are in both stimulus_set and assembly
+    def test_stimulus_set_assembly_alignment(self):
+
+        # need to change name
+        assembly = brainscore.get_assembly('Jacob2020_3dpi')
+        assert assembly.stimulus_set is not None
+
+        # need to change name
+        assert assembly.stimulus_set.identifier == 'Jacob2020_3dpi'
+
+        # will need to be changed for ODO benchmark (from 3dPI)
+        assert set(assembly.stimulus_set["stimulus_id"]) == {"cube_1", "cube_2", "y_1", "y_2", "square_1", "square_2"}
+
+        assert set(assembly.stimulus_set["stimulus_id"]) == set(assembly["stimulus_id"].values)
+
+    # ensures that the correct assembly fields exist:
+    # Jerry these fields should be updated to match the assembly fields you created
+    @pytest.mark.parametrize('field', [
+        'stimulus_id',
+        'response_time',
+        'response_time_error',
+        'num_subjects',
+        'target_trial',
+        'display_size',
+        'error_rate',
+        'mean_response_time_slope',
+    ])
+    def test_fields_present_cue_conflict(self, field):
+        assembly = brainscore.get_assembly('Jacob2020_3dpi')
+        assert hasattr(assembly, field)
+
+    # ensures the right values are in place for certain fields:
+    # These should be updated as well:
+    def test_values(self):
+        assembly = brainscore.get_assembly('Jacob2020_3dpi')
+        assert set(assembly["num_subjects"].values) == {10}
+        assert set(assembly["target_trial"].values) == {"absent", "present"}
+        assert set(assembly["display_size"].values) == {1, 6, 12}
+
+    # Jerry feel free to add more tests to test whatever you'd like!

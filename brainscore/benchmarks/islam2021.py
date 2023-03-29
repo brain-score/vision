@@ -19,7 +19,7 @@ BIBTEX = """@inproceedings{
         }""" 
 
 
-TIME_BIN_ST, TIME_BIN_END = 0, 100 #arbitrary values, just to collect model activations
+TIME_BIN_ST, TIME_BIN_END = 70, 170  # standard core object recognition response, following Majaj*, Hong*, et al. 2015
 SEED = 1751 #turn this benchmark into a deterministic one 
 
 class Islam2021Dimensionality(BenchmarkBase):

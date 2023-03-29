@@ -37,7 +37,7 @@ class _Zhu2019ResponseMatch(BenchmarkBase):
 
     def __init__(self):
         self._assembly = LazyLoad(lambda: brainscore.get_assembly('Zhu2019_extreme_occlusion'))
-        self._ceiler = HalvesZhu(metric=ResponseMatch(), split_coordinate="subject")
+        self._ceiler = HalvesZhu(metric=ResponseMatch(), split_coordinate="subject", num_splits=25)
         self._fitting_stimuli = brainscore.get_stimulus_set('Zhu2019_extreme_occlusion')
         self._stimulus_set = LazyLoad(lambda: self._assembly.stimulus_set)
         self._visual_degrees = VISUAL_DEGREES
@@ -51,19 +51,19 @@ class _Zhu2019ResponseMatch(BenchmarkBase):
             bibtex=BIBTEX, version=1)
 
     def __call__(self, candidate: BrainModel):
-        # choice_labels = set(self._assembly['truth'].values)
-        # choice_labels = list(sorted(choice_labels))
-        # candidate.start_task(BrainModel.Task.label, choice_labels)
-        # stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
-        #                                source_visual_degrees=self._visual_degrees)
-        # human_responses = _human_assembly_categorical_distribution(self._assembly, collapse=False)
-        # predictions = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
-        # predictions = predictions.sortby("stimulus_id")
-        #
-        # # ensure alignment of data:
-        # assert set(predictions["stimulus_id"].values == human_responses["stimulus_id"].values) == {True}
-        #
-        # raw_score = self._metric(predictions, human_responses)
+        choice_labels = set(self._assembly['truth'].values)
+        choice_labels = list(sorted(choice_labels))
+        candidate.start_task(BrainModel.Task.label, choice_labels)
+        stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
+                                       source_visual_degrees=self._visual_degrees)
+        human_responses = _human_assembly_categorical_distribution(self._assembly, collapse=False)
+        predictions = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
+        predictions = predictions.sortby("stimulus_id")
+
+        # ensure alignment of data:
+        assert set(predictions["stimulus_id"].values == human_responses["stimulus_id"].values) == {True}
+
+        raw_score = self._metric(predictions, human_responses)
         ceiling = self._ceiling(self._assembly)
         score = raw_score / self.ceiling
         score.attrs['raw'] = raw_score
@@ -117,7 +117,7 @@ class _Zhu2019Accuracy(BenchmarkBase):
         return score
 
 
-def _human_assembly_categorical_distribution(assembly: DataAssembly, collapse) -> DataAssembly:
+def _human_assembly_categorical_distribution(assembly: LazyLoad, collapse: bool) -> DataAssembly:
     """
     Convert from 19587 trials across 25 subjects to a 500 images x 5 choices assembly.
     This is needed, as not every subject saw every image, and this allows a cross-category comparison
@@ -147,7 +147,7 @@ def _human_assembly_categorical_distribution(assembly: DataAssembly, collapse) -
 
 
 # takes 5-way softmax vector and returns category of highest response
-def get_choices(predictions, categories):
+def get_choices(predictions:BehavioralAssembly, categories:list) -> BehavioralAssembly:
 
     # make sure predictions (choices) are aligned with categories:
     assert set(predictions["choice"].values == categories) == {True}
@@ -165,15 +165,6 @@ def get_choices(predictions, categories):
     return final.sortby("stimulus_id")
 
 
-# ceiling method:
-#class OneVsManyZhu:
-    # def __init__(self, split_coordinate: str):
-    #     """
-    #     :param split_coordinate: over which coordinate to split the assembly into halves
-    #     """
-    #     self.split_coordinate = split_coordinate
-
-    # def __call__(self, assembly) -> Score:
 class HalvesZhu:
     def __init__(self, metric, split_coordinate: str, num_splits: int = 10):
         """
@@ -184,55 +175,35 @@ class HalvesZhu:
         self.metric = metric
         self.split_coordinate = split_coordinate
         self.num_splits = num_splits
-        self.correction = SpearmanBrownCorrection()
 
     def __call__(self, assembly) -> Score:
-        consistencies, uncorrected_consistencies = [], []
-        subjects = list(sorted(set(assembly["subject"].values)))
-        splits = list(range(self.num_splits))
-        random_state = RandomState(0)
+        consistencies = []
+        images = set(assembly['stimulus_id'].values)
 
-        # For each split, compare a random half of subjects to the other half
-        #for split in tqdm(splits, desc="subject splits"):
-        # for subject in subjects:
-        # subject = 1
-        for image in set(assembly['stimulus_id'].values):
-
-            single_image_assembly = assembly[
+        for image in images:
+            print(image)
+            image_consistencies = []
+            single_category_assembly = assembly[
                 {'presentation': [_image == image for _image in assembly['stimulus_id'].values]}]
-            #subject_seen_images = list(set(single_subject_assembly["stimulus_id"].values))
 
-            half1 = random_state.choice(single_image_assembly.presentation, size=len(single_image_assembly.presentation.values) // 2, replace=False)
-            half1_assembly = single_subject_assembly[{'presentation': [image in half1 for image in single_subject_assembly['stimulus_id'].values]}]
+            # split the images in half randomly to pass to metric
+            for i in range(self.num_splits):
+                random_state = np.random.RandomState(i)
+                print(i)
+                trials = single_category_assembly["choice"].values
+                random_state.shuffle(trials)
+                trials = trials.tolist()
+                if len(trials) % 2 != 0:
+                    trials.pop(0)
+                half_1 = trials[:len(trials) // 2]
+                half_2 = trials[len(trials) // 2:]
+                consistency = self.metric(BehavioralAssembly(half_1), BehavioralAssembly(half_2))
+                image_consistencies.append(consistency[(consistency['aggregation'] == 'center')])
 
-            half2_assembly = single_subject_assembly[
-                {'presentation': [image not in half1 for image in single_subject_assembly['stimulus_id'].values]}]
-
-            # confirm images are the same:
-            assert set(half1_assembly["stimulus_id"].values).union(set(half2_assembly["stimulus_id"].values)) == \
-                   set(single_subject_assembly["stimulus_id"].values)
-
-            # compute categoricals and compare
-            half_1_responses = _human_assembly_categorical_distribution(half1_assembly, collapse=False)
-            half_2_responses = _human_assembly_categorical_distribution(half2_assembly, collapse=False)
-            consistency = self.metric(half_1_responses, half_2_responses)
-
-
-
-            consistency, _ = pearsonr(single_categorical.values.flatten(), pool_categorical.values.flatten())
-
-            consistency = self.metric(categorical1, categorical2)
-            consistency = consistency.sel(aggregation='center')
-            uncorrected_consistencies.append(consistency)
-            # Spearman-Brown correction for sub-sampling
-            corrected_consistency = self.correction(consistency, n=2)
-            consistencies.append(corrected_consistency)
-        consistencies = Score(consistencies, coords={'split': splits}, dims=['split'])
-        uncorrected_consistencies = Score(uncorrected_consistencies, coords={'split': splits}, dims=['split'])
-        average_consistency = consistencies.median('split')
-        average_consistency.attrs['raw'] = consistencies
-        average_consistency.attrs['uncorrected_consistencies'] = uncorrected_consistencies
-        return average_consistency
+            average_consistency = np.mean(image_consistencies)
+            consistencies.append(average_consistency)
+        avg = np.mean(consistencies)
+        return avg
 
 def Zhu2019ResponseMatch():
     return _Zhu2019ResponseMatch()

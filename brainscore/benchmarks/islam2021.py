@@ -35,7 +35,7 @@ class Islam2021Dimensionality(BenchmarkBase):
         super(Islam2021Dimensionality, self).__init__( #! not too sure about this
             identifier=f'Islam2021-{region + "_" + factor + "_dimensionality"}', version=1,
             ceiling_func=lambda: Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation']),
-            parent='neil.Islam2021',
+            parent='Islam2021',
             bibtex=BIBTEX)
         
     def set_generator(self):

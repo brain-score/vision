@@ -77,10 +77,11 @@ class DataCloudComparison(Metric):
 
 #
 def data_to_indexes(display_sizes: list, control_means: list, control_stds: list,
-                    variable_means: list, variable_stds: list) -> list:
+                    variable_means: list, variable_stds: list, use_alt_scoring=False) -> list:
     """
     Take the means and std, run the trials (generate data), and return human indexes.
 
+    :param use_alt_scoring: If occlusion/depth ordering benchmark, we need to use a different formula.
     :param display_sizes: a list of values to use for the x_axis slope computation. Always will be len 3.
     :param control_means: the means of the image used to compare against.
     :param control_stds: the stds of the image used to compare against.
@@ -90,7 +91,7 @@ def data_to_indexes(display_sizes: list, control_means: list, control_stds: list
     """
     data_clouds_control = make_new_data(control_means, control_stds)
     data_clouds_variable = make_new_data(variable_means, variable_stds)
-    human_indexes = generate_human_data(display_sizes, data_clouds_variable, data_clouds_control)
+    human_indexes = generate_human_data(display_sizes, data_clouds_variable, data_clouds_control, use_alt_scoring)
     return human_indexes
 
 
@@ -165,10 +166,11 @@ def get_avg_slope(outer_i: int, display_sizes: list, cloud_1: np.array,
 
 
 def generate_human_data(display_sizes: list, shapes_cloud: Dict[int, np.array],
-                        cubes_cloud: Dict[int, np.array]) -> list:
+                        cubes_cloud: Dict[int, np.array], use_alt_scoring) -> list:
     """
     Generates 500 slopes based on picking a point at random from each cloud. Calls get_avg_slope NUM_TRIALS times.
 
+    :param use_alt_scoring: If occlusion/depth ordering benchmark, we need to use a different formula.
     :param display_sizes: a list of values to use for the x_axis slope computation. Always will be len 3.
     :param shapes_cloud: A dict with all means (keys) and their corresponding clouds (values) for shapes
     :param cubes_cloud: A dict with all means (keys) and their corresponding clouds (values) for cubes
@@ -180,7 +182,12 @@ def generate_human_data(display_sizes: list, shapes_cloud: Dict[int, np.array],
                                list(cubes_cloud.values())[2])
         d2 = 1 / get_avg_slope(i, display_sizes, list(shapes_cloud.values())[0], list(shapes_cloud.values())[1],
                                list(shapes_cloud.values())[2])
-        proc_index = (d1 - d2) / (d1 + d2)
+
+        # for some reason, in the occlusion/depth ordering experiment, Jacob uses a different scoring method.
+        if use_alt_scoring:
+            proc_index = (d2 - d1) / (d1 + d2)
+        else:
+            proc_index = (d1 - d2) / (d1 + d2)
         indexes.append(proc_index)
     return indexes
 

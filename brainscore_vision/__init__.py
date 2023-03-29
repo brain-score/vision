@@ -2,17 +2,20 @@ import logging
 from typing import Dict, Any, Union, Callable
 
 from brainio.assemblies import DataAssembly
+from brainio.stimuli import StimulusSet
 from brainscore_core.benchmarks import Benchmark
 from brainscore_core.metrics import Metric, Score
 from brainscore_core.plugin_management.conda_score import wrap_score
 from brainscore_core.plugin_management.import_plugin import import_plugin
-
 from brainscore_vision.model_interface import BrainModel
 
 _logger = logging.getLogger(__name__)
 
 data_registry: Dict[str, Callable[[], Union[DataAssembly, Any]]] = {}
 """ Pool of available data """
+
+stimulus_set_registry: Dict[str, Callable[[], StimulusSet]] = {}
+""" Pool of available stimulus sets"""
 
 metric_registry: Dict[str, Callable[[], Metric]] = {}
 """ Pool of available metrics """
@@ -28,6 +31,13 @@ def load_dataset(identifier: str) -> Union[DataAssembly, Any]:
     import_plugin('brainscore_vision', 'data', identifier)
 
     return data_registry[identifier]()
+
+
+def load_stimulus_set(identifier: str) -> Any:
+    # dataset and stimulus_set are kept in the same directory
+    import_plugin('brainscore_vision', 'data', identifier, registry_prefix='stimulus_set')
+
+    return stimulus_set_registry[identifier]()
 
 
 def load_metric(identifier: str, *args, **kwargs) -> Metric:

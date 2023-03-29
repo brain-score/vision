@@ -13,8 +13,8 @@ from brainscore_vision.submission.evaluation import get_reference, get_benchmark
 from brainscore_vision.submission.models import Reference, BenchmarkType, Submission, Model, BenchmarkInstance, Score
 from brainscore_vision.submission.repository import prepare_module, extract_zip_file, find_submission_directory
 from model_tools.brain_transformation import ModelCommitment
-from tests.test_submission import base_model
-from tests.test_submission.test_db import clear_schema, init_user
+from todotests.test_submission import base_model
+from todotests.test_submission.test_db import clear_schema, init_user
 
 logger = logging.getLogger(__name__)
 database = 'brainscore-ohio-test'  # test database

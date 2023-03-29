@@ -1,0 +1,94 @@
+import pytest
+import numpy as np
+from pathlib import Path
+from pytest import approx
+
+from brainscore_vision import benchmark_registry, load_benchmark
+from brainio.assemblies import NeuroidAssembly, DataAssembly
+from brainscore_vision.benchmark_helpers import PrecomputedFeatures
+from brainscore_vision.benchmark_helpers.test_helper import TestVisualDegrees, TestNumberOfTrials
+from numpy.random.mtrand import RandomState
+from brainscore_vision.benchmarks.kar2019 import DicarloKar2019OST
+
+
+visual_degrees = TestVisualDegrees()
+number_trials = TestNumberOfTrials()
+
+@pytest.mark.memory_intense
+@pytest.mark.private_access
+@pytest.mark.slow
+def test_Kar2019ost_cornet_s():
+    benchmark = load_benchmark('dicarlo.Kar2019-ost')
+    # might have to change parent here
+    precomputed_features = Path(__file__).parent / 'cornet_s-kar2019.nc'
+    precomputed_features = NeuroidAssembly.from_files(
+        precomputed_features,
+        stimulus_set_identifier=benchmark._assembly.stimulus_set.identifier,
+        stimulus_set=benchmark._assembly.stimulus_set)
+    precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
+    # score
+    score = benchmark(precomputed_features).raw
+    assert score.sel(aggregation='center') == approx(.316, abs=.005)
+
+
+@pytest.mark.parametrize('benchmark, candidate_degrees, image_id, expected', [
+    pytest.param('dicarlo.Kar2019-ost', 14, '6d19b24c29832dfb28360e7731e3261c13a4287f',
+                 approx(.225021, abs=.0001), marks=[pytest.mark.private_access]),
+    pytest.param('dicarlo.Kar2019-ost', 6, '6d19b24c29832dfb28360e7731e3261c13a4287f',
+                 approx(.001248, abs=.0001), marks=[pytest.mark.private_access]),
+])
+def test_amount_gray(benchmark, candidate_degrees, image_id, expected, brainio_home, resultcaching_home,
+                     brainscore_home):
+    visual_degrees.amount_gray_test(benchmark, candidate_degrees, image_id, expected, brainio_home,
+                                    resultcaching_home, brainscore_home)
+
+
+@pytest.mark.private_access
+@pytest.mark.parametrize('benchmark_identifier', ['dicarlo.Kar2019-ost'])
+def test_repetitions(benchmark_identifier):
+    number_trials.repetitions_test(benchmark_identifier)
+
+
+@pytest.mark.memory_intense
+@pytest.mark.private_access
+def test_no_time():
+    benchmark = DicarloKar2019OST()
+    rnd = RandomState(0)
+    stimuli = benchmark._assembly.stimulus_set
+    source = DataAssembly(rnd.rand(len(stimuli), 5, 1), coords={
+        'stimulus_id': ('presentation', stimuli['stimulus_id']),
+        'image_label': ('presentation', stimuli['image_label']),
+        'truth': ('presentation', stimuli['truth']),
+        'neuroid_id': ('neuroid', list(range(5))),
+        'layer': ('neuroid', ['test'] * 5),
+        'time_bin_start': ('time_bin', [70]),
+        'time_bin_end': ('time_bin', [170]),
+    }, dims=['presentation', 'neuroid', 'time_bin'])
+    source.name = __name__ + ".test_notime"
+    score = benchmark(PrecomputedFeatures(source, visual_degrees=8))
+    assert np.isnan(score.sel(aggregation='center'))  # not a temporal model
+    assert np.isnan(score.raw.sel(aggregation='center'))  # not a temporal model
+    assert score.attrs['ceiling'].sel(aggregation='center') == approx(.79)
+
+
+@pytest.mark.memory_intense
+@pytest.mark.private_access
+def test_random_time():
+    benchmark = DicarloKar2019OST()
+    rnd = RandomState(0)
+    stimuli = benchmark._assembly.stimulus_set
+    source = DataAssembly(rnd.rand(len(stimuli), 5, 5), coords={
+        'stimulus_id': ('presentation', stimuli['stimulus_id']),
+        'image_label': ('presentation', stimuli['image_label']),
+        'truth': ('presentation', stimuli['truth']),
+        'neuroid_id': ('neuroid', list(range(5))),
+        'layer': ('neuroid', ['test'] * 5),
+        'time_bin_start': ('time_bin', [70, 90, 110, 130, 150]),
+        'time_bin_end': ('time_bin', [90, 110, 130, 150, 170]),
+    }, dims=['presentation', 'neuroid', 'time_bin'])
+    source.name = __name__ + ".test_notime"
+    score = benchmark(PrecomputedFeatures(source, visual_degrees=8))
+    assert np.isnan(score.sel(aggregation='center'))  # not a temporal model
+    assert np.isnan(score.raw.sel(aggregation='center'))  # not a temporal model
+    assert score.attrs['ceiling'].sel(aggregation='center') == approx(.79)
+

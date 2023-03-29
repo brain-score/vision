@@ -4,7 +4,7 @@ import pytest
 from brainio.assemblies import BehavioralAssembly
 from pytest import approx
 
-from brainscore_vision.benchmarks.rajalingham2018 import load_assembly
+from brainscore_vision.benchmarks.rajalingham2018.benchmarks.benchmark import load_assembly
 from brainscore_vision.metrics.image_level_behavior import I2n
 
 

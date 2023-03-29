@@ -9,7 +9,7 @@ from pytest import approx
 from brainscore_vision.submission.database import connect_db
 from brainscore_vision.submission.evaluation import run_evaluation
 from brainscore_vision.submission.models import Score, Model, Submission
-from tests.test_submission.test_db import clear_schema, init_user, init_benchmark_parents
+from todotests.test_submission.test_db import clear_schema, init_user, init_benchmark_parents
 
 logger = logging.getLogger(__name__)
 

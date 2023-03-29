@@ -55,5 +55,5 @@ assembly.name = 'Jacob2020_occlusion_depth_ordering'
 
 # upload to S3
 package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
-                      stimulus_set_identifier='Jacob2020_occlusion_depth_ordering_3',
+                      stimulus_set_identifier='Jacob2020_occlusion_depth_ordering',
                       assembly_class_name="BehavioralAssembly", bucket_name="brainio-brainscore")

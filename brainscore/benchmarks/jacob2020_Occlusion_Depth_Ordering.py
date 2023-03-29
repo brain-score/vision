@@ -84,7 +84,7 @@ class _Jacob2020OcclusionDepthOrdering(BenchmarkBase):
         d2 = distance.euclidean(adjacent_img_activation, notched_img_activation)
 
         # calculate model index, based on d1, d2
-        model_index = (d1 - d2) / (d1 + d2)
+        model_index = (d2 - d1) / (d1 + d2)
 
         # process assembly to get correct indexes:
         occluded_means, occluded_stds = get_means_stds(f"{self.discriminator}_occluded", self._assembly)

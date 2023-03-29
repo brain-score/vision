@@ -249,7 +249,7 @@ class TestGeirhos2021:
         assert hasattr(stimulus_set, field)
 
 
-def test_neil_Islam2021():
+def test_Islam2021():
     stimulus_set = brainio.get_stimulus_set('neil.Islam2021')
     assert len(set(stimulus_set["texture"])) == 5
     assert len(set(stimulus_set["shape"])) == 20

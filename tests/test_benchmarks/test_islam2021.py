@@ -20,7 +20,7 @@ class TestEngineering:
         ('texture', 'it', approx(0.30834961, abs=0.001)),
     ])      
     def test_dimensionality(self, features, factor, area, expected_value):
-        benchmark = benchmark_pool[f'neil.Islam2021-{factor}_{area}_dimensionality']
+        benchmark = benchmark_pool[f'Islam2021-{factor}_{area}_dimensionality']
         precomputed_features = Path(__file__).parent / features
         precomputed_features = DataAssembly.from_files(file_path = precomputed_features)
         stimulus_id = list(map(lambda x: x.split("/")[-1][:-4], precomputed_features['stimulus_path'].values))

@@ -27,7 +27,7 @@ class Islam2021Dimensionality(BenchmarkBase):
         assert factor in ["shape","texture","residual"] 
         factor_idx = {"shape":"shape", "texture":"texture", "residual":"residual"}[factor]
         assert region in ["V1","V2","V4","IT"]
-        self.stimulus_set  = brainscore.get_stimulus_set("neil.Islam2021")
+        self.stimulus_set  = brainscore.get_stimulus_set("Islam2021")
         self.region = region
         self.deterministic = deterministic
         self._metric = Dimensionality(factor_idx)

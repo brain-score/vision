@@ -247,8 +247,6 @@ class TestGeirhos2021:
         stimulus_set = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
         assert hasattr(stimulus_set, field)
 
-
-# TODO Jerry fill in!
 class TestJacob2020_OcclusionDepthOrdering:
 
     # make sure there is a stimulus set with that name
@@ -260,8 +258,9 @@ class TestJacob2020_OcclusionDepthOrdering:
     # make sure the correct number of images exist:
     def test_num_stimuli(self):
         # get stimulus set
-
+        stimulus_set = brainio.get_stimulus_set('Jacob2020_occlusion_depth_ordering')
         # Test 1: make sure stimulus set has the correct number of images:
+        assert len(stimulus_set) == 6
 
         # Test 2: make sure that there are the correct number of UNIQUE images
         # can also use python sets here:
@@ -270,30 +269,33 @@ class TestJacob2020_OcclusionDepthOrdering:
     # make sure the right stimulus set fields are there:
     # @ Jerry - you can get these fields from the stimulus_set (what columns you packaged)
     @pytest.mark.parametrize('field', [
-        'something',
-        'somthing2',
+        'experiment_type',
+        'stimulus_id',
+        'filename',
+        'image_variation'
     ])
     def test_fields_present(self, field):
         # get stimulus set
+        stimulus_set = brainio.get_stimulus_set('Jacob2020_occlusion_depth_ordering')
+
+        print(stimulus_set)
 
         # makes sure the fields exist
         assert hasattr(stimulus_set, field)
 
     # make sure there are 2 types of each 3 images:
-    @pytest.mark.parametrize('shape', [
-        'something2',
-        'something2',
-        'something3',
+    @pytest.mark.parametrize('image_variation', [
+        'occluded',
+        'adjacent',
+        'notched',
     ])
-    def test_shape_counts(self, shape):
+    def test_image_variation_counts(self, image_variation):
         # get stimulus set
+        stimulus_set = brainio.get_stimulus_set('Jacob2020_occlusion_depth_ordering')
+
         # can use sets below as well:
-        assert len(np.unique(stimulus_set["image_shape"])) == 3
-        assert shape in set(stimulus_set["image_shape"].values)
-        assert list(stimulus_set["image_shape"].values).count(shape) == 2
-
-    # Jerry - Add anymore tests you would like! The rule of thumb is generally each method tests one (related) thing
-
-
+        assert len(np.unique(stimulus_set["image_variation"])) == 3
+        assert image_variation in set(stimulus_set["image_variation"].values)
+        assert list(stimulus_set["image_variation"].values).count(image_variation) == 2
 
 

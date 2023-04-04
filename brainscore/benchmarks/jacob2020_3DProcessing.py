@@ -78,6 +78,13 @@ class _Jacob20203DProcessingIndex(BenchmarkBase):
                                   source_visual_degrees=self._visual_degrees)
         it_recordings = candidate.look_at(stimuli, number_of_trials=self._number_of_trials)
 
+        # import pickle
+        # from brainio.packaging import write_netcdf
+        #
+        # with open('identifier=resnet18,stimuli_identifier=Jacob2020_3dpi.pkl', 'rb') as f:
+        #     activations = pickle.load(f)["data"]
+        #     write_netcdf(activations, '<PATH-TO-VENV>/venv/brain-score/tests/test_benchmarks/<MODEL>-<BENCHMARK>.nc')
+
         # grab activations per image (4 images total) from region IT
         cube_1_activations = it_recordings.sel(stimulus_id="cube_1")
         cube_2_activations = it_recordings.sel(stimulus_id="cube_2")

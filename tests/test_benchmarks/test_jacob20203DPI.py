@@ -32,9 +32,7 @@ class TestJacob20203DPI:
     ])
     def test_model_raw_score(self, benchmark, model, expected_raw_score):
         # load features
-        shape = benchmark.split("_")[-1]
-        precomputed_features = Path(__file__).parent / \
-                               f"model_identifier={model},benchmark_identifier={shape}-IT,visual_degrees=8.nc"
+        precomputed_features = Path(__file__).parent / f'{model}-{benchmark}.nc'
         benchmark = benchmark_pool[benchmark]
         precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)
         precomputed_features = PrecomputedFeatures(precomputed_features,

@@ -6,6 +6,7 @@ from tests.test_benchmarks import PrecomputedFeatures
 from brainio.assemblies import DataAssembly
 import os
  
+@pytest.mark.private_access 
 class TestEngineering:
 
     @pytest.mark.parametrize('features',[('alexnet-islam2021-classifier.5.nc')])

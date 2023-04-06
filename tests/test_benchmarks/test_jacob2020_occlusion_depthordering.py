@@ -11,17 +11,16 @@ from tests.test_benchmarks import PrecomputedFeatures
 class TestJacob2020OcclusionDepthOrdering:
 
     @pytest.mark.parametrize('benchmark', [
-        'FILL',
-        'FILL',
+        'Jacob2020-Depth',
+        'Jacob2020-Occlusion',
     ])
     def test_in_pool(self, benchmark):
-        # FILL
-        return 1 # change
+        assert benchmark in benchmark_pool
 
     # Jerry - currently ceiling test is not working too well, don't worry about this one for now
     @pytest.mark.parametrize('benchmark, expected_ceiling', [
         ('FILL', approx('FILL', abs=0.0001)),
-        ('FILL', approx('FILL', abs=0.001)),
+        ('FILL', approx('FILL', abs=0.0001)),
     ])
     def test_benchmark_ceiling(self, benchmark, expected_ceiling):
         benchmark = benchmark_pool[benchmark]
@@ -29,10 +28,10 @@ class TestJacob2020OcclusionDepthOrdering:
         assert ceiling.sel(aggregation='center') == expected_ceiling
 
     @pytest.mark.parametrize('benchmark, model, expected_raw_score', [
-        ('FILL', 'alexnet', approx('FILL', abs=0.0001)),
-        ('FILL', 'alexnet', approx('FILL', abs=0.0001)),
-        ('FILL', 'resnet-18', approx('FILL', abs=0.0001)),
-        ('FILL', 'resnet-18', approx('FILL', abs=0.0001)),
+        ('Jacob2020-Depth', 'alexnet', approx('0.3850', abs=0.0001)),
+        #('Jacob2020-Depth', 'alexnet', approx('FILL', abs=0.0001)),
+        #('Jacob2020-Occlusion', 'resnet-18', approx('FILL', abs=0.0001)),
+        #('Jacob2020-Occlusion', 'resnet-18', approx('FILL', abs=0.0001)),
     ])
     def test_model_raw_score(self, benchmark, model, expected_raw_score):
         precomputed_features = Path(__file__).parent / f'{model}-{benchmark}.nc'

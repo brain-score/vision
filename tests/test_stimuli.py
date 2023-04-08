@@ -248,7 +248,7 @@ class TestGeirhos2021:
         stimulus_set = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
         assert hasattr(stimulus_set, field)
 
-
+@pytest.mark.private_access
 def test_Islam2021():
     stimulus_set = brainio.get_stimulus_set('Islam2021')
     assert len(set(stimulus_set["texture"])) == 5

@@ -1,13 +1,13 @@
-from model_tools.activations.keras import load_images, KerasWrapper
 import keras.applications
-from model_tools.check_submission import check_models
-
-# This is an example implementation for submitting vgg-16 as a keras model to brain-score
-# If you use keras, don't forget to add it and its dependencies to the setup.py
-
 import tensorflow as tf
+from model_tools.activations.keras import load_images, KerasWrapper
+from model_tools.check_submission import check_models
+from pathlib import Path
 from tensorflow import keras
-from tensorflow.keras import layers, activations, regularizers
+from tensorflow.keras import layers, activations
+
+from brainscore_vision.model_helpers import download_weights
+
 
 #   Based on CORnet-S.
 #   Source: https://github.com/dicarlolab/CORnet
@@ -181,6 +181,13 @@ def get_model_list():
 def get_model(name):
     assert name == 'sketch_model-4o-ep10'
     model = RecurrentCNN(fb_loops=4)
+    download_weights(
+        bucket='brainscore-vision', folder_path='models/4o_model_submission/rcnn_cand_4o_weights_10ep',
+        filename_version_sha=[
+            ('.data-00000-of-00001', 'yYBXN7uf57Y70EdQLchC_dMU5KO6GkIi', 'fef2a64f8c591f5d7562677272c91dcf88989d53'),
+            ('.index', '7SJtRE0pdSahjajwjW5c_nVPVGBKn3q2', 'ba9e531243cb87de8562152ab8a22cdb3d218c3b'),
+            ('checkpoint', '7rAEuKAwsWAmjT9OvXMsPOaQkogaxMMC', 'a39e7f800a473d18781931c26f84eb3399bdb484')],
+        save_directory=Path(__file__).parent / 'models' / 'rcnn_cand_4o_weights_10ep')
     model.load_weights('rcnn_cand_4o_weights_10ep/')
     model_preprocessing = keras.applications.vgg16.preprocess_input
     load_preprocess = lambda image_filepaths: model_preprocessing(load_images(image_filepaths, image_size=32))

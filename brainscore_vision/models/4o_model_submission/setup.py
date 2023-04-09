@@ -4,6 +4,8 @@
 from setuptools import setup, find_packages
 
 requirements = [
+    "tensorflow",
+    "keras",
 ]
 
 setup(

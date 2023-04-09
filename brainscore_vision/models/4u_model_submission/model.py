@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from model_tools.activations.keras import load_images, KerasWrapper
 import keras.applications
 from model_tools.check_submission import check_models
@@ -9,6 +11,9 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers, activations, regularizers
 import os
+
+from brainscore_vision.model_helpers import download_weights
+
 
 #   Based on CORnet-S.
 #   Source: https://github.com/dicarlolab/CORnet
@@ -189,6 +194,13 @@ def get_model(name):
     assert name == 'sketch_model_4u-ep12'
 
     model = RecurrentCNN(fb_loops=4)
+    download_weights(
+        bucket='brainscore-vision', folder_path='models/4u_model_submission/rcnn_cand_4u_weights_12ep',
+        filename_version_sha=[
+            ('.data-00000-of-00001', '697MOBz0KX7DPsunWjtLF96ylneRBNnb', 'todo'),
+            ('.index', '2dTpZUFDq1QipHJthpC_3iFelB0QIvMK', 'todo'),
+            ('checkpoint', '0Vhcz4Ou2olEbJ0d0xocEEp_F1CtK2Fc', 'todo')],
+        save_directory=Path(__file__).parent / 'models' / 'rcnn_cand_4u_weights_10ep')
     model.load_weights(os.path.join(os.path.dirname(__file__), 'rcnn_cand_4u_weights_12ep/'))
 
     inputs = keras.Input(shape=(32, 32, 3))

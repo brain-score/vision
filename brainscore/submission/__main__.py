@@ -36,7 +36,7 @@ def score_model_console():
     assert isinstance(args.jenkins_id, int)
     logger.info(f'Benchmarks configured: {args.benchmarks}')
     logger.info(f'Models configured: {args.models}')
-    run_evaluation(args.config_dir, args.work_dir, args.jenkins_id, db_secret=args.db_secret,
+    run_evaluation(args.config_dir, args.work_dir, jenkins_id=args.jenkins_id, db_secret=args.db_secret,
                    models=args.models, benchmarks=args.benchmarks)
 
 

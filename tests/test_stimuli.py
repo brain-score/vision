@@ -248,4 +248,41 @@ class TestGeirhos2021:
         assert hasattr(stimulus_set, field)
 
 
+class TestJacob2020_3DProcessing:
+
+    # make sure there is a stimulus set with that name
+    def test_stimulus_set_exist(self):
+        stimulus_set = brainio.get_stimulus_set("Jacob2020_3dpi")
+        assert stimulus_set is not None
+        assert stimulus_set.identifier == "Jacob2020_3dpi"
+
+    def test_num_stimuli(self):
+        stimulus_set = brainio.get_stimulus_set("Jacob2020_3dpi")
+        assert len(stimulus_set) == 6
+        assert len(np.unique(stimulus_set["stimulus_id"])) == 6
+
+    # make sure the right stimulus set fields are there:
+    @pytest.mark.parametrize('field', [
+        'stimulus_id',
+        'image_shape',
+        'image_number',
+    ])
+    def test_fields_present(self, field):
+        stimulus_set = brainio.get_stimulus_set("Jacob2020_3dpi")
+        assert hasattr(stimulus_set, field)
+
+    # make sure there is 2 cubes, 2 squares, 2 ys in 3d_processing
+    @pytest.mark.parametrize('shape', [
+        'square',
+        'cube',
+        'y',
+    ])
+    def test_shape_counts(self, shape):
+        stimulus_set = brainscore.get_stimulus_set("Jacob2020_3dpi")
+        assert len(np.unique(stimulus_set["image_shape"])) == 3
+        assert shape in set(stimulus_set["image_shape"].values)
+        assert list(stimulus_set["image_shape"].values).count(shape) == 2
+
+
+
 

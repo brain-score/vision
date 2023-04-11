@@ -96,6 +96,8 @@ class TestPoolList:
             'brendel.Geirhos2021stylized-error_consistency',
             'brendel.Geirhos2021sketch-error_consistency',
             'brendel.Geirhos2021uniformnoise-error_consistency',
+            'Jacob2020-3dpi_square'
+            'Jacob2020-3dpi_y'
         }
 
     def test_engineering_pool(self):

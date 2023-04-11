@@ -78,7 +78,7 @@ class TestSubmission:
         assert instance2.benchmark.parent.identifier == 'IT'
 
     def get_test_models(self):
-        submission = Submission.create(id=33, submitter=1, timestamp=datetime.now(),
+        submission = Submission.create(id=33, jenkins_id=33, submitter=1, timestamp=datetime.now(),
                                        model_type='BaseModel', status='running')
         model_instances = []
         model_instances.append(

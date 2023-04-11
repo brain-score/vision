@@ -166,7 +166,7 @@ class TestRepository:
 
     def test_prepare_module(self):
         config = BaseConfig(TestRepository.working_dir, 33, '', TestRepository.config_dir)
-        submission = Submission.create(id=33, submitter=1, timestamp=datetime.now(),
+        submission = Submission.create(id=33, jenkins_id=33, submitter=1, timestamp=datetime.now(),
                                        model_type='BaseModel', status='running')
         module, repo = prepare_module(submission, config)
         assert hasattr(module, 'get_model_list')

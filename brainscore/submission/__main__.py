@@ -18,7 +18,7 @@ parser.add_argument('jenkins_id', type=int,
 parser.add_argument('--db_secret', type=str,
                     help='The name of the database credential secret loaded from AWS', default='brainscore-1-ohio-cred')
 parser.add_argument('--models', type=str, nargs='*', default=None,
-                    help='An optional list of the models to benchmark, if it does not exist all models are socred')
+                    help='An optional list of the models to benchmark, if it does not exist all models are scored')
 parser.add_argument('--benchmarks', type=str, nargs='*', default=None,
                     help='An optional list of the benchmarks to run, if it does not exist all benchmarks are run')
 args, remaining_args = parser.parse_known_args()
@@ -36,7 +36,7 @@ def score_model_console():
     assert isinstance(args.jenkins_id, int)
     logger.info(f'Benchmarks configured: {args.benchmarks}')
     logger.info(f'Models configured: {args.models}')
-    run_evaluation(args.config_dir, args.work_dir, args.jenkins_id, db_secret=args.db_secret,
+    run_evaluation(args.config_dir, args.work_dir, jenkins_id=args.jenkins_id, db_secret=args.db_secret,
                    models=args.models, benchmarks=args.benchmarks)
 
 

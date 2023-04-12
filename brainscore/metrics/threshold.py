@@ -1,4 +1,4 @@
-from typing import Dict, Union, Literal, Tuple
+from typing import Dict, Union, Tuple
 
 import numpy as np
 from scipy.optimize import curve_fit
@@ -30,9 +30,22 @@ class Threshold(Metric):
                  independent_variable,
                  fit_function=cumulative_gaussian,
                  fit_inverse_function=inverse_cumulative_gaussian,
-                 threshold_accuracy: Union[Literal['inflection'], float] = 'inflection',
-                 scoring: Union[Literal['individual'], Literal['pool']] = 'individual'
+                 threshold_accuracy: Union[str, float] = 'inflection',
+                 scoring: str = 'individual'
                  ):
+        """
+        :param independent_variable: The independent variable in the benchmark that the threshold is computed
+                                      over.
+        :param fit_function: The function used to fit the threshold.
+        :param fit_inverse_function: The inverse of fit_function used to find the threshold from the fit.
+        :param threshold_accuracy: The accuracy at which the threshold should be evaluated at. This can be
+                                    either a string Literal['inflection'] or a float. When Literal['inflection']
+                                    is used, the function finds the inflection point of the curve and evaluates
+                                    the threshold at that level. When a float is used, the function evaluates
+                                    the threshold at that level.
+        :param scoring: The scoring function used to evaluate performance. Either Literal['individual'] or
+                         Literal['pool']. See the individual_score and pool_score methods for more information.
+        """
         self.fit_function = fit_function
         self.fit_inverse_function = fit_inverse_function
         self._independent_variable = independent_variable
@@ -222,9 +235,22 @@ class ThresholdElevation(Threshold):
                  independent_variable: str,
                  baseline_condition: str,
                  test_condition: str,
-                 threshold_accuracy: Union[Literal['inflection'], float] = 'inflection',
-                 scoring: Union[Literal['individual'], Literal['pool']] = 'individual'
+                 threshold_accuracy: Union[str, float] = 'inflection',
+                 scoring: str = 'individual'
                  ):
+        """
+        :param independent_variable: The independent variable in the benchmark that the threshold is computed
+                                      over.
+        :param baseline_condition: The baseline condition against which threshold elevation is measured.
+        :param test_condition: The test condition that is used to measure threshold elevation..
+        :param threshold_accuracy: The accuracy at which the threshold should be evaluated at. This can be
+                                    either a string Literal['inflection'] or a float. When Literal['inflection']
+                                    is used, the function finds the inflection point of the curve and evaluates
+                                    the threshold at that level. When a float is used, the function evaluates
+                                    the threshold at that level.
+        :param scoring: The scoring function used to evaluate performance. Either Literal['individual'] or
+                         Literal['pool']. See the individual_score and pool_score methods for more information.
+                """
         super(ThresholdElevation, self).__init__(independent_variable)
         self.baseline_threshold_metric = Threshold(self._independent_variable,
                                                    threshold_accuracy=threshold_accuracy)

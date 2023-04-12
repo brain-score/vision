@@ -1,15 +1,11 @@
+from typing import Tuple
 import numpy as np
-from scipy.optimize import least_squares
-from scipy.stats import t
 import xarray as xr
 
 import brainscore
-from brainio.assemblies import walk_coords
+from brainio.assemblies import PropertyAssembly
 from brainscore.benchmarks import BenchmarkBase
 from brainscore.benchmarks.screen import place_on_screen
-from brainscore.metrics import Score
-from brainscore.metrics.accuracy import Accuracy
-from brainscore.metrics.distribution_similarity import BootstrapDistributionSimilarity
 from brainscore.metrics.threshold import ThresholdElevation
 from brainscore.model_interface import BrainModel
 from brainscore.utils import LazyLoad
@@ -32,8 +28,8 @@ DATASETS = ['short-2', 'short-4', 'short-6', 'short-8', 'short-16', 'equal-2', '
 # Values in NUM_FLANKERS_PER_CONDITION denote the condition (i.e., in this case the number of flankers) to be selected
 # This is kept track of simply because the benchmark uses threshold elevation - i.e., a comparison of 2 conditions
 NUM_FLANKERS_PER_CONDITION = {'short-2': 2, 'short-4': 4, 'short-6': 6, 'short-8': 8,
-            'short-16': 16, 'equal-2': 2, 'long-2': 2, 'equal-16': 16,
-            'long-16': 16, 'vernier-only': 0}
+                              'short-16': 16, 'equal-2': 2, 'long-2': 2, 'equal-16': 16,
+                              'long-16': 16, 'vernier-only': 0}
 
 
 for dataset in DATASETS:
@@ -133,12 +129,14 @@ class _Malania2007Base(BenchmarkBase):
         return score
 
 
-def load_assembly(dataset):
+def load_assembly(dataset: str) -> PropertyAssembly:
     assembly = brainscore.get_assembly(f'Malania2007_{dataset}')
     return assembly
 
 
-def remove_subjects_with_nans(condition_assembly, baseline_assembly):
+def remove_subjects_with_nans(condition_assembly: PropertyAssembly,
+                              baseline_assembly: PropertyAssembly
+                              ) -> Tuple[PropertyAssembly, PropertyAssembly]:
     # Find the indices of the subjects with NaN values in the first PropertyAssembly
     nan_subjects = np.isnan(condition_assembly.values)
 

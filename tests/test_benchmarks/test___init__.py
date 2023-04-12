@@ -549,6 +549,8 @@ class TestNumberOfTrials:
         'dicarlo.Kar2019-ost',
         # behavior
         'dicarlo.Rajalingham2018-i2n',  # Geirhos2021 are single-trial, i.e. not included here
+        'Jacob2020-Depth',
+        'Jacob2020-Occlusion'
     ])
     def test_repetitions(self, benchmark_identifier):
         """ Tests that benchmarks have repetitions in the stimulus_set """

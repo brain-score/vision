@@ -92,6 +92,7 @@ class Model(PeeweeBase):
     visual_degrees = IntegerField(null=True)  # null during creation of new model without having model object loaded
     public = BooleanField()
     competition = CharField(max_length=200, default=None, null=True)
+    domain = CharField(max_length=200, default="vision")
 
     class Meta:
         table_name = 'brainscore_model'
@@ -107,8 +108,6 @@ class Score(PeeweeBase):
     score_raw = FloatField(null=True)
     start_timestamp = DateTimeField(null=True)
     comment = CharField(null=True)
-
-    # jenkins_id = IntegerField(null=True)
 
     class Meta:
         table_name = 'brainscore_score'

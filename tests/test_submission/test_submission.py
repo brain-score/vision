@@ -129,6 +129,8 @@ class TestConfig:
         assert not submission_config.public
 
     def test_resubmit_config(self):
+        Submission.create(id=33, jenkins_id=33, submitter=1, timestamp=datetime.now(),
+                          model_type='BaseModel', status='running')
         model = Model.create(id=19, name='alexnet', public=True, submission=33, owner=1)
         config = {
             "model_ids": [model.id],

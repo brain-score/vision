@@ -58,6 +58,24 @@ import brainio
         'brendel.Geirhos2021_stylized',
         'brendel.Geirhos2021_sketch',
         'brendel.Geirhos2021_uniform-noise',
+        'Malania2007_short-2',
+        'Malania2007_short-4',
+        'Malania2007_short-6',
+        'Malania2007_short-8',
+        'Malania2007_short-16',
+        'Malania2007_equal-2',
+        'Malania2007_long-2',
+        'Malania2007_equal-16',
+        'Malania2007_long-16',
+        'Malania2007_short-2_fit',
+        'Malania2007_short-4_fit',
+        'Malania2007_short-6_fit',
+        'Malania2007_short-8_fit',
+        'Malania2007_short-16_fit',
+        'Malania2007_equal-2_fit',
+        'Malania2007_long-2_fit',
+        'Malania2007_equal-16_fit',
+        'Malania2007_long-16_fit',
 ))
 def test_list_stimulus_set(stimulus_set):
     l = brainio.list_stimulus_sets()
@@ -248,4 +266,99 @@ class TestGeirhos2021:
         assert hasattr(stimulus_set, field)
 
 
+@pytest.mark.slow
+class TestMalania2007:
+    # test stimulus_set data:
+    @pytest.mark.parametrize('identifier', [
+        'short-2',
+        'short-4',
+        'short-6',
+        'short-8',
+        'short-16',
+        'equal-2',
+        'long-2',
+        'equal-16',
+        'long-16',
+        'short-2_fit',
+        'short-4_fit',
+        'short-6_fit',
+        'short-8_fit',
+        'short-16_fit',
+        'equal-2_fit',
+        'long-2_fit',
+        'equal-16_fit',
+        'long-16_fit',
+    ])
+    def test_stimulus_set_exist(self, identifier):
+        full_name = f"Malania2007_{identifier}"
+        stimulus_set = brainio.get_stimulus_set(full_name)
+        assert stimulus_set is not None
+        assert stimulus_set.identifier == full_name
 
+    # test the number of images
+    @pytest.mark.parametrize('identifier, num_images', [
+        ('short-2', 588),
+        ('short-4', 588),
+        ('short-6', 588),
+        ('short-8', 588),
+        ('short-16', 588),
+        ('equal-2', 588),
+        ('long-2', 588),
+        ('equal-16', 588),
+        ('long-16', 588),
+        ('short-2_fit', 432),
+        ('short-4_fit', 432),
+        ('short-6_fit', 432),
+        ('short-8_fit', 432),
+        ('short-16_fit', 432),
+        ('equal-2_fit', 432),
+        ('long-2_fit', 432),
+        ('equal-16_fit', 432),
+        ('long-16_fit', 432),
+    ])
+    def test_num_images(self, identifier, num_images):
+        stimulus_set = brainscore.get_stimulus_set(f"Malania2007_{identifier}")
+        assert len(np.unique(stimulus_set['stimulus_id'].values)) == num_images
+
+    # tests stimulus_set coords for the 14 "normal" sets:
+    @pytest.mark.parametrize('identifier', [
+        'short-2',
+        'short-4',
+        'short-6',
+        'short-8',
+        'short-16',
+        'equal-2',
+        'long-2',
+        'equal-16',
+        'long-16',
+        'short-2_fit',
+        'short-4_fit',
+        'short-6_fit',
+        'short-8_fit',
+        'short-16_fit',
+        'equal-2_fit',
+        'long-2_fit',
+        'equal-16_fit',
+        'long-16_fit',
+    ])
+    @pytest.mark.parametrize('field', [
+        'image_size_x',
+        'image_size_y',
+        'image_size_c',
+        'image_size_degrees',
+        'vernier_height',
+        'vernier_offset',
+        'image_label',
+        'flanker_height',
+        'flanker_spacing',
+        'line_width',
+        'flanker_distance',
+        'num_flankers',
+        'vernier_position_x',
+        'vernier_position_y',
+        'filename',
+        'stimulus_id',
+    ])
+    def test_fields_present(self, identifier, field):
+        stimulus_set = brainscore.get_stimulus_set(f"Malania2007_{identifier}")
+        assert hasattr(stimulus_set, field)

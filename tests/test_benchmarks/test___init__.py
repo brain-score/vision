@@ -96,6 +96,15 @@ class TestPoolList:
             'brendel.Geirhos2021stylized-error_consistency',
             'brendel.Geirhos2021sketch-error_consistency',
             'brendel.Geirhos2021uniformnoise-error_consistency',
+            'Malania2007_short-2',
+            'Malania2007_short-4',
+            'Malania2007_short-6',
+            'Malania2007_short-8',
+            'Malania2007_short-16',
+            'Malania2007_equal-2',
+            'Malania2007_long-2',
+            'Malania2007_equal-16',
+            'Malania2007_long-16',
         }
 
     def test_engineering_pool(self):
@@ -548,7 +557,9 @@ class TestNumberOfTrials:
         'dicarlo.SanghaviMurty2020.IT-pls',
         'dicarlo.Kar2019-ost',
         # behavior
-        'dicarlo.Rajalingham2018-i2n',  # Geirhos2021 are single-trial, i.e. not included here
+        'dicarlo.Rajalingham2018-i2n',
+        # Geirhos2021 are single-trial, i.e. not included here
+        # Malania2007 are single-trial, i.e. not included here
     ])
     def test_repetitions(self, benchmark_identifier):
         """ Tests that benchmarks have repetitions in the stimulus_set """

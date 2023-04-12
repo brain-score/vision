@@ -64,6 +64,16 @@ import brainscore
         'brendel.Geirhos2021_stylized',
         'brendel.Geirhos2021_sketch',
         'brendel.Geirhos2021_uniform-noise',
+        'Malania2007_short-2',
+        'Malania2007_short-4',
+        'Malania2007_short-6',
+        'Malania2007_short-8',
+        'Malania2007_short-16',
+        'Malania2007_equal-2',
+        'Malania2007_long-2',
+        'Malania2007_equal-16',
+        'Malania2007_long-16',
+        'Malania2007_vernier-only',
 ))
 def test_list_assembly(assembly):
     l = brainio.list_assemblies()
@@ -120,6 +130,16 @@ def test_list_assembly(assembly):
     pytest.param('brendel.Geirhos2021_stylized', marks=[pytest.mark.private_access]),
     pytest.param('brendel.Geirhos2021_sketch', marks=[pytest.mark.private_access]),
     pytest.param('brendel.Geirhos2021_uniform-noise', marks=[pytest.mark.private_access]),
+    pytest.param('Malania2007_short-2', marks=[pytest.mark.private_access]),
+    pytest.param('Malania2007_short-4', marks=[pytest.mark.private_access]),
+    pytest.param('Malania2007_short-6', marks=[pytest.mark.private_access]),
+    pytest.param('Malania2007_short-8', marks=[pytest.mark.private_access]),
+    pytest.param('Malania2007_short-16', marks=[pytest.mark.private_access]),
+    pytest.param('Malania2007_equal-2', marks=[pytest.mark.private_access]),
+    pytest.param('Malania2007_long-2', marks=[pytest.mark.private_access]),
+    pytest.param('Malania2007_equal-16', marks=[pytest.mark.private_access]),
+    pytest.param('Malania2007_long-16', marks=[pytest.mark.private_access]),
+    pytest.param('Malania2007_vernier-only', marks=[pytest.mark.private_access]),
 ])
 def test_existence(assembly_identifier):
     assert brainio.get_assembly(assembly_identifier) is not None
@@ -480,5 +500,46 @@ class TestGeirhos2021:
         'condition',
     ])
     def test_fields_present_cue_conflict(self, identifier, field):
+        assembly = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
+        assert hasattr(assembly, field)
+
+
+class TestMalania2007:
+
+    # test the number of subjects:
+    @pytest.mark.parametrize('identifier, num_subjects', [
+        ('short-2', 6),
+        ('short-4', 5),
+        ('short-6', 5),
+        ('short-8', 5),
+        ('short-16', 6),
+        ('equal-2', 5),
+        ('long-2', 5),
+        ('equal-16', 5),
+        ('long-16', 5),
+        ('vernier-only', 6)
+    ])
+    def test_num_subjects(self, identifier, num_subjects):
+        assembly = brainscore.get_assembly(f"Malania2007_{identifier}")
+        assembly = assembly.where(~np.isnan(assembly.values), drop=True)
+        assert len(np.unique(assembly['subject'].values)) == num_subjects
+
+    # test assembly coords present in ALL 17 sets:
+    @pytest.mark.parametrize('identifier', [
+        'short-2',
+        'short-4',
+        'short-6',
+        'short-8',
+        'short-16',
+        'equal-2',
+        'long-2',
+        'equal-16',
+        'long-16',
+        'vernier-only',
+    ])
+    @pytest.mark.parametrize('field', [
+        'subject'
+    ])
+    def test_fields_present(self, identifier, field):
         assembly = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
         assert hasattr(assembly, field)

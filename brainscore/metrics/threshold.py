@@ -1,15 +1,11 @@
-import itertools
-from typing import Dict, Union, Literal
+from typing import Dict, Union, Literal, Tuple
 
 import numpy as np
 from scipy.optimize import curve_fit
-from scipy.stats import norm
 from scipy.special import erf, erfinv
 
 from brainscore.metrics import Metric, Score
-from brainscore.metrics.ceiling import SplitHalfConsistency
-from brainio.assemblies import PropertyAssembly, BehavioralAssembly, DataAssembly
-from brainio.stimuli import StimulusSet
+from brainio.assemblies import PropertyAssembly, BehavioralAssembly
 
 
 def cumulative_gaussian(x: np.array, mu: float, sigma: float) -> float:
@@ -327,7 +323,7 @@ class ThresholdElevation(Threshold):
         baseline_assembly = assemblies['baseline_assembly']
         condition_assembly = assemblies['condition_assembly']
         threshold_elevations = []
-        for i, baseline_threshold in baseline_assembly.values:
-            condition_threshold = condition_assembly[i]
+        for i, baseline_threshold in enumerate(baseline_assembly.values):
+            condition_threshold = condition_assembly.values[i]
             threshold_elevations.append(condition_threshold / baseline_threshold)
         return threshold_elevations

@@ -99,7 +99,7 @@ class _Malania2007Base(BenchmarkBase):
                                           threshold_accuracy=0.75)
         self._ceiling = self._metric.ceiling(self._assemblies)
 
-        self._visual_degrees = 3  # the precise number is 2.66667 but place_on_screen expects Optional[int]?
+        self._visual_degrees = 2.66667
         self._number_of_trials = 1
 
         super(_Malania2007Base, self).__init__(

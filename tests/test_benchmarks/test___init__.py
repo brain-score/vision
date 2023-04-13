@@ -123,6 +123,14 @@ class TestPoolList:
             'brendel.Geirhos2021uniformnoise-top1',
             'kornblith.Hermann2020cueconflict-shape_bias',
             'kornblith.Hermann2020cueconflict-shape_match',
+            'Islam2021-shape_v1_dimensionality',
+            'Islam2021-texture_v1_dimensionality',
+            'Islam2021-shape_v2_dimensionality',
+            'Islam2021-texture_v2_dimensionality',
+            'Islam2021-shape_v4_dimensionality',
+            'Islam2021-texture_v4_dimensionality',
+            'Islam2021-shape_it_dimensionality',
+            'Islam2021-texture_it_dimensionality',
         }
 
 

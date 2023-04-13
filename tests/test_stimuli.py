@@ -58,6 +58,7 @@ import brainio
         'brendel.Geirhos2021_stylized',
         'brendel.Geirhos2021_sketch',
         'brendel.Geirhos2021_uniform-noise',
+        'Islam2021',
 ))
 def test_list_stimulus_set(stimulus_set):
     l = brainio.list_stimulus_sets()
@@ -247,5 +248,9 @@ class TestGeirhos2021:
         stimulus_set = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
         assert hasattr(stimulus_set, field)
 
-
-
+@pytest.mark.private_access
+def test_Islam2021():
+    stimulus_set = brainio.get_stimulus_set('Islam2021')
+    assert len(set(stimulus_set["texture"])) == 5
+    assert len(set(stimulus_set["shape"])) == 20
+    assert len(stimulus_set) == 4369 * 5

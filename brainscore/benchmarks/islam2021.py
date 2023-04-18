@@ -1,13 +1,10 @@
 import numpy as np
 import random
-import pandas as pd
 import brainscore
 from brainscore.benchmarks import BenchmarkBase, Score
 from brainscore.metrics.dimensionality import Dimensionality
 from brainscore.model_interface import BrainModel
-from tqdm import tqdm 
-from brainio.stimuli import StimulusSet
-from model_tools.brain_transformation import ModelCommitment
+from tqdm import tqdm
 
 BIBTEX = """@inproceedings{
             islam2021shape,

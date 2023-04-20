@@ -76,6 +76,7 @@ import brainio
         'Malania2007_long-2_fit',
         'Malania2007_equal-16_fit',
         'Malania2007_long-16_fit',
+        'Islam2021',
 ))
 def test_list_stimulus_set(stimulus_set):
     l = brainio.list_stimulus_sets()

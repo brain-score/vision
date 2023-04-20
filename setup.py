@@ -18,7 +18,8 @@ requirements = [
     "numpy>=1.17",
     "brainio @ git+https://github.com/brain-score/brainio",
     "importlib-metadata<5",  # workaround to https://github.com/brain-score/brainio/issues/28
-    "scikit-learn<0.24",  # 0.24 breaks pls regression
+    # "scikit-learn<0.24",  # 0.24 breaks pls regression
+    "scikit-learn",  # 0.24 breaks pls regression
     "scipy",
     "h5py",
     "tqdm",

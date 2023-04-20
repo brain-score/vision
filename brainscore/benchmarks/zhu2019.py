@@ -1,6 +1,4 @@
 import numpy as np
-from scipy.stats import pearsonr
-
 import brainscore
 from brainio.assemblies import DataAssembly
 from brainio.assemblies import walk_coords, BehavioralAssembly
@@ -11,8 +9,6 @@ from brainscore.metrics.accuracy import Accuracy
 from brainscore.metrics.response_match import ResponseMatch
 from brainscore.model_interface import BrainModel
 from brainscore.utils import LazyLoad
-from brainscore.metrics.ceiling import SpearmanBrownCorrection
-from tqdm import tqdm
 from numpy.random import RandomState
 
 BIBTEX = """@article{zhu2019robustness,
@@ -26,13 +22,25 @@ VISUAL_DEGREES = 8
 NUMBER_OF_TRIALS = 1
 NUM_SPLITS = 50
 
+"""
+INFORMATION:
+
+Based on Zhu et. al 2019: https://arxiv.org/pdf/1905.04598.pdf
+
+* This benchmark is unique in that is uses an INTRA-subject ceiling, instead of INTER-subject. This is different 
+* from other Brain-Score benchmarks, and is due to the fact that not every subject saw every image. In fact, each
+* subject saw a unique subset of images. Category-wise INTER-subject ceilings were calculated, but were found to be 
+* too low to use. 
+
+1) Consists of behavioral benchmark and engineering benchmark
+2) Assembly is 19,857 human trials, with 500 images
+3) Ceiling: NUM_SPLITS-fold INTRA (see above notes) subject split half reliability.
+"""
+
 
 class _Zhu2019ResponseMatch(BenchmarkBase):
     """
     Behavioral benchmark: compares model to average humans.
-    human ceiling is calculated by taking `NUM_SPLIT` split-half reliabilities with *category-level* responses.
-    This response_match benchmark compares the top average human response (out of 5 categories) per image to
-    the model response per image.
     """
 
     def __init__(self):
@@ -60,19 +68,24 @@ class _Zhu2019ResponseMatch(BenchmarkBase):
         predictions = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
         predictions = predictions.sortby("stimulus_id")
 
+        # from brainio.packaging import write_netcdf
+        # write_netcdf(predictions, '/Users/mike/Desktop/MIT/brainscore-benchmarks/venv/brain-score/tests/test_benchmarks/alexnet-Zhu2019-response_match.nc')
+
         # ensure alignment of data:
         assert set(predictions["stimulus_id"].values == human_responses["stimulus_id"].values) == {True}
 
         raw_score = self._metric(predictions, human_responses)
-        ceiling = self._ceiling(self._assembly)
-        score = raw_score / self.ceiling
+        ceiling = self._ceiler(self._assembly)
+        score = raw_score / ceiling
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = self.ceiling
         return score
 
 
 class _Zhu2019Accuracy(BenchmarkBase):
-    """ engineering benchmark: compares model to ground truth image labels """
+    """
+    Engineering benchmark: compares model to ground truth image labels
+    """
 
     def __init__(self):
         self._fitting_stimuli = brainscore.get_stimulus_set('Zhu2019_extreme_occlusion')
@@ -100,6 +113,10 @@ class _Zhu2019Accuracy(BenchmarkBase):
         predictions = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
         predictions = predictions.sortby("stimulus_id")
 
+        # from brainio.packaging import write_netcdf
+        # write_netcdf(predictions,
+        #              '/Users/mike/Desktop/MIT/brainscore-benchmarks/venv/brain-score/tests/test_benchmarks/alexnet-Zhu2019-accuracy.nc')
+
         # grab ground_truth from predictions (linked via stimulus_id) instead of stimulus set, to ensure sort
         ground_truth = predictions["ground_truth"].sortby("stimulus_id")
 
@@ -120,7 +137,11 @@ class _Zhu2019Accuracy(BenchmarkBase):
 def _human_assembly_categorical_distribution(assembly: LazyLoad, collapse: bool) -> DataAssembly:
     """
     Convert from 19587 trials across 25 subjects to a 500 images x 5 choices assembly.
-    This is needed, as not every subject saw every image, and this allows a cross-category comparison
+    This is needed, as not every subject saw every image.
+
+    :param assembly: the human data, in assembly form
+    :param collapse: defualt False. If true, return category-level comparison. (Legacy: no longer used)
+    :return: DataAssembly of shape 1ximage_numbers with top average human response per image
     """
 
     choice_labels = set(assembly['truth'].values)
@@ -146,8 +167,14 @@ def _human_assembly_categorical_distribution(assembly: LazyLoad, collapse: bool)
     return labels
 
 
-# takes 5-way softmax vector and returns category of highest response
-def get_choices(predictions:BehavioralAssembly, categories:list) -> BehavioralAssembly:
+def get_choices(predictions: BehavioralAssembly, categories: list) -> BehavioralAssembly:
+    """
+    Converts a image_number x category size assembly into a image_number x 1 vector of top category per image
+
+    :param predictions: Human assembly, image_number x category size
+    :param categories: list of strings corresponding to categories
+    :return: image_number x 1 Assembly of top category per image
+    """
 
     # make sure predictions (choices) are aligned with categories:
     assert set(predictions["choice"].values == categories) == {True}
@@ -180,8 +207,8 @@ class HalvesZhu:
         consistencies = []
         images = set(assembly['stimulus_id'].values)
 
+        # for each image, compute split-half and then average those scores
         for image in images:
-            print(image)
             image_consistencies = []
             single_category_assembly = assembly[
                 {'presentation': [_image == image for _image in assembly['stimulus_id'].values]}]
@@ -189,7 +216,6 @@ class HalvesZhu:
             # split the images in half randomly to pass to metric
             for i in range(self.num_splits):
                 random_state = np.random.RandomState(i)
-                print(i)
                 trials = single_category_assembly["choice"].values
                 random_state.shuffle(trials)
                 trials = trials.tolist()

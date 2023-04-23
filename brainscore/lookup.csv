@@ -171,3 +171,5 @@ katz.BarbuMayo2019,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/
 Zhu2019_extreme_occlusion,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_Zhu2019_extreme_occlusion.csv,ba875087c9faa6fff273ee7e62ebfdfd18051590,,
 Zhu2019_extreme_occlusion,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_Zhu2019_extreme_occlusion.zip,06e649618a02de65b2b0cd969ffa39c2b4cfddf8,,
 Zhu2019_extreme_occlusion,assembly,BehavioralAssembly,S3,https://brainio-brainscore.s3.amazonaws.com/assy_Zhu2019_extreme_occlusion.nc,82e1b9afb41e2f60adc238f6398807ea1671fd05,Zhu2019_extreme_occlusion,
+Islam2021,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_neil_Islam2021.csv,93ab0f6386d8d5fb56640da45980a819c7dd6efc,,
+Islam2021,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_neil_Islam2021.zip,e55b673117a472f463e0705ac3e330ef8dfd938b,,

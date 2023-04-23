@@ -50,6 +50,7 @@ for f in \
     alexnet-Zhu2019-accuracy.nc \
     resnet-18-Zhu2019-response_match.nc \
     resnet-18-Zhu2019-accuracy.nc
+    alexnet-islam2021-classifier.5.nc
 do
   aws --no-sign-request s3 cp s3://brain-score-tests/tests/test_benchmarks/${f} ${SCRIPT_DIR}/tests/test_benchmarks/
 done

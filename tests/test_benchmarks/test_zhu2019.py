@@ -24,8 +24,11 @@ class TestZhu2019:
     ])
     def test_benchmark_ceiling(self, benchmark, expected_ceiling):
         benchmark = benchmark_pool[benchmark]
-        ceiling = benchmark.ceiling
-        assert ceiling.sel(aggregation='center') == expected_ceiling
+        ceiling = benchmark._ceiling(benchmark._assembly)
+        if "accuracy" in benchmark.identifier:
+            assert ceiling.sel(aggregation='center') == expected_ceiling
+        else:
+            assert ceiling == expected_ceiling
 
     @pytest.mark.parametrize('benchmark, model, expected_raw_score', [
         ('Zhu2019-response_match', 'alexnet', approx(0.4700, abs=0.0001)),

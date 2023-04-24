@@ -45,7 +45,7 @@ class _Zhu2019ResponseMatch(BenchmarkBase):
 
     def __init__(self):
         self._assembly = LazyLoad(lambda: brainscore.get_assembly('Zhu2019_extreme_occlusion'))
-        self._ceiler = HalvesZhu(metric=ResponseMatch(), split_coordinate="subject", num_splits=25)
+        self._ceiling = HalvesZhu(metric=ResponseMatch(), split_coordinate="subject", num_splits=25)
         self._fitting_stimuli = brainscore.get_stimulus_set('Zhu2019_extreme_occlusion')
         self._stimulus_set = LazyLoad(lambda: self._assembly.stimulus_set)
         self._visual_degrees = VISUAL_DEGREES
@@ -55,7 +55,7 @@ class _Zhu2019ResponseMatch(BenchmarkBase):
         super(_Zhu2019ResponseMatch, self).__init__(
             identifier='Zhu2019_extreme_occlusion-response_match',
             parent='Ferguson2023',
-            ceiling_func=lambda: self._ceiler(assembly=self._assembly),
+            ceiling_func=lambda: self._ceiling(assembly=self._assembly),
             bibtex=BIBTEX, version=1)
 
     def __call__(self, candidate: BrainModel):
@@ -68,14 +68,11 @@ class _Zhu2019ResponseMatch(BenchmarkBase):
         predictions = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
         predictions = predictions.sortby("stimulus_id")
 
-        # from brainio.packaging import write_netcdf
-        # write_netcdf(predictions, '/Users/mike/Desktop/MIT/brainscore-benchmarks/venv/brain-score/tests/test_benchmarks/alexnet-Zhu2019-response_match.nc')
-
         # ensure alignment of data:
         assert set(predictions["stimulus_id"].values == human_responses["stimulus_id"].values) == {True}
 
         raw_score = self._metric(predictions, human_responses)
-        ceiling = self._ceiler(self._assembly)
+        ceiling = self._ceiling(self._assembly)
         score = raw_score / ceiling
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = self.ceiling

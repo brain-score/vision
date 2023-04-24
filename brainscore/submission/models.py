@@ -26,6 +26,7 @@ class BenchmarkType(PeeweeBase):
     order = IntegerField()
     parent = ForeignKeyField(column_name='parent_id', field='identifier', model='self', null=True)
     visible = BooleanField(default=False, null=False)
+    domain = CharField(max_length=200, default="vision")
 
     class Meta:
         table_name = 'brainscore_benchmarktype'

@@ -75,7 +75,7 @@ class _Zhu2019ResponseMatch(BenchmarkBase):
         ceiling = self._ceiling(self._assembly)
         score = raw_score / ceiling
         score.attrs['raw'] = raw_score
-        score.attrs['ceiling'] = self.ceiling
+        score.attrs['ceiling'] = ceiling
         return score
 
 
@@ -109,10 +109,6 @@ class _Zhu2019Accuracy(BenchmarkBase):
                                        source_visual_degrees=self._visual_degrees)
         predictions = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
         predictions = predictions.sortby("stimulus_id")
-
-        # from brainio.packaging import write_netcdf
-        # write_netcdf(predictions,
-        #              '/Users/mike/Desktop/MIT/brainscore-benchmarks/venv/brain-score/tests/test_benchmarks/alexnet-Zhu2019-accuracy.nc')
 
         # grab ground_truth from predictions (linked via stimulus_id) instead of stimulus set, to ensure sort
         ground_truth = predictions["ground_truth"].sortby("stimulus_id")

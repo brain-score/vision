@@ -19,7 +19,7 @@ To contribute, please [send in a pull request](https://github.com/brain-score/br
 
 ## Local installation
 
-You will need Python >= 3.7 and pip >= 18.1.
+You will need Python <= 3.8 and pip >= 18.1, as well as scipy ~= 1.7.3.
 Note that you can only access public benchmarks when running locally.
 To score a model on all benchmarks, submit it via the [brain-score.org website](http://www.brain-score.org).
 

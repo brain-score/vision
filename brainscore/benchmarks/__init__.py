@@ -104,6 +104,7 @@ class BenchmarkBase(Benchmark):
 
     @property
     def ceiling(self):
+        # call secondary method to store the output of the ceiling function and not have to recompute it
         return self._ceiling(identifier=self.identifier)
 
     @store()
@@ -217,6 +218,10 @@ def _evaluation_benchmark_pool():
             # use lambda parameter-binding to avoid `benchmark_ctr` being re-assigned in the next loop iteration
             lambda benchmark_ctr=benchmark_ctr: benchmark_ctr())
 
+    # Zhu2019
+    from .zhu2019 import Zhu2019ResponseMatch
+    pool['Zhu2019-response_match'] = LazyLoad(Zhu2019ResponseMatch)
+
     return pool
 
 
@@ -254,6 +259,10 @@ def _engineering_benchmark_pool():
     from .hermann2020 import Hermann2020cueconflictShapeBias, Hermann2020cueconflictShapeMatch
     pool['kornblith.Hermann2020cueconflict-shape_bias'] = LazyLoad(Hermann2020cueconflictShapeBias)
     pool['kornblith.Hermann2020cueconflict-shape_match'] = LazyLoad(Hermann2020cueconflictShapeMatch)
+
+    # Zhu2019
+    from .zhu2019 import Zhu2019Accuracy
+    pool['Zhu2019-accuracy'] = LazyLoad(Zhu2019Accuracy)
     
     return pool
 

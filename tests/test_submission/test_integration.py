@@ -56,7 +56,7 @@ class TestIntegration:
         submission = Submission.create(id=33, jenkins_id=33, submitter=1, timestamp=datetime.now(),
                                        model_type='BaseModel', status='running')
         model = Model.create(name='alexnet', owner=submission.submitter, public=False,
-                             submission=submission)
+                             submission=submission, domain="vision")
         with open(f'{config_dir}submission_40.json', 'w') as rerun:
             rerun.write(f"""{{
                 "model_ids": [{model.id}], "user_id": 1, "competition": null}}""")
@@ -88,9 +88,9 @@ class TestIntegration:
         working_dir = str(tmpdir.mkdir('sub'))
         config_dir = str(os.path.join(os.path.dirname(__file__), 'configs/'))
         submission = Submission.create(id=33, jenkins_id=33, submitter=1, timestamp=datetime.now(),
-                                       model_type='BaseModel', status='running')
+                                       model_type='BaseModel', status='running' )
         model = Model.create(name='alexnet', owner=submission.submitter, public=False,
-                             submission=submission)
+                             submission=submission, domain="vision")
         with open(f'{config_dir}submission_34.json', 'w') as rerun:
             rerun.write(f"""{{
             "model_ids": [{model.id}], "user_id": 1}}""")

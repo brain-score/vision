@@ -1,0 +1,10 @@
+1. get Martin's approval to add the user
+2. go to https://us-east-1.console.aws.amazon.com/iamv2/home?region=us-east-1#/users
+3. click "Add users"
+4. set user name to the email username, e.g. mferg@mit.edu -> mferg
+5. add to groups: "Brain-Score_read" (and if necessary "Brain-Score_write")
+6. create
+7. navigate to newly created user account, scroll down to "Access keys"
+8. click "Create access key" (Command Line Interface CLI)
+9. no tag, click Create access key
+10. Download .csv file and send to user, point them at https://github.com/brain-score/brainio/blob/main/docs/aws_access.md

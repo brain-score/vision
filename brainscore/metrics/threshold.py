@@ -1,21 +1,99 @@
-from typing import Dict, Union, Tuple
+from typing import Dict, Union, Tuple, Optional, Callable
 
 import numpy as np
-from scipy.optimize import curve_fit
-from scipy.special import erf, erfinv
+from scipy.optimize import minimize
+from scipy.stats import norm
 
 from brainscore.metrics import Metric, Score
 from brainio.assemblies import PropertyAssembly, BehavioralAssembly
 
-
-def cumulative_gaussian(x: np.array, mu: float, sigma: float) -> float:
-    """The cumulative gaussian function."""
-    return 0.5 * (1 + erf((x - mu) / (sigma * np.sqrt(2))))
+import matplotlib.pyplot as plt
 
 
-def inverse_cumulative_gaussian(x_point: float, mu: float, sigma: float) -> float:
-    """Inverts the cumulative_gaussian function."""
-    return np.sqrt(2) * sigma * erfinv(2 * x_point - 1) + mu
+def wichmann_cum_gauss(x: np.array, alpha: float, beta: float, lambda_: float, gamma: float = 0.5) -> float:
+    """
+    The classic psychometric function as implemented in Wichmann & Hill (2001). The psychometric function: I.
+    Fitting, sampling, and goodness of fit, eq. 1.
+
+    Parameters
+    ----------
+    x: the independent variables of the data
+    alpha: the slope parameter
+    beta: the mean of the cdf parameter
+    lambda_: the lapse rate
+    gamma: the upper bound of the fit
+    """
+    return gamma + (1 - gamma - lambda_) * norm.cdf(alpha * (x - beta))
+
+
+def inverse_wichmann_cum_gauss(y: np.array, alpha: float, beta: float, lambda_: float, gamma: float = 0.5) -> float:
+    """The inverse of wichmann_cum_gauss."""
+    return beta + (norm.ppf((y - gamma) / (1 - gamma - lambda_)) / alpha)
+
+
+def wichmann_neg_log_likelihood(params: Tuple[float, ...], x: np.array, y: np.array) -> float:
+    """The negative log likelihood function for wichmann_cum_gauss."""
+    alpha, beta, lambda_ = params
+    p = wichmann_cum_gauss(x, alpha, beta, lambda_)
+    logL = y * np.log(p) + (1 - y) * np.log(1 - p)
+    return -np.sum(logL)
+
+
+def grid_search(x: np.array,
+                y: np.array,
+                alpha_values: np.array = np.logspace(-3, 1, 50),
+                beta_values: np.array = None,
+                fit_log_likelihood_fn: Callable = wichmann_neg_log_likelihood,
+                fit_bounds: Tuple = ((None, None), (None, None), (0.03, 0.5))) -> Tuple[float, ...]:
+    """
+    A classic simplified procedure for running sparse grid search over the slope and mean parameters of the
+    psychometric function.
+
+    Parameters
+    ----------
+    x: the independent variables of the data
+    y: the measured accuracy rates for the given x-values
+    alpha_values: the alpha values for the chosen fit function to grid search over
+    beta_values: the beta values for the chosen fit function to grid search over
+    fit_log_likelihood_fn: the log likelihood function that computes the log likelihood of its corresponding
+                            fit function
+    fit_bounds: the bounds assigned to the fit function called by fit_log_likelihood_fn.
+                 The default fit_bounds are assigned as:
+                 alpha: (None, None), to allow any slope
+                 beta: (None, None), any inflection point is allowed, as that is controlled for in the Threshold class
+                 lambda_: (0.03, 0.5)), to require at least a small lapse rate, as is regularly done in human fitting
+
+    Returns
+    -------
+    the parameters of the best fit in the grid search
+    """
+    assert len(x) == len(y)
+    # Default the beta_values grid search to the measured x-points.
+    if beta_values is None:
+        beta_values = x
+
+    # initialize best values for a fit
+    best_alpha, best_beta, best_lambda = None, None, None
+    min_neg_log_likelihood = np.inf
+
+    for alpha_guess in alpha_values:
+        for beta_guess in beta_values:
+            initial_guess = np.array([alpha_guess, beta_guess, 1 - np.max(y)])  # lapse rate guess set to the maximum y
+
+            # wrap inside a RuntimeError block to catch the RuntimeError thrown by scipy.minimize if a fit
+            # entirely fails.
+            try:
+                result = minimize(fit_log_likelihood_fn, initial_guess, args=(x, y), method='L-BFGS-B', bounds=fit_bounds)
+                alpha_hat, beta_hat, lambda_hat = result.x
+                neg_log_likelihood_hat = fit_log_likelihood_fn([alpha_hat, beta_hat, lambda_hat], x, y)
+
+                if neg_log_likelihood_hat < min_neg_log_likelihood:
+                    min_neg_log_likelihood = neg_log_likelihood_hat
+                    best_alpha, best_beta, best_lambda = alpha_hat, beta_hat, lambda_hat
+            except RuntimeError:
+                pass
+
+    return best_alpha, best_beta, best_lambda
 
 
 class Threshold(Metric):
@@ -27,11 +105,14 @@ class Threshold(Metric):
     against the mean of the distance of the model threshold to human thresholds.
     """
     def __init__(self,
-                 independent_variable,
-                 fit_function=cumulative_gaussian,
-                 fit_inverse_function=inverse_cumulative_gaussian,
+                 independent_variable: str,
+                 fit_function=wichmann_cum_gauss,
+                 fit_inverse_function=inverse_wichmann_cum_gauss,
                  threshold_accuracy: Union[str, float] = 'inflection',
-                 scoring: str = 'individual'
+                 scoring: str = 'pool',
+                 max_fit_params: Optional[Tuple[float, ...]] = None,
+                 required_accuracy: Optional[float] = 0.6,
+                 plot_fit: bool = False
                  ):
         """
         :param independent_variable: The independent variable in the benchmark that the threshold is computed
@@ -51,6 +132,9 @@ class Threshold(Metric):
         self._independent_variable = independent_variable
         self.threshold_accuracy = threshold_accuracy
         self.scoring = scoring
+        self.max_fit_params = max_fit_params
+        self.required_accuracy = required_accuracy
+        self.plot_fit = plot_fit
 
     def __call__(self, source: Union[BehavioralAssembly, float], target: Union[list, PropertyAssembly]) -> Score:
         """
@@ -67,7 +151,7 @@ class Threshold(Metric):
             source_threshold = self.compute_threshold(source, self._independent_variable)
             # check whether the psychometric function fit was successful - if not, return a score of 0
             if source_threshold == 'fit_fail':
-                return Score([0.], coords={'aggregation': ['center', ]}, dims=['aggregation'])
+                return Score([0., 0.], coords={'aggregation': ['center', ]}, dims=['aggregation'])
         else:
             raise TypeError(f'source is type {type(source)}, but type BehavioralAssembly or float is required.')
 
@@ -81,34 +165,15 @@ class Threshold(Metric):
 
     def ceiling(self, assembly: Union[PropertyAssembly, Dict[str, PropertyAssembly]]) -> Score:
         """
-        Selects the appropriate ceiling to be computed from target assembly data.
-
-        :param assembly: the human PropertyAssembly containing human responses, or a dict containing the
-                          PropertyAssemblies of the ThresholdElevation metric.
-        :return: Score object with coords center (ceiling) and error (STD)
-        """
-        if self.scoring == 'pool':
-            return self.pool_ceiling(assembly)
-        elif self.scoring == 'individual':
-            return self.individual_ceiling(assembly)
-        else:
-            raise ValueError(f'Scoring method {self.scoring} is not a valid scoring method.')
-
-    def pool_ceiling(self, assembly: PropertyAssembly):
-        # Still not super sure what a logical pooled ceiling here is - some split-half procedure like in
-        # 'https://github.com/brain-score/brain-score/blob/
-        # 9fbf4eda24d081c0ec7bc4d7b5572d8c13dc92d2/brainscore/metrics/image_level_behavior.py#L92'
-        # likely makes sense, but is quite problematic with the small amount of target data available in most
-        # thresholding studies.
-        raise NotImplementedError
-
-    def individual_ceiling(self, assembly: PropertyAssembly):
-        """
         Computed by one-vs all for each of the NUM_TRIALS human indexes. One index is removed, and scored against
         a pool of the other values.
 
         Currently copied with modification from 'https://github.com/brain-score/brain-score/blob/
         jacob2020_occlusion_depth_ordering/brainscore/metrics/data_cloud_comparision.py#L54'.
+
+        :param assembly: the human PropertyAssembly containing human responses, or a dict containing the
+                          PropertyAssemblies of the ThresholdElevation metric.
+        :return: Score object with coords center (ceiling) and error (STD)
         """
         human_thresholds: list = assembly.values.tolist()
         scores = []
@@ -116,7 +181,7 @@ class Threshold(Metric):
             random_state = np.random.RandomState(i)
             random_human_score = random_state.choice(human_thresholds, replace=False)
             metric = Threshold(self._independent_variable, self.fit_function, self.fit_inverse_function,
-                               self.threshold_accuracy)
+                               self.threshold_accuracy, scoring=self.scoring)
             human_thresholds.remove(random_human_score)
             score = metric(random_human_score, human_thresholds)
             score = float(score[(score['aggregation'] == 'center')].values)
@@ -127,13 +192,17 @@ class Threshold(Metric):
         ceiling = Score([ceiling, ceiling_error], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         return ceiling
 
-    def compute_threshold(self, source: BehavioralAssembly, independent_variable: str) -> float:
+    def compute_threshold(self, source: BehavioralAssembly, independent_variable: str) -> Union[float, str]:
         """Converts the source BehavioralAssembly to a threshold float value."""
         assert len(source.values) == len(source[independent_variable].values)
 
         x_points = source[independent_variable].values
         accuracies = self.convert_proba_to_correct(source)
-        fit_params = self.fit_threshold_function(x_points, accuracies)
+        if np.mean(accuracies) < self.required_accuracy:
+            print('Psychometric threshold fit failure due to low accuracy.')
+            fit_params = 'fit_fail'
+        else:
+            fit_params, measurement_max = self.fit_threshold_function(x_points, accuracies)
         if (type(fit_params) == str) and (fit_params == 'fit_fail'):
             return fit_params
 
@@ -141,6 +210,11 @@ class Threshold(Metric):
             self.threshold_accuracy = self.inflection_accuracy(x_points, fit_params)
 
         threshold = self.find_threshold(self.threshold_accuracy, fit_params)
+
+        # check whether the fit is outside the measured model responses to discard spurious thresholds
+        if (threshold > measurement_max) or np.isnan(threshold):
+            print('Fit fail because threshold is outside of the measured range of responses.')
+            return 'fit_fail'
         return threshold
 
     def fit_threshold_function(self, x_points: np.array, y_points: np.array) -> Union[np.array, str]:
@@ -151,16 +225,29 @@ class Threshold(Metric):
         Returns either the fit parameters for self.fit_function or a string tag that indicates the failure
         of the psychometric curve fit.
         """
-        initial_guess = [np.mean(x_points), np.mean(x_points)]
-        try:
-            fit = curve_fit(self.fit_function, x_points, y_points, p0=initial_guess)
-            # curve_fit returns a ndarray of which the 0th element are the optimized parameters
-            params = fit[0].flatten()
-            return params
-        except RuntimeError:
-            print('Model threshold fit unsuccessful. This is likely because of the model outputting the same value '
-                  'for every input.')
-            return 'fit_fail'
+        x_points, y_points = self.aggregate_psychometric_fit_data(x_points, y_points)
+        aggregated_x_points, aggregated_y_points, at_least_third_remaining = self.remove_data_after_asymptote(x_points,
+                                                                                                              y_points)
+        measurement_max = np.max(aggregated_x_points)
+        if not at_least_third_remaining:
+            # This failure indicates that there is too little data to accurately fit the psychometric function.
+            print('Psychometric curve fit fail because performance is decreasing with the independent variable.')
+            return 'fit_fail', measurement_max
+
+        params = grid_search(aggregated_x_points, aggregated_y_points)
+        # if all the fits in the grid search failed, there will be a None value in params. In this case, we reject
+        #  the fit. This typically only ever happens when a model outputs one value for all test images.
+        if None in params:
+            params = 'fit_fail'
+
+        if self.plot_fit:
+            self.plot_fit_(x_points,
+                           aggregated_x_points,
+                           y_points,
+                           aggregated_y_points,
+                           params,
+                           fit_function=self.fit_function)
+        return params, measurement_max
 
     def find_threshold(self, threshold_accuracy: float, fit_params: Tuple[float, ...]) -> float:
         """
@@ -180,6 +267,39 @@ class Threshold(Metric):
         threshold_accuracy = min_fit_accuracy + (max_fit_accuracy - min_fit_accuracy) / 2
         return threshold_accuracy
 
+    def plot_fit_(self, x_points, x_points_removed, y_points, y_points_removed, fit_params, fit_function):
+        # Create a dense set of x values for plotting the fitted curve
+        x_dense = np.linspace(min(x_points), max(x_points), 1000)
+        # Calculate the corresponding y values using the fit function and parameters
+        y_dense = fit_function(x_dense, *fit_params)
+
+        # Plot the original data points
+        plt.scatter(x_points, y_points, label='Before asymptote removal',
+                    marker='o', color='blue', alpha=0.5)
+        plt.scatter(x_points_removed, y_points_removed, label='After asymptote removal',
+                    marker='o', color='red', alpha=0.5)
+
+        # Plot the fitted curve
+        plt.plot(x_dense, y_dense, label='Fitted curve', color='red', linewidth=2)
+
+        # Add labels and a legend
+        plt.xlabel(self._independent_variable)
+        plt.ylabel('Accuracy')
+        plt.legend()
+        plt.show()
+
+    @staticmethod
+    def aggregate_psychometric_fit_data(x_points, y_points):
+        unique_x = np.unique(x_points)
+        correct_rate = np.zeros(len(unique_x))
+
+        for i, x in enumerate(unique_x):
+            trials = np.sum(x_points == x)
+            correct_trials = np.sum((x_points == x) & (y_points == 1))
+            correct_rate[i] = correct_trials / trials
+
+        return unique_x, correct_rate
+
     @staticmethod
     def individual_score(source: float, target: Union[list, PropertyAssembly]) -> Score:
         """
@@ -189,7 +309,7 @@ class Threshold(Metric):
         """
         raw_scores = []
         for target_value in target:
-            raw_score = max((1 - ((np.abs(target_value - source)) / target_value)), 0)
+            raw_score = max((1 - ((np.abs(target_value - source)) / (target_value + source))), 0)
             raw_scores.append(raw_score)
 
         raw_score, model_error = np.mean(raw_scores), np.std(raw_scores)
@@ -207,8 +327,8 @@ class Threshold(Metric):
             target_mean = np.mean(target.values)
         else:
             target_mean = np.mean(target)
-        raw_score = max((1 - ((np.abs(target_mean - source)) / target_mean)), 0)
-        raw_score = Score([raw_score], coords={'aggregation': ['center', ]}, dims=['aggregation'])
+        raw_score = max((1 - ((np.abs(target_mean - source)) / (target_mean + source))), 0)
+        raw_score = Score([raw_score], coords={'aggregation': ['center']}, dims=['aggregation'])
         return raw_score
 
     @staticmethod
@@ -223,6 +343,37 @@ class Threshold(Metric):
                 correct.append(0)
         return np.array(correct)
 
+    @staticmethod
+    def remove_data_after_asymptote(x_values, y_values):
+        # Compute the standard deviation of y_values
+        std_dev = np.std(y_values)
+
+        # Find the index of the maximum y_value
+        max_y_idx = np.argmax(y_values)
+
+        # Initialize the index for the first data point after the maximum y_value
+        # that deviates from the maximum by at least 1 standard deviation
+        index_to_remove = None
+
+        # Iterate through the y_values after the maximum y_value
+        for idx, y in enumerate(y_values[max_y_idx + 1:], start=max_y_idx + 1):
+            # Check if all the remaining y_values deviate by at least 1 standard deviation
+            if all([abs(val - y_values[max_y_idx]) >= std_dev for val in y_values[idx:]]):
+                index_to_remove = idx
+                break
+
+        pre_remove_length = len(y_values)
+        # If we found an index to remove, remove the data after that index
+        if index_to_remove is not None:
+            x_values = x_values[:index_to_remove]
+            y_values = y_values[:index_to_remove]
+
+        # Check if at least a third of the elements remain
+        remaining_fraction = len(y_values) / pre_remove_length
+        is_at_least_third_remaining = remaining_fraction >= 1 / 3
+
+        return x_values, y_values, is_at_least_third_remaining
+
 
 class ThresholdElevation(Threshold):
     """
@@ -236,7 +387,10 @@ class ThresholdElevation(Threshold):
                  baseline_condition: str,
                  test_condition: str,
                  threshold_accuracy: Union[str, float] = 'inflection',
-                 scoring: str = 'individual'
+                 scoring: str = 'pool',
+                 max_fit_params: Optional[Tuple[float, ...]] = None,
+                 required_baseline_accuracy: Optional[float] = 0.6,
+                 required_test_accuracy: Optional[float] = 0.0
                  ):
         """
         :param independent_variable: The independent variable in the benchmark that the threshold is computed
@@ -253,9 +407,13 @@ class ThresholdElevation(Threshold):
                 """
         super(ThresholdElevation, self).__init__(independent_variable)
         self.baseline_threshold_metric = Threshold(self._independent_variable,
-                                                   threshold_accuracy=threshold_accuracy)
+                                                   threshold_accuracy=threshold_accuracy,
+                                                   max_fit_params=max_fit_params,
+                                                   required_accuracy=required_baseline_accuracy)
         self.test_threshold_metric = Threshold(self._independent_variable,
-                                               threshold_accuracy=threshold_accuracy)
+                                               threshold_accuracy=threshold_accuracy,
+                                               max_fit_params=max_fit_params,
+                                               required_accuracy=required_test_accuracy)
         self.baseline_condition = baseline_condition
         self.test_condition = test_condition
         self.threshold_accuracy = threshold_accuracy
@@ -280,12 +438,15 @@ class ThresholdElevation(Threshold):
         elif isinstance(source, Dict):
             source_baseline_threshold = self.baseline_threshold_metric.compute_threshold(source[self.baseline_condition],
                                                                                          self._independent_variable)
+
             # if using the inflection accuracy, get the inflection point from the baseline condition, and use that
             # for the test condition.
             if self.threshold_accuracy == 'inflection':
                 self.test_threshold_metric.threshold_accuracy = self.baseline_threshold_metric.threshold_accuracy
             source_test_threshold = self.test_threshold_metric.compute_threshold(source[self.test_condition],
                                                                                  self._independent_variable)
+            if source_baseline_threshold == 'fit_fail' or source_test_threshold == 'fit_fail':
+                return Score([0., 0.], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
             raw_source_threshold_elevation = source_test_threshold / source_baseline_threshold
         else:
             raise TypeError(f'source is type {type(source)}, but type BehavioralAssembly or float is required.')
@@ -306,15 +467,7 @@ class ThresholdElevation(Threshold):
         else:
             raise ValueError(f'Scoring method {self.scoring} is not a valid scoring method.')
 
-    def pool_ceiling(self, assemblies: Dict[str, PropertyAssembly]):
-        # Still not super sure what a logical pooled ceiling here is - some split-half procedure like in
-        # 'https://github.com/brain-score/brain-score/blob/
-        # 9fbf4eda24d081c0ec7bc4d7b5572d8c13dc92d2/brainscore/metrics/image_level_behavior.py#L92'
-        # likely makes sense, but is quite problematic with the small amount of target data available in most
-        # thresholding studies.
-        raise NotImplementedError
-
-    def individual_ceiling(self, assemblies: Dict[str, PropertyAssembly]):
+    def ceiling(self, assemblies: Dict[str, PropertyAssembly]) -> Score:
         """
         Computed by one-vs all for each of the NUM_TRIALS human indexes. One index is removed, and scored against
         a pool of the other values.
@@ -328,7 +481,7 @@ class ThresholdElevation(Threshold):
             random_state = np.random.RandomState(i)
             random_human_score = random_state.choice(human_threshold_elevations, replace=False)
             metric = ThresholdElevation(self._independent_variable, self.baseline_condition, self.test_condition,
-                                        self.threshold_accuracy, self.scoring)
+                                        self.threshold_accuracy, scoring=self.scoring)
             human_threshold_elevations.remove(random_human_score)
             score = metric(random_human_score, human_threshold_elevations)
             score = float(score[(score['aggregation'] == 'center')].values)

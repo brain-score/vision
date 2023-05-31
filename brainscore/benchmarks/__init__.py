@@ -254,7 +254,7 @@ def _engineering_benchmark_pool():
     from .hermann2020 import Hermann2020cueconflictShapeBias, Hermann2020cueconflictShapeMatch
     pool['kornblith.Hermann2020cueconflict-shape_bias'] = LazyLoad(Hermann2020cueconflictShapeBias)
     pool['kornblith.Hermann2020cueconflict-shape_match'] = LazyLoad(Hermann2020cueconflictShapeMatch)
-
+    
     return pool
 
 
@@ -280,6 +280,20 @@ def _experimental_benchmark_pool():
     pool['tolias.Cadena2017-mask'] = LazyLoad(ToliasCadena2017Mask)
     from .rajalingham2020 import DicarloRajalingham2020ITPLS
     pool['dicarlo.Rajalingham2020.IT-pls'] = LazyLoad(DicarloRajalingham2020ITPLS)
+
+    # Islam 2021:
+    from .islam2021 import Islam2021Dimensionality_V1_Shape, Islam2021Dimensionality_V1_Texture, \
+        Islam2021Dimensionality_V2_Shape, Islam2021Dimensionality_V2_Texture, \
+        Islam2021Dimensionality_V4_Shape, Islam2021Dimensionality_V4_Texture, \
+        Islam2021Dimensionality_IT_Shape, Islam2021Dimensionality_IT_Texture
+    pool['Islam2021-shape_v1_dimensionality'] = LazyLoad(Islam2021Dimensionality_V1_Shape)
+    pool['Islam2021-texture_v1_dimensionality'] = LazyLoad(Islam2021Dimensionality_V1_Texture)
+    pool['Islam2021-shape_v2_dimensionality'] = LazyLoad(Islam2021Dimensionality_V2_Shape)
+    pool['Islam2021-texture_v2_dimensionality'] = LazyLoad(Islam2021Dimensionality_V2_Texture)
+    pool['Islam2021-shape_v4_dimensionality'] = LazyLoad(Islam2021Dimensionality_V4_Shape)
+    pool['Islam2021-texture_v4_dimensionality'] = LazyLoad(Islam2021Dimensionality_V4_Texture)
+    pool['Islam2021-shape_it_dimensionality'] = LazyLoad(Islam2021Dimensionality_IT_Shape)
+    pool['Islam2021-texture_it_dimensionality'] = LazyLoad(Islam2021Dimensionality_IT_Texture)
 
     return pool
 

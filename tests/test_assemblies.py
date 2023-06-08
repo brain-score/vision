@@ -541,5 +541,5 @@ class TestMalania2007:
         'subject'
     ])
     def test_fields_present(self, identifier, field):
-        assembly = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
+        assembly = brainscore.get_assembly(f"Malania2007_{identifier}")
         assert hasattr(assembly, field)

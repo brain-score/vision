@@ -3,6 +3,7 @@ from typing import Dict, Union, Tuple, Optional, Callable
 import numpy as np
 from scipy.optimize import minimize
 from scipy.stats import norm
+from sklearn.metrics import mean_squared_error, r2_score
 
 from brainscore.metrics import Metric, Score
 from brainio.assemblies import PropertyAssembly, BehavioralAssembly
@@ -35,19 +36,29 @@ def wichmann_neg_log_likelihood(params: Tuple[float, ...], x: np.array, y: np.ar
     """The negative log likelihood function for wichmann_cum_gauss."""
     alpha, beta, lambda_ = params
     p = wichmann_cum_gauss(x, alpha, beta, lambda_)
-    logL = y * np.log(p) + (1 - y) * np.log(1 - p)
-    return -np.sum(logL)
+    log_likelihood = y * np.log(p) + (1 - y) * np.log(1 - p)
+    return -np.sum(log_likelihood)
+
+
+def get_predicted(params: Tuple[float, ...], x: np.array, fit_fn: Callable) -> np.array:
+    """Returns the predicted values based on the model parameters."""
+    return fit_fn(x, *params)
 
 
 def grid_search(x: np.array,
                 y: np.array,
                 alpha_values: np.array = np.logspace(-3, 1, 50),
                 beta_values: np.array = None,
+                fit_fn: Callable = wichmann_cum_gauss,
                 fit_log_likelihood_fn: Callable = wichmann_neg_log_likelihood,
-                fit_bounds: Tuple = ((None, None), (None, None), (0.03, 0.5))) -> Tuple[float, ...]:
+                fit_bounds: Tuple = ((None, None), (None, None), (0.03, 0.5))
+                ) -> Tuple[Tuple[float, ...], float]:
     """
     A classic simplified procedure for running sparse grid search over the slope and mean parameters of the
     psychometric function.
+    This function is implemented here instead of using sklearn.GridSearchCV since we would have to make a custom
+    sklearn estimator class to use GridSearchCV with psychometric functions, likely increasing code bloat
+    substantially.
 
     Parameters
     ----------
@@ -55,6 +66,7 @@ def grid_search(x: np.array,
     y: the measured accuracy rates for the given x-values
     alpha_values: the alpha values for the chosen fit function to grid search over
     beta_values: the beta values for the chosen fit function to grid search over
+    fit_fn: the psychometric function that is fit
     fit_log_likelihood_fn: the log likelihood function that computes the log likelihood of its corresponding
                             fit function
     fit_bounds: the bounds assigned to the fit function called by fit_log_likelihood_fn.
@@ -81,9 +93,10 @@ def grid_search(x: np.array,
             initial_guess = np.array([alpha_guess, beta_guess, 1 - np.max(y)])  # lapse rate guess set to the maximum y
 
             # wrap inside a RuntimeError block to catch the RuntimeError thrown by scipy.minimize if a fit
-            # entirely fails.
+            # entirely fails. The case where all fits fail here is handled by the Threshold metric.
             try:
-                result = minimize(fit_log_likelihood_fn, initial_guess, args=(x, y), method='L-BFGS-B', bounds=fit_bounds)
+                result = minimize(fit_log_likelihood_fn, initial_guess, args=(x, y),
+                                  method='L-BFGS-B', bounds=fit_bounds)
                 alpha_hat, beta_hat, lambda_hat = result.x
                 neg_log_likelihood_hat = fit_log_likelihood_fn([alpha_hat, beta_hat, lambda_hat], x, y)
 
@@ -93,7 +106,10 @@ def grid_search(x: np.array,
             except RuntimeError:
                 pass
 
-    return best_alpha, best_beta, best_lambda
+    y_pred = fit_fn(x, best_alpha, best_beta, best_lambda)
+    mse = mean_squared_error(y, y_pred)
+    r2 = r2_score(y, y_pred)
+    return (best_alpha, best_beta, best_lambda), r2
 
 
 class Threshold(Metric):
@@ -234,7 +250,12 @@ class Threshold(Metric):
             print('Psychometric curve fit fail because performance is decreasing with the independent variable.')
             return 'fit_fail', measurement_max
 
-        params = grid_search(aggregated_x_points, aggregated_y_points)
+        params, r2 = grid_search(aggregated_x_points, aggregated_y_points)
+
+        # remove fits to random data
+        if r2 < 0.4:
+            params = 'fit_fail'
+
         # if all the fits in the grid search failed, there will be a None value in params. In this case, we reject
         #  the fit. This typically only ever happens when a model outputs one value for all test images.
         if None in params:
@@ -390,7 +411,8 @@ class ThresholdElevation(Threshold):
                  scoring: str = 'pool',
                  max_fit_params: Optional[Tuple[float, ...]] = None,
                  required_baseline_accuracy: Optional[float] = 0.6,
-                 required_test_accuracy: Optional[float] = 0.0
+                 required_test_accuracy: Optional[float] = 0.6,
+                 plot_fit: bool = False
                  ):
         """
         :param independent_variable: The independent variable in the benchmark that the threshold is computed
@@ -409,11 +431,13 @@ class ThresholdElevation(Threshold):
         self.baseline_threshold_metric = Threshold(self._independent_variable,
                                                    threshold_accuracy=threshold_accuracy,
                                                    max_fit_params=max_fit_params,
-                                                   required_accuracy=required_baseline_accuracy)
+                                                   required_accuracy=required_baseline_accuracy,
+                                                   plot_fit=plot_fit)
         self.test_threshold_metric = Threshold(self._independent_variable,
                                                threshold_accuracy=threshold_accuracy,
                                                max_fit_params=max_fit_params,
-                                               required_accuracy=required_test_accuracy)
+                                               required_accuracy=required_test_accuracy,
+                                               plot_fit=plot_fit)
         self.baseline_condition = baseline_condition
         self.test_condition = test_condition
         self.threshold_accuracy = threshold_accuracy

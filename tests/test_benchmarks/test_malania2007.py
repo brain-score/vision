@@ -10,6 +10,7 @@ from brainscore.benchmarks.malania2007 import DATASETS
 from tests.test_benchmarks import PrecomputedFeatures
 
 
+@pytest.mark.private_access
 class TestBehavioral:
     def test_count(self):
         assert len(DATASETS) == 5 + 2 + 2

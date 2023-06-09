@@ -504,6 +504,7 @@ class TestGeirhos2021:
         assert hasattr(assembly, field)
 
 
+@pytest.mark.private_access
 class TestMalania2007:
 
     # test the number of subjects:

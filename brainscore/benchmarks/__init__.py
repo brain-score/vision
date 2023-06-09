@@ -216,6 +216,14 @@ def _evaluation_benchmark_pool():
         pool[f"brendel.{assembly_identifier}-error_consistency"] = LazyLoad(
             # use lambda parameter-binding to avoid `benchmark_ctr` being re-assigned in the next loop iteration
             lambda benchmark_ctr=benchmark_ctr: benchmark_ctr())
+    # Malania2007
+    from . import malania2007
+    for dataset in malania2007.DATASETS:
+        assembly_identifier = f"Malania_{dataset.replace('-', '')}"
+        benchmark_ctr = getattr(malania2007, f"{assembly_identifier}")
+        pool[f"{assembly_identifier}"] = LazyLoad(
+            # use lambda parameter-binding to avoid `benchmark_ctr` being re-assigned in the next loop iteration
+            lambda benchmark_ctr=benchmark_ctr: benchmark_ctr())
 
     return pool
 

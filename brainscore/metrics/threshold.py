@@ -2,38 +2,38 @@ from typing import Dict, Union, Tuple, Optional, Callable
 import numpy as np
 from scipy.optimize import minimize
 from scipy.stats import norm
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import r2_score
 import matplotlib.pyplot as plt
 
 from brainscore.metrics import Metric, Score
 from brainio.assemblies import PropertyAssembly, BehavioralAssembly
 
 
-def wichmann_cum_gauss(x: np.array, alpha: float, beta: float, lambda_: float, gamma: float = 0.5) -> float:
+def psychometric_cum_gauss(x: np.array, alpha: float, beta: float, lambda_: float, gamma: float = 0.5) -> float:
     """
     The classic psychometric function as implemented in Wichmann & Hill (2001). The psychometric function: I.
     Fitting, sampling, and goodness of fit, eq. 1.
 
-    Parameters
-    ----------
-    x: the independent variables of the data
-    alpha: the slope parameter
-    beta: the mean of the cdf parameter
-    lambda_: the lapse rate
-    gamma: the upper bound of the fit
+    :param x: the independent variables of the data
+    :param alpha: the slope parameter
+    :param beta: the mean of the cdf parameter
+    :param lambda_: the lapse rate
+    :param gamma: the lower bound of the fit
+
+    :return: the psychometric function values for the given parameters evaluated at `x`.
     """
     return gamma + (1 - gamma - lambda_) * norm.cdf(alpha * (x - beta))
 
 
-def inverse_wichmann_cum_gauss(y: np.array, alpha: float, beta: float, lambda_: float, gamma: float = 0.5) -> float:
-    """The inverse of wichmann_cum_gauss."""
+def inverse_psychometric_cum_gauss(y: np.array, alpha: float, beta: float, lambda_: float, gamma: float = 0.5) -> float:
+    """The inverse of psychometric_cum_gauss."""
     return beta + (norm.ppf((y - gamma) / (1 - gamma - lambda_)) / alpha)
 
 
-def wichmann_neg_log_likelihood(params: Tuple[float, ...], x: np.array, y: np.array) -> float:
-    """The negative log likelihood function for wichmann_cum_gauss."""
+def cum_gauss_neg_log_likelihood(params: Tuple[float, ...], x: np.array, y: np.array) -> float:
+    """The negative log likelihood function for psychometric_cum_gauss."""
     alpha, beta, lambda_ = params
-    p = wichmann_cum_gauss(x, alpha, beta, lambda_)
+    p = psychometric_cum_gauss(x, alpha, beta, lambda_)
     log_likelihood = y * np.log(p) + (1 - y) * np.log(1 - p)
     return -np.sum(log_likelihood)
 
@@ -47,8 +47,8 @@ def grid_search(x: np.array,
                 y: np.array,
                 alpha_values: np.array = np.logspace(-3, 1, 50),
                 beta_values: np.array = None,
-                fit_fn: Callable = wichmann_cum_gauss,
-                fit_log_likelihood_fn: Callable = wichmann_neg_log_likelihood,
+                fit_fn: Callable = psychometric_cum_gauss,
+                fit_log_likelihood_fn: Callable = cum_gauss_neg_log_likelihood,
                 fit_bounds: Tuple = ((None, None), (None, None), (0.03, 0.5))
                 ) -> Tuple[Tuple[float, ...], float]:
     """
@@ -58,24 +58,20 @@ def grid_search(x: np.array,
     sklearn estimator class to use GridSearchCV with psychometric functions, likely increasing code bloat
     substantially.
 
-    Parameters
-    ----------
-    x: the independent variables of the data
-    y: the measured accuracy rates for the given x-values
-    alpha_values: the alpha values for the chosen fit function to grid search over
-    beta_values: the beta values for the chosen fit function to grid search over
-    fit_fn: the psychometric function that is fit
-    fit_log_likelihood_fn: the log likelihood function that computes the log likelihood of its corresponding
-                            fit function
-    fit_bounds: the bounds assigned to the fit function called by fit_log_likelihood_fn.
-                 The default fit_bounds are assigned as:
-                 alpha: (None, None), to allow any slope
-                 beta: (None, None), any inflection point is allowed, as that is controlled for in the Threshold class
-                 lambda_: (0.03, 0.5)), to require at least a small lapse rate, as is regularly done in human fitting
+    :param x: the independent variables of the data
+    :param y: the measured accuracy rates for the given x-values
+    :param alpha_values: the alpha values for the chosen fit function to grid search over
+    :param beta_values: the beta values for the chosen fit function to grid search over
+    :param fit_fn: the psychometric function that is fit
+    :param fit_log_likelihood_fn: the log likelihood function that computes the log likelihood of its corresponding
+                                  fit function
+    :param fit_bounds: the bounds assigned to the fit function called by fit_log_likelihood_fn.
+                       The default fit_bounds are assigned as:
+                       alpha: (None, None), to allow any slope
+                       beta: (None, None), any inflection point is allowed, as that is controlled for in the Threshold class
+                       lambda_: (0.03, 0.5)), to require at least a small lapse rate, as is regularly done in human fitting
 
-    Returns
-    -------
-    the parameters of the best fit in the grid search
+    :return: the parameters of the best fit in the grid search
     """
     assert len(x) == len(y)
     # Default the beta_values grid search to the measured x-points.
@@ -105,7 +101,7 @@ def grid_search(x: np.array,
                 pass
 
     y_pred = fit_fn(x, best_alpha, best_beta, best_lambda)
-    r2 = r2_score(y, y_pred)
+    r2 = r2_score(y, y_pred)  # R^2 of the fit
     return (best_alpha, best_beta, best_lambda), r2
 
 
@@ -119,8 +115,8 @@ class Threshold(Metric):
     """
     def __init__(self,
                  independent_variable: str,
-                 fit_function=wichmann_cum_gauss,
-                 fit_inverse_function=inverse_wichmann_cum_gauss,
+                 fit_function=psychometric_cum_gauss,
+                 fit_inverse_function=inverse_psychometric_cum_gauss,
                  threshold_accuracy: Union[str, float] = 'inflection',
                  scoring: str = 'pool',
                  required_accuracy: Optional[float] = 0.6,
@@ -421,7 +417,7 @@ class ThresholdElevation(Threshold):
                                     the threshold at that level.
         :param scoring: The scoring function used to evaluate performance. Either Literal['individual'] or
                          Literal['pool']. See the individual_score and pool_score methods for more information.
-                """
+        """
         super(ThresholdElevation, self).__init__(independent_variable)
         self.baseline_threshold_metric = Threshold(self._independent_variable,
                                                    threshold_accuracy=threshold_accuracy,

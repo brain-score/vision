@@ -24,7 +24,10 @@ NUM_SUBJECTS = {'short-2': 6,
 def collect_malania_data_assembly(root_directory, dataset):
     """
     Experiment Information:
-    ... todo
+        - 5-6 observers per condition (for exact value, see NUM_SUBJECTS)
+        - 2AFC left/right offset discrimination task
+        - PEST staircase to 75% correct responses
+        - thresholds measured with a cumulative gaussian psychometric function with a likelihood fit
     """
     # construct the assembly
     metadata_directory = Path(f'{root_directory}/{dataset}/metadata_human.xlsx')
@@ -68,35 +71,11 @@ def remove_subjects_with_nans(assembly1, assembly2):
     return filtered_assembly1, filtered_assembly2
 
 
-# def get_local_ceilings():
-#     from brainscore.metrics.threshold import ThresholdElevation
-#     ceilings = {}
-#     for dataset in DATASETS:
-#         baseline_assembly = return_local_data_assembly('vernier-only')
-#         condition_assembly = return_local_data_assembly(dataset)
-#
-#         condition_assembly, baseline_assembly = remove_subjects_with_nans(condition_assembly, baseline_assembly)
-#
-#         assemblies = {'baseline_assembly': baseline_assembly,
-#                       'condition_assembly': condition_assembly}
-#         metric = ThresholdElevation(independent_variable='vernier_offset',
-#                                     baseline_condition='vernier-only',
-#                                     test_condition=dataset,
-#                                     threshold_accuracy=0.75)
-#         ceiling = metric.individual_ceiling(assemblies)
-#         ceilings[dataset] = ceiling
-#     print(ceilings)
-#     # compute the average ceiling for every condition except the baseline-baseline condition
-#     mean = np.mean([xarray.values[0] for xarray in ceilings.values()][:-1])
-#     print(mean)
-
-
 if __name__ == '__main__':
-    # get_local_ceilings()
     root_directory = Path(r'./malania2007_data_assembly')
     for dataset in DATASETS:
         assembly = collect_malania_data_assembly(root_directory, dataset)
         # upload to S3
-        # package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
-        #                      stimulus_set_identifier=f"Malania2007_{dataset}",
-        #                      assembly_class="BehavioralAssembly", bucket_name="brainio-brainscore")
+        #package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
+        #                     stimulus_set_identifier=f"Malania2007_{dataset}",
+        #                     assembly_class_name="BehavioralAssembly", bucket_name="brainio-brainscore")

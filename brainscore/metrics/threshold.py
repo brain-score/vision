@@ -1,14 +1,12 @@
 from typing import Dict, Union, Tuple, Optional, Callable
-
 import numpy as np
 from scipy.optimize import minimize
 from scipy.stats import norm
 from sklearn.metrics import mean_squared_error, r2_score
+import matplotlib.pyplot as plt
 
 from brainscore.metrics import Metric, Score
 from brainio.assemblies import PropertyAssembly, BehavioralAssembly
-
-import matplotlib.pyplot as plt
 
 
 def wichmann_cum_gauss(x: np.array, alpha: float, beta: float, lambda_: float, gamma: float = 0.5) -> float:
@@ -107,7 +105,6 @@ def grid_search(x: np.array,
                 pass
 
     y_pred = fit_fn(x, best_alpha, best_beta, best_lambda)
-    mse = mean_squared_error(y, y_pred)
     r2 = r2_score(y, y_pred)
     return (best_alpha, best_beta, best_lambda), r2
 
@@ -126,7 +123,6 @@ class Threshold(Metric):
                  fit_inverse_function=inverse_wichmann_cum_gauss,
                  threshold_accuracy: Union[str, float] = 'inflection',
                  scoring: str = 'pool',
-                 max_fit_params: Optional[Tuple[float, ...]] = None,
                  required_accuracy: Optional[float] = 0.6,
                  plot_fit: bool = False
                  ):
@@ -148,7 +144,6 @@ class Threshold(Metric):
         self._independent_variable = independent_variable
         self.threshold_accuracy = threshold_accuracy
         self.scoring = scoring
-        self.max_fit_params = max_fit_params
         self.required_accuracy = required_accuracy
         self.plot_fit = plot_fit
 
@@ -254,6 +249,7 @@ class Threshold(Metric):
 
         # remove fits to random data
         if r2 < 0.4:
+            print('Fit fail due to low fit R^2.')
             params = 'fit_fail'
 
         # if all the fits in the grid search failed, there will be a None value in params. In this case, we reject
@@ -409,7 +405,6 @@ class ThresholdElevation(Threshold):
                  test_condition: str,
                  threshold_accuracy: Union[str, float] = 'inflection',
                  scoring: str = 'pool',
-                 max_fit_params: Optional[Tuple[float, ...]] = None,
                  required_baseline_accuracy: Optional[float] = 0.6,
                  required_test_accuracy: Optional[float] = 0.6,
                  plot_fit: bool = False
@@ -430,12 +425,10 @@ class ThresholdElevation(Threshold):
         super(ThresholdElevation, self).__init__(independent_variable)
         self.baseline_threshold_metric = Threshold(self._independent_variable,
                                                    threshold_accuracy=threshold_accuracy,
-                                                   max_fit_params=max_fit_params,
                                                    required_accuracy=required_baseline_accuracy,
                                                    plot_fit=plot_fit)
         self.test_threshold_metric = Threshold(self._independent_variable,
                                                threshold_accuracy=threshold_accuracy,
-                                               max_fit_params=max_fit_params,
                                                required_accuracy=required_test_accuracy,
                                                plot_fit=plot_fit)
         self.baseline_condition = baseline_condition

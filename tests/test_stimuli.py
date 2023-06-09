@@ -266,6 +266,7 @@ class TestGeirhos2021:
         stimulus_set = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
         assert hasattr(stimulus_set, field)
 
+
 @pytest.mark.slow
 class TestMalania2007:
     # test stimulus_set data:
@@ -288,6 +289,7 @@ class TestMalania2007:
         'long-2_fit',
         'equal-16_fit',
         'long-16_fit',
+        'vernier-only'
     ])
     def test_stimulus_set_exist(self, identifier):
         full_name = f"Malania2007_{identifier}"
@@ -315,6 +317,7 @@ class TestMalania2007:
         ('long-2_fit', 1225),
         ('equal-16_fit', 1225),
         ('long-16_fit', 1225),
+        ('vernier-only', 1225)
     ])
     def test_num_images(self, identifier, num_images):
         stimulus_set = brainscore.get_stimulus_set(f"Malania2007_{identifier}")
@@ -340,6 +343,7 @@ class TestMalania2007:
         'long-2_fit',
         'equal-16_fit',
         'long-16_fit',
+        'vernier-only'
     ])
     @pytest.mark.parametrize('field', [
         'image_size_x',
@@ -356,12 +360,12 @@ class TestMalania2007:
         'num_flankers',
         'vernier_position_x',
         'vernier_position_y',
-        'filename',
         'stimulus_id',
     ])
     def test_fields_present(self, identifier, field):
         stimulus_set = brainscore.get_stimulus_set(f"Malania2007_{identifier}")
         assert hasattr(stimulus_set, field)
+
 
 @pytest.mark.private_access
 def test_Islam2021():

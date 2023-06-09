@@ -9,16 +9,27 @@ STIMULUS_SETS = ['short-2', 'short-4', 'short-6', 'short-8', 'short-16', 'equal-
                  'long-2', 'equal-16', 'long-16', 'vernier-only', 'short-2_fit',
                  'short-4_fit', 'short-6_fit', 'short-8_fit', 'short-16_fit',
                  'equal-2_fit', 'long-2_fit', 'equal-16_fit', 'long-16_fit']
-DATASET_LENGTHS = {'test': 588, 'fit': 432}
+DATASET_LENGTHS = {'test': 1225, 'fit': 1225}
 
 
 def collect_malania_stimulus_set(root_directory, dataset):
     """
     Dataset Meta Info
-    ... todo
+
+    Reported in pixels:
+        - image_size_x; image_size_y
+        - vernier_position_x; vernier_position_y
+
+    Reported in arcsec:
+        - vernier_height (height of the vernier elements combined, - middle gap)
+        - vernier_offset (horizontal offset between flankers)
+        - flanker_height (height of the flanker elements)
+        - flanker_spacing (distance between a flanker element and another flanker element)
+        - line_width (width of all the lines in all elements)
+        - flanker_distance (distance between a flanker and a vernier)
     """
     stimuli = []
-    image_paths = {}
+    stimulus_paths = {}
 
     dataset_type = 'fit' if dataset[-3:] == 'fit' else 'test'
     metadata_directory = Path(f'{root_directory}/{dataset}/metadata.csv')
@@ -41,13 +52,12 @@ def collect_malania_stimulus_set(root_directory, dataset):
                 'num_flankers': int(row['num_flankers']),
                 'vernier_position_x': int(row['vernier_position_x']),
                 'vernier_position_y': int(row['vernier_position_y']),
-                'filename': row['filename'],
-                'stimulus_id': int(row['stimulus_id'])
+                'stimulus_id': str(row['stimulus_id']),
             })
-            image_paths[int(row['stimulus_id'])] = Path(f'{image_directory}/{row["filename"]}')
+            stimulus_paths[row['stimulus_id']] = Path(f'{image_directory}/{row["filename"]}')
 
     stimuli = StimulusSet(stimuli)
-    stimuli.image_paths = image_paths
+    stimuli.stimulus_paths = stimulus_paths
     stimuli.name = f'Malania2007_{dataset}'  # give the StimulusSet an identifier name
 
     # Ensure expected number of stimuli in datasets
@@ -67,5 +77,5 @@ if __name__ == '__main__':
         stimuli = collect_malania_stimulus_set(root_directory, stimulus_set)
 
         # upload to S3
-        # package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,
-        #                      bucket_name="brainio-brainscore")
+        #package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,
+        #                     bucket_name="brainio-brainscore")

@@ -10,6 +10,7 @@ from brainscore.metrics.threshold import ThresholdElevation
 from brainscore.model_interface import BrainModel
 from brainscore.utils import LazyLoad
 
+
 BIBTEX = """@article{malania2007,
             author = {Malania, Maka and Herzog, Michael H. and Westheimer, Gerald},
             title = "{Grouping of contextual elements that affect vernier thresholds}",
@@ -30,7 +31,6 @@ DATASETS = ['short-2', 'short-4', 'short-6', 'short-8', 'short-16', 'equal-2', '
 NUM_FLANKERS_PER_CONDITION = {'short-2': 2, 'short-4': 4, 'short-6': 6, 'short-8': 8,
                               'short-16': 16, 'equal-2': 2, 'long-2': 2, 'equal-16': 16,
                               'long-16': 16, 'vernier-only': 0}
-
 
 for dataset in DATASETS:
     # behavioral benchmark
@@ -56,7 +56,7 @@ class _Malania2007Base(BenchmarkBase):
     Benchmark Choices:
 
     1) The number and type of fitting stimuli are unfounded choices. Currently, the number of fitting stimuli is chosen
-        to be relatively small, but sufficient for good decoding performance in the baseline condition.
+        to be relatively small, but sufficient for good decoding performance in the baseline condition in general.
         - Precisely faithful alternative: Present text instructions to models as they were presented to humans
             * Why not this alternative? Since the experiment is about early visual perception, and there are currently
             few/no models capable of a task like this, it would not be interesting.
@@ -87,7 +87,11 @@ class _Malania2007Base(BenchmarkBase):
 
         self._assemblies = {'baseline_assembly': self._baseline_assembly,
                             'condition_assembly': self._assembly}
-        self._fitting_stimuli = load_assembly(f'{self.condition}_fit')
+        self._stimulus_set = brainscore.get_stimulus_set(f'{self.condition}')
+        self._baseline_stimulus_set = brainscore.get_stimulus_set(f'{self.baseline_condition}')
+        self._stimulus_sets = {self.condition: self._stimulus_set,
+                               self.baseline_condition: self._baseline_stimulus_set}
+        self._fitting_stimuli = brainscore.get_stimulus_set(f'{self.condition}_fit')
 
         self._metric = ThresholdElevation(independent_variable='vernier_offset',
                                           baseline_condition=self.baseline_condition,
@@ -95,26 +99,27 @@ class _Malania2007Base(BenchmarkBase):
                                           threshold_accuracy=0.75)
         self._ceiling = self._metric.ceiling(self._assemblies)
 
-        self._visual_degrees = 2.66667
+        self._visual_degrees = 2.986667
         self._number_of_trials = 1
 
         super(_Malania2007Base, self).__init__(
             identifier=f'Malania2007_{condition}', version=1,
-            ceiling_func=lambda: self._metric.ceiling(self._assembly),
+            ceiling_func=lambda: self._ceiling,
             parent='Malania2007',
             bibtex=BIBTEX)
 
     def __call__(self, candidate: BrainModel):
-        model_response = {}
+        model_responses = {}
         candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli=self._fitting_stimuli)
         for condition in (self.baseline_condition, self.condition):
-            model_response[condition] = place_on_screen(
-                self._assembly.stimulus_set.sel(num_flankers=NUM_FLANKERS_PER_CONDITION[condition]),
+            stimulus_set = place_on_screen(
+                self._stimulus_sets[condition],
                 target_visual_degrees=candidate.visual_degrees(),
                 source_visual_degrees=self._visual_degrees
             )
+            model_responses[condition] = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
 
-        raw_score = self._metric(model_response, self._assemblies)
+        raw_score = self._metric(model_responses, self._assemblies)
 
         # Adjust score to ceiling
         ceiling = self._ceiling

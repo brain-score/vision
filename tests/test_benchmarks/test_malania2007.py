@@ -24,7 +24,7 @@ class TestBehavioral:
         benchmarks = [benchmark_pool[benchmark] for benchmark in benchmarks]
         ceilings = [benchmark.ceiling.sel(aggregation='center') for benchmark in benchmarks]
         mean_ceiling = np.mean(ceilings)
-        assert mean_ceiling == approx(0.7724487108297781, abs=0.001)  # TODO: check that this is correct
+        assert mean_ceiling == approx(0.7724487108297781, abs=0.001)
 
     # these test values are for the pooled score ceiling
     @pytest.mark.parametrize('dataset, expected_ceiling', [
@@ -56,7 +56,7 @@ class TestBehavioral:
         ('long-16', 'resnet-18', approx(0., abs=0.001)),
     ])
     def test_model_8degrees(self, dataset, model, expected_raw_score):
-        benchmark = benchmark_pool[f"Malania_{dataset.replace('-', '')}"]
+        benchmark = benchmark_pool[f"Malania2007_{dataset.replace('-', '')}"]
         # load features
         precomputed_features = Path(__file__).parent / f'{model}-Malania2007_{dataset}.nc'
         precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)
@@ -79,7 +79,7 @@ class TestBehavioral:
         ('long-16', 'resnet-18-3deg', approx(0., abs=0.001)),
     ])
     def test_model_8degrees(self, dataset, model, expected_raw_score):
-        benchmark = benchmark_pool[f"Malania_{dataset.replace('-', '')}"]
+        benchmark = benchmark_pool[f"Malania2007_{dataset.replace('-', '')}"]
         # load features
         precomputed_features = Path(__file__).parent / f'{model}-Malania2007_{dataset}.nc'
         precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)

@@ -68,8 +68,10 @@ def grid_search(x: np.array,
     :param fit_bounds: the bounds assigned to the fit function called by fit_log_likelihood_fn.
                        The default fit_bounds are assigned as:
                        alpha: (None, None), to allow any slope
-                       beta: (None, None), any inflection point is allowed, as that is controlled for in the Threshold class
-                       lambda_: (0.03, 0.5)), to require at least a small lapse rate, as is regularly done in human fitting
+                       beta: (None, None), any inflection point is allowed, as that is controlled for in the
+                             Threshold class
+                       lambda_: (0.03, 0.5)), to require at least a small lapse rate, as is regularly done in
+                                human fitting
 
     :return: the parameters of the best fit in the grid search
     """
@@ -243,14 +245,15 @@ class Threshold(Metric):
 
         params, r2 = grid_search(aggregated_x_points, aggregated_y_points)
 
-        # remove fits to random data
-        if r2 < 0.4:
-            print('Fit fail due to low fit R^2.')
-            params = 'fit_fail'
-
         # if all the fits in the grid search failed, there will be a None value in params. In this case, we reject
         #  the fit. This typically only ever happens when a model outputs one value for all test images.
         if None in params:
+            params = 'fit_fail'
+
+        # remove fits to random data. This choice is preferred over a chi^2 test since chi^2 discards a lot of fits
+        #  that would be acceptable in a human case.
+        if r2 < 0.4:
+            print('Fit fail due to low fit R^2.')
             params = 'fit_fail'
 
         if self.plot_fit:
@@ -358,30 +361,42 @@ class Threshold(Metric):
 
     @staticmethod
     def remove_data_after_asymptote(x_values, y_values):
-        # Compute the standard deviation of y_values
-        std_dev = np.std(y_values)
+        """
+        A function that removes all data after the point at which all values of the measured variable are 1 standard
+        deviation less than the maximum.
 
-        # Find the index of the maximum y_value
+        This is done to simulate the procedure in which an experimenter fine-tunes the stimuli in a pilot experiment
+        to the given system (e.g., humans) such that they only measure data in a region within which the psychometric
+        fit is monotone (as per the function fit assumption). When this assumption is violated, the function fit
+        is not a valid measure of the underlying performance function.
+
+        There are circumstances in which this behavior is expected (e.g., crowding). When e.g. a vernier element's
+        offset is increased enough, the task may paradoxically become more difficult, as the offset grows large
+        enough such that the relevant elements do not fall within a spatially relevant window, or group with the
+        flankers more than with each other due to constant target-flanker distance.
+        """
+
+        std_dev = np.std(y_values)
         max_y_idx = np.argmax(y_values)
 
-        # Initialize the index for the first data point after the maximum y_value
-        # that deviates from the maximum by at least 1 standard deviation
+        # initialize the index for the first data point after the maximum y_value
+        #  that deviates from the maximum by at least 1 standard deviation
         index_to_remove = None
 
-        # Iterate through the y_values after the maximum y_value
+        # iterate through the y_values after the maximum y_value
         for idx, y in enumerate(y_values[max_y_idx + 1:], start=max_y_idx + 1):
-            # Check if all the remaining y_values deviate by at least 1 standard deviation
+            # check if all the remaining y_values deviate by at least 1 standard deviation
             if all([abs(val - y_values[max_y_idx]) >= std_dev for val in y_values[idx:]]):
                 index_to_remove = idx
                 break
-
         pre_remove_length = len(y_values)
-        # If we found an index to remove, remove the data after that index
+        # if we found an index to remove, remove the data after that index
         if index_to_remove is not None:
             x_values = x_values[:index_to_remove]
             y_values = y_values[:index_to_remove]
 
-        # Check if at least a third of the elements remain
+        # check if at least a third of the elements remain. This is done so that we have an adequate amount of data
+        #  to fit a psychometric threshold on.
         remaining_fraction = len(y_values) / pre_remove_length
         is_at_least_third_remaining = remaining_fraction >= 1 / 3
 

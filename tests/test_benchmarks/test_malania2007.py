@@ -79,7 +79,7 @@ class TestBehavioral:
         ('equal-16', 'resnet-18-3deg', approx(0., abs=0.001)),
         ('long-16', 'resnet-18-3deg', approx(0., abs=0.001)),
     ])
-    def test_model_8degrees(self, dataset, model, expected_raw_score):
+    def test_model_3degrees(self, dataset, model, expected_raw_score):
         benchmark = benchmark_pool[f"Malania2007_{dataset.replace('-', '')}"]
         # load features
         precomputed_features = Path(__file__).parent / f'{model}-Malania2007_{dataset}.nc'

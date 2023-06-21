@@ -219,7 +219,7 @@ def _evaluation_benchmark_pool():
     # Malania2007
     from . import malania2007
     for dataset in malania2007.DATASETS:
-        assembly_identifier = f"Malania2007_{dataset.replace('-', '')}"
+        assembly_identifier = f"Malania2007_{dataset}"
         benchmark_ctr = getattr(malania2007, f"{assembly_identifier}")
         pool[f"{assembly_identifier}"] = LazyLoad(
             # use lambda parameter-binding to avoid `benchmark_ctr` being re-assigned in the next loop iteration

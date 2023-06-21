@@ -17,7 +17,7 @@ class TestBehavioral:
 
     @pytest.mark.parametrize('dataset', DATASETS)
     def test_in_pool(self, dataset):
-        identifier = f"Malania2007_{dataset.replace('-', '')}"
+        identifier = f"Malania2007_{dataset}"
         assert identifier in benchmark_pool
 
     def test_mean_ceiling(self):
@@ -57,7 +57,7 @@ class TestBehavioral:
         ('long-16', 'resnet-18', approx(0., abs=0.001)),
     ])
     def test_model_8degrees(self, dataset, model, expected_raw_score):
-        benchmark = benchmark_pool[f"Malania2007_{dataset.replace('-', '')}"]
+        benchmark = benchmark_pool[f"Malania2007_{dataset}"]
         # load features
         precomputed_features = Path(__file__).parent / f'{model}-Malania2007_{dataset}.nc'
         precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)
@@ -80,7 +80,7 @@ class TestBehavioral:
         ('long-16', 'resnet-18-3deg', approx(0., abs=0.001)),
     ])
     def test_model_3degrees(self, dataset, model, expected_raw_score):
-        benchmark = benchmark_pool[f"Malania2007_{dataset.replace('-', '')}"]
+        benchmark = benchmark_pool[f"Malania2007_{dataset}"]
         # load features
         precomputed_features = Path(__file__).parent / f'{model}-Malania2007_{dataset}.nc'
         precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)

@@ -51,8 +51,8 @@ for f in \
     resnet-50-pytorch-Baker2022-inverted_accuracy_delta.nc \
     resnet50-SIN-Baker2022-accuracy_delta_frankenstein.nc \
     resnet50-SIN-Baker2022-accuracy_delta_fragmented.nc \
-    resnet50-SIN-Baker2022-inverted_accuracy_delta.nc
-
+    resnet50-SIN-Baker2022-inverted_accuracy_delta.nc \
+    alexnet-islam2021-classifier.5.nc
 do
   aws --no-sign-request s3 cp s3://brain-score-tests/tests/test_benchmarks/${f} ${SCRIPT_DIR}/tests/test_benchmarks/
 done

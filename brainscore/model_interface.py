@@ -104,6 +104,11 @@ class BrainModel:
         (where `fitting_stimuli` includes 5 distinct labels)
         and calling `look_at(<test_stimuli>)` could output 
 
+        The model must be supplied with `fitting_stimuli` in the second argument which allow it to train a readout 
+        for a particular set of labels and image distribution. 
+        The `fitting_stimuli` are a :class:`~brainio.stimuli.StimulusSet` and must include an `image_label` column 
+        which is used as the labels to fit to.
+
         .. code-block:: python
 
            <xarray.BehavioralAssembly (presentation: 3, choice: 5)>
@@ -116,6 +121,29 @@ class BrainModel:
                   - stimulus_path (presentation) object '/home/me/.brainio/demo_stimuli/image1.png' ...
                   - choice        (choice) object 'dog' 'cat' 'chair' 'flower' 'plane'
         """
+
+        odd_one_out = 'odd_one_out'
+        """
+        Predict the odd-one-out for a triplet of stimuli.
+        Output a :class:`~brainio.assemblies.BehavioralAssembly` with the stimulus_id as the value.
+        
+        Example:
+
+        Setting up a odd-one-out task for three stimuli with `start_task(BrainModel.Task.odd_one_out, [stimulus_0, stimulus_1, stimulus_2])` 
+        and calling `look_at(...)` could output 
+
+        .. code-block:: python
+
+           <xarray.BehavioralAssembly (presentation: 3, choice: 1)>
+                array([[0]])  # odd-one-out
+                Coordinates:
+                  * presentation  (presentation) MultiIndex
+                  - odd_one_out   (presentation) id_0
+
+        """
+
+
+
 
     def start_task(self, task: Task, fitting_stimuli):
         """

@@ -31,23 +31,15 @@ DATASETS = ['normal', 'inverted']
 
 
 class _Baker2022AccuracyDelta(BenchmarkBase):
-
     def __init__(self, dataset: str, image_types: List[str]):
         """
         :param dataset: orientation of stimuli. Either 'normal' or 'inverted'
         :param image_types: Either ["w", "f"] for frankenstein delta or ["w", "o"] for fragmented delta
         """
         self._metric = BakerAccuracyDelta(image_types=image_types)
-
-        # image types: list[str]. Either ["w", "f"] for frankenstein delta or ["w", "o"] for fragmented delta.
         self.image_types = image_types
         self.orientation = dataset
-
-        '''
-        Different consistency metric then normal benchmark (AccuracyDelta vs. AccuracyDeltaCeiling)
-        due to ceilin
-        '''
-        self._ceiling = SplitHalvesConsistencyBaker(num_splits=100,split_coordinate="subject",
+        self._ceiling = SplitHalvesConsistencyBaker(num_splits=100, split_coordinate="subject",
                                                     image_types=self.image_types)
         self._assembly = LazyLoad(lambda: load_assembly(dataset))
         self._visual_degrees = 8.8

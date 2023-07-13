@@ -12,9 +12,8 @@ BIBTEX = """@article{10.7554/eLife.82580,
           year = 2023
           }"""
 
-class _Hebart2023Accuracy(BenchmarkBase):
-    # behavioral benchmark
-    def __init__(self, dataset):
+class Hebart2023Accuracy(BenchmarkBase):
+    def __init__(self):
         self._metric = None
         self._assembly = None
         self._visual_degrees = None

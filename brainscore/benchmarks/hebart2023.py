@@ -29,7 +29,7 @@ class _Hebart2023Accuracy(BenchmarkBase):
 
     def __call__(self, candidate: BrainModel):
         candidate.start_task(BrainModel.Task.odd_one_out, None)
-        labels = candidate.look_at(None, number_of_trials=self._number_of_trials)
+        odd_one_out = candidate.look_at(None, number_of_trials=self._number_of_trials)
         raw_score = None
         ceiling = self.ceiling
         score = (raw_score - 1/3) / (ceiling - 1/3)

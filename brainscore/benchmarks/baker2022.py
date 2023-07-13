@@ -29,11 +29,8 @@ DATASETS = ['normal', 'inverted']
 
 
 class _Baker2022AccuracyDelta(BenchmarkBase):
-
     def __init__(self, dataset: str, image_types: list):
         self._metric = AccuracyDelta(image_types=image_types)
-
-        # image types: list[str]. Either ["w", "f"] for frankenstein delta or ["w", "o"] for fragmented delta.
         self.image_types = image_types
         self.orientation = dataset
         self._ceiling = SplitHalvesConsistencyBaker(num_splits=100,

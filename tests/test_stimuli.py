@@ -59,7 +59,8 @@ import brainio
         'brendel.Geirhos2021_sketch',
         'brendel.Geirhos2021_uniform-noise',
         'Baker2022_normal_distortion',
-        'Baker2022_inverted_distortion'
+        'Baker2022_inverted_distortion',
+        'Islam2021',
 ))
 def test_list_stimulus_set(stimulus_set):
     l = brainio.list_stimulus_sets()
@@ -250,7 +251,7 @@ class TestGeirhos2021:
         stimulus_set = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
         assert hasattr(stimulus_set, field)
 
-
+@pytest.mark.private_access
 class TestBaker2022:
 
     # general tests
@@ -267,7 +268,7 @@ class TestBaker2022:
     # tests number of images
     @pytest.mark.parametrize('identifier, num_images', [
         ('normal', 716),
-        ('inverted', 359),
+        ('inverted', 360),
     ])
     def test_num_stimuli(self, identifier, num_images):
         stimulus_set = brainio.get_stimulus_set(f'Baker2022_{identifier}_distortion')
@@ -298,7 +299,8 @@ class TestBaker2022:
     def test_distortion_counts(self, identifier, count):
         stimulus_set = brainscore.get_stimulus_set(f'Baker2022_{identifier}_distortion')
         assert len(np.unique(stimulus_set["image_type"])) == count
-        assert "w", "f" in set(stimulus_set["image_type"])
+        assert "w" in set(stimulus_set["image_type"])
+        assert "f" in set(stimulus_set["image_type"])
 
     # make sure there are 9 possible animals in each stimulus_set -> 9 way AFC
     @pytest.mark.parametrize('identifier', [
@@ -317,3 +319,9 @@ class TestBaker2022:
     def test_image_types(self, identifier):
         stimulus_set = brainscore.get_stimulus_set(f'Baker2022_{identifier}_distortion')
         assert len(np.unique(stimulus_set["image_number"])) == 40
+
+def test_Islam2021():
+    stimulus_set = brainio.get_stimulus_set('Islam2021')
+    assert len(set(stimulus_set["texture"])) == 5
+    assert len(set(stimulus_set["shape"])) == 20
+    assert len(stimulus_set) == 4369 * 5

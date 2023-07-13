@@ -10,8 +10,6 @@ from brainscore.metrics.transformations import CrossValidationSingle
 from brainscore.metrics.xarray_utils import Defaults as XarrayDefaults
 from brainscore.metrics.xarray_utils import XarrayCorrelation
 from result_caching import store
-import random
-import numpy as np
 
 
 class Ceiling:

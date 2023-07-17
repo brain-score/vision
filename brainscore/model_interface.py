@@ -124,15 +124,15 @@ class BrainModel:
 
         odd_one_out = 'odd_one_out'
         """
-        Predict the odd-one-out for a list of triplets of stimuli.
-        Output a :class:`~brainio.assemblies.BehavioralAssembly` with the stimulus_id as the value.
+        Predict the odd-one-out elements for a list of triplets of stimuli.
+        Output a :class:`~brainio.assemblies.BehavioralAssembly` with the stimulus_ids as the value.
         
         Example:
 
-        Setting up a odd-one-out task for a list of triplets with `start_task(BrainModel.Task.odd_one_out, 
-                                                                              [[stimulus_00, stimulus_01, stimulus_02], 
-                                                                              [stimulus_10, stimulus_11, stimulus_12],
-                                                                              [stimulus_20, stimulus_21, stimulus_22]])` 
+        Setting up a odd-one-out task for a list of triplets with 
+        `start_task(BrainModel.Task.odd_one_out, [[stimulus_00, stimulus_01, stimulus_02], 
+                                                  [stimulus_10, stimulus_11, stimulus_12],
+                                                  [stimulus_20, stimulus_21, stimulus_22]])` 
         and calling `look_at(...)` could output 
 
         .. code-block:: python
@@ -141,7 +141,8 @@ class BrainModel:
                 array([[0], [2], [0]])  # odd-one-out
                 Coordinates:
                   * presentation  (presentation) MultiIndex
-                  - odd_one_out   (presentation) id_0 # TODO this needs to be changed
+                  - stimulus_id   (presentation) 'id_00', 'id_01', 'id_02', 'id_10' ...
+                  - stimulus_path (presentation) object '/home/me/.brainio/demo_stimuli/image1.png' ...
 
         """
 

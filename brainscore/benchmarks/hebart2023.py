@@ -22,11 +22,11 @@ class Hebart2023Accuracy(BenchmarkBase):
         self._number_of_trials = None
         
         #TODO I am not sure where this goes , but it should be in the benchmark right?
-        self.validation_data = None  # https://osf.io/b2a4j we'll need to convert this to DataAssembly right?
+        self.validation_data = None  # https://osf.io/b2a4j we'll need to convert this to BehavioralAssembly right?
 
         # TODO do we put the similarity matrix inside look_at?
         #self.validation_data_pairs = [[self.validation_data[:, 0], self.validation_data[:, 1]], # All pairs  
-        #                        [self.validation_data[:, 0], self.validation_data[:, 2]], # TODO change to DataAssembly
+        #                        [self.validation_data[:, 0], self.validation_data[:, 2]], # TODO change to BehavioralAssembly
         #                        [self.validation_data[:, 1], self.validation_data[:, 2]]]
 
         super(Hebart2023Accuracy, self).__init__(

@@ -132,7 +132,7 @@ class BrainModel:
         Setting up a odd-one-out task for a list of triplets with `start_task(BrainModel.Task.odd_one_out, 
                                                                               [[stimulus_00, stimulus_01, stimulus_02], 
                                                                               [stimulus_10, stimulus_11, stimulus_12,
-                                                                              [stimulus_20, stimulus_21, stimulus_22]]])` 
+                                                                              [stimulus_20, stimulus_21, stimulus_22]])` 
         and calling `look_at(...)` could output 
 
         .. code-block:: python

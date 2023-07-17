@@ -1,3 +1,4 @@
+import numpy as np
 from brainscore.benchmarks import BenchmarkBase
 from brainscore.model_interface import BrainModel
 
@@ -19,20 +20,33 @@ class Hebart2023Accuracy(BenchmarkBase):
         self._visual_degrees = None
 
         self._number_of_trials = None
+        
+        #TODO I am not sure where this goes , but it should be in the benchmark right?
+        self.validation_data = None  # https://osf.io/b2a4j we'll need to convert this to DataAssembly right?
 
-        super(_Hebart2023Accuracy, self).__init__(
+        # TODO do we put the similarity matrix inside look_at?
+        #self.validation_data_pairs = [[self.validation_data[:, 0], self.validation_data[:, 1]], # All pairs  
+        #                        [self.validation_data[:, 0], self.validation_data[:, 2]], # TODO change to DataAssembly
+        #                        [self.validation_data[:, 1], self.validation_data[:, 2]]]
+
+        super(Hebart2023Accuracy, self).__init__(
             identifier=None, version=1,
             ceiling_func=None,
             parent=None,
             bibtex=BIBTEX)
 
     def __call__(self, candidate: BrainModel):
-        candidate.start_task(BrainModel.Task.odd_one_out, None)
-        odd_one_out = candidate.look_at(None, number_of_trials=self._number_of_trials)
-        raw_score = None
+        candidate.start_task(BrainModel.Task.odd_one_out, None) 
+        validation_data = self.validation_data
+        odd_one_outs = candidate.look_at(validation_data, number_of_trials=self._number_of_trials)  # TODO do we put the similarity matrix inside look_at?
+        raw_score = len(validation_data[:, 2][validation_data[:, 2]==odd_one_outs])/len(validation_data) # @Martin last entry is human odd-one-out
         ceiling = self.ceiling
         score = (raw_score - 1/3) / (ceiling - 1/3)
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling
         return score
 
+    # TODO do we put the similarity matrix inside look_at?
+    #def sub2ind(array_shape, rows, cols): 
+    #    ind = np.ix_(rows, cols)
+    #    return np.ravel_multi_index(ind, array_shape)

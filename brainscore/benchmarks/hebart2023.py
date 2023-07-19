@@ -23,6 +23,7 @@ class Hebart2023Accuracy(BenchmarkBase):
         self._visual_degrees = None  # Can we know this, we collected the data using mturk?
         self._number_of_trials = None
         self.validation_data = None  # https://osf.io/b2a4j -> host on S3 
+        self.ceiling = 0.6844
 
         #  What is the difference here? What should I use?
         self._assembly = LazyLoad(lambda: load_assembly("Hebart2023"))     # <- this is from Geirhos er al.
@@ -32,7 +33,7 @@ class Hebart2023Accuracy(BenchmarkBase):
         
         super(Hebart2023Accuracy, self).__init__(
             identifier=f'Hebart2023Accuracy_{similarity_measure}', version=1,
-            ceiling_func=None,                                             # Will need the noise ceiling from Martin H.
+            ceiling_func=0.6844,                                             # Will need the noise ceiling from Martin H.
             parent='Hebart2023',
             bibtex=BIBTEX)
 

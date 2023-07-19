@@ -39,7 +39,7 @@ class Hebart2023Accuracy(BenchmarkBase):
         candidate.start_task(BrainModel.Task.odd_one_out, None) 
         validation_data = self.validation_data
         predicted_odd_one_outs = candidate.look_at(self._assembly.stimulus_set, number_of_trials=self._number_of_trials)
-        raw_score = len(validation_data[:, 2][validation_data[:, 2]==odd_one_outs])/len(validation_data) # @Martin last entry is human odd-one-out
+        raw_score = self._metric(predicted_odd_one_outs, self._assembly)
         ceiling = self.ceiling
         score = (raw_score - 1/3) / (ceiling - 1/3)
         score.attrs['raw'] = raw_score

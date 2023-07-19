@@ -33,7 +33,7 @@ class Hebart2023Accuracy(BenchmarkBase):
         
         super(Hebart2023Accuracy, self).__init__(
             identifier=f'Hebart2023Accuracy_{similarity_measure}', version=1,
-            ceiling_func=0.6844,                                             # Will need the noise ceiling from Martin H.
+            ceiling_func=lambda: Score([0.6844, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation']),
             parent='Hebart2023',
             bibtex=BIBTEX)
 

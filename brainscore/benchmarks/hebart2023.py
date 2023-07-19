@@ -38,7 +38,7 @@ class Hebart2023Accuracy(BenchmarkBase):
     def __call__(self, candidate: BrainModel):
         candidate.start_task(BrainModel.Task.odd_one_out, None) 
         validation_data = self.validation_data
-        odd_one_outs = candidate.look_at(validation_data, number_of_trials=self._number_of_trials)  # TODO do we put the similarity matrix inside look_at?
+        predicted_odd_one_outs = candidate.look_at(self._assembly.stimulus_set, number_of_trials=self._number_of_trials)
         raw_score = len(validation_data[:, 2][validation_data[:, 2]==odd_one_outs])/len(validation_data) # @Martin last entry is human odd-one-out
         ceiling = self.ceiling
         score = (raw_score - 1/3) / (ceiling - 1/3)

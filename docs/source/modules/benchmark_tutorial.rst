@@ -77,7 +77,7 @@ Here is a slim example of creating and uploading a StimulusSet:
 
     assert len(stimuli) == 1600  # make sure the StimulusSet is what you would expect
 
-    package_stimulus_set(stimuli, stimulus_set_identifier=stimuli.name)  # upload to S3
+    package_stimulus_set(catalog_name='brainio_brainscore', proto_stimulus_set=stimuli, stimulus_set_identifier=stimuli.name)  # upload to S3 and add entry to local lookup.csv
 
 
 **DataAssembly**:

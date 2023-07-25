@@ -1,6 +1,5 @@
 import numpy as np
 import numpy.random
-
 import brainscore
 from brainscore.benchmarks import BenchmarkBase
 from brainscore.benchmarks.screen import place_on_screen

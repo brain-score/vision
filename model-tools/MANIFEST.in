@@ -1,0 +1,6 @@
+include LICENSE
+include readme.md
+
+include model_tools/brain_transformation/imagenet_classes.txt
+include model_tools/check_submission/images/*.png
+recursive-include docs *.rst conf.py Makefile make.bat *.jpg *.png *.txt

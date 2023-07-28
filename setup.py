@@ -16,7 +16,7 @@ with open('README.md') as readme_file:
 
 requirements = [
     "numpy>=1.17",
-    "brainio @ git+https://github.com/brain-score/brainio",
+    "brainscore_core @ git+https://github.com/brain-score/core",
     "importlib-metadata<5",  # workaround to https://github.com/brain-score/brainio/issues/28
     "scikit-learn<0.24",  # 0.24 breaks pls regression
     "scipy",
@@ -63,7 +63,7 @@ setup(
     test_suite='tests',
     entry_points={
         'brainio_lookups': [
-            'brainio_brainscore = brainscore.entrypoint:brainio_brainscore',
+            'brainio_brainscore = brainscore_vision.entrypoint:brainio_brainscore',
         ],
     },
 )

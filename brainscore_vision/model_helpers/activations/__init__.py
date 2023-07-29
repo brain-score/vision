@@ -1,3 +1,3 @@
-from model_tools.activations.keras import KerasWrapper, preprocess as preprocess_keras
-from model_tools.activations.pytorch import PytorchWrapper, preprocess_images as preprocess_pytorch
-from model_tools.activations.tensorflow import TensorflowWrapper, TensorflowSlimWrapper
+from brainscore_vision.model_helpers.activations.keras import KerasWrapper, preprocess as preprocess_keras
+from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper, preprocess_images as preprocess_pytorch
+from brainscore_vision.model_helpers.activations.tensorflow import TensorflowWrapper, TensorflowSlimWrapper

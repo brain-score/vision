@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from model_tools.activations.core import ActivationsExtractorHelper
+from brainscore_vision.model_helpers.activations.core import ActivationsExtractorHelper
 
 
 class TensorflowWrapper:

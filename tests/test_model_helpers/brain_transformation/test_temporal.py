@@ -1,7 +1,7 @@
 import numpy as np
 
 from brainio.assemblies import NeuroidAssembly
-from model_tools.brain_transformation import TemporalIgnore
+from brainscore_vision.model_helpers.brain_transformation import TemporalIgnore
 
 
 class LayerMappedModelMock:

@@ -1,8 +1,9 @@
-from brainscore.benchmarks.public_benchmarks import FreemanZiembaV1PublicBenchmark, FreemanZiembaV2PublicBenchmark, \
-    MajajHongV4PublicBenchmark, MajajHongITPublicBenchmark
-from brainscore.model_interface import BrainModel
-from brainscore.utils import LazyLoad
-from model_tools.brain_transformation.temporal import TemporalIgnore
+from brainscore_vision.benchmarks.public_benchmarks import (
+    FreemanZiembaV1PublicBenchmark, FreemanZiembaV2PublicBenchmark,
+    MajajHongV4PublicBenchmark, MajajHongITPublicBenchmark)
+from brainscore_vision.model_interface import BrainModel
+from brainscore_vision.utils import LazyLoad
+from brainscore_vision.model_helpers.brain_transformation.temporal import TemporalIgnore
 from .behavior import BehaviorArbiter, LabelBehavior, ProbabilitiesMapping
 from .neural import LayerMappedModel, LayerSelection, LayerScores
 

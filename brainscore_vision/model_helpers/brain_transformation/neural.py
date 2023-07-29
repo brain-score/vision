@@ -1,14 +1,13 @@
 import logging
-from tqdm import tqdm
-from typing import Optional, Union
-
-from brainscore.metrics import Score
-from brainscore.model_interface import BrainModel
-from brainscore.utils import fullname
-from model_tools.activations.pca import LayerPCA
-from model_tools.brain_transformation import TemporalIgnore
-from model_tools.utils import make_list
 from result_caching import store_xarray, store
+from tqdm import tqdm
+
+from brainscore_vision.metrics import Score
+from brainscore_vision.model_helpers.activations.pca import LayerPCA
+from brainscore_vision.model_helpers.brain_transformation import TemporalIgnore
+from brainscore_vision.model_helpers.utils import make_list
+from brainscore_vision.model_interface import BrainModel
+from brainscore_vision.utils import fullname
 
 
 class LayerMappedModel(BrainModel):
@@ -31,7 +30,8 @@ class LayerMappedModel(BrainModel):
             for layer in layers:
                 assert layer not in layer_regions, f"layer {layer} has already been assigned for {layer_regions[layer]}"
                 layer_regions[layer] = region
-        activations = self.run_activations(stimuli, layers=list(layer_regions.keys()), number_of_trials=number_of_trials)
+        activations = self.run_activations(stimuli, layers=list(layer_regions.keys()),
+                                           number_of_trials=number_of_trials)
         activations['region'] = 'neuroid', [layer_regions[layer] for layer in activations['layer'].values]
         return activations
 

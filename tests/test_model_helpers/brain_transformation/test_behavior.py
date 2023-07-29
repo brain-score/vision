@@ -8,18 +8,18 @@ from pytest import approx
 
 from brainio.assemblies import BehavioralAssembly
 from brainio.stimuli import StimulusSet
-from brainscore.benchmarks.rajalingham2018 import _DicarloRajalingham2018
-from brainscore.benchmarks.screen import place_on_screen
-from brainscore.metrics.image_level_behavior import I2n
-from brainscore.model_interface import BrainModel
-from model_tools.activations import PytorchWrapper
-from model_tools.brain_transformation import ModelCommitment, ProbabilitiesMapping
+from brainscore_vision.benchmarks.rajalingham2018 import _DicarloRajalingham2018
+from brainscore_vision.benchmark_helpers.screen import place_on_screen
+from brainscore_vision.metrics.image_level_behavior import I2n
+from brainscore_vision.model_interface import BrainModel
+from brainscore_vision.model_helpers.activations import PytorchWrapper
+from brainscore_vision.model_helpers.brain_transformation import ModelCommitment, ProbabilitiesMapping
 
 
 def pytorch_custom():
     import torch
     from torch import nn
-    from model_tools.activations.pytorch import load_preprocess_images
+    from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 
     class MyModel(nn.Module):
         def __init__(self):
@@ -91,10 +91,10 @@ class TestLogitsBehavior:
 
     def test_import(self):
         # noinspection PyUnresolvedReferences
-        from model_tools.brain_transformation.behavior import LogitsBehavior
+        from brainscore_vision.model_helpers.brain_transformation.behavior import LogitsBehavior
 
     def test_imagenet(self):
-        from model_tools.brain_transformation.behavior import LogitsBehavior
+        from brainscore_vision.model_helpers.brain_transformation.behavior import LogitsBehavior
 
         activations_model = pytorch_custom()
         logits_behavior = LogitsBehavior(

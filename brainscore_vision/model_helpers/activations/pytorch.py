@@ -4,8 +4,8 @@ import logging
 import numpy as np
 from PIL import Image
 
-from model_tools.activations.core import ActivationsExtractorHelper
-from model_tools.utils import fullname
+from brainscore_vision.model_helpers.activations.core import ActivationsExtractorHelper
+from brainscore_vision.model_helpers.utils import fullname
 
 SUBMODULE_SEPARATOR = '.'
 

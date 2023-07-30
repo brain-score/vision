@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 def prepare_module(submission: Submission, config: BaseConfig):
     config_path = config.config_path
-    logger.info('Start executing models in repo submission_%s' % submission.id)
-    repo = extract_zip_file(submission.id, config_path, config.work_dir)
+    logger.info('Start executing models in repo submission_%s' % submission.jenkins_id)
+    repo = extract_zip_file(submission.jenkins_id, config_path, config.work_dir)
     package = 'models.brain_models' if submission.model_type == 'BrainModel' else 'models.base_models'
     logger.info(f'We work with {submission.model_type} and access {package} in the submission folder')
     return install_project(repo, package), os.path.basename(repo)

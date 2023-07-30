@@ -9,7 +9,7 @@ To that end, Brain-Score operationalizes experimental data into quantitative ben
 that any model candidate following the [`BrainModel`](brainscore_vision/model_interface.py) interface can be scored on.
 
 See the [Documentation](https://brain-score.readthedocs.io) for more details 
-and the [Tutorial](https://brain-score.readthedocs.io/en/latest/modules/tutorial.html) 
+and the [Tutorial](https://brain-score.readthedocs.io/en/latest/modules/model_tutorial.html) 
 and [Examples](https://github.com/brain-score/candidate_models/blob/master/examples/score-model.ipynb)
 for submitting a model to Brain-Score.
 
@@ -19,7 +19,7 @@ To contribute, please [send in a pull request](https://github.com/brain-score/br
 
 ## Local installation
 
-You will need Python >= 3.7 and pip >= 18.1.
+You will need Python = 3.7 and pip >= 18.1.
 Note that you can only access public benchmarks when running locally.
 To score a model on all benchmarks, submit it via the [brain-score.org website](http://www.brain-score.org).
 

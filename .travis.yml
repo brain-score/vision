@@ -18,7 +18,7 @@ before_install:
 - pip install awscli
 - bash test_setup.sh
 install:
-- pip install .
+- pip install -e ".[test]"
 - pip list # list installed package versions
 script:
 - if [ "$PRIVATE_ACCESS" = 1 ] && [ "$TRAVIS_PULL_REQUEST" = "false" ]; then pytest -m "private_access and not requires_gpu and not memory_intense and not slow and not travis_slow"; fi

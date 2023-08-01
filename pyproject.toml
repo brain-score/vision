@@ -14,13 +14,14 @@ requires-python = ">=3.7"
 dependencies = [
     "numpy>=1.17",
     "brainscore_core @ git+https://github.com/brain-score/core",
+    "result_caching @ git+https://github.com/brain-score/result_caching",
     "importlib-metadata<5", # workaround to https://github.com/brain-score/brainio/issues/28
+    "scikit-learn", # for metrics/transformations.py
     "scipy",
     "h5py",
     "tqdm",
     "gitpython",
     "fire",
-    "result_caching @ git+https://github.com/brain-score/result_caching",
     "fire",
     "jupyter",
     "pybtex",

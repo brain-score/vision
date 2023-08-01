@@ -73,6 +73,9 @@ markers = [
 #### setuptools packaging config ####
 ################################################################
 
+[tool.setuptools]
+py-modules = ['brainscore_vision']
+
 [tool.setuptools.package-data]
 # include non-python files (e.g. 'requirements.txt') in package install
 "brainscore_vision.benchmarks" = ["**"]

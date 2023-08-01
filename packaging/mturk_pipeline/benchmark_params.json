@@ -1,0 +1,16 @@
+{
+    "stimulus_set": {
+        "stimulus_set_name": "mturk_trial_2",
+        "stimuli_type": "image",
+        "stimuli_path": "images/test_set_1",
+        "num_stimuli": 8
+    },
+    "assembly": {
+        "stimulus_set_name": "mturk_trial_2",
+        "assembly_name": "mturk_trial_assembly",
+        "csv_file_path": "treisman1985/mturk_results_trial.csv",
+        "num_subjects": 3,
+        "num_reps": 3,
+        "num_stimuli": 9
+    }
+}

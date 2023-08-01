@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import networkx as nx
 
-from brainscore.metrics.anatomy import EdgeRatioMetric
+from brainscore_vision.metrics.anatomy import EdgeRatioMetric
 
 
 class TestEdgeRatio:

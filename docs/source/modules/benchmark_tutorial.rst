@@ -283,7 +283,7 @@ and can be maintained.
 We ask that all benchmarks test at least two things:
 
 #. The ceiling value of the benchmark for which the benchmark identifier and expected ceiling can simply be added to
-   the :meth:`tests.test_benchmarks.test___init__.test_ceilings` method
+   the :meth:`tests.test_benchmarks.test___init__.ceilings_test` method
 #. The score of a couple of models with precomputed features:
 
 The idea for scores of precomputed features is to run a few models on the benchmark, store their features, and test that

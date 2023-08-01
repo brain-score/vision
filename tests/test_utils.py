@@ -1,4 +1,4 @@
-from brainscore.utils import recursive_dict_merge
+from brainscore_vision.utils import recursive_dict_merge
 
 
 class TestRecursiveDictMerge:

@@ -1,0 +1,86 @@
+################################################################
+#### project config ####
+################################################################
+
+[project]
+name = "brainscore_vision"
+version = "2.0"
+description = "The Brain-Score library enables model comparisons to behavioral and neural experiments"
+authors = []
+license = { 'file' = 'LICENSE' }
+readme = "README.md"
+requires-python = ">=3.7"
+
+dependencies = [
+    "numpy>=1.17",
+    "brainscore_core @ git+https://github.com/brain-score/core",
+    "result_caching @ git+https://github.com/brain-score/result_caching",
+    "importlib-metadata<5", # workaround to https://github.com/brain-score/brainio/issues/28
+    "scikit-learn", # for metrics/transformations.py
+    "scipy",
+    "h5py",
+    "tqdm",
+    "gitpython",
+    "fire",
+    "fire",
+    "jupyter",
+    "pybtex",
+    "peewee",
+    "psycopg2-binary",
+    "networkx",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+]
+
+[build-system]
+requires = [
+    "setuptools>=65.*",
+    "wheel"
+]
+
+[project.scripts]
+brainio_brainscore = "brainscore_vision.entrypoint:brainio_brainscore"
+
+
+################################################################
+#### mypy type-checking config ####
+################################################################
+
+[tool.mypy]
+ignore_missing_imports = true
+
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests"
+]
+
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::FutureWarning"
+]
+
+markers = [
+    "memory_intense",
+    "travis_slow",
+    "slow",
+    "private_access",
+]
+
+
+################################################################
+#### setuptools packaging config ####
+################################################################
+
+[tool.setuptools]
+py-modules = ['brainscore_vision']
+
+[tool.setuptools.package-data]
+# include non-python files (e.g. 'requirements.txt') in package install
+"brainscore_vision.benchmarks" = ["**"]
+"brainscore_vision.data" = ["**"]
+"brainscore_vision.metrics" = ["**"]
+"brainscore_vision.models" = ["**"]

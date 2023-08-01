@@ -26,6 +26,7 @@ dependencies = [
     "pybtex",
     "peewee",
     "psycopg2-binary",
+    "networkx",
 ]
 
 [project.optional-dependencies]

@@ -1,19 +1,18 @@
 import functools
+import numpy as np
 import os
+import pytest
 from pathlib import Path
 
-import numpy as np
-import pytest
-
 from brainio.stimuli import StimulusSet
-from model_tools.activations import PytorchWrapper
-from model_tools.brain_transformation import ModelCommitment, LayerMappedModel
+from brainscore_vision.model_helpers.activations import PytorchWrapper
+from brainscore_vision.model_helpers.brain_transformation import ModelCommitment, LayerMappedModel
 
 
 def pytorch_custom():
     import torch
     from torch import nn
-    from model_tools.activations.pytorch import load_preprocess_images
+    from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 
     class MyModel(nn.Module):
         def __init__(self):

@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 import numpy as np
 
-from model_tools.activations.core import ActivationsExtractorHelper
+from brainscore_vision.model_helpers.activations.core import ActivationsExtractorHelper
 
 
 class KerasWrapper:

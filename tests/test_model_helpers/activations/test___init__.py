@@ -6,9 +6,9 @@ import xarray as xr
 from pathlib import Path
 
 from brainio.stimuli import StimulusSet
-from model_tools.activations import KerasWrapper, PytorchWrapper, TensorflowSlimWrapper
-from model_tools.activations.core import flatten
-from model_tools.activations.pca import LayerPCA
+from brainscore_vision.model_helpers.activations import KerasWrapper, PytorchWrapper, TensorflowSlimWrapper
+from brainscore_vision.model_helpers.activations.core import flatten
+from brainscore_vision.model_helpers.activations.pca import LayerPCA
 
 
 def unique_preserved_order(a):
@@ -19,7 +19,7 @@ def unique_preserved_order(a):
 def pytorch_custom():
     import torch
     from torch import nn
-    from model_tools.activations.pytorch import load_preprocess_images
+    from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 
     class MyModel(nn.Module):
         def __init__(self):
@@ -44,7 +44,7 @@ def pytorch_custom():
 
 def pytorch_alexnet():
     from torchvision.models.alexnet import alexnet
-    from model_tools.activations.pytorch import load_preprocess_images
+    from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     return PytorchWrapper(model=alexnet(pretrained=True), preprocessing=preprocessing)
@@ -52,7 +52,7 @@ def pytorch_alexnet():
 
 def pytorch_alexnet_resize():
     from torchvision.models.alexnet import alexnet
-    from model_tools.activations.pytorch import load_images, torchvision_preprocess
+    from brainscore_vision.model_helpers.activations.pytorch import load_images, torchvision_preprocess
     from torchvision import transforms
     torchvision_preprocess_input = transforms.Compose([transforms.Resize(224), torchvision_preprocess()])
 
@@ -68,7 +68,7 @@ def pytorch_alexnet_resize():
 def pytorch_transformer_substitute():
     import torch
     from torch import nn
-    from model_tools.activations.pytorch import load_preprocess_images
+    from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 
     class MyTransformer(nn.Module):
         def __init__(self):
@@ -96,14 +96,14 @@ def pytorch_transformer_substitute():
 def keras_vgg19():
     import keras
     from keras.applications.vgg19 import VGG19, preprocess_input
-    from model_tools.activations.keras import load_images
+    from brainscore_vision.model_helpers.activations.keras import load_images
     keras.backend.clear_session()
     preprocessing = lambda image_filepaths: preprocess_input(load_images(image_filepaths, image_size=224))
     return KerasWrapper(model=VGG19(), preprocessing=preprocessing)
 
 
 def tfslim_custom():
-    from model_tools.activations.tensorflow import load_resize_image
+    from brainscore_vision.model_helpers.activations.tensorflow import load_resize_image
     import tensorflow as tf
     slim = tf.contrib.slim
     tf.compat.v1.reset_default_graph()
@@ -135,7 +135,7 @@ def tfslim_vgg16():
     import tensorflow as tf
     from nets import nets_factory
     from preprocessing import vgg_preprocessing
-    from model_tools.activations.tensorflow import load_resize_image
+    from brainscore_vision.model_helpers.activations.tensorflow import load_resize_image
     tf.compat.v1.reset_default_graph()
 
     image_size = 224
@@ -281,7 +281,7 @@ def test_conv_and_fc():
 def test_merge_large_layers():
     import torch
     from torch import nn
-    from model_tools.activations.pytorch import load_preprocess_images
+    from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 
     class LargeModel(nn.Module):
         def __init__(self):

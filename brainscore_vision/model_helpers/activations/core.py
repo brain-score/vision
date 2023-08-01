@@ -11,7 +11,7 @@ from tqdm.auto import tqdm
 
 from brainio.assemblies import NeuroidAssembly, walk_coords
 from brainio.stimuli import StimulusSet
-from model_tools.utils import fullname
+from brainscore_vision.model_helpers.utils import fullname
 from result_caching import store_xarray
 
 

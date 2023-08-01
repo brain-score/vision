@@ -1,10 +1,10 @@
 # noinspection PyUnresolvedReferences
 class TestImport:
-    def test_model_tools(self):
-        import model_tools
+    def test_model_helpers(self):
+        import brainscore_vision.model_helpers
 
     def test_activations_extractor(self):
-        from model_tools.activations.core import ActivationsExtractorHelper
+        from brainscore_vision.model_helpers.activations.core import ActivationsExtractorHelper
 
     def test_model_commitment(self):
-        from model_tools.brain_transformation import ModelCommitment
+        from brainscore_vision.model_helpers.brain_transformation import ModelCommitment

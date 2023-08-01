@@ -1,16 +1,15 @@
-from brainscore.benchmarks.public_benchmarks import FreemanZiembaV1PublicBenchmark, FreemanZiembaV2PublicBenchmark, \
-    MajajHongV4PublicBenchmark, MajajHongITPublicBenchmark
-from brainscore.model_interface import BrainModel
-from brainscore.utils import LazyLoad
-from model_tools.brain_transformation.temporal import TemporalIgnore
+from brainscore_vision import load_benchmark
+from brainscore_vision.model_helpers.brain_transformation.temporal import TemporalIgnore
+from brainscore_vision.model_interface import BrainModel
+from brainscore_vision.utils import LazyLoad
 from .behavior import BehaviorArbiter, LabelBehavior, ProbabilitiesMapping
 from .neural import LayerMappedModel, LayerSelection, LayerScores
 
 STANDARD_REGION_BENCHMARKS = {
-    'V1': LazyLoad(FreemanZiembaV1PublicBenchmark),
-    'V2': LazyLoad(FreemanZiembaV2PublicBenchmark),
-    'V4': LazyLoad(MajajHongV4PublicBenchmark),
-    'IT': LazyLoad(MajajHongITPublicBenchmark),
+    'V1': LazyLoad(lambda: load_benchmark('movshon.FreemanZiemba2013.V1.public')),
+    'V2': LazyLoad(lambda: load_benchmark('movshon.FreemanZiemba2013.V2.public')),
+    'V4': LazyLoad(lambda: load_benchmark('dicarlo.MajajHong2015public.V4-pls')),
+    'IT': LazyLoad(lambda: load_benchmark('dicarlo.MajajHong2015public.IT-pls')),
 }
 
 

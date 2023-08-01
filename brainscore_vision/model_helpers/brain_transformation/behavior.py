@@ -6,8 +6,8 @@ import sklearn.linear_model
 import sklearn.multioutput
 
 from brainio.assemblies import walk_coords, array_is_element, BehavioralAssembly
-from brainscore.model_interface import BrainModel
-from model_tools.utils import make_list
+from brainscore_vision.model_helpers.utils import make_list
+from brainscore_vision.model_interface import BrainModel
 
 
 class BehaviorArbiter(BrainModel):

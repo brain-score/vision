@@ -5,6 +5,7 @@ between benchmarks and models.
 
 from typing import List, Tuple, Union
 
+from brainio.assemblies import BehavioralAssembly, NeuroidAssembly
 from brainio.stimuli import StimulusSet
 
 
@@ -117,7 +118,7 @@ class BrainModel:
                   - choice        (choice) object 'dog' 'cat' 'chair' 'flower' 'plane'
         """
 
-    def start_task(self, task: Task, fitting_stimuli):
+    def start_task(self, task: Task, fitting_stimuli) -> None:
         """
         Instructs the model to begin one of the tasks specified in :data:`~brainscore.model_interface.BrainModel.Task`.
         For all followings call of :meth:`~brainscore.model_interface.BrainModel.look_at`, the model returns the
@@ -135,7 +136,7 @@ class BrainModel:
         V4 = 'V4'
         IT = 'IT'
 
-    def start_recording(self, recording_target: RecordingTarget, time_bins=List[Tuple[int]]):
+    def start_recording(self, recording_target: RecordingTarget, time_bins: List[Tuple[int]]) -> None:
         """
         Instructs the model to begin recording in a specified
         :data:`~brainscore.model_interface.BrainModel.RecordingTarget` and return the specified `time_bins`.
@@ -161,7 +162,8 @@ class BrainModel:
         """
         raise NotImplementedError()
 
-    def look_at(self, stimuli: Union[StimulusSet, List[str]], number_of_trials=1):
+    def look_at(self, stimuli: Union[StimulusSet, List[str]], number_of_trials=1) \
+            -> Union[BehavioralAssembly, NeuroidAssembly]:
         """
         Digest a set of stimuli and return requested outputs. Which outputs to return is instructed by the
         :meth:`~brainscore.model_interface.BrainMode.start_task` and
@@ -171,6 +173,6 @@ class BrainModel:
             or a list of image file paths
         :param number_of_trials: The number of repeated trials of the stimuli that the model should average over.
             E.g. 10 or 35. Non-stochastic models can likely ignore this parameter.
-        :return: recordings or task behaviors as instructed
+        :return: task behaviors or recordings as instructed
         """
         raise NotImplementedError()

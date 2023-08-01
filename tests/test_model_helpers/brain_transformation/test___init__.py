@@ -1,5 +1,5 @@
-from model_tools.brain_transformation import ModelCommitment
-from model_tools.utils import fullname
+from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
+from brainscore_vision.model_helpers.utils import fullname
 
 
 class TestVisualDegrees:

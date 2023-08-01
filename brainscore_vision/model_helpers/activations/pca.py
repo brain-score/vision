@@ -1,15 +1,14 @@
-import logging
-import os
-
 import h5py
+import logging
 import numpy as np
+import os
 from PIL import Image
+from result_caching import store_dict
 from sklearn.decomposition import PCA
 from tqdm import tqdm
 
-from model_tools.activations.core import flatten, change_dict
-from model_tools.utils import fullname, s3
-from result_caching import store_dict
+from brainscore_vision.model_helpers.activations.core import flatten, change_dict
+from brainscore_vision.model_helpers.utils import fullname, s3
 
 
 class LayerPCA:
@@ -66,7 +65,6 @@ class LayerPCA:
             progress.update(1)
             return pca
 
-        from model_tools.activations.core import change_dict
         layer_pcas = change_dict(imagenet_activations, init_and_progress, keep_name=True,
                                  multithread=os.getenv('MT_MULTITHREAD', '1') == '1')
         progress.close()

@@ -3,13 +3,13 @@ import os
 
 from brainio.assemblies import NeuroidAssembly
 from brainio.stimuli import StimulusSet
-from brainscore.benchmarks import BenchmarkBase, ceil_score
-from brainscore.benchmarks._neural_common import average_repetition, timebins_from_assembly
-from brainscore.metrics.ceiling import InternalConsistency
-from brainscore.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation
-from brainscore.metrics.transformations import Split
-from brainscore.model_interface import BrainModel
-from model_tools.brain_transformation import ModelCommitment, LayerSelection, RegionLayerMap
+from brainscore_vision.benchmark_helpers._neural_common import average_repetition, timebins_from_assembly
+from brainscore_vision.benchmarks import BenchmarkBase, ceil_score
+from brainscore_vision.metrics.ceiling import InternalConsistency
+from brainscore_vision.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation
+from brainscore_vision.metrics.transformations import Split
+from brainscore_vision.model_helpers.brain_transformation import ModelCommitment, LayerSelection, RegionLayerMap
+from brainscore_vision.model_interface import BrainModel
 
 
 def check_brain_models(module):

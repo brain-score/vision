@@ -11,6 +11,15 @@
         "csv_file_path": "treisman1985/mturk_results_trial.csv",
         "num_subjects": 3,
         "num_reps": 3,
-        "num_stimuli": 9
+        "num_stimuli": 8
+    },
+    "benchmark": {
+        "benchmark_name": "Treisman_trial1985",
+        "assembly_name": "mturk_trial_assembly",
+        "benchmark_directory": "../../brainscore/benchmarks",
+        "metric": "ErrorConsistency",
+        "visual_degrees": 8,
+        "num_trials": 3,
+        "benchmark_bibtex": "@article{treisman1985search,\n  title={Search asymmetry: a diagnostic for preattentive processing of separable features.},\n  author={Treisman, Anne and Souther, Janet},\n  journal={Journal of Experimental Psychology: General},\n  volume={114},\n  number={3},\n  pages={285},\n  year={1985},\n  publisher={American Psychological Association}\n}"
     }
 }

@@ -5,6 +5,7 @@ import argparse
 import fire
 from mturk_custom_logger import setup_logger
 from results_to_assembly import csv_to_assembly
+from assembly_to_benchmark import MTurkBenchmarkFactory
 from images_to_stimulus_set import path_to_stimulus_set
 from tests.test_mturk_pipeline.test_benchmark_creation import TestStimulusSet, TestAssembly
 import json
@@ -107,14 +108,25 @@ def results_to_assembly(parameter_config: str) -> None:
     logger.info(f"Assembly tests passed.")
     logger.info(f"Assembly creation finished. New assembly named {assembly_name} now on BrainIO.")
 
-# needs to be done still
-# def assembly_to_benchmark(model, *benchmarks):
-#     scores = OrderedDict()
-#     for benchmark in benchmarks:
-#         _model = brain_translated_pool[model]
-#         score = score_model_function(model_identifier=model, benchmark_identifier=benchmark, model=_model)
-#         scores[benchmark] = score
-#     print(scores)
+
+def assembly_to_benchmark(parameter_config: str) -> None:
+    with open(parameter_config, 'r') as f:
+        params = json.load(f)
+    benchmark_params = params['benchmark']
+    benchmark_name = benchmark_params['benchmark_name']
+    assembly_name = benchmark_params["assembly_name"]
+    benchmark_directory = benchmark_params['benchmark_directory']
+    metric = benchmark_params['metric']
+    visual_degrees = benchmark_params['visual_degrees']
+    num_trials = benchmark_params['num_trials']
+    benchmark_bibtex = benchmark_params["benchmark_bibtex"]
+
+    benchmark_factory = MTurkBenchmarkFactory(benchmark_name, assembly_name, benchmark_directory, metric,
+                                              visual_degrees, num_trials, benchmark_bibtex)
+    benchmark_factory()
+
+    logger.info(f"Benchmark tests passed.")
+    logger.info(f"Benchmark creation finished. New benchmark named {benchmark_name} now located in {benchmark_directory}.")
 
 
 logger.debug(f"Running {' '.join(sys.argv)}")

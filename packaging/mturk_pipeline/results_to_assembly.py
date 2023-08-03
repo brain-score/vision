@@ -27,7 +27,6 @@ def csv_to_assembly(stimulus_set_name: str, assembly_name: str, csv_file: str) -
     all_subjects['target_id'] = all_subjects['target_dir'].apply(lambda x: os.path.basename(x))
     all_subjects['distractor_id'] = all_subjects['distractor_dir'].apply(lambda x: os.path.basename(x))
 
-
     # construct the assembly
     assembly = BehavioralAssembly(all_subjects['correct'],
                                   coords={

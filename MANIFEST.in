@@ -1,6 +1,8 @@
 include LICENSE
 include README.md
-include brainscore/lookup.csv
+include brainscore_vision/lookup.csv
+include brainscore_vision/model_helpers/brain_transformation/imagenet_classes.txt
+include brainscore_vision/model_helpers/check_submission/images/*.png
 
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]

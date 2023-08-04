@@ -42,8 +42,8 @@ class SubmissionConfig(BaseConfig):
 
     def __init__(self, model_type, user_id, jenkins_id, public: bool, competition_submission: str, **kwargs):
         super(SubmissionConfig, self).__init__(jenkins_id=jenkins_id, **kwargs)
-        self.submission = Submission.create(id=jenkins_id, submitter=user_id, timestamp=datetime.datetime.now(),
-                                            model_type=model_type, status='running')
+        self.submission = Submission.create(submitter=user_id, timestamp=datetime.datetime.now(),
+                                            model_type=model_type, status='running', jenkins_id=jenkins_id)
         self.competition_submission = competition_submission
         self.public = public
 

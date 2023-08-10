@@ -88,7 +88,6 @@ def load_assembly():
 
     def generate_test_code(self) -> str:
         test_code = f"""from pathlib import Path
-import numpy as np
 import pytest
 from pytest import approx
 from brainio.assemblies import BehavioralAssembly
@@ -96,11 +95,60 @@ from brainscore import benchmark_pool
 from tests.test_benchmarks import PrecomputedFeatures
 
 
-class TestBehavioral:
-    def test_count(self):
-        assert 2 == 2
-    
-    def test_num_trials(self):
-        assert 1 == 1
+@pytest.mark.private_access
+class {self.name}:
+
+    # ensure the benchmark itself are there
+    @pytest.mark.parametrize('benchmark', [
+        '{self.name}-{self.metric}',
+    ])
+    def test_in_pool(self, benchmark):
+        assert benchmark in benchmark_pool
+
+    # Test expected ceiling
+    @pytest.mark.parametrize('benchmark, expected_ceiling', [
+        ('{self.name}-{self.metric}', 0.8498),
+    ])
+    def test_benchmark_ceiling(self, benchmark, expected_ceiling):
+        benchmark = benchmark_pool[benchmark]
+        assembly = benchmark._assembly
+        ceiling = benchmark._ceiling(assembly)
+        assert ceiling == approx(expected_ceiling, abs=0.001)
+
+    # Test raw scores
+    @pytest.mark.parametrize('benchmark, model, expected_raw_score', [
+        ('{self.name}-{self.metric}', 'alexnet', approx(0.2847, abs=0.0001)),
+        ('{self.name}-{self.metric}', 'resnet-50-pytorch', approx(0.8452, abs=0.0001)),
+    ])
+    def test_model_raw_score(self, benchmark, model, expected_raw_score):
+        # load features
+        precomputed_features = Path(__file__).parent / f'{self.name_lower}-{self.name_lower}.nc'
+        benchmark = benchmark_pool[benchmark]
+        precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)
+        precomputed_features = PrecomputedFeatures(precomputed_features,
+                                                   visual_degrees=8.0,  # doesn't matter, features are already computed
+                                                   )
+        score = benchmark(precomputed_features)
+        raw_score = score.raw
+        assert raw_score.sel(aggregation='center') == expected_raw_score
+
+        # division by ceiling <= 1 should result in higher score
+        assert score.sel(aggregation='center') >= raw_score.sel(aggregation='center')
+
+    # test ceiled score
+    @pytest.mark.parametrize('benchmark, model, expected_ceiled_score', [
+        ('{self.name}-{self.metric}', 'alexnet', approx(0.2847, abs=0.0001)),
+        ('{self.name}-{self.metric}', 'resnet-50-pytorch', approx(0.8452, abs=0.0001)),
+    ])
+    def test_model_ceiled_score(self, benchmark, model, expected_ceiled_score):
+        # load features
+        precomputed_features = Path(__file__).parent / f'{self.name_lower}-{self.name_lower}.nc'
+        benchmark = benchmark_pool[benchmark]
+        precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)
+        precomputed_features = PrecomputedFeatures(precomputed_features,
+                                                   visual_degrees=8.8,  # doesn't matter, features are already computed
+                                                   )
+        score = benchmark(precomputed_features)
+        assert score.sel(aggregation='center') == expected_ceiled_score
         """
         return test_code

@@ -9,15 +9,17 @@ from assembly_to_benchmark import MTurkBenchmarkFactory
 from images_to_stimulus_set import path_to_stimulus_set
 from tests.test_mturk_pipeline.test_benchmark_creation import TestStimulusSet, TestAssembly
 import json
+import subprocess
 
 """
 This file will create a brain-score benchmark. It automatically packages a set of stimuli into a BrainIO stimulus set, 
 converts a raw MTurk CSV (or any other CSV with specific columns) into a BrainIO assembly, and with an input metric
 creates a benchmark.py file. Any three of these functions, images_to_stimulus_set, results_to_assembly, and 
 assembly_to_benchmark can be called separately from the CLI or from a run configuration, such as Fire (default). 
-A sample run (via PyCharm's run configurator) to create a stimulus set might look like this:
+Parameters for all three methods are contained in a single JSON file, benchmark_params.json.
+A sample run (via PyCharm's run configurator) to create a benchmark from an assembly might look like this:
 
-images_to_stimulus_set --stimulus_set_name test_set-1 --images_path images/test_set_1 --stimuli_type image --num_images 8
+assembly_to_benchmark --parameter_config benchmark_params.json
 
 
 """
@@ -109,11 +111,26 @@ def results_to_assembly(parameter_config: str) -> None:
     logger.info(f"Assembly creation finished. New assembly named {assembly_name} now on BrainIO.")
 
 
+"""
+Takes in an assembly and outputs a saved benchmark file in the specified directory. Also creates a test file in 
+../../test_benchmarks and automatically runs those tests on the benchmark. 
+
+"""
+
+
 def assembly_to_benchmark(parameter_config: str) -> None:
+    """
+
+    :param parameter_config: a JSON file of parameters to use in this function call. It will automatically parse
+                            the benchmark's arguments and ignore others.
+    :return: static method (None return type)
+    """
+
     with open(parameter_config, 'r') as f:
         params = json.load(f)
     benchmark_params = params['benchmark']
     benchmark_name = benchmark_params['benchmark_name']
+    benchmark_name_lower = benchmark_name.lower()
     assembly_name = benchmark_params["assembly_name"]
     benchmark_directory = benchmark_params['benchmark_directory']
     metric = benchmark_params['metric']
@@ -125,8 +142,12 @@ def assembly_to_benchmark(parameter_config: str) -> None:
                                               visual_degrees, num_trials, benchmark_bibtex)
     benchmark_factory()
 
-    logger.info(f"Benchmark tests passed.")
-    logger.info(f"Benchmark creation finished. New benchmark named {benchmark_name} now located in {benchmark_directory}.")
+    # Run the created file 3
+    # result = subprocess.run(['python', f'../../test_{benchmark_name_lower}.py'], stdout=subprocess.PIPE,
+    #                         stderr=subprocess.PIPE)
+    # logger.info(f"Benchmark tests passed.")
+    logger.info(
+        f"Benchmark creation finished. New benchmark named {benchmark_name} now located in {benchmark_directory}.")
 
 
 logger.debug(f"Running {' '.join(sys.argv)}")

@@ -320,6 +320,8 @@ class TestBaker2022:
         stimulus_set = brainscore.get_stimulus_set(f'Baker2022_{identifier}_distortion')
         assert len(np.unique(stimulus_set["image_number"])) == 40
 
+
+@pytest.mark.private_access
 def test_Islam2021():
     stimulus_set = brainio.get_stimulus_set('Islam2021')
     assert len(set(stimulus_set["texture"])) == 5

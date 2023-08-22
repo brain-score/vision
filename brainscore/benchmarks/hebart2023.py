@@ -29,6 +29,7 @@ class Hebart2023Accuracy(BenchmarkBase):
         self._assembly = LazyLoad(lambda: load_assembly("Hebart2023"))     # <- this is from Geirhos er al.
         def load_assembly(dataset):                                        # 
             pass                                                           #
+        
         self.stimulus_set  = brainscore.get_stimulus_set("Hebart2023")     # <- this is from Islam2021
         
         super(Hebart2023Accuracy, self).__init__(

@@ -6,7 +6,6 @@ from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 from pathlib import Path
 from brainscore_vision.model_helpers import download_weights
-import torch
 
 # This is an example implementation for submitting alexnet as a pytorch model
 # If you use pytorch, don't forget to add it to the setup.py
@@ -30,7 +29,7 @@ def get_model(name):
     folder_path='models/single-img',
     filename_version_sha=[('ckpt.pth', 'C722T4BityNPpazdXWiAeu8pGBxKIudb', '0186929df5d04451995d94cd332a3603a00594fe')],
     save_directory=Path(__file__).parent)
-    model.load_state_dict(torch.load(os.path.join(os.path.dirname(__file__), 'ckpt.pth')))
+    model.load_state_dict(os.path.join(os.path.dirname(__file__), 'ckpt.pth'))
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(identifier='resnet50', model=model, preprocessing=preprocessing)
     wrapper.image_size = 224

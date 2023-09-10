@@ -1,6 +1,7 @@
 import numpy as np
 
 import brainscore
+from brainio.assemblies import walk_coords
 from brainscore.benchmarks import BenchmarkBase
 from brainscore.model_interface import BrainModel
 from brainscore.utils import LazyLoad
@@ -47,5 +48,30 @@ class Hebart2023Accuracy(BenchmarkBase):
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling
         return score
+    
+    def load_assembly(dataset):
+        assembly = brainscore.get_assembly(f'')
+        stimulus_set = assembly.attrs['stimulus_set']
+        stimulus_set = stimulus_set[stimulus_set['image_id'].isin(set(assembly['image_id'].values))]
+        assembly.attrs['stimulus_set'] = stimulus_set
+        # convert condition float to string to avoid xarray indexing errors.
+        # See https://app.travis-ci.com/github/brain-score/brain-score/builds/256059224
+        assembly = cast_coordinate_type(assembly, coordinate='condition', newtype=str)
+        assembly.attrs['stimulus_set']['condition'] = assembly.attrs['stimulus_set']['condition'].astype(str)
+        return assembly
+
+    def cast_coordinate_type(assembly, coordinate, newtype):
+        attrs = assembly.attrs
+        condition_values = assembly[coordinate].values
+        assembly = type(assembly)(assembly.values, coords={
+          coord: (dims, values) for coord, dims, values in walk_coords(assembly) if coord != coordinate},
+                                  dims=assembly.dims)
+        assembly[coordinate] = 'presentation', condition_values.astype(newtype)
+        assembly = type(assembly)(assembly)
+        assembly.attrs = attrs
+        return assembly
+
+
+
     
 

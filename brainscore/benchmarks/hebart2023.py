@@ -4,6 +4,7 @@ import brainscore
 from brainio.assemblies import walk_coords
 from brainscore.benchmarks import BenchmarkBase
 from brainscore.model_interface import BrainModel
+from brainscore.metrics import Score
 from brainscore.utils import LazyLoad
 
 
@@ -20,19 +21,12 @@ BIBTEX = """@article{10.7554/eLife.82580,
 
 class Hebart2023Accuracy(BenchmarkBase):
     def __init__(self, similarity_measure):
-        self._metric = None
+        self._metric = 'None'
         self._visual_degrees = None  # Can we know this, we collected the data using mturk?
-        self._number_of_trials = None
+        self._number_of_trials = 1
         self.validation_data = None  # https://osf.io/b2a4j -> host on S3 
         self.ceiling = 0.6844
 
-        #  What is the difference here? What should I use?
-        self._assembly = LazyLoad(lambda: load_assembly("Hebart2023"))     # <- this is from Geirhos er al.
-        def load_assembly(dataset):                                        # 
-            pass                                                           #
-        
-        self.stimulus_set  = brainscore.get_stimulus_set("Hebart2023")     # <- this is from Islam2021
-        
         super(Hebart2023Accuracy, self).__init__(
             identifier=f'Hebart2023Accuracy_{similarity_measure}', version=1,
             ceiling_func=lambda: Score([0.6844, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation']),
@@ -40,7 +34,7 @@ class Hebart2023Accuracy(BenchmarkBase):
             bibtex=BIBTEX)
 
     def __call__(self, candidate: BrainModel):
-        candidate.start_task(BrainModel.Task.odd_one_out, self.similarity_measure) # Is it ok to pass the similarity_measure here?
+        candidate.start_task(BrainModel.Task.odd_one_out, None) # Is it ok to pass the similarity_measure here?
         predicted_odd_one_outs = candidate.look_at(self._assembly.stimulus_set, number_of_trials=self._number_of_trials)
         raw_score = self._metric(predicted_odd_one_outs, self._assembly.validation_data)
         ceiling = self.ceiling
@@ -49,18 +43,20 @@ class Hebart2023Accuracy(BenchmarkBase):
         score.attrs['ceiling'] = ceiling
         return score
     
-    def load_assembly(dataset):
+    def load_assembly(self):
+        #TODO: This needs to be adapted to out data
         assembly = brainscore.get_assembly(f'')
         stimulus_set = assembly.attrs['stimulus_set']
         stimulus_set = stimulus_set[stimulus_set['image_id'].isin(set(assembly['image_id'].values))]
         assembly.attrs['stimulus_set'] = stimulus_set
         # convert condition float to string to avoid xarray indexing errors.
         # See https://app.travis-ci.com/github/brain-score/brain-score/builds/256059224
-        assembly = cast_coordinate_type(assembly, coordinate='condition', newtype=str)
+        assembly = self.cast_coordinate_type(assembly, coordinate='condition', newtype=str)
         assembly.attrs['stimulus_set']['condition'] = assembly.attrs['stimulus_set']['condition'].astype(str)
         return assembly
 
-    def cast_coordinate_type(assembly, coordinate, newtype):
+    def cast_coordinate_type(self, assembly, coordinate, newtype):
+        #TODO: This might needs to be adapted to out data
         attrs = assembly.attrs
         condition_values = assembly[coordinate].values
         assembly = type(assembly)(assembly.values, coords={

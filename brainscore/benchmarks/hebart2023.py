@@ -22,7 +22,7 @@ BIBTEX = """@article{10.7554/eLife.82580,
 class Hebart2023Accuracy(BenchmarkBase):
     def __init__(self, similarity_measure):
         self._metric = 'None'
-        self._visual_degrees = None  # Can we know this, we collected the data using mturk?
+        self._visual_degrees = 6
         self._number_of_trials = 1
         self.validation_data = None  # https://osf.io/b2a4j -> host on S3 
         self.ceiling = 0.6844

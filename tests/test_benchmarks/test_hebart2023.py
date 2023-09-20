@@ -34,7 +34,6 @@ class TestHebart2022:
     @pytest.mark.parametrize('benchmark, model, expected_raw_score', [
         ('Hebart2023', 'resnet-50-pytorch', approx(None, abs=0.0001)), # TODO
         ('Hebart2023', 'resnet50-SIN', approx(None, abs=0.0001)), # TODO
-
     ])
 
     #### TODO
@@ -45,7 +44,7 @@ class TestHebart2022:
         benchmark = benchmark_pool[benchmark]
         precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)
         precomputed_features = PrecomputedFeatures(precomputed_features,
-                                                   visual_degrees=8.8,  # doesn't matter, features are already computed
+                                                   visual_degrees=6, 
                                                    )
         score = benchmark(precomputed_features)
         raw_score = score.raw
@@ -56,12 +55,8 @@ class TestHebart2022:
 
     # test ceiled score
     @pytest.mark.parametrize('benchmark, model, expected_ceiled_score', [
-        ('Baker2022-accuracy_delta_frankenstein', 'resnet-50-pytorch', approx(0.3350, abs=0.0001)),
-        ('Baker2022-accuracy_delta_fragmented', 'resnet-50-pytorch', approx(0.9005, abs=0.0001)),
-        ('Baker2022-inverted_accuracy_delta', 'resnet-50-pytorch', approx(0.0, abs=0.0001)),
-        ('Baker2022-accuracy_delta_frankenstein', 'resnet50-SIN', approx(0.8029, abs=0.0001)),
-        ('Baker2022-accuracy_delta_fragmented', 'resnet50-SIN', approx(0.9696, abs=0.0001)),
-        ('Baker2022-inverted_accuracy_delta', 'resnet50-SIN', approx(1.000, abs=0.0001)),
+        ('Hebart2023', 'resnet-50-pytorch', approx(None, abs=0.0001)), # TODO
+        ('Hebart2023', 'resnet50-SIN', approx(None, abs=0.0001)), # TODO
     ])
     def test_model_ceiled_score(self, benchmark, model, expected_ceiled_score):
         # load features
@@ -69,7 +64,7 @@ class TestHebart2022:
         benchmark = benchmark_pool[benchmark]
         precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)
         precomputed_features = PrecomputedFeatures(precomputed_features,
-                                                   visual_degrees=8.8,  # doesn't matter, features are already computed
+                                                   visual_degrees=6,  
                                                    )
         score = benchmark(precomputed_features)
         assert score.sel(aggregation='center') == expected_ceiled_score

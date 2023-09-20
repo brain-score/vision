@@ -34,7 +34,7 @@ class Hebart2023Accuracy(BenchmarkBase):
             bibtex=BIBTEX)
 
     def __call__(self, candidate: BrainModel):
-        candidate.start_task(BrainModel.Task.odd_one_out, None) # Is it ok to pass the similarity_measure here?
+        candidate.start_task(BrainModel.Task.odd_one_out, None) 
         predicted_odd_one_outs = candidate.look_at(self._assembly.stimulus_set, number_of_trials=self._number_of_trials)
         raw_score = self._metric(predicted_odd_one_outs, self._assembly.validation_data)
         ceiling = self.ceiling
@@ -56,7 +56,7 @@ class Hebart2023Accuracy(BenchmarkBase):
         return assembly
 
     def cast_coordinate_type(self, assembly, coordinate, newtype):
-        #TODO: This might needs to be adapted to out data
+        #TODO: This might need to be adapted to out data
         attrs = assembly.attrs
         condition_values = assembly[coordinate].values
         assembly = type(assembly)(assembly.values, coords={

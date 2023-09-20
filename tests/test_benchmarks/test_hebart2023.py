@@ -35,9 +35,6 @@ class TestHebart2022:
         ('Hebart2023', 'resnet-50-pytorch', approx(None, abs=0.0001)), # TODO
         ('Hebart2023', 'resnet50-SIN', approx(None, abs=0.0001)), # TODO
     ])
-
-    #### TODO
-
     def test_model_raw_score(self, benchmark, model, expected_raw_score):
         # load features
         precomputed_features = Path(__file__).parent / f'{model}-{benchmark}.nc'

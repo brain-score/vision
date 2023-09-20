@@ -18,14 +18,10 @@ Experiment Information:
 all_subjects = pd.read_csv('human_data/validationset.txt')
 
 # construct the assembly TODO
-assembly = BehavioralAssembly(all_subjects['Correct?'],
+assembly = BehavioralAssembly(None,
                               coords={
-                                  'stimulus_id': ('presentation', all_subjects['image_shown']),
-                                  'subject': ('presentation', all_subjects['Subj']),
-                                  'condition': ('presentation', all_subjects['Frankensteinonfig']),
-                                  'truth': ('presentation', all_subjects['Animal']),
-                                  'correct': ('presentation', all_subjects['Correct?']),
-                                  'orientation': ('presentation', all_subjects['orientation']),
+                                  'stimulus_id': ('presentation', None), # TODO there are multiple stimuly?
+                                  'odd_one_out': ('presentation', None), # TODO id of last element in triplet
                               },
                               dims=['presentation']
                               )

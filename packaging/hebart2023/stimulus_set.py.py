@@ -13,14 +13,12 @@ stimuli_directory = 'images'
 Dataset Information:
 
 - From Hebart 2023: link TODO
-- 1854 images total
+- 1854 images in total
 
 Fields:
-
-- TODO
+- image_number: a number {0,1...1853} indicates the image category
 
 '''
-categories = ['aardvark'] # TODO
 
 for filepath in Path(stimuli_directory).glob('*.jpg'):
 
@@ -30,7 +28,7 @@ for filepath in Path(stimuli_directory).glob('*.jpg'):
     stimuli.append({
         'stimulus_id': image_id,
         'label': image_id[:-4],
-        'number': None # TODO this might 
+        'number': None # TODO this might be better done manually from the csv
     })
 
 stimuli = StimulusSet(stimuli)

@@ -6,16 +6,14 @@ import pandas as pd
 
 '''
 Experiment Information:
- - Link
- - Data/subjects are from experiment 1 
+ - https://elifesciences.org/articles/82580
 
- - oo task
- - n subjects 
- - 120 * 32 = 3840 total triplets shown 
+ - odd one out task
+ - 470.000 total triplets shown 
 '''
 
 # initial csv to dataframe processing:
-all_subjects = pd.read_csv('human_data/validationset.txt')
+all_subjects = pd.read_csv('Desktop/Brain-Score-Data/DataAssembly/validationset.txt ')
 
 # construct the assembly TODO
 assembly = BehavioralAssembly(None,

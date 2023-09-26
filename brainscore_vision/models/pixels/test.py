@@ -6,6 +6,7 @@ from pytest import approx
 from brainscore_vision import score
 
 @pytest.mark.private_access
+@pytest.mark.memory_intense
 @pytest.mark.parametrize("model_identifier, benchmark_identifier, expected_score", [
     ("pixels", "dicarlo.MajajHong2015.IT-pls", approx(0.0153, abs=0.0005)),
 ])

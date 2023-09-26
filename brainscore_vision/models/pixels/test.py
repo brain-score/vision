@@ -5,7 +5,7 @@ from pathlib import Path
 from pytest import approx
 from brainscore_vision import score
 
-
+@pytest.mark.private_access
 @pytest.mark.parametrize("model_identifier, benchmark_identifier, expected_score", [
     ("pixels", "dicarlo.MajajHong2015.IT-pls", approx(0.0153, abs=0.0005)),
 ])
@@ -13,7 +13,7 @@ def test_score(model_identifier, benchmark_identifier, expected_score):
     actual_score = score(model_identifier=model_identifier, benchmark_identifier=benchmark_identifier)
     assert actual_score[0] == expected_score
 
-
+@pytest.mark.private_access
 def test_commandline_score():
     process = subprocess.run(
         [

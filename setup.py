@@ -33,7 +33,8 @@ requirements = [
     "pybtex",
     "peewee",
     "pillow<9.0.0",
-    "psycopg2-binary"
+    "psycopg2-binary",
+    "pytest"
 ]
 
 setup(

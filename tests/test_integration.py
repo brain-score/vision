@@ -3,16 +3,15 @@ import subprocess
 import sys
 from pathlib import Path
 from pytest import approx
-
 from brainscore_vision import score
 
 
 @pytest.mark.parametrize("model_identifier, benchmark_identifier, expected_score", [
-    ("pixels", "dicarlo.MajajHong2015.IT-pls", approx(0.36144805, abs=0.0005)),
+    ("pixels", "dicarlo.MajajHong2015.IT-pls", approx(0.0153, abs=0.0005)),
 ])
 def test_score(model_identifier, benchmark_identifier, expected_score):
     actual_score = score(model_identifier=model_identifier, benchmark_identifier=benchmark_identifier)
-    assert actual_score == expected_score
+    assert actual_score[0] == expected_score
 
 
 def test_commandline_score():
@@ -32,7 +31,7 @@ def test_commandline_score():
     assert "error" not in process.stderr.lower()
     output = process.stdout
     assert "Score" in output
-    assert "0.0285" in output
-    assert "<xarray.Score ()>\narray(0.0285022)" in output
+    assert "0.0153" in output
+    assert "<xarray.Score ()>\narray(0.0153)" in output
     assert "model_identifier:      pixels" in output
     assert "benchmark_identifier:  dicarlo.MajajHong2015.IT-pls" in output

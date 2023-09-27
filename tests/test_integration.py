@@ -14,6 +14,7 @@ def test_score(model_identifier, benchmark_identifier, expected_score):
     actual_score = score(model_identifier=model_identifier, benchmark_identifier=benchmark_identifier)
     assert actual_score[0] == expected_score
 
+@pytest.mark.memory_intense
 @pytest.mark.private_access
 def test_commandline_score():
     process = subprocess.run(

@@ -34,7 +34,8 @@ requirements = [
     "peewee",
     "pillow<9.0.0",
     "psycopg2-binary",
-    "pytest"
+    "pytest",
+    "pytest_check"
 ]
 
 setup(

@@ -5,6 +5,8 @@ from pathlib import Path
 from pytest import approx
 from brainscore_vision import score
 
+
+# tests a single model on a single benchmark
 @pytest.mark.private_access
 @pytest.mark.memory_intense
 @pytest.mark.parametrize("model_identifier, benchmark_identifier, expected_score", [

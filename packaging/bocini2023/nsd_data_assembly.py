@@ -1,13 +1,12 @@
 from pathlib import Path
 import numpy as np
 import xarray as xr
-
-from brainio.assemblies import NeuroidAssembly
-from brainio.packaging import package_data_assembly, write_netcdf
-from brainio.assemblies import NeuronRecordingAssembly
 import pandas as pd
 import os
 from tqdm import tqdm 
+
+from brainio.assemblies import NeuroidAssembly
+from brainio.packaging import package_data_assembly
 
 SUBJECTS = ["subject1", "subject2", "subject3", "subject4", "subject5", "subject6", "subject7", "subject8"]
 
@@ -47,7 +46,6 @@ def collect_nsd_data_assembly(root_directory, subject):
     train_repetition = np.load(train_fmri_dir / 'repetition_train.npy')
     test_repetition = np.load(test_fmri_dir / 'repetition_test.npy')
 
-
     train_id = np.load(train_fmri_dir / 'train_id.npy')
     test_id = np.load(test_fmri_dir / 'test_id.npy')
 
@@ -56,12 +54,18 @@ def collect_nsd_data_assembly(root_directory, subject):
     test_lh_fmri = np.load(test_fmri_dir / 'lh_test_fmri.npy')
     test_rh_fmri = np.load(test_fmri_dir / 'rh_test_fmri.npy')
 
-
     lh_fmri = np.concatenate((train_lh_fmri, test_lh_fmri), axis=0)
     rh_fmri = np.concatenate((train_rh_fmri, test_rh_fmri), axis=0)
     repetition = np.concatenate((train_repetition, test_repetition))
     img_cond = np.concatenate((['train']*len(train_id), ['test']*len(test_id)))
     stim_number = range(0, len(img_cond))
+
+    counts_id = [0] * len(repetition)
+    count = 0
+    for i in range(1,len(repetition)):
+        if repetition[i] - repetition[i-1] <= 0:
+            count +=1
+        counts_id[i] = count
 
     new_train_img_lookup = []
     assert(len(train_img_lookup) == len(np.unique(train_id)))
@@ -117,7 +121,6 @@ def collect_nsd_data_assembly(root_directory, subject):
         nc =   np.squeeze(np.concatenate((lh_noise_ceiling, rh_noise_ceiling)))
         del lh_noise_ceiling, rh_noise_ceiling
 
-
         # 3. get the rois 
         for roi_class in roi_classes:
             # Load the ROI brain surface maps
@@ -127,7 +130,7 @@ def collect_nsd_data_assembly(root_directory, subject):
             assert(np.all(np.isin(np.where(fsaverage_roi_class), fsaverage_all_vertices_indices)))
             roi_map = np.load(roi_map_dir, allow_pickle=True).item()
             
-            result = [roi_map[value] for value in fsaverage_roi_class] # if value in fsaverage_all_vertices_indices]
+            result = [roi_map[value] for value in fsaverage_roi_class]
             if hem == 'left':
                 roi_data[f'region_{roi_class}'] = [result[i] for i in fsaverage_all_vertices_indices]
             else:
@@ -140,14 +143,16 @@ def collect_nsd_data_assembly(root_directory, subject):
     region_floc_places=roi_data['region_floc-places']
     region_floc_words=roi_data['region_floc-words']
     region_streams=roi_data['region_streams']
+    
 
     coords = {
         'stimulus_id': ('presentation', stimulus_id), 
         'image_filename': ('presentation', image_filename),
         'image_folder': ('presentation', img_lookup),
         'repetition' : ('presentation', repetition),
-        'algonauts_train_test' : ('presentation', img_cond), # change this!!!
+        'algonauts_train_test' : ('presentation', img_cond),
         'stim_number' : ('presentation', stim_number),
+        'counts_id' : ('presentation', counts_id),
         'neuroid_id': ('neuroid', neuroid_id),
         'hemisphere': ('neuroid', hemisphere),
         'region_whole_brain': ('neuroid', region_whole_brain),
@@ -167,8 +172,8 @@ def collect_nsd_data_assembly(root_directory, subject):
     assembly = NeuroidAssembly(assembly)
 
     assembly = assembly.expand_dims('time_bin')
-    assembly['time_bin_start'] = 'time_bin', [70]
-    assembly['time_bin_end'] = 'time_bin', [170]
+    assembly['time_bin_start'] = 'time_bin', [3000]
+    assembly['time_bin_end'] = 'time_bin', [6000]
     assembly = assembly.transpose('presentation', 'neuroid', 'time_bin')
 
     assembly.name = f'bocini-nsd-2023_{subject}_assembly'
@@ -180,24 +185,9 @@ if __name__ == '__main__':
 
     root_directory = Path(r'./bocini2023_NSD_data')
 
-    # storing_folder = './data_assemblies_folder/'
-    # if not os.path.exists(storing_folder):
-    #     os.makedirs(storing_folder)
-
     for subject in tqdm(SUBJECTS, desc='Subjects'):
 
         assembly = collect_nsd_data_assembly(root_directory, subject)
-
-        # upload to S3
-        #package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
-        #                     stimulus_set_identifier="bocini-nsd-2023",
-        #                     assembly_class_name="NeuronRecordingAssembly", bucket_name="brainio-brainscore")
-
-        # # store it in local:
-        # target_netcdf_file = os.path.join( storing_folder, assembly.name )
-        # print(f'storing assembly for subject {subject[-1]}')
-        # sha1 = write_netcdf(assembly, target_netcdf_file)
-        # print('stored')
 
         # upload to S3
         stimulus_set_identifier = f'bocini-nsd-2023_{subject}_stimulus_set'

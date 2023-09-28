@@ -1,6 +1,6 @@
 from pathlib import Path
 from brainio.stimuli import StimulusSet
-from brainio.packaging import package_stimulus_set, create_stimulus_csv
+from brainio.packaging import package_stimulus_set
 import os
 import pandas as pd
 from pathlib import Path
@@ -11,9 +11,17 @@ SUBJECTS = ["subject1", "subject2", "subject3", "subject4", "subject5", "subject
 def collect_nsd_stimulus_set(root_directory, subject):
     """
     Dataset Meta Info (from https://naturalscenesdataset.org/ ; https://cocodataset.org/) 
-    """
 
-    stimuli = []
+    The Natural Scenes Dataset (NSD) is a large-scale fMRI dataset conducted at ultra-high-field (7T) strength 
+    at the Center of Magnetic Resonance Research (CMRR) at the University of Minnesota. The dataset consists of 
+    whole-brain, high-resolution (1.8-mm isotropic, 1.6-s sampling rate) fMRI measurements of 8 healthy adult 
+    subjects while they viewed thousands of color natural scenes over the course of 30–40 scan sessions. 
+    While viewing these images, subjects were engaged in a continuous recognition task in which they reported 
+    whether they had seen each given image at any point in the experiment. These data constitute a massive 
+    benchmark dataset for computational models of visual representation and cognition, and can support a 
+    wide range of scientific inquiry.
+
+    """
 
     metadata_directory = Path(f'{root_directory}/metadata/nsd_stim_info_merged.csv')
     image_directory = Path(f'{root_directory}/nsd_stimulus_set')
@@ -31,13 +39,22 @@ def collect_nsd_stimulus_set(root_directory, subject):
     s_info['filename'] = filename
     s_info['nsdId'] = s_info['nsdId'].apply(lambda x: format(x, "05"))
 
-    s_info.drop(subject_columns + [f'{subj}_rep{i}' for subj in subject_columns for i in range(3)], axis=1,  inplace=True)
+    # s_info.drop(subject_columns + [f'{subj}_rep{i}' for subj in subject_columns for i in range(3)], axis=1,  inplace=True)
+    s_info.drop(['subject1', 'subject2', 'subject3',
+        'subject4', 'subject5', 'subject6', 'subject7', 'subject8'
+        , 'subject1_rep0', 'subject1_rep1', 'subject1_rep2', 'subject2_rep0',
+        'subject2_rep1', 'subject2_rep2', 'subject3_rep0', 'subject3_rep1',
+        'subject3_rep2', 'subject4_rep0', 'subject4_rep1', 'subject4_rep2',
+        'subject5_rep0', 'subject5_rep1', 'subject5_rep2', 'subject6_rep0',
+        'subject6_rep1', 'subject6_rep2', 'subject7_rep0', 'subject7_rep1',
+        'subject7_rep2', 'subject8_rep0', 'subject8_rep1', 'subject8_rep2'
+        ], axis=1,  inplace = True)
     
     s_info['nsd_ids'] = range(0, 73000)
 
     s_info = s_info[s_info.subject.isin([subject, 'shared'])]
 
-    # # still need some work:
+    # #add the object category and supercategory 
     # coco_metadata = pd.read_csv(COCO_META_DATA_PATH)
     # s_info['category'] = coco_metadata.category[coco_metadata.cocoId.isin(s_info.cocoId)]
     # s_info['supercategory'] = coco_metadata.supercategory[coco_metadata.cocoId.isin(s_info.cocoId)]
@@ -86,14 +103,8 @@ if __name__ == '__main__':
 
     root_directory = Path(r'./bocini2023_NSD_data')
 
-    # storing_folder = './stimulus_sets_folder/'
-    # if not os.path.exists(storing_folder):
-    #     os.makedirs(storing_folder)
-
     for subject in SUBJECTS:
         stimuli = collect_nsd_stimulus_set(root_directory, subject)
-        # store it as csv
-        # create_stimulus_csv(proto_stimulus_set= stimuli, target_path=f'stimulus_sets_folder/{stimuli.name}')
         # upload to S3
         print(stimuli.name)
         package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,

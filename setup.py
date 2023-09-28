@@ -35,7 +35,8 @@ requirements = [
     "pillow<9.0.0",
     "psycopg2-binary",
     "pytest",
-    "pytest_check"
+    "pytest_check",
+    "botocore.httpsession"
 ]
 
 setup(

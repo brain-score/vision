@@ -132,8 +132,27 @@ class BrainModel:
         """ location to record from """
         V1 = 'V1'
         V2 = 'V2'
-        V4 = 'V4'
+        V4 = 'V4 '
         IT = 'IT'
+
+    class RegionMacaque(RecordingTarget):
+        """ macaque location to record from """
+        V1ventral = 'mV1v'
+        V2ventral = 'mV2v'
+        V4 = 'mV4'
+        # IT = 'IT'
+
+    class RegionHuman(RecordingTarget):
+        """ human location to record from """
+        V1ventral = 'hV1v'
+        #V1dorsal = 'hV1d'
+        V2ventral = 'hV2v'
+        #V2dorsal = 'hV2v'
+        #V3ventral = 'hV3v'
+        #V3dorsal = 'hV3d'
+        V4 = 'hV4'
+        #IT = 'IT'
+        whole_brain = 'whole_brain'
 
     def start_recording(self, recording_target: RecordingTarget, time_bins=List[Tuple[int]]):
         """

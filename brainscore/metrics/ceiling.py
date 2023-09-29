@@ -160,3 +160,21 @@ ceilings = {
     'cons': InternalConsistency,
     None: NoCeiling,
 }
+
+
+class NSDCeiling(Ceiling):
+    '''
+    This class calculates the Noise Ceiling (NC) from an Algonauts assembly.
+    Designed specifically for Algonauts data.
+    Attributes:
+        _nc_col (str): The name of the column in the assembly that contains the noise ceiling values.
+
+    Methods:
+        __call__(self, assembly): Extracts the already computed nc values.
+    '''
+    def __init__(self):
+        self._nc_col = 'algonauts_noise_ceiling'
+
+    def __call__(self, assembly):
+        nc = assembly[self._nc_col].data
+        return nc 

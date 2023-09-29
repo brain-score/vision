@@ -203,6 +203,12 @@ def _evaluation_benchmark_pool():
     from .sanghavimurty2020 import DicarloSanghaviMurty2020V4PLS, DicarloSanghaviMurty2020ITPLS
     pool['dicarlo.SanghaviMurty2020.V4-pls'] = LazyLoad(DicarloSanghaviMurty2020V4PLS)
     pool['dicarlo.SanghaviMurty2020.IT-pls'] = LazyLoad(DicarloSanghaviMurty2020ITPLS)
+    # NSD Bocini 2023
+    from .nsd_bocini2023_algonauts import NSD2023WholeBrain, NSD2023V1v, NSD2023V2v, NSD2023V4
+    pool['bocini-nsd-2023.whole_brain-algonauts-metric'] = LazyLoad(NSD2023WholeBrain)
+    pool['bocini-nsd-2023.V1-algonauts-metric'] = LazyLoad(NSD2023V1v)
+    pool['bocini-nsd-2023.V2-algonauts-metric'] = LazyLoad(NSD2023V2v)
+    pool['bocini-nsd-2023.V4-algonauts-metric'] = LazyLoad(NSD2023V4)
 
     # behavioral benchmarks
     # Rajalingham2018

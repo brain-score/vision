@@ -36,7 +36,6 @@ requirements = [
     "psycopg2-binary",
     "pytest",
     "pytest_check",
-    "botocore.httpsession"
 ]
 
 setup(

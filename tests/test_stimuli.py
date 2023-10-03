@@ -59,6 +59,14 @@ import brainio
         'brendel.Geirhos2021_sketch',
         'brendel.Geirhos2021_uniform-noise',
         'Islam2021',
+        'bocini-nsd-2023_subject1_stimulus_set',
+        'bocini-nsd-2023_subject2_stimulus_set'
+        'bocini-nsd-2023_subject3_stimulus_set'
+        'bocini-nsd-2023_subject4_stimulus_set'
+        'bocini-nsd-2023_subject5_stimulus_set'
+        'bocini-nsd-2023_subject6_stimulus_set'
+        'bocini-nsd-2023_subject7_stimulus_set'
+        'bocini-nsd-2023_subject8_stimulus_set'
 ))
 def test_list_stimulus_set(stimulus_set):
     l = brainio.list_stimulus_sets()

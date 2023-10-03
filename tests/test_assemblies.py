@@ -64,6 +64,10 @@ import brainscore
         'brendel.Geirhos2021_stylized',
         'brendel.Geirhos2021_sketch',
         'brendel.Geirhos2021_uniform-noise',
+        'bocini-nsd-2023.whole_brain-algonauts-metric',
+        'bocini-nsd-2023.V1-algonauts-metric',
+        'bocini-nsd-2023.V2-algonauts-metric',
+        'bocini-nsd-2023.V4-algonauts-metric',
 ))
 def test_list_assembly(assembly):
     l = brainio.list_assemblies()

@@ -132,7 +132,7 @@ class BrainModel:
         """ location to record from """
         V1 = 'V1'
         V2 = 'V2'
-        V4 = 'V4 '
+        V4 = 'V4'
         IT = 'IT'
 
     class RegionMacaque(RecordingTarget):

@@ -124,6 +124,10 @@ def test_list_assembly(assembly):
     pytest.param('brendel.Geirhos2021_stylized', marks=[pytest.mark.private_access]),
     pytest.param('brendel.Geirhos2021_sketch', marks=[pytest.mark.private_access]),
     pytest.param('brendel.Geirhos2021_uniform-noise', marks=[pytest.mark.private_access]),
+    pytest.param('bocini-nsd-2023.whole_brain-algonauts-metric',marks=[pytest.mark.private_access]),
+    pytest.param('bocini-nsd-2023.V1-algonauts-metric',marks=[pytest.mark.private_access]),
+    pytest.param('bocini-nsd-2023.V2-algonauts-metric',marks=[pytest.mark.private_access]),
+    pytest.param('bocini-nsd-2023.V4-algonauts-metric',marks=[pytest.mark.private_access]),
 ])
 def test_existence(assembly_identifier):
     assert brainio.get_assembly(assembly_identifier) is not None

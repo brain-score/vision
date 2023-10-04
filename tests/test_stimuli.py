@@ -60,13 +60,13 @@ import brainio
         'brendel.Geirhos2021_uniform-noise',
         'Islam2021',
         'bocini-nsd-2023_subject1_stimulus_set',
-        'bocini-nsd-2023_subject2_stimulus_set'
-        'bocini-nsd-2023_subject3_stimulus_set'
-        'bocini-nsd-2023_subject4_stimulus_set'
-        'bocini-nsd-2023_subject5_stimulus_set'
-        'bocini-nsd-2023_subject6_stimulus_set'
-        'bocini-nsd-2023_subject7_stimulus_set'
-        'bocini-nsd-2023_subject8_stimulus_set'
+        'bocini-nsd-2023_subject2_stimulus_set',
+        'bocini-nsd-2023_subject3_stimulus_set',
+        'bocini-nsd-2023_subject4_stimulus_set',
+        'bocini-nsd-2023_subject5_stimulus_set',
+        'bocini-nsd-2023_subject6_stimulus_set',
+        'bocini-nsd-2023_subject7_stimulus_set',
+        'bocini-nsd-2023_subject8_stimulus_set',
 ))
 def test_list_stimulus_set(stimulus_set):
     l = brainio.list_stimulus_sets()
@@ -135,6 +135,37 @@ class TestMarques2020V1Properties:
     def test_num_stimuli(self, identifier, num_stimuli):
         stimulus_set = brainio.get_stimulus_set(identifier)
         assert len(stimulus_set) == num_stimuli
+
+@pytest.mark.slow
+class Test:
+    # test stimulus_set data:
+    @pytest.mark.parametrize('identifier', [
+        'short-2',
+        'short-4',
+        'short-6',
+        'short-8',
+        'short-16',
+        'equal-2',
+        'long-2',
+        'equal-16',
+        'long-16',
+        'short-2_fit',
+        'short-4_fit',
+        'short-6_fit',
+        'short-8_fit',
+        'short-16_fit',
+        'equal-2_fit',
+        'long-2_fit',
+        'equal-16_fit',
+        'long-16_fit',
+        'vernier-only'
+    ])
+    def test_stimulus_set_exist(self, identifier):
+        full_name = f"Malania2007_{identifier}"
+        stimulus_set = brainio.get_stimulus_set(full_name)
+        assert stimulus_set is not None
+        assert stimulus_set.identifier == full_name
+
 
 
 @pytest.mark.slow

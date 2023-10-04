@@ -64,19 +64,24 @@ class TestPoolList:
             'dicarlo.Marques2020_FreemanZiemba2013-max_noise',
             'dicarlo.Marques2020_FreemanZiemba2013-max_texture',
             'dicarlo.Marques2020_Ringach2002-max_dc',
+            'bocini-nsd-2023.V1-algonauts-metric',
             # V2
             'movshon.FreemanZiemba2013.V2-pls',
+            'bocini-nsd-2023.V2-algonauts-metric',
             # V4
             'dicarlo.MajajHong2015.V4-pls',
             'dicarlo.Sanghavi2020.V4-pls',
             'dicarlo.SanghaviJozwik2020.V4-pls',
             'dicarlo.SanghaviMurty2020.V4-pls',
+            'bocini-nsd-2023.V4-algonauts-metric',
             # IT
             'dicarlo.MajajHong2015.IT-pls',
             'dicarlo.Sanghavi2020.IT-pls',
             'dicarlo.SanghaviJozwik2020.IT-pls',
             'dicarlo.SanghaviMurty2020.IT-pls',
             'dicarlo.Kar2019-ost',
+            # whole_brain
+            'bocini-nsd-2023.whole_brain-algonauts-metric',
             # behavior
             'dicarlo.Rajalingham2018-i2n',
             'brendel.Geirhos2021colour-error_consistency',

@@ -43,8 +43,7 @@ class Hebart2023Accuracy(BenchmarkBase):
         return score
     
     def load_assembly(self):
-        #TODO: This needs to be adapted to out data
-        assembly = brainscore.get_assembly(f'')
+        assembly = brainscore.get_assembly(f'') # TODO
         stimulus_set = assembly.attrs['stimulus_set']
         stimulus_set = stimulus_set[stimulus_set['image_id'].isin(set(assembly['image_id'].values))]
         assembly.attrs['stimulus_set'] = stimulus_set

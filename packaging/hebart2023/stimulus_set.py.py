@@ -2,8 +2,6 @@ from pathlib import Path
 from brainio.stimuli import StimulusSet
 from brainio.packaging import package_stimulus_set
 import pandas as pd
-import re
-
 
 stimuli = []
 image_paths = {}
@@ -21,20 +19,19 @@ Fields:
 
 df = pd.read_csv(stimulus_path + 'metadata.csv')
 
-for i in range(len(df)):
-    # entire name of image file:
-    image_id = df.iloc[i][0]
-    image_paths[image_id] = stimulus_path + 'reference_images/' + df.iloc[i][1][1:]
+for index, row in df.iterrows():
+    image_id = row.iloc[0] 
+    image_paths[image_id] = stimulus_path + 'reference_images/' + row.iloc[1][1:]
     stimuli.append({
         'stimulus_id': image_id,
-        'number': i
+        'number': index
     })
 
-print(stimuli)
 stimuli = StimulusSet(stimuli)
 stimuli.name = 'Hebart2023'  
 stimuli.stimulus_paths = image_paths
 
-# upload to S3
+assert len(stimuli) == 1854
+
 package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,
                      bucket_name="brainio-brainscore")

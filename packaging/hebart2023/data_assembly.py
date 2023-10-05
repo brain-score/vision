@@ -29,6 +29,6 @@ assembly.name = 'Hebart2023'
 
 
 # upload to S3
-package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
-                      stimulus_set_identifier='Hebart2023',
-                      assembly_class_name="BehavioralAssembly", bucket_name="brainio-brainscore")
+#package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
+#                      stimulus_set_identifier='Hebart2023',
+#                      assembly_class_name="BehavioralAssembly", bucket_name="brainio-brainscore")

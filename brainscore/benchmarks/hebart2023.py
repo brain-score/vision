@@ -24,7 +24,6 @@ class Hebart2023Accuracy(BenchmarkBase):
         self._metric = 'None'
         self._visual_degrees = 6
         self._number_of_trials = 1
-        self.validation_data = None  # https://osf.io/b2a4j -> host on S3 
         self.ceiling = 0.6844
 
         super(Hebart2023Accuracy, self).__init__(
@@ -49,10 +48,6 @@ class Hebart2023Accuracy(BenchmarkBase):
         stimulus_set = assembly.attrs['stimulus_set']
         stimulus_set = stimulus_set[stimulus_set['image_id'].isin(set(assembly['image_id'].values))]
         assembly.attrs['stimulus_set'] = stimulus_set
-        # convert condition float to string to avoid xarray indexing errors.
-        # See https://app.travis-ci.com/github/brain-score/brain-score/builds/256059224
-        assembly = self.cast_coordinate_type(assembly, coordinate='condition', newtype=str)
-        assembly.attrs['stimulus_set']['condition'] = assembly.attrs['stimulus_set']['condition'].astype(str)
         return assembly
 
     def cast_coordinate_type(self, assembly, coordinate, newtype):

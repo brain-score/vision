@@ -1,3 +1,4 @@
 -e .
 
 Sphinx>=4
+recommonmark

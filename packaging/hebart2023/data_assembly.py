@@ -5,7 +5,7 @@ import pandas as pd
 
 '''
 Experiment Information:
- - https://elifesciences.org/articles/82580
+ - From Hebart 2023: https://elifesciences.org/articles/8258
 
  - Participants were shown three images and had to choose the odd one out.
  - The dataset consisted of 12,340 workers and 4,699,160 triplets, of which 4,574,059 
@@ -15,8 +15,6 @@ Experiment Information:
 
 # initial csv to dataframe processing:
 df = pd.read_csv('/Users/linussommer/Desktop/Brain-Score-Data/DataAssembly/validationset.csv')
-
-assert len(df) == 453642
 
 # the last image is the odd one in the human trial
 assembly = BehavioralAssembly(df['ooo'],
@@ -30,6 +28,8 @@ assembly = BehavioralAssembly(df['ooo'],
 
 # give the assembly an identifier name
 assembly.name = 'Hebart2023'
+
+assert len(df) == 453642
 
 # upload to S3
 package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,

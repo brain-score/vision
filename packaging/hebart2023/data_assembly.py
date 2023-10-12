@@ -8,7 +8,7 @@ Experiment Information:
  - https://elifesciences.org/articles/82580
 
  - odd one out task
- - 470.000 total triplets shown 
+ - 453.642 total triplets shown 
 '''
 
 # initial csv to dataframe processing:
@@ -16,15 +16,14 @@ df = pd.read_csv('/Users/linussommer/Desktop/Brain-Score-Data/DataAssembly/valid
 
 assert len(df) == 453642
 
-# construct the assembly TODO
-assembly = BehavioralAssembly(df,
-                              coords={
-                                  'img1': ('presentation', df['img1']), 
-                                  'img2': ('presentation', df['img2']), 
-                                  'odd_one_out': ('presentation', df['ooo']), 
-                              },
-                              dims=['presentation']
-                              )
+assembly = BehavioralAssembly(df['ooo'],
+                               coords={
+                                   'stimulus_id': ('presentation', [f"triplet_{i}" for i in range(len(df))]),
+                                   'image_1': ('presentation', df['img1']),
+                                   'image_2': ('presentation', df['img2']),
+                                   'image_3': ('presentation', df['ooo']),
+                               },
+                               dims=['presentation'])
 
 # give the assembly an identifier name
 assembly.name = 'Hebart2023'

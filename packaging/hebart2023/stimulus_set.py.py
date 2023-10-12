@@ -33,5 +33,7 @@ stimuli.stimulus_paths = image_paths
 
 assert len(stimuli) == 1854
 
-package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,
-                     bucket_name="brainio-brainscore")
+print(stimuli.stimulus_paths)
+
+#package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,
+#                     bucket_name="brainio-brainscore")

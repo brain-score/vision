@@ -19,7 +19,8 @@ df = pd.read_csv('/Users/linussommer/Desktop/Brain-Score-Data/DataAssembly/valid
 # the last image is the odd one in the human trial
 assembly = BehavioralAssembly(df['ooo'],
                                coords={
-                                   'stimulus_id': ('presentation', [f"triplet_{i}" for i in range(len(df))]),
+                                   'stimulus_id': ('presentation', df['ooo']),
+                                   'triplet_id': ('presentation', [f"triplet_{i}" for i in range(len(df))]),
                                    'image_1': ('presentation', df['img1']),
                                    'image_2': ('presentation', df['img2']),
                                    'image_3': ('presentation', df['ooo']),  

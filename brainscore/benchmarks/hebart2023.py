@@ -43,12 +43,13 @@ class Hebart2023Accuracy(BenchmarkBase):
         return score
     
     def load_assembly(self):
-        assembly = brainscore.get_assembly(f'') # TODO
+        assembly = brainscore.get_assembly(f'Hebart2023') 
         stimulus_set = assembly.attrs['stimulus_set']
-        stimulus_set = stimulus_set[stimulus_set['image_id'].isin(set(assembly['image_id'].values))]
+        stimulus_set = stimulus_set[stimulus_set['stimulus_id'].isin(set(assembly['stimulus_id'].values))]
         assembly.attrs['stimulus_set'] = stimulus_set
         return assembly
 
+    """
     def cast_coordinate_type(self, assembly, coordinate, newtype):
         #TODO: This might need to be adapted to out data
         attrs = assembly.attrs
@@ -60,7 +61,7 @@ class Hebart2023Accuracy(BenchmarkBase):
         assembly = type(assembly)(assembly)
         assembly.attrs = attrs
         return assembly
-
+    """
 
 
     

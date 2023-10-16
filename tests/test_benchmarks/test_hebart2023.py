@@ -5,8 +5,7 @@ from brainio.assemblies import BehavioralAssembly
 from brainscore import benchmark_pool
 from brainscore.benchmarks.hebart2023 import DATASETS
 from tests.test_benchmarks import PrecomputedFeatures
-
-"""@pytest.mark.private_access
+@pytest.mark.private_access
 class TestHebart2022:
 
     # ensure dataset is there
@@ -22,14 +21,14 @@ class TestHebart2022:
 
     # Test expected ceiling
     @pytest.mark.parametrize('benchmark, expected_ceiling', [
-        ('Hebart2023', None), # TODO
+        ('Hebart2023', 0.6844), # TODO
     ])
     def test_benchmark_ceiling(self, benchmark, expected_ceiling):
         benchmark = benchmark_pool[benchmark]
         assembly = benchmark._assembly
         ceiling = benchmark._ceiling(assembly) # TODO might need some fixing
         assert ceiling == approx(expected_ceiling, abs=0.001)
-
+"""
     # Test raw scores
     @pytest.mark.parametrize('benchmark, model, expected_raw_score', [
         ('Hebart2023', 'resnet-50-pytorch', approx(None, abs=0.0001)), # TODO

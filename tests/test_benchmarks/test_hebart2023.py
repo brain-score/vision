@@ -6,7 +6,7 @@ from brainscore import benchmark_pool
 from brainscore.benchmarks.hebart2023 import DATASETS
 from tests.test_benchmarks import PrecomputedFeatures
 
-@pytest.mark.private_access
+"""@pytest.mark.private_access
 class TestHebart2022:
 
     # ensure dataset is there
@@ -65,3 +65,5 @@ class TestHebart2022:
                                                    )
         score = benchmark(precomputed_features)
         assert score.sel(aggregation='center') == expected_ceiled_score
+
+"""

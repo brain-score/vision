@@ -1,7 +1,6 @@
 import numpy as np
 
 import brainscore
-from brainio.assemblies import walk_coords
 from brainscore.benchmarks import BenchmarkBase
 from brainscore.model_interface import BrainModel
 from brainscore.metrics import Score
@@ -24,7 +23,7 @@ class Hebart2023Accuracy(BenchmarkBase):
         self._metric = 'None'
         self._visual_degrees = 6
         self._number_of_trials = 1
-        self.ceiling = 0.6844
+        #self.ceiling = 0.6844
 
         super(Hebart2023Accuracy, self).__init__(
             identifier=f'Hebart2023Accuracy_{similarity_measure}', version=1,
@@ -48,21 +47,3 @@ class Hebart2023Accuracy(BenchmarkBase):
         stimulus_set = stimulus_set[stimulus_set['stimulus_id'].isin(set(assembly['stimulus_id'].values))]
         assembly.attrs['stimulus_set'] = stimulus_set
         return assembly
-
-    """
-    def cast_coordinate_type(self, assembly, coordinate, newtype):
-        #TODO: This might need to be adapted to out data
-        attrs = assembly.attrs
-        condition_values = assembly[coordinate].values
-        assembly = type(assembly)(assembly.values, coords={
-          coord: (dims, values) for coord, dims, values in walk_coords(assembly) if coord != coordinate},
-                                  dims=assembly.dims)
-        assembly[coordinate] = 'presentation', condition_values.astype(newtype)
-        assembly = type(assembly)(assembly)
-        assembly.attrs = attrs
-        return assembly
-    """
-
-
-    
-

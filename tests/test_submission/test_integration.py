@@ -45,6 +45,10 @@ class TestIntegration:
     def test_competition_field(self, tmpdir):
         working_dir = str(tmpdir.mkdir('sub'))
         config_dir = str(os.path.join(os.path.dirname(__file__), 'configs/'))
+        submission = Submission.create(id=33, jenkins_id=33, submitter=1, timestamp=datetime.now(),
+                                       model_type='BaseModel', status='running')
+        model = Model.create(name='alexnet', owner=submission.submitter, public=False,
+                             submission=submission, competition='cosyne2022')
         run_evaluation(config_dir, working_dir, 33, TestIntegration.database, models=['alexnet'],
                        benchmarks=['dicarlo.MajajHong2015.IT-pls'])
         model = Model.get()

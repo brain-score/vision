@@ -1,14 +1,8 @@
 import numpy as np
 
 from brainio.assemblies import NeuroidAssembly, array_is_element, walk_coords
+from brainscore_vision.metric_helpers import Defaults
 from brainscore_vision.metrics import Score
-
-
-class Defaults:
-    expected_dims = ('presentation', 'neuroid')
-    stimulus_coord = 'stimulus_id'
-    neuroid_dim = 'neuroid'
-    neuroid_coord = 'neuroid_id'
 
 
 class XarrayRegression:

@@ -1,15 +1,14 @@
 import scipy.stats
 import xarray as xr
+from result_caching import store
 from tqdm import tqdm
 
 from brainio.assemblies import walk_coords
+from brainscore_core import Metric
+from brainscore_vision.metric_helpers import Defaults as XarrayDefaults
+from brainscore_vision.metric_helpers.transformations import CrossValidationSingle
 from brainscore_vision.metrics import Score
-from brainscore_vision.metrics.rdm import RDMMetric
-from brainscore_vision.metrics.cka import CKAMetric
-from brainscore_vision.metrics.transformations import CrossValidationSingle
-from brainscore_vision.metrics.xarray_utils import Defaults as XarrayDefaults
-from brainscore_vision.metrics.xarray_utils import XarrayCorrelation
-from result_caching import store
+from brainscore_vision.metric_helpers.xarray_utils import XarrayCorrelation
 
 
 class Ceiling:
@@ -31,10 +30,11 @@ class _SplitHalvesConsistency(Ceiling):
     class Defaults:
         split_coord = 'repetition'
 
-    def __init__(self, consistency, split_coord=Defaults.split_coord, cross_validation_kwargs=None, aggregate=None):
+    def __init__(self, consistency_metric, aggregate=None,
+                 split_coord=Defaults.split_coord, cross_validation_kwargs=None):
         correction = SpearmanBrownCorrection()
         self._consistency = self.SplitHalfWrapper(split_coord=split_coord,
-                                                  consistency=consistency, correction=correction)
+                                                  consistency_metric=consistency_metric, correction=correction)
         self._aggregate = aggregate
         cross_validation_defaults = dict(train_size=0.5, split_coord=split_coord,
                                          stratification_coord=None, unique_split_values=True)
@@ -45,16 +45,16 @@ class _SplitHalvesConsistency(Ceiling):
         return self._cross_validation(assembly, apply=self._consistency, aggregate=self._aggregate)
 
     class SplitHalfWrapper:
-        def __init__(self, split_coord, consistency, correction):
+        def __init__(self, split_coord, consistency_metric: Metric, correction):
             self._split_coord = split_coord
-            self._consistency = consistency
+            self._consistency_metric = consistency_metric
             self._correction = correction
 
         def __call__(self, half1, half2):
             half1, half2 = self._average_repetitions(half1), self._average_repetitions(half2)
-            consistency = self._consistency(half1, half2)
-            consistency = self._correction(consistency, n=2)
-            return consistency
+            consistency = self._consistency_metric(half1, half2)
+            corrected_consistency = self._correction(consistency, n=2)
+            return corrected_consistency
 
         def _average_repetitions(self, assembly):
             repetition_dims = assembly[self._split_coord].dims
@@ -64,22 +64,9 @@ class _SplitHalvesConsistency(Ceiling):
             return average
 
 
-class InternalConsistency(Ceiling):
-    def __init__(self,
-                 split_coord=_SplitHalvesConsistency.Defaults.split_coord, stimulus_coord=XarrayDefaults.stimulus_coord,
-                 neuroid_dim=XarrayDefaults.neuroid_dim, neuroid_coord=XarrayDefaults.neuroid_coord):
-        consistency = SplitHalfConsistency(stimulus_coord=stimulus_coord, neuroid_dim=neuroid_dim,
-                                           neuroid_coord=neuroid_coord)
-        self._consistency = _SplitHalvesConsistency(consistency=consistency, split_coord=split_coord,
-                                                    aggregate=consistency.aggregate)
-
-    def __call__(self, assembly):
-        return self._consistency(assembly)
-
-
-class SplitHalfConsistency:
+class PearsonCorrelation:
     """
-    Computes the consistency between two halves of an assembly.
+    Computes the Pearson r between two halves of an assembly.
     """
 
     def __init__(self, stimulus_coord=XarrayDefaults.stimulus_coord,
@@ -96,19 +83,26 @@ class SplitHalfConsistency:
         return scores.median(dim=self._neuroid_dim)
 
 
-class RDMConsistency(Ceiling):
-    def __init__(self):
-        rdm = RDMMetric()
-        self._consistency = _SplitHalvesConsistency(consistency=rdm)
+class InternalConsistency(Ceiling):
+    def __init__(self,
+                 consistency_metric: Metric = None,
+                 aggregate=None,
+                 split_coord=_SplitHalvesConsistency.Defaults.split_coord):
+        """
+        Creates a class to estimate the ceiling for a given assembly, based on split-half consistencies.
 
-    def __call__(self, assembly):
-        return self._consistency(assembly)
-
-
-class CKAConsistency(Ceiling):
-    def __init__(self):
-        cka = CKAMetric()
-        self._consistency = _SplitHalvesConsistency(consistency=cka)
+        :param consistency_metric: The metric to compare two halves. :class:`~.PearsonCorrelation` by default.
+        :param aggregate: An optional function to aggregate the output of the `consistency_metric`.
+        :param split_coord: Over which coordinate to split to obtain the two halves.
+        """
+        if not consistency_metric:
+            consistency_metric = PearsonCorrelation(
+                stimulus_coord=XarrayDefaults.stimulus_coord, neuroid_dim=XarrayDefaults.neuroid_dim,
+                neuroid_coord=XarrayDefaults.neuroid_coord)
+            aggregate = consistency_metric.aggregate
+        self._consistency = _SplitHalvesConsistency(consistency_metric=consistency_metric,
+                                                    aggregate=aggregate,
+                                                    split_coord=split_coord)
 
     def __call__(self, assembly):
         return self._consistency(assembly)
@@ -145,7 +139,7 @@ class TemporalCeiling:
 
 
 class NeuronalPropertyCeiling:
-    def __init__(self, similarity_metric):
+    def __init__(self, similarity_metric: Metric):
         self.similarity_metric = similarity_metric
 
     def __call__(self, assembly):
@@ -155,8 +149,3 @@ class NeuronalPropertyCeiling:
     @store()
     def _ceiling(self, identifier):
         return self.similarity_metric(self.assembly, self.assembly)
-
-ceilings = {
-    'cons': InternalConsistency,
-    None: NoCeiling,
-}

@@ -7,7 +7,7 @@ from sklearn.preprocessing import scale
 
 from brainscore_vision.metrics import Metric
 from brainscore_vision.metrics.mask_regression import MaskRegression
-from brainscore_vision.metrics.transformations import CrossValidation
+from brainscore_vision.metric_helpers.transformations import CrossValidation
 from .xarray_utils import XarrayRegression, XarrayCorrelation
 
 

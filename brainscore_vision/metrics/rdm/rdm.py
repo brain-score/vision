@@ -4,8 +4,8 @@ from scipy.stats import spearmanr
 
 from brainscore_vision.metrics import Metric
 from brainscore_vision.metrics import Score
-from brainscore_vision.metrics.transformations import TestOnlyCrossValidation
-from brainscore_vision.metrics.xarray_utils import Defaults as XarrayDefaults
+from brainscore_vision.metric_helpers.transformations import TestOnlyCrossValidation
+from brainscore_vision.metric_helpers import Defaults as XarrayDefaults
 
 
 class RDMCrossValidated(Metric):

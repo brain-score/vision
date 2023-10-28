@@ -11,7 +11,7 @@ from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit, KFold,
 from tqdm import tqdm
 
 from brainscore_vision.metrics import Score
-from brainscore_vision.metrics.utils import unique_ordered
+from brainscore_vision.metric_helpers.utils import unique_ordered
 from brainscore_vision.utils import fullname
 
 

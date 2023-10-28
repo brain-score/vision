@@ -3,7 +3,7 @@ import itertools
 import numpy as np
 
 from brainscore_vision.metrics import Metric, Score
-from brainscore_vision.metrics.transformations import apply_aggregate
+from brainscore_vision.metric_helpers.transformations import apply_aggregate
 
 
 class ErrorConsistency(Metric):

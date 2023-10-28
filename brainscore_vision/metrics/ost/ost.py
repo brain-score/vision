@@ -11,7 +11,7 @@ from tqdm import tqdm
 from brainio.assemblies import walk_coords, array_is_element, BehavioralAssembly
 from brainscore_vision.metrics import Metric, Score
 from brainscore_vision.metrics.image_level_behavior import I1
-from brainscore_vision.metrics.transformations import CrossValidation
+from brainscore_vision.metric_helpers.transformations import CrossValidation
 from brainscore_vision.utils import fullname
 
 

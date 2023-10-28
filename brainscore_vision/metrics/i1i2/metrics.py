@@ -10,7 +10,7 @@ from scipy.stats import pearsonr
 
 from brainio.assemblies import walk_coords, DataAssembly
 from brainscore_vision.metrics import Metric, Score
-from brainscore_vision.metrics.transformations import apply_aggregate
+from brainscore_vision.metric_helpers.transformations import apply_aggregate
 from brainscore_vision.utils import fullname
 
 

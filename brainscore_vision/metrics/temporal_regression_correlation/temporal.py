@@ -1,7 +1,7 @@
 from xarray import DataArray
 
 from brainio.assemblies import merge_data_arrays, walk_coords
-from brainscore_vision.metrics.transformations import apply_aggregate
+from brainscore_vision.metric_helpers.transformations import apply_aggregate
 
 
 class TemporalRegressionAcrossTime:

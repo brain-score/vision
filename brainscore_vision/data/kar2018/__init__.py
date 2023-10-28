@@ -1,8 +1,8 @@
 from brainio.assemblies import NeuronRecordingAssembly
 
 from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set
-from brainscore_vision.metrics.ceiling import InternalConsistency
-from brainscore_vision.metrics.transformations import CrossValidation
+from brainscore_vision.metrics.internal_consistency.ceiling import InternalConsistency
+from brainscore_vision.metric_helpers.transformations import CrossValidation
 from brainscore_vision.data_helpers.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
 
 BIBTEX = """@article {19,

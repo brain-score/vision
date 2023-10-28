@@ -3,21 +3,16 @@ import xarray as xr
 from result_caching import store
 from tqdm import tqdm
 
-from brainio.assemblies import walk_coords
-from brainscore_core import Metric
+from brainio.assemblies import walk_coords, DataAssembly
+from brainscore_core import Metric, Score
 from brainscore_vision.metric_helpers import Defaults as XarrayDefaults
 from brainscore_vision.metric_helpers.transformations import CrossValidationSingle
-from brainscore_vision.metrics import Score
 from brainscore_vision.metric_helpers.xarray_utils import XarrayCorrelation
-
-
-class Ceiling:
-    def __call__(self, *args, **kwargs):
-        raise NotImplementedError()
+from brainscore_vision.metrics import Ceiling
 
 
 class NoCeiling(Ceiling):
-    def __call__(self):
+    def __call__(self, assembly: DataAssembly) -> Score:
         return Score(1)
 
 

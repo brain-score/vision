@@ -1,10 +1,7 @@
 from brainio.assemblies import NeuronRecordingAssembly
-
-from brainscore_vision.metrics.ceiling import InternalConsistency
-from brainscore_vision.metrics.transformations import CrossValidation
-from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set
+from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set, load_ceiling
 from brainscore_vision.data_helpers.s3 import load_stimulus_set_from_s3, load_assembly_from_s3
-
+from brainscore_vision.metric_helpers.transformations import CrossValidation
 
 BIBTEX = """  @misc{Sanghavi_Murty_DiCarlo_2021,
   title={SanghaviMurty2020},
@@ -66,7 +63,6 @@ data_registry['dicarlo.SanghaviMurty2020THINGS2'] = lambda: load_assembly_from_s
     stimulus_set_loader=lambda: load_stimulus_set('dicarlo.THINGS2'),
 )
 
-
 # stimulus set: dicarlo.BOLD5000 - can put in sanghavi
 stimulus_set_registry['dicarlo.BOLD5000'] = lambda: load_stimulus_set_from_s3(
     identifier="dicarlo.BOLD5000",
@@ -96,7 +92,7 @@ stimulus_set_registry['dicarlo.THINGS2'] = lambda: load_stimulus_set_from_s3(
 
 
 def filter_neuroids(assembly, threshold):
-    ceiler = InternalConsistency()
+    ceiler = load_ceiling('internal_consistency')
     ceiling = ceiler(assembly)
     ceiling = ceiling.raw
     ceiling = CrossValidation().aggregate(ceiling)

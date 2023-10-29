@@ -26,12 +26,11 @@ class TestI2N:
         # metric
         i2n = load_metric('i2n')
         score = i2n(probabilities, objectome)
-        score = score.sel(aggregation='center')
         assert score == approx(expected_score, abs=0.005), f"expected {expected_score}, but got {score}"
 
     def test_ceiling(self):
         objectome = load_assembly()
         i2n = load_metric('i2n')
         ceiling = i2n.ceiling(objectome)
-        assert ceiling.sel(aggregation='center') == approx(.4786, abs=.0064)
-        assert ceiling.sel(aggregation='error') == approx(.00537, abs=.0015)
+        assert ceiling == approx(.4786, abs=.0064)
+        assert ceiling == approx(.00537, abs=.0015)

@@ -1,8 +1,10 @@
 from pathlib import Path
+
 import pytest
 from pytest import approx
+
 from brainio.assemblies import BehavioralAssembly
-from brainscore_vision import benchmark_registry, load_benchmark
+from brainscore_vision import load_benchmark
 from brainscore_vision.benchmark_helpers import PrecomputedFeatures
 
 
@@ -18,7 +20,7 @@ class TestEngineering:
         precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=None)
         # score
         score = benchmark(precomputed_features)
-        assert score.sel(aggregation='center') == expected_shape_bias
+        assert score == expected_shape_bias
 
     @pytest.mark.parametrize('model, expected_shape_match', [
         ('resnet-50-pytorch', approx(0.14083333, abs=0.001)),
@@ -31,6 +33,4 @@ class TestEngineering:
         precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=None)
         # score
         score = benchmark(precomputed_features)
-        assert score.sel(aggregation='center') == expected_shape_match
-
-
+        assert score == expected_shape_match

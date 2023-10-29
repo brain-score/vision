@@ -1,7 +1,7 @@
+import itertools
 import logging
 from collections import Counter
 
-import itertools
 import numpy as np
 import scipy.stats
 import xarray
@@ -167,9 +167,9 @@ class _Behavior_Metric(Metric):
 
     @classmethod
     def aggregate(cls, scores):
-        center = scores.mean('split')
-        error = scores.std('split')
-        return Score([center, error], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
+        score = scores.mean('split')
+        score.attrs['error'] = scores.std('split')
+        return score
 
     def generate_halves(self, assembly, random_state):
         indices = list(range(len(assembly)))

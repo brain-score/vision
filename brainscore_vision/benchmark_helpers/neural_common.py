@@ -1,9 +1,10 @@
 import numpy as np
 
 from brainio.assemblies import array_is_element, walk_coords
-from brainscore_vision.benchmarks import BenchmarkBase, ceil_score
-from .screen import place_on_screen
+from brainscore_core import Score
+from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.model_interface import BrainModel
+from .screen import place_on_screen
 
 
 class NeuralBenchmark(BenchmarkBase):
@@ -37,16 +38,18 @@ def timebins_from_assembly(assembly):
     return timebins
 
 
-def explained_variance(score, ceiling):
-    ceiled_score = ceil_score(score, ceiling)
+def explained_variance(score: Score, ceiling: Score) -> Score:
     # ro(X, Y)
     # = (r(X, Y) / sqrt(r(X, X) * r(Y, Y)))^2
     # = (r(X, Y) / sqrt(r(Y, Y) * r(Y, Y)))^2  # assuming that r(Y, Y) ~ r(X, X) following Yamins 2014
     # = (r(X, Y) / r(Y, Y))^2
-    r_square = np.power(ceiled_score.raw.sel(aggregation='center').values /
-                        ceiled_score.ceiling.sel(aggregation='center').values, 2)
-    ceiled_score.__setitem__({'aggregation': score['aggregation'] == 'center'}, r_square,
-                             _apply_raw=False)
+    r_square = np.power(score.raw.values /
+                        ceiling.values, 2)
+    ceiled_score = Score(r_square)
+    if 'error' in score.attrs:
+        ceiled_score.attrs['error'] = score.attrs['error']
+    ceiled_score.attrs[Score.RAW_VALUES_KEY] = score
+    ceiled_score.attrs['ceiling'] = ceiling
     return ceiled_score
 
 

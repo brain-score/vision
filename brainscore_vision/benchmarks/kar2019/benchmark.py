@@ -32,8 +32,7 @@ TIME_BINS = [(time_bin_start, time_bin_start + 10) for time_bin_start in range(7
 
 class DicarloKar2019OST(BenchmarkBase):
     def __init__(self):
-        ceiling = Score([.79, np.nan],  # following private conversation with Kohitij Kar
-                        coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
+        ceiling = Score(.79)  # computed offline by Kohitij Kar
         super(DicarloKar2019OST, self).__init__(identifier='dicarlo.Kar2019-ost', version=2,
                                                 ceiling_func=lambda: ceiling,
                                                 parent='IT',
@@ -69,7 +68,7 @@ class DicarloKar2019OST(BenchmarkBase):
         check_stimulus_set.identifier = None  # unset identifier to avoid storing (interferes with actual stimulus_set)
         check_recordings = candidate.look_at(check_stimulus_set, number_of_trials=self._number_of_trials)
         if not temporally_varying(check_recordings):
-            score = Score([np.nan, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
+            score = Score(np.nan)
         else:
             recordings = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
             score = self._similarity_metric(recordings, self._assembly)

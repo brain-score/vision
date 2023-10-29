@@ -73,8 +73,9 @@ class Benchmark(ABC):
         Typically this represents the signal in the data and how well we expect the best possible model to score.
 
         :return: a Score object, denoting the ceiling of this benchmark.
-                Typically has two values indexed by an `aggregation` coordinate:
-                `center` for the averaged ceiling value, and `error` for the uncertainty.
+                The Score values itself typically consist of just a scalar between zero and one.
+                Many ceilers also include the error estimate and raw values,
+                available in `ceiling.attrs['error']` and `ceiling.attrs['raw']` respectively.
         """
         raise NotImplementedError()
 
@@ -112,7 +113,7 @@ class BenchmarkBase(Benchmark):
         return self._ceiling_func()
 
 
-def ceil_score(score, ceiling):
+def ceil_score(score: Score, ceiling: Score) -> Score:
     ceiled_score = score / ceiling
     if 'error' in score.attrs:
         ceiled_score.attrs['error'] = score.attrs['error']

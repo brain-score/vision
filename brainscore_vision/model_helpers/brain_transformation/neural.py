@@ -1,4 +1,5 @@
 import logging
+
 from result_caching import store_xarray, store
 from tqdm import tqdm
 
@@ -87,10 +88,10 @@ class LayerSelection:
                                            layers=self.layers, prerun=True)
 
         self._logger.debug("Layer scores (unceiled): " + ", ".join([
-            f"{layer} -> {layer_scores.raw.sel(layer=layer, aggregation='center').values:.3f}"
-            f"+-{layer_scores.raw.sel(layer=layer, aggregation='error').values:.3f}"
+            f"{layer} -> {layer_scores.raw.sel(layer=layer).item():.3f}"
+            f"+-{layer_scores.raw.sel(layer=layer).attrs['error'].item():.3f}"
             for layer in layer_scores['layer'].values]))
-        best_layer = layer_scores['layer'].values[layer_scores.sel(aggregation='center').argmax()]
+        best_layer = layer_scores['layer'].values[layer_scores.argmax()]
         return best_layer
 
 

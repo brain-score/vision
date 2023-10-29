@@ -3,7 +3,6 @@ from brainio.assemblies import PropertyAssembly
 from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set
 from brainscore_vision.data_helpers.s3 import load_stimulus_set_from_s3, load_assembly_from_s3
 
-
 BIBTEX = """@article{dapello2020simulating,
   title={Simulating a primary visual cortex at the front of CNNs improves robustness to image perturbations},
   author={Dapello, Joel and Marques, Tiago and Schrimpf, Martin and Geiger, Franziska and Cox, David and DiCarlo, James J},
@@ -13,7 +12,7 @@ BIBTEX = """@article{dapello2020simulating,
   year={2020}
 }"""
 
-# movshon.cav assembly : uses dicarlo.Marques2020_size stimuli
+# --- datasets ---
 data_registry['movshon.Cavanaugh2002a'] = lambda: load_assembly_from_s3(
     identifier="movshon.Cavanaugh2002a",
     version_id="2vAgf8I9mx0dAZ6E.v9_wQ1qjqXlBIlG",
@@ -21,9 +20,9 @@ data_registry['movshon.Cavanaugh2002a'] = lambda: load_assembly_from_s3(
     bucket="brainio-brainscore",
     cls=PropertyAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('dicarlo.Marques2020_size'),
+    merge_stimulus_set_meta=False,
 )
 
-# movshon.freemanziemba2013 assembly : uses movshon.FreemanZiemba2013_properties stimuli
 data_registry['movshon.FreemanZiemba2013_V1_properties'] = lambda: load_assembly_from_s3(
     identifier="movshon.FreemanZiemba2013_V1_properties",
     version_id="fmhJH37ozlGbGPW16B0NSgdm2fz17aEc",
@@ -31,9 +30,9 @@ data_registry['movshon.FreemanZiemba2013_V1_properties'] = lambda: load_assembly
     bucket="brainio-brainscore",
     cls=PropertyAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('movshon.FreemanZiemba2013_properties'),
+    merge_stimulus_set_meta=False,
 )
 
-# devalois.DeValois1982a assembly : uses dicarlo.Marques2020_orientation stimuli
 data_registry['devalois.DeValois1982a'] = lambda: load_assembly_from_s3(
     identifier="devalois.DeValois1982a",
     version_id="d_IU4t6LbkvxsaEEsu9VzhTm9jX3AhSI",
@@ -41,9 +40,9 @@ data_registry['devalois.DeValois1982a'] = lambda: load_assembly_from_s3(
     bucket="brainio-brainscore",
     cls=PropertyAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('dicarlo.Marques2020_orientation'),
+    merge_stimulus_set_meta=False,
 )
 
-# devalois.DeValois1982b assembly : uses dicarlo.Marques2020_spatial_frequency stimuli
 data_registry['devalois.DeValois1982b'] = lambda: load_assembly_from_s3(
     identifier="devalois.DeValois1982b",
     version_id="jG7loVtkn3vsH0hT6wl4Qv24EsJJJSDt",
@@ -51,9 +50,9 @@ data_registry['devalois.DeValois1982b'] = lambda: load_assembly_from_s3(
     bucket="brainio-brainscore",
     cls=PropertyAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('dicarlo.Marques2020_spatial_frequency'),
+    merge_stimulus_set_meta=False,
 )
 
-# shapley.Ringach2002 assembly : uses dicarlo.Marques2020_orientation stimuli
 data_registry['shapley.Ringach2002'] = lambda: load_assembly_from_s3(
     identifier="shapley.Ringach2002",
     version_id="aMkWQinb7JEhJCJb0RhfGJegTwbya6Yw",
@@ -61,9 +60,9 @@ data_registry['shapley.Ringach2002'] = lambda: load_assembly_from_s3(
     bucket="brainio-brainscore",
     cls=PropertyAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('dicarlo.Marques2020_orientation'),
+    merge_stimulus_set_meta=False,
 )
 
-# schiller.Schiller1976c assembly : uses dicarlo.Marques2020_spatial_frequency stimuli
 data_registry['schiller.Schiller1976c'] = lambda: load_assembly_from_s3(
     identifier="schiller.Schiller1976c",
     version_id="tJUZfDfz5G1E3UtEjptQeI7Esbg2aArD",
@@ -71,10 +70,10 @@ data_registry['schiller.Schiller1976c'] = lambda: load_assembly_from_s3(
     bucket="brainio-brainscore",
     cls=PropertyAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('dicarlo.Marques2020_spatial_frequency'),
+    merge_stimulus_set_meta=False,
 )
 
-
-# stimulus sets: dicarlo.Marques2020_blank
+# --- stimulus sets ---
 stimulus_set_registry['dicarlo.Marques2020_blank'] = lambda: load_stimulus_set_from_s3(
     identifier="dicarlo.Marques2020_blank",
     bucket="brainio-brainscore",
@@ -83,7 +82,6 @@ stimulus_set_registry['dicarlo.Marques2020_blank'] = lambda: load_stimulus_set_f
     csv_version_id="TPtJnOoJAKEnWSDrQ_1X9bvx_jUQkTvM",
     zip_version_id="4Zv7Mt0cGuKCV5i0uwGipVa91so_6U.V")
 
-# stimulus sets: dicarlo.Marques2020_receptive_field
 stimulus_set_registry['dicarlo.Marques2020_receptive_field'] = lambda: load_stimulus_set_from_s3(
     identifier="dicarlo.Marques2020_receptive_field",
     bucket="brainio-brainscore",
@@ -92,7 +90,6 @@ stimulus_set_registry['dicarlo.Marques2020_receptive_field'] = lambda: load_stim
     csv_version_id="o6JVmVyn015uKDSqwH1Qfaek8I4AH0A2",
     zip_version_id="wFfNAHvgptFmzn58VdlABHeEPlnh54EO")
 
-# stimulus sets: dicarlo.Marques2020_orientation
 stimulus_set_registry['dicarlo.Marques2020_orientation'] = lambda: load_stimulus_set_from_s3(
     identifier="dicarlo.Marques2020_orientation",
     bucket="brainio-brainscore",
@@ -101,7 +98,6 @@ stimulus_set_registry['dicarlo.Marques2020_orientation'] = lambda: load_stimulus
     csv_version_id="FuItfnJQzVkbXuC6oDZYiIa6Ye.ZrtHp",
     zip_version_id="HAlNBCxxrzdFy6g9ofCM1rG49KXMgMjH")
 
-# stimulus sets: dicarlo.Marques2020_spatial_frequency
 stimulus_set_registry['dicarlo.Marques2020_spatial_frequency'] = lambda: load_stimulus_set_from_s3(
     identifier="dicarlo.Marques2020_spatial_frequency",
     bucket="brainio-brainscore",
@@ -110,7 +106,6 @@ stimulus_set_registry['dicarlo.Marques2020_spatial_frequency'] = lambda: load_st
     csv_version_id="xtKupFJyMLIqtI64H9bFikeeyycg0esU",
     zip_version_id="cPxm7TfKmFPFigPdzJjOf3gHcdKDkVXi")
 
-# stimulus sets: dicarlo.Marques2020_size
 stimulus_set_registry['dicarlo.Marques2020_size'] = lambda: load_stimulus_set_from_s3(
     identifier="dicarlo.Marques2020_size",
     bucket="brainio-brainscore",
@@ -119,7 +114,6 @@ stimulus_set_registry['dicarlo.Marques2020_size'] = lambda: load_stimulus_set_fr
     csv_version_id="VQsd1qLhSKqd5Wfz6tmnmypgs038.hoT",
     zip_version_id="RAfJJhR9.KQlwdiuZa6PiEiJTs62Jk.4")
 
-# stimulus sets: movshon.FreemanZiemba2013_properties
 stimulus_set_registry['movshon.FreemanZiemba2013_properties'] = lambda: load_stimulus_set_from_s3(
     identifier="movshon.FreemanZiemba2013_properties",
     bucket="brainio-brainscore",

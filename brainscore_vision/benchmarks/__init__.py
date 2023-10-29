@@ -113,10 +113,9 @@ class BenchmarkBase(Benchmark):
 
 
 def ceil_score(score, ceiling):
-    ceiled_center = score.sel(aggregation='center').values / ceiling.sel(aggregation='center').values
-    ceiled_score = type(score)([ceiled_center, score.sel(aggregation='error').values],
-                               coords=score.coords, dims=score.dims)
+    ceiled_score = score / ceiling
+    if 'error' in score.attrs:
+        ceiled_score.attrs['error'] = score.attrs['error']
     ceiled_score.attrs[Score.RAW_VALUES_KEY] = score
     ceiled_score.attrs['ceiling'] = ceiling
     return ceiled_score
-

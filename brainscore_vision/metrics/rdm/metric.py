@@ -65,7 +65,7 @@ class RDM:
         return 1 - similarities
 
 
-class RDMSimilarity(object):
+class RDMSimilarity:
     def __init__(self, comparison_coord=XarrayDefaults.stimulus_coord):
         self._comparison_coord = comparison_coord
 

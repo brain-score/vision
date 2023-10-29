@@ -3,8 +3,8 @@ from result_caching import store
 
 from brainio.assemblies import DataAssembly
 from brainscore_vision import load_dataset, load_metric
-from brainscore_vision.benchmark_helpers.properties_common import PropertiesBenchmark, _assert_grating_activations
-from brainscore_vision.benchmark_helpers.properties_common import calc_size_tuning
+from brainscore_vision.benchmark_helpers.properties_common import PropertiesBenchmark, _assert_grating_activations, \
+    calc_size_tuning
 from brainscore_vision.metrics.distribution_similarity import NeuronalPropertyCeiling
 
 ASSEMBLY_NAME = 'movshon.Cavanaugh2002a'

@@ -1,12 +1,12 @@
 import math
 
 import numpy as np
-from brainscore_core import Metric
 
 from brainio.assemblies import DataAssembly
-from brainscore_vision.metrics import Score
-from brainscore_vision.metric_helpers.transformations import TestOnlyCrossValidation
+from brainscore_core import Metric
 from brainscore_vision.metric_helpers import Defaults as XarrayDefaults
+from brainscore_vision.metric_helpers.transformations import TestOnlyCrossValidation, apply_aggregate
+from brainscore_vision.metrics import Score
 
 
 class CKACrossValidated(Metric):
@@ -18,7 +18,7 @@ class CKACrossValidated(Metric):
     """
 
     def __init__(self, comparison_coord=XarrayDefaults.stimulus_coord, crossvalidation_kwargs=None):
-        self._metric = CKAMetric(comparison_coord=comparison_coord)
+        self._metric = CKA(comparison_coord=comparison_coord)
         crossvalidation_defaults = dict(test_size=.9)  # leave 10% out
         crossvalidation_kwargs = {**crossvalidation_defaults, **(crossvalidation_kwargs or {})}
         self._cross_validation = TestOnlyCrossValidation(**crossvalidation_kwargs)

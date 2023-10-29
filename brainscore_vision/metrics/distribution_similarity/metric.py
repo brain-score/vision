@@ -58,7 +58,8 @@ class BootstrapDistributionSimilarity(Metric):
             center = np.nanmean(dist_similarity)
             error = np.nanstd(dist_similarity)
 
-        score = Score([center, error], coords={'aggregation': ['center', 'error']}, dims=('aggregation',))
+        score = Score(center)
+        score.attrs['error'] = error
         score.attrs[Score.RAW_VALUES_KEY] = dist_similarity
 
         self.data_hist = data_hist

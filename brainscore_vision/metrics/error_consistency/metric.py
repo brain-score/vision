@@ -13,7 +13,7 @@ class ErrorConsistency(Metric):
     """
 
     def __call__(self, source, target) -> Score:
-        assert len(set(source['image_id'].values)) == len(set(target['image_id'].values))
+        assert len(set(source['stimulus_id'].values)) == len(set(target['stimulus_id'].values))
         # https://github.com/bethgelab/model-vs-human/blob/745046c4d82ff884af618756bd6a5f47b6f36c45/modelvshuman/plotting/analyses.py#L161
         subject_scores = []
         for subject in self.extract_subjects(target):
@@ -31,13 +31,14 @@ class ErrorConsistency(Metric):
 
     @classmethod
     def aggregate(cls, scores):
-        center = scores.mean('condition').mean('subject')
-        error = scores.std(['condition', 'subject'])  # note that the original paper did not have error estimates
+        mean = scores.mean('condition').mean('subject')
         # This deviates from the original paper which did not deal with scores < 0
         # (neither for a single subject/condition, nor in the aggregate).
         # We here avoid negative scores, so that we comply with all 0 <= scores <= 1.
-        center = np.abs(center)
-        return Score([center, error], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
+        score = abs(mean)
+        # estimate error; but note that the original paper did not have error estimates
+        score.attrs['error'] = scores.std(['condition', 'subject'])
+        return score
 
     def ceiling(self, assembly):
         """
@@ -63,10 +64,10 @@ class ErrorConsistency(Metric):
         return list(sorted(set(assembly['subject'].values)))
 
     def compare_single_subject(self, source, target):
-        assert len(source['presentation']) == len(target['presentation'])
-        source = source.sortby('image_id')
-        target = target.sortby('image_id')
-        assert all(source['image_id'].values == target['image_id'].values)
+        assert len(source['stimulus_id']) == len(target['stimulus_id'])
+        source = source.sortby('stimulus_id')
+        target = target.sortby('stimulus_id')
+        assert all(source['stimulus_id'].values == target['stimulus_id'].values)
 
         correct_source = source.values == source['truth'].values
         correct_target = target.values == target['truth'].values

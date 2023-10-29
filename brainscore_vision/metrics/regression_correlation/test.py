@@ -1,10 +1,10 @@
 import numpy as np
 import pytest
-from brainio.assemblies import NeuroidAssembly
 from pytest import approx
 
-from brainscore_vision.metrics.regression import CrossRegressedCorrelation, pls_regression, linear_regression, \
-    pearsonr_correlation, ridge_regression
+from brainio.assemblies import NeuroidAssembly
+from brainscore_vision import load_metric
+from .metric import pls_regression, linear_regression, ridge_regression
 
 
 class TestCrossRegressedCorrelation:
@@ -15,9 +15,9 @@ class TestCrossRegressedCorrelation:
                                            'neuroid_id': ('neuroid', np.arange(25)),
                                            'region': ('neuroid', ['some_region'] * 25)},
                                    dims=['presentation', 'neuroid'])
-        metric = CrossRegressedCorrelation(regression=pls_regression(), correlation=pearsonr_correlation())
+        metric = load_metric('pls')
         score = metric(source=assembly, target=assembly)
-        assert score.sel(aggregation='center') == approx(1, abs=.00001)
+        assert score == approx(1, abs=.00001)
 
 
 class TestRegression:

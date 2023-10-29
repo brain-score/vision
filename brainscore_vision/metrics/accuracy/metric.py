@@ -10,6 +10,7 @@ class Accuracy(Metric):
         center = np.mean(values)
         error = np.std(values)
 
-        score = Score([center, error], coords={'aggregation': ['center', 'error']}, dims=('aggregation',))
+        score = Score(center)
+        score.attrs['error'] = error
         score.attrs[Score.RAW_VALUES_KEY] = values
         return score

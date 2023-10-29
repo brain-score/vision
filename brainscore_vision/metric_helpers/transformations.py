@@ -1,17 +1,17 @@
-from collections import OrderedDict
-
 import itertools
 import logging
 import math
+from collections import OrderedDict
+
 import numpy as np
 import xarray as xr
-from brainio.assemblies import DataAssembly, walk_coords
-from brainio.transform import subset
 from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit, KFold, StratifiedKFold
 from tqdm import tqdm
 
-from brainscore_vision.metrics import Score
+from brainio.assemblies import DataAssembly
+from brainio.transform import subset
 from brainscore_vision.metric_helpers.utils import unique_ordered
+from brainscore_vision.metrics import Score
 from brainscore_vision.utils import fullname
 
 
@@ -210,12 +210,9 @@ class Split:
 
     @classmethod
     def aggregate(cls, values):
-        center = values.mean('split')
-        error = standard_error_of_the_mean(values, 'split')
-        return Score([center, error],
-                     coords={**{'aggregation': ['center', 'error']},
-                             **{coord: (dims, values) for coord, dims, values in walk_coords(center)}},
-                     dims=('aggregation',) + center.dims)
+        score = apply_aggregate(lambda scores: scores.mean('split'), values)
+        score.attrs['error'] = standard_error_of_the_mean(values, 'split')
+        return score
 
 
 def extract_coord(assembly, coord, unique=False):
@@ -303,7 +300,8 @@ class CrossValidation(Transformation):
         # check only for equal values, alignment is given by metadata
         assert sorted(source_assembly[self._split_coord].values) == sorted(target_assembly[self._split_coord].values)
         if self._split.do_stratify:
-            assert hasattr(source_assembly, self._stratification_coord)
+            assert hasattr(source_assembly, self._stratification_coord), \
+                f"Expected stratification coordinate {self._stratification_coord}"
             assert sorted(source_assembly[self._stratification_coord].values) == \
                    sorted(target_assembly[self._stratification_coord].values)
         cross_validation_values, splits = self._split.build_splits(target_assembly)

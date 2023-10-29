@@ -1,8 +1,8 @@
 import numpy as np
 
 from brainio.assemblies import NeuroidAssembly, DataAssembly
-from brainscore_vision.metrics import Metric, Score
-from brainscore_vision.metrics.transformations import CartesianProduct, CrossValidation, \
+from brainscore_core.metrics import Metric, Score
+from brainscore_vision.metric_helpers.transformations import CartesianProduct, CrossValidation, \
     CrossValidationSingle
 
 
@@ -169,4 +169,3 @@ class TestCartesianProduct:
         assert 'division_coord' not in result.raw.dims  # no dimension
         assert hasattr(result.raw, 'division_coord')  # but a level
         assert result.raw["dim"].variable.level_names == ["dim_id", "division_coord"]
-

@@ -1,10 +1,9 @@
 import numpy as np
 
-import brainscore_vision
-from brainscore_vision.benchmarks import BenchmarkBase, ceil_score
+from brainscore_core import Score
+from brainscore_vision import load_dataset, load_metric
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
-from brainscore_vision.metrics import Score
-from brainscore_vision.metrics.ost import OSTCorrelation
+from brainscore_vision.benchmarks import BenchmarkBase, ceil_score
 from brainscore_vision.model_interface import BrainModel
 
 BIBTEX = """@Article{Kar2019,
@@ -39,7 +38,7 @@ class DicarloKar2019OST(BenchmarkBase):
                                                 ceiling_func=lambda: ceiling,
                                                 parent='IT',
                                                 bibtex=BIBTEX)
-        assembly = brainscore_vision.load_dataset('dicarlo.Kar2019')
+        assembly = load_dataset('dicarlo.Kar2019')
         # drop duplicate images
         _, index = np.unique(assembly['stimulus_id'], return_index=True)
         assembly = assembly.isel(presentation=index)
@@ -51,13 +50,13 @@ class DicarloKar2019OST(BenchmarkBase):
         self._assembly['truth'] = self._assembly['image_label']
         self._assembly.stimulus_set['truth'] = self._assembly.stimulus_set['image_label']
 
-        self._similarity_metric = OSTCorrelation()
+        self._similarity_metric = load_metric('ost')
 
         self._visual_degrees = VISUAL_DEGREES
         self._number_of_trials = NUMBER_OF_TRIALS
         self._time_bins = TIME_BINS
 
-    def __call__(self, candidate: BrainModel):
+    def __call__(self, candidate: BrainModel) -> Score:
         candidate.start_recording('IT', time_bins=self._time_bins)
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)

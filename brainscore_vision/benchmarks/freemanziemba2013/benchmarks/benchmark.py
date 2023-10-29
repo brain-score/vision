@@ -1,35 +1,12 @@
-import brainscore_vision
-from brainscore_vision.benchmark_helpers._neural_common import NeuralBenchmark, average_repetition
-from brainscore_vision.metrics.ceiling import InternalConsistency, RDMConsistency
-from brainscore_vision.metrics.rdm import RDMCrossValidated
-from brainscore_vision.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation, \
-    single_regression
-from brainscore_vision.utils import LazyLoad
 from result_caching import store
+
+from brainscore_vision import load_dataset, load_metric, load_ceiling
+from brainscore_vision.benchmark_helpers.neural_common import NeuralBenchmark, average_repetition
+from brainscore_vision.data.freemanziemba2013 import BIBTEX
+from brainscore_vision.utils import LazyLoad
 
 VISUAL_DEGREES = 4
 NUMBER_OF_TRIALS = 20
-
-BIBTEX = """﻿@Article{Freeman2013,
-                author={Freeman, Jeremy
-                and Ziemba, Corey M.
-                and Heeger, David J.
-                and Simoncelli, Eero P.
-                and Movshon, J. Anthony},
-                title={A functional and perceptual signature of the second visual area in primates},
-                journal={Nature Neuroscience},
-                year={2013},
-                month={Jul},
-                day={01},
-                volume={16},
-                number={7},
-                pages={974-981},
-                abstract={The authors examined neuronal responses in V1 and V2 to synthetic texture stimuli that replicate higher-order statistical dependencies found in natural images. V2, but not V1, responded differentially to these textures, in both macaque (single neurons) and human (fMRI). Human detection of naturalistic structure in the same images was predicted by V2 responses, suggesting a role for V2 in representing natural image structure.},
-                issn={1546-1726},
-                doi={10.1038/nn.3402},
-                url={https://doi.org/10.1038/nn.3402}
-                }
-            """
 
 
 def _MovshonFreemanZiemba2013Region(region, identifier_metric_suffix, similarity_metric, ceiler):
@@ -43,46 +20,22 @@ def _MovshonFreemanZiemba2013Region(region, identifier_metric_suffix, similarity
 
 
 def MovshonFreemanZiemba2013V1PLS():
-    return _MovshonFreemanZiemba2013Region('V1', identifier_metric_suffix='pls',
-                                           similarity_metric=CrossRegressedCorrelation(
-                                               regression=pls_regression(), correlation=pearsonr_correlation(),
-                                               crossvalidation_kwargs=dict(stratification_coord='texture_type')),
-                                           ceiler=InternalConsistency())
-
-
-def MovshonFreemanZiemba2013V1Single():
-    return _MovshonFreemanZiemba2013Region('V1', identifier_metric_suffix='single',
-                                           similarity_metric=CrossRegressedCorrelation(
-                                               regression=single_regression(), correlation=pearsonr_correlation(),
-                                               crossvalidation_kwargs=dict(stratification_coord='texture_type')),
-                                           ceiler=InternalConsistency())
-
-
-def MovshonFreemanZiemba2013V1RDM():
-    return _MovshonFreemanZiemba2013Region('V1', identifier_metric_suffix='rdm',
-                                           similarity_metric=RDMCrossValidated(
-                                               crossvalidation_kwargs=dict(stratification_coord='texture_type')),
-                                           ceiler=RDMConsistency())
+    metric = load_metric('pls', crossvalidation_kwargs=dict(stratification_coord='texture_type'))
+    ceiler = load_ceiling('internal_consistency')
+    return _MovshonFreemanZiemba2013Region(
+        'V1', identifier_metric_suffix='pls', similarity_metric=metric, ceiler=ceiler)
 
 
 def MovshonFreemanZiemba2013V2PLS():
-    return _MovshonFreemanZiemba2013Region('V2', identifier_metric_suffix='pls',
-                                           similarity_metric=CrossRegressedCorrelation(
-                                               regression=pls_regression(), correlation=pearsonr_correlation(),
-                                               crossvalidation_kwargs=dict(stratification_coord='texture_type')),
-                                           ceiler=InternalConsistency())
-
-
-def MovshonFreemanZiemba2013V2RDM():
-    return _MovshonFreemanZiemba2013Region('V2', identifier_metric_suffix='rdm',
-                                           similarity_metric=RDMCrossValidated(
-                                               crossvalidation_kwargs=dict(stratification_coord='texture_type')),
-                                           ceiler=RDMConsistency())
+    metric = load_metric('pls', crossvalidation_kwargs=dict(stratification_coord='texture_type'))
+    ceiler = load_ceiling('internal_consistency')
+    return _MovshonFreemanZiemba2013Region(
+        'V2', identifier_metric_suffix='pls', similarity_metric=metric, ceiler=ceiler)
 
 
 @store()
 def load_assembly(average_repetitions, region, access='private'):
-    assembly = brainscore_vision.load_dataset(f'movshon.FreemanZiemba2013.{access}')
+    assembly = load_dataset(f'movshon.FreemanZiemba2013.{access}')
     assembly = assembly.sel(region=region)
     assembly = assembly.stack(neuroid=['neuroid_id'])  # work around xarray multiindex issues
     assembly['region'] = 'neuroid', [region] * len(assembly['neuroid'])

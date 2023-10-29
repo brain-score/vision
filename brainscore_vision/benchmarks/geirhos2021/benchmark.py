@@ -1,12 +1,10 @@
 import numpy as np
 
-import brainscore_vision
+from brainscore_vision import load_dataset, load_metric
 from brainio.assemblies import walk_coords
 from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
 from brainscore_vision.metrics import Score
-from brainscore_vision.metrics.accuracy import Accuracy
-from brainscore_vision.metrics.error_consistency import ErrorConsistency
 from brainscore_vision.model_interface import BrainModel
 from brainscore_vision.utils import LazyLoad
 
@@ -55,7 +53,7 @@ for dataset in DATASETS:
 class _Geirhos2021ErrorConsistency(BenchmarkBase):
     # behavioral benchmark
     def __init__(self, dataset):
-        self._metric = ErrorConsistency()
+        self._metric = load_metric('error_consistency')
         self._assembly = LazyLoad(lambda: load_assembly(dataset))
         self._visual_degrees = 3
 
@@ -85,7 +83,7 @@ class _Geirhos2021ErrorConsistency(BenchmarkBase):
 class _Geirhos2021Accuracy(BenchmarkBase):
     # engineering/ML benchmark
     def __init__(self, dataset):
-        self._metric = Accuracy()
+        self._metric = load_metric('accuracy')
         self._stimulus_set = LazyLoad(lambda: load_assembly(dataset).stimulus_set)
         super(_Geirhos2021Accuracy, self).__init__(
             identifier=f'brendel.Geirhos2021{dataset}-accuracy', version=1,
@@ -103,7 +101,7 @@ class _Geirhos2021Accuracy(BenchmarkBase):
 
 
 def load_assembly(dataset):
-    assembly = brainscore_vision.load_dataset(f'brendel.Geirhos2021_{dataset}')
+    assembly = load_dataset(f'brendel.Geirhos2021_{dataset}')
 
     # exclude conditions following the paper
     if dataset in EXCLUDE_CONDITIONS:

@@ -1,19 +1,18 @@
-import os
 import logging
+import os
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import xarray as xr
 
-import brainscore_vision
+from brainio.fetch import StimulusSetLoader
+from brainio.stimuli import StimulusSet
+from brainscore_core import Score
+from brainscore_vision import load_stimulus_set, load_metric
 from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.benchmarks.imagenet.benchmark import NUMBER_OF_TRIALS
-from brainscore_vision.metrics import Score
-from brainscore_vision.metrics.accuracy import Accuracy
 from brainscore_vision.model_interface import BrainModel
-from brainio.stimuli import StimulusSet
-from brainio.fetch import StimulusSetLoader
 
 _logger = logging.getLogger(__name__)
 LOCAL_STIMULUS_DIRECTORY = '/braintree/data2/active/common/imagenet-c-brainscore-stimuli/'
@@ -112,7 +111,7 @@ class Imagenet_C_Category(BenchmarkBase):
         
         except OSError as error:
             _logger.debug(f'Excepted {error}. Attempting to access {self.stimulus_set_name} through Brainscore.')
-            return brainscore_vision.load_stimulus_set(self.stimulus_set_name)
+            return load_stimulus_set(self.stimulus_set_name)
 
     def __call__(self, candidate):
         scores = xr.concat([
@@ -160,7 +159,7 @@ class Imagenet_C_Individual(BenchmarkBase):
         self.noise_level = noise_level
         self.noise_type = noise_type
         self.benchmark_name = f'dietterich.Hendrycks2019-{noise_category}-{noise_type}-{noise_level}-top1'
-        self._similarity_metric = Accuracy()
+        self._similarity_metric = load_metric('accuracy')
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         super(Imagenet_C_Individual, self).__init__(identifier=self.benchmark_name, version=2,
                                                     ceiling_func=lambda: ceiling,

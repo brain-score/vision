@@ -1,9 +1,7 @@
 import brainscore_vision
+from brainscore_vision import load_metric, load_ceiling
 from brainio.assemblies import walk_coords, array_is_element
-from brainscore_vision.benchmark_helpers._neural_common import NeuralBenchmark
-from brainscore_vision.metrics.ceiling import InternalConsistency
-from brainscore_vision.metrics.regression import CrossRegressedCorrelation, mask_regression, pls_regression, \
-    pearsonr_correlation
+from brainscore_vision.benchmark_helpers.neural_common import NeuralBenchmark
 
 VISUAL_DEGREES = 2
 NUMBER_OF_TRIALS = 2
@@ -26,12 +24,8 @@ def ToliasCadena2017PLS():
     assembly = loader(average_repetition=True)
     assembly.stimulus_set.identifier = assembly.stimulus_set_identifier
 
-    similarity_metric = CrossRegressedCorrelation(
-        regression=pls_regression(),
-        correlation=pearsonr_correlation(),
-        crossvalidation_kwargs={'stratification_coord': None})
-    identifier = f'tolias.Cadena2017-pls'
-    ceiler = InternalConsistency(split_coord='repetition_id')
+    similarity_metric = load_metric('pls', crossvalidation_kwargs={'stratification_coord': None})
+    ceiler = load_ceiling('internal_consistency', split_coord='repetition_id')
 
     def ceiling():
         # This assembly has many stimuli that are only shown to a subset of the neurons.
@@ -44,7 +38,7 @@ def ToliasCadena2017PLS():
         assembly_nonan, stimuli = loader.dropna(assembly_repetition, assembly_repetition.attrs['stimulus_set'])
         return ceiler(assembly_nonan)
 
-    return NeuralBenchmark(identifier=identifier, version=1,
+    return NeuralBenchmark(identifier='tolias.Cadena2017-pls', version=1,
                            assembly=assembly, similarity_metric=similarity_metric,
                            visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
                            parent='V1', bibtex=BIBTEX,
@@ -57,13 +51,10 @@ def ToliasCadena2017Mask():
     assembly = loader(average_repetition=True)
     assembly.stimulus_set.identifier = assembly.stimulus_set_identifier
 
-    similarity_metric = CrossRegressedCorrelation(
-        regression=mask_regression(),
-        correlation=pearsonr_correlation(),
-        crossvalidation_kwargs={'splits': 4, 'stratification_coord': None})
-    identifier = f'tolias.Cadena2017-mask'
-    ceiler = InternalConsistency(split_coord='repetition_id')
-    return NeuralBenchmark(identifier=identifier, version=1,
+    similarity_metric = load_metric('mask_regression',
+                                    crossvalidation_kwargs={'splits': 4, 'stratification_coord': None})
+    ceiler = load_ceiling('internal_consistency', split_coord='repetition_id')
+    return NeuralBenchmark(identifier='tolias.Cadena2017-mask', version=1,
                            assembly=assembly, similarity_metric=similarity_metric,
                            visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
                            parent='V1', bibtex=BIBTEX,

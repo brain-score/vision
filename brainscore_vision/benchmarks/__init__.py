@@ -1,15 +1,17 @@
+# Importing individual benchmarks directly is discouraged.
+# Use `brainscore_vision.load_benchmark` instead which provides dependency support.
+
 """
 A :class:`~brainscore.benchmarks.Benchmark` runs an experiment on a :class:`~brainscore.model_interface.BrainModel`
 and tests the resulting measurements against primate `data <https://github.com/brain-score/brainio>`_.
 This comparison is done by a :class:`~brainscore.metrics.Metric` which outputs a score of how well model and data match.
 This score is normalized with data ceilings and the benchmark returns this ceiled score.
 """
-import itertools
 from abc import ABC
 
-from result_caching import cache, store
+from result_caching import store
 
-from brainscore_vision.metrics import Score
+from brainscore_core.metrics import Score
 from brainscore_vision.model_interface import BrainModel
 
 

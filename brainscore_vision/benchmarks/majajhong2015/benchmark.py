@@ -1,9 +1,7 @@
-import brainscore_vision
-from brainscore_vision.benchmark_helpers._neural_common import NeuralBenchmark, average_repetition
-from brainscore_vision.metrics import Metric
-from brainscore_vision.metrics.ceiling import InternalConsistency, RDMConsistency
-from brainscore_vision.metrics.rdm import RDMCrossValidated
-from brainscore_vision.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation
+from brainscore_core import Metric
+
+from brainscore_vision import load_metric, Ceiling, load_ceiling, load_dataset
+from brainscore_vision.benchmark_helpers.neural_common import NeuralBenchmark, average_repetition
 
 VISUAL_DEGREES = 8
 NUMBER_OF_TRIALS = 50
@@ -22,20 +20,11 @@ BIBTEX = """@article {Majaj13402,
             eprint = {https://www.jneurosci.org/content/35/39/13402.full.pdf},
             journal = {Journal of Neuroscience}}"""
 
-
-def majajhong2015_plsmetric():
-    return CrossRegressedCorrelation(
-        regression=pls_regression(), correlation=pearsonr_correlation(),
-        crossvalidation_kwargs=dict(stratification_coord='object_name'))
-
-
-def majajhong2015_rdmmetric():
-    return RDMCrossValidated(
-        crossvalidation_kwargs=dict(stratification_coord='object_name'))
+majajhong2015_plsmetric = lambda: load_metric('pls', crossvalidation_kwargs=dict(stratification_coord='object_name'))
 
 
 def _DicarloMajajHong2015Region(region: str, access: str, identifier_metric_suffix: str,
-                                similarity_metric: Metric, ceiler):
+                                similarity_metric: Metric, ceiler: Ceiling):
     assembly_repetition = load_assembly(average_repetitions=False, region=region, access=access)
     assembly = load_assembly(average_repetitions=True, region=region, access=access)
     benchmark_identifier = f'dicarlo.MajajHong2015.{region}' + ('.public' if access == 'public' else '')
@@ -50,41 +39,29 @@ def _DicarloMajajHong2015Region(region: str, access: str, identifier_metric_suff
 def DicarloMajajHong2015V4PLS():
     return _DicarloMajajHong2015Region(region='V4', access='private', identifier_metric_suffix='pls',
                                        similarity_metric=majajhong2015_plsmetric(),
-                                       ceiler=InternalConsistency())
+                                       ceiler=load_ceiling('internal_consistency'))
 
 
 def DicarloMajajHong2015ITPLS():
     return _DicarloMajajHong2015Region(region='IT', access='private', identifier_metric_suffix='pls',
                                        similarity_metric=majajhong2015_plsmetric(),
-                                       ceiler=InternalConsistency())
-
-
-def DicarloMajajHong2015V4RDM():
-    return _DicarloMajajHong2015Region(region='V4', access='private', identifier_metric_suffix='rdm',
-                                       similarity_metric=majajhong2015_rdmmetric(),
-                                       ceiler=RDMConsistency())
-
-
-def DicarloMajajHong2015ITRDM():
-    return _DicarloMajajHong2015Region(region='IT', access='private', identifier_metric_suffix='rdm',
-                                       similarity_metric=majajhong2015_rdmmetric(),
-                                       ceiler=RDMConsistency())
+                                       ceiler=load_ceiling('internal_consistency'))
 
 
 def MajajHongV4PublicBenchmark():
     return _DicarloMajajHong2015Region(region='V4', access='public', identifier_metric_suffix='pls',
                                        similarity_metric=majajhong2015_plsmetric(),
-                                       ceiler=InternalConsistency())
+                                       ceiler=load_ceiling('internal_consistency'))
 
 
 def MajajHongITPublicBenchmark():
     return _DicarloMajajHong2015Region(region='IT', access='public', identifier_metric_suffix='pls',
                                        similarity_metric=majajhong2015_plsmetric(),
-                                       ceiler=InternalConsistency())
+                                       ceiler=load_ceiling('internal_consistency'))
 
 
 def load_assembly(average_repetitions, region, access='private'):
-    assembly = brainscore_vision.load_dataset(f'dicarlo.MajajHong2015.{access}')
+    assembly = load_dataset(f'dicarlo.MajajHong2015.{access}')
     assembly = assembly.sel(region=region)
     assembly['region'] = 'neuroid', [region] * len(assembly['neuroid'])
     assembly = assembly.squeeze("time_bin")

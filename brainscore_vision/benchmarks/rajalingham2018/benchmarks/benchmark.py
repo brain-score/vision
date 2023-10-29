@@ -1,11 +1,11 @@
-import brainio
 import numpy as np
 
-from brainscore_vision.benchmarks import BenchmarkBase
+import brainio
+from brainscore_core import Score
+from brainscore_vision import load_metric
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
-from brainscore_vision.metrics import Score
-from brainscore_vision.metrics.image_level_behavior import I2n
-from brainscore_vision.metrics.transformations import apply_aggregate
+from brainscore_vision.benchmarks import BenchmarkBase
+from brainscore_vision.metric_helpers.transformations import apply_aggregate
 from brainscore_vision.model_interface import BrainModel
 from brainscore_vision.utils import LazyLoad
 
@@ -36,7 +36,7 @@ class _DicarloRajalingham2018(BenchmarkBase):
             parent='behavior',
             bibtex=BIBTEX)
 
-    def __call__(self, candidate: BrainModel):
+    def __call__(self, candidate: BrainModel) -> Score:
         fitting_stimuli = place_on_screen(self._fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
                                           source_visual_degrees=self._visual_degrees)
         candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli)
@@ -66,7 +66,7 @@ class _DicarloRajalingham2018(BenchmarkBase):
 
 
 def DicarloRajalingham2018I2n():
-    return _DicarloRajalingham2018(metric=I2n(), metric_identifier='i2n')
+    return _DicarloRajalingham2018(metric=load_metric('i2n'), metric_identifier='i2n')
 
 
 def load_assembly(access='private'):

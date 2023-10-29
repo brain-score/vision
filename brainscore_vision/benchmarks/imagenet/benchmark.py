@@ -2,11 +2,11 @@ import os
 
 import numpy as np
 import pandas as pd
+from brainscore_core import Score
 
 from brainio.stimuli import StimulusSet, StimulusSetLoader
+from brainscore_vision import load_metric
 from brainscore_vision.benchmarks import BenchmarkBase
-from brainscore_vision.metrics import Score
-from brainscore_vision.metrics.accuracy import Accuracy
 from brainscore_vision.model_interface import BrainModel
 
 NUMBER_OF_TRIALS = 10
@@ -21,7 +21,7 @@ class Imagenet2012(BenchmarkBase):
         stimulus_set = StimulusSet(stimulus_set)
         stimulus_set.stimulus_paths = {row.stimulus_id: row.filepath for row in stimulus_set.itertuples()}
         self._stimulus_set = stimulus_set
-        self._similarity_metric = Accuracy()
+        self._similarity_metric = load_metric('accuracy')
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         super(Imagenet2012, self).__init__(identifier='fei-fei.Deng2009-top1', version=1,
                                            ceiling_func=lambda: ceiling,

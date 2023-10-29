@@ -3,15 +3,33 @@ from brainscore_vision import data_registry, stimulus_set_registry, load_stimulu
 from brainscore_vision.data_helpers.s3 import load_stimulus_set_from_s3, load_assembly_from_s3
 from brainscore_vision.metric_helpers.transformations import CrossValidation
 
-BIBTEX = """  @misc{Sanghavi_Murty_DiCarlo_2021,
+BIBTEX_SANGHAVI = """  @misc{Sanghavi2020,
+  title={SanghaviMurty2020},
+  url={osf.io/CHWDK},
+  DOI={10.17605/OSF.IO/CHWDK},
+  publisher={OSF},
+  author={Sanghavi, Sachi and DiCarlo, James J},
+  year={2020},
+  month={Nov}
+}"""  # 'HvM' images from (Majaj et al., 2015)
+BIBTEX_SANGHAVIMURTY = """  @misc{SanghaviMurty2020,
   title={SanghaviMurty2020},
   url={osf.io/fchme},
   DOI={10.17605/OSF.IO/FCHME},
   publisher={OSF},
   author={Sanghavi, Sachi and Murty, N A R and DiCarlo, James J},
-  year={2021},
+  year={2020},
   month={Nov}
-}"""
+}"""  # BOLD5000 images
+BIBTEX_SANGHAVIJOZWIK = """  @misc{SanghaviJozwik2020,
+  title={SanghaviJozwik2020},
+  url={osf.io/FHY36},
+  DOI={10.17605/OSF.IO/FHY36},
+  publisher={OSF},
+  author={Sanghavi, Sachi and Jozwik, K M and DiCarlo, James J},
+  year={2020},
+  month={Nov}
+}"""  # images from (Rust & DiCarlo, 2012)
 
 # assemblies: dicarlo.Sanghavi2020 uses dicarlo.hvm
 data_registry['dicarlo.Sanghavi2020'] = lambda: load_assembly_from_s3(

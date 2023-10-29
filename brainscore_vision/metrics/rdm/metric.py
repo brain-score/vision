@@ -1,11 +1,10 @@
 import numpy as np
-from brainio.assemblies import DataAssembly, walk_coords
 from scipy.stats import spearmanr
 
-from brainscore_vision.metrics import Metric
-from brainscore_vision.metrics import Score
-from brainscore_vision.metric_helpers.transformations import TestOnlyCrossValidation
+from brainio.assemblies import DataAssembly, walk_coords, NeuroidAssembly
+from brainscore_core.metrics import Metric, Score
 from brainscore_vision.metric_helpers import Defaults as XarrayDefaults
+from brainscore_vision.metric_helpers.transformations import TestOnlyCrossValidation
 
 
 class RDMCrossValidated(Metric):
@@ -22,17 +21,11 @@ class RDMCrossValidated(Metric):
         crossvalidation_kwargs = {**crossvalidation_defaults, **(crossvalidation_kwargs or {})}
         self._cross_validation = TestOnlyCrossValidation(**crossvalidation_kwargs)
 
-    def __call__(self, assembly1, assembly2):
-        """
-        :param brainscore.assemblies.NeuroidAssembly assembly1:
-        :param brainscore.assemblies.NeuroidAssembly assembly2:
-        :return: brainscore.assemblies.DataAssembly
-        """
-
+    def __call__(self, assembly1: NeuroidAssembly, assembly2: NeuroidAssembly) -> Score:
         return self._cross_validation(assembly1, assembly2, apply=self._metric)
 
 
-class RDMMetric:
+class RDMMetric(Metric):
     """
     Computes a coefficient for the similarity between two `RDM`s, using the upper triangular regions
 
@@ -44,23 +37,17 @@ class RDMMetric:
         self._rdm = RDM(neuroid_dim=neuroid_dim)
         self._similarity = RDMSimilarity(comparison_coord=comparison_coord)
 
-    def __call__(self, assembly1, assembly2):
-        """
-        :param brainio.assemblies.NeuroidAssembly assembly1:
-        :param brainio.assemblies.NeuroidAssembly assembly2:
-        :return: brainscore.metrics.Score
-        """
-
+    def __call__(self, assembly1: NeuroidAssembly, assembly2: NeuroidAssembly) -> Score:
         rdm1 = self._rdm(assembly1)
         rdm2 = self._rdm(assembly2)
         similarity = self._similarity(rdm1, rdm2)
         return Score(similarity)
 
 
-class RSA:
+class RDM:
     """
-    Representational Similarity Analysis.
-    Converts an assembly of `presentation x neuroid` into a `neuroid x neuroid` RSA matrix.
+    Representational Dissimilarity Matrix.
+    Converts an assembly of `presentation x neuroid` into a `neuroid x neuroid` RDM.
 
     Kriegeskorte et al., 2008 https://doi.org/10.3389/neuro.06.004.2008
     """
@@ -74,23 +61,8 @@ class RSA:
         coords = {coord: coord_value for coord, coord_value in assembly.coords.items() if coord != self._neuroid_dim}
         dims = [dim if dim != self._neuroid_dim else assembly.dims[(i - 1) % len(assembly.dims)]
                 for i, dim in enumerate(assembly.dims)]
-        return DataAssembly(correlations, coords=coords, dims=dims)
-
-
-class RDM:
-    """
-    Representational Dissimilarity Matrix.
-    Converts an assembly of `presentation x neuroid` into a `neuroid x neuroid` RDM.
-
-    Kriegeskorte et al., 2008 https://doi.org/10.3389/neuro.06.004.2008
-    """
-
-    def __init__(self, *args, **kwargs):
-        self._rsa = RSA(*args, **kwargs)
-
-    def __call__(self, assembly):
-        rsa = self._rsa(assembly)
-        return 1 - rsa
+        similarities = DataAssembly(correlations, coords=coords, dims=dims)
+        return 1 - similarities
 
 
 class RDMSimilarity(object):

@@ -1,13 +1,15 @@
 import math
 
 import numpy as np
+from brainscore_core import Metric
 
+from brainio.assemblies import DataAssembly
 from brainscore_vision.metrics import Score
 from brainscore_vision.metric_helpers.transformations import TestOnlyCrossValidation
 from brainscore_vision.metric_helpers import Defaults as XarrayDefaults
 
 
-class CKACrossValidated:
+class CKACrossValidated(Metric):
     """
     Computes a cross-validated similarity index for the similarity between two assemblies
     with centered kernel alignment (CKA).
@@ -21,17 +23,11 @@ class CKACrossValidated:
         crossvalidation_kwargs = {**crossvalidation_defaults, **(crossvalidation_kwargs or {})}
         self._cross_validation = TestOnlyCrossValidation(**crossvalidation_kwargs)
 
-    def __call__(self, assembly1, assembly2):
-        """
-        :param brainio.assemblies.NeuroidAssembly assembly1:
-        :param brainio.assemblies.NeuroidAssembly assembly2:
-        :return: brainscore.metrics.Score
-        """
-
+    def __call__(self, assembly1: DataAssembly, assembly2: DataAssembly) -> Score:
         return self._cross_validation(assembly1, assembly2, apply=self._metric)
 
 
-class CKAMetric:
+class CKA(Metric):
     """
     Computes a similarity index for the similarity between two assemblies with centered kernel alignment (CKA).
 
@@ -41,7 +37,7 @@ class CKAMetric:
     def __init__(self, comparison_coord=XarrayDefaults.stimulus_coord):
         self._comparison_coord = comparison_coord
 
-    def __call__(self, assembly1, assembly2):
+    def __call__(self, assembly1: DataAssembly, assembly2: DataAssembly) -> Score:
         """
         :param brainscore.assemblies.NeuroidAssembly assembly1:
         :param brainscore.assemblies.NeuroidAssembly assembly2:

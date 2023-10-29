@@ -8,9 +8,9 @@ from scipy.optimize import fsolve
 from scipy.stats import spearmanr
 from tqdm import tqdm
 
-from brainio.assemblies import walk_coords, array_is_element, BehavioralAssembly
-from brainscore_vision.metrics import Metric, Score
-from brainscore_vision.metrics.image_level_behavior import I1
+from brainio.assemblies import walk_coords, array_is_element, BehavioralAssembly, DataAssembly
+from brainscore_core.metrics import Metric, Score
+from brainscore_vision import load_metric
 from brainscore_vision.metric_helpers.transformations import CrossValidation
 from brainscore_vision.utils import fullname
 
@@ -22,10 +22,10 @@ class OSTCorrelation(Metric):
     """
     def __init__(self):
         self._cross_validation = CrossValidation(stratification_coord=None, splits=10, test_size=0.1)
-        self._i1 = I1()
+        self._i1 = load_metric('i1')
         self._predicted_osts, self._target_osts = [], []
 
-    def __call__(self, source_recordings, target_osts):
+    def __call__(self, source_recordings: DataAssembly, target_osts: DataAssembly) -> Score:
         score = self._cross_validation(source_recordings, target_osts, apply=self.apply)
         return score
 

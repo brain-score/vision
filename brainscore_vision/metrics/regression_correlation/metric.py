@@ -1,14 +1,13 @@
 import numpy as np
 import scipy.stats
-from brainio.assemblies import walk_coords
 from sklearn.cross_decomposition import PLSRegression
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.preprocessing import scale
 
-from brainscore_vision.metrics import Metric
-from brainscore_vision.metrics.mask_regression import MaskRegression
+from brainio.assemblies import walk_coords, DataAssembly
+from brainscore_core.metrics import Metric, Score
 from brainscore_vision.metric_helpers.transformations import CrossValidation
-from .xarray_utils import XarrayRegression, XarrayCorrelation
+from brainscore_vision.metric_helpers.xarray_utils import XarrayRegression, XarrayCorrelation
 
 
 class CrossRegressedCorrelation(Metric):
@@ -21,7 +20,7 @@ class CrossRegressedCorrelation(Metric):
         self.regression = regression
         self.correlation = correlation
 
-    def __call__(self, source, target):
+    def __call__(self, source: DataAssembly, target: DataAssembly) -> Score:
         return self.cross_validation(source, target, apply=self.apply, aggregate=self.aggregate)
 
     def apply(self, source_train, target_train, source_test, target_test):
@@ -39,7 +38,7 @@ class ScaledCrossRegressedCorrelation(Metric):
         self.cross_regressed_correlation = CrossRegressedCorrelation(*args, **kwargs)
         self.aggregate = self.cross_regressed_correlation.aggregate
 
-    def __call__(self, source, target):
+    def __call__(self, source: DataAssembly, target: DataAssembly) -> Score:
         scaled_values = scale(target, copy=True)
         target = target.__class__(scaled_values, coords={
             coord: (dims, value) for coord, dims, value in walk_coords(target)}, dims=target.dims)
@@ -66,12 +65,6 @@ class SingleRegression:
         return Ypred
 
 
-def mask_regression():
-    regression = MaskRegression()
-    regression = XarrayRegression(regression)
-    return regression
-
-
 def pls_regression(regression_kwargs=None, xarray_kwargs=None):
     regression_defaults = dict(n_components=25, scale=False)
     regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
@@ -95,16 +88,16 @@ def ridge_regression(xarray_kwargs=None):
     return regression
 
 
-def pearsonr_correlation(xarray_kwargs=None):
-    xarray_kwargs = xarray_kwargs or {}
-    return XarrayCorrelation(scipy.stats.pearsonr, **xarray_kwargs)
-
-
 def single_regression(xarray_kwargs=None):
     regression = SingleRegression()
     xarray_kwargs = xarray_kwargs or {}
     regression = XarrayRegression(regression, **xarray_kwargs)
     return regression
+
+
+def pearsonr_correlation(xarray_kwargs=None):
+    xarray_kwargs = xarray_kwargs or {}
+    return XarrayCorrelation(scipy.stats.pearsonr, **xarray_kwargs)
 
 
 def pearsonr(x, y):

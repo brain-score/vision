@@ -1,10 +1,11 @@
 import numpy as np
 
+from brainscore_core import Metric
 from brainscore_vision.metrics import Score
 
 
-class Accuracy:
-    def __call__(self, source, target):
+class Accuracy(Metric):
+    def __call__(self, source, target) -> Score:
         values = source == target
         center = np.mean(values)
         error = np.std(values)

@@ -1,6 +1,5 @@
 import scipy.stats
 import xarray as xr
-from result_caching import store
 from tqdm import tqdm
 
 from brainio.assemblies import walk_coords, DataAssembly
@@ -9,11 +8,6 @@ from brainscore_vision.metric_helpers import Defaults as XarrayDefaults
 from brainscore_vision.metric_helpers.transformations import CrossValidationSingle
 from brainscore_vision.metric_helpers.xarray_utils import XarrayCorrelation
 from brainscore_vision.metrics import Ceiling
-
-
-class NoCeiling(Ceiling):
-    def __call__(self, assembly: DataAssembly) -> Score:
-        return Score(1)
 
 
 class _SplitHalvesConsistency(Ceiling):
@@ -99,7 +93,7 @@ class InternalConsistency(Ceiling):
                                                     aggregate=aggregate,
                                                     split_coord=split_coord)
 
-    def __call__(self, assembly):
+    def __call__(self, assembly: DataAssembly) -> Score:
         return self._consistency(assembly)
 
 
@@ -122,7 +116,7 @@ class TemporalCeiling:
         """
         self.ceiling = ceiling
 
-    def __call__(self, assembly):
+    def __call__(self, assembly: DataAssembly) -> Score:
         ceilings = []
         for time_bin in tqdm(assembly['time_bin'].values, desc='time-ceiling'):
             ceiling = self.ceiling(assembly.sel(time_bin=time_bin))
@@ -131,16 +125,3 @@ class TemporalCeiling:
             ceilings.append(ceiling)
         ceiling = Score.merge(*ceilings)
         return ceiling
-
-
-class NeuronalPropertyCeiling:
-    def __init__(self, similarity_metric: Metric):
-        self.similarity_metric = similarity_metric
-
-    def __call__(self, assembly):
-        self.assembly = assembly
-        return self._ceiling(self.similarity_metric.property_name)
-
-    @store()
-    def _ceiling(self, identifier):
-        return self.similarity_metric(self.assembly, self.assembly)

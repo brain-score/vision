@@ -9,10 +9,12 @@ from numpy.random.mtrand import RandomState
 from scipy.stats import pearsonr
 
 from brainio.assemblies import walk_coords, DataAssembly
-from brainscore_vision.metrics import Metric, Score
+from brainscore_core.metrics import Metric, Score
 from brainscore_vision.metric_helpers.transformations import apply_aggregate
 from brainscore_vision.utils import fullname
 
+
+# only the implementation for i2n has been verified.
 
 def I1(*args, **kwargs):
     return _I(*args, collapse_distractors=True, normalize=False, **kwargs)
@@ -38,7 +40,6 @@ def O2(*args, **kwargs):
     return _O(*args, collapse_distractors=False, normalize=False, **kwargs)
 
 
-# From Martin's fork
 def _o2(assembly):
     i2n = I2n()
     false_alarm_rates = i2n.target_distractor_scores(assembly)
@@ -61,6 +62,7 @@ class _Behavior_Metric(Metric):
         - for computing dprime scores, Rajalingham et al. computed the false-alarms rate across the flat vector of all
             distractor images. This implementation computes the false-alarms rate per object, and then takes the mean.
     """
+
     def __init__(self, collapse_distractors, normalize=False, repetitions=2):
         super().__init__()
         self._collapse_distractors = collapse_distractors
@@ -68,7 +70,7 @@ class _Behavior_Metric(Metric):
         self._repetitions = repetitions
         self._logger = logging.getLogger(fullname(self))
 
-    def __call__(self, source_probabilities, target):
+    def __call__(self, source_probabilities, target) -> Score:
         return self._repeat(lambda random_state:
                             self._call_single(source_probabilities, target, random_state=random_state))
 
@@ -104,7 +106,8 @@ class _Behavior_Metric(Metric):
         return self.correlate(*dprime_halves, skipna=skipna, collapse_distractors=self._collapse_distractors)
 
     def build_response_matrix_from_responses(self, responses):
-        num_choices = [(image_id, choice) for image_id, choice in zip(responses['stimulus_id'].values, responses.values)]
+        num_choices = [(image_id, choice) for image_id, choice in
+                       zip(responses['stimulus_id'].values, responses.values)]
         num_choices = Counter(num_choices)
         num_objects = [[(image_id, sample_obj), (image_id, dist_obj)] for image_id, sample_obj, dist_obj in zip(
             responses['stimulus_id'].values, responses['sample_obj'].values, responses['dist_obj'].values)]

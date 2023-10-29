@@ -2,7 +2,7 @@ import itertools
 
 import numpy as np
 
-from brainscore_vision.metrics import Metric, Score
+from brainscore_core.metrics import Metric, Score
 from brainscore_vision.metric_helpers.transformations import apply_aggregate
 
 
@@ -12,7 +12,7 @@ class ErrorConsistency(Metric):
     implemented in Geirhos et al., 2020 https://arxiv.org/abs/2006.16736
     """
 
-    def __call__(self, source, target):
+    def __call__(self, source, target) -> Score:
         assert len(set(source['image_id'].values)) == len(set(target['image_id'].values))
         # https://github.com/bethgelab/model-vs-human/blob/745046c4d82ff884af618756bd6a5f47b6f36c45/modelvshuman/plotting/analyses.py#L161
         subject_scores = []

@@ -3,12 +3,12 @@ import json
 import logging
 from pathlib import Path
 
-from pybtex.database.input import bibtex
 import pandas as pd
 from peewee import DoesNotExist
+from pybtex.database.input import bibtex
 
 from brainscore_vision import score as _score_function
-from brainscore_vision.benchmarks import evaluation_benchmark_pool, benchmark_pool
+from brainscore_vision.benchmarks import evaluation_benchmark_pool, engineering_benchmark_pool, benchmark_pool
 from brainscore_vision import load_benchmark
 from brainscore_vision.submission.configuration import object_decoder, MultiConfig
 from brainscore_vision.submission.database import connect_db
@@ -19,8 +19,7 @@ from brainscore_vision.utils import LazyLoad
 
 logger = logging.getLogger(__name__)
 
-# TODO: Leave for Martin
-all_benchmarks_list = [benchmark for benchmark in evaluation_benchmark_pool.keys()]
+submission_benchmarks_list = list(evaluation_benchmark_pool.keys()) + list(engineering_benchmark_pool.keys())
 
 SCORE_COMMENT_MAX_LENGTH = 1000
 
@@ -37,7 +36,7 @@ def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
         submission_config = object_decoder(configs, work_dir, config_file.parent, db_secret, jenkins_id)
 
         logger.info(f'Run with following configurations: {str(configs)}')
-        test_benchmarks = all_benchmarks_list if benchmarks is None or len(benchmarks) == 0 else benchmarks
+        test_benchmarks = submission_benchmarks_list if benchmarks is None or len(benchmarks) == 0 else benchmarks
         if isinstance(submission_config, MultiConfig):
             # We rerun existing models, which potentially are defined in different submissions
             for submission_entry in submission_config.submission_entries.values():
@@ -73,7 +72,8 @@ def run_evaluation(config_dir, work_dir, jenkins_id, db_secret, models=None,
                     model_entry, created = Model.get_or_create(name=model_name, owner=submission_entry.submitter,
                                                                defaults={'public': submission_config.public,
                                                                          'submission': submission_entry,
-                                                                         'competition': submission_config.competition_submission})
+                                                                         'competition': submission_config.competition_submission,
+                                                                         'domain': "vision"})
                     if hasattr(module, 'get_bibtex') and created:  # model entry was just created and we can add bibtex
                         bibtex_string = module.get_bibtex(model_name)
                         reference = get_reference(bibtex_string)
@@ -199,8 +199,8 @@ def get_ml_pool(test_models, module, submission):
             base_model_pool[model.name] = LazyLoad(function)
             try:
                 layers[model.name] = module.get_layers(model.name)
-            except Exception:
-                logging.warning(f'Could not retrieve layer for model {model} -- skipping model')
+            except Exception as e:
+                logging.warning(f'Could not retrieve layer for model {model.name} -- skipping model {model} ({e})')
         model_layers = ModelLayers(layers)
         ml_brain_pool = MLBrainPool(base_model_pool, model_layers)
     else:
@@ -212,7 +212,8 @@ def get_ml_pool(test_models, module, submission):
 
 def get_benchmark_instance(benchmark_name):
     benchmark = load_benchmark(benchmark_name)
-    benchmark_type, created = BenchmarkType.get_or_create(identifier=benchmark_name, defaults=dict(order=999))
+    benchmark_type, created = BenchmarkType.get_or_create(identifier=benchmark_name,
+                                                          defaults=dict(order=999, domain="vision"))
     if created:
         try:
             parent = BenchmarkType.get(identifier=benchmark.parent)

@@ -1,5 +1,5 @@
 import numpy as np
-from brainscore.metrics import Score
+from brainscore_core import Score
 
 """
 @inproceedings{esser2020disentangling,

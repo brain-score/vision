@@ -19,18 +19,14 @@ from brainio.stimuli import StimulusSetLoader, StimulusSet
 _logger = logging.getLogger(__name__)
 
 
-def get_path(identifier: str, file_type: str, bucket: str, version_id: str, sha1: str):
+def get_path(identifier: str, file_type: str, bucket: str, version_id: str, sha1: str, filename_prefix: str = None):
     """
     Finds path of desired file (for .csvs, .zips, and .ncs).
     """
-    # for stimuli sets
-    if file_type == 'csv' or file_type == 'zip':
-        assembly_prefix = 'image_'
-    # for data assemblies
-    else:
-        assembly_prefix = 'assy_'
+    if filename_prefix is None:
+        filename_prefix = 'image_' if file_type in ('csv', 'zip') else 'assy_'
 
-    filename = f"{assembly_prefix}{identifier.replace('.', '_')}.{file_type}"
+    filename = f"{filename_prefix}{identifier.replace('.', '_')}.{file_type}"
     file_path = fetch_file(location_type="S3",
                            location=f"https://{bucket}.s3.amazonaws.com/{filename}",
                            version_id=version_id,
@@ -56,9 +52,9 @@ def load_assembly_from_s3(identifier: str, version_id: str, sha1: str, bucket: s
 
 
 def load_stimulus_set_from_s3(identifier: str, bucket: str, csv_sha1: str, zip_sha1: str,
-                              csv_version_id: str, zip_version_id: str):
-    csv_path = get_path(identifier, 'csv', bucket, csv_version_id, csv_sha1)
-    zip_path = get_path(identifier, 'zip', bucket, zip_version_id, zip_sha1)
+                              csv_version_id: str, zip_version_id: str, filename_prefix: str = None):
+    csv_path = get_path(identifier, 'csv', bucket, csv_version_id, csv_sha1, filename_prefix=filename_prefix)
+    zip_path = get_path(identifier, 'zip', bucket, zip_version_id, zip_sha1, filename_prefix=filename_prefix)
     stimuli_directory = unzip(zip_path)
     loader = StimulusSetLoader(
         csv_path=csv_path,

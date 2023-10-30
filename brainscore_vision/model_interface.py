@@ -1,5 +1,5 @@
 """
-The :class:`~brainscore.model_interface.BrainModel` interface is the central communication point
+The :class:`~brainscore_vision.model_interface.BrainModel` interface is the central communication point
 between benchmarks and models.
 """
 

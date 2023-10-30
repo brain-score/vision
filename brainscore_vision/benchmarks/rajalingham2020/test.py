@@ -1,7 +1,10 @@
+from pathlib import Path
+
 import pytest
 from pytest import approx
-from brainscore_vision.benchmark_helpers.test_helper import TestStandardized, TestPrecomputed
 
+from brainscore_vision.benchmark_helpers.test_helper import TestStandardized, TestPrecomputed
+from brainscore_vision.data_helpers import s3
 
 standardized_tests = TestStandardized()
 precomputed_test = TestPrecomputed()
@@ -29,5 +32,8 @@ def test_self_regression(benchmark, visual_degrees, expected):
     ('dicarlo.Rajalingham2020.IT-pls', approx(.147549, abs=.01)),
 ])
 def test_Rajalingham2020(benchmark, expected):
-    precomputed_test.run_test(benchmark=benchmark, file='alexnet-rajalingham2020-features.12.nc', expected=expected)
-
+    filename = 'alexnet-rajalingham2020-features.12.nc'
+    filepath = Path(__file__).parent / filename
+    s3.download_file_if_not_exists(local_path=filepath,
+                                   bucket='brainio-brainscore', remote_filepath=f'tests/test_benchmarks/{filename}')
+    precomputed_test.run_test(benchmark=benchmark, precomputed_features_filepath=filepath, expected=expected)

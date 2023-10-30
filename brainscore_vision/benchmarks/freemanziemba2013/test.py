@@ -1,25 +1,28 @@
+from pathlib import Path
+
 import pytest
 from pytest import approx
+
 from brainscore_vision import benchmark_registry, load_benchmark
-from brainscore_vision.benchmark_helpers.test_helper import TestStandardized, TestPrecomputed, TestNumberOfTrials, \
-    TestBenchmarkRegistry, TestVisualDegrees
-from .benchmarks.public_benchmarks import FreemanZiembaV1PublicBenchmark, FreemanZiembaV2PublicBenchmark
 from brainscore_vision.benchmark_helpers import PrecomputedFeatures
+from brainscore_vision.benchmark_helpers.test_helper import TestStandardized, TestPrecomputed, TestNumberOfTrials, \
+    TestVisualDegrees
+from brainscore_vision.data_helpers import s3
+from .benchmarks.public_benchmarks import FreemanZiembaV1PublicBenchmark, FreemanZiembaV2PublicBenchmark
 
 # should these be in function definitions
 standardized_tests = TestStandardized()
 precomputed_test = TestPrecomputed()
 num_trials_test = TestNumberOfTrials()
-registry_test = TestBenchmarkRegistry()
 visual_degrees_test = TestVisualDegrees()
 
 
 @pytest.mark.parametrize('benchmark', [
     'movshon.FreemanZiemba2013.V1-pls',
-    'movshon.FreemanZiemba2013.V2-pls', # are these what should be checked for? what about public vs. private
+    'movshon.FreemanZiemba2013.V2-pls',  # are these what should be checked for? what about public vs. private
 ])
 def test_benchmark_registry(benchmark):
-    registry_test.benchmark_in_registry(benchmark)
+    assert benchmark in benchmark_registry
 
 
 @pytest.mark.parametrize('benchmark, expected', [
@@ -67,7 +70,11 @@ def test_self_rdm(benchmark, visual_degrees, expected):
     ('movshon.FreemanZiemba2013.V2-pls', approx(.459283, abs=.005)),
 ])
 def test_FreemanZiemba2013(benchmark, expected):
-    precomputed_test.run_test(benchmark=benchmark, file='alexnet-freemanziemba2013.aperture-private.nc', expected=expected)
+    filename = 'alexnet-freemanziemba2013.aperture-private.nc'
+    filepath = Path(__file__).parent / filename
+    s3.download_file_if_not_exists(local_path=filepath,
+                                   bucket='brainio-brainscore', remote_filepath=f'tests/test_benchmarks/{filename}')
+    precomputed_test.run_test(benchmark=benchmark, precomputed_features_filepath=filename, expected=expected)
 
 
 @pytest.mark.parametrize('benchmark, candidate_degrees, image_id, expected', [
@@ -93,6 +100,7 @@ def test_amount_gray(benchmark, candidate_degrees, image_id, expected, brainio_h
     visual_degrees_test.amount_gray_test(benchmark, candidate_degrees, image_id, expected, brainio_home,
                                          resultcaching_home, brainscore_home)
 
+
 @pytest.mark.private_access
 @pytest.mark.parametrize('benchmark_identifier', [
     'movshon.FreemanZiemba2013.V1-pls',
@@ -115,4 +123,3 @@ def test_self(benchmark_ctr, visual_degrees, expected):
     source = {benchmark._assembly.stimulus_set.identifier: source}
     score = benchmark(PrecomputedFeatures(source, visual_degrees=visual_degrees)).raw
     assert score.sel(aggregation='center') == expected
-

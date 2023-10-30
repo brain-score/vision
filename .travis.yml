@@ -16,7 +16,6 @@ before_install:
 - pip install pytest
 # download large files
 - pip install awscli
-- bash test_setup.sh
 install:
 - pip install -e ".[test]"
 - pip list # list installed package versions

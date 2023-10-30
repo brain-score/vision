@@ -5,18 +5,12 @@ import numpy as np
 from PIL import Image
 
 from brainio.assemblies import NeuroidAssembly, PropertyAssembly
-from brainscore_vision import benchmark_registry, load_benchmark
+from brainscore_vision import load_benchmark
 from brainscore_vision.model_interface import BrainModel
 from . import PrecomputedFeatures
 
 
-class TestBenchmarkRegistry:
-    def benchmark_in_registry(self, benchmark: str):
-        assert benchmark in benchmark_registry
-
-
 class TestStandardized:
-
     def ceilings_test(self, benchmark: str, expected: float):
         benchmark = load_benchmark(benchmark)
         ceiling = benchmark.ceiling
@@ -41,12 +35,10 @@ class TestStandardized:
 
 
 class TestPrecomputed:
-
-    def run_test(self, benchmark: str, file: str, expected: float):
+    def run_test(self, benchmark: str, precomputed_features_filepath: str, expected: float):
         benchmark = load_benchmark(benchmark)
-        precomputed_features = Path(__file__).parent / file
         precomputed_features = NeuroidAssembly.from_files(
-            precomputed_features,
+            precomputed_features_filepath,
             stimulus_set_identifier=benchmark._assembly.stimulus_set.identifier,
             stimulus_set=None)
         precomputed_features = precomputed_features.stack(presentation=['stimulus_path'])
@@ -97,7 +89,6 @@ class TestPrecomputed:
 
 
 class TestVisualDegrees:
-
     def amount_gray_test(self, benchmark: str, candidate_degrees: int, image_id: str, expected: float,
                          brainio_home: Path, resultcaching_home: Path, brainscore_home: Path):
         benchmark = load_benchmark(benchmark)
@@ -136,7 +127,6 @@ class TestVisualDegrees:
 
 
 class TestNumberOfTrials:
-
     def repetitions_test(self, benchmark_identifier: str):
         """ Tests that benchmarks have repetitions in the stimulus_set """
         benchmark = load_benchmark(benchmark_identifier)

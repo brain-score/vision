@@ -1,16 +1,19 @@
+from pathlib import Path
+
 import pytest
 from pytest import approx
 
-from brainscore_vision.benchmark_helpers.test_helper import TestStandardized, TestPrecomputed, TestNumberOfTrials, \
-    TestBenchmarkRegistry, TestVisualDegrees
-from brainscore_vision.benchmarks.majajhong2015.benchmark import MajajHongV4PublicBenchmark, MajajHongITPublicBenchmark
+from brainscore_vision import benchmark_registry
 from brainscore_vision.benchmark_helpers import PrecomputedFeatures
+from brainscore_vision.benchmark_helpers.test_helper import TestStandardized, TestPrecomputed, TestNumberOfTrials, \
+    TestVisualDegrees
+from brainscore_vision.benchmarks.majajhong2015.benchmark import MajajHongV4PublicBenchmark, MajajHongITPublicBenchmark
+from brainscore_vision.data_helpers import s3
 
 # should these be in function definitions
 standardized_tests = TestStandardized()
 precomputed_test = TestPrecomputed()
 num_trials_test = TestNumberOfTrials()
-registry_test = TestBenchmarkRegistry()
 visual_degrees = TestVisualDegrees()
 
 
@@ -18,7 +21,7 @@ visual_degrees = TestVisualDegrees()
 
 ])
 def test_benchmark_registry(benchmark):
-    registry_test.benchmark_in_registry(benchmark)
+    assert benchmark in benchmark_registry
 
 
 @pytest.mark.parametrize('benchmark, expected', [
@@ -61,7 +64,11 @@ def test_self_rdm(benchmark: str, visual_degrees: int, expected: float):
     ('dicarlo.MajajHong2015.IT-pls', approx(.584053, abs=.005)),
 ])
 def test_MajajHong2015(benchmark, expected):
-    precomputed_test.run_test(benchmark=benchmark, file='alexnet-majaj2015.private-features.12.nc', expected=expected)
+    filename = 'alexnet-majaj2015.private-features.12.nc'
+    filepath = Path(__file__).parent / filename
+    s3.download_file_if_not_exists(local_path=filepath,
+                                   bucket='brainio-brainscore', remote_filepath=f'tests/test_benchmarks/{filename}')
+    precomputed_test.run_test(benchmark=benchmark, precomputed_features_filepath=filepath, expected=expected)
 
 
 @pytest.mark.parametrize('benchmark, candidate_degrees, image_id, expected', [
@@ -97,6 +104,7 @@ def test_amount_gray(benchmark, candidate_degrees, image_id, expected, brainio_h
 ])
 def test_repetitions(benchmark_identifier):
     num_trials_test.repetitions_test(benchmark_identifier)
+
 
 @pytest.mark.parametrize('benchmark_ctr, visual_degrees, expected', [
     pytest.param(MajajHongV4PublicBenchmark, 8, approx(.897956, abs=.001),

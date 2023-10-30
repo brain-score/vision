@@ -1,19 +1,19 @@
-import numpy as np
 from pathlib import Path
 
+import numpy as np
 import pytest
 from pytest import approx
 
 from brainio.assemblies import BehavioralAssembly
-from brainscore_vision.benchmarks.rajalingham2018 import DicarloRajalingham2018I2n
-from brainscore_vision.model_interface import BrainModel
 from brainscore_vision import benchmark_registry, load_benchmark
 from brainscore_vision.benchmark_helpers import PrecomputedFeatures
-from brainscore_vision.benchmark_helpers.test_helper import TestVisualDegrees, TestNumberOfTrials, TestBenchmarkRegistry
+from brainscore_vision.benchmark_helpers.test_helper import TestVisualDegrees, TestNumberOfTrials
+from brainscore_vision.benchmarks.rajalingham2018 import DicarloRajalingham2018I2n
+from brainscore_vision.data_helpers import s3
+from brainscore_vision.model_interface import BrainModel
 
 visual_degrees = TestVisualDegrees()
 number_trials = TestNumberOfTrials()
-in_registry = TestBenchmarkRegistry()
 
 
 @pytest.mark.parametrize('benchmark', [
@@ -21,7 +21,7 @@ in_registry = TestBenchmarkRegistry()
     'dicarlo.Rajalingham2018public-i2n',
 ])
 def test_benchmark_registry(benchmark):
-    in_registry.benchmark_in_registry(benchmark)
+    assert benchmark in benchmark_registry
 
 
 @pytest.mark.private_access
@@ -40,7 +40,9 @@ class TestRajalingham2018:
     def test_precomputed(self, model, expected_score):
         benchmark = DicarloRajalingham2018I2n()
         probabilities = Path(__file__).parent.parent / 'test_metrics' / f'{model}-probabilities.nc'
-        probabilities = BehavioralAssembly.from_files(probabilities, stimulus_set_identifier=benchmark._assembly.stimulus_set.identifier, stimulus_set=benchmark._assembly.stimulus_set)
+        probabilities = BehavioralAssembly.from_files(probabilities,
+                                                      stimulus_set_identifier=benchmark._assembly.stimulus_set.identifier,
+                                                      stimulus_set=benchmark._assembly.stimulus_set)
         candidate = PrecomputedProbabilities(probabilities)
         score = benchmark(candidate)
         assert score.raw.sel(aggregation='center') == approx(expected_score, abs=.005)
@@ -69,9 +71,12 @@ class PrecomputedProbabilities(BrainModel):
 def test_Rajalingham2018public():
     benchmark = load_benchmark('dicarlo.Rajalingham2018public-i2n')
     # load features
-    precomputed_features = Path(__file__).parent / 'CORnetZ-rajalingham2018public.nc'
+    filename = 'CORnetZ-rajalingham2018public.nc'
+    filepath = Path(__file__).parent / filename
+    s3.download_file_if_not_exists(filepath,
+                                   bucket='brain-score-tests', remote_filepath=f'tests/test_benchmarks/{filename}')
     precomputed_features = BehavioralAssembly.from_files(
-        precomputed_features,
+        filepath,
         stimulus_set_identifier=benchmark._assembly.stimulus_set.identifier,
         stimulus_set=benchmark._assembly.stimulus_set)
     precomputed_features = PrecomputedFeatures(precomputed_features,

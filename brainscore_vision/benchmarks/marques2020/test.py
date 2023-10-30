@@ -1,13 +1,13 @@
 import pytest
 from pytest import approx
-from brainscore_vision.benchmark_helpers.test_helper import TestStandardized, TestPrecomputed, TestNumberOfTrials, \
-    TestBenchmarkRegistry
+
+from brainscore_vision import benchmark_registry
+from brainscore_vision.benchmark_helpers.test_helper import TestStandardized, TestPrecomputed, TestNumberOfTrials
 
 # should these be in function definitions
 standardized_tests = TestStandardized()
 precomputed_test = TestPrecomputed()
 num_trials_test = TestNumberOfTrials()
-registry_test = TestBenchmarkRegistry()
 
 
 @pytest.mark.parametrize('benchmark', [
@@ -35,7 +35,8 @@ registry_test = TestBenchmarkRegistry()
     'dicarlo.Marques2020_Schiller1976-sf_selective',
 ])
 def test_benchmark_registry(benchmark):
-    registry_test.benchmark_in_registry(benchmark)
+    assert benchmark in benchmark_registry
+
 
 @pytest.mark.parametrize('benchmark, expected', [
     pytest.param('dicarlo.Marques2020_Cavanaugh2002-grating_summation_field', approx(0.956, abs=.005), marks=[]),
@@ -44,7 +45,7 @@ def test_benchmark_registry(benchmark):
     pytest.param('dicarlo.Marques2020_DeValois1982-pref_or', approx(0.962, abs=.005), marks=[]),
     pytest.param('dicarlo.Marques2020_DeValois1982-peak_sf', approx(0.967, abs=.005), marks=[]),
     pytest.param('dicarlo.Marques2020_FreemanZiemba2013-texture_modulation_index', approx(0.948, abs=.005),
-                     marks=[]),
+                 marks=[]),
     pytest.param('dicarlo.Marques2020_FreemanZiemba2013-abs_texture_modulation_index', approx(0.958, abs=.005),
                  marks=[]),
     pytest.param('dicarlo.Marques2020_FreemanZiemba2013-texture_selectivity', approx(0.940, abs=.005), marks=[]),
@@ -65,6 +66,7 @@ def test_benchmark_registry(benchmark):
 ])
 def test_ceilings(benchmark, expected):
     standardized_tests.ceilings_test(benchmark, expected)
+
 
 @pytest.mark.memory_intense
 @pytest.mark.slow
@@ -103,6 +105,7 @@ def test_Marques2020(benchmark, expected):
                'movshon.FreemanZiemba2013_properties': 'alexnet-movshon.FreemanZiemba2013_properties.nc',
                },
         expected=expected)
+
 
 @pytest.mark.private_access
 @pytest.mark.parametrize('benchmark_identifier', [

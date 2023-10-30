@@ -1,28 +1,32 @@
-import pytest
-import numpy as np
 from pathlib import Path
+
+import numpy as np
+import pytest
+from numpy.random.mtrand import RandomState
 from pytest import approx
 
-from brainscore_vision import benchmark_registry, load_benchmark
 from brainio.assemblies import NeuroidAssembly, DataAssembly
+from brainscore_vision import load_benchmark
 from brainscore_vision.benchmark_helpers import PrecomputedFeatures
 from brainscore_vision.benchmark_helpers.test_helper import TestVisualDegrees, TestNumberOfTrials
-from numpy.random.mtrand import RandomState
 from brainscore_vision.benchmarks.kar2019 import DicarloKar2019OST
-
+from brainscore_vision.data_helpers import s3
 
 visual_degrees = TestVisualDegrees()
 number_trials = TestNumberOfTrials()
+
 
 @pytest.mark.memory_intense
 @pytest.mark.private_access
 @pytest.mark.slow
 def test_Kar2019ost_cornet_s():
     benchmark = load_benchmark('dicarlo.Kar2019-ost')
-    # might have to change parent here
-    precomputed_features = Path(__file__).parent / 'cornet_s-kar2019.nc'
+    filename = 'cornet_s-kar2019.nc'
+    filepath = Path(__file__).parent / filename
+    s3.download_file_if_not_exists(local_path=filepath,
+                                   bucket='brainio-brainscore', remote_filepath=f'tests/test_benchmarks/{filename}')
     precomputed_features = NeuroidAssembly.from_files(
-        precomputed_features,
+        filepath,
         stimulus_set_identifier=benchmark._assembly.stimulus_set.identifier,
         stimulus_set=benchmark._assembly.stimulus_set)
     precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
@@ -91,4 +95,3 @@ def test_random_time():
     assert np.isnan(score.sel(aggregation='center'))  # not a temporal model
     assert np.isnan(score.raw.sel(aggregation='center'))  # not a temporal model
     assert score.attrs['ceiling'].sel(aggregation='center') == approx(.79)
-

@@ -1,12 +1,15 @@
+from pathlib import Path
+
 import pytest
 from pytest import approx
-from brainscore_vision.benchmark_helpers.test_helper import TestStandardized, TestPrecomputed, TestNumberOfTrials, \
-    TestBenchmarkRegistry
+
+from brainscore_vision import benchmark_registry
+from brainscore_vision.benchmark_helpers.test_helper import TestStandardized, TestPrecomputed, TestNumberOfTrials
+from brainscore_vision.data_helpers import s3
 
 standardized_tests = TestStandardized()
 precomputed_test = TestPrecomputed()
 num_trials_test = TestNumberOfTrials()
-registry_test = TestBenchmarkRegistry()
 
 
 @pytest.mark.parametrize('benchmark', [
@@ -16,9 +19,9 @@ registry_test = TestBenchmarkRegistry()
     'dicarlo.SanghaviJozwik2020.IT-pls',
     'dicarlo.SanghaviMurty2020.V4-pls',
     'dicarlo.SanghaviMurty2020.IT-pls',
-    ])
+])
 def test_benchmark_registry(benchmark):
-    registry_test.benchmark_in_registry(benchmark)
+    assert benchmark in benchmark_registry
 
 
 @pytest.mark.parametrize('benchmark, expected', [
@@ -59,16 +62,19 @@ def test_self_regression(benchmark, visual_degrees, expected):
 
 @pytest.mark.memory_intense
 @pytest.mark.slow
-@pytest.mark.parametrize('benchmark, expected', [
-    ('dicarlo.Sanghavi2020.V4-pls', approx(.551135, abs=.015)),
-    ('dicarlo.Sanghavi2020.IT-pls', approx(.611347, abs=.015)),
-    ('dicarlo.SanghaviJozwik2020.V4-pls', approx(.49235, abs=.005)),
-    ('dicarlo.SanghaviJozwik2020.IT-pls', approx(.590543, abs=.005)),
-    ('dicarlo.SanghaviMurty2020.V4-pls', approx(.357461, abs=.015)),
-    ('dicarlo.SanghaviMurty2020.IT-pls', approx(.53006, abs=.015)),
+@pytest.mark.parametrize('benchmark, filename, expected', [
+    ('dicarlo.Sanghavi2020.V4-pls', 'alexnet-sanghavi2020-features.12.nc', approx(.551135, abs=.015)),
+    ('dicarlo.Sanghavi2020.IT-pls', 'alexnet-sanghavi2020-features.12.nc', approx(.611347, abs=.015)),
+    ('dicarlo.SanghaviJozwik2020.V4-pls', 'alexnet-sanghavijozwik2020-features.12.nc', approx(.49235, abs=.005)),
+    ('dicarlo.SanghaviJozwik2020.IT-pls', 'alexnet-sanghavijozwik2020-features.12.nc', approx(.590543, abs=.005)),
+    ('dicarlo.SanghaviMurty2020.V4-pls', 'alexnet-sanghavimurty2020-features.12.nc', approx(.357461, abs=.015)),
+    ('dicarlo.SanghaviMurty2020.IT-pls', 'alexnet-sanghavimurty2020-features.12.nc', approx(.53006, abs=.015)),
 ])
-def test_Sanghavi2020(benchmark, expected):
-    precomputed_test.run_test(benchmark=benchmark, file='alexnet-sanghavi2020-features.12.nc', expected=expected)
+def test_model_features(benchmark, filename, expected):
+    filepath = Path(__file__).parent / filename
+    s3.download_file_if_not_exists(local_path=filepath,
+                                   bucket='brainio-brainscore', remote_filepath=f'tests/test_benchmarks/{filename}')
+    precomputed_test.run_test(benchmark=benchmark, precomputed_features_filepath=filepath, expected=expected)
 
 
 @pytest.mark.private_access

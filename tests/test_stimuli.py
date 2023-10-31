@@ -58,6 +58,8 @@ import brainio
         'brendel.Geirhos2021_stylized',
         'brendel.Geirhos2021_sketch',
         'brendel.Geirhos2021_uniform-noise',
+        'Baker2022_normal_distortion',
+        'Baker2022_inverted_distortion',
         'Islam2021',
 ))
 def test_list_stimulus_set(stimulus_set):
@@ -106,6 +108,7 @@ def test_Katz_BarbuMayo2019():
     stimulus_set = brainio.get_stimulus_set('katz.BarbuMayo2019')
     assert len(stimulus_set) == 17261
     assert len(set(stimulus_set['synset'])) == 104
+
 
 @pytest.mark.private_access
 def test_feifei_Deng2009():
@@ -247,6 +250,76 @@ class TestGeirhos2021:
     def test_fields_present3(self, identifier, field):
         stimulus_set = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
         assert hasattr(stimulus_set, field)
+
+@pytest.mark.private_access
+class TestBaker2022:
+
+    # general tests
+    @pytest.mark.parametrize('identifier', [
+        'normal',
+        'inverted'
+    ])
+    def test_stimulus_set_exist(self, identifier):
+        full_name = f'Baker2022_{identifier}_distortion'
+        stimulus_set = brainio.get_stimulus_set(full_name)
+        assert stimulus_set is not None
+        assert stimulus_set.identifier == full_name
+
+    # tests number of images
+    @pytest.mark.parametrize('identifier, num_images', [
+        ('normal', 716),
+        ('inverted', 360),
+    ])
+    def test_num_stimuli(self, identifier, num_images):
+        stimulus_set = brainio.get_stimulus_set(f'Baker2022_{identifier}_distortion')
+        assert len(stimulus_set) == num_images
+        assert len(np.unique(stimulus_set["stimulus_id"])) == num_images
+
+    # tests stimulus_set coords. Ensure normal/inverted only have their respective stimuli
+    @pytest.mark.parametrize('field', [
+        'stimulus_id',
+        'animal',
+        'image_type',
+        'image_number',
+        "orientation",
+    ])
+    @pytest.mark.parametrize('identifier', [
+        'normal',
+        'inverted',
+    ])
+    def test_fields_present(self, identifier, field):
+        stimulus_set = brainscore.get_stimulus_set(f'Baker2022_{identifier}_distortion')
+        assert hasattr(stimulus_set, field)
+
+    # make sure there are at least whole, frankenstein in each stimulus_set. Inverted does not have fragmented stimuli.
+    @pytest.mark.parametrize('identifier, count', [
+        ('normal', 3),
+        ('inverted', 2),
+    ])
+    def test_distortion_counts(self, identifier, count):
+        stimulus_set = brainscore.get_stimulus_set(f'Baker2022_{identifier}_distortion')
+        assert len(np.unique(stimulus_set["image_type"])) == count
+        assert "w" in set(stimulus_set["image_type"])
+        assert "f" in set(stimulus_set["image_type"])
+
+    # make sure there are 9 possible animals in each stimulus_set -> 9 way AFC
+    @pytest.mark.parametrize('identifier', [
+        'normal',
+        'inverted',
+    ])
+    def test_ground_truth_types(self, identifier):
+        stimulus_set = brainscore.get_stimulus_set(f'Baker2022_{identifier}_distortion')
+        assert len(np.unique(stimulus_set["animal"])) == 9
+
+    # make sure there are 40 unique image numbers
+    @pytest.mark.parametrize('identifier', [
+        'normal',
+        'inverted',
+    ])
+    def test_image_types(self, identifier):
+        stimulus_set = brainscore.get_stimulus_set(f'Baker2022_{identifier}_distortion')
+        assert len(np.unique(stimulus_set["image_number"])) == 40
+
 
 @pytest.mark.private_access
 def test_Islam2021():

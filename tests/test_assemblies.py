@@ -64,6 +64,8 @@ import brainscore
         'brendel.Geirhos2021_stylized',
         'brendel.Geirhos2021_sketch',
         'brendel.Geirhos2021_uniform-noise',
+        'Baker2022_normal_distortion',
+        'Baker2022_inverted_distortion'
 ))
 def test_list_assembly(assembly):
     l = brainio.list_assemblies()
@@ -120,6 +122,8 @@ def test_list_assembly(assembly):
     pytest.param('brendel.Geirhos2021_stylized', marks=[pytest.mark.private_access]),
     pytest.param('brendel.Geirhos2021_sketch', marks=[pytest.mark.private_access]),
     pytest.param('brendel.Geirhos2021_uniform-noise', marks=[pytest.mark.private_access]),
+    pytest.param('Baker2022_normal_distortion', marks=[pytest.mark.private_access]),
+    pytest.param('Baker2022_inverted_distortion', marks=[pytest.mark.private_access])
 ])
 def test_existence(assembly_identifier):
     assert brainio.get_assembly(assembly_identifier) is not None
@@ -482,3 +486,63 @@ class TestGeirhos2021:
     def test_fields_present_cue_conflict(self, identifier, field):
         assembly = brainscore.get_assembly(f"brendel.Geirhos2021_{identifier}")
         assert hasattr(assembly, field)
+
+@pytest.mark.private_access
+class TestBaker2022:
+
+    # tests alignments that are the same across normal and inverted assemblies
+    @pytest.mark.parametrize('identifier, length', [
+        ('normal', 3702),
+        ('inverted', 4320),
+    ])
+    def test_stimulus_set_assembly_alignment(self, identifier, length):
+        full_name = f'Baker2022_{identifier}_distortion'
+        assembly = brainscore.get_assembly(full_name)
+        assert assembly.stimulus_set is not None
+        assert assembly.stimulus_set.identifier == f'Baker2022_{identifier}_distortion'
+        assert set(assembly.stimulus_set["animal"]) == set(assembly["truth"].values)
+        assert set(assembly.stimulus_set["stimulus_id"]) == set(assembly["stimulus_id"].values)
+        assert len(assembly.presentation) == length
+
+    # tests counts that are the same across normal and inverted assemblies
+    @pytest.mark.parametrize('identifier', [
+        'normal',
+        'inverted',
+    ])
+    def test_same_counts(self, identifier):
+        full_name = f'Baker2022_{identifier}_distortion'
+        assembly = brainscore.get_assembly(full_name)
+        assert len(set((assembly["truth"]).values)) == 9
+        assert set((assembly["correct"]).values) == {0, 1}
+
+    # tests number of subjects
+    @pytest.mark.parametrize('identifier, num_subjects', [
+        ('normal', 32),
+        ('inverted', 12),
+    ])
+    def test_subjects(self, identifier, num_subjects):
+        full_name = f'Baker2022_{identifier}_distortion'
+        assembly = brainscore.get_assembly(full_name)
+        assert len(set((assembly["subject"]).values)) == num_subjects
+
+    # tests number of configurations in {whole, fragmented, frankenstein} Inverted does not have fragmented)
+    @pytest.mark.parametrize('identifier, conditions', [
+        ('normal', {'whole', 'fragmented', 'Frankenstein'}),
+        ('inverted', {'whole', 'Frankenstein'}),
+    ])
+    def test_conditions(self, identifier, conditions):
+        full_name = f'Baker2022_{identifier}_distortion'
+        assembly = brainscore.get_assembly(full_name)
+        assert set((assembly["condition"]).values) == conditions
+
+    # tests number of unique images
+    @pytest.mark.parametrize('identifier, num_images', [
+        ('normal', 716),
+        ('inverted', 360),
+    ])
+    def test_subjects(self, identifier, num_images):
+        full_name = f'Baker2022_{identifier}_distortion'
+        assembly = brainscore.get_assembly(full_name)
+        assert len(set((assembly["stimulus_id"]).values)) == num_images
+
+

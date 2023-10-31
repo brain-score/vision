@@ -217,6 +217,17 @@ def _evaluation_benchmark_pool():
             # use lambda parameter-binding to avoid `benchmark_ctr` being re-assigned in the next loop iteration
             lambda benchmark_ctr=benchmark_ctr: benchmark_ctr())
 
+    # Baker 2022
+    from .baker2022 import Baker2022AccuracyDeltaFrankenstein
+    pool['Baker2022-accuracy_delta_frankenstein'] = LazyLoad(Baker2022AccuracyDeltaFrankenstein)
+
+    from .baker2022 import Baker2022AccuracyDeltaFragmented
+    pool['Baker2022-accuracy_delta_fragmented'] = LazyLoad(Baker2022AccuracyDeltaFragmented)
+
+    # Baker 2022
+    from .baker2022 import Baker2022InvertedAccuracyDelta
+    pool['Baker2022-inverted_accuracy_delta'] = LazyLoad(Baker2022InvertedAccuracyDelta)
+
     return pool
 
 

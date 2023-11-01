@@ -22,7 +22,6 @@ dependencies = [
     "tqdm",
     "gitpython",
     "fire",
-    "fire",
     "jupyter",
     "pybtex",
     "peewee",
@@ -34,6 +33,7 @@ dependencies = [
 test = [
     "pytest",
     "torch",
+    "torchvision",
     "tensorflow==1.15",
     "keras==2.3.1",
 ]

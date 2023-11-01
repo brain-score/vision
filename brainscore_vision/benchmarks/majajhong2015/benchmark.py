@@ -20,7 +20,7 @@ BIBTEX = """@article {Majaj13402,
             eprint = {https://www.jneurosci.org/content/35/39/13402.full.pdf},
             journal = {Journal of Neuroscience}}"""
 
-majajhong2015_plsmetric = lambda: load_metric('pls', crossvalidation_kwargs=dict(stratification_coord='object_name'))
+pls_metric = lambda: load_metric('pls', crossvalidation_kwargs=dict(stratification_coord='object_name'))
 
 
 def _DicarloMajajHong2015Region(region: str, access: str, identifier_metric_suffix: str,
@@ -38,25 +38,25 @@ def _DicarloMajajHong2015Region(region: str, access: str, identifier_metric_suff
 
 def DicarloMajajHong2015V4PLS():
     return _DicarloMajajHong2015Region(region='V4', access='private', identifier_metric_suffix='pls',
-                                       similarity_metric=majajhong2015_plsmetric(),
+                                       similarity_metric=pls_metric(),
                                        ceiler=load_ceiling('internal_consistency'))
 
 
 def DicarloMajajHong2015ITPLS():
     return _DicarloMajajHong2015Region(region='IT', access='private', identifier_metric_suffix='pls',
-                                       similarity_metric=majajhong2015_plsmetric(),
+                                       similarity_metric=pls_metric(),
                                        ceiler=load_ceiling('internal_consistency'))
 
 
 def MajajHongV4PublicBenchmark():
     return _DicarloMajajHong2015Region(region='V4', access='public', identifier_metric_suffix='pls',
-                                       similarity_metric=majajhong2015_plsmetric(),
+                                       similarity_metric=pls_metric(),
                                        ceiler=load_ceiling('internal_consistency'))
 
 
 def MajajHongITPublicBenchmark():
     return _DicarloMajajHong2015Region(region='IT', access='public', identifier_metric_suffix='pls',
-                                       similarity_metric=majajhong2015_plsmetric(),
+                                       similarity_metric=pls_metric(),
                                        ceiler=load_ceiling('internal_consistency'))
 
 

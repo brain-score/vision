@@ -33,6 +33,7 @@ dependencies = [
 [project.optional-dependencies]
 test = [
     "pytest",
+    "torch",
     "tensorflow==1.15",
     "keras==2.3.1",
 ]

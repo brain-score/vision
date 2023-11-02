@@ -29,7 +29,7 @@ script:
   - CHANGED_FILES=$( echo $(git diff --name-only HEAD $TRAVIS_PULL_REQUEST_SHA -C $TRAVIS_BUILD_DIR) | tr '\n' ' ' )
   - |
     if [ "$TRAVIS_PULL_REQUEST" ]; then 
-      TESTING_NEEDED=$( python -c "from brainscore_core.plugin_management.parse_plugin_changes import get_testing_info; get_testing_info(\"${CHANGED_FILES}\", 'brainscore_language')" ) && 
+      TESTING_NEEDED=$( python -c "from brainscore_core.plugin_management.parse_plugin_changes import get_testing_info; get_testing_info(\"${CHANGED_FILES}\", 'brainscore_vision')" ) && 
       read MODIFIES_PLUGIN PLUGIN_ONLY <<< $TESTING_NEEDED && echo MODIFIES_PLUGIN: $MODIFIES_PLUGIN && echo PLUGIN_ONLY: $PLUGIN_ONLY; 
     fi
   - if [ "$MODIFIES_PLUGIN" = "True" ]; then python -c "from brainscore_core.plugin_management.parse_plugin_changes import run_changed_plugin_tests; run_changed_plugin_tests(\"${CHANGED_FILES}\", 'brainscore_vision')"; fi

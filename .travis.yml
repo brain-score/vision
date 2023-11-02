@@ -27,6 +27,7 @@ install:
 script:
   # if ONLY plugin files changed, ONLY run tests for those plugins; otherwise, run full test suite
   - CHANGED_FILES=$( echo $(git diff --name-only HEAD $TRAVIS_PULL_REQUEST_SHA -C $TRAVIS_BUILD_DIR) | tr '\n' ' ' )
+  - echo $CHANGED_FILES
   - |
     if [ "$TRAVIS_PULL_REQUEST" ]; then 
       TESTING_NEEDED=$( python -c "from brainscore_core.plugin_management.parse_plugin_changes import get_testing_info; get_testing_info(\"${CHANGED_FILES}\", 'brainscore_vision')" ) && 
@@ -44,3 +45,4 @@ notifications:
     on_success: change
     on_failure: always
     secure: m86mcMqLJGtsv7OQCLcSzPsxLEkVQDEsCNnJ02gLy8Lkh3bJHmOGQ9DUGyR7tACy+++N8uuBZETBK9jjcROxhlM8r0CeEvBzFbGm5lHmx+Crq5Fn3NphTDVdoPJDEgtxgFpC6ZZZaBZQ0gGDLvSyF8hkkufKJXiC5I85IIvrQDVZOnXKcDU1fUnic2xwaZlbLZGOPd1LIELYb9cG37SXW9dTxV8+9wPQLs8geRCeqhkvr2Qzqva+DXp0kTKGrpKW58ZrunLvIogIx50+4nBZOQjcz2U7IgWX1lF1OKZRTCHbBOnKMRZeexx1VS6WGLat67k9LW2p50k7rRJ/Nz1msIn4qJOpchgys4MtnC01uUG0Lpxxo1h0Y2L1nW2uvzSA55hb1Ax/5jNKP7mjAArmrjvSooYfwkSTj4rQJvWsM+NErBGTrNWgAMydItmhLN8WYyUBiTSmd6DBv0WtUAhwTMxK9ZzETrFEi8y6cTqSNY09Qi9mgrJcRnKTlhqRrtJXwwefs5wii+rwFppb3+qhlo3duYanc721RSF7kKdOvOM/K84uIIUm+SwZJjXIK4tUjBHzWKSMUX8YqhgZCMRaRqVqYqo2AR7aOJXz69SD3QyBI7+DGoR4k2QxYcWEx/iUtW/6qePRKra0rb6iH7kCcy5mycd5gjGBdk197oDKNhU=
+

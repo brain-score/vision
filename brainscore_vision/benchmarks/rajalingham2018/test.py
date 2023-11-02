@@ -1,15 +1,15 @@
-import numpy as np
 from pathlib import Path
 
+import numpy as np
 import pytest
 from pytest import approx
 
 from brainio.assemblies import BehavioralAssembly
-from brainscore_vision.benchmarks.rajalingham2018 import DicarloRajalingham2018I2n
-from brainscore_vision.model_interface import BrainModel
-from brainscore_vision import benchmark_registry, load_benchmark
+from brainscore_vision import load_benchmark
 from brainscore_vision.benchmark_helpers import PrecomputedFeatures
 from brainscore_vision.benchmark_helpers.test_helper import TestVisualDegrees, TestNumberOfTrials, TestBenchmarkRegistry
+from brainscore_vision.benchmarks.rajalingham2018 import DicarloRajalingham2018I2n
+from brainscore_vision.model_interface import BrainModel
 
 visual_degrees = TestVisualDegrees()
 number_trials = TestNumberOfTrials()
@@ -29,7 +29,7 @@ class TestRajalingham2018:
     def test_ceiling(self):
         benchmark = DicarloRajalingham2018I2n()
         ceiling = benchmark.ceiling
-        assert ceiling.sel(aggregation='center') == approx(.479, abs=.0064)
+        assert ceiling == approx(.479, abs=.0064)
 
     @pytest.mark.parametrize(['model', 'expected_score'],
                              [
@@ -40,11 +40,13 @@ class TestRajalingham2018:
     def test_precomputed(self, model, expected_score):
         benchmark = DicarloRajalingham2018I2n()
         probabilities = Path(__file__).parent.parent / 'test_metrics' / f'{model}-probabilities.nc'
-        probabilities = BehavioralAssembly.from_files(probabilities, stimulus_set_identifier=benchmark._assembly.stimulus_set.identifier, stimulus_set=benchmark._assembly.stimulus_set)
+        probabilities = BehavioralAssembly.from_files(probabilities,
+                                                      stimulus_set_identifier=benchmark._assembly.stimulus_set.identifier,
+                                                      stimulus_set=benchmark._assembly.stimulus_set)
         candidate = PrecomputedProbabilities(probabilities)
         score = benchmark(candidate)
-        assert score.raw.sel(aggregation='center') == approx(expected_score, abs=.005)
-        assert score.sel(aggregation='center') == approx(expected_score / np.sqrt(.479), abs=.005)
+        assert score.raw == approx(expected_score, abs=.005)
+        assert score == approx(expected_score / np.sqrt(.479), abs=.005)
 
 
 class PrecomputedProbabilities(BrainModel):
@@ -79,7 +81,7 @@ def test_Rajalingham2018public():
                                                )
     # score
     score = benchmark(precomputed_features).raw
-    assert score.sel(aggregation='center') == approx(.136923, abs=.005)
+    assert score == approx(.136923, abs=.005)
 
 
 @pytest.mark.parametrize('benchmark, candidate_degrees, image_id, expected', [

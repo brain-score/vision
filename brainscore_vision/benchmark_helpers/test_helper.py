@@ -20,12 +20,12 @@ class TestStandardized:
     def ceilings_test(self, benchmark: str, expected: float):
         benchmark = load_benchmark(benchmark)
         ceiling = benchmark.ceiling
-        assert ceiling.sel(aggregation='center') == expected
+        assert ceiling == expected
 
     def self_regression_test(self, benchmark: str, visual_degrees: int, expected: float):
         benchmark = load_benchmark(benchmark)
         score = benchmark(PrecomputedFeatures(benchmark._assembly, visual_degrees=visual_degrees)).raw
-        assert score.sel(aggregation='center') == expected
+        assert score == expected
         raw_values = score.attrs['raw']
         assert hasattr(raw_values, 'neuroid')
         assert hasattr(raw_values, 'split')
@@ -34,7 +34,7 @@ class TestStandardized:
     def self_rdm_test(self, benchmark: str, visual_degrees: int, expected: float):
         benchmark = load_benchmark(benchmark)
         score = benchmark(PrecomputedFeatures(benchmark._assembly, visual_degrees=visual_degrees)).raw
-        assert score.sel(aggregation='center') == expected
+        assert score == expected
         raw_values = score.attrs['raw']
         assert hasattr(raw_values, 'split')
         assert len(raw_values['split']) == 10
@@ -63,7 +63,7 @@ class TestPrecomputed:
                                                    )
         # score
         score = benchmark(precomputed_features).raw
-        assert score.sel(aggregation='center') == expected
+        assert score == expected
 
     def run_test_properties(self, benchmark: str, files: dict, expected: float):
         benchmark = load_benchmark(benchmark)
@@ -93,7 +93,7 @@ class TestPrecomputed:
         precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
         # score
         score = benchmark(precomputed_features).raw
-        assert score.sel(aggregation='center') == expected
+        assert score == expected
 
 
 class TestVisualDegrees:

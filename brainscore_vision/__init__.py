@@ -1,12 +1,14 @@
 import logging
 from typing import Dict, Any, Union, Callable
 
+
 from brainio.assemblies import DataAssembly
 from brainio.stimuli import StimulusSet
 from brainscore_core.benchmarks import Benchmark
 from brainscore_core.metrics import Metric, Score
 from brainscore_core.plugin_management.conda_score import wrap_score
 from brainscore_core.plugin_management.import_plugin import import_plugin
+from brainscore_vision.metrics import Ceiling
 from brainscore_vision.model_interface import BrainModel
 
 _logger = logging.getLogger(__name__)
@@ -44,6 +46,14 @@ def load_metric(identifier: str, *args, **kwargs) -> Metric:
     import_plugin('brainscore_vision', 'metrics', identifier)
 
     return metric_registry[identifier](*args, **kwargs)
+
+
+def load_ceiling(identifier: str, *args, **kwargs) -> Ceiling:
+    """
+    Convenience method to load ceilings with the correct type -- internally uses :meth:`~brainscore_vision.load_metric`,
+    i.e. the ceiling has to be registered as a metric.
+    """
+    return load_metric(identifier, *args, **kwargs)
 
 
 def load_benchmark(identifier: str) -> Benchmark:

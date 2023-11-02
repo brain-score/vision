@@ -29,4 +29,4 @@ class TestImagenet2012:
 
         candidate = GroundTruth()
         score = benchmark(candidate)
-        assert score.sel(aggregation='center') == approx(1)
+        assert score == approx(1)

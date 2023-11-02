@@ -1,12 +1,13 @@
 import numpy as np
-
-import brainscore_vision
-from brainio.assemblies import DataAssembly
-from brainscore_vision.benchmark_helpers._properties_common import PropertiesBenchmark, _assert_texture_activations
-from brainscore_vision.benchmark_helpers._properties_common import calc_texture_modulation, calc_sparseness, calc_variance_ratio
-from brainscore_vision.metrics.ceiling import NeuronalPropertyCeiling
-from brainscore_vision.metrics.distribution_similarity import BootstrapDistributionSimilarity, ks_similarity
 from result_caching import store
+
+from brainio.assemblies import DataAssembly
+from brainscore_vision import load_dataset, load_metric
+from brainscore_vision.benchmark_helpers.properties_common import PropertiesBenchmark, _assert_texture_activations
+from brainscore_vision.benchmark_helpers.properties_common import calc_texture_modulation, calc_sparseness, \
+    calc_variance_ratio
+from brainscore_vision.data.freemanziemba2013 import BIBTEX
+from brainscore_vision.metrics.distribution_similarity import NeuronalPropertyCeiling
 
 ASSEMBLY_NAME = 'movshon.FreemanZiemba2013_V1_properties'
 REGION = 'V1'
@@ -19,28 +20,12 @@ PROPERTY_NAMES = ['texture_modulation_index', 'absolute_texture_modulation_index
                   'noise_selectivity', 'texture_sparseness', 'noise_sparseness', 'variance_ratio', 'sample_variance',
                   'family_variance', 'max_texture', 'max_noise']
 
-BIBTEX = """@article{Freeman2013,
-            author = {Freeman, Jeremy and Ziemba, Corey M. and Heeger, David J. and Simoncelli, E. P. and Movshon, J. A.},
-            doi = {10.1038/nn.3402},
-            issn = {10976256},
-            journal = {Nature Neuroscience},
-            number = {7},
-            pages = {974--981},
-            pmid = {23685719},
-            publisher = {Nature Publishing Group},
-            title = {{A functional and perceptual signature of the second visual area in primates}},
-            url = {http://dx.doi.org/10.1038/nn.3402},
-            volume = {16},
-            year = {2013}
-            }
-            """
-
 RESPONSE_THRESHOLD = 5
 
 
 def _MarquesFreemanZiemba2013V1Property(property_name, parent):
-    assembly = brainscore_vision.load_dataset(ASSEMBLY_NAME)
-    similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_similarity, property_name=property_name)
+    assembly = load_dataset(ASSEMBLY_NAME)
+    similarity_metric = load_metric('ks_similarity', property_name=property_name)
     ceil_func = NeuronalPropertyCeiling(similarity_metric)
     return PropertiesBenchmark(identifier=f'dicarlo.Marques_freemanziemba2013-{property_name}', assembly=assembly,
                                neuronal_property=freemanziemba2013_properties, similarity_metric=similarity_metric,

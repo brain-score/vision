@@ -1,13 +1,14 @@
-import pytest
-import numpy as np
-from pytest import approx
 from pathlib import Path
 
-from brainscore_vision.benchmark_helpers.test_helper import TestBenchmarkRegistry
+import numpy as np
+import pytest
+from pytest import approx
+
 from brainio.assemblies import BehavioralAssembly
 from brainscore_vision import benchmark_registry, load_benchmark
-from brainscore_vision.benchmarks.geirhos2021.benchmark import DATASETS, cast_coordinate_type
 from brainscore_vision.benchmark_helpers import PrecomputedFeatures
+from brainscore_vision.benchmark_helpers.test_helper import TestBenchmarkRegistry
+from brainscore_vision.benchmarks.geirhos2021.benchmark import DATASETS, cast_coordinate_type
 
 registry_test = TestBenchmarkRegistry()
 
@@ -64,7 +65,7 @@ class TestBehavioral:
     def test_mean_ceiling(self):
         benchmarks = [f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency" for dataset in DATASETS]
         benchmarks = [benchmark_registry[benchmark] for benchmark in benchmarks]
-        ceilings = [benchmark.ceiling.sel(aggregation='center') for benchmark in benchmarks]
+        ceilings = [benchmark.ceiling.item() for benchmark in benchmarks]
         mean_ceiling = np.mean(ceilings)
         assert mean_ceiling == approx(0.43122, abs=0.001)
 
@@ -91,7 +92,7 @@ class TestBehavioral:
         benchmark = f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency"
         benchmark = load_benchmark(benchmark)
         ceiling = benchmark.ceiling
-        assert ceiling.sel(aggregation='center').values.item() == expected_ceiling
+        assert ceiling == expected_ceiling
 
     @pytest.mark.parametrize('dataset, model, expected_raw_score', [
         ('colour', 'resnet-50-pytorch', approx(0.21135, abs=0.001)),
@@ -127,8 +128,8 @@ class TestBehavioral:
         score = benchmark(precomputed_features)
         raw_score = score.raw
         # division by ceiling <= 1 should result in higher score
-        assert score.sel(aggregation='center') >= raw_score.sel(aggregation='center')
-        assert raw_score.sel(aggregation='center') == expected_raw_score
+        assert score >= raw_score
+        assert raw_score == expected_raw_score
 
     @pytest.mark.parametrize('model, expected_raw_score', [
         ('resnet-50-pytorch-3deg', approx(0.20834, abs=0.001)),
@@ -145,7 +146,7 @@ class TestBehavioral:
             precomputed_features = cast_coordinate_type(precomputed_features, 'condition', newtype=str)
             precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
             score = benchmark(precomputed_features).raw
-            scores.append(score.sel(aggregation='center'))
+            scores.append(score.item())
         mean_score = np.mean(scores)
         assert mean_score == expected_raw_score
 
@@ -178,4 +179,4 @@ class TestEngineering:
         precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=None)
         # score
         score = benchmark(precomputed_features)
-        assert score.sel(aggregation='center') == expected_accuracy
+        assert score == expected_accuracy

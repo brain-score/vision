@@ -135,14 +135,14 @@ def run_submission(module, test_models, test_benchmarks, submission_entry):
                         logger.info(f'Running benchmark {benchmark_name} on model {model_id} (id {model_entry.id}) '
                                     f'produced this score: {score}')
                         if not hasattr(score, 'ceiling'):  # many engineering benchmarks do not have a primate ceiling
-                            raw = score.sel(aggregation='center').item(0)
+                            raw = score.item()
                             ceiled = None
                             error = None
                         else:  # score has a ceiling. Store ceiled as well as raw value
-                            assert score.raw.sel(aggregation='center') is not None
-                            raw = score.raw.sel(aggregation='center').item(0)
-                            ceiled = score.sel(aggregation='center').item(0)
-                            error = score.sel(aggregation='error').item(0)
+                            assert score.raw is not None
+                            ceiled = score.item()
+                            raw = score.raw.item()
+                            error = score.attrs['error'].item() if 'error' in score.attrs else None
                         finished = datetime.datetime.now()
                         comment = f"layers: {model.layer_model.region_layer_map}" \
                             if submission_entry.model_type == 'BaseModel' else ''
@@ -231,8 +231,8 @@ def get_benchmark_instance(benchmark_name):
     if created:
         # the version has changed and the benchmark instance was not yet in the database
         ceiling = benchmark.ceiling
-        bench_inst.ceiling = ceiling.sel(aggregation='center')
-        bench_inst.ceiling_error = ceiling.sel(aggregation='error')
+        bench_inst.ceiling = ceiling
+        bench_inst.ceiling_error = ceiling.attrs['error'] if 'error' in ceiling.attrs else None
         bench_inst.save()
     return bench_inst
 

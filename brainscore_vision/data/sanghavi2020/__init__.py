@@ -1,20 +1,35 @@
 from brainio.assemblies import NeuronRecordingAssembly
-
-from brainscore_vision.metrics.ceiling import InternalConsistency
-from brainscore_vision.metrics.transformations import CrossValidation
-from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set
+from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set, load_ceiling
 from brainscore_vision.data_helpers.s3 import load_stimulus_set_from_s3, load_assembly_from_s3
+from brainscore_vision.metric_helpers.transformations import CrossValidation
 
-
-BIBTEX = """  @misc{Sanghavi_Murty_DiCarlo_2021,
+BIBTEX_SANGHAVI = """  @misc{Sanghavi2020,
+  title={SanghaviMurty2020},
+  url={osf.io/CHWDK},
+  DOI={10.17605/OSF.IO/CHWDK},
+  publisher={OSF},
+  author={Sanghavi, Sachi and DiCarlo, James J},
+  year={2020},
+  month={Nov}
+}"""  # 'HvM' images from (Majaj et al., 2015)
+BIBTEX_SANGHAVIMURTY = """  @misc{SanghaviMurty2020,
   title={SanghaviMurty2020},
   url={osf.io/fchme},
   DOI={10.17605/OSF.IO/FCHME},
   publisher={OSF},
   author={Sanghavi, Sachi and Murty, N A R and DiCarlo, James J},
-  year={2021},
+  year={2020},
   month={Nov}
-}"""
+}"""  # BOLD5000 images
+BIBTEX_SANGHAVIJOZWIK = """  @misc{SanghaviJozwik2020,
+  title={SanghaviJozwik2020},
+  url={osf.io/FHY36},
+  DOI={10.17605/OSF.IO/FHY36},
+  publisher={OSF},
+  author={Sanghavi, Sachi and Jozwik, K M and DiCarlo, James J},
+  year={2020},
+  month={Nov}
+}"""  # images from (Rust & DiCarlo, 2012)
 
 # assemblies: dicarlo.Sanghavi2020 uses dicarlo.hvm
 data_registry['dicarlo.Sanghavi2020'] = lambda: load_assembly_from_s3(
@@ -66,7 +81,6 @@ data_registry['dicarlo.SanghaviMurty2020THINGS2'] = lambda: load_assembly_from_s
     stimulus_set_loader=lambda: load_stimulus_set('dicarlo.THINGS2'),
 )
 
-
 # stimulus set: dicarlo.BOLD5000 - can put in sanghavi
 stimulus_set_registry['dicarlo.BOLD5000'] = lambda: load_stimulus_set_from_s3(
     identifier="dicarlo.BOLD5000",
@@ -96,11 +110,10 @@ stimulus_set_registry['dicarlo.THINGS2'] = lambda: load_stimulus_set_from_s3(
 
 
 def filter_neuroids(assembly, threshold):
-    ceiler = InternalConsistency()
+    ceiler = load_ceiling('internal_consistency')
     ceiling = ceiler(assembly)
     ceiling = ceiling.raw
     ceiling = CrossValidation().aggregate(ceiling)
-    ceiling = ceiling.sel(aggregation='center')
     pass_threshold = ceiling >= threshold
     assembly = assembly[{'neuroid': pass_threshold}]
     return assembly

@@ -1,12 +1,11 @@
 import numpy as np
-
-import brainscore_vision
-from brainio.assemblies import DataAssembly
-from brainscore_vision.benchmark_helpers._properties_common import PropertiesBenchmark, _assert_grating_activations
-from brainscore_vision.benchmark_helpers._properties_common import calc_spatial_frequency_tuning
-from brainscore_vision.metrics.ceiling import NeuronalPropertyCeiling
-from brainscore_vision.metrics.distribution_similarity import BootstrapDistributionSimilarity, ks_similarity
 from result_caching import store
+
+from brainio.assemblies import DataAssembly
+from brainscore_vision import load_metric, load_dataset
+from brainscore_vision.benchmark_helpers.properties_common import PropertiesBenchmark, _assert_grating_activations
+from brainscore_vision.benchmark_helpers.properties_common import calc_spatial_frequency_tuning
+from brainscore_vision.metrics.distribution_similarity import NeuronalPropertyCeiling
 
 ASSEMBLY_NAME = 'schiller.Schiller1976c'
 REGION = 'V1'
@@ -34,8 +33,8 @@ RESPONSE_THRESHOLD = 5
 
 
 def _MarquesSchiller1976V1Property(property_name):
-    assembly = brainscore_vision.load_dataset(ASSEMBLY_NAME)
-    similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_similarity, property_name=property_name)
+    assembly = load_dataset(ASSEMBLY_NAME)
+    similarity_metric = load_metric('ks_similarity', property_name=property_name)
     ceil_func = NeuronalPropertyCeiling(similarity_metric)
     parent = PARENT
     return PropertiesBenchmark(identifier=f'dicarlo.Marques_schiller1976-{property_name}', assembly=assembly,

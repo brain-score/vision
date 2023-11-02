@@ -5,6 +5,7 @@ from brainio.assemblies import BehavioralAssembly
 from brainscore_vision.benchmarks.objectnet import Objectnet
 from brainscore_vision.model_interface import BrainModel
 
+
 @pytest.mark.private_access
 class TestObjectnet:
     def test_groundtruth(self):
@@ -29,4 +30,4 @@ class TestObjectnet:
 
         candidate = GroundTruth()
         score = benchmark(candidate)
-        assert score.sel(aggregation='center') == pytest.approx(1)
+        assert score == pytest.approx(1)

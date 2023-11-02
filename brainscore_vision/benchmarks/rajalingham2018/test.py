@@ -29,7 +29,7 @@ class TestRajalingham2018:
     def test_ceiling(self):
         benchmark = DicarloRajalingham2018I2n()
         ceiling = benchmark.ceiling
-        assert ceiling.sel(aggregation='center') == approx(.479, abs=.0064)
+        assert ceiling == approx(.479, abs=.0064)
 
     @pytest.mark.parametrize(['model', 'expected_score'],
                              [
@@ -45,8 +45,8 @@ class TestRajalingham2018:
                                                       stimulus_set=benchmark._assembly.stimulus_set)
         candidate = PrecomputedProbabilities(probabilities)
         score = benchmark(candidate)
-        assert score.raw.sel(aggregation='center') == approx(expected_score, abs=.005)
-        assert score.sel(aggregation='center') == approx(expected_score / np.sqrt(.479), abs=.005)
+        assert score.raw == approx(expected_score, abs=.005)
+        assert score == approx(expected_score / np.sqrt(.479), abs=.005)
 
 
 class PrecomputedProbabilities(BrainModel):
@@ -84,7 +84,7 @@ def test_Rajalingham2018public():
                                                )
     # score
     score = benchmark(precomputed_features).raw
-    assert score.sel(aggregation='center') == approx(.136923, abs=.005)
+    assert score == approx(.136923, abs=.005)
 
 
 @pytest.mark.parametrize('benchmark, candidate_degrees, image_id, expected', [

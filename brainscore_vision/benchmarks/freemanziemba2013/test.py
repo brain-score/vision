@@ -58,7 +58,7 @@ def test_self_regression(benchmark, visual_degrees, expected):
 def test_self_rdm(benchmark, visual_degrees, expected):
     benchmark = load_benchmark(benchmark)
     score = benchmark(PrecomputedFeatures(benchmark._assembly, visual_degrees=visual_degrees)).raw
-    assert score.sel(aggregation='center') == expected
+    assert score == expected
     raw_values = score.attrs['raw']
     assert hasattr(raw_values, 'split')
     assert len(raw_values['split']) == 10
@@ -74,7 +74,8 @@ def test_FreemanZiemba2013(benchmark, expected):
     filepath = Path(__file__).parent / filename
     s3.download_file_if_not_exists(local_path=filepath,
                                    bucket='brainio-brainscore', remote_filepath=f'tests/test_benchmarks/{filename}')
-    precomputed_test.run_test(benchmark=benchmark, precomputed_features_filepath=filename, expected=expected)
+    precomputed_test.run_test(benchmark=benchmark, precomputed_features_filepath=filename,
+                              expected=expected)
 
 
 @pytest.mark.parametrize('benchmark, candidate_degrees, image_id, expected', [
@@ -122,4 +123,4 @@ def test_self(benchmark_ctr, visual_degrees, expected):
     source = benchmark._assembly.copy()
     source = {benchmark._assembly.stimulus_set.identifier: source}
     score = benchmark(PrecomputedFeatures(source, visual_degrees=visual_degrees)).raw
-    assert score.sel(aggregation='center') == expected
+    assert score == expected

@@ -1,12 +1,11 @@
 import numpy as np
-
-import brainscore_vision
-from brainio.assemblies import DataAssembly
-from brainscore_vision.benchmark_helpers._properties_common import PropertiesBenchmark, _assert_grating_activations
-from brainscore_vision.benchmark_helpers._properties_common import calc_size_tuning
-from brainscore_vision.metrics.ceiling import NeuronalPropertyCeiling
-from brainscore_vision.metrics.distribution_similarity import BootstrapDistributionSimilarity, ks_similarity
 from result_caching import store
+
+from brainio.assemblies import DataAssembly
+from brainscore_vision import load_dataset, load_metric
+from brainscore_vision.benchmark_helpers.properties_common import PropertiesBenchmark, _assert_grating_activations, \
+    calc_size_tuning
+from brainscore_vision.metrics.distribution_similarity import NeuronalPropertyCeiling
 
 ASSEMBLY_NAME = 'movshon.Cavanaugh2002a'
 REGION = 'V1'
@@ -38,8 +37,8 @@ RESPONSE_THRESHOLD = 5
 
 
 def _MarquesCavanaugh2002V1Property(property_name, parent):
-    assembly = brainscore_vision.load_dataset(ASSEMBLY_NAME)
-    similarity_metric = BootstrapDistributionSimilarity(similarity_func=ks_similarity, property_name=property_name)
+    assembly = load_dataset(ASSEMBLY_NAME)
+    similarity_metric = load_metric('ks_similarity', property_name=property_name)
     ceil_func = NeuronalPropertyCeiling(similarity_metric)
     return PropertiesBenchmark(identifier=f'dicarlo.Marques_cavanaugh2002-{property_name}', assembly=assembly,
                                neuronal_property=cavanaugh2002_properties, similarity_metric=similarity_metric,
@@ -103,7 +102,7 @@ def cavanaugh2002_properties(model_identifier, responses, baseline):
         size_curve = responses[neur, :, pref_spatial_frequency, pref_orientation, pref_component]
 
         grating_summation_field[neur], surround_diameter[neur], surround_grating_summation_field_ratio[neur], \
-        surround_suppression_index[neur] = calc_size_tuning(size_curve, radius)
+            surround_suppression_index[neur] = calc_size_tuning(size_curve, radius)
 
     strongly_suppressed[surround_suppression_index >= 0.1] = 1
 

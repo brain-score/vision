@@ -11,7 +11,6 @@ from brainscore_vision.benchmark_helpers import PrecomputedFeatures
 from brainscore_vision.benchmark_helpers.test_helper import TestVisualDegrees, TestNumberOfTrials
 from brainscore_vision.benchmarks.kar2019 import DicarloKar2019OST
 from brainscore_vision.data_helpers import s3
-
 visual_degrees = TestVisualDegrees()
 number_trials = TestNumberOfTrials()
 
@@ -32,7 +31,7 @@ def test_Kar2019ost_cornet_s():
     precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
     # score
     score = benchmark(precomputed_features).raw
-    assert score.sel(aggregation='center') == approx(.316, abs=.005)
+    assert score == approx(.316, abs=.005)
 
 
 @pytest.mark.parametrize('benchmark, candidate_degrees, image_id, expected', [
@@ -70,9 +69,9 @@ def test_no_time():
     }, dims=['presentation', 'neuroid', 'time_bin'])
     source.name = __name__ + ".test_notime"
     score = benchmark(PrecomputedFeatures(source, visual_degrees=8))
-    assert np.isnan(score.sel(aggregation='center'))  # not a temporal model
-    assert np.isnan(score.raw.sel(aggregation='center'))  # not a temporal model
-    assert score.attrs['ceiling'].sel(aggregation='center') == approx(.79)
+    assert np.isnan(score)  # not a temporal model
+    assert np.isnan(score.raw)  # not a temporal model
+    assert score.attrs['ceiling'] == approx(.79)
 
 
 @pytest.mark.memory_intense
@@ -92,6 +91,4 @@ def test_random_time():
     }, dims=['presentation', 'neuroid', 'time_bin'])
     source.name = __name__ + ".test_notime"
     score = benchmark(PrecomputedFeatures(source, visual_degrees=8))
-    assert np.isnan(score.sel(aggregation='center'))  # not a temporal model
-    assert np.isnan(score.raw.sel(aggregation='center'))  # not a temporal model
-    assert score.attrs['ceiling'].sel(aggregation='center') == approx(.79)
+    assert np.isnan(score)  # not a good temporal model

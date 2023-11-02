@@ -1,8 +1,7 @@
-import numpy as np
+from brainscore_core import Score
 
-import brainscore_vision
-from brainscore_vision.benchmarks import BenchmarkBase, Score
-from brainscore_vision.metrics.accuracy import Accuracy
+from brainscore_vision import load_stimulus_set, load_metric
+from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.model_interface import BrainModel
 
 BIBTEX = """@article{hermann2020origins,
@@ -20,13 +19,13 @@ class _Hermann2020Match(BenchmarkBase):
     def __init__(self, metric_identifier, stimulus_column):
         assert metric_identifier in ["shape_match", "texture_match"]
         assert stimulus_column in ["original_image_category", "conflict_image_category"]
-        self._stimulus_set = brainscore_vision.load_stimulus_set("brendel.Geirhos2021_cue-conflict")
-        self._metric = Accuracy()
+        self._stimulus_set = load_stimulus_set("brendel.Geirhos2021_cue-conflict")
+        self._metric = load_metric('accuracy')
         self._number_of_trials = 1
         self._stimulus_column = stimulus_column
         super(_Hermann2020Match, self).__init__(
             identifier=f'kornblith.Hermann2020-{metric_identifier}', version=1,
-            ceiling_func=lambda: Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation']),
+            ceiling_func=lambda: Score(1),
             parent='kornblith.Hermann2020',
             bibtex=BIBTEX)
 
@@ -50,7 +49,7 @@ class Hermann2020cueconflictShapeBias(BenchmarkBase):
         self.texture_benchmark = _Hermann2020Match("texture_match", "conflict_image_category")
         super(Hermann2020cueconflictShapeBias, self).__init__(
             identifier=f'brendel.Hermann2020-shape_bias', version=1,
-            ceiling_func=lambda: Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation']),
+            ceiling_func=lambda: Score(1),
             parent='brendel.Hermann2020',
             bibtex=BIBTEX)
 

@@ -1,9 +1,10 @@
 import numpy as np
 import os
 
+import brainscore_vision.metric_helpers
 from brainio.assemblies import NeuroidAssembly
 from brainio.stimuli import StimulusSet
-from brainscore_vision.benchmark_helpers._neural_common import average_repetition, timebins_from_assembly
+from brainscore_vision.benchmark_helpers.neural_common import average_repetition, timebins_from_assembly
 from brainscore_vision.benchmarks import BenchmarkBase, ceil_score
 from brainscore_vision.metrics.ceiling import InternalConsistency
 from brainscore_vision.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation
@@ -26,7 +27,6 @@ def check_brain_model_processing(model):
     benchmark = _MockBenchmark()
     score = benchmark(model, do_behavior=True)
     assert score is not None
-    assert score.sel(aggregation='center')
 
 
 def check_base_models(module):
@@ -56,7 +56,6 @@ def check_processing(model_identifier, module):
                                   layers=layers, region_layer_map=region_layer_map)
     score = benchmark(brain_model, do_behavior=True)
     assert score is not None
-    assert score.sel(aggregation='center')
 
 
 class _MockBenchmark(BenchmarkBase):
@@ -71,8 +70,8 @@ class _MockBenchmark(BenchmarkBase):
 
         self._similarity_metric = CrossRegressedCorrelation(
             regression=pls_regression(), correlation=pearsonr_correlation(),
-            crossvalidation_kwargs=dict(stratification_coord=Split.Defaults.stratification_coord
-            if hasattr(self.assembly, Split.Defaults.stratification_coord) else None))
+            crossvalidation_kwargs=dict(stratification_coord=brainscore_vision.metric_helpers.Defaults.stratification_coord
+            if hasattr(self.assembly, brainscore_vision.metric_helpers.Defaults.stratification_coord) else None))
         identifier = f'{assembly_repetition.name}-layer_selection'
         ceiler = InternalConsistency()
         super(_MockBenchmark, self).__init__(identifier=identifier,

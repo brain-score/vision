@@ -2,6 +2,11 @@ import numpy as np
 import pytest
 
 from brainscore_vision import load_stimulus_set, load_dataset
+from brainscore_vision.benchmarks.geirhos2021.benchmark import DATASETS
+
+
+def test_count():
+    assert len(DATASETS) == 12 + 5
 
 
 @pytest.mark.parametrize('assembly_identifier', [
@@ -27,8 +32,7 @@ def test_existence(assembly_identifier):
     assert load_dataset(assembly_identifier) is not None
 
 
-class TestGeirhos2021:
-
+class TestAssemblies:
     # test stimulus_set data alignment with assembly:
     @pytest.mark.parametrize('identifier', [
         'colour',
@@ -207,7 +211,7 @@ class TestGeirhos2021:
 
 # testing stimulus sets
 @pytest.mark.slow
-class TestGeirhos2021:
+class TestStimulusSets:
     # test stimulus_set data:
     @pytest.mark.parametrize('identifier', [
         'colour',

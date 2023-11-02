@@ -1,19 +1,18 @@
-import os
 import logging
+import os
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import xarray as xr
 
-import brainscore_vision
+from brainio.fetch import StimulusSetLoader
+from brainio.stimuli import StimulusSet
+from brainscore_core import Score
+from brainscore_vision import load_stimulus_set, load_metric
 from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.benchmarks.imagenet.benchmark import NUMBER_OF_TRIALS
-from brainscore_vision.metrics import Score
-from brainscore_vision.metrics.accuracy import Accuracy
 from brainscore_vision.model_interface import BrainModel
-from brainio.stimuli import StimulusSet
-from brainio.fetch import StimulusSetLoader
 
 _logger = logging.getLogger(__name__)
 LOCAL_STIMULUS_DIRECTORY = '/braintree/data2/active/common/imagenet-c-brainscore-stimuli/'
@@ -77,13 +76,13 @@ class Imagenet_C_Category(BenchmarkBase):
     def __init__(self, noise_category, sampling_factor=10):
         self.noise_category = noise_category
         self.stimulus_set_name = f'dietterich.Hendrycks2019.{noise_category}'
-        
+
         self.sampling_factor = sampling_factor
         self.stimulus_set = self.load_stimulus_set()
         self.noise_types = self.noise_category_map[noise_category]
 
-        ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
-        super(Imagenet_C_Category, self).__init__(identifier=f'dietterich.Hendrycks2019-{noise_category}-top1', 
+        ceiling = Score(1)
+        super(Imagenet_C_Category, self).__init__(identifier=f'dietterich.Hendrycks2019-{noise_category}-top1',
                                                   version=2,
                                                   ceiling_func=lambda: ceiling,
                                                   parent='dietterich.Hendrycks2019-top1',
@@ -98,21 +97,21 @@ class Imagenet_C_Category(BenchmarkBase):
         try:
             _logger.debug(f'Loading local Imagenet-C {self.noise_category}')
             category_path = os.path.join(
-                LOCAL_STIMULUS_DIRECTORY, 
+                LOCAL_STIMULUS_DIRECTORY,
                 f'image_dietterich_Hendrycks2019_{self.noise_category}'
             )
             loader = SampledStimulusSetLoader(
                 cls=StimulusSet,
-                csv_path=os.path.join(category_path, f'image_dietterich_Hendrycks2019_{self.noise_category}.csv'), 
-                stimuli_directory=category_path, 
+                csv_path=os.path.join(category_path, f'image_dietterich_Hendrycks2019_{self.noise_category}.csv'),
+                stimuli_directory=category_path,
                 sampling_factor=self.sampling_factor
             )
 
             return loader.load()
-        
+
         except OSError as error:
             _logger.debug(f'Excepted {error}. Attempting to access {self.stimulus_set_name} through Brainscore.')
-            return brainscore_vision.load_stimulus_set(self.stimulus_set_name)
+            return load_stimulus_set(self.stimulus_set_name)
 
     def __call__(self, candidate):
         scores = xr.concat([
@@ -122,7 +121,8 @@ class Imagenet_C_Category(BenchmarkBase):
         assert len(set(scores['noise_type'].values)) == len(self.noise_types)
         center = np.mean(scores)
         error = np.std(scores)
-        score = Score([center, error], coords={'aggregation': ['center', 'error']}, dims=('aggregation',))
+        score = Score(center)
+        score.attrs['error'] = error
         score.attrs[Score.RAW_VALUES_KEY] = scores
         return score
 
@@ -135,7 +135,7 @@ class Imagenet_C_Type(BenchmarkBase):
         self.stimulus_set = stimulus_set[stimulus_set['noise_type'] == noise_type]
         self.noise_type = noise_type
         self.noise_category = noise_category
-        ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
+        ceiling = Score(1)
         super(Imagenet_C_Type, self).__init__(identifier=f'dietterich.Hendrycks2019-{noise_category}-{noise_type}-top1',
                                               version=2,
                                               ceiling_func=lambda: ceiling,
@@ -160,8 +160,8 @@ class Imagenet_C_Individual(BenchmarkBase):
         self.noise_level = noise_level
         self.noise_type = noise_type
         self.benchmark_name = f'dietterich.Hendrycks2019-{noise_category}-{noise_type}-{noise_level}-top1'
-        self._similarity_metric = Accuracy()
-        ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
+        self._similarity_metric = load_metric('accuracy')
+        ceiling = Score(1)
         super(Imagenet_C_Individual, self).__init__(identifier=self.benchmark_name, version=2,
                                                     ceiling_func=lambda: ceiling,
                                                     parent=f'dietterich.Hendrycks2019-{noise_category}-{noise_type}-top1',

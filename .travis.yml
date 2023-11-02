@@ -24,11 +24,9 @@ before_install:
 install:
 - pip install -e ".[test]"
 - pip list # list installed package versions
-before_script:
-  - git fetch --depth=50 origin $TRAVIS_BRANCH
 script:
   # if ONLY plugin files changed, ONLY run tests for those plugins; otherwise, run full test suite
-  - CHANGED_FILES=$( echo $(git diff --name-only $TRAVIS_BRANCH $TRAVIS_PULL_REQUEST_SHA -C $TRAVIS_BUILD_DIR) | tr '\n' ' ' )
+  - CHANGED_FILES=$( git fetch --depth=50 origin $TRAVIS_BRANCH && echo $(git diff --name-only $TRAVIS_BRANCH $TRAVIS_PULL_REQUEST_SHA -C $TRAVIS_BUILD_DIR) | tr '\n' ' ' )
   - |
     if [ "$TRAVIS_PULL_REQUEST" ]; then 
       TESTING_NEEDED=$( python -c "from brainscore_core.plugin_management.parse_plugin_changes import get_testing_info; get_testing_info(\"${CHANGED_FILES}\", 'brainscore_language')" ) && 

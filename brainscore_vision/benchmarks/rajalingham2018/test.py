@@ -1,15 +1,19 @@
+import os
 from pathlib import Path
 
 import numpy as np
 import pytest
+import xarray as xr
 from pytest import approx
 
 from brainio.assemblies import BehavioralAssembly
-from brainscore_vision import benchmark_registry, load_benchmark
+from brainscore_vision import benchmark_registry, load_benchmark, load_metric
 from brainscore_vision.benchmark_helpers import PrecomputedFeatures
 from brainscore_vision.benchmark_helpers.test_helper import TestVisualDegrees, TestNumberOfTrials
 from brainscore_vision.benchmarks.rajalingham2018 import DicarloRajalingham2018I2n
+from brainscore_vision.benchmarks.rajalingham2018.benchmarks.benchmark import _DicarloRajalingham2018
 from brainscore_vision.data_helpers import s3
+from brainscore_vision.model_helpers.brain_transformation import ProbabilitiesMapping
 from brainscore_vision.model_interface import BrainModel
 
 visual_degrees = TestVisualDegrees()
@@ -107,3 +111,52 @@ def test_amount_gray(benchmark, candidate_degrees, image_id, expected, brainio_h
 @pytest.mark.parametrize('benchmark_identifier', ['dicarlo.Rajalingham2018-i2n'])
 def test_repetitions(benchmark_identifier):
     number_trials.repetitions_test(benchmark_identifier)
+
+
+@pytest.mark.private_access
+class TestMetricScore:
+    @pytest.mark.parametrize(['model', 'expected_score'],
+                             [
+                                 ('alexnet', .253),
+                                 ('resnet34', .37787),
+                                 ('resnet18', .3638),
+                             ])
+    def test_model(self, model, expected_score):
+        class UnceiledBenchmark(_DicarloRajalingham2018):
+            def __init__(self):
+                metric = load_metric('i2n')
+                super(UnceiledBenchmark, self).__init__(metric=metric, metric_identifier='i2n')
+
+            def __call__(self, candidate: BrainModel):
+                candidate.start_task(BrainModel.Task.probabilities, self._fitting_stimuli)
+                probabilities = candidate.look_at(self._assembly.stimulus_set)
+                score = self._metric(probabilities, self._assembly)
+                return score
+
+        benchmark = UnceiledBenchmark()
+        # features
+        feature_responses = xr.load_dataarray(Path(__file__).parent / 'test_resources' /
+                                              f'identifier={model},stimuli_identifier=objectome-240.nc')
+        feature_responses['stimulus_id'] = 'stimulus_path', [os.path.splitext(os.path.basename(path))[0]
+                                                             for path in feature_responses['stimulus_path'].values]
+        feature_responses = feature_responses.stack(presentation=['stimulus_path'])
+        assert len(np.unique(feature_responses['layer'])) == 1  # only penultimate layer
+
+        class PrecomputedFeatures:
+            def __init__(self, precomputed_features):
+                self.features = precomputed_features
+
+            def __call__(self, stimuli, layers):
+                np.testing.assert_array_equal(layers, ['behavioral-layer'])
+                self_stimulus_ids = self.features['stimulus_id'].values.tolist()
+                indices = [self_stimulus_ids.index(stimulus_id) for stimulus_id in stimuli['stimulus_id'].values]
+                features = self.features[{'presentation': indices}]
+                return features
+
+        # evaluate candidate
+        transformation = ProbabilitiesMapping(identifier=f'TestI2N.{model}',
+                                              activations_model=PrecomputedFeatures(feature_responses),
+                                              layer='behavioral-layer')
+        score = benchmark(transformation)
+        score = score.sel(aggregation='center')
+        assert score == approx(expected_score, abs=0.005), f"expected {expected_score}, but got {score}"

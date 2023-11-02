@@ -1,8 +1,9 @@
 import functools
-import numpy as np
 import os
-import pytest
 from pathlib import Path
+
+import numpy as np
+import pytest
 
 from brainio.stimuli import StimulusSet
 from brainscore_vision.model_helpers.activations import PytorchWrapper
@@ -35,6 +36,7 @@ def pytorch_custom():
     return PytorchWrapper(model=MyModel(), preprocessing=preprocessing)
 
 
+@pytest.mark.memory_intense
 class TestLayerSelection:
     @pytest.mark.parametrize(['model_ctr', 'layers', 'expected_layer', 'region'],
                              [(pytorch_custom, ['linear', 'relu2'], 'relu2', 'IT')])

@@ -4,7 +4,6 @@ env:
     - PYTEST_SETTINGS="not requires_gpu and not memory_intense and not slow and not travis_slow"
     - MODIFIES_PLUGIN="False"
     - PLUGIN_ONLY="False"
-    - WEB_SUBMISSION="False"
 matrix:
   include:
   - name: 3.7 public
@@ -26,10 +25,10 @@ install:
 - pip install -e ".[test]"
 - pip list # list installed package versions
 before_script:
-  - git fetch --depth=50 origin refs/heads/main:refs/heads/main
+  - git fetch --depth=50 origin $TRAVIS_BRANCH
 script:
   # if ONLY plugin files changed, ONLY run tests for those plugins; otherwise, run full test suite
-  - CHANGED_FILES=$( echo $(git diff --name-only main $TRAVIS_PULL_REQUEST_SHA -C $TRAVIS_BUILD_DIR) | tr '\n' ' ' )
+  - CHANGED_FILES=$( echo $(git diff --name-only $TRAVIS_BRANCH $TRAVIS_PULL_REQUEST_SHA -C $TRAVIS_BUILD_DIR) | tr '\n' ' ' )
   - |
     if [ "$TRAVIS_PULL_REQUEST" ]; then 
       TESTING_NEEDED=$( python -c "from brainscore_core.plugin_management.parse_plugin_changes import get_testing_info; get_testing_info(\"${CHANGED_FILES}\", 'brainscore_language')" ) && 

@@ -325,7 +325,8 @@ class Threshold(Metric):
         """
         raw_scores = []
         for target_value in target:
-            raw_score = max((1 - ((np.abs(target_value - source)) / (target_value + source))), 0)
+            # This score = 0 when the source exceeds target_value by 100%
+            raw_score = max((1 - ((np.abs(target_value - source)) / target_value)), 0)
             raw_scores.append(raw_score)
 
         raw_score, model_error = np.mean(raw_scores), np.std(raw_scores)
@@ -343,7 +344,8 @@ class Threshold(Metric):
             target_mean = np.mean(target.values)
         else:
             target_mean = np.mean(target)
-        raw_score = max((1 - ((np.abs(target_mean - source)) / (target_mean + source))), 0)
+        # This score = 0 when the source exceeds target_mean by 100%
+        raw_score = max((1 - ((np.abs(target_mean - source)) / target_mean)), 0)
         raw_score = Score([raw_score], coords={'aggregation': ['center']}, dims=['aggregation'])
         return raw_score
 

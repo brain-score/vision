@@ -21,7 +21,7 @@ class TestBehavioral:
         assert identifier in benchmark_pool
 
     def test_mean_ceiling(self):
-        benchmarks = [f"Malania2007_{dataset.replace('-', '')}" for dataset in DATASETS]
+        benchmarks = [f"Malania2007_{dataset}" for dataset in DATASETS]
         benchmarks = [benchmark_pool[benchmark] for benchmark in benchmarks]
         ceilings = [benchmark.ceiling.sel(aggregation='center') for benchmark in benchmarks]
         mean_ceiling = np.mean(ceilings)
@@ -40,7 +40,7 @@ class TestBehavioral:
         ('long-16', approx(0.71010202, abs=0.001))
     ])
     def test_dataset_ceiling(self, dataset, expected_ceiling):
-        benchmark = f"Malania2007_{dataset.replace('-', '')}"
+        benchmark = f"Malania2007_{dataset}"
         benchmark = benchmark_pool[benchmark]
         ceiling = benchmark.ceiling
         assert ceiling.sel(aggregation='center').values.item() == expected_ceiling

@@ -78,4 +78,4 @@ if __name__ == '__main__':
         # upload to S3
         #package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
         #                     stimulus_set_identifier=f"Malania2007_{dataset}",
-        #                     assembly_class_name="BehavioralAssembly", bucket_name="brainio-brainscore")
+        #                     assembly_class_name="PropertyAssembly", bucket_name="brainio-brainscore")

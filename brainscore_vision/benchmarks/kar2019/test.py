@@ -35,6 +35,7 @@ def test_Kar2019ost_cornet_s():
     assert score == approx(.316, abs=.005)
 
 
+@pytest.mark.private_access
 @pytest.mark.parametrize('benchmark, candidate_degrees, image_id, expected', [
     pytest.param('dicarlo.Kar2019-ost', 14, '6d19b24c29832dfb28360e7731e3261c13a4287f',
                  approx(.225021, abs=.0001), marks=[pytest.mark.private_access]),

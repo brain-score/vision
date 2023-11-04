@@ -155,6 +155,7 @@ class TestBehavioral:
 
 
 class TestEngineering:
+    @pytest.mark.private_access
     @pytest.mark.parametrize('dataset, model, expected_accuracy', [
         ('colour', 'resnet-50-pytorch', approx(0.96875, abs=0.001)),
         ('contrast', 'resnet-50-pytorch', approx(0.81625, abs=0.001)),

@@ -1,18 +1,15 @@
 import pytest
 from pytest import approx
-from brainscore_vision.benchmark_helpers.test_helper import TestStandardized, TestVisualDegrees
+from brainscore_vision.benchmark_helpers.test_helper import StandardizedTests, VisualDegreesTests
 
-# should these be in function definitions
-standardized_tests = TestStandardized()
-visual_degrees_test = TestVisualDegrees()
+standardized_tests = StandardizedTests()
+visual_degrees_test = VisualDegreesTests()
 
 
-@pytest.mark.parametrize('benchmark, visual_degrees, expected', [
-    pytest.param('tolias.Cadena2017-pls', 2, approx(.577474, abs=.005),
-                 marks=pytest.mark.private_access),
-])
-def test_self_regression(benchmark, visual_degrees, expected):
-    standardized_tests.self_regression_test(benchmark, visual_degrees, expected)
+@pytest.mark.private_access
+def test_self_regression():
+    standardized_tests.self_regression_test(
+        benchmark='tolias.Cadena2017-pls', visual_degrees=2, expected=approx(.577474, abs=.005))
 
 
 @pytest.mark.parametrize('benchmark, candidate_degrees, image_id, expected', [
@@ -21,7 +18,5 @@ def test_self_regression(benchmark, visual_degrees, expected):
     pytest.param('tolias.Cadena2017-pls', 6, '0fe27ddd5b9ea701e380063dc09b91234eba3551', approx(.29641, abs=.0001),
                  marks=[pytest.mark.private_access]),
 ])
-def test_amount_gray(benchmark, candidate_degrees, image_id, expected, brainio_home, resultcaching_home,
-                     brainscore_home):
-    visual_degrees_test.amount_gray_test(benchmark, candidate_degrees, image_id, expected, brainio_home,
-                                         resultcaching_home, brainscore_home)
+def test_amount_gray(benchmark: str, candidate_degrees: int, image_id: str, expected: float):
+    visual_degrees_test.amount_gray_test(benchmark, candidate_degrees, image_id, expected)

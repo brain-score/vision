@@ -5,16 +5,16 @@ from pytest import approx
 
 from brainscore_vision import benchmark_registry
 from brainscore_vision.benchmark_helpers import PrecomputedFeatures
-from brainscore_vision.benchmark_helpers.test_helper import TestStandardized, TestPrecomputed, TestNumberOfTrials, \
-    TestVisualDegrees
+from brainscore_vision.benchmark_helpers.test_helper import StandardizedTests, PrecomputedTests, NumberOfTrialsTests, \
+    VisualDegreesTests
 from brainscore_vision.benchmarks.majajhong2015.benchmark import MajajHongV4PublicBenchmark, MajajHongITPublicBenchmark
 from brainscore_vision.data_helpers import s3
 
 # should these be in function definitions
-standardized_tests = TestStandardized()
-precomputed_test = TestPrecomputed()
-num_trials_test = TestNumberOfTrials()
-visual_degrees = TestVisualDegrees()
+standardized_tests = StandardizedTests()
+precomputed_test = PrecomputedTests()
+num_trials_test = NumberOfTrialsTests()
+visual_degrees = VisualDegreesTests()
 
 
 @pytest.mark.parametrize('benchmark', [
@@ -89,10 +89,8 @@ def test_MajajHong2015(benchmark, expected):
     pytest.param('dicarlo.MajajHong2015public.IT-pls', 6, '8a72e2bfdb8c267b57232bf96f069374d5b21832',
                  approx(.00460, abs=.0001), marks=[]),
 ])
-def test_amount_gray(benchmark, candidate_degrees, image_id, expected, brainio_home, resultcaching_home,
-                     brainscore_home):
-    visual_degrees.amount_gray_test(benchmark, candidate_degrees, image_id, expected, brainio_home,
-                                    resultcaching_home, brainscore_home)
+def test_amount_gray(benchmark: str, candidate_degrees: int, image_id: str, expected: float):
+    visual_degrees.amount_gray_test(benchmark, candidate_degrees, image_id, expected)
 
 
 @pytest.mark.private_access

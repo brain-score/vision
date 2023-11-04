@@ -3,11 +3,11 @@ from pathlib import Path
 import pytest
 from pytest import approx
 
-from brainscore_vision.benchmark_helpers.test_helper import TestStandardized, TestPrecomputed
+from brainscore_vision.benchmark_helpers.test_helper import StandardizedTests, PrecomputedTests
 from brainscore_vision.data_helpers import s3
 
-standardized_tests = TestStandardized()
-precomputed_test = TestPrecomputed()
+standardized_tests = StandardizedTests()
+precomputed_test = PrecomputedTests()
 
 
 @pytest.mark.parametrize('benchmark, expected', [

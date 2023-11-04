@@ -10,7 +10,7 @@ from brainscore_vision.model_interface import BrainModel
 from . import PrecomputedFeatures
 
 
-class TestStandardized:
+class StandardizedTests:
     def ceilings_test(self, benchmark: str, expected: float):
         benchmark = load_benchmark(benchmark)
         ceiling = benchmark.ceiling
@@ -34,7 +34,7 @@ class TestStandardized:
         assert len(raw_values['split']) == 10
 
 
-class TestPrecomputed:
+class PrecomputedTests:
     def run_test(self, benchmark: str, precomputed_features_filepath: str, expected: float):
         benchmark = load_benchmark(benchmark)
         precomputed_features = NeuroidAssembly.from_files(
@@ -88,9 +88,8 @@ class TestPrecomputed:
         assert score == expected
 
 
-class TestVisualDegrees:
-    def amount_gray_test(self, benchmark: str, candidate_degrees: int, image_id: str, expected: float,
-                         brainio_home: Path, resultcaching_home: Path, brainscore_home: Path):
+class VisualDegreesTests:
+    def amount_gray_test(self, benchmark: str, candidate_degrees: int, image_id: str, expected: float):
         benchmark = load_benchmark(benchmark)
 
         class DummyCandidate(BrainModel):
@@ -126,7 +125,7 @@ class TestVisualDegrees:
             pass
 
 
-class TestNumberOfTrials:
+class NumberOfTrialsTests:
     def repetitions_test(self, benchmark_identifier: str):
         """ Tests that benchmarks have repetitions in the stimulus_set """
         benchmark = load_benchmark(benchmark_identifier)

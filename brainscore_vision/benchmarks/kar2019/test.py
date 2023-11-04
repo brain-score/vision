@@ -8,11 +8,12 @@ from pytest import approx
 from brainio.assemblies import NeuroidAssembly, DataAssembly
 from brainscore_vision import load_benchmark
 from brainscore_vision.benchmark_helpers import PrecomputedFeatures
-from brainscore_vision.benchmark_helpers.test_helper import TestVisualDegrees, TestNumberOfTrials
+from brainscore_vision.benchmark_helpers.test_helper import VisualDegreesTests, NumberOfTrialsTests
 from brainscore_vision.benchmarks.kar2019 import DicarloKar2019OST
 from brainscore_vision.data_helpers import s3
-visual_degrees = TestVisualDegrees()
-number_trials = TestNumberOfTrials()
+
+visual_degrees = VisualDegreesTests()
+number_trials = NumberOfTrialsTests()
 
 
 @pytest.mark.memory_intense
@@ -40,10 +41,8 @@ def test_Kar2019ost_cornet_s():
     pytest.param('dicarlo.Kar2019-ost', 6, '6d19b24c29832dfb28360e7731e3261c13a4287f',
                  approx(.001248, abs=.0001), marks=[pytest.mark.private_access]),
 ])
-def test_amount_gray(benchmark, candidate_degrees, image_id, expected, brainio_home, resultcaching_home,
-                     brainscore_home):
-    visual_degrees.amount_gray_test(benchmark, candidate_degrees, image_id, expected, brainio_home,
-                                    resultcaching_home, brainscore_home)
+def test_amount_gray(benchmark: str, candidate_degrees: int, image_id: str, expected: float):
+    visual_degrees.amount_gray_test(benchmark, candidate_degrees, image_id, expected)
 
 
 @pytest.mark.private_access

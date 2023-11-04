@@ -9,15 +9,15 @@ from pytest import approx
 from brainio.assemblies import BehavioralAssembly
 from brainscore_vision import benchmark_registry, load_benchmark, load_metric
 from brainscore_vision.benchmark_helpers import PrecomputedFeatures
-from brainscore_vision.benchmark_helpers.test_helper import TestVisualDegrees, TestNumberOfTrials
+from brainscore_vision.benchmark_helpers.test_helper import VisualDegreesTests, NumberOfTrialsTests
 from brainscore_vision.benchmarks.rajalingham2018 import DicarloRajalingham2018I2n
 from brainscore_vision.benchmarks.rajalingham2018.benchmarks.benchmark import _DicarloRajalingham2018
 from brainscore_vision.data_helpers import s3
 from brainscore_vision.model_helpers.brain_transformation import ProbabilitiesMapping
 from brainscore_vision.model_interface import BrainModel
 
-visual_degrees = TestVisualDegrees()
-number_trials = TestNumberOfTrials()
+visual_degrees = VisualDegreesTests()
+number_trials = NumberOfTrialsTests()
 
 
 @pytest.mark.parametrize('benchmark', [
@@ -101,10 +101,8 @@ def test_Rajalingham2018public():
     pytest.param('dicarlo.Rajalingham2018public-i2n', 6, '0020cef91bd626e9fbbabd853494ee444e5c9ecb',
                  approx(.00097, abs=.0001), marks=[]),
 ])
-def test_amount_gray(benchmark, candidate_degrees, image_id, expected, brainio_home, resultcaching_home,
-                     brainscore_home):
-    visual_degrees.amount_gray_test(benchmark, candidate_degrees, image_id, expected, brainio_home,
-                                    resultcaching_home, brainscore_home)
+def test_amount_gray(benchmark: str, candidate_degrees: int, image_id: str, expected: float):
+    visual_degrees.amount_gray_test(benchmark, candidate_degrees, image_id, expected)
 
 
 @pytest.mark.private_access

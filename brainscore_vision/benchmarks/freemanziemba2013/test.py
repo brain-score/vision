@@ -5,16 +5,16 @@ from pytest import approx
 
 from brainscore_vision import benchmark_registry, load_benchmark
 from brainscore_vision.benchmark_helpers import PrecomputedFeatures
-from brainscore_vision.benchmark_helpers.test_helper import TestStandardized, TestPrecomputed, TestNumberOfTrials, \
-    TestVisualDegrees
+from brainscore_vision.benchmark_helpers.test_helper import StandardizedTests, PrecomputedTests, NumberOfTrialsTests, \
+    VisualDegreesTests
 from brainscore_vision.data_helpers import s3
 from .benchmarks.public_benchmarks import FreemanZiembaV1PublicBenchmark, FreemanZiembaV2PublicBenchmark
 
 # should these be in function definitions
-standardized_tests = TestStandardized()
-precomputed_test = TestPrecomputed()
-num_trials_test = TestNumberOfTrials()
-visual_degrees_test = TestVisualDegrees()
+standardized_tests = StandardizedTests()
+precomputed_test = PrecomputedTests()
+num_trials_test = NumberOfTrialsTests()
+visual_degrees_test = VisualDegreesTests()
 
 
 @pytest.mark.parametrize('benchmark', [
@@ -96,10 +96,8 @@ def test_FreemanZiemba2013(benchmark, expected):
     pytest.param('movshon.FreemanZiemba2013public.V2-pls', 6, '21041db1f26c142812a66277c2957fb3e2070916',
                  approx(.23113, abs=.0001), marks=[]),
 ])
-def test_amount_gray(benchmark, candidate_degrees, image_id, expected, brainio_home, resultcaching_home,
-                     brainscore_home):
-    visual_degrees_test.amount_gray_test(benchmark, candidate_degrees, image_id, expected, brainio_home,
-                                         resultcaching_home, brainscore_home)
+def test_amount_gray(benchmark: str, candidate_degrees: int, image_id: str, expected: float):
+    visual_degrees_test.amount_gray_test(benchmark, candidate_degrees, image_id, expected)
 
 
 @pytest.mark.private_access

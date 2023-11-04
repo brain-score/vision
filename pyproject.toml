@@ -32,6 +32,7 @@ dependencies = [
 [project.optional-dependencies]
 test = [
     "pytest",
+    "pytest_check",
     "torch",
     "torchvision",
     "tensorflow==1.15",

@@ -10,7 +10,6 @@ from brainscore_vision.benchmark_helpers.test_helper import StandardizedTests, P
 from brainscore_vision.data_helpers import s3
 from .benchmarks.public_benchmarks import FreemanZiembaV1PublicBenchmark, FreemanZiembaV2PublicBenchmark
 
-# should these be in function definitions
 standardized_tests = StandardizedTests()
 precomputed_test = PrecomputedTests()
 num_trials_test = NumberOfTrialsTests()

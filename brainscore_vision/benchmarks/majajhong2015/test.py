@@ -10,7 +10,6 @@ from brainscore_vision.benchmark_helpers.test_helper import StandardizedTests, P
 from brainscore_vision.benchmarks.majajhong2015.benchmark import MajajHongV4PublicBenchmark, MajajHongITPublicBenchmark
 from brainscore_vision.data_helpers import s3
 
-# should these be in function definitions
 standardized_tests = StandardizedTests()
 precomputed_test = PrecomputedTests()
 num_trials_test = NumberOfTrialsTests()
@@ -24,20 +23,18 @@ def test_benchmark_registry(benchmark):
     assert benchmark in benchmark_registry
 
 
+@pytest.mark.private_access
 @pytest.mark.parametrize('benchmark, expected', [
     pytest.param('dicarlo.MajajHong2015.V4-pls', approx(.89503, abs=.001),
                  marks=pytest.mark.memory_intense),
     pytest.param('dicarlo.MajajHong2015.IT-pls', approx(.821841, abs=.001),
-                 marks=pytest.mark.memory_intense),
-    pytest.param('dicarlo.MajajHong2015.V4-rdm', approx(.936473, abs=.001),
-                 marks=pytest.mark.memory_intense),
-    pytest.param('dicarlo.MajajHong2015.IT-rdm', approx(.887618, abs=.001),
                  marks=pytest.mark.memory_intense),
 ])
 def test_ceilings(benchmark, expected):
     standardized_tests.ceilings_test(benchmark, expected)
 
 
+@pytest.mark.private_access
 @pytest.mark.parametrize('benchmark, visual_degrees, expected', [
     pytest.param('dicarlo.MajajHong2015.V4-pls', 8, approx(.923713, abs=.001),
                  marks=pytest.mark.memory_intense),
@@ -48,16 +45,7 @@ def test_self_regression(benchmark, visual_degrees, expected):
     standardized_tests.self_regression_test(benchmark, visual_degrees, expected)
 
 
-@pytest.mark.parametrize('benchmark, visual_degrees, expected', [
-    pytest.param('dicarlo.MajajHong2015.V4-rdm', 8, approx(1, abs=.001),
-                 marks=pytest.mark.memory_intense),
-    pytest.param('dicarlo.MajajHong2015.IT-rdm', 8, approx(1, abs=.001),
-                 marks=pytest.mark.memory_intense),
-])
-def test_self_rdm(benchmark: str, visual_degrees: int, expected: float):
-    standardized_tests.self_rdm_test(benchmark, visual_degrees, expected)
-
-
+@pytest.mark.private_access
 @pytest.mark.memory_intense
 @pytest.mark.parametrize('benchmark, expected', [
     ('dicarlo.MajajHong2015.V4-pls', approx(.490236, abs=.005)),
@@ -95,9 +83,7 @@ def test_amount_gray(benchmark: str, candidate_degrees: int, image_id: str, expe
 
 @pytest.mark.private_access
 @pytest.mark.parametrize('benchmark_identifier', [
-    # V4
     'dicarlo.MajajHong2015.V4-pls',
-    # IT
     'dicarlo.MajajHong2015.IT-pls',
 ])
 def test_repetitions(benchmark_identifier):

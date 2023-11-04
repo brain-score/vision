@@ -4,7 +4,6 @@ from pytest import approx
 from brainscore_vision import benchmark_registry
 from brainscore_vision.benchmark_helpers.test_helper import StandardizedTests, PrecomputedTests, NumberOfTrialsTests
 
-# should these be in function definitions
 standardized_tests = StandardizedTests()
 precomputed_test = PrecomputedTests()
 num_trials_test = NumberOfTrialsTests()

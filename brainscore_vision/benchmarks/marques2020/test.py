@@ -37,36 +37,36 @@ def test_benchmark_registry(benchmark):
     assert benchmark in benchmark_registry
 
 
+@pytest.mark.private_access
 @pytest.mark.parametrize('benchmark, expected', [
-    pytest.param('dicarlo.Marques2020_Cavanaugh2002-grating_summation_field', approx(0.956, abs=.005), marks=[]),
-    pytest.param('dicarlo.Marques2020_Cavanaugh2002-surround_diameter', approx(0.955, abs=.005), marks=[]),
-    pytest.param('dicarlo.Marques2020_Cavanaugh2002-surround_suppression_index', approx(0.958, abs=.005), marks=[]),
-    pytest.param('dicarlo.Marques2020_DeValois1982-pref_or', approx(0.962, abs=.005), marks=[]),
-    pytest.param('dicarlo.Marques2020_DeValois1982-peak_sf', approx(0.967, abs=.005), marks=[]),
-    pytest.param('dicarlo.Marques2020_FreemanZiemba2013-texture_modulation_index', approx(0.948, abs=.005),
-                 marks=[]),
-    pytest.param('dicarlo.Marques2020_FreemanZiemba2013-abs_texture_modulation_index', approx(0.958, abs=.005),
-                 marks=[]),
-    pytest.param('dicarlo.Marques2020_FreemanZiemba2013-texture_selectivity', approx(0.940, abs=.005), marks=[]),
-    pytest.param('dicarlo.Marques2020_FreemanZiemba2013-texture_sparseness', approx(0.935, abs=.005), marks=[]),
-    pytest.param('dicarlo.Marques2020_FreemanZiemba2013-texture_variance_ratio', approx(0.939, abs=.005), marks=[]),
-    pytest.param('dicarlo.Marques2020_FreemanZiemba2013-max_texture', approx(0.946, abs=.005), marks=[]),
-    pytest.param('dicarlo.Marques2020_FreemanZiemba2013-max_noise', approx(0.945, abs=.005), marks=[]),
-    pytest.param('dicarlo.Marques2020_Ringach2002-circular_variance', approx(0.959, abs=.005), marks=[]),
-    pytest.param('dicarlo.Marques2020_Ringach2002-or_bandwidth', approx(0.964, abs=.005), marks=[]),
-    pytest.param('dicarlo.Marques2020_Ringach2002-orth_pref_ratio', approx(0.962, abs=.005), marks=[]),
-    pytest.param('dicarlo.Marques2020_Ringach2002-or_selective', approx(0.994, abs=.005), marks=[]),
-    pytest.param('dicarlo.Marques2020_Ringach2002-cv_bandwidth_ratio', approx(0.968, abs=.005), marks=[]),
-    pytest.param('dicarlo.Marques2020_Ringach2002-opr_cv_diff', approx(0.967, abs=.005), marks=[]),
-    pytest.param('dicarlo.Marques2020_Ringach2002-modulation_ratio', approx(0.959, abs=.005), marks=[]),
-    pytest.param('dicarlo.Marques2020_Ringach2002-max_dc', approx(0.968, abs=.005), marks=[]),
-    pytest.param('dicarlo.Marques2020_Schiller1976-sf_selective', approx(0.963, abs=.005), marks=[]),
-    pytest.param('dicarlo.Marques2020_Schiller1976-sf_bandwidth', approx(0.933, abs=.005), marks=[]),
+    ('dicarlo.Marques2020_Cavanaugh2002-grating_summation_field', approx(0.956, abs=.005)),
+    ('dicarlo.Marques2020_Cavanaugh2002-surround_diameter', approx(0.955, abs=.005)),
+    ('dicarlo.Marques2020_Cavanaugh2002-surround_suppression_index', approx(0.958, abs=.005)),
+    ('dicarlo.Marques2020_DeValois1982-pref_or', approx(0.962, abs=.005)),
+    ('dicarlo.Marques2020_DeValois1982-peak_sf', approx(0.967, abs=.005)),
+    ('dicarlo.Marques2020_FreemanZiemba2013-texture_modulation_index', approx(0.948, abs=.005)),
+    ('dicarlo.Marques2020_FreemanZiemba2013-abs_texture_modulation_index', approx(0.958, abs=.005)),
+    ('dicarlo.Marques2020_FreemanZiemba2013-texture_selectivity', approx(0.940, abs=.005)),
+    ('dicarlo.Marques2020_FreemanZiemba2013-texture_sparseness', approx(0.935, abs=.005)),
+    ('dicarlo.Marques2020_FreemanZiemba2013-texture_variance_ratio', approx(0.939, abs=.005)),
+    ('dicarlo.Marques2020_FreemanZiemba2013-max_texture', approx(0.946, abs=.005)),
+    ('dicarlo.Marques2020_FreemanZiemba2013-max_noise', approx(0.945, abs=.005)),
+    ('dicarlo.Marques2020_Ringach2002-circular_variance', approx(0.959, abs=.005)),
+    ('dicarlo.Marques2020_Ringach2002-or_bandwidth', approx(0.964, abs=.005)),
+    ('dicarlo.Marques2020_Ringach2002-orth_pref_ratio', approx(0.962, abs=.005)),
+    ('dicarlo.Marques2020_Ringach2002-or_selective', approx(0.994, abs=.005)),
+    ('dicarlo.Marques2020_Ringach2002-cv_bandwidth_ratio', approx(0.968, abs=.005)),
+    ('dicarlo.Marques2020_Ringach2002-opr_cv_diff', approx(0.967, abs=.005)),
+    ('dicarlo.Marques2020_Ringach2002-modulation_ratio', approx(0.959, abs=.005)),
+    ('dicarlo.Marques2020_Ringach2002-max_dc', approx(0.968, abs=.005)),
+    ('dicarlo.Marques2020_Schiller1976-sf_selective', approx(0.963, abs=.005)),
+    ('dicarlo.Marques2020_Schiller1976-sf_bandwidth', approx(0.933, abs=.005)),
 ])
 def test_ceilings(benchmark, expected):
     standardized_tests.ceilings_test(benchmark, expected)
 
 
+@pytest.mark.private_access
 @pytest.mark.memory_intense
 @pytest.mark.slow
 @pytest.mark.parametrize('benchmark, expected', [

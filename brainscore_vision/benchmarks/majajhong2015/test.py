@@ -35,11 +35,10 @@ def test_ceilings(benchmark, expected):
 
 
 @pytest.mark.private_access
+@pytest.mark.memory_intense
 @pytest.mark.parametrize('benchmark, visual_degrees, expected', [
-    pytest.param('dicarlo.MajajHong2015.V4-pls', 8, approx(.923713, abs=.001),
-                 marks=pytest.mark.memory_intense),
-    pytest.param('dicarlo.MajajHong2015.IT-pls', 8, approx(.823433, abs=.001),
-                 marks=pytest.mark.memory_intense),
+    ('dicarlo.MajajHong2015.V4-pls', 8, approx(.923713, abs=.001)),
+    ('dicarlo.MajajHong2015.IT-pls', 8, approx(.823433, abs=.001)),
 ])
 def test_self_regression(benchmark, visual_degrees, expected):
     standardized_tests.self_regression_test(benchmark, visual_degrees, expected)

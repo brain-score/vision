@@ -62,7 +62,7 @@ class TestBehavioral:
 
     def test_mean_ceiling(self):
         benchmarks = [f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency" for dataset in DATASETS]
-        benchmarks = [benchmark_registry[benchmark] for benchmark in benchmarks]
+        benchmarks = [load_benchmark(benchmark) for benchmark in benchmarks]
         ceilings = [benchmark.ceiling.item() for benchmark in benchmarks]
         mean_ceiling = np.mean(ceilings)
         assert mean_ceiling == approx(0.43122, abs=0.001)
@@ -122,9 +122,7 @@ class TestBehavioral:
         # these features were packaged with condition as int/float. Current xarray versions have trouble when
         # selecting for a float coordinate however, so we had to change the type to string.
         precomputed_features = cast_coordinate_type(precomputed_features, 'condition', newtype=str)
-        precomputed_features = PrecomputedFeatures(precomputed_features,
-                                                   visual_degrees=8,  # doesn't matter, features are already computed
-                                                   )
+        precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
         # score
         score = benchmark(precomputed_features)
         raw_score = score.raw

@@ -24,43 +24,36 @@ def test_benchmark_registry(benchmark):
     assert benchmark in benchmark_registry
 
 
+@pytest.mark.memory_intense
+@pytest.mark.private_access
 @pytest.mark.parametrize('benchmark, expected', [
-    pytest.param('dicarlo.Sanghavi2020.V4-pls', approx(.8892049, abs=.001),
-                 marks=pytest.mark.memory_intense),
-    pytest.param('dicarlo.Sanghavi2020.IT-pls', approx(.868293, abs=.001),
-                 marks=pytest.mark.memory_intense),
-    pytest.param('dicarlo.SanghaviJozwik2020.V4-pls', approx(.9630336, abs=.001),
-                 marks=pytest.mark.memory_intense),
-    pytest.param('dicarlo.SanghaviJozwik2020.IT-pls', approx(.860352, abs=.001),
-                 marks=pytest.mark.memory_intense),
-    pytest.param('dicarlo.SanghaviMurty2020.V4-pls', approx(.9666086, abs=.001),
-                 marks=pytest.mark.memory_intense),
-    pytest.param('dicarlo.SanghaviMurty2020.IT-pls', approx(.875714, abs=.001),
-                 marks=pytest.mark.memory_intense),
+    ('dicarlo.Sanghavi2020.V4-pls', approx(.8892049, abs=.001)),
+    ('dicarlo.Sanghavi2020.IT-pls', approx(.868293, abs=.001)),
+    ('dicarlo.SanghaviJozwik2020.V4-pls', approx(.9630336, abs=.001)),
+    ('dicarlo.SanghaviJozwik2020.IT-pls', approx(.860352, abs=.001)),
+    ('dicarlo.SanghaviMurty2020.V4-pls', approx(.9666086, abs=.001)),
+    ('dicarlo.SanghaviMurty2020.IT-pls', approx(.875714, abs=.001)),
 ])
 def test_ceilings(benchmark, expected):
     standardized_tests.ceilings_test(benchmark, expected)
 
 
+@pytest.mark.memory_intense
+@pytest.mark.private_access
 @pytest.mark.parametrize('benchmark, visual_degrees, expected', [
-    pytest.param('dicarlo.Sanghavi2020.V4-pls', 8, approx(.9727137, abs=.001),
-                 marks=pytest.mark.memory_intense),
-    pytest.param('dicarlo.Sanghavi2020.IT-pls', 8, approx(.890062, abs=.001),
-                 marks=pytest.mark.memory_intense),
-    pytest.param('dicarlo.SanghaviJozwik2020.V4-pls', 8, approx(.9739177, abs=.001),
-                 marks=pytest.mark.memory_intense),
-    pytest.param('dicarlo.SanghaviJozwik2020.IT-pls', 8, approx(.9999779, abs=.001),
-                 marks=pytest.mark.memory_intense),
-    pytest.param('dicarlo.SanghaviMurty2020.V4-pls', 5, approx(.978581, abs=.001),
-                 marks=pytest.mark.memory_intense),
-    pytest.param('dicarlo.SanghaviMurty2020.IT-pls', 5, approx(.9997532, abs=.001),
-                 marks=pytest.mark.memory_intense),
+    ('dicarlo.Sanghavi2020.V4-pls', 8, approx(.9727137, abs=.001)),
+    ('dicarlo.Sanghavi2020.IT-pls', 8, approx(.890062, abs=.001)),
+    ('dicarlo.SanghaviJozwik2020.V4-pls', 8, approx(.9739177, abs=.001)),
+    ('dicarlo.SanghaviJozwik2020.IT-pls', 8, approx(.9999779, abs=.001)),
+    ('dicarlo.SanghaviMurty2020.V4-pls', 5, approx(.978581, abs=.001)),
+    ('dicarlo.SanghaviMurty2020.IT-pls', 5, approx(.9997532, abs=.001)),
 ])
 def test_self_regression(benchmark, visual_degrees, expected):
     standardized_tests.self_regression_test(benchmark, visual_degrees, expected)
 
 
 @pytest.mark.memory_intense
+@pytest.mark.private_access
 @pytest.mark.slow
 @pytest.mark.parametrize('benchmark, filename, expected', [
     ('dicarlo.Sanghavi2020.V4-pls', 'alexnet-sanghavi2020-features.12.nc', approx(.551135, abs=.015)),

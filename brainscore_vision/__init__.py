@@ -76,6 +76,10 @@ def _run_score(model_identifier: str, benchmark_identifier: str) -> Score:
     score: Score = benchmark(model)
     score.attrs['model_identifier'] = model_identifier
     score.attrs['benchmark_identifier'] = benchmark_identifier
+    try:  # attempt to look up the layer commitment if model uses a standard layer model
+        score.attrs['comment'] = f"layers: {model.layer_model.region_layer_map}"
+    except Exception:
+        pass
     return score
 
 

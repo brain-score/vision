@@ -1,7 +1,6 @@
 import logging
 from typing import Dict, Any, Union, Callable
 
-
 from brainio.assemblies import DataAssembly
 from brainio.stimuli import StimulusSet
 from brainscore_core.benchmarks import Benchmark
@@ -80,7 +79,7 @@ def _run_score(model_identifier: str, benchmark_identifier: str) -> Score:
     return score
 
 
-def score(model_identifier: str, benchmark_identifier: str) -> Score:
+def score(model_identifier: str, benchmark_identifier: str, conda_active: bool = False) -> Score:
     """
     Score the model referenced by the `model_identifier` on the benchmark referenced by the `benchmark_identifier`.
     The model needs to implement the :class:`~brainscore.model_interface.BrainModel` interface
@@ -99,4 +98,4 @@ def score(model_identifier: str, benchmark_identifier: str) -> Score:
     """
     return wrap_score(__file__,
                       model_identifier=model_identifier, benchmark_identifier=benchmark_identifier,
-                      score_function=_run_score)
+                      score_function=_run_score, conda_active=conda_active)

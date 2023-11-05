@@ -204,11 +204,15 @@ def _evaluation_benchmark_pool():
     pool['dicarlo.SanghaviMurty2020.V4-pls'] = LazyLoad(DicarloSanghaviMurty2020V4PLS)
     pool['dicarlo.SanghaviMurty2020.IT-pls'] = LazyLoad(DicarloSanghaviMurty2020ITPLS)
     # NSD Bocini 2023
-    from .nsd_bocini2023_algonauts import NSD2023WholeBrain, NSD2023V1v, NSD2023V2v, NSD2023V4
-    pool['bocini-nsd-2023.whole_brain-algonauts-metric'] = LazyLoad(NSD2023WholeBrain)
-    pool['bocini-nsd-2023.V1-algonauts-metric'] = LazyLoad(NSD2023V1v)
-    pool['bocini-nsd-2023.V2-algonauts-metric'] = LazyLoad(NSD2023V2v)
-    pool['bocini-nsd-2023.V4-algonauts-metric'] = LazyLoad(NSD2023V4)
+    from .nsd_algonauts import NSD2022WholeBrain, NSD2022V1v, NSD2022V1d, NSD2022V2v, NSD2022V2d, NSD2022V3v, NSD2022V3d, NSD2022V4
+    pool['NSD2022.whole_brain-algonauts_linear'] = LazyLoad(NSD2022WholeBrain)
+    pool['NSD2022.V1v-algonauts_linear'] = LazyLoad(NSD2022V1v)
+    pool['NSD2022.V1d-algonauts_linear'] = LazyLoad(NSD2022V1d)
+    pool['NSD2022.V2v-algonauts_linear'] = LazyLoad(NSD2022V2v)
+    pool['NSD2022.V2d-algonauts_linear'] = LazyLoad(NSD2022V2d)
+    pool['NSD2022.V3v-algonauts_linear'] = LazyLoad(NSD2022V3v)
+    pool['NSD2022.V2d-algonauts_linear'] = LazyLoad(NSD2022V3d)
+    pool['NSD2022.V4-algonauts_linear'] = LazyLoad(NSD2022V4)
 
     # behavioral benchmarks
     # Rajalingham2018

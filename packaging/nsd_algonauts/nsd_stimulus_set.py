@@ -94,14 +94,14 @@ def collect_nsd_stimulus_set(root_directory, subject):
     # Remove the 'filename' column from the StimulusSet DataFrame
     stimuli.drop('filename', axis=1, inplace=True)
     
-    stimuli.name = f'bocini-nsd-2023_{subject}_stimulus_set'
+    stimuli.name = f'NSD2022_{subject}_stimulus_set'
    
     return stimuli
 
 
 if __name__ == '__main__':
 
-    root_directory = Path(r'./bocini2023_NSD_data')
+    root_directory = Path(r'./')
 
     for subject in SUBJECTS:
         stimuli = collect_nsd_stimulus_set(root_directory, subject)

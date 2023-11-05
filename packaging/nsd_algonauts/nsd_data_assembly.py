@@ -176,21 +176,21 @@ def collect_nsd_data_assembly(root_directory, subject):
     assembly['time_bin_end'] = 'time_bin', [6000]
     assembly = assembly.transpose('presentation', 'neuroid', 'time_bin')
 
-    assembly.name = f'bocini-nsd-2023_{subject}_assembly'
+    assembly.name = f'NSD2022_{subject}_assembly'
 
     return assembly
 
 
 if __name__ == '__main__':
 
-    root_directory = Path(r'./bocini2023_NSD_data')
+    root_directory = Path(r'./')
 
     for subject in tqdm(SUBJECTS, desc='Subjects'):
 
         assembly = collect_nsd_data_assembly(root_directory, subject)
 
-        # upload to S3
-        stimulus_set_identifier = f'bocini-nsd-2023_{subject}_stimulus_set'
+        # upload to S3 
+        stimulus_set_identifier = f'NSD2022_{subject}_stimulus_set'
         package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
                             stimulus_set_identifier=stimulus_set_identifier,
                             assembly_class_name="NeuronRecordingAssembly", bucket_name="brainio-brainscore")

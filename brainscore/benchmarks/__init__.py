@@ -216,7 +216,8 @@ def _evaluation_benchmark_pool():
         pool[f"brendel.{assembly_identifier}-error_consistency"] = LazyLoad(
             # use lambda parameter-binding to avoid `benchmark_ctr` being re-assigned in the next loop iteration
             lambda benchmark_ctr=benchmark_ctr: benchmark_ctr())
-
+    
+ 
     return pool
 
 
@@ -294,6 +295,10 @@ def _experimental_benchmark_pool():
     pool['Islam2021-texture_v4_dimensionality'] = LazyLoad(Islam2021Dimensionality_V4_Texture)
     pool['Islam2021-shape_it_dimensionality'] = LazyLoad(Islam2021Dimensionality_IT_Shape)
     pool['Islam2021-texture_it_dimensionality'] = LazyLoad(Islam2021Dimensionality_IT_Texture)
+
+    # Hebart23Accuracy
+    from . import Hebart2023Accuracy
+    pool['hebart23.Hebart2023Accuracy'] = LazyLoad(Hebart2023Accuracy)
 
     return pool
 

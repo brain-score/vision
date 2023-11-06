@@ -2,6 +2,7 @@ from pathlib import Path
 from brainio.stimuli import StimulusSet
 from brainio.packaging import package_stimulus_set
 import pandas as pd
+import numpy as np
 
 stimuli = []
 image_paths = {}
@@ -10,7 +11,7 @@ stimulus_path = '/Users/linussommer/Desktop/Brain-Score-Data/StimulusSet/'
 '''
 Dataset Information:
 
-- From Hebart 2019: https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0223792
+- From Hebart 2023: https://elifesciences.org/articles/82580v1
 
 - Images were taken from the THINGS object concept and image database.
 - The datasset consists of 1,854 diverse object concepts sampled systematically 
@@ -31,6 +32,7 @@ for index, row in df.iterrows():
         'stimulus_id': image_id,
         'number': index
     })
+
 
 stimuli = StimulusSet(stimuli)
 stimuli.name = 'Hebart2023'  

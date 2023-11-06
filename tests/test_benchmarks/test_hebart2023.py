@@ -13,7 +13,7 @@ sys.path.append(file_path)
 import hebart2023 
 
 bm = hebart2023.Hebart2023Accuracy('dot')
-assembly = bm.load_assembly()
+assembly = bm._assembly
 print(assembly.attrs['stimulus_set'])
 print(assembly)
 

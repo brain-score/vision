@@ -23,7 +23,7 @@ class Hebart2023Accuracy(BenchmarkBase):
         self._metric = 'None'
         self._visual_degrees = 6
         self._number_of_trials = 1
-        #self.ceiling = 0.6844 
+        self._assembly = brainscore.get_assembly(f'Hebart2023') 
 
         super(Hebart2023Accuracy, self).__init__(
             identifier=f'Hebart2023Accuracy_{similarity_measure}', version=1,
@@ -41,9 +41,4 @@ class Hebart2023Accuracy(BenchmarkBase):
         score.attrs['ceiling'] = ceiling
         return score
     
-    def load_assembly(self):
-        assembly = brainscore.get_assembly(f'Hebart2023') 
-        stimulus_set = assembly.attrs['stimulus_set']
-        #stimulus_set = stimulus_set[stimulus_set['stimulus_id'].isin(set(assembly['stimulus_id'].values))]
-        assembly.attrs['stimulus_set'] = stimulus_set
-        return assembly
+    

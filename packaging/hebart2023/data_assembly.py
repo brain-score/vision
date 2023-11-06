@@ -5,7 +5,7 @@ import pandas as pd
 
 '''
 Experiment Information:
- - From Hebart 2023: https://elifesciences.org/articles/8258
+ - From Hebart 2023: https://elifesciences.org/articles/82580v1
 
  - Participants were shown three images and had to choose the odd one out.
  - The dataset consisted of 12,340 workers and 4,699,160 triplets, of which 4,574,059 

@@ -211,7 +211,7 @@ def _evaluation_benchmark_pool():
     pool['NSD2022.V2v-algonauts_linear'] = LazyLoad(NSD2022V2v)
     pool['NSD2022.V2d-algonauts_linear'] = LazyLoad(NSD2022V2d)
     pool['NSD2022.V3v-algonauts_linear'] = LazyLoad(NSD2022V3v)
-    pool['NSD2022.V2d-algonauts_linear'] = LazyLoad(NSD2022V3d)
+    pool['NSD2022.V3d-algonauts_linear'] = LazyLoad(NSD2022V3d)
     pool['NSD2022.V4-algonauts_linear'] = LazyLoad(NSD2022V4)
 
     # behavioral benchmarks

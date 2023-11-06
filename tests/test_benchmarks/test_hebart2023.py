@@ -1,6 +1,7 @@
 from pathlib import Path
 import pytest
 from pytest import approx
+from brainio.stimuli import StimulusSet
 from brainio.assemblies import BehavioralAssembly
 from brainscore import benchmark_pool
 from tests.test_benchmarks import PrecomputedFeatures
@@ -10,24 +11,39 @@ import sys
 file_path = "/Users/linussommer/Documents/GitHub/brain-score/brainscore/benchmarks"
 sys.path.append(file_path)
 
-import hebart2023 
+from hebart2023 import Hebart2023Accuracy
 
-bm = hebart2023.Hebart2023Accuracy('dot')
-assembly = bm._assembly
-print(assembly.attrs['stimulus_set'])
-print(assembly)
+class TestHebart2023:
+    benchmark = Hebart2023Accuracy()
+    assembly = benchmark._assembly
+
+    def test_in_pool(self):
+        # TODO: Assertion Error
+        assert self.benchmark in benchmark_pool
+
+    def test_assembly(self):
+        stimulus_id = self.assembly.coords["stimulus_id"]
+        triplet_id = self.assembly.coords["triplet_id"]
+        assert len(stimulus_id) == len(triplet_id) == 453642
+
+        image_1 = self.assembly.coords["image_1"]
+        image_2 = self.assembly.coords["image_2"]
+        image_3 = self.assembly.coords["image_3"]
+        assert len(image_1) == len(image_2) == len(image_3) ==453642
+
+    def test_stimulus_set(self):
+        stimulus_set = self.assembly.attrs['stimulus_set']
+        assert len(stimulus_set) == 1854
+        assert isinstance(stimulus_set, StimulusSet)
 
 """
-@pytest.mark.private_access
-class TestHebart2023:
-    benchmark = Hebart2023Accuracy('dot')
+test = TestHebart2023()
+test.test_assembly()
+test.test_stimulus_set()
+test.test_in_pool()
 
     # ensure the benchmark itself is there
-    @pytest.mark.parametrize('benchmark', [
-        'Hebart2023'
-    ])
-    def test_in_pool(self, benchmark):
-        assert benchmark in benchmark_pool
+    
 
     # Test expected ceiling
     def test_ceiling(self):

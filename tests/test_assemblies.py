@@ -64,6 +64,14 @@ import brainscore
         'brendel.Geirhos2021_stylized',
         'brendel.Geirhos2021_sketch',
         'brendel.Geirhos2021_uniform-noise',
+        'bocini-nsd-2023_subject1_assembly',
+        'bocini-nsd-2023_subject2_assembly',
+        'bocini-nsd-2023_subject3_assembly',
+        'bocini-nsd-2023_subject4_assembly',
+        'bocini-nsd-2023_subject5_assembly',
+        'bocini-nsd-2023_subject6_assembly',
+        'bocini-nsd-2023_subject7_assembly',
+        'bocini-nsd-2023_subject8_assembly',
 ))
 def test_list_assembly(assembly):
     l = brainio.list_assemblies()
@@ -120,6 +128,14 @@ def test_list_assembly(assembly):
     pytest.param('brendel.Geirhos2021_stylized', marks=[pytest.mark.private_access]),
     pytest.param('brendel.Geirhos2021_sketch', marks=[pytest.mark.private_access]),
     pytest.param('brendel.Geirhos2021_uniform-noise', marks=[pytest.mark.private_access]),
+    pytest.param('bocini-nsd-2023_subject1_assembly',marks=[pytest.mark.private_access]),
+    pytest.param('bocini-nsd-2023_subject2_assembly',marks=[pytest.mark.private_access]),
+    pytest.param('bocini-nsd-2023_subject3_assembly',marks=[pytest.mark.private_access]),
+    pytest.param('bocini-nsd-2023_subject4_assembly',marks=[pytest.mark.private_access]),
+    pytest.param('bocini-nsd-2023_subject5_assembly',marks=[pytest.mark.private_access]),
+    pytest.param('bocini-nsd-2023_subject6_assembly',marks=[pytest.mark.private_access]),
+    pytest.param('bocini-nsd-2023_subject7_assembly',marks=[pytest.mark.private_access]),
+    pytest.param('bocini-nsd-2023_subject8_assembly',marks=[pytest.mark.private_access]),
 ])
 def test_existence(assembly_identifier):
     assert brainio.get_assembly(assembly_identifier) is not None

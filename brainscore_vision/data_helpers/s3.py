@@ -1,9 +1,5 @@
 """
-Will contain functions for loading data assemblies and stimuli sets from s3,
-and whatever helpers are needed.
-
-Should provide similar functionality to brainio/lookup.py and brainio/fetch.py,
-but without use of lookup.csv
+Loading data assemblies and stimuli sets from s3.
 """
 import functools
 import logging

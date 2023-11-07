@@ -41,9 +41,6 @@ requires = [
     "wheel"
 ]
 
-[project.scripts]
-brainio_brainscore = "brainscore_vision.entrypoint:brainio_brainscore"
-
 
 ################################################################
 #### mypy type-checking config ####

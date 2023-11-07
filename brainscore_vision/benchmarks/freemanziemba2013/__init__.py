@@ -6,5 +6,5 @@ benchmark_registry['movshon.FreemanZiemba2013.V1-pls'] = MovshonFreemanZiemba201
 benchmark_registry['movshon.FreemanZiemba2013.V2-pls'] = MovshonFreemanZiemba2013V2PLS
 
 # public benchmarks
-benchmark_registry['movshon.FreemanZiemba2013.V1.public'] = FreemanZiembaV1PublicBenchmark
-benchmark_registry['movshon.FreemanZiemba2013.V2.public'] = FreemanZiembaV2PublicBenchmark
+benchmark_registry['movshon.FreemanZiemba2013.V1.public-pls'] = FreemanZiembaV1PublicBenchmark
+benchmark_registry['movshon.FreemanZiemba2013.V2.public-pls'] = FreemanZiembaV2PublicBenchmark

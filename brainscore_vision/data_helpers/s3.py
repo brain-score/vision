@@ -12,6 +12,8 @@ from pathlib import Path
 from typing import Callable, Union
 
 import boto3
+from botocore import UNSIGNED
+from botocore.config import Config
 
 from brainio.assemblies import DataAssembly, AssemblyLoader, StimulusMergeAssemblyLoader, \
     StimulusReferenceAssemblyLoader
@@ -80,5 +82,6 @@ def load_stimulus_set_from_s3(identifier: str, bucket: str, csv_sha1: str, zip_s
 def download_file_if_not_exists(local_path: Union[str, Path], bucket: str, remote_filepath: str):
     if local_path.is_file():
         return  # nothing to do, file already exists
-    s3 = boto3.client('s3')
+    unsigned_config = Config(signature_version=UNSIGNED)  # do not attempt to look up credentials
+    s3 = boto3.client('s3', config=unsigned_config)
     s3.download_file(bucket, remote_filepath, str(local_path))

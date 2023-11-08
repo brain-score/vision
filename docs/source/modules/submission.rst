@@ -6,22 +6,27 @@ Submission system Components
 
 
 
-To provide an automatic scoring mechanism for artificial models of the brain, Brain-Score has implemented a entire
-ecosystem, with each part explained below:
+To provide a scoring mechanism for artificial models of the brain,
+Brain-Score provides an automated submission system.
+This enables us to score new models on existing benchmarks,
+as well as new benchmarks against existing models.
 
 .. image:: docs/source/modules/brainscore_submission.png
     :width: 200px
     :align: center
     :height: 100px
-    :alt: alternate text
+    :alt: submission system diagram
 
 - **Brain-Score Website**:
 
-    The `website <www.brain-score.org>`_ implementation, also found on
-    `Github <https://github.com/brain-score/brain-score.web>`_, handles our front end. It is implemented using Django
-    and also accesses the database instance. When user submit their models in form of a zip file, the website triggers
-    the execution with an http request to Jenkins (see below), also delivering the submitted zip file. Users can also
-    see their profile, personal (private) leaderboard as well as the public leaderboard.
+    The `website <www.brain-score.org>`_ (`Github <https://github.com/brain-score/brain-score.web>`_) handles our front
+    end. It is implemented using Django  and also accesses the database instance.
+
+    Users can submit plugins as a zip file via the website or as a pull request via Github.
+    Zip file submissions are converted into a pull request that is automatically merged if tests pass.
+    Once a pull request has been merged and if there are new model or benchmark plugins,
+    a Github action triggers the scoring runs which are handled by Jenkins
+    and run on the OpenMind compute cluster.
 
     The website is hosted via Amazon Elastic Beanstalk. There are three insteances on AWS EB:
 
@@ -44,7 +49,7 @@ ecosystem, with each part explained below:
     Jenkins runs a procedure to execute the tests or scoring and communicate the results back to the user (via Email)
     or back to GitHub.
 
--  **Openmind**
+-  **OpenMind**
 
     As scoring submissions is a computationally and memory expensive process, we cannot execute model scoring on small
     machines. We submit jobs to Openmind, a computer cluster operated by MIT BCS. The big advantage of Openmind is its
@@ -52,8 +57,8 @@ ecosystem, with each part explained below:
     resources are available. The Jenkins related contents are stored on ``/om5/group/dicarlo/jenkins``. This directory
     contains a script for model submission (`score_model.sh`) and for unittests (`unittests_brainscore.sh`). The scripts
     are executed in an Openmind job and are responsible for fully installing a conda environment, executing the process,
-    and shutting everything down again. Results are stored in the database or copied to amazon S3 cloud file system.
-    From there, Jenkins reports the results back to its caller (the website) and emails the user.
+    and shutting everything down again. For scoring runs, results are stored in the database and sent to the user via
+    email. For unit tests, results are reported back to Github.
 
 
 - **Postgres database:**
@@ -87,10 +92,11 @@ The current schema is depicted `here
 
 
 When the database schema has to be changed, use the `Brain-Score.web <https://github.com/brain-score/brain-score.web>`_
-project, along with django commands, to adjust the tables (in `benchmarl/models.py`). Once changes are made locally,
-see `here < https://github.com/brain-score/brain-score.web/blob/master/deployment.md#to-deploy>`_ to apply those
-migrations to the correct databases. All needed changes to the database (dev or prod) should be done with Django via
-migrations. During development, work with the dev database (secret `brainscore-1-ohio-cred`); when your
+project, along with django commands, to adjust the tables (in `benchmark/models.py`). The schema also has to be updated
+in `core <https://github.com/brain-score/core/blob/main/brainscore_core/submission/database_models.py>`_. Once changes
+are made locally,see `here < https://github.com/brain-score/brain-score.web/blob/master/deployment.md#to-deploy>`_ to
+apply those migrations to the correct databases. All needed changes to the database (dev or prod) should be done with
+Django via migrations. During development, work with the dev database (secret `brainscore-1-ohio-cred`); when your
 tests pass on the test database (`brainscore-ohio-test`) they are ready for the PR. Once the PR is approved and test
 cases run, the PR can be merged. Finally, apply those migrations to the prod database via the link above.
 

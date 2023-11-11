@@ -50,7 +50,7 @@ def test_FreemanZiemba2013(benchmark, expected):
     filename = 'alexnet-freemanziemba2013.aperture-private.nc'
     filepath = Path(__file__).parent / filename
     s3.download_file_if_not_exists(local_path=filepath,
-                                   bucket='brainio-brainscore', remote_filepath=f'tests/test_benchmarks/{filename}')
+                                   bucket='brain-score-tests', remote_filepath=f'tests/test_benchmarks/{filename}')
     precomputed_test.run_test(benchmark=benchmark, precomputed_features_filepath=filename, expected=expected)
 
 

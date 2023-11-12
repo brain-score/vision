@@ -2,13 +2,6 @@ from brainio.assemblies import DataAssembly
 
 from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set
 from brainscore_vision.data_helpers.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
-from brainscore_vision.data_helpers.lookup_legacy import version_id_df, build_filename
-
-# extract version ids from version_ids csv
-assembly_version = version_id_df.at[build_filename('dicarlo.Kar2019', '.nc'), 'version_id']
-csv_version = version_id_df.at[build_filename('dicarlo.Kar2019', '.csv'), 'version_id']
-zip_version = version_id_df.at[build_filename('dicarlo.Kar2019', '.zip'), 'version_id']
-
 
 BIBTEX = """@Article{Kar2019,
             author={Kar, Kohitij
@@ -29,7 +22,6 @@ BIBTEX = """@Article{Kar2019,
             doi={10.1038/s41593-019-0392-5},
             url={https://doi.org/10.1038/s41593-019-0392-5}
             }"""
-
 
 # assembly
 data_registry['dicarlo.Kar2019'] = lambda: load_assembly_from_s3(

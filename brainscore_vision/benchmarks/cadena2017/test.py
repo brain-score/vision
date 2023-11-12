@@ -1,9 +1,23 @@
 import pytest
 from pytest import approx
+
+from brainscore_vision.benchmark_helpers import check_standard_format
 from brainscore_vision.benchmark_helpers.test_helper import StandardizedTests, VisualDegreesTests
+from brainscore_vision.benchmarks.cadena2017.benchmark import AssemblyLoader
 
 standardized_tests = StandardizedTests()
 visual_degrees_test = VisualDegreesTests()
+
+
+@pytest.mark.private_access
+class TestAssembly:
+    def test(self):
+        loader = AssemblyLoader()
+        assembly = loader()
+        check_standard_format(assembly)
+        assert assembly.attrs['stimulus_set_identifier'] == 'tolias.Cadena2017'
+        assert len(assembly['presentation']) == 6249
+        assert len(assembly['neuroid']) == 166
 
 
 @pytest.mark.private_access

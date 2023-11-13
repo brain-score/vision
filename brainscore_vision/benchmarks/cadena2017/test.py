@@ -9,6 +9,9 @@ standardized_tests = StandardizedTests()
 visual_degrees_test = VisualDegreesTests()
 
 
+def test_failure():
+    assert False
+
 @pytest.mark.private_access
 class TestAssembly:
     def test(self):

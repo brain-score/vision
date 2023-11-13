@@ -15,6 +15,10 @@ num_trials_test = NumberOfTrialsTests()
 visual_degrees_test = VisualDegreesTests()
 
 
+def test_failure():
+    assert False
+
+
 @pytest.mark.parametrize('benchmark', [
     'movshon.FreemanZiemba2013.V1-pls',
     'movshon.FreemanZiemba2013.V2-pls',  # are these what should be checked for? what about public vs. private

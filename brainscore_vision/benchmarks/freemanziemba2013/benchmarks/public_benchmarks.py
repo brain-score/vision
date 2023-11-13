@@ -30,8 +30,8 @@ def _freemanziemba2013_public_benchmark(region: str):
 
 
 def FreemanZiembaV1PublicBenchmark():
-    return _freemanziemba2013_public_benchmark('movshon.FreemanZiemba2013.V1.public')
+    return _freemanziemba2013_public_benchmark('V1')
 
 
 def FreemanZiembaV2PublicBenchmark():
-    return _freemanziemba2013_public_benchmark('movshon.FreemanZiemba2013.V2.public')
+    return _freemanziemba2013_public_benchmark('V2')

@@ -7,10 +7,8 @@ from pytest import approx
 from brainio.assemblies import BehavioralAssembly
 from brainscore_vision import benchmark_registry, load_benchmark
 from brainscore_vision.benchmark_helpers import PrecomputedFeatures
-from brainscore_vision.benchmark_helpers.test_helper import TestBenchmarkRegistry
 from brainscore_vision.benchmarks.geirhos2021.benchmark import DATASETS, cast_coordinate_type
-
-registry_test = TestBenchmarkRegistry()
+from brainscore_vision.data_helpers import s3
 
 
 @pytest.mark.parametrize('benchmark', [
@@ -50,7 +48,7 @@ registry_test = TestBenchmarkRegistry()
     'brendel.Geirhos2021uniformnoise-top1',
 ])
 def test_benchmark_registry(benchmark):
-    registry_test.benchmark_in_registry(benchmark)
+    assert benchmark in benchmark_registry
 
 
 class TestBehavioral:
@@ -64,7 +62,7 @@ class TestBehavioral:
 
     def test_mean_ceiling(self):
         benchmarks = [f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency" for dataset in DATASETS]
-        benchmarks = [benchmark_registry[benchmark] for benchmark in benchmarks]
+        benchmarks = [load_benchmark(benchmark) for benchmark in benchmarks]
         ceilings = [benchmark.ceiling.item() for benchmark in benchmarks]
         mean_ceiling = np.mean(ceilings)
         assert mean_ceiling == approx(0.43122, abs=0.001)
@@ -94,36 +92,37 @@ class TestBehavioral:
         ceiling = benchmark.ceiling
         assert ceiling == expected_ceiling
 
-    @pytest.mark.parametrize('dataset, model, expected_raw_score', [
-        ('colour', 'resnet-50-pytorch', approx(0.21135, abs=0.001)),
-        ('contrast', 'resnet-50-pytorch', approx(0.22546, abs=0.001)),
-        ('cue-conflict', 'resnet-50-pytorch', approx(0.06800, abs=0.001)),
-        ('edge', 'resnet-50-pytorch', approx(0.03626, abs=0.001)),
-        ('eidolonI', 'resnet-50-pytorch', approx(0.21029, abs=0.001)),
-        ('eidolonII', 'resnet-50-pytorch', approx(0.25090, abs=0.001)),
-        ('eidolonIII', 'resnet-50-pytorch', approx(0.15806, abs=0.001)),
-        ('false-colour', 'resnet-50-pytorch', approx(0.29431, abs=0.001)),
-        ('high-pass', 'resnet-50-pytorch', approx(0.20300, abs=0.001)),
-        ('low-pass', 'resnet-50-pytorch', approx(0.16741, abs=0.001)),
-        ('phase-scrambling', 'resnet-50-pytorch', approx(0.26879, abs=0.001)),
-        ('power-equalisation', 'resnet-50-pytorch', approx(0.29293, abs=0.001)),
-        ('rotation', 'resnet-50-pytorch', approx(0.16892, abs=0.001)),
-        ('silhouette', 'resnet-50-pytorch', approx(0.42805, abs=0.001)),
-        ('sketch', 'resnet-50-pytorch', approx(0.10537, abs=0.001)),
-        ('stylized', 'resnet-50-pytorch', approx(0.25430, abs=0.001)),
-        ('uniform-noise', 'resnet-50-pytorch', approx(0.19839, abs=0.001)),
+    @pytest.mark.parametrize('dataset, expected_raw_score', [
+        ('colour', approx(0.21135, abs=0.001)),
+        ('contrast', approx(0.22546, abs=0.001)),
+        ('cue-conflict', approx(0.06800, abs=0.001)),
+        ('edge', approx(0.03626, abs=0.001)),
+        ('eidolonI', approx(0.21029, abs=0.001)),
+        ('eidolonII', approx(0.25090, abs=0.001)),
+        ('eidolonIII', approx(0.15806, abs=0.001)),
+        ('false-colour', approx(0.29431, abs=0.001)),
+        ('high-pass', approx(0.20300, abs=0.001)),
+        ('low-pass', approx(0.16741, abs=0.001)),
+        ('phase-scrambling', approx(0.26879, abs=0.001)),
+        ('power-equalisation', approx(0.29293, abs=0.001)),
+        ('rotation', approx(0.16892, abs=0.001)),
+        ('silhouette', approx(0.42805, abs=0.001)),
+        ('sketch', approx(0.10537, abs=0.001)),
+        ('stylized', approx(0.25430, abs=0.001)),
+        ('uniform-noise', approx(0.19839, abs=0.001)),
     ])
-    def test_model_3degrees(self, dataset, model, expected_raw_score):
+    def test_model_3degrees(self, dataset, expected_raw_score):
         benchmark = load_benchmark(f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency")
         # load features
-        precomputed_features = Path(__file__).parent / f'{model}-3deg-Geirhos2021_{dataset}.nc'
+        filename = f'resnet-50-pytorch-3deg-Geirhos2021_{dataset}.nc'
+        precomputed_features = Path(__file__).parent / filename
+        s3.download_file_if_not_exists(precomputed_features,
+                                       bucket='brain-score-tests', remote_filepath=f'tests/test_benchmarks/{filename}')
         precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)
         # these features were packaged with condition as int/float. Current xarray versions have trouble when
         # selecting for a float coordinate however, so we had to change the type to string.
         precomputed_features = cast_coordinate_type(precomputed_features, 'condition', newtype=str)
-        precomputed_features = PrecomputedFeatures(precomputed_features,
-                                                   visual_degrees=8,  # doesn't matter, features are already computed
-                                                   )
+        precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
         # score
         score = benchmark(precomputed_features)
         raw_score = score.raw
@@ -139,7 +138,11 @@ class TestBehavioral:
         scores = []
         for dataset in DATASETS:
             benchmark = load_benchmark(f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency")
-            precomputed_features = Path(__file__).parent / f'{model}-Geirhos2021_{dataset}.nc'
+            filename = f'{model}-Geirhos2021_{dataset}.nc'
+            precomputed_features = Path(__file__).parent / filename
+            s3.download_file_if_not_exists(precomputed_features,
+                                           bucket='brain-score-tests',
+                                           remote_filepath=f'tests/test_benchmarks/{filename}')
             precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)
             # these features were packaged with condition as int/float. Current xarray versions have trouble when
             # selecting for a float coordinate however, so we had to change the type to string.
@@ -152,6 +155,7 @@ class TestBehavioral:
 
 
 class TestEngineering:
+    @pytest.mark.private_access
     @pytest.mark.parametrize('dataset, model, expected_accuracy', [
         ('colour', 'resnet-50-pytorch', approx(0.96875, abs=0.001)),
         ('contrast', 'resnet-50-pytorch', approx(0.81625, abs=0.001)),
@@ -174,7 +178,10 @@ class TestEngineering:
     def test_accuracy(self, dataset, model, expected_accuracy):
         benchmark = load_benchmark(f"brendel.Geirhos2021{dataset.replace('-', '')}-top1")
         # load features
-        precomputed_features = Path(__file__).parent / f'{model}-3deg-Geirhos2021_{dataset}.nc'
+        filename = f'{model}-3deg-Geirhos2021_{dataset}.nc'
+        precomputed_features = Path(__file__).parent / filename
+        s3.download_file_if_not_exists(precomputed_features,
+                                       bucket='brain-score-tests', remote_filepath=f'tests/test_benchmarks/{filename}')
         precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)
         precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=None)
         # score

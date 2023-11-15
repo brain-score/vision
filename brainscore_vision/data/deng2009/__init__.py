@@ -13,7 +13,7 @@ BIBTEX = """@INPROCEEDINGS{5206848,
 
 
 # stimulus set
-stimulus_set_registry['fei-fei.Deng2009'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['imagenet_val'] = lambda: load_stimulus_set_from_s3(
     identifier="fei-fei.Deng2009",
     bucket="brainio-brainscore",
     csv_sha1="ff79dcf6b0d115e6e8aa8d0fbba3af11dc649e57",

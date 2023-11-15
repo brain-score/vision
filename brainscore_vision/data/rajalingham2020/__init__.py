@@ -19,17 +19,17 @@ BIBTEX = """@article{rajalingham2020inferior,
 }"""
 
 # assembly: uses below stimulus set
-data_registry['dicarlo.Rajalingham2020'] = lambda: load_assembly_from_s3(
+data_registry['Rajalingham2020'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.Rajalingham2020",
     version_id="L4YlA5o2gToDj4sbXE0Utn362sPyy_GW",
     sha1="ab95ae6c9907438f87b9b13b238244049f588680",
     bucket="brainio-brainscore",
     cls=NeuronRecordingAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('dicarlo.Rajalingham2020'),
+    stimulus_set_loader=lambda: load_stimulus_set('Rajalingham2020'),
 )
 
 # stimulus set
-stimulus_set_registry['dicarlo.Rajalingham2020'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Rajalingham2020'] = lambda: load_stimulus_set_from_s3(
     identifier="dicarlo.Rajalingham2020",
     bucket="brainio-brainscore",
     csv_sha1="9a9a6b3115d2d8ce5d54ec2522093d8a87ed13a0",

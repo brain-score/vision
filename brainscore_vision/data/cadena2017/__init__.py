@@ -21,17 +21,17 @@ BIBTEX = """@article {Cadena201764,
 """
 
 # assembly
-data_registry['tolias.Cadena2017'] = lambda: load_assembly_from_s3(
+data_registry['Cadena2017'] = lambda: load_assembly_from_s3(
     identifier="tolias.Cadena2017",
     version_id="94KHymrNxUzoF6q56DYWg6n0vCdkLUEU",
     sha1="69bcaaa9370dceb0027beaa06235ef418c3d7063",
     bucket="brainio-brainscore",
     cls=NeuronRecordingAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('tolias.Cadena2017'),
+    stimulus_set_loader=lambda: load_stimulus_set('Cadena2017'),
 )
 
 # stimulus set
-stimulus_set_registry['tolias.Cadena2017'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Cadena2017'] = lambda: load_stimulus_set_from_s3(
     identifier="tolias.Cadena2017",
     bucket="brainio-brainscore",
     csv_sha1="f55b174cc4540e5612cfba5e695324328064b051",

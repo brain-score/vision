@@ -9,7 +9,7 @@ BIBTEX = """@article{hendrycks2019benchmarking,
 }"""
 
 # stimulus set: dietterich.Hendrycks2019.noise
-stimulus_set_registry['dietterich.Hendrycks2019.noise'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['imagenet_c.noise'] = lambda: load_stimulus_set_from_s3(
     identifier="dietterich.Hendrycks2019.noise",
     bucket="brainio-brainscore",
     csv_sha1="56f445e058b4d825e7731711c824918812ed2d2d",
@@ -18,7 +18,7 @@ stimulus_set_registry['dietterich.Hendrycks2019.noise'] = lambda: load_stimulus_
     zip_version_id="Hcbdp9m83Ajoxc5nqWDB0zi9UFplB1w7")
 
 # stimulus set: dietterich.Hendrycks2019.blur
-stimulus_set_registry['dietterich.Hendrycks2019.blur'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['imagenet_c.blur'] = lambda: load_stimulus_set_from_s3(
     identifier="dietterich.Hendrycks2019.blur",
     bucket="brainio-brainscore",
     csv_sha1="e7a537bb2f3f94b9cd3819a529de9f4349e58bd2",
@@ -27,7 +27,7 @@ stimulus_set_registry['dietterich.Hendrycks2019.blur'] = lambda: load_stimulus_s
     zip_version_id="IIF74vl5z75b65umHvgn5nds8XHz05Jd")
 
 # stimulus set: dietterich.Hendrycks2019.weather
-stimulus_set_registry['dietterich.Hendrycks2019.weather'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['imagenet_c.weather'] = lambda: load_stimulus_set_from_s3(
     identifier="dietterich.Hendrycks2019.weather",
     bucket="brainio-brainscore",
     csv_sha1="02fa92430be754163ecd06ee9211c1edd8984207",
@@ -36,7 +36,7 @@ stimulus_set_registry['dietterich.Hendrycks2019.weather'] = lambda: load_stimulu
     zip_version_id="hy.5apU1C13feZSHOR90daDHDc5oRtVk")
 
 # stimulus set: dietterich.Hendrycks2019.digital
-stimulus_set_registry['dietterich.Hendrycks2019.digital'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['imagenet_c.digital'] = lambda: load_stimulus_set_from_s3(
     identifier="dietterich.Hendrycks2019.digital",
     bucket="brainio-brainscore",
     csv_sha1="1e9611b560333989d4673bfd019160a27842f89b",

@@ -18,18 +18,18 @@ abstract = {The degree to which we perceive real-world objects as similar or dis
 
 
 # assembly
-data_registry['aru.Cichy2019'] = lambda: load_assembly_from_s3(
+data_registry['Cichy2019'] = lambda: load_assembly_from_s3(
     identifier="aru.Cichy2019",
     version_id="83yFgsx5rc6pgpra4UiMxDDvgaV6ytU8",
     sha1="701e63be62b642082d476244d0d91d510b3ff05d",
     bucket="brainio-brainscore",
     cls=DataAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('aru.Cichy2019'),
+    stimulus_set_loader=lambda: load_stimulus_set('Cichy2019'),
 )
 
 
 # stimulus set
-stimulus_set_registry['aru.Cichy2019'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Cichy2019'] = lambda: load_stimulus_set_from_s3(
     identifier="aru.Cichy2019",
     bucket="brainio-brainscore",
     csv_sha1="281c4d9d0dd91a2916674638098fe94afb87d29a",

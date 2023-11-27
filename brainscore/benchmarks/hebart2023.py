@@ -2,11 +2,9 @@ import numpy as np
 
 import brainscore
 from brainscore.benchmarks import BenchmarkBase
+from brainscore.benchmarks.screen import place_on_screen
 from brainscore.model_interface import BrainModel
 from brainscore.metrics import Score
-from brainscore.utils import LazyLoad
-
-
 
 BIBTEX = """@article{10.7554/eLife.82580,
           author = {Hebart, Martin N and Contier, Oliver and Teichmann, Lina and Rockter, Adam H and Zheng, Charles Y and Kidder, Alexis and Corriveau, Anna and Vaziri-Pashkam, Maryam and Baker, Chris I},
@@ -19,26 +17,38 @@ BIBTEX = """@article{10.7554/eLife.82580,
           }"""
 
 class Hebart2023Accuracy(BenchmarkBase):
-    def __init__(self, similarity_measure = 'dot'):
+    def __init__(self, similarity_measure='dot'):
         self._similarity_measure = similarity_measure
-        self._visual_degrees = 6
+        self._visual_degrees = 8
         self._number_of_trials = 1
-        self._assembly = brainscore.get_assembly(f'Hebart2023') 
+        self._assembly = brainscore.get_assembly('Hebart2023')
 
-        super(Hebart2023Accuracy, self).__init__(
+        print(self._assembly.stimulus_set)
+
+        super().__init__(
             identifier=f'Hebart2023Accuracy_{similarity_measure}', version=1,
             ceiling_func=lambda: Score([0.6844, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation']),
             parent='Hebart2023',
-            bibtex=BIBTEX)
+            bibtex=BIBTEX
+        )
 
     def __call__(self, candidate: BrainModel):
-        candidate.start_task(BrainModel.Task.odd_one_out, None) 
-        predicted_odd_one_outs = candidate.look_at(self._assembly.stimulus_set, number_of_trials=self._number_of_trials)
-        raw_score = self._similarity_measure(predicted_odd_one_outs, self._assembly.validation_data)
-        ceiling = self.ceiling
-        score = (raw_score - 1/3) / (ceiling - 1/3)
+        triplets = np.array([
+            self._assembly.coords["image_1"].values,
+            self._assembly.coords["image_2"].values,
+            self._assembly.coords["image_3"].values
+        ]).T
+        fitting_stimuli = place_on_screen(
+            stimulus_set=self._assembly.stimulus_set,
+            target_visual_degrees=candidate.visual_degrees(),
+            source_visual_degrees=self._visual_degrees
+        )
+        candidate.start_task(BrainModel.Task.odd_one_out, similarity_measure=self._similarity_measure)
+        data = [fitting_stimuli, triplets]
+        choices = candidate.look_at(data, number_of_trials=self._number_of_trials)
+        correct_choices = choices == triplets[:, 2]
+        raw_score = np.sum(correct_choices) / len(choices)
+        score = (raw_score - 1 / 3) / (self.ceiling - 1 / 3)
         score.attrs['raw'] = raw_score
-        score.attrs['ceiling'] = ceiling
+        score.attrs['ceiling'] = self.ceiling
         return score
-    
-    

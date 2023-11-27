@@ -296,11 +296,7 @@ def _experimental_benchmark_pool():
     pool['Islam2021-shape_it_dimensionality'] = LazyLoad(Islam2021Dimensionality_IT_Shape)
     pool['Islam2021-texture_it_dimensionality'] = LazyLoad(Islam2021Dimensionality_IT_Texture)
 
-    # Hebart23Accuracy
-    import sys
-    file_path = "/Users/linussommer/Documents/GitHub/brain-score/brainscore/benchmarks"
-    sys.path.append(file_path)
-    from hebart2023 import Hebart2023Accuracy
+    from .hebart2023 import Hebart2023Accuracy
     pool['Hebart2023Accuracy'] = LazyLoad(Hebart2023Accuracy)
 
     return pool

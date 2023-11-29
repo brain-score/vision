@@ -129,14 +129,14 @@ class BrainModel:
 
         Setting up a odd-one-out task for a list of triplets with 
         `start_task(BrainModel.Task.odd_one_out, similarity_measure='dot')`
-        and calling `look_at([[image_1, image_2, image_3, ...], [triplet_1, triplet_2, triplet_3, ...]])`, could output 
+        and calling `look_at([[image_1, image_2, image_3, ...], [triplet_1, triplet_2, triplet_3, ...]])` with 100 images and 500 triplets, could output 
         .. code-block:: python
 
-           <xarray.BehavioralAssembly (presentation: 100, choice: 1)>
-                array([[0], [2], [2], ...])  #  index of the odd-one-out per trial, i.e. 0, 1, or 2. (Each trial is one triplet of images.)
+           <xarray.BehavioralAssembly (presentation: 500, choice: 1)>
+                array([[0], [2], [2], ..., [1]])  #  index of the odd-one-out per trial, i.e. 0, 1, or 2. (Each trial is one triplet of images.)
                 Coordinates:
                   * presentation  (presentation) MultiIndex
-                  - stimulus_id   (presentation) 'image_1', 'image_2', 'image_3' ...
+                  - stimulus_id   (presentation) 'image_1', 'image_2', 'image_3' ..., 'iamge_100'
                   - stimulus_path (presentation) object '/home/me/.brainio/demo_stimuli/image1.png' ...
         """
 

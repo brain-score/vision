@@ -117,6 +117,31 @@ class BrainModel:
                   - choice        (choice) object 'dog' 'cat' 'chair' 'flower' 'plane'
         """
 
+        odd_one_out = 'odd_one_out'
+        """
+        Predict the odd-one-out elements for a list of triplets of stimuli. Calling `start_task(...)` sets the 
+        similarity measure to use for the odd-one-out task. Calling `look_at(...)` with a list of triplets of stimuli
+        will compute the similarity matrix for all pairs of stimuli and compute the odd one out for each triplet.  
+        
+        Output a :class:`~brainio.assemblies.BehavioralAssembly` with the stimulus_ids as the value.
+        
+        Example:
+
+        Setting up a odd-one-out task for a list of triplets with 
+        `start_task(BrainModel.Task.odd_one_out, [image_1, image_2, image_3], similarity_measure)`
+        and calling `look_at(...)` could output 
+
+        .. code-block:: python
+
+           <xarray.BehavioralAssembly (presentation: 1, choice: 1)>
+                array([[0]])  # odd-one-out
+                Coordinates:
+                  * presentation  (presentation) MultiIndex
+                  - stimulus_id   (presentation) 'image_1', 'image_2', 'image_3' ...
+                  - stimulus_path (presentation) object '/home/me/.brainio/demo_stimuli/image1.png' ...
+
+        """
+
     def start_task(self, task: Task, fitting_stimuli):
         """
         Instructs the model to begin one of the tasks specified in :data:`~brainscore.model_interface.BrainModel.Task`.

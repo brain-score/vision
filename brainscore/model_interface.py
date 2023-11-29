@@ -129,7 +129,7 @@ class BrainModel:
 
         Setting up a odd-one-out task for a list of triplets with 
         `start_task(BrainModel.Task.odd_one_out, similarity_measure='dot')`
-        and calling `look_at([[image_1, image_2, image_3, ...], [triplet_1, triplet_2, ...]])`, could output 
+        and calling `look_at([[image_1, image_2, image_3, ...], [triplet_1, triplet_2, triplet_3, ...]])`, could output 
         .. code-block:: python
 
            <xarray.BehavioralAssembly (presentation: 100, choice: 1)>

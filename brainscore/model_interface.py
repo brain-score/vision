@@ -119,24 +119,27 @@ class BrainModel:
 
         odd_one_out = 'odd_one_out'
         """
-        Predict the odd-one-out elements for a list of triplets of stimuli. Calling `start_task(...)` sets the 
-        similarity measure to use for the odd-one-out task. Calling `look_at(...)` with a list of triplets of stimuli
-        will compute the similarity matrix for all pairs of stimuli and compute the odd one out for each triplet.  
+        Predict the odd-one-out elements for a list of triplets of stimuli. 
+
+        The model must be supplied with a list of triplets of stimuli. Then it goes through the following steps:
+        1. Computation of representations for each unique stimulus within the triplet list.
+        2. Calculation of similarity scores between the activation pairs for every triplet.
+        3. Identification of the stimulus with the lowest similarity, designating it as the odd-one-out
+        4. Returning the index (0, 1, or 2) corresponding to the odd-one-out element in each triplet."
         
-        Output a :class:`~brainio.assemblies.BehavioralAssembly` with the stimulus_ids as the value.
+        Output a :class:`~brainio.assemblies.BehavioralAssembly` with the choices as the values.
         
         Example:
 
-        Setting up a odd-one-out task for a list of triplets with 
-        `start_task(BrainModel.Task.odd_one_out, similarity_measure='dot')`
-        and calling `look_at([[image_1, image_2, image_3, ...], [triplet_1, triplet_2, triplet_3, ...]])` with 100 images and 500 triplets, could output 
+        Setting up a odd-one-out task for a list of triplets with `start_task(BrainModel.Task.odd_one_out)`
+        and calling `look_at(triplets)` 500 triplets of 100 images, could output 
         .. code-block:: python
 
            <xarray.BehavioralAssembly (presentation: 500, choice: 1)>
                 array([[0], [2], [2], ..., [1]])  #  index of the odd-one-out per trial, i.e. 0, 1, or 2. (Each trial is one triplet of images.)
                 Coordinates:
                   * presentation  (presentation) MultiIndex
-                  - stimulus_id   (presentation) 'image_1', 'image_2', 'image_3' ..., 'iamge_100'
+                  - stimulus_id   (presentation) 'image_1', 'image_2', 'image_3' ..., 'image_100'
                   - stimulus_path (presentation) object '/home/me/.brainio/demo_stimuli/image1.png' ...
         """
 

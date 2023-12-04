@@ -121,11 +121,9 @@ class BrainModel:
         """
         Predict the odd-one-out elements for a list of triplets of stimuli. 
 
-        The model must be supplied with a list of triplets of stimuli. Then it goes through the following steps:
-        1. Computation of representations for each unique stimulus within the triplet list.
-        2. Calculation of similarity scores between the activation pairs for every triplet.
-        3. Identification of the stimulus with the lowest similarity, designating it as the odd-one-out
-        4. Returning the index (0, 1, or 2) corresponding to the odd-one-out element in each triplet."
+        The model must be supplied with a list of triplets of stimuli.
+        The model is expected to output a one-dimensional assembly with each value corresponding 
+        to the index (`0`, `1`, or `2`) of the triplet element that is different from the other two.
         
         Output a :class:`~brainio.assemblies.BehavioralAssembly` with the choices as the values.
         
@@ -135,11 +133,11 @@ class BrainModel:
         .. code-block:: python
         
             look_at([
-                    'image1.png', 'image2.png', 'image3.png', 
-                    'image1.png', 'image2.png', 'image4.png', 
-                    'image2.png', 'image3.png', 'image4.png', 
+                    ['image1.png', 'image2.png', 'image3.png'], 
+                    ['image1.png', 'image2.png', 'image4.png'], 
+                    ['image2.png', 'image3.png', 'image4.png'], 
                     ...
-                    'image4.png', 'image8.png', 'image10.png'])
+                    ['image4.png', 'image8.png', 'image10.png']])
 
         with 50 triplet trials and 10 unique stimuli could output 
         .. code-block:: python

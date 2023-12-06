@@ -121,9 +121,10 @@ class BrainModel:
         """
         Predict the odd-one-out elements for a list of triplets of stimuli. 
 
-        The model must be supplied with a list of triplets of stimuli.
-        The model is expected to output a one-dimensional assembly with each value corresponding 
-        to the index (`0`, `1`, or `2`) of the triplet element that is different from the other two.
+        The model must be supplied with a list of stimuli where every three consecutive stimuli 
+        are considered to form a triplet. The model is expected to output a one-dimensional 
+        assembly with each value corresponding to the index (`0`, `1`, or `2`) of the triplet 
+        element that is different from the other two.
         
         Output a :class:`~brainio.assemblies.BehavioralAssembly` with the choices as the values.
         
@@ -132,12 +133,11 @@ class BrainModel:
         Setting up an odd-one-out task for a list of triplets with `start_task(BrainModel.Task.odd_one_out)` and calling 
         .. code-block:: python
         
-            look_at([
-                    ['image1.png', 'image2.png', 'image3.png'], 
-                    ['image1.png', 'image2.png', 'image4.png'], 
-                    ['image2.png', 'image3.png', 'image4.png'], 
-                    ...
-                    ['image4.png', 'image8.png', 'image10.png']])
+            look_at(['image1.png', 'image2.png', 'image3.png',    #triplet 1 
+                     'image1.png', 'image2.png', 'image4.png',    #triplet 2 
+                     'image2.png', 'image3.png', 'image4.png',    #triplet 3
+                     ...
+                     'image4.png', 'image8.png', 'image10.png'])  #triplet 50 
 
         with 50 triplet trials and 10 unique stimuli could output 
         .. code-block:: python

@@ -14,6 +14,12 @@ from brainio_base.assemblies import DataAssembly
 from brainio_base.stimuli import StimulusSet
 from brainio_collection.knownfile import KnownFile
 from brainio_contrib.packaging import package_stimulus_set, package_data_assembly
+from brainscore_vision.data_helpers.lookup_legacy import version_id_df, build_filename
+
+# extract version ids from version_ids csv
+assembly_version = version_id_df.at[build_filename('dicarlo.Kar2019', '.nc'), 'version_id']
+csv_version = version_id_df.at[build_filename('dicarlo.Kar2019', '.csv'), 'version_id']
+zip_version = version_id_df.at[build_filename('dicarlo.Kar2019', '.zip'), 'version_id']
 
 object_lookup = {
     1: 'bear',

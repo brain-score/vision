@@ -1,8 +1,7 @@
 import numpy as np
 
-import brainio
 from brainscore_core import Score
-from brainscore_vision import load_metric
+from brainscore_vision import load_metric, load_stimulus_set, load_dataset
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
 from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.metric_helpers.transformations import apply_aggregate
@@ -26,7 +25,7 @@ BIBTEX = """@article {Rajalingham240614,
 class _DicarloRajalingham2018(BenchmarkBase):
     def __init__(self, metric, metric_identifier):
         self._metric = metric
-        self._fitting_stimuli = brainio.get_stimulus_set('dicarlo.objectome.public')
+        self._fitting_stimuli = load_stimulus_set('dicarlo.objectome.public')
         self._assembly = LazyLoad(lambda: load_assembly('private'))
         self._visual_degrees = 8
         self._number_of_trials = 2
@@ -70,6 +69,6 @@ def DicarloRajalingham2018I2n():
 
 
 def load_assembly(access='private'):
-    assembly = brainio.get_assembly(f'dicarlo.Rajalingham2018.{access}')
+    assembly = load_dataset(f'dicarlo.Rajalingham2018.{access}')
     assembly['correct'] = assembly['choice'] == assembly['sample_obj']
     return assembly

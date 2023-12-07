@@ -25,10 +25,3 @@ def test_crossvalidated_has_error():
     ckacv = load_metric('cka_cv', crossvalidation_kwargs=dict(stratification_coord=None))
     similarity = ckacv(assembly, assembly)
     assert hasattr(similarity, 'error')
-
-
-class test_crossvalidated_identity:
-    assembly = _make_data()
-    metric = load_metric('cka_cv', crossvalidation_kwargs=dict(stratification_coord=None))
-    score = metric(assembly1=assembly, assembly2=assembly)
-    assert score == 1

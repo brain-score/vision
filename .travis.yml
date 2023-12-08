@@ -34,7 +34,7 @@ install:
 - conda update -q conda
 - conda info -a
 - pip list # list installed package versions
-import: brain-score/core:travis/script.yml@kvf/fold_travis 
+import: brain-score/core:tools/script.yml@kvf/fold_travis 
 
 notifications:
   slack:

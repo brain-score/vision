@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 import pandas as pd
 
@@ -15,7 +15,7 @@ class Imagenet2012(BenchmarkBase):
     def __init__(self):
         # Not a valid StimulusSet if the files are not present on the filesystem.
         # We bypass StimulusSet.from_files() here.
-        stimulus_set = pd.read_csv(os.path.join(os.path.dirname(__file__), 'imagenet2012.csv'))
+        stimulus_set = pd.read_csv(Path(__file__).parent / 'imagenet2012.csv')
         StimulusSetLoader.correct_stimulus_id_name(stimulus_set)
         stimulus_set = StimulusSet(stimulus_set)
         stimulus_set.stimulus_paths = {row.stimulus_id: row.filepath for row in stimulus_set.itertuples()}

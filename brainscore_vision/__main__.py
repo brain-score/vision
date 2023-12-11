@@ -6,8 +6,8 @@ from brainscore_core.plugin_management.test_plugins import run_args as _core_tes
 from brainscore_vision import score as _score_function
 
 
-def score(model_identifier: str, benchmark_identifier: str, conda_active: bool=False):
-    result = _score_function(model_identifier, benchmark_identifier, conda_active)
+def score(model_identifier: str, benchmark_identifier: str):
+    result = _score_function(model_identifier, benchmark_identifier)
     print(result)  # print instead of return because fire has issues with xarray objects
 
 

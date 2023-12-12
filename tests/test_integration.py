@@ -10,7 +10,7 @@ def test_can_import():
     # noinspection PyUnresolvedReferences
     import brainscore_vision
 
-
+@pytest.mark.memory_intense
 @pytest.mark.parametrize("model_identifier, benchmark_identifier, expected_score", [
     ("pixels", "dicarlo.MajajHong2015public.IT-pls", approx(0.07637264, abs=0.0005)),
 ])
@@ -19,7 +19,7 @@ def test_model_benchmark_score(model_identifier, benchmark_identifier, expected_
     actual_score = score(model_identifier=model_identifier, benchmark_identifier=benchmark_identifier)
     assert actual_score == expected_score
 
-
+@pytest.mark.memory_intense
 def test_model_benchmark_commandline_score():
     process = subprocess.run(
         [

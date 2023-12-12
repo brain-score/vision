@@ -35,7 +35,7 @@ class TestRunScoring:
     def test_successful_run(self):
         args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel', 
                     'public': True, 'competition': 'None', 'new_models': ['alexnet'], 
-                    'new_benchmarks': ['dicarlo.MajajHong2015.IT-pls'], 'specified_only': True}
+                    'new_benchmarks': ['dicarlo.MajajHong2015public.IT-pls'], 'specified_only': True}
         run_scoring(args_dict)
         score_entries = database_models.Score.select()
         score_entries = list(score_entries)
@@ -47,12 +47,11 @@ class TestRunScoring:
     def test_multiple_models(self):
         args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel', 
                     'public': True, 'competition': 'None', 'new_models': ['pixels', 'alexnet'], 
-                    'new_benchmarks': ['dicarlo.MajajHong2015.IT-pls'], 'specified_only': True}
+                    'new_benchmarks': ['dicarlo.MajajHong2015public.IT-pls'], 'specified_only': True}
         run_scoring(args_dict)
         score_entries = database_models.Score.select()
         assert len(score_entries) == 2
         score_values = [entry.score_ceiled for entry in score_entries]
-        breakpoint()
         assert all(np.array(score_values) > 0)
 
     def test_benchmark_does_not_exist(self):

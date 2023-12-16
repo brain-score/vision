@@ -71,13 +71,6 @@ filterwarnings = [
     "ignore::FutureWarning"
 ]
 
-markers = [
-    "memory_intense",
-    "travis_slow",
-    "slow",
-    "private_access",
-]
-
 
 ################################################################
 #### setuptools packaging config ####

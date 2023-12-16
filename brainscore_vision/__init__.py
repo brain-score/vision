@@ -1,7 +1,6 @@
 import logging
 from typing import Dict, Any, Union, Callable
 
-
 from brainio.assemblies import DataAssembly
 from brainio.stimuli import StimulusSet
 from brainscore_core.benchmarks import Benchmark
@@ -77,10 +76,14 @@ def _run_score(model_identifier: str, benchmark_identifier: str) -> Score:
     score: Score = benchmark(model)
     score.attrs['model_identifier'] = model_identifier
     score.attrs['benchmark_identifier'] = benchmark_identifier
+    try:  # attempt to look up the layer commitment if model uses a standard layer model
+        score.attrs['comment'] = f"layers: {model.layer_model.region_layer_map}"
+    except Exception:
+        pass
     return score
 
 
-def score(model_identifier: str, benchmark_identifier: str, conda_active: bool=False) -> Score:
+def score(model_identifier: str, benchmark_identifier: str, conda_active: bool = False) -> Score:
     """
     Score the model referenced by the `model_identifier` on the benchmark referenced by the `benchmark_identifier`.
     The model needs to implement the :class:`~brainscore.model_interface.BrainModel` interface

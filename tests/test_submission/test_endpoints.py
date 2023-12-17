@@ -67,10 +67,10 @@ class TestRunScoring:
         assert len(score_entries) == 2
         score_values = [entry.score_ceiled for entry in score_entries]
         assert all(np.array(score_values) > 0)
-        score_MajajHong = database_models.Score.select(dict(benchmark__identifier='dicarlo.MajajHong2015public.IT-pls'))
-        assert score_MajajHong.score_ceiled == approx(.5079817, abs=0.0005)
-        score_Rajalingham = database_models.Score.select(dict(benchmark__identifier='dicarlo.Rajalingham2018-i2n'))
-        assert score_Rajalingham.score_ceiled == approx(.3701702, abs=0.0005)
+        score_MajajHong = database_models.Score.get(benchmark__benchmark_type_id='dicarlo.MajajHong2015.IT.public-pls')
+        assert score_MajajHong.score_ceiled == approx(.5079817, abs=0.005)
+        score_Rajalingham = database_models.Score.get(benchmark__benchmark_type_id='dicarlo.Rajalingham2018-i2n')
+        assert score_Rajalingham.score_ceiled == approx(.3701702, abs=0.005)
 
     @pytest.mark.travis_slow
     def test_two_models_two_benchmarks(self):

@@ -1,5 +1,6 @@
 import numpy as np
 from numpy.random import RandomState
+from pytest import approx
 
 from brainio.assemblies import DataAssembly
 from brainscore_vision import load_metric
@@ -17,7 +18,7 @@ def test_identity():
     cka = load_metric('cka')
     assembly = _make_data()
     similarity = cka(assembly, assembly)
-    assert similarity == 1
+    assert similarity == approx(1)
 
 
 def test_crossvalidated_has_error():
@@ -25,10 +26,3 @@ def test_crossvalidated_has_error():
     ckacv = load_metric('cka_cv', crossvalidation_kwargs=dict(stratification_coord=None))
     similarity = ckacv(assembly, assembly)
     assert hasattr(similarity, 'error')
-
-
-class test_crossvalidated_identity:
-    assembly = _make_data()
-    metric = load_metric('cka_cv', crossvalidation_kwargs=dict(stratification_coord=None))
-    score = metric(assembly1=assembly, assembly2=assembly)
-    assert score == 1

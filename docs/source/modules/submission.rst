@@ -103,7 +103,7 @@ cases run, the PR can be merged. Finally, apply those migrations to the prod dat
 
 ...changing the submission process
 **********************************
-In addition to the main job for scoring submission (run_benchmarks), Jenkins contains a second job (dev_run_benchmarks),
+In addition to the main job for scoring submission (`score_plugins`), Jenkins contains a second job (`dev_score_plugins`),
 which can be used to test new submission code. It is also a good idea instead of checking out the Brain-Score master
 branch, as it is done in the default job, to checkout your development branch instead. This way you can run a whole
 submission without harming the "production" job. This is accomplished already by a duplicate of score_models.sh for dev,

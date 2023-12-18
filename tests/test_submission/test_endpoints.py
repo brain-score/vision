@@ -34,7 +34,7 @@ class TestRunScoring:
 
     def test_successful_run(self):
         args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel',
-                     'public': True, 'competition': 'None', 'specified_only': True,
+                     'public': True, 'competition': None, 'specified_only': True,
                      'new_models': ['alexnet'], 'new_benchmarks': ['dicarlo.MajajHong2015public.IT-pls']}
         run_scoring(args_dict)
         score_entries = database_models.Score.select()
@@ -47,7 +47,7 @@ class TestRunScoring:
     @pytest.mark.travis_slow
     def test_two_models_one_benchmark(self):
         args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel',
-                     'public': True, 'competition': 'None', 'specified_only': True,
+                     'public': True, 'competition': None, 'specified_only': True,
                      'new_models': ['pixels', 'alexnet'],
                      'new_benchmarks': ['dicarlo.MajajHong2015public.IT-pls']}
         run_scoring(args_dict)
@@ -59,7 +59,7 @@ class TestRunScoring:
     @pytest.mark.travis_slow
     def test_one_model_two_benchmarks(self):
         args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel',
-                     'public': True, 'competition': 'None', 'specified_only': True,
+                     'public': True, 'competition': None, 'specified_only': True,
                      'new_models': ['alexnet'],
                      'new_benchmarks': ['dicarlo.MajajHong2015public.IT-pls', 'dicarlo.Rajalingham2018-i2n']}
         run_scoring(args_dict)
@@ -75,7 +75,7 @@ class TestRunScoring:
     @pytest.mark.travis_slow
     def test_two_models_two_benchmarks(self):
         args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel',
-                     'public': True, 'competition': 'None', 'specified_only': True,
+                     'public': True, 'competition': None, 'specified_only': True,
                      'new_models': ['pixels', 'alexnet'],
                      'new_benchmarks': ['dicarlo.MajajHong2015public.IT-pls', 'dicarlo.Rajalingham2018-i2n']}
         run_scoring(args_dict)
@@ -86,7 +86,7 @@ class TestRunScoring:
 
     def test_benchmark_does_not_exist(self):
         args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel',
-                     'public': True, 'competition': 'None', 'new_models': ['alexnet'],
+                     'public': True, 'competition': None, 'new_models': ['alexnet'],
                      'new_benchmarks': ['idonotexist'], 'specified_only': True}
         run_scoring(args_dict)
         score_entries = database_models.Score.select()
@@ -103,7 +103,7 @@ class TestRunScoring:
 
     def test_competition_field_not_set(self):
         args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel',
-                     'public': True, 'competition': 'None', 'new_models': ['alexnet'],
+                     'public': True, 'competition': None, 'new_models': ['alexnet'],
                      'new_benchmarks': ['dicarlo.MajajHong2015public.IT-pls'], 'specified_only': True}
         run_scoring(args_dict)
         model_entries = database_models.Model.select()

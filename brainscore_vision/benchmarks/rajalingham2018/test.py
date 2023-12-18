@@ -21,8 +21,8 @@ number_trials = NumberOfTrialsTests()
 
 
 @pytest.mark.parametrize('benchmark', [
-    'dicarlo.Rajalingham2018-i2n',
-    'dicarlo.Rajalingham2018public-i2n',
+    'Rajalingham2018-i2n',
+    'Rajalingham2018public-i2n',
 ])
 def test_benchmark_registry(benchmark):
     assert benchmark in benchmark_registry
@@ -73,7 +73,7 @@ class PrecomputedProbabilities(BrainModel):
 
 
 def test_Rajalingham2018public():
-    benchmark = load_benchmark('dicarlo.Rajalingham2018public-i2n')
+    benchmark = load_benchmark('Rajalingham2018public-i2n')
     # load features
     filename = 'CORnetZ-rajalingham2018public.nc'
     filepath = Path(__file__).parent / filename
@@ -92,13 +92,13 @@ def test_Rajalingham2018public():
 
 
 @pytest.mark.parametrize('benchmark, candidate_degrees, image_id, expected', [
-    pytest.param('dicarlo.Rajalingham2018-i2n', 14, '0223bf9e5db0edad21976b16494fe9396a5ef145',
+    pytest.param('Rajalingham2018-i2n', 14, '0223bf9e5db0edad21976b16494fe9396a5ef145',
                  approx(.225023, abs=.0001), marks=[pytest.mark.private_access]),
-    pytest.param('dicarlo.Rajalingham2018-i2n', 6, '0223bf9e5db0edad21976b16494fe9396a5ef145',
+    pytest.param('Rajalingham2018-i2n', 6, '0223bf9e5db0edad21976b16494fe9396a5ef145',
                  approx(.002244, abs=.0001), marks=[pytest.mark.private_access]),
-    pytest.param('dicarlo.Rajalingham2018public-i2n', 14, '0020cef91bd626e9fbbabd853494ee444e5c9ecb',
+    pytest.param('Rajalingham2018public-i2n', 14, '0020cef91bd626e9fbbabd853494ee444e5c9ecb',
                  approx(.22486, abs=.0001), marks=[]),
-    pytest.param('dicarlo.Rajalingham2018public-i2n', 6, '0020cef91bd626e9fbbabd853494ee444e5c9ecb',
+    pytest.param('Rajalingham2018public-i2n', 6, '0020cef91bd626e9fbbabd853494ee444e5c9ecb',
                  approx(.00097, abs=.0001), marks=[]),
 ])
 def test_amount_gray(benchmark: str, candidate_degrees: int, image_id: str, expected: float):
@@ -106,9 +106,8 @@ def test_amount_gray(benchmark: str, candidate_degrees: int, image_id: str, expe
 
 
 @pytest.mark.private_access
-@pytest.mark.parametrize('benchmark_identifier', ['dicarlo.Rajalingham2018-i2n'])
-def test_repetitions(benchmark_identifier):
-    number_trials.repetitions_test(benchmark_identifier)
+def test_repetitions():
+    number_trials.repetitions_test('Rajalingham2018-i2n')
 
 
 @pytest.mark.private_access

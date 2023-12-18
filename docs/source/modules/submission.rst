@@ -88,7 +88,7 @@ What to do
 ...when changing the database schema
 ************************************
 The current schema is depicted `here
-<https://github.com/brain-score/brain-score/blob/master/brainscore/submission/db_schema.uml>`_:
+<https://github.com/brain-score/brain-score/blob/master/brainscore_vision/docs/source/modules/db_schema.uml>`_:
 
 
 When the database schema has to be changed, use the `Brain-Score.web <https://github.com/brain-score/brain-score.web>`_

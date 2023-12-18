@@ -59,7 +59,7 @@ stimulus_set_registry['Geirhos2021_contrast'] = lambda: load_stimulus_set_from_s
 
 # 'cue-conflict'
 # assembly
-data_registry['brendel.Geirhos2021_cue-conflict'] = lambda: load_assembly_from_s3(
+data_registry['Geirhos2021_cue-conflict'] = lambda: load_assembly_from_s3(
     identifier='brendel.Geirhos2021_cue-conflict',
     version_id="WCGAQqS86x2z5CXGlegLPHu3XsH.tEk3",
     sha1="cc214e3595d34565b13963c5f56049769a39a5c9",
@@ -79,7 +79,7 @@ stimulus_set_registry['Geirhos2021_cue-conflict'] = lambda: load_stimulus_set_fr
 
 # 'edge'
 # assembly
-data_registry['brendel.Geirhos2021_edge'] = lambda: load_assembly_from_s3(
+data_registry['Geirhos2021_edge'] = lambda: load_assembly_from_s3(
     identifier='brendel.Geirhos2021_edge',
     version_id="gTmCANJ797ZNcfKzecCnwlnUYcgl1.xa",
     sha1="ab1dc9e188e248da07215b375eb3dbcc58fde7fb",
@@ -99,7 +99,7 @@ stimulus_set_registry['Geirhos2021_edge'] = lambda: load_stimulus_set_from_s3(
 
 # 'eidolonI'
 # assembly
-data_registry['brendel.Geirhos2021_eidolonI'] = lambda: load_assembly_from_s3(
+data_registry['Geirhos2021_eidolonI'] = lambda: load_assembly_from_s3(
     identifier='brendel.Geirhos2021_eidolonI',
     version_id="rVmuuTXAi6XqVI3hdyhe7WqSJNFOsFA4",
     sha1="0f01f351ae19eafc2cb5e504d98e5cd01b4c07b4",
@@ -119,7 +119,7 @@ stimulus_set_registry['Geirhos2021_eidolonI'] = lambda: load_stimulus_set_from_s
 
 # 'eidolonII'
 # assembly
-data_registry['brendel.Geirhos2021_eidolonII'] = lambda: load_assembly_from_s3(
+data_registry['Geirhos2021_eidolonII'] = lambda: load_assembly_from_s3(
     identifier='brendel.Geirhos2021_eidolonII',
     version_id="yOXPugtdV6fx0_BAEY4NeYlzwfCChIaR",
     sha1="499eea0f0c0817d02b5b97d2ebab89bc4c40a153",
@@ -139,7 +139,7 @@ stimulus_set_registry['Geirhos2021_eidolonII'] = lambda: load_stimulus_set_from_
 
 # 'eidolonIII'
 # assembly
-data_registry['brendel.Geirhos2021_eidolonIII'] = lambda: load_assembly_from_s3(
+data_registry['Geirhos2021_eidolonIII'] = lambda: load_assembly_from_s3(
     identifier='brendel.Geirhos2021_eidolonIII',
     version_id="zkbswpduS0z51_OrUF_XA7UaKb_4bYkN",
     sha1="e7c9a49e729f8666f8aedc6e47c746fbbe2ebe36",
@@ -159,7 +159,7 @@ stimulus_set_registry['Geirhos2021_eidolonIII'] = lambda: load_stimulus_set_from
 
 # 'false-colour'
 # assembly
-data_registry['brendel.Geirhos2021_false-colour'] = lambda: load_assembly_from_s3(
+data_registry['Geirhos2021_false-colour'] = lambda: load_assembly_from_s3(
     identifier='brendel.Geirhos2021_false-colour',
     version_id="GmYh1SBFUiEBLzkf1eRvA_GdXs1kCqtO",
     sha1="4dc072264651c81575564ba4818a12b8e8039c65",
@@ -179,7 +179,7 @@ stimulus_set_registry['Geirhos2021_false-colour'] = lambda: load_stimulus_set_fr
 
 # 'high-pass'
 # assembly
-data_registry['brendel.Geirhos2021_high-pass'] = lambda: load_assembly_from_s3(
+data_registry['Geirhos2021_high-pass'] = lambda: load_assembly_from_s3(
     identifier='brendel.Geirhos2021_high-pass',
     version_id="FB_uDoX3nMZR1Qb6vcR4Y.PdEKKa1eKo",
     sha1="5df45c69127758f1ba3391671c521711050e3b4d",
@@ -199,7 +199,7 @@ stimulus_set_registry['Geirhos2021_high-pass'] = lambda: load_stimulus_set_from_
 
 # 'low-pass'
 # assembly
-data_registry['brendel.Geirhos2021_low-pass'] = lambda: load_assembly_from_s3(
+data_registry['Geirhos2021_low-pass'] = lambda: load_assembly_from_s3(
     identifier='brendel.Geirhos2021_low-pass',
     version_id="qUX5BRBV1rWK75m4QKH5aL1CVKs8x7u7",
     sha1="75ab628d9e6d0d634290567b1cb261d7f8dc61e2",
@@ -219,7 +219,7 @@ stimulus_set_registry['Geirhos2021_low-pass'] = lambda: load_stimulus_set_from_s
 
 # 'phase-scrambling'
 # assembly
-data_registry['brendel.Geirhos2021_phase-scrambling'] = lambda: load_assembly_from_s3(
+data_registry['Geirhos2021_phase-scrambling'] = lambda: load_assembly_from_s3(
     identifier='brendel.Geirhos2021_phase-scrambling',
     version_id="Dg4Je4uHy4pYe7_CIN27fWgeVNonHlZP",
     sha1="4124f9f5b86fb6ed82c98197d292eef50b608aba",
@@ -239,7 +239,7 @@ stimulus_set_registry['Geirhos2021_phase-scrambling'] = lambda: load_stimulus_se
 
 # 'power-equalisation'
 # assembly
-data_registry['brendel.Geirhos2021_power-equalisation'] = lambda: load_assembly_from_s3(
+data_registry['Geirhos2021_power-equalisation'] = lambda: load_assembly_from_s3(
     identifier='brendel.Geirhos2021_power-equalisation',
     version_id="XKaUgVEpoBaTNL0qpFFRNyTq3WRcPQJY",
     sha1="0aba1b50a7e0802d76c41d332a121a3f96ef4f7d",
@@ -259,7 +259,7 @@ stimulus_set_registry['Geirhos2021_power-equalisation'] = lambda: load_stimulus_
 
 # 'rotation'
 # assembly
-data_registry['brendel.Geirhos2021_rotation'] = lambda: load_assembly_from_s3(
+data_registry['Geirhos2021_rotation'] = lambda: load_assembly_from_s3(
     identifier='brendel.Geirhos2021_rotation',
     version_id="zkIC2EQlN5oDwhtLDbnl_THME74mtFfc",
     sha1="e51a5c3bc95ade159e71aa602232063730bcd57b",
@@ -279,7 +279,7 @@ stimulus_set_registry['Geirhos2021_rotation'] = lambda: load_stimulus_set_from_s
 
 # 'silhouette'
 # assembly
-data_registry['brendel.Geirhos2021_silhouette'] = lambda: load_assembly_from_s3(
+data_registry['Geirhos2021_silhouette'] = lambda: load_assembly_from_s3(
     identifier='brendel.Geirhos2021_silhouette',
     version_id="xlpXfo7iy8_nssKR4OwM4199E6wCA0nA",
     sha1="7dc94991465fe8009244e0d6fb8283419a1f9885",
@@ -299,7 +299,7 @@ stimulus_set_registry['Geirhos2021_silhouette'] = lambda: load_stimulus_set_from
 
 # 'sketch'
 # assembly
-data_registry['brendel.Geirhos2021_sketch'] = lambda: load_assembly_from_s3(
+data_registry['Geirhos2021_sketch'] = lambda: load_assembly_from_s3(
     identifier='brendel.Geirhos2021_sketch',
     version_id="w7_3YJYTmVMYWbNY6SQvzRvYb45mRqte",
     sha1="6709850864cea16d99a29fb31ae3c4a489983562",
@@ -319,7 +319,7 @@ stimulus_set_registry['Geirhos2021_sketch'] = lambda: load_stimulus_set_from_s3(
 
 # 'stylized'
 # assembly
-data_registry['brendel.Geirhos2021_stylized'] = lambda: load_assembly_from_s3(
+data_registry['Geirhos2021_stylized'] = lambda: load_assembly_from_s3(
     identifier='brendel.Geirhos2021_stylized',
     version_id="0ESwWyMc5wODloonsSkzURncuYYJMxql",
     sha1="dcf15f292e787a88e1e0f271e6b2838d6bdadfd3",
@@ -339,7 +339,7 @@ stimulus_set_registry['Geirhos2021_stylized'] = lambda: load_stimulus_set_from_s
 
 # 'uniform-noise'
 # assembly
-data_registry['brendel.Geirhos2021_uniform-noise'] = lambda: load_assembly_from_s3(
+data_registry['Geirhos2021_uniform-noise'] = lambda: load_assembly_from_s3(
     identifier='brendel.Geirhos2021_uniform-noise',
     version_id="89aJ7jLIB68QCNCEcQsBjchKbv.31YWH",
     sha1="f5e8b2636738f978c71591b8df6f8a21a66b72d1",

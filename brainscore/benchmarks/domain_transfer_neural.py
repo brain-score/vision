@@ -103,7 +103,6 @@ def load_domain_transfer(average_repetitions, region):
     filtered_stimulus_set = filtered_stimulus_set[filtered_stimulus_set.object_style != 'skeleton']
     filtered_stimulus_set = filtered_stimulus_set[filtered_stimulus_set.object_style.notnull()]
     
-    # temporary, if loaded from S3, the stimulus_set is already there
     assembly.attrs['stimulus_set']=filtered_stimulus_set
 
     assembly = assembly.transpose('presentation', 'neuroid')

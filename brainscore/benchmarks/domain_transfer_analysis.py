@@ -47,9 +47,8 @@ class _OOD_AnalysisBenchmark(BenchmarkBase):
         self._fitting_stimuli = get_stimulus_set('sanghavi_dicarlo_stimulus_set_domain_transfer')
         self._fitting_stimuli.identifier = 'domain_transfer_pico_oleo'
         self._visual_degrees = 8
-        # how many repeated trials each stimulus was shown for
         super(OOD_AnalysisBenchmark, self).__init__(
-            identifier='dicarlo.OOD_BehavioralBenchmark',
+            identifier='dicarlo.Sanghavi2020.OOD_BehavioralBenchmark',
             version=1,
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
             parent='behavior',
@@ -65,11 +64,9 @@ class _OOD_AnalysisBenchmark(BenchmarkBase):
         fitting_stimuli = place_on_screen(self._fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
                                           source_visual_degrees=self._visual_degrees)
         candidate.start_recording('IT', time_bins=[(70, 170)])
-        # stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
-        #                                source_visual_degrees=self._visual_degrees)
         activations = candidate.look_at(fitting_stimuli)
         activations = activations.squeeze()
-        activations = activations.transpose('presentation', 'neuroid') # this should be the equivalent of 'brain_model_activations'
+        activations = activations.transpose('presentation', 'neuroid')
 
         crossdomain_data_dict = get_crossdomain_data_dictionary(domain_transfer_data=activations)
         

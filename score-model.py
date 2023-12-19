@@ -18,7 +18,6 @@ model = brain_translated_pool[identifier]
 benchmark = IT_pls()
 score = benchmark(model)
 
-# score = score_model(model_identifier=identifier, model=model, benchmark_identifier='bocini-nsd-2023.whole_brain-pls')
 import pdb; pdb.set_trace()
 print(score)
 

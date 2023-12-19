@@ -64,6 +64,8 @@ import brainscore
         'brendel.Geirhos2021_stylized',
         'brendel.Geirhos2021_sketch',
         'brendel.Geirhos2021_uniform-noise',
+        'dicarlo.Sanghavi2020.domain_transfer.IT-pls',
+        'dicarlo.Sanghavi2020.OOD_BehavioralBenchmark',
 ))
 def test_list_assembly(assembly):
     l = brainio.list_assemblies()
@@ -120,6 +122,8 @@ def test_list_assembly(assembly):
     pytest.param('brendel.Geirhos2021_stylized', marks=[pytest.mark.private_access]),
     pytest.param('brendel.Geirhos2021_sketch', marks=[pytest.mark.private_access]),
     pytest.param('brendel.Geirhos2021_uniform-noise', marks=[pytest.mark.private_access]),
+    pytest.param('dicarlo.Sanghavi2020.domain_transfer.IT-pls', marks=[pytest.mark.private_access]),
+    pytest.param('dicarlo.Sanghavi2020.OOD_BehavioralBenchmark', marks=[pytest.mark.private_access]),
 ])
 def test_existence(assembly_identifier):
     assert brainio.get_assembly(assembly_identifier) is not None

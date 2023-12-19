@@ -59,8 +59,7 @@ import brainio
         'brendel.Geirhos2021_sketch',
         'brendel.Geirhos2021_uniform-noise',
         'Islam2021',
-        'dicarlo.Sanghavi2020.domain_transfer.IT-pls',
-        'dicarlo.Sanghavi2020.OOD_BehavioralBenchmark',
+        'sanghavi_dicarlo_stimulus_set_domain_transfer',
 ))
 def test_list_stimulus_set(stimulus_set):
     l = brainio.list_stimulus_sets()

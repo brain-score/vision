@@ -25,7 +25,6 @@ BIBTEX = """@inproceedings{DBLP:conf/nips/BarbuMALWGTK19,
 NUMBER_OF_TRIALS = 10
 
 _logger = logging.getLogger(__name__)
-LOCAL_STIMULUS_DIRECTORY = '/braintree/data2/active/common/objectnet-stimuli/'
 
 
 class Objectnet(BenchmarkBase):

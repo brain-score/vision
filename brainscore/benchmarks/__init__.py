@@ -203,6 +203,8 @@ def _evaluation_benchmark_pool():
     from .sanghavimurty2020 import DicarloSanghaviMurty2020V4PLS, DicarloSanghaviMurty2020ITPLS
     pool['dicarlo.SanghaviMurty2020.V4-pls'] = LazyLoad(DicarloSanghaviMurty2020V4PLS)
     pool['dicarlo.SanghaviMurty2020.IT-pls'] = LazyLoad(DicarloSanghaviMurty2020ITPLS)
+    from .domain_transfer_neural import IT_pls
+    pool['dicarlo.Sanghavi2020.domain_transfer.IT-pls'] = LazyLoad(IT_pls)
 
     # behavioral benchmarks
     # Rajalingham2018
@@ -216,6 +218,11 @@ def _evaluation_benchmark_pool():
         pool[f"brendel.{assembly_identifier}-error_consistency"] = LazyLoad(
             # use lambda parameter-binding to avoid `benchmark_ctr` being re-assigned in the next loop iteration
             lambda benchmark_ctr=benchmark_ctr: benchmark_ctr())
+        
+    # analysis benchmarks
+    # AMIG Bagus
+    from .domain_transfer_analysis import  OOD_AnalysisBenchmark
+    pool['dicarlo.OOD_BehavioralBenchmark'] = LazyLoad(OOD_AnalysisBenchmark)
 
     return pool
 

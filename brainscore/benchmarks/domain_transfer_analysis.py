@@ -40,22 +40,17 @@ BIBTEX = """
 
 #### Analysis Benchmark Implementation  ####
 
-class OOD_AnalysisBenchmark(BenchmarkBase):
-    def __init__(self):
-        self._metric = RidgeClassifierCV(alphas=[0.0001, 0.001, 0.01, 0.1, 1, 10], fit_intercept=True, normalize=True) 
+class _OOD_AnalysisBenchmark(BenchmarkBase):
+    def __init__(self, metric):
 
+        self._metric = metric
         self._fitting_stimuli = get_stimulus_set('sanghavi_dicarlo_stimulus_set_domain_transfer')
         self._fitting_stimuli.identifier = 'domain_transfer_pico_oleo'
-        # self._assembly = LazyLoad(lambda: brainscore.get_assembly('<authoryear>'))  ## \TODO: do I need this? I dont understand why in the benchmark tutorial you load both...
-        # at what degree visual angle stimuli were presented
         self._visual_degrees = 8
         # how many repeated trials each stimulus was shown for
         super(OOD_AnalysisBenchmark, self).__init__(
-            identifier='OOD_BehavioralBenchmark-i2n',
-            # the version number increases when changes to the benchmark are made; start with 1
+            identifier='dicarlo.OOD_BehavioralBenchmark',
             version=1,
-            # the ceiling function outputs a ceiling estimate of how reliable the data is, or in other words, how
-            # well we would expect the perfect model to perform on this benchmark
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
             parent='behavior',
             bibtex=BIBTEX,
@@ -101,6 +96,12 @@ class OOD_AnalysisBenchmark(BenchmarkBase):
             pickle.dump(crossdomain_results, file)
             
         return crossdomain_results
+    
+
+def OOD_AnalysisBenchmark():
+    return _OOD_AnalysisBenchmark(
+        metric=RidgeClassifierCV(alphas=[0.0001, 0.001, 0.01, 0.1, 1, 10], fit_intercept=True, normalize=True) 
+    )
 
 ########## helpers #############
 def get_crossdomain_data_dictionary(domain_transfer_data):

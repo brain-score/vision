@@ -36,7 +36,7 @@ def _commonbase(region, identifier_metric_suffix, similarity_metric, ceiler):
 
     assembly_repetition = LazyLoad(lambda region=region: load_domain_transfer(average_repetitions=False, region=region))
     assembly = LazyLoad(lambda region=region: load_domain_transfer(average_repetitions=True, region=region))
-    return NeuralBenchmark(identifier=f'dicarlo.Sanghavi2020.{region}-{identifier_metric_suffix}', version=1,
+    return NeuralBenchmark(identifier=f'dicarlo.Sanghavi2020.domain_transfer.{region}-{identifier_metric_suffix}', version=1,
                         assembly=assembly, similarity_metric=similarity_metric,
                         visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
                         ceiling_func=lambda: ceiler(assembly_repetition),

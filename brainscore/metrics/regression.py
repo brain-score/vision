@@ -32,6 +32,7 @@ class CrossRegressedCorrelation:
     def aggregate(self, scores):
         return scores.median(dim='neuroid')
 
+
 class ScaledCrossRegressedCorrelation:
     def __init__(self, *args, **kwargs):
         self.cross_regressed_correlation = CrossRegressedCorrelation(*args, **kwargs)

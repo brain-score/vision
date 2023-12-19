@@ -290,6 +290,11 @@ class CrossValidationSingle(Transformation):
 
 
 class CrossValidation(Transformation):
+    """
+    Performs multiple splits over a source and target assembly.
+    No guarantees are given for data-alignment, use the metadata.
+    """
+
     def __init__(self, *args, split_coord=Split.Defaults.split_coord,
                  stratification_coord=Split.Defaults.stratification_coord,
                  preprocess_indices=Split.Defaults.preprocess_indices, **kwargs):
@@ -301,6 +306,7 @@ class CrossValidation(Transformation):
         
 
     def pipe(self, source_assembly, target_assembly):
+        # check only for equal values, alignment is given by metadata
         assert sorted(source_assembly[self._split_coord].values) == sorted(target_assembly[self._split_coord].values)
         if self._split.do_stratify:
             assert hasattr(source_assembly, self._stratification_coord)

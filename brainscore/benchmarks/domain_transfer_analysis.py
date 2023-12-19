@@ -48,7 +48,7 @@ class _OOD_AnalysisBenchmark(BenchmarkBase):
         self._fitting_stimuli.identifier = 'domain_transfer_pico_oleo'
         self._visual_degrees = 8
         super(OOD_AnalysisBenchmark, self).__init__(
-            identifier='dicarlo.Sanghavi2020.OOD_BehavioralBenchmark',
+            identifier='dicarlo.OOD_Analysis_Benchmark',
             version=1,
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
             parent='behavior',

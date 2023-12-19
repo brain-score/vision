@@ -222,7 +222,7 @@ def _evaluation_benchmark_pool():
     # analysis benchmarks
     # AMIG Bagus
     from .domain_transfer_analysis import  OOD_AnalysisBenchmark
-    pool['dicarlo.OOD_BehavioralBenchmark'] = LazyLoad(OOD_AnalysisBenchmark)
+    pool['dicarlo.OOD_Analysis_Benchmark'] = LazyLoad(OOD_AnalysisBenchmark)
 
     return pool
 

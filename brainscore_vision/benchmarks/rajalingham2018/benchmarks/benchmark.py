@@ -69,6 +69,6 @@ def DicarloRajalingham2018I2n():
 
 
 def load_assembly(access='private'):
-    assembly = load_dataset(f'dicarlo.Rajalingham2018.{access}')
+    assembly = load_dataset(f'Rajalingham2018.{access}')
     assembly['correct'] = assembly['choice'] == assembly['sample_obj']
     return assembly

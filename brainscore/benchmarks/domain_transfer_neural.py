@@ -6,7 +6,7 @@ from brainscore.benchmarks._neural_common import NeuralBenchmark, average_repeti
 from brainscore.metrics.ceiling import InternalConsistency
 from brainscore.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation # OODRegressedCorrelation, CrossRegressedCorrelation_with_Background
 from brainscore.utils import LazyLoad
-import brainio
+import brainscore
 from brainio.assemblies import NeuronRecordingAssembly
 
 #### Define constants ####
@@ -31,7 +31,7 @@ OOD_TEST_IMAGES_NUM = 30
 
 custom_cache_directory = "../work/upschrimpf1/bocini"
 os.environ['RESULTCACHING_HOME'] = custom_cache_directory
-os.environ['RESULTCACHING_DISABLE'] = '1'
+os.environ['RESULTCACHING_DISABLE'] = '0'
 
 
 #### Benchmark implementation ####
@@ -48,15 +48,18 @@ def _commonbase(region, identifier_metric_suffix, similarity_metric, ceiler):
                         bibtex=BIBTEX)
 
 
+
+
 def IT_pls():
     return _commonbase('IT', identifier_metric_suffix='pls',
                                        similarity_metric=CrossRegressedCorrelation(
                                            regression=pls_regression(), correlation=pearsonr_correlation(),
-                                           crossvalidation_kwargs=dict(stratification_coord='object_label')), 
+                                           crossvalidation_kwargs = {'stratification_coord': 'object_label',
+                                                                     'preprocess_indices': _preprocess_indices}), 
                                        ceiler=InternalConsistency())
 
-#### helpers ####
 
+#### helpers ####
 
 def load_domain_transfer(average_repetitions, region):
     '''
@@ -66,15 +69,11 @@ def load_domain_transfer(average_repetitions, region):
          assembly (NeuronRecordingAssembly): domain transfer data from pico
     '''
 
-    # assembly = brainscore.get_assembly(name=f'dicarlo.Sanghavi2021.domain_transfer')
-    assembly = brainio.assemblies.DataAssembly.from_files('/Users/ernestobocini/Desktop/brain-score-domain-transfer/packaging/domain-transfer/merged_assembly/merged_assembly.nc')
-    #assembly = brainio.assemblies.DataAssembly.from_files('/work/upschrimpf1/bocini/domain-transfer/brain-score/packaging/domain_transfer/dependencies/pico_domain_transfer/assy_dicarlo_pico_domain_transfer.nc')
-
+    assembly = brainscore.get_assembly(name=f'oleo_pico_domain_transfer')
     assembly.load()
     assembly = assembly.sel(time_bin_id=0)  # 70-170ms
     assembly = assembly.squeeze('time_bin')
     assembly = assembly.transpose('neuroid', 'presentation')
-    #assembly = NeuronRecordingAssembly(assembly)
 
     print('Cross-Validation to only keep observations with consistency > 0.7')
     consistency = InternalConsistency()
@@ -97,11 +96,7 @@ def load_domain_transfer(average_repetitions, region):
     assembly = assembly.where(assembly.object_style != 'nan', drop=True)
 
     ## this is temporary because i havent pushed the new version of the assembly online:
-    csv_path = '/Users/ernestobocini/Desktop/brain-score-domain-transfer/packaging/domain-transfer/merged_assembly/merged_stimulus_set.csv'
-    dir_path = '/Users/ernestobocini/Desktop/brain-score-domain-transfer/packaging/domain-transfer/images'
-    stimulus_set = brainio.stimuli.StimulusSet.from_files(csv_path, dir_path)
-
-    #filtered_stimulus_set = assembly.stimulus_set[assembly.stimulus_set.stimulus_source != 'GeirhosOOD']
+    stimulus_set = assembly.stimulus_set
     filtered_stimulus_set = stimulus_set[stimulus_set.stimulus_source != 'GeirhosOOD'].copy()
     filtered_stimulus_set = filtered_stimulus_set[filtered_stimulus_set.stimulus_source != 'CueConflict']
     filtered_stimulus_set = filtered_stimulus_set[filtered_stimulus_set.stimulus_source != 'ObjectNet']
@@ -114,7 +109,6 @@ def load_domain_transfer(average_repetitions, region):
     assembly = assembly.transpose('presentation', 'neuroid')
 
     assembly = NeuronRecordingAssembly(assembly)
-    import pdb; pdb.set_trace()
 
     return assembly
 
@@ -124,3 +118,25 @@ def timebins_from_assembly(assembly):
     if 'time_bin' not in assembly.dims:
         timebins = [timebins]  # only single time-bin
     return timebins
+
+def get_non_overlapping_indices(train_ids, test_ids):
+        train_set = set(train_ids)
+        test_set = set(test_ids)
+
+        common_non_zero = train_set.intersection(test_set) - {0}
+        if not common_non_zero:
+            return train_ids, test_ids
+
+        train_indices_to_retain = [i for i, bg_id in enumerate(train_ids) if bg_id not in common_non_zero]
+
+        return train_indices_to_retain
+
+def _preprocess_indices(train_indices, test_indices, source_assembly):
+        train_background_ids = source_assembly['background_id'].values[train_indices]
+        test_background_ids = source_assembly['background_id'].values[test_indices]
+        train_indices = train_indices[get_non_overlapping_indices(train_background_ids, test_background_ids)]
+
+        assert set(source_assembly['background_id'].values[train_indices]).intersection(set( source_assembly['background_id'].values[test_indices])) == {0}
+        
+        return train_indices, test_indices
+

@@ -170,11 +170,13 @@ class Split:
         stratification_coord = 'object_name'  # cross-validation across images, balancing objects
         unique_split_values = False
         random_state = 1
+        preprocess_indices = None
 
     def __init__(self,
                  splits=Defaults.splits, train_size=None, test_size=None,
                  split_coord=Defaults.split_coord, stratification_coord=Defaults.stratification_coord, kfold=False,
-                 unique_split_values=Defaults.unique_split_values, random_state=Defaults.random_state):
+                 unique_split_values=Defaults.unique_split_values, random_state=Defaults.random_state,
+                 preprocess_indices=Defaults.preprocess_indices):
         super().__init__()
         if train_size is None and test_size is None:
             train_size = self.Defaults.train_size
@@ -194,6 +196,7 @@ class Split:
         self._split_coord = split_coord
         self._stratification_coord = stratification_coord
         self._unique_split_values = unique_split_values
+        self._preprocess_indices=preprocess_indices
 
         self._logger = logging.getLogger(fullname(self))
 
@@ -287,20 +290,17 @@ class CrossValidationSingle(Transformation):
 
 
 class CrossValidation(Transformation):
-    """
-    Performs multiple splits over a source and target assembly.
-    No guarantees are given for data-alignment, use the metadata.
-    """
-
     def __init__(self, *args, split_coord=Split.Defaults.split_coord,
-                 stratification_coord=Split.Defaults.stratification_coord, **kwargs):
+                 stratification_coord=Split.Defaults.stratification_coord,
+                 preprocess_indices=Split.Defaults.preprocess_indices, **kwargs):
         self._split_coord = split_coord
         self._stratification_coord = stratification_coord
         self._split = Split(*args, split_coord=split_coord, stratification_coord=stratification_coord, **kwargs)
         self._logger = logging.getLogger(fullname(self))
+        self._preprocess_indices = preprocess_indices
+        
 
     def pipe(self, source_assembly, target_assembly):
-        # check only for equal values, alignment is given by metadata
         assert sorted(source_assembly[self._split_coord].values) == sorted(target_assembly[self._split_coord].values)
         if self._split.do_stratify:
             assert hasattr(source_assembly, self._stratification_coord)
@@ -311,6 +311,13 @@ class CrossValidation(Transformation):
         split_scores = []
         for split_iterator, (train_indices, test_indices), done \
                 in tqdm(enumerate_done(splits), total=len(splits), desc='cross-validation'):
+            
+            if hasattr(self, '_preprocess_indices'):
+                if self._preprocess_indices is not None:
+                    print('train_indices before: ', len(train_indices))
+                    train_indices, test_indices = self._preprocess_indices(train_indices, test_indices, source_assembly)
+                    print('train_indices after: ', len(train_indices))
+
             train_values, test_values = cross_validation_values[train_indices], cross_validation_values[test_indices]
             train_source = subset(source_assembly, train_values, dims_must_match=False)
             train_target = subset(target_assembly, train_values, dims_must_match=False)

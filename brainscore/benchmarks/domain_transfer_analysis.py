@@ -28,7 +28,14 @@ NUM_SPLITS = 10
 
 
 
-BIBTEX = """"""
+BIBTEX = """
+@inproceedings{bagus2022primate,
+  title={Primate inferotemporal cortex neurons generalize better to novel image distributions than analogous deep neural networks units},
+  author={Bagus, Ayu Marliawaty I Gusti and Marques, Tiago and Sanghavi, Sachi and DiCarlo, James J and Schrimpf, Martin},
+  booktitle={SVRHM 2022 Workshop@ NeurIPS},
+  year={2022}
+}
+"""
 
 
 #### Analysis Benchmark Implementation  ####

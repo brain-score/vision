@@ -13,7 +13,9 @@ from brainio.assemblies import NeuronRecordingAssembly
 
 VISUAL_DEGREES = 8 
 NUMBER_OF_TRIALS = 63 
-BIBTEX = """"""
+BIBTEX = """
+
+"""
 
 ANIMALS = ['Oleo', 'Pico']
 
@@ -26,12 +28,6 @@ SPLIT_NUMBER = 100
 MAX_NUM_NEURONS = 71
 HVM_TEST_IMAGES_NUM = 30
 OOD_TEST_IMAGES_NUM = 30
-
-
-
-custom_cache_directory = "../work/upschrimpf1/bocini"
-os.environ['RESULTCACHING_HOME'] = custom_cache_directory
-os.environ['RESULTCACHING_DISABLE'] = '0'
 
 
 #### Benchmark implementation ####

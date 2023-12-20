@@ -9,6 +9,17 @@ import brainscore
 from helpers_background_id import loading_brain_model_activation
 
 
+##### NOTES ON THIS SCRIPT #####
+# This script is used to create a stimulus set with the background-id included. 
+# A fair question is: why do we need a model to do this? Shouldn't it depend only on the stimulus set?
+# the answer is: yes, it should. But this implementation takes the already existing from previous work 
+# of Marliawaty I Gusti Bagus, where the background is created as the presentation dimension of the 
+# brain activations extracted using the 'look_at' function from the brain-score package that is called 
+# on a stimulus set that doesn't have the background-id included.
+# It is however independent of the model used to extract brain activations.
+# FUTURE WORK should only use the stimulus set to create the background-id, and not the model activations.
+#################################
+
 # get the background-id
 brain_model_name='dcgan'
 image_source='dicarlo.domain_transfer'

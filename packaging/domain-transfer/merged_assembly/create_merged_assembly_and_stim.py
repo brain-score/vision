@@ -123,10 +123,10 @@ merged_assembly = merged_assembly.transpose('presentation', 'neuroid', 'time_bin
 
 merged_assembly.attrs = assembly_oleo.attrs
 
-merged_assembly.attrs['identifier']='oleo_pico_domain_transfer'
+merged_assembly.attrs['identifier']='Igustibagus2024'
 merged_assembly.attrs['stimulus_set']=merged_stimulus_set
 
-merged_assembly.name = 'oleo_pico_domain_transfer'
+merged_assembly.name = 'Igustibagus2024'
 
 # package stimuli
 stimuli = StimulusSet(merged_stimulus_set)
@@ -134,7 +134,7 @@ stimuli.stimulus_paths = {row['stimulus_id']: imgs_dir_path + '/' +  row['filena
 
 stimuli.drop('filename', axis=1, inplace=True)
 
-stimuli.name = 'sanghavi_dicarlo_stimulus_set_domain_transfer'  # give the StimulusSet an identifier name
+stimuli.name = 'Igustibagus2024'  # give the StimulusSet an identifier name
 
 assert len(stimuli) == 3138  # make sure the StimulusSet is what you would expect
 

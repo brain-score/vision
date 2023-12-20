@@ -14,6 +14,7 @@ from brainscore.benchmarks import BenchmarkBase
 from brainio.fetch import get_stimulus_set
 from brainscore.model_interface import BrainModel
 from brainscore.benchmarks.screen import place_on_screen
+from brainscore.metrics import Score, accuracy
 
 
 
@@ -24,7 +25,7 @@ CATEGORIES = ['apple', 'bear', 'bird', 'car', 'chair', 'dog', 'elephant', 'face'
 SILHOUETTE_DOMAINS = ['convex_hull', 'outline', 'skeleton', 'silhouette']
 HVM_TEST_IMAGES_NUM = 30
 OOD_TEST_IMAGES_NUM = 30
-NUM_SPLITS = 10
+NUM_SPLITS = 1000
 
 
 
@@ -41,25 +42,24 @@ BIBTEX = """
 #### Analysis Benchmark Implementation  ####
 
 class _OOD_AnalysisBenchmark(BenchmarkBase):
-    def __init__(self, metric):
+    def __init__(self, classifier):
 
-        self._metric = metric
-        self._fitting_stimuli = get_stimulus_set('sanghavi_dicarlo_stimulus_set_domain_transfer')
+        self._classifier= classifier
+        self._fitting_stimuli = get_stimulus_set('Igustibagus2024')
         self._fitting_stimuli.identifier = 'domain_transfer_pico_oleo'
         self._visual_degrees = 8
-        super(OOD_AnalysisBenchmark, self).__init__(
+        super(_OOD_AnalysisBenchmark, self).__init__(
             identifier='dicarlo.OOD_Analysis_Benchmark',
             version=1,
-            ceiling_func=lambda: self._metric.ceiling(self._assembly),
+            ceiling_func=lambda: self._classifier.ceiling(self._assembly),
             parent='behavior',
             bibtex=BIBTEX,
         )
-
     # The __call__ method takes as input a candidate BrainModel and outputs a similarity score of how brain-like
     # the candidate is under this benchmark.
     # A candidate here could be a model such as CORnet or brain-mapped Alexnet, but importantly the benchmark can be
     # agnostic to the details of the candidate and instead only engage with the BrainModel interface.
-    def __call__(self, candidate: BrainModel):
+    def __call__(self, candidate: BrainModel) -> Score:
         # based on the visual degrees of the candidate
         fitting_stimuli = place_on_screen(self._fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
                                           source_visual_degrees=self._visual_degrees)
@@ -70,34 +70,29 @@ class _OOD_AnalysisBenchmark(BenchmarkBase):
 
         crossdomain_data_dict = get_crossdomain_data_dictionary(domain_transfer_data=activations)
         
-        crossdomain_results = {}
+        crossdomain_results = [] # {}
         for split in tqdm(np.arange(NUM_SPLITS)):
             crossdomain_test_images_dict, complete_training_data = split_training_test_images(crossdomain_data_dictionary=crossdomain_data_dict)
 
             # Train the decoder #
-            decoder = get_decoder(data=complete_training_data, estimator=self._metric)
+            decoder = get_decoder(data=complete_training_data, estimator=self._classifier)
             for crossdomain in crossdomain_test_images_dict.keys():
                 test_accuracy = get_classifier_score_2AFC(classifier=decoder, data=crossdomain_test_images_dict[crossdomain])
-                if crossdomain not in crossdomain_results:
-                    crossdomain_results[crossdomain] = [test_accuracy]
-                else:
-                    crossdomain_results[crossdomain].append([test_accuracy])     
+                test_accuracy = Score(test_accuracy)
+                test_accuracy = test_accuracy.expand_dims('domain').expand_dims('split')
+                test_accuracy['domain'] = [crossdomain]
+                test_accuracy['split'] = [split]
+                crossdomain_results.append(test_accuracy) 
 
-        for key, values in crossdomain_results.items():
-
-            crossdomain_results[key] = [np.mean(values)[0], np.std(values)[0]]
-
-        with open('crossdomain_data_dict.pkl', 'wb') as file:
-            pickle.dump(crossdomain_data_dict, file)
-        with open('crossdomain_results_dict.pkl', 'wb') as file:
-            pickle.dump(crossdomain_results, file)
+        crossdomain_results = Score.merge(*crossdomain_results)
+        crossdomain_results = crossdomain_results.mean(dim='split')
             
         return crossdomain_results
     
 
 def OOD_AnalysisBenchmark():
     return _OOD_AnalysisBenchmark(
-        metric=RidgeClassifierCV(alphas=[0.0001, 0.001, 0.01, 0.1, 1, 10], fit_intercept=True, normalize=True) 
+        classifier=RidgeClassifierCV(alphas=[0.0001, 0.001, 0.01, 0.1, 1, 10], fit_intercept=True, normalize=True) 
     )
 
 ########## helpers #############

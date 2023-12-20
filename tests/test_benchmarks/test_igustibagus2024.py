@@ -13,9 +13,8 @@ class TestAssembly:
         assert assembly.attrs['stimulus_set_identifier'] == 'Igustibagus2024'
         assert set(assembly['region'].values) == {'IT'}
         assert len(assembly['presentation']) == 780
-        assert set(assembly['object_style'].values) == {'silhouette', 'sketch', 'cartoon', 'original', 'painting', 'line_drawing', 'outline', 'convex_hull', 'mosaic'}
+        assert set(assembly['object_style'].values) == {'silhouette', 'sketch', 'cartoon', 'original', 'painting',
+                                                        'line_drawing', 'outline', 'convex_hull', 'mosaic'}
         assert len(assembly['neuroid']) == 110
         assert set(assembly['animal'].values) == {'Pico', 'Oleo'}
         assert assembly['background_id'].values is not None
-
-    

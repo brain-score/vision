@@ -29,15 +29,13 @@ Submission System Components
     The `website <www.brain-score.org>`_ (`GitHub <https://github.com/brain-score/brain-score.web>`_) handles our front 
     end. It is implemented using Django and also accesses the database instance.
 
-    The website is hosted via Amazon Elastic Beanstalk. There are three instances on AWS EB:
+    The website is hosted via Amazon Elastic Beanstalk. There are two instances on AWS EB:
 
     - `brain-score-web-dev <brain-score-web-dev.us-east-2.elasticbeanstalk.com>`_: This is our dev website environment.
-      It is the same as prod, but is a retired branch.
-    - `brain-score-web-prod <brain-score-web-prod.us-east-2.elasticbeanstalk.com>`_: Our old (retired) logacy branch
-      of prod. This was used from 6/2020 - 6/2023, and was replaced by the updated environment below.
-    - `Brain-score-web-prod-updated <http://brain-score-web-prod-updated.kmk2mcntkw.us-east-2.elasticbeanstalk.com>`_:
-      Our current, live website. This is what United Domains uses to load the actual Brain-Score site.
+      It is the same as prod but uses the dev database.
 
+    - `brain-score-web-prod <brain-score-web-prod.us-east-2.elasticbeanstalk.com>`_: Our production branch
+        that uses the prod database. This is what end users see, as the above URL is forwarded to brain-score.org
 - **Jenkins**:
 
     Jenkins is a continuous integration tool, which we use to automatically run 

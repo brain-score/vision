@@ -218,6 +218,8 @@ class TestStandardized:
                      marks=pytest.mark.memory_intense),
         pytest.param('dicarlo.Rajalingham2020.IT-pls', 8, approx(.693463, abs=.005),
                      marks=[pytest.mark.memory_intense, pytest.mark.slow]),
+        pytest.param('Igustibagus2024-ridge', 8, approx(1, abs=.005),
+                     marks=[pytest.mark.memory_intense, pytest.mark.travis_slow]),
     ])
     def test_self_regression(self, benchmark, visual_degrees, expected):
         benchmark = benchmark_pool[benchmark]

@@ -170,3 +170,12 @@ katz.BarbuMayo2019,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.ama
 katz.BarbuMayo2019,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/image_katz_BarbuMayo2019.zip,1365eb2a7231516806127a7d2a908343a7ac9464,
 Islam2021,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_neil_Islam2021.csv,93ab0f6386d8d5fb56640da45980a819c7dd6efc,
 Islam2021,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_neil_Islam2021.zip,e55b673117a472f463e0705ac3e330ef8dfd938b,
+dicarlo.domain_transfer,stimulus_set,StimulusSet,S3,https://brainio.dicarlo.s3.amazonaws.com/image_dicarlo_domain_transfer.csv,98363796a8e015ec598a3bd67454eca24bf5bc76,
+dicarlo.domain_transfer,stimulus_set,,S3,https://brainio.dicarlo.s3.amazonaws.com/image_dicarlo_domain_transfer.zip,ca971841d3624de5bd51fd3328dcd4b46e3e7296,
+dicarlo.Sanghavi2021.domain_transfer,assembly,NeuronRecordingAssembly,S3,https://brainio.dicarlo.s3.amazonaws.com/assy_dicarlo_Sanghavi2021_domain_transfer.nc,8c6a02348ca892d75a83a6ffa0551e098e1edae0,dicarlo.domain_transfer
+Igustibagus2024,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_Igustibagus2024.csv,df68b579e564eadee486212a0528dce0957828d9,
+Igustibagus2024,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_Igustibagus2024.zip,9aa13d94da49fb7535ef14115633fc58a4810a61,
+Igustibagus2024,assembly,NeuronRecordingAssembly,S3,https://brainio-brainscore.s3.amazonaws.com/assy_Igustibagus2024.nc,eb180ddd1ae0144b5927fab00fd62ecd1aa98003,Igustibagus2024
+Hebart2023,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_Hebart2023.csv,f9db82ed0bef985d4130397315e5070a38b35248,
+Hebart2023,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_Hebart2023.zip,9522f16c7e0bf7e0c42d7db8e51546ffc6697f3c,
+Hebart2023,assembly,BehavioralAssembly,S3,https://brainio-brainscore.s3.amazonaws.com/assy_Hebart2023.nc,630db9ebf0f68a7259ecb8f399851a8b20be265c,Hebart2023

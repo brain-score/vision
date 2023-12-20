@@ -59,6 +59,7 @@ import brainio
         'brendel.Geirhos2021_sketch',
         'brendel.Geirhos2021_uniform-noise',
         'Islam2021',
+        'Igustibagus2024',
 ))
 def test_list_stimulus_set(stimulus_set):
     l = brainio.list_stimulus_sets()

@@ -77,6 +77,7 @@ class TestPoolList:
             'dicarlo.SanghaviJozwik2020.IT-pls',
             'dicarlo.SanghaviMurty2020.IT-pls',
             'dicarlo.Kar2019-ost',
+            'Igustibagus2024-ridge ',
             # behavior
             'dicarlo.Rajalingham2018-i2n',
             'brendel.Geirhos2021colour-error_consistency',
@@ -96,6 +97,8 @@ class TestPoolList:
             'brendel.Geirhos2021stylized-error_consistency',
             'brendel.Geirhos2021sketch-error_consistency',
             'brendel.Geirhos2021uniformnoise-error_consistency',
+            # engineering
+            'Igustibagus2024.IT_readout-accuracy',
         }
 
     def test_engineering_pool(self):
@@ -215,6 +218,8 @@ class TestStandardized:
                      marks=pytest.mark.memory_intense),
         pytest.param('dicarlo.Rajalingham2020.IT-pls', 8, approx(.693463, abs=.005),
                      marks=[pytest.mark.memory_intense, pytest.mark.slow]),
+        pytest.param('Igustibagus2024-ridge', 8, approx(1, abs=.005),
+                     marks=[pytest.mark.memory_intense, pytest.mark.travis_slow]),
     ])
     def test_self_regression(self, benchmark, visual_degrees, expected):
         benchmark = benchmark_pool[benchmark]

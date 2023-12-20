@@ -109,14 +109,4 @@ successfully, the code can be merged to master and will be run "in production".
 
 Scoring Process Description
 ###########################
-For scoring submitted files, we install the Brain-Score framework on Opemnind and run the scoring process. There are
-two types of submissions possible:
-- First time submissions, submitting a zip file with new models to score.
-- Resubmission of already scored models, which should be scored on updated/new benchmarks.
-
-To do so only a list of model IDs as stored in the database are required. For new submissions the delivered zip file is
-unpacked, the modules installed and models instantiated. The submitted modules must implement a clearly defined API,
-which is described in detail HERE. When the submitted module is formatted correctly, the process can extract the models
-and score them. Produced results are stored in the Score table of teh Database and in a .csv file. When old models
-should be scored on new benchmarks, the process installs (possibly multiple) past submission zip files and scores the
-models. Every submission and all scores are persisted in the database.
+For scoring submitted files, we install the Brain-Score framework on Openmind and run the scoring process.

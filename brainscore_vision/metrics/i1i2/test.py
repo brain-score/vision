@@ -33,4 +33,4 @@ class TestI2N:
         i2n = load_metric('i2n')
         ceiling = i2n.ceiling(objectome)
         assert ceiling == approx(.4786, abs=.0064)
-        assert ceiling == approx(.00537, abs=.0015)
+        assert ceiling.error == approx(.00537, abs=.0015)

@@ -1,7 +1,6 @@
 import pytest
 from brainscore_vision import load_dataset
 
-# invoke plugin tests
 
 @pytest.mark.parametrize('assembly_identifier', [
     pytest.param('aru.Cichy2019', marks=[pytest.mark.private_access]),

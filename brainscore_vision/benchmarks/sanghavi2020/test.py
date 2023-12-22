@@ -66,7 +66,7 @@ def test_self_regression(benchmark, visual_degrees, expected):
 def test_model_features(benchmark, filename, expected):
     filepath = Path(__file__).parent / filename
     s3.download_file_if_not_exists(local_path=filepath,
-                                   bucket='brainio-brainscore', remote_filepath=f'tests/test_benchmarks/{filename}')
+                                   bucket='brain-score-tests', remote_filepath=f'tests/test_benchmarks/{filename}')
     precomputed_test.run_test(benchmark=benchmark, precomputed_features_filepath=filepath, expected=expected)
 
 

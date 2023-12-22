@@ -43,7 +43,8 @@ class TestRajalingham2018:
                              ])
     def test_precomputed(self, model, expected_score):
         benchmark = DicarloRajalingham2018I2n()
-        probabilities = Path(__file__).parent.parent / 'test_metrics' / f'{model}-probabilities.nc'
+        probabilities_path = Path(__file__).parent.parent.parent / 'metrics/i1i2/test_resources'
+        probabilities =  probabilities_path / f'{model}-probabilities.nc'
         probabilities = BehavioralAssembly.from_files(probabilities,
                                                       stimulus_set_identifier=benchmark._assembly.stimulus_set.identifier,
                                                       stimulus_set=benchmark._assembly.stimulus_set)
@@ -156,5 +157,4 @@ class TestMetricScore:
                                               activations_model=PrecomputedFeatures(feature_responses),
                                               layer='behavioral-layer')
         score = benchmark(transformation)
-        score = score.sel(aggregation='center')
         assert score == approx(expected_score, abs=0.005), f"expected {expected_score}, but got {score}"

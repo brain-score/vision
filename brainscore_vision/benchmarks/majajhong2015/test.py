@@ -54,7 +54,7 @@ def test_MajajHong2015(benchmark, expected):
     filename = 'alexnet-majaj2015.private-features.12.nc'
     filepath = Path(__file__).parent / filename
     s3.download_file_if_not_exists(local_path=filepath,
-                                   bucket='brainio-brainscore', remote_filepath=f'tests/test_benchmarks/{filename}')
+                                   bucket='brain-score-tests', remote_filepath=f'tests/test_benchmarks/{filename}')
     precomputed_test.run_test(benchmark=benchmark, precomputed_features_filepath=filepath, expected=expected)
 
 

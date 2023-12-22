@@ -1,5 +1,4 @@
 import brainscore_vision
-import brainio
 import pytest
 import numpy as np
 
@@ -17,6 +16,6 @@ def test_existence(assembly_identifier):
     pytest.param('dicarlo.BashivanKar2019.synthetic', (21360, 233, 1), 4319940, marks=[pytest.mark.private_access]),
 ])
 def test_assembly_shape(assembly, shape, nans):
-    assy = brainio.get_assembly(assembly)
+    assy = brainscore_vision.load_dataset(assembly)
     assert assy.shape == shape
     assert np.count_nonzero(np.isnan(assy)) == nans

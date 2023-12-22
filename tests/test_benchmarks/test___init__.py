@@ -77,7 +77,7 @@ class TestPoolList:
             'dicarlo.SanghaviJozwik2020.IT-pls',
             'dicarlo.SanghaviMurty2020.IT-pls',
             'dicarlo.Kar2019-ost',
-            'Igustibagus2024-ridge ',
+            'Igustibagus2024-ridge',
             # behavior
             'dicarlo.Rajalingham2018-i2n',
             'brendel.Geirhos2021colour-error_consistency',

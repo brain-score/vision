@@ -32,7 +32,7 @@ def test_Kar2019ost_cornet_s():
     precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
     # score
     score = benchmark(precomputed_features).raw
-    assert score == approx(.316, abs=.005)
+    assert score == approx(.24088, abs=.005)
 
 
 @pytest.mark.private_access

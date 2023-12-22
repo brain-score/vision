@@ -76,7 +76,7 @@ def MarquesFreemanZiemba2013V1MaxNoise():
 
 
 @store(identifier_ignore=['responses', 'baseline'])
-def freemanziemba2013_properties(model_identifier, responses, baseline):
+def freemanziemba2013_properties(responses, baseline):
     _assert_texture_activations(responses)
     responses = responses.sortby(['type', 'family', 'sample'])
     type = np.array(sorted(set(responses.type.values)))

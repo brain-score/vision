@@ -95,7 +95,7 @@ def MarquesRingach2002V1ModulationRatio():
 
 
 @store(identifier_ignore=['responses', 'baseline'])
-def ringach2002_properties(model_identifier, responses, baseline):
+def ringach2002_properties(responses, baseline):
     _assert_grating_activations(responses)
     spatial_frequency = np.array(sorted(set(responses.spatial_frequency.values)))
     orientation = np.array(sorted(set(responses.orientation.values)))

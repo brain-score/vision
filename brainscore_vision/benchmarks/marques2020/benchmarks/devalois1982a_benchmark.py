@@ -41,7 +41,7 @@ def MarquesDeValois1982V1PreferredOrientation():
 
 
 @store(identifier_ignore=['responses', 'baseline'])
-def devalois1982a_properties(model_identifier, responses, baseline):
+def devalois1982a_properties(responses, baseline):
     _assert_grating_activations(responses)
     spatial_frequency = np.array(sorted(set(responses.spatial_frequency.values)))
     orientation = np.array(sorted(set(responses.orientation.values)))

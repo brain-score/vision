@@ -79,11 +79,13 @@ class _OOD_AnalysisBenchmark(BenchmarkBase):
                 test_accuracy['domain'] = [crossdomain]
                 test_accuracy['split'] = [split]
                 crossdomain_results.append(test_accuracy)
-
         crossdomain_results = Score.merge(*crossdomain_results)
-        crossdomain_results = crossdomain_results.mean(dim='split')
 
-        return crossdomain_results
+        center = crossdomain_results.mean(dim='split').mean(dim='domain')
+        error = crossdomain_results.mean(dim='split').std(dim='domain')
+        score = Score([center, error], coords={'aggregation': ['center', 'error']}, dims=('aggregation',))
+        score.attrs[Score.RAW_VALUES_KEY] = crossdomain_results
+        return score
 
 
 def OOD_AnalysisBenchmark():

@@ -7,7 +7,6 @@ from tqdm import tqdm
 from sklearn.linear_model import RidgeClassifierCV
 from sklearn.model_selection import train_test_split
 
-
 # import brain-score specific libraries
 from brainscore.utils import LazyLoad
 from brainscore.benchmarks import BenchmarkBase
@@ -16,18 +15,14 @@ from brainscore.model_interface import BrainModel
 from brainscore.benchmarks.screen import place_on_screen
 from brainscore.metrics import Score, accuracy
 
-
-
 #### define constants ####
-VISUAL_DEGREES = 8 
-NUMBER_OF_TRIALS = 63 
+VISUAL_DEGREES = 8
+NUMBER_OF_TRIALS = 63
 CATEGORIES = ['apple', 'bear', 'bird', 'car', 'chair', 'dog', 'elephant', 'face', 'plane', 'zebra']
 SILHOUETTE_DOMAINS = ['convex_hull', 'outline', 'skeleton', 'silhouette']
 HVM_TEST_IMAGES_NUM = 30
 OOD_TEST_IMAGES_NUM = 30
 NUM_SPLITS = 1000
-
-
 
 BIBTEX = """
 @inproceedings{bagus2022primate,
@@ -39,12 +34,12 @@ BIBTEX = """
 """
 
 
-#### Analysis Benchmark Implementation  ####
+#### Analysis Benchmark Implementation ####
 
 class _OOD_AnalysisBenchmark(BenchmarkBase):
     def __init__(self, classifier):
 
-        self._classifier= classifier
+        self._classifier = classifier
         self._fitting_stimuli = get_stimulus_set('Igustibagus2024')
         self._fitting_stimuli.identifier = 'domain_transfer_pico_oleo'
         self._visual_degrees = 8
@@ -55,6 +50,7 @@ class _OOD_AnalysisBenchmark(BenchmarkBase):
             parent='behavior',
             bibtex=BIBTEX,
         )
+
     # The __call__ method takes as input a candidate BrainModel and outputs a similarity score of how brain-like
     # the candidate is under this benchmark.
     # A candidate here could be a model such as CORnet or brain-mapped Alexnet, but importantly the benchmark can be
@@ -69,31 +65,34 @@ class _OOD_AnalysisBenchmark(BenchmarkBase):
         activations = activations.transpose('presentation', 'neuroid')
 
         crossdomain_data_dict = get_crossdomain_data_dictionary(domain_transfer_data=activations)
-        
-        crossdomain_results = [] # {}
+
+        crossdomain_results = []
         for split in tqdm(np.arange(NUM_SPLITS)):
-            crossdomain_test_images_dict, complete_training_data = split_training_test_images(crossdomain_data_dictionary=crossdomain_data_dict)
+            crossdomain_test_images_dict, complete_training_data = split_training_test_images(
+                crossdomain_data_dictionary=crossdomain_data_dict)
 
             # Train the decoder #
             decoder = get_decoder(data=complete_training_data, estimator=self._classifier)
             for crossdomain in crossdomain_test_images_dict.keys():
-                test_accuracy = get_classifier_score_2AFC(classifier=decoder, data=crossdomain_test_images_dict[crossdomain])
+                test_accuracy = get_classifier_score_2AFC(classifier=decoder,
+                                                          data=crossdomain_test_images_dict[crossdomain])
                 test_accuracy = Score(test_accuracy)
                 test_accuracy = test_accuracy.expand_dims('domain').expand_dims('split')
                 test_accuracy['domain'] = [crossdomain]
                 test_accuracy['split'] = [split]
-                crossdomain_results.append(test_accuracy) 
+                crossdomain_results.append(test_accuracy)
 
         crossdomain_results = Score.merge(*crossdomain_results)
         crossdomain_results = crossdomain_results.mean(dim='split')
-            
+
         return crossdomain_results
-    
+
 
 def OOD_AnalysisBenchmark():
     return _OOD_AnalysisBenchmark(
-        classifier=RidgeClassifierCV(alphas=[0.0001, 0.001, 0.01, 0.1, 1, 10], fit_intercept=True, normalize=True) 
+        classifier=RidgeClassifierCV(alphas=[0.0001, 0.001, 0.01, 0.1, 1, 10], fit_intercept=True, normalize=True)
     )
+
 
 ########## helpers #############
 def get_crossdomain_data_dictionary(domain_transfer_data):
@@ -108,16 +107,20 @@ def get_crossdomain_data_dictionary(domain_transfer_data):
     '''
     # Create dictionary
     crossdomain_data_dict = {}
-    crossdomains = ['original', 'cartoon', 'line_drawing', 'mosaic', 'painting', 'sketch', 'convex_hull', 'outline', 'skeleton', 'silhouette', 'cococolor', 'cocogray', 'tdw']
-    crossdomain_image_source = ['Silhouette', 'Art', 'Art', 'Art', 'Art', 'Art', 'Silhouette', 'Silhouette', 'Silhouette', 'Silhouette', 'COCOColor', 'COCOGray', 'TDW']
+    crossdomains = ['original', 'cartoon', 'line_drawing', 'mosaic', 'painting', 'sketch', 'convex_hull', 'outline',
+                    'skeleton', 'silhouette', 'cococolor', 'cocogray', 'tdw']
+    crossdomain_image_source = ['Silhouette', 'Art', 'Art', 'Art', 'Art', 'Art', 'Silhouette', 'Silhouette',
+                                'Silhouette', 'Silhouette', 'COCOColor', 'COCOGray', 'TDW']
     for image_source, object_style in zip(crossdomain_image_source, crossdomains):
-        crossdomain_data = get_single_domain_data(data=domain_transfer_data, image_source_in_domain=image_source, object_style_in_domain=object_style)
+        crossdomain_data = get_single_domain_data(data=domain_transfer_data, image_source_in_domain=image_source,
+                                                  object_style_in_domain=object_style)
         if object_style == 'original':
             crossdomain_data_dict['hvm'] = crossdomain_data
         else:
             crossdomain_data_dict[object_style] = crossdomain_data
 
     return crossdomain_data_dict
+
 
 def get_single_domain_data(data, image_source_in_domain, object_style_in_domain):
     '''
@@ -134,9 +137,12 @@ def get_single_domain_data(data, image_source_in_domain, object_style_in_domain)
     # Get domain data
     if image_source_in_domain in ['Art', 'Silhouette']:
         try:
-            domain_data = data.where((data.identifier == image_source_in_domain) & (data.object_style == object_style_in_domain), drop=True)
+            domain_data = data.where(
+                (data.identifier == image_source_in_domain) & (data.object_style == object_style_in_domain), drop=True)
         except:
-            domain_data = data.where((data.stimulus_source == image_source_in_domain) & (data.object_style == object_style_in_domain), drop=True)
+            domain_data = data.where(
+                (data.stimulus_source == image_source_in_domain) & (data.object_style == object_style_in_domain),
+                drop=True)
 
     else:
         try:
@@ -145,6 +151,7 @@ def get_single_domain_data(data, image_source_in_domain, object_style_in_domain)
             domain_data = data.where(data.stimulus_source == image_source_in_domain, drop=True)
 
     return domain_data
+
 
 def get_crossdomain_dataframes(single_neuron_image=False):
     '''
@@ -163,7 +170,8 @@ def get_crossdomain_dataframes(single_neuron_image=False):
     else:
         df = pd.DataFrame(columns=['#Neurons', '#Images training', 'Accuracy test data', 'Split number'])
 
-    crossdomains = ['hvm', 'cartoon', 'line_drawing', 'mosaic', 'painting', 'sketch', 'convex_hull', 'outline', 'skeleton', 'silhouette', 'cococolor', 'cocogray', 'tdw']
+    crossdomains = ['hvm', 'cartoon', 'line_drawing', 'mosaic', 'painting', 'sketch', 'convex_hull', 'outline',
+                    'skeleton', 'silhouette', 'cococolor', 'cocogray', 'tdw']
     for crossdomain in crossdomains:
         dataframe_dict[crossdomain] = copy.copy(df)
     return dataframe_dict
@@ -186,7 +194,8 @@ def split_training_test_images(crossdomain_data_dictionary):
     for crossdomain in crossdomain_data_dictionary.keys():
         crossdomain_data = crossdomain_data_dictionary[crossdomain]
         if crossdomain == 'hvm':
-            test_images, training_images =reduce_data_num_images(data_complete=crossdomain_data, number_images=HVM_TEST_IMAGES_NUM)
+            test_images, training_images = reduce_data_num_images(data_complete=crossdomain_data,
+                                                                  number_images=HVM_TEST_IMAGES_NUM)
             background_ids_silhouette_img = test_images.background_id.values
 
         elif crossdomain in SILHOUETTE_DOMAINS:
@@ -218,7 +227,7 @@ def get_decoder(data, estimator):
         y = data.category_name.data
 
     # Get estimator
-    clf = copy.copy(estimator) # Ridge Regression CV
+    clf = copy.copy(estimator)  # Ridge Regression CV
     try:
         clf.fit(X, y)
     except:
@@ -289,8 +298,10 @@ def reduce_data_num_images(data_complete, number_images):
         return data_complete, place_holder
     else:
         try:
-            stratified_training_data, rest_data = train_test_split(data_complete, train_size=number_images, stratify=data_complete.object_label)
+            stratified_training_data, rest_data = train_test_split(data_complete, train_size=number_images,
+                                                                   stratify=data_complete.object_label)
         except:
-            stratified_training_data, rest_data = train_test_split(data_complete, train_size=number_images, stratify=data_complete.category_name)
+            stratified_training_data, rest_data = train_test_split(data_complete, train_size=number_images,
+                                                                   stratify=data_complete.category_name)
 
         return stratified_training_data, rest_data

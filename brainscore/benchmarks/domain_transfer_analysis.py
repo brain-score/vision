@@ -37,16 +37,15 @@ BIBTEX = """
 
 class _OOD_AnalysisBenchmark(BenchmarkBase):
     def __init__(self, classifier):
-
         self._classifier = classifier
-        self._fitting_stimuli = get_stimulus_set('Igustibagus2024')
-        self._fitting_stimuli.identifier = 'domain_transfer_pico_oleo'
+        self._stimuli = get_stimulus_set('Igustibagus2024')
+        self._stimuli.identifier = 'domain_transfer_pico_oleo'
         self._visual_degrees = 8
         super(_OOD_AnalysisBenchmark, self).__init__(
-            identifier='dicarlo.OOD_Analysis_Benchmark',
+            identifier='Igustibagus2024-IT_accuracy',
             version=1,
             ceiling_func=lambda: self._classifier.ceiling(self._assembly),
-            parent='behavior',
+            parent='engineering',
             bibtex=BIBTEX,
         )
 
@@ -56,7 +55,7 @@ class _OOD_AnalysisBenchmark(BenchmarkBase):
     # agnostic to the details of the candidate and instead only engage with the BrainModel interface.
     def __call__(self, candidate: BrainModel) -> Score:
         # based on the visual degrees of the candidate
-        fitting_stimuli = place_on_screen(self._fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
+        fitting_stimuli = place_on_screen(self._stimuli, target_visual_degrees=candidate.visual_degrees(),
                                           source_visual_degrees=self._visual_degrees)
         candidate.start_recording('IT', time_bins=[(70, 170)])
         activations = candidate.look_at(fitting_stimuli)
@@ -227,12 +226,7 @@ def get_decoder(data, estimator):
 
     # Get estimator
     clf = copy.copy(estimator)  # Ridge Regression CV
-    try:
-        clf.fit(X, y)
-    except:
-        binary_label = preprocessing.LabelBinarizer()
-        y = binary_label.fit_transform(y)
-        clf.fit(X, y)
+    clf.fit(X, y)
 
     return clf
 

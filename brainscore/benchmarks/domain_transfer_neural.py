@@ -1,6 +1,3 @@
-# import general libraries
-import os
-
 # import brain-score specific libraries
 from brainscore.benchmarks._neural_common import NeuralBenchmark, average_repetition
 from brainscore.metrics.ceiling import InternalConsistency
@@ -31,26 +28,6 @@ OOD_TEST_IMAGES_NUM = 30
 
 
 #### Benchmark implementation ####
-
-# def _Igustibagus2024_Base(region, identifier_metric_suffix, similarity_metric, ceiler):
-
-#     assembly_repetition = LazyLoad(lambda region=region: load_domain_transfer(average_repetitions=False, region=region))
-#     assembly = LazyLoad(lambda region=region: load_domain_transfer(average_repetitions=True, region=region))
-#     return NeuralBenchmark(identifier=f'dicarlo.Sanghavi2020.domain_transfer.{region}-{identifier_metric_suffix}', version=1,
-#                         assembly=assembly, similarity_metric=similarity_metric,
-#                         visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
-#                         ceiling_func=lambda: ceiler(assembly_repetition),
-#                         parent=region,
-#                         bibtex=BIBTEX)
-
-
-# def IT_pls():
-#     return _Igustibagus2024_Base('IT', identifier_metric_suffix='pls',
-#                                        similarity_metric=CrossRegressedCorrelation(
-#                                            regression=pls_regression(), correlation=pearsonr_correlation(),
-#                                            crossvalidation_kwargs = {'stratification_coord': 'object_label',
-#                                                                      'preprocess_indices': _preprocess_indices}), 
-#                                        ceiler=InternalConsistency())
 
 def Igustibagus2024_ridge():
     assembly_repetition = LazyLoad(lambda: load_domain_transfer(average_repetitions=False))

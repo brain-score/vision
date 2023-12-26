@@ -1,19 +1,18 @@
 # import general libraries
+import copy
+
 import numpy as np
 import pandas as pd
-import pickle
-import copy
-from tqdm import tqdm
 from sklearn.linear_model import RidgeClassifierCV
 from sklearn.model_selection import train_test_split
+from tqdm import tqdm
 
-# import brain-score specific libraries
-from brainscore.utils import LazyLoad
-from brainscore.benchmarks import BenchmarkBase
 from brainio.fetch import get_stimulus_set
-from brainscore.model_interface import BrainModel
+# import brain-score specific libraries
+from brainscore.benchmarks import BenchmarkBase
 from brainscore.benchmarks.screen import place_on_screen
-from brainscore.metrics import Score, accuracy
+from brainscore.metrics import Score
+from brainscore.model_interface import BrainModel
 
 #### define constants ####
 VISUAL_DEGREES = 8

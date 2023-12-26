@@ -44,7 +44,7 @@ class _OOD_AnalysisBenchmark(BenchmarkBase):
         super(_OOD_AnalysisBenchmark, self).__init__(
             identifier='Igustibagus2024-IT_accuracy',
             version=1,
-            ceiling_func=lambda: self._classifier.ceiling(self._assembly),
+            ceiling_func=lambda: Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation']),
             parent='engineering',
             bibtex=BIBTEX,
         )

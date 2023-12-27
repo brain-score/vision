@@ -25,6 +25,7 @@ class TestAssembly:
         assert assembly['background_id'].values is not None
 
 
+@pytest.mark.private_access
 def test_engineering():
     benchmark = benchmark_pool['Igustibagus2024.IT_readout-accuracy']
     rng = RandomState(0)

@@ -9,6 +9,7 @@ from brainio.stimuli import StimulusSet
 @pytest.mark.private_access
 class TestHebart2023:
     assembly = brainscore.get_assembly('Hebart2023')
+    stimulus_set = assembly.attrs['stimulus_set']
 
     def test_assembly(self):
         stimulus_id = self.assembly.coords["stimulus_id"]
@@ -21,12 +22,18 @@ class TestHebart2023:
         image_3 = self.assembly.coords["image_3"]
         assert len(image_1) == len(image_2) == len(image_3) == 453642
 
+    def test_assembly_stimulusset_ids_match(self):
+        stimulusset_ids = self.stimulus_set['stimulus_id']
+        for assembly_stimulusid in ['image_1', 'image_2', 'image_3']:
+            assembly_values = self.assembly[assembly_stimulusid].values
+            assert set(assembly_values) == set(stimulusset_ids), \
+                f"Assembly stimulus id reference '{assembly_stimulusid}' does not match stimulus_set"
+
     def test_stimulus_set(self):
-        stimulus_set = self.assembly.attrs['stimulus_set']
-        assert len(stimulus_set) == 1854
-        assert set(stimulus_set.columns) == {
+        assert len(self.stimulus_set) == 1854
+        assert set(self.stimulus_set.columns) == {
             'stimulus_id', 'image_no', 'filename',
             'WordNet_ID', 'Wordnet_ID2', 'Wordnet_ID3', 'Wordnet_ID4', 'WordNet_Synonyms',
             'freq_1', 'freq_2', 'top_down_1', 'top_down_2', 'bottom_up', 'word_freq', 'word_freq_online',
             'example_image', 'dispersion', 'dominant_part', 'rank'}
-        assert isinstance(stimulus_set, StimulusSet)
+        assert isinstance(self.stimulus_set, StimulusSet)

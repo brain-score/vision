@@ -65,7 +65,7 @@ def MarquesCavanaugh2002V1SurroundDiameter():
 
 
 @store(identifier_ignore=['responses', 'baseline'])
-def cavanaugh2002_properties(responses, baseline):
+def cavanaugh2002_properties(model_identifier, responses, baseline):
     _assert_grating_activations(responses)
     radius = np.array(sorted(set(responses.radius.values)))
     spatial_frequency = np.array(sorted(set(responses.spatial_frequency.values)))

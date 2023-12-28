@@ -39,19 +39,21 @@ class PropertiesBenchmark(BenchmarkBase):
         self.timebins = timebins
 
     def __call__(self, model: BrainModel):
+        model_identifier = model.identifier
         model.start_recording(self.region, time_bins=self.timebins)
         stim_pos = get_stimulus_position(self._assembly.stimulus_set)
-        in_rf = filter_receptive_fields(model=model, region=self.region,
+        in_rf = filter_receptive_fields(model_identifier=model_identifier, model=model, region=self.region,
                                         pos=stim_pos)
 
-        responses = get_firing_rates(model=model, region=self.region,
+        responses = get_firing_rates(model_identifier=model_identifier, model=model, region=self.region,
                                      stimulus_identifier=self._assembly.stimulus_set.identifier,
                                      number_of_trials=self._number_of_trials, in_rf=in_rf)
-        baseline = get_firing_rates(model=model, region=self.region,
+        baseline = get_firing_rates(model_identifier=model_identifier, model=model, region=self.region,
                                     stimulus_identifier=BLANK_STIM_NAME,
                                     number_of_trials=self._number_of_trials, in_rf=in_rf)
 
-        model_property = self._neuronal_property(responses=responses, baseline=baseline)
+        model_property = self._neuronal_property(model_identifier=model_identifier, responses=responses,
+                                                 baseline=baseline)
         raw_score = self._similarity_metric(model_property, self._assembly)
         ceiling = self._ceiling_func(self._assembly)
         return ceil_score(raw_score, ceiling)
@@ -63,8 +65,8 @@ class PropertiesBenchmark(BenchmarkBase):
 
 
 @store(identifier_ignore=['model', 'in_rf'])
-def get_firing_rates(model, region, stimulus_identifier, number_of_trials, in_rf):
-    affine_transformation = firing_rates_affine(model=model, region=region)
+def get_firing_rates(model_identifier, model, region, stimulus_identifier, number_of_trials, in_rf):
+    affine_transformation = firing_rates_affine(model_identifier=model_identifier, model=model, region=region)
     affine_transformation = affine_transformation.values
 
     activations = record_from_model(model, stimulus_identifier, number_of_trials)
@@ -94,8 +96,8 @@ def get_stimulus_position(stimulus_set):
     return np.array([position_y[0], position_x[0]])
 
 
-def filter_receptive_fields(model, region, pos, rf_delta=RF_DELTA):
-    rf_pos, rf_map = map_receptive_field_locations(model=model, region=region)
+def filter_receptive_fields(model_identifier, model, region, pos, rf_delta=RF_DELTA):
+    rf_pos, rf_map = map_receptive_field_locations(model_identifier=model_identifier, model=model, region=region)
     rf_pos = rf_pos.values
     d = np.linalg.norm(rf_pos - pos, axis=1)
     in_rf = np.squeeze(np.argwhere(d <= rf_delta))
@@ -103,7 +105,7 @@ def filter_receptive_fields(model, region, pos, rf_delta=RF_DELTA):
 
 
 @store(identifier_ignore=['model'])
-def map_receptive_field_locations(model: BrainModel, region):
+def map_receptive_field_locations(model_identifier, model: BrainModel, region):
     blank_activations = record_from_model(model, BLANK_STIM_NAME, RF_NUMBER_OF_TRIALS)
     blank_activations = blank_activations.values
     blank_activations[blank_activations < 0] = 0
@@ -152,7 +154,7 @@ def map_receptive_field_locations(model: BrainModel, region):
 
 
 @store(identifier_ignore=['model'])
-def firing_rates_affine(model: BrainModel, region):
+def firing_rates_affine(model_identifier, model: BrainModel, region):
     blank_activations = record_from_model(model, BLANK_STIM_NAME, ORIENTATION_NUMBER_OF_TRIALS)
     orientation_activations = record_from_model(model, ORIENTATION_STIM_NAME, ORIENTATION_NUMBER_OF_TRIALS)
 
@@ -163,7 +165,7 @@ def firing_rates_affine(model: BrainModel, region):
 
     stim_pos = get_stimulus_position(orientation_activations)
 
-    in_rf = filter_receptive_fields(model=model, region=region, pos=stim_pos)
+    in_rf = filter_receptive_fields(model_identifier=model_identifier, model=model, region=region, pos=stim_pos)
     n_neuroids = len(in_rf)
 
     spatial_frequency = sorted(set(orientation_activations.spatial_frequency.values))

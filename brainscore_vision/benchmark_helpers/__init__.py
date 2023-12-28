@@ -36,6 +36,9 @@ class PrecomputedFeatures(BrainModel):
         assert all(features['stimulus_id'].values == stimuli['stimulus_id'].values)
         return features
 
+    @property
+    def identifier(self):
+        return "precomputed_features"
 
 def check_standard_format(assembly):
     assert isinstance(assembly, NeuroidAssembly)

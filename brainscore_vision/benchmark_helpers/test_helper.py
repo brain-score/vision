@@ -93,8 +93,7 @@ class PrecomputedTests:
             for column in stimulus_set.columns:
                 precomputed_features[current_stimulus][column] = 'presentation', stimulus_set[column].values
 
-        visual_degrees = precomputed_features[benchmark._assembly.stimulus_set.identifier]["degrees"]
-        precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=visual_degrees)
+        precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
         # score
         score = benchmark(precomputed_features).raw
         assert score == expected

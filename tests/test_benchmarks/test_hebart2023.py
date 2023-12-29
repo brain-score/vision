@@ -32,7 +32,7 @@ class TestHebart2023:
     def test_stimulus_set(self):
         assert len(self.stimulus_set) == 1854
         assert set(self.stimulus_set.columns) == {
-            'stimulus_id', 'image_no', 'filename',
+            'unique_id', 'stimulus_id', 'filename',
             'WordNet_ID', 'Wordnet_ID2', 'Wordnet_ID3', 'Wordnet_ID4', 'WordNet_Synonyms',
             'freq_1', 'freq_2', 'top_down_1', 'top_down_2', 'bottom_up', 'word_freq', 'word_freq_online',
             'example_image', 'dispersion', 'dominant_part', 'rank'}

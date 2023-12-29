@@ -24,11 +24,12 @@ img_path = '/Users/linussommer/Desktop/Brain-Score-Data/StimulusSet/reference_im
 
 df = pd.read_csv(path + 'metadata2.tsv', sep='\t')
 df.drop(columns=['Word'], inplace=True)
+df['image_no'] = df['image_no'].astype(str)
 
 column_mapping = {
     # ids 
-    'uniqueID': 'stimulus_id',
-    'image_no': 'image_no',
+    'uniqueID': 'unique_id',
+    'image_no': 'stimulus_id',
     'Example_image': 'example_image',
     
     # COCA
@@ -48,7 +49,7 @@ column_mapping = {
     'Top_down_Category_manual': 'top_down_2',
     
     # WordNet
-    'WordNet_Synonyms': 'WordNet_Synonyms',
+    'WordNet_Synonyms': 'WordNet_synonyms',
     'WordNet_ID': 'WordNet_ID',
     'Wordnet_ID2': 'Wordnet_ID2',
     'Wordnet_ID3': 'Wordnet_ID3',
@@ -57,7 +58,7 @@ column_mapping = {
 
 for index, row in df.iterrows():
     stimuli.append({column_mapping[col]: row[col] for col in df.columns})
-    image_paths[row['uniqueID']] = img_path + row['uniqueID'] + '.jpg'
+    image_paths[row['image_no']] = img_path + row['uniqueID'] + '.jpg'
 
 stimuli = StimulusSet(stimuli)
 stimuli.name = 'Hebart2023'

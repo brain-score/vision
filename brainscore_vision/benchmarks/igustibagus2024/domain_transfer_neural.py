@@ -1,10 +1,8 @@
 # import brain-score specific libraries
-from brainscore.benchmarks._neural_common import NeuralBenchmark, average_repetition
-from brainscore.metrics.ceiling import InternalConsistency
-from brainscore.metrics.regression import CrossRegressedCorrelation, ridge_regression, pearsonr_correlation 
-from brainscore.utils import LazyLoad
-import brainscore
 from brainio.assemblies import NeuronRecordingAssembly
+from brainscore_vision import load_dataset, load_ceiling, load_metric
+from brainscore_vision.benchmark_helpers.neural_common import NeuralBenchmark, average_repetition
+from brainscore_vision.utils import LazyLoad
 
 #### Define constants ####
 
@@ -32,16 +30,14 @@ OOD_TEST_IMAGES_NUM = 30
 def Igustibagus2024_ridge():
     assembly_repetition = LazyLoad(lambda: load_domain_transfer(average_repetitions=False))
     assembly = LazyLoad(lambda: load_domain_transfer(average_repetitions=True))
-    similarity_metric=CrossRegressedCorrelation(
-                                           regression=ridge_regression(), correlation=pearsonr_correlation(),
-                                           crossvalidation_kwargs = {'stratification_coord': 'object_label',
+    similarity_metric = load_metric('ridge', crossvalidation_kwargs={'stratification_coord': 'object_label',
                                                                      'preprocess_indices': _preprocess_indices})
-    ceiler=InternalConsistency()
+    ceiler=load_ceiling('internal_consistency')
     return NeuralBenchmark(identifier=f'Igustibagus2024-pls', version=1, parent='IT',
-                        assembly=assembly, similarity_metric=similarity_metric,
-                        visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
-                        ceiling_func=lambda: ceiler(assembly_repetition),
-                        bibtex=BIBTEX)
+                           assembly=assembly, similarity_metric=similarity_metric,
+                           visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
+                           ceiling_func=lambda: ceiler(assembly_repetition),
+                           bibtex=BIBTEX)
 
 #### helpers ####
 
@@ -53,7 +49,7 @@ def load_domain_transfer(average_repetitions):
          assembly (NeuronRecordingAssembly): domain transfer data from pico
     '''
 
-    assembly = brainscore.get_assembly(name=f'Igustibagus2024')
+    assembly = load_dataset('Igustibagus2024')
     assembly.load()
     assembly = assembly.sel(time_bin_id=0)  # 70-170ms
     assembly = assembly.squeeze('time_bin')
@@ -129,7 +125,7 @@ def _preprocess_indices(train_indices, test_indices, source_assembly):
         return train_indices, test_indices
 
 def filter_neuroids(assembly, threshold):
-    ceiler = InternalConsistency()
+    ceiler = load_ceiling('internal_consistency')
     ceiling = ceiler(assembly)
     good_neuroid_indices = ceiling.attrs['raw'].mean('split') > threshold
     assembly = assembly[{'neuroid': good_neuroid_indices.values}]

@@ -28,7 +28,7 @@ file_path = dependencies_dir_path + '/data_pico/assy_dicarlo_pico_domain_transfe
 assembly_pico = brainio.assemblies.DataAssembly.from_files(file_path)
 
 # stimulus set with background id
-csv_path = './merged_stimulus_set.csv'
+csv_path = 'merged_stimulus_set.csv'
 merged_stimulus_set = pd.read_csv(csv_path)
 
 # need to add background id to the presentation dimension of oleo assembly

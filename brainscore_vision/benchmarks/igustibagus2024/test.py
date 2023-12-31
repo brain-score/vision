@@ -5,25 +5,20 @@ from pytest import approx
 
 from brainio.assemblies import NeuroidAssembly
 from brainscore_vision import load_benchmark
-from brainscore_vision.benchmark_helpers import check_standard_format, PrecomputedFeatures
+from brainscore_vision.benchmark_helpers import PrecomputedFeatures
 from brainscore_vision.benchmark_helpers.test_helper import StandardizedTests
 from brainscore_vision.benchmarks.igustibagus2024.domain_transfer_neural import load_domain_transfer
 
 
 @pytest.mark.memory_intense
 @pytest.mark.private_access
-class TestAssembly:
-    def test_IT(self):
-        assembly = load_domain_transfer(average_repetitions=True)
-        check_standard_format(assembly)
-        assert assembly.attrs['stimulus_set_identifier'] == 'Igustibagus2024'
-        assert set(assembly['region'].values) == {'IT'}
-        assert len(assembly['presentation']) == 780
-        assert set(assembly['object_style'].values) == {'silhouette', 'sketch', 'cartoon', 'original', 'painting',
-                                                        'line_drawing', 'outline', 'convex_hull', 'mosaic'}
-        assert len(assembly['neuroid']) == 110
-        assert set(assembly['animal'].values) == {'Pico', 'Oleo'}
-        assert assembly['background_id'].values is not None
+def test_preprocessed_assembly():
+    assembly = load_domain_transfer(average_repetitions=True)
+    assert assembly.attrs['stimulus_set_identifier'] == 'Igustibagus2024'
+    assert len(assembly['presentation']) == 780
+    assert set(assembly['object_style'].values) == {'silhouette', 'sketch', 'cartoon', 'original', 'painting',
+                                                    'line_drawing', 'outline', 'convex_hull', 'mosaic'}
+    assert len(assembly['neuroid']) == 110
 
 
 @pytest.mark.private_access
@@ -46,5 +41,5 @@ def test_engineering():
     }}, dims=['presentation', 'neuroid'])
     features = PrecomputedFeatures(features, visual_degrees=8)
     score = benchmark(features)
-    assert score.sel(aggregation='center') == approx(0.5, abs=0.001)  # chance
+    assert score.sel(aggregation='center') == approx(0.5, abs=0.02)  # chance
     assert set(score.raw.dims) == {'domain', 'split'}

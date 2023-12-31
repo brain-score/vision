@@ -9,10 +9,10 @@ from tqdm import tqdm
 
 from brainio.fetch import get_stimulus_set
 # import brain-score specific libraries
-from brainscore.benchmarks import BenchmarkBase
-from brainscore.benchmarks.screen import place_on_screen
-from brainscore.metrics import Score
-from brainscore.model_interface import BrainModel
+from brainscore_core import Score
+from brainscore_vision import BrainModel
+from brainscore_vision.benchmark_helpers.screen import place_on_screen
+from brainscore_vision.benchmarks import BenchmarkBase
 
 #### define constants ####
 VISUAL_DEGREES = 8

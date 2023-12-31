@@ -25,7 +25,7 @@ BIBTEX = """@article {Rajalingham240614,
 class _DicarloRajalingham2018(BenchmarkBase):
     def __init__(self, metric, metric_identifier):
         self._metric = metric
-        self._fitting_stimuli = load_stimulus_set('dicarlo.objectome.public')
+        self._fitting_stimuli = load_stimulus_set('objectome.public')
         self._assembly = LazyLoad(lambda: load_assembly('private'))
         self._visual_degrees = 8
         self._number_of_trials = 2

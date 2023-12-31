@@ -4,9 +4,10 @@ from numpy.random import RandomState
 from pytest import approx
 
 from brainio.assemblies import NeuroidAssembly
-from brainscore import benchmark_pool
-from brainscore.benchmarks.domain_transfer_neural import load_domain_transfer
-from . import check_standard_format, PrecomputedFeatures
+from brainscore_vision import load_benchmark
+from brainscore_vision.benchmark_helpers import check_standard_format, PrecomputedFeatures
+from brainscore_vision.benchmark_helpers.test_helper import TestStandardized
+from brainscore_vision.benchmarks.igustibagus2024.domain_transfer_neural import load_domain_transfer
 
 
 @pytest.mark.memory_intense
@@ -26,8 +27,15 @@ class TestAssembly:
 
 
 @pytest.mark.private_access
+def test_self_regression():
+    standardized_tests = TestStandardized()
+    standardized_tests.self_regression_test(benchmark='Igustibagus2024-ridge', visual_degrees=8,
+                                            expected=approx(1, abs=.005))
+
+
+@pytest.mark.private_access
 def test_engineering():
-    benchmark = benchmark_pool['Igustibagus2024.IT_readout-accuracy']
+    benchmark = load_benchmark('Igustibagus2024.IT_readout-accuracy')
     rng = RandomState(0)
     random_features = rng.random(size=(len(benchmark._stimuli), 300))
     features = NeuroidAssembly(random_features, coords={**{

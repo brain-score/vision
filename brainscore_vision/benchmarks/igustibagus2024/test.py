@@ -6,7 +6,7 @@ from pytest import approx
 from brainio.assemblies import NeuroidAssembly
 from brainscore_vision import load_benchmark
 from brainscore_vision.benchmark_helpers import check_standard_format, PrecomputedFeatures
-from brainscore_vision.benchmark_helpers.test_helper import TestStandardized
+from brainscore_vision.benchmark_helpers.test_helper import StandardizedTests
 from brainscore_vision.benchmarks.igustibagus2024.domain_transfer_neural import load_domain_transfer
 
 
@@ -28,7 +28,7 @@ class TestAssembly:
 
 @pytest.mark.private_access
 def test_self_regression():
-    standardized_tests = TestStandardized()
+    standardized_tests = StandardizedTests()
     standardized_tests.self_regression_test(benchmark='Igustibagus2024-ridge', visual_degrees=8,
                                             expected=approx(1, abs=.005))
 

@@ -1,15 +1,17 @@
+# Importing individual benchmarks directly is discouraged.
+# Use `brainscore_vision.load_benchmark` instead which provides dependency support.
+
 """
 A :class:`~brainscore.benchmarks.Benchmark` runs an experiment on a :class:`~brainscore.model_interface.BrainModel`
 and tests the resulting measurements against primate `data <https://github.com/brain-score/brainio>`_.
 This comparison is done by a :class:`~brainscore.metrics.Metric` which outputs a score of how well model and data match.
 This score is normalized with data ceilings and the benchmark returns this ceiled score.
 """
-import itertools
 from abc import ABC
 
-from result_caching import cache, store
+from result_caching import store
 
-from brainscore_vision.metrics import Score
+from brainscore_core.metrics import Score
 from brainscore_vision.model_interface import BrainModel
 
 
@@ -71,8 +73,9 @@ class Benchmark(ABC):
         Typically this represents the signal in the data and how well we expect the best possible model to score.
 
         :return: a Score object, denoting the ceiling of this benchmark.
-                Typically has two values indexed by an `aggregation` coordinate:
-                `center` for the averaged ceiling value, and `error` for the uncertainty.
+                The Score values itself typically consist of just a scalar between zero and one.
+                Many ceilers also include the error estimate and raw values,
+                available in `ceiling.attrs['error']` and `ceiling.attrs['raw']` respectively.
         """
         raise NotImplementedError()
 
@@ -110,11 +113,10 @@ class BenchmarkBase(Benchmark):
         return self._ceiling_func()
 
 
-def ceil_score(score, ceiling):
-    ceiled_center = score.sel(aggregation='center').values / ceiling.sel(aggregation='center').values
-    ceiled_score = type(score)([ceiled_center, score.sel(aggregation='error').values],
-                               coords=score.coords, dims=score.dims)
+def ceil_score(score: Score, ceiling: Score) -> Score:
+    ceiled_score = score / ceiling
+    if 'error' in score.attrs:
+        ceiled_score.attrs['error'] = score.attrs['error']
     ceiled_score.attrs[Score.RAW_VALUES_KEY] = score
     ceiled_score.attrs['ceiling'] = ceiling
     return ceiled_score
-

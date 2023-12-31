@@ -1,11 +1,8 @@
 import numpy as np
 
-import brainscore_vision
-from brainscore_vision.benchmark_helpers._neural_common import NeuralBenchmark, average_repetition
-from brainscore_vision.metrics.ceiling import InternalConsistency
-from brainscore_vision.metrics.regression import CrossRegressedCorrelation, pls_regression, pearsonr_correlation
+from brainscore_vision import load_metric, load_ceiling, load_dataset
+from brainscore_vision.benchmark_helpers.neural_common import NeuralBenchmark, average_repetition
 from brainscore_vision.utils import LazyLoad
-
 
 VISUAL_DEGREES = 8
 NUMBER_OF_TRIALS = 33
@@ -37,15 +34,14 @@ def _DicarloRajalingham2020Region(region, identifier_metric_suffix, similarity_m
 
 
 def DicarloRajalingham2020ITPLS():
+    metric = load_metric('pls', crossvalidation_kwargs=dict(stratification_coord=None))
+    ceiler = load_ceiling('internal_consistency')
     return _DicarloRajalingham2020Region('IT', identifier_metric_suffix='pls',
-                                         similarity_metric=CrossRegressedCorrelation(
-                                             regression=pls_regression(), correlation=pearsonr_correlation(),
-                                             crossvalidation_kwargs=dict(stratification_coord=None)),
-                                         ceiler=InternalConsistency())
+                                         similarity_metric=metric, ceiler=ceiler)
 
 
 def load_assembly(average_repetitions, region):
-    assembly = brainscore_vision.load_dataset(identifier=f'dicarlo.Rajalingham2020')
+    assembly = load_dataset(identifier=f'dicarlo.Rajalingham2020')
     assembly = assembly.sel(region=region)
     assembly['region'] = 'neuroid', [region] * len(assembly['neuroid'])
     assembly.load()

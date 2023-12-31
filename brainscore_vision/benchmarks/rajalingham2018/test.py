@@ -1,19 +1,23 @@
-import numpy as np
+import os
 from pathlib import Path
 
+import numpy as np
 import pytest
+import xarray as xr
 from pytest import approx
 
 from brainio.assemblies import BehavioralAssembly
-from brainscore_vision.benchmarks.rajalingham2018 import DicarloRajalingham2018I2n
-from brainscore_vision.model_interface import BrainModel
-from brainscore_vision import benchmark_registry, load_benchmark
+from brainscore_vision import benchmark_registry, load_benchmark, load_metric
 from brainscore_vision.benchmark_helpers import PrecomputedFeatures
-from brainscore_vision.benchmark_helpers.test_helper import TestVisualDegrees, TestNumberOfTrials, TestBenchmarkRegistry
+from brainscore_vision.benchmark_helpers.test_helper import VisualDegreesTests, NumberOfTrialsTests
+from brainscore_vision.benchmarks.rajalingham2018 import DicarloRajalingham2018I2n
+from brainscore_vision.benchmarks.rajalingham2018.benchmarks.benchmark import _DicarloRajalingham2018
+from brainscore_vision.data_helpers import s3
+from brainscore_vision.model_helpers.brain_transformation import ProbabilitiesMapping
+from brainscore_vision.model_interface import BrainModel
 
-visual_degrees = TestVisualDegrees()
-number_trials = TestNumberOfTrials()
-in_registry = TestBenchmarkRegistry()
+visual_degrees = VisualDegreesTests()
+number_trials = NumberOfTrialsTests()
 
 
 @pytest.mark.parametrize('benchmark', [
@@ -21,7 +25,7 @@ in_registry = TestBenchmarkRegistry()
     'dicarlo.Rajalingham2018public-i2n',
 ])
 def test_benchmark_registry(benchmark):
-    in_registry.benchmark_in_registry(benchmark)
+    assert benchmark in benchmark_registry
 
 
 @pytest.mark.private_access
@@ -29,7 +33,7 @@ class TestRajalingham2018:
     def test_ceiling(self):
         benchmark = DicarloRajalingham2018I2n()
         ceiling = benchmark.ceiling
-        assert ceiling.sel(aggregation='center') == approx(.479, abs=.0064)
+        assert ceiling == approx(.479, abs=.0064)
 
     @pytest.mark.parametrize(['model', 'expected_score'],
                              [
@@ -40,11 +44,13 @@ class TestRajalingham2018:
     def test_precomputed(self, model, expected_score):
         benchmark = DicarloRajalingham2018I2n()
         probabilities = Path(__file__).parent.parent / 'test_metrics' / f'{model}-probabilities.nc'
-        probabilities = BehavioralAssembly.from_files(probabilities, stimulus_set_identifier=benchmark._assembly.stimulus_set.identifier, stimulus_set=benchmark._assembly.stimulus_set)
+        probabilities = BehavioralAssembly.from_files(probabilities,
+                                                      stimulus_set_identifier=benchmark._assembly.stimulus_set.identifier,
+                                                      stimulus_set=benchmark._assembly.stimulus_set)
         candidate = PrecomputedProbabilities(probabilities)
         score = benchmark(candidate)
-        assert score.raw.sel(aggregation='center') == approx(expected_score, abs=.005)
-        assert score.sel(aggregation='center') == approx(expected_score / np.sqrt(.479), abs=.005)
+        assert score.raw == approx(expected_score, abs=.005)
+        assert score == approx(expected_score / np.sqrt(.479), abs=.005)
 
 
 class PrecomputedProbabilities(BrainModel):
@@ -69,9 +75,12 @@ class PrecomputedProbabilities(BrainModel):
 def test_Rajalingham2018public():
     benchmark = load_benchmark('dicarlo.Rajalingham2018public-i2n')
     # load features
-    precomputed_features = Path(__file__).parent / 'CORnetZ-rajalingham2018public.nc'
+    filename = 'CORnetZ-rajalingham2018public.nc'
+    filepath = Path(__file__).parent / filename
+    s3.download_file_if_not_exists(filepath,
+                                   bucket='brain-score-tests', remote_filepath=f'tests/test_benchmarks/{filename}')
     precomputed_features = BehavioralAssembly.from_files(
-        precomputed_features,
+        filepath,
         stimulus_set_identifier=benchmark._assembly.stimulus_set.identifier,
         stimulus_set=benchmark._assembly.stimulus_set)
     precomputed_features = PrecomputedFeatures(precomputed_features,
@@ -79,7 +88,7 @@ def test_Rajalingham2018public():
                                                )
     # score
     score = benchmark(precomputed_features).raw
-    assert score.sel(aggregation='center') == approx(.136923, abs=.005)
+    assert score == approx(.136923, abs=.005)
 
 
 @pytest.mark.parametrize('benchmark, candidate_degrees, image_id, expected', [
@@ -92,13 +101,60 @@ def test_Rajalingham2018public():
     pytest.param('dicarlo.Rajalingham2018public-i2n', 6, '0020cef91bd626e9fbbabd853494ee444e5c9ecb',
                  approx(.00097, abs=.0001), marks=[]),
 ])
-def test_amount_gray(benchmark, candidate_degrees, image_id, expected, brainio_home, resultcaching_home,
-                     brainscore_home):
-    visual_degrees.amount_gray_test(benchmark, candidate_degrees, image_id, expected, brainio_home,
-                                    resultcaching_home, brainscore_home)
+def test_amount_gray(benchmark: str, candidate_degrees: int, image_id: str, expected: float):
+    visual_degrees.amount_gray_test(benchmark, candidate_degrees, image_id, expected)
 
 
 @pytest.mark.private_access
 @pytest.mark.parametrize('benchmark_identifier', ['dicarlo.Rajalingham2018-i2n'])
 def test_repetitions(benchmark_identifier):
     number_trials.repetitions_test(benchmark_identifier)
+
+
+@pytest.mark.private_access
+class TestMetricScore:
+    @pytest.mark.parametrize(['model', 'expected_score'],
+                             [
+                                 ('alexnet', .253),
+                                 ('resnet34', .37787),
+                                 ('resnet18', .3638),
+                             ])
+    def test_model(self, model, expected_score):
+        class UnceiledBenchmark(_DicarloRajalingham2018):
+            def __init__(self):
+                metric = load_metric('i2n')
+                super(UnceiledBenchmark, self).__init__(metric=metric, metric_identifier='i2n')
+
+            def __call__(self, candidate: BrainModel):
+                candidate.start_task(BrainModel.Task.probabilities, self._fitting_stimuli)
+                probabilities = candidate.look_at(self._assembly.stimulus_set)
+                score = self._metric(probabilities, self._assembly)
+                return score
+
+        benchmark = UnceiledBenchmark()
+        # features
+        feature_responses = xr.load_dataarray(Path(__file__).parent / 'test_resources' /
+                                              f'identifier={model},stimuli_identifier=objectome-240.nc')
+        feature_responses['stimulus_id'] = 'stimulus_path', [os.path.splitext(os.path.basename(path))[0]
+                                                             for path in feature_responses['stimulus_path'].values]
+        feature_responses = feature_responses.stack(presentation=['stimulus_path'])
+        assert len(np.unique(feature_responses['layer'])) == 1  # only penultimate layer
+
+        class PrecomputedFeatures:
+            def __init__(self, precomputed_features):
+                self.features = precomputed_features
+
+            def __call__(self, stimuli, layers):
+                np.testing.assert_array_equal(layers, ['behavioral-layer'])
+                self_stimulus_ids = self.features['stimulus_id'].values.tolist()
+                indices = [self_stimulus_ids.index(stimulus_id) for stimulus_id in stimuli['stimulus_id'].values]
+                features = self.features[{'presentation': indices}]
+                return features
+
+        # evaluate candidate
+        transformation = ProbabilitiesMapping(identifier=f'TestI2N.{model}',
+                                              activations_model=PrecomputedFeatures(feature_responses),
+                                              layer='behavioral-layer')
+        score = benchmark(transformation)
+        score = score.sel(aggregation='center')
+        assert score == approx(expected_score, abs=0.005), f"expected {expected_score}, but got {score}"

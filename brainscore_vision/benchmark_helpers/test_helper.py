@@ -5,27 +5,21 @@ import numpy as np
 from PIL import Image
 
 from brainio.assemblies import NeuroidAssembly, PropertyAssembly
-from brainscore_vision import benchmark_registry, load_benchmark
+from brainscore_vision import load_benchmark
 from brainscore_vision.model_interface import BrainModel
 from . import PrecomputedFeatures
 
 
-class TestBenchmarkRegistry:
-    def benchmark_in_registry(self, benchmark: str):
-        assert benchmark in benchmark_registry
-
-
-class TestStandardized:
-
+class StandardizedTests:
     def ceilings_test(self, benchmark: str, expected: float):
         benchmark = load_benchmark(benchmark)
         ceiling = benchmark.ceiling
-        assert ceiling.sel(aggregation='center') == expected
+        assert ceiling == expected
 
     def self_regression_test(self, benchmark: str, visual_degrees: int, expected: float):
         benchmark = load_benchmark(benchmark)
         score = benchmark(PrecomputedFeatures(benchmark._assembly, visual_degrees=visual_degrees)).raw
-        assert score.sel(aggregation='center') == expected
+        assert score == expected
         raw_values = score.attrs['raw']
         assert hasattr(raw_values, 'neuroid')
         assert hasattr(raw_values, 'split')
@@ -34,19 +28,17 @@ class TestStandardized:
     def self_rdm_test(self, benchmark: str, visual_degrees: int, expected: float):
         benchmark = load_benchmark(benchmark)
         score = benchmark(PrecomputedFeatures(benchmark._assembly, visual_degrees=visual_degrees)).raw
-        assert score.sel(aggregation='center') == expected
+        assert score == expected
         raw_values = score.attrs['raw']
         assert hasattr(raw_values, 'split')
         assert len(raw_values['split']) == 10
 
 
-class TestPrecomputed:
-
-    def run_test(self, benchmark: str, file: str, expected: float):
+class PrecomputedTests:
+    def run_test(self, benchmark: str, precomputed_features_filepath: str, expected: float):
         benchmark = load_benchmark(benchmark)
-        precomputed_features = Path(__file__).parent / file
         precomputed_features = NeuroidAssembly.from_files(
-            precomputed_features,
+            precomputed_features_filepath,
             stimulus_set_identifier=benchmark._assembly.stimulus_set.identifier,
             stimulus_set=None)
         precomputed_features = precomputed_features.stack(presentation=['stimulus_path'])
@@ -63,7 +55,7 @@ class TestPrecomputed:
                                                    )
         # score
         score = benchmark(precomputed_features).raw
-        assert score.sel(aggregation='center') == expected
+        assert score == expected
 
     def run_test_properties(self, benchmark: str, files: dict, expected: float):
         benchmark = load_benchmark(benchmark)
@@ -93,13 +85,11 @@ class TestPrecomputed:
         precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
         # score
         score = benchmark(precomputed_features).raw
-        assert score.sel(aggregation='center') == expected
+        assert score == expected
 
 
-class TestVisualDegrees:
-
-    def amount_gray_test(self, benchmark: str, candidate_degrees: int, image_id: str, expected: float,
-                         brainio_home: Path, resultcaching_home: Path, brainscore_home: Path):
+class VisualDegreesTests:
+    def amount_gray_test(self, benchmark: str, candidate_degrees: int, image_id: str, expected: float):
         benchmark = load_benchmark(benchmark)
 
         class DummyCandidate(BrainModel):
@@ -135,8 +125,7 @@ class TestVisualDegrees:
             pass
 
 
-class TestNumberOfTrials:
-
+class NumberOfTrialsTests:
     def repetitions_test(self, benchmark_identifier: str):
         """ Tests that benchmarks have repetitions in the stimulus_set """
         benchmark = load_benchmark(benchmark_identifier)

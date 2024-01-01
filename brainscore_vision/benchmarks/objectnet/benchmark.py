@@ -29,7 +29,7 @@ _logger = logging.getLogger(__name__)
 
 class Objectnet(BenchmarkBase):
     def __init__(self):
-        self._stimulus_set = load_stimulus_set('katz.BarbuMayo2019')
+        self._stimulus_set = load_stimulus_set('BarbuMayo2019')
         self._similarity_metric = load_metric('accuracy')
         ceiling = Score(1)
 

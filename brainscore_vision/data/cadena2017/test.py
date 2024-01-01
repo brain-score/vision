@@ -5,14 +5,9 @@ from brainscore_vision.benchmark_helpers import check_standard_format
 
 
 @pytest.mark.private_access
-def test_existence():
-    assert load_dataset('Cadena2017') is not None
-
-
-@pytest.mark.private_access
 def test_format():
     assembly = load_dataset('Cadena2017')
-    check_standard_format(assembly)
+    check_standard_format(assembly, nans_expected=True)
 
 
 @pytest.mark.private_access

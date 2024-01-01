@@ -22,7 +22,6 @@ dependencies = [
     "tqdm",
     "gitpython",
     "fire",
-    "fire",
     "jupyter",
     "pybtex",
     "peewee",
@@ -33,6 +32,11 @@ dependencies = [
 [project.optional-dependencies]
 test = [
     "pytest",
+    "pytest_check",
+    "torch",
+    "torchvision",
+    "tensorflow==1.15",
+    "keras==2.3.1",
 ]
 
 [build-system]
@@ -40,9 +44,6 @@ requires = [
     "setuptools>=65.*",
     "wheel"
 ]
-
-[project.scripts]
-brainio_brainscore = "brainscore_vision.entrypoint:brainio_brainscore"
 
 
 ################################################################

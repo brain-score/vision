@@ -174,7 +174,8 @@ class Split:
     def __init__(self,
                  splits=Defaults.splits, train_size=None, test_size=None,
                  split_coord=Defaults.split_coord, stratification_coord=Defaults.stratification_coord, kfold=False,
-                 unique_split_values=Defaults.unique_split_values, random_state=Defaults.random_state):
+                 unique_split_values=Defaults.unique_split_values, random_state=Defaults.random_state,
+                 preprocess_indices=None):
         super().__init__()
         if train_size is None and test_size is None:
             train_size = self.Defaults.train_size
@@ -194,6 +195,7 @@ class Split:
         self._split_coord = split_coord
         self._stratification_coord = stratification_coord
         self._unique_split_values = unique_split_values
+        self._preprocess_indices=preprocess_indices
 
         self._logger = logging.getLogger(fullname(self))
 
@@ -290,11 +292,14 @@ class CrossValidation(Transformation):
     """
 
     def __init__(self, *args, split_coord=Split.Defaults.split_coord,
-                 stratification_coord=Split.Defaults.stratification_coord, **kwargs):
+                 stratification_coord=Split.Defaults.stratification_coord,
+                 preprocess_indices=None, **kwargs):
         self._split_coord = split_coord
         self._stratification_coord = stratification_coord
         self._split = Split(*args, split_coord=split_coord, stratification_coord=stratification_coord, **kwargs)
         self._logger = logging.getLogger(fullname(self))
+        self._preprocess_indices = preprocess_indices
+        
 
     def pipe(self, source_assembly, target_assembly):
         # check only for equal values, alignment is given by metadata
@@ -309,6 +314,11 @@ class CrossValidation(Transformation):
         split_scores = []
         for split_iterator, (train_indices, test_indices), done \
                 in tqdm(enumerate_done(splits), total=len(splits), desc='cross-validation'):
+            
+            if hasattr(self, '_preprocess_indices'):
+                if self._preprocess_indices is not None:
+                    train_indices, test_indices = self._preprocess_indices(train_indices, test_indices, source_assembly)
+
             train_values, test_values = cross_validation_values[train_indices], cross_validation_values[test_indices]
             train_source = subset(source_assembly, train_values, dims_must_match=False)
             train_target = subset(target_assembly, train_values, dims_must_match=False)
@@ -316,7 +326,6 @@ class CrossValidation(Transformation):
             test_source = subset(source_assembly, test_values, dims_must_match=False)
             test_target = subset(target_assembly, test_values, dims_must_match=False)
             assert len(test_source[self._split_coord]) == len(test_target[self._split_coord])
-
             split_score = yield from self._get_result(train_source, train_target, test_source, test_target,
                                                       done=done)
             split_score = split_score.expand_dims('split')

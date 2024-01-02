@@ -3,6 +3,6 @@
 BrainModel interface
 --------------------
 
-.. autoclass:: brainscore.model_interface.BrainModel
+.. autoclass:: brainscore_vision.model_interface.BrainModel
     :members:
     :undoc-members:

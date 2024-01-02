@@ -8,7 +8,7 @@ from brainscore_vision.benchmark_helpers.properties_common import calc_circular_
     calc_orthogonal_preferred_ratio
 from brainscore_vision.metrics.distribution_similarity import NeuronalPropertyCeiling
 
-ASSEMBLY_NAME = 'shapley.Ringach2002'
+ASSEMBLY_NAME = 'Ringach2002'
 REGION = 'V1'
 TIMEBINS = [(70, 170)]
 PARENT_ORIENTATION = 'V1-orientation'

@@ -86,7 +86,7 @@ def _run_score(model_identifier: str, benchmark_identifier: str) -> Score:
 def score(model_identifier: str, benchmark_identifier: str, conda_active: bool = False) -> Score:
     """
     Score the model referenced by the `model_identifier` on the benchmark referenced by the `benchmark_identifier`.
-    The model needs to implement the :class:`~brainscore.model_interface.BrainModel` interface
+    The model needs to implement the :class:`~brainscore_vision.model_interface.BrainModel` interface
     so that the benchmark can interact with it.
     The benchmark will be looked up from the :data:`~brainscore_vision.benchmarks` and evaluates the model
     (looked up from :data:`~brainscore_vision.models`) on how brain-like it is under that benchmark's

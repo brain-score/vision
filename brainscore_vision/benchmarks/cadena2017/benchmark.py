@@ -62,10 +62,8 @@ def ToliasCadena2017Mask():
 
 
 class AssemblyLoader:
-    name = 'tolias.Cadena2017'
-
     def __call__(self, average_repetition=True):
-        assembly = brainscore_vision.load_dataset(identifier='tolias.Cadena2017')
+        assembly = brainscore_vision.load_dataset(identifier='Cadena2017')
         assembly = assembly.rename({'neuroid': 'neuroid_id'}).stack(neuroid=['neuroid_id'])
         assembly.load()
         assembly['region'] = 'neuroid', ['V1'] * len(assembly['neuroid'])

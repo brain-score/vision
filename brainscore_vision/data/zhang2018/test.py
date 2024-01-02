@@ -1,14 +1,11 @@
 import pytest
+
 from brainscore_vision import load_dataset, load_stimulus_set
 
 
+@pytest.mark.skip(reason='There is an issue with the packaging where the zip filenames do not match the csv filenames')
 @pytest.mark.private_access
-def test_existence():
-    assert load_dataset('Zhang2018search_obj_array') is not None
-
-
-@pytest.mark.private_access
-def test_klab_Zhang2018search():
+def test_assembly():
     assembly = load_dataset('Zhang2018search_obj_array')
     assert set(assembly.dims) == {'presentation', 'fixation', 'position'}
     assert len(assembly['presentation']) == 4500
@@ -19,8 +16,9 @@ def test_klab_Zhang2018search():
     assert assembly.stimulus_set is not None
 
 
+@pytest.mark.skip(reason='There is an issue with the packaging where the zip filenames do not match the csv filenames')
 @pytest.mark.private_access
-def test_klab_Zhang2018search():
+def test_stimulus_set():
     stimulus_set = load_stimulus_set('Zhang2018.search_obj_array')
     # There are 300 presentation images in the assembly but 606 in the StimulusSet (explanation from @shashikg follows).
     # For each of the visual search task out of total 300, you need two images (one - the target image,

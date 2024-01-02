@@ -1,3 +1,5 @@
+.. _interface:
+
 BrainModel interface
 --------------------
 

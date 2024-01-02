@@ -27,9 +27,9 @@ def test_self_regression():
 
 
 @pytest.mark.private_access
-@pytest.mark.parametrize('benchmark, candidate_degrees, image_id, expected', [
-    ('Cadena2017-pls', 14, '0fe27ddd5b9ea701e380063dc09b91234eba3551', approx(.32655, abs=.0001)),
-    ('Cadena2017-pls', 6, '0fe27ddd5b9ea701e380063dc09b91234eba3551', approx(.29641, abs=.0001)),
+@pytest.mark.parametrize('candidate_degrees, image_id, expected', [
+    (14, '0fe27ddd5b9ea701e380063dc09b91234eba3551', approx(.32655, abs=.0001)),
+    (6, '0fe27ddd5b9ea701e380063dc09b91234eba3551', approx(.29641, abs=.0001)),
 ])
-def test_amount_gray(benchmark: str, candidate_degrees: int, image_id: str, expected: float):
-    visual_degrees_test.amount_gray_test(benchmark, candidate_degrees, image_id, expected)
+def test_amount_gray(candidate_degrees: int, image_id: str, expected: float):
+    visual_degrees_test.amount_gray_test('Cadena2017-pls', candidate_degrees, image_id, expected)

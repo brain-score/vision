@@ -7,7 +7,7 @@ from brainscore_vision.benchmark_helpers.properties_common import PropertiesBenc
     calc_size_tuning
 from brainscore_vision.metrics.distribution_similarity import NeuronalPropertyCeiling
 
-ASSEMBLY_NAME = 'movshon.Cavanaugh2002a'
+ASSEMBLY_NAME = 'Cavanaugh2002a'
 REGION = 'V1'
 TIMEBINS = [(70, 170)]
 PARENT_SURROUND = 'V1-surround_modulation'

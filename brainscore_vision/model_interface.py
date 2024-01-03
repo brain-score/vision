@@ -118,6 +118,39 @@ class BrainModel:
                   - choice        (choice) object 'dog' 'cat' 'chair' 'flower' 'plane'
         """
 
+        odd_one_out = 'odd_one_out'
+        """
+        Predict the odd-one-out elements for a list of triplets of stimuli. 
+
+        The model must be supplied with a list of stimuli where every three consecutive stimuli 
+        are considered to form a triplet. The model is expected to output a one-dimensional 
+        assembly with each value corresponding to the index (`0`, `1`, or `2`) of the triplet 
+        element that is different from the other two.
+        
+        Output a :class:`~brainio.assemblies.BehavioralAssembly` with the choices as the values.
+        
+        Example:
+
+        Setting up an odd-one-out task for a list of triplets with `start_task(BrainModel.Task.odd_one_out)` and calling 
+        .. code-block:: python
+        
+            look_at(['image1.png', 'image2.png', 'image3.png',    #triplet 1 
+                     'image1.png', 'image2.png', 'image4.png',    #triplet 2 
+                     'image2.png', 'image3.png', 'image4.png',    #triplet 3
+                     ...
+                     'image4.png', 'image8.png', 'image10.png'])  #triplet 50 
+
+        with 50 triplet trials and 10 unique stimuli could output 
+        .. code-block:: python
+
+           <xarray.BehavioralAssembly (presentation: 50, choice: 1)>
+                array([[0], [2], [2], ..., [1]])  #  index of the odd-one-out per trial, i.e. 0, 1, or 2. (Each trial is one triplet of images.)
+                Coordinates:
+                  * presentation  (presentation) MultiIndex
+                  - stimulus_id   (presentation) ['image1', 'image2', 'image3'], ..., , ['image4', 'image8', 'image10']
+                  - stimulus_path (presentation) object '/home/me/.brainio/demo_stimuli/image1.png' ...
+        """
+
     def start_task(self, task: Task, fitting_stimuli) -> None:
         """
         Instructs the model to begin one of the tasks specified in

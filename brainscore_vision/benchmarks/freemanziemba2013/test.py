@@ -16,8 +16,8 @@ visual_degrees_test = VisualDegreesTests()
 
 
 @pytest.mark.parametrize('benchmark', [
-    'movshon.FreemanZiemba2013.V1-pls',
-    'movshon.FreemanZiemba2013.V2-pls',  # are these what should be checked for? what about public vs. private
+    'FreemanZiemba2013.V1-pls',
+    'FreemanZiemba2013.V2-pls',
 ])
 def test_benchmark_registry(benchmark):
     assert benchmark in benchmark_registry
@@ -25,8 +25,8 @@ def test_benchmark_registry(benchmark):
 
 @pytest.mark.memory_intense
 @pytest.mark.parametrize('benchmark, expected', [
-    ('movshon.FreemanZiemba2013.V1-pls', approx(.873345, abs=.001)),
-    ('movshon.FreemanZiemba2013.V2-pls', approx(.824836, abs=.001)),
+    ('FreemanZiemba2013.V1-pls', approx(.873345, abs=.001)),
+    ('FreemanZiemba2013.V2-pls', approx(.824836, abs=.001)),
 ])
 def test_ceilings(benchmark, expected):
     standardized_tests.ceilings_test(benchmark, expected)
@@ -34,8 +34,8 @@ def test_ceilings(benchmark, expected):
 
 @pytest.mark.memory_intense
 @pytest.mark.parametrize('benchmark, visual_degrees, expected', [
-    ('movshon.FreemanZiemba2013.V1-pls', 4, approx(.668491, abs=.001)),
-    ('movshon.FreemanZiemba2013.V2-pls', 4, approx(.553155, abs=.001)),
+    ('FreemanZiemba2013.V1-pls', 4, approx(.668491, abs=.001)),
+    ('FreemanZiemba2013.V2-pls', 4, approx(.553155, abs=.001)),
 ])
 def test_self_regression(benchmark, visual_degrees, expected):
     standardized_tests.self_regression_test(benchmark, visual_degrees, expected)
@@ -43,8 +43,8 @@ def test_self_regression(benchmark, visual_degrees, expected):
 
 @pytest.mark.memory_intense
 @pytest.mark.parametrize('benchmark, expected', [
-    ('movshon.FreemanZiemba2013.V1-pls', approx(.466222, abs=.005)),
-    ('movshon.FreemanZiemba2013.V2-pls', approx(.459283, abs=.005)),
+    ('FreemanZiemba2013.V1-pls', approx(.466222, abs=.005)),
+    ('FreemanZiemba2013.V2-pls', approx(.459283, abs=.005)),
 ])
 def test_FreemanZiemba2013(benchmark, expected):
     filename = 'alexnet-freemanziemba2013.aperture-private.nc'
@@ -55,21 +55,21 @@ def test_FreemanZiemba2013(benchmark, expected):
 
 
 @pytest.mark.parametrize('benchmark, candidate_degrees, image_id, expected', [
-    pytest.param('movshon.FreemanZiemba2013.V1-pls', 14, 'c3a633a13e736394f213ddf44bf124fe80cabe07',
+    pytest.param('FreemanZiemba2013.V1-pls', 14, 'c3a633a13e736394f213ddf44bf124fe80cabe07',
                  approx(.31429, abs=.0001), marks=[pytest.mark.private_access]),
-    pytest.param('movshon.FreemanZiemba2013.V1-pls', 6, 'c3a633a13e736394f213ddf44bf124fe80cabe07',
+    pytest.param('FreemanZiemba2013.V1-pls', 6, 'c3a633a13e736394f213ddf44bf124fe80cabe07',
                  approx(.22966, abs=.0001), marks=[pytest.mark.private_access]),
-    pytest.param('movshon.FreemanZiemba2013public.V1-pls', 14, '21041db1f26c142812a66277c2957fb3e2070916',
+    pytest.param('FreemanZiemba2013public.V1-pls', 14, '21041db1f26c142812a66277c2957fb3e2070916',
                  approx(.314561, abs=.0001), marks=[]),
-    pytest.param('movshon.FreemanZiemba2013public.V1-pls', 6, '21041db1f26c142812a66277c2957fb3e2070916',
+    pytest.param('FreemanZiemba2013public.V1-pls', 6, '21041db1f26c142812a66277c2957fb3e2070916',
                  approx(.23113, abs=.0001), marks=[]),
-    pytest.param('movshon.FreemanZiemba2013.V2-pls', 14, 'c3a633a13e736394f213ddf44bf124fe80cabe07',
+    pytest.param('FreemanZiemba2013.V2-pls', 14, 'c3a633a13e736394f213ddf44bf124fe80cabe07',
                  approx(.31429, abs=.0001), marks=[pytest.mark.private_access]),
-    pytest.param('movshon.FreemanZiemba2013.V2-pls', 6, 'c3a633a13e736394f213ddf44bf124fe80cabe07',
+    pytest.param('FreemanZiemba2013.V2-pls', 6, 'c3a633a13e736394f213ddf44bf124fe80cabe07',
                  approx(.22966, abs=.0001), marks=[pytest.mark.private_access]),
-    pytest.param('movshon.FreemanZiemba2013public.V2-pls', 14, '21041db1f26c142812a66277c2957fb3e2070916',
+    pytest.param('FreemanZiemba2013public.V2-pls', 14, '21041db1f26c142812a66277c2957fb3e2070916',
                  approx(.314561, abs=.0001), marks=[]),
-    pytest.param('movshon.FreemanZiemba2013public.V2-pls', 6, '21041db1f26c142812a66277c2957fb3e2070916',
+    pytest.param('FreemanZiemba2013public.V2-pls', 6, '21041db1f26c142812a66277c2957fb3e2070916',
                  approx(.23113, abs=.0001), marks=[]),
 ])
 def test_amount_gray(benchmark: str, candidate_degrees: int, image_id: str, expected: float):
@@ -78,8 +78,8 @@ def test_amount_gray(benchmark: str, candidate_degrees: int, image_id: str, expe
 
 @pytest.mark.private_access
 @pytest.mark.parametrize('benchmark_identifier', [
-    'movshon.FreemanZiemba2013.V1-pls',
-    'movshon.FreemanZiemba2013.V2-pls',
+    'FreemanZiemba2013.V1-pls',
+    'FreemanZiemba2013.V2-pls',
 ])
 def test_repetitions(benchmark_identifier):
     num_trials_test.repetitions_test(benchmark_identifier)
@@ -87,8 +87,8 @@ def test_repetitions(benchmark_identifier):
 
 @pytest.mark.memory_intense
 @pytest.mark.parametrize('benchmark, visual_degrees, expected', [
-    ('movshon.FreemanZiemba2013public.V1-pls', 4, approx(.679954, abs=.001)),
-    ('movshon.FreemanZiemba2013public.V2-pls', 4, approx(.577498, abs=.001)),
+    ('FreemanZiemba2013public.V1-pls', 4, approx(.679954, abs=.001)),
+    ('FreemanZiemba2013public.V2-pls', 4, approx(.577498, abs=.001)),
 ])
 def test_self(benchmark, visual_degrees, expected):
     benchmark = load_benchmark(benchmark)

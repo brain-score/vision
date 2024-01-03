@@ -7,9 +7,9 @@ from .screen import place_on_screen
 from brainscore_vision.model_interface import BrainModel
 from result_caching import store
 
-BLANK_STIM_NAME = 'dicarlo.Marques2020_blank'
-RF_STIM_NAME = 'dicarlo.Marques2020_receptive_field'
-ORIENTATION_STIM_NAME = 'dicarlo.Marques2020_orientation'
+BLANK_STIM_NAME = 'Marques2020_blank'
+RF_STIM_NAME = 'Marques2020_receptive_field'
+ORIENTATION_STIM_NAME = 'Marques2020_orientation'
 
 RF_NUMBER_OF_TRIALS = 10
 ORIENTATION_NUMBER_OF_TRIALS = 20

@@ -15,11 +15,11 @@ BIBTEX = """@article{lee2019sensitivity,
 }"""
 
 # assembly: uses dicarlo.hvm
-data_registry['dicarlo.Seibert2019'] = lambda: load_assembly_from_s3(
+data_registry['Seibert2019'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.Seibert2019",
     version_id="vSUte2bpVhGxPRKocfk_MP0s3LAPElBi",
     sha1="eef41bb1f3d83c0e60ebf0e91511ce71ef5fee32",
     bucket="brainio-brainscore",
     cls=NeuronRecordingAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('dicarlo.hvm'),
+    stimulus_set_loader=lambda: load_stimulus_set('hvm'),
 )

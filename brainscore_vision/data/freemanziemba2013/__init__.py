@@ -15,27 +15,27 @@ BIBTEX = """@article{freeman2013functional,
 }"""
 
 # assembly: movshon.FreemanZiemba2013.public
-data_registry['movshon.FreemanZiemba2013.public'] = lambda: load_assembly_from_s3(
+data_registry['FreemanZiemba2013.public'] = lambda: load_assembly_from_s3(
     identifier="movshon.FreemanZiemba2013.public",
     version_id=None,  # "Ff3BssTYdRYSXv2hO8ByirYIxsbW1__s",
     sha1="761c08f796db4e342555cdb60eef23a4f19ead43",
     bucket="brainio.contrib",
     cls=NeuronRecordingAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('movshon.FreemanZiemba2013.aperture-public'),
+    stimulus_set_loader=lambda: load_stimulus_set('FreemanZiemba2013.aperture-public'),
 )
 
 # assembly: movshon.FreemanZiemba2013.private
-data_registry['movshon.FreemanZiemba2013.private'] = lambda: load_assembly_from_s3(
+data_registry['FreemanZiemba2013.private'] = lambda: load_assembly_from_s3(
     identifier="movshon.FreemanZiemba2013.private",
     version_id=None,  # "3t5ehf.WHJWKX2vUuESVI3PY7ZIUDBkY",
     sha1="63f636fa2e2b51b47a676768a69b06ce95efdd8f",
     bucket="brainio.contrib",
     cls=NeuronRecordingAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('movshon.FreemanZiemba2013.aperture-private'),
+    stimulus_set_loader=lambda: load_stimulus_set('FreemanZiemba2013.aperture-private'),
 )
 
 # stimulus set: movshon.FreemanZiemba2013.aperture-public
-stimulus_set_registry['movshon.FreemanZiemba2013.aperture-public'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['FreemanZiemba2013.aperture-public'] = lambda: load_stimulus_set_from_s3(
     identifier="movshon.FreemanZiemba2013.aperture-public",
     bucket="brainio.contrib",
     csv_sha1="194c9b301a4e3e9cff02481d4c19b39331d52660",
@@ -45,7 +45,7 @@ stimulus_set_registry['movshon.FreemanZiemba2013.aperture-public'] = lambda: loa
 )
 
 # stimulus set: movshon.FreemanZiemba2013.aperture-private
-stimulus_set_registry['movshon.FreemanZiemba2013.aperture-private'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['FreemanZiemba2013.aperture-private'] = lambda: load_stimulus_set_from_s3(
     identifier="movshon.FreemanZiemba2013.aperture-private",
     bucket="brainio.contrib",
     csv_sha1="65bee31483dd743ae2a19c6af03b9abe5f4d5a41",
@@ -57,47 +57,47 @@ stimulus_set_registry['movshon.FreemanZiemba2013.aperture-private'] = lambda: lo
 ### secondary assemblies and stimulus sets
 
 # assembly: movshon.FreemanZiemba2013
-data_registry['movshon.FreemanZiemba2013'] = lambda: load_assembly_from_s3(
+data_registry['FreemanZiemba2013'] = lambda: load_assembly_from_s3(
     identifier="movshon.FreemanZiemba2013",
     version_id="knfzP5wWG3BRWgD0PGy1CXCadExElV0f",
     sha1="f03f1630f0ab1e2dbd51816b47fbf2916876134e",
     bucket="brainio-brainscore",
     cls=NeuronRecordingAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('movshon.FreemanZiemba2013.aperture'),
+    stimulus_set_loader=lambda: load_stimulus_set('FreemanZiemba2013.aperture'),
 )
 
 # assembly: movshon.FreemanZiemba2013.noaperture
-data_registry['movshon.FreemanZiemba2013.noaperture'] = lambda: load_assembly_from_s3(
+data_registry['FreemanZiemba2013.noaperture'] = lambda: load_assembly_from_s3(
     identifier="movshon.FreemanZiemba2013.noaperture",
     version_id="3Icsm_HjYeVfzfvsaUJ5qdUT94EaXa5A",
     sha1="6176fd435ab840d284c2c426742c8211622739b5",
     bucket="brainio-brainscore",
     cls=NeuronRecordingAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('movshon.FreemanZiemba2013'),
+    stimulus_set_loader=lambda: load_stimulus_set('FreemanZiemba2013'),
 )
 
 # assembly: movshon.FreemanZiemba2013.noaperture.public
-data_registry['movshon.FreemanZiemba2013.noaperture.public'] = lambda: load_assembly_from_s3(
+data_registry['FreemanZiemba2013.noaperture.public'] = lambda: load_assembly_from_s3(
     identifier="movshon.FreemanZiemba2013.noaperture.public",
     version_id="ggkwDaFLsKesxL0MZY7fMpHuw3gwaEjs",
     sha1="68dd9e1da7207dc2ae17dbbb1adf628e922d15fa",
     bucket="brainio-brainscore",
     cls=NeuronRecordingAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('movshon.FreemanZiemba2013-public'),
+    stimulus_set_loader=lambda: load_stimulus_set('FreemanZiemba2013-public'),
 )
 
 # assembly: movshon.FreemanZiemba2013.noaperture.private
-data_registry['movshon.FreemanZiemba2013.noaperture.private'] = lambda: load_assembly_from_s3(
+data_registry['FreemanZiemba2013.noaperture.private'] = lambda: load_assembly_from_s3(
     identifier="movshon.FreemanZiemba2013.noaperture.private",
     version_id="SBtg_vxBS_7VsFOy5lBs_.6K_pQnyM40",
     sha1="9ffa772ce61754f6f5b7b391436680ebc25bb8dd",
     bucket="brainio-brainscore",
     cls=NeuronRecordingAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('movshon.FreemanZiemba2013-private'),
+    stimulus_set_loader=lambda: load_stimulus_set('FreemanZiemba2013-private'),
 )
 
 # stimulus set: movshon.FreemanZiemba2013
-stimulus_set_registry['movshon.FreemanZiemba2013'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['FreemanZiemba2013'] = lambda: load_stimulus_set_from_s3(
     identifier="movshon.FreemanZiemba2013",
     bucket="brainio-brainscore",
     csv_sha1="de0e65a25c7de4c1740f48ac9b1ff513dcfa5caf",
@@ -106,7 +106,7 @@ stimulus_set_registry['movshon.FreemanZiemba2013'] = lambda: load_stimulus_set_f
     zip_version_id="nGleGCtI3K4_GiqH1ZB30i38YrfaNa9Q")
 
 # stimulus set: movshon.FreemanZiemba2013.public
-stimulus_set_registry['movshon.FreemanZiemba2013.public'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['FreemanZiemba2013.public'] = lambda: load_stimulus_set_from_s3(
     identifier="movshon.FreemanZiemba2013-public",
     bucket="brainio-brainscore",
     csv_sha1="b4fee824f361fa0b78d7247ed4192b04cd675d4f",
@@ -115,7 +115,7 @@ stimulus_set_registry['movshon.FreemanZiemba2013.public'] = lambda: load_stimulu
     zip_version_id="qkNdZrXfYvItVlx1x9mMJgkIyJfXFm8j")
 
 # stimulus set: movshon.FreemanZiemba2013.private
-stimulus_set_registry['movshon.FreemanZiemba2013.private'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['FreemanZiemba2013.private'] = lambda: load_stimulus_set_from_s3(
     identifier="movshon.FreemanZiemba2013-private",
     bucket="brainio-brainscore",
     csv_sha1="91bab3340410ff5171490a337c5931545f29da82",
@@ -124,7 +124,7 @@ stimulus_set_registry['movshon.FreemanZiemba2013.private'] = lambda: load_stimul
     zip_version_id="K8yB0pGfrsTbfFFMMPRwy_XY7wvOXjmQ")
 
 # stimulus set: movshon.FreemanZiemba2013.aperture
-stimulus_set_registry['movshon.FreemanZiemba2013.aperture'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['FreemanZiemba2013.aperture'] = lambda: load_stimulus_set_from_s3(
     identifier="movshon.FreemanZiemba2013.aperture",
     bucket="brainio-brainscore",
     csv_sha1="4205eca54974da46accba7812fce25c1b6df58e0",

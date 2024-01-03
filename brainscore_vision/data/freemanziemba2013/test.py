@@ -1,18 +1,19 @@
-import pytest
-import numpy as np
 from pathlib import Path
+
+import numpy as np
+import pytest
 from PIL import Image
 from pytest import approx
 
-from brainscore_vision.benchmarks.freemanziemba2013.benchmarks.benchmark import load_assembly
 from brainscore_vision import load_dataset
 from brainscore_vision.benchmark_helpers import check_standard_format
+from brainscore_vision.benchmarks.freemanziemba2013.benchmarks.benchmark import load_assembly
 
 
 @pytest.mark.parametrize('assembly_identifier', [
-    pytest.param('movshon.FreemanZiemba2013', marks=[pytest.mark.private_access, pytest.mark.memory_intense]),
-    pytest.param('movshon.FreemanZiemba2013.public', marks=[pytest.mark.memory_intense]),
-    pytest.param('movshon.FreemanZiemba2013.private', marks=[pytest.mark.private_access, pytest.mark.memory_intense]),
+    pytest.param('FreemanZiemba2013', marks=[pytest.mark.private_access, pytest.mark.memory_intense]),
+    pytest.param('FreemanZiemba2013.public', marks=[pytest.mark.memory_intense]),
+    pytest.param('FreemanZiemba2013.private', marks=[pytest.mark.private_access, pytest.mark.memory_intense]),
 ])
 def test_existence(assembly_identifier):
     assert load_dataset(assembly_identifier) is not None
@@ -40,8 +41,8 @@ class TestAssembly:
 
 class TestFreemanZiemba:
     @pytest.mark.parametrize('identifier', [
-        pytest.param('movshon.FreemanZiemba2013.public', marks=[]),
-        pytest.param('movshon.FreemanZiemba2013.private', marks=[pytest.mark.private_access]),
+        pytest.param('FreemanZiemba2013.public', marks=[]),
+        pytest.param('FreemanZiemba2013.private', marks=[pytest.mark.private_access]),
     ])
     def test_v1_v2_alignment(self, identifier):
         assembly = load_dataset(identifier)
@@ -51,8 +52,8 @@ class TestFreemanZiemba:
         assert set(v1['stimulus_id'].values) == set(v2['stimulus_id'].values)
 
     @pytest.mark.parametrize('identifier', [
-        pytest.param('movshon.FreemanZiemba2013.public', marks=[]),
-        pytest.param('movshon.FreemanZiemba2013.private', marks=[pytest.mark.private_access]),
+        pytest.param('FreemanZiemba2013.public', marks=[]),
+        pytest.param('FreemanZiemba2013.private', marks=[pytest.mark.private_access]),
     ])
     def test_num_neurons(self, identifier):
         assembly = load_dataset(identifier)
@@ -63,8 +64,8 @@ class TestFreemanZiemba:
         assert len(v2['neuroid']) == 103
 
     @pytest.mark.parametrize('identifier', [
-        pytest.param('movshon.FreemanZiemba2013.public', marks=[]),
-        pytest.param('movshon.FreemanZiemba2013.private', marks=[pytest.mark.private_access]),
+        pytest.param('FreemanZiemba2013.public', marks=[]),
+        pytest.param('FreemanZiemba2013.private', marks=[pytest.mark.private_access]),
     ])
     def test_nonzero(self, identifier):
         assembly = load_dataset(identifier)
@@ -72,9 +73,9 @@ class TestFreemanZiemba:
         assert nonzero > 0
 
     @pytest.mark.parametrize('identifier, image_id, expected_amount_gray, ratio_gray', [
-        pytest.param('movshon.FreemanZiemba2013.public', '21041db1f26c142812a66277c2957fb3e2070916',
+        pytest.param('FreemanZiemba2013.public', '21041db1f26c142812a66277c2957fb3e2070916',
                      31756, .3101171875, marks=[]),
-        pytest.param('movshon.FreemanZiemba2013.private', 'bfd26c127f8ba028cc95cdc95f00c45c8884b365',
+        pytest.param('FreemanZiemba2013.private', 'bfd26c127f8ba028cc95cdc95f00c45c8884b365',
                      31585, .308447265625, marks=[pytest.mark.private_access]),
     ])
     def test_aperture(self, identifier, image_id, expected_amount_gray, ratio_gray):

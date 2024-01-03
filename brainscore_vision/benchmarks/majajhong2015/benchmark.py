@@ -61,7 +61,7 @@ def MajajHongITPublicBenchmark():
 
 
 def load_assembly(average_repetitions, region, access='private'):
-    assembly = load_dataset(f'dicarlo.MajajHong2015.{access}')
+    assembly = load_dataset(f'MajajHong2015.{access}')
     assembly = assembly.sel(region=region)
     assembly['region'] = 'neuroid', [region] * len(assembly['neuroid'])
     assembly = assembly.squeeze("time_bin")

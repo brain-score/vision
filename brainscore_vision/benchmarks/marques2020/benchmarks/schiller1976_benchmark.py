@@ -7,7 +7,7 @@ from brainscore_vision.benchmark_helpers.properties_common import PropertiesBenc
 from brainscore_vision.benchmark_helpers.properties_common import calc_spatial_frequency_tuning
 from brainscore_vision.metrics.distribution_similarity import NeuronalPropertyCeiling
 
-ASSEMBLY_NAME = 'schiller.Schiller1976c'
+ASSEMBLY_NAME = 'Schiller1976c'
 REGION = 'V1'
 TIMEBINS = [(70, 170)]
 PARENT = 'V1-spatial_frequency'

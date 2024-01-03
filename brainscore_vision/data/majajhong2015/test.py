@@ -25,14 +25,14 @@ class TestAssembly:
 
 
 @pytest.mark.parametrize('assembly_identifier', [
-    pytest.param('dicarlo.MajajHong2015', marks=[pytest.mark.private_access]),
-    pytest.param('dicarlo.MajajHong2015.public', marks=[]),
-    pytest.param('dicarlo.MajajHong2015.private', marks=[pytest.mark.private_access]),
-    pytest.param('dicarlo.MajajHong2015.temporal', marks=[pytest.mark.private_access, pytest.mark.memory_intense]),
-    pytest.param('dicarlo.MajajHong2015.temporal.public', marks=[pytest.mark.memory_intense]),
-    pytest.param('dicarlo.MajajHong2015.temporal.private',
+    pytest.param('MajajHong2015', marks=[pytest.mark.private_access]),
+    pytest.param('MajajHong2015.public', marks=[]),
+    pytest.param('MajajHong2015.private', marks=[pytest.mark.private_access]),
+    pytest.param('MajajHong2015.temporal', marks=[pytest.mark.private_access, pytest.mark.memory_intense]),
+    pytest.param('MajajHong2015.temporal.public', marks=[pytest.mark.memory_intense]),
+    pytest.param('MajajHong2015.temporal.private',
                  marks=[pytest.mark.private_access, pytest.mark.memory_intense]),
-    pytest.param('dicarlo.MajajHong2015.temporal-10ms', marks=[pytest.mark.private_access, pytest.mark.memory_intense]),
+    pytest.param('MajajHong2015.temporal-10ms', marks=[pytest.mark.private_access, pytest.mark.memory_intense]),
 ])
 def test_existence(assembly_identifier):
     assert load_dataset(assembly_identifier) is not None

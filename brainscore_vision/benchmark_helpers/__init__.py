@@ -40,10 +40,11 @@ class PrecomputedFeatures(BrainModel):
     def identifier(self):
         return "precomputed_features"
 
-def check_standard_format(assembly):
+def check_standard_format(assembly, nans_expected=False):
     assert isinstance(assembly, NeuroidAssembly)
     assert set(assembly.dims).issuperset({'presentation', 'neuroid'})
     assert hasattr(assembly, 'stimulus_id')
     assert hasattr(assembly, 'neuroid_id')
-    assert not np.isnan(assembly).any()
+    if not nans_expected:
+        assert not np.isnan(assembly).any()
     assert 'stimulus_set_identifier' in assembly.attrs

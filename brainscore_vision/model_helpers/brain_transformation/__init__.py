@@ -6,10 +6,10 @@ from .behavior import BehaviorArbiter, LabelBehavior, ProbabilitiesMapping
 from .neural import LayerMappedModel, LayerSelection, LayerScores
 
 STANDARD_REGION_BENCHMARKS = {
-    'V1': LazyLoad(lambda: load_benchmark('movshon.FreemanZiemba2013.V1.public')),
-    'V2': LazyLoad(lambda: load_benchmark('movshon.FreemanZiemba2013.V2.public')),
-    'V4': LazyLoad(lambda: load_benchmark('dicarlo.MajajHong2015public.V4-pls')),
-    'IT': LazyLoad(lambda: load_benchmark('dicarlo.MajajHong2015public.IT-pls')),
+    'V1': LazyLoad(lambda: load_benchmark('FreemanZiemba2013public.V1-pls')),
+    'V2': LazyLoad(lambda: load_benchmark('FreemanZiemba2013public.V2-pls')),
+    'V4': LazyLoad(lambda: load_benchmark('MajajHong2015public.V4-pls')),
+    'IT': LazyLoad(lambda: load_benchmark('MajajHong2015public.IT-pls')),
 }
 
 

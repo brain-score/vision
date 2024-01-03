@@ -35,7 +35,7 @@ def MovshonFreemanZiemba2013V2PLS():
 
 @store()
 def load_assembly(average_repetitions, region, access='private'):
-    assembly = load_dataset(f'movshon.FreemanZiemba2013.{access}')
+    assembly = load_dataset(f'FreemanZiemba2013.{access}')
     assembly = assembly.sel(region=region)
     assembly = assembly.stack(neuroid=['neuroid_id'])  # work around xarray multiindex issues
     assembly['region'] = 'neuroid', [region] * len(assembly['neuroid'])

@@ -36,7 +36,7 @@ install:
 - conda info -a
 - pip list # list installed package versions
 import:
-  - brain-score/core:brainscore_core/travis/script.yml@main
+  - brain-score/core:brainscore_core/travis/script.yml@main  # actual script for running pytest
 
 notifications:
   slack:

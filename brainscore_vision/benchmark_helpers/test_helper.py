@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import List, Tuple
 
+import os
 import numpy as np
 from PIL import Image
 
@@ -60,6 +61,11 @@ class PrecomputedTests:
     def run_test_properties(self, benchmark: str, files: dict, expected: float):
         benchmark = load_benchmark(benchmark)
         from brainscore_vision import load_stimulus_set
+        from brainscore_vision.data_helpers import s3
+        from brainscore_vision.benchmark_helpers.screen import framework_home
+        
+        target_dir = Path(framework_home) / "test_properties"
+        os.makedirs(target_dir, exist_ok=True)
 
         stimulus_identifiers = np.unique(np.array(['dicarlo.Marques2020_blank', 'dicarlo.Marques2020_receptive_field',
                                                    'dicarlo.Marques2020_orientation',
@@ -67,8 +73,13 @@ class PrecomputedTests:
         precomputed_features = {}
         for current_stimulus in stimulus_identifiers:
             stimulus_set = load_stimulus_set(current_stimulus)
-            path = Path(__file__).parent / files[current_stimulus]
-            features = PropertyAssembly.from_files(path,
+            stimulus_file_path = target_dir / files[current_stimulus]
+            s3.download_file_if_not_exists(
+                local_path=stimulus_file_path,
+                bucket='brain-score-tests',
+                remote_filepath=f'tests/test_benchmarks/{files[current_stimulus]}'
+            )
+            features = PropertyAssembly.from_files(stimulus_file_path,
                                                    stimulus_set_identifier=stimulus_set.identifier,
                                                    stimulus_set=stimulus_set)
             features = features.stack(presentation=['stimulus_path'])

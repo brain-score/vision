@@ -61,7 +61,7 @@ data_registry['FreemanZiemba2013'] = lambda: load_assembly_from_s3(
     identifier="movshon.FreemanZiemba2013",
     version_id="knfzP5wWG3BRWgD0PGy1CXCadExElV0f",
     sha1="f03f1630f0ab1e2dbd51816b47fbf2916876134e",
-    bucket="brainio.contriib",
+    bucket="brainio-brainscore",
     cls=NeuronRecordingAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('FreemanZiemba2013.aperture'),
 )
@@ -128,6 +128,6 @@ stimulus_set_registry['FreemanZiemba2013.aperture'] = lambda: load_stimulus_set_
     identifier="movshon.FreemanZiemba2013.aperture",
     bucket="brainio-brainscore",
     csv_sha1="4205eca54974da46accba7812fce25c1b6df58e0",
-    zip_sha1="ab07880a0770bd73f68bcd5fd34e6cd945ee17fc",
+    zip_sha1="3eacddfecd825b18026da3e4c749d5d1bc9213ed",
     csv_version_id="peK1zN9yHKI9uEwolD.Wgxk6YRA8X1xi",
     zip_version_id="eCuC1NINJJyQIHVBz.Mzb1m111rNLe6m")

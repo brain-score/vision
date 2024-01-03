@@ -43,8 +43,9 @@ def _determine_visual_degrees(visual_degrees, stimulus_set):
 @store(identifier_ignore=['stimulus_set'])
 def _place_on_screen(stimuli_identifier: str, stimulus_set: StimulusSet,
                      target_visual_degrees: int, source_visual_degrees: int = None):
-    converted_stimuli_id = f"{stimuli_identifier}--target{target_visual_degrees}--source{source_visual_degrees}"
     source_visual_degrees = _determine_visual_degrees(source_visual_degrees, stimulus_set)
+    unique_source_visual_degrees = np.unique(source_visual_degrees)
+    converted_stimuli_id = f"{stimuli_identifier}--target{target_visual_degrees}--source{unique_source_visual_degrees}"
 
     target_dir = root_path / converted_stimuli_id
     target_dir.mkdir(parents=True, exist_ok=False)
@@ -59,7 +60,7 @@ def _place_on_screen(stimuli_identifier: str, stimulus_set: StimulusSet,
         converted_image_paths[image_id] = converted_image_path
     converted_stimuli = StimulusSet(stimulus_set.copy(deep=True))  # without copy, it will link to the previous stim set
     converted_stimuli.stimulus_paths = converted_image_paths
-    converted_stimuli.identifier = converted_stimuli_id
+    converted_stimuli.identifier = stimuli_identifier
     converted_stimuli['degrees'] = target_visual_degrees
     converted_stimuli.original_paths = copy.deepcopy(stimulus_set.stimulus_paths)
     return converted_stimuli

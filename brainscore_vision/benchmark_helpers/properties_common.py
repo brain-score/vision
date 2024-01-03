@@ -106,6 +106,8 @@ def filter_receptive_fields(model_identifier, model, region, pos, rf_delta=RF_DE
 
 @store(identifier_ignore=['model'])
 def map_receptive_field_locations(model_identifier, model: BrainModel, region):
+    # model_identifier: used to differentiate between different models when caching results.
+
     blank_activations = record_from_model(model, BLANK_STIM_NAME, RF_NUMBER_OF_TRIALS)
     blank_activations = blank_activations.values
     blank_activations[blank_activations < 0] = 0
@@ -155,6 +157,8 @@ def map_receptive_field_locations(model_identifier, model: BrainModel, region):
 
 @store(identifier_ignore=['model'])
 def firing_rates_affine(model_identifier, model: BrainModel, region):
+    # model_identifier: used to differentiate between different models when caching results.
+    
     blank_activations = record_from_model(model, BLANK_STIM_NAME, ORIENTATION_NUMBER_OF_TRIALS)
     orientation_activations = record_from_model(model, ORIENTATION_STIM_NAME, ORIENTATION_NUMBER_OF_TRIALS)
 

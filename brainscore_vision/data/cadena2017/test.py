@@ -2,12 +2,16 @@ import pytest
 
 from brainscore_vision import load_dataset, load_stimulus_set
 from brainscore_vision.benchmark_helpers import check_standard_format
-
+import numpy as np
 
 @pytest.mark.private_access
 def test_format():
-    assembly = load_dataset('Cadena2017')
-    check_standard_format(assembly, nans_expected=True)
+    assembly = load_dataset('tolias.Cadena2017')
+    assembly = assembly.rename({'neuroid': 'neuroid_id'}).stack(neuroid=['neuroid_id'])
+    assert np.count_nonzero(np.isnan(assembly)) == 943503
+    
+    assembly = assembly.dropna('presentation')
+    check_standard_format(assembly)
 
 
 @pytest.mark.private_access

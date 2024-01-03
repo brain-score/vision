@@ -43,7 +43,7 @@ class TestRajalingham2018:
                              ])
     def test_precomputed(self, model, expected_score):
         benchmark = DicarloRajalingham2018I2n()
-        filepath = Path(__file__).parent / 'test_resources' / f'{model}-probabilities.nc'
+        filepath = Path(__file__).parent.parent.parent / 'metrics/i1i2/test_resources' / f'{model}-probabilities.nc'
         stimulus_set = benchmark._assembly.stimulus_set
         probabilities = BehavioralAssembly.from_files(
             filepath, stimulus_set=stimulus_set, stimulus_set_identifier=stimulus_set.identifier)

@@ -37,7 +37,7 @@ install:
 - pip list # list installed package versions
 import:
   - brain-score/core:brainscore_core/travis/script.yml@main
-  
+
 notifications:
   slack:
     if: |

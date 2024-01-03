@@ -9,7 +9,7 @@ from brainscore_vision.benchmark_helpers.properties_common import calc_texture_m
 from brainscore_vision.data.freemanziemba2013 import BIBTEX
 from brainscore_vision.metrics.distribution_similarity import NeuronalPropertyCeiling
 
-ASSEMBLY_NAME = 'movshon.FreemanZiemba2013_V1_properties'
+ASSEMBLY_NAME = 'FreemanZiemba2013_V1_properties'
 REGION = 'V1'
 TIMEBINS = [(70, 170)]
 PARENT_TEXTURE_MODULATION = 'V1-texture_modulation'

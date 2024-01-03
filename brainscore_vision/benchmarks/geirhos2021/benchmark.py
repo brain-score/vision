@@ -101,7 +101,7 @@ class _Geirhos2021Accuracy(BenchmarkBase):
 
 
 def load_assembly(dataset):
-    assembly = load_dataset(f'brendel.Geirhos2021_{dataset}')
+    assembly = load_dataset(f'Geirhos2021_{dataset}')
 
     # exclude conditions following the paper
     if dataset in EXCLUDE_CONDITIONS:

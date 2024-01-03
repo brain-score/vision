@@ -25,12 +25,11 @@ BIBTEX = """@inproceedings{DBLP:conf/nips/BarbuMALWGTK19,
 NUMBER_OF_TRIALS = 10
 
 _logger = logging.getLogger(__name__)
-LOCAL_STIMULUS_DIRECTORY = '/braintree/data2/active/common/objectnet-stimuli/'
 
 
 class Objectnet(BenchmarkBase):
     def __init__(self):
-        self._stimulus_set = load_stimulus_set('katz.BarbuMayo2019')
+        self._stimulus_set = load_stimulus_set('BarbuMayo2019')
         self._similarity_metric = load_metric('accuracy')
         ceiling = Score(1)
 

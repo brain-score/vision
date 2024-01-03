@@ -10,23 +10,23 @@ def test_count():
 
 
 @pytest.mark.parametrize('assembly_identifier', [
-    pytest.param('brendel.Geirhos2021_colour', marks=[pytest.mark.private_access]),
-    pytest.param('brendel.Geirhos2021_contrast', marks=[pytest.mark.private_access]),
-    pytest.param('brendel.Geirhos2021_cue-conflict', marks=[pytest.mark.private_access]),
-    pytest.param('brendel.Geirhos2021_edge', marks=[pytest.mark.private_access]),
-    pytest.param('brendel.Geirhos2021_eidolonI', marks=[pytest.mark.private_access]),
-    pytest.param('brendel.Geirhos2021_eidolonII', marks=[pytest.mark.private_access]),
-    pytest.param('brendel.Geirhos2021_eidolonIII', marks=[pytest.mark.private_access]),
-    pytest.param('brendel.Geirhos2021_false-colour', marks=[pytest.mark.private_access]),
-    pytest.param('brendel.Geirhos2021_high-pass', marks=[pytest.mark.private_access]),
-    pytest.param('brendel.Geirhos2021_low-pass', marks=[pytest.mark.private_access]),
-    pytest.param('brendel.Geirhos2021_phase-scrambling', marks=[pytest.mark.private_access]),
-    pytest.param('brendel.Geirhos2021_power-equalisation', marks=[pytest.mark.private_access]),
-    pytest.param('brendel.Geirhos2021_rotation', marks=[pytest.mark.private_access]),
-    pytest.param('brendel.Geirhos2021_silhouette', marks=[pytest.mark.private_access]),
-    pytest.param('brendel.Geirhos2021_stylized', marks=[pytest.mark.private_access]),
-    pytest.param('brendel.Geirhos2021_sketch', marks=[pytest.mark.private_access]),
-    pytest.param('brendel.Geirhos2021_uniform-noise', marks=[pytest.mark.private_access]),
+    pytest.param('Geirhos2021_colour', marks=[pytest.mark.private_access]),
+    pytest.param('Geirhos2021_contrast', marks=[pytest.mark.private_access]),
+    pytest.param('Geirhos2021_cue-conflict', marks=[pytest.mark.private_access]),
+    pytest.param('Geirhos2021_edge', marks=[pytest.mark.private_access]),
+    pytest.param('Geirhos2021_eidolonI', marks=[pytest.mark.private_access]),
+    pytest.param('Geirhos2021_eidolonII', marks=[pytest.mark.private_access]),
+    pytest.param('Geirhos2021_eidolonIII', marks=[pytest.mark.private_access]),
+    pytest.param('Geirhos2021_false-colour', marks=[pytest.mark.private_access]),
+    pytest.param('Geirhos2021_high-pass', marks=[pytest.mark.private_access]),
+    pytest.param('Geirhos2021_low-pass', marks=[pytest.mark.private_access]),
+    pytest.param('Geirhos2021_phase-scrambling', marks=[pytest.mark.private_access]),
+    pytest.param('Geirhos2021_power-equalisation', marks=[pytest.mark.private_access]),
+    pytest.param('Geirhos2021_rotation', marks=[pytest.mark.private_access]),
+    pytest.param('Geirhos2021_silhouette', marks=[pytest.mark.private_access]),
+    pytest.param('Geirhos2021_stylized', marks=[pytest.mark.private_access]),
+    pytest.param('Geirhos2021_sketch', marks=[pytest.mark.private_access]),
+    pytest.param('Geirhos2021_uniform-noise', marks=[pytest.mark.private_access]),
 ])
 def test_existence(assembly_identifier):
     assert load_dataset(assembly_identifier) is not None
@@ -59,10 +59,10 @@ class TestAssemblies:
         'truth',
     ])
     def test_stimulus_set_assembly_alignment(self, identifier, field):
-        full_name = f"brendel.Geirhos2021_{identifier}"
+        full_name = f"Geirhos2021_{identifier}"
         assembly = load_dataset(full_name)
         assert assembly.stimulus_set is not None
-        assert assembly.stimulus_set.identifier == full_name
+        assert assembly.stimulus_set.identifier == f"brendel.{full_name}"
         assert set(assembly.stimulus_set[field]) == set(assembly[field].values)
 
     # test the number of subjects:
@@ -86,7 +86,7 @@ class TestAssemblies:
         ('uniform-noise', 4),
     ])
     def test_num_subjects(self, identifier, num_subjects):
-        assembly = load_dataset(f"brendel.Geirhos2021_{identifier}")
+        assembly = load_dataset(f"Geirhos2021_{identifier}")
         assert len(np.unique(assembly['subject'].values)) == num_subjects
 
     # test the number of images
@@ -110,7 +110,7 @@ class TestAssemblies:
         ('uniform-noise', 1280),
     ])
     def test_num_images(self, identifier, num_images):
-        assembly = load_dataset(f"brendel.Geirhos2021_{identifier}")
+        assembly = load_dataset(f"Geirhos2021_{identifier}")
         assert len(np.unique(assembly['image_id'].values)) == num_images
 
     # tests assembly dim for ALL 17 sets:
@@ -134,7 +134,7 @@ class TestAssemblies:
         ('uniform-noise', 5120),
     ])
     def test_length(self, identifier, length):
-        assembly = load_dataset(f"brendel.Geirhos2021_{identifier}")
+        assembly = load_dataset(f"Geirhos2021_{identifier}")
         assert len(assembly['presentation']) == length
 
     # test assembly coords present in ALL 17 sets:
@@ -169,7 +169,7 @@ class TestAssemblies:
         'session',
     ])
     def test_fields_present(self, identifier, field):
-        assembly = load_dataset(f"brendel.Geirhos2021_{identifier}")
+        assembly = load_dataset(f"Geirhos2021_{identifier}")
         assert hasattr(assembly, field)
 
     # tests assembly coords for the 2 "abnormal" sets:
@@ -185,7 +185,7 @@ class TestAssemblies:
         'condition',
     ])
     def test_fields_present_abnormal_sets(self, identifier, field):
-        assembly = load_dataset(f"brendel.Geirhos2021_{identifier}")
+        assembly = load_dataset(f"Geirhos2021_{identifier}")
         assert hasattr(assembly, field)
 
     # tests assembly coords for the cue-conflict different set:
@@ -205,7 +205,7 @@ class TestAssemblies:
         'condition',
     ])
     def test_fields_present_cue_conflict(self, identifier, field):
-        assembly = load_dataset(f"brendel.Geirhos2021_{identifier}")
+        assembly = load_dataset(f"Geirhos2021_{identifier}")
         assert hasattr(assembly, field)
 
 
@@ -233,7 +233,7 @@ class TestStimulusSets:
         'uniform-noise',
     ])
     def test_stimulus_set_exist(self, identifier):
-        full_name = f"brendel.Geirhos2021_{identifier}"
+        full_name = f"Geirhos2021_{identifier}"
         stimulus_set = load_stimulus_set(full_name)
         assert stimulus_set is not None
         assert stimulus_set.identifier == full_name
@@ -259,7 +259,7 @@ class TestStimulusSets:
         ('uniform-noise', 1280),
     ])
     def test_num_images(self, identifier, num_images):
-        stimulus_set = load_stimulus_set(f"brendel.Geirhos2021_{identifier}")
+        stimulus_set = load_stimulus_set(f"Geirhos2021_{identifier}")
         assert len(np.unique(stimulus_set['image_id'].values)) == num_images
 
     # tests stimulus_set coords for the 14 "normal" sets:
@@ -290,7 +290,7 @@ class TestStimulusSets:
         'random_number',
     ])
     def test_fields_present(self, identifier, field):
-        stimulus_set = load_stimulus_set(f"brendel.Geirhos2021_{identifier}")
+        stimulus_set = load_stimulus_set(f"Geirhos2021_{identifier}")
         assert hasattr(stimulus_set, field)
 
     # tests assembly coords for the 2 "abnormal" sets:
@@ -306,7 +306,7 @@ class TestStimulusSets:
         'condition',
     ])
     def test_fields_present2(self, identifier, field):
-        stimulus_set = load_dataset(f"brendel.Geirhos2021_{identifier}")
+        stimulus_set = load_dataset(f"Geirhos2021_{identifier}")
         assert hasattr(stimulus_set, field)
 
     # test assembly fields for cue-conflict's odd stimulus_set:
@@ -326,5 +326,5 @@ class TestStimulusSets:
         'condition',
     ])
     def test_fields_present3(self, identifier, field):
-        stimulus_set = load_dataset(f"brendel.Geirhos2021_{identifier}")
+        stimulus_set = load_dataset(f"Geirhos2021_{identifier}")
         assert hasattr(stimulus_set, field)

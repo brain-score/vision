@@ -35,7 +35,7 @@ class TestRunScoring:
     def test_successful_run(self):
         args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel',
                      'public': True, 'competition': None, 'specified_only': True,
-                     'new_models': ['alexnet'], 'new_benchmarks': ['dicarlo.MajajHong2015public.IT-pls']}
+                     'new_models': ['alexnet'], 'new_benchmarks': ['MajajHong2015public.IT-pls']}
         run_scoring(args_dict)
         score_entries = database_models.Score.select()
         score_entries = list(score_entries)
@@ -49,7 +49,7 @@ class TestRunScoring:
         args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel',
                      'public': True, 'competition': None, 'specified_only': True,
                      'new_models': ['pixels', 'alexnet'],
-                     'new_benchmarks': ['dicarlo.MajajHong2015public.IT-pls']}
+                     'new_benchmarks': ['MajajHong2015public.IT-pls']}
         run_scoring(args_dict)
         score_entries = database_models.Score.select()
         assert len(score_entries) == 2
@@ -61,15 +61,15 @@ class TestRunScoring:
         args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel',
                      'public': True, 'competition': None, 'specified_only': True,
                      'new_models': ['alexnet'],
-                     'new_benchmarks': ['dicarlo.MajajHong2015public.IT-pls', 'dicarlo.Rajalingham2018-i2n']}
+                     'new_benchmarks': ['MajajHong2015public.IT-pls', 'Rajalingham2018-i2n']}
         run_scoring(args_dict)
         score_entries = database_models.Score.select()
         assert len(score_entries) == 2
         score_values = [entry.score_ceiled for entry in score_entries]
         assert all(np.array(score_values) > 0)
-        score_MajajHong = database_models.Score.get(benchmark__benchmark_type_id='dicarlo.MajajHong2015.IT.public-pls')
+        score_MajajHong = database_models.Score.get(benchmark__benchmark_type_id='MajajHong2015.IT.public-pls')
         assert score_MajajHong.score_ceiled == approx(.5079817, abs=0.005)
-        score_Rajalingham = database_models.Score.get(benchmark__benchmark_type_id='dicarlo.Rajalingham2018-i2n')
+        score_Rajalingham = database_models.Score.get(benchmark__benchmark_type_id='Rajalingham2018-i2n')
         assert score_Rajalingham.score_ceiled == approx(.3701702, abs=0.005)
 
     @pytest.mark.travis_slow
@@ -77,7 +77,7 @@ class TestRunScoring:
         args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel',
                      'public': True, 'competition': None, 'specified_only': True,
                      'new_models': ['pixels', 'alexnet'],
-                     'new_benchmarks': ['dicarlo.MajajHong2015public.IT-pls', 'dicarlo.Rajalingham2018-i2n']}
+                     'new_benchmarks': ['MajajHong2015public.IT-pls', 'Rajalingham2018-i2n']}
         run_scoring(args_dict)
         score_entries = database_models.Score.select()
         assert len(score_entries) == 4
@@ -95,7 +95,7 @@ class TestRunScoring:
     def test_competition_field_set(self):
         args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel',
                      'public': True, 'competition': 'cosyne2022', 'new_models': ['alexnet'],
-                     'new_benchmarks': ['dicarlo.MajajHong2015public.IT-pls'], 'specified_only': True}
+                     'new_benchmarks': ['MajajHong2015public.IT-pls'], 'specified_only': True}
         run_scoring(args_dict)
         model_entries = database_models.Model.select()
         assert len(model_entries) == 1
@@ -104,7 +104,7 @@ class TestRunScoring:
     def test_competition_field_not_set(self):
         args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel',
                      'public': True, 'competition': None, 'new_models': ['alexnet'],
-                     'new_benchmarks': ['dicarlo.MajajHong2015public.IT-pls'], 'specified_only': True}
+                     'new_benchmarks': ['MajajHong2015public.IT-pls'], 'specified_only': True}
         run_scoring(args_dict)
         model_entries = database_models.Model.select()
         assert len(model_entries) == 1

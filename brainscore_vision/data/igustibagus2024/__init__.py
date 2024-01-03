@@ -21,3 +21,4 @@ data_registry['Igustibagus2024'] = lambda: load_assembly_from_s3(
     cls=NeuronRecordingAssembly,
     stimulus_set_loader=lambda: brainscore_vision.load_stimulus_set('Igustibagus2024'),
 )
+#

@@ -9,3 +9,4 @@ benchmark_registry['Igustibagus2024-ridge'] = Igustibagus2024_ridge
 from .domain_transfer_analysis import OOD_AnalysisBenchmark
 
 benchmark_registry['Igustibagus2024.IT_readout-accuracy'] = OOD_AnalysisBenchmark
+#

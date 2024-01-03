@@ -21,23 +21,6 @@ on:
 permissions: write-all
 
 jobs:
-  setup:
-    name: setup
-    runs-on: ubuntu-latest
-    outputs:
-      BSC_DATABASESECRET: ${{ steps.setenvvars.outputs.BSC_DATABASESECRET }}
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v2
-      - name: Check if main & set dev/prod vars
-        id: setenvvars
-        run: |
-          if [ ${{ github.ref }} != 'refs/heads/main' ]; then
-            echo "::set-output name=BSC_DATABASESECRET:: ${{ secrets.BSC_DATABASESECRET_DEV }}"
-          else
-            echo "::set-output name=BSC_DATABASESECRET:: ${{ secrets.BSC_DATABASESECRET_PROD }}"
-          fi
-
 
   isautomerge:
     name: Set as 'automerge' if PR is labeled with 'automerge' or 'automerge-web'
@@ -66,7 +49,7 @@ jobs:
         id: gettravisstatus
         run: |
           echo ${{ github.event.pull_request.head.sha }}
-          echo "TRAVIS_CONCLUSION=$(python -c "import requests; r = requests.get(\"https://api.github.com/repos/brain-score/brain-score/commits/${{ github.event.pull_request.head.sha }}/check-runs\"); print(next(run['conclusion'] for run in r.json()['check_runs'] if run['name'] == 'Travis CI - Pull Request'))")" >> $GITHUB_ENV
+          echo "TRAVIS_CONCLUSION=$(python -c "import requests; r = requests.get(\"https://api.github.com/repos/brain-score/vision/commits/${{ github.event.pull_request.head.sha }}/check-runs\"); print(next(run['conclusion'] for run in r.json()['check_runs'] if run['name'] == 'Travis CI - Pull Request'))")" >> $GITHUB_ENV
       - name: Check if Travis was successful
         id: istravisok
         run: |
@@ -92,7 +75,7 @@ jobs:
     steps:
       - name: Parse plugin_only confirmation from Travis status update
         id: getpluginonlyvalue
-        run: echo "PLUGIN_ONLY=$(python -c "import requests; r = requests.get(\"https://api.github.com/repos/brain-score/brain-score/statuses/$github.event.pull_request.head.sha\"); print(next(status['description'].split('- ')[1] for status in r.json() if status['description'].startswith('Run automerge workflow')))")" >> $GITHUB_ENV
+        run: echo "PLUGIN_ONLY=$(python -c "import requests; r = requests.get(\"https://api.github.com/repos/brain-score/vision/statuses/$github.event.pull_request.head.sha\"); print(next(status['description'].split('- ')[1] for status in r.json() if status['description'].startswith('Run automerge workflow')))")" >> $GITHUB_ENV
       - name: Check if PR is plugin only
         id: ispluginonly
         run: |

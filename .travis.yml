@@ -1,9 +1,12 @@
+version: ~> 1.0
 language: python
 env:
   global:
     - PYTEST_SETTINGS="not requires_gpu and not memory_intense and not slow and not travis_slow"
+    - DOMAIN="vision"
     - MODIFIES_PLUGIN="False"
     - PLUGIN_ONLY="False"
+    - WEB_SUBMISSION="False"
 matrix:
   include:
   - name: 3.7 public
@@ -32,18 +35,9 @@ install:
 - conda update -q conda
 - conda info -a
 - pip list # list installed package versions
-script:
-  # if ONLY plugin files changed, ONLY run tests for those plugins; otherwise, run full test suite
-  - |
-    if [ ! -z "$TRAVIS_PULL_REQUEST_BRANCH" ]; then 
-      CHANGED_FILES=$( git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*" && git fetch && echo $(git diff --name-only origin/$TRAVIS_PULL_REQUEST_BRANCH origin/$TRAVIS_BRANCH -C $TRAVIS_BUILD_DIR) | tr '\n' ' ' ) &&
-      TESTING_NEEDED=$( python -c "from brainscore_core.plugin_management.parse_plugin_changes import get_testing_info; get_testing_info(\"${CHANGED_FILES}\", 'brainscore_vision')" ) && 
-      read MODIFIES_PLUGIN PLUGIN_ONLY <<< $TESTING_NEEDED && echo MODIFIES_PLUGIN: $MODIFIES_PLUGIN && echo PLUGIN_ONLY: $PLUGIN_ONLY; 
-    fi
-  - if [ "$MODIFIES_PLUGIN" = "True" ]; then python -c "from brainscore_core.plugin_management.parse_plugin_changes import run_changed_plugin_tests; run_changed_plugin_tests(\"${CHANGED_FILES}\", 'brainscore_vision')"; fi
-  - if [ "$PRIVATE_ACCESS" = 1 ] && [ -n "${GITHUB_TOKEN}" ] && [ "$PLUGIN_ONLY" = "False" ]; then pytest -m "private_access and $PYTEST_SETTINGS"; fi
-  - if [ "$PRIVATE_ACCESS" != 1 ] && [ "$PLUGIN_ONLY" = "False" ]; then pytest -m "not private_access and $PYTEST_SETTINGS" --ignore "tests/test_submission"; fi
-
+import:
+  - brain-score/core:brainscore_core/travis/script.yml@main
+  
 notifications:
   slack:
     if: |

@@ -11,7 +11,6 @@ class TestHebart2023:
     assembly = brainscore.get_assembly('Hebart2023')
     stimulus_set = brainscore.get_stimulus_set("Hebart2023")
 
-
     def test_assembly(self):
         stimulus_id = self.assembly.coords["stimulus_id"]
         triplet_id = self.assembly.coords["triplet_id"]
@@ -32,9 +31,8 @@ class TestHebart2023:
 
     def test_stimulus_set(self):
         assert len(self.stimulus_set) == 1854
-        assert set(self.stimulus_set.columns) == {
-            'unique_id', 'stimulus_id', 'filename',
-            'WordNet_ID', 'Wordnet_ID2', 'Wordnet_ID3', 'Wordnet_ID4', 'WordNet_synonyms',
-            'freq_1', 'freq_2', 'top_down_1', 'top_down_2', 'bottom_up', 'word_freq', 'word_freq_online',
-            'example_image', 'dispersion', 'dominant_part', 'rank'}
+        assert {'unique_id', 'stimulus_id', 'filename',
+                'WordNet_ID', 'Wordnet_ID2', 'Wordnet_ID3', 'Wordnet_ID4', 'WordNet_synonyms',
+                'freq_1', 'freq_2', 'top_down_1', 'top_down_2', 'bottom_up', 'word_freq', 'word_freq_online',
+                'example_image', 'dispersion', 'dominant_part', 'rank'} == set(self.stimulus_set.columns)
         assert isinstance(self.stimulus_set, StimulusSet)

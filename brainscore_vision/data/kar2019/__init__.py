@@ -2,13 +2,6 @@ from brainio.assemblies import DataAssembly
 
 from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set
 from brainscore_vision.data_helpers.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
-from brainscore_vision.data_helpers.lookup_legacy import version_id_df, build_filename
-
-# extract version ids from version_ids csv
-assembly_version = version_id_df.at[build_filename('dicarlo.Kar2019', '.nc'), 'version_id']
-csv_version = version_id_df.at[build_filename('dicarlo.Kar2019', '.csv'), 'version_id']
-zip_version = version_id_df.at[build_filename('dicarlo.Kar2019', '.zip'), 'version_id']
-
 
 BIBTEX = """@Article{Kar2019,
             author={Kar, Kohitij
@@ -30,19 +23,18 @@ BIBTEX = """@Article{Kar2019,
             url={https://doi.org/10.1038/s41593-019-0392-5}
             }"""
 
-
 # assembly
-data_registry['dicarlo.Kar2019'] = lambda: load_assembly_from_s3(
+data_registry['Kar2019'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.Kar2019",
     version_id="mQZ1nNRfE_m_IjFbox.xvlJvbudFwsWo",
     sha1="147717ce397e11d56164d472063a84a83bbcbb94",
     bucket="brainio-brainscore",
     cls=DataAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('dicarlo.Kar2019'),
+    stimulus_set_loader=lambda: load_stimulus_set('Kar2019'),
 )
 
 # stimulus set
-stimulus_set_registry['dicarlo.Kar2019'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Kar2019'] = lambda: load_stimulus_set_from_s3(
     identifier="dicarlo.Kar2019",
     bucket="brainio-brainscore",
     csv_sha1="7f705bdea02c0a72a76d7f5e7b6963531df818a6",

@@ -1,12 +1,11 @@
-import os
+from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 from brainio.stimuli import StimulusSet, StimulusSetLoader
+from brainscore_core import Score
+from brainscore_vision import load_metric
 from brainscore_vision.benchmarks import BenchmarkBase
-from brainscore_vision.metrics import Score
-from brainscore_vision.metrics.accuracy import Accuracy
 from brainscore_vision.model_interface import BrainModel
 
 NUMBER_OF_TRIALS = 10
@@ -16,13 +15,13 @@ class Imagenet2012(BenchmarkBase):
     def __init__(self):
         # Not a valid StimulusSet if the files are not present on the filesystem.
         # We bypass StimulusSet.from_files() here.
-        stimulus_set = pd.read_csv(os.path.join(os.path.dirname(__file__), 'imagenet2012.csv'))
+        stimulus_set = pd.read_csv(Path(__file__).parent / 'imagenet2012.csv')
         StimulusSetLoader.correct_stimulus_id_name(stimulus_set)
         stimulus_set = StimulusSet(stimulus_set)
         stimulus_set.stimulus_paths = {row.stimulus_id: row.filepath for row in stimulus_set.itertuples()}
         self._stimulus_set = stimulus_set
-        self._similarity_metric = Accuracy()
-        ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
+        self._similarity_metric = load_metric('accuracy')
+        ceiling = Score(1)
         super(Imagenet2012, self).__init__(identifier='fei-fei.Deng2009-top1', version=1,
                                            ceiling_func=lambda: ceiling,
                                            parent='ImageNet',

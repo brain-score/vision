@@ -1,11 +1,10 @@
-import brainio
 import numpy as np
 
-from brainscore_vision.benchmarks import BenchmarkBase
+from brainscore_core import Score
+from brainscore_vision import load_metric, load_stimulus_set, load_dataset
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
-from brainscore_vision.metrics import Score
-from brainscore_vision.metrics.image_level_behavior import I2n
-from brainscore_vision.metrics.transformations import apply_aggregate
+from brainscore_vision.benchmarks import BenchmarkBase
+from brainscore_vision.metric_helpers.transformations import apply_aggregate
 from brainscore_vision.model_interface import BrainModel
 from brainscore_vision.utils import LazyLoad
 
@@ -26,7 +25,7 @@ BIBTEX = """@article {Rajalingham240614,
 class _DicarloRajalingham2018(BenchmarkBase):
     def __init__(self, metric, metric_identifier):
         self._metric = metric
-        self._fitting_stimuli = brainio.get_stimulus_set('dicarlo.objectome.public')
+        self._fitting_stimuli = load_stimulus_set('objectome.public')
         self._assembly = LazyLoad(lambda: load_assembly('private'))
         self._visual_degrees = 8
         self._number_of_trials = 2
@@ -36,7 +35,7 @@ class _DicarloRajalingham2018(BenchmarkBase):
             parent='behavior',
             bibtex=BIBTEX)
 
-    def __call__(self, candidate: BrainModel):
+    def __call__(self, candidate: BrainModel) -> Score:
         fitting_stimuli = place_on_screen(self._fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
                                           source_visual_degrees=self._visual_degrees)
         candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli)
@@ -66,10 +65,10 @@ class _DicarloRajalingham2018(BenchmarkBase):
 
 
 def DicarloRajalingham2018I2n():
-    return _DicarloRajalingham2018(metric=I2n(), metric_identifier='i2n')
+    return _DicarloRajalingham2018(metric=load_metric('i2n'), metric_identifier='i2n')
 
 
 def load_assembly(access='private'):
-    assembly = brainio.get_assembly(f'dicarlo.Rajalingham2018.{access}')
+    assembly = load_dataset(f'Rajalingham2018.{access}')
     assembly['correct'] = assembly['choice'] == assembly['sample_obj']
     return assembly

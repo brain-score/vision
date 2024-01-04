@@ -1,14 +1,17 @@
+from pathlib import Path
+
 import pytest
 from pytest import approx
-from brainscore_vision.benchmark_helpers.test_helper import TestStandardized, TestPrecomputed
 
+from brainscore_vision.benchmark_helpers.test_helper import StandardizedTests, PrecomputedTests
+from brainscore_vision.data_helpers import s3
 
-standardized_tests = TestStandardized()
-precomputed_test = TestPrecomputed()
+standardized_tests = StandardizedTests()
+precomputed_test = PrecomputedTests()
 
 
 @pytest.mark.parametrize('benchmark, expected', [
-    pytest.param('dicarlo.Rajalingham2020.IT-pls', approx(.561013, abs=.001),
+    pytest.param('Rajalingham2020.IT-pls', approx(.561013, abs=.001),
                  marks=[pytest.mark.memory_intense, pytest.mark.slow]),
 ])
 def test_ceilings(benchmark, expected):
@@ -16,7 +19,7 @@ def test_ceilings(benchmark, expected):
 
 
 @pytest.mark.parametrize('benchmark, visual_degrees, expected', [
-    pytest.param('dicarlo.Rajalingham2020.IT-pls', 8, approx(.693463, abs=.005),
+    pytest.param('Rajalingham2020.IT-pls', 8, approx(.693463, abs=.005),
                  marks=[pytest.mark.memory_intense, pytest.mark.slow]),
 ])
 def test_self_regression(benchmark, visual_degrees, expected):
@@ -26,8 +29,11 @@ def test_self_regression(benchmark, visual_degrees, expected):
 @pytest.mark.memory_intense
 @pytest.mark.slow
 @pytest.mark.parametrize('benchmark, expected', [
-    ('dicarlo.Rajalingham2020.IT-pls', approx(.147549, abs=.01)),
+    ('Rajalingham2020.IT-pls', approx(.147549, abs=.01)),
 ])
 def test_Rajalingham2020(benchmark, expected):
-    precomputed_test.run_test(benchmark=benchmark, file='alexnet-rajalingham2020-features.12.nc', expected=expected)
-
+    filename = 'alexnet-rajalingham2020-features.12.nc'
+    filepath = Path(__file__).parent / filename
+    s3.download_file_if_not_exists(local_path=filepath,
+                                   bucket='brainio-brainscore', remote_filepath=f'tests/test_benchmarks/{filename}')
+    precomputed_test.run_test(benchmark=benchmark, precomputed_features_filepath=filepath, expected=expected)

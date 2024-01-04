@@ -1,6 +1,7 @@
-import pytest
 import shutil
 from pathlib import Path
+
+import pytest
 
 from brainscore_vision.model_helpers import load_folder_from_s3
 

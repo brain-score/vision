@@ -15,17 +15,17 @@ BIBTEX = """@article{david2004evaluation,
 }"""
 
 # assembly
-data_registry['gallant.David2004'] = lambda: load_assembly_from_s3(
+data_registry['David2004'] = lambda: load_assembly_from_s3(
     identifier="gallant.David2004",
     version_id="8getDVrrr1iT0DA385T8ZdSzCcuM3_m0",
     sha1="d2ed9834c054da2333f5d894285c9841a1f27313",
     bucket="brainio-brainscore",
     cls=NeuronRecordingAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('gallant.David2004'),
+    stimulus_set_loader=lambda: load_stimulus_set('David2004'),
 )
 
 # stimulus set
-stimulus_set_registry['gallant.David2004'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['David2004'] = lambda: load_stimulus_set_from_s3(
     identifier="gallant.David2004",
     bucket="brainio-brainscore",
     csv_sha1="8ec76338b998cadcdf1e57edd2dd992e2ab2355b",

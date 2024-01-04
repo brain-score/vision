@@ -7,6 +7,7 @@ from brainscore_core.benchmarks import Benchmark
 from brainscore_core.metrics import Metric, Score
 from brainscore_core.plugin_management.conda_score import wrap_score
 from brainscore_core.plugin_management.import_plugin import import_plugin
+from brainscore_vision.metrics import Ceiling
 from brainscore_vision.model_interface import BrainModel
 
 _logger = logging.getLogger(__name__)
@@ -46,6 +47,14 @@ def load_metric(identifier: str, *args, **kwargs) -> Metric:
     return metric_registry[identifier](*args, **kwargs)
 
 
+def load_ceiling(identifier: str, *args, **kwargs) -> Ceiling:
+    """
+    Convenience method to load ceilings with the correct type -- internally uses :meth:`~brainscore_vision.load_metric`,
+    i.e. the ceiling has to be registered as a metric.
+    """
+    return load_metric(identifier, *args, **kwargs)
+
+
 def load_benchmark(identifier: str) -> Benchmark:
     import_plugin('brainscore_vision', 'benchmarks', identifier)
 
@@ -67,13 +76,17 @@ def _run_score(model_identifier: str, benchmark_identifier: str) -> Score:
     score: Score = benchmark(model)
     score.attrs['model_identifier'] = model_identifier
     score.attrs['benchmark_identifier'] = benchmark_identifier
+    try:  # attempt to look up the layer commitment if model uses a standard layer model
+        score.attrs['comment'] = f"layers: {model.layer_model.region_layer_map}"
+    except Exception:
+        pass
     return score
 
 
-def score(model_identifier: str, benchmark_identifier: str) -> Score:
+def score(model_identifier: str, benchmark_identifier: str, conda_active: bool = False) -> Score:
     """
     Score the model referenced by the `model_identifier` on the benchmark referenced by the `benchmark_identifier`.
-    The model needs to implement the :class:`~brainscore.model_interface.BrainModel` interface
+    The model needs to implement the :class:`~brainscore_vision.model_interface.BrainModel` interface
     so that the benchmark can interact with it.
     The benchmark will be looked up from the :data:`~brainscore_vision.benchmarks` and evaluates the model
     (looked up from :data:`~brainscore_vision.models`) on how brain-like it is under that benchmark's
@@ -89,4 +102,4 @@ def score(model_identifier: str, benchmark_identifier: str) -> Score:
     """
     return wrap_score(__file__,
                       model_identifier=model_identifier, benchmark_identifier=benchmark_identifier,
-                      score_function=_run_score)
+                      score_function=_run_score, conda_active=conda_active)

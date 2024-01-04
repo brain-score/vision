@@ -7,7 +7,11 @@ import functools
 import logging
 import os
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Union
+
+import boto3
+from botocore import UNSIGNED
+from botocore.config import Config
 
 from brainio.assemblies import DataAssembly, AssemblyLoader, StimulusMergeAssemblyLoader, \
     StimulusReferenceAssemblyLoader
@@ -17,18 +21,14 @@ from brainio.stimuli import StimulusSetLoader, StimulusSet
 _logger = logging.getLogger(__name__)
 
 
-def get_path(identifier: str, file_type: str, bucket: str, version_id: str, sha1: str):
+def get_path(identifier: str, file_type: str, bucket: str, version_id: str, sha1: str, filename_prefix: str = None):
     """
     Finds path of desired file (for .csvs, .zips, and .ncs).
     """
-    # for stimuli sets
-    if file_type == 'csv' or file_type == 'zip':
-        assembly_prefix = 'image_'
-    # for data assemblies
-    else:
-        assembly_prefix = 'assy_'
+    if filename_prefix is None:
+        filename_prefix = 'image_' if file_type in ('csv', 'zip') else 'assy_'
 
-    filename = f"{assembly_prefix}{identifier.replace('.', '_')}.{file_type}"
+    filename = f"{filename_prefix}{identifier.replace('.', '_')}.{file_type}"
     file_path = fetch_file(location_type="S3",
                            location=f"https://{bucket}.s3.amazonaws.com/{filename}",
                            version_id=version_id,
@@ -54,9 +54,9 @@ def load_assembly_from_s3(identifier: str, version_id: str, sha1: str, bucket: s
 
 
 def load_stimulus_set_from_s3(identifier: str, bucket: str, csv_sha1: str, zip_sha1: str,
-                              csv_version_id: str, zip_version_id: str):
-    csv_path = get_path(identifier, 'csv', bucket, csv_version_id, csv_sha1)
-    zip_path = get_path(identifier, 'zip', bucket, zip_version_id, zip_sha1)
+                              csv_version_id: str, zip_version_id: str, filename_prefix: str = None):
+    csv_path = get_path(identifier, 'csv', bucket, csv_version_id, csv_sha1, filename_prefix=filename_prefix)
+    zip_path = get_path(identifier, 'zip', bucket, zip_version_id, zip_sha1, filename_prefix=filename_prefix)
     stimuli_directory = unzip(zip_path)
     loader = StimulusSetLoader(
         csv_path=csv_path,
@@ -71,3 +71,11 @@ def load_stimulus_set_from_s3(identifier: str, bucket: str, csv_sha1: str, zip_s
     assert set(stimulus_set.stimulus_paths.values()) == set(stimuli_paths), \
         "Inconsistency: unzipped stimuli paths do not match csv paths"
     return stimulus_set
+
+
+def download_file_if_not_exists(local_path: Union[str, Path], bucket: str, remote_filepath: str):
+    if local_path.is_file():
+        return  # nothing to do, file already exists
+    unsigned_config = Config(signature_version=UNSIGNED)  # do not attempt to look up credentials
+    s3 = boto3.client('s3', config=unsigned_config)
+    s3.download_file(bucket, remote_filepath, str(local_path))

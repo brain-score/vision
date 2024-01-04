@@ -1,6 +1,6 @@
 import logging
 
-from brainio.assemblies import NeuronRecordingAssembly
+from brainio.assemblies import NeuronRecordingAssembly, walk_coords, array_is_element, DataAssembly
 from brainscore_vision import data_registry, load_stimulus_set, stimulus_set_registry
 from brainscore_vision.data_helpers.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
 
@@ -21,17 +21,29 @@ BIBTEX = """@article {Cadena201764,
 """
 
 # assembly
-data_registry['tolias.Cadena2017'] = lambda: load_assembly_from_s3(
+data_registry['Cadena2017'] = lambda: reindex(load_assembly_from_s3(
     identifier="tolias.Cadena2017",
     version_id="94KHymrNxUzoF6q56DYWg6n0vCdkLUEU",
     sha1="69bcaaa9370dceb0027beaa06235ef418c3d7063",
     bucket="brainio-brainscore",
     cls=NeuronRecordingAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('tolias.Cadena2017'),
-)
+    stimulus_set_loader=lambda: load_stimulus_set('Cadena2017'),
+))
+
+
+def reindex(assembly: DataAssembly) -> DataAssembly:  # make sure we have the expected coordinate names
+    attrs = assembly.attrs
+    coords = {coord: (dims, values) for coord, dims, values in walk_coords(assembly)
+              if not array_is_element(dims, 'neuroid')}  # all non-neuroid dims
+    coords['neuroid_id'] = ('neuroid', assembly['neuroid'].values)
+    coords['region'] = ('neuroid', ['V1'] * len(assembly['neuroid']))
+    assembly = type(assembly)(assembly.values, coords=coords, dims=assembly.dims)
+    assembly.attrs = attrs
+    return assembly
+
 
 # stimulus set
-stimulus_set_registry['tolias.Cadena2017'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Cadena2017'] = lambda: load_stimulus_set_from_s3(
     identifier="tolias.Cadena2017",
     bucket="brainio-brainscore",
     csv_sha1="f55b174cc4540e5612cfba5e695324328064b051",

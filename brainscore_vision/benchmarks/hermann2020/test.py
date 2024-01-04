@@ -11,8 +11,8 @@ from brainscore_vision.data_helpers import s3
 
 class TestEngineering:
     @pytest.mark.parametrize('model, benchmark, expected_shape_bias', [
-        ('resnet-50-pytorch', "kornblith.Hermann2020cueconflict-shape_bias", approx(0.21392405, abs=0.001)),
-        ('resnet-50-pytorch', "kornblith.Hermann2020cueconflict-shape_match", approx(0.14083333, abs=0.001)),
+        ('resnet-50-pytorch', "Hermann2020cueconflict-shape_bias", approx(0.21392405, abs=0.001)),
+        ('resnet-50-pytorch', "Hermann2020cueconflict-shape_match", approx(0.14083333, abs=0.001)),
     ])
     def test_score(self, model, benchmark, expected_shape_bias):
         benchmark = load_benchmark(benchmark)

@@ -37,7 +37,7 @@ class DicarloKar2019OST(BenchmarkBase):
                                                 ceiling_func=lambda: ceiling,
                                                 parent='IT',
                                                 bibtex=BIBTEX)
-        assembly = load_dataset('dicarlo.Kar2019')
+        assembly = load_dataset('Kar2019')
         # drop duplicate images
         _, index = np.unique(assembly['stimulus_id'], return_index=True)
         assembly = assembly.isel(presentation=index)

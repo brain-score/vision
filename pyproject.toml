@@ -55,6 +55,13 @@ ignore_missing_imports = true
 
 
 [tool.pytest.ini_options]
+markers = [
+    "private_access: tests that require access to a private resource, such as assemblies on S3 (note that travis builds originating from forks can not have private access)",
+    "memory_intense: tests requiring more memory than is available in the travis sandbox (currently 3 GB)", # see https://docs.travis-ci.com/user/common-build-problems/#my-build-script-is-killed-without-any-error
+    "requires_gpu: tests requiring a GPU to run or to run in a reasonable time (travis does not support GPUs/CUDA)",
+    "travis_slow: tests running for more than 10 minutes without output (which leads travis to error)",
+    "slow: tests leading to runtimes that are not possible on the openmind cluster (>1 hour per test)",
+]
 testpaths = [
     "tests"
 ]
@@ -62,13 +69,6 @@ testpaths = [
 filterwarnings = [
     "ignore::DeprecationWarning",
     "ignore::FutureWarning"
-]
-
-markers = [
-    "memory_intense",
-    "travis_slow",
-    "slow",
-    "private_access",
 ]
 
 

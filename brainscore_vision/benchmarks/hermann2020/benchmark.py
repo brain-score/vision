@@ -19,7 +19,7 @@ class _Hermann2020Match(BenchmarkBase):
     def __init__(self, metric_identifier, stimulus_column):
         assert metric_identifier in ["shape_match", "texture_match"]
         assert stimulus_column in ["original_image_category", "conflict_image_category"]
-        self._stimulus_set = load_stimulus_set("brendel.Geirhos2021_cue-conflict")
+        self._stimulus_set = load_stimulus_set("Geirhos2021_cue-conflict")
         self._metric = load_metric('accuracy')
         self._number_of_trials = 1
         self._stimulus_column = stimulus_column
@@ -50,7 +50,7 @@ class Hermann2020cueconflictShapeBias(BenchmarkBase):
         super(Hermann2020cueconflictShapeBias, self).__init__(
             identifier=f'brendel.Hermann2020-shape_bias', version=1,
             ceiling_func=lambda: Score(1),
-            parent='brendel.Hermann2020',
+            parent='Hermann2020',
             bibtex=BIBTEX)
 
     def __call__(self, candidate: BrainModel):

@@ -7,7 +7,7 @@ from brainscore_vision.benchmark_helpers.properties_common import PropertiesBenc
 from brainscore_vision.benchmark_helpers.properties_common import calc_bandwidth
 from brainscore_vision.metrics.distribution_similarity import NeuronalPropertyCeiling
 
-ASSEMBLY_NAME = 'devalois.DeValois1982a'
+ASSEMBLY_NAME = 'DeValois1982a'
 REGION = 'V1'
 TIMEBINS = [(70, 170)]
 PARENT = 'V1-orientation'

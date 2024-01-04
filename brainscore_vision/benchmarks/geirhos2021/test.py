@@ -12,40 +12,40 @@ from brainscore_vision.data_helpers import s3
 
 
 @pytest.mark.parametrize('benchmark', [
-    'brendel.Geirhos2021colour-error_consistency',
-    'brendel.Geirhos2021contrast-error_consistency',
-    'brendel.Geirhos2021cueconflict-error_consistency',
-    'brendel.Geirhos2021edge-error_consistency',
-    'brendel.Geirhos2021eidolonI-error_consistency',
-    'brendel.Geirhos2021eidolonII-error_consistency',
-    'brendel.Geirhos2021eidolonIII-error_consistency',
-    'brendel.Geirhos2021falsecolour-error_consistency',
-    'brendel.Geirhos2021highpass-error_consistency',
-    'brendel.Geirhos2021lowpass-error_consistency',
-    'brendel.Geirhos2021phasescrambling-error_consistency',
-    'brendel.Geirhos2021powerequalisation-error_consistency',
-    'brendel.Geirhos2021rotation-error_consistency',
-    'brendel.Geirhos2021silhouette-error_consistency',
-    'brendel.Geirhos2021stylized-error_consistency',
-    'brendel.Geirhos2021sketch-error_consistency',
-    'brendel.Geirhos2021uniformnoise-error_consistency',
-    'brendel.Geirhos2021colour-top1',
-    'brendel.Geirhos2021contrast-top1',
-    'brendel.Geirhos2021cueconflict-top1',
-    'brendel.Geirhos2021edge-top1',
-    'brendel.Geirhos2021eidolonI-top1',
-    'brendel.Geirhos2021eidolonII-top1',
-    'brendel.Geirhos2021eidolonIII-top1',
-    'brendel.Geirhos2021falsecolour-top1',
-    'brendel.Geirhos2021highpass-top1',
-    'brendel.Geirhos2021lowpass-top1',
-    'brendel.Geirhos2021phasescrambling-top1',
-    'brendel.Geirhos2021powerequalisation-top1',
-    'brendel.Geirhos2021rotation-top1',
-    'brendel.Geirhos2021silhouette-top1',
-    'brendel.Geirhos2021stylized-top1',
-    'brendel.Geirhos2021sketch-top1',
-    'brendel.Geirhos2021uniformnoise-top1',
+    'Geirhos2021colour-error_consistency',
+    'Geirhos2021contrast-error_consistency',
+    'Geirhos2021cueconflict-error_consistency',
+    'Geirhos2021edge-error_consistency',
+    'Geirhos2021eidolonI-error_consistency',
+    'Geirhos2021eidolonII-error_consistency',
+    'Geirhos2021eidolonIII-error_consistency',
+    'Geirhos2021falsecolour-error_consistency',
+    'Geirhos2021highpass-error_consistency',
+    'Geirhos2021lowpass-error_consistency',
+    'Geirhos2021phasescrambling-error_consistency',
+    'Geirhos2021powerequalisation-error_consistency',
+    'Geirhos2021rotation-error_consistency',
+    'Geirhos2021silhouette-error_consistency',
+    'Geirhos2021stylized-error_consistency',
+    'Geirhos2021sketch-error_consistency',
+    'Geirhos2021uniformnoise-error_consistency',
+    'Geirhos2021colour-top1',
+    'Geirhos2021contrast-top1',
+    'Geirhos2021cueconflict-top1',
+    'Geirhos2021edge-top1',
+    'Geirhos2021eidolonI-top1',
+    'Geirhos2021eidolonII-top1',
+    'Geirhos2021eidolonIII-top1',
+    'Geirhos2021falsecolour-top1',
+    'Geirhos2021highpass-top1',
+    'Geirhos2021lowpass-top1',
+    'Geirhos2021phasescrambling-top1',
+    'Geirhos2021powerequalisation-top1',
+    'Geirhos2021rotation-top1',
+    'Geirhos2021silhouette-top1',
+    'Geirhos2021stylized-top1',
+    'Geirhos2021sketch-top1',
+    'Geirhos2021uniformnoise-top1',
 ])
 def test_benchmark_registry(benchmark):
     assert benchmark in benchmark_registry
@@ -57,11 +57,11 @@ class TestBehavioral:
 
     @pytest.mark.parametrize('dataset', DATASETS)
     def test_in_pool(self, dataset):
-        identifier = f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency"
+        identifier = f"Geirhos2021{dataset.replace('-', '')}-error_consistency"
         assert identifier in benchmark_registry
 
     def test_mean_ceiling(self):
-        benchmarks = [f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency" for dataset in DATASETS]
+        benchmarks = [f"Geirhos2021{dataset.replace('-', '')}-error_consistency" for dataset in DATASETS]
         benchmarks = [load_benchmark(benchmark) for benchmark in benchmarks]
         ceilings = [benchmark.ceiling.item() for benchmark in benchmarks]
         mean_ceiling = np.mean(ceilings)
@@ -87,7 +87,7 @@ class TestBehavioral:
         ('uniform-noise', approx(0.43406, abs=0.001)),
     ])
     def test_dataset_ceiling(self, dataset, expected_ceiling):
-        benchmark = f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency"
+        benchmark = f"Geirhos2021{dataset.replace('-', '')}-error_consistency"
         benchmark = load_benchmark(benchmark)
         ceiling = benchmark.ceiling
         assert ceiling == expected_ceiling
@@ -112,7 +112,7 @@ class TestBehavioral:
         ('uniform-noise', approx(0.19839, abs=0.001)),
     ])
     def test_model_3degrees(self, dataset, expected_raw_score):
-        benchmark = load_benchmark(f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency")
+        benchmark = load_benchmark(f"Geirhos2021{dataset.replace('-', '')}-error_consistency")
         # load features
         filename = f'resnet-50-pytorch-3deg-Geirhos2021_{dataset}.nc'
         precomputed_features = Path(__file__).parent / filename
@@ -137,7 +137,7 @@ class TestBehavioral:
     def test_model_mean(self, model, expected_raw_score):
         scores = []
         for dataset in DATASETS:
-            benchmark = load_benchmark(f"brendel.Geirhos2021{dataset.replace('-', '')}-error_consistency")
+            benchmark = load_benchmark(f"Geirhos2021{dataset.replace('-', '')}-error_consistency")
             filename = f'{model}-Geirhos2021_{dataset}.nc'
             precomputed_features = Path(__file__).parent / filename
             s3.download_file_if_not_exists(precomputed_features,
@@ -176,7 +176,7 @@ class TestEngineering:
         ('uniform-noise', 'resnet-50-pytorch', approx(0.44500, abs=0.001)),
     ])
     def test_accuracy(self, dataset, model, expected_accuracy):
-        benchmark = load_benchmark(f"brendel.Geirhos2021{dataset.replace('-', '')}-top1")
+        benchmark = load_benchmark(f"Geirhos2021{dataset.replace('-', '')}-top1")
         # load features
         filename = f'{model}-3deg-Geirhos2021_{dataset}.nc'
         precomputed_features = Path(__file__).parent / filename

@@ -176,3 +176,6 @@ dicarlo.Sanghavi2021.domain_transfer,assembly,NeuronRecordingAssembly,S3,https:/
 Igustibagus2024,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_Igustibagus2024.csv,df68b579e564eadee486212a0528dce0957828d9,
 Igustibagus2024,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_Igustibagus2024.zip,9aa13d94da49fb7535ef14115633fc58a4810a61,
 Igustibagus2024,assembly,NeuronRecordingAssembly,S3,https://brainio-brainscore.s3.amazonaws.com/assy_Igustibagus2024.nc,eb180ddd1ae0144b5927fab00fd62ecd1aa98003,Igustibagus2024
+Hebart2023,stimulus_set,StimulusSet,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_Hebart2023.csv,8fd5a8d4d68cc206000878dd835829fd14a426e8,
+Hebart2023,stimulus_set,,S3,https://brainio-brainscore.s3.amazonaws.com/stimulus_Hebart2023.zip,f244ebfe07c98470885026188c801857ba2ec0ea,
+Hebart2023,assembly,BehavioralAssembly,S3,https://brainio-brainscore.s3.amazonaws.com/assy_Hebart2023.nc,90f66d37c202dcd1c74d82854efd4a1e8c5fe82e,Hebart2023

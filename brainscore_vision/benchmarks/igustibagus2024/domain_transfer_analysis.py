@@ -7,10 +7,9 @@ from sklearn.linear_model import RidgeClassifierCV
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
-from brainio.fetch import get_stimulus_set
 # import brain-score specific libraries
 from brainscore_core import Score
-from brainscore_vision import BrainModel
+from brainscore_vision import BrainModel, load_stimulus_set
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
 from brainscore_vision.benchmarks import BenchmarkBase
 
@@ -38,7 +37,7 @@ BIBTEX = """
 class _OOD_AnalysisBenchmark(BenchmarkBase):
     def __init__(self, classifier):
         self._classifier = classifier
-        self._stimuli = get_stimulus_set('Igustibagus2024')
+        self._stimuli = load_stimulus_set('Igustibagus2024')
         self._stimuli.identifier = 'domain_transfer_pico_oleo'
         self._visual_degrees = 8
         super(_OOD_AnalysisBenchmark, self).__init__(

@@ -62,18 +62,26 @@ def load_images(image_filepaths, image_size):
 
 
 def load_image(image_filepath):
-    from keras.preprocessing import image
-    img = image.load_img(image_filepath)
-    x = image.img_to_array(img)
+    try:  # keras API before tensorflow 2.9.1
+        from keras.preprocessing.image import load_img
+        from keras.preprocessing.image import img_to_array
+    except ImportError:
+        from tensorflow.keras.utils import load_img
+        from tensorflow.keras.utils import img_to_array
+    img = load_img(image_filepath)
+    x = img_to_array(img)
     return x
 
 
 def scale_image(img, image_size):
     from PIL import Image
-    from keras.preprocessing import image
+    try:  # keras API before tensorflow 2.9.1
+        from keras.preprocessing.image import img_to_array
+    except ImportError:
+        from tensorflow.keras.utils import img_to_array
     img = Image.fromarray(img.astype(np.uint8))
     img = img.resize((image_size, image_size))
-    img = image.img_to_array(img)
+    img = img_to_array(img)
     return img
 
 

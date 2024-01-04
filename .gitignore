@@ -1,4 +1,4 @@
 *.swp
 *.pyc
 *__pycache__*
-AWSCLIV2.pkg
+*AWSCLIV2.pkg

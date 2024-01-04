@@ -13,30 +13,12 @@ on:
     types:
       - closed
 
+env:
+  BSC_DATABASESECRET: secrets.BSC_DATABASESECRET
+
 permissions: write-all
 
 jobs:
-  setup:
-    name: setup
-    runs-on: ubuntu-latest
-    outputs:
-      BSC_DATABASESECRET: ${{ steps.setenvvars.outputs.BSC_DATABASESECRET }}
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
-      - name: Set up Python 3.7
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.7
-      - name: Check if main & set dev/prod vars
-        id: setenvvars
-        run: |
-          if [ ${{ github.ref }} != 'refs/heads/main' ]; then
-            echo "::set-output name=BSC_DATABASESECRET:: ${{ secrets.BSC_DATABASESECRET_DEV }}"
-          else
-            echo "::set-output name=BSC_DATABASESECRET:: ${{ secrets.BSC_DATABASESECRET_PROD }}"
-          fi
-
 
   changes_models_or_benchmarks:
     name: Check if PR makes changes to /models or /benchmarks
@@ -49,6 +31,11 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.7
 
       - name: Save changed files to env var
         run: echo "CHANGED_FILES=$(git diff --name-only origin/main~1 origin/$GITHUB_HEAD_REF | tr '\n' ' ')"  >> $GITHUB_ENV

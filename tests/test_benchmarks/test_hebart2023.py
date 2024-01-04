@@ -8,11 +8,11 @@ from brainio.stimuli import StimulusSet
 @pytest.mark.memory_intense
 @pytest.mark.private_access
 class TestHebart2023:
-    #assembly = brainscore.get_assembly('Hebart2023')
+    assembly = brainscore.get_assembly('Hebart2023')
     stimulus_set = brainscore.get_stimulus_set("Hebart2023")
 
 
-    def _test_assembly(self):
+    def test_assembly(self):
         stimulus_id = self.assembly.coords["stimulus_id"]
         triplet_id = self.assembly.coords["triplet_id"]
         assert len(stimulus_id) == len(triplet_id) == 453642
@@ -23,7 +23,7 @@ class TestHebart2023:
         image_3 = self.assembly.coords["image_3"]
         assert len(image_1) == len(image_2) == len(image_3) == 453642
 
-    def _test_assembly_stimulusset_ids_match(self):
+    def test_assembly_stimulusset_ids_match(self):
         stimulusset_ids = self.stimulus_set['stimulus_id']
         for assembly_stimulusid in ['image_1', 'image_2', 'image_3']:
             assembly_values = self.assembly[assembly_stimulusid].values

@@ -1,5 +1,5 @@
-import brainscore_vision
 from brainio.assemblies import NeuronRecordingAssembly
+from brainscore_vision import load_stimulus_set
 from brainscore_vision import stimulus_set_registry, data_registry
 from brainscore_vision.data_helpers.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
 
@@ -19,5 +19,5 @@ data_registry['Igustibagus2024'] = lambda: load_assembly_from_s3(
     sha1="eb180ddd1ae0144b5927fab00fd62ecd1aa98003",
     bucket="brainio-brainscore",
     cls=NeuronRecordingAssembly,
-    stimulus_set_loader=lambda: brainscore_vision.load_stimulus_set('Igustibagus2024'),
+    stimulus_set_loader=lambda: load_stimulus_set('Igustibagus2024'),
 )

@@ -257,88 +257,60 @@ Here is an example of a behavioral benchmark that uses an already defined metric
             return score
 
 
-We also need to register the benchmark in the benchmark pool in order to make it accessible by its identifier.
-Register the benchmark in the experimental benchmark pool first, we will then run existing models on it, and later
-transfer it to the main benchmark pool.
+We also need to register the benchmark in the benchmark registry in order to make it accessible by its identifier:
 
 .. code-block:: python
 
-    # in brainscore/benchmarks/__init__.py
+    # in brainscore_vision/benchmarks/mybenchmark/__init__.py
 
-    def _experimental_benchmark_pool():
-        # ...
-        from .<authoryear> import <AuthorYear>I2n
-        pool['<authoryear>-i2n'] = LazyLoad(<AuthorYear>I2n)
+    from brainscore_vision import benchmark_registry
 
-        return pool
+    benchmark_registry['mybenchmark-i2n'] = AuthorYearI2n  # specify the class and not the object, i.e. without `()`
 
 
 **Unit Tests**
 
 Like with the stimuli and data, we want to ensure the continued validity of the benchmark so that it remains valuable
 and can be maintained.
+All tests are in your plugin folder's ``test.py``, e.g. ``brainscore_vision/benchmarks/mybenchmark/test.py``.
 
 |UnitTestSupport|
 
 We ask that all benchmarks test at least two things:
 
-#. The ceiling value of the benchmark for which the benchmark identifier and expected ceiling can simply be added to
-   the :meth:`tests.test_benchmarks.test___init__.test_ceilings` method
-#. The score of a couple of models with precomputed features:
-
-The idea for scores of precomputed features is to run a few models on the benchmark, store their features, and test that
-the stored features run on the benchmark will reproduce the same score.
-These tests are organized in :class:`tests.test_benchmarks.test___init__.TestPrecomputed` where, for both neural and
-behavioral benchmarks, standardized functions exist to make these tests as easy as possible.
-
-To add a new test, first store the features of select models.
-For neural benchmarks, run the benchmark on a model, then convert the pickled activations from :code:`result_caching`
-into :code:`netcdf (.nc)` files:
+#. The ceiling value of the benchmark:
 
 .. code-block:: python
 
-    import pandas as pd  # makes pickle file loading a little easier, even if not a pandas object
-
-    activations_dir = '~/.result_caching/model_tools.activations.core.ActivationsExtractorHelper._from_paths_stored'
-    activations = pd.read_pickle(activations_dir + '/identifier=alexnet,stimuli_identifier=<authoryear>.pkl')['data']
-    activations.reset_index(activations.dims).to_netcdf('~/alexnet-<authoryear>.nc')
+    benchmark = load_benchmark('mybenchmark')
+    assert benchmark.ceiling == expected
 
 
-For behavioral benchmarks, the only way right now is to store the predictions as you score a model on the benchmark,
-i.e. either by putting a breakpoint and storing the features or by adding code to the benchmark's :code:`__call__`
-method (before model predictions are scored with the metric).
+#. The score of one or more models:
+
+The idea for scores of existing models is to run a few models on the benchmark,
+and test that running them on the benchmark will reproduce the same score.
 
 .. code-block:: python
 
-    probabilities.reset_index(probabilities.dims).rename({'choice_':'choice'})\
-        .to_netcdf('~/brain-score/tests/test_benchmarks/CORnet-Z-<authoryear>.nc')
+    from brainscore_vision import score
+
+    actual_score = score(model_identifier='your-favorite-model', benchmark_identifier='mybenchmark')
+    assert actual_score == expected
 
 
-Next, upload these precomputed features to :code:`S3://brainscore-unittests/tests/test_benchmarks/`
-(account 613927419654).
-Please reach out to us so that we can help you with the upload.
-
-To have these precomputed features downloaded when unit tests are run, please add the filenames to the
-:code:`test_setup.sh` file.
-
-Finally, add a new method :code:`test_<authoryear-metric>` in
-:class:`tests.test_benchmarks.test___init__.TestPrecomputed` which points to the precomputed features file, and tests
-that an expected score is output by the benchmark.
-
-
-3. Submit a pull request with your changes and iterate to finalize
+3. Submit the benchmark and iterate to finalize
 ==================================================================
-Finally, submit a pull request on https://github.com/brain-score/brain-score/compare with all your changes.
-This will trigger server-side unit tests which ensure that all previous as well as newly added unit tests pass
-successfully.
+Finally, submit your entire model plugin.
+You can do this by either opening a pull request on https://github.com/brain-score/vision/compare
+or by submitting a zip file containing your plugin (``<zip>/benchmarks/mybenchmark``) on the website.
+
+This will trigger server-side unit tests which ensure that all unit tests pass successfully.
 Often, this step can highlight some issues in the code, so it can take some iterations on the code to make sure
 everything runs smoothly.
-Looking at other merged pull requests for reference could be helpful here:
-https://github.com/brain-score/brain-score/pulls.
-We will also manually review the pull request before merging.
+Please open an issue if you run into trouble or get stuck.
 
 If any stimuli or data should be made public, please let us know so that we can change the corresponding S3 bucket
 policy.
 
-After the PR has been merged, we will run all existing models on the new benchmark before making the benchmark public
-and integrating it into the set of standardly evaluated benchmarks.
+After the PR has been merged, the submission system will automatically run all existing models on the new benchmark.

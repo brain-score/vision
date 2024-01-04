@@ -1,9 +1,11 @@
+# These tests ensure that the example notebooks execute without errors
+
 import logging
+from pathlib import Path
 
 import nbformat
 import pytest
 from nbconvert.preprocessors import ExecutePreprocessor
-from pathlib import Path
 
 _logger = logging.getLogger(__name__)
 
@@ -13,7 +15,7 @@ def run_notebook(notebook_path):
     with open(notebook_path, encoding="utf-8") as f:
         nb = nbformat.read(f, as_version=4)
 
-    proc = ExecutePreprocessor(timeout=600, kernel_name='python3')
+    proc = ExecutePreprocessor(timeout=30 * 60, kernel_name='python3')
     proc.allow_errors = True
     proc.preprocess(nb, {'metadata': {'path': '/'}})
 
@@ -27,10 +29,11 @@ def run_notebook(notebook_path):
     return nb, errors
 
 
+@pytest.mark.memory_intense
 @pytest.mark.parametrize('filename', [
-    pytest.param('data.ipynb', marks=pytest.mark.memory_intense),
-    pytest.param('metrics.ipynb', marks=[]),
-    pytest.param('benchmarks.ipynb', marks=[pytest.mark.memory_intense]),
+    'score.ipynb',
+    'data_metrics_benchmarks.ipynb',
+    'models.ipynb',
 ])
 def test_notebook(filename):
     filepath = Path(__file__).parent / '..' / 'examples' / filename

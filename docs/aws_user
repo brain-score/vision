@@ -1,7 +1,7 @@
 1. get Martin's approval to add the user
 2. go to https://us-east-1.console.aws.amazon.com/iamv2/home?region=us-east-1#/users
 3. click "Add users"
-4. set user name to the email username, e.g. mferg@mit.edu -> mferg
+4. set user name to `firstname.lastname`, e.g. Mike Ferguson -> `mike.ferguson`
 5. add to groups: "Brain-Score_read" (and if necessary "Brain-Score_write")
 6. create
 7. navigate to newly created user account, scroll down to "Access keys"

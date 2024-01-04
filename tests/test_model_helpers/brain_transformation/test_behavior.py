@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 from pytest import approx
 
+import brainscore_vision
 from brainio.assemblies import BehavioralAssembly
 from brainio.stimuli import StimulusSet
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
@@ -125,3 +126,23 @@ class TestProbabilitiesMapping:
                                              probabilities.sel(stimulus_id='rgb2', choice='label2').values)
         assert probabilities.sel(stimulus_id='rgb1', choice='label1') + \
                probabilities.sel(stimulus_id='rgb1', choice='label2') == approx(1)
+
+
+class TestOddOneOut:
+    def test_odd_one_out(self):
+        activations_model = pytorch_custom()
+        brain_model = ModelCommitment(identifier=activations_model.identifier, activations_model=activations_model,
+                                      layers=[None], behavioral_readout_layer='relu2')
+
+        assy = brainscore_vision.load_dataset(f'Hebart2023')
+        triplets = place_on_screen(stimulus_set=assy.stimulus_set[:21],
+                                   target_visual_degrees=brain_model.visual_degrees(),
+                                   source_visual_degrees=8)
+
+        brain_model.start_task(BrainModel.Task.odd_one_out)
+        choices = brain_model.look_at(triplets)
+        print(choices)
+
+        assert len(choices) == len(triplets)
+        assert isinstance(choices[0], np.int64)
+        # assert 0.34 < np.sum(correct_choices)/len(choices) < 0.36

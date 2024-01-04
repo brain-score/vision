@@ -1,11 +1,13 @@
+import os
 from collections import OrderedDict
+from typing import Union, List
 
 import numpy as np
-import os
 import sklearn.linear_model
 import sklearn.multioutput
 
-from brainio.assemblies import walk_coords, array_is_element, BehavioralAssembly
+from brainio.assemblies import walk_coords, array_is_element, BehavioralAssembly, DataAssembly
+from brainio.stimuli import StimulusSet
 from brainscore_vision.model_helpers.utils import make_list
 from brainscore_vision.model_interface import BrainModel
 
@@ -215,3 +217,86 @@ class ProbabilitiesMapping(BrainModel):
                 indices.append(label2index[label])
             index2label = OrderedDict((index, label) for label, index in label2index.items())
             return indices, index2label
+
+
+class OddOneOut(BrainModel):
+    def __init__(self, identifier: str, activations_model, layer: Union[str, List[str]]):
+        """
+        :param identifier: a string to identify the model
+        :param activations_model: the model from which to retrieve representations for stimuli
+        :param layer: the single behavioral readout layer or a list of layers to read out of.
+        """
+        self._identifier = identifier
+        self.activations_model = activations_model
+        self.readout = make_list(layer)
+        self.current_task = BrainModel.Task.odd_one_out
+        self.similarity_measure = 'dot'
+
+    @property
+    def identifier(self):
+        return self._identifier
+
+    def start_task(self, task: BrainModel.Task):
+        assert task == BrainModel.Task.odd_one_out
+        self.current_task = task
+
+    def look_at(self, triplets, number_of_trials=1):
+        stimuli = self.unique_stimuli(triplets)
+        triplets = np.array(triplets["filename"]).reshape(-1, 3)
+        features = self.activations_model(stimuli, layers=self.readout)
+        features = features.transpose('presentation', 'neuroid')
+        similarity_matrix = self.calculate_similarity_matrix(features.values)
+        choices = self.calculate_choices(similarity_matrix, triplets)
+        return choices
+
+    def unique_stimuli(self, triplets: StimulusSet) -> StimulusSet:
+        """Returns a dataframe with unique stimuli."""
+        cols = triplets.columns
+        unique_ids = np.unique(triplets["stimulus_id"])
+        unique_triplets = pd.DataFrame(columns=cols)
+        for id in unique_ids:
+            unique_triplets = unique_triplets.append(triplets.loc[triplets["stimulus_id"] == id].iloc[0])
+        return pd.DataFrame(unique_triplets, columns=cols)
+
+
+    def calculate_similarity_matrix(self, features):
+        features = features.transpose('presentation', 'neuroid')
+        if self.similarity_measure == 'dot':
+            similarity_matrix = np.dot(features, np.transpose(features))
+        elif self.similarity_measure == 'cosine':
+            row_norms = np.linalg.norm(features.values, axis=1).reshape(-1, 1)
+            norm_product = np.dot(row_norms, row_norms.T)
+            dot_product = np.dot(features.values, np.transpose(features.values))
+            similarity_matrix = dot_product / norm_product
+        else:
+            raise ValueError(
+                f"Unknown similarity_measure {self.similarity_measure} -- expected one of 'dot' or 'cosine'")
+
+        similarity_matrix = DataAssembly(similarity_matrix, coords={
+            **{f"{coord}_left": ('presentation_left', values) for coord, _, values in
+               walk_coords(features['presentation'])},
+            **{f"{coord}_right": ('presentation_right', values) for coord, _, values in
+               walk_coords(features['presentation'])}
+        }, dims=['presentation_left', 'presentation_right'])
+
+        return similarity_matrix
+
+    def calculate_choices(self, similarity_matrix, triplets):
+        choice_predictions = []
+        for triplet in triplets:
+            i, j, k = triplet
+            sims = similarity_matrix[[i, i, j], [j, k, k]]
+            idx = triplet[2 - np.argmax(sims)]
+            choice_predictions.append(idx)
+
+        stimulus_ids = triplets['stimulus_id']
+        choices = BehavioralAssembly(choice_predictions, coords={
+            'triplet_index': ('presentation', [i for i in range(0, len(stimulus_ids), 3)]),
+            'triplet_stimulus_id0': ('presentation', [{stimulus_ids[i]} for i in range(0, len(stimulus_ids), 3)]),
+            'triplet_stimulus_id1': ('presentation', [{stimulus_ids[i+1]} for i in range(0, len(stimulus_ids), 3)]),
+            'triplet_stimulus_id2': ('presentation', [{stimulus_ids[i+2]} for i in range(0, len(stimulus_ids), 3)]),
+            'stimulus_id': ('presentation', [f"{stimulus_ids[i]}__{stimulus_ids[i+1]}__{stimulus_ids[i+2]}" for i in range(0, len(stimulus_ids), 3)])
+            }, dims=['presentation'])
+
+        return choices
+

@@ -38,6 +38,7 @@ test = [
     "tensorflow==1.15",
     "keras==2.3.1",
     "protobuf<=3.20",  # https://protobuf.dev/news/2022-05-06/#python-updates
+    "matplotlib",  # for examples
 ]
 
 [build-system]

@@ -16,6 +16,7 @@ BIBTEX = """@incollection{NIPS2012_4824,
                   url = {http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf}
                   }"""
 
+
 LAYERS = ['features.2', 'features.5', 'features.7', 'features.9', 'features.12',
           'classifier.2', 'classifier.5']
 

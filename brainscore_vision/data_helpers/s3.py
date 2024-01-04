@@ -1,6 +1,8 @@
 """
-Loading data assemblies and stimuli sets from s3.
+Contains functions for loading data assemblies and stimuli sets from s3,
+and whatever helpers are needed.
 """
+
 import functools
 import logging
 import os

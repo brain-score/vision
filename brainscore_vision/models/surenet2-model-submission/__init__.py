@@ -1,0 +1,1 @@
+from brainscore_vision import model_registry

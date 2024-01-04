@@ -61,7 +61,6 @@ jobs:
     needs: [setup, changes_models_or_benchmarks]
     if: ${{ needs.changes_models_or_benchmarks.outputs.RUN_SCORE == 'True' }}
     env:
-      BSC_DATABASESECRET: ${{ needs.setup.outputs.BSC_DATABASESECRET }}
       PLUGIN_INFO: ${{ needs.changes_models_or_benchmarks.outputs.PLUGIN_INFO }}
     outputs:
       PLUGIN_INFO: ${{ steps.add_email_to_pluginfo.outputs.PLUGIN_INFO }}
@@ -98,7 +97,7 @@ jobs:
     if: ${{ needs.changes_models_or_benchmarks.outputs.RUN_SCORE == 'True' }}
     env:
       PLUGIN_INFO: ${{ needs.get_submitter_info.outputs.PLUGIN_INFO }}
-      JENKINS_USER: ${{ secrets.JENKINS_USR }}
+      JENKINS_USER: ${{ secrets.JENKINS_USER }}
       JENKINS_TOKEN: ${{ secrets.JENKINS_TOKEN }}
       JENKINS_TRIGGER: ${{ secrets.JENKINS_TRIGGER }}
     steps:

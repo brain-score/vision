@@ -1,15 +1,15 @@
 import numpy as np
 import pytest
 
-import brainscore
 from brainio.stimuli import StimulusSet
+from brainscore_vision import load_stimulus_set, load_dataset 
 
 
 @pytest.mark.memory_intense
 @pytest.mark.private_access
 class TestHebart2023:
-    assembly = brainscore.get_assembly('Hebart2023')
-    stimulus_set = brainscore.get_stimulus_set("Hebart2023")
+    assembly = load_dataset('Hebart2023')
+    stimulus_set = load_stimulus_set("Hebart2023")
 
     def test_assembly(self):
         stimulus_id = self.assembly.coords["stimulus_id"]

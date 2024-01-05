@@ -3,6 +3,7 @@ from collections import OrderedDict
 from typing import Union, List
 
 import numpy as np
+import pandas as pd
 import sklearn.linear_model
 import sklearn.multioutput
 

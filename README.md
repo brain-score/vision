@@ -24,7 +24,7 @@ You will need Python = 3.7 and pip >= 18.1.
 Note that you can only access public benchmarks when running locally.
 To score a model on all benchmarks, submit it via the [brain-score.org website](http://www.brain-score.org).
 
-`pip install git+https://github.com/brain-score/brain-score`
+`pip install git+https://github.com/brain-score/vision`
 
 Score a model on a public benchmark:
 

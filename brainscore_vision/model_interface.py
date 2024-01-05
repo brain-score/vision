@@ -172,7 +172,7 @@ class BrainModel:
         V4 = 'V4'
         IT = 'IT'
 
-    def start_recording(self, recording_target: RecordingTarget, time_bins: List[Tuple[int]]) -> None:
+    def start_recording(self, recording_target: RecordingTarget, time_bins: List[Tuple[int, int]]) -> None:
         """
         Instructs the model to begin recording in a specified
         :data:`~brainscore_vision.model_interface.BrainModel.RecordingTarget` and return the specified `time_bins`.

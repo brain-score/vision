@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.mark.private_access
+@pytest.mark.travis_slow
 class TestRunScoring:
     @classmethod
     def setup_class(cls):
@@ -44,7 +45,6 @@ class TestRunScoring:
         assert score_entry.score_ceiled == approx(.5079817, abs=0.005)
         assert score_entry.comment.startswith('layers:')
 
-    @pytest.mark.travis_slow
     def test_two_models_one_benchmark(self):
         args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel',
                      'public': True, 'competition': None, 'specified_only': True,
@@ -56,7 +56,6 @@ class TestRunScoring:
         score_values = [entry.score_ceiled for entry in score_entries]
         assert all(np.array(score_values) > 0)
 
-    @pytest.mark.travis_slow
     def test_one_model_two_benchmarks(self):
         args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel',
                      'public': True, 'competition': None, 'specified_only': True,
@@ -72,7 +71,6 @@ class TestRunScoring:
         score_Rajalingham = database_models.Score.get(benchmark__benchmark_type_id='Rajalingham2018-i2n')
         assert score_Rajalingham.score_ceiled == approx(.3701702, abs=0.005)
 
-    @pytest.mark.travis_slow
     def test_two_models_two_benchmarks(self):
         args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel',
                      'public': True, 'competition': None, 'specified_only': True,

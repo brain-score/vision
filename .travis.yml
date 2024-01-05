@@ -50,7 +50,7 @@ jobs:
             PLUGIN_ONLY=$( python -c "from brainscore_core.plugin_management.parse_plugin_changes import is_plugin_only; is_plugin_only(\"${CHANGED_FILES}\", \"brainscore_${DOMAIN}\")" )
           fi
         - |
-          if [ "$PLUGIN_ONLY" = "True" ]; then 
+          if [ "$PLUGIN_ONLY" = "True" ] && [ "$TRAVIS_SECURE_ENV_VARS" = true ]; then 
             bash ${TRAVIS_BUILD_DIR}/.github/workflows/travis_trigger.sh $GH_WORKFLOW_TRIGGER $TRAVIS_PULL_REQUEST_SHA; 
           fi
 

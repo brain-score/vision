@@ -3,7 +3,7 @@ from pathlib import Path
 from brainio.stimuli import StimulusSet
 # the following import is needed to configure pytest
 # noinspection PyUnresolvedReferences
-from brainscore_core.plugin_management.generic_plugin_tests_helper import pytest_addoption, pytest_generate_tests
+from brainscore_core.plugin_management.generic_plugin_tests_helper import pytest_generate_tests
 from brainscore_vision import BrainModel, load_model
 
 

@@ -2,6 +2,7 @@
 
 import requests
 import sys
+from typing import Union
 
 BASE_URL = "https://api.github.com/repos/brain-score/vision"
 
@@ -11,12 +12,26 @@ def get_data(url: str) -> dict:
     assert r.status_code == 200
     return r.json()
 
-def get_check_runs_result(run_name: str, check_runs: dict) -> str:
-    last_run_result = next(run['conclusion'] for run in check_runs['check_runs'] if run['name'] == run_name)
+def _get_end_time(d: dict) -> str:
+    return d['end_time']
+
+def _return_last_result(results: list) -> Union[str, None]:
+    if results:
+        last_result = max(results, key=_get_end_time)['result']
+    else:
+        last_result = None
+    return last_result
+
+def get_check_runs_result(run_name: str, check_runs_json: dict) -> str:
+    check_runs = [{'end_time': run['completed_at'], 'result': run['conclusion']} 
+                  for run in check_runs_json['check_runs'] if run['name'] == run_name]
+    last_run_result = _return_last_result(check_runs)
     return last_run_result
 
-def get_statuses_result(context: str, statuses: dict) -> str:
-    last_status_result = next(status['state'] for status in statuses if status['context'] == context)
+def get_statuses_result(context: str, statuses_json: dict) -> str:
+    statuses = [{'end_time': status['updated_at'], 'result': status['state']} 
+                for status in statuses_json if status['context'] == context]
+    last_status_result = _return_last_result(statuses)
     return last_status_result
 
 def all_tests_passing(test_results: list):

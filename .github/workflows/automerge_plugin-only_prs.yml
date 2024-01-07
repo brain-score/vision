@@ -32,7 +32,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Get Travis build status
+      - name: Get test results
         id: gettestresults
         run: |
           echo "test_results=$( python brainscore_vision/submission/check_test_status.py ${{ github.event.pull_request.head.sha }} )"

@@ -35,7 +35,12 @@ jobs:
       - name: Get test results and ensure automergeable
         id: gettestresults
         run: |
-          echo "test_results=$( python brainscore_vision/submission/check_test_status.py ${{ GITHUB_SHA }} )"
+          if [ [ ${{ github.event_name }} == "status" ]]; then
+            TRIGGER_SHA=$GITHUB_SHA
+          else
+            TRIGGER_SHA=${{ github.event.pull_request.head.sha }}
+          fi
+          echo "test_results=$( python brainscore_vision/submission/check_test_status.py $TRIGGER_SHA )"
           echo "::set-output name=TEST_RESULTS::$test_results"
 
 

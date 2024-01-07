@@ -22,6 +22,7 @@ jobs:
 
   changes_models_or_benchmarks:
     name: Check if PR makes changes to /models or /benchmarks
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     outputs:
       PLUGIN_INFO: ${{ steps.getpluginfo.outputs.PLUGIN_INFO }}

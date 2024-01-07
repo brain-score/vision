@@ -3,15 +3,12 @@ name: Automatically merge plugin-only PRs
 
 # Triggered on all PRs either by
 # - completion of CI checks, OR
-# - tagging with label
-# If PR is labeled "automerge" or "automerge-web" 
-# (all website submissions are tagged "automerge-web"),
-# checks if Travis and Jenkins tests pass. 
-# A successful status update from Travis also confirms that
-# the PR is plugin-only. Therefore, if all tests pass, this
-# indicates that no changes are made beyond new or revised plugins
-# (subdirs of /benchmarks, /data, /models, or /metrics) 
-# and the PR is automatically approved and merged.
+# - tagging with "automerge" or "automerge-web" labels
+# Checks if Travis and Jenkins tests pass and PR is automergeable. 
+# A PR is automergeable iff labeled "automerge" or originates from 
+# web submission (labeled "automerge-web") AND only makes changes to plugins
+# (subdirs of /benchmarks, /data, /models, or /metrics). 
+# If conditions are met, the PR is automatically approved and merged.
 
 
 on:

@@ -62,7 +62,7 @@ jobs:
   automerge:
     name: If plugin-only, approve and merge
     runs-on: ubuntu-latest
-    needs: plugin_only
+    needs: check_test_results
     if: ${{ needs.check_test_results.outputs.ALL_TESTS_PASS == 'True' }}
     steps:
       - name: Auto Approve

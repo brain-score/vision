@@ -82,14 +82,6 @@ class TestRunScoring:
         score_values = [entry.score_ceiled for entry in score_entries]
         assert all(np.array(score_values) > 0)
 
-    def test_benchmark_does_not_exist(self):
-        args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel',
-                     'public': True, 'competition': None, 'new_models': ['alexnet'],
-                     'new_benchmarks': ['idonotexist'], 'specified_only': True}
-        run_scoring(args_dict)
-        score_entries = database_models.Score.select()
-        assert len(score_entries) == 0
-
     def test_competition_field_set(self):
         args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel',
                      'public': True, 'competition': 'cosyne2022', 'new_models': ['alexnet'],

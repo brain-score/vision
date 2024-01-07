@@ -1,7 +1,7 @@
 name: Trigger scoring run
 
 
-# Triggered on all PRs on merge to main
+# Triggered on all PRs on merge to master
 # If changes are made to a subdir of /benchmarks or /models,
 # a Jenkins scoring run is triggered for the corresponding plugin
 
@@ -9,7 +9,7 @@ name: Trigger scoring run
 on:
   pull_request:
     branches:
-      - main
+      - master
     types:
       - closed
 

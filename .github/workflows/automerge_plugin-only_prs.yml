@@ -3,15 +3,12 @@ name: Automatically merge plugin-only PRs
 
 # Triggered on all PRs either by
 # - completion of CI checks, OR
-# - tagging with label
-# If PR is labeled "automerge" or "automerge-web" 
-# (all website submissions are tagged "automerge-web"),
-# checks if Travis and Jenkins tests pass. 
-# A successful status update from Travis also confirms that
-# the PR is plugin-only. Therefore, if all tests pass, this
-# indicates that no changes are made beyond new or revised plugins
-# (subdirs of /benchmarks, /data, /models, or /metrics) 
-# and the PR is automatically approved and merged.
+# - tagging with "automerge" or "automerge-web" labels
+# Checks if Travis and Jenkins tests pass and PR is automergeable. 
+# A PR is automergeable iff labeled "automerge" or originates from 
+# web submission (labeled "automerge-web") AND only makes changes to plugins
+# (subdirs of /benchmarks, /data, /models, or /metrics). 
+# If conditions are met, the PR is automatically approved and merged.
 
 
 on:
@@ -25,26 +22,9 @@ permissions: write-all
 
 jobs:
 
-  isautomerge:
-    name: Set as 'automerge' if PR is labeled with 'automerge' or 'automerge-web'
-    runs-on: ubuntu-latest
-    if: |
-      contains( github.event.pull_request.labels.*.name, 'automerge') ||
-      contains( github.event.pull_request.labels.*.name, 'automerge-web')
-    outputs:
-      AUTOMERGE: ${{ steps.setautomerge.outputs.AUTOMERGE }}
-    steps:
-      - name: Set 'automerge' to 'True' # job only runs if True
-        id: setautomerge
-        run: |
-          echo "::set-output name=AUTOMERGE::True"
-
-
   check_test_results:
-    name: Check if all tests (Travis, Jenkins) have passed (confirms PR is plugin-only)
+    name: Check if all tests have passed and PR meets automerge conditions
     runs-on: ubuntu-latest
-    needs: [isautomerge]
-    if: ${{ needs.isautomerge.outputs.AUTOMERGE == 'True' }}
     outputs:
       ALL_TESTS_PASS: ${{ steps.gettestresults.outputs.TEST_RESULTS }}
     steps:
@@ -60,7 +40,7 @@ jobs:
 
 
   automerge:
-    name: If plugin-only, approve and merge
+    name: If tests pass and PR is automergeable, approve and merge
     runs-on: ubuntu-latest
     needs: check_test_results
     if: ${{ needs.check_test_results.outputs.ALL_TESTS_PASS == 'True' }}

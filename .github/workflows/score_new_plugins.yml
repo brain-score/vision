@@ -108,6 +108,11 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v2
 
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.7
+
       - name: Build project and run scoring
         run: |
           python -m pip install --upgrade pip setuptools

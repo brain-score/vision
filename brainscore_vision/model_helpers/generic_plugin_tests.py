@@ -69,7 +69,7 @@ def _make_stimulus_set() -> StimulusSet:
         'image_label': ['label1', 'label1', 'label2'],
         'filename': ['rgb1', 'rgb2', 'rgb3'],
     })
-    stimuli.stimulus_paths = {'stimid1': Path(__file__).parent / 'generic_plugin_tests_resources' / 'rgb1.jpg',
+    stimuli.stimulus_paths = {'stimid1': Path(__file__) / 'generic_plugin_tests_resources' / 'rgb1.jpg',
                               'stimid2': Path(__file__).parent / 'generic_plugin_tests_resources' / 'rgb2.jpg',
                               'stimid3': Path(__file__).parent / 'generic_plugin_tests_resources' / 'rgb3.png',
                               }

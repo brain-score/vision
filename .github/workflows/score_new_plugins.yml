@@ -44,7 +44,10 @@ jobs:
           python -m pip install ".[test]"
 
       - name: Save changed files to env var
-        run: echo "CHANGED_FILES=$(git diff --name-only origin/master~1 origin/$GITHUB_HEAD_REF | tr '\n' ' ')"  >> $GITHUB_ENV
+        run: |
+          git fetch origin refs/pull/${{ github.event.number }}/head
+          MERGE_COMMIT=$(git log --format='%H %P' --all | grep "$(git rev-parse FETCH_HEAD)\$" | cut -f1 -d' ')
+          echo "CHANGED_FILES=$(git diff --name-only origin/master~1 $MERGE_COMMIT | tr '\n' ' ')"  >> $GITHUB_ENV
 
       - name: Get plugin info
         id: getpluginfo

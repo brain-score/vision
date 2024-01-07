@@ -44,7 +44,7 @@ jobs:
           python -m pip install ".[test]"
 
       - name: Save changed files to env var
-        run: echo "CHANGED_FILES=$(git diff --name-only origin/main~1 origin/$GITHUB_HEAD_REF | tr '\n' ' ')"  >> $GITHUB_ENV
+        run: echo "CHANGED_FILES=$(git diff --name-only origin/master~1 origin/$GITHUB_HEAD_REF | tr '\n' ' ')"  >> $GITHUB_ENV
 
       - name: Get plugin info
         id: getpluginfo

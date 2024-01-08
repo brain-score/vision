@@ -12,10 +12,9 @@ BASE_URL = "https://api.github.com/repos/brain-score/vision"
 def _load_event_file() -> dict:
     with open(os.environ["GITHUB_EVENT_PATH"]) as f:
         return json.load(f)
-
-def get_pr_head_sha() -> Union[str, None]:
+    
+def _get_pr_head_sha_from_github_event(pr_head_sha):
     event_type = os.environ["GITHUB_EVENT_NAME"]
-    pr_head_sha = None
 
     if event_type == "status":
         f = _load_event_file()
@@ -32,8 +31,17 @@ def get_pr_head_sha() -> Union[str, None]:
 
     return pr_head_sha
 
-def print_pr_head_sha():
-    print(get_pr_head_sha()) # for logging in action
+def get_pr_head_sha() -> Union[str, None]:
+    pr_head_sha = None
+
+    # Running in a GitHub Action
+    if "GITHUB_EVENT_NAME" in os.environ:
+        pr_head_sha = _get_pr_head_sha_from_github_event(pr_head_sha)
+    # If not running in GitHub Action, assume first arg is SHA
+    elif "GITHUB_EVENT_NAME" not in os.environ and len(sys.argv) > 1:
+        pr_head_sha = sys.argv[1]
+
+    return pr_head_sha
 
 def get_data(url: str) -> dict:
     r = requests.get(url)
@@ -62,8 +70,8 @@ def get_statuses_result(context: str, statuses_json: dict) -> str:
     last_status_result = _return_last_result(statuses)
     return last_status_result
 
-def are_all_tests_passing(test_results: list):
-    if any(result != "success" for result in test_results):
+def are_all_tests_passing(test_results: dict) -> dict:
+    if any(result != "success" for result in test_results.values()):
         return False
     else:
         return True
@@ -77,27 +85,29 @@ def is_labeled_automerge(check_runs_json: dict) -> bool:
 
 
 if __name__ == "__main__":
-
-    if sys.argv[1] == "get_sha":
-        print_pr_head_sha()
-        sys.exit()
-
+    
     pr_head_sha = get_pr_head_sha()
     if not pr_head_sha:
-        print(None)
-        sys.exit()
+        print("No PR Head SHA found. Exiting."); sys.exit()
+    # if file called with get_sha, print SHA and quit (GitHub Actions logging)
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "get_sha":
+            print(pr_head_sha); sys.exit()
 
     check_runs_json = get_data(f"{BASE_URL}/commits/{pr_head_sha}/check-runs")
     statuses_json = get_data(f"{BASE_URL}/statuses/{pr_head_sha}")
 
-    travis_branch_result = get_check_runs_result('Travis CI - Branch', check_runs_json)
-    travis_pr_result = get_statuses_result('continuous-integration/travis', statuses_json)
-    jenkins_plugintests_result = get_statuses_result('Brain-Score Jenkins CI - plugin tests', statuses_json)
-    jenkins_unittests_result = get_statuses_result('Brain-Score Jenkins CI', statuses_json)
+    results_dict = {'travis_branch_result': get_check_runs_result('Travis CI - Branch', check_runs_json),
+                    'travis_pr_result': get_statuses_result('continuous-integration/travis', statuses_json),
+                    'jenkins_plugintests_result': get_statuses_result('Brain-Score Jenkins CI - plugin tests', statuses_json),
+                    'jenkins_unittests_result': get_statuses_result('Brain-Score Jenkins CI', statuses_json)}
 
-    tests_pass = are_all_tests_passing([travis_branch_result, travis_pr_result, jenkins_plugintests_result, jenkins_unittests_result])
+    tests_pass = are_all_tests_passing(results_dict)
 
-    if tests_pass:
-        print(is_labeled_automerge(check_runs_json))
+    if tests_pass['all_tests_pass']:
+        if is_labeled_automerge(check_runs_json):
+            print(True)
+        else:
+            print("All tests pass but not labeled for automerge. Exiting.")
     else:
-        print(False)
+        print(results_dict)

@@ -4,6 +4,7 @@ import numpy as np
 from PIL import Image
 
 from brainscore_vision.model_helpers.activations.core import ActivationsExtractorHelper
+from brainscore_vision.model_helpers.check_submission import check_models
 
 
 class PixelModel:
@@ -33,3 +34,9 @@ class PixelModel:
         image = image.convert('RGB')  # make sure everything is in RGB and not grayscale L
         image = image.resize((256, 256))  # resize all images to same size
         return np.array(image)
+
+# Main Method: In submitting a custom model, you should not have to mess with this.
+if __name__ == "__main__":
+    # Use this method to ensure the correctness of the BaseModel implementations.
+    # It executes a mock run of brain-score benchmarks.
+    check_models.check_base_models(__name__)

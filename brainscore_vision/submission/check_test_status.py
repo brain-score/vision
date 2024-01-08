@@ -78,9 +78,10 @@ def is_labeled_automerge(check_runs_json: dict) -> bool:
 
 if __name__ == "__main__":
 
-    if sys.argv[1] == "get_sha":
-        print_pr_head_sha()
-        sys.exit()
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "get_sha":
+            print_pr_head_sha()
+            sys.exit()
 
     pr_head_sha = get_pr_head_sha()
     if not pr_head_sha:

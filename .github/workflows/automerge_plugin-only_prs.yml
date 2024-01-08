@@ -37,7 +37,7 @@ jobs:
         run: |
           echo "pr_head_sha=$( python brainscore_vision/submission/check_test_status.py get_sha )"          
           echo "Checking test results for SHA $pr_head_sha"
-          echo "test_results=$( python brainscore_vision/submission/check_test_status.py check_tests )"
+          echo "test_results=$( python brainscore_vision/submission/check_test_status.py )"
           echo "::set-output name=TEST_RESULTS::$test_results"
 
 

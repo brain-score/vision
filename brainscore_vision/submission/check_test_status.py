@@ -14,17 +14,21 @@ def _load_event_file() -> dict:
         return json.load(f)
 
 def get_pr_head_sha() -> Union[str, None]:
+    event_type = os.environ["GITHUB_EVENT_NAME"]
     pr_head_sha = None
 
-    event_type = os.environ["GITHUB_EVENT_NAME"]
     if event_type == "status":
         f = _load_event_file()
-        pr_head_sha = f['url'].split('/')[-1:][0]
+        candidate_branches = [branch for branch in f["branches"] if branch["name"] != "master"]
+        if len(candidate_branches) == 1:
+            pr_head_sha = candidate_branches[0]["commit"]["sha"]
+
     elif event_type == "check_run":
         f = _load_event_file()
-        pr_head_sha = f['head_sha']      
+        pr_head_sha = f["head_sha"] 
+
     elif event_type == "pull_request":
-        return os.environ["GITHUB_HEAD_REF"]
+        pr_head_sha = os.environ["GITHUB_HEAD_REF"]
 
     return pr_head_sha
 

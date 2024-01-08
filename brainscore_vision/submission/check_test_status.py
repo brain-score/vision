@@ -25,7 +25,7 @@ def get_pr_head_sha() -> Union[str, None]:
 
     elif event_type == "check_run":
         f = _load_event_file()
-        pr_head_sha = f["head_sha"] 
+        pr_head_sha = f["check_run"]["head_sha"]
 
     elif event_type == "pull_request":
         pr_head_sha = os.environ["GITHUB_HEAD_REF"]
@@ -37,7 +37,7 @@ def print_pr_head_sha():
 
 def get_data(url: str) -> dict:
     r = requests.get(url)
-    assert r.status_code == 200
+    assert r.status_code == 200, f'{r.status_code}: {r.reason}'
     return r.json()
 
 def _get_end_time(d: dict) -> str:

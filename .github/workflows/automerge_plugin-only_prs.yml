@@ -32,18 +32,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Get SHA of last commit on PR branch
-        run: |
-          if [[ ${{ github.event_name }} == "status" ]]; then
-            $EVENT_URL=${{ github.event.url }}
-            echo "TRIGGER_SHA=$( basename $EVENT_URL )" >> $GITHUB_ENV
-          else
-            echo "TRIGGER_SHA=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
-          fi
-          echo "Checking test status for SHA ${{ env.TRIGGER_SHA }}"
       - name: Get test results and ensure automergeable
         id: gettestresults
         run: |
+          echo "pr_head_sha=$( python -c "from brainscore_vision.submission.check_test_status import print_pr_head_sha; print_pr_head_sha() )"
+          echo "Checking test results for SHA $pr_head_sha"
           echo "test_results=$( python brainscore_vision/submission/check_test_status.py $TRIGGER_SHA )"
           echo "::set-output name=TEST_RESULTS::$test_results"
 

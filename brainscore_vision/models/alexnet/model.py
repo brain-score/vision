@@ -4,6 +4,7 @@ import torchvision.models
 
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
+from brainscore_vision.model_helpers.check_submission import check_models
 
 BIBTEX = """@incollection{NIPS2012_4824,
                   title = {ImageNet Classification with Deep Convolutional Neural Networks},
@@ -26,3 +27,8 @@ def get_model():
     wrapper = PytorchWrapper(identifier='alexnet', model=model, preprocessing=preprocessing)
     wrapper.image_size = 224
     return wrapper
+
+if __name__ == '__main__':
+    # Use this method to ensure the correctness of the BaseModel implementations.
+    # It executes a mock run of brain-score benchmarks.
+    check_models.check_base_models(__name__)

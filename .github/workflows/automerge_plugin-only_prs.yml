@@ -34,12 +34,12 @@ jobs:
           fetch-depth: 0
       - name: Get SHA of last commit on PR branch
         run: |
-          if [ [ ${{ github.event_name }} == "pull_request" ]]; then
-            echo "TRIGGER_SHA=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
+          if [[ ${{ github.event_name }} == "status" ]]; then
+            echo "TRIGGER_SHA=${{ github.event.url##*/ }}" >> $GITHUB_ENV
           else
-            echo "TRIGGER_SHA=$( git rev-parse HEAD )" >> $GITHUB_ENV
+            echo "TRIGGER_SHA=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
           fi
-          echo "Checking test status for SHA $TRIGGER_SHA"
+          echo "Checking test status for SHA ${{ env.TRIGGER_SHA }}"
       - name: Get test results and ensure automergeable
         id: gettestresults
         run: |

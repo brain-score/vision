@@ -32,9 +32,6 @@ def get_pr_head_sha() -> Union[str, None]:
 
     return pr_head_sha
 
-def print_pr_head_sha():
-    print(get_pr_head_sha()) # for logging in action
-
 def get_data(url: str) -> dict:
     r = requests.get(url)
     assert r.status_code == 200, f'{r.status_code}: {r.reason}'
@@ -78,15 +75,16 @@ def is_labeled_automerge(check_runs_json: dict) -> bool:
 
 if __name__ == "__main__":
 
-    if len(sys.argv) > 1:
-        if sys.argv[1] == "get_sha":
-            print_pr_head_sha()
-            sys.exit()
-
     pr_head_sha = get_pr_head_sha()
+
     if not pr_head_sha:
         print(None)
         sys.exit()
+
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "get_sha":
+            print(pr_head_sha) # for logging in action
+            sys.exit()
 
     check_runs_json = get_data(f"{BASE_URL}/commits/{pr_head_sha}/check-runs")
     statuses_json = get_data(f"{BASE_URL}/statuses/{pr_head_sha}")

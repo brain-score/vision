@@ -1,11 +1,35 @@
 # Uses GitHub API to check test suite status (Travis, Jenkins)
 
+import json
+import os
 import requests
 import sys
 from typing import Union
 
 BASE_URL = "https://api.github.com/repos/brain-score/vision"
 
+
+def _load_event_file() -> dict:
+    with open(os.environ["GITHUB_EVENT_PATH"]) as f:
+        return json.load(f)
+
+def get_pr_head_sha() -> Union[str, None]:
+    pr_head_sha = None
+
+    event_type = os.environ["GITHUB_EVENT_NAME"]
+    if event_type == "status":
+        f = _load_event_file()
+        pr_head_sha = f['url'].split('/')[-1:][0]
+    elif event_type == "check_run":
+        f = _load_event_file()
+        pr_head_sha = f['head_sha']      
+    elif event_type == "pull_request":
+        return os.environ["GITHUB_HEAD_REF"]
+
+    return pr_head_sha
+
+def print_pr_head_sha():
+    print(get_pr_head_sha()) # for logging in action
 
 def get_data(url: str) -> dict:
     r = requests.get(url)
@@ -47,9 +71,13 @@ def is_labeled_automerge(check_runs_json: dict) -> bool:
     labeled_automerge = any(label['name'] in ('automerge', 'automerge-web') for label in pull_request_data['labels'])
     return labeled_automerge
 
+
 if __name__ == "__main__":
 
-    pr_head_sha = sys.argv[1]
+    pr_head_sha = get_pr_head_sha()
+    if not pr_head_sha:
+        print(False)
+        sys.exit()
 
     check_runs_json = get_data(f"{BASE_URL}/commits/{pr_head_sha}/check-runs")
     statuses_json = get_data(f"{BASE_URL}/statuses/{pr_head_sha}")

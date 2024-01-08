@@ -35,7 +35,8 @@ jobs:
       - name: Get test results and ensure automergeable
         id: gettestresults
         run: |
-          echo "pr_head_sha=$( python -c \"from brainscore_vision.submission.check_test_status import print_pr_head_sha; print_pr_head_sha()\" )"          echo "Checking test results for SHA $pr_head_sha"
+          echo "pr_head_sha=$( python -c 'from brainscore_vision.submission.check_test_status import print_pr_head_sha; print_pr_head_sha()' )"          
+          echo "Checking test results for SHA $pr_head_sha"
           echo "test_results=$( python brainscore_vision/submission/check_test_status.py $TRIGGER_SHA )"
           echo "::set-output name=TEST_RESULTS::$test_results"
 

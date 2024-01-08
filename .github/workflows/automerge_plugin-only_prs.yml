@@ -33,10 +33,9 @@ jobs:
         with:
           fetch-depth: 0
       - name: Get SHA of last commit on PR branch
-        env: 
-          EVENT_URL: ${{ github.event.url }}
         run: |
           if [[ ${{ github.event_name }} == "status" ]]; then
+            $EVENT_URL=${{ github.event.url }}
             echo "TRIGGER_SHA=$( basename $EVENT_URL )" >> $GITHUB_ENV
           else
             echo "TRIGGER_SHA=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV

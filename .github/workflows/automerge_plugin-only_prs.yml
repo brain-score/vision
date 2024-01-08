@@ -35,9 +35,9 @@ jobs:
       - name: Get SHA of last commit on PR branch
         run: |
           if [ [ ${{ github.event_name }} == "pull_request" ]]; then
-            TRIGGER_SHA=${{ github.event.pull_request.head.sha }}
+            echo "TRIGGER_SHA=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
           else
-            TRIGGER_SHA=$( git rev-parse HEAD )
+            echo "TRIGGER_SHA=$( git rev-parse HEAD )" >> $GITHUB_ENV
           fi
           echo "Checking test status for SHA $TRIGGER_SHA"
       - name: Get test results and ensure automergeable

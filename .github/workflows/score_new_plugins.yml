@@ -29,7 +29,7 @@ jobs:
       RUN_SCORE: ${{ steps.runscore.outputs.RUN_SCORE }}
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -110,7 +110,7 @@ jobs:
           echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO tr -d "'"  | jq -c '. + {domain: "vision", public: true, competition: "None", model_type: "Brain_Model"}')" >> $GITHUB_ENV
 
       - name: Check out repository code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Python 3.7
         uses: actions/setup-python@v4

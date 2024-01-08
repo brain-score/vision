@@ -28,6 +28,14 @@ jobs:
     outputs:
       ALL_TESTS_PASS: ${{ steps.gettestresults.outputs.TEST_RESULTS }}
     steps:
+      - name: Get SHA of last commit on PR branch
+        run: |
+          if [ [ ${{ github.event_name }} == "pull_request" ]]; then
+            TRIGGER_SHA=${{ github.event.pull_request.head.sha }}
+          else
+            TRIGGER_SHA=$( git rev-parse HEAD )
+          fi
+          echo "Checking test status for SHA $TRIGGER_SHA"
       - name: Check out repository code
         uses: actions/checkout@v2
         with:
@@ -35,11 +43,6 @@ jobs:
       - name: Get test results and ensure automergeable
         id: gettestresults
         run: |
-          if [ [ ${{ github.event_name }} == "pull_request" ]]; then
-            TRIGGER_SHA=${{ github.event.pull_request.head.sha }}
-          else
-            TRIGGER_SHA=$GITHUB_SHA
-          fi
           echo "test_results=$( python brainscore_vision/submission/check_test_status.py $TRIGGER_SHA )"
           echo "::set-output name=TEST_RESULTS::$test_results"
 

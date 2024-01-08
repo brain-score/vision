@@ -28,6 +28,10 @@ jobs:
     outputs:
       ALL_TESTS_PASS: ${{ steps.gettestresults.outputs.TEST_RESULTS }}
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Get SHA of last commit on PR branch
         run: |
           if [ [ ${{ github.event_name }} == "pull_request" ]]; then
@@ -36,10 +40,6 @@ jobs:
             TRIGGER_SHA=$( git rev-parse HEAD )
           fi
           echo "Checking test status for SHA $TRIGGER_SHA"
-      - name: Check out repository code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
       - name: Get test results and ensure automergeable
         id: gettestresults
         run: |

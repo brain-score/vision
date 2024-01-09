@@ -104,7 +104,7 @@ if __name__ == "__main__":
 
     tests_pass = are_all_tests_passing(results_dict)
 
-    if tests_pass['all_tests_pass']:
+    if tests_pass:
         if is_labeled_automerge(check_runs_json):
             print(True)
         else:

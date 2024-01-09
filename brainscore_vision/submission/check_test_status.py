@@ -4,7 +4,6 @@ import json
 import os
 import requests
 import sys
-import time
 from typing import Union
 
 BASE_URL = "https://api.github.com/repos/brain-score/vision"

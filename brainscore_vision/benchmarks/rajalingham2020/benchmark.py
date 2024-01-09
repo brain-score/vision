@@ -41,7 +41,7 @@ def DicarloRajalingham2020ITPLS():
 
 
 def load_assembly(average_repetitions, region):
-    assembly = load_dataset(identifier=f'dicarlo.Rajalingham2020')
+    assembly = load_dataset(identifier=f'Rajalingham2020')
     assembly = assembly.sel(region=region)
     assembly['region'] = 'neuroid', [region] * len(assembly['neuroid'])
     assembly.load()

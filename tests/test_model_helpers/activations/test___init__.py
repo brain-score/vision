@@ -189,6 +189,60 @@ def test_from_image_path(model_ctr, layers, image_name, pca_components, logits):
     return activations
 
 
+@pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png',
+                                        'palletized.png'])
+@pytest.mark.parametrize(["model_ctr", "layers"], models_layers)
+@pytest.mark.parametrize("shifts", [[(2, 2), (0, 0), (1, -1), (0, 1)], [(0, 1), (2, 3)]])
+def test_microsaccades_from_image_path(model_ctr, layers, image_name, shifts):
+    stimulus_paths = [os.path.join(os.path.dirname(__file__), image_name)]
+    activations_extractor = model_ctr()
+
+    model_requirements = {'microsaccades': shifts}
+    activations = activations_extractor(stimuli=stimulus_paths, layers=layers, model_requirements=model_requirements)
+
+    assert activations is not None
+    assert list(activations['shift_x'].values) == [shift[0] for shift in shifts]
+    assert list(activations['shift_y'].values) == [shift[1] for shift in shifts]
+    assert len(activations['shift_x']) == len(shifts) * len(stimulus_paths)
+    assert len(activations['shift_y']) == len(shifts) * len(stimulus_paths)
+
+
+@pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png',
+                                        'palletized.png'])
+@pytest.mark.parametrize(["model_ctr", "layers"], models_layers)
+@pytest.mark.parametrize("model_requirements", [None, {'microsaccades': [(0, 0), (1, -1)]}])
+def test_model_requirements(model_ctr, layers, image_name, model_requirements):
+    stimulus_paths = [os.path.join(os.path.dirname(__file__), image_name)]
+    activations_extractor = model_ctr()
+
+    activations_with_req = activations_extractor(stimuli=stimulus_paths, layers=layers,
+                                                 model_requirements=model_requirements)
+    activations_without_req = activations_extractor(stimuli=stimulus_paths, layers=layers,
+                                                    model_requirements=None)
+
+    assert activations_with_req is not None
+    assert activations_without_req is not None
+    if model_requirements:
+        assert len(activations_with_req['presentation']) > len(activations_without_req['presentation'])
+    assert len(activations_with_req['neuroid']) == len(activations_without_req['neuroid'])
+
+
+@pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png',
+                                        'palletized.png'])
+@pytest.mark.parametrize(["model_ctr", "layers"], models_layers)
+def test_temporary_file_handling(model_ctr, layers, image_name):
+    import tempfile
+    stimulus_paths = [os.path.join(os.path.dirname(__file__), image_name)]
+    activations_extractor = model_ctr()
+    model_requirements = {'microsaccades': [(2, 2)]}
+
+    activations = activations_extractor(stimuli=stimulus_paths, layers=layers, model_requirements=model_requirements)
+    temp_files = [f for f in os.listdir(tempfile.gettempdir()) if f.startswith('temp') and f.endswith('.png')]
+
+    assert activations is not None
+    assert len(temp_files) == 0
+
+
 def _build_stimulus_set(image_names):
     stimulus_set = StimulusSet([{'stimulus_id': image_name, 'some_meta': image_name[::-1]}
                                 for image_name in image_names])

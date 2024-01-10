@@ -18,7 +18,7 @@ jobs:
   check_test_results:
     name: Check if all tests have passed and PR meets automerge conditions
     runs-on: ubuntu-latest
-    if: ${{ github.event.label.name == 'automerge-approved' }}
+    if: github.event.label.name == 'automerge-approved'
     outputs:
       ALL_TESTS_PASS: ${{ steps.gettestresults.outputs.TEST_RESULTS }}
     steps:
@@ -29,14 +29,16 @@ jobs:
       - name: Get test results and ensure automergeable
         id: gettestresults
         run: |
-          echo "Checking test results for PR head pr_head=$( python brainscore_vision/submission/actions_helpers.py get_pr_head )"          
-          echo "{TEST_RESULTS}={$( python brainscore_vision/submission/actions_helpers.py )}" >> $GITHUB_OUTPUT
+          echo "Checking test results for PR head $( python brainscore_vision/submission/actions_helpers.py get_pr_head )"          
+          test_results=$( python brainscore_vision/submission/actions_helpers.py )
+          echo $test_results
+          echo "TEST_RESULTS=$test_results" >> $GITHUB_OUTPUT
 
   automerge:
     name: If tests pass and PR is automergeable, approve and merge
     runs-on: ubuntu-latest
     needs: check_test_results
-    if: ${{ needs.check_test_results.outputs.ALL_TESTS_PASS == 'True' }}
+    if: needs.check_test_results.outputs.ALL_TESTS_PASS == 'True'
     steps:
       - name: Auto Approve
         uses: hmarr/auto-approve-action@v3.1.0

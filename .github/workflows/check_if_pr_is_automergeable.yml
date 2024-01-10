@@ -37,8 +37,10 @@ jobs:
       - name: Get test results and ensure automergeable
         id: gettestresults
         run: |
-          echo "Checking test results for PR head pr_head=$( python brainscore_vision/submission/actions_helpers.py get_pr_head )"          
-          echo "{TEST_RESULTS}={$( python brainscore_vision/submission/actions_helpers.py )}" >> $GITHUB_OUTPUT
+          echo "Checking test results for PR head $( python brainscore_vision/submission/actions_helpers.py get_pr_head )"          
+          test_results=$( python brainscore_vision/submission/actions_helpers.py )
+          echo $test_results
+          echo "TEST_RESULTS=$test_results" >> $GITHUB_OUTPUT
 
   approve_automerge:
     name: If tests pass and PR is automergeable, apply "approve_automerge" label to PR
@@ -46,11 +48,11 @@ jobs:
     permissions:
       issues: write
     needs: check_test_results
-    if: ${{ needs.check_test_results.outputs.ALL_TESTS_PASS == 'True' }}
+    if: needs.check_test_results.outputs.ALL_TESTS_PASS == 'True'
     steps:
       - name: Get PR number from workflow context
         run: |
-          echo "{PR_NUMBER}={$( python brainscore_vision/submission/actions_helpers.py get_pr_num )}" >> $GITHUB_ENV
+          echo "PR_NUMBER=$( python brainscore_vision/submission/actions_helpers.py get_pr_num )" >> $GITHUB_ENV
       - name: Add automerge-approved label to PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -50,6 +50,10 @@ jobs:
     needs: check_test_results
     if: needs.check_test_results.outputs.ALL_TESTS_PASS == 'True'
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Get PR number from workflow context
         run: |
           echo "PR_NUMBER=$( python brainscore_vision/submission/actions_helpers.py get_pr_num )" >> $GITHUB_ENV

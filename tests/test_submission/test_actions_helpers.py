@@ -1,53 +1,60 @@
 import pytest
 from subprocess import call
 
-from brainscore_vision.submission.check_test_status import BASE_URL, get_data, get_check_runs_result, get_statuses_result, are_all_tests_passing, is_labeled_automerge, get_pr_head_sha
+from brainscore_vision.submission.actions_helpers import BASE_URL, get_pr_num_from_head, get_data, get_check_runs_result, get_statuses_result, are_all_tests_passing, is_labeled_automerge, get_pr_head_from_github_event
 
-PR_HEAD_SHA = '209e6c81d39179fd161a1bd3a5845682170abfd2'
+pr_head_sha = '209e6c81d39179fd161a1bd3a5845682170abfd2'
+pr_branch_name = 'web_submission_11/add_plugins'
 
 
-def test_get_pr_head_sha_local(monkeypatch):
-    monkeypatch.setattr('sys.argv', ['create_test_status.py', PR_HEAD_SHA])
-    assert get_pr_head_sha() == PR_HEAD_SHA
+def test_get_pr_num_from_head_pull_request(monkeypatch):
+    monkeypatch.setenv('GITHUB_EVENT_NAME', 'pull_request')
+    pr_num = get_pr_num_from_head(pr_branch_name)
+    assert pr_num == 442
 
-def test_get_pr_head_sha_github_status(monkeypatch, mocker):
+def test_get_pr_num_from_head_non_pull_request(monkeypatch):
     monkeypatch.setenv('GITHUB_EVENT_NAME', 'status')
-    mock_status_json = {'branches': [{'name': 'master', 'commit': {'sha': 123}}, {'name': 'pr_branch', 'commit': {'sha': PR_HEAD_SHA}}]}
-    mocker.patch('brainscore_vision.submission.check_test_status._load_event_file', return_value=mock_status_json)
-    assert get_pr_head_sha() == PR_HEAD_SHA
+    pr_num = get_pr_num_from_head(pr_head_sha)
+    assert pr_num == 442
 
-def test_get_pr_head_sha_github_status_master_only(monkeypatch, mocker):
+def test_get_pr_head_status_event(monkeypatch, mocker):
+    monkeypatch.setenv('GITHUB_EVENT_NAME', 'status')
+    mock_status_json = {'branches': [{'name': 'master', 'commit': {'sha': 123}}, {'name': 'pr_branch', 'commit': {'sha': pr_head_sha}}]}
+    mocker.patch('brainscore_vision.submission.actions_helpers._load_event_file', return_value=mock_status_json)
+    assert get_pr_head_from_github_event() == pr_head_sha
+
+def test_get_pr_head_status_event_master_only(monkeypatch, mocker):
     monkeypatch.setenv('GITHUB_EVENT_NAME', 'status')
     mock_status_json = {'branches': [{'name': 'master', 'commit': {'sha': 123}}]}
-    mocker.patch('brainscore_vision.submission.check_test_status._load_event_file', return_value=mock_status_json)
-    assert not get_pr_head_sha()
+    mocker.patch('brainscore_vision.submission.actions_helpers._load_event_file', return_value=mock_status_json)
+    assert not get_pr_head_from_github_event()
 
-def test_get_pr_head_sha_github_check_run(monkeypatch, mocker):
+def test_get_pr_head_check_run_event(monkeypatch, mocker):
     monkeypatch.setenv('GITHUB_EVENT_NAME', 'check_run')
-    mock_check_run_json = {'check_run': {'head_sha': PR_HEAD_SHA}}
-    mocker.patch('brainscore_vision.submission.check_test_status._load_event_file', return_value=mock_check_run_json)
-    assert get_pr_head_sha() == PR_HEAD_SHA
+    mock_check_run_json = {'check_run': {'head_sha': pr_head_sha}}
+    mocker.patch('brainscore_vision.submission.actions_helpers._load_event_file', return_value=mock_check_run_json)
+    assert get_pr_head_from_github_event() == pr_head_sha
 
-def test_get_pr_head_sha_github_pull_request(monkeypatch):
+def test_get_pr_head_pull_request_event(monkeypatch):
     monkeypatch.setenv('GITHUB_EVENT_NAME', 'pull_request')
-    monkeypatch.setenv('GITHUB_HEAD_REF', PR_HEAD_SHA)
-    assert get_pr_head_sha() == PR_HEAD_SHA
+    monkeypatch.setenv('GITHUB_HEAD_REF', pr_branch_name)
+    assert get_pr_head_from_github_event() == pr_branch_name
 
 def test_get_check_runs_data():
-    data = get_data(f"{BASE_URL}/commits/{PR_HEAD_SHA}/check-runs")
+    data = get_data(f"{BASE_URL}/commits/{pr_head_sha}/check-runs")
     assert data['total_count'] == 6
 
 def test_get_statuses_result():
-    data = get_data(f"{BASE_URL}/statuses/{PR_HEAD_SHA}")
+    data = get_data(f"{BASE_URL}/statuses/{pr_head_sha}")
     assert len(data) == 9
 
 def test_get_check_runs_result():
-    data = get_data(f"{BASE_URL}/commits/{PR_HEAD_SHA}/check-runs")
+    data = get_data(f"{BASE_URL}/commits/{pr_head_sha}/check-runs")
     travis_branch_result = get_check_runs_result('Travis CI - Branch', data)
     assert travis_branch_result == 'success'
 
 def test_get_statuses_result():
-    data = get_data(f"{BASE_URL}/statuses/{PR_HEAD_SHA}")
+    data = get_data(f"{BASE_URL}/statuses/{pr_head_sha}")
     jenkins_plugintests_result = get_statuses_result('Brain-Score Jenkins CI - plugin tests', data)
     assert jenkins_plugintests_result == 'failure'
 
@@ -70,13 +77,13 @@ def test_one_test_failing():
 def test_is_labeled_automerge(mocker):
     dummy_check_runs_json = {"check_runs": [{"pull_requests": [{"url": "https://api.github.com/repos/brain-score/vision/pulls/453"}]}]}
     dummy_pull_request_data  = {"labels": [{"name": "automerge-web"}]}
-    mocker.patch('brainscore_vision.submission.check_test_status.get_data', return_value=dummy_pull_request_data) 
+    mocker.patch('brainscore_vision.submission.actions_helpers.get_data', return_value=dummy_pull_request_data) 
     assert is_labeled_automerge(dummy_check_runs_json) == True
 
 def test_is_not_labeled_automerge(mocker):
     dummy_check_runs_json = {"check_runs": [{"pull_requests": [{"url": "https://api.github.com/repos/brain-score/vision/pulls/453"}]}]}
     dummy_pull_request_data  = {'labels': []}
-    mocker.patch('brainscore_vision.submission.check_test_status.get_data', return_value=dummy_pull_request_data) 
+    mocker.patch('brainscore_vision.submission.actions_helpers.get_data', return_value=dummy_pull_request_data) 
     assert is_labeled_automerge(dummy_check_runs_json) == False
 
 def test_sha_associated_with_more_than_one_pr():

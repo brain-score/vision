@@ -1,0 +1,62 @@
+name: Check if PR is automergeable
+
+
+# Triggered on all PRs either by
+# - completion of CI checks (status or check_run events), OR
+# - tagging with "automerge" or "automerge-web" labels
+# This workflow checks if the PR that invoked the trigger is automergeable. 
+# A PR is automergeable iff it:
+# 1) is labeled "automerge" OR "automerge-web" (originates from web submission) 
+# 2) only changes plugins (subdirs of /benchmarks, /data, /models, /metrics)
+# 3) passes all tests (Travis and Jenkins). 
+# If all 3 conditions are met, the "automerge-approved" label is applied to the PR
+# (This label triggers the `automerge_plugin-only_prs` workflow to merge the PR.)
+
+
+on:
+  pull_request:
+    types: [labeled]
+  check_run:
+    types: [completed]
+  status:
+
+permissions: write-all
+
+jobs:
+
+  check_test_results:
+    name: Check if all tests have passed and PR meets automerge conditions
+    runs-on: ubuntu-latest
+    outputs:
+      ALL_TESTS_PASS: ${{ steps.gettestresults.outputs.TEST_RESULTS }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Get test results and ensure automergeable
+        id: gettestresults
+        run: |
+          echo "Checking test results for PR head $( python brainscore_vision/submission/actions_helpers.py get_pr_head )"          
+          test_results=$( python brainscore_vision/submission/actions_helpers.py )
+          echo $test_results
+          echo "TEST_RESULTS=$test_results" >> $GITHUB_OUTPUT
+
+  approve_automerge:
+    name: If tests pass and PR is automergeable, apply "approve_automerge" label to PR
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    needs: check_test_results
+    if: needs.check_test_results.outputs.ALL_TESTS_PASS == 'True'
+    steps:
+      - name: Get PR number from workflow context
+        run: |
+          echo "PR_NUMBER=$( python brainscore_vision/submission/actions_helpers.py get_pr_num )" >> $GITHUB_ENV
+      - name: Add automerge-approved label to PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ env.PR_NUMBER }}
+          LABELS: automerge-approved
+        run: gh issue edit "$NUMBER" --add-label "$LABELS"

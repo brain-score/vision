@@ -1,22 +1,15 @@
 name: Automatically merge plugin-only PRs
 
 
-# Triggered on all PRs either by
-# - completion of CI checks, OR
-# - tagging with "automerge" or "automerge-web" labels
-# Checks if Travis and Jenkins tests pass and PR is automergeable. 
-# A PR is automergeable iff labeled "automerge" or originates from 
-# web submission (labeled "automerge-web") AND only makes changes to plugins
-# (subdirs of /benchmarks, /data, /models, or /metrics). 
-# If conditions are met, the PR is automatically approved and merged.
+# Triggered on all PRs labeled "automerge-approved"
+# (Label is set by the "check_if_pr_is_automergeable" workflow)
+# Confirms PR is automergeable (see check_if_pr_is_automergeable.yml for details)
+# If PR is automergeable, approves and merges the PR
 
 
 on:
   pull_request:
     types: [labeled]
-  check_run:
-    types: [completed]
-  status:
 
 permissions: write-all
 
@@ -25,6 +18,7 @@ jobs:
   check_test_results:
     name: Check if all tests have passed and PR meets automerge conditions
     runs-on: ubuntu-latest
+    if: github.event.label.name == 'automerge-approved'
     outputs:
       ALL_TESTS_PASS: ${{ steps.gettestresults.outputs.TEST_RESULTS }}
     steps:
@@ -35,17 +29,16 @@ jobs:
       - name: Get test results and ensure automergeable
         id: gettestresults
         run: |
-          echo "pr_head_sha=$( python brainscore_vision/submission/check_test_status.py get_sha )"          
-          echo "Checking test results for SHA $pr_head_sha"
-          echo "test_results=$( python brainscore_vision/submission/check_test_status.py )"
-          echo "::set-output name=TEST_RESULTS::$test_results"
-
+          echo "Checking test results for PR head $( python brainscore_vision/submission/actions_helpers.py get_pr_head )"          
+          test_results=$( python brainscore_vision/submission/actions_helpers.py )
+          echo $test_results
+          echo "TEST_RESULTS=$test_results" >> $GITHUB_OUTPUT
 
   automerge:
     name: If tests pass and PR is automergeable, approve and merge
     runs-on: ubuntu-latest
     needs: check_test_results
-    if: ${{ needs.check_test_results.outputs.ALL_TESTS_PASS == 'True' }}
+    if: needs.check_test_results.outputs.ALL_TESTS_PASS == 'True'
     steps:
       - name: Auto Approve
         uses: hmarr/auto-approve-action@v3.1.0

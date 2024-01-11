@@ -7,8 +7,8 @@ from brainscore_core.benchmarks import Benchmark
 from brainscore_core.metrics import Metric, Score
 from brainscore_core.plugin_management.conda_score import wrap_score
 from brainscore_core.plugin_management.import_plugin import import_plugin
-from brainscore_vision.metrics import Ceiling
-from brainscore_vision.model_interface import BrainModel
+from .metrics import Ceiling
+from .model_interface import BrainModel
 
 _logger = logging.getLogger(__name__)
 

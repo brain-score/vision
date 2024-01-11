@@ -79,8 +79,7 @@ filterwarnings = [
 ################################################################
 
 [tool.setuptools]
-packages = ['brainscore_vision']
-py-modules = ['__init__']
+packages = find:
 
 [tool.setuptools.package-data]
 # include non-python files (e.g. 'requirements.txt') in package install

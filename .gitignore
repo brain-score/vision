@@ -2,6 +2,3 @@
 *.pyc
 *__pycache__*
 *AWSCLIV2.pkg
-
-slurm-*
-model_tracker.md

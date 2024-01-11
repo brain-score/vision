@@ -83,7 +83,7 @@ jobs:
 
       - name: Get PR author email from GitHub username
         id: getemail
-        uses: evvanErb/get-github-email-by-username-action@v1.25
+        uses: evvanErb/get-github-email-by-username-action@v2.0
         with:
           github-username: ${{github.event.pull_request.user.login}} # PR author's username
           token: ${{ secrets.GITHUB_TOKEN }} # Including token enables most reliable way to get a user's email

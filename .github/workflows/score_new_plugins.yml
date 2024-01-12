@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       PLUGIN_INFO: ${{ steps.getpluginfo.outputs.PLUGIN_INFO }}
-      RUN_SCORE: ${{ steps.scoringneeded.outputs.RUN_SCORE }}
+      RUN_SCORING: ${{ steps.scoringneeded.outputs.RUN_SCORING }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -57,14 +57,14 @@ jobs:
       - name: Check if scoring needed
         id: scoringneeded
         run: |
-          echo "RUN_SCORE=$(jq -r '.run_score' <<< ${{ steps.getpluginfo.outputs.PLUGIN_INFO }})" >> $GITHUB_OUTPUT
+          echo "RUN_SCORING=$(jq -r '.run_score' <<< ${{ steps.getpluginfo.outputs.PLUGIN_INFO }})" >> $GITHUB_OUTPUT
 
 
   get_submitter_info:
     name: Get PR author email and (if web submission) Brain-Score user ID
     runs-on: ubuntu-latest
     needs: [changes_models_or_benchmarks]
-    if: needs.changes_models_or_benchmarks.outputs.RUN_SCORE == 'True'
+    if: needs.changes_models_or_benchmarks.outputs.RUN_SCORING == 'True'
     env:
       PLUGIN_INFO: $(<<< ${{ needs.changes_models_or_benchmarks.outputs.PLUGIN_INFO }} tr -d "'") # str -> JSON
     outputs:
@@ -74,9 +74,9 @@ jobs:
         id: add_uid_to_pluginfo
         if: contains(github.event.pull_request.labels.*.name, 'automerge-web')
         run: |
-          BS_UID="$(<<<${{ github.event.pull_request.title }} sed -E 's/.*\(user:([^)]+)\).*/\1/')"
+          BS_UID="$(echo '${{ github.event.pull_request.title }}' | sed -E 's/.*\(user:([^)]+)\).*/\1/')"
           echo "The Brain-Score user ID is $BS_UID"
-          printf "PLUGIN_INFO=$(<<<$PLUGIN_INFO jq '. + {user_id: "$BS_UID"}')" >> $GITHUB_ENV
+          printf "PLUGIN_INFO=$(<<<$PLUGIN_INFO jq ". + {user_id: \"$BS_UID\"}")" >> $GITHUB_ENV
 
       - name: Get PR author email from GitHub username
         id: getemail
@@ -88,14 +88,13 @@ jobs:
         id: add_email_to_pluginfo
         run: |
           echo "The PR author email is ${{ steps.getemail.outputs.email }}"
-          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO jq -c '. + {author_email: "${{ steps.getemail.outputs.email }}"}')" >> $GITHUB_OUTPUT
+          printf "PLUGIN_INFO=$(<<<$PLUGIN_INFO jq ". + {author_email: \"${{ steps.getemail.outputs.email }}\"}")" >> $GITHUB_OUTPUT
 
-
-  runscore:
+  run_scoring:
     name: Score plugins
     runs-on: ubuntu-latest
     needs: [changes_models_or_benchmarks, get_submitter_info]
-    if: needs.changes_models_or_benchmarks.outputs.RUN_SCORE == 'True'
+    if: needs.changes_models_or_benchmarks.outputs.RUN_SCORING == 'True'
     env:
       PLUGIN_INFO: ${{ needs.get_submitter_info.outputs.PLUGIN_INFO }}
       JENKINS_USER: ${{ secrets.JENKINS_USER }}
@@ -104,7 +103,7 @@ jobs:
     steps:
       - name: Add domain, public, competition, and model_type to PLUGIN_INFO
         run: |
-          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO jq -c '. + {domain: "vision", public: true, competition: "None", model_type: "Brain_Model"}')" >> $GITHUB_ENV
+          echo "PLUGIN_INFO=$(echo "$PLUGIN_INFO" | jq -c '. + {domain: "vision", public: true, competition: "None", model_type: "Brain_Model"}')" >> $GITHUB_ENV
 
       - name: Check out repository code
         uses: actions/checkout@v4

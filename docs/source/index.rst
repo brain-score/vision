@@ -1,19 +1,11 @@
 Brain-Score
 ===========
 
-Brain-Score is a collection of benchmarks:
-combinations of data and metrics that score any model on how brain-like it is.
+Brain-Score is a collection of benchmarks and models.
+The benchmarks consist of data and metrics that score any model on how brain-like it is.
+By following a unified :ref:`interface`, all models can be treated as an experimental subject and tested on all benchmarks.
 
-Data is organized in BrainIO_,
-metrics and benchmarks are implemented in this repository,
-and standard models are implemented in candidate-models_.
-
-.. _BrainIO: https://github.com/brain-score/brainio
-.. _candidate-models: https://github.com/brain-score/candidate_models
-
-The primary method this library provides is the `score_model` function.
-
-.. autofunction:: brainscore.score_model
+.. autofunction:: brainscore_vision.score
 
 .. toctree::
    :maxdepth: 2
@@ -28,4 +20,3 @@ The primary method this library provides is the `score_model` function.
    modules/submission
    modules/utils
    modules/api_reference
-

@@ -1,28 +1,55 @@
+version: ~> 1.0
 language: python
-matrix:
-  include:
-  - name: 3.7 public
-    python: '3.7'
-  - name: 3.7 private
-    python: '3.7'
-    env:
-    - PRIVATE_ACCESS=1
-    - secure: f1rWEwrslh7qa2g/QlKs001sGC3uaOxZNQSfNOPj+TMCqEo2c6OzImC4hyz+WqCyc6N/lFT4yYo2RhvaqStHMRmu/+9aZmuH05Bb0KQpfzNFA+yGa/U5WR3/4u6KRvDAeNEi9drT2LuacTyGbldmQsquujK0jrPpFWpe7zUUKv0zb0lJf0zcjeSrZlDXLlgD6DCqow7OqHRvW04dPZVy1OArRwtPV6DJ6Rqo1MqFQGHJ806VPlXhSoydb7a58dhGajqPjomdmZjhd3wS6Lv6uetTE/VVb4EP4e7n0qfZIx/TpnWG0SR44pcP7OCNARWYANsAivzxnQ0shyXnIzOo8ZcPYiPpt/5D53i5idTBxXyuDaHGQvgwuY5XLZzznEedBgZa4OvjxAXlLEQjdVDfSsZeYaV9gyFkeTlLnK1zvWi0US38eF2Qtm3Sx3D/5TtBKK2n38tyK5gg/XvJNycaXvIl7iVcnI2ifpqD1mUWI6C9j9Tk19/XEpWkwaFi91+0LZF1GhjBu8o3G5Np4RIOKXi3TIHkpbMM5mf11T6Bm9LvEMq1h8bgRQigEbeJF8CbUOSVFv+AaXsggGjQhuwdyvy2JZo+tO1nfhi+kW3XrDGPsz1R7Wfqduyn7UUh5OiFymeZwKseYKnwU47KyCqDwrq5Mnx1MlSidnVmPriadR4=
-    - secure: WE7FPwy07VzJTKAd2xwZdBhtmh8jk7ojwk4B2rIcBQu0vwUXc1MgO8tBLD7s08lBedBjqZiLZEW31uPMEyWNysouDt16a5gm2d149LR7flI3MOifBtxINfJuC3eOEG65bPgN/bYEsIpLKnu3469d5nxZkK7xsjbWTxHGoUpLvVPsmHY2ZM5/jftybs7fI0do4NMG2XffKfZbiFb447Ao3xeQeEfW6IkJllzgGnlG9FJATFidrbwDNdmzAnvPEnDoKAf7ZvhPV0x9yR5V6P4Ck5hxl8mlPdBa1cRMO8s/1ag1c7YJ3AF9ZlwcwqTiGsT8DHTVRxSz4nFHJTMlrm9j84u7WzLZJBhPgF0UeLN3AQgiAZ3c2TFDvjQWeHVuSPkV5GrKlfhSvR82s9yPEdHQxxwYymBbAr6rJR4NtXTyZX0vg8NRKHssZKLSafs/D/pt9xXspqu8HAHc+mS0lCips79XptSr5BEsioil3D2io3tbzrGugpTeJ7oEA787vKn2Cm4XmhyQ0UBhvwsPZ351l27wZYuNV07o9Ik83hN/w4o2v899QQ/zbX42Iy8ZUCWOPX7MV7+TA7SMxru3qx7HL5hDM8kTetxbLB6Ckr+JOdX8L2Fb5L3TVDpsvfv0ebXgwaQR/ez8/7bcXmBqcERApHDz73HaMXUap+iDR4FLdXE=
-    - AWS_DEFAULT_REGION=us-east-1
+env:
+  global:
+    - PYTEST_SETTINGS="not requires_gpu and not memory_intense and not slow and not travis_slow"
+    - DOMAIN="vision"
+    - MODIFIES_PLUGIN="False"
+    - PLUGIN_ONLY="False"
+    - WEB_SUBMISSION="False"
 before_install:
 - pip install --upgrade pip
 - pip install setuptools==60.5.0
 - pip install pytest
 # download large files
 - pip install awscli
-- bash test_setup.sh
 install:
-- pip install .
+- pip install -e ".[test]"
+# install conda for plugin runner
+- wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+- bash miniconda.sh -b -p $HOME/miniconda
+- source "$HOME/miniconda/etc/profile.d/conda.sh"
+- hash -r
+- conda config --set always_yes yes --set changeps1 no
+- conda update -q conda
+- conda info -a
 - pip list # list installed package versions
-script:
-- if [ "$PRIVATE_ACCESS" = 1 ] && [ "$TRAVIS_PULL_REQUEST" = "false" ]; then pytest -m "private_access and not requires_gpu and not memory_intense and not slow and not travis_slow"; fi
-- if [ "$PRIVATE_ACCESS" != 1 ]; then pytest -m "not private_access and not requires_gpu and not memory_intense and not slow and not travis_slow"; fi
+import:
+  - brain-score/core:brainscore_core/travis/script.yml@main # run tests
+  - brain-score/core:brainscore_core/travis/submission_failure.yml@main # if tests fail on web submission, email submitter
+
+jobs:
+  include:
+    - name: 3.7 public
+      python: '3.7'
+    - name: 3.7 private
+      python: '3.7'
+      env:
+      - PRIVATE_ACCESS=1
+      - secure: f1rWEwrslh7qa2g/QlKs001sGC3uaOxZNQSfNOPj+TMCqEo2c6OzImC4hyz+WqCyc6N/lFT4yYo2RhvaqStHMRmu/+9aZmuH05Bb0KQpfzNFA+yGa/U5WR3/4u6KRvDAeNEi9drT2LuacTyGbldmQsquujK0jrPpFWpe7zUUKv0zb0lJf0zcjeSrZlDXLlgD6DCqow7OqHRvW04dPZVy1OArRwtPV6DJ6Rqo1MqFQGHJ806VPlXhSoydb7a58dhGajqPjomdmZjhd3wS6Lv6uetTE/VVb4EP4e7n0qfZIx/TpnWG0SR44pcP7OCNARWYANsAivzxnQ0shyXnIzOo8ZcPYiPpt/5D53i5idTBxXyuDaHGQvgwuY5XLZzznEedBgZa4OvjxAXlLEQjdVDfSsZeYaV9gyFkeTlLnK1zvWi0US38eF2Qtm3Sx3D/5TtBKK2n38tyK5gg/XvJNycaXvIl7iVcnI2ifpqD1mUWI6C9j9Tk19/XEpWkwaFi91+0LZF1GhjBu8o3G5Np4RIOKXi3TIHkpbMM5mf11T6Bm9LvEMq1h8bgRQigEbeJF8CbUOSVFv+AaXsggGjQhuwdyvy2JZo+tO1nfhi+kW3XrDGPsz1R7Wfqduyn7UUh5OiFymeZwKseYKnwU47KyCqDwrq5Mnx1MlSidnVmPriadR4=
+      - secure: WE7FPwy07VzJTKAd2xwZdBhtmh8jk7ojwk4B2rIcBQu0vwUXc1MgO8tBLD7s08lBedBjqZiLZEW31uPMEyWNysouDt16a5gm2d149LR7flI3MOifBtxINfJuC3eOEG65bPgN/bYEsIpLKnu3469d5nxZkK7xsjbWTxHGoUpLvVPsmHY2ZM5/jftybs7fI0do4NMG2XffKfZbiFb447Ao3xeQeEfW6IkJllzgGnlG9FJATFidrbwDNdmzAnvPEnDoKAf7ZvhPV0x9yR5V6P4Ck5hxl8mlPdBa1cRMO8s/1ag1c7YJ3AF9ZlwcwqTiGsT8DHTVRxSz4nFHJTMlrm9j84u7WzLZJBhPgF0UeLN3AQgiAZ3c2TFDvjQWeHVuSPkV5GrKlfhSvR82s9yPEdHQxxwYymBbAr6rJR4NtXTyZX0vg8NRKHssZKLSafs/D/pt9xXspqu8HAHc+mS0lCips79XptSr5BEsioil3D2io3tbzrGugpTeJ7oEA787vKn2Cm4XmhyQ0UBhvwsPZ351l27wZYuNV07o9Ik83hN/w4o2v899QQ/zbX42Iy8ZUCWOPX7MV7+TA7SMxru3qx7HL5hDM8kTetxbLB6Ckr+JOdX8L2Fb5L3TVDpsvfv0ebXgwaQR/ez8/7bcXmBqcERApHDz73HaMXUap+iDR4FLdXE=
+      - AWS_DEFAULT_REGION=us-east-1
+    - stage: "Automerge check"
+      python: '3.7'
+      install: python -m pip install -e ".[test]"
+      if: type = pull_request
+      script:
+        - |
+          CHANGED_FILES=$( git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*" && git fetch && echo $(git diff --name-only origin/$TRAVIS_PULL_REQUEST_BRANCH origin/$TRAVIS_BRANCH -C $TRAVIS_BUILD_DIR) | tr '\n' ' ' ) &&
+          PLUGIN_ONLY=$( python -c "from brainscore_core.plugin_management.parse_plugin_changes import is_plugin_only; is_plugin_only(\"${CHANGED_FILES}\", \"brainscore_${DOMAIN}\")" )
+          if [ "$PLUGIN_ONLY" = "True" ]; then 
+            bash ${TRAVIS_BUILD_DIR}/.github/workflows/travis_trigger.sh $GH_WORKFLOW_TRIGGER $TRAVIS_PULL_REQUEST_SHA; 
+          fi
 
 notifications:
   slack:

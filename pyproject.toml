@@ -1,0 +1,89 @@
+################################################################
+#### project config ####
+################################################################
+
+[project]
+name = "brainscore_vision"
+version = "2.0"
+description = "The Brain-Score library enables model comparisons to behavioral and neural experiments"
+authors = []
+license = { 'file' = 'LICENSE' }
+readme = "README.md"
+requires-python = ">=3.7"
+
+dependencies = [
+    "numpy>=1.17",
+    "brainscore_core @ git+https://github.com/brain-score/core",
+    "result_caching @ git+https://github.com/brain-score/result_caching",
+    "importlib-metadata<5", # workaround to https://github.com/brain-score/brainio/issues/28
+    "scikit-learn", # for metric_helpers/transformations.py cross-validation
+    "scipy", # for benchmark_helpers/properties_common.py
+    "h5py",
+    "tqdm",
+    "gitpython",
+    "fire",
+    "jupyter",
+    "pybtex",
+    "peewee",
+    "psycopg2-binary",
+    "networkx",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest_check",
+    "torch",
+    "torchvision",
+    "tensorflow==1.15",
+    "keras==2.3.1",
+    "protobuf<=3.20",  # https://protobuf.dev/news/2022-05-06/#python-updates
+    "matplotlib",  # for examples
+]
+
+[build-system]
+requires = [
+    "setuptools>=65.*",
+    "wheel"
+]
+
+
+################################################################
+#### mypy type-checking config ####
+################################################################
+
+[tool.mypy]
+ignore_missing_imports = true
+
+
+[tool.pytest.ini_options]
+markers = [
+    "private_access: tests that require access to a private resource, such as assemblies on S3 (note that travis builds originating from forks can not have private access)",
+    "memory_intense: tests requiring more memory than is available in the travis sandbox (currently 3 GB)", # see https://docs.travis-ci.com/user/common-build-problems/#my-build-script-is-killed-without-any-error
+    "requires_gpu: tests requiring a GPU to run or to run in a reasonable time (travis does not support GPUs/CUDA)",
+    "travis_slow: tests running for more than 10 minutes without output (which leads travis to error)",
+    "slow: tests leading to runtimes that are not possible on the openmind cluster (>1 hour per test)",
+]
+testpaths = [
+    "tests"
+]
+
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::FutureWarning"
+]
+
+
+################################################################
+#### setuptools packaging config ####
+################################################################
+
+[tool.setuptools]
+py-modules = ['brainscore_vision']
+
+[tool.setuptools.package-data]
+# include non-python files (e.g. 'requirements.txt') in package install
+"brainscore_vision.benchmarks" = ["**"]
+"brainscore_vision.data" = ["**"]
+"brainscore_vision.metrics" = ["**"]
+"brainscore_vision.models" = ["**"]

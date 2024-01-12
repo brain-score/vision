@@ -1,12 +1,7 @@
 # Unit Tests
 ## Markers
-Unit tests have various markers that denote possible issues in the travis build:
-
-* **private_access**: tests that require access to a private ressource, such as assemblies on S3 (travis pull request builds can not have private access)
-* **memory_intense**: tests requiring more memory than is available in the travis sandbox (currently 3 GB, https://docs.travis-ci.com/user/common-build-problems/#my-build-script-is-killed-without-any-error)
-* **requires_gpu**: tests requiring a GPU to run or to run in a reasonable time (travis does not support GPUs/CUDA)
-* **slow**: tests leading to runtimes that are not possible on the openmind cluster (>1 hour per test) 
-* **travis_slow**: tests running for more than 10 minutes without output (which leads travis to error)
+Unit tests have various markers that denote possible issues in the travis build.
+The registered markers we use are listed in the `pyproject.toml` in `[tool.pytest.ini_options]`.
 
 Use the following syntax to mark a test:
 ```

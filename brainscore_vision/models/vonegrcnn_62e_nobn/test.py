@@ -8,7 +8,7 @@ from brainscore_vision import score
 @pytest.mark.memory_intense
 @pytest.mark.parametrize(
     "model_identifier, benchmark_identifier, expected_score",
-    [("vonegrcnn_62e", "MajajHong2015.IT-pls", approx(0.5655, abs=0.0005))],
+    [("vonegrcnn_62e",  "MajajHong2015public.IT-pls", approx(0.5679, abs=0.0005))],
 )
 def test_score(model_identifier, benchmark_identifier, expected_score):
     actual_score = score(

@@ -952,17 +952,6 @@ def get_layers(name):
     return all_layers
 
 
-# Bibtex Method. For submitting a custom model, you can either put your own Bibtex if your
-# model has been published, or leave the empty return value if there is no publication to refer to.
-def get_bibtex(model_identifier):
-    """
-    A method returning the bibtex reference of the requested model as a string.
-    """
-
-    # from pytorch.py:
-    return ""
-
-
 # Main Method: In submitting a custom model, you should not have to mess with this.
 if __name__ == "__main__":
     # Use this method to ensure the correctness of the BaseModel implementations.

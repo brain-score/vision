@@ -20,6 +20,9 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 INPUT_SIZE = 256
 LAYERS = ['blocks.1.blocks.1.0.norm1','blocks.1.blocks.1.4.norm2','blocks.1.blocks.1.0.mlp.act','blocks.2.revert_projs.1.2']
+BIBTEX = ''
+
+
 print(os.path.join(os.path.dirname(__file__)))
 # Description of Layers:
 # Behavior : 'blocks.2.revert_projs.1.2'
@@ -73,27 +76,10 @@ activations_model = PytorchWrapper(identifier='cv_18_dagger_408_pretrained', mod
 # actually make the model, with the layers you want to see specified:
 #model = ModelCommitment(identifier='custom_model_v1', activations_model=activations_model,layers=LAYERS)
 
-def get_model_list():
-    return ['cv_18_dagger_408_pretrained']
-
-
-def get_model(name):
-    assert name == 'cv_18_dagger_408_pretrained'    
+def get_model():
     wrapper = activations_model
     wrapper.image_size = 224
     return wrapper
-
-
-def get_layers(name):
-    assert name == 'cv_18_dagger_408_pretrained'
-    return LAYERS
-
-
-def get_bibtex(model_identifier):
-    """
-    A method returning the bibtex reference of the requested model as a string.
-    """
-    return ''
 
 
 if __name__ == '__main__':

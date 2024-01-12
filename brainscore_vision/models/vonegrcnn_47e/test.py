@@ -9,7 +9,7 @@ from brainscore_vision import score
 @pytest.mark.parametrize(
     "model_identifier, benchmark_identifier, expected_score",
     [
-        ("vonegrcnn_47e", "MajajHong2015.IT-pls", approx(0.53, abs=0.005)),
+        ("vonegrcnn_47e",  "MajajHong2015public.IT-pls", approx(0.5576, abs=0.005)),
     ],
 )
 def test_score(model_identifier, benchmark_identifier, expected_score):

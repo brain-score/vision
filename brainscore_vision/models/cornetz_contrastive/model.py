@@ -7,7 +7,6 @@ from pathlib import Path
 from brainscore_vision.model_helpers import download_weights
 import torch
 import torch.nn as nn
-import torchvision.models
 # from resnet_big import SupConResNet, LinearClassifier, Ensemble 
 import os
 
@@ -17,6 +16,9 @@ Template module for a brain model submission to brain-score
 
 import torch.nn.functional as F
 
+LAYERS = ['model.encoder.block1.output', 'model.encoder.block2.output', 'model.encoder.block3.output', 'model.encoder.block4.output',
+            'model.encoder.avgpool', 'classifier.fc']
+BIBTEX = ''
 
 class BasicBlock(nn.Module):
     expansion = 1
@@ -391,7 +393,7 @@ def get_model_list():
     return ['cornetz_contrastive']
 
 
-def get_model(model_identifier):
+def get_model():
     """
     This method fetches an instance of a brain model. The instance has to implement the BrainModel interface in the
     brain-score project(see imports). To get a detailed explanation of how the interface hast to be implemented,
@@ -399,7 +401,6 @@ def get_model(model_identifier):
     name of the model to fetch
     :return: the model instance, which implements the BrainModel interface
     """
-
     model = SupConResNet('CORnet_Z')
     classifier = LinearClassifier(name='CORnet_Z', num_classes=1000)
 
@@ -446,22 +447,6 @@ def get_model(model_identifier):
     wrapper = PytorchWrapper(identifier='cornetz_contrastive', model=ensemble, preprocessing=preprocessing)
     wrapper.image_size = 224
     return wrapper
-
-
-def get_layers(name):
-    return ['model.encoder.block1.output', 'model.encoder.block2.output', 'model.encoder.block3.output', 'model.encoder.block4.output',
-            'model.encoder.avgpool', 'classifier.fc']
-
-
-def get_bibtex(model_identifier):
-    """
-    A method returning the bibtex reference of the requested model as a string.
-    """
-    return ''
-
-
-def test_model():
-    check_models.check_base_models(__file__)
 
 
 if __name__ == '__main__':

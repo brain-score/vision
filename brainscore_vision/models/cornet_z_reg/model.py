@@ -10,6 +10,8 @@ from brainscore_vision.model_helpers.check_submission import check_models
 use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
 
+BIBTEX = ""
+LAYERS = ['layer1.conv', 'layer2.conv', 'layer3.conv', 'layer4.conv']
 
 class AACN_Layer(nn.Module):
     def __init__(self, in_channels, out_channels, dk, dv, image_size, kernel_size=3, num_heads=8,
@@ -134,11 +136,6 @@ class AACN_Layer(nn.Module):
         final_x = final_x[:, :, :L, L - 1:]
         return final_x
 
-
-def get_model():
-    return CORnet_Z()
-
-
 # All code below this point:
 # Authors: qbilius, mschrimpf (github username)
 # Github repo: https://github.com/dicarlolab/CORnet
@@ -232,63 +229,22 @@ class CORnet_Z(nn.Module):
 Template module for a base model submission to brain-score
 """
 
-model = get_model()
-
-preprocessing = functools.partial(load_preprocess_images, image_size=224)
-activations_model = PytorchWrapper(identifier='cornet_z_reg', model=model,
-                                   preprocessing=preprocessing)
-# actually make the model, with the layers you want to see specified:
-model = ModelCommitment(identifier='cornet_z_reg', activations_model=activations_model,
-                        # specify layers to consider
-                        layers=['layer1.conv', 'layer2.conv', 'layer3.conv', 'layer4.conv'])
-
-
-def get_model_list():
-    """
-    This method defines all submitted model names. It returns a list of model names.
-    The name is then used in the get_model method to fetch the actual model instance.
-    If the submission contains only one model, return a one item list.
-    :return: a list of model string names
-    """
-    return ['cornet_z_reg']
-
-
-def get_model(name):
+def get_model():
     """
     This method fetches an instance of a base model. The instance has to be callable and return a xarray object,
     containing activations. There exist standard wrapper implementations for common libraries, like pytorch and
     keras. Checkout the examples folder, to see more. For custom implementations check out the implementation of the
     wrappers.
-    :param name: the name of the model to fetch
     :return: the model instance
     """
-
-    assert name == 'cornet_z_reg'
-
+    model = CORnet_Z()
+    preprocessing = functools.partial(load_preprocess_images, image_size=224)
+    activations_model = PytorchWrapper(identifier='cornet_z_reg', model=model,
+                                    preprocessing=preprocessing)
     # link the custom model to the wrapper object(activations_model above):
     wrapper = activations_model
     wrapper.image_size = 224
     return wrapper
-
-
-def get_layers(name):
-    """
-    This method returns a list of string layer names to consider per model. The benchmarks maps brain regions to
-    layers and uses this list as a set of possible layers. The lists doesn't have to contain all layers, the less the
-    faster the benchmark process works. Additionally the given layers have to produce an activations vector of at least
-    size 25! The layer names are delivered back to the model instance and have to be resolved in there. For a pytorch
-    model, the layer name are for instance dot concatenated per module, e.g. "features.2".
-    :param name: the name of the model, to return the layers for
-    :return: a list of strings containing all layers, that should be considered as brain area.
-    """
-    return ['layer1.conv', 'layer2.conv', 'layer3.conv', 'layer4.conv']
-
-
-def get_bibtex(model_identifier):
-    """
-    A method returning the bibtex reference of the requested model as a string.
-    """
-    return ''
 
 
 if __name__ == '__main__':

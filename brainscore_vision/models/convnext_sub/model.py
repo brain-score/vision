@@ -102,7 +102,7 @@ def get_model(name):
     )
 
     wrapper = PytorchWrapper(
-        identifier="my-model", model=model, preprocessing=preprocessing, batch_size=8
+        identifier=name, model=model, preprocessing=preprocessing, batch_size=8
     )
 
     wrapper.image_size = image_crop

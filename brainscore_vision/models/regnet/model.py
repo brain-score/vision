@@ -1,7 +1,7 @@
 import functools
 
 import torchvision.models
-
+from brainscore_vision.model_helpers.check_submission import check_models
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 
@@ -15,3 +15,8 @@ def get_model():
     wrapper = PytorchWrapper(identifier='regnet_y_400mf', model=model, preprocessing=preprocessing)
     wrapper.image_size = 224
     return wrapper
+
+if __name__ == "__main__":
+    # It executes a mock run of brain-score benchmarks.
+    check_models.check_base_models(__name__)
+    

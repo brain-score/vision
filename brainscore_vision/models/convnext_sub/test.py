@@ -6,7 +6,7 @@ from brainscore_vision import score
 @pytest.mark.private_access
 @pytest.mark.memory_intense
 @pytest.mark.parametrize("model_identifier, benchmark_identifier, expected_score", [
-    ("convnext_base_in22ft1k_256x224", "MajajHong2015.IT-pls", approx(0.4874, abs=0.0005)),
+    ("convnext_base_in22ft1k_256x224",  "MajajHong2015public.IT-pls", approx(0.533, abs=0.0005)),
 ])
 def test_score(model_identifier, benchmark_identifier, expected_score):
     actual_score = score(model_identifier=model_identifier, benchmark_identifier=benchmark_identifier,

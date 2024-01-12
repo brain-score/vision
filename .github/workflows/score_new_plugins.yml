@@ -52,7 +52,7 @@ jobs:
       - name: Get plugin info
         id: getpluginfo
         run: |
-          echo "PLUGIN_INFO='$(python -c 'from brainscore_core.plugin_management.parse_plugin_changes import get_scoring_info; get_scoring_info("${{ env.CHANGED_FILES }}", "brainscore_language")')'"  >> $GITHUB_OUTPUT
+          echo "PLUGIN_INFO='$(python -c 'from brainscore_core.plugin_management.parse_plugin_changes import get_scoring_info; get_scoring_info("${{ env.CHANGED_FILES }}", "brainscore_vision")')'"  >> $GITHUB_OUTPUT
       
       - name: Run scoring
         id: scoringneeded

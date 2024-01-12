@@ -52,12 +52,12 @@ jobs:
       - name: Get plugin info
         id: getpluginfo
         run: |
-          echo "PLUGIN_INFO='$(python -c 'from brainscore_core.plugin_management.parse_plugin_changes import get_scoring_info; get_scoring_info("${{ env.CHANGED_FILES }}", "brainscore_vision")')'"  >> $GITHUB_OUTPUT      
+          echo "PLUGIN_INFO=$(python -c 'from brainscore_core.plugin_management.parse_plugin_changes import get_scoring_info; get_scoring_info("${{ env.CHANGED_FILES }}", "brainscore_vision"))'"  >> $GITHUB_OUTPUT      
       
       - name: Check if scoring needed
         id: scoringneeded
         run: |
-          echo "RUN_SCORING=$(jq -r '.run_score' <<< ${{ steps.getpluginfo.outputs.PLUGIN_INFO }})" >> $GITHUB_OUTPUT
+          echo "RUN_SCORING=$(echo "${{ steps.getpluginfo.outputs.PLUGIN_INFO }}" | jq -r '.run_score')" >> $GITHUB_OUTPUT
 
 
   get_submitter_info:
@@ -66,7 +66,7 @@ jobs:
     needs: [changes_models_or_benchmarks]
     if: needs.changes_models_or_benchmarks.outputs.RUN_SCORING == 'True'
     env:
-      PLUGIN_INFO: $(<<< ${{ needs.changes_models_or_benchmarks.outputs.PLUGIN_INFO }} tr -d "'") # str -> JSON
+      PLUGIN_INFO: needs.changes_models_or_benchmarks.outputs.PLUGIN_INFO
     outputs:
       PLUGIN_INFO: steps.add_email_to_pluginfo.outputs.PLUGIN_INFO
     steps:

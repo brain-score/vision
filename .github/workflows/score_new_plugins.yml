@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       PLUGIN_INFO: ${{ steps.getpluginfo.outputs.PLUGIN_INFO }}
-      RUN_SCORE: ${{ steps.runscore.outputs.RUN_SCORE }}
+      RUN_SCORE: ${{ steps.scoringneeded.outputs.RUN_SCORE }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -52,13 +52,13 @@ jobs:
       - name: Get plugin info
         id: getpluginfo
         run: |
-          printf -v PLUGIN_INFO "%s" "$(python -c 'from brainscore_core.plugin_management.parse_plugin_changes import get_scoring_info; get_scoring_info("brainscore_vision/models/regnet/__init__.py brainscore_vision/models/regnet/model.py brainscore_vision/models/regnet/test.py ", "brainscore_vision")')"
-          echo "PLUGIN_INFO=$PLUGIN_INFO" >> $GITHUB_OUTPUT
+          echo "PLUGIN_INFO='$(python -c 'from brainscore_core.plugin_management.parse_plugin_changes import get_scoring_info; get_scoring_info("${{ env.CHANGED_FILES }}", "brainscore_vision")')'"  >> $GITHUB_OUTPUT      
       
-      - name: Run scoring
-        id: runscore
+      - name: Check if scoring needed
+        id: scoringneeded
         run: |
           echo "RUN_SCORE=$(jq -r '.run_score' <<< ${{ steps.getpluginfo.outputs.PLUGIN_INFO }})" >> $GITHUB_OUTPUT
+
 
   get_submitter_info:
     name: Get PR author email and (if web submission) Brain-Score user ID
@@ -66,7 +66,7 @@ jobs:
     needs: [changes_models_or_benchmarks]
     if: needs.changes_models_or_benchmarks.outputs.RUN_SCORE == 'True'
     env:
-      PLUGIN_INFO: needs.changes_models_or_benchmarks.outputs.PLUGIN_INFO
+      PLUGIN_INFO: $(<<< ${{ needs.changes_models_or_benchmarks.outputs.PLUGIN_INFO }} tr -d "'") # str -> JSON
     outputs:
       PLUGIN_INFO: steps.add_email_to_pluginfo.outputs.PLUGIN_INFO
     steps:
@@ -76,7 +76,7 @@ jobs:
         run: |
           BS_UID="$(<<<${{ github.event.pull_request.title }} sed -E 's/.*\(user:([^)]+)\).*/\1/')"
           echo "The Brain-Score user ID is $BS_UID"
-          echo "PLUGIN_INFO="$(<<<$PLUGIN_INFO jq '. + {user_id: ${{ steps.getuid.outputs.BS_UID }} }')"" >> $GITHUB_ENV
+          printf "PLUGIN_INFO=$(<<<$PLUGIN_INFO jq '. + {user_id: "$BS_UID"}')" >> $GITHUB_ENV
 
       - name: Get PR author email from GitHub username
         id: getemail
@@ -88,7 +88,7 @@ jobs:
         id: add_email_to_pluginfo
         run: |
           echo "The PR author email is ${{ steps.getemail.outputs.email }}"
-          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO tr -d "'"  | jq -c '. + {author_email: "${{ steps.getemail.outputs.email }}"}')" >> $GITHUB_OUTPUT
+          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO jq -c '. + {author_email: "${{ steps.getemail.outputs.email }}"}')" >> $GITHUB_OUTPUT
 
 
   runscore:
@@ -104,7 +104,7 @@ jobs:
     steps:
       - name: Add domain, public, competition, and model_type to PLUGIN_INFO
         run: |
-          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO tr -d "'"  | jq -c '. + {domain: "vision", public: true, competition: "None", model_type: "Brain_Model"}')" >> $GITHUB_ENV
+          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO jq -c '. + {domain: "vision", public: true, competition: "None", model_type: "Brain_Model"}')" >> $GITHUB_ENV
 
       - name: Check out repository code
         uses: actions/checkout@v4

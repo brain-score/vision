@@ -65,9 +65,9 @@ jobs:
     needs: [changes_models_or_benchmarks]
     if: needs.changes_models_or_benchmarks.outputs.RUN_SCORING == 'True'
     env:
-      PLUGIN_INFO: needs.changes_models_or_benchmarks.outputs.PLUGIN_INFO
+      PLUGIN_INFO: ${{ needs.changes_models_or_benchmarks.outputs.PLUGIN_INFO }}
     outputs:
-      PLUGIN_INFO: steps.add_email_to_pluginfo.outputs.PLUGIN_INFO
+      PLUGIN_INFO: ${{ steps.add_email_to_pluginfo.outputs.PLUGIN_INFO }}
     steps:
       - name: Parse user ID from PR title and add to PLUGIN_INFO (WEB ONLY where we don't have access to the GitHub user)
         id: add_uid_to_pluginfo

@@ -76,7 +76,7 @@ jobs:
         run: |
           BS_UID="$(echo '${{ github.event.pull_request.title }}' | sed -E 's/.*\(user:([^)]+)\).*/\1/')"
           echo "The Brain-Score user ID is $BS_UID"
-          printf "PLUGIN_INFO=$(<<<$PLUGIN_INFO jq ". + {user_id: \"$BS_UID\"}")" >> $GITHUB_ENV
+          printf "PLUGIN_INFO=$(<<<$PLUGIN_INFO jq ". + {user_id: \"$BS_UID\" | tostring}")" >> $GITHUB_ENV
 
       - name: Get PR author email from GitHub username
         id: getemail

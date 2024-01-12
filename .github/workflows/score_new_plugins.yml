@@ -54,7 +54,7 @@ jobs:
         run: |
           echo "PLUGIN_INFO='$(python -c 'from brainscore_core.plugin_management.parse_plugin_changes import get_scoring_info; get_scoring_info("${{ env.CHANGED_FILES }}", "brainscore_vision")')'"  >> $GITHUB_OUTPUT
       
-      - name: Run scoring
+      - name: Check if scoring needed
         id: scoringneeded
         run: |
           echo "RUN_SCORING=$(jq -r '.run_score' <<< ${{ steps.getpluginfo.outputs.PLUGIN_INFO }})" >> $GITHUB_OUTPUT

@@ -2,7 +2,8 @@ import pytest
 from pytest import approx
 
 from brainscore_vision import score
-
+from brainscore_vision.utils import seed_everything
+seed_everything(42)
 
 @pytest.mark.private_access
 @pytest.mark.memory_intense

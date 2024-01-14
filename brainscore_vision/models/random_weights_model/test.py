@@ -2,12 +2,13 @@ import pytest
 from pytest import approx
 
 from brainscore_vision import score
-
+from brainscore_vision.utils import seed_everything
+seed_everything(42)
 
 @pytest.mark.private_access
 @pytest.mark.memory_intense
 @pytest.mark.parametrize("model_identifier, benchmark_identifier, expected_score", [
-    ("random-weights",  "MajajHong2015public.IT-pls", approx(0.11, abs=0.001)),
+    ("random-weights",  "MajajHong2015public.IT-pls", approx(0.0761, abs=0.001)),
 ])
 def test_score(model_identifier, benchmark_identifier, expected_score):
     actual_score = score(model_identifier=model_identifier, benchmark_identifier=benchmark_identifier,

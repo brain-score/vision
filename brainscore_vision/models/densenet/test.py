@@ -5,7 +5,9 @@ import pytest
 from pytest import approx
 
 from brainscore_vision import score
+from brainscore_vision.utils import seed_everything
 
+seed_everything(42)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
@@ -16,7 +18,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
     [
         ("densenet121", "MajajHong2015public.IT-pls", approx(0.548, abs=0.001)),
         ("densenet161", "MajajHong2015public.IT-pls", approx(0.561, abs=0.001)),
-        ("densenet169", "MajajHong2015public.IT-pls", approx(0.556, abs=0.001)),
+        ("densenet169", "MajajHong2015public.IT-pls", approx(0.558, abs=0.001)),
         ("densenet201", "MajajHong2015public.IT-pls", approx(0.561, abs=0.001)),
     ],
 )

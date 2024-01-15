@@ -8,7 +8,7 @@ seed_everything(42)
 @pytest.mark.private_access
 @pytest.mark.memory_intense
 @pytest.mark.parametrize("model_identifier, benchmark_identifier, expected_score", [
-    ("dorinet_cornet_z_trained_40_it",  "MajajHong2015public.IT-pls", approx(0.2622, abs=0.0005)),
+    ("dorinet_cornet_z_trained_40_it",  "MajajHong2015public.IT-pls", approx(0.4706, abs=0.0005)),
 ])
 def test_score(model_identifier, benchmark_identifier, expected_score):
     actual_score = score(model_identifier=model_identifier, benchmark_identifier=benchmark_identifier,

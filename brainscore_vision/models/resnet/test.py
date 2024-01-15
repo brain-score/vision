@@ -2,13 +2,14 @@ import pytest
 from pytest import approx
 
 from brainscore_vision import score
-
+from brainscore_vision.utils import seed_everything
+seed_everything(42)
 
 @pytest.mark.private_access
 @pytest.mark.memory_intense
 @pytest.mark.parametrize("model_identifier, benchmark_identifier, expected_score", [
-    ("resnet-18", "MajajHong2015public.IT-pls", approx(0.540, abs=0.001)),
-    ("resnet-34", "MajajHong2015public.IT-pls", approx(0.510, abs=0.001)),
+    ("resnet-18", "MajajHong2015public.IT-pls", approx(0.549, abs=0.001)),
+    ("resnet-34", "MajajHong2015public.IT-pls", approx(0.541, abs=0.001)),
     ("resnet-50", "MajajHong2015public.IT-pls", approx(0.527, abs=0.001)),
     ("resnet-101", "MajajHong2015public.IT-pls", approx(0.538, abs=0.001)),
 ])

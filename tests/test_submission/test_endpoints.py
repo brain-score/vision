@@ -53,7 +53,7 @@ class TestSuccessfulRun(TestEndpointsBase):
 
 @pytest.mark.private_access
 @pytest.mark.travis_slow
-class TestTwoModelsOneBenchmark:
+class TestTwoModelsOneBenchmark(TestEndpointsBase):
     def test_two_models_one_benchmark(self):
         args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel',
                      'public': True, 'competition': None, 'specified_only': True,
@@ -68,7 +68,7 @@ class TestTwoModelsOneBenchmark:
 
 @pytest.mark.private_access
 @pytest.mark.travis_slow
-class TestOneModelTwoBenchmarks:
+class TestOneModelTwoBenchmarks(TestEndpointsBase):
     def test_one_model_two_benchmarks(self):
         args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel',
                      'public': True, 'competition': None, 'specified_only': True,
@@ -87,7 +87,7 @@ class TestOneModelTwoBenchmarks:
 
 @pytest.mark.private_access
 @pytest.mark.travis_slow
-class TestTwoModelsTwoBenchmarks:
+class TestTwoModelsTwoBenchmarks(TestEndpointsBase):
     def test_two_models_two_benchmarks(self):  # getting 3 here not 4
         args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel',
                      'public': True, 'competition': None, 'specified_only': True,
@@ -102,7 +102,7 @@ class TestTwoModelsTwoBenchmarks:
 
 @pytest.mark.private_access
 @pytest.mark.travis_slow
-class TestCompetitionFieldSet:
+class TestCompetitionFieldSet(TestEndpointsBase):
     def test_competition_field_set(self):  # getting 0 not 1 here
         args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel',
                      'public': True, 'competition': 'cosyne2022', 'new_models': ['alexnet'],
@@ -115,7 +115,7 @@ class TestCompetitionFieldSet:
 
 @pytest.mark.private_access
 @pytest.mark.travis_slow
-class TestCompetitionFieldNotSet:
+class TestCompetitionFieldNotSet(TestEndpointsBase):
     def test_competition_field_not_set(self):
         args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel',
                      'public': True, 'competition': None, 'new_models': ['alexnet'],
@@ -128,7 +128,7 @@ class TestCompetitionFieldNotSet:
 
 @pytest.mark.private_access
 @pytest.mark.travis_slow
-class TestBenchmarkNotExist:
+class TestBenchmarkNotExist(TestEndpointsBase):
     def test_benchmark_does_not_exist(self):
         args_dict = {'jenkins_id': 62, 'user_id': 1, 'model_type': 'brainmodel',
                      'public': True, 'competition': None, 'new_models': ['alexnet'],

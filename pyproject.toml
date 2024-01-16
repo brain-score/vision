@@ -79,7 +79,7 @@ filterwarnings = [
 ################################################################
 
 [tool.setuptools]
-packages = { find = { where = ["vision"], include = ["*"] } }
+packages = { find = { where = ["."] } }
 
 
 [tool.setuptools.package-data]

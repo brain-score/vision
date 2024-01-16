@@ -242,22 +242,12 @@ class OddOneOut(BrainModel):
         self.current_task = task
 
     def look_at(self, triplets, number_of_trials=1):
-        stimuli = self.unique_stimuli(triplets)
-        triplets = np.array(triplets["filename"]).reshape(-1, 3)
+        stimuli = triplets.drop_duplicates(subset=['stimulus_id'])
         features = self.activations_model(stimuli, layers=self.readout)
         features = features.transpose('presentation', 'neuroid')
         similarity_matrix = self.calculate_similarity_matrix(features.values)
         choices = self.calculate_choices(similarity_matrix, triplets)
         return choices
-
-    def unique_stimuli(self, triplets: StimulusSet) -> StimulusSet:
-        """Returns a dataframe with unique stimuli."""
-        cols = triplets.columns
-        unique_ids = np.unique(triplets["stimulus_id"])
-        unique_triplets = pd.DataFrame(columns=cols)
-        for id in unique_ids:
-            unique_triplets = unique_triplets.append(triplets.loc[triplets["stimulus_id"] == id].iloc[0])
-        return pd.DataFrame(unique_triplets, columns=cols)
 
 
     def calculate_similarity_matrix(self, features):
@@ -300,4 +290,3 @@ class OddOneOut(BrainModel):
             }, dims=['presentation'])
 
         return choices
-

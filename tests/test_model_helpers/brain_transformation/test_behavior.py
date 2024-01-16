@@ -138,14 +138,19 @@ class TestOddOneOut:
             behavioral_readout_layer='relu2')
 
         assy = brainscore_vision.load_dataset(f'Hebart2023')
+
+
+        # determine unique stimuli
+        breakpoint()
+
+
         triplets = place_on_screen(
-            stimulus_set=assy.stimulus_set[:21],
+            stimulus_set=assy.stimulus_set,
             target_visual_degrees=brain_model.visual_degrees(),
             source_visual_degrees=8)
 
         brain_model.start_task(BrainModel.Task.odd_one_out)
         choices = brain_model.look_at(triplets)
-        print(choices)
 
         assert len(choices) == len(triplets)
         assert isinstance(choices[0], np.int64)

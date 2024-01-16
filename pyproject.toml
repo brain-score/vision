@@ -78,8 +78,9 @@ filterwarnings = [
 #### setuptools packaging config ####
 ################################################################
 
-[tool.setuptools]
-packages = { find = { where = ["."] } }
+[tool.setuptools.packages.find]
+where = ["brainscore_vision"]
+include = ["*"]
 
 [tool.setuptools.package-data]
 # include non-python files (e.g. 'requirements.txt') in package install

@@ -79,7 +79,7 @@ filterwarnings = [
 ################################################################
 
 [tool.setuptools]
-packages = { find = { where = ["brainscore_vision"], include = ["*"] } }
+packages = { find = { where = ["vision"], include = ["*"] } }
 
 
 [tool.setuptools.package-data]

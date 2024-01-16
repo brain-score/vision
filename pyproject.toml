@@ -81,10 +81,6 @@ filterwarnings = [
 [tool.setuptools]
 packages = [
     "brainscore_vision",
-    "brainscore_vision.benchmarks",
-    "brainscore_vision.data",
-    "brainscore_vision.metrics",
-    "brainscore_vision.models",
 ]
 
 [tool.setuptools.package-data]

@@ -7,15 +7,16 @@ from pytest import approx
 from brainscore_vision import score
 from brainscore_vision.utils import seed_everything
 
-seed_everything(42)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+seed_everything(42)
+
 
 @pytest.mark.private_access
 @pytest.mark.memory_intense
 @pytest.mark.parametrize(
     "model_identifier, benchmark_identifier, expected_score",
     [
-        ("custom_model_cv_18_dagger_408_inv_rot", "MajajHong2015public.IT-pls", approx(0.534, abs=0.001)),
+        ("effnetb0_retrain", "MajajHong2015public.IT-pls", approx(0.554, abs=0.001)),
     ],
 )
 def test_score(model_identifier, benchmark_identifier, expected_score):

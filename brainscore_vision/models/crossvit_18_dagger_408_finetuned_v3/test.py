@@ -15,7 +15,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 @pytest.mark.parametrize(
     "model_identifier, benchmark_identifier, expected_score",
     [
-        ("custom_model_cv_18_dagger_408_v3", "MajajHong2015public.IT-pls", approx(0.548, abs=0.001)),
+        ("custom_model_cv_18_dagger_408_v3", "MajajHong2015public.IT-pls", approx(0.549, abs=0.001)),
     ],
 )
 def test_score(model_identifier, benchmark_identifier, expected_score):

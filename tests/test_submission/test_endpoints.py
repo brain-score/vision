@@ -9,7 +9,7 @@ from .mock_config import test_database
 
 from brainscore_core.submission import database_models
 from brainscore_core.submission.database import connect_db
-from brainscore_core.submission.database_models import clear_schema
+from brainscore_core.submission.database_models import clear_schema, database_proxy
 from brainscore_vision.submission.endpoints import run_scoring
 from peewee import DatabaseError
 
@@ -33,7 +33,7 @@ class TestEndpointsBase:
     def setup_method(self, method):
         logger.info(f"Setting up for test: {method.__name__}")
         # Begin a new database transaction
-        self.transaction = database_models.database.atomic()
+        self.transaction = database_proxy.atomic()
         self.transaction.__enter__()
         logger.info('Initialize database entries')
         try:

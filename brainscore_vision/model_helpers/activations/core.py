@@ -238,14 +238,17 @@ class ActivationsExtractorHelper:
         padded_images, num_padding = self._pad(temp_file_paths, batch_size)
         preprocessed_images = self.preprocess(padded_images)
         for temp_file_path in temp_file_paths:
-            os.remove(temp_file_path)
+            # os.remove(temp_file_path)
+            pass
         return preprocessed_images, num_padding
 
     def translate_image(self, image_path: str, shift: np.array) -> str:
         """Translates and saves a temporary image to temporary_fp."""
         translated_image = self.translate(cv2.imread(image_path), shift)
-        temporary_fp = tempfile.mkstemp(suffix=".png")[1]
-        cv2.imwrite(temporary_fp, translated_image)
+        temp_file_descriptor, temporary_fp = tempfile.mkstemp(suffix=".png")
+        os.close(temp_file_descriptor)
+        if not cv2.imwrite(temporary_fp, translated_image):
+            raise Exception(f"cv2.imwrite failed: {temporary_fp}")
         return temporary_fp
 
     def _pad(self, batch_images, batch_size):

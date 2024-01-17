@@ -196,9 +196,16 @@ class ActivationsExtractorHelper:
             # compute activations on the entire batch one shift at a time
             for shift in shifts:
                 assert type(shift) == tuple
-                shifted_batch, num_padding = self.translate_and_preprocess(batch_inputs, shift, batch_size)
+                shifted_batch, num_padding, temp_file_paths = self.translate_and_preprocess(batch_inputs,
+                                                                                            shift,
+                                                                                            batch_size)
                 activations = self.get_activations(shifted_batch, layers)
                 activations = self._unpad(activations, num_padding)
+                for temp_file_path in temp_file_paths:
+                    try:
+                        os.remove(temp_file_path)
+                    except FileNotFoundError:
+                        pass
                 for layer_name, layer_output in activations.items():
                     batch_activations.setdefault(layer_name, []).append(layer_output)
 
@@ -237,10 +244,7 @@ class ActivationsExtractorHelper:
         #  but is necessary to accommodate tensorflow models
         padded_images, num_padding = self._pad(temp_file_paths, batch_size)
         preprocessed_images = self.preprocess(padded_images)
-        for temp_file_path in temp_file_paths:
-            # os.remove(temp_file_path)
-            pass
-        return preprocessed_images, num_padding
+        return preprocessed_images, num_padding, temp_file_paths
 
     def translate_image(self, image_path: str, shift: np.array) -> str:
         """Translates and saves a temporary image to temporary_fp."""

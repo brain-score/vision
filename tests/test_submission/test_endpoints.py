@@ -11,6 +11,7 @@ from brainscore_core.submission import database_models
 from brainscore_core.submission.database import connect_db
 from brainscore_core.submission.database_models import clear_schema
 from brainscore_vision.submission.endpoints import run_scoring
+from peewee import DatabaseError
 
 logger = logging.getLogger(__name__)
 
@@ -29,10 +30,22 @@ class TestEndpointsBase:
         logger.info('Clean database')
         clear_schema()
 
-    def setup_method(self):
+    def setup_method(self, method):
+        logger.info(f"Setting up for test: {method.__name__}")
+        # Begin a new database transaction
+        self.transaction = database_models.database.atomic()
+        self.transaction.__enter__()
         logger.info('Initialize database entries')
-        database_models.User.create(id=1, email='test@brainscore.com', password='abcde',
-                                    is_active=True, is_staff=False, is_superuser=False, last_login='2022-10-14 9:25:00')
+        try:
+            database_models.User.create(id=1, email='test@brainscore.com', password='abcde',
+                                        is_active=True, is_staff=False, is_superuser=False, last_login='2022-10-14 9:25:00')
+        except DatabaseError as e:
+            logger.error(f"Database setup error: {e}")
+    
+    def teardown_method(self, method):
+        logger.info(f"Tearing down after test: {method.__name__}")
+        # Roll back the transaction
+        self.transaction.__exit__(None, None, None)
 
 
 @pytest.mark.private_access

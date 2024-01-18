@@ -272,20 +272,23 @@ class OddOneOut(BrainModel):
         return similarity_matrix
 
     def calculate_choices(self, similarity_matrix, triplets):
+        triplets = np.array(triplets).reshape(-1, 3)
         choice_predictions = []
         for triplet in triplets:
             i, j, k = triplet
-            sims = similarity_matrix[[i, i, j], [j, k, k]]
+            sims = similarity_matrix[i, j], similarity_matrix[i, k],  similarity_matrix[j, k]
             idx = triplet[2 - np.argmax(sims)]
             choice_predictions.append(idx)
+        # TODO return as DataAssembly
+        return choice_predictions
 
-        stimulus_ids = triplets['stimulus_id']
-        choices = BehavioralAssembly(choice_predictions, coords={
-            'triplet_index': ('presentation', [i for i in range(0, len(stimulus_ids), 3)]),
-            'triplet_stimulus_id0': ('presentation', [{stimulus_ids[i]} for i in range(0, len(stimulus_ids), 3)]),
-            'triplet_stimulus_id1': ('presentation', [{stimulus_ids[i+1]} for i in range(0, len(stimulus_ids), 3)]),
-            'triplet_stimulus_id2': ('presentation', [{stimulus_ids[i+2]} for i in range(0, len(stimulus_ids), 3)]),
-            'stimulus_id': ('presentation', [f"{stimulus_ids[i]}__{stimulus_ids[i+1]}__{stimulus_ids[i+2]}" for i in range(0, len(stimulus_ids), 3)])
-            }, dims=['presentation'])
-
-        return choices
+        #stimulus_ids = triplets['stimulus_id']
+        #choices = BehavioralAssembly(choice_predictions, coords={
+        #    'triplet_index': ('presentation', [i for i in range(0, len(stimulus_ids), 3)]),
+        #    'triplet_stimulus_id0': ('presentation', [{stimulus_ids[i]} for i in range(0, len(stimulus_ids), 3)]),
+        #    'triplet_stimulus_id1': ('presentation', [{stimulus_ids[i+1]} for i in range(0, len(stimulus_ids), 3)]),
+        #    'triplet_stimulus_id2': ('presentation', [{stimulus_ids[i+2]} for i in range(0, len(stimulus_ids), 3)]),
+        #    'stimulus_id': ('presentation', [f"{stimulus_ids[i]}__{stimulus_ids[i+1]}__{stimulus_ids[i+2]}" for i in range(0, len(stimulus_ids), 3)])
+        #    }, dims=['presentation'])
+        #
+        #return choices

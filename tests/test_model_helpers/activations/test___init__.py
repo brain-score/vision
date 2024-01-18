@@ -277,6 +277,13 @@ def test_exact_activations(pca_components):
                                        image_name='rgb.jpg', pca_components=pca_components, logits=False)
     path_to_expected = Path(__file__).parent / f'alexnet-rgb-{pca_components}.nc'
     expected = xr.load_dataarray(path_to_expected)
+
+    # TODO: this is probably bad. For now, this is required since we decided to change the `stimulus_path` index to the
+    #  `presentation` index for all assemblies as a part of the PR. Should not cause issues for models that are run
+    #  after the PR, but loading any extant .nc files could result in issues. Is there a canonical way to get around
+    #  this?
+    expected = expected.rename({'stimulus_path': 'presentation'})
+
     assert (activations == expected).all()
 
 

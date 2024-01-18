@@ -79,7 +79,6 @@ def get_model():
     containing activations. There exist standard wrapper implementations for common libraries, like pytorch and
     keras. Checkout the examples folder, to see more. For custom implementations check out the implementation of the
     wrappers.
-    :param name: the name of the model to fetch
     :return: the model instance
     """
     # init the model and the preprocessing:

@@ -839,19 +839,7 @@ model = model.to(device)
 
 
 ##### LIST YOUR CUSTOM LAYER HERE
-# all_layers = [layer for layer, _ in model.named_modules()]
-# print(all_layers)
-# all_layers = all_layers[1:]
-"""
-all_layers = ['module.vone_block','module.vone_block.output','module.bottleneck','module.model.layer2', 'module.model.layer2.conv_g_r',  'module.model.layer2.iter_1.8', 'module.model.layer2.iter_g_1.1', 'module.model.layer2.iter_2.8' ,'module.model.layer2.iter_g_2.1', 'module.model.layer2.iter_3.8', 
-              'module.model.layer2.iter_g_3.1', 'module.model.layer3','module.model.layer3.conv_f', 'module.model.layer3.conv_g_r', 'module.model.layer3.iter_1.8', 'module.model.layer3.iter_g_1.1' ,
-              'module.model.layer3.iter_2.8', 'module.model.layer3.iter_g_2.1', 'module.model.layer3.iter_3.8', 'module.model.layer3.iter_g_3.1', 'module.model.layer3.iter_4.8', 
-              'module.model.layer3.iter_g_4.1', 'module.model.layer3.d_conv_1e', 'module.model.layer4', 'module.model.layer4.conv_g_r', 'module.model.layer4.iter_1.8', 'module.model.layer4.iter_g_1.1', 
-              'module.model.layer4.iter_2.8', 'module.model.layer4.iter_g_2.1', 'module.model.layer4.iter_3.8', 'module.model.layer4.iter_g_3.1','module.model.lastact', 'module.model.avgpool',  'module.model.classifier']
-"""
-
-
-all_layers = [
+LAYERS = [
     "module",
     "module.vone_block",
     "module.vone_block.simple_conv_q0",
@@ -885,71 +873,25 @@ all_layers = [
     "module.model.classifier",
 ]
 
-
-# get an activations model from the Pytorch Wrapper
-activations_model = PytorchWrapper(
-    identifier=model_identifier, model=model, preprocessing=preprocessing
-)
-
-# actually make the model, with the layers you want to see specified:
-model = ModelCommitment(
-    identifier=model_identifier,
-    activations_model=activations_model,
-    # specify layers to consider
-    layers=all_layers,
-)
-
-
-# The model names to consider. If you are making a custom model, then you most likley want to change
-# the return value of this function.
-def get_model_list():
-    """
-    This method defines all submitted model names. It returns a list of model names.
-    The name is then used in the get_model method to fetch the actual model instance.
-    If the submission contains only one model, return a one item list.
-    :return: a list of model string names
-    """
-
-    return [model_identifier]
-
-
 # get_model method actually gets the model. For a custom model, this is just linked to the
 # model we defined above.
-def get_model(name):
+def get_model():
     """
     This method fetches an instance of a base model. The instance has to be callable and return a xarray object,
     containing activations. There exist standard wrapper implementations for common libraries, like pytorch and
     keras. Checkout the examples folder, to see more. For custom implementations check out the implementation of the
     wrappers.
-    :param name: the name of the model to fetch
     :return: the model instance
     """
-    assert name == model_identifier
-    # link the custom model to the wrapper object(activations_model above):
+    # get an activations model from the Pytorch Wrapper
+    activations_model = PytorchWrapper(
+        identifier=model_identifier, model=model, preprocessing=preprocessing
+    )
+
     wrapper = activations_model
     wrapper.image_size = 224
 
     return wrapper
-
-
-# get_layers method to tell the code what layers to consider. If you are submitting a custom
-# model, then you will most likley need to change this method's return values.
-def get_layers(name):
-    """
-    This method returns a list of string layer names to consider per model. The benchmarks maps brain regions to
-    layers and uses this list as a set of possible layers. The lists doesn't have to contain all layers, the less the
-    faster the benchmark process works. Additionally the given layers have to produce an activations vector of at least
-    size 25! The layer names are delivered back to the model instance and have to be resolved in there. For a pytorch
-    model, the layer name are for instance dot concatenated per module, e.g. "features.2".
-    :param name: the name of the model, to return the layers for
-    :return: a list of strings containing all layers, that should be considered as brain area.
-    """
-
-    # quick check to make sure the model is the correct one:
-    assert name == model_identifier
-
-    # returns the layers you want to consider
-    return all_layers
 
 
 # Main Method: In submitting a custom model, you should not have to mess with this.

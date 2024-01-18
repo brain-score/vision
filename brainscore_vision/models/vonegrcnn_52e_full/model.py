@@ -25,7 +25,13 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 BIBTEX = ""
-
+LAYERS = [
+    'module.vone_block', 'module.bottleneck', 'module.model.layer1', 'module.model.layer1.conv_f', 'module.model.layer1.conv_g_f',
+    'module.model.layer1.conv_g_r', 'module.model.layer2', 'module.model.layer2.conv_f', 'module.model.layer2.conv_g_f',
+    'module.model.layer2.conv_g_r', 'module.model.layer3', 'module.model.layer3.conv_f', 'module.model.layer3.conv_g_f',
+    'module.model.layer3.conv_g_r', 'module.model.layer4', 'module.model.layer4.conv_f', 'module.model.layer4.conv_g_f',
+    'module.model.layer4.conv_g_r', 'module.model.lastact', 'module.model.avgpool', 'module.model.classifier'
+]
 
 # VARIABLES
 model_identifier = "vonegrcnn_52e_full"
@@ -882,7 +888,6 @@ def get_model():
     containing activations. There exist standard wrapper implementations for common libraries, like pytorch and
     keras. Checkout the examples folder, to see more. For custom implementations check out the implementation of the
     wrappers.
-    :param name: the name of the model to fetch
     :return: the model instance
     """
     model = load_model()
@@ -895,14 +900,6 @@ def get_model():
 
     return wrapper
 
-
-LAYERS = [
-    'module.vone_block', 'module.bottleneck', 'module.model.layer1', 'module.model.layer1.conv_f', 'module.model.layer1.conv_g_f',
-    'module.model.layer1.conv_g_r', 'module.model.layer2', 'module.model.layer2.conv_f', 'module.model.layer2.conv_g_f',
-    'module.model.layer2.conv_g_r', 'module.model.layer3', 'module.model.layer3.conv_f', 'module.model.layer3.conv_g_f',
-    'module.model.layer3.conv_g_r', 'module.model.layer4', 'module.model.layer4.conv_f', 'module.model.layer4.conv_g_f',
-    'module.model.layer4.conv_g_r', 'module.model.lastact', 'module.model.avgpool', 'module.model.classifier'
-]
 
 # Main Method: In submitting a custom model, you should not have to mess
 # with this.

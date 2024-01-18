@@ -2,21 +2,18 @@
 # https://github.com/brain-score/candidate_models/blob/master/examples/score-model.ipynb
 
 from brainscore_vision.model_helpers.check_submission import check_models
-import numpy as np
 import torch
 from torch import nn
 import functools
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
-from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 import torch.nn.functional as F
 from pathlib import Path
 from brainscore_vision.model_helpers import download_weights
 import os
 
-"""
-Template module for a base model submission to brain-score
-"""
+BIBTEX = """"""
+LAYERS = ['layer1', 'layer2', 'layer3', 'layer4']
 
 
 def load_model(modelname='resnet', resume=None, nclasses_fine=1000, nclasses_coarse=20):
@@ -34,7 +31,9 @@ def load_model(modelname='resnet', resume=None, nclasses_fine=1000, nclasses_coa
     folder_path='models/my-custom-weights-submission',
     filename_version_sha=[('resnet_coarse_cifar100_b64_n161_160.pth', 'BuTXFYO48C__dXW9egQ6UQjj__m1T52d', '2360ff8352c500284feceee1c21c06c7b5081821')],
     save_directory=os.path.join(Path(__file__).parent,"saved-weights"))
-    checkpoint = torch.load(checkpoint_file, map_location=torch.device('cpu'))
+    
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    checkpoint = torch.load(checkpoint_file, map_location=device)
     model.load_state_dict(checkpoint['state_dict'], strict=False)  # all key's don't have to match
     return model
 
@@ -102,74 +101,30 @@ class MyModel(nn.Module):
         return out  # , hs
 
 
-# init the model and the preprocessing:
-preprocessing = functools.partial(load_preprocess_images, image_size=32)
-dirname = os.path.dirname(__file__)
-weights_path = os.path.join(dirname, 'saved-weights/resnet_coarse_cifar100_b64_n161_160.pth')
-print(f"weights path is: {weights_path}")
-model = load_model(resume=weights_path)
-
-# get an activations model from the Pytorch Wrapper
-activations_model = PytorchWrapper(identifier='my-weights-model', model=model, preprocessing=preprocessing)
-
-# actually make the model, with the layers you want to see specified:
-model = ModelCommitment(identifier='my-weights-model', activations_model=activations_model,
-                        # specify layers to consider
-                        layers=['layer1', 'layer2', 'layer3', 'layer4'])
-
-
-# The model names to consider. If you are making a custom model, then you most likley want to change
-# the return value of this function.
-def get_model_list():
-    """
-    This method defines all submitted model names. It returns a list of model names.
-    The name is then used in the get_model method to fetch the actual model instance.
-    If the submission contains only one model, return a one item list.
-    :return: a list of model string names
-    """
-
-    return ['my-weights-model']
-
-
 # get_model method actually gets the model. For a custom model, this is just linked to the
 # model we defined above.
-def get_model(name):
+def get_model():
     """
     This method fetches an instance of a base model. The instance has to be callable and return a xarray object,
     containing activations. There exist standard wrapper implementations for common libraries, like pytorch and
     keras. Checkout the examples folder, to see more. For custom implementations check out the implementation of the
     wrappers.
-    :param name: the name of the model to fetch
     :return: the model instance
     """
-    assert name == 'my-weights-model'
+    # init the model and the preprocessing:
+    preprocessing = functools.partial(load_preprocess_images, image_size=32)
+    dirname = os.path.dirname(__file__)
+    weights_path = os.path.join(dirname, 'saved-weights/resnet_coarse_cifar100_b64_n161_160.pth')
+    print(f"weights path is: {weights_path}")
+    model = load_model(resume=weights_path)
+
+    # get an activations model from the Pytorch Wrapper
+    activations_model = PytorchWrapper(identifier='my-weights-model', model=model, preprocessing=preprocessing)
 
     # link the custom model to the wrapper object(activations_model above):
     wrapper = activations_model
     wrapper.image_size = 32
     return wrapper
-
-
-# get_layers method to tell the code what layers to consider. If you are submitting a custom
-# model, then you will most likley need to change this method's return values.
-def get_layers(name):
-    """
-    This method returns a list of string layer names to consider per model. The benchmarks maps brain regions to
-    layers and uses this list as a set of possible layers. The lists doesn't have to contain all layers, the less the
-    faster the benchmark process works. Additionally the given layers have to produce an activations vector of at least
-    size 25! The layer names are delivered back to the model instance and have to be resolved in there. For a pytorch
-    model, the layer name are for instance dot concatenated per module, e.g. "features.2".
-    :param name: the name of the model, to return the layers for
-    :return: a list of strings containing all layers, that should be considered as brain area.
-    """
-
-    # quick check to make sure the model is the correct one:
-    assert name == 'my-weights-model'
-
-    # returns the layers you want to consider
-    return ['layer1', 'layer2', 'layer3', 'layer4']
-
-BIBTEX = ""
 
 
 # Main Method: In submitting a custom model, you should not have to mess with this.

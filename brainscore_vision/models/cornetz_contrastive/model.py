@@ -397,8 +397,7 @@ def get_model():
     """
     This method fetches an instance of a brain model. The instance has to implement the BrainModel interface in the
     brain-score project(see imports). To get a detailed explanation of how the interface hast to be implemented,
-    check out the brain-score project(https://github.com/brain-score/brain-score), examples section :param name: the
-    name of the model to fetch
+    check out the brain-score project(https://github.com/brain-score/brain-score), examples section
     :return: the model instance, which implements the BrainModel interface
     """
     model = SupConResNet('CORnet_Z')

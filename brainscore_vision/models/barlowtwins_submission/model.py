@@ -19,19 +19,17 @@ def get_model_list():
     return ["barlow-twins-resnet50"]
 
 
-def get_model(name):
+def get_model():
     """
     This method fetches an instance of a base model. The instance has to be callable and return a xarray object,
     containing activations. There exist standard wrapper implementations for common libraries, like pytorch and
     keras. Checkout the examples folder, to see more. For custom implementations check out the implementation of the
     wrappers.
-    :param name: the name of the model to fetch
     :return: the model instance
     """
-    assert name == "barlow-twins-resnet50"
     model = torch.hub.load("facebookresearch/barlowtwins:main", "resnet50")
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
-    wrapper = PytorchWrapper(identifier=name, model=model, preprocessing=preprocessing)
+    wrapper = PytorchWrapper(identifier="barlow-twins-resnet50", model=model, preprocessing=preprocessing)
     wrapper.image_size = 224
     return wrapper
 
@@ -51,7 +49,7 @@ BIBTEX = """@misc{zbontar2021barlow,
     eprint={2103.03230},
     archivePrefix={arXiv},
     primaryClass={cs.CV}
-    }"""
+}"""
 
 
 if __name__ == "__main__":

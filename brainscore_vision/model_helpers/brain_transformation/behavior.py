@@ -251,24 +251,24 @@ class OddOneOut(BrainModel):
 
     def calculate_similarity_matrix(self, features):
         features = features.transpose('presentation', 'neuroid')
+        values = features.values
         if self.similarity_measure == 'dot':
-            similarity_matrix = np.dot(features, np.transpose(features))
+            similarity_matrix = np.dot(values, np.transpose(values))
         elif self.similarity_measure == 'cosine':
-            row_norms = np.linalg.norm(features.values, axis=1).reshape(-1, 1)
+            row_norms = np.linalg.norm(values, axis=1).reshape(-1, 1)
             norm_product = np.dot(row_norms, row_norms.T)
-            dot_product = np.dot(features.values, np.transpose(features.values))
+            dot_product = np.dot(values, np.transpose(values))
             similarity_matrix = dot_product / norm_product
         else:
             raise ValueError(
-                f"Unknown similarity_measure {self.similarity_measure} -- expected one of 'dot' or 'cosine'")
+            f"Unknown similarity_measure {self.similarity_measure} -- expected one of 'dot' or 'cosine'")
 
         similarity_matrix = DataAssembly(similarity_matrix, coords={
-            **{f"{coord}_left": ('presentation_left', values) for coord, _, values in
-               walk_coords(features['presentation'])},
-            **{f"{coord}_right": ('presentation_right', values) for coord, _, values in
-               walk_coords(features['presentation'])}
+                **{f"{coord}_left": ('presentation_left', values) for coord, _, values in
+                walk_coords(features['presentation'])},
+                **{f"{coord}_right": ('presentation_right', values) for coord, _, values in
+                walk_coords(features['presentation'])}
         }, dims=['presentation_left', 'presentation_right'])
-
         return similarity_matrix
 
     def calculate_choices(self, similarity_matrix, triplets):

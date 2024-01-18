@@ -249,7 +249,6 @@ class OddOneOut(BrainModel):
         choices = self.calculate_choices(similarity_matrix, triplets)
         return choices
 
-
     def calculate_similarity_matrix(self, features):
         features = features.transpose('presentation', 'neuroid')
         if self.similarity_measure == 'dot':

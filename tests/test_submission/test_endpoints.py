@@ -23,7 +23,6 @@ class TestEndpointsBase:
     def setup_class(cls):
         logger.info('Connect to database')
         connect_db(test_database)
-        clear_schema()
         
     @classmethod
     def teardown_class(cls):
@@ -45,7 +44,9 @@ class TestEndpointsBase:
     def teardown_method(self, method):
         logger.info(f"Tearing down after test: {method.__name__}")
         # Roll back the transaction
-        self.transaction.__exit__(None, None, None)
+        if self.transaction:
+            self.transaction.__exit__(None, None, None)
+        clear_schema()
 
 
 @pytest.mark.private_access

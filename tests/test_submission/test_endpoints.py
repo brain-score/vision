@@ -23,6 +23,7 @@ class TestEndpointsBase:
     def setup_class(cls):
         logger.info('Connect to database')
         connect_db(test_database)
+        clear_schema()
         
     @classmethod
     def teardown_class(cls):

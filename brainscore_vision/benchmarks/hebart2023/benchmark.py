@@ -39,14 +39,20 @@ class Hebart2023Accuracy(BenchmarkBase):
             self._assembly.coords["image_2"].values,
             self._assembly.coords["image_3"].values
         ]).T
+
+        # Do I look at the stimulus set or the assembly?
         fitting_stimuli = place_on_screen(
             stimulus_set=self._assembly.stimulus_set,
             target_visual_degrees=candidate.visual_degrees(),
             source_visual_degrees=self._visual_degrees
         )
         candidate.start_task(BrainModel.Task.odd_one_out, similarity_measure=self._similarity_measure)
-        data = [fitting_stimuli, triplets]
-        choices = candidate.look_at(data, number_of_trials=self._number_of_trials)
+        
+        triplets = None
+        
+        choices = candidate.look_at(triplets, number_of_trials=self._number_of_trials)
+        
+        # This can probably stay as is
         correct_choices = choices == triplets[:, 2]
         raw_score = np.sum(correct_choices) / len(choices)
         score = (raw_score - 1 / 3) / (self.ceiling - 1 / 3)

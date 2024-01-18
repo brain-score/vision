@@ -242,11 +242,31 @@ class OddOneOut(BrainModel):
         self.current_task = task
 
     def look_at(self, triplets, number_of_trials=1):
-        stimuli = triplets.drop_duplicates(subset=['stimulus_id'])
+        # 1. get unique stimuli
+        stimuli = None  # TODO Determine unique stimuli from triplets
+        
+        # 2. get activations for stimuli
         features = self.activations_model(stimuli, layers=self.readout)
         features = features.transpose('presentation', 'neuroid')
+
+        # 3. calculate similarity matrix
         similarity_matrix = self.calculate_similarity_matrix(features.values)
+        
+        # 4. calculate choices
         choices = self.calculate_choices(similarity_matrix, triplets)
+
+        # 5. package and return choices
+        # TODO return as DataAssembly
+        
+        #stimulus_ids = triplets['stimulus_id']
+        #choices = BehavioralAssembly(choice_predictions, coords={
+        #    'triplet_index': ('presentation', [i for i in range(0, len(stimulus_ids), 3)]),
+        #    'triplet_stimulus_id0': ('presentation', [{stimulus_ids[i]} for i in range(0, len(stimulus_ids), 3)]),
+        #    'triplet_stimulus_id1': ('presentation', [{stimulus_ids[i+1]} for i in range(0, len(stimulus_ids), 3)]),
+        #    'triplet_stimulus_id2': ('presentation', [{stimulus_ids[i+2]} for i in range(0, len(stimulus_ids), 3)]),
+        #    'stimulus_id': ('presentation', [f"{stimulus_ids[i]}__{stimulus_ids[i+1]}__{stimulus_ids[i+2]}" for i in range(0, len(stimulus_ids), 3)])
+        #    }, dims=['presentation'])
+        
         return choices
 
     def calculate_similarity_matrix(self, features):
@@ -279,16 +299,6 @@ class OddOneOut(BrainModel):
             sims = similarity_matrix[i, j], similarity_matrix[i, k],  similarity_matrix[j, k]
             idx = triplet[2 - np.argmax(sims)]
             choice_predictions.append(idx)
-        # TODO return as DataAssembly
         return choice_predictions
 
-        #stimulus_ids = triplets['stimulus_id']
-        #choices = BehavioralAssembly(choice_predictions, coords={
-        #    'triplet_index': ('presentation', [i for i in range(0, len(stimulus_ids), 3)]),
-        #    'triplet_stimulus_id0': ('presentation', [{stimulus_ids[i]} for i in range(0, len(stimulus_ids), 3)]),
-        #    'triplet_stimulus_id1': ('presentation', [{stimulus_ids[i+1]} for i in range(0, len(stimulus_ids), 3)]),
-        #    'triplet_stimulus_id2': ('presentation', [{stimulus_ids[i+2]} for i in range(0, len(stimulus_ids), 3)]),
-        #    'stimulus_id': ('presentation', [f"{stimulus_ids[i]}__{stimulus_ids[i+1]}__{stimulus_ids[i+2]}" for i in range(0, len(stimulus_ids), 3)])
-        #    }, dims=['presentation'])
-        #
-        #return choices
+        

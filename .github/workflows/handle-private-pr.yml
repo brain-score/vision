@@ -1,0 +1,27 @@
+name: Handle Private PR Notification
+
+on:
+  repository_dispatch:
+    types: [new-private-pr]
+
+env:
+  BSC_DATABASESECRET: secrets.BSC_DATABASESECRET
+
+permissions: write-all
+
+jobs:
+
+ changes_models_or_benchmarks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Changed Directories
+        id: check_changes
+        run: |
+          changed_directories="${{ github.event.client_payload.changed_dirs }}"
+          echo "Changed directories: $changed_directories"
+
+          changes_in_models_or_benchmarks="false"
+          if [[ $changed_directories == *"/models"* || $changed_directories == *"/benchmarks"* ]]; then
+            changes_in_models_or_benchmarks="true"
+          fi
+          echo "changes_in_models_or_benchmarks=$changes_in_models_or_benchmarks" >> $GITHUB_ENV

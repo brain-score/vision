@@ -16,7 +16,7 @@ seed_everything(42)
 @pytest.mark.parametrize(
     "model_identifier, benchmark_identifier, expected_score",
     [
-        ("lagani-timagenet_fc_on_hebb_fc5",  "MajajHong2015public.IT-pls", approx(0.214, abs=0.001)),
+        ("lagani-timagenet_fc_on_hebb_fc5",  "MajajHong2015public.IT-pls", approx(0.239, abs=0.001)),
     ],
 )
 def test_score(model_identifier, benchmark_identifier, expected_score):

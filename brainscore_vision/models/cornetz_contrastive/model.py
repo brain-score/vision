@@ -7,7 +7,7 @@ from pathlib import Path
 from brainscore_vision.model_helpers import download_weights
 import torch
 import torch.nn as nn
-# from resnet_big import SupConResNet, LinearClassifier, Ensemble 
+# from resnet_big import SupConResNet, LinearClassifier, Ensemble
 import os
 
 """
@@ -17,8 +17,9 @@ Template module for a brain model submission to brain-score
 import torch.nn.functional as F
 
 LAYERS = ['model.encoder.block1.output', 'model.encoder.block2.output', 'model.encoder.block3.output', 'model.encoder.block4.output',
-            'model.encoder.avgpool', 'classifier.fc']
+          'model.encoder.avgpool', 'classifier.fc']
 BIBTEX = ''
+
 
 class BasicBlock(nn.Module):
     expansion = 1
@@ -26,15 +27,33 @@ class BasicBlock(nn.Module):
     def __init__(self, in_planes, planes, stride=1, is_last=False):
         super(BasicBlock, self).__init__()
         self.is_last = is_last
-        self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
+        self.conv1 = nn.Conv2d(
+            in_planes,
+            planes,
+            kernel_size=3,
+            stride=stride,
+            padding=1,
+            bias=False)
         self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv2 = nn.Conv2d(
+            planes,
+            planes,
+            kernel_size=3,
+            stride=1,
+            padding=1,
+            bias=False)
         self.bn2 = nn.BatchNorm2d(planes)
 
         self.shortcut = nn.Sequential()
         if stride != 1 or in_planes != self.expansion * planes:
             self.shortcut = nn.Sequential(
-                nn.Conv2d(in_planes, self.expansion * planes, kernel_size=1, stride=stride, bias=False),
+                nn.Conv2d(
+                    in_planes,
+                    self.expansion *
+                    planes,
+                    kernel_size=1,
+                    stride=stride,
+                    bias=False),
                 nn.BatchNorm2d(self.expansion * planes)
             )
 
@@ -58,15 +77,32 @@ class Bottleneck(nn.Module):
         self.is_last = is_last
         self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=1, bias=False)
         self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
+        self.conv2 = nn.Conv2d(
+            planes,
+            planes,
+            kernel_size=3,
+            stride=stride,
+            padding=1,
+            bias=False)
         self.bn2 = nn.BatchNorm2d(planes)
-        self.conv3 = nn.Conv2d(planes, self.expansion * planes, kernel_size=1, bias=False)
+        self.conv3 = nn.Conv2d(
+            planes,
+            self.expansion *
+            planes,
+            kernel_size=1,
+            bias=False)
         self.bn3 = nn.BatchNorm2d(self.expansion * planes)
 
         self.shortcut = nn.Sequential()
         if stride != 1 or in_planes != self.expansion * planes:
             self.shortcut = nn.Sequential(
-                nn.Conv2d(in_planes, self.expansion * planes, kernel_size=1, stride=stride, bias=False),
+                nn.Conv2d(
+                    in_planes,
+                    self.expansion *
+                    planes,
+                    kernel_size=1,
+                    stride=stride,
+                    bias=False),
                 nn.BatchNorm2d(self.expansion * planes)
             )
 
@@ -84,7 +120,8 @@ class Bottleneck(nn.Module):
 
 
 class ResNet(nn.Module):
-    def __init__(self, block, num_blocks, in_channel=3, zero_init_residual=False):
+    def __init__(self, block, num_blocks, in_channel=3,
+                 zero_init_residual=False):
         super(ResNet, self).__init__()
         self.in_planes = 64
 
@@ -99,7 +136,8 @@ class ResNet(nn.Module):
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+                nn.init.kaiming_normal_(
+                    m.weight, mode='fan_out', nonlinearity='relu')
             elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm)):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
@@ -208,7 +246,11 @@ class CORblock_S(nn.Module):
 
         self.times = times
 
-        self.conv_input = nn.Conv2d(in_channels, out_channels, kernel_size=1, bias=False)
+        self.conv_input = nn.Conv2d(
+            in_channels,
+            out_channels,
+            kernel_size=1,
+            bias=False)
         self.skip = nn.Conv2d(out_channels, out_channels,
                               kernel_size=1, stride=2, bias=False)
         self.norm_skip = nn.BatchNorm2d(out_channels)
@@ -229,8 +271,18 @@ class CORblock_S(nn.Module):
 
         # need BatchNorm for each time step for training to work well
         for t in range(self.times):
-            setattr(self, f'norm1_{t}', nn.BatchNorm2d(out_channels * self.scale))
-            setattr(self, f'norm2_{t}', nn.BatchNorm2d(out_channels * self.scale))
+            setattr(
+                self,
+                f'norm1_{t}',
+                nn.BatchNorm2d(
+                    out_channels *
+                    self.scale))
+            setattr(
+                self,
+                f'norm2_{t}',
+                nn.BatchNorm2d(
+                    out_channels *
+                    self.scale))
             setattr(self, f'norm3_{t}', nn.BatchNorm2d(out_channels))
 
     def forward(self, inp):
@@ -267,11 +319,23 @@ class CORnet_S(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3, bias=False) 
+        self.conv1 = nn.Conv2d(
+            3,
+            64,
+            kernel_size=7,
+            stride=2,
+            padding=3,
+            bias=False)
         self.norm1 = nn.BatchNorm2d(64)
         self.nonlin1 = nn.ReLU(inplace=True)
         self.pool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-        self.conv2 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv2 = nn.Conv2d(
+            64,
+            64,
+            kernel_size=3,
+            stride=1,
+            padding=1,
+            bias=False)
         self.norm2 = nn.BatchNorm2d(64)
         self.nonlin2 = nn.ReLU(inplace=True)
         self.output = Identity()
@@ -311,6 +375,7 @@ model_dict = {
 
 class LinearBatchNorm(nn.Module):
     """Implements BatchNorm1d by BatchNorm2d, for SyncBN purpose"""
+
     def __init__(self, dim, affine=True):
         super(LinearBatchNorm, self).__init__()
         self.dim = dim
@@ -325,6 +390,7 @@ class LinearBatchNorm(nn.Module):
 
 class SupConResNet(nn.Module):
     """backbone + projection head"""
+
     def __init__(self, name='resnet50', head='mlp', feat_dim=128):
         super(SupConResNet, self).__init__()
         model_fun, dim_in = model_dict[name]
@@ -349,19 +415,20 @@ class SupConResNet(nn.Module):
 
 
 class Ensemble(nn.Module):
-     def __init__(self, model, classifier):
-         super(Ensemble, self).__init__()
-         self.model = model
-         self.classifier = classifier
+    def __init__(self, model, classifier):
+        super(Ensemble, self).__init__()
+        self.model = model
+        self.classifier = classifier
 
-     def forward(self, x):
-         features = self.model.encoder(x)
-         output = self.classifier(features)
-         return output
+    def forward(self, x):
+        features = self.model.encoder(x)
+        output = self.classifier(features)
+        return output
 
 
 class SupCEResNet(nn.Module):
     """encoder + classifier"""
+
     def __init__(self, name='resnet50', num_classes=10):
         super(SupCEResNet, self).__init__()
         model_fun, dim_in = model_dict[name]
@@ -374,6 +441,7 @@ class SupCEResNet(nn.Module):
 
 class LinearClassifier(nn.Module):
     """Linear classifier"""
+
     def __init__(self, name='resnet50', num_classes=10):
         super(LinearClassifier, self).__init__()
         _, feat_dim = model_dict[name]
@@ -400,19 +468,19 @@ def get_model():
     check out the brain-score project(https://github.com/brain-score/brain-score), examples section
     :return: the model instance, which implements the BrainModel interface
     """
-    model = SupConResNet('CORnet_Z')
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    model = SupConResNet('CORnet_Z').to(device)
     classifier = LinearClassifier(name='CORnet_Z', num_classes=1000)
 
     # load model weights
-    # ckpt = 'ckpt_epoch_281.pth'
     download_weights(
         bucket='brainscore-vision', folder_path='models/cornetz_contrastive',
         filename_version_sha=[
             ('ckpt_epoch_281.pth', '2o6UwTaW7YHTqkvdhHACb7L4MsrJX_MM', 'd5c047fea24cfaf32d7d7085264f746f342f829b'),],
         save_directory=Path(__file__).parent)
     ckpt = os.path.join(os.path.dirname(__file__), 'ckpt_epoch_281.pth')
-    ckpt = torch.load(ckpt, map_location='cpu')
-    state_dict = ckpt['model'] 
+    ckpt = torch.load(ckpt, map_location=device)
+    state_dict = ckpt['model']
     new_state_dict = {}
     for k, v in state_dict.items():
         k = k.replace("module.", "")
@@ -420,30 +488,26 @@ def get_model():
     state_dict = new_state_dict
     model.load_state_dict(state_dict)
 
-    # load classifier weights
-    # ckpt_classifier = 'classifier_ckpt_epoch_35.pth'
     download_weights(
         bucket='brainscore-vision', folder_path='models/cornetz_contrastive',
         filename_version_sha=[
             ('classifier_ckpt_epoch_35.pth', 'yEXPiWn5_u3reExuQ2KP9mNWAMEdyszU', '5f9afd32339725e108f50ae5b50c0a92273a3501'),],
         save_directory=Path(__file__).parent)
-    ckpt_classifier = os.path.join(os.path.dirname(__file__), 'classifier_ckpt_epoch_35.pth')
-    ckpt = torch.load(ckpt_classifier, map_location='cpu')
+    ckpt_classifier = os.path.join(
+        os.path.dirname(__file__),
+        'classifier_ckpt_epoch_35.pth')
+    ckpt = torch.load(ckpt_classifier, map_location=device)
     state_dict = ckpt['model']
-    '''
-    new_state_dict = {}
-    for k, v in state_dict.items():
-        k = k.replace("module.", "")
-        new_state_dict[k] = v
-    state_dict = new_state_dict
-    '''
     classifier.load_state_dict(state_dict)
 
     # combine into one model
     ensemble = Ensemble(model, classifier)
 
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
-    wrapper = PytorchWrapper(identifier='cornetz_contrastive', model=ensemble, preprocessing=preprocessing)
+    wrapper = PytorchWrapper(
+        identifier='cornetz_contrastive',
+        model=ensemble,
+        preprocessing=preprocessing)
     wrapper.image_size = 224
     return wrapper
 

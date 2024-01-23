@@ -2,13 +2,13 @@ from typing import Tuple
 import numpy as np
 import xarray as xr
 
-import brainscore
+import brainscore_vision
 from brainio.assemblies import PropertyAssembly
-from brainscore.benchmarks import BenchmarkBase
-from brainscore.benchmarks.screen import place_on_screen
-from brainscore.metrics.threshold import ThresholdElevation
-from brainscore.model_interface import BrainModel
-from brainscore.utils import LazyLoad
+from brainscore_vision.benchmarks import BenchmarkBase
+from brainscore_vision.benchmark_helpers.screen import place_on_screen
+from brainscore_vision import load_dataset, load_stimulus_set, load_metric
+from brainscore_vision.model_interface import BrainModel
+from brainscore_vision.utils import LazyLoad
 
 
 BIBTEX = """@article{malania2007,
@@ -87,16 +87,16 @@ class _Malania2007Base(BenchmarkBase):
 
         self._assemblies = {'baseline_assembly': self._baseline_assembly,
                             'condition_assembly': self._assembly}
-        self._stimulus_set = brainscore.get_stimulus_set(f'{self.condition}')
-        self._baseline_stimulus_set = brainscore.get_stimulus_set(f'{self.baseline_condition}')
+        self._stimulus_set = brainscore_vision.load_stimulus_set(f'{self.condition}')
+        self._baseline_stimulus_set = brainscore_vision.load_stimulus_set(f'{self.baseline_condition}')
         self._stimulus_sets = {self.condition: self._stimulus_set,
                                self.baseline_condition: self._baseline_stimulus_set}
-        self._fitting_stimuli = brainscore.get_stimulus_set(f'{self.condition}_fit')
+        self._fitting_stimuli = brainscore_vision.load_stimulus_set(f'{self.condition}_fit')
 
-        self._metric = ThresholdElevation(independent_variable='vernier_offset',
-                                          baseline_condition=self.baseline_condition,
-                                          test_condition=self.condition,
-                                          threshold_accuracy=0.75)
+        self._metric = load_metric('threshold_elevation',
+                                   baseline_condition=self.baseline_condition,
+                                   test_condition=self.condition,
+                                   threshold_accuracy=0.75)
         self._ceiling = self._metric.ceiling(self._assemblies)
 
         self._visual_degrees = 2.986667
@@ -117,6 +117,7 @@ class _Malania2007Base(BenchmarkBase):
                 target_visual_degrees=candidate.visual_degrees(),
                 source_visual_degrees=self._visual_degrees
             )
+            # model_requirements here
             model_responses[condition] = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
 
         raw_score = self._metric(model_responses, self._assemblies)
@@ -135,7 +136,7 @@ class _Malania2007Base(BenchmarkBase):
 
 
 def load_assembly(dataset: str) -> PropertyAssembly:
-    assembly = brainscore.get_assembly(f'Malania2007_{dataset}')
+    assembly = brainscore_vision.load_dataset(f'Malania2007_{dataset}')
     return assembly
 
 

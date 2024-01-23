@@ -1,4 +1,4 @@
-name: Trigger scoring run
+name: Trigger scoring run TEST
 
 
 # Triggered on all PRs on merge to master

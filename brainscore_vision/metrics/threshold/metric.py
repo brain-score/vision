@@ -1,11 +1,12 @@
 from typing import Dict, Union, Tuple, Optional, Callable
+
 import numpy as np
 from scipy.optimize import minimize
 from scipy.stats import norm
 from sklearn.metrics import r2_score
 import matplotlib.pyplot as plt
 
-from brainscore.metrics import Metric, Score
+from brainscore_core.metrics import Metric, Score
 from brainio.assemblies import PropertyAssembly, BehavioralAssembly
 
 

@@ -43,4 +43,5 @@ jobs:
         run: |
           mv private-repo/benchmarks/* vision/benchmarks/
           mv private-repo/models/* vision/models/
+          mv private-repo/datasets/* vision/datasets/
 

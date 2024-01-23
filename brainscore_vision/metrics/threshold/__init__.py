@@ -3,12 +3,3 @@ from .metric import Threshold, ThresholdElevation
 
 metric_registry['threshold'] = Threshold
 metric_registry['threshold_elevation'] = ThresholdElevation
-
-BIBTEX = """@article{...,
-  title={...},
-  author={...},
-  journal={...},
-  volume={...},
-  pages={...},
-  year={...}
-}"""

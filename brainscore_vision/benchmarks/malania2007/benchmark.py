@@ -82,8 +82,8 @@ class _Malania2007Base(BenchmarkBase):
         # condition
         baseline_assembly = LazyLoad(lambda: load_assembly(self.baseline_condition))
         condition_assembly = LazyLoad(lambda: load_assembly(self.condition))
-        self._assembly, self._baseline_assembly = remove_subjects_with_nans(condition_assembly,
-                                                                            baseline_assembly)
+        self._assembly, self._baseline_assembly = filter_baseline_subjects(condition_assembly,
+                                                                           baseline_assembly)
 
         self._assemblies = {'baseline_assembly': self._baseline_assembly,
                             'condition_assembly': self._assembly}
@@ -140,17 +140,11 @@ def load_assembly(dataset: str) -> PropertyAssembly:
     return assembly
 
 
-def remove_subjects_with_nans(condition_assembly: PropertyAssembly,
-                              baseline_assembly: PropertyAssembly
-                              ) -> Tuple[PropertyAssembly, PropertyAssembly]:
-    # Find the indices of the subjects with NaN values in the first PropertyAssembly
-    nan_subjects = np.isnan(condition_assembly.values)
-
-    # Convert the boolean array to a DataArray with the same coordinates as the input assemblies
-    nan_subjects_da = xr.DataArray(nan_subjects, coords=condition_assembly.coords, dims=condition_assembly.dims)
-
-    # Filter out the subjects with NaN values from both PropertyAssemblies
-    filtered_condition_assembly = condition_assembly.where(~nan_subjects_da, drop=True)
-    filtered_baseline_assembly = baseline_assembly.where(~nan_subjects_da, drop=True)
-
-    return filtered_condition_assembly, filtered_baseline_assembly
+def filter_baseline_subjects(condition_assembly: PropertyAssembly,
+                             baseline_assembly: PropertyAssembly
+                             ) -> Tuple[PropertyAssembly, PropertyAssembly]:
+    """A function to select only the unique subjects that exist in the condition_assembly."""
+    unique_ids = condition_assembly.coords['subject_unique_id'].values.tolist()
+    mask = baseline_assembly.coords['subject_unique_id'].isin(unique_ids)
+    filtered_baseline_assembly = baseline_assembly.where(mask, drop=True)
+    return condition_assembly, filtered_baseline_assembly

@@ -1,11 +1,10 @@
 import numpy as np
 
-import brainscore
-from brainscore.benchmarks import BenchmarkBase
-# TODO update imports vor brainscore_vision
-from brainscore.benchmarks.screen import place_on_screen
-from brainscore.model_interface import BrainModel
-from brainscore.metrics import Score
+from brainscore_vision import load_dataset
+from brainscore_vision.benchmarks import BenchmarkBase
+from brainscore_vision.benchmark_helpers.screen import place_on_screen
+from brainscore_vision.model_interface import BrainModel
+from brainscore_vision.metrics import Score
 
 BIBTEX = """@article{10.7554/eLife.82580,
           author = {Hebart, Martin N and Contier, Oliver and Teichmann, Lina and Rockter, Adam H and Zheng, Charles Y and Kidder, Alexis and Corriveau, Anna and Vaziri-Pashkam, Maryam and Baker, Chris I},
@@ -22,7 +21,7 @@ class Hebart2023Accuracy(BenchmarkBase):
         self._similarity_measure = similarity_measure
         self._visual_degrees = 8
         self._number_of_trials = 1
-        self._assembly = brainscore.get_assembly('Hebart2023')
+        self._assembly = load_dataset('Hebart2023')
 
         print(self._assembly.stimulus_set)
 
@@ -46,11 +45,13 @@ class Hebart2023Accuracy(BenchmarkBase):
             target_visual_degrees=candidate.visual_degrees(),
             source_visual_degrees=self._visual_degrees
         )
-        candidate.start_task(BrainModel.Task.odd_one_out, similarity_measure=self._similarity_measure)
+        candidate.start_task(BrainModel.Task.odd_one_out, 
+                             similarity_measure=self._similarity_measure)
         
         triplets = None
         
-        choices = candidate.look_at(triplets, number_of_trials=self._number_of_trials)
+        choices = candidate.look_at(
+            triplets, number_of_trials=self._number_of_trials)
         
         # This can probably stay as is
         correct_choices = choices == triplets[:, 2]

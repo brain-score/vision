@@ -264,7 +264,7 @@ class OddOneOut(BrainModel):
         #    'triplet_stimulus_id0': ('presentation', [{stimulus_ids[i]} for i in range(0, len(stimulus_ids), 3)]),
         #    'triplet_stimulus_id1': ('presentation', [{stimulus_ids[i+1]} for i in range(0, len(stimulus_ids), 3)]),
         #    'triplet_stimulus_id2': ('presentation', [{stimulus_ids[i+2]} for i in range(0, len(stimulus_ids), 3)]),
-        #    'stimulus_id': ('presentation', [f"{stimulus_ids[i]}__{stimulus_ids[i+1]}__{stimulus_ids[i+2]}" for i in range(0, len(stimulus_ids), 3)])
+        #    'stimulus_id': ('presentation', [f"{stimulus_ids[i]}__{stimulus_ids[i+1]}__{stimulus_ids[i+2]}" for i in range(0, len(stimulus_ids), 3)]) # this line seems wrong?
         #    }, dims=['presentation'])
         
         return choices

@@ -33,6 +33,7 @@ class Hebart2023Accuracy(BenchmarkBase):
         )
 
     def __call__(self, candidate: BrainModel):
+        # This needs to be packaged
         triplets = np.array([
             self._assembly.coords["image_1"].values,
             self._assembly.coords["image_2"].values,
@@ -48,13 +49,14 @@ class Hebart2023Accuracy(BenchmarkBase):
         candidate.start_task(BrainModel.Task.odd_one_out, 
                              similarity_measure=self._similarity_measure)
         
-        triplets = None
-        
+        # This needs to be finalized in behavior.py
+        # Should return somethig similar to the assembly
+        # with choices as values and triplet metadata. 
         choices = candidate.look_at(
             triplets, number_of_trials=self._number_of_trials)
         
         # This can probably stay as is
-        correct_choices = choices == triplets[:, 2]
+        correct_choices = choices == self._assembly.coords["image_3"].values
         raw_score = np.sum(correct_choices) / len(choices)
         score = (raw_score - 1 / 3) / (self.ceiling - 1 / 3)
         score.attrs['raw'] = raw_score

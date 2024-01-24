@@ -9,7 +9,8 @@ seed_everything(42)
 @pytest.mark.private_access
 @pytest.mark.memory_intense
 @pytest.mark.parametrize("model_identifier, benchmark_identifier, expected_score", [
-    ("pixels", "MajajHong2015public.IT-pls", approx(0.0764, abs=0.0005)),
+    ("cv_18_dagger_408_pretrained",
+     "MajajHong2015public.IT-pls", approx(0.5362, abs=0.0005)),
 ])
 def test_score(model_identifier, benchmark_identifier, expected_score):
     actual_score = score(model_identifier=model_identifier, benchmark_identifier=benchmark_identifier,

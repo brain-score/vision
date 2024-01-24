@@ -1,6 +1,5 @@
 from brainscore_vision import benchmark_registry
-from . import benchmark
+from .benchmark import Hebart2023Accuracy
 
-# TODO - one for dot and one for cosine?
-benchmark_registry[''] = getattr(benchmark, "")
-benchmark_registry[''] = getattr(benchmark, "")
+benchmark_registry['Hebart2023-acc'] = Hebart2023Accuracy
+

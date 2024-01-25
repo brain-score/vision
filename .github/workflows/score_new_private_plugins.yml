@@ -36,6 +36,7 @@ jobs:
           repository: 'brains-score/vision_private'
           token: ${{ secrets.PRIVATE_REPO_ACCESS_TOKEN }}
           path: 'private-repo'
+          ref: 'sw/initial_testing'
 
       - name: Move Files from Private to Public Repo
         run: |

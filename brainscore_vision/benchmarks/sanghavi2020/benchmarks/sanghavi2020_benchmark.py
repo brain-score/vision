@@ -14,7 +14,7 @@ def _DicarloSanghavi2020Region(region):
     assembly = LazyLoad(lambda region=region: load_assembly(average_repetitions=True, region=region))
     metric = load_metric('pls', crossvalidation_kwargs=dict(stratification_coord='object_name'))
     ceiler = load_ceiling('internal_consistency')
-    return NeuralBenchmark(identifier=f'dicarlo.Sanghavi2020.{region}-pls', version=1,
+    return NeuralBenchmark(identifier=f'Sanghavi2020.{region}-pls', version=1,
                            assembly=assembly, similarity_metric=metric,
                            visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
                            ceiling_func=lambda: ceiler(assembly_repetition),

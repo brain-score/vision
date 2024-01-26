@@ -3,7 +3,6 @@ import functools
 import ssl
 
 from timm.models import create_model
-import torch
 from brainscore_vision.model_helpers.activations.pytorch import (
     PytorchWrapper,
     load_images,

@@ -8,7 +8,6 @@ from brainscore_vision import score
 from brainscore_vision.utils import seed_everything
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-seed_everything(42)
 
 
 @pytest.mark.private_access
@@ -27,6 +26,7 @@ seed_everything(42)
     ],
 )
 def test_score(model_identifier, benchmark_identifier, expected_score):
+    seed_everything(42)
     actual_score = score(
         model_identifier=model_identifier,
         benchmark_identifier=benchmark_identifier,

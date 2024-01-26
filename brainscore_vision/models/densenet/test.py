@@ -10,17 +10,14 @@ from brainscore_vision.utils import seed_everything
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
-@pytest.mark.private_access
+@pytest.mark.travis_slow
 @pytest.mark.memory_intense
-@pytest.mark.parametrize(
-    "model_identifier, benchmark_identifier, expected_score",
-    [
-        ("densenet121", "MajajHong2015public.IT-pls", approx(0.548, abs=0.001)),
-        ("densenet161", "MajajHong2015public.IT-pls", approx(0.561, abs=0.001)),
-        ("densenet169", "MajajHong2015public.IT-pls", approx(0.556, abs=0.001)),
-        ("densenet201", "MajajHong2015public.IT-pls", approx(0.561, abs=0.001)),
-    ],
-)
+@pytest.mark.parametrize("model_identifier, benchmark_identifier, expected_score", [
+    ("densenet121", "MajajHong2015public.IT-pls", approx(0.548, abs=0.001)),
+    ("densenet161", "MajajHong2015public.IT-pls", approx(0.561, abs=0.001)),
+    ("densenet169", "MajajHong2015public.IT-pls", approx(0.556, abs=0.001)),
+    ("densenet201", "MajajHong2015public.IT-pls", approx(0.561, abs=0.001)),
+])
 def test_score(model_identifier, benchmark_identifier, expected_score):
     seed_everything(42)
     actual_score = score(

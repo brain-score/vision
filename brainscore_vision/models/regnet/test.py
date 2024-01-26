@@ -12,8 +12,11 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 @pytest.mark.travis_slow
 @pytest.mark.memory_intense
-def test_score():
+@pytest.mark.parametrize("model_identifier, benchmark_identifier, expected_score", [
+    ("regnet_y_400mf", "MajajHong2015public.IT-pls", approx(0.532, abs=0.0005)),
+])
+def test_score(model_identifier, benchmark_identifier, expected_score):
     seed_everything(42)
-    actual_score = score(model_identifier="regnet_y_400mf", benchmark_identifier="MajajHong2015public.IT-pls",
+    actual_score = score(model_identifier=model_identifier, benchmark_identifier=benchmark_identifier,
                          conda_active=True)
-    assert actual_score == approx(0.532, abs=0.0005)
+    assert actual_score == expected_score

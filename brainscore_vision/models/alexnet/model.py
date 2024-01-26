@@ -23,8 +23,7 @@ LAYERS = ['features.2', 'features.5', 'features.7', 'features.9', 'features.12',
 
 
 def get_model():
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    model = torchvision.models.alexnet(pretrained=True).to(device)
+    model = torchvision.models.alexnet(pretrained=True)
 
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(

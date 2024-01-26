@@ -37,9 +37,7 @@ def load_preprocess_custom_model(image_filepaths, image_size, **kwargs):
 
 def get_model():
     # Generate Model
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model = create_model("crossvit_18_dagger_408", pretrained=True)
-    model = model.to(device)
     model.eval()
 
     # Load Model and create necessary methods

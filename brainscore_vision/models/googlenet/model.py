@@ -23,8 +23,7 @@ LAYERS = [
 
 
 def get_model():
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    model = torchvision.models.googlenet(pretrained=True).to(device)
+    model = torchvision.models.googlenet(pretrained=True).to()
 
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(

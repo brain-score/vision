@@ -37,8 +37,7 @@ LAYERS = [
 
 
 def get_model():
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    model = torchvision.models.inception_v3(pretrained=True).to(device)
+    model = torchvision.models.inception_v3(pretrained=True)
 
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(

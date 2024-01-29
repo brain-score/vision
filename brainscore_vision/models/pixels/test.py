@@ -12,7 +12,11 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 @pytest.mark.travis_slow
 @pytest.mark.memory_intense
 @pytest.mark.parametrize("model_identifier, benchmark_identifier, expected_score", [
-    ("pixels", "MajajHong2015public.IT-pls", approx(0.0764, abs=0.0005)),
+    # Private
+    pytest.param("pixels", "MajajHong2015.IT-pls", approx(0.0154, abs=0.0005), marks=[pytest.mark.private_access]),
+
+    # Public
+    pytest.param("pixels", "MajajHong2015public.IT-pls", approx(0.0764, abs=0.0005)),
 ])
 def test_score(model_identifier, benchmark_identifier, expected_score):
     actual_score = score(model_identifier=model_identifier, benchmark_identifier=benchmark_identifier,

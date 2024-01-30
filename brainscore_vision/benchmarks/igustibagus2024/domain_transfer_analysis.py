@@ -71,6 +71,9 @@ class _OOD_AnalysisBenchmark(BenchmarkBase):
             # Train the decoder #
             decoder = get_decoder(data=complete_training_data, estimator=self._classifier)
             for crossdomain in crossdomain_test_images_dict.keys():
+                # skip the original domain (we are only interested in OOD scores)
+                if crossdomain == 'hvm':
+                    continue
                 test_accuracy = get_classifier_score_2AFC(classifier=decoder,
                                                           data=crossdomain_test_images_dict[crossdomain])
                 test_accuracy = Score(test_accuracy)
@@ -83,6 +86,7 @@ class _OOD_AnalysisBenchmark(BenchmarkBase):
         center = crossdomain_results.mean(dim='split').mean(dim='domain')
         error = crossdomain_results.mean(dim='split').std(dim='domain')
         score = Score([center, error], coords={'aggregation': ['center', 'error']}, dims=('aggregation',))
+        score.attrs['error'] = error
         score.attrs[Score.RAW_VALUES_KEY] = crossdomain_results
         return score
 

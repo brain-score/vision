@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 from brainscore_core import Score
 from brainscore_core.benchmarks import BenchmarkBase
-from brainscore_vision import BrainModel, load_stimulus_set
+from brainscore_vision import BrainModel, load_stimulus_set, load_metric
 from brainscore_vision.metrics.dimensionality import Dimensionality
 
 BIBTEX = """@inproceedings{
@@ -29,7 +29,7 @@ class _Islam2021Dimensionality(BenchmarkBase):
         self.stimulus_set  = load_stimulus_set("Islam2021")
         self.region = region
         self.deterministic = deterministic
-        self._metric = Dimensionality(factor_idx)
+        self._metric = load_metric('dimensionality', factor=factor_idx)
         self._number_of_trials = 1
         super(_Islam2021Dimensionality, self).__init__(
             identifier=f'Islam2021-{region + "_" + factor + "_dimensionality"}', version=1,

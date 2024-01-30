@@ -7,7 +7,7 @@ from pytest import approx
 """ the mock import has to be before importing endpoints so that the database is properly mocked """
 from .mock_config import test_database
 
-from brainscore_core.submission import database_models, 
+from brainscore_core.submission import database_models
 from brainscore_core.submission.database import connect_db
 from brainscore_core.submission.database_models import clear_schema
 from brainscore_vision.submission.endpoints import run_scoring

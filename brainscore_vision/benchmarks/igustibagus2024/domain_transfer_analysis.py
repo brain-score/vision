@@ -85,7 +85,7 @@ class _OOD_AnalysisBenchmark(BenchmarkBase):
 
         center = crossdomain_results.mean(dim='split').mean(dim='domain')
         error = crossdomain_results.mean(dim='split').std(dim='domain')
-        score = Score([center, error], coords={'aggregation': ['center', 'error']}, dims=('aggregation',))
+        score = Score(center)
         score.attrs['error'] = error
         score.attrs[Score.RAW_VALUES_KEY] = crossdomain_results
         return score

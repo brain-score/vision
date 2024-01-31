@@ -40,7 +40,7 @@ def _MarquesCavanaugh2002V1Property(property_name, parent):
     assembly = load_dataset(ASSEMBLY_NAME)
     similarity_metric = load_metric('ks_similarity', property_name=property_name)
     ceil_func = NeuronalPropertyCeiling(similarity_metric)
-    return PropertiesBenchmark(identifier=f'Marques_cavanaugh2002-{property_name}', assembly=assembly,
+    return PropertiesBenchmark(identifier=f'Marques2020_Cavanaugh2002-{property_name}', assembly=assembly,
                                neuronal_property=cavanaugh2002_properties, similarity_metric=similarity_metric,
                                timebins=TIMEBINS,
                                parent=parent, ceiling_func=ceil_func, bibtex=BIBTEX, version=1)

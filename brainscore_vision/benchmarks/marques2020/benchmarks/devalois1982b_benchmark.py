@@ -33,7 +33,7 @@ def MarquesDeValois1982V1PeakSpatialFrequency():
     parent = PARENT
     similarity_metric = load_metric('ks_similarity', property_name=property_name)
     ceil_func = NeuronalPropertyCeiling(similarity_metric)
-    return PropertiesBenchmark(identifier=f'Marques_devalois1982-{property_name}', assembly=assembly,
+    return PropertiesBenchmark(identifier=f'Marques2020_DeValois1982-peak_sf', assembly=assembly,
                                neuronal_property=devalois1982b_properties, similarity_metric=similarity_metric,
                                timebins=TIMEBINS,
                                parent=parent, ceiling_func=ceil_func, bibtex=BIBTEX, version=1)

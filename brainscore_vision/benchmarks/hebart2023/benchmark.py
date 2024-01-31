@@ -3,7 +3,7 @@ import numpy as np
 from brainscore_vision import load_dataset
 from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
-from brainscore_vision.model_interface import BrainModel
+from brainscore_vision.model_interface import BrainModel, BehavioralAssembly
 from brainscore_vision.metrics import Score
 
 BIBTEX = """@article{10.7554/eLife.82580,
@@ -33,12 +33,13 @@ class Hebart2023Accuracy(BenchmarkBase):
         )
 
     def __call__(self, candidate: BrainModel):
-        # This needs to be packaged
         triplets = np.array([
             self._assembly.coords["image_1"].values,
             self._assembly.coords["image_2"].values,
             self._assembly.coords["image_3"].values
-        ]).T
+        ]).T.reshape(-1, 1)
+
+        triplets = BehavioralAssembly(triplets, coords={None}, dims=['presentation'])
 
         # Do I look at the stimulus set or the assembly?
         fitting_stimuli = place_on_screen(

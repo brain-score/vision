@@ -243,7 +243,7 @@ class OddOneOut(BrainModel):
 
     def look_at(self, triplets, number_of_trials=1):
         # 1. get unique stimuli
-        stimuli = None  # TODO Determine unique stimuli from triplets
+        stimuli = np.unique(triplets)
         
         # 2. get activations for stimuli
         features = self.activations_model(stimuli, layers=self.readout)

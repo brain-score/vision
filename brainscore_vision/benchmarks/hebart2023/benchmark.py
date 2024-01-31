@@ -16,6 +16,7 @@ BIBTEX = """@article{10.7554/eLife.82580,
           year = 2023
           }"""
 
+# TODO: make data private again
 class Hebart2023Accuracy(BenchmarkBase):
     def __init__(self, similarity_measure='dot'):
         self._similarity_measure = similarity_measure
@@ -39,7 +40,7 @@ class Hebart2023Accuracy(BenchmarkBase):
             self._assembly.coords["image_3"].values
         ]).T.reshape(-1, 1)
 
-        triplets = BehavioralAssembly(triplets, coords={None}, dims=['presentation'])
+        triplets = [f"{triplet[0]}.jpg" for triplet in triplets]
 
         # Do I look at the stimulus set or the assembly?
         fitting_stimuli = place_on_screen(

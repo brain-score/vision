@@ -105,8 +105,7 @@ def get_model():
         save_directory=Path(__file__).parent,
     )
     state_dict = torch.load(
-        dir_path + "/resnet50_robust_cutmixfrontpatchres_e2e3.pth",
-        map_location=torch.device("cpu"),
+        dir_path + "/resnet50_robust_cutmixfrontpatchres_e2e3.pth"
     )["model"]
 
     new_state_dict = OrderedDict()

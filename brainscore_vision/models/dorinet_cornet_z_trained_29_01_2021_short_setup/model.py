@@ -141,7 +141,7 @@ def get_model():
         dest_path=download_path,
         unzip=False,
     )
-    ckpt_data = torch.load(download_path, map_location=torch.device("cpu"))
+    ckpt_data = torch.load(download_path)
     model.load_state_dict(
         ckpt_data["state_dict"],
     )

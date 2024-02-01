@@ -81,7 +81,6 @@ models_folder_filename_version_sha = {
 
 def get_model(name):
     assert name in models_folder_filename_version_sha
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     
     cur_path = pathlib.Path(__file__).parent.resolve()
     folder_path, filename, version, sha = models_folder_filename_version_sha[name]
@@ -95,7 +94,7 @@ def get_model(name):
         )],
         save_directory=Path(__file__).parent,
     )
-    resnet = torch.load(f"{cur_path}/{filename}", map_location=device)
+    resnet = torch.load(f"{cur_path}/{filename}")
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(model=resnet, preprocessing=preprocessing)
     wrapper.image_size = 224

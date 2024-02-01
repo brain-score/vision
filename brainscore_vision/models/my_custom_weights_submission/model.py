@@ -32,8 +32,7 @@ def load_model(modelname='resnet', resume=None, nclasses_fine=1000, nclasses_coa
     filename_version_sha=[('resnet_coarse_cifar100_b64_n161_160.pth', 'BuTXFYO48C__dXW9egQ6UQjj__m1T52d', '2360ff8352c500284feceee1c21c06c7b5081821')],
     save_directory=os.path.join(Path(__file__).parent,"saved-weights"))
     
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    checkpoint = torch.load(checkpoint_file, map_location=device)
+    checkpoint = torch.load(checkpoint_file)
     model.load_state_dict(checkpoint['state_dict'], strict=False)  # all key's don't have to match
     return model
 

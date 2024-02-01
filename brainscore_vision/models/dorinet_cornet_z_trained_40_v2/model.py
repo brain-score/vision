@@ -138,7 +138,7 @@ def get_model():
     gdd.download_file_from_google_drive(
         file_id=file_id_loc, dest_path=download_path, unzip=False
     )
-    ckpt_data = torch.load(download_path, map_location=torch.device("cpu"))
+    ckpt_data = torch.load(download_path)
     model.load_state_dict(ckpt_data["state_dict"])
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(

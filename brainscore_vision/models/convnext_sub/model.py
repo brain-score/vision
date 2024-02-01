@@ -6,7 +6,6 @@ import numpy as np
 import timm
 from albumentations import Compose, Normalize, Resize, CenterCrop
 from albumentations.pytorch import ToTensorV2
-import torch
 
 # This is an example implementation for submitting alexnet as a pytorch model
 # If you use pytorch, don't forget to add it to the setup.py
@@ -92,11 +91,9 @@ def load_image(image_filepath):
 
 
 def get_model():
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print("Device:", device)
     model = timm.create_model(
         "convnext_base_in22ft1k",
-        pretrained=True).to(device)
+        pretrained=True)
     preprocessing = functools.partial(
         load_preprocess_images_custom,
         preprocess_images=custom_image_preprocess,

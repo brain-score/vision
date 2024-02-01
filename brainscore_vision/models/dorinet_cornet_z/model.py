@@ -100,7 +100,7 @@ def get_model():
     # model = torch.nn.DataParallel(model)
     # if pretrained:
     url = "https://s3.amazonaws.com/cornet-models/cornet_z-5c427c9c.pth"
-    torch.hub.load_state_dict_from_url(url, map_location=torch.device("cpu"))
+    torch.hub.load_state_dict_from_url(url)
     # ckpt_data = torch.hub.load_state_dict_from_url(url)
     # ckpt_data = torch.utils.model_zoo.load_url(url, map_location=None)
     # model.load_state_dict(ckpt_data['state_dict'])

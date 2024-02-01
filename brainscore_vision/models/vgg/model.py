@@ -6,8 +6,6 @@ from brainscore_vision.model_helpers.check_submission import check_models
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print("Device:", device)
 
 BIBTEX = """@incollection{NIPS2012_4824,
     title = {ImageNet Classification with Deep Convolutional Neural Networks},
@@ -47,7 +45,7 @@ def get_layers(net):
 
 def get_model(net):
     assert net in net_constructors, f"Could not find VGG network: {net}"
-    model = net_constructors[net](pretrained=True).to(device)
+    model = net_constructors[net](pretrained=True)
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(
         identifier=net,

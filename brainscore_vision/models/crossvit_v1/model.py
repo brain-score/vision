@@ -52,7 +52,7 @@ def get_model():
 
     # Generate Model
     model = create_model("crossvit_15_dagger_240", pretrained=False)
-    checkpoint = torch.load(WEIGHT_PATH, map_location=torch.device("cpu"))
+    checkpoint = torch.load(WEIGHT_PATH)
     model.load_state_dict(checkpoint["state_dict"], strict=True)
     model.eval()
 

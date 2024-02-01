@@ -25,8 +25,6 @@ class Wrapper(Module):
 
 
 def load_model(modelname='resnet', checkpoint_file=None):
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
     if modelname == 'resnet':
         model = models.resnet18()
     else:
@@ -50,9 +48,9 @@ def load_model(modelname='resnet', checkpoint_file=None):
              "372d949b4fddefba2c8c484391e5e3c4fe8fc835")],
         save_directory=os.path.join(Path(__file__).parent, 'saved-weights'))
 
-    checkpoint = torch.load(checkpoint_file, map_location=device)
+    checkpoint = torch.load(checkpoint_file)
     model.load_state_dict(checkpoint['state_dict'])
-    model = model.module.to(device)  # unwrap
+    model = model.module  # unwrap
 
     return model
 

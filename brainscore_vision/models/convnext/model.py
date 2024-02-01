@@ -1,6 +1,5 @@
 import functools
 
-import torch
 import torchvision.models
 from brainscore_vision.model_helpers.check_submission import check_models
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
@@ -45,9 +44,7 @@ def get_layers(net):
 
 def get_model(net):
     assert net in net_constructors, f"Could not find ConvNeXt network: {net}"
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print("Device:", device)
-    model = net_constructors[net](pretrained=True).to(device)
+    model = net_constructors[net](pretrained=True)
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(
         identifier=net,

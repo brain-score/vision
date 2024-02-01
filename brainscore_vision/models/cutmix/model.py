@@ -61,12 +61,10 @@ class Wrapper(Module):
 
 
 def load_model(identifier, modelname='resnet', checkpoint_file=None):
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
     folder_path, filename, version, sha = models_folder_filename_version_sha[identifier]
     if modelname == 'resnet':
         model_type = models.resnet18 if "imgnfull" in identifier else models.resnet50
-        model = model_type().to(device)
+        model = model_type()
     else:
         raise ValueError("Architechture {} not valid.".format(modelname))
     print("=> loading checkpoint '{}'".format(checkpoint_file))
@@ -84,7 +82,7 @@ def load_model(identifier, modelname='resnet', checkpoint_file=None):
         )],
         save_directory=save_directory)
 
-    checkpoint = torch.load(checkpoint_file, map_location=device)
+    checkpoint = torch.load(checkpoint_file)
     model.load_state_dict(checkpoint['state_dict'])
     return model
 

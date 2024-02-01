@@ -6,8 +6,6 @@ from brainscore_vision.model_helpers.check_submission import check_models
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print("Device:", device)
 
 BIBTEX = """@article{dosovitskiy2020image,
   title={An image is worth 16x16 words: Transformers for image recognition at scale},
@@ -38,7 +36,7 @@ def get_layers(net):
 
 def get_model(net):
     assert net in net_constructors, f"Could not find ViT network: {net}"
-    model = net_constructors[net](pretrained=True).to(device)
+    model = net_constructors[net](pretrained=True)
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(identifier=net, model=model, preprocessing=preprocessing)
     wrapper.image_size = 224

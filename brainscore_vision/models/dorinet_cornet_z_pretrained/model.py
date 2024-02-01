@@ -101,7 +101,7 @@ def get_model_list():
 def get_model():
     model = Dorinet_cornet_z()
     url = "https://s3.amazonaws.com/cornet-models/cornet_z-5c427c9c.pth"
-    torch.hub.load_state_dict_from_url(url, map_location=torch.device("cpu"))
+    torch.hub.load_state_dict_from_url(url)
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(
         identifier="dorinet_cornet_z", model=model, preprocessing=preprocessing

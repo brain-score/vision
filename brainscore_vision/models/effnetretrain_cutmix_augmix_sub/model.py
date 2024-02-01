@@ -68,7 +68,6 @@ class EffNetBX(nn.Module):
 
 
 def get_model():
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model_tf_efficientnet_b0_ns = EffNetBX()
     dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -85,7 +84,7 @@ def get_model():
         torch.load(
             dir_path +
             "/tf_efficientnet_b0_ns_cutmix_augmix_epoch1_score0.5112402985466626_best.pth",
-            map_location=device)["model"])
+            )["model"])
     model = model_tf_efficientnet_b0_ns.efnet_model
 
     preprocessing = functools.partial(load_preprocess_images_custom,

@@ -21,9 +21,6 @@ from brainscore_vision.model_helpers import download_weights
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-
 BIBTEX = ""
 
 
@@ -333,7 +330,6 @@ class VOneBlock(nn.Module):
             self.fixed_noise = (
                 torch.distributions.normal.Normal(noise_mean, scale=1)
                 .rsample()
-                .to(device)
             )
 
     def unfix_noise(self):
@@ -833,9 +829,8 @@ download_weights(
     ],
     save_directory=Path(__file__).parent,
 )
-state_dict = torch.load(dir_path + "/model_best.pth", map_location=device)["state_dict"]
+state_dict = torch.load(dir_path + "/model_best.pth")["state_dict"]
 model.load_state_dict(state_dict)
-model = model.to(device)
 
 
 ##### LIST YOUR CUSTOM LAYER HERE

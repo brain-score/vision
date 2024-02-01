@@ -468,8 +468,7 @@ def get_model():
     check out the brain-score project(https://github.com/brain-score/brain-score), examples section
     :return: the model instance, which implements the BrainModel interface
     """
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    model = SupConResNet('CORnet_Z').to(device)
+    model = SupConResNet('CORnet_Z')
     classifier = LinearClassifier(name='CORnet_Z', num_classes=1000)
 
     # load model weights
@@ -479,7 +478,7 @@ def get_model():
             ('ckpt_epoch_281.pth', '2o6UwTaW7YHTqkvdhHACb7L4MsrJX_MM', 'd5c047fea24cfaf32d7d7085264f746f342f829b'),],
         save_directory=Path(__file__).parent)
     ckpt = os.path.join(os.path.dirname(__file__), 'ckpt_epoch_281.pth')
-    ckpt = torch.load(ckpt, map_location=device)
+    ckpt = torch.load(ckpt)
     state_dict = ckpt['model']
     new_state_dict = {}
     for k, v in state_dict.items():
@@ -496,7 +495,7 @@ def get_model():
     ckpt_classifier = os.path.join(
         os.path.dirname(__file__),
         'classifier_ckpt_epoch_35.pth')
-    ckpt = torch.load(ckpt_classifier, map_location=device)
+    ckpt = torch.load(ckpt_classifier)
     state_dict = ckpt['model']
     classifier.load_state_dict(state_dict)
 

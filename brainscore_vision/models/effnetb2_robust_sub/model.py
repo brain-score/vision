@@ -94,7 +94,6 @@ class EffNetBX(nn.Module):
 
 
 def get_model():
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model_tf_efficientnet_b1_ns = EffNetBX()
     download_weights(
         bucket='brainscore-vision',
@@ -109,7 +108,7 @@ def get_model():
         torch.load(
             dir_path +
             "/tf_efficientnet_b2_ns_robust_cutmixpatchresize_e3e5.pth",
-            map_location=device)["model"])
+            )["model"])
     model = model_tf_efficientnet_b1_ns.efnet_model
     for n, m in model.named_modules():
         if isinstance(m, nn.BatchNorm2d) and any(x in n for x in [

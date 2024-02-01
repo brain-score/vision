@@ -651,76 +651,6 @@ def test_genbatch():
     # Check that the batch size is correct (just to be sure)
     print(batch.size())  # Should print 10x3x8x10
 
-# Test the implementation of the HebbianMap2d
-
-
-def test_hebbianmap():
-    # Function for printing summary information
-    def print_results(model, centers):
-        print('\n' + '#' * 79 + '\n')
-        responses = model(centers).squeeze()
-        top_act, closest_neurons = responses.max(1)
-        for i in range(responses.size(0)):
-            print("Closest neuron to center " +
-                  str(i) +
-                  ": " +
-                  str(closest_neurons[i].item()) +
-                  ", output: " +
-                  str(top_act[i].item()))
-        print()
-        top_act, closest_centers = responses.max(0)
-        for i in range(responses.size(1)):
-            print("Closest center to neuron " +
-                  str(i) +
-                  ": " +
-                  str(closest_centers[i].item()) +
-                  ", output: " +
-                  str(top_act[i].item()))
-        print('\n' + '#' * 79 + '\n')
-
-    torch.random.manual_seed(3)
-    kernel_shape = (6, 3, 4, 5)
-    num_centers = 6
-    num_iter = 2000
-    batch_size = 10
-    win_height = 2
-    win_width = 2
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    model = HebbianMap2d(
-        in_channels=kernel_shape[1],
-        out_size=kernel_shape[0],
-        kernel_size=[kernel_shape[2], kernel_shape[3]],
-        competitive=True,
-        random_abstention=False,
-        lfb_value=0,
-        similarity=raised_cos2d_pow(2),
-        out=cos_sim2d,
-        weight_upd_rule=HebbianMap2d.RULE_BASE,
-        eta=0.1,
-        lr_schedule=sched_exp(1000, 0.01),
-        tau=1000
-    )
-    model.eval()
-    model.to(device)
-
-    # Generate centers around which clusters are built
-    centers = torch.randn(num_centers, *kernel_shape[1:4])
-    # Check the distance between the centers and the randomly initialized
-    # weight vectors
-    print_results(model, centers)
-
-    # Train the model: generate a batch of inputs and feed it to the model,
-    # repeat for the desired number of iterations
-    model.train()
-    for i in range(num_iter):
-        batch = gen_batch(centers, batch_size, win_height, win_width)
-        batch = batch.to(device)
-        model(batch)
-    model.eval()
-
-    # Verify that the weight vectors of the model have converged to the
-    # cluster centers
-    print_results(model, centers)
 
 # get_model method actually gets the model. For a custom model, this is just linked to the
 # model we defined above.
@@ -737,9 +667,8 @@ def get_model():
     # init the model and the preprocessing:
     preprocessing = functools.partial(
         load_preprocess_images, image_size=img_size)
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     
-    mynet = Net().to(device)
+    mynet = Net()
     
     # get an activations model from the Pytorch Wrapper
     activations_model = PytorchWrapper(

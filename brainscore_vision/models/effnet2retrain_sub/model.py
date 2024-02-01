@@ -77,7 +77,6 @@ class EffNet2(nn.Module):
 
 
 def get_model():
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     dir_path = os.path.dirname(os.path.realpath(__file__))
     download_weights(
         bucket='brainscore-vision',
@@ -92,8 +91,8 @@ def get_model():
     model.load_state_dict(
         torch.load(
             dir_path +
-            "/tf_efficientnetv2_s_in21ft1k_epoch0_score0.5156664923762149_best.pth",
-            map_location=device)["model"])
+            "/tf_efficientnetv2_s_in21ft1k_epoch0_score0.5156664923762149_best.pth"
+        )["model"])
     model = model.efnet_model
 
     preprocessing = functools.partial(load_preprocess_images_custom,

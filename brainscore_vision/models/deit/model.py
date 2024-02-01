@@ -22,12 +22,11 @@ LAYERS = [f'blocks.{i}' for i in range(12)]
 
 
 def get_model():
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     with torch.no_grad():
         model = torch.hub.load(
             'facebookresearch/deit:main',
             'deit_base_patch16_224',
-            pretrained=True).to(device)
+            pretrained=True)
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(
         identifier='deit',

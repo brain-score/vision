@@ -102,7 +102,7 @@ def resnet_orig(pretrained=True, device="cpu"):
     if pretrained:
         script_dir = os.path.dirname(__file__)
         state_dict = torch.load(
-            script_dir + "/state_dicts/resnet_orig.pt", map_location=device
+            script_dir + "/state_dicts/resnet_orig.pt"
         )
         net.load_state_dict(state_dict)
     return net

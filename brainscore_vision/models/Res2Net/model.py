@@ -28,7 +28,6 @@ import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
 _logger = logging.getLogger(__name__)
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 _DEFAULT_BUCKET = "brainscore2022"
 _DEFAULT_REGION = "us-east-1"
@@ -271,7 +270,7 @@ def res2net50(pretrained=False, **kwargs):
     model = Res2Net(Bottle2neck, [3, 4, 6, 3], baseWidth=26, scale=4, **kwargs)
     if pretrained:
         model.load_state_dict(
-            model_zoo.load_url(model_urls["res2net50_26w_4s"], map_location=device)
+            model_zoo.load_url(model_urls["res2net50_26w_4s"])
         )
     return model
 
@@ -354,7 +353,6 @@ def get_model():
     # init the model and the preprocessing:
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     model_ft = res2net50(pretrained=True)
-    model_ft = model_ft.to(device)
 
     # get an activations model from the Pytorch Wrapper
     activations_model = PytorchWrapper(

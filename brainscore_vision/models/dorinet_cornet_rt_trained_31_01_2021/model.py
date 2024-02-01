@@ -147,7 +147,6 @@ def get_model():
     gdd.download_file_from_google_drive(
         file_id=file_id_loc, dest_path=download_path, unzip=False
     )
-    ckpt_data = torch.load(download_path, map_location=torch.device("cpu"))
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(
         identifier="dorinet_cornet_rt_trained_31_01_2021_trained_31_01_2021", model=model, preprocessing=preprocessing

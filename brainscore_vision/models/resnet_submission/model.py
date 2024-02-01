@@ -46,7 +46,7 @@ def get_model():
     )
     ckpt_path = Path(__file__).parent / "best_resnet18.pth"
     model.load_state_dict(
-        torch.load(ckpt_path, map_location=torch.device("cpu"))
+        torch.load(ckpt_path)
     )
     model.fc = nn.Linear(512, 1000)  # imagenet output mapping
     preprocessing = functools.partial(load_preprocess_images, image_size=224)

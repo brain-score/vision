@@ -143,7 +143,7 @@ def get_model_list():
 def get_model():
     model = dorinet_cornet_rt_pretrained_pretrained()
     url = "https://s3.amazonaws.com/cornet-models/cornet_rt-933c001c.pth"
-    torch.hub.load_state_dict_from_url(url, map_location=torch.device("cpu"))
+    torch.hub.load_state_dict_from_url(url)
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(
         identifier="dorinet_cornet_rt_pretrained_pretrained", model=model, preprocessing=preprocessing

@@ -78,7 +78,6 @@ class EffNet(nn.Module):
 
 
 def get_model():
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model_tf_efficientnet_b0_ns = EffNet()
     download_weights(
         bucket='brainscore-vision',
@@ -93,7 +92,7 @@ def get_model():
             os.path.join(
                 os.path.dirname(__file__),
                 "contenttf_efficientnet_b0_ns_epoch1_best_score0.49088030619938183.pth"),
-            map_location=device)["model"])
+            )["model"])
     model = model_tf_efficientnet_b0_ns.efnet_model
 
     preprocessing = functools.partial(load_preprocess_images_custom,

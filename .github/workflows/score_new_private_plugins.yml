@@ -53,9 +53,10 @@ jobs:
           python -m pip install --upgrade pip setuptools
           python -m pip install ".[test]"
 
-      - name: Save changed files to env var
+      - name: Save changed files to env var with 'brainscore_vision/" prepend
         run: |
-            echo "CHANGED_FILES=${{ github.event.client_payload.changed_files }}" >> $GITHUB_ENV
+              PREFIXED_FILES=$(echo "${{ github.event.client_payload.changed_files }}" | xargs -n 1 echo | sed 's|^|brainscore_vision/|' | xargs)
+              echo "PREFIXED_CHANGED_FILES=$PREFIXED_FILES" >> $GITHUB_ENV
       
       # make sure this works.. might have to compare current public repo to repo created w/ both public and private 
       - name: Get plugin info

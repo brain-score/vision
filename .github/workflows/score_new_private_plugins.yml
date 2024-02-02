@@ -55,8 +55,8 @@ jobs:
 
       - name: Save changed files to env var with 'brainscore_vision/" prepend
         run: |
-          CHANGED_FILES_JSON=$(echo '${{ github.event.client_payload.changed_files }}' | jq -R -s -c 'split(" ") | map(select(. != "")) | map("brainscore_vision/" + .)')
-          echo "CHANGED_FILES=${CHANGED_FILES_JSON}" >> $GITHUB_ENV
+          CHANGED_FILES=$(echo "${{ github.event.client_payload.changed_files }}" | sed -e 's| | brainscore_vision/|g' -e 's|^|brainscore_vision/|')
+          echo "CHANGED_FILES=${CHANGED_FILES}" >> $GITHUB_ENV
       
       # make sure this works.. might have to compare current public repo to repo created w/ both public and private 
       - name: Get plugin info

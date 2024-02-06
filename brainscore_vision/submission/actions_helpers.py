@@ -123,7 +123,7 @@ if __name__ == "__main__":
     statuses_json = get_data(f"{BASE_URL}/statuses/{pr_head}")
 
     results_dict = {'travis_branch_result': get_check_runs_result('Travis CI - Branch', check_runs_json),
-                    'travis_pr_result': get_statuses_result('continuous-integration/travis', statuses_json),
+                    'travis_pr_result': get_check_runs_result('Travis CI - Pull Request', check_runs_json),
                     'jenkins_plugintests_result': get_statuses_result('Brain-Score Jenkins CI - plugin tests', statuses_json),
                     'jenkins_unittests_result': get_statuses_result('Brain-Score Jenkins CI', statuses_json)}
 

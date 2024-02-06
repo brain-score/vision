@@ -2,6 +2,7 @@ import copy
 import os
 import cv2
 import tempfile
+from typing import List, Tuple
 
 import functools
 import logging
@@ -33,16 +34,18 @@ class ActivationsExtractorHelper:
         self.identifier = identifier
         self.get_activations = get_activations
         self.preprocess = preprocessing or (lambda x: x)
+        self.shifts = None  # for use with microsaccades
         self._stimulus_set_hooks = {}
         self._batch_activations_hooks = {}
 
-    def __call__(self, stimuli, layers, stimuli_identifier=None, model_requirements=None):
+    def __call__(self, stimuli, layers, stimuli_identifier=None, number_of_trials=1, require_variance=None):
         """
+        TODO: number_of_trials needs to traverse down from here
         :param stimuli_identifier: a stimuli identifier for the stored results file. False to disable saving.
-        :param model_requirements: a dictionary containing any requirements a benchmark might have for models, e.g.
+        :param require_variance: a dictionary containing any requirements a benchmark might have for models, e.g.
             microsaccades for getting variable responses from non-stochastic models to the same stimuli.
 
-            model_requirements['microsaccades']: list of tuples of x and y shifts to apply to each image to model
+            require_variance['microsaccades']: list of tuples of x and y shifts to apply to each image to model
             microsaccades. Note that the shifts happen in pixel space of the original input image, not the preprocessed
             image.
             Human microsaccade amplitude varies by who you ask, an estimate might be <0.1 deg = 360 arcsec = 6arcmin.
@@ -51,7 +54,7 @@ class ActivationsExtractorHelper:
             things. Note that microsaccades are also applied to stochastic models to make them comparable within-
             benchmark to non-stochastic models.
             Example usage:
-                model_requirements = {'microsaccades': [(0, 0), (0, 1), (1, 0), (1, 1)]}
+                require_variance = {'microsaccades': [(0, 0), (0, 1), (1, 0), (1, 1)]}
             More information:
             --> Rolfs 2009 "Microsaccades: Small steps on a long way" Vision Research, Volume 49, Issue 20, 15
             October 2009, Pages 2415-2441.
@@ -63,14 +66,16 @@ class ActivationsExtractorHelper:
         """
         if isinstance(stimuli, StimulusSet):
             return self.from_stimulus_set(stimulus_set=stimuli, layers=layers, stimuli_identifier=stimuli_identifier,
-                                          model_requirements=model_requirements)
+                                          number_of_trials=number_of_trials, require_variance=require_variance)
         else:
             return self.from_paths(stimuli_paths=stimuli,
                                    layers=layers,
                                    stimuli_identifier=stimuli_identifier,
-                                   model_requirements=model_requirements)
+                                   number_of_trials=number_of_trials,
+                                   require_variance=require_variance)
 
-    def from_stimulus_set(self, stimulus_set, layers, stimuli_identifier=None, model_requirements=None):
+    def from_stimulus_set(self, stimulus_set, layers, stimuli_identifier=None, number_of_trials=1,
+                          require_variance=None):
         """
         :param stimuli_identifier: a stimuli identifier for the stored results file.
             False to disable saving. None to use `stimulus_set.identifier`
@@ -81,44 +86,58 @@ class ActivationsExtractorHelper:
             stimulus_set = hook(stimulus_set)
         stimuli_paths = [str(stimulus_set.get_stimulus(stimulus_id)) for stimulus_id in stimulus_set['stimulus_id']]
         activations = self.from_paths(stimuli_paths=stimuli_paths, layers=layers, stimuli_identifier=stimuli_identifier)
-        activations = attach_stimulus_set_meta(activations, stimulus_set, model_requirements=model_requirements)
+        if require_variance:
+            self.shifts = self.select_microsaccades(number_of_trials=number_of_trials)
+            activations = attach_stimulus_set_meta_with_microsaccades(activations,
+                                                                      stimulus_set,
+                                                                      number_of_trials=number_of_trials,
+                                                                      shifts=self.shifts)
+        activations = attach_stimulus_set_meta(activations, stimulus_set)
         return activations
 
-    def from_paths(self, stimuli_paths, layers, stimuli_identifier=None, model_requirements=None):
+    def from_paths(self, stimuli_paths, layers, stimuli_identifier=None, number_of_trials=1, require_variance=None):
         if layers is None:
             layers = ['logits']
         if self.identifier and stimuli_identifier:
             fnc = functools.partial(self._from_paths_stored,
                                     identifier=self.identifier,
                                     stimuli_identifier=stimuli_identifier,
-                                    model_requirements=model_requirements)
+                                    require_variance=require_variance)
         else:
             self._logger.debug(f"self.identifier `{self.identifier}` or stimuli_identifier {stimuli_identifier} "
                                f"are not set, will not store")
             fnc = self._from_paths
+        if require_variance:
+            activations = fnc(layers=layers, stimuli_paths=stimuli_paths, number_of_trials=number_of_trials,
+                              require_variance=require_variance)
         # In case stimuli paths are duplicates (e.g. multiple trials), we first reduce them to only the paths that need
         # to be run individually, compute activations for those, and then expand the activations to all paths again.
         # This is done here, before storing, so that we only store the reduced activations.
-        if model_requirements is not None and 'microsaccades' in model_requirements.keys():
-            activations = fnc(layers=layers, stimuli_paths=stimuli_paths, model_requirements=model_requirements)
         else:
             reduced_paths = self._reduce_paths(stimuli_paths)
-            activations = fnc(layers=layers, stimuli_paths=reduced_paths, model_requirements=model_requirements)
+            activations = fnc(layers=layers, stimuli_paths=reduced_paths, number_of_trials=number_of_trials,
+                              require_variance=require_variance)
             activations = self._expand_paths(activations, original_paths=stimuli_paths)
         return activations
 
     @store_xarray(identifier_ignore=['stimuli_paths', 'layers'], combine_fields={'layers': 'layer'})
-    def _from_paths_stored(self, identifier, layers, stimuli_identifier, stimuli_paths, model_requirements):
+    def _from_paths_stored(self, identifier, layers, stimuli_identifier,
+                           stimuli_paths, number_of_trials, require_variance):
         return self._from_paths(layers=layers, stimuli_paths=stimuli_paths)
 
-    def _from_paths(self, layers, stimuli_paths, model_requirements=None):
+    def _from_paths(self, layers, stimuli_paths, number_of_trials=1, require_variance=None):
         if len(layers) == 0:
             raise ValueError("No layers passed to retrieve activations from")
         self._logger.info('Running stimuli')
-        layer_activations = self._get_activations_with_model_requirements(stimuli_paths, layers=layers,
-                                                                          model_requirements=model_requirements)
+        if require_variance:
+            layer_activations = self._get_activations_batched_with_variance(stimuli_paths,
+                                                                            layers=layers,
+                                                                            batch_size=self._batch_size,
+                                                                            number_of_trials=number_of_trials)
+        else:
+            layer_activations = self._get_activations_batched(stimuli_paths, layers=layers, batch_size=self._batch_size)
         self._logger.info('Packaging into assembly')
-        return self._package(layer_activations, stimuli_paths, model_requirements)
+        return self._package(layer_activations, stimuli_paths, number_of_trials, require_variance)
 
     def _reduce_paths(self, stimuli_paths):
         return list(set(stimuli_paths))
@@ -159,13 +178,6 @@ class ActivationsExtractorHelper:
         self._stimulus_set_hooks[handle.id] = hook
         return handle
 
-    def _get_activations_with_model_requirements(self, paths, layers, model_requirements):
-        if model_requirements is not None and 'microsaccades' in model_requirements.keys():
-            assert len(model_requirements['microsaccades']) > 0
-            return self._get_microsaccade_activations_batched(paths, layers=layers, batch_size=self._batch_size,
-                                                              shifts=model_requirements['microsaccades'])
-        return self._get_activations_batched(paths, layers=layers, batch_size=self._batch_size)
-
     def _get_activations_batched(self, paths, layers, batch_size):
         layer_activations = None
         for batch_start in tqdm(range(0, len(paths), batch_size), unit_scale=batch_size, desc="activations"):
@@ -183,10 +195,11 @@ class ActivationsExtractorHelper:
 
         return layer_activations
 
-    def _get_microsaccade_activations_batched(self, paths, layers, batch_size, shifts):
+    def _get_activations_batched_with_variance(self, paths, layers, batch_size, number_of_trials):
         """
         :param shifts: a list of tuples containing the pixel shifts to apply to the paths.
         """
+        self.shifts = self.select_microsaccades(number_of_trials=number_of_trials)
         layer_activations = OrderedDict()
         for batch_start in tqdm(range(0, len(paths), batch_size), unit_scale=batch_size, desc="activations"):
             batch_end = min(batch_start + batch_size, len(paths))
@@ -194,13 +207,10 @@ class ActivationsExtractorHelper:
 
             batch_activations = OrderedDict()
             # compute activations on the entire batch one shift at a time
-            for shift in shifts:
+            for shift in self.shifts:
                 assert type(shift) == tuple
-                shifted_batch, num_padding, temp_file_paths = self.translate_and_preprocess(batch_inputs,
-                                                                                            shift,
-                                                                                            batch_size)
-                activations = self.get_activations(shifted_batch, layers)
-                activations = self._unpad(activations, num_padding)
+                temp_file_paths = self.translate_images(batch_inputs, shift)
+                activations = self._get_batch_activations(temp_file_paths, layers, batch_size)
                 for temp_file_path in temp_file_paths:
                     try:
                         os.remove(temp_file_path)
@@ -234,17 +244,13 @@ class ActivationsExtractorHelper:
         activations = self._unpad(activations, num_padding)
         return activations
 
-    def translate_and_preprocess(self, images, shift, batch_size):
+    def translate_images(self, images, shift):
         assert type(images) == list
         temp_file_paths = []
         for image_path in images:
             fp = self.translate_image(image_path, shift)
             temp_file_paths.append(fp)
-        # having to pad here causes a considerable slowdown for small datasets (n_images << batch_size),
-        #  but is necessary to accommodate tensorflow models
-        padded_images, num_padding = self._pad(temp_file_paths, batch_size)
-        preprocessed_images = self.preprocess(padded_images)
-        return preprocessed_images, num_padding, temp_file_paths
+        return temp_file_paths
 
     def translate_image(self, image_path: str, shift: np.array) -> str:
         """Translates and saves a temporary image to temporary_fp."""
@@ -266,12 +272,15 @@ class ActivationsExtractorHelper:
     def _unpad(self, layer_activations, num_padding):
         return change_dict(layer_activations, lambda values: values[:-num_padding or None])
 
-    def _package(self, layer_activations, stimuli_paths, model_requirements):
+    def _package(self, layer_activations, stimuli_paths, number_of_trials, require_variance):
         shapes = [a.shape for a in layer_activations.values()]
         self._logger.debug(f"Activations shapes: {shapes}")
         self._logger.debug("Packaging individual layers")
-        layer_assemblies = [self._package_layer(single_layer_activations, layer=layer,
-                                                stimuli_paths=stimuli_paths, model_requirements=model_requirements) for
+        layer_assemblies = [self._package_layer(single_layer_activations,
+                                                layer=layer,
+                                                stimuli_paths=stimuli_paths,
+                                                number_of_trials=number_of_trials,
+                                                require_variance=require_variance) for
                             layer, single_layer_activations in tqdm(layer_activations.items(), desc='layer packaging')]
         # merge manually instead of using merge_data_arrays since `xarray.merge` is very slow with these large arrays
         # complication: (non)neuroid_coords are taken from the structure of layer_assemblies[0] i.e. the 1st assembly;
@@ -299,13 +308,9 @@ class ActivationsExtractorHelper:
                                                    dims=layer_assemblies[0].dims)
         return model_assembly
 
-    def _package_layer(self, layer_activations, layer, stimuli_paths, model_requirements):
-        if model_requirements is not None and 'microsaccades' in model_requirements.keys():
-            runs_per_image = len(model_requirements['microsaccades'])
-        else:
-            runs_per_image = 1
-        assert layer_activations.shape[0] == len(stimuli_paths) * runs_per_image
-        stimuli_paths = np.repeat(stimuli_paths, runs_per_image)
+    def _package_layer(self, layer_activations, layer, stimuli_paths, number_of_trials=1, require_variance=False):
+        assert layer_activations.shape[0] == len(stimuli_paths) * number_of_trials
+        stimuli_paths = np.repeat(stimuli_paths, number_of_trials)
         activations, flatten_indices = flatten(layer_activations, return_index=True)  # collapse for single neuroid dim
         flatten_coord_names = None
         if flatten_indices.shape[1] == 1:  # fully connected, e.g. classifier
@@ -322,8 +327,8 @@ class ActivationsExtractorHelper:
             self._logger.debug(f"Unknown layer activations shape {layer_activations.shape}, not inferring channels")
 
         # build assembly
-        if model_requirements is not None and 'microsaccades' in model_requirements.keys():
-            coords = self.build_microsaccade_coords(activations, layer, stimuli_paths, model_requirements)
+        if require_variance:
+            coords = self.build_microsaccade_coords(activations, layer, stimuli_paths)
         else:
             coords = {'stimulus_path': ('presentation', stimuli_paths),
                       'stimulus_path2': ('presentation', stimuli_paths),  # to avoid DataAssembly dim collapse
@@ -343,11 +348,11 @@ class ActivationsExtractorHelper:
         layer_assembly['neuroid_id'] = 'neuroid', neuroid_id
         return layer_assembly
 
-    def build_microsaccade_coords(self, activations, layer, stimuli_paths, model_requirements):
+    def build_microsaccade_coords(self, activations, layer, stimuli_paths):
         coords = {
             'stimulus_path': ('presentation', stimuli_paths),
-            'shift_x': ('presentation', [shift[0] for shift in model_requirements['microsaccades']]),
-            'shift_y': ('presentation', [shift[1] for shift in model_requirements['microsaccades']]),
+            'shift_x': ('presentation', [shift[0] for shift in self.shifts]),
+            'shift_y': ('presentation', [shift[1] for shift in self.shifts]),
             'neuroid_num': ('neuroid', list(range(activations.shape[1]))),
             'model': ('neuroid', [self.identifier] * activations.shape[1]),
             'layer': ('neuroid', [layer] * activations.shape[1]),
@@ -359,6 +364,28 @@ class ActivationsExtractorHelper:
         wrapper.from_paths = self.from_paths
         wrapper.register_batch_activations_hook = self.register_batch_activations_hook
         wrapper.register_stimulus_set_hook = self.register_stimulus_set_hook
+
+    @staticmethod
+    def select_microsaccades(number_of_trials):
+        # Determine the size of the grid needed to ensure we have at least number_of_trials coordinates
+        # This is an approximation to avoid overly large initial grids.
+        n = int(np.ceil(np.sqrt(number_of_trials)))  # Basic estimation of required grid size
+
+        # Generate grid coordinates
+        xv, yv = np.meshgrid(range(-n, n + 1), range(-n, n + 1))
+        # Combine number_of_trials and y into a single array of tuples
+        coords = np.vstack([xv.ravel(), yv.ravel()]).T
+
+        # Sort key equivalent: prioritize by maximum absolute value, then by total absolute value
+        sort_criteria = np.maximum(np.abs(coords[:, 0]),
+                                                  np.abs(coords[:, 1])) + \
+                                                  np.abs(coords).sum(axis=1) / 1000
+        sorted_indices = np.argsort(sort_criteria)  # Get sorted indices based on our criteria
+
+        # Select the first number_of_trials coordinates based on sorted indices
+        selected_coords = [tuple(coord) for coord in coords[sorted_indices][:number_of_trials]]
+
+        return selected_coords
 
     @staticmethod
     def translate(image, shift):
@@ -400,9 +427,7 @@ def lstrip_local(path):
     return path
 
 
-def attach_stimulus_set_meta(assembly, stimulus_set, model_requirements):
-    if model_requirements is not None and 'microsaccades' in model_requirements.keys():
-        return attach_stimulus_set_meta_with_microsaccades(assembly, stimulus_set, model_requirements)
+def attach_stimulus_set_meta(assembly, stimulus_set):
     stimulus_paths = [str(stimulus_set.get_stimulus(stimulus_id)) for stimulus_id in stimulus_set['stimulus_id']]
     stimulus_paths = [lstrip_local(path) for path in stimulus_paths]
     assembly_paths = [lstrip_local(path) for path in assembly['stimulus_path'].values]
@@ -425,12 +450,12 @@ def attach_stimulus_set_meta(assembly, stimulus_set, model_requirements):
     return assembly
 
 
-def attach_stimulus_set_meta_with_microsaccades(assembly, stimulus_set, model_requirements):
+def attach_stimulus_set_meta_with_microsaccades(assembly, stimulus_set, number_of_trials, shifts):
     stimulus_paths = [str(stimulus_set.get_stimulus(stimulus_id)) for stimulus_id in stimulus_set['stimulus_id']]
     stimulus_paths = [lstrip_local(path) for path in stimulus_paths]
     assembly_paths = [lstrip_local(path) for path in assembly['stimulus_path'].values]
 
-    replication_factor = len(model_requirements['microsaccades'])
+    replication_factor = number_of_trials
     repeated_stimulus_paths = np.repeat(stimulus_paths, replication_factor)
     assert (np.array(assembly_paths) == np.array(repeated_stimulus_paths)).all()
     repeated_stimulus_ids = np.repeat(stimulus_set['stimulus_id'].values, replication_factor)
@@ -452,8 +477,8 @@ def attach_stimulus_set_meta_with_microsaccades(assembly, stimulus_set, model_re
     if 'stimulus_path2' in all_columns:
         all_columns.remove('stimulus_path2')
 
-    repeated_assembly.coords['shift_x'] = ('presentation', [shift[0] for shift in model_requirements['microsaccades']])
-    repeated_assembly.coords['shift_y'] = ('presentation', [shift[1] for shift in model_requirements['microsaccades']])
+    repeated_assembly.coords['shift_x'] = ('presentation', [shift[0] for shift in shifts])
+    repeated_assembly.coords['shift_y'] = ('presentation', [shift[1] for shift in shifts])
 
     # Set MultiIndex
     index = ['stimulus_id', 'stimulus_path2'] + all_columns + ['shift_x', 'shift_y']

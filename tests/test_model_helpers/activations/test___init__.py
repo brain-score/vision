@@ -192,37 +192,35 @@ def test_from_image_path(model_ctr, layers, image_name, pca_components, logits):
 @pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png',
                                         'palletized.png'])
 @pytest.mark.parametrize(["model_ctr", "layers"], models_layers)
-@pytest.mark.parametrize("shifts", [[(2, 2), (0, 0), (1, -1), (0, 1)], [(0, 1), (2, 3)]])
-def test_microsaccades_from_image_path(model_ctr, layers, image_name, shifts):
+@pytest.mark.parametrize("number_of_trials", [1, 5, 25])
+def test_microsaccades_from_image_path(model_ctr, layers, image_name, number_of_trials):
     stimulus_paths = [os.path.join(os.path.dirname(__file__), image_name)]
     activations_extractor = model_ctr()
 
-    model_requirements = {'microsaccades': shifts}
-    activations = activations_extractor(stimuli=stimulus_paths, layers=layers, model_requirements=model_requirements)
+    activations = activations_extractor(stimuli=stimulus_paths, layers=layers, number_of_trials=number_of_trials,
+                                        require_variance=True)
 
     assert activations is not None
-    assert list(activations['shift_x'].values) == [shift[0] for shift in shifts]
-    assert list(activations['shift_y'].values) == [shift[1] for shift in shifts]
-    assert len(activations['shift_x']) == len(shifts) * len(stimulus_paths)
-    assert len(activations['shift_y']) == len(shifts) * len(stimulus_paths)
+    assert len(activations['shift_x']) == number_of_trials * len(stimulus_paths)
+    assert len(activations['shift_y']) == number_of_trials * len(stimulus_paths)
 
 
 @pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png',
                                         'palletized.png'])
 @pytest.mark.parametrize(["model_ctr", "layers"], models_layers)
-@pytest.mark.parametrize("model_requirements", [None, {'microsaccades': [(0, 0), (1, -1)]}])
-def test_model_requirements(model_ctr, layers, image_name, model_requirements):
+@pytest.mark.parametrize("require_variance", [False, True])
+def test_model_requirements(model_ctr, layers, image_name, require_variance):
     stimulus_paths = [os.path.join(os.path.dirname(__file__), image_name)]
     activations_extractor = model_ctr()
 
     activations_with_req = activations_extractor(stimuli=stimulus_paths, layers=layers,
-                                                 model_requirements=model_requirements)
+                                                 number_of_trials=2, require_variance=require_variance)
     activations_without_req = activations_extractor(stimuli=stimulus_paths, layers=layers,
-                                                    model_requirements=None)
+                                                    number_of_trials=1, require_variance=False)
 
     assert activations_with_req is not None
     assert activations_without_req is not None
-    if model_requirements:
+    if require_variance:
         assert len(activations_with_req['presentation']) > len(activations_without_req['presentation'])
     assert len(activations_with_req['neuroid']) == len(activations_without_req['neuroid'])
 
@@ -234,9 +232,9 @@ def test_temporary_file_handling(model_ctr, layers, image_name):
     import tempfile
     stimulus_paths = [os.path.join(os.path.dirname(__file__), image_name)]
     activations_extractor = model_ctr()
-    model_requirements = {'microsaccades': [(2, 2)]}
 
-    activations = activations_extractor(stimuli=stimulus_paths, layers=layers, model_requirements=model_requirements)
+    activations = activations_extractor(stimuli=stimulus_paths, layers=layers, number_of_trials=2,
+                                        require_variance=True)
     temp_files = [f for f in os.listdir(tempfile.gettempdir()) if f.startswith('temp') and f.endswith('.png')]
 
     assert activations is not None
@@ -278,10 +276,10 @@ def test_exact_activations(pca_components):
     path_to_expected = Path(__file__).parent / f'alexnet-rgb-{pca_components}.nc'
     expected = xr.load_dataarray(path_to_expected)
 
-    # TODO: this is probably bad. For now, this is required since we decided to change the `stimulus_path` index to the
-    #  `presentation` index for all assemblies as a part of the PR. Should not cause issues for models that are run
-    #  after the PR, but loading any extant .nc files could result in issues. Is there a canonical way to get around
-    #  this?
+    # Originally, the `stimulus_path` Index was used to index into xarrays in Brain-Score, but this was changed
+    #  as a part of PR #492 to a MultiIndex to allow metadata to be attached to multiple repetitions of the same
+    #  `stimulus_path`. Old .nc files need to be updated to use the `presentation` index instead of `stimulus_path`,
+    #  and instead of changing the extant activations, this test was simply modified to simulate that.
     expected = expected.rename({'stimulus_path': 'presentation'})
 
     assert (activations == expected).all()

@@ -24,21 +24,26 @@ class LayerMappedModel(BrainModel):
     def identifier(self):
         return self._identifier
 
-    def look_at(self, stimuli, number_of_trials=1, model_requirements: Optional[Dict[str, List]] = None):
+    def look_at(self, stimuli, number_of_trials=1, require_variance: bool = False):
         """
-        :param model_requirements: a dictionary containing any requirements a benchmark might have for models, e.g.
+        TODO
+        :param require_variance: a dictionary containing any requirements a benchmark might have for models, e.g.
             microsaccades for getting variable responses from non-stochastic models to the same stimuli.
 
-            model_requirements['microsaccades']: list of tuples of x and y shifts to apply to each image to model
+            require_variance['microsaccades']: list of tuples of x and y shifts to apply to each image to model
             microsaccades. Note that the shifts happen in pixel space of the original input image, not the preprocessed
-            image.
+            image. Ideally, a model will define its microsaccade behavior itself, and thus compute its microsaccade
+            behavior on the basis of its visual angle. Currently the base behavior is that the microsaccade extent is
+            fixed in the visual angle, i.e. models that see 3deg vs 8deg will have the same microsaccades in terms
+            of visual angle. Models that wish to bypass this behavior should reimplement the `select_microsaccades`
+            function in activations/core.py.
             Human microsaccade amplitude varies by who you ask, an estimate might be <0.1 deg = 360 arcsec = 6arcmin.
             The goal of microsaccades is to obtain multiple different neural activities to the same input stimulus
             from non-stochastic models. This is to improve estimates of e.g. psychophysical functions, but also other
             things. Note that microsaccades are also applied to stochastic models to make them comparable within-
             benchmark to non-stochastic models.
             Example usage:
-                model_requirements = {'microsaccades': [(0, 0), (0, 1), (1, 0), (1, 1)]}
+                require_variance = {'microsaccades': [(0, 0), (0, 1), (1, 0), (1, 1)]}
             More information:
             --> Rolfs 2009 "Microsaccades: Small steps on a long way" Vision Research, Volume 49, Issue 20, 15
             October 2009, Pages 2415-2441.
@@ -57,12 +62,13 @@ class LayerMappedModel(BrainModel):
         activations = self.run_activations(stimuli,
                                            layers=list(layer_regions.keys()),
                                            number_of_trials=number_of_trials,
-                                           model_requirements=model_requirements)
+                                           require_variance=require_variance)
         activations['region'] = 'neuroid', [layer_regions[layer] for layer in activations['layer'].values]
         return activations
 
-    def run_activations(self, stimuli, layers, number_of_trials=1, model_requirements=None):
-        activations = self.activations_model(stimuli, layers=layers, model_requirements=model_requirements)
+    def run_activations(self, stimuli, layers, number_of_trials=1, require_variance=None):
+        activations = self.activations_model(stimuli, layers=layers, number_of_trials=number_of_trials,
+                                             require_variance=require_variance)
         return activations
 
     def start_task(self, task):

@@ -1,4 +1,5 @@
 import logging
+import time
 
 import numpy as np
 import pytest
@@ -9,7 +10,7 @@ from .mock_config import test_database
 
 from brainscore_core.submission import database_models
 from brainscore_core.submission.database import connect_db
-from brainscore_core.submission.database_models import clear_schema
+from brainscore_core.submission.database_models import clear_schema, create_schema, drop_schema, create_tables
 from brainscore_vision.submission.endpoints import run_scoring
 
 logger = logging.getLogger(__name__)
@@ -22,7 +23,21 @@ class TestRunScoring:
     def setup_class(cls):
         logger.info('Connect to database')
         connect_db(test_database)
-        clear_schema()
+        
+        # generate unique schema name and create
+        cls.schema_name = f'test_schema_{int(time.time())}'
+        create_schema(cls.schema_name)
+        
+        # set schema for all models
+        database_models.PeeweeBase.set_schema(cls.schema_name)
+        
+        # create tables in schema
+        create_tables()
+
+    
+    @classmethod
+    def teardown_class(cls):
+        drop_schema(cls.schema_name)
 
     def setup_method(self):
         logger.info('Initialize database entries')
@@ -66,9 +81,9 @@ class TestRunScoring:
         assert len(score_entries) == 2
         score_values = [entry.score_ceiled for entry in score_entries]
         assert all(np.array(score_values) > 0)
-        score_MajajHong = database_models.Score.get(benchmark__benchmark_type_id='MajajHong2015.IT.public-pls')
+        score_MajajHong = database_models.Score.get(benchmark__benchmark_type_id='dicarlo.MajajHong2015.IT.public-pls')
         assert score_MajajHong.score_ceiled == approx(.5079817, abs=0.005)
-        score_Rajalingham = database_models.Score.get(benchmark__benchmark_type_id='Rajalingham2018-i2n')
+        score_Rajalingham = database_models.Score.get(benchmark__benchmark_type_id='dicarlo.Rajalingham2018-i2n')
         assert score_Rajalingham.score_ceiled == approx(.3701702, abs=0.005)
 
     def test_two_models_two_benchmarks(self):

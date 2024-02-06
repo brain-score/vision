@@ -40,28 +40,28 @@ class ActivationsExtractorHelper:
 
     def __call__(self, stimuli, layers, stimuli_identifier=None, number_of_trials=1, require_variance=None):
         """
-        TODO: number_of_trials needs to traverse down from here
         :param stimuli_identifier: a stimuli identifier for the stored results file. False to disable saving.
-        :param require_variance: a dictionary containing any requirements a benchmark might have for models, e.g.
-            microsaccades for getting variable responses from non-stochastic models to the same stimuli.
-
-            require_variance['microsaccades']: list of tuples of x and y shifts to apply to each image to model
-            microsaccades. Note that the shifts happen in pixel space of the original input image, not the preprocessed
-            image.
+        :param number_of_trials: An integer that determines how many repetitions of the same model performs.
+        :param require_variance: A bool that asks models to output different responses to the same stimuli (i.e.,
+            allows stochastic responses to identical stimuli, even in deterministic models). The current implementation
+            implements this using microsaccades.
             Human microsaccade amplitude varies by who you ask, an estimate might be <0.1 deg = 360 arcsec = 6arcmin.
             The goal of microsaccades is to obtain multiple different neural activities to the same input stimulus
             from non-stochastic models. This is to improve estimates of e.g. psychophysical functions, but also other
             things. Note that microsaccades are also applied to stochastic models to make them comparable within-
             benchmark to non-stochastic models.
+            In the current implementation, if `require_variance=True`, the model selects microsaccades according to
+            its own microsaccade behavior (if it has implemented it), or with the base behavior of saccading in
+            input pixel space with 1-pixel increments from the center of the stimulus. The base behavior thus
+            maintains a fixed microsaccade distance as measured in visual angle, regardless of the model's visual angle.
             Example usage:
-                require_variance = {'microsaccades': [(0, 0), (0, 1), (1, 0), (1, 1)]}
+                require_variance = True
             More information:
             --> Rolfs 2009 "Microsaccades: Small steps on a long way" Vision Research, Volume 49, Issue 20, 15
             October 2009, Pages 2415-2441.
             --> Haddad & Steinmann 1973 "The smallest voluntary saccade: Implications for fixation" Vision
             Research Volume 13, Issue 6, June 1973, Pages 1075-1086, IN5-IN6.
-            Huge thanks to Johannes Mehrer for the implementation of microsaccades in the Brain-Score core.py and
-            neural.py files.
+            Thanks to Johannes Mehrer for initial help in implementing microsaccades.
 
         """
         if isinstance(stimuli, StimulusSet):
@@ -107,17 +107,13 @@ class ActivationsExtractorHelper:
             self._logger.debug(f"self.identifier `{self.identifier}` or stimuli_identifier {stimuli_identifier} "
                                f"are not set, will not store")
             fnc = self._from_paths
-        if require_variance:
-            activations = fnc(layers=layers, stimuli_paths=stimuli_paths, number_of_trials=number_of_trials,
-                              require_variance=require_variance)
         # In case stimuli paths are duplicates (e.g. multiple trials), we first reduce them to only the paths that need
         # to be run individually, compute activations for those, and then expand the activations to all paths again.
         # This is done here, before storing, so that we only store the reduced activations.
-        else:
-            reduced_paths = self._reduce_paths(stimuli_paths)
-            activations = fnc(layers=layers, stimuli_paths=reduced_paths, number_of_trials=number_of_trials,
-                              require_variance=require_variance)
-            activations = self._expand_paths(activations, original_paths=stimuli_paths)
+        reduced_paths = self._reduce_paths(stimuli_paths)
+        activations = fnc(layers=layers, stimuli_paths=reduced_paths, number_of_trials=number_of_trials,
+                          require_variance=require_variance)
+        activations = self._expand_paths(activations, original_paths=stimuli_paths)
         return activations
 
     @store_xarray(identifier_ignore=['stimuli_paths', 'layers'], combine_fields={'layers': 'layer'})
@@ -197,7 +193,11 @@ class ActivationsExtractorHelper:
 
     def _get_activations_batched_with_variance(self, paths, layers, batch_size, number_of_trials):
         """
-        :param shifts: a list of tuples containing the pixel shifts to apply to the paths.
+        This function fulfils the role of `_get_activations_batched` in the case microsaccades are needed, but
+        since microsaccade activations need to be computed on an entire batch at once (to accommodate TF models),
+        this function is implemented separately to avoid the mess that `_get_activations_batched` would otherwise be.
+
+        :param number_of_trials: the number of trials that a model performs of each individual stimulus.
         """
         self.shifts = self.select_microsaccades(number_of_trials=number_of_trials)
         layer_activations = OrderedDict()
@@ -366,26 +366,25 @@ class ActivationsExtractorHelper:
         wrapper.register_stimulus_set_hook = self.register_stimulus_set_hook
 
     @staticmethod
-    def select_microsaccades(number_of_trials):
-        # Determine the size of the grid needed to ensure we have at least number_of_trials coordinates
-        # This is an approximation to avoid overly large initial grids.
-        n = int(np.ceil(np.sqrt(number_of_trials)))  # Basic estimation of required grid size
+    def select_microsaccades(number_of_trials: int):
+        """
+        A naive function for generating microsaccade locations that span the same visual angle regardless of model
+        visual angle (to keep microsaccade extent constant across models). The function returns a list of
+        `number_of_trials` tuples that each contain a microsaccade location, expanding from the center of the image.
+        """
+        n = int(np.ceil(np.sqrt(number_of_trials)))  # upper bound on number of microsaccades needed
 
-        # Generate grid coordinates
+        # generate grid of potential microsaccades
         xv, yv = np.meshgrid(range(-n, n + 1), range(-n, n + 1))
-        # Combine number_of_trials and y into a single array of tuples
         coords = np.vstack([xv.ravel(), yv.ravel()]).T
 
-        # Sort key equivalent: prioritize by maximum absolute value, then by total absolute value
-        sort_criteria = np.maximum(np.abs(coords[:, 0]),
-                                                  np.abs(coords[:, 1])) + \
-                                                  np.abs(coords).sum(axis=1) / 1000
-        sorted_indices = np.argsort(sort_criteria)  # Get sorted indices based on our criteria
+        # sort microsaccade locations: (0, 0) should be first, and e.g. (2, 3) before (-5, 6) (absolute value).
+        sort_criteria = np.maximum(np.abs(coords[:, 0]), np.abs(coords[:, 1])) + np.abs(coords).sum(axis=1) / 1000
+        sorted_indices = np.argsort(sort_criteria)
 
-        # Select the first number_of_trials coordinates based on sorted indices
-        selected_coords = [tuple(coord) for coord in coords[sorted_indices][:number_of_trials]]
-
-        return selected_coords
+        # select the first `number_of_trials` microsaccades from the sorted upper bound
+        selected_microsaccades = [tuple(coord) for coord in coords[sorted_indices][:number_of_trials]]
+        return selected_microsaccades
 
     @staticmethod
     def translate(image, shift):

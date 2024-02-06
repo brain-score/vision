@@ -27,30 +27,27 @@ class LayerMappedModel(BrainModel):
     def look_at(self, stimuli, number_of_trials=1, require_variance: bool = False):
         """
         TODO
-        :param require_variance: a dictionary containing any requirements a benchmark might have for models, e.g.
-            microsaccades for getting variable responses from non-stochastic models to the same stimuli.
-
-            require_variance['microsaccades']: list of tuples of x and y shifts to apply to each image to model
-            microsaccades. Note that the shifts happen in pixel space of the original input image, not the preprocessed
-            image. Ideally, a model will define its microsaccade behavior itself, and thus compute its microsaccade
-            behavior on the basis of its visual angle. Currently the base behavior is that the microsaccade extent is
-            fixed in the visual angle, i.e. models that see 3deg vs 8deg will have the same microsaccades in terms
-            of visual angle. Models that wish to bypass this behavior should reimplement the `select_microsaccades`
-            function in activations/core.py.
+        :param number_of_trials: An integer that determines how many repetitions of the same model performs.
+        :param require_variance: A bool that asks models to output different responses to the same stimuli (i.e.,
+            allows stochastic responses to identical stimuli, even in deterministic models). The current implementation
+            implements this using microsaccades.
             Human microsaccade amplitude varies by who you ask, an estimate might be <0.1 deg = 360 arcsec = 6arcmin.
             The goal of microsaccades is to obtain multiple different neural activities to the same input stimulus
             from non-stochastic models. This is to improve estimates of e.g. psychophysical functions, but also other
             things. Note that microsaccades are also applied to stochastic models to make them comparable within-
             benchmark to non-stochastic models.
+            In the current implementation, if `require_variance=True`, the model selects microsaccades according to
+            its own microsaccade behavior (if it has implemented it), or with the base behavior of saccading in
+            input pixel space with 1-pixel increments from the center of the stimulus. The base behavior thus
+            maintains a fixed microsaccade distance as measured in visual angle, regardless of the model's visual angle.
             Example usage:
-                require_variance = {'microsaccades': [(0, 0), (0, 1), (1, 0), (1, 1)]}
+                require_variance = True
             More information:
             --> Rolfs 2009 "Microsaccades: Small steps on a long way" Vision Research, Volume 49, Issue 20, 15
             October 2009, Pages 2415-2441.
             --> Haddad & Steinmann 1973 "The smallest voluntary saccade: Implications for fixation" Vision
             Research Volume 13, Issue 6, June 1973, Pages 1075-1086, IN5-IN6.
-            Huge thanks to Johannes Mehrer for the implementation of microsaccades in the Brain-Score core.py and
-            neural.py files.
+            Thanks to Johannes Mehrer for initial help in implementing microsaccades.
         """
         layer_regions = {}
         for region in self.recorded_regions:

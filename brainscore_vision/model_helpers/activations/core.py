@@ -313,8 +313,13 @@ class ActivationsExtractorHelper:
         return model_assembly
 
     def _package_layer(self, layer_activations, layer, stimuli_paths, number_of_trials=1, require_variance=False):
-        assert layer_activations.shape[0] == len(stimuli_paths) * number_of_trials
-        stimuli_paths = np.repeat(stimuli_paths, number_of_trials)
+        # activation shape is larger if variance in responses is required from the model by a factor of number_of_trials
+        if require_variance:
+            runs_per_image = number_of_trials
+        else:
+            runs_per_image = 1
+        assert layer_activations.shape[0] == len(stimuli_paths) * runs_per_image
+        stimuli_paths = np.repeat(stimuli_paths, runs_per_image)
         activations, flatten_indices = flatten(layer_activations, return_index=True)  # collapse for single neuroid dim
         flatten_coord_names = None
         if flatten_indices.shape[1] == 1:  # fully connected, e.g. classifier

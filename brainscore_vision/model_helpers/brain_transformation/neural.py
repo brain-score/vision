@@ -2,7 +2,6 @@ import logging
 
 from result_caching import store_xarray, store
 from tqdm import tqdm
-from typing import Optional, Dict, List
 
 from brainscore_vision.metrics import Score
 from brainscore_vision.model_helpers.activations.pca import LayerPCA
@@ -26,7 +25,6 @@ class LayerMappedModel(BrainModel):
 
     def look_at(self, stimuli, number_of_trials=1, require_variance: bool = False):
         """
-        TODO
         :param number_of_trials: An integer that determines how many repetitions of the same model performs.
         :param require_variance: A bool that asks models to output different responses to the same stimuli (i.e.,
             allows stochastic responses to identical stimuli, even in deterministic models). The current implementation

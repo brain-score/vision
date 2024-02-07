@@ -107,13 +107,17 @@ class ActivationsExtractorHelper:
             self._logger.debug(f"self.identifier `{self.identifier}` or stimuli_identifier {stimuli_identifier} "
                                f"are not set, will not store")
             fnc = self._from_paths
-        # In case stimuli paths are duplicates (e.g. multiple trials), we first reduce them to only the paths that need
-        # to be run individually, compute activations for those, and then expand the activations to all paths again.
-        # This is done here, before storing, so that we only store the reduced activations.
-        reduced_paths = self._reduce_paths(stimuli_paths)
-        activations = fnc(layers=layers, stimuli_paths=reduced_paths, number_of_trials=number_of_trials,
+        if require_variance:
+            activations = fnc(layers=layers, stimuli_paths=stimuli_paths, number_of_trials=number_of_trials,
                           require_variance=require_variance)
-        activations = self._expand_paths(activations, original_paths=stimuli_paths)
+        else:
+            # In case stimuli paths are duplicates (e.g. multiple trials), we first reduce them to only the paths that need
+            # to be run individually, compute activations for those, and then expand the activations to all paths again.
+            # This is done here, before storing, so that we only store the reduced activations.
+            reduced_paths = self._reduce_paths(stimuli_paths)
+            activations = fnc(layers=layers, stimuli_paths=reduced_paths, number_of_trials=number_of_trials,
+                              require_variance=require_variance)
+            activations = self._expand_paths(activations, original_paths=stimuli_paths)
         return activations
 
     @store_xarray(identifier_ignore=['stimuli_paths', 'layers'], combine_fields={'layers': 'layer'})

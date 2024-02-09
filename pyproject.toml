@@ -34,12 +34,14 @@ dependencies = [
 test = [
     "pytest",
     "pytest_check",
+    "pytest-mock",
     "torch",
     "torchvision",
     "tensorflow==1.15",
     "keras==2.3.1",
     "protobuf<=3.20",  # https://protobuf.dev/news/2022-05-06/#python-updates
     "matplotlib",  # for examples
+    "pytest-mock",
 ]
 
 [build-system]
@@ -80,7 +82,8 @@ filterwarnings = [
 ################################################################
 
 [tool.setuptools]
-py-modules = ['brainscore_vision']
+packages = { find = { where = ["."] } }
+
 
 [tool.setuptools.package-data]
 # include non-python files (e.g. 'requirements.txt') in package install

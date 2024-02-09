@@ -56,7 +56,7 @@ class _Scialom2024ErrorConsistency(BenchmarkBase):
             bibtex=BIBTEX)
 
     def __call__(self, candidate: BrainModel):
-        choice_labels = set(self._assembly['correct_answer'].values)
+        choice_labels = set(self._assembly['truth'].values)
         choice_labels = list(sorted(choice_labels))
         candidate.start_task(BrainModel.Task.label, choice_labels)
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
@@ -71,9 +71,9 @@ class _Scialom2024ErrorConsistency(BenchmarkBase):
 
 
 class _Scialom2024BehavioralAccuracy(BenchmarkBase):
-    # engineering/ML benchmark
+    # behavioral benchmark
     def __init__(self, dataset):
-        self._metric = load_metric('accuracy')
+        self._metric = load_metric('accuracy_distance')
         self._assembly = LazyLoad(lambda: load_assembly(dataset))
         self._stimulus_set = LazyLoad(lambda: load_assembly(dataset).stimulus_set)
         super(_Scialom2024BehavioralAccuracy, self).__init__(
@@ -87,7 +87,7 @@ class _Scialom2024BehavioralAccuracy(BenchmarkBase):
         choice_labels = list(sorted(choice_labels))
         candidate.start_task(BrainModel.Task.label, choice_labels)
         labels = candidate.look_at(self._stimulus_set, number_of_trials=1)
-        score = self._metric(labels, target=self._stimulus_set['correct_answer'].values)
+        score = self._metric(labels, target=self._stimulus_set['truth'].values)
         return score
 
 
@@ -112,5 +112,5 @@ class _Scialom2024EngineeringAccuracy(BenchmarkBase):
 
 
 def load_assembly(dataset: str) -> BehavioralAssembly:
-    assembly = brainscore_vision.load_dataset(f'Malania2007_{dataset}')
+    assembly = brainscore_vision.load_dataset(f'Scialom2024{dataset}')
     return assembly

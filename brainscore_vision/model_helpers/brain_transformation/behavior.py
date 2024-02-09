@@ -135,8 +135,24 @@ class LabelToImagenetIndices:
     motorbike_indices = [670, 665]
     bus_indices = [779, 874, 654]
 
+    # added from the Scialom2024 benchmark:
+    banana_indices = [954]
+    beanie_indices = [439, 452, 515, 808]
+    binoculars_indices = [447]
+    boot_indices = [514]
+    bowl_indices = [659, 809]
+    cup_indices = [968]
+    glasses_indices = [837]
+    lamp_indices = [470, 607, 818, 846]
+    pan_indices = [567]
+    sewingmachine_indices = [786]
+    shovel_indices = [792]
+    # truck indices used as defined by Geirhos et al., 2021.
+
+
     @classmethod
     def label_to_indices(cls, label):
+        label = label.lower().replace(" ", "")
         synset_indices = getattr(cls, f"{label}_indices")
         return synset_indices
 

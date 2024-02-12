@@ -193,7 +193,7 @@ def test_from_image_path(model_ctr, layers, image_name, pca_components, logits):
                                         'palletized.png'])
 @pytest.mark.parametrize(["model_ctr", "layers"], models_layers)
 @pytest.mark.parametrize("number_of_trials", [1, 5, 25])
-def test_microsaccades_from_image_path(model_ctr, layers, image_name, number_of_trials):
+def test_require_variance_has_shift_coords(model_ctr, layers, image_name, number_of_trials):
     stimulus_paths = [os.path.join(os.path.dirname(__file__), image_name)]
     activations_extractor = model_ctr()
 

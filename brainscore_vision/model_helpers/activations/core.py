@@ -34,7 +34,7 @@ class ActivationsExtractorHelper:
         self.identifier = identifier
         self.get_activations = get_activations
         self.preprocess = preprocessing or (lambda x: x)
-        self.shifts = None  # for use with microsaccades
+        self.microsaccade_shifts = None  # for use with microsaccades
         self._stimulus_set_hooks = {}
         self._batch_activations_hooks = {}
 
@@ -43,25 +43,26 @@ class ActivationsExtractorHelper:
         :param stimuli_identifier: a stimuli identifier for the stored results file. False to disable saving.
         :param number_of_trials: An integer that determines how many repetitions of the same model performs.
         :param require_variance: A bool that asks models to output different responses to the same stimuli (i.e.,
-            allows stochastic responses to identical stimuli, even in deterministic models). The current implementation
-            implements this using microsaccades.
+            allows stochastic responses to identical stimuli, even in otherwise deterministic base models). 
+            We here implement this using microsaccades.
             Human microsaccade amplitude varies by who you ask, an estimate might be <0.1 deg = 360 arcsec = 6arcmin.
-            The goal of microsaccades is to obtain multiple different neural activities to the same input stimulus
-            from non-stochastic models. This is to improve estimates of e.g. psychophysical functions, but also other
-            things. Note that microsaccades are also applied to stochastic models to make them comparable within-
+            Our motivation to make use of such microsaccades is to obtain multiple different neural activities to the same input stimulus
+            from non-stochastic models. This is to improve estimates of e.g. psychophysical functions. 
+            Note that microsaccades are also applied to stochastic models to make them comparable within-
             benchmark to non-stochastic models.
-            In the current implementation, if `require_variance=True`, the model selects microsaccades according to
-            its own microsaccade behavior (if it has implemented it), or with the base behavior of saccading in
+            In the current implementation, if `require_variance=True`, the model microsaccades in
             input pixel space with 1-pixel increments from the center of the stimulus. The base behavior thus
             maintains a fixed microsaccade distance as measured in visual angle, regardless of the model's visual angle.
+            
             Example usage:
-                require_variance = True
+                `require_variance = True`
+            
             More information:
             --> Rolfs 2009 "Microsaccades: Small steps on a long way" Vision Research, Volume 49, Issue 20, 15
             October 2009, Pages 2415-2441.
             --> Haddad & Steinmann 1973 "The smallest voluntary saccade: Implications for fixation" Vision
             Research Volume 13, Issue 6, June 1973, Pages 1075-1086, IN5-IN6.
-            Thanks to Johannes Mehrer for initial help in implementing microsaccades.
+            Implemented by Ben Lonnqvist and Johannes Mehrer.
 
         """
         if isinstance(stimuli, StimulusSet):
@@ -87,7 +88,7 @@ class ActivationsExtractorHelper:
         stimuli_paths = [str(stimulus_set.get_stimulus(stimulus_id)) for stimulus_id in stimulus_set['stimulus_id']]
         activations = self.from_paths(stimuli_paths=stimuli_paths, layers=layers, stimuli_identifier=stimuli_identifier)
         if require_variance:
-            self.shifts = self.select_microsaccades(number_of_trials=number_of_trials)
+            self.microsaccade_shifts = self.select_microsaccades(number_of_trials=number_of_trials)
             activations = attach_stimulus_set_meta_with_microsaccades(activations,
                                                                       stimulus_set,
                                                                       number_of_trials=number_of_trials,

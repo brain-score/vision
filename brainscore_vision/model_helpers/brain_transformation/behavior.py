@@ -248,11 +248,13 @@ class OddOneOut(BrainModel):
         # 2. get activations for stimuli
         features = self.activations_model(stimuli, layers=self.readout)
         features = features.transpose('presentation', 'neuroid')
+        
 
         # 3. calculate similarity matrix
         similarity_matrix = self.calculate_similarity_matrix(features.values)
         
         # 4. calculate choices
+        # build triplets from ss
         choices = self.calculate_choices(similarity_matrix, triplets)
 
         # 5. package and return choices
@@ -261,7 +263,7 @@ class OddOneOut(BrainModel):
         stimulus_ids = triplets['stimulus_id'].reshape(3, -1)
         choices = BehavioralAssembly(
             choices, 
-            coords={stimulus_ids}, 
+            coords={stimulus_ids}, # add more metadata from ss
             dims=['presentation']
             )
         
@@ -298,5 +300,3 @@ class OddOneOut(BrainModel):
             idx = triplet[2 - np.argmax(sims)]
             choice_predictions.append(idx)
         return choice_predictions
-
-        

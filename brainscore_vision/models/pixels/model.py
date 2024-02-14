@@ -21,7 +21,9 @@ class PixelModel:
     def identifier(self, value):
         self._extractor.identifier = value
 
-    # cannot assign __call__ as attribute due to Python convention
+    # Note that we cannot assign __call__ as attribute due to Python convention, 
+    # so we cannot set `self.__call__ = self._extractor` in the `__init__` and 
+    # instead have to explicitly implement the function here.
     def __call__(self, *args, **kwargs):
         return self._extractor(*args, **kwargs)
 

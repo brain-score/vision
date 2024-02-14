@@ -1,6 +1,7 @@
 import numpy as np
-
-from brainscore_vision import load_dataset
+import pandas as pd
+from brainio.stimuli import StimulusSet
+from brainscore_vision import load_dataset, load_stimulus_set
 from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
 from brainscore_vision.model_interface import BrainModel, BehavioralAssembly
@@ -16,15 +17,13 @@ BIBTEX = """@article{10.7554/eLife.82580,
           year = 2023
           }"""
 
-# TODO: make data private again
+# TODO: make data private again!!
 class Hebart2023Accuracy(BenchmarkBase):
     def __init__(self, similarity_measure='dot'):
-        self._similarity_measure = similarity_measure
         self._visual_degrees = 8
         self._number_of_trials = 1
         self._assembly = load_dataset('Hebart2023')
-
-        print(self._assembly.stimulus_set)
+        self._stimulus_set = load_stimulus_set('Hebart2023')
 
         super().__init__(
             identifier=f'Hebart2023Accuracy_{similarity_measure}', version=1,
@@ -34,30 +33,35 @@ class Hebart2023Accuracy(BenchmarkBase):
         )
 
     def __call__(self, candidate: BrainModel):
-        triplets = np.array([
+        self.triplets = np.array([
             self._assembly.coords["image_1"].values,
             self._assembly.coords["image_2"].values,
             self._assembly.coords["image_3"].values
         ]).T.reshape(-1, 1)
 
-        triplets = [f"{triplet[0]}.jpg" for triplet in triplets]
+        # Create the new StimulusSet
+        self.stimuli = pd.DataFrame(columns=self._stimulus_set.columns)
+        image_paths = []
+        for stim in self.triplets[:99999]:
+            ss = ss.append(self.stimulus_set.loc[stim])
+            image_paths.append(self._stimulus_paths[stim[0]])
 
-        # Do I look at the stimulus set or the assembly?
-        fitting_stimuli = place_on_screen(
-            stimulus_set=self._assembly.stimulus_set,
+        self.stimuli = StimulusSet(stimuli)
+        self.stimuli.identifier = 'Hebart2023'
+        self.stimuli.stimulus_paths = image_paths
+
+        # Prepare the stimuli
+        candidate.start_task(BrainModel.Task.odd_one_out)
+        stimuli = place_on_screen(
+            stimulus_set=self.stimuli,
             target_visual_degrees=candidate.visual_degrees(),
             source_visual_degrees=self._visual_degrees
         )
-        candidate.start_task(BrainModel.Task.odd_one_out, 
-                             similarity_measure=self._similarity_measure)
+
+        # Run the model
+        choices = candidate.look_at(self.stimuli, self._number_of_trials)
         
-        # This needs to be finalized in behavior.py
-        # Should return somethig similar to the assembly
-        # with choices as values and triplet metadata. 
-        choices = candidate.look_at(
-            triplets, number_of_trials=self._number_of_trials)
-        
-        # This can probably stay as is
+        # Score the model
         correct_choices = choices == self._assembly.coords["image_3"].values
         raw_score = np.sum(correct_choices) / len(choices)
         score = (raw_score - 1 / 3) / (self.ceiling - 1 / 3)

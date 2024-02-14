@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from brainio.stimuli import StimulusSet
-from brainscore_vision import load_dataset, load_stimulus_set
+from brainscore_vision import load_dataset, load_stimulus_set, load_model
 from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
 from brainscore_vision.model_interface import BrainModel, BehavioralAssembly
@@ -33,34 +33,43 @@ class Hebart2023Accuracy(BenchmarkBase):
         )
 
     def __call__(self, candidate: BrainModel):
+        # Create the new StimulusSet
         self.triplets = np.array([
             self._assembly.coords["image_1"].values,
             self._assembly.coords["image_2"].values,
             self._assembly.coords["image_3"].values
         ]).T.reshape(-1, 1)
 
-        # Create the new StimulusSet
-        self.stimuli = pd.DataFrame(columns=self._stimulus_set.columns)
-        image_paths = []
-        for stim in self.triplets[:99999]:
-            ss = ss.append(self.stimulus_set.loc[stim])
-            image_paths.append(self._stimulus_paths[stim[0]])
+        # For debugging purposes only
+        self.triplets = self.triplets[:99999]
 
-        self.stimuli = StimulusSet(stimuli)
-        self.stimuli.identifier = 'Hebart2023'
-        self.stimuli.stimulus_paths = image_paths
+        stimuli_data = []
+        image_paths = []
+
+        for stim in self.triplets:
+            stimuli_data.append(self._stimulus_set.loc[stim])
+            image_paths.append(self._stimulus_set.stimulus_paths[stim[0]])
+
+        stimuli = pd.concat(stimuli_data)
+        stimuli.columns = self._stimulus_set.columns
+
+        # Creating StimulusSet 
+        stimuli = StimulusSet(stimuli)
+        stimuli.identifier = 'Hebart2023'
+        stimuli.stimulus_paths = image_paths
+        stimuli['stimulus_id'] = stimuli['stimulus_id'].astype(int)
 
         # Prepare the stimuli
         candidate.start_task(BrainModel.Task.odd_one_out)
         stimuli = place_on_screen(
-            stimulus_set=self.stimuli,
+            stimulus_set=stimuli,
             target_visual_degrees=candidate.visual_degrees(),
             source_visual_degrees=self._visual_degrees
         )
 
         # Run the model
-        choices = candidate.look_at(self.stimuli, self._number_of_trials)
-        
+        choices = candidate.look_at(stimuli, self._number_of_trials)
+
         # Score the model
         correct_choices = choices == self._assembly.coords["image_3"].values
         raw_score = np.sum(correct_choices) / len(choices)
@@ -68,3 +77,10 @@ class Hebart2023Accuracy(BenchmarkBase):
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = self.ceiling
         return score
+
+
+if __name__ == '__main__':
+    benchmark = Hebart2023Accuracy()
+    model = load_model('alexnet')
+    score = benchmark(model)
+    print(score)

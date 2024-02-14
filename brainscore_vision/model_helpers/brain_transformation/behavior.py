@@ -242,30 +242,27 @@ class OddOneOut(BrainModel):
         self.current_task = task
 
     def look_at(self, triplets, number_of_trials=1):
-        # 1. get unique stimuli
-        stimuli = np.unique(triplets)
-        
-        # 2. get activations for stimuli
+        # Compute unique features
+        stimuli = triplets.drop_duplicates(subset=['stimulus_id'])
         features = self.activations_model(stimuli, layers=self.readout)
         features = features.transpose('presentation', 'neuroid')
         
-
-        # 3. calculate similarity matrix
-        similarity_matrix = self.calculate_similarity_matrix(features.values)
+        # Compute similarity matrix
+        similarity_matrix = self.calculate_similarity_matrix(features)
         
-        # 4. calculate choices
-        # build triplets from ss
+        # Compute choices
+        triplets = np.array(triplets["stimulus_id"])
+
         choices = self.calculate_choices(similarity_matrix, triplets)
 
-        # 5. package and return choices
-        # TODO return as DataAssembly
-        
-        stimulus_ids = triplets['stimulus_id'].reshape(3, -1)
-        choices = BehavioralAssembly(
-            choices, 
-            coords={stimulus_ids}, # add more metadata from ss
-            dims=['presentation']
-            )
+        # Return choices
+        # TODO: Assembly - in function?
+        #stimulus_ids = triplets['stimulus_id']
+        #choices = BehavioralAssembly(
+        #    choices, 
+        #    coords={stimulus_ids}, # add more metadata from ss
+        #    dims=['presentation']
+        #    )
         
         return choices
 

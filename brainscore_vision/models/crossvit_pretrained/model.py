@@ -44,11 +44,9 @@ def get_model():
     preprocessing = functools.partial(
         load_preprocess_custom_model, image_size=224)
     # get an activations model from the Pytorch Wrapper
-    activations_model = PytorchWrapper(
+    wrapper = PytorchWrapper(
         identifier="cv_18_dagger_408_pretrained", model=model, preprocessing=preprocessing
     )
-
-    wrapper = activations_model
     wrapper.image_size = 224
     return wrapper
 

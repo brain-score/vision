@@ -74,8 +74,9 @@ jobs:
         if: contains(github.event.pull_request.labels.*.name, 'automerge-web')
         run: |
           BS_UID="$(echo '${{ github.event.pull_request.title }}' | sed -E 's/.*\(user:([^)]+)\).*/\1/')"
+          BS_PUBLIC="$(echo '${{ github.event.pull_request.title }}' | sed -E 's/.*\(public:([^)]+)\).*/\1/')"
           echo "The Brain-Score user ID is $BS_UID"
-          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO tr -d "'" | jq -c ". + {user_id: \"$BS_UID\"}")" >> $GITHUB_ENV
+          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO tr -d "'" | jq -c ". + {user_id: \"$BS_UID\", public: \"$BS_PUBLIC\"}")" >> $GITHUB_ENV
 
       - name: Get PR author email from GitHub username
         id: getemail
@@ -102,7 +103,7 @@ jobs:
     steps:
       - name: Add domain, public, competition, and model_type to PLUGIN_INFO
         run: |
-          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO tr -d "'"  | jq -c '. + {domain: "vision", public: true, competition: "None", model_type: "Brain_Model"}')" >> $GITHUB_ENV
+          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO tr -d "'"  | jq -c '. + {domain: "vision", competition: "None", model_type: "Brain_Model"}')" >> $GITHUB_ENV
 
       - name: Check out repository code
         uses: actions/checkout@v4

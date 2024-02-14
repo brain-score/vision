@@ -33,6 +33,7 @@ dependencies = [
 test = [
     "pytest",
     "pytest_check",
+    "pytest-mock",
     "torch",
     "torchvision",
     "tensorflow==1.15",
@@ -80,7 +81,8 @@ filterwarnings = [
 ################################################################
 
 [tool.setuptools]
-py-modules = ['brainscore_vision']
+packages = { find = { where = ["."] } }
+
 
 [tool.setuptools.package-data]
 # include non-python files (e.g. 'requirements.txt') in package install

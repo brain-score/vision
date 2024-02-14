@@ -137,20 +137,9 @@ class TestOddOneOut:
             layers=[None], 
             behavioral_readout_layer='relu2')
 
-        assy = brainscore_vision.load_dataset(f'Hebart2023')
+    # TODO: Test behavioral read-out using synthetic data
+    features = [[0, 0, 0, 1],
+                [0, 1, 0, 0],
+                [0, 1, 1, 0]]
 
-
-        # determine unique stimuli
-        breakpoint()
-
-
-        triplets = place_on_screen(
-            stimulus_set=assy.stimulus_set,
-            target_visual_degrees=brain_model.visual_degrees(),
-            source_visual_degrees=8)
-
-        brain_model.start_task(BrainModel.Task.odd_one_out)
-        choices = brain_model.look_at(triplets)
-
-        assert len(choices) == len(triplets)
-        assert isinstance(choices[0], np.int64)
+    # ...

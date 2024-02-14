@@ -244,14 +244,18 @@ class OddOneOut(BrainModel):
     def look_at(self, triplets, number_of_trials=1):
         # Compute unique features
         stimuli = triplets.drop_duplicates(subset=['stimulus_id'])
+        stimuli = stimuli.sort_values(by='stimulus_id')
+
         features = self.activations_model(stimuli, layers=self.readout)
         features = features.transpose('presentation', 'neuroid')
-        
+
         # Compute similarity matrix
         similarity_matrix = self.calculate_similarity_matrix(features)
         
         # Compute choices
         triplets = np.array(triplets["stimulus_id"])
+
+        breakpoint()
 
         choices = self.calculate_choices(similarity_matrix, triplets)
 

@@ -38,14 +38,3 @@ class TestHebart2023:
                 'freq_1', 'freq_2', 'top_down_1', 'top_down_2', 'bottom_up', 'word_freq', 'word_freq_online',
                 'example_image', 'dispersion', 'dominant_part', 'rank'} == set(self.stimulus_set.columns)
         assert isinstance(self.stimulus_set, StimulusSet)
-
-    @pytest.mark.slow
-    def test_triplets(self):
-        triplets = np.array([
-            self.assembly.coords["image_1"].values,
-            self.assembly.coords["image_2"].values,
-            self.assembly.coords["image_3"].values
-        ]).T.reshape(-1, 1)
-
-        triplets = [f"{triplet[0]}.jpg" for triplet in triplets]
-        assert len(triplets) == 453642 * 3

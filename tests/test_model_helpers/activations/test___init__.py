@@ -196,6 +196,9 @@ def test_from_image_path(model_ctr, layers, image_name, pca_components, logits):
 def test_require_variance_has_shift_coords(model_ctr, layers, image_name, number_of_trials):
     stimulus_paths = [os.path.join(os.path.dirname(__file__), image_name)]
     activations_extractor = model_ctr()
+    # when using microsaccades, the ModelCommitment sets its visual angle. Since this test skips the ModelCommitment,
+    #  we set it here manually.
+    activations_extractor._extractor.set_visual_degrees(8.)
 
     activations = activations_extractor(stimuli=stimulus_paths, layers=layers, number_of_trials=number_of_trials,
                                         require_variance=True)
@@ -209,20 +212,22 @@ def test_require_variance_has_shift_coords(model_ctr, layers, image_name, number
                                         'palletized.png'])
 @pytest.mark.parametrize(["model_ctr", "layers"], models_layers)
 @pytest.mark.parametrize("require_variance", [False, True])
-def test_model_requirements(model_ctr, layers, image_name, require_variance):
+@pytest.mark.parametrize("number_of_trials", [1, 2, 10])
+def test_model_requirements(model_ctr, layers, image_name, require_variance, number_of_trials):
     stimulus_paths = [os.path.join(os.path.dirname(__file__), image_name)]
     activations_extractor = model_ctr()
+    # when using microsaccades, the ModelCommitment sets its visual angle. Since this test skips the ModelCommitment,
+    #  we set it here manually.
+    activations_extractor._extractor.set_visual_degrees(8.)
 
-    activations_with_req = activations_extractor(stimuli=stimulus_paths, layers=layers,
-                                                 number_of_trials=2, require_variance=require_variance)
-    activations_without_req = activations_extractor(stimuli=stimulus_paths, layers=layers,
-                                                    number_of_trials=1, require_variance=False)
+    activations = activations_extractor(stimuli=stimulus_paths, layers=layers,
+                                        number_of_trials=number_of_trials, require_variance=require_variance)
 
-    assert activations_with_req is not None
-    assert activations_without_req is not None
+    assert activations is not None
     if require_variance:
-        assert len(activations_with_req['presentation']) > len(activations_without_req['presentation'])
-    assert len(activations_with_req['neuroid']) == len(activations_without_req['neuroid'])
+        assert len(activations['presentation']) == number_of_trials
+    else:
+        assert len(activations['presentation']) == 1
 
 
 @pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png',

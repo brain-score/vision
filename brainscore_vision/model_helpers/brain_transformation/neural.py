@@ -1,6 +1,5 @@
 import logging
 
-import numpy as np
 from result_caching import store_xarray, store
 from tqdm import tqdm
 

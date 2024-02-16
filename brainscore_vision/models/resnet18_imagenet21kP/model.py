@@ -38,6 +38,22 @@ MODEL_COMMITMENT = {
     "behavioral_readout_layer": "avgpool"
 }
 
+def val_transforms() -> "transforms.Compose":
+    """Validation transformations."""
+    from torchvision import transforms
+
+    return transforms.Compose(
+        [
+            transforms.Resize(256, interpolation=transforms.InterpolationMode.BICUBIC),
+            transforms.CenterCrop(224),
+            transforms.ToTensor(),
+            transforms.Normalize(
+                [0.485, 0.456, 0.406],
+                [0.229, 0.224, 0.225]
+                ),
+        ]
+    )
+
 
 def get_model_list():
     return [MODEL_NAME]
@@ -58,7 +74,8 @@ def get_model(name):
     # model = torch.hub.load("apple/ml-aim", "aim_600M")
     model = torchvision.models.resnet18(weights=None)
     model.fc = torch.nn.Linear(512, 10450)
-    state_dict = torch.load("checkpoint.pt", map_location="cpu")
+    # state_dict = torch.load("checkpoint.pt", map_location="cpu")
+    state_dict = torch.utils.model_zoo.load_url("https://adf349cdkj2349.blob.core.windows.net/model-checkpoints/resnet18_imagenet21kP.pt", map_location="cpu")
     weights = state_dict["state"]["model"]
     weights = {k.replace("module.", ""): v for k, v in weights.items()}
     model.load_state_dict(weights, strict=True)

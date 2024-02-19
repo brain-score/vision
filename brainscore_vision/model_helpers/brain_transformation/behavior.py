@@ -4,6 +4,7 @@ from typing import Union, List
 
 import numpy as np
 import pandas as pd
+import xarray as xr
 import sklearn.linear_model
 import sklearn.multioutput
 
@@ -251,22 +252,18 @@ class OddOneOut(BrainModel):
 
         # Compute similarity matrix
         similarity_matrix = self.calculate_similarity_matrix(features)
-        
+
         # Compute choices
         triplets = np.array(triplets["stimulus_id"])
-
-        breakpoint()
 
         choices = self.calculate_choices(similarity_matrix, triplets)
 
         # Return choices
-        # TODO: Assembly - in function?
-        #stimulus_ids = triplets['stimulus_id']
-        #choices = BehavioralAssembly(
-        #    choices, 
-        #    coords={stimulus_ids}, # add more metadata from ss
-        #    dims=['presentation']
-        #    )
+        choices = BehavioralAssembly(
+            choices, 
+            coords={'stimulus_id': triplets[::3]},
+            dims=['stimulus_id']
+            )
         
         return choices
 
@@ -297,7 +294,9 @@ class OddOneOut(BrainModel):
         choice_predictions = []
         for triplet in triplets:
             i, j, k = triplet
-            sims = similarity_matrix[i, j], similarity_matrix[i, k],  similarity_matrix[j, k]
+            sims = [similarity_matrix.sel(stimulus_id_left=i, stimulus_id_right=j),
+                    similarity_matrix.sel(stimulus_id_left=i, stimulus_id_right=k), 
+                    similarity_matrix.sel(stimulus_id_left=j, stimulus_id_right=k)]
             idx = triplet[2 - np.argmax(sims)]
             choice_predictions.append(idx)
         return choice_predictions

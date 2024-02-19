@@ -79,7 +79,7 @@ class Hebart2023Accuracy(BenchmarkBase):
         # Keep the score > 0 
         score[0] = max(0, score[0])
         return score
-
+    
 
 if __name__ == '__main__':
     benchmark = Hebart2023Accuracy()

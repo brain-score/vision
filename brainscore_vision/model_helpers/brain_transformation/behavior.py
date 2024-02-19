@@ -243,10 +243,18 @@ class OddOneOut(BrainModel):
         self.current_task = task
 
     def look_at(self, triplets, number_of_trials=1):
-        # Compute unique features
+        # Compute unique features and image_pathst
         stimuli = triplets.drop_duplicates(subset=['stimulus_id'])
         stimuli = stimuli.sort_values(by='stimulus_id')
 
+        image_paths = set(stimuli.stimulus_paths)
+        def _sort_by_number(path):
+            return int(path.stem)
+
+        sorted_paths = sorted(image_paths, key=_sort_by_number)
+        stimuli.stimulus_paths = sorted_paths
+
+        # Get features
         features = self.activations_model(stimuli, layers=self.readout)
         features = features.transpose('presentation', 'neuroid')
 
@@ -255,7 +263,7 @@ class OddOneOut(BrainModel):
 
         # Compute choices
         triplets = np.array(triplets["stimulus_id"])
-
+        assert len(triplets) % 3 == 0, "No. of stimuli must be a multiple of 3"
         choices = self.calculate_choices(similarity_matrix, triplets)
 
         # Return choices

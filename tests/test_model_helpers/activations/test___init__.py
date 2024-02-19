@@ -237,6 +237,9 @@ def test_temporary_file_handling(model_ctr, layers, image_name):
     import tempfile
     stimulus_paths = [os.path.join(os.path.dirname(__file__), image_name)]
     activations_extractor = model_ctr()
+    # when using microsaccades, the ModelCommitment sets its visual angle. Since this test skips the ModelCommitment,
+    #  we set it here manually.
+    activations_extractor._extractor.set_visual_degrees(8.)
 
     activations = activations_extractor(stimuli=stimulus_paths, layers=layers, number_of_trials=2,
                                         require_variance=True)

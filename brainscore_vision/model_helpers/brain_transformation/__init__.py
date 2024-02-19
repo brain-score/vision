@@ -25,7 +25,7 @@ class ModelCommitment(BrainModel):
         self.layers = layers
         self.activations_model = activations_model
         # We set the visual degrees of the ActivationsExtractorHelper here to avoid changing its signature
-        self.activations_model.set_visual_degrees(visual_degrees)  # for microsaccades
+        self.activations_model._extractor.set_visual_degrees(visual_degrees)  # for microsaccades
         self._visual_degrees = visual_degrees
         # region-layer mapping
         if region_layer_map is None:

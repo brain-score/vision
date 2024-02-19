@@ -40,7 +40,7 @@ class Hebart2023Accuracy(BenchmarkBase):
             self._assembly.coords["image_3"].values
         ]).T.reshape(-1, 1)
 
-        # For debugging purposes only
+        # Limit no. of triplets. For debugging purposes only.
         self.triplets = self.triplets[:99999]
 
         stimuli_data = []
@@ -53,7 +53,6 @@ class Hebart2023Accuracy(BenchmarkBase):
         stimuli = pd.concat(stimuli_data)
         stimuli.columns = self._stimulus_set.columns
 
-        # Creating StimulusSet 
         stimuli = StimulusSet(stimuli)
         stimuli.identifier = 'Hebart2023'
         stimuli.stimulus_paths = image_paths
@@ -71,11 +70,14 @@ class Hebart2023Accuracy(BenchmarkBase):
         choices = candidate.look_at(stimuli, self._number_of_trials)
 
         # Score the model
-        correct_choices = choices == self._assembly.coords["image_3"].values
+        correct_choices = choices == self._assembly.coords["image_3"].values[:33333]
         raw_score = np.sum(correct_choices) / len(choices)
         score = (raw_score - 1 / 3) / (self.ceiling - 1 / 3)
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = self.ceiling
+
+        # Keep the score > 0 
+        score[0] = max(0, score[0])
         return score
 
 

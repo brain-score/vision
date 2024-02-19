@@ -24,6 +24,10 @@ class TensorflowWrapper:
     def __call__(self, *args, **kwargs):  # cannot assign __call__ as attribute due to Python convention
         return self._extractor(*args, **kwargs)
 
+    def set_visual_degrees(self, visual_degrees):
+        """A method to allow the ModelCommitment to set the visual angle of the ActivationsExtractorHelper."""
+        self._extractor.set_visual_degrees(visual_degrees)
+
     def get_activations(self, images, layer_names):
         layer_tensors = OrderedDict((layer, self._endpoints[
             layer if (layer != 'logits' or layer in self._endpoints) else next(reversed(self._endpoints))])

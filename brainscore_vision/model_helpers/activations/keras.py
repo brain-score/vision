@@ -29,6 +29,10 @@ class KerasWrapper:
     def __call__(self, *args, **kwargs):  # cannot assign __call__ as attribute due to Python convention
         return self._extractor(*args, **kwargs)
 
+    def set_visual_degrees(self, visual_degrees):
+        """A method to allow the ModelCommitment to set the visual angle of the ActivationsExtractorHelper."""
+        self._extractor.set_visual_degrees(visual_degrees)
+
     def get_activations(self, images, layer_names):
         from keras import backend as K
         input_tensor = self._model.input

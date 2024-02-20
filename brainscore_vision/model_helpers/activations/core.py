@@ -339,10 +339,12 @@ class ActivationsExtractorHelper:
 
         # build assembly
         coords = {'stimulus_path': ('presentation', stimuli_paths),
-                  'shift_x': ('presentation', unpack_microsaccade_coords(self.microsaccades,
-                                                                         np.unique(stimuli_paths), dim=0)),
-                  'shift_y': ('presentation', unpack_microsaccade_coords(self.microsaccades,
-                                                                         np.unique(stimuli_paths), dim=1)),
+                  'microsaccade_shift_x_pixels': ('presentation', unpack_microsaccade_coords(self.microsaccades,
+                                                                                             np.unique(stimuli_paths),
+                                                                                             dim=0)),
+                  'microsaccade_shift_y_pixels': ('presentation', unpack_microsaccade_coords(self.microsaccades,
+                                                                                             np.unique(stimuli_paths),
+                                                                                             dim=1)),
                   'neuroid_num': ('neuroid', list(range(activations.shape[1]))),
                   'model': ('neuroid', [self.identifier] * activations.shape[1]),
                   'layer': ('neuroid', [layer] * activations.shape[1]),
@@ -487,8 +489,7 @@ def unpack_microsaccade_coords(microsaccades: Dict[str, List], stimuli_paths: np
     return unpacked_microsaccades
 
 
-def attach_stimulus_set_meta(assembly, stimulus_set, number_of_trials: int, microsaccades: Dict[str, List],
-                             require_variance: bool = False):
+def attach_stimulus_set_meta(assembly, stimulus_set, number_of_trials: int, require_variance: bool = False):
     stimulus_paths = [str(stimulus_set.get_stimulus(stimulus_id)) for stimulus_id in stimulus_set['stimulus_id']]
     stimulus_paths = [lstrip_local(path) for path in stimulus_paths]
     assembly_paths = [lstrip_local(path) for path in assembly['stimulus_path'].values]
@@ -517,7 +518,7 @@ def attach_stimulus_set_meta(assembly, stimulus_set, number_of_trials: int, micr
         assembly = assembly.assign_coords({column: ('presentation', repeated_values)})  # assign multiple coords at once
         all_columns.append(column)
 
-    index = all_columns + ['shift_x', 'shift_y']
+    index = all_columns + ['microsaccade_shift_x_pixels', 'microsaccade_shift_y_pixels']
     assembly = assembly.set_index(presentation=index)  # assign MultiIndex
     return assembly
 

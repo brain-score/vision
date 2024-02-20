@@ -82,7 +82,7 @@ class Imagenet_C_Category(BenchmarkBase):
         self.noise_types = self.noise_category_map[noise_category]
 
         ceiling = Score(1)
-        super(Imagenet_C_Category, self).__init__(identifier=f'Hendrycks2019-{noise_category}-top1',
+        super(Imagenet_C_Category, self).__init__(identifier=f'ImageNet-C-{noise_category}-top1',
                                                   version=2,
                                                   ceiling_func=lambda: ceiling,
                                                   parent='Hendrycks2019-top1',

@@ -22,7 +22,7 @@ class Imagenet2012(BenchmarkBase):
         self._stimulus_set = stimulus_set
         self._similarity_metric = load_metric('accuracy')
         ceiling = Score(1)
-        super(Imagenet2012, self).__init__(identifier='Deng2009-top1', version=1,
+        super(Imagenet2012, self).__init__(identifier='ImageNet-top1', version=1,
                                            ceiling_func=lambda: ceiling,
                                            parent='ImageNet',
                                            bibtex="""@INPROCEEDINGS{5206848,  

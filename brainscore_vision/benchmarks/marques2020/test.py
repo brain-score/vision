@@ -96,11 +96,11 @@ def test_ceilings(benchmark, expected):
 def test_Marques2020(benchmark, expected):
     precomputed_test.run_test_properties(
         benchmark=benchmark,
-        files={'Marques2020_blank': 'alexnet-Marques2020_blank.nc',
-               'Marques2020_receptive_field': 'alexnet-Marques2020_receptive_field.nc',
-               'Marques2020_orientation': 'alexnet-Marques2020_orientation.nc',
-               'Marques2020_spatial_frequency': 'alexnet-Marques2020_spatial_frequency.nc',
-               'Marques2020_size': 'alexnet-Marques2020_size.nc',
+        files={'Marques2020_blank': 'alexnet-dicarlo.Marques2020_blank.nc',
+               'Marques2020_receptive_field': 'alexnet-dicarlo.Marques2020_receptive_field.nc',
+               'Marques2020_orientation': 'alexnet-dicarlo.Marques2020_orientation.nc',
+               'Marques2020_spatial_frequency': 'alexnet-dicarlo.Marques2020_spatial_frequency.nc',
+               'Marques2020_size': 'alexnet-dicarlo.Marques2020_size.nc',
                'movshon.FreemanZiemba2013_properties': 'alexnet-movshon.FreemanZiemba2013_properties.nc',
                },
         expected=expected)

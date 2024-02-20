@@ -20,7 +20,7 @@ from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
 # If the model requires a GPU, contact the brain-score team directly.
 
 
-os.environ["RESULTCACHING_DISABLE"] = "1"
+# os.environ["RESULTCACHING_DISABLE"] = "1"
 
 MODEL_NAME = "resnet18_imagenet21kP"
 

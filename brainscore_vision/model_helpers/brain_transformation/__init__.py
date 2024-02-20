@@ -24,9 +24,10 @@ class ModelCommitment(BrainModel):
                  visual_degrees=8):
         self.layers = layers
         self.activations_model = activations_model
-        # We set the visual degrees of the ActivationsExtractorHelper here to avoid changing its signature
-        if activations_model is not None:
-            self.activations_model._extractor.set_visual_degrees(visual_degrees)  # for microsaccades
+        # We set the visual degrees of the ActivationsExtractorHelper here to avoid changing its signature.
+        #  The ideal solution would be to not expose the _extractor of the activations_model here, but to change
+        #  the signature of the ActivationsExtractorHelper. See https://github.com/brain-score/vision/issues/554
+        self.activations_model._extractor.set_visual_degrees(visual_degrees)  # for microsaccades
         self._visual_degrees = visual_degrees
         # region-layer mapping
         if region_layer_map is None:

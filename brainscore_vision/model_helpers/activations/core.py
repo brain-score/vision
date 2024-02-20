@@ -42,7 +42,7 @@ class ActivationsExtractorHelper:
 
         # a dict that contains the image paths and their respective microsaccades. e.g.,
         #  {'abc.jpg': [(0, 0), (1.5, 2)]}
-        self.microsaccades = {}
+        self.microsaccades = {'pixels': {}, 'degrees': {}}
         self._visual_degrees = None  # Model visual degrees. Used for computing microsaccades
 
     def __call__(self, stimuli, layers, stimuli_identifier=None, number_of_trials: int = 1,
@@ -98,7 +98,7 @@ class ActivationsExtractorHelper:
         stimuli_paths = [str(stimulus_set.get_stimulus(stimulus_id)) for stimulus_id in stimulus_set['stimulus_id']]
         activations = self.from_paths(stimuli_paths=stimuli_paths, layers=layers, stimuli_identifier=stimuli_identifier)
         activations = attach_stimulus_set_meta(activations, stimulus_set, number_of_trials=self.number_of_trials,
-                                               microsaccades=self.microsaccades, require_variance=require_variance)
+                                               require_variance=require_variance)
         return activations
 
     def from_paths(self, stimuli_paths, layers, stimuli_identifier=None, require_variance=None):
@@ -243,16 +243,18 @@ class ActivationsExtractorHelper:
             #  idea to introduce cv2 image loading for all models and images, regardless of whether they are actually
             #  microsaccading.
             if not require_variance:
-                self.microsaccades[image_path] = [(0., 0.)]
+                self.microsaccades['pixels'][image_path] = [(0., 0.)]
+                self.microsaccades['degrees'][image_path] = [(0., 0.)]
                 output_images.append(images[index])
             else:
                 # translate images according to microsaccades if we are using microsaccades
                 image, image_shape = self.get_image_with_shape(images[index])
-                microsaccade_location = self.select_microsaccade(image_path=image_path,
-                                                                 trial_number=trial_number,
-                                                                 image_shape=image_shape)
+                microsaccade_location_pixels = self.select_microsaccade(image_path=image_path,
+                                                                        trial_number=trial_number,
+                                                                        image_shape=image_shape)
                 return_string = True if isinstance(images[index], str) else False
-                output_images.append(self.translate_image(image, microsaccade_location, image_shape, return_string))
+                output_images.append(self.translate_image(image, microsaccade_location_pixels, image_shape,
+                                                          return_string))
         return self.reshape_microsaccaded_images(output_images)
 
     def translate_image(self, image: str, microsaccade_location: Tuple[float, float], image_shape: Tuple[int, int],
@@ -339,12 +341,22 @@ class ActivationsExtractorHelper:
 
         # build assembly
         coords = {'stimulus_path': ('presentation', stimuli_paths),
-                  'microsaccade_shift_x_pixels': ('presentation', unpack_microsaccade_coords(self.microsaccades,
-                                                                                             np.unique(stimuli_paths),
-                                                                                             dim=0)),
-                  'microsaccade_shift_y_pixels': ('presentation', unpack_microsaccade_coords(self.microsaccades,
-                                                                                             np.unique(stimuli_paths),
-                                                                                             dim=1)),
+                  'microsaccade_shift_x_pixels': ('presentation', self.unpack_microsaccade_coords(
+                      np.unique(stimuli_paths),
+                      pixels_or_degrees='pixels',
+                      dim=0)),
+                  'microsaccade_shift_y_pixels': ('presentation', self.unpack_microsaccade_coords(
+                      np.unique(stimuli_paths),
+                      pixels_or_degrees='pixels',
+                      dim=1)),
+                  'microsaccade_shift_x_degrees': ('presentation', self.unpack_microsaccade_coords(
+                      np.unique(stimuli_paths),
+                      pixels_or_degrees='degrees',
+                      dim=0)),
+                  'microsaccade_shift_y_degrees': ('presentation', self.unpack_microsaccade_coords(
+                      np.unique(stimuli_paths),
+                      pixels_or_degrees='degrees',
+                      dim=1)),
                   'neuroid_num': ('neuroid', list(range(activations.shape[1]))),
                   'model': ('neuroid', [self.identifier] * activations.shape[1]),
                   'layer': ('neuroid', [layer] * activations.shape[1]),
@@ -370,16 +382,16 @@ class ActivationsExtractorHelper:
     def select_microsaccade(self, image_path: str, trial_number: int, image_shape: Tuple[int, int]
                             ) -> Tuple[float, float]:
         """
-        A naive function for generating microsaccade locations that span the same visual angle regardless of model
-        visual angle (to keep microsaccade extent constant across models). The function returns a list of
-        `number_of_trials` tuples that each contain a microsaccade location, expanding from the center of the image.
+        A function for generating microsaccade locations. The function returns a tuple of pixel shifts expanding from
+        the center of the image.
 
         Microsaccade locations are placed within a circle, evenly distributed across the entire area in a spiral,
-        from the center to the circumference.
+        from the center to the circumference. We keep track of microsaccades both on a pixel and visual angle basis,
+        but only pixel values are returned. This is because shifting the image using cv2 requires pixel representation.
         """
         # avoid duplicating this computation repeatedly
         if image_path in self.microsaccades.keys():
-            return self.microsaccades[image_path][trial_number]
+            return self.microsaccades['pixels'][image_path][trial_number]
 
         if image_shape[0] != image_shape[1]:
             self._logger.debug('Warning: input image is not a square. Image dimension 0 is used to calculate the '
@@ -394,9 +406,9 @@ class ActivationsExtractorHelper:
                                  ':meth:`~brainscore_vision.model_helpers.activations.ActivationsExtractorHelper.'
                                  '__call__`,')
         radius_ratio = self.microsaccade_extent_degrees / self._visual_degrees
-        max_radius = 0.5 * radius_ratio * image_shape[0]  # half width of the image as the maximum radius
+        max_radius = radius_ratio * image_shape[0]  # maximum radius in pixels, set in self.microsaccade_extent_degrees
 
-        selected_microsaccades = []
+        selected_microsaccades = {'pixels': [], 'degrees': []}
         # microsaccades are placed in a spiral at sub-pixel increments
         a = max_radius / np.sqrt(self.number_of_trials)  # spiral coefficient to space microsaccades evenly
         for i in range(self.number_of_trials):
@@ -406,11 +418,37 @@ class ActivationsExtractorHelper:
             # convert polar coordinates to Cartesian, centered on the image
             x = r * np.cos(theta)
             y = r * np.sin(theta)
-            selected_microsaccades.append((x, y))
+
+            pixels_per_degree = self.calculate_pixels_per_degree_in_image(image_shape[0])
+            selected_microsaccades['pixels'].append((x, y))
+            selected_microsaccades['degrees'].append(self.convert_pixels_to_degrees((x, y), pixels_per_degree))
 
         # to keep consistent with number_of_trials, we count trial_number from 1 instead of from 0
-        self.microsaccades[image_path] = selected_microsaccades
-        return selected_microsaccades[trial_number - 1]
+        self.microsaccades['pixels'][image_path] = selected_microsaccades['pixels']
+        self.microsaccades['degrees'][image_path] = selected_microsaccades['degrees']
+        return selected_microsaccades['pixels'][trial_number - 1]
+
+    def unpack_microsaccade_coords(self, stimuli_paths: np.ndarray, pixels_or_degrees: str,
+                            dim: int):
+        """Unpacks microsaccades from stimuli_paths into a single list to conform with coord requirements."""
+        # Python 3.7 does not support typing.Literal
+        assert pixels_or_degrees == 'pixels' or pixels_or_degrees == 'degrees'
+        unpacked_microsaccades = []
+        for stimulus_path in stimuli_paths:
+            for microsaccade in self.microsaccades[pixels_or_degrees][stimulus_path]:
+                unpacked_microsaccades.append(microsaccade[dim])
+        return unpacked_microsaccades
+
+    def calculate_pixels_per_degree_in_image(self, image_width_pixels: int) -> float:
+        """Calculates the pixels per degree in the image, assuming the calculation based on image width."""
+        pixels_per_degree = image_width_pixels / self._visual_degrees
+        return pixels_per_degree
+
+    @staticmethod
+    def convert_pixels_to_degrees(pixel_coords: Tuple[float, float], pixels_per_degree: float) -> Tuple[float, float]:
+        degrees_x = pixel_coords[0] / pixels_per_degree
+        degrees_y = pixel_coords[1] / pixels_per_degree
+        return degrees_x, degrees_y
 
     @staticmethod
     def remove_temporary_files(temporary_file_paths: List[str]) -> None:
@@ -480,15 +518,6 @@ def lstrip_local(path):
     return path
 
 
-def unpack_microsaccade_coords(microsaccades: Dict[str, List], stimuli_paths: np.ndarray, dim: int):
-    """Unpacks microsaccades from stimuli_paths into a single list to conform with coord requirements."""
-    unpacked_microsaccades = []
-    for stimulus_path in stimuli_paths:
-        for microsaccade in microsaccades[stimulus_path]:
-            unpacked_microsaccades.append(microsaccade[dim])
-    return unpacked_microsaccades
-
-
 def attach_stimulus_set_meta(assembly, stimulus_set, number_of_trials: int, require_variance: bool = False):
     stimulus_paths = [str(stimulus_set.get_stimulus(stimulus_id)) for stimulus_id in stimulus_set['stimulus_id']]
     stimulus_paths = [lstrip_local(path) for path in stimulus_paths]
@@ -518,7 +547,8 @@ def attach_stimulus_set_meta(assembly, stimulus_set, number_of_trials: int, requ
         assembly = assembly.assign_coords({column: ('presentation', repeated_values)})  # assign multiple coords at once
         all_columns.append(column)
 
-    index = all_columns + ['microsaccade_shift_x_pixels', 'microsaccade_shift_y_pixels']
+    index = all_columns + ['microsaccade_shift_x_pixels', 'microsaccade_shift_y_pixels',
+                           'microsaccade_shift_x_degrees', 'microsaccade_shift_y_degrees']
     assembly = assembly.set_index(presentation=index)  # assign MultiIndex
     return assembly
 

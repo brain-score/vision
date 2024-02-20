@@ -206,6 +206,8 @@ def test_require_variance_has_shift_coords(model_ctr, layers, image_name, number
     assert activations is not None
     assert len(activations['microsaccade_shift_x_pixels']) == number_of_trials * len(stimulus_paths)
     assert len(activations['microsaccade_shift_y_pixels']) == number_of_trials * len(stimulus_paths)
+    assert len(activations['microsaccade_shift_x_degrees']) == number_of_trials * len(stimulus_paths)
+    assert len(activations['microsaccade_shift_y_degrees']) == number_of_trials * len(stimulus_paths)
 
 
 @pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png',

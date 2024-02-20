@@ -247,11 +247,9 @@ class OddOneOut(BrainModel):
         stimuli = triplets.drop_duplicates(subset=['stimulus_id'])
         stimuli = stimuli.sort_values(by='stimulus_id')
 
+        # Also sort the image paths
         image_paths = set(stimuli.stimulus_paths)
-        def _sort_by_number(path):
-            return int(path.stem)
-
-        sorted_paths = sorted(image_paths, key=_sort_by_number)
+        sorted_paths = sorted(image_paths, key=lambda path: int(path.stem))
         stimuli.stimulus_paths = sorted_paths
 
         # Get features

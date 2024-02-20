@@ -27,8 +27,8 @@ class LayerMappedModel(BrainModel):
         """
         :param number_of_trials: An integer that determines how many repetitions of the same model performs.
         :param require_variance: Whether to require models to return different activations for the same stimuli or not.
-                                  For detailed information, see https://github.com/brain-score/vision/blob/master/
-                                  brainscore_vision/model_helpers/activations/core.py#L26
+                                  For detailed information, see
+                                  :meth:`~brainscore_vision.model_helpers.activations.ActivationsExtractorHelper.__call__`,
         """
         layer_regions = {}
         for region in self.recorded_regions:

@@ -388,8 +388,9 @@ class ActivationsExtractorHelper:
             raise AssertionError('self._visual_degrees is not set by the ModelCommitment, but microsaccades '
                                  'are in use. Set activations_model visual degrees in your commitment after defining '
                                  'your activations_model. For example, self.activations_model.set_visual_degrees'
-                                 '(visual_degrees). For more information, see https://github.com/brain-score/vision/'
-                                 'blob/master/brainscore_vision/model_helpers/brain_transformation/__init__.py#L26')
+                                 '(visual_degrees). For detailed information, see '
+                                 ':meth:`~brainscore_vision.model_helpers.activations.ActivationsExtractorHelper.'
+                                 '__call__`,')
         radius_ratio = self.microsaccade_extent_degrees / self._visual_degrees
         max_radius = 0.5 * radius_ratio * image_shape[0]  # half width of the image as the maximum radius
 

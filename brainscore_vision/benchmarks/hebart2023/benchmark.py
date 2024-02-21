@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from brainio.stimuli import StimulusSet
-from brainscore_vision import load_dataset, load_stimulus_set, load_model
+from brainscore_vision import load_dataset, load_stimulus_set
 from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
 from brainscore_vision.model_interface import BrainModel, BehavioralAssembly
@@ -44,12 +44,7 @@ class Hebart2023Accuracy(BenchmarkBase):
         lim = 33333
         self.triplets = self.triplets[:3*lim]
 
-        stimuli_data = []
-
-        # TODO: Do this as a list comprehension?
-        for stim in self.triplets:
-            stimuli_data.append(self._stimulus_set.loc[stim])
-
+        stimuli_data = [self._stimulus_set.loc[stim] for stim in self.triplets]
         stimuli = pd.concat(stimuli_data)
         stimuli.columns = self._stimulus_set.columns
 
@@ -73,17 +68,7 @@ class Hebart2023Accuracy(BenchmarkBase):
         correct_choices = choices == self._assembly.coords["image_3"].values[:lim]
         raw_score = np.sum(correct_choices) / len(choices)
         score = (raw_score - 1 / 3) / (self.ceiling - 1 / 3)
+        score[0] = max(0, score[0])
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = self.ceiling
-
-        # Keep the score > 0 
-        score[0] = max(0, score[0])
         return score
-    
-
-if __name__ == '__main__':
-    benchmark = Hebart2023Accuracy()
-    model = load_model('alexnet')
-    score = benchmark(model)
-    print(score)
-          

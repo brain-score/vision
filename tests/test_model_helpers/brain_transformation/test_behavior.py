@@ -80,6 +80,14 @@ def mock_stimulus_set():
     stimuli.identifier = 'TestLabelBehavior.rgb_1_2'
     return stimuli
 
+def mock_triplet():
+    stimuli = StimulusSet({'stimulus_id': ['1', '2', '3'], 'filename': ['rgb1', 'rgb2', 'rgb3']})
+    stimuli.stimulus_paths = {'1': os.path.join(os.path.dirname(__file__), 'rgb1.jpg'),
+                              '2': os.path.join(os.path.dirname(__file__), 'rgb2.jpg'),
+                              '3': os.path.join(os.path.dirname(__file__), 'rgb3.jpg')}
+    stimuli.identifier = 'TestLabelBehavior.rgb_1_2_3'
+    return stimuli
+
 
 class TestLogitsBehavior:
     """
@@ -112,10 +120,7 @@ class TestProbabilitiesMapping:
         activations_model = pytorch_custom()
         brain_model = ModelCommitment(identifier=activations_model.identifier, activations_model=activations_model,
                                       layers=None, behavioral_readout_layer='relu2')
-        fitting_stimuli = StimulusSet({'stimulus_id': ['rgb1', 'rgb2'], 'image_label': ['label1', 'label2']})
-        fitting_stimuli.stimulus_paths = {'rgb1': os.path.join(os.path.dirname(__file__), 'rgb1.jpg'),
-                                          'rgb2': os.path.join(os.path.dirname(__file__), 'rgb2.jpg')}
-        fitting_stimuli.identifier = 'test_probabilities_mapping.creates_probabilities'
+        fitting_stimuli = mock_stimulus_set()
         fitting_stimuli = place_on_screen(fitting_stimuli, target_visual_degrees=brain_model.visual_degrees(),
                                           source_visual_degrees=8)
         brain_model.start_task(BrainModel.Task.probabilities, fitting_stimuli)
@@ -129,7 +134,13 @@ class TestProbabilitiesMapping:
 
 
 class TestOddOneOut:
+    def test_import(self):
+        from brainscore_vision.model_helpers.brain_transformation.behavior import OddOneOut
+
     def test_odd_one_out(self):
+        from brainscore_vision.model_helpers.brain_transformation.behavior import OddOneOut
+    
+        # Set up the task
         activations_model = pytorch_custom()
         brain_model = ModelCommitment(
             identifier=activations_model.identifier, 
@@ -137,9 +148,17 @@ class TestOddOneOut:
             layers=[None], 
             behavioral_readout_layer='relu2')
 
-    # TODO: Test behavioral read-out using synthetic data
-    features = [[0, 0, 0, 1],
-                [0, 1, 0, 0],
-                [0, 1, 1, 0]]
+        brain_model = OddOneOut(identifier='pytorch-custom', 
+                         activations_model=activations_model)
 
-    # ...
+        # Test similarity measure functionality
+        assert brain_model.similarity_measure == 'dot'
+        brain_model.set_similarity_measure('cosine') 
+        assert brain_model.similarity_measure == 'cosine'
+
+        # Test the task
+        #stimuli = mock_triplet()
+        #brain_model.start_task(BrainModel.Task.odd_one_out)
+        #behavior = brain_model.look_at(stimuli)
+        #assert isinstance(behavior, BehavioralAssembly)
+        #assert len(behavior['choice']) == 1

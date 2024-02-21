@@ -268,9 +268,6 @@ class OddOneOut(BrainModel):
         
         return choices
 
-    def set_similarity_measure(self, similarity_measure):
-        self.similarity_measure = similarity_measure
-
     def calculate_similarity_matrix(self, features):
         features = features.transpose('presentation', 'neuroid')
         values = features.values
@@ -293,14 +290,32 @@ class OddOneOut(BrainModel):
         }, dims=['presentation_left', 'presentation_right'])
         return similarity_matrix
 
+
     def calculate_choices(self, similarity_matrix, triplets):
-        triplets = np.array(triplets).reshape(-1, 3)
-        choice_predictions = []
-        for triplet in triplets:
-            i, j, k = triplet
-            sims = [similarity_matrix.sel(stimulus_id_left=i, stimulus_id_right=j),
-                    similarity_matrix.sel(stimulus_id_left=i, stimulus_id_right=k), 
-                    similarity_matrix.sel(stimulus_id_left=j, stimulus_id_right=k)]
-            idx = triplet[2 - np.argmax(sims)]
-            choice_predictions.append(idx)
+        # If the unique indices are [0, ..., n-1] we can use NumPy instead of
+        # xarray to handle the data in a vectorized fashion and improve the speed.
+        
+        if len(set(triplets)) >= max(triplets) - 1:
+            similarity_matrix = similarity_matrix.values
+            print(type(similarity_matrix))
+            triplets = np.array(triplets).reshape(-1, 3)
+            i, j, k = triplets[:, 0], triplets[:, 1], triplets[:, 2]
+    
+            sims_ij = similarity_matrix[i, j]
+            sims_ik = similarity_matrix[i, k]
+            sims_jk = similarity_matrix[j, k]
+            
+            max_sims = np.argmax(np.array([sims_ij, sims_ik, sims_jk]), axis=0)
+            choice_predictions = np.where(max_sims == 0, k, np.where(max_sims == 1, j, i))
+
+        else: 
+            triplets = np.array(triplets).reshape(-1, 3)
+            choice_predictions = []
+
+            for triplet in triplets:
+                i, j, k = triplet
+                sims = similarity_matrix[i, j], similarity_matrix[i, k],  similarity_matrix[j, k]
+                idx = triplet[2 - np.argmax(sims)]
+                choice_predictions.append(idx)
+        
         return choice_predictions

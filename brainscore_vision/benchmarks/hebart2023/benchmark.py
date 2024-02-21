@@ -41,21 +41,21 @@ class Hebart2023Accuracy(BenchmarkBase):
         ]).T.reshape(-1, 1)
 
         # Limit no. of triplets. For debugging purposes only.
-        self.triplets = self.triplets[:99999]
+        lim = 33333
+        self.triplets = self.triplets[:3*lim]
 
         stimuli_data = []
-        image_paths = []
 
+        # TODO: Do this as a list comprehension?
         for stim in self.triplets:
             stimuli_data.append(self._stimulus_set.loc[stim])
-            image_paths.append(self._stimulus_set.stimulus_paths[stim[0]])
 
         stimuli = pd.concat(stimuli_data)
         stimuli.columns = self._stimulus_set.columns
 
         stimuli = StimulusSet(stimuli)
         stimuli.identifier = 'Hebart2023'
-        stimuli.stimulus_paths = image_paths
+        stimuli.stimulus_paths = self._stimulus_set.stimulus_paths
         stimuli['stimulus_id'] = stimuli['stimulus_id'].astype(int)
 
         # Prepare the stimuli
@@ -70,7 +70,7 @@ class Hebart2023Accuracy(BenchmarkBase):
         choices = candidate.look_at(stimuli, self._number_of_trials)
 
         # Score the model
-        correct_choices = choices == self._assembly.coords["image_3"].values[:33333]
+        correct_choices = choices == self._assembly.coords["image_3"].values[:lim]
         raw_score = np.sum(correct_choices) / len(choices)
         score = (raw_score - 1 / 3) / (self.ceiling - 1 / 3)
         score.attrs['raw'] = raw_score
@@ -86,3 +86,4 @@ if __name__ == '__main__':
     model = load_model('alexnet')
     score = benchmark(model)
     print(score)
+          

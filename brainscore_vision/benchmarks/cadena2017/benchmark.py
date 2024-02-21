@@ -38,7 +38,7 @@ def ToliasCadena2017PLS():
         assembly_nonan, stimuli = loader.dropna(assembly_repetition, assembly_repetition.attrs['stimulus_set'])
         return ceiler(assembly_nonan)
 
-    return NeuralBenchmark(identifier='tolias.Cadena2017-pls', version=1,
+    return NeuralBenchmark(identifier='Cadena2017-pls', version=1,
                            assembly=assembly, similarity_metric=similarity_metric,
                            visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
                            parent='V1', bibtex=BIBTEX,

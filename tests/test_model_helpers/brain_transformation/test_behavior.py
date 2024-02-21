@@ -157,8 +157,8 @@ class TestOddOneOut:
         assert brain_model.similarity_measure == 'cosine'
 
         # Test the task
-        #stimuli = mock_triplet()
-        #brain_model.start_task(BrainModel.Task.odd_one_out)
-        #behavior = brain_model.look_at(stimuli)
-        #assert isinstance(behavior, BehavioralAssembly)
-        #assert len(behavior['choice']) == 1
+        stimuli = mock_triplet()
+        brain_model.start_task(BrainModel.Task.odd_one_out)
+        behavior = brain_model.look_at(stimuli)
+        assert isinstance(behavior, BehavioralAssembly)
+        assert len(behavior['choice']) == 1

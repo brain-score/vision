@@ -268,6 +268,9 @@ class OddOneOut(BrainModel):
         
         return choices
 
+    def set_similarity_measure(self, similarity_measure):
+        self.similarity_measure = similarity_measure
+
     def calculate_similarity_matrix(self, features):
         features = features.transpose('presentation', 'neuroid')
         values = features.values

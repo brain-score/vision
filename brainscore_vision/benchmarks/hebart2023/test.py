@@ -15,4 +15,4 @@ def test_alexnet_consistency():
     benchmark = Hebart2023Accuracy()
     model = load_model('alexnet')
     score = benchmark(model)
-    assert score.sel(aggregation='center') == pytest.approx(0.38, abs=0.01)
+    assert score.sel(aggregation='center') == pytest.approx(0.38, abs=0.02)

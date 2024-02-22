@@ -17,7 +17,6 @@ BIBTEX = """@article{10.7554/eLife.82580,
           year = 2023
           }"""
 
-# TODO: make data private again!!
 class Hebart2023Accuracy(BenchmarkBase):
     def __init__(self, similarity_measure='dot'):
         self._visual_degrees = 8
@@ -40,10 +39,6 @@ class Hebart2023Accuracy(BenchmarkBase):
             self._assembly.coords["image_3"].values
         ]).T.reshape(-1, 1)
 
-        # Limit no. of triplets. For debugging purposes only.
-        lim = 33333
-        self.triplets = self.triplets[:3*lim]
-
         stimuli_data = [self._stimulus_set.loc[stim] for stim in self.triplets]
         stimuli = pd.concat(stimuli_data)
         stimuli.columns = self._stimulus_set.columns
@@ -65,7 +60,7 @@ class Hebart2023Accuracy(BenchmarkBase):
         choices = candidate.look_at(stimuli, self._number_of_trials)
 
         # Score the model
-        correct_choices = choices == self._assembly.coords["image_3"].values[:lim]
+        correct_choices = choices == self._assembly.coords["image_3"]
         raw_score = np.sum(correct_choices) / len(choices)
         score = (raw_score - 1 / 3) / (self.ceiling - 1 / 3)
         score[0] = max(0, score[0])

@@ -140,7 +140,7 @@ class TestOddOneOut:
     def test_import(self):
         from brainscore_vision.model_helpers.brain_transformation.behavior import OddOneOut
 
-    def test_odd_one_out_dot(self):
+    def test_dot(self):
         from brainscore_vision.model_helpers.brain_transformation.behavior import OddOneOut
     
         # Set up the task
@@ -165,7 +165,7 @@ class TestOddOneOut:
         assert isinstance(choice, BehavioralAssembly)
         assert len(choice.values) == 1
 
-    def test_odd_one_out_cosine(self):
+    def test_cosine(self):
         from brainscore_vision.model_helpers.brain_transformation.behavior import OddOneOut
 
         # Set up the task

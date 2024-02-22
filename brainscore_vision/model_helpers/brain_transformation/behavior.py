@@ -262,10 +262,9 @@ class OddOneOut(BrainModel):
         # Return choices
         choices = BehavioralAssembly(
             choices, 
-            coords={'stimulus_id': triplets[::3]},
-            dims=['stimulus_id']
-            )
-        
+            coords={'stimulus_id': triplets[2::3]},
+            dims=['stimulus_id'])
+
         return choices
 
     def set_similarity_measure(self, similarity_measure):

@@ -190,3 +190,4 @@ class TestOddOneOut:
         choice = brain_model.look_at(stimuli)
         assert isinstance(choice, BehavioralAssembly)
         assert len(choice.values) == 1
+        

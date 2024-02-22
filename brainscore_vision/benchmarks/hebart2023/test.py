@@ -3,8 +3,8 @@ import pytest
 from brainscore_vision import benchmark_registry, load_model
 from brainscore_vision.benchmarks.hebart2023 import Hebart2023Accuracy
 
-def test_benchmark_registry(benchmark):
-    assert benchmark in benchmark_registry
+def test_benchmark_registry():
+    assert "Hebart2023-acc" in benchmark_registry
 
 def test_ceiling():
     benchmark = Hebart2023Accuracy()

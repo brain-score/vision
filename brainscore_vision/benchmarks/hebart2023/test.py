@@ -11,8 +11,11 @@ def test_ceiling():
     ceiling = benchmark.ceiling
     assert ceiling.sel(aggregation='center') == pytest.approx(0.6844, abs=0.0001)
 
-def test_alexnet_consistency():
-    benchmark = Hebart2023Accuracy()
-    model = load_model('alexnet')
-    score = benchmark(model)
-    assert score.sel(aggregation='center') == pytest.approx(0.38, abs=0.02)
+
+# This test takes longer than 10 minutes. See also:
+# https://docs.travis-ci.com/user/common-build-problems/#build-times-out-because-no-output-was-received
+# def test_alexnet_consistency():
+#     benchmark = Hebart2023Accuracy()
+#     model = load_model('alexnet')
+#     score = benchmark(model)
+#     assert score.sel(aggregation='center') == pytest.approx(0.38, abs=0.02)

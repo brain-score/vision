@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 from brainscore_vision.metrics import Score
 from brainscore_vision.model_helpers.activations.pca import LayerPCA
-from brainscore_vision.model_helpers.brain_transformation import TemporalIgnore
+from brainscore_vision.model_helpers.brain_transformation import TemporalAligned
 from brainscore_vision.model_helpers.utils import make_list
 from brainscore_vision.model_interface import BrainModel
 from brainscore_vision.utils import fullname
@@ -115,7 +115,7 @@ class LayerScores:
         for i, layer in enumerate(tqdm(layers, desc="layers")):
             layer_model = self._create_mapped_model(region=benchmark.region, layer=layer, model=model,
                                                     model_identifier=model_identifier, visual_degrees=visual_degrees)
-            layer_model = TemporalIgnore(layer_model)
+            layer_model = TemporalAligned(layer_model)
             if i == 0 and prerun:  # pre-run activations together to avoid running every layer separately
                 # we can only pre-run stimuli in response to the benchmark, since we might otherwise be missing
                 # visual_degrees resizing.

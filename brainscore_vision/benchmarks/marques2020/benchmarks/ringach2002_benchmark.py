@@ -36,11 +36,14 @@ BIBTEX = """@article{Ringach2002,
 RESPONSE_THRESHOLD = 5
 
 
-def _MarquesRingach2002V1Property(property_name, parent):
+def _MarquesRingach2002V1Property(property_name, parent, property_identifier=None):
     assembly = load_dataset(ASSEMBLY_NAME)
     similarity_metric = load_metric('ks_similarity', property_name=property_name)
     ceil_func = NeuronalPropertyCeiling(similarity_metric)
-    return PropertiesBenchmark(identifier=f'dicarlo.Marques_ringach2002-{property_name}', assembly=assembly,
+    
+    if not property_identifier:
+        property_identifier = property_name
+    return PropertiesBenchmark(identifier=f'Marques2020_Ringach2002-{property_identifier}', assembly=assembly,
                                neuronal_property=ringach2002_properties, similarity_metric=similarity_metric,
                                timebins=TIMEBINS,
                                parent=parent, ceiling_func=ceil_func, bibtex=BIBTEX, version=1)
@@ -54,32 +57,37 @@ def MarquesRingach2002V1CircularVariance():
 
 def MarquesRingach2002V1Bandwidth():
     property_name = 'bandwidth'
+    property_identifier = 'or_bandwidth'
     parent = PARENT_ORIENTATION
-    return _MarquesRingach2002V1Property(property_name=property_name, parent=parent)
+    return _MarquesRingach2002V1Property(property_name=property_name, parent=parent, property_identifier=property_identifier)
 
 
 def MarquesRingach2002V1OrthogonalPreferredRatio():
     property_name = 'orthogonal_preferred_ratio'
+    property_identifier = 'orth_pref_ratio'
     parent = PARENT_ORIENTATION
-    return _MarquesRingach2002V1Property(property_name=property_name, parent=parent)
+    return _MarquesRingach2002V1Property(property_name=property_name, parent=parent, property_identifier=property_identifier)
 
 
 def MarquesRingach2002V1OrientationSelective():
     property_name = 'orientation_selective'
+    property_identifier = 'or_selective'
     parent = PARENT_ORIENTATION
-    return _MarquesRingach2002V1Property(property_name=property_name, parent=parent)
+    return _MarquesRingach2002V1Property(property_name=property_name, parent=parent, property_identifier=property_identifier)
 
 
 def MarquesRingach2002V1CircularVarianceBandwidthRatio():
     property_name = 'circular_variance_bandwidth_ratio'
+    property_identifier = 'cv_bandwidth_ratio'
     parent = PARENT_ORIENTATION
-    return _MarquesRingach2002V1Property(property_name=property_name, parent=parent)
+    return _MarquesRingach2002V1Property(property_name=property_name, parent=parent, property_identifier=property_identifier)
 
 
 def MarquesRingach2002V1OrthogonalPrefferredRatioCircularVarianceDifference():
     property_name = 'orthogonal_preferred_ratio_circular_variance_difference'
+    property_identifier = 'opr_cv_diff'
     parent = PARENT_ORIENTATION
-    return _MarquesRingach2002V1Property(property_name=property_name, parent=parent)
+    return _MarquesRingach2002V1Property(property_name=property_name, parent=parent, property_identifier=property_identifier)
 
 
 def MarquesRingach2002V1MaxDC():

@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/brain-score/brain-score.svg?token=vqt7d2yhhpLGwHsiTZvT&branch=master)](https://travis-ci.com/brain-score/brain-score)
+[![Build Status](https://travis-ci.com/brain-score/vision.svg?token=vqt7d2yhhpLGwHsiTZvT&branch=master)](https://travis-ci.com/brain-score/vision)
 [![Documentation Status](https://readthedocs.org/projects/brain-score/badge/?version=latest)](https://brain-score.readthedocs.io/en/latest/?badge=latest)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md) 
 
@@ -15,7 +15,7 @@ and [Examples](https://github.com/brain-score/candidate_models/blob/master/examp
 for submitting a model to Brain-Score.
 
 Brain-Score is made by and for the community. 
-To contribute, please [send in a pull request](https://github.com/brain-score/brain-score/pulls).
+To contribute, please [send in a pull request](https://github.com/brain-score/vision/pulls).
 
 
 ## Local installation
@@ -24,7 +24,7 @@ You will need Python = 3.7 and pip >= 18.1.
 Note that you can only access public benchmarks when running locally.
 To score a model on all benchmarks, submit it via the [brain-score.org website](http://www.brain-score.org).
 
-`pip install git+https://github.com/brain-score/brain-score`
+`pip install git+https://github.com/brain-score/vision`
 
 Score a model on a public benchmark:
 
@@ -48,8 +48,7 @@ score = benchmark(model)
 Some steps may take minutes because data has to be downloaded during first-time use.
 
 For more details, see the [Documentation](https://brain-score.readthedocs.io) and 
-the Examples [[1]](https://github.com/brain-score/brain-score/blob/master/examples) 
-[[2]](https://github.com/brain-score/candidate_models/blob/master/examples).
+the [Examples](https://github.com/brain-score/vision/blob/master/examples).
 
 
 ## Environment Variables

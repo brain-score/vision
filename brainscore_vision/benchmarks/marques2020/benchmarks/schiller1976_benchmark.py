@@ -37,7 +37,8 @@ def _MarquesSchiller1976V1Property(property_name):
     similarity_metric = load_metric('ks_similarity', property_name=property_name)
     ceil_func = NeuronalPropertyCeiling(similarity_metric)
     parent = PARENT
-    return PropertiesBenchmark(identifier=f'dicarlo.Marques_schiller1976-{property_name}', assembly=assembly,
+    property_identifier = property_name.replace("spatial_frequency", "sf")
+    return PropertiesBenchmark(identifier=f'Marques2020_Schiller1976-{property_identifier}', assembly=assembly,
                                neuronal_property=schiller1976_properties, similarity_metric=similarity_metric,
                                timebins=TIMEBINS,
                                parent=parent, ceiling_func=ceil_func, bibtex=BIBTEX, version=1)

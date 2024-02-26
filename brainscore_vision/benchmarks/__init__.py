@@ -50,7 +50,7 @@ class Benchmark(ABC):
     def identifier(self) -> str:
         """
         Unique identifier for this benchmark.
-        Standard format is `<data identifier>-<metric identifier>`, e.g. `dicarlo.Rajalingham2018-i2n`.
+        Standard format is `<data identifier>-<metric identifier>`, e.g. `Rajalingham2018-i2n`.
 
         :return: a unique identifier for this benchmark
         """

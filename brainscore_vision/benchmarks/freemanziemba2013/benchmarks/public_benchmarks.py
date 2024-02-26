@@ -21,7 +21,7 @@ def _freemanziemba2013_public_benchmark(region: str):
     assembly = LazyLoad(lambda: load_assembly(region=region, access='public', average_repetitions=True))
     similarity_metric = load_metric('pls', crossvalidation_kwargs=dict(stratification_coord='texture_type'))
     ceiler = load_ceiling('internal_consistency')
-    return NeuralBenchmark(identifier=f"movshon.FreemanZiemba2013.{region}.public-pls", version=1,
+    return NeuralBenchmark(identifier=f"FreemanZiemba2013.{region}.public-pls", version=1,
                            assembly=assembly, similarity_metric=similarity_metric,
                            visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
                            ceiling_func=lambda: ceiler(assembly_repetition),

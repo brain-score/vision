@@ -20,7 +20,7 @@ permissions: write-all
 
 jobs:
 
-  changes_models_or_benchmarks:
+  process_submission:
     name: Check if PR makes changes to /models or /benchmarks
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
@@ -59,42 +59,33 @@ jobs:
         run: |
           echo "RUN_SCORING=$(jq -r '.run_score' <<< ${{ steps.getpluginfo.outputs.PLUGIN_INFO }})" >> $GITHUB_OUTPUT
 
-  get_submitter_info:
-    name: Get PR author email and (if web submission) Brain-Score user ID
-    runs-on: ubuntu-latest
-    needs: [changes_models_or_benchmarks]
-    if: needs.changes_models_or_benchmarks.outputs.RUN_SCORING == 'True'
-    env:
-      PLUGIN_INFO: ${{ needs.changes_models_or_benchmarks.outputs.PLUGIN_INFO }}
-    outputs:
-      PLUGIN_INFO: ${{ steps.add_email_to_pluginfo.outputs.PLUGIN_INFO }}
-    steps:
-      - name: Parse user ID from PR title and add to PLUGIN_INFO (WEB ONLY where we don't have access to the GitHub user)
-        id: add_uid_to_pluginfo
-        if: contains(github.event.pull_request.labels.*.name, 'automerge-web')
+      - name: Parse user ID and fetch email for web submissions
+        id: parseid
+        if: contains(github.event.pull_request.labels.*.name, 'automerge-web') && env.RUN_SCORING == 'True'
         run: |
           BS_UID="$(echo '${{ github.event.pull_request.title }}' | sed -E 's/.*\(user:([^)]+)\).*/\1/')"
           BS_PUBLIC="$(echo '${{ github.event.pull_request.title }}' | sed -E 's/.*\(public:([^)]+)\).*/\1/')"
-          echo "The Brain-Score user ID is $BS_UID"
-          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO tr -d "'" | jq -c ". + {user_id: \"$BS_UID\", public: \"$BS_PUBLIC\"}")" >> $GITHUB_ENV
-
-      - name: Get PR author email from GitHub username
-        id: getemail
+          USER_EMAIL=$(python -c "from brainscore_core.submission.database import email_from_uid; print(email_from_uid($BS_UID))")
+          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO jq -c ". + {user_id: \"$BS_UID\", public: \"$BS_PUBLIC\", email: \"$USER_EMAIL\"}")" >> $GITHUB_ENV
+          
+      - name: Add PR author email for non-web submissions
+        if: "!contains(github.event.pull_request.labels.*.name, 'automerge-web') && env.RUN_SCORING == 'True'"
         uses: evvanErb/get-github-email-by-username-action@v2.0
+        id: getemail
         with:
-          github-username: ${{github.event.pull_request.user.login}} # PR author's username
-          token: ${{ secrets.GITHUB_TOKEN }} # Including token enables most reliable way to get a user's email
-      - name: Add PR author email to PLUGIN_INFO
-        id: add_email_to_pluginfo
+          github-username: ${{github.event.pull_request.user.login}} 
+          token: ${{ secrets.GITHUB_TOKEN }}  # Including token enables most reliable way to get a user's email
+      - name: Update PLUGIN_INFO with PR author email
+        if: "!contains(github.event.pull_request.labels.*.name, 'automerge-web') && env.RUN_SCORING == 'True'"
         run: |
           echo "The PR author email is ${{ steps.getemail.outputs.email }}"
-          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO tr -d "'"  | jq -c '. + {author_email: "${{ steps.getemail.outputs.email }}"}')" >> $GITHUB_OUTPUT
+          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO jq -c '. + {email: "${{ steps.getemail.outputs.email }}"}')" >> $GITHUB_ENV
 
   run_scoring:
     name: Score plugins
     runs-on: ubuntu-latest
-    needs: [changes_models_or_benchmarks, get_submitter_info]
-    if: needs.changes_models_or_benchmarks.outputs.RUN_SCORING == 'True'
+    needs: [process_submission]
+    if: needs.process_submission.outputs.RUN_SCORING == 'True'
     env:
       PLUGIN_INFO: ${{ needs.get_submitter_info.outputs.PLUGIN_INFO }}
       JENKINS_USER: ${{ secrets.JENKINS_USER }}

@@ -53,7 +53,12 @@ jobs:
         id: getpluginfo
         run: |
           echo "PLUGIN_INFO='$(python -c 'from brainscore_core.plugin_management.parse_plugin_changes import get_scoring_info; get_scoring_info("${{ env.CHANGED_FILES }}", "brainscore_vision")')'"  >> $GITHUB_ENV
-      
+          
+      - name: Print PLUGIN_INFO for inspection
+        run: echo "$PLUGIN_INFO"
+      - name: Debug PLUGIN_INFO
+        run: echo "PLUGIN_INFO=${{ steps.getpluginfo.outputs.PLUGIN_INFO }}"
+
       - name: Check if scoring needed
         id: scoringneeded
         run: |

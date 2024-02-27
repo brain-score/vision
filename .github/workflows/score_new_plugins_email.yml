@@ -1,0 +1,114 @@
+name: Trigger scoring run
+
+
+# Triggered on all PRs on merge to master
+# If changes are made to a subdir of /benchmarks or /models,
+# a Jenkins scoring run is triggered for the corresponding plugin
+
+
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - closed
+
+env:
+  BSC_DATABASESECRET: secrets.BSC_DATABASESECRET
+
+permissions: write-all
+
+jobs:
+
+  process_submission:
+    name: Check if PR makes changes to /models or /benchmarks
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    outputs:
+      PLUGIN_INFO: ${{ steps.getpluginfo.outputs.PLUGIN_INFO }}
+      RUN_SCORING: ${{ steps.scoringneeded.outputs.RUN_SCORING }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.7
+
+      - name: Installing package dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools
+          python -m pip install ".[test]"
+
+      - name: Save changed files to env var
+        run: |
+          git fetch origin refs/pull/${{ github.event.number }}/head
+          MERGE_COMMIT=$(git log --format='%H %P' --all | grep "$(git rev-parse FETCH_HEAD)\$" | cut -f1 -d' ')
+          echo "CHANGED_FILES=$(git diff --name-only origin/master~1 $MERGE_COMMIT | tr '\n' ' ')"  >> $GITHUB_ENV
+
+      - name: Get plugin info
+        id: getpluginfo
+        run: |
+          echo "PLUGIN_INFO='$(python -c 'from brainscore_core.plugin_management.parse_plugin_changes import get_scoring_info; get_scoring_info("${{ env.CHANGED_FILES }}", "brainscore_vision")')'"  >> $GITHUB_ENV
+      
+      - name: Check if scoring needed
+        id: scoringneeded
+        run: |
+          echo "RUN_SCORING=$(jq -r '.run_score' <<< ${{ steps.getpluginfo.outputs.PLUGIN_INFO }})" >> $GITHUB_ENV
+
+      - name: Parse user ID, fetch email for web submissions, extract public/private
+        id: parseid
+        if: contains(github.event.pull_request.labels.*.name, 'automerge-web') && env.RUN_SCORING == 'True'
+        run: |
+          BS_UID="$(echo '${{ github.event.pull_request.title }}' | sed -E 's/.*\(user:([^)]+)\).*/\1/')"
+          BS_PUBLIC="$(echo '${{ github.event.pull_request.title }}' | sed -E 's/.*\(public:([^)]+)\).*/\1/')"
+          USER_EMAIL=$(python -c "from brainscore_core.submission.database import email_from_uid; print(email_from_uid($BS_UID))")
+          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO jq -c ". + {user_id: \"$BS_UID\", public: \"$BS_PUBLIC\", email: \"$USER_EMAIL\"}")" >> $GITHUB_ENV
+          
+      - name: Add PR author email for non-web submissions
+        if: "!contains(github.event.pull_request.labels.*.name, 'automerge-web') && env.RUN_SCORING == 'True'"
+        uses: evvanErb/get-github-email-by-username-action@v2.0
+        id: getemail
+        with:
+          github-username: ${{github.event.pull_request.user.login}} 
+          token: ${{ secrets.GITHUB_TOKEN }}  # Including token enables most reliable way to get a user's email
+      - name: Update PLUGIN_INFO with PR author email
+        if: "!contains(github.event.pull_request.labels.*.name, 'automerge-web') && env.RUN_SCORING == 'True'"
+        run: |
+          echo "The PR author email is ${{ steps.getemail.outputs.email }}"
+          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO jq -c '. + {email: "${{ steps.getemail.outputs.email }}"}')" >> $GITHUB_ENV
+
+  run_scoring:
+    name: Score plugins
+    runs-on: ubuntu-latest
+    needs: [process_submission]
+    if: needs.process_submission.outputs.RUN_SCORING == 'True'
+    env:
+      PLUGIN_INFO: ${{ needs.process_submission.outputs.PLUGIN_INFO }}
+      JENKINS_USER: ${{ secrets.JENKINS_USER }}
+      JENKINS_TOKEN: ${{ secrets.JENKINS_TOKEN }}
+      JENKINS_TRIGGER: ${{ secrets.JENKINS_TRIGGER }}
+    steps:
+      - name: Add domain, public, competition, and model_type to PLUGIN_INFO
+        run: |
+          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO tr -d "'"  | jq -c '. + {domain: "vision", competition: "None", model_type: "Brain_Model"}')" >> $GITHUB_ENV
+
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.7
+
+      - name: Build project
+        run: |
+          python -m pip install --upgrade pip setuptools
+          python -m pip install "."
+
+      - name: Run scoring
+        run: |
+          python -c 'from brainscore_core.submission.endpoints import call_jenkins; call_jenkins('\''${{ env.PLUGIN_INFO }}'\'')'

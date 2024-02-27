@@ -52,39 +52,34 @@ jobs:
       - name: Get plugin info
         id: getpluginfo
         run: |
-          echo "PLUGIN_INFO='$(python -c 'from brainscore_core.plugin_management.parse_plugin_changes import get_scoring_info; get_scoring_info("${{ env.CHANGED_FILES }}", "brainscore_vision")')'"  >> $GITHUB_ENV
-          
-      - name: Print PLUGIN_INFO for inspection
-        run: echo "$PLUGIN_INFO"
+          echo "PLUGIN_INFO='$(python -c 'from brainscore_core.plugin_management.parse_plugin_changes import get_scoring_info; get_scoring_info("${{ env.CHANGED_FILES }}", "brainscore_vision")')'"  >> $GITHUB_OUTPUT
 
       - name: Check if scoring needed
         id: scoringneeded
         run: |
-          echo "PLUGIN_INFO=$(echo "$PLUGIN_INFO" | tr -d "'")" >> $GITHUB_ENV
-          RUN_SCORING=$(echo "$PLUGIN_INFO" | jq -r '.run_score' 2>&1)
-          echo "RUN_SCORING=$RUN_SCORING" >> $GITHUB_ENV
+          echo "RUN_SCORING=$(jq -r '.run_score' <<< ${{ steps.getpluginfo.outputs.PLUGIN_INFO }})" >> $GITHUB_OUTPUT
 
-      - name: Parse user ID, fetch email for web submissions, extract public/private
+      - name: Parse user ID, fetch email for web submissions, extract public/private plugin info
         id: parseid
-        if: contains(github.event.pull_request.labels.*.name, 'automerge-web') && env.RUN_SCORING == 'True'
+        if: contains(github.event.pull_request.labels.*.name, 'automerge-web') && steps.scoringneeded.outputs.RUN_SCORING == 'True'
         run: |
           BS_UID="$(echo '${{ github.event.pull_request.title }}' | sed -E 's/.*\(user:([^)]+)\).*/\1/')"
           BS_PUBLIC="$(echo '${{ github.event.pull_request.title }}' | sed -E 's/.*\(public:([^)]+)\).*/\1/')"
           USER_EMAIL=$(python -c "from brainscore_core.submission.database import email_from_uid; print(email_from_uid($BS_UID))")
-          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO jq -c ". + {user_id: \"$BS_UID\", public: \"$BS_PUBLIC\", email: \"$USER_EMAIL\"}")" >> $GITHUB_ENV
+          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO tr -d "'" | jq -c ". + {user_id: \"$BS_UID\", public: \"$BS_PUBLIC\", email: \"$USER_EMAIL\"}")" >> $GITHUB_ENV
           
       - name: Add PR author email for non-web submissions
-        if: "!contains(github.event.pull_request.labels.*.name, 'automerge-web') && env.RUN_SCORING == 'True'"
+        if: "!contains(github.event.pull_request.labels.*.name, 'automerge-web') && steps.scoringneeded.outputs.RUN_SCORING == 'True'"
         uses: evvanErb/get-github-email-by-username-action@v2.0
         id: getemail
         with:
           github-username: ${{github.event.pull_request.user.login}} 
           token: ${{ secrets.GITHUB_TOKEN }}  # Including token enables most reliable way to get a user's email
       - name: Update PLUGIN_INFO with PR author email
-        if: "!contains(github.event.pull_request.labels.*.name, 'automerge-web') && env.RUN_SCORING == 'True'"
+        if: "!contains(github.event.pull_request.labels.*.name, 'automerge-web') && steps.scoringneeded.outputs.RUN_SCORING == 'True'"
         run: |
           echo "The PR author email is ${{ steps.getemail.outputs.email }}"
-          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO jq -c '. + {email: "${{ steps.getemail.outputs.email }}"}')" >> $GITHUB_ENV
+          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO tr -d "'"  | jq -c '. + {email: "${{ steps.getemail.outputs.email }}"}')" >> $GITHUB_OUTPUT
 
   run_scoring:
     name: Score plugins

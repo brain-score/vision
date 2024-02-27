@@ -60,22 +60,8 @@ jobs:
       - name: Check if scoring needed
         id: scoringneeded
         run: |
-          # Echo PLUGIN_INFO before modification for debugging
-          echo "Before modification: $PLUGIN_INFO"
-          
-          # Modify PLUGIN_INFO directly and re-export for subsequent use
-          PLUGIN_INFO=$(echo "$PLUGIN_INFO" | sed 's/"True"/true/g' | sed 's/"False"/false/g')
-          
-          # Echo PLUGIN_INFO after modification for debugging
-          echo "After modification: $PLUGIN_INFO"
-          
-          # Attempt to extract run_score with jq
+          echo "PLUGIN_INFO=$(echo "$PLUGIN_INFO" | tr -d "'")" >> $GITHUB_ENV
           RUN_SCORING=$(echo "$PLUGIN_INFO" | jq -r '.run_score' 2>&1)
-          
-          # Check for errors in jq operation and echo result for debugging
-          echo "jq operation result: $RUN_SCORING"
-          
-          # Export RUN_SCORING to the environment, if needed
           echo "RUN_SCORING=$RUN_SCORING" >> $GITHUB_ENV
 
       - name: Parse user ID, fetch email for web submissions, extract public/private

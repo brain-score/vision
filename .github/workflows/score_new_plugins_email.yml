@@ -63,7 +63,7 @@ jobs:
         id: scoringneeded
         run: |
           # echo "RUN_SCORING=$(jq -r '.run_score' <<< ${{ steps.getpluginfo.outputs.PLUGIN_INFO }})" >> $GITHUB_ENV
-          echo "RUN_SCORING=$(echo '${{ steps.getpluginfo.outputs.PLUGIN_INFO }}' | jq -r '.run_score')" >> $GITHUB_ENV
+          echo "RUN_SCORING=$(echo \"$PLUGIN_INFO\" | jq -r '.run_score')" >> $GITHUB_ENV
 
       - name: Parse user ID, fetch email for web submissions, extract public/private
         id: parseid

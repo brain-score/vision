@@ -60,7 +60,17 @@ jobs:
       - name: Check if scoring needed
         id: scoringneeded
         run: |
-          echo "RUN_SCORING=$(jq -r '.run_score' <<< "$PLUGIN_INFO")" >> $GITHUB_ENV
+          # Modify PLUGIN_INFO directly and re-export for subsequent use
+          PLUGIN_INFO=$(echo "$PLUGIN_INFO" | sed 's/"True"/true/g' | sed 's/"False"/false/g')
+          export PLUGIN_INFO  # This line is more for clarity, in scripts it may not always be necessary
+          
+          # Now PLUGIN_INFO has been modified, and you can use it with jq or any other command
+          RUN_SCORING=$(echo "$PLUGIN_INFO" | jq -r '.run_score')
+          
+          # Export RUN_SCORING to the environment, if needed
+          echo "RUN_SCORING=$RUN_SCORING" >> $GITHUB_ENV
+
+          # echo "RUN_SCORING=$(jq -r '.run_score' <<< "$PLUGIN_INFO")" >> $GITHUB_ENV
 
       - name: Parse user ID, fetch email for web submissions, extract public/private
         id: parseid

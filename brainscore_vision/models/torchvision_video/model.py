@@ -1,5 +1,6 @@
 from torchvision import transforms
-from brainscore_vision.model_helpers.activations.temporal import spec, PytorchBaseModel, TemporalActivationsExtractorHelper
+from brainscore_vision.model_helpers.activations.temporal.model.pytorch import PytorchWrapper
+from brainscore_vision.model_helpers.activations.temporal.extractor import ActivationsExtractor
 
 
 def get_transform_videos(transform_img):
@@ -16,29 +17,31 @@ def get_transform_videos(transform_img):
     return transform_videos
 
 
-@spec({
-    "input": {
-        "type": "video",
-        "fps": 25
-    },
-    "activation": {
-        "stem": "CTHW",
-        **{f'layer{i}': "CTHW" for i in range(1, 5)},
-        "avgpool": "C",
-        "fc": "C"
-    },
-    "model": {
-        "objective": "ACTION_RECOSGNITION",
-        "dataset": "KINETICS_400",
-        "source": "torchvision",
-        "architecture": ("RESNET", "Conv3D"),
-        "acc@1": 63.2,
-        "acc@5": 83.479,
-        "params": 33.4e6,
-        "gflops": 40.7
-    },
-})
-class r3d_18(PytorchBaseModel):
+class r3d_18(PytorchWrapper):
+    identifier = "R3D"
+    spec = {
+        "input": {
+            "type": "video",
+            "fps": 25
+        },
+        "activation": {
+            "stem": "CTHW",
+            **{f'layer{i}': "CTHW" for i in range(1, 5)},
+            "avgpool": "C",
+            "fc": "C"
+        },
+        "model": {
+            "objective": "ACTION_RECOSGNITION",
+            "dataset": "KINETICS_400",
+            "source": "torchvision",
+            "architecture": ("RESNET", "Conv3D"),
+            "acc@1": 63.2,
+            "acc@5": 83.479,
+            "params": 33.4e6,
+            "gflops": 40.7
+        },
+    }
+
     def __init__(self, weights='KINETICS400_V1'):
         img_transform = transforms.Compose([
             transforms.Resize((128, 171)),
@@ -51,10 +54,10 @@ class r3d_18(PytorchBaseModel):
         super().__init__(model, get_transform_videos(img_transform))
 
 
-def get_model(model_name):
+def get_model_cls(model_name):
     if model_name == 'r3d_18':
-        base_model = r3d_18()
+        model_cls = r3d_18
     else:
         raise NotImplementedError(f"Model {model_name} not implemented")
-    wrapper = TemporalActivationsExtractorHelper(base_model)
-    return wrapper
+    model_cls.bind_extractor_cls(ActivationsExtractor)
+    return model_cls

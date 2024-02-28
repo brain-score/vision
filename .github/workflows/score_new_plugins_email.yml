@@ -25,7 +25,7 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     outputs:
-      PLUGIN_INFO: ${{ steps.getpluginfo.outputs.PLUGIN_INFO }}
+      PLUGIN_INFO: ${{ steps.update_plugin_info.outputs.PLUGIN_INFO }}
       RUN_SCORING: ${{ steps.scoringneeded.outputs.RUN_SCORING }}
     steps:
       - name: Check out repository code
@@ -91,6 +91,7 @@ jobs:
       #     echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO tr -d "'"  | jq -c '. + {email: "${{ steps.getemail.outputs.email }}"}')" >> $GITHUB_OUTPUT
 
       - name: Update PLUGIN_INFO w/ email, id, and public vs. private (for web submissions)
+        id: update_plugin_info
         if: steps.scoringneeded.outputs.RUN_SCORING == 'True'
         run: |
           if [[ "${{ github.event.pull_request.labels.*.name }}" == *"automerge-web"* ]]; then

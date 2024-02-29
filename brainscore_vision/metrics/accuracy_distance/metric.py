@@ -45,7 +45,6 @@ class AccuracyDistance(Metric):
         return Score(accuracy_distance_score)
 
     def ceiling(self, assembly):
-
         subjects = self.extract_subjects(assembly)
         subject_scores = []
         for subject1, subject2 in itertools.combinations(subjects, 2):

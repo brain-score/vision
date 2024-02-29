@@ -68,7 +68,7 @@ class _MockBenchmark(BenchmarkBase):
 
         self._similarity_metric = load_metric('pls', crossvalidation_kwargs=dict(stratification_coord='object_name'))
         identifier = f'{assembly_repetition.name}-layer_selection'
-        ceiler = InternalConsistency()
+        ceiler = load_ceiling('internal_consistency')
         super(_MockBenchmark, self).__init__(identifier=identifier,
                                              ceiling_func=lambda: ceiler(assembly_repetition),
                                              version='1.0')

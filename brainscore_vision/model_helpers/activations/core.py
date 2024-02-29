@@ -43,7 +43,7 @@ class ActivationsExtractorHelper:
         # a dict that contains the image paths and their respective microsaccades. e.g.,
         #  {'abc.jpg': [(0, 0), (1.5, 2)]}
         self.microsaccades = {'pixels': {}, 'degrees': {}}
-        self._visual_degrees = None  # Model visual degrees. Used for computing microsaccades
+        self._visual_degrees = None  # Model visual degrees. Used for computing microsaccades in the space of degrees rather than pixels
 
     def __call__(self, stimuli, layers, stimuli_identifier=None, number_of_trials: int = 1,
                  require_variance: bool = False):
@@ -55,7 +55,7 @@ class ActivationsExtractorHelper:
             We here implement this using microsaccades.
             Human microsaccade amplitude varies by who you ask, an estimate might be <0.1 deg = 360 arcsec = 6arcmin.
             Our motivation to make use of such microsaccades is to obtain multiple different neural activities to the same input stimulus
-            from non-stochastic models. This is to improve estimates of e.g. psychophysical functions.
+            from non-stochastic models. This enables models to engage on e.g. psychophysical functions which often require variance for the same stimulus.
             In the current implementation, if `require_variance=True`, the model microsaccades in
             input pixel space with 1-pixel increments from the center of the stimulus. The base behavior thus
             maintains a fixed microsaccade distance as measured in visual angle, regardless of the model's visual angle.
@@ -116,7 +116,7 @@ class ActivationsExtractorHelper:
         if require_variance:
             activations = fnc(layers=layers, stimuli_paths=stimuli_paths, require_variance=require_variance)
         else:
-            # In case stimuli paths are duplicates (e.g. multiple trials), we first reduce them to only the paths that need
+            # When we are not asked for varying responses but receive `stimuli_paths` duplicates (e.g. multiple trials), we first reduce them to only the paths that need
             # to be run individually, compute activations for those, and then expand the activations to all paths again.
             # This is done here, before storing, so that we only store the reduced activations.
             reduced_paths = self._reduce_paths(stimuli_paths)
@@ -136,7 +136,7 @@ class ActivationsExtractorHelper:
         layer_activations = self._get_activations_batched(stimuli_paths, layers=layers, batch_size=self._batch_size,
                                                           require_variance=require_variance)
         self._logger.info('Packaging into assembly')
-        return self._package(layer_activations, stimuli_paths, require_variance)
+        return self._package(layer_activations=layer_activations, stimuli_paths=stimuli_paths, require_variance=require_variance)
 
     def _reduce_paths(self, stimuli_paths):
         return list(set(stimuli_paths))
@@ -177,7 +177,7 @@ class ActivationsExtractorHelper:
         self._stimulus_set_hooks[handle.id] = hook
         return handle
 
-    def _get_activations_batched(self, paths, layers, batch_size, require_variance: bool):
+    def _get_activations_batched(self, paths, layers, batch_size: int, require_variance: bool):
         layer_activations = OrderedDict()
         for batch_start in tqdm(range(0, len(paths), batch_size), unit_scale=batch_size, desc="activations"):
             batch_end = min(batch_start + batch_size, len(paths))
@@ -187,13 +187,13 @@ class ActivationsExtractorHelper:
             # compute activations on the entire batch one shift at a time
             for shift_number in range(self.number_of_trials):
 
-                activations = self._get_batch_activations(batch_inputs, layers, batch_size, require_variance,
-                                                          shift_number)
+                activations = self._get_batch_activations(inputs=batch_inputs, layer_names=layers, batch_size=batch_size, require_variance=require_variance,
+                                                          trial_number=shift_number)
 
                 for layer_name, layer_output in activations.items():
                     batch_activations.setdefault(layer_name, []).append(layer_output)
 
-            # concatenate all shifts into this batch
+            # concatenate all shifts in this batch
             for layer_name, layer_outputs in batch_activations.items():
                 batch_activations[layer_name] = np.concatenate(layer_outputs)
 
@@ -210,7 +210,7 @@ class ActivationsExtractorHelper:
 
         return layer_activations  # this is all batches
 
-    def _get_batch_activations(self, inputs, layer_names, batch_size, require_variance: bool = False,
+    def _get_batch_activations(self, inputs, layer_names, batch_size: int, require_variance: bool = False,
                                trial_number: int = 1):
         inputs, num_padding = self._pad(inputs, batch_size)
         preprocessed_inputs = self.preprocess(inputs)
@@ -222,7 +222,7 @@ class ActivationsExtractorHelper:
             self.remove_temporary_files(preprocessed_inputs)
         return activations
 
-    def set_visual_degrees(self, visual_degrees: float) -> None:
+    def set_visual_degrees(self, visual_degrees: float):
         """
         A method used by ModelCommitments to give the ActivationsExtractorHelper their visual degrees for
         performing microsaccades.
@@ -231,7 +231,7 @@ class ActivationsExtractorHelper:
 
     def translate_images(self, images: List[Union[str, np.ndarray]], image_paths: List[str], trial_number: int,
                          require_variance: bool) -> List[str]:
-        """A method that translates images according to selected microsaccades, if microsaccades are required."""
+        """Translate images according to selected microsaccades, if microsaccades are required."""
         output_images = []
         for index, image_path in enumerate(image_paths):
             # When microsaccades are not used, skip computing them and return the base images.
@@ -281,7 +281,7 @@ class ActivationsExtractorHelper:
     def _unpad(self, layer_activations, num_padding):
         return change_dict(layer_activations, lambda values: values[:-num_padding or None])
 
-    def _package(self, layer_activations, stimuli_paths, require_variance):
+    def _package(self, layer_activations, stimuli_paths, require_variance: bool):
         shapes = [a.shape for a in layer_activations.values()]
         self._logger.debug(f"Activations shapes: {shapes}")
         self._logger.debug("Packaging individual layers")
@@ -316,7 +316,7 @@ class ActivationsExtractorHelper:
                                                    dims=layer_assemblies[0].dims)
         return model_assembly
 
-    def _package_layer(self, layer_activations, layer, stimuli_paths, require_variance=False):
+    def _package_layer(self, layer_activations: np.ndarray, layer: str, stimuli_paths: List[str], require_variance: bool = False):
         # activation shape is larger if variance in responses is required from the model by a factor of number_of_trials
         if require_variance:
             runs_per_image = self.number_of_trials
@@ -382,14 +382,14 @@ class ActivationsExtractorHelper:
     def select_microsaccade(self, image_path: str, trial_number: int, image_shape: Tuple[int, int]
                             ) -> Tuple[float, float]:
         """
-        A function for generating microsaccade locations. The function returns a tuple of pixel shifts expanding from
+        A function for generating a microsaccade location. The function returns a tuple of pixel shifts expanding from
         the center of the image.
 
         Microsaccade locations are placed within a circle, evenly distributed across the entire area in a spiral,
         from the center to the circumference. We keep track of microsaccades both on a pixel and visual angle basis,
         but only pixel values are returned. This is because shifting the image using cv2 requires pixel representation.
         """
-        # avoid duplicating this computation repeatedly
+        # if we already computed `self.microsaccades`, we can just index into it
         if image_path in self.microsaccades.keys():
             return self.microsaccades['pixels'][image_path][trial_number]
 
@@ -398,8 +398,7 @@ class ActivationsExtractorHelper:
                                'extent of microsaccades.')
 
         # compute the maximum radius of microsaccade extent in pixel space
-        if self._visual_degrees is None:
-            raise AssertionError('self._visual_degrees is not set by the ModelCommitment, but microsaccades '
+        assert self._visual_degrees is not None, ('self._visual_degrees is not set by the ModelCommitment, but microsaccades '
                                  'are in use. Set activations_model visual degrees in your commitment after defining '
                                  'your activations_model. For example, self.activations_model.set_visual_degrees'
                                  '(visual_degrees). For detailed information, see '

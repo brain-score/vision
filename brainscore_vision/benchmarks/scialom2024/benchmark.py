@@ -30,8 +30,8 @@ DATASETS = ['rgb', 'contours', 'phosphenes-12', 'phosphenes-16', 'phosphenes-21'
 # create functions so that users can import individual benchmarks as e.g. Geirhos2021sketchErrorConsistency
 for dataset in DATASETS:
     # less fine-grained behavioral benchmark
-    identifier = f"Scialom2024_{dataset}BehavioralAccuracy"
-    globals()[identifier] = lambda dataset=dataset: _Scialom2024BehavioralAccuracy(dataset)
+    identifier = f"Scialom2024_{dataset}BehavioralAccuracyDistance"
+    globals()[identifier] = lambda dataset=dataset: _Scialom2024BehavioralAccuracyDistance(dataset)
     # more fine-grained behavioral benchmark
     identifier = f"Scialom2024_{dataset}ErrorConsistency"
     globals()[identifier] = lambda dataset=dataset: _Scialom2024ErrorConsistency(dataset)
@@ -42,6 +42,7 @@ for dataset in DATASETS:
 
 class _Scialom2024ErrorConsistency(BenchmarkBase):
     # behavioral benchmark
+    # TODO: make benchmark composite
     def __init__(self, dataset):
         self._metric = load_metric('error_consistency')
         self._assembly = LazyLoad(lambda: load_assembly(dataset))
@@ -70,13 +71,13 @@ class _Scialom2024ErrorConsistency(BenchmarkBase):
         return score
 
 
-class _Scialom2024BehavioralAccuracy(BenchmarkBase):
+class _Scialom2024BehavioralAccuracyDistance(BenchmarkBase):
     # behavioral benchmark
     def __init__(self, dataset):
         self._metric = load_metric('accuracy_distance')
         self._assembly = LazyLoad(lambda: load_assembly(dataset))
         self._stimulus_set = LazyLoad(lambda: load_assembly(dataset).stimulus_set)
-        super(_Scialom2024BehavioralAccuracy, self).__init__(
+        super(_Scialom2024BehavioralAccuracyDistance, self).__init__(
             identifier=f'Scialom2024{dataset}-behavioral_accuracy', version=1,
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
             parent='Scialom2024-top1',

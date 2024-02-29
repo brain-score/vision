@@ -1,13 +1,12 @@
 import numpy as np
 import os
-
-import brainscore_vision.metric_helpers
 from brainio.assemblies import NeuroidAssembly
 from brainio.stimuli import StimulusSet
+from brainscore_vision import load_ceiling, load_metric
 from brainscore_vision.benchmark_helpers.neural_common import average_repetition, timebins_from_assembly
+from brainscore_vision.benchmark_helpers.screen import place_on_screen
 from brainscore_vision.benchmarks import BenchmarkBase, ceil_score
 from brainscore_vision.metrics.internal_consistency import InternalConsistency
-from brainscore_vision.metrics.regression_correlation import CrossRegressedCorrelation, pls_regression, pearsonr_correlation
 from brainscore_vision.model_helpers.brain_transformation import ModelCommitment, LayerSelection, RegionLayerMap
 from brainscore_vision.model_interface import BrainModel
 
@@ -67,10 +66,7 @@ class _MockBenchmark(BenchmarkBase):
         self._assembly = self.assembly
         self.timebins = timebins_from_assembly(self.assembly)
 
-        self._similarity_metric = CrossRegressedCorrelation(
-            regression=pls_regression(), correlation=pearsonr_correlation(),
-            crossvalidation_kwargs=dict(stratification_coord=brainscore_vision.metric_helpers.Defaults.stratification_coord
-            if hasattr(self.assembly, brainscore_vision.metric_helpers.Defaults.stratification_coord) else None))
+        self._similarity_metric = load_metric('pls', crossvalidation_kwargs=dict(stratification_coord='object_name'))
         identifier = f'{assembly_repetition.name}-layer_selection'
         ceiler = InternalConsistency()
         super(_MockBenchmark, self).__init__(identifier=identifier,
@@ -78,13 +74,16 @@ class _MockBenchmark(BenchmarkBase):
                                              version='1.0')
 
     def __call__(self, candidate: BrainModel, do_behavior=False):
+        # adapt stimuli to visual degrees
+        stimuli = place_on_screen(self.assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
+                                  source_visual_degrees=8)  # arbitrary choice for source degrees
         # Check neural recordings
         candidate.start_recording(self.region, time_bins=self.timebins)
-        source_assembly = candidate.look_at(self.assembly.stimulus_set)
+        source_assembly = candidate.look_at(stimuli)
         # Check behavioral tasks
         if do_behavior:
             candidate.start_task(BrainModel.Task.probabilities, self.assembly.stimulus_set)
-            candidate.look_at(self.assembly.stimulus_set)
+            candidate.look_at(stimuli)
         raw_score = self._similarity_metric(source_assembly, self.assembly)
         return ceil_score(raw_score, self.ceiling)
 

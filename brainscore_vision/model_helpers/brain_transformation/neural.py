@@ -25,7 +25,7 @@ class LayerMappedModel(BrainModel):
 
     def look_at(self, stimuli, number_of_trials=1, require_variance: bool = False):
         """
-        :param number_of_trials: An integer that determines how many repetitions of the same model performs.
+        :param number_of_trials: An integer that determines how many repetitions of the same image the model performs.
         :param require_variance: Whether to require models to return different activations for the same stimuli or not.
                                   For detailed information, see
                                   :meth:`~brainscore_vision.model_helpers.activations.ActivationsExtractorHelper.__call__`,

@@ -40,10 +40,12 @@ class ActivationsExtractorHelper:
         self.number_of_trials = 1  # for use with microsaccades.
         self.microsaccade_extent_degrees = 0.05  # how many degrees models microsaccade by default
 
-        # a dict that contains the image paths and their respective microsaccades. e.g.,
-        #  {'abc.jpg': [(0, 0), (1.5, 2)]}
+        # a dict that contains two dicts, one for representing microsaccades in pixels, and one in degrees.
+        #  Each dict inside contain image paths and their respective microsaccades. For example
+        #  {'pixels': {'abc.jpg': [(0, 0), (1.5, 2)]}, 'degrees': {'abc.jpg': [(0., 0.), (0.0075, 0.001)]}}
         self.microsaccades = {'pixels': {}, 'degrees': {}}
-        self._visual_degrees = None  # Model visual degrees. Used for computing microsaccades in the space of degrees rather than pixels
+        # Model visual degrees. Used for computing microsaccades in the space of degrees rather than pixels
+        self._visual_degrees = None
 
     def __call__(self, stimuli, layers, stimuli_identifier=None, number_of_trials: int = 1,
                  require_variance: bool = False):
@@ -54,11 +56,12 @@ class ActivationsExtractorHelper:
             allows stochastic responses to identical stimuli, even in otherwise deterministic base models). 
             We here implement this using microsaccades.
             Human microsaccade amplitude varies by who you ask, an estimate might be <0.1 deg = 360 arcsec = 6arcmin.
-            Our motivation to make use of such microsaccades is to obtain multiple different neural activities to the same input stimulus
-            from non-stochastic models. This enables models to engage on e.g. psychophysical functions which often require variance for the same stimulus.
-            In the current implementation, if `require_variance=True`, the model microsaccades in
-            input pixel space with 1-pixel increments from the center of the stimulus. The base behavior thus
-            maintains a fixed microsaccade distance as measured in visual angle, regardless of the model's visual angle.
+            Our motivation to make use of such microsaccades is to obtain multiple different neural activities to the
+            same input stimulus from non-stochastic models. This enables models to engage on e.g. psychophysical
+            functions which often require variance for the same stimulus. In the current implementation,
+            if `require_variance=True`, the model microsaccades in the preprocessed input space in sub-pixel increments,
+            the extent and position of which are determined by `self._visual_degrees`, and
+            `self.microsaccade_extent_degrees`.
             
             Example usage:
                 `require_variance = True`
@@ -184,16 +187,16 @@ class ActivationsExtractorHelper:
             batch_inputs = paths[batch_start:batch_end]
 
             batch_activations = OrderedDict()
-            # compute activations on the entire batch one shift at a time
+            # compute activations on the entire batch one microsaccade shift at a time.
             for shift_number in range(self.number_of_trials):
-
                 activations = self._get_batch_activations(inputs=batch_inputs, layer_names=layers, batch_size=batch_size, require_variance=require_variance,
                                                           trial_number=shift_number)
 
                 for layer_name, layer_output in activations.items():
                     batch_activations.setdefault(layer_name, []).append(layer_output)
 
-            # concatenate all shifts in this batch
+            # concatenate all microsaccade shifts in this batch (for example, if the model microsaccaded 15 times,
+            #  the 15 microsaccaded layer_outputs are concatenated to the batch here.
             for layer_name, layer_outputs in batch_activations.items():
                 batch_activations[layer_name] = np.concatenate(layer_outputs)
 
@@ -204,7 +207,7 @@ class ActivationsExtractorHelper:
             for layer_name, layer_output in batch_activations.items():
                 layer_activations.setdefault(layer_name, []).append(layer_output)
 
-        # fast concat all batches
+        # concat all batches
         for layer_name, layer_outputs in layer_activations.items():
             layer_activations[layer_name] = np.concatenate(layer_outputs)
 
@@ -231,13 +234,23 @@ class ActivationsExtractorHelper:
 
     def translate_images(self, images: List[Union[str, np.ndarray]], image_paths: List[str], trial_number: int,
                          require_variance: bool) -> List[str]:
-        """Translate images according to selected microsaccades, if microsaccades are required."""
+        """
+        Translate images according to selected microsaccades, if microsaccades are required.
+
+        :param images: A list of images (in the case of tensorflow models), or a list of arrays (non-tf models).
+        :param image_paths: A list of image paths. Both `image_paths` and `images` are needed since while both tf and
+                             non-tf models preprocess images before this point, non-tf models' preprocessed images
+                             are fixed as arrays when fed into here. As such, simply returning `image_paths` for
+                             non-tf models would require double-loading of the images, which does not seem like a
+                             good idea.
+        """
         output_images = []
         for index, image_path in enumerate(image_paths):
             # When microsaccades are not used, skip computing them and return the base images.
             #  This iteration could be entirely skipped, but recording microsaccades for all images regardless
             #  of whether variance is required or not is convenient for adding an extra presentation dimension
-            #  in the layer assembly later to avoid collapse, or otherwise extraneous mock dims.
+            #  in the layer assembly later to keep track of as much metadata as possible, to avoid layer assembly
+            #  collapse, or to avoid otherwise extraneous mock dims.
             #  The method could further be streamlined by calling `self.get_image_with_shape()` and
             #  `self.select_microsaccade` for all images regardless of require_variance, but it seems like a bad
             #  idea to introduce cv2 image loading for all models and images, regardless of whether they are actually
@@ -394,7 +407,7 @@ class ActivationsExtractorHelper:
             return self.microsaccades['pixels'][image_path][trial_number]
 
         if image_shape[0] != image_shape[1]:
-            self._logger.debug('Warning: input image is not a square. Image dimension 0 is used to calculate the '
+            self._logger.debug('Input image is not a square. Image dimension 0 is used to calculate the '
                                'extent of microsaccades.')
 
         # compute the maximum radius of microsaccade extent in pixel space
@@ -430,7 +443,6 @@ class ActivationsExtractorHelper:
     def unpack_microsaccade_coords(self, stimuli_paths: np.ndarray, pixels_or_degrees: str,
                             dim: int):
         """Unpacks microsaccades from stimuli_paths into a single list to conform with coord requirements."""
-        # Python 3.7 does not support typing.Literal
         assert pixels_or_degrees == 'pixels' or pixels_or_degrees == 'degrees'
         unpacked_microsaccades = []
         for stimulus_path in stimuli_paths:
@@ -464,7 +476,7 @@ class ActivationsExtractorHelper:
                     pass
 
     @staticmethod
-    def translate(image, shift: Tuple[float, float], image_shape: Tuple[int, int]):
+    def translate(image, shift: Tuple[float, float], image_shape: Tuple[int, int]) -> np.array:
         rows, cols = image_shape
         # translation matrix
         M = np.float32([[1, 0, shift[0]], [0, 1, shift[1]]])
@@ -475,7 +487,7 @@ class ActivationsExtractorHelper:
         return translated_image
 
     @staticmethod
-    def get_image_with_shape(image: Union[str, np.ndarray]):
+    def get_image_with_shape(image: Union[str, np.ndarray]) -> Tuple[np.array, Tuple[int, int]]:
         if isinstance(image, str):  # tf models return strings after preprocessing
             image = cv2.imread(image)
         rows, cols, _ = image.shape

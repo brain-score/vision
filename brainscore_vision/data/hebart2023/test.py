@@ -6,7 +6,6 @@ from brainscore_vision import load_stimulus_set, load_dataset
 from brainscore_vision.model_interface import BehavioralAssembly
 
 
-
 @pytest.mark.memory_intense
 @pytest.mark.private_access
 class TestHebart2023:

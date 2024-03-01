@@ -401,21 +401,24 @@ class MicrosaccadeHelper:
         from the center to the circumference. We keep track of microsaccades both on a pixel and visual angle basis,
         but only pixel values are returned. This is because shifting the image using cv2 requires pixel representation.
         """
-        # if we already computed `self.microsaccades`, we can just index into it
-        if image_path in self.microsaccades.keys():
-            return self.microsaccades['pixels'][image_path][trial_number]
+        # if we did not already compute `self.microsaccades`, we build them first.
+        if image_path not in self.microsaccades.keys():
+            self.build_microsaccades(image_path=image_path, image_shape=image_shape)
+        return self.microsaccades['pixels'][image_path][trial_number - 1]
 
+    def build_microsaccades(self, image_path: str, image_shape: Tuple[int, int]):
         if image_shape[0] != image_shape[1]:
             self._logger.debug('Input image is not a square. Image dimension 0 is used to calculate the '
                                'extent of microsaccades.')
 
+        assert self.visual_degrees is not None, (
+            'self._visual_degrees is not set by the ModelCommitment, but microsaccades '
+            'are in use. Set activations_model visual degrees in your commitment after defining '
+            'your activations_model. For example, self.activations_model.set_visual_degrees'
+            '(visual_degrees). For detailed information, see '
+            ':meth:`~brainscore_vision.model_helpers.activations.ActivationsExtractorHelper.'
+            '__call__`,')
         # compute the maximum radius of microsaccade extent in pixel space
-        assert self.visual_degrees is not None, ('self._visual_degrees is not set by the ModelCommitment, but microsaccades '
-                                 'are in use. Set activations_model visual degrees in your commitment after defining '
-                                 'your activations_model. For example, self.activations_model.set_visual_degrees'
-                                 '(visual_degrees). For detailed information, see '
-                                 ':meth:`~brainscore_vision.model_helpers.activations.ActivationsExtractorHelper.'
-                                 '__call__`,')
         radius_ratio = self.microsaccade_extent_degrees / self.visual_degrees
         max_radius = radius_ratio * image_shape[0]  # maximum radius in pixels, set in self.microsaccade_extent_degrees
 
@@ -437,7 +440,6 @@ class MicrosaccadeHelper:
         # to keep consistent with number_of_trials, we count trial_number from 1 instead of from 0
         self.microsaccades['pixels'][image_path] = selected_microsaccades['pixels']
         self.microsaccades['degrees'][image_path] = selected_microsaccades['degrees']
-        return selected_microsaccades['pixels'][trial_number - 1]
 
     def unpack_microsaccade_coords(self, stimuli_paths: np.ndarray, pixels_or_degrees: str,
                             dim: int):

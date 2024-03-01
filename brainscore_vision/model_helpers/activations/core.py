@@ -36,16 +36,7 @@ class ActivationsExtractorHelper:
         self.preprocess = preprocessing or (lambda x: x)
         self._stimulus_set_hooks = {}
         self._batch_activations_hooks = {}
-
-        self.number_of_trials = 1  # for use with microsaccades.
-        self.microsaccade_extent_degrees = 0.05  # how many degrees models microsaccade by default
-
-        # a dict that contains two dicts, one for representing microsaccades in pixels, and one in degrees.
-        #  Each dict inside contain image paths and their respective microsaccades. For example
-        #  {'pixels': {'abc.jpg': [(0, 0), (1.5, 2)]}, 'degrees': {'abc.jpg': [(0., 0.), (0.0075, 0.001)]}}
-        self.microsaccades = {'pixels': {}, 'degrees': {}}
-        # Model visual degrees. Used for computing microsaccades in the space of degrees rather than pixels
-        self._visual_degrees = None
+        self._microsaccade_helper = MicrosaccadeHelper()
 
     def __call__(self, stimuli, layers, stimuli_identifier=None, number_of_trials: int = 1,
                  require_variance: bool = False):
@@ -75,8 +66,8 @@ class ActivationsExtractorHelper:
 
         """
         if require_variance:
-            self.number_of_trials = number_of_trials  # for use with microsaccades
-        if (self._visual_degrees is None) and require_variance:
+            self._microsaccade_helper.number_of_trials = number_of_trials  # for use with microsaccades
+        if (self._microsaccade_helper.visual_degrees is None) and require_variance:
             self._logger.debug("When using microsaccades for model commitments other than ModelCommitment, you should "
                                "set self.activations_model.set_visual_degrees(visual_degrees). Not doing so risks "
                                "breaking microsaccades.")
@@ -100,7 +91,9 @@ class ActivationsExtractorHelper:
             stimulus_set = hook(stimulus_set)
         stimuli_paths = [str(stimulus_set.get_stimulus(stimulus_id)) for stimulus_id in stimulus_set['stimulus_id']]
         activations = self.from_paths(stimuli_paths=stimuli_paths, layers=layers, stimuli_identifier=stimuli_identifier)
-        activations = attach_stimulus_set_meta(activations, stimulus_set, number_of_trials=self.number_of_trials,
+        activations = attach_stimulus_set_meta(activations,
+                                               stimulus_set,
+                                               number_of_trials=self._microsaccade_helper.number_of_trials,
                                                require_variance=require_variance)
         return activations
 
@@ -119,9 +112,10 @@ class ActivationsExtractorHelper:
         if require_variance:
             activations = fnc(layers=layers, stimuli_paths=stimuli_paths, require_variance=require_variance)
         else:
-            # When we are not asked for varying responses but receive `stimuli_paths` duplicates (e.g. multiple trials), we first reduce them to only the paths that need
-            # to be run individually, compute activations for those, and then expand the activations to all paths again.
-            # This is done here, before storing, so that we only store the reduced activations.
+            # When we are not asked for varying responses but receive `stimuli_paths` duplicates (e.g. multiple trials),
+            # we first reduce them to only the paths that need to be run individually, compute activations for those,
+            # and then expand the activations to all paths again. This is done here, before storing, so that we only
+            # store the reduced activations.
             reduced_paths = self._reduce_paths(stimuli_paths)
             activations = fnc(layers=layers, stimuli_paths=reduced_paths, require_variance=require_variance)
             activations = self._expand_paths(activations, original_paths=stimuli_paths)
@@ -188,7 +182,7 @@ class ActivationsExtractorHelper:
 
             batch_activations = OrderedDict()
             # compute activations on the entire batch one microsaccade shift at a time.
-            for shift_number in range(self.number_of_trials):
+            for shift_number in range(self._microsaccade_helper.number_of_trials):
                 activations = self._get_batch_activations(inputs=batch_inputs, layer_names=layers, batch_size=batch_size, require_variance=require_variance,
                                                           trial_number=shift_number)
 
@@ -217,23 +211,147 @@ class ActivationsExtractorHelper:
                                trial_number: int = 1):
         inputs, num_padding = self._pad(inputs, batch_size)
         preprocessed_inputs = self.preprocess(inputs)
-        preprocessed_inputs = self.translate_images(images=preprocessed_inputs,
-                                                    image_paths=inputs,
-                                                    trial_number=trial_number,
-                                                    require_variance=require_variance)
+        preprocessed_inputs = self._microsaccade_helper.translate_images(images=preprocessed_inputs,
+                                                                         image_paths=inputs,
+                                                                         trial_number=trial_number,
+                                                                         require_variance=require_variance)
         activations = self.get_activations(preprocessed_inputs, layer_names)
         assert isinstance(activations, OrderedDict)
         activations = self._unpad(activations, num_padding)
         if require_variance:
-            self.remove_temporary_files(preprocessed_inputs)
+            self._microsaccade_helper.remove_temporary_files(preprocessed_inputs)
         return activations
 
     def set_visual_degrees(self, visual_degrees: float):
         """
-        A method used by ModelCommitments to give the ActivationsExtractorHelper their visual degrees for
-        performing microsaccades.
+        A method used by ModelCommitments to give the ActivationsExtractorHelper.MicrosaccadeHelper their visual
+        degrees for performing microsaccades.
         """
-        self._visual_degrees = visual_degrees
+        self._microsaccade_helper.visual_degrees = visual_degrees
+
+
+    def _pad(self, batch_images, batch_size):
+        num_images = len(batch_images)
+        if num_images % batch_size == 0:
+            return batch_images, 0
+        num_padding = batch_size - (num_images % batch_size)
+        padding = np.repeat(batch_images[-1:], repeats=num_padding, axis=0)
+        return np.concatenate((batch_images, padding)), num_padding
+
+    def _unpad(self, layer_activations, num_padding):
+        return change_dict(layer_activations, lambda values: values[:-num_padding or None])
+
+    def _package(self, layer_activations, stimuli_paths, require_variance: bool):
+        shapes = [a.shape for a in layer_activations.values()]
+        self._logger.debug(f"Activations shapes: {shapes}")
+        self._logger.debug("Packaging individual layers")
+        layer_assemblies = [self._package_layer(single_layer_activations,
+                                                layer=layer,
+                                                stimuli_paths=stimuli_paths,
+                                                require_variance=require_variance) for
+                            layer, single_layer_activations in tqdm(layer_activations.items(), desc='layer packaging')]
+        # merge manually instead of using merge_data_arrays since `xarray.merge` is very slow with these large arrays
+        # complication: (non)neuroid_coords are taken from the structure of layer_assemblies[0] i.e. the 1st assembly;
+        # using these names/keys for all assemblies results in KeyError if the first layer contains flatten_coord_names
+        # (see _package_layer) not present in later layers, e.g. first layer = conv, later layer = transformer layer
+        self._logger.debug(f"Merging {len(layer_assemblies)} layer assemblies")
+        model_assembly = np.concatenate([a.values for a in layer_assemblies],
+                                        axis=layer_assemblies[0].dims.index('neuroid'))
+        nonneuroid_coords = {coord: (dims, values) for coord, dims, values in walk_coords(layer_assemblies[0])
+                             if set(dims) != {'neuroid'}}
+        neuroid_coords = {coord: [dims, values] for coord, dims, values in walk_coords(layer_assemblies[0])
+                          if set(dims) == {'neuroid'}}
+        for layer_assembly in layer_assemblies[1:]:
+            for coord in neuroid_coords:
+                neuroid_coords[coord][1] = np.concatenate((neuroid_coords[coord][1], layer_assembly[coord].values))
+            assert layer_assemblies[0].dims == layer_assembly.dims
+            for coord, dims, values in walk_coords(layer_assembly):
+                if set(dims) == {'neuroid'}:
+                    continue
+                assert (values == nonneuroid_coords[coord][1]).all()
+
+        neuroid_coords = {coord: (dims_values[0], dims_values[1])  # re-package as tuple instead of list for xarray
+                          for coord, dims_values in neuroid_coords.items()}
+        model_assembly = type(layer_assemblies[0])(model_assembly, coords={**nonneuroid_coords, **neuroid_coords},
+                                                   dims=layer_assemblies[0].dims)
+        return model_assembly
+
+    def _package_layer(self, layer_activations: np.ndarray, layer: str, stimuli_paths: List[str], require_variance: bool = False):
+        # activation shape is larger if variance in responses is required from the model by a factor of number_of_trials
+        if require_variance:
+            runs_per_image = self._microsaccade_helper.number_of_trials
+        else:
+            runs_per_image = 1
+        assert layer_activations.shape[0] == len(stimuli_paths) * runs_per_image
+        stimuli_paths = np.repeat(stimuli_paths, runs_per_image)
+        activations, flatten_indices = flatten(layer_activations, return_index=True)  # collapse for single neuroid dim
+        flatten_coord_names = None
+        if flatten_indices.shape[1] == 1:  # fully connected, e.g. classifier
+            # see comment in _package for an explanation why we cannot simply have 'channel' for the FC layer
+            flatten_coord_names = ['channel', 'channel_x', 'channel_y']
+        elif flatten_indices.shape[1] == 2:  # Transformer, e.g. ViT
+            flatten_coord_names = ['channel', 'embedding']
+        elif flatten_indices.shape[1] == 3:  # 2DConv, e.g. resnet
+            flatten_coord_names = ['channel', 'channel_x', 'channel_y']
+        elif flatten_indices.shape[1] == 4:  # temporal sliding window, e.g. omnivron
+            flatten_coord_names = ['channel_temporal', 'channel_x', 'channel_y', 'channel']
+        else:
+            # we still package the activations, but are unable to provide channel information
+            self._logger.debug(f"Unknown layer activations shape {layer_activations.shape}, not inferring channels")
+
+        # build assembly
+        coords = {'stimulus_path': ('presentation', stimuli_paths),
+                  'microsaccade_shift_x_pixels': ('presentation', self._microsaccade_helper.unpack_microsaccade_coords(
+                      np.unique(stimuli_paths),
+                      pixels_or_degrees='pixels',
+                      dim=0)),
+                  'microsaccade_shift_y_pixels': ('presentation', self._microsaccade_helper.unpack_microsaccade_coords(
+                      np.unique(stimuli_paths),
+                      pixels_or_degrees='pixels',
+                      dim=1)),
+                  'microsaccade_shift_x_degrees': ('presentation', self._microsaccade_helper.unpack_microsaccade_coords(
+                      np.unique(stimuli_paths),
+                      pixels_or_degrees='degrees',
+                      dim=0)),
+                  'microsaccade_shift_y_degrees': ('presentation', self._microsaccade_helper.unpack_microsaccade_coords(
+                      np.unique(stimuli_paths),
+                      pixels_or_degrees='degrees',
+                      dim=1)),
+                  'neuroid_num': ('neuroid', list(range(activations.shape[1]))),
+                  'model': ('neuroid', [self.identifier] * activations.shape[1]),
+                  'layer': ('neuroid', [layer] * activations.shape[1]),
+                  }
+
+        if flatten_coord_names:
+            flatten_coords = {flatten_coord_names[i]: [sample_index[i] if i < flatten_indices.shape[1] else np.nan
+                                                       for sample_index in flatten_indices]
+                              for i in range(len(flatten_coord_names))}
+            coords = {**coords, **{coord: ('neuroid', values) for coord, values in flatten_coords.items()}}
+        layer_assembly = NeuroidAssembly(activations, coords=coords, dims=['presentation', 'neuroid'])
+        neuroid_id = [".".join([f"{value}" for value in values]) for values in zip(*[
+            layer_assembly[coord].values for coord in ['model', 'layer', 'neuroid_num']])]
+        layer_assembly['neuroid_id'] = 'neuroid', neuroid_id
+        return layer_assembly
+
+    def insert_attrs(self, wrapper):
+        wrapper.from_stimulus_set = self.from_stimulus_set
+        wrapper.from_paths = self.from_paths
+        wrapper.register_batch_activations_hook = self.register_batch_activations_hook
+        wrapper.register_stimulus_set_hook = self.register_stimulus_set_hook
+
+
+class MicrosaccadeHelper:
+    def __init__(self):
+        self._logger = logging.getLogger(fullname(self))
+        self.number_of_trials = 1  # for use with microsaccades.
+        self.microsaccade_extent_degrees = 0.05  # how many degrees models microsaccade by default
+
+        # a dict that contains two dicts, one for representing microsaccades in pixels, and one in degrees.
+        #  Each dict inside contain image paths and their respective microsaccades. For example
+        #  {'pixels': {'abc.jpg': [(0, 0), (1.5, 2)]}, 'degrees': {'abc.jpg': [(0., 0.), (0.0075, 0.001)]}}
+        self.microsaccades = {'pixels': {}, 'degrees': {}}
+        # Model visual degrees. Used for computing microsaccades in the space of degrees rather than pixels
+        self.visual_degrees = None
 
     def translate_images(self, images: List[Union[str, np.ndarray]], image_paths: List[str], trial_number: int,
                          require_variance: bool) -> List[str]:
@@ -288,115 +406,6 @@ class ActivationsExtractorHelper:
                 raise Exception(f"cv2.imwrite failed: {temporary_fp}")
         return temporary_fp
 
-    def _pad(self, batch_images, batch_size):
-        num_images = len(batch_images)
-        if num_images % batch_size == 0:
-            return batch_images, 0
-        num_padding = batch_size - (num_images % batch_size)
-        padding = np.repeat(batch_images[-1:], repeats=num_padding, axis=0)
-        return np.concatenate((batch_images, padding)), num_padding
-
-    def _unpad(self, layer_activations, num_padding):
-        return change_dict(layer_activations, lambda values: values[:-num_padding or None])
-
-    def _package(self, layer_activations, stimuli_paths, require_variance: bool):
-        shapes = [a.shape for a in layer_activations.values()]
-        self._logger.debug(f"Activations shapes: {shapes}")
-        self._logger.debug("Packaging individual layers")
-        layer_assemblies = [self._package_layer(single_layer_activations,
-                                                layer=layer,
-                                                stimuli_paths=stimuli_paths,
-                                                require_variance=require_variance) for
-                            layer, single_layer_activations in tqdm(layer_activations.items(), desc='layer packaging')]
-        # merge manually instead of using merge_data_arrays since `xarray.merge` is very slow with these large arrays
-        # complication: (non)neuroid_coords are taken from the structure of layer_assemblies[0] i.e. the 1st assembly;
-        # using these names/keys for all assemblies results in KeyError if the first layer contains flatten_coord_names
-        # (see _package_layer) not present in later layers, e.g. first layer = conv, later layer = transformer layer
-        self._logger.debug(f"Merging {len(layer_assemblies)} layer assemblies")
-        model_assembly = np.concatenate([a.values for a in layer_assemblies],
-                                        axis=layer_assemblies[0].dims.index('neuroid'))
-        nonneuroid_coords = {coord: (dims, values) for coord, dims, values in walk_coords(layer_assemblies[0])
-                             if set(dims) != {'neuroid'}}
-        neuroid_coords = {coord: [dims, values] for coord, dims, values in walk_coords(layer_assemblies[0])
-                          if set(dims) == {'neuroid'}}
-        for layer_assembly in layer_assemblies[1:]:
-            for coord in neuroid_coords:
-                neuroid_coords[coord][1] = np.concatenate((neuroid_coords[coord][1], layer_assembly[coord].values))
-            assert layer_assemblies[0].dims == layer_assembly.dims
-            for coord, dims, values in walk_coords(layer_assembly):
-                if set(dims) == {'neuroid'}:
-                    continue
-                assert (values == nonneuroid_coords[coord][1]).all()
-
-        neuroid_coords = {coord: (dims_values[0], dims_values[1])  # re-package as tuple instead of list for xarray
-                          for coord, dims_values in neuroid_coords.items()}
-        model_assembly = type(layer_assemblies[0])(model_assembly, coords={**nonneuroid_coords, **neuroid_coords},
-                                                   dims=layer_assemblies[0].dims)
-        return model_assembly
-
-    def _package_layer(self, layer_activations: np.ndarray, layer: str, stimuli_paths: List[str], require_variance: bool = False):
-        # activation shape is larger if variance in responses is required from the model by a factor of number_of_trials
-        if require_variance:
-            runs_per_image = self.number_of_trials
-        else:
-            runs_per_image = 1
-        assert layer_activations.shape[0] == len(stimuli_paths) * runs_per_image
-        stimuli_paths = np.repeat(stimuli_paths, runs_per_image)
-        activations, flatten_indices = flatten(layer_activations, return_index=True)  # collapse for single neuroid dim
-        flatten_coord_names = None
-        if flatten_indices.shape[1] == 1:  # fully connected, e.g. classifier
-            # see comment in _package for an explanation why we cannot simply have 'channel' for the FC layer
-            flatten_coord_names = ['channel', 'channel_x', 'channel_y']
-        elif flatten_indices.shape[1] == 2:  # Transformer, e.g. ViT
-            flatten_coord_names = ['channel', 'embedding']
-        elif flatten_indices.shape[1] == 3:  # 2DConv, e.g. resnet
-            flatten_coord_names = ['channel', 'channel_x', 'channel_y']
-        elif flatten_indices.shape[1] == 4:  # temporal sliding window, e.g. omnivron
-            flatten_coord_names = ['channel_temporal', 'channel_x', 'channel_y', 'channel']
-        else:
-            # we still package the activations, but are unable to provide channel information
-            self._logger.debug(f"Unknown layer activations shape {layer_activations.shape}, not inferring channels")
-
-        # build assembly
-        coords = {'stimulus_path': ('presentation', stimuli_paths),
-                  'microsaccade_shift_x_pixels': ('presentation', self.unpack_microsaccade_coords(
-                      np.unique(stimuli_paths),
-                      pixels_or_degrees='pixels',
-                      dim=0)),
-                  'microsaccade_shift_y_pixels': ('presentation', self.unpack_microsaccade_coords(
-                      np.unique(stimuli_paths),
-                      pixels_or_degrees='pixels',
-                      dim=1)),
-                  'microsaccade_shift_x_degrees': ('presentation', self.unpack_microsaccade_coords(
-                      np.unique(stimuli_paths),
-                      pixels_or_degrees='degrees',
-                      dim=0)),
-                  'microsaccade_shift_y_degrees': ('presentation', self.unpack_microsaccade_coords(
-                      np.unique(stimuli_paths),
-                      pixels_or_degrees='degrees',
-                      dim=1)),
-                  'neuroid_num': ('neuroid', list(range(activations.shape[1]))),
-                  'model': ('neuroid', [self.identifier] * activations.shape[1]),
-                  'layer': ('neuroid', [layer] * activations.shape[1]),
-                  }
-
-        if flatten_coord_names:
-            flatten_coords = {flatten_coord_names[i]: [sample_index[i] if i < flatten_indices.shape[1] else np.nan
-                                                       for sample_index in flatten_indices]
-                              for i in range(len(flatten_coord_names))}
-            coords = {**coords, **{coord: ('neuroid', values) for coord, values in flatten_coords.items()}}
-        layer_assembly = NeuroidAssembly(activations, coords=coords, dims=['presentation', 'neuroid'])
-        neuroid_id = [".".join([f"{value}" for value in values]) for values in zip(*[
-            layer_assembly[coord].values for coord in ['model', 'layer', 'neuroid_num']])]
-        layer_assembly['neuroid_id'] = 'neuroid', neuroid_id
-        return layer_assembly
-
-    def insert_attrs(self, wrapper):
-        wrapper.from_stimulus_set = self.from_stimulus_set
-        wrapper.from_paths = self.from_paths
-        wrapper.register_batch_activations_hook = self.register_batch_activations_hook
-        wrapper.register_stimulus_set_hook = self.register_stimulus_set_hook
-
     def select_microsaccade(self, image_path: str, trial_number: int, image_shape: Tuple[int, int]
                             ) -> Tuple[float, float]:
         """
@@ -416,13 +425,13 @@ class ActivationsExtractorHelper:
                                'extent of microsaccades.')
 
         # compute the maximum radius of microsaccade extent in pixel space
-        assert self._visual_degrees is not None, ('self._visual_degrees is not set by the ModelCommitment, but microsaccades '
+        assert self.visual_degrees is not None, ('self._visual_degrees is not set by the ModelCommitment, but microsaccades '
                                  'are in use. Set activations_model visual degrees in your commitment after defining '
                                  'your activations_model. For example, self.activations_model.set_visual_degrees'
                                  '(visual_degrees). For detailed information, see '
                                  ':meth:`~brainscore_vision.model_helpers.activations.ActivationsExtractorHelper.'
                                  '__call__`,')
-        radius_ratio = self.microsaccade_extent_degrees / self._visual_degrees
+        radius_ratio = self.microsaccade_extent_degrees / self.visual_degrees
         max_radius = radius_ratio * image_shape[0]  # maximum radius in pixels, set in self.microsaccade_extent_degrees
 
         selected_microsaccades = {'pixels': [], 'degrees': []}
@@ -457,7 +466,7 @@ class ActivationsExtractorHelper:
 
     def calculate_pixels_per_degree_in_image(self, image_width_pixels: int) -> float:
         """Calculates the pixels per degree in the image, assuming the calculation based on image width."""
-        pixels_per_degree = image_width_pixels / self._visual_degrees
+        pixels_per_degree = image_width_pixels / self.visual_degrees
         return pixels_per_degree
 
     @staticmethod

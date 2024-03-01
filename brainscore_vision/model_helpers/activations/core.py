@@ -81,13 +81,13 @@ class ActivationsExtractorHelper:
                                "set self.activations_model.set_visual_degrees(visual_degrees). Not doing so risks "
                                "breaking microsaccades.")
         if isinstance(stimuli, StimulusSet):
-            return self.from_stimulus_set(stimulus_set=stimuli, layers=layers, stimuli_identifier=stimuli_identifier,
-                                          require_variance=require_variance)
+            function_call = functools.partial(self.from_stimulus_set, stimulus_set=stimuli)
         else:
-            return self.from_paths(stimuli_paths=stimuli,
-                                   layers=layers,
-                                   stimuli_identifier=stimuli_identifier,
-                                   require_variance=require_variance)
+            function_call = functools.partial(self.from_paths, stimuli_paths=stimuli)
+        return function_call(
+            layers=layers,
+            stimuli_identifier=stimuli_identifier,
+            require_variance=require_variance)
 
     def from_stimulus_set(self, stimulus_set, layers, stimuli_identifier=None, require_variance: bool = False):
         """

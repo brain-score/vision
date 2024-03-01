@@ -301,22 +301,7 @@ class ActivationsExtractorHelper:
 
         # build assembly
         coords = {'stimulus_path': ('presentation', stimuli_paths),
-                  'microsaccade_shift_x_pixels': ('presentation', self._microsaccade_helper.unpack_microsaccade_coords(
-                      np.unique(stimuli_paths),
-                      pixels_or_degrees='pixels',
-                      dim=0)),
-                  'microsaccade_shift_y_pixels': ('presentation', self._microsaccade_helper.unpack_microsaccade_coords(
-                      np.unique(stimuli_paths),
-                      pixels_or_degrees='pixels',
-                      dim=1)),
-                  'microsaccade_shift_x_degrees': ('presentation', self._microsaccade_helper.unpack_microsaccade_coords(
-                      np.unique(stimuli_paths),
-                      pixels_or_degrees='degrees',
-                      dim=0)),
-                  'microsaccade_shift_y_degrees': ('presentation', self._microsaccade_helper.unpack_microsaccade_coords(
-                      np.unique(stimuli_paths),
-                      pixels_or_degrees='degrees',
-                      dim=1)),
+                  **self._microsaccade_helper.build_microsaccade_coords(stimuli_paths),
                   'neuroid_num': ('neuroid', list(range(activations.shape[1]))),
                   'model': ('neuroid', [self.identifier] * activations.shape[1]),
                   'layer': ('neuroid', [layer] * activations.shape[1]),
@@ -512,6 +497,26 @@ class MicrosaccadeHelper:
         if any(isinstance(image, str) for image in images):
             return images
         return np.stack(images, axis=0)
+
+    def build_microsaccade_coords(self, stimuli_paths: np.array) -> Dict:
+        return {
+            'microsaccade_shift_x_pixels': ('presentation', self.unpack_microsaccade_coords(
+                np.unique(stimuli_paths),
+                pixels_or_degrees='pixels',
+                dim=0)),
+            'microsaccade_shift_y_pixels': ('presentation', self.unpack_microsaccade_coords(
+                np.unique(stimuli_paths),
+                pixels_or_degrees='pixels',
+                dim=1)),
+            'microsaccade_shift_x_degrees': ('presentation', self.unpack_microsaccade_coords(
+                np.unique(stimuli_paths),
+                pixels_or_degrees='degrees',
+                dim=0)),
+            'microsaccade_shift_y_degrees': ('presentation', self.unpack_microsaccade_coords(
+                np.unique(stimuli_paths),
+                pixels_or_degrees='degrees',
+                dim=1))
+        }
 
 
 def change_dict(d, change_function, keep_name=False, multithread=False):

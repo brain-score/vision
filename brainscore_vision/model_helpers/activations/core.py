@@ -368,7 +368,7 @@ class MicrosaccadeHelper:
                 output_images.append(images[index])
             else:
                 # translate images according to microsaccades if we are using microsaccades
-                image, image_shape = self.get_image_with_shape(images[index])
+                image, image_shape, image_is_channels_first = self.get_image_with_shape(images[index])
                 microsaccade_location_pixels = self.select_microsaccade(image_path=image_path,
                                                                         trial_number=trial_number,
                                                                         image_shape=image_shape)
@@ -376,13 +376,15 @@ class MicrosaccadeHelper:
                 output_images.append(self.translate_image(image=image,
                                                           microsaccade_location=microsaccade_location_pixels,
                                                           image_shape=image_shape,
-                                                          return_string=return_string))
+                                                          return_string=return_string,
+                                                          image_is_channels_first=image_is_channels_first))
         return self.reshape_microsaccaded_images(output_images)
 
     def translate_image(self, image: str, microsaccade_location: Tuple[float, float], image_shape: Tuple[int, int],
-                        return_string: bool) -> str:
+                        return_string: bool, image_is_channels_first: bool) -> str:
         """Translates and saves a temporary image to temporary_fp."""
-        translated_image = self.translate(image, microsaccade_location, image_shape)
+        translated_image = self.translate(image=image, shift=microsaccade_location, image_shape=image_shape,
+                                          image_is_channels_first=image_is_channels_first)
         if not return_string:  # if the model accepts ndarrays after preprocessing, return one
             return translated_image
         else:  # if the model accepts strings after preprocessing, write temp file
@@ -497,24 +499,31 @@ class MicrosaccadeHelper:
                     pass
 
     @staticmethod
-    def translate(image, shift: Tuple[float, float], image_shape: Tuple[int, int]) -> np.array:
+    def translate(image: np.array, shift: Tuple[float, float], image_shape: Tuple[int, int],
+                  image_is_channels_first: bool) -> np.array:
         rows, cols = image_shape
         # translation matrix
         M = np.float32([[1, 0, shift[0]], [0, 1, shift[1]]])
 
+        if image_is_channels_first:
+            image = np.transpose(image, (1, 2, 0))  # cv2 expects channels last
         # Apply translation, filling new line(s) with line(s) closest to it(them).
         translated_image = cv2.warpAffine(image, M, (cols, rows), flags=cv2.INTER_LINEAR,  # for sub-pixel shifts
                                           borderMode=cv2.BORDER_REPLICATE)
+        if image_is_channels_first:
+            translated_image = np.transpose(translated_image, (2, 0, 1))  # convert the image back to channels-first
         return translated_image
 
     @staticmethod
-    def get_image_with_shape(image: Union[str, np.ndarray]) -> Tuple[np.array, Tuple[int, int]]:
+    def get_image_with_shape(image: Union[str, np.ndarray]) -> Tuple[np.array, Tuple[int, int], bool]:
         if isinstance(image, str):  # tf models return strings after preprocessing
             image = cv2.imread(image)
             rows, cols, _ = image.shape  # cv2 uses height, width, channels
+            image_is_channels_first = False
         else:
             _, rows, cols, = image.shape  # pytorch and keras use channels, height, width
-        return image, (rows, cols)
+            image_is_channels_first = True
+        return image, (rows, cols), image_is_channels_first
 
     @staticmethod
     def reshape_microsaccaded_images(images: List) -> Union[List[str], np.ndarray]:

@@ -217,7 +217,10 @@ class ActivationsExtractorHelper:
                                trial_number: int = 1):
         inputs, num_padding = self._pad(inputs, batch_size)
         preprocessed_inputs = self.preprocess(inputs)
-        preprocessed_inputs = self.translate_images(preprocessed_inputs, inputs, trial_number, require_variance)
+        preprocessed_inputs = self.translate_images(images=preprocessed_inputs,
+                                                    image_paths=inputs,
+                                                    trial_number=trial_number,
+                                                    require_variance=require_variance)
         activations = self.get_activations(preprocessed_inputs, layer_names)
         assert isinstance(activations, OrderedDict)
         activations = self._unpad(activations, num_padding)
@@ -266,8 +269,10 @@ class ActivationsExtractorHelper:
                                                                         trial_number=trial_number,
                                                                         image_shape=image_shape)
                 return_string = True if isinstance(images[index], str) else False
-                output_images.append(self.translate_image(image, microsaccade_location_pixels, image_shape,
-                                                          return_string))
+                output_images.append(self.translate_image(image=image,
+                                                          microsaccade_location=microsaccade_location_pixels,
+                                                          image_shape=image_shape,
+                                                          return_string=return_string))
         return self.reshape_microsaccaded_images(output_images)
 
     def translate_image(self, image: str, microsaccade_location: Tuple[float, float], image_shape: Tuple[int, int],

@@ -166,7 +166,10 @@ class ActivationsExtractorHelper:
             batch_activations = OrderedDict()
             # compute activations on the entire batch one microsaccade shift at a time.
             for shift_number in range(self._microsaccade_helper.number_of_trials):
-                activations = self._get_batch_activations(inputs=batch_inputs, layer_names=layers, batch_size=batch_size, require_variance=require_variance,
+                activations = self._get_batch_activations(inputs=batch_inputs,
+                                                          layer_names=layers,
+                                                          batch_size=batch_size,
+                                                          require_variance=require_variance,
                                                           trial_number=shift_number)
 
                 for layer_name, layer_output in activations.items():
@@ -407,7 +410,7 @@ class MicrosaccadeHelper:
         # if we did not already compute `self.microsaccades`, we build them first.
         if image_path not in self.microsaccades.keys():
             self.build_microsaccades(image_path=image_path, image_shape=image_shape)
-        return self.microsaccades['pixels'][image_path][trial_number - 1]
+        return self.microsaccades['pixels'][image_path][trial_number]
 
     def build_microsaccades(self, image_path: str, image_shape: Tuple[int, int]):
         if image_shape[0] != image_shape[1]:

@@ -45,24 +45,7 @@ class ActivationsExtractorHelper:
         :param number_of_trials: An integer that determines how many repetitions of the same model performs.
         :param require_variance: A bool that asks models to output different responses to the same stimuli (i.e.,
             allows stochastic responses to identical stimuli, even in otherwise deterministic base models). 
-            We here implement this using microsaccades.
-            Human microsaccade amplitude varies by who you ask, an estimate might be <0.1 deg = 360 arcsec = 6arcmin.
-            Our motivation to make use of such microsaccades is to obtain multiple different neural activities to the
-            same input stimulus from non-stochastic models. This enables models to engage on e.g. psychophysical
-            functions which often require variance for the same stimulus. In the current implementation,
-            if `require_variance=True`, the model microsaccades in the preprocessed input space in sub-pixel increments,
-            the extent and position of which are determined by `self._visual_degrees`, and
-            `self.microsaccade_extent_degrees`.
-            
-            Example usage:
-                `require_variance = True`
-            
-            More information:
-            --> Rolfs 2009 "Microsaccades: Small steps on a long way" Vision Research, Volume 49, Issue 20, 15
-            October 2009, Pages 2415-2441.
-            --> Haddad & Steinmann 1973 "The smallest voluntary saccade: Implications for fixation" Vision
-            Research Volume 13, Issue 6, June 1973, Pages 1075-1086, IN5-IN6.
-            Implemented by Ben Lonnqvist and Johannes Mehrer.
+            We here implement this using microsaccades. For more, see ...
 
         """
         if require_variance:
@@ -326,6 +309,24 @@ class ActivationsExtractorHelper:
 
 
 class MicrosaccadeHelper:
+    """
+    A class that allows ActivationsExtractorHelper to implement microsaccades.
+
+    Human microsaccade amplitude varies by who you ask, an estimate might be <0.1 deg = 360 arcsec = 6arcmin.
+    Our motivation to make use of such microsaccades is to obtain multiple different neural activities to the
+    same input stimulus from non-stochastic models. This enables models to engage on e.g. psychophysical
+    functions which often require variance for the same stimulus. In the current implementation,
+    if `require_variance=True`, the model microsaccades in the preprocessed input space in sub-pixel increments,
+    the extent and position of which are determined by `self._visual_degrees`, and
+    `self.microsaccade_extent_degrees`.
+
+    More information:
+    --> Rolfs 2009 "Microsaccades: Small steps on a long way" Vision Research, Volume 49, Issue 20, 15
+    October 2009, Pages 2415-2441.
+    --> Haddad & Steinmann 1973 "The smallest voluntary saccade: Implications for fixation" Vision
+    Research Volume 13, Issue 6, June 1973, Pages 1075-1086, IN5-IN6.
+    Implemented by Ben Lonnqvist and Johannes Mehrer.
+    """
     def __init__(self):
         self._logger = logging.getLogger(fullname(self))
         self.number_of_trials = 1  # for use with microsaccades.
@@ -441,8 +442,7 @@ class MicrosaccadeHelper:
         self.microsaccades['pixels'][image_path] = selected_microsaccades['pixels']
         self.microsaccades['degrees'][image_path] = selected_microsaccades['degrees']
 
-    def unpack_microsaccade_coords(self, stimuli_paths: np.ndarray, pixels_or_degrees: str,
-                            dim: int):
+    def unpack_microsaccade_coords(self, stimuli_paths: np.ndarray, pixels_or_degrees: str, dim: int):
         """Unpacks microsaccades from stimuli_paths into a single list to conform with coord requirements."""
         assert pixels_or_degrees == 'pixels' or pixels_or_degrees == 'degrees'
         unpacked_microsaccades = []
@@ -455,6 +455,26 @@ class MicrosaccadeHelper:
         """Calculates the pixels per degree in the image, assuming the calculation based on image width."""
         pixels_per_degree = image_width_pixels / self.visual_degrees
         return pixels_per_degree
+
+    def build_microsaccade_coords(self, stimuli_paths: np.array) -> Dict:
+        return {
+            'microsaccade_shift_x_pixels': ('presentation', self.unpack_microsaccade_coords(
+                np.unique(stimuli_paths),
+                pixels_or_degrees='pixels',
+                dim=0)),
+            'microsaccade_shift_y_pixels': ('presentation', self.unpack_microsaccade_coords(
+                np.unique(stimuli_paths),
+                pixels_or_degrees='pixels',
+                dim=1)),
+            'microsaccade_shift_x_degrees': ('presentation', self.unpack_microsaccade_coords(
+                np.unique(stimuli_paths),
+                pixels_or_degrees='degrees',
+                dim=0)),
+            'microsaccade_shift_y_degrees': ('presentation', self.unpack_microsaccade_coords(
+                np.unique(stimuli_paths),
+                pixels_or_degrees='degrees',
+                dim=1))
+        }
 
     @staticmethod
     def convert_pixels_to_degrees(pixel_coords: Tuple[float, float], pixels_per_degree: float) -> Tuple[float, float]:
@@ -491,7 +511,9 @@ class MicrosaccadeHelper:
     def get_image_with_shape(image: Union[str, np.ndarray]) -> Tuple[np.array, Tuple[int, int]]:
         if isinstance(image, str):  # tf models return strings after preprocessing
             image = cv2.imread(image)
-        rows, cols, _ = image.shape
+            rows, cols, _ = image.shape  # cv2 uses height, width, channels
+        else:
+            _, rows, cols, = image.shape  # pytorch and keras use channels, height, width
         return image, (rows, cols)
 
     @staticmethod
@@ -499,26 +521,6 @@ class MicrosaccadeHelper:
         if any(isinstance(image, str) for image in images):
             return images
         return np.stack(images, axis=0)
-
-    def build_microsaccade_coords(self, stimuli_paths: np.array) -> Dict:
-        return {
-            'microsaccade_shift_x_pixels': ('presentation', self.unpack_microsaccade_coords(
-                np.unique(stimuli_paths),
-                pixels_or_degrees='pixels',
-                dim=0)),
-            'microsaccade_shift_y_pixels': ('presentation', self.unpack_microsaccade_coords(
-                np.unique(stimuli_paths),
-                pixels_or_degrees='pixels',
-                dim=1)),
-            'microsaccade_shift_x_degrees': ('presentation', self.unpack_microsaccade_coords(
-                np.unique(stimuli_paths),
-                pixels_or_degrees='degrees',
-                dim=0)),
-            'microsaccade_shift_y_degrees': ('presentation', self.unpack_microsaccade_coords(
-                np.unique(stimuli_paths),
-                pixels_or_degrees='degrees',
-                dim=1))
-        }
 
 
 def change_dict(d, change_function, keep_name=False, multithread=False):

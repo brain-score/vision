@@ -579,9 +579,8 @@ def attach_stimulus_set_meta(assembly, stimulus_set, number_of_trials: int, requ
         assembly = assembly.assign_coords({column: ('presentation', repeated_values)})  # assign multiple coords at once
         all_columns.append(column)
 
-    index = all_columns + ['microsaccade_shift_x_pixels', 'microsaccade_shift_y_pixels',
-                           'microsaccade_shift_x_degrees', 'microsaccade_shift_y_degrees']
-    assembly = assembly.set_index(presentation=index)  # assign MultiIndex
+    presentation_coords = all_columns + [coord for coord, dims, values in walk_coords(assembly['presentation'])]
+    assembly = assembly.set_index(presentation=list(set(presentation_coords)))  # assign MultiIndex
     return assembly
 
 

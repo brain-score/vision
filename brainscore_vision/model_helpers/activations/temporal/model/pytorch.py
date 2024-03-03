@@ -1,8 +1,6 @@
 from collections import OrderedDict
 
 import logging
-import numpy as np
-from PIL import Image
 
 from brainscore_vision.model_helpers.utils import fullname
 from .base import ActivationWrapper
@@ -10,36 +8,41 @@ from .base import ActivationWrapper
 SUBMODULE_SEPARATOR = '.'
 
 
+def default_process_activation(layer, layer_name, input, output):
+    return output
+
 class PytorchWrapper(ActivationWrapper):
-    def __init__(self, model, preprocessing, forward_kwargs=None):
+    def __init__(self, identifier, spec, model, preprocessing, process_output=None, *args, **kwargs):
         import torch
         logger = logging.getLogger(fullname(self))
         self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         logger.debug(f"Using device {self._device}")
-        self._model = model
-        self._model = self._model.to(self._device)
-        # preprocessing: List[input.Stimulus] -> actual model inputs
+        self._model = model.to(self._device)
+        # preprocessing: input.Stimulus -> actual model inputs
         self._preprocess = preprocessing
-        self._forward_kwargs = forward_kwargs or {}
+        self._process_activation = default_process_activation if process_output is None else process_output
+        super().__init__(identifier, spec, preprocessing, *args, **kwargs)
 
-    def forward(self, model_inputs):
-        return self._model(model_inputs, **self._forward_kwargs)
+    def forward(self, inputs):
+        import torch
+        tensor = torch.stack(inputs)
+        tensor = tensor.to(self._device)
+        return self._model(tensor)
 
     def get_activations(self, inputs, layer_names):
         import torch
-        inputs = self._preprocess(inputs)
         self._model.eval()
-
         layer_results = OrderedDict()
         hooks = []
 
         for layer_name in layer_names:
             layer = self.get_layer(layer_name)
-            hook = self.register_hook(layer, layer_name, target_dict=layer_results)
+            hook = self._register_hook(layer, layer_name, target_dict=layer_results)
             hooks.append(hook)
 
         with torch.no_grad():
             self.forward(inputs)
+
         for hook in hooks:
             hook.remove()
         return layer_results
@@ -62,15 +65,10 @@ class PytorchWrapper(ActivationWrapper):
     @classmethod
     def _tensor_to_numpy(cls, output):
         return output.cpu().data.numpy()
-    
-    @staticmethod
-    # rewrite this method to process the activation for different models
-    def process_activation(layer, layer_name, input, activation):
-        return activation
 
-    def register_hook(self, layer, layer_name, target_dict):
+    def _register_hook(self, layer, layer_name, target_dict):
         def hook_function(_layer, _input, output, name=layer_name, target_dict=target_dict):
-            output = self.process_activation(_layer, name, _input, output)
+            output = self._process_activation(_layer, name, _input, output)
             target_dict[name] = PytorchWrapper._tensor_to_numpy(output)
 
         hook = layer.register_forward_hook(hook_function)

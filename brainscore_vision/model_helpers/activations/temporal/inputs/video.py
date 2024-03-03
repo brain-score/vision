@@ -13,7 +13,7 @@ class Video(Stimulus):
         self._clip = video_clip
 
     def copy(self):
-        video = Video(self._clip)
+        video = Video(self._clip.copy())
         return video
     
     @property
@@ -27,22 +27,19 @@ class Video(Stimulus):
     
     @property
     def num_frames(self):
-        c = 0
-        for _ in self.to_frames():
-            c += 1
-        return c
+        return len(self.to_frames())
     
     @property
     def frame_size(self):
-        return self._clip.size
+        return tuple(self._clip.size)
     
     @property
     def start_time(self):
-        return self._clip.start
+        return self._clip.start * 1000
     
     @property
     def end_time(self):
-        return self._clip.end
+        return self._clip.end * 1000
     
     ### Transformations: return copy
     
@@ -55,14 +52,16 @@ class Video(Stimulus):
 
     def set_window(self, start, end, padding="repeat"):
         # use ms as the time scale
+        EPS = 1e-9  # avoid the additional frame at the end
         start = start / 1000
-        end = end / 1000
+        end = end / 1000 - EPS
 
         if end < start:
             raise ValueError("end time is earlier than start time")
         
+
         # pad if start < 0 or end > duration
-        video = self._clip
+        video = self._clip.copy()
         if start < 0 or end > video.duration:
             if padding == "repeat":
                 if start < 0:
@@ -75,7 +74,8 @@ class Video(Stimulus):
 
                 if end > video.duration:
                     to_pad = end - video.duration
-                    img = video.get_frame(video.duration)
+                    safe_margin = 1/video.fps  # BUG: here moviepy sometimes fails if you do get_frame(video.duration). See test_moviepy in tests for verification of this code.
+                    img = video.get_frame(video.duration - safe_margin)
                     to_pad = mpe.ImageClip(img, duration=to_pad)
                     video = mpe.concatenate_videoclips([video, to_pad])
 
@@ -83,6 +83,8 @@ class Video(Stimulus):
                 raise ValueError("start time is earlier than 0 or end time is later than duration")
             else:
                 raise NotImplementedError()
+            
+            # CAUTION: prevent weird behavior from moviepy: https://github.com/Zulko/moviepy/blob/a002df34a1b974e73cbea02c2f436c94b81fbc39/moviepy/video/io/ffmpeg_reader.py#L132
         
         return Video(video.subclip(start, end))
     
@@ -101,8 +103,9 @@ class Video(Stimulus):
         return path
     
     def to_frames(self):
-        for frame in self._clip.iter_frames():
-            yield frame
+        if not hasattr(self, "_frames"):
+            self._frames = list(self._clip.iter_frames())
+        return self._frames
 
     def to_numpy(self):
         ret = []
@@ -120,20 +123,3 @@ class Video(Stimulus):
         video_clip = mpe.concatenate_videoclips([a._clip, b._clip])
         return Video(video_clip)
     
-
-if __name__ == "__main__":
-    video1 = Video.from_path("/home/ytang/workspace/proj-brainscore-temporal/test.mp4")
-    video2 = Video.from_img("/home/ytang/workspace/modules/tmp/brain-score/tests/test_benchmark_helpers/rgb1.jpg", 1000, 30)
-
-    assert video2.duration == 1000
-
-    video3 = video1.set_window(-10, 0, padding="repeat")
-    video4 = video1.set_window(-20, -10, padding="repeat")
-    assert (video3.to_numpy() == video4.to_numpy()).all()
-
-    assert video2.fps == 30
-    assert video2.set_fps(1).to_numpy().shape[0] == 1
-
-    video1 = video1.set_fps(60)
-    assert Video.concat(video2, video1).fps == Video.concat(video1, video2).fps
-    assert Video.concat(video2, video1).fps == video1.fps

@@ -1,6 +1,3 @@
-import numpy as np
-import xarray as xr
-
 import brainscore_vision
 from brainio.assemblies import BehavioralAssembly
 from brainscore_vision import load_dataset, load_metric
@@ -33,7 +30,7 @@ class _Scialom2024ErrorConsistency(BenchmarkBase):
         self._number_of_trials = 1
 
         super(_Scialom2024ErrorConsistency, self).__init__(
-            identifier=f'Scialom2024composite-error_consistency', version=1,
+            identifier=f'Scialom2024{dataset}-error_consistency', version=1,
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
             parent='Scialom2024',
             bibtex=BIBTEX)

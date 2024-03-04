@@ -26,7 +26,7 @@ class Hebart2023Accuracy(BenchmarkBase):
 
         super().__init__(
             identifier=f'Hebart2023Accuracy_{similarity_measure}', version=1,
-            ceiling_func=lambda: Score([0.6844, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation']),
+            ceiling_func=lambda: Score(0.6844),
             parent='Hebart2023',
             bibtex=BIBTEX
         )

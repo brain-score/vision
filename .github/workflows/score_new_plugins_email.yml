@@ -95,6 +95,9 @@ jobs:
         run: |
           # echo "::set-output name=PLUGIN_INFO::$PLUGIN_INFO"
           echo "PLUGIN_INFO=$PLUGIN_INFO" >> $GITHUB_OUTPUT
+      - name: Debug print PLUGIN_INFO after setting output
+        run: |
+          echo "Final PLUGIN_INFO: $PLUGIN_INFO"
 
 
   run_scoring:

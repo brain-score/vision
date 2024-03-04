@@ -93,7 +93,8 @@ jobs:
       - name: Set job-level output for PLUGIN_INFO
         id: set_plugin_output
         run: |
-          echo "::set-output name=PLUGIN_INFO::$PLUGIN_INFO"
+          # echo "::set-output name=PLUGIN_INFO::$PLUGIN_INFO"
+          echo "PLUGIN_INFO=$PLUGIN_INFO" >> $GITHUB_OUTPUT
 
 
   run_scoring:

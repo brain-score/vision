@@ -17,7 +17,7 @@ BIBTEX = """@article{10.7554/eLife.82580,
           year = 2023
           }"""
 
-class Hebart2023Accuracy(BenchmarkBase):
+class Habart2023Match(BenchmarkBase):
     def __init__(self, similarity_measure='dot'):
         self._visual_degrees = 8
         self._number_of_trials = 1
@@ -25,7 +25,7 @@ class Hebart2023Accuracy(BenchmarkBase):
         self._stimulus_set = load_stimulus_set('Hebart2023')
 
         super().__init__(
-            identifier=f'Hebart2023Accuracy_{similarity_measure}', version=1,
+            identifier=f'Habart2023Match_{similarity_measure}', version=1,
             ceiling_func=lambda: Score(0.6844),
             parent='Hebart2023',
             bibtex=BIBTEX

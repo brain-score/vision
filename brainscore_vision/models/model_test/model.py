@@ -1,4 +1,3 @@
-
 from brainscore_vision.model_helpers.check_submission import check_models
 import functools
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper

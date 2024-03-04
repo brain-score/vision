@@ -78,7 +78,7 @@ jobs:
         id: non_automerge_web
         run: |
           echo "The PR author email is ${{ steps.getemail.outputs.email }}"
-          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO tr -d "'"  | jq -c '. + {email: "${{ steps.getemail.outputs.email }}"}')" >> $GITHUB_ENV
+          echo "PLUGIN_INFO=$(<<<${{ steps.getpluginfo.outputs.PLUGIN_INFO }} tr -d "'"  | jq -c '. + {email: "${{ steps.getemail.outputs.email }}"}')" >> $GITHUB_ENV
           
       - name: Update PLUGIN_INFO for automerge-web (find uid, public v. private, and bs email)
         if: contains(github.event.pull_request.labels.*.name, 'automerge-web') && steps.scoringneeded.outputs.RUN_SCORING == 'True'
@@ -86,13 +86,15 @@ jobs:
         run: |
           BS_UID="$(echo '${{ github.event.pull_request.title }}' | sed -E 's/.*\(user:([^)]+)\).*/\1/')"
           BS_PUBLIC="$(echo '${{ github.event.pull_request.title }}' | sed -E 's/.*\(public:([^)]+)\).*/\1/')"
-          USER_EMAIL=$(python -c "from brainscore_core.submission.database import email_from_uid; from brainscore_core.submission.endpoints import UserManager; user_manager=UserManager(db_secret='brainscore-prod-ohio-cred'); print(email_from_uid($BS_UID))")
-          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO tr -d "'" | jq -c ". + {user_id: \"$BS_UID\", public: \"$BS_PUBLIC\", email: \"$USER_EMAIL\"}")" >> $GITHUB_ENV
+          USER_EMAIL=$(python -c "from brainscore_core.submission.database import email_from_uid; from brainscore_core.submission.endpoints import UserManager; user_manager=UserManager(db_secret='${{ secrets.BSC_DATABASESECRET }}'); print(email_from_uid($BS_UID))")
+          echo "::add-mask::$USER_EMAIL" # Mask the USER_EMAIL
+          echo "PLUGIN_INFO=$(<<<${{ steps.getpluginfo.outputs.PLUGIN_INFO }} tr -d "'" | jq -c ". + {user_id: \"$BS_UID\", public: \"$BS_PUBLIC\", email: \"$USER_EMAIL\"}")" >> $GITHUB_ENV
 
       - name: Set job-level output for PLUGIN_INFO
         id: set_plugin_output
         run: |
-          echo "::set_plugin_output name=plugin_info::$PLUGIN_INFO"
+          # echo "::set-output name=PLUGIN_INFO::$PLUGIN_INFO"
+          echo "PLUGIN_INFO=$PLUGIN_INFO" >> $GITHUB_OUTPUT
 
 
   run_scoring:

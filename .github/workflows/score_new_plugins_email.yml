@@ -59,12 +59,12 @@ jobs:
       - name: Get plugin info
         id: getpluginfo
         run: |
-          echo "PLUGIN_INFO='$(python -c 'from brainscore_core.plugin_management.parse_plugin_changes import get_scoring_info; get_scoring_info("${{ env.CHANGED_FILES }}", "brainscore_vision")')'"  >> $GITHUB_OUTPUT
+          echo "TMP_PLUGIN_INFO='$(python -c 'from brainscore_core.plugin_management.parse_plugin_changes import get_scoring_info; get_scoring_info("${{ env.CHANGED_FILES }}", "brainscore_vision")')'"  >> $GITHUB_OUTPUT
 
       - name: Check if scoring needed
         id: scoringneeded
         run: |
-          echo "RUN_SCORING=$(jq -r '.run_score' <<< ${{ steps.getpluginfo.outputs.PLUGIN_INFO }})" >> $GITHUB_OUTPUT
+          echo "RUN_SCORING=$(jq -r '.run_score' <<< ${{ steps.getpluginfo.outputs.TMP_PLUGIN_INFO }})" >> $GITHUB_OUTPUT
           
       - name: Find PR author email for non-web submissions
         if: "!contains(github.event.pull_request.labels.*.name, 'automerge-web') && steps.scoringneeded.outputs.RUN_SCORING == 'True'"
@@ -78,7 +78,7 @@ jobs:
         id: non_automerge_web
         run: |
           echo "The PR author email is ${{ steps.getemail.outputs.email }}"
-          echo "PLUGIN_INFO=$(<<<${{ steps.getpluginfo.outputs.PLUGIN_INFO }} tr -d "'"  | jq -c '. + {email: "${{ steps.getemail.outputs.email }}"}')" >> $GITHUB_ENV
+          echo "PLUGIN_INFO=$(<<<${{ steps.getpluginfo.outputs.TMP_PLUGIN_INFO }} tr -d "'"  | jq -c '. + {email: "${{ steps.getemail.outputs.email }}"}')" >> $GITHUB_ENV
           
       - name: Update PLUGIN_INFO for automerge-web (find uid, public v. private, and bs email)
         if: contains(github.event.pull_request.labels.*.name, 'automerge-web') && steps.scoringneeded.outputs.RUN_SCORING == 'True'
@@ -88,7 +88,7 @@ jobs:
           BS_PUBLIC="$(echo '${{ github.event.pull_request.title }}' | sed -E 's/.*\(public:([^)]+)\).*/\1/')"
           USER_EMAIL=$(python -c "from brainscore_core.submission.database import email_from_uid; from brainscore_core.submission.endpoints import UserManager; user_manager=UserManager(db_secret='${{ secrets.BSC_DATABASESECRET }}'); print(email_from_uid($BS_UID))")
           echo "::add-mask::$USER_EMAIL" # Mask the USER_EMAIL
-          echo "PLUGIN_INFO=$(<<<${{ steps.getpluginfo.outputs.PLUGIN_INFO }} tr -d "'" | jq -c ". + {user_id: \"$BS_UID\", public: \"$BS_PUBLIC\", email: \"$USER_EMAIL\"}")" >> $GITHUB_ENV
+          echo "PLUGIN_INFO=$(<<<${{ steps.getpluginfo.outputs.TMP_PLUGIN_INFO }} tr -d "'" | jq -c ". + {user_id: \"$BS_UID\", public: \"$BS_PUBLIC\", email: \"$USER_EMAIL\"}")" >> $GITHUB_ENV
 
       - name: Set job-level output for PLUGIN_INFO
         id: set_plugin_output

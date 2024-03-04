@@ -1,4 +1,5 @@
 import numpy as np
+import xarray as xr
 
 import brainscore_vision
 from brainio.assemblies import BehavioralAssembly
@@ -22,36 +23,17 @@ BIBTEX = """@article{...,
             url = {...}
         }"""
 
-DATASETS = ['rgb', 'contours', 'phosphenes-12', 'phosphenes-16', 'phosphenes-21', 'phosphenes-27', 'phosphenes-35',
-            'phosphenes-46', 'phosphenes-59', 'phosphenes-77', 'phosphenes-100', 'segments-12', 'segments-16',
-            'segments-21', 'segments-27', 'segments-35', 'segments-46', 'segments-59', 'segments-77', 'segments-100']
-
-
-# create functions so that users can import individual benchmarks as e.g. Geirhos2021sketchErrorConsistency
-for dataset in DATASETS:
-    # less fine-grained behavioral benchmark
-    identifier = f"Scialom2024_{dataset}BehavioralAccuracyDistance"
-    globals()[identifier] = lambda dataset=dataset: _Scialom2024BehavioralAccuracyDistance(dataset)
-    # more fine-grained behavioral benchmark
-    identifier = f"Scialom2024_{dataset}ErrorConsistency"
-    globals()[identifier] = lambda dataset=dataset: _Scialom2024ErrorConsistency(dataset)
-    # engineering benchmark
-    identifier = f"Scialom2024_{dataset}EngineeringAccuracy"
-    globals()[identifier] = lambda dataset=dataset: _Scialom2024EngineeringAccuracy(dataset)
-
 
 class _Scialom2024ErrorConsistency(BenchmarkBase):
-    # behavioral benchmark
-    # TODO: make benchmark composite
     def __init__(self, dataset):
         self._metric = load_metric('error_consistency')
         self._assembly = LazyLoad(lambda: load_assembly(dataset))
+        self._stimulus_set = LazyLoad(lambda: load_assembly(dataset).stimulus_set)
         self._visual_degrees = 8
-
         self._number_of_trials = 1
 
         super(_Scialom2024ErrorConsistency, self).__init__(
-            identifier=f'Scialom2024{dataset}-error_consistency', version=1,
+            identifier=f'Scialom2024composite-error_consistency', version=1,
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
             parent='Scialom2024',
             bibtex=BIBTEX)
@@ -60,7 +42,7 @@ class _Scialom2024ErrorConsistency(BenchmarkBase):
         choice_labels = set(self._assembly['truth'].values)
         choice_labels = list(sorted(choice_labels))
         candidate.start_task(BrainModel.Task.label, choice_labels)
-        stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
+        stimulus_set = place_on_screen(self._stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
         labels = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
         raw_score = self._metric(labels, self._assembly)

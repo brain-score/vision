@@ -7,7 +7,7 @@ from pytest import approx
 from brainio.assemblies import BehavioralAssembly
 from brainscore_vision import benchmark_registry, load_benchmark
 from brainscore_vision.benchmark_helpers import PrecomputedFeatures
-from brainscore_vision.benchmarks.scialom2024.benchmark import DATASETS
+from brainscore_vision.benchmarks.scialom2024 import DATASETS
 from brainscore_vision.data_helpers import s3
 
 
@@ -31,7 +31,9 @@ from brainscore_vision.data_helpers import s3
     ('segments-46', approx(0.65888, abs=0.001)),
     ('segments-59', approx(0.71097, abs=0.001)),
     ('segments-77', approx(0.77055, abs=0.001)),
-    ('segments-100', approx(0.86305, abs=0.001)),
+    ('segments-100', approx(0.86305, abs=0.001)),  # all of the above are AccuracyDistance
+    ('phosphenes-composite', approx(0.45755, abs=0.01)),  # composites are ErrorConsistency
+    ('segments-composite', approx(0.42529, abs=0.01)),
 ])
 def test_dataset_ceiling(self, dataset, expected_ceiling):
     benchmark = f"Scialom2024_{dataset}BehavioralAccuracyDistance"

@@ -21,11 +21,10 @@ permissions: write-all
 jobs:
 
   process_submission:
-    name: If triggering PR alters /models or /benchmarks, initiates scoring for relevant plugins
+    name: Check if PR makes changes to /models or /benchmarks
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     outputs:
-      PLUGIN_INFO: ${{ steps.set_plugin_output.outputs.PLUGIN_INFO }}
       RUN_SCORING: ${{ steps.scoringneeded.outputs.RUN_SCORING }}
     steps:
       - name: Check out repository code
@@ -90,10 +89,15 @@ jobs:
           echo "::add-mask::$USER_EMAIL" # Mask the USER_EMAIL
           echo "PLUGIN_INFO=$(<<<${{ steps.getpluginfo.outputs.PLUGIN_INFO }} tr -d "'" | jq -c ". + {user_id: \"$BS_UID\", public: \"$BS_PUBLIC\", email: \"$USER_EMAIL\"}")" >> $GITHUB_ENV
 
-      - name: Set job-level output for PLUGIN_INFO
-        id: set_plugin_output
+      - name: Write PLUGIN_INFO to a json file
         run: |
-          echo "PLUGIN_INFO=$PLUGIN_INFO" >> $GITHUB_OUTPUT
+          echo "$PLUGIN_INFO" > plugin-info.json
+      
+      - name: Upload PLUGIN_INFO as an artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: plugin-info
+          path: plugin-info.json
 
 
   run_scoring:
@@ -102,11 +106,24 @@ jobs:
     needs: [process_submission]
     if: needs.process_submission.outputs.RUN_SCORING == 'True'
     env:
-      PLUGIN_INFO: ${{ needs.process_submission.outputs.PLUGIN_INFO }}
       JENKINS_USER: ${{ secrets.JENKINS_USER }}
       JENKINS_TOKEN: ${{ secrets.JENKINS_TOKEN }}
       JENKINS_TRIGGER: ${{ secrets.JENKINS_TRIGGER }}
     steps:
+    
+      - name: Download PLUGIN_INFO artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: plugin-info
+          path: artifact-directory
+    
+      - name: Set PLUGIN_INFO as an environment variable
+        run: |
+          PLUGIN_INFO=$(cat artifact-directory/plugin-info.json)
+          USER_EMAIL=$(echo "$PLUGIN_INFO" | jq -r '.email')
+          echo "::add-mask::$USER_EMAIL"  # add a mask when bringing email back from artifact
+          echo "PLUGIN_INFO=${PLUGIN_INFO}" >> $GITHUB_ENV
+        
       - name: Add domain, public, competition, and model_type to PLUGIN_INFO
         run: |
           echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO tr -d "'"  | jq -c '. + {domain: "vision", competition: "None", model_type: "Brain_Model"}')" >> $GITHUB_ENV
@@ -126,4 +143,5 @@ jobs:
 
       - name: Run scoring
         run: |
-          python -c 'from brainscore_core.submission.endpoints import call_jenkins; call_jenkins('\''${{ env.PLUGIN_INFO }}'\'')'
+          # python -c 'from brainscore_core.submission.endpoints import call_jenkins; call_jenkins('\''${{ env.PLUGIN_INFO }}'\'')'
+          echo "Here is what would normally be insert into call_jenkins: ${{ env.PLUGIN_INFO }}"

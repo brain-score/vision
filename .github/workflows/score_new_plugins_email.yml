@@ -63,7 +63,7 @@ jobs:
       - name: Check if scoring needed
         id: scoringneeded
         run: |
-          echo "RUN_SCORING=$(jq -r '.run_score' <<< $PLUGIN_INFO)" >> $GITHUB_OUTPUT
+          echo "RUN_SCORING=$(jq -r '.run_score' <<< "$PLUGIN_INFO")" >> $GITHUB_OUTPUT
           
       - name: Find PR author email for non-web submissions
         if: "!contains(github.event.pull_request.labels.*.name, 'automerge-web') && steps.scoringneeded.outputs.RUN_SCORING == 'True'"

@@ -111,6 +111,10 @@ jobs:
       JENKINS_TOKEN: ${{ secrets.JENKINS_TOKEN }}
       JENKINS_TRIGGER: ${{ secrets.JENKINS_TRIGGER }}
     steps:
+      - name: Debug print PLUGIN_INFO after bringing in output of process submission
+        run: |
+          echo "input PLUGIN_INFO: $PLUGIN_INFO"
+          
       - name: Add domain, public, competition, and model_type to PLUGIN_INFO
         run: |
           echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO tr -d "'"  | jq -c '. + {domain: "vision", competition: "None", model_type: "Brain_Model"}')" >> $GITHUB_ENV

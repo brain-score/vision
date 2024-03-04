@@ -21,7 +21,7 @@ permissions: write-all
 jobs:
 
   process_submission:
-    name: Check if PR makes changes to /models or /benchmarks
+    name: If triggering PR alters /models or /benchmarks, initiates scoring for relevant plugins
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     outputs:
@@ -143,5 +143,4 @@ jobs:
 
       - name: Run scoring
         run: |
-          # python -c 'from brainscore_core.submission.endpoints import call_jenkins; call_jenkins('\''${{ env.PLUGIN_INFO }}'\'')'
-          echo "Here is what would normally be insert into call_jenkins: ${{ env.PLUGIN_INFO }}"
+          python -c 'from brainscore_core.submission.endpoints import call_jenkins; call_jenkins('\''${{ env.PLUGIN_INFO }}'\'')'

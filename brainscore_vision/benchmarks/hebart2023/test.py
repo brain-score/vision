@@ -9,7 +9,7 @@ def test_benchmark_registry():
 def test_ceiling():
     benchmark = Hebart2023Accuracy()
     ceiling = benchmark.ceiling
-    assert ceiling.sel(aggregation='center') == pytest.approx(0.6844, abs=0.0001)
+    assert ceiling == pytest.approx(0.6844, abs=0.0001)
 
 def test_alexnet_consistency():
     benchmark = Hebart2023Accuracy()

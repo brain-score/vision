@@ -99,6 +99,9 @@ jobs:
       - name: Debug print PLUGIN_INFO after setting output
         run: |
           echo "Final PLUGIN_INFO: $PLUGIN_INFO"
+      - name: Debug print GITHUB_OUTPUT after setting output
+        run: |
+          echo "Final GITHUB_OUTPUT: $GITHUB_OUTPUT"
 
   run_scoring:
     name: Score plugins

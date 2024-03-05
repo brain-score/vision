@@ -4,7 +4,7 @@ from brainscore_vision import benchmark_registry, load_model
 from brainscore_vision.benchmarks.hebart2023 import Hebart2023Match
 
 def test_benchmark_registry():
-    assert "Hebart2023-acc" in benchmark_registry
+    assert "Hebart2023-match" in benchmark_registry
 
 def test_ceiling():
     benchmark = Hebart2023Match()

@@ -1,20 +1,26 @@
-import xarray as xr
+import numpy as np
 from ..inputs.base import Stimulus
 from ..core import ActivationsExtractor
-from ..core.video import TemporalInferencer
+from ..core import TemporalInferencer, Inferencer
 
-from typing import List
+from typing import List, Callable, Any, Dict
 
 
 class ActivationWrapper:
-    def __init__(self, identifier, preprocessing, inferencer_cls=TemporalInferencer, **extractor_kwargs):
+    def __init__(
+            self, 
+            identifier : str, 
+            preprocessing : Callable[[List[Stimulus]], Any],
+            inferencer_cls : Inferencer = TemporalInferencer, 
+            **extractor_kwargs
+        ):
         self.identifier = identifier
         self.preprocessing = preprocessing
         self.build_extractor(inferencer_cls, **extractor_kwargs)
 
-    # List[preprocessed_input] -> xr.DataArray
-    def get_activations(self, inputs, layers: List[str]):
-        return xr.DataArray()
+    # List[preprocessed_input] -> Dict[layer -> np.array]
+    def get_activations(self, inputs : List[Stimulus], layers : List[str]) -> Dict[str, np.array]:
+        raise NotImplementedError()
 
     def __call__(self, *args, **kwargs):
         return self._extractor(*args, **kwargs)

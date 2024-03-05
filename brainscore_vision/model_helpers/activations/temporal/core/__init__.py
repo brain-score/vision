@@ -14,6 +14,9 @@ from brainio.stimuli import StimulusSet
 from brainscore_vision.model_helpers.utils import fullname
 from result_caching import store_xarray
 
+from .base import Inferencer
+from .video import *
+
 
 class ActivationsExtractor:
     def __init__(

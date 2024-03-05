@@ -29,7 +29,7 @@ breakpoint()
 
 # - the transform_input function is used to convert a Stimulus (here a Video) to the input format that the model expects
 from brainscore_vision.model_helpers.activations.temporal.inputs import Video
-def transform_input(input: Video):
+def transform_input(input: Video) -> torch.Tensor:
     arr = input.to_numpy()  # [T, H, W, C]
     arr = arr / 255.0  # normalize
     arr = torch.Tensor(arr)
@@ -53,8 +53,8 @@ class DummyVideoModel(nn.Module):
 
 model = DummyVideoModel()
 
-# - the activations_spec is a dictionary that specifies the format of the activations for each layer
-activations_spec = {
+# - the layer_activation_format is a dictionary that specifies the format of the activations for each layer
+layer_activation_format = {
     "layer1": "CTHW",
     "layer2": "CTHW",
     "layer3": "CTHW",
@@ -64,7 +64,7 @@ activations_spec = {
 fps = 25
 
 # Finally, the PytorchWrapper is initialized with the above parameters
-base_model = PytorchWrapper(identifier="model_name", model=model, preprocessing=transform_input, fps=fps, activations_spec=activations_spec)
+base_model = PytorchWrapper(identifier="model_name", model=model, preprocessing=transform_input, fps=fps, layer_activation_format=layer_activation_format)
 breakpoint()
 
 
@@ -140,7 +140,7 @@ breakpoint()
 
 # However, if you want to use another inferencer, you can rebuild it into the wrapper.
 from brainscore_vision.model_helpers.activations.temporal.core.video import CausalInferencer
-base_model.build_extractor(CausalInferencer, fps=fps, activations_spec=activations_spec)
+base_model.build_extractor(CausalInferencer, fps=fps, layer_activation_format=layer_activation_format)
 
 model_assembly = base_model(video_paths, layers)
 # The CausalInferencer passes the video in a frame-by-frame manner, so it costs more time to extract activations.

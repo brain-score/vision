@@ -1,7 +1,7 @@
 import os
 from brainio.stimuli import StimulusSet
 import brainscore_vision
-from brainscore_vision import model_registry, load_model
+from brainscore_vision import load_model
 
 HOME_DIR = brainscore_vision.__path__[0]
 TEST_DIR = os.path.join(HOME_DIR, "../tests/test_model_helpers/temporal")
@@ -15,12 +15,9 @@ def _build_stimulus_set():
                                    for video_name in video_names}
     return stimulus_set
 
-load_model("r3d_18")
 
 stimulus_set = _build_stimulus_set()
-model = model_registry["r3d_18"]
-# model.start_recording('IT', time_bins=[(100, 150), (150, 200), (200, 250)])
-# model_response = model.look_at(stimulus_set)
-
-base_model = model.activations_model
-model_assembly = base_model(stimulus_set)
+model = load_model("r3d_18")
+model.start_recording('IT', time_bins=[(100, 150), (150, 200), (200, 250)])
+model_assembly = model.look_at(stimulus_set)
+print(model_assembly)

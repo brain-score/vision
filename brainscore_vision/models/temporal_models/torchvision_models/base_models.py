@@ -20,7 +20,7 @@ def get_model(identifier):
             transforms.CenterCrop(112),
             transforms.Normalize(mean=[0.43216, 0.394666, 0.37645], std=[0.22803, 0.22145, 0.216989])
         ])
-        activations_spec = {
+        layer_activation_format = {
                 "stem": "CTHW",
                 **{f'layer{i}': "CTHW" for i in range(1, 5)},
                 "avgpool": "CTHW",
@@ -34,10 +34,9 @@ def get_model(identifier):
         img_transform = transforms.Compose([
             transforms.Resize((256, 256)),
             transforms.CenterCrop(224),
-            transforms.ToTensor(),
             transforms.Normalize(mean=[0.43216, 0.394666, 0.37645], std=[0.22803, 0.22145, 0.216989])
         ])
-        activations_spec = {
+        layer_activation_format = {
             **{f"features.{i}": "CTHW" for i in range(16)},
             "avgpool": "CTHW",
             "classifier": "CTHW"
@@ -50,10 +49,9 @@ def get_model(identifier):
         img_transform = transforms.Compose([
             transforms.Resize((256, 256)),
             transforms.CenterCrop(224),
-            transforms.ToTensor(),
             transforms.Normalize(mean=[0.43216, 0.394666, 0.37645], std=[0.22803, 0.22145, 0.216989])
         ])
-        activations_spec = {
+        layer_activation_format = {
             "conv_proj": "CTHW",
             **{f"blocks.{i}": "THWC" for i in range(16)},
             "head": "C",
@@ -75,6 +73,6 @@ def get_model(identifier):
     model_name = identifier
     model = getattr(vid, model_name)(weights="KINETICS400_V1")
     wrapper = PytorchWrapper(identifier, model, vid_transform, process_output=process_output, 
-                             fps=fps, num_frames=num_frames, activations_spec=activations_spec)
+                             fps=fps, num_frames=num_frames, layer_activation_format=layer_activation_format)
     
     return wrapper

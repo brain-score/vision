@@ -60,7 +60,7 @@ class CausalInferencer(TemporalInferencer):
         activations = self._executor.execute(layers)
         layer_activations = OrderedDict()
         for layer in layers:
-            activation_dims = self.activations_spec[layer]
+            activation_dims = self.layer_activation_format[layer]
             clip_start = 0
             for num_clip in num_clips:
                 video_activations = activations[layer][clip_start:clip_start+num_clip]  # clips for this video

@@ -38,7 +38,7 @@ class Inferencer:
         function that takes a stimulus and returns a processed stimulus.
     stimulus_type: Stimulus
         the type of the stimulus.
-    activations_spec: dict
+    layer_activation_format: dict
         a dictionary that specifies the dimensions of the activations of each layer.
         For example, {"temp_conv": "TCHW", "spatial_conv": "CHW",  "fc": "C"}.
     batch_size: int
@@ -69,7 +69,7 @@ class Inferencer:
             get_activations, 
             preprocessing, 
             stimulus_type: Stimulus,
-            activations_spec=None,
+            layer_activation_format=None,
             batch_size=64,
             batch_grouper=None,
             batch_padding=False,
@@ -77,7 +77,7 @@ class Inferencer:
         ):
 
         self.stimulus_type = stimulus_type
-        self.activations_spec = activations_spec
+        self.layer_activation_format = layer_activation_format
         self._executor = BatchExecutor(get_activations, preprocessing, batch_size, batch_padding, batch_grouper, dtype)
         self._stimulus_set_hooks = {}
         self._batch_activations_hooks = {}
@@ -87,7 +87,7 @@ class Inferencer:
         layer_activations = self.inference(stimuli, layers)
         layer_assemblies = OrderedDict()
         for layer in tqdm(layers, desc="Packaging layers"):
-            layer_assemblies[layer] = self.package_layer(layer_activations[layer], layer, self.activations_spec[layer], stimuli)
+            layer_assemblies[layer] = self.package_layer(layer_activations[layer], layer, self.layer_activation_format[layer], stimuli)
         model_assembly = self.package(layer_assemblies, paths)
         return model_assembly
 

@@ -37,7 +37,7 @@ def get_resnet_base_models(identifier, causal=False, **kwargs):
     vid_transform = get_transform_video(img_transform)
 
     if identifier == "R3D":
-        activations_spec = {
+        layer_activation_format = {
                 "stem": "CTHW",
                 **{f'layer{i}': "CTHW" for i in range(1, 5)},
                 "avgpool": "C",
@@ -55,8 +55,8 @@ def get_resnet_base_models(identifier, causal=False, **kwargs):
 
     inferencer_cls = TemporalInferencer if not causal else CausalInferencer
     wrapper = PytorchWrapper(identifier, model, vid_transform, process_output=process_output, 
-                             inferencer_cls=inferencer_cls, fps=25, activations_spec=activations_spec, **kwargs)
-    layers = list(activations_spec.keys())
+                             inferencer_cls=inferencer_cls, fps=25, layer_activation_format=layer_activation_format, **kwargs)
+    layers = list(layer_activation_format.keys())
     return wrapper, layers
 
 

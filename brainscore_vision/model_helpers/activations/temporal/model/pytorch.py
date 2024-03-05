@@ -1,9 +1,13 @@
 from collections import OrderedDict
+from typing import Callable, List, Any, Union, Tuple, Dict
 
 import logging
 
 from brainscore_vision.model_helpers.utils import fullname
 from .base import ActivationWrapper
+from ..inputs import Stimulus
+import torch
+from torch import nn
 
 SUBMODULE_SEPARATOR = '.'
 
@@ -12,7 +16,15 @@ def default_process_activation(layer, layer_name, input, output):
     return output
 
 class PytorchWrapper(ActivationWrapper):
-    def __init__(self, identifier, model, preprocessing, process_output=None, *args, **kwargs):
+    def __init__(
+            self, 
+            identifier : str, 
+            model : nn.Module, 
+            preprocessing : Callable[[List[Stimulus]], Any], 
+            process_output = None, 
+            *args, 
+            **kwargs
+        ):
         import torch
         logger = logging.getLogger(fullname(self))
         self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

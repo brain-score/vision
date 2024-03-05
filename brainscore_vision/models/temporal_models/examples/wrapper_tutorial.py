@@ -141,6 +141,7 @@ breakpoint()
 # However, if you want to use another inferencer, you can rebuild it into the wrapper.
 from brainscore_vision.model_helpers.activations.temporal.core.video import CausalInferencer
 base_model.build_extractor(CausalInferencer, fps=fps, layer_activation_format=layer_activation_format)
+# NOTE: see .build_extractor for how the parameters are passed into the inferencer class
 
 model_assembly = base_model(video_paths, layers)
 # The CausalInferencer passes the video in a frame-by-frame manner, so it costs more time to extract activations.
@@ -167,3 +168,38 @@ activations = executor.execute(layers)  # return {layer: np.array}
 print(activations)  
 breakpoint()
 
+
+
+"""Step 6: Construct a brain model"""
+
+# The base_model can be converted to a brain model by using the ModelCommitment class.
+from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
+
+# Specify the mapping between brain regions and model layers. This is supposed to be automatically
+# generated from the model, but it is not implemented yet. So now we use this hack for illustration.
+region_layer_map = {
+    "IT": layers[2],
+    "V2": layers[1],
+    "V1": layers[0],
+}
+
+brain_model = ModelCommitment(identifier="brain_model_name", activations_model=base_model, 
+                              layers=layers, region_layer_map=region_layer_map)
+
+# Build a toy stimulus set
+def _build_stimulus_set():
+    from brainio.stimuli import StimulusSet
+    video_names=["dots1.mp4", "dots2.mp4"]
+    stimulus_set = StimulusSet([{'stimulus_id': video_name, 'some_meta': video_name[::-1]}
+                                for video_name in video_names])
+    stimulus_set.stimulus_paths = {video_name: os.path.join(TEST_DIR, video_name)
+                                   for video_name in video_names}
+    return stimulus_set
+
+stimulus_set = _build_stimulus_set()
+
+# Use brain model as a brain
+brain_model.start_recording('IT', time_bins=[(100, 150), (150, 200), (200, 250)])
+model_assembly = brain_model.look_at(stimulus_set)
+print(model_assembly)
+breakpoint()

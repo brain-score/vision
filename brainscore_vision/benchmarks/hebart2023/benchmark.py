@@ -65,6 +65,8 @@ class Hebart2023Match(BenchmarkBase):
         choices = candidate.look_at(stimuli, self._number_of_trials)
 
         # Score the model
+        # We chose not to compute error estimates but you could compute them
+        # by spliting the data into five folds and computing the standard deviation.
         correct_choices = choices.values == self._assembly.coords["image_3"].values
         raw_score = np.sum(correct_choices)/len(choices)
         score = (raw_score - 1/3)/(self.ceiling - 1/3)

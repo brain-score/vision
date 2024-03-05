@@ -17,7 +17,7 @@ BIBTEX = """@article{10.7554/eLife.82580,
           year = 2023
           }"""
 
-class Habart2023Match(BenchmarkBase):
+class Hebart2023Match(BenchmarkBase):
     def __init__(self, similarity_measure='dot'):
         self._visual_degrees = 8
         self._number_of_trials = 1

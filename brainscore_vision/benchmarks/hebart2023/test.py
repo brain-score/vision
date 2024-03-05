@@ -1,6 +1,6 @@
 import pytest
 
-from brainscore_vision import benchmark_registry, load_model
+from brainscore_vision import load_benchmark, load_model
 
 @pytest.mark.private_access
 def test_ceiling():

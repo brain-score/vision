@@ -21,7 +21,7 @@ BIBTEX = """@article{...,
         }"""
 
 
-class _Scialom2024ErrorConsistency(BenchmarkBase):
+class _Scialom2024BehavioralErrorConsistency(BenchmarkBase):
     def __init__(self, dataset):
         self._metric = load_metric('error_consistency')
         self._assembly = LazyLoad(lambda: load_assembly(dataset))
@@ -29,7 +29,7 @@ class _Scialom2024ErrorConsistency(BenchmarkBase):
         self._visual_degrees = 8
         self._number_of_trials = 1
 
-        super(_Scialom2024ErrorConsistency, self).__init__(
+        super(_Scialom2024BehavioralErrorConsistency, self).__init__(
             identifier=f'Scialom2024{dataset}-error_consistency', version=1,
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
             parent='Scialom2024',

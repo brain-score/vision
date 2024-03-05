@@ -21,3 +21,9 @@ def assembly_align_to_fps(output_assembly, fps, mode="portion"):
     else:
         target_time_bins = [(start, end) for start, end in zip(target_time_bin_starts, target_time_bin_ends)]
         return assembly_time_align(output_assembly, target_time_bins, mode=mode)
+
+
+# get the layers from the activations_spec
+def get_specified_layers(wrapper):
+    activations_spec = wrapper._extractor.inferencer.activations_spec
+    return list(activations_spec.keys())

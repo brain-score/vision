@@ -12,7 +12,7 @@ def default_process_activation(layer, layer_name, input, output):
     return output
 
 class PytorchWrapper(ActivationWrapper):
-    def __init__(self, identifier, spec, model, preprocessing, process_output=None, *args, **kwargs):
+    def __init__(self, identifier, model, preprocessing, process_output=None, *args, **kwargs):
         import torch
         logger = logging.getLogger(fullname(self))
         self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -21,7 +21,7 @@ class PytorchWrapper(ActivationWrapper):
         # preprocessing: input.Stimulus -> actual model inputs
         self._preprocess = preprocessing
         self._process_activation = default_process_activation if process_output is None else process_output
-        super().__init__(identifier, spec, preprocessing, *args, **kwargs)
+        super().__init__(identifier, preprocessing, *args, **kwargs)
 
     def forward(self, inputs):
         import torch

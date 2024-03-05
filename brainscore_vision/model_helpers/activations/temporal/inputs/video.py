@@ -1,125 +1,132 @@
 import numpy as np
 import moviepy.editor as mpe
-from PIL import Image
+from PIL import Image as PILImage
 from typing import Union
 
 from .base import Stimulus
+from .image import Image
 
 
 class Video(Stimulus):
     """Video object that represents a video clip."""
 
-    def __init__(self, video_clip: mpe.VideoClip):
-        self._clip = video_clip
+    def __init__(self, frames: np.array, fps: int):
+        self._frames = frames  # [F, H, W, C]
+        self._fps = fps
+        self._size = (frames.shape[2], frames.shape[1])  # (width, height)
+        self._start = 0
+        self._end = frames.shape[0] / fps * 1000  # in ms
 
     def copy(self):
-        video = Video(self._clip.copy())
+        # return view
+        video = Video(self._frames, self._fps)
+        video._size = self._size
+        video._start = self._start
+        video._end = self._end
         return video
     
     @property
     def duration(self):
         # in ms
-        return self._clip.duration * 1000
+        return self._end - self._start
     
     @property
     def fps(self):
-        return self._clip.fps
+        return self._fps
     
     @property
     def num_frames(self):
-        return len(self.to_frames())
+        return int(self.duration * self.fps/1000)
     
     @property
     def frame_size(self):
-        return tuple(self._clip.size)
+        return self._size
     
     @property
     def start_time(self):
-        return self._clip.start * 1000
+        return self._start
     
     @property
     def end_time(self):
-        return self._clip.end * 1000
+        return self._end
     
     ### Transformations: return copy
     
     def set_fps(self, fps):
-        return Video(self._clip.set_fps(fps))
+        video = self.copy()
+        video._fps = fps
+        return video
     
     def set_size(self, size):
         # size: (width, height)
-        return Video(self._clip.resize(size))
+        video = self.copy()
+        video._size = size
+        return video
 
     def set_window(self, start, end, padding="repeat"):
         # use ms as the time scale
         EPS = 1e-9  # avoid the additional frame at the end
-        start = start / 1000
-        end = end / 1000 - EPS
+        end = end - EPS
 
         if end < start:
             raise ValueError("end time is earlier than start time")
         
-
-        # pad if start < 0 or end > duration
-        video = self._clip.copy()
-        if start < 0 or end > video.duration:
-            if padding == "repeat":
-                if start < 0:
-                    to_pad = -start
-                    img = video.get_frame(0)
-                    to_pad = mpe.ImageClip(img, duration=to_pad)
-                    video = mpe.concatenate_videoclips([to_pad, video])
-                    end = end - start
-                    start = 0
-
-                if end > video.duration:
-                    to_pad = end - video.duration
-                    safe_margin = 1/video.fps  # BUG: here moviepy sometimes fails if you do get_frame(video.duration). See test_moviepy in tests for verification of this code.
-                    img = video.get_frame(video.duration - safe_margin)
-                    to_pad = mpe.ImageClip(img, duration=to_pad)
-                    video = mpe.concatenate_videoclips([video, to_pad])
-
-            elif padding == "off":
-                raise ValueError("start time is earlier than 0 or end time is later than duration")
-            else:
-                raise NotImplementedError()
-            
-            # CAUTION: prevent weird behavior from moviepy: https://github.com/Zulko/moviepy/blob/a002df34a1b974e73cbea02c2f436c94b81fbc39/moviepy/video/io/ffmpeg_reader.py#L132
+        if padding != "repeat":
+            raise NotImplementedError()
         
-        return Video(video.subclip(start, end))
+        video = self.copy()
+        video._start = self._start + start
+        video._end = self._start + end
+        return video
     
     ### I/O
+    def _from_mpe_clip(clip):
+        frames = np.array(list(clip.iter_frames()))
+        ret = Video(frames, clip.fps)
+        clip.close()
+        return ret
+
     def from_path(path):
-        return Video(mpe.VideoFileClip(path))
+        mov = mpe.VideoFileClip(path)
+        return Video._from_mpe_clip(mov)
     
-    def from_img(img: Union[Image.Image, str], duration, fps):
+    def from_img(img: Union[PILImage.Image, str, Image], duration, fps):
         # duration in ms
-        return Video(mpe.ImageClip(img, duration=duration/1000).set_fps(fps))
+        if isinstance(img, Image):
+            img = img._file
+        mov = mpe.ImageClip(img, duration=duration/1000).set_fps(fps)
+        return Video._from_mpe_clip(mov)
+    
+    def to_numpy(self):
+        # actual conversion
+        frames = self._frames
+
+        # get the time stamps of frame samples
+        interval = 1000 / self._fps  # ms
+        samples = np.arange(self._start / interval, self._end / interval)
+        sample_indices = samples.astype(int)
+
+        # padding: repeat the first/last frame
+        sample_indices = np.clip(sample_indices, 0, len(frames)-1)
+
+        # actual sampling
+        frames = frames[sample_indices]
+
+        # resizing
+        if self._size != (frames.shape[2], frames.shape[1]):
+            frames = np.array([mpe.ImageClip(frame).resize(self._size).get_frame(0) for frame in frames])
+
+        return frames
+    
+    def to_frames(self):
+        return [f for f in self.to_numpy()]
+
+    def to_pil_imgs(self):
+        return [Image.fromarray(frame) for frame in self.to_numpy()]
     
     def to_path(self):
         # use context manager ?
         path = None  # make a temporal file
         raise NotImplementedError()
         return path
-    
-    def to_frames(self):
-        if not hasattr(self, "_frames"):
-            self._frames = list(self._clip.iter_frames())
-        return self._frames
-
-    def to_numpy(self):
-        ret = []
-        for frame in self.to_frames():
-            ret.append(frame)
-        ret = np.array(ret)
-        return ret
-    
-    def to_pil_imgs(self):
-        return [Image.fromarray(frame) for frame in self.to_numpy()]
-    
-    @staticmethod
-    def concat(a, b):
-        # fps will take the higher one
-        video_clip = mpe.concatenate_videoclips([a._clip, b._clip])
-        return Video(video_clip)
     

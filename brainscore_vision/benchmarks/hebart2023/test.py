@@ -16,4 +16,4 @@ def test_alexnet_consistency():
     benchmark.set_number_of_triplets(n=1000)
     model = load_model('alexnet')
     score = benchmark(model)
-    assert score == pytest.approx(0.39, abs=0.02)
+    assert score == pytest.approx(0.38, abs=0.02)

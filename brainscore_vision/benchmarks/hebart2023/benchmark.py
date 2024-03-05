@@ -4,7 +4,7 @@ from brainio.stimuli import StimulusSet
 from brainscore_vision import load_dataset, load_stimulus_set
 from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
-from brainscore_vision.model_interface import BrainModel, BehavioralAssembly
+from brainscore_vision.model_interface import BrainModel
 from brainscore_vision.metrics import Score
 
 BIBTEX = """@article{10.7554/eLife.82580,
@@ -66,9 +66,9 @@ class Hebart2023Match(BenchmarkBase):
 
         # Score the model
         correct_choices = choices.values == self._assembly.coords["image_3"].values
-        raw_score = np.sum(correct_choices) / len(choices)
-        score = (raw_score - 1 / 3) / (self.ceiling - 1 / 3)
-        score[0] = max(0, score[0])
+        raw_score = np.sum(correct_choices)/len(choices)
+        score = (raw_score - 1/3)/(self.ceiling - 1/3)
+        score = max(0, score)
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = self.ceiling
         return score

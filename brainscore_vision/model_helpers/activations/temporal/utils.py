@@ -13,14 +13,9 @@ def assembly_align_to_fps(output_assembly, fps, mode="portion"):
     interval = 1000 / fps
     duration = output_assembly["time_bin_end"].values[-1]
     target_time_bin_starts = np.arange(0, duration-EPS, interval)
-    target_time_bin_ends = target_time_bin_starts-EPS + interval
-    original_time_bin_starts = output_assembly["time_bin_start"].values
-    if len(original_time_bin_starts) == len(target_time_bin_starts) and\
-        np.isclose(original_time_bin_starts, target_time_bin_starts).all():
-        return output_assembly
-    else:
-        target_time_bins = [(start, end) for start, end in zip(target_time_bin_starts, target_time_bin_ends)]
-        return assembly_time_align(output_assembly, target_time_bins, mode=mode)
+    target_time_bin_ends = target_time_bin_starts + interval
+    target_time_bins = [(start, end) for start, end in zip(target_time_bin_starts, target_time_bin_ends)]
+    return assembly_time_align(output_assembly, target_time_bins, mode=mode)
 
 
 # get the layers from the layer_activation_format

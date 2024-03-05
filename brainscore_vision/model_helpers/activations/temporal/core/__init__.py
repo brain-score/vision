@@ -19,20 +19,29 @@ from .video import *
 
 
 class ActivationsExtractor:
+    """A wrapper for the inferencer to provide additional functionalities.
+    
+        Specifically, it converts the stimulus_set to a list of paths and then calls the inferencer to get the activations.
+        Then, it stores the activations in a NeuroidAssembly on the and returns it.
+    """
     def __init__(
             self, 
-            inferencer,
-            identifier=False
+            inferencer : Inferencer,
+            identifier=False,
         ):
-        """
-        :param identifier: an activations identifier for the stored results file. False to disable saving.
-        """
         self._logger = logging.getLogger(fullname(self))
 
-        self.identifier = identifier
+        self._identifier = identifier
         self.inferencer = inferencer
         self._stimulus_set_hooks = {}
         self._batch_activations_hooks = {}
+
+    @property
+    def identifier(self):
+        if self._identifier:
+            return f"{self._identifier}@{self.inferencer.identifier}"
+        else:
+            return False
 
     def insert_attrs(self, wrapper):
         wrapper.from_stimulus_set = self.from_stimulus_set

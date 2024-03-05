@@ -67,6 +67,10 @@ class TemporalInferencer(Inferencer):
         self.convert_to_video = convert_img_to_video
         self._logger = logging.getLogger(fullname(self))
 
+    @property
+    def identifier(self):
+        return f"{self.__class__.__name__}.{self.time_aligner.__name__}.fps={self.fps}"
+
     def _check_videos(self, videos):
         for video in videos:
             if self.num_frames is not None:

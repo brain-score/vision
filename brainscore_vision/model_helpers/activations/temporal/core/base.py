@@ -78,9 +78,14 @@ class Inferencer:
 
         self.stimulus_type = stimulus_type
         self.layer_activation_format = layer_activation_format
+        self.dtype = dtype
         self._executor = BatchExecutor(get_activations, preprocessing, batch_size, batch_padding, batch_grouper, dtype)
         self._stimulus_set_hooks = {}
         self._batch_activations_hooks = {}
+
+    @property
+    def identifier(self):
+        return self.__class__.__name__
 
     def __call__(self, paths, layers):
         stimuli = self.convert_paths(paths)
@@ -100,11 +105,10 @@ class Inferencer:
         self._executor.add_stimuli(stimuli)
         return self._executor.execute(layers)
     
-    # List[activation] -> NeuroidAssembly
+    # np.array -> NeuroidAssembly
     def package_layer(self, layer_activation, layer, layer_spec, stimuli):
         assert len(layer_activation) == len(stimuli)
         channels = self._map_dims(layer_spec)
-        breakpoint()
         assembly = self._simple_package(layer_activation, ["stimulus_path"] + channels)
         assembly = self._stack_neuroid(assembly, channels)
         assembly = NeuroidAssembly(assembly)  # re-gather
@@ -122,7 +126,7 @@ class Inferencer:
         layer_assemblies = list(layer_assemblies.values())
         layer_assemblies = [asm.transpose(*layer_assemblies[0].dims) for asm in layer_assemblies]
         model_assembly = np.concatenate([a.values for a in layer_assemblies],
-                                        axis=layer_assemblies[0].dims.index('neuroid'))
+                                        axis=layer_assemblies[0].dims.index('neuroid')).astype(self.dtype)
         
         nonneuroid_coords = {coord: (dims, values) for coord, dims, values in walk_coords(layer_assemblies[0])
                              if set(dims) != {'neuroid'}}

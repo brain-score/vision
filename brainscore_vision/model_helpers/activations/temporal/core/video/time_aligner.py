@@ -35,8 +35,9 @@ def evenly_spaced(assembly, input):
     # this function assumes that the activation of different time steps is evenly spaced
     num_t = assembly.sizes['channel_temporal'] if "channel_temporal" in assembly.dims else 1
     interval = input.duration / num_t
-    time_bin_starts = np.arange(0, num_t) * interval
+    time_bin_starts = np.linspace(0, input.duration, num_t+1)[:-1]
     time_bin_ends = time_bin_starts + interval
+    time_bin_ends[-1] = input.duration
     return _convert(assembly, time_bin_starts, time_bin_ends)
 
 def per_frame_aligned(assembly, input):

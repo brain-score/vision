@@ -26,6 +26,10 @@ class CausalInferencer(TemporalInferencer):
         self.max_temporal_context = max_temporal_context
         super().__init__(*args, **kwargs)
 
+    @property
+    def identifier(self):
+        return f"{super().identifier}.max_context={self.max_temporal_context}"
+
     def _compute_temporal_context(self):
         duration = self.duration
         num_frames = self.num_frames

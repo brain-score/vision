@@ -24,6 +24,10 @@ class Habart2023Match(BenchmarkBase):
         self._assembly = load_dataset('Hebart2023')
         self._stimulus_set = load_stimulus_set('Hebart2023')
 
+        # The noise ceiling was computed by averaging the percentage of participants 
+        # who made the same choice for a given triplet. See the second paragraph in
+        # the above article under Methods/Noise ceiling estimation for further details.
+        # We use the average of the noise ceilings. 
         super().__init__(
             identifier=f'Habart2023Match_{similarity_measure}', version=1,
             ceiling_func=lambda: Score(0.6844),

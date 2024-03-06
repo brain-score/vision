@@ -54,8 +54,8 @@ def ignore_time(assembly, input):
     # and treat the "channel_temporal" as a regular channel dimension and does no conversion 
     asm_type = assembly.__class__
     assembly = assembly.expand_dims("time_bin")
-    time_bin_starts = [input.start_time]
-    time_bin_ends = [input.end_time]
+    time_bin_starts = [0]
+    time_bin_ends = [input.duration]
     assembly = assembly.assign_coords({
         "time_bin_start": ("time_bin", time_bin_starts),
         "time_bin_end": ("time_bin", time_bin_ends)

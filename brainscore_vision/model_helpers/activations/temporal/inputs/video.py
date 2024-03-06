@@ -47,6 +47,7 @@ class Video(Stimulus):
     ### Transformations: return copy
     
     def set_fps(self, fps):
+        assert 1000/fps <= self.duration, f"fps {fps} is too low for duration {self.duration}ms."
         video = self.copy()
         video._fps = fps
         return video
@@ -59,9 +60,6 @@ class Video(Stimulus):
 
     def set_window(self, start, end, padding="repeat"):
         # use ms as the time scale
-        EPS = 1e-9  # avoid the additional frame at the end
-        end = end - EPS
-
         if end < start:
             raise ValueError("end time is earlier than start time")
         
@@ -98,7 +96,8 @@ class Video(Stimulus):
         # get the time stamps of frame samples
         start_frame = self._start * self._original_fps / 1000
         end_frame = self._end * self._original_fps / 1000
-        samples = np.arange(start_frame, end_frame, self._original_fps/self._fps)
+        EPS = 1e-9  # avoid taking the last extra frame
+        samples = np.arange(start_frame, end_frame - EPS, self._original_fps/self._fps)
         sample_indices = samples.astype(int)
 
         # padding: repeat the first/last frame

@@ -69,8 +69,8 @@ def test_video():
     assert video2.fps == 30
     assert video2.set_fps(1).to_numpy().shape[0] == 1
 
-    video5 = video1.set_size((100, 100))
-    assert video5.to_numpy().shape[1] == 100
+    video5 = video1.set_size((120, 100))
+    assert tuple(video5.to_numpy().shape[1:3]) == (100, 120)
 
     video1 = video1.set_fps(60)
     # assert Video.concat(video2, video1).fps == Video.concat(video1, video2).fps
@@ -79,6 +79,22 @@ def test_video():
     video6 = video1.set_fps(30)
     assert (video6.to_numpy()[1] == video1.to_numpy()[2]).all()
     assert (video6.to_numpy()[2] == video1.to_numpy()[4]).all()
+
+    video6 = video1.set_fps(20)
+    assert (video6.to_numpy()[1] == video1.to_numpy()[3]).all()
+    assert (video6.to_numpy()[2] == video1.to_numpy()[6]).all()
+
+    video7 = video1.set_window(-100, 100).set_window(100, 200)
+    assert video7.duration == 100
+    assert (video7.to_numpy() == video1.set_window(0, 100).to_numpy()).all()
+
+    video8 = video1.set_window(300, 500).set_window(0, 100)
+    assert video8.duration == 100
+    assert (video8.to_numpy() == video1.set_window(300, 400).to_numpy()).all()
+
+    for fps in [7.5, 9, 1, 43, 1000/video1.duration, 1001/video1.duration]:
+        video9 = video1.set_fps(fps)
+        assert video9.to_numpy().shape[0] == np.ceil(video1.duration * fps / 1000)
 
     for v in [video1, video2]:
         target_num_frames = 7
@@ -91,6 +107,7 @@ def test_video():
             video = v.set_window(t-duration, t, padding="repeat")
             assert video.to_numpy().shape[0] == target_num_frames
 
+    
 def test_video_load_frames():
     video1 = Video.from_path(os.path.join(os.path.dirname(__file__), "dots1.mp4"))
     fps = video1.fps
@@ -135,6 +152,7 @@ def _build_stimulus_set(video_names):
                                    for video_name in video_names}
     return stimulus_set
 
+
 @pytest.mark.memory_intense
 @pytest.mark.parametrize("model_name", ["R3D"])
 @pytest.mark.parametrize(["causal", "padding"], [(False, True), (True, False)])
@@ -152,6 +170,3 @@ def test_from_stimulus_set(model_name, causal, padding):
 
     import gc
     gc.collect()  # free some memory, we're piling up a lot of activations at this point
-
-
-test_video()

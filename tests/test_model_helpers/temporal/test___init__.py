@@ -40,22 +40,18 @@ def get_resnet_base_models(identifier, causal=False, **kwargs):
         layer_activation_format = {
                 "stem": "CTHW",
                 **{f'layer{i}': "CTHW" for i in range(1, 5)},
-                "avgpool": "C",
+                "avgpool": "CTHW",
                 "fc": "C"
             }
         model_name = "r3d_18"
-        def process_output(layer, layer_name, input, output):
-            if layer_name == "avgpool":
-                return output[:, :, 0, 0, 0]
-            else:
-                return output
 
     from torchvision.models import video as vid
     model = getattr(vid, model_name)(weights=None)
 
     inferencer_cls = TemporalInferencer if not causal else CausalInferencer
-    wrapper = PytorchWrapper(identifier, model, vid_transform, process_output=process_output, 
-                             inferencer_cls=inferencer_cls, fps=25, layer_activation_format=layer_activation_format, **kwargs)
+    if inferencer_cls is CausalInferencer: kwargs['max_temporal_context'] = 3000
+    wrapper = PytorchWrapper(identifier, model, vid_transform, inferencer_cls=inferencer_cls, fps=25, 
+                             layer_activation_format=layer_activation_format, **kwargs)
     layers = list(layer_activation_format.keys())
     return wrapper, layers
 
@@ -79,6 +75,10 @@ def test_video():
     video1 = video1.set_fps(60)
     # assert Video.concat(video2, video1).fps == Video.concat(video1, video2).fps
     # assert Video.concat(video2, video1).fps == video1.fps
+
+    video6 = video1.set_fps(30)
+    assert (video6.to_numpy()[1] == video1.to_numpy()[2]).all()
+    assert (video6.to_numpy()[2] == video1.to_numpy()[4]).all()
 
     for v in [video1, video2]:
         target_num_frames = 7
@@ -154,4 +154,4 @@ def test_from_stimulus_set(model_name, causal, padding):
     gc.collect()  # free some memory, we're piling up a lot of activations at this point
 
 
-test_from_stimulus_set("R3D", False, False)
+test_video()

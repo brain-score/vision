@@ -3,6 +3,7 @@ from collections import OrderedDict
 
 from .base import TemporalInferencer
 from ..executor import stack_with_nan_padding
+from brainscore_vision.model_helpers.activations.temporal.inputs.video import Video
 
 
 class CausalInferencer(TemporalInferencer):
@@ -20,30 +21,63 @@ class CausalInferencer(TemporalInferencer):
     max_temporal_context: int
         specify the maximum temporal context the model can take, in ms.
         If None, the model will take the whole duration from the beginning.
+    enforce_temporal_context: bool
+        if True and either num_frames or duration is given, the model's temporal context will be set to match the two.
+        NOTE: This will also disable the max_temporal_context automatically.
 
     """
-    def __init__(self, *args, max_temporal_context=2000, **kwargs):
+    def __init__(
+            self, 
+            *args,
+            max_temporal_context=None, 
+            enforce_temporal_context=True,
+            **kwargs
+        ):
         self.max_temporal_context = max_temporal_context
+        self.enforce_temporal_context = enforce_temporal_context
         super().__init__(*args, **kwargs)
 
     @property
     def identifier(self):
-        return f"{super().identifier}.max_context={self.max_temporal_context}"
+        to_add = []
+        if self.enforce_temporal_context:
+            if self.num_frames: to_add.append(f"num_frames={self.num_frames}")
+            if self.duration: to_add.append(f"duration={self.duration}")
+        if self.max_temporal_context: to_add.append(f"max_context={self.max_temporal_context}")
+        to_add = ".".join(to_add)
+        if to_add: to_add = f".{to_add}"
+        return f"{super().identifier}{to_add}"
+    
+    def convert_paths(self, paths):
+        videos = []
+        for path in paths:
+            if self.convert_to_video:
+                video = Video.from_img(path, self.img_duration, self.fps)
+            else:
+                video = Video.from_path(path)
+            videos.append(video)
+        videos = [video.set_fps(self.fps) for video in videos]
+        # do not check here.
+        return videos
 
     def _compute_temporal_context(self):
-        duration = self.duration
+        context = self.duration
         num_frames = self.num_frames
-        if self.max_temporal_context:
-            if not duration is not None or num_frames is not None:
-                duration = self.max_temporal_context
-        
-        if duration is not None or num_frames is not None:
-            if num_frames is not None:  # prioritize num_frames
+
+        if self.enforce_temporal_context:
+            # unified to num_frames
+            if num_frames is not None:
                 context = num_frames * 1000 / self.fps
-            else:
-                context = duration
-        else:
+        else: 
             context = None
+
+        if self.max_temporal_context and not self.enforce_temporal_context:
+            if context: 
+                if context > self.max_temporal_context:
+                    raise ValueError(f"Model's temporal context {context}ms exceding the specified maximum {self.max_temporal_context}ms")
+            else:
+                context = self.max_temporal_context
+
         return context
 
     def inference(self, stimuli, layers):

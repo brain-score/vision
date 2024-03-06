@@ -2,6 +2,7 @@ from torchvision import transforms
 from torchvision.models import video as vid
 
 from brainscore_vision.model_helpers.activations.temporal.model.pytorch import PytorchWrapper
+from brainscore_vision.model_helpers.activations.temporal.core import CausalInferencer, TemporalInferencer
 
 
 def get_transform_video(transform_img):
@@ -20,15 +21,18 @@ def get_model(identifier):
             transforms.CenterCrop(112),
             transforms.Normalize(mean=[0.43216, 0.394666, 0.37645], std=[0.22803, 0.22145, 0.216989])
         ])
-        layer_activation_format = {
+        inferencer_cls = TemporalInferencer
+        inferencer_kwargs = {
+            "fps": 25,
+            "layer_activation_format": 
+            {
                 "stem": "CTHW",
                 **{f'layer{i}': "CTHW" for i in range(1, 5)},
                 "avgpool": "CTHW",
                 "fc": "C"
-            }
+            },
+        }
         process_output = None
-        fps = 25
-        num_frames = None
 
     elif identifier == "s3d":
         img_transform = transforms.Compose([
@@ -36,14 +40,17 @@ def get_model(identifier):
             transforms.CenterCrop(224),
             transforms.Normalize(mean=[0.43216, 0.394666, 0.37645], std=[0.22803, 0.22145, 0.216989])
         ])
-        layer_activation_format = {
-            **{f"features.{i}": "CTHW" for i in range(16)},
-            "avgpool": "CTHW",
-            "classifier": "CTHW"
+        inferencer_cls = TemporalInferencer
+        inferencer_kwargs = {
+            "fps": 15,
+            "layer_activation_format":
+            {
+                **{f"features.{i}": "CTHW" for i in range(16)},
+                "avgpool": "CTHW",
+                "classifier": "CTHW"
+            }
         }
         process_output = None
-        fps = 15
-        num_frames = None
 
     elif identifier in ["mvit_v1_b", "mvit_v2_s"]:
         img_transform = transforms.Compose([
@@ -51,11 +58,17 @@ def get_model(identifier):
             transforms.CenterCrop(224),
             transforms.Normalize(mean=[0.43216, 0.394666, 0.37645], std=[0.22803, 0.22145, 0.216989])
         ])
-        layer_activation_format = {
-            "conv_proj": "CTHW",
-            **{f"blocks.{i}": "THWC" for i in range(16)},
-            "head": "C",
+        inferencer_cls = CausalInferencer
+        inferencer_kwargs = {
+            "fps": 7.5,
+            "num_frames": 16,
+            "layer_activation_format": {
+                "conv_proj": "CTHW",
+                **{f"blocks.{i}": "THWC" for i in range(16)},
+                "head": "C",
+            }
         }
+
         def process_output(layer, layer_name, input, output):
             if layer_name.startswith("blocks"):
                 output, thw = output
@@ -66,13 +79,11 @@ def get_model(identifier):
                 output = output.view(b, t, h, w, c)
                 return output
             return output
-        fps=7.5
-        num_frames=16
 
     vid_transform = get_transform_video(img_transform)
     model_name = identifier
     model = getattr(vid, model_name)(weights="KINETICS400_V1")
-    wrapper = PytorchWrapper(identifier, model, vid_transform, process_output=process_output, 
-                             fps=fps, num_frames=num_frames, layer_activation_format=layer_activation_format)
+    wrapper = PytorchWrapper(identifier, model, vid_transform, process_output=process_output, inferencer_cls=inferencer_cls,
+                             **inferencer_kwargs)
     
     return wrapper

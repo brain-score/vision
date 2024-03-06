@@ -1,7 +1,5 @@
 import numpy as np
-import logging
 
-from brainscore_vision.model_helpers.utils import fullname
 from brainscore_vision.model_helpers.activations.temporal.inputs.video import Video
 from brainscore_vision.model_helpers.activations.temporal.utils import assembly_align_to_fps
 from brainio.assemblies import NeuroidAssembly
@@ -59,13 +57,13 @@ class TemporalInferencer(Inferencer):
         self.fps = fps
         self.num_frames = num_frames
         self.duration = duration
+        assert hasattr(time_aligners, time_alignment), f"Unknown time alignment method: {time_alignment}"
         self.time_aligner = getattr(time_aligners, time_alignment)
 
         if convert_img_to_video:
             assert img_duration is not None, "img_duration should be specified if convert_img_to_video is True"
         self.img_duration = img_duration
         self.convert_to_video = convert_img_to_video
-        self._logger = logging.getLogger(fullname(self))
 
     @property
     def identifier(self):

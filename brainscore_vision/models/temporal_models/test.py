@@ -3,6 +3,8 @@ import os
 from brainio.stimuli import StimulusSet
 import brainscore_vision
 from brainscore_vision import load_model
+from brainscore_vision.model_helpers.activations.temporal.utils import switch_inferencer
+from brainscore_vision.model_helpers.activations.temporal.core import CausalInferencer
 
 
 HOME_DIR = brainscore_vision.__path__[0]
@@ -19,6 +21,6 @@ def _build_stimulus_set():
 
 
 stimulus_set = _build_stimulus_set()
-model = load_model("r3d_18")
+model = load_model("mvit_v2_s")
 model.start_recording('IT', time_bins=[(100, 150), (150, 200), (200, 250)])
 model_assembly = model.look_at(stimulus_set)

@@ -18,7 +18,37 @@ def assembly_align_to_fps(output_assembly, fps, mode="portion"):
     return assembly_time_align(output_assembly, target_time_bins, mode=mode)
 
 
+# get the inferencer from any model
+def get_inferencer(any_model):
+    from brainscore_vision.model_helpers.activations.temporal.core import Inferencer, ActivationsExtractor
+    from brainscore_vision.model_helpers.activations.temporal.model.base import ActivationWrapper
+    from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
+
+    if isinstance(any_model, Inferencer): return any_model
+    if isinstance(any_model, ActivationWrapper): return any_model._extractor.inferencer
+    if isinstance(any_model, ModelCommitment): return any_model.activations_model.inferencer
+    if isinstance(any_model, ActivationsExtractor): return any_model.inferencer
+    raise ValueError(f"Cannot find inferencer from the model {any_model}")
+
+def get_base_model(any_model):
+    from brainscore_vision.model_helpers.activations.temporal.model.base import ActivationWrapper
+    from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
+
+    if isinstance(any_model, ActivationWrapper): return any_model
+    if isinstance(any_model, ModelCommitment): return any_model.activations_model
+    raise ValueError(f"Cannot find inferencer from the model {any_model}")
+
+
 # get the layers from the layer_activation_format
-def get_specified_layers(wrapper):
-    layer_activation_format = wrapper._extractor.inferencer.layer_activation_format
-    return list(layer_activation_format.keys())
+def get_specified_layers(any_model):
+    inferencer = get_inferencer(any_model)
+    return list(inferencer.layer_activation_format.keys())
+
+# switch the inferencer at any level
+# specify key='same' to retrive the same parameter from the original inferencer
+def switch_inferencer(any_model, new_inferencer_cls, **kwargs):
+    inferencer = get_inferencer(any_model)
+    base_model = get_base_model(any_model)
+    for k, v in kwargs.items():
+        if v == 'same': kwargs[k] = inferencer[k]
+    base_model.build_extractor(new_inferencer_cls, **kwargs)

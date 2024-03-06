@@ -13,6 +13,7 @@ class Video(Stimulus):
     def __init__(self, frames: np.array, fps: int):
         self._frames = frames  # [F, H, W, C]
         self._fps = fps
+        self._original_fps = fps
         self._size = (frames.shape[2], frames.shape[1])  # (width, height)
         self._start = 0
         self._end = frames.shape[0] / fps * 1000  # in ms
@@ -23,6 +24,7 @@ class Video(Stimulus):
         video._size = self._size
         video._start = self._start
         video._end = self._end
+        video._original_fps = self._original_fps
         return video
     
     @property
@@ -41,14 +43,6 @@ class Video(Stimulus):
     @property
     def frame_size(self):
         return self._size
-    
-    @property
-    def start_time(self):
-        return self._start
-    
-    @property
-    def end_time(self):
-        return self._end
     
     ### Transformations: return copy
     
@@ -102,8 +96,9 @@ class Video(Stimulus):
         frames = self._frames
 
         # get the time stamps of frame samples
-        interval = 1000 / self._fps  # ms
-        samples = np.arange(self._start / interval, self._end / interval)
+        start_frame = self._start * self._original_fps / 1000
+        end_frame = self._end * self._original_fps / 1000
+        samples = np.arange(start_frame, end_frame, self._original_fps/self._fps)
         sample_indices = samples.astype(int)
 
         # padding: repeat the first/last frame

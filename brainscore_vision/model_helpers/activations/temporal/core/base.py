@@ -82,6 +82,7 @@ class Inferencer:
         self._executor = BatchExecutor(get_activations, preprocessing, batch_size, batch_padding, batch_grouper, dtype)
         self._stimulus_set_hooks = {}
         self._batch_activations_hooks = {}
+        self._logger = logging.getLogger(fullname(self))
 
     @property
     def identifier(self):

@@ -37,11 +37,14 @@ class AccuracyDistance(Metric):
         subject_assembly = subject_assembly.sortby('stimulus_id')
         assert (subject_assembly['stimulus_id'].values == source['stimulus_id'].values).all()
 
-        source_correct = source.values == subject_assembly['truth'].values
+        # .flatten() because models return lists of lists, and here we compare subject-by-subject
+        source_correct = source.values.flatten() == subject_assembly['truth'].values
         target_correct = subject_assembly.values == subject_assembly['truth'].values
+        source_mean = sum(source_correct) / len(source_correct)
+        target_mean = sum(target_correct) / len(target_correct)
 
-        source_is_target = source_correct == target_correct
-        accuracy_distance_score = np.mean(source_is_target)
+        source_to_target_distance = np.abs(source_mean - target_mean)
+        accuracy_distance_score = 1 - source_to_target_distance
         return Score(accuracy_distance_score)
 
     def ceiling(self, assembly):

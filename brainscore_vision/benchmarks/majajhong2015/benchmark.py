@@ -27,7 +27,7 @@ def _DicarloMajajHong2015Region(region: str, access: str, identifier_metric_suff
                                 similarity_metric: Metric, ceiler: Ceiling):
     assembly_repetition = load_assembly(average_repetitions=False, region=region, access=access)
     assembly = load_assembly(average_repetitions=True, region=region, access=access)
-    benchmark_identifier = f'dicarlo.MajajHong2015.{region}' + ('.public' if access == 'public' else '')
+    benchmark_identifier = f'MajajHong2015.{region}' + ('.public' if access == 'public' else '')
     return NeuralBenchmark(identifier=f'{benchmark_identifier}-{identifier_metric_suffix}', version=3,
                            assembly=assembly, similarity_metric=similarity_metric,
                            visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,

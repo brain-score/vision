@@ -12,7 +12,7 @@ NUMBER_OF_TRIALS = 20
 def _MovshonFreemanZiemba2013Region(region, identifier_metric_suffix, similarity_metric, ceiler):
     assembly_repetition = LazyLoad(lambda region=region: load_assembly(False, region=region))
     assembly = LazyLoad(lambda region=region: load_assembly(True, region=region))
-    return NeuralBenchmark(identifier=f'movshon.FreemanZiemba2013.{region}-{identifier_metric_suffix}', version=2,
+    return NeuralBenchmark(identifier=f'FreemanZiemba2013.{region}-{identifier_metric_suffix}', version=2,
                            assembly=assembly, similarity_metric=similarity_metric, parent=region,
                            ceiling_func=lambda: ceiler(assembly_repetition),
                            visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,

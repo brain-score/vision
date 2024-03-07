@@ -148,18 +148,15 @@ def get_custom_cornet_s():
     return model
 
 
-IDENTIFIER = 'cornet_s_0_0_0'
-
-
 def get_model_list():
-        return [IDENTIFIER]
+        return ['cornet_s_0_0_0']
 
 
 def get_model(name):
-    assert name == IDENTIFIER
+    assert name == 'cornet_s_0_0_0'
     model = get_custom_cornet_s()
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
-    wrapper = PytorchWrapper(identifier=IDENTIFIER,
+    wrapper = PytorchWrapper(identifier='cornet_s_0_0_0',
                              model=model,
                              preprocessing=preprocessing)
     wrapper.image_size = 224
@@ -167,7 +164,7 @@ def get_model(name):
 
 
 def get_layers(name):
-    assert name == IDENTIFIER
+    assert name == 'cornet_s_0_0_0'
     return ['V1', 'V2', 'V4', 'IT', 'decoder']
 
 

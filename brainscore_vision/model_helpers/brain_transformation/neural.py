@@ -23,7 +23,13 @@ class LayerMappedModel(BrainModel):
     def identifier(self):
         return self._identifier
 
-    def look_at(self, stimuli, number_of_trials=1):
+    def look_at(self, stimuli, number_of_trials=1, require_variance: bool = False):
+        """
+        :param number_of_trials: An integer that determines how many repetitions of the same image the model performs.
+        :param require_variance: Whether to require models to return different activations for the same stimuli or not.
+                                  For detailed information, see
+                                  :meth:`~brainscore_vision.model_helpers.activations.ActivationsExtractorHelper.__call__`,
+        """
         layer_regions = {}
         for region in self.recorded_regions:
             layers = self.region_layer_map[region]
@@ -31,13 +37,16 @@ class LayerMappedModel(BrainModel):
             for layer in layers:
                 assert layer not in layer_regions, f"layer {layer} has already been assigned for {layer_regions[layer]}"
                 layer_regions[layer] = region
-        activations = self.run_activations(
-            stimuli, layers=list(layer_regions.keys()), number_of_trials=number_of_trials)
+        activations = self.run_activations(stimuli,
+                                           layers=list(layer_regions.keys()),
+                                           number_of_trials=number_of_trials,
+                                           require_variance=require_variance)
         activations['region'] = 'neuroid', [layer_regions[layer] for layer in activations['layer'].values]
         return activations
 
-    def run_activations(self, stimuli, layers, number_of_trials=1):
-        activations = self.activations_model(stimuli, layers=layers)
+    def run_activations(self, stimuli, layers, number_of_trials=1, require_variance=None):
+        activations = self.activations_model(stimuli, layers=layers, number_of_trials=number_of_trials,
+                                             require_variance=require_variance)
         return activations
 
     def start_task(self, task):

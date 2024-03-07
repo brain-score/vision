@@ -23,8 +23,15 @@ def get_model_list():
 
 def get_model(name):
     assert name == 'resnet50_eMMCR_eqp10_lm1'
-    model = torchvision.models.resnet50(pretrained=False)
-    ckpt_path = 'classifier.pt'
+    model = torchvision.models.resnet50(weights=None)
+    ckpt_name = 'classifier.pt'
+    download_weights(
+        bucket='brainscore-vision', 
+        folder_path='models/resnet50_eMMCR_eqp10_lm1',
+        filename_version_sha=[(ckpt_name, 'IqquRHUYlKPuUofF6djPaxrGI5YFHufa', '5d8e70ec88ddb17be4a942bdf0ff7602d3dd66e4')],
+        save_directory=Path(__file__).parent
+    )
+    ckpt_path = os.path.join(os.path.dirname(__file__), ckpt_name)
     state_dict = torch.load(ckpt_path, map_location=torch.device('cpu'))
     model.load_state_dict(state_dict)
     preprocessing = functools.partial(load_preprocess_images, image_size=224)

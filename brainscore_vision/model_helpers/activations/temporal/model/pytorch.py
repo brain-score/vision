@@ -12,7 +12,7 @@ from torch import nn
 SUBMODULE_SEPARATOR = '.'
 
 
-def default_process_activation(layer, layer_name, input, output):
+def default_process_activation(layer, layer_name, inputs, output):
     return output
 
 class PytorchWrapper(ActivationWrapper):

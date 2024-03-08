@@ -21,6 +21,8 @@ def _build_stimulus_set():
 
 
 stimulus_set = _build_stimulus_set()
-model = load_model("mvit_v2_s")
-model.start_recording('IT', time_bins=[(100, 150), (150, 200), (200, 250)])
+model = load_model("UniFormer-V2-L")
+switch_inferencer(model, CausalInferencer, fps='same', num_frames='same', 
+                  duration=(0, 2000), layer_activation_format='same')
+model.start_recording('BRAIN', time_bins=[(100, 150), (150, 200), (200, 250)])
 model_assembly = model.look_at(stimulus_set)

@@ -43,7 +43,7 @@ def evenly_spaced(assembly, input):
 def per_frame_aligned(assembly, input):
     # this function assumes that the activation of different time steps is aligned with the video frames
     num_t = assembly.sizes['channel_temporal'] if "channel_temporal" in assembly.dims else 1
-    assert input.num_frames == num_t
+    assert input.num_frames <= num_t
     interval = 1000 / input.fps
     time_bin_starts = np.arange(0, num_t) * interval
     time_bin_ends = time_bin_starts + interval

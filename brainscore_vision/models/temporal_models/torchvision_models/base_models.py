@@ -21,7 +21,6 @@ def get_model(identifier):
             transforms.CenterCrop(112),
             transforms.Normalize(mean=[0.43216, 0.394666, 0.37645], std=[0.22803, 0.22145, 0.216989])
         ])
-        inferencer_cls = TemporalInferencer
         inferencer_kwargs = {
             "fps": 25,
             "layer_activation_format": 
@@ -40,7 +39,6 @@ def get_model(identifier):
             transforms.CenterCrop(224),
             transforms.Normalize(mean=[0.43216, 0.394666, 0.37645], std=[0.22803, 0.22145, 0.216989])
         ])
-        inferencer_cls = TemporalInferencer
         inferencer_kwargs = {
             "fps": 15,
             "layer_activation_format":
@@ -58,7 +56,6 @@ def get_model(identifier):
             transforms.CenterCrop(224),
             transforms.Normalize(mean=[0.43216, 0.394666, 0.37645], std=[0.22803, 0.22145, 0.216989])
         ])
-        inferencer_cls = CausalInferencer
         inferencer_kwargs = {
             "fps": 7.5,
             "num_frames": 16,
@@ -83,7 +80,8 @@ def get_model(identifier):
     vid_transform = get_transform_video(img_transform)
     model_name = identifier
     model = getattr(vid, model_name)(weights="KINETICS400_V1")
-    wrapper = PytorchWrapper(identifier, model, vid_transform, process_output=process_output, inferencer_cls=inferencer_cls,
+    wrapper = PytorchWrapper(identifier, model, vid_transform, 
+                             process_output=process_output,
                              **inferencer_kwargs)
     
     return wrapper

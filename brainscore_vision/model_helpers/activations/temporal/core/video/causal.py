@@ -7,7 +7,7 @@ from brainscore_vision.model_helpers.activations.temporal.inputs.video import Vi
 
 
 class CausalInferencer(TemporalInferencer):
-    """Temporal inferencer that feeds to the model frame by frame.
+    """Inferencer that ensures the activations are causal by feeding in the video in a causal manner. 
 
     Specifically, suppose the video lasts for 1000ms and the model samples every 100ms.
     Then, the activations from the last time step of the activations from the following videos:
@@ -15,37 +15,48 @@ class CausalInferencer(TemporalInferencer):
     will be stacked together to form the final activations for the video. In this way, the 
     activations are always "causal", which means that the temporal contexts of the model are 
     always from the past, not the future.
+
+    If num_frames or duration is given, the model's temporal context will be set to match the two.
+    Set
     
     Parameters
     ----------
-    max_temporal_context: int
-        specify the maximum temporal context the model can take, in ms.
-        If None, the model will take the whole duration from the beginning.
-    enforce_temporal_context: bool
-        if True and either num_frames or duration is given, the model's temporal context will be set to match the two.
-        NOTE: This will also disable the max_temporal_context automatically.
-
+    temporal_context_strategy: str
+        specify how the length of temporal context for causal inference is determined.
+        Options:
+        - "greedy": the length of the temporal context is determined by the maximum of num_frames and duration.
+        - "conservative": the length of the temporal context is determined by the minimum of num_frames and duration.
+        - "fix": the length of the temporal context is determined by the specified "fixed_temporal_context".
+    
+    fixed_temporal_context: float
+        specify the fixed length of the temporal context, in ms. It will be used only if temporal_context_strategy is "fix".
+    
+    out_of_bound_strategy: str
+        specify how to handle the out-of-bound temporal context.
+        Options:
+        - "repeat": the out-of-bound temporal context will be repeated.
+        - TODO: "black": the out-of-bound temporal context will be zero-padded.
     """
     def __init__(
             self, 
             *args,
-            max_temporal_context=None, 
-            enforce_temporal_context=True,
+            temporal_context_strategy : str = "greedy",
+            fixed_temporal_context : float = None,
+            out_of_bound_strategy : str = "repeat",
             **kwargs
         ):
-        self.max_temporal_context = max_temporal_context
-        self.enforce_temporal_context = enforce_temporal_context
-        super().__init__(*args, **kwargs)
+        self.temporal_context_strategy = temporal_context_strategy
+        self.fixed_temporal_context = fixed_temporal_context
+        self.out_of_bound_strategy = out_of_bound_strategy
+        if self.temporal_context_strategy == "fix" and self.fixed_temporal_context is None:
+            raise ValueError("fixed_temporal_context must be specified if temporal_context_strategy is 'fix'.")
+        if "time_alignment" in kwargs and kwargs["time_alignment"] != "per_frame_aligned":
+            raise ValueError("CausalInferencer enforces time_alignment='per_frame_aligned'.")
+        super().__init__(*args, **kwargs, time_alignment="per_frame_aligned")
 
     @property
     def identifier(self):
-        to_add = []
-        if self.enforce_temporal_context:
-            if self.num_frames: to_add.append(f"num_frames={self.num_frames}")
-            if self.duration: to_add.append(f"duration={self.duration}")
-        if self.max_temporal_context: to_add.append(f"max_context={self.max_temporal_context}")
-        to_add = ".".join(to_add)
-        if to_add: to_add = f".{to_add}"
+        to_add = f".strategy={self.temporal_context_strategy}.context={self._compute_temporal_context()}"
         return f"{super().identifier}{to_add}"
     
     def convert_paths(self, paths):
@@ -60,25 +71,63 @@ class CausalInferencer(TemporalInferencer):
         # do not check here.
         return videos
 
+    def _get_implied_context(self, duration_or_num_frames, strategy):
+        if duration_or_num_frames is None:
+            return None
+
+        if strategy == "greedy":
+            return duration_or_num_frames[1]
+        elif strategy == "conservative":
+            return duration_or_num_frames[0]
+        else:
+            raise ValueError(f"Unknown temporal context strategy: {strategy}")
+        
+    def _overlapped_range(self, s1, e1, s2, e2):
+        lower, upper = max(s1, s2), min(e1, e2)
+        if lower > upper:
+            raise ValueError(f"Ranges [{s1}, {e1}] and [{s2}, {e2}] do not overlap.")
+        return lower, upper
+        
     def _compute_temporal_context(self):
-        context = self.duration
+        duration = self.duration
         num_frames = self.num_frames
+        strategy = self.temporal_context_strategy
 
-        if self.enforce_temporal_context:
-            # unified to num_frames
-            if num_frames is not None:
-                context = num_frames * 1000 / self.fps
-        else: 
-            context = None
+        interval = 1000 / self.fps
+        num_frames_implied_ran = (num_frames[0] * interval, num_frames[1] * interval)
+        ran = self._overlapped_range(*num_frames_implied_ran, *duration)
+        lower = ran[0]
 
-        if self.max_temporal_context and not self.enforce_temporal_context:
-            if context: 
-                if context > self.max_temporal_context:
-                    raise ValueError(f"Model's temporal context {context}ms exceding the specified maximum {self.max_temporal_context}ms")
+        if strategy in ["greedy", "conservative"]:
+            if strategy == "greedy":
+                return lower, ran[1]
+            elif strategy == "conservative":
+                return lower, ran[0]
+
+        elif strategy == "fix":
+            context = self.fixed_temporal_context
+            assert ran[0] <= context <= ran[1], f"Fixed temporal context {context} is not within the range {ran}"
+
+        else:
+            raise ValueError(f"Unknown temporal context strategy: {strategy}")
+
+        return lower, context
+    
+    def _get_time_start(self, time_end, context, lower):
+        assert context >= lower, f"Temporal context {context} is not within the range {lower}"
+        if self.temporal_context_strategy == "fix":
+            return time_end - context
+        elif self.temporal_context_strategy == "greedy":
+            proposed_time_start = time_end - context
+            if proposed_time_start >= 0:
+                return proposed_time_start
             else:
-                context = self.max_temporal_context
-
-        return context
+                if time_end < lower:
+                    return time_end - lower
+                else:
+                    return 0 
+        elif self.temporal_context_strategy == "conservative":
+            return time_end - context
 
     def inference(self, stimuli, layers):
         interval = 1000 / self.fps
@@ -86,11 +135,12 @@ class CausalInferencer(TemporalInferencer):
         for inp in stimuli:
             duration = inp.duration
             videos = []
-            for time_end in np.arange(duration, 0, -interval)[::-1]:
+            # here we ensure that the covered time range at least include the whole duration
+            for time_end in np.arange(interval, duration+interval, interval):
                 # see if the model only receive limited context
-                context = self._compute_temporal_context()
-                time_start = time_end - context if context else 0
-                videos.append(inp.set_window(time_start, time_end))
+                lower, context = self._compute_temporal_context()
+                time_start = self._get_time_start(time_end, context, lower)
+                videos.append(inp.set_window(time_start, time_end, padding=self.out_of_bound_strategy))
 
             self._executor.add_stimuli(videos)
             num_clips.append(len(videos))

@@ -26,7 +26,7 @@ def get_inferencer(any_model):
 
     if isinstance(any_model, Inferencer): return any_model
     if isinstance(any_model, ActivationWrapper): return any_model._extractor.inferencer
-    if isinstance(any_model, ModelCommitment): return any_model.activations_model.inferencer
+    if isinstance(any_model, ModelCommitment): return any_model.activations_model._extractor.inferencer
     if isinstance(any_model, ActivationsExtractor): return any_model.inferencer
     raise ValueError(f"Cannot find inferencer from the model {any_model}")
 
@@ -50,5 +50,5 @@ def switch_inferencer(any_model, new_inferencer_cls, **kwargs):
     inferencer = get_inferencer(any_model)
     base_model = get_base_model(any_model)
     for k, v in kwargs.items():
-        if v == 'same': kwargs[k] = inferencer[k]
+        if v == 'same': kwargs[k] = getattr(inferencer, k)
     base_model.build_extractor(new_inferencer_cls, **kwargs)

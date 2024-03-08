@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Union, Tuple, Callable, Hashable
 
 from brainscore_vision.model_helpers.activations.temporal.inputs.video import Video
 from brainscore_vision.model_helpers.activations.temporal.utils import assembly_align_to_fps
@@ -18,10 +19,17 @@ class TemporalInferencer(Inferencer):
     ----------
     fps: float
         frame rate of the model sampling.
-    num_frames: int
-        specify how many frames the model takes.
-    duration: float
-        specify the duration of the model takes, in ms
+
+    num_frames: int, or (int, int)
+        - If None, the model accepts videos of any length.
+        - If a single int is passed, specify how many frames the model takes. 
+        - If a tuple of two ints is passed, specify the range of the number of frames the model takes (inclusive). If you need to specify infinite, use np.inf.
+    
+    duration: float, or (float, float)
+        - If None, the model accepts videos of any length.
+        - If a single float is passed, specify the duration of the model takes, in ms.
+        - If a tuple of two floats is passed, specify the range of the duration the model takes (inclusive). If you need to specify infinite, use np.inf.
+    
     time_alignment: str
         specify the method to align the activations in time.
         The options and specifications are in the time_aligners module. The current options are:
@@ -41,22 +49,22 @@ class TemporalInferencer(Inferencer):
     """
     def __init__(
             self,
-            fps,
-            num_frames=None,
-            duration=None,
-            time_alignment="evenly_spaced",
-            convert_img_to_video=False,
-            img_duration=1000,
-            batch_size=8,
-            batch_grouper=lambda video: (video.duration, video.fps, video.frame_size),
+            fps : float,
+            num_frames : Union[int, Tuple[int, int]] = None,
+            duration : Union[float, Tuple[float, float]] = None,
+            time_alignment : str = "evenly_spaced",
+            convert_img_to_video : bool = False,
+            img_duration : float = 1000.,
+            batch_size : int = 16,
+            batch_grouper : Callable[[Video], Hashable] = lambda video: (video.duration, video.fps),  # not including video.frame_size because most preprocessors will change the frame size to be the same
             *args,
             **kwargs,
     ):
         super().__init__(*args, stimulus_type=Video, batch_size=batch_size, 
                          batch_grouper=batch_grouper, **kwargs)
         self.fps = fps
-        self.num_frames = num_frames
-        self.duration = duration
+        self.num_frames = self._make_ran(num_frames, type="num_frames")
+        self.duration = self._make_ran(duration, type="duration")
         assert hasattr(time_aligners, time_alignment), f"Unknown time alignment method: {time_alignment}"
         self.time_aligner = getattr(time_aligners, time_alignment)
 
@@ -64,6 +72,14 @@ class TemporalInferencer(Inferencer):
             assert img_duration is not None, "img_duration should be specified if convert_img_to_video is True"
         self.img_duration = img_duration
         self.convert_to_video = convert_img_to_video
+
+    def _make_ran(self, num, type="num_frames"):
+        if num is None:
+            return (1 if type=='num_frames' else 0, np.inf)
+        if isinstance(num, (tuple, list)):
+            return num
+        else:
+            return (num, num)
 
     @property
     def identifier(self):
@@ -73,9 +89,9 @@ class TemporalInferencer(Inferencer):
         for video in videos:
             if self.num_frames is not None:
                 estimated_num_frames = int(self.fps * video.duration / 1000)
-                assert estimated_num_frames == self.num_frames
+                assert self.num_frames[0] <= estimated_num_frames <= self.num_frames[1]
             if self.duration is not None:
-                assert video.duration == self.duration
+                assert self.duration[0] <= video.duration <= self.duration[1]
 
     def convert_paths(self, paths):
         videos = []

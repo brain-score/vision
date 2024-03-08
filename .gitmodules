@@ -1,0 +1,6 @@
+[submodule "brainscore_vision/models/temporal_models/mmaction2"]
+	path = brainscore_vision/models/temporal_models/mmaction2
+	url = https://github.com/YingtianDt/mmaction2.git
+[submodule "brainscore_vision/models/temporal_models/VideoMAE"]
+	path = brainscore_vision/models/temporal_models/VideoMAE
+	url = https://github.com/YingtianDt/VideoMAE.git

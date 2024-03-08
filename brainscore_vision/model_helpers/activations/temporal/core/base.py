@@ -5,6 +5,7 @@ import functools
 import logging
 from collections import OrderedDict
 from multiprocessing.pool import ThreadPool
+from typing import Callable, Hashable, List, Dict, Any
 
 import numpy as np
 from tqdm.auto import tqdm
@@ -41,6 +42,9 @@ class Inferencer:
     layer_activation_format: dict
         a dictionary that specifies the dimensions of the activations of each layer.
         For example, {"temp_conv": "TCHW", "spatial_conv": "CHW",  "fc": "C"}.
+    max_spatial_size: int
+        the maximum spatial size of the activations. If the spatial size of the activations is larger than this value,
+        the activations will be downsampled to this size. This is used to avoid the large memory consumption by the first layers of some model.
     batch_size: int
         number of stimuli to process in each batch.
     batch_grouper: function
@@ -66,18 +70,21 @@ class Inferencer:
 
     def __init__(
             self, 
-            get_activations, 
-            preprocessing, 
-            stimulus_type: Stimulus,
-            layer_activation_format=None,
-            batch_size=64,
-            batch_grouper=None,
-            batch_padding=False,
-            dtype=np.float16,
+            get_activations : Callable[[List[Any]], Dict[str, np.array]], 
+            preprocessing : Callable[[List[Stimulus]], Any],
+            stimulus_type : Stimulus,
+            layer_activation_format : dict = None,
+            max_spatial_size : int = None,
+            batch_size : int = 64,
+            batch_grouper : Callable[[Stimulus], Hashable] = None,
+            batch_padding : bool = False,
+            dtype : np.dtype = np.float16,
         ):
 
         self.stimulus_type = stimulus_type
         self.layer_activation_format = layer_activation_format
+        self.max_spatial_size = max_spatial_size
+        assert max_spatial_size is None, NotImplementedError("max_spatial_size is not implemented yet")
         self.dtype = dtype
         self._executor = BatchExecutor(get_activations, preprocessing, batch_size, batch_padding, batch_grouper, dtype)
         self._stimulus_set_hooks = {}
@@ -86,7 +93,11 @@ class Inferencer:
 
     @property
     def identifier(self):
-        return self.__class__.__name__
+        to_add = []
+        if self.max_spatial_size is not None:
+            to_add.append(f".max_spatial={self.max_spatial_size}")
+        to_add = "".join(to_add)
+        return f"{self.__class__.__name__}{to_add}"
 
     def __call__(self, paths, layers):
         stimuli = self.convert_paths(paths)
@@ -95,6 +106,7 @@ class Inferencer:
         for layer in tqdm(layers, desc="Packaging layers"):
             layer_assemblies[layer] = self.package_layer(layer_activations[layer], layer, self.layer_activation_format[layer], stimuli)
         model_assembly = self.package(layer_assemblies, paths)
+        breakpoint()
         return model_assembly
 
     # List[path] -> List[Stimulus] 
@@ -185,6 +197,10 @@ class Inferencer:
         dims = channel_names
         coords = {dim: range(activation.shape[i]) for i, dim in enumerate(dims)}
         return NeuroidAssembly(activation, coords=coords, dims=dims)
+    
+    # def _spatial_downsample(self, packaged_activation):
+    #     if self.max_spatial_size is None:
+    #         return packaged_activation
 
     # stack the channel dimensions to form the "neuroid" dimension
     @staticmethod
@@ -192,14 +208,6 @@ class Inferencer:
         asm_cls = assembly.__class__
         assembly = assembly.stack(neuroid=channels).reset_index('neuroid')
         return asm_cls(assembly)
-
-    # # stack the channel dimensions to form the "neuroid" dimension
-    # @staticmethod
-    # def _stack_neuroid(assembly, channels):
-    #     asm_cls = assembly.__class__
-    #     all_dims = assembly.dims
-    #     not_
-    #     return asm_cls(assembly)
 
 
 def flatten(layer_output, from_index=1, return_index=False):

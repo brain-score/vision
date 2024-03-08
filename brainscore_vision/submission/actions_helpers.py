@@ -95,6 +95,12 @@ def are_all_tests_passing(test_results: dict) -> dict:
         return False
     else:
         return True
+        
+def any_tests_failing(test_results: dict) -> dict:
+    if any(result == "failure" for result in test_results.values()):
+        return True
+    else:
+        return False
     
 def is_labeled_automerge(check_runs_json: dict) -> bool:
     pull_requests = [check_run['pull_requests'] for check_run in check_runs_json['check_runs']]
@@ -128,6 +134,7 @@ if __name__ == "__main__":
                     'jenkins_unittests_result': get_statuses_result('Brain-Score Jenkins CI', statuses_json)}
 
     tests_pass = are_all_tests_passing(results_dict)
+    tests_fail = any_tests_failing(results_dict)
 
     if tests_pass:
         if is_labeled_automerge(check_runs_json):
@@ -135,4 +142,6 @@ if __name__ == "__main__":
         else:
             print("All tests pass but not labeled for automerge. Exiting.")
     else:
+        if tests_fail:
+            print("Failure")
         print(results_dict)

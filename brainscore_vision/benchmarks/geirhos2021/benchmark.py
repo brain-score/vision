@@ -59,10 +59,11 @@ class _Geirhos2021ErrorConsistency(BenchmarkBase):
 
         self._number_of_trials = 1
 
+        dataset_nodashes = dataset.replace("-", "")
         super(_Geirhos2021ErrorConsistency, self).__init__(
-            identifier=f'brendel.Geirhos2021{dataset}-error_consistency', version=1,
+            identifier=f'Geirhos2021{dataset_nodashes}-error_consistency', version=1,
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
-            parent='brendel.Geirhos2021',
+            parent='Geirhos2021',
             bibtex=BIBTEX)
 
     def __call__(self, candidate: BrainModel):
@@ -85,10 +86,11 @@ class _Geirhos2021Accuracy(BenchmarkBase):
     def __init__(self, dataset):
         self._metric = load_metric('accuracy')
         self._stimulus_set = LazyLoad(lambda: load_assembly(dataset).stimulus_set)
+        dataset_nodashes = dataset.replace("-", "")
         super(_Geirhos2021Accuracy, self).__init__(
-            identifier=f'brendel.Geirhos2021{dataset}-accuracy', version=1,
+            identifier=f'Geirhos2021{dataset_nodashes}-top1', version=1,
             ceiling_func=lambda: Score(1),
-            parent='brendel.Geirhos2021-top1',
+            parent='Geirhos2021-top1',
             bibtex=BIBTEX)
 
     def __call__(self, candidate: BrainModel):

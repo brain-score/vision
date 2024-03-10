@@ -1,98 +1,44 @@
 name: Automatically merge plugin-only PRs
 
 
-# Triggered on all PRs either by
-# - completion of CI checks, OR
-# - tagging with label
-# 1) If PR is labeled "automerge" or "automerge-web" 
-# (all website submissions are tagged "automerge-web"),
-# checks if Travis tests pass. If yes, THEN
-# 2) Checks if PR modifies any code outside plugin dirs. 
-# If no changes are made beyond new or revised plugins
-# (subdirs of /benchmarks, /data, /models, or /metrics) 
-# the PR is automatically approved and merged.
+# Triggered on all PRs labeled "automerge-approved"
+# (Label is set by the "check_if_pr_is_automergeable" workflow)
+# Confirms PR is automergeable (see check_if_pr_is_automergeable.yml for details)
+# If PR is automergeable, approves and merges the PR
 
 
 on:
   pull_request:
     types: [labeled]
-  status:
 
 permissions: write-all
 
 jobs:
 
-  isautomerge:
-    name: Set as 'automerge' if PR is labeled with 'automerge' or 'automerge-web'
+  check_test_results:
+    name: Check if all tests have passed and PR meets automerge conditions
     runs-on: ubuntu-latest
-    if: |
-      contains( github.event.pull_request.labels.*.name, 'automerge') ||
-      contains( github.event.pull_request.labels.*.name, 'automerge-web')
+    if: github.event.label.name == 'automerge-approved'
     outputs:
-      AUTOMERGE: ${{ steps.setautomerge.outputs.AUTOMERGE }}
+      ALL_TESTS_PASS: ${{ steps.gettestresults.outputs.TEST_RESULTS }}
     steps:
-      - name: Set 'automerge' to 'True' # job only runs if True
-        id: setautomerge
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Get test results and ensure automergeable
+        id: gettestresults
         run: |
-          echo "::set-output name=AUTOMERGE::True"
-
-
-  travis_success:
-    name: Check if Travis build is successful
-    runs-on: ubuntu-latest
-    needs: [isautomerge]
-    if: ${{ needs.isautomerge.outputs.AUTOMERGE == 'True' }}
-    outputs:
-      TRAVIS_OK: ${{ steps.istravisok.outputs.TRAVIS_OK }}
-    steps:
-      - name: Get Travis build status
-        id: gettravisstatus
-        run: |
-          echo ${{ github.event.pull_request.head.sha }}
-          echo "TRAVIS_CONCLUSION=$(python -c "import requests; r = requests.get(\"https://api.github.com/repos/brain-score/vision/commits/${{ github.event.pull_request.head.sha }}/check-runs\"); print(next(run['conclusion'] for run in r.json()['check_runs'] if run['name'] == 'Travis CI - Pull Request'))")" >> $GITHUB_ENV
-      - name: Check if Travis was successful
-        id: istravisok
-        run: |
-          if [ "$TRAVIS_CONCLUSION" == "success" ]
-          then
-              travisok=True
-          elif [ "$TRAVIS_CONCLUSION" == "None" ]
-          then
-              travisok=Wait
-          else
-              travisok=False
-          fi
-          echo "::set-output name=TRAVIS_OK::$travisok"
-
-
-  plugin_only:
-    name: Ensure PR ONLY changes plugin files
-    runs-on: ubuntu-latest
-    needs: travis_success
-    if: ${{ needs.travis_success.outputs.TRAVIS_OK == 'True' }}
-    outputs:
-      PLUGIN_ONLY: ${{ steps.ispluginonly.outputs.PLUGIN_ONLY }}
-    steps:
-      - name: Parse plugin_only confirmation from Travis status update
-        id: getpluginonlyvalue
-        run: echo "PLUGIN_ONLY=$(python -c "import requests; r = requests.get(\"https://api.github.com/repos/brain-score/vision/statuses/$github.event.pull_request.head.sha\"); print(next(status['description'].split('- ')[1] for status in r.json() if status['description'].startswith('Run automerge workflow')))")" >> $GITHUB_ENV
-      - name: Check if PR is plugin only
-        id: ispluginonly
-        run: |
-          if [ "$PLUGIN_ONLY" == "True" ]
-          then
-            pluginonly=True
-          else
-            pluginonly=False
-          fi
-          echo "::set-output name=PLUGIN_ONLY::$pluginonly"
-
+          echo "Checking test results for PR head $( python brainscore_vision/submission/actions_helpers.py get_pr_head )"          
+          test_results=$( python brainscore_vision/submission/actions_helpers.py )
+          echo $test_results
+          echo "TEST_RESULTS=$test_results" >> $GITHUB_OUTPUT
 
   automerge:
-    name: If plugin-only, approve and merge
+    name: If tests pass and PR is automergeable, approve and merge
     runs-on: ubuntu-latest
-    needs: plugin_only
-    if: ${{ needs.plugin_only.outputs.PLUGIN_ONLY == 'True' }}
+    needs: check_test_results
+    if: needs.check_test_results.outputs.ALL_TESTS_PASS == 'True'
     steps:
       - name: Auto Approve
         uses: hmarr/auto-approve-action@v3.1.0

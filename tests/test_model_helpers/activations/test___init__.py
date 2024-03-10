@@ -163,6 +163,20 @@ models_layers = [
     pytest.param(tfslim_vgg16, ['vgg_16/pool5'], marks=pytest.mark.memory_intense),
 ]
 
+# exact microsaccades for pytorch_alexnet, grayscale.png, for 1 and 10 number_of_trials
+exact_microsaccades = {"x_degrees": {1: np.array([0.]),
+                                     10: np.array([0., -0.00639121, -0.02114204, -0.02616418, -0.02128906,
+                                                   -0.00941355, 0.00596172, 0.02166913, 0.03523793, 0.04498976])},
+                       "y_degrees": {1: np.array([0.]),
+                                     10: np.array([0., 0.0144621, 0.00728107, -0.00808922, -0.02338324, -0.0340791,
+                                                   -0.03826824, -0.03578336, -0.02753704, -0.01503068])},
+                       "x_pixels": {1: np.array([0.]),
+                                    10: np.array([0., -0.17895397, -0.59197722, -0.73259714, -0.59609364, -0.26357934,
+                                                  0.16692818, 0.60673569, 0.98666196, 1.25971335])},
+                       "y_pixels": {1: np.array([0.]),
+                                    10: np.array([0., 0.40493885, 0.20386999, -0.22649819, -0.65473077, -0.95421482,
+                                                  -1.07151061, -1.00193403, -0.77103707, -0.42085896])}}
+
 
 @pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png',
                                         'palletized.png'])
@@ -187,6 +201,68 @@ def test_from_image_path(model_ctr, layers, image_name, pca_components, logits):
     import gc
     gc.collect()  # free some memory, we're piling up a lot of activations at this point
     return activations
+
+
+@pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png',
+                                        'palletized.png'])
+@pytest.mark.parametrize(["model_ctr", "layers"], models_layers)
+@pytest.mark.parametrize("number_of_trials", [1, 3, 10])
+def test_require_variance_has_shift_coords(model_ctr, layers, image_name, number_of_trials):
+    stimulus_paths = [os.path.join(os.path.dirname(__file__), image_name)]
+    activations_extractor = model_ctr()
+    # when using microsaccades, the ModelCommitment sets its visual angle. Since this test skips the ModelCommitment,
+    #  we set it here manually.
+    activations_extractor._extractor.set_visual_degrees(8.)
+
+    activations = activations_extractor(stimuli=stimulus_paths, layers=layers, number_of_trials=number_of_trials,
+                                        require_variance=True)
+
+    assert activations is not None
+    assert len(activations['microsaccade_shift_x_pixels']) == number_of_trials * len(stimulus_paths)
+    assert len(activations['microsaccade_shift_y_pixels']) == number_of_trials * len(stimulus_paths)
+    assert len(activations['microsaccade_shift_x_degrees']) == number_of_trials * len(stimulus_paths)
+    assert len(activations['microsaccade_shift_y_degrees']) == number_of_trials * len(stimulus_paths)
+
+
+@pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png',
+                                        'palletized.png'])
+@pytest.mark.parametrize(["model_ctr", "layers"], models_layers)
+@pytest.mark.parametrize("require_variance", [False, True])
+@pytest.mark.parametrize("number_of_trials", [1, 3, 10])
+def test_require_variance_presentation_length(model_ctr, layers, image_name, require_variance, number_of_trials):
+    stimulus_paths = [os.path.join(os.path.dirname(__file__), image_name)]
+    activations_extractor = model_ctr()
+    # when using microsaccades, the ModelCommitment sets its visual angle. Since this test skips the ModelCommitment,
+    #  we set it here manually.
+    activations_extractor._extractor.set_visual_degrees(8.)
+
+    activations = activations_extractor(stimuli=stimulus_paths, layers=layers,
+                                        number_of_trials=number_of_trials, require_variance=require_variance)
+
+    assert activations is not None
+    if require_variance:
+        assert len(activations['presentation']) == number_of_trials
+    else:
+        assert len(activations['presentation']) == 1
+
+
+@pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png',
+                                        'palletized.png'])
+@pytest.mark.parametrize(["model_ctr", "layers"], models_layers)
+def test_temporary_file_handling(model_ctr, layers, image_name):
+    import tempfile
+    stimulus_paths = [os.path.join(os.path.dirname(__file__), image_name)]
+    activations_extractor = model_ctr()
+    # when using microsaccades, the ModelCommitment sets its visual angle. Since this test skips the ModelCommitment,
+    #  we set it here manually.
+    activations_extractor._extractor.set_visual_degrees(8.)
+
+    activations = activations_extractor(stimuli=stimulus_paths, layers=layers, number_of_trials=2,
+                                        require_variance=True)
+    temp_files = [f for f in os.listdir(tempfile.gettempdir()) if f.startswith('temp') and f.endswith('.png')]
+
+    assert activations is not None
+    assert len(temp_files) == 0
 
 
 def _build_stimulus_set(image_names):
@@ -223,7 +299,49 @@ def test_exact_activations(pca_components):
                                        image_name='rgb.jpg', pca_components=pca_components, logits=False)
     path_to_expected = Path(__file__).parent / f'alexnet-rgb-{pca_components}.nc'
     expected = xr.load_dataarray(path_to_expected)
+
+    # Originally, the `stimulus_path` Index was used to index into xarrays in Brain-Score, but this was changed
+    #  as a part of PR #492 to a MultiIndex to allow metadata to be attached to multiple repetitions of the same
+    #  `stimulus_path`. Old .nc files need to be updated to use the `presentation` index instead of `stimulus_path`,
+    #  and instead of changing the extant activations, this test was simply modified to simulate that.
+    expected = expected.rename({'stimulus_path': 'presentation'})
+
     assert (activations == expected).all()
+
+
+@pytest.mark.memory_intense
+@pytest.mark.parametrize("number_of_trials", [1, 10])
+def test_exact_microsaccades(number_of_trials):
+    image_name = 'grayscale.png'
+    stimulus_paths = [os.path.join(os.path.dirname(__file__), image_name)]
+    activations_extractor = pytorch_alexnet()
+    # when using microsaccades, the ModelCommitment sets its visual angle. Since this test skips the ModelCommitment,
+    #  we set it here manually.
+    activations_extractor._extractor.set_visual_degrees(8.)
+    # the exact microsaccades were computed at this extent
+    assert activations_extractor._extractor._microsaccade_helper.microsaccade_extent_degrees == 0.05
+
+    activations = activations_extractor(stimuli=stimulus_paths, layers=['features.12'],
+                                        number_of_trials=number_of_trials, require_variance=True)
+
+    assert activations is not None
+    # test with np.isclose instead of == since while the arrays are visually equal, == often fails due to float errors
+    assert np.isclose(activations['microsaccade_shift_x_degrees'].values,
+                      exact_microsaccades['x_degrees'][number_of_trials],
+                      rtol=1e-05,
+                      atol=1e-08).all()
+    assert np.isclose(activations['microsaccade_shift_y_degrees'].values,
+                       exact_microsaccades['y_degrees'][number_of_trials],
+                       rtol=1e-05,
+                       atol=1e-08).all()
+    assert np.isclose(activations['microsaccade_shift_x_pixels'].values,
+                      exact_microsaccades['x_pixels'][number_of_trials],
+                      rtol=1e-05,
+                      atol=1e-08).all()
+    assert np.isclose(activations['microsaccade_shift_y_pixels'].values,
+                      exact_microsaccades['y_pixels'][number_of_trials],
+                      rtol=1e-05,
+                      atol=1e-08).all()
 
 
 @pytest.mark.memory_intense

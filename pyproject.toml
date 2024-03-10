@@ -18,6 +18,7 @@ dependencies = [
     "importlib-metadata<5", # workaround to https://github.com/brain-score/brainio/issues/28
     "scikit-learn", # for metric_helpers/transformations.py cross-validation
     "scipy", # for benchmark_helpers/properties_common.py
+    "opencv-python",  # for microsaccades
     "h5py",
     "tqdm",
     "gitpython",
@@ -33,12 +34,14 @@ dependencies = [
 test = [
     "pytest",
     "pytest_check",
+    "pytest-mock",
     "torch",
     "torchvision",
     "tensorflow==1.15",
     "keras==2.3.1",
     "protobuf<=3.20",  # https://protobuf.dev/news/2022-05-06/#python-updates
     "matplotlib",  # for examples
+    "pytest-mock",
 ]
 
 [build-system]
@@ -79,7 +82,8 @@ filterwarnings = [
 ################################################################
 
 [tool.setuptools]
-py-modules = ['brainscore_vision']
+packages = { find = { where = ["."] } }
+
 
 [tool.setuptools.package-data]
 # include non-python files (e.g. 'requirements.txt') in package install

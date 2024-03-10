@@ -1,14 +1,16 @@
-import brainscore
 import numpy as np
 import pytest
 from brainio.stimuli import StimulusSet
+
+from brainscore_vision import load_stimulus_set, load_dataset
+from brainscore_vision.model_interface import BehavioralAssembly
 
 
 @pytest.mark.memory_intense
 @pytest.mark.private_access
 class TestHebart2023:
     def test_assembly(self):
-        assembly = brainscore.get_assembly('Hebart2023')
+        assembly = load_dataset('Hebart2023')
 
         stimulus_id = assembly.coords["stimulus_id"]
         triplet_id = assembly.coords["triplet_id"]
@@ -21,8 +23,8 @@ class TestHebart2023:
         assert len(image_1) == len(image_2) == len(image_3) == 453642
 
     def test_assembly_stimulusset_ids_match(self):
-        stimulus_set = brainscore.get_stimulus_set("Hebart2023")
-        assembly = brainscore.get_assembly('Hebart2023')
+        stimulus_set = load_stimulus_set("Hebart2023")
+        assembly = load_dataset('Hebart2023')
 
         stimulusset_ids = stimulus_set['stimulus_id']
         for assembly_stimulusid in ['image_1', 'image_2', 'image_3']:
@@ -31,7 +33,7 @@ class TestHebart2023:
                 f"Assembly stimulus id reference '{assembly_stimulusid}' does not match stimulus_set"
 
     def test_stimulus_set(self):
-        stimulus_set = brainscore.get_stimulus_set("Hebart2023")
+        stimulus_set = load_stimulus_set("Hebart2023")
         assert len(stimulus_set) == 1854
         assert {'unique_id', 'stimulus_id', 'filename',
                 'WordNet_ID', 'Wordnet_ID2', 'Wordnet_ID3', 'Wordnet_ID4', 'WordNet_synonyms',

@@ -4,3 +4,9 @@
 [submodule "brainscore_vision/models/temporal_models/VideoMAE"]
 	path = brainscore_vision/models/temporal_models/VideoMAE
 	url = https://github.com/YingtianDt/VideoMAE.git
+[submodule "brainscore_vision/models/temporal_models/mae_st"]
+	path = brainscore_vision/models/temporal_models/mae_st
+	url = https://github.com/YingtianDt/mae_st.git
+[submodule "brainscore_vision/models/temporal_models/VideoMAEv2"]
+	path = brainscore_vision/models/temporal_models/VideoMAEv2
+	url = https://github.com/YingtianDt/VideoMAEv2.git

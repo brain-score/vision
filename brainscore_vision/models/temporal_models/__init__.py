@@ -21,7 +21,6 @@ model_registry['mvit_v2_s'] = lambda: commit_model('mvit_v2_s', torchvision_mode
 
 
 # mmaction2
-
 from .mmaction2 import base_models as mmaction2_models
 model_registry["I3D"] = lambda: commit_model("I3D", mmaction2_models)
 model_registry["I3D-nonlocal"] = lambda: commit_model("I3D-nonlocal", mmaction2_models)
@@ -33,3 +32,17 @@ model_registry["VideoSwin-L"] = lambda: commit_model("VideoSwin-L", mmaction2_mo
 model_registry["UniFormer-V1"] = lambda: commit_model("UniFormer-V1", mmaction2_models)
 model_registry["UniFormer-V2-B"] = lambda: commit_model("UniFormer-V2-B", mmaction2_models)
 model_registry["UniFormer-V2-L"] = lambda: commit_model("UniFormer-V2-L", mmaction2_models)
+
+
+# MAEs
+from .VideoMAE import base_models as VideoMAEv1_models
+model_registry["VideoMAE-V1-B"] = lambda: commit_model("VideoMAE-V1-B", VideoMAEv1_models)
+model_registry["VideoMAE-V1-L"] = lambda: commit_model("VideoMAE-V1-L", VideoMAEv1_models)
+
+from .VideoMAEv2 import base_models as VideoMAEv2_models
+model_registry["VideoMAE-V2-B"] = lambda: commit_model("VideoMAE-V2-B", VideoMAEv2_models)
+model_registry["VideoMAE-V2-G"] = lambda: commit_model("VideoMAE-V2-G", VideoMAEv2_models)
+
+from .mae_st import base_models as mae_st_models
+model_registry["MAE-ST-L"] = lambda: commit_model("MAE-ST-L", mae_st_models)
+# model_registry["MAE-ST-G"] = lambda: commit_model("MAE-ST-G", mae_st_models)

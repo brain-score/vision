@@ -15,7 +15,7 @@ def iterable_to_list(arr):
         return arr
 
 
-def time_align(source_time_bins, target_time_bins, mode="portion"):
+def time_align(source_time_bins: List[Tuple[int, int]], target_time_bins: List[Tuple[int, int]], mode: str = "portion"):
     """ return the aligned binary indicator in the source.
         belong_to matrix: (target_time_bin, source_time_bin)
           1 if the target time bin covers the source time bin

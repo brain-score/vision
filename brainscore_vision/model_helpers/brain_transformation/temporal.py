@@ -8,6 +8,7 @@ from brainscore_vision.model_interface import BrainModel
 
 
 def iterable_to_list(arr):
+    """ recursively converts a list, tuple, or numpy array into a python list. """
     if isinstance(arr, (list, tuple, np.ndarray)):
         return [iterable_to_list(a) for a in arr]
     else:

@@ -8,6 +8,7 @@ from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
 import math
 from collections import OrderedDict
 from torch import nn
+import torch.nn.utils.prune as prune
 
 
 HASH = '1d3f7974'
@@ -138,8 +139,20 @@ def CORnet_S():
 def get_custom_cornet_s():
     model = CORnet_S()
     model = torch.nn.DataParallel(model)
-    url = f'https://storage.googleapis.com/neurodp/0_0_0_ckpt.pt'
+    regions = [model.module.V1, model.module.V2, model.module.V4, model.module.IT]
+    region_idx = 0
+    region = regions[region_idx]
+    lesion_iters = 1
+    retrain_epochs = 0
+
+    url = f'https://storage.googleapis.com/neurodp/{region_idx}_{lesion_iters}_{retrain_epochs}_ckpt.pt'
     ckpt_data = torch.hub.load_state_dict_from_url(url)
+
+    for _ in range(lesion_iters):
+        conv_layers = [module for module in region.modules() if isinstance(module, torch.nn.Conv2d)]
+        for x in conv_layers:
+            prune.random_unstructured(x, name='weight', amount=0.2)
+
     model.load_state_dict(ckpt_data)
     model = model.module
     for param in model.parameters():
@@ -149,14 +162,14 @@ def get_custom_cornet_s():
 
 
 def get_model_list():
-        return ['cornet_s_0_0_0']
+        return ['cornet_s_0_1_0']
 
 
 def get_model(name):
-    assert name == 'cornet_s_0_0_0'
+    assert name == 'cornet_s_0_1_0'
     model = get_custom_cornet_s()
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
-    wrapper = PytorchWrapper(identifier='cornet_s_0_0_0',
+    wrapper = PytorchWrapper(identifier='cornet_s_0_1_0',
                              model=model,
                              preprocessing=preprocessing)
     wrapper.image_size = 224
@@ -164,7 +177,7 @@ def get_model(name):
 
 
 def get_layers(name):
-    assert name == 'cornet_s_0_0_0'
+    assert name == 'cornet_s_0_1_0'
     return ['V1', 'V2', 'V4', 'IT', 'decoder']
 
 

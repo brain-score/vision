@@ -97,6 +97,7 @@ jobs:
       pr_title: ${{ github.event.pull_request.title }}
       is_automerge_web: ${{ contains(github.event.pull_request.labels.*.name, 'automerge-web') }}
       action_type: 'extract_email'
+    secrets: inherit
   
   update_plugin_info:
     name: Updates PLUGIN_INFO with various fields (domain, compertition, model_type, email)

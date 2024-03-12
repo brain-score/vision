@@ -64,11 +64,11 @@ class TestBehavioral:
         ('segments-59', approx(0.87847, abs=0.001)),
         ('segments-77', approx(0.89013, abs=0.001)),
         ('segments-100', approx(0.93236, abs=0.001)),  # all of the above are AccuracyDistance
-        ('phosphenes-composite', approx(0.45755, abs=0.01)),  # composites are ErrorConsistency
-        ('segments-composite', approx(0.42529, abs=0.01)),
+        ('phosphenes-all', approx(0.45755, abs=0.01)),  # alls are ErrorConsistency
+        ('segments-all', approx(0.42529, abs=0.01)),
     ])
     def test_dataset_ceiling(self, dataset, expected_ceiling):
-        if 'composite' in dataset:
+        if 'all' in dataset:
             benchmark = f"Scialom2024_{dataset}BehavioralErrorConsistency"
         else:
             benchmark = f"Scialom2024_{dataset}BehavioralAccuracyDistance"
@@ -97,11 +97,11 @@ class TestBehavioral:
         ('segments-59', approx(0.38750, abs=0.001)),
         ('segments-77', approx(0.28916, abs=0.001)),
         ('segments-100', approx(0.23916, abs=0.001)),  # all of the above are AccuracyDistance
-        ('phosphenes-composite', approx(0.18057, abs=0.01)),  # composites are ErrorConsistency
-        ('segments-composite', approx(0.15181, abs=0.01)),
+        ('phosphenes-all', approx(0.18057, abs=0.01)),  # alls are ErrorConsistency
+        ('segments-all', approx(0.15181, abs=0.01)),
     ])
     def test_model_8_degrees(self, dataset, expected_raw_score):
-        if 'composite' in dataset:
+        if 'all' in dataset:
             benchmark = f"Scialom2024_{dataset}BehavioralErrorConsistency"
         else:
             benchmark = f"Scialom2024_{dataset}BehavioralAccuracyDistance"

@@ -47,13 +47,16 @@ PERCENTAGE_ELEMENTS = {'rgb': 'RGB', 'contours': 'contours', 'phosphenes-12': 12
 def collect_scialom_behavioral_assembly(data_path, subject_group, percentage_elements, which_composite):
     # load and filter the data to only take this benchmark
     data = pd.read_csv(data_path)
+    subject_group = subject_group.split('-')[0]
     if which_composite is not None:
-        filtered_data = data[data['subject_group'] == which_composite]
+        filtered_data = data[(data['subject_group'] == which_composite) |
+                             (data['subject_group'] == 'RGB') |
+                             (data['subject_group'] == 'contours')]
     elif subject_group in ['phosphenes', 'segments']:
         filtered_data = data[(data['subject_group'] == subject_group) &
-                             (data['percentage_elements'] == percentage_elements)]
+                             (data['percentage_elements'] == str(percentage_elements))]
     else:
-        filtered_data = data[(data['percentage_elements'] == percentage_elements)]
+        filtered_data = data[(data['percentage_elements'] == str(percentage_elements))]
 
     # construct the assembly
     if which_composite is not None:
@@ -67,7 +70,7 @@ def collect_scialom_behavioral_assembly(data_path, subject_group, percentage_ele
                                           'subject_answer': ('presentation', filtered_data['subject_answer']),
                                           'condition': ('presentation', filtered_data['subject_group']),
                                           'percentage_elements': ('presentation', filtered_data['percentage_elements']),
-                                          'stimulus_id': ('presentation', filtered_data['stimulus_id']),
+                                          'stimulus_id': ('presentation', filtered_data['stimulus_id'].astype(str)),
                                           'truth': ('presentation', filtered_data['correct_answer'])
                                       },
                                       dims=['presentation']
@@ -83,7 +86,7 @@ def collect_scialom_behavioral_assembly(data_path, subject_group, percentage_ele
                                           'subject_answer': ('presentation', filtered_data['subject_answer']),
                                           'condition': ('presentation', filtered_data['percentage_elements']),
                                           'percentage_elements': ('presentation', filtered_data['percentage_elements']),
-                                          'stimulus_id': ('presentation', filtered_data['stimulus_id']),
+                                          'stimulus_id': ('presentation', filtered_data['stimulus_id'].astype(str)),
                                           'truth': ('presentation', filtered_data['correct_answer'])
                                       },
                                       dims=['presentation']
@@ -91,7 +94,7 @@ def collect_scialom_behavioral_assembly(data_path, subject_group, percentage_ele
 
     # give the assembly an identifier name
     if which_composite is not None:
-        assembly.name = f'Scialom2024_{which_composite}-composite'
+        assembly.name = f'Scialom2024_{which_composite}-all'
     elif subject_group in ['phosphenes', 'segments']:
         assembly.name = f'Scialom2024_{subject_group}-{percentage_elements}'
     else:
@@ -100,20 +103,24 @@ def collect_scialom_behavioral_assembly(data_path, subject_group, percentage_ele
 
 
 if __name__ == '__main__':
-    data_path = Path(r'../../Data_Results_experiment.csv')
+    data_path = Path(r'../Data_Results_experiment.csv')
     for subject_group in SUBJECT_GROUPS:
         percentage_elements = PERCENTAGE_ELEMENTS[subject_group]
         if subject_group == 'rgb' or subject_group == 'contours':
             num_dims = 2400
             num_subjects = 50
+            which_composite = None
         elif subject_group == 'phosphenes-composite' or subject_group == 'segments-composite':
             num_dims = 13200
             num_subjects = 25
+            which_composite = subject_group[:-10]
         else:
             num_dims = 1200
             num_subjects = 25
+            which_composite = None
 
-        assembly = collect_scialom_behavioral_assembly(data_path, subject_group, percentage_elements)
+        assembly = collect_scialom_behavioral_assembly(data_path, subject_group, percentage_elements,
+                                                       which_composite=which_composite)
 
         # make sure assembly dims are correct length
         assert len(assembly['presentation']) == num_dims
@@ -145,6 +152,9 @@ if __name__ == '__main__':
         assert len(np.unique(assembly['subject_answer'].values)) == 12
 
         # upload to S3
-        # package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
-        #                       stimulus_set_identifier="assembly.name",
-        #                       assembly_class="BehavioralAssembly", bucket_name="brainio-brainscore")
+        package_data_assembly(catalog_identifier='brainio_brainscore',
+                              proto_data_assembly=assembly,
+                              assembly_identifier=assembly.name,
+                              stimulus_set_identifier=assembly.name,
+                              assembly_class_name="BehavioralAssembly",
+                              bucket_name="brainio-brainscore")

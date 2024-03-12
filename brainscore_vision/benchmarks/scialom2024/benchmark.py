@@ -7,18 +7,7 @@ from brainscore_vision.metrics import Score
 from brainscore_vision.model_interface import BrainModel
 from brainscore_vision.utils import LazyLoad
 
-BIBTEX = """@article{...,
-            author = {...},
-            title = "{...}",
-            journal = {...},
-            volume = {...},
-            number = {...},
-            pages = {...},
-            year = {...},
-            issn = {...},
-            doi = {...},
-            url = {...}
-        }"""
+BIBTEX = ""  # to appear in a future article
 
 
 class _Scialom2024BehavioralErrorConsistency(BenchmarkBase):

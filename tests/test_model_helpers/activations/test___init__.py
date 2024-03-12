@@ -202,7 +202,7 @@ def test_from_image_path(model_ctr, layers, image_name, pca_components, logits):
     gc.collect()  # free some memory, we're piling up a lot of activations at this point
     return activations
 
-
+@pytest.mark.memory_intense
 @pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png',
                                         'palletized.png'])
 @pytest.mark.parametrize(["model_ctr", "layers"], models_layers)

@@ -1,2 +1,2 @@
 from .base import TemporalInferencer
-from .causal import CausalInferencer
+from .temporal_context import *

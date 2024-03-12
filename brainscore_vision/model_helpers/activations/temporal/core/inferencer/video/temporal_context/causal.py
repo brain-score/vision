@@ -1,12 +1,12 @@
 import numpy as np
 from collections import OrderedDict
 
-from .base import TemporalInferencer
-from ...executor import stack_with_nan_padding
+from .base import TemporalContextInferencerBase
 from brainscore_vision.model_helpers.activations.temporal.inputs.video import Video
+from brainscore_vision.model_helpers.activations.temporal.core.executor import stack_with_nan_padding
 
 
-class CausalInferencer(TemporalInferencer):
+class CausalInferencer(TemporalContextInferencerBase):
     """Inferencer that ensures the activations are causal by feeding in the video in a causal manner. 
 
     Specifically, suppose the video lasts for 1000ms and the model samples every 100ms.
@@ -17,48 +17,19 @@ class CausalInferencer(TemporalInferencer):
     always from the past, not the future.
 
     If num_frames or duration is given, the model's temporal context will be set to match the two.
-    Set
-    
-    Parameters
-    ----------
-    temporal_context_strategy: str
-        specify how the length of temporal context for causal inference is determined.
-        Options:
-        - "greedy": the length of the temporal context is determined by the maximum of num_frames and duration.
-        - "conservative": the length of the temporal context is determined by the minimum of num_frames and duration.
-        - "fix": the length of the temporal context is determined by the specified "fixed_temporal_context".
-    
-    fixed_temporal_context: float
-        specify the fixed length of the temporal context, in ms. It will be used only if temporal_context_strategy is "fix".
-    
-    out_of_bound_strategy: str
-        specify how to handle the out-of-bound temporal context.
-        Options:
-        - "repeat": the out-of-bound temporal context will be repeated.
-        - TODO: "black": the out-of-bound temporal context will be zero-padded.
     """
     def __init__(
             self, 
             *args,
-            temporal_context_strategy : str = "greedy",
-            fixed_temporal_context : float = None,
-            out_of_bound_strategy : str = "repeat",
             **kwargs
         ):
-        self.temporal_context_strategy = temporal_context_strategy
-        self.fixed_temporal_context = fixed_temporal_context
-        self.out_of_bound_strategy = out_of_bound_strategy
-        if self.temporal_context_strategy == "fix" and self.fixed_temporal_context is None:
-            raise ValueError("fixed_temporal_context must be specified if temporal_context_strategy is 'fix'.")
-        if "time_alignment" in kwargs and kwargs["time_alignment"] != "per_frame_aligned":
-            raise ValueError("CausalInferencer enforces time_alignment='per_frame_aligned'.")
+        if "time_alignment" in kwargs:
+            if kwargs["time_alignment"] != "per_frame_aligned":
+                raise ValueError("CausalInferencer enforces time_alignment='per_frame_aligned'.")
+            else:
+                del kwargs["time_alignment"]
         super().__init__(*args, **kwargs, time_alignment="per_frame_aligned")
 
-    @property
-    def identifier(self):
-        to_add = f".strategy={self.temporal_context_strategy}.context={self._compute_temporal_context()}"
-        return f"{super().identifier}{to_add}"
-    
     def convert_paths(self, paths):
         videos = []
         for path in paths:
@@ -70,49 +41,7 @@ class CausalInferencer(TemporalInferencer):
         videos = [video.set_fps(self.fps) for video in videos]
         # do not check here.
         return videos
-
-    def _get_implied_context(self, duration_or_num_frames, strategy):
-        if duration_or_num_frames is None:
-            return None
-
-        if strategy == "greedy":
-            return duration_or_num_frames[1]
-        elif strategy == "conservative":
-            return duration_or_num_frames[0]
-        else:
-            raise ValueError(f"Unknown temporal context strategy: {strategy}")
         
-    def _overlapped_range(self, s1, e1, s2, e2):
-        lower, upper = max(s1, s2), min(e1, e2)
-        if lower > upper:
-            raise ValueError(f"Ranges [{s1}, {e1}] and [{s2}, {e2}] do not overlap.")
-        return lower, upper
-        
-    def _compute_temporal_context(self):
-        duration = self.duration
-        num_frames = self.num_frames
-        strategy = self.temporal_context_strategy
-
-        interval = 1000 / self.fps
-        num_frames_implied_ran = (num_frames[0] * interval, num_frames[1] * interval)
-        ran = self._overlapped_range(*num_frames_implied_ran, *duration)
-        lower = ran[0]
-
-        if strategy in ["greedy", "conservative"]:
-            if strategy == "greedy":
-                return lower, ran[1]
-            elif strategy == "conservative":
-                return lower, ran[0]
-
-        elif strategy == "fix":
-            context = self.fixed_temporal_context
-            assert ran[0] <= context <= ran[1], f"Fixed temporal context {context} is not within the range {ran}"
-
-        else:
-            raise ValueError(f"Unknown temporal context strategy: {strategy}")
-
-        return lower, context
-    
     def _get_time_start(self, time_end, context, lower):
         assert context >= lower, f"Temporal context {context} is not within the range {lower}"
         if self.temporal_context_strategy == "fix":
@@ -131,16 +60,19 @@ class CausalInferencer(TemporalInferencer):
 
     def inference(self, stimuli, layers):
         interval = 1000 / self.fps
+        lower, context = self._compute_temporal_context()
         num_clips = []
+        latest_time_end = 0
         for inp in stimuli:
             duration = inp.duration
             videos = []
             # here we ensure that the covered time range at least include the whole duration
             for time_end in np.arange(interval, duration+interval, interval):
                 # see if the model only receive limited context
-                lower, context = self._compute_temporal_context()
                 time_start = self._get_time_start(time_end, context, lower)
-                videos.append(inp.set_window(time_start, time_end, padding=self.out_of_bound_strategy))
+                clip = inp.set_window(time_start, time_end, padding=self.out_of_bound_strategy)
+                latest_time_end = max(time_end, latest_time_end)
+                videos.append(clip)
 
             self._executor.add_stimuli(videos)
             num_clips.append(len(videos))
@@ -161,6 +93,8 @@ class CausalInferencer(TemporalInferencer):
 
         for layer in layers:
             layer_activations[layer] = stack_with_nan_padding(layer_activations[layer])
+
+        self.longest_stimulus = inp.set_window(0, latest_time_end, padding=self.out_of_bound_strategy)  # hack: fake the longest stimulus
 
         return layer_activations
     

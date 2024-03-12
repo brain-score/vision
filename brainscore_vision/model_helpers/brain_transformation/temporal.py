@@ -23,6 +23,16 @@ def time_align(source_time_bins: List[Tuple[int, int]], target_time_bins: List[T
           can be a portion if mode=="portion"
 
         NOTE: here we assume the source time bins are contiguous, i.e. no gap between them.
+
+        Example:
+        source_time_bins = [(0, 100), (100, 200), (200, 300)]
+        target_time_bins = [(0, 50), (250, 300)]
+
+        mode = "center"
+        belong_to = [[1, 0, 0], [0, 0, 1]]
+
+        mode = "portion"
+        belong_to = [[0.5, 0, 0], [0, 0, 0.5]]
     """
     
     source_time_bins = np.array(iterable_to_list(source_time_bins))  # otherwise object array [(a,b), (c,d)...]

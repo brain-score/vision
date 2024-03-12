@@ -13,6 +13,11 @@ from result_caching import store_xarray
 from .inferencer import Inferencer
 
 
+"""
+    This effectively duplicates the existing non-temporal activations extractor with new functionality for temporal models,
+    with minor de-coupling: now all the packaging goes to the "inferencer". 
+    We hope the two can be unified again in the future or that this new wrapper will supersede the previous one
+"""
 class ActivationsExtractor:
     """A wrapper for the inferencer to provide additional functionalities.
     

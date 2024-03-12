@@ -66,8 +66,8 @@ class Inferencer:
             self, 
             get_activations : Callable[[List[Any]], Dict[str, np.array]], 
             preprocessing : Callable[[List[Stimulus]], Any],
+            layer_activation_format : dict,
             stimulus_type : Stimulus,
-            layer_activation_format : dict = None,
             max_spatial_size : int = None,
             batch_size : int = 64,
             batch_grouper : Callable[[Stimulus], Hashable] = None,
@@ -78,7 +78,6 @@ class Inferencer:
         self.stimulus_type = stimulus_type
         self.layer_activation_format = layer_activation_format
         self.max_spatial_size = max_spatial_size
-        assert max_spatial_size is None, NotImplementedError("max_spatial_size is not implemented yet")
         self.dtype = dtype
         self._executor = BatchExecutor(get_activations, preprocessing, batch_size, batch_padding, batch_grouper, dtype)
         self._stimulus_set_hooks = {}
@@ -100,7 +99,6 @@ class Inferencer:
         for layer in tqdm(layers, desc="Packaging layers"):
             layer_assemblies[layer] = self.package_layer(layer_activations[layer], layer, self.layer_activation_format[layer], stimuli)
         model_assembly = self.package(layer_assemblies, paths)
-        breakpoint()
         return model_assembly
 
     # List[path] -> List[Stimulus] 
@@ -186,15 +184,51 @@ class Inferencer:
 
     # package a numpy array to a NeuroidAssembly with given dims
     # make coord for each dimension to be the range of the dimension, as 0, 1, 2, ..., dim_size
-    @staticmethod
-    def _simple_package(activation: np.array, channel_names):
+    # then, do spatial downsampling if necessary
+    def _simple_package(self, activation: np.array, channel_names):
         dims = channel_names
         coords = {dim: range(activation.shape[i]) for i, dim in enumerate(dims)}
-        return NeuroidAssembly(activation, coords=coords, dims=dims)
+        ret = NeuroidAssembly(activation, coords=coords, dims=dims)
+        ret = self._spatial_downsample(ret)
+        return ret
     
-    # def _spatial_downsample(self, packaged_activation):
-    #     if self.max_spatial_size is None:
-    #         return packaged_activation
+    def _compute_new_size(self, w, h):
+        if h > w:
+            new_h = self.max_spatial_size
+            new_w = int(w * new_h / h)
+        else:
+            new_w = self.max_spatial_size
+            new_h = int(h * new_w / w)
+        return new_h, new_w
+
+    def _spatial_downsample(self, packaged_activation, interpolation="bilinear"):
+        if self.max_spatial_size is None:
+            return packaged_activation
+        else:
+            ori_dims = packaged_activation.dims
+            assert "channel_y" in ori_dims and "channel_x" in ori_dims
+            nonspatial_coords = {coord: (dims, values) for coord, dims, values in walk_coords(packaged_activation)
+                                 if "channel_y" not in dims and "channel_x" not in dims}
+            tmp = packaged_activation.transpose("channel_y", "channel_x", ...)
+            dims = tmp.dims
+            tmp = tmp.values
+            h, w = tmp.shape[:2]
+            others = tmp.shape[2:]
+            tmp = tmp.reshape(h, w, -1)
+            new_size = self._compute_new_size(w, h)
+
+            import cv2
+            if interpolation == "bilinear":
+                interpolation = cv2.INTER_LINEAR
+            else:
+                raise ValueError(f"Unknown interpolation method: {interpolation}")
+
+            new_vals = cv2_resize(tmp, new_size, interpolation)
+            new_vals = new_vals.reshape(*new_size, *others)
+            new_spatial_coords = {"channel_y": range(new_size[0]), "channel_x": range(new_size[1])}
+            ret = packaged_activation.__class__(new_vals, coords={**nonspatial_coords, **new_spatial_coords}, dims=dims)
+            ret = ret.transpose(*ori_dims)
+            return ret
 
     # stack the channel dimensions to form the "neuroid" dimension
     @staticmethod
@@ -226,3 +260,16 @@ def flatten(layer_output, from_index=1, return_index=False):
 
     index = cartesian_product_broadcasted(*[np.arange(s, dtype='int') for s in layer_output.shape[from_index:]])
     return flattened, index
+
+
+# cv2 has the wierd bug of cannot handling too large channel size
+def cv2_resize(arr, size, mode, batch_size=256):
+    # arr [H, W, C]
+    import cv2
+    ori_dtype = arr.dtype
+    arr = arr.astype(float)
+    C = arr.shape[-1]
+    ret = []
+    for i in range(0, C, batch_size):
+        ret.append(cv2.resize(arr[..., i:i+batch_size], size, interpolation=mode))
+    return np.concatenate(ret, axis=-1).astype(ori_dtype)

@@ -25,15 +25,6 @@ on:
         required: true
         type: string
         description: 'Determines the action to take, e.g., "extract_email" or "send_email".'
-      aws_id:
-        required: true
-        type: string
-      aws_access_key:
-        required: true
-        type: string
-      database_secret:
-        required: true
-        type: string
     outputs:
       extracted_email:
         description: "The extracted email address."
@@ -61,8 +52,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ inputs.aws_id }}
-          aws-secret-access-key: ${{ inputs.aws_access_key }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
       - name: Installing package dependencies
@@ -104,7 +95,7 @@ jobs:
         id: automerge_web
         run: |
           BS_UID="$(echo env.PR_TITLE | sed -E 's/.*\(user:([^)]+)\).*/\1/')"
-          EMAIL=$(python -c "from brainscore_core.submission.database import email_from_uid; from brainscore_core.submission.endpoints import UserManager; user_manager=UserManager(db_secret='${{ inputs.database_secret }}'); print(email_from_uid($BS_UID))")
+          EMAIL=$(python -c "from brainscore_core.submission.database import email_from_uid; from brainscore_core.submission.endpoints import UserManager; user_manager=UserManager(db_secret='${{ secrets.BSC_DATABASESECRET }}'); print(email_from_uid($BS_UID))")
           echo "::add-mask::EMAIL" # Mask the EMAIL
           echo "EMAIL=$EMAIL" >> $GITHUB_ENV
 

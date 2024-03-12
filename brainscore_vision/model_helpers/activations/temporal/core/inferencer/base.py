@@ -1,21 +1,15 @@
-import copy
-import os
-
 import functools
 import logging
 from collections import OrderedDict
-from multiprocessing.pool import ThreadPool
 from typing import Callable, Hashable, List, Dict, Any
 
 import numpy as np
 from tqdm.auto import tqdm
 
 from brainio.assemblies import NeuroidAssembly, walk_coords
-from brainio.stimuli import StimulusSet
 from brainscore_vision.model_helpers.utils import fullname
-from result_caching import store_xarray
 
-from .executor import BatchExecutor
+from brainscore_vision.model_helpers.activations.temporal.core.executor import BatchExecutor
 from brainscore_vision.model_helpers.activations.temporal.inputs import Stimulus
 
 

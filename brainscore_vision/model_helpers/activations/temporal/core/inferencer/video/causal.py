@@ -2,7 +2,7 @@ import numpy as np
 from collections import OrderedDict
 
 from .base import TemporalInferencer
-from ..executor import stack_with_nan_padding
+from ...executor import stack_with_nan_padding
 from brainscore_vision.model_helpers.activations.temporal.inputs.video import Video
 
 

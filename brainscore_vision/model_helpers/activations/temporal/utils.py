@@ -20,7 +20,7 @@ def assembly_align_to_fps(output_assembly, fps, mode="portion"):
 
 # get the inferencer from any model
 def get_inferencer(any_model):
-    from brainscore_vision.model_helpers.activations.temporal.core import Inferencer, ActivationsExtractor
+    from brainscore_vision.model_helpers.activations.temporal.core.extractor import Inferencer, ActivationsExtractor
     from brainscore_vision.model_helpers.activations.temporal.model.base import ActivationWrapper
     from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
 

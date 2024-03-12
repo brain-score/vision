@@ -8,13 +8,14 @@ from brainscore_vision.model_interface import BrainModel
 
 
 def iterable_to_list(arr):
+    """ recursively converts a list, tuple, or numpy array into a python list. """
     if isinstance(arr, (list, tuple, np.ndarray)):
         return [iterable_to_list(a) for a in arr]
     else:
         return arr
 
 
-def time_align(source_time_bins, target_time_bins, mode="portion"):
+def time_align(source_time_bins: List[Tuple[int, int]], target_time_bins: List[Tuple[int, int]], mode: str = "portion"):
     """ return the aligned binary indicator in the source.
         belong_to matrix: (target_time_bin, source_time_bin)
           1 if the target time bin covers the source time bin
@@ -107,8 +108,11 @@ def assembly_time_align(source, target_time_bins, mode="portion"):
 
 class TemporalAligned(BrainModel):
     """
-    Always output the same prediction, regardless of time-bins.
-    Duplicates the LayerMappedModel prediction across time.
+    Deals with the alignment of time-bins.
+    
+    If the underlying model does not provide a time dimension in its predictions, this always outputs the same prediction for all requested recording time-bins. More specifically, this duplicates the LayerMappedModel prediction across time.
+    
+    If the underlying model does provide a time dimension in its predictions, align those time points to the requested recording time-bins.
     """
 
     def __init__(self, layer_model):

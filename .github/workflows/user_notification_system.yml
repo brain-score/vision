@@ -11,7 +11,7 @@ on:
     inputs:
       pr_number:
         required: false
-        type: int
+        type: number
       pr_username:
         required: false
         type: string

@@ -4,6 +4,7 @@ name: Check if PR is automergeable
 # Triggered on all PRs either by
 # - completion of CI checks (status or check_run events), OR
 # - tagging with "automerge" or "automerge-web" labels
+#
 # This workflow checks if the PR that invoked the trigger is automergeable. 
 # A PR is automergeable iff it:
 # 1) is labeled "automerge" OR "automerge-web" (originates from web submission) (checked in actions_helpers.py)
@@ -11,6 +12,8 @@ name: Check if PR is automergeable
 # 3) passes all tests (Travis and Jenkins). 
 # If all 3 conditions are met, the "automerge-approved" label is applied to the PR
 # (This label triggers the `automerge_plugin-only_prs` workflow to merge the PR.)
+#
+# If any test fails, the user will be notified by the brain-score email account.
 
 
 on:

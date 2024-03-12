@@ -96,4 +96,7 @@ jobs:
       pr_number: ${{ needs.check_pr_details.outputs.PR_NUMBER }}
       is_automerge_web: true
       action_type: 'send_email'
+      aws_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      database_secret: ${{ secrets.BSC_DATABASESECRET }}
 

@@ -15,7 +15,8 @@ from brainio.assemblies import BehavioralAssembly
 data_dir = '/home/ytang/workspace/tmp/data-FEF/data'
 video_dir = '/home/ytang/workspace/data/FEF/videos'
 
-def load_dataset(filter_directions=[0, 180], num_samples=100):
+
+def load_dataset(identifier="Ding2012", filter_directions=[0, 180], num_samples=100):
 
     record = {}
     stimulus_ids = []
@@ -75,8 +76,15 @@ def load_dataset(filter_directions=[0, 180], num_samples=100):
             "monkey": ("presentation", monkey_names),
         }
     )
+    return assembly
 
+
+def load_stimulus_set(identifier, filter_directions=[0, 180], num_samples=100):
     # add stimulus_set
+    if identifier == "Ding2012.train_stimuli":
+        train = True
+    elif identifier == "Ding2012.test_stimuli":
+        train = False
 
     coherences = [0.032, 0.064, 0.128, 0.256, 0.512]
     directions = [0, 45, 90, 135, 180, 225, 270, 315]
@@ -85,34 +93,30 @@ def load_dataset(filter_directions=[0, 180], num_samples=100):
 
     stimulus_ids = []
     stimulus_paths = []
+    stimulus_directions = []
 
-    # make num_samples training samples for each case
+    # make num_samples samples for each case
+
     for i in range(num_samples):
         for coh in coherences:
             for dir in directions:
-                sp = f"train_{coh*100}_{dir}_{i}"
+                sp = f"train_{coh*100}_{dir}_{i}" if train else f"test_{coh*100}_{dir}_{i}"
                 stimulus_ids.append(sp)
                 stimulus_paths.append(os.path.join(video_dir, f"{sp}.mp4"))
+                stimulus_directions.append(dir)
 
-
-    # make test samples:
-    for i in range(num_samples):
-        for coh in coherences:
-            for dir in directions:
-                sp = f"test_{coh*100}_{dir}_{i}"
-                stimulus_ids.append(sp)
-                stimulus_paths.append(os.path.join(video_dir, f"{sp}.mp4"))
 
     from brainio.stimuli import StimulusSet
     stimulus_paths = [os.path.join(video_dir, f"{stimulus_id}.mp4") for stimulus_id in stimulus_ids]
 
     stimulus_set = {}
     stimulus_set["stimulus_id"] = stimulus_ids
+    stimulus_set["direction"] = stimulus_directions
     stimulus_set = StimulusSet(stimulus_set)
     stimulus_set.stimulus_paths = {id:path for id, path in zip(stimulus_set["stimulus_id"], stimulus_paths)}
-    stimulus_set.identifier = "Ding2012"
+    stimulus_set.identifier = identifier
     assembly.attrs["stimulus_set"] = stimulus_set
-    assembly.attrs["stimulus_set_identifier"] = "Ding2012"
+    assembly.attrs["stimulus_set_identifier"] = identifier
 
     return assembly
 

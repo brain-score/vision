@@ -15,7 +15,7 @@ import requests
 import sys
 from typing import Union
 
-BASE_URL = "https://api.github.com/repos/brain-score/vision"
+BASE_URL = "https://api.github.com/repos/samwinebrake/brain-score"
 
 
 def get_data(url: str) -> dict:

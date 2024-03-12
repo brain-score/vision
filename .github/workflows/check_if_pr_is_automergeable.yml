@@ -86,6 +86,16 @@ jobs:
           NUMBER: ${{ needs.check_pr_details.outputs.PR_NUMBER }}
           LABELS: automerge-approved
         run: gh issue edit "$NUMBER" --add-label "$LABELS"
+        
+  debugging: 
+    name: debugging
+    needs: check_pr_details
+    runs-on: ubuntu-latest
+    steps:
+      - name: echo outputs from previous job
+        run: |
+          echo "Here is the test pass output: ${{ needs.check_pr_details.outputs.ALL_TESTS_PASS }}"
+          echo "Here is the automerge web output: ${{ needs.check_pr_details.outputs.AUTOMERGE_WEB }}"
   
   notify_failure:
     name: If any test fails, notify the user through the brain-score email account (only needed for web submissions)

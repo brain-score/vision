@@ -6,7 +6,7 @@ name: Check if PR is automergeable
 # - tagging with "automerge" or "automerge-web" labels
 # This workflow checks if the PR that invoked the trigger is automergeable. 
 # A PR is automergeable iff it:
-# 1) is labeled "automerge" OR "automerge-web" (originates from web submission) 
+# 1) is labeled "automerge" OR "automerge-web" (originates from web submission) (checked in actions_helpers.py)
 # 2) only changes plugins (subdirs of /benchmarks, /data, /models, /metrics)
 # 3) passes all tests (Travis and Jenkins). 
 # If all 3 conditions are met, the "automerge-approved" label is applied to the PR
@@ -24,18 +24,38 @@ permissions: write-all
 
 jobs:
 
-  check_test_results:
-    name: Check if all tests have passed and PR meets automerge conditions
+  check_pr_details:
+    name: Check all details of the PR (if all tests have passed, PR meets automerge conditions, pr number, if label is 'automerge-web')
     runs-on: ubuntu-latest
     outputs:
-      ALL_TESTS_PASS: ${{ steps.gettestresults.outputs.TEST_RESULTS }}
+      ALL_TESTS_PASS: ${{ steps.get_test_results.outputs.TEST_RESULTS }}
+      PR_NUMBER: ${{ steps.get_pr_number.outputs.PR_NUMBER }}
+      AUTOMERGE_WEB: ${{ steps.check_automerge_web_label.AUTOMERGE_WEB }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Get PR number from workflow context
+        id: get_pr_number
+        run: |
+          echo "PR_NUMBER=$( python brainscore_vision/submission/actions_helpers.py get_pr_num )" >> $GITHUB_OUTPUT
+      - name: Check if pr has 'automerge-web' label
+        id: check_automerge_web_label
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LABELS_JSON=$(gh pr view ${{ steps.get_pr_number.outputs.PR_NUMBER }} --json labels)
+          echo "Labels: $LABELS_JSON"
+          if echo "$LABELS_JSON" | jq '.labels[] | select(.name == "automerge-web")'; then
+            echo "Found automerge-web label."
+            echo "AUTOMERGE_WEB=true" >> $GITHUB_OUTPUT
+          else
+            echo "automerge-web label not found."
+            echo "AUTOMERGE_WEB=false" >> $GITHUB_OUTPUT
+          fi
       - name: Get test results and ensure automergeable
-        id: gettestresults
+        id: get_test_results
         run: |
           echo "Checking test results for PR head $( python brainscore_vision/submission/actions_helpers.py get_pr_head )"          
           test_results=$( python brainscore_vision/submission/actions_helpers.py )
@@ -47,20 +67,28 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       issues: write
-    needs: check_test_results
-    if: needs.check_test_results.outputs.ALL_TESTS_PASS == 'True'
+    needs: check_pr_details
+    if: needs.check_pr_details.outputs.ALL_TESTS_PASS == 'True'
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Get PR number from workflow context
-        run: |
-          echo "PR_NUMBER=$( python brainscore_vision/submission/actions_helpers.py get_pr_num )" >> $GITHUB_ENV
       - name: Add automerge-approved label to PR
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
           GH_REPO: ${{ github.repository }}
-          NUMBER: ${{ env.PR_NUMBER }}
+          NUMBER: ${{ needs.check_pr_details.outputs.PR_NUMBER }}
           LABELS: automerge-approved
         run: gh issue edit "$NUMBER" --add-label "$LABELS"
+  
+  notify_failure:
+    name: If any test fails, notify the user through the brain-score email account (only needed for web submissions)
+    uses: ./.github/workflows/user_notification_system.yml
+    needs: check_pr_details
+    if: needs.check_pr_details.outputs.ALL_TESTS_PASS == 'Failure' && needs.check_pr_details.outputs.AUTOMERGE_WEB
+    with:
+      pr_number: ${{ needs.check_pr_details.outputs.PR_NUMBER }}
+      is_automerge_web: true
+      action_type: 'send_email'
+

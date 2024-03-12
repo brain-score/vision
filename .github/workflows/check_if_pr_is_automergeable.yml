@@ -31,7 +31,9 @@ jobs:
     name: Check all details of the PR (if all tests have passed, PR meets automerge conditions, pr number, if label is 'automerge-web')
     runs-on: ubuntu-latest
     outputs:
-      ALL_TESTS_PASS: ${{ steps.get_test_results.outputs.TEST_RESULTS }}
+      # for now testing failure, change back later
+      # ALL_TESTS_PASS: ${{ steps.get_test_results.outputs.TEST_RESULTS }}
+      ALL_TESTS_PASS: "Failure"
       PR_NUMBER: ${{ steps.get_pr_number.outputs.PR_NUMBER }}
       AUTOMERGE_WEB: ${{ steps.check_automerge_web_label.AUTOMERGE_WEB }}
     steps:

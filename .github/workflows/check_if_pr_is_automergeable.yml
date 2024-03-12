@@ -55,9 +55,11 @@ jobs:
           if echo "$LABELS_JSON" | jq '.labels[] | select(.name == "automerge-web")'; then
             echo "Found automerge-web label."
             echo "AUTOMERGE_WEB=true" >> $GITHUB_OUTPUT
+            echo "Set output for true"
           else
             echo "automerge-web label not found."
             echo "AUTOMERGE_WEB=false" >> $GITHUB_OUTPUT
+            echo "Set output for false"
           fi
       - name: Get test results and ensure automergeable
         id: get_test_results

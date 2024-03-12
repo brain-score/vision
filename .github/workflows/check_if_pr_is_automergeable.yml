@@ -35,7 +35,7 @@ jobs:
       # ALL_TESTS_PASS: ${{ steps.get_test_results.outputs.TEST_RESULTS }}
       ALL_TESTS_PASS: "Failure"
       PR_NUMBER: ${{ steps.get_pr_number.outputs.PR_NUMBER }}
-      AUTOMERGE_WEB: ${{ steps.check_automerge_web_label.AUTOMERGE_WEB }}
+      AUTOMERGE_WEB: ${{ steps.check_automerge_web_label.outputs.AUTOMERGE_WEB }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -55,11 +55,9 @@ jobs:
           if echo "$LABELS_JSON" | jq '.labels[] | select(.name == "automerge-web")'; then
             echo "Found automerge-web label."
             echo "AUTOMERGE_WEB='true'" >> $GITHUB_OUTPUT
-            echo "Set output for true"
           else
             echo "automerge-web label not found."
             echo "AUTOMERGE_WEB='false'" >> $GITHUB_OUTPUT
-            echo "Set output for false"
           fi
       - name: Get test results and ensure automergeable
         id: get_test_results
@@ -88,16 +86,6 @@ jobs:
           NUMBER: ${{ needs.check_pr_details.outputs.PR_NUMBER }}
           LABELS: automerge-approved
         run: gh issue edit "$NUMBER" --add-label "$LABELS"
-        
-  debugging: 
-    name: debugging
-    needs: check_pr_details
-    runs-on: ubuntu-latest
-    steps:
-      - name: echo outputs from previous job
-        run: |
-          echo "Here is the test pass output: ${{ needs.check_pr_details.outputs.ALL_TESTS_PASS }}"
-          echo "Here is the automerge web output: ${{ needs.check_pr_details.outputs.AUTOMERGE_WEB }}"
   
   notify_failure:
     name: If any test fails, notify the user through the brain-score email account (only needed for web submissions)

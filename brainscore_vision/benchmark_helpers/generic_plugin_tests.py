@@ -1,6 +1,8 @@
 from pathlib import Path
 from typing import List, Tuple
 
+import pytest
+
 from brainscore_core import Benchmark
 # the following import is needed to configure pytest
 # noinspection PyUnresolvedReferences
@@ -71,16 +73,17 @@ def test_calls_start_task_or_recording(identifier: str):
 
 
 class TestStartTask:
-    def test_starts_valid_task(identifier: str):
+    def test_starts_valid_task(self, identifier: str):
         benchmark = load_benchmark(identifier)
         probe_model = ProbeModel(stop_on=(ProbeModel.STOP.start_task, ProbeModel.STOP.start_recording))
         _run_with_stop(benchmark, probe_model)
         if not probe_model.stopped_on == ProbeModel.STOP.start_task:
             return pytest.skip("benchmark does not call start_task")
         # at this point we know that the start_task method was called
-        assert probe_model.task in attrs(BrainModel.Task)  # todo: direct attrs of Task
+        all_tasks = [attribute for attribute in dir(BrainModel.Task) if not attribute.startswith('_')]
+        assert probe_model.task in all_tasks
 
-    def test_task_valid_fitting_stimuli(identifier: str):
+    def test_task_valid_fitting_stimuli(self, identifier: str):
         benchmark = load_benchmark(identifier)
         probe_model = ProbeModel(stop_on=(ProbeModel.STOP.start_task, ProbeModel.STOP.start_recording))
         _run_with_stop(benchmark, probe_model)
@@ -93,9 +96,9 @@ class TestStartTask:
             assert probe_model.fitting_stimuli is None
 
         elif probe_model.task == BrainModel.Task.label:
-            if isinstance(probe_model.fitting_stimuli, Iterable):
+            if hasattr(probe_model.fitting_stimuli, '__iter__'):  # list of labels, not a string
                 assert all(isinstance(label, str) for label in probe_model.fitting_stimuli)
-            else:  # no list of labels --> has to be a specification of a bag of labels
+            else:  # no list of labels --> has to be a string specification of a bag of labels
                 assert probe_model.fitting_stimuli == 'imagenet'  # only possible choice at the moment
 
         elif probe_model.task == BrainModel.Task.probabilities:
@@ -111,7 +114,7 @@ class TestStartTask:
 
 
 class TestStartRecording:
-    def test_starts_valid_recording_target(identifier: str):
+    def test_starts_valid_recording_target(self, identifier: str):
         benchmark = load_benchmark(identifier)
         probe_model = ProbeModel(stop_on=(ProbeModel.STOP.start_task, ProbeModel.STOP.start_recording))
         _run_with_stop(benchmark, probe_model)
@@ -121,7 +124,7 @@ class TestStartRecording:
         assert probe_model.recording_target in attrs(
             BrainModel.RecordingTarget)  # todo: direct attrs of RecordingTarget
 
-    def test_starts_valid_recording_timebins(identifier: str):
+    def test_starts_valid_recording_timebins(self, identifier: str):
         benchmark = load_benchmark(identifier)
         probe_model = ProbeModel(stop_on=(ProbeModel.STOP.start_task, ProbeModel.STOP.start_recording))
         _run_with_stop(benchmark, probe_model)
@@ -148,10 +151,10 @@ def test_calls_model_look_at(identifier: str):
 
 
 class TestScore:
-    def test_valid_behavioral_score(identifier: str):
+    def test_valid_behavioral_score(self, identifier: str):
         ...
 
-    def test_valid_neural_score(identifier: str):
+    def test_valid_neural_score(self, identifier: str):
         ...
 
 

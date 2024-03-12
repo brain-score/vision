@@ -27,7 +27,7 @@ on:
         description: 'Determines the action to take, e.g., "extract_email" or "send_email".'
     outputs:
       extracted_email:
-        description: "The extracted email address."
+        description: 'The extracted email address.'
         value: ${{ jobs.extract_email.outputs.email }}
 
 permissions: write-all
@@ -94,7 +94,7 @@ jobs:
         if: inputs.is_automerge_web
         id: automerge_web
         run: |
-          BS_UID="$(echo env.PR_TITLE | sed -E 's/.*\(user:([^)]+)\).*/\1/')"
+          BS_UID="$(echo $PR_TITLE | sed -E 's/.*\(user:([^)]+)\).*/\1/')"
           EMAIL=$(python -c "from brainscore_core.submission.database import email_from_uid; from brainscore_core.submission.endpoints import UserManager; user_manager=UserManager(db_secret='${{ secrets.BSC_DATABASESECRET }}'); print(email_from_uid($BS_UID))")
           echo "::add-mask::EMAIL" # Mask the EMAIL
           echo "EMAIL=$EMAIL" >> $GITHUB_ENV

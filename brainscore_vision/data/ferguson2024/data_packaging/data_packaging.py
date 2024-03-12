@@ -1,5 +1,4 @@
-from brainio.packaging import package_data_assembly  # use this function to push to S3
-from brainio.stimuli import StimulusSet
+from brainio.packaging import package_data_assembly
 from pathlib import Path
 from shutil import copy
 from brainio.stimuli import StimulusSet
@@ -50,7 +49,7 @@ def create_stimulus_set_and_upload(name: str, experiment: str) -> None:
     stimuli.name = f'{name}_{experiment}'  # give the StimulusSet an identifier name
 
     # upload to S3
-    package_stimulus_set(catalog_name='brainio_brainscore', proto_stimulus_set=stimuli,
+    package_stimulus_set(catalog_name=None, proto_stimulus_set=stimuli,
                          stimulus_set_identifier=stimuli.name, bucket_name="brainio-brainscore")
 
 
@@ -60,6 +59,7 @@ def create_assembly_and_upload(name, experiment):
 
     # only look at testing data (no warmup or sanity data):
     all_subjects = all_subjects[all_subjects["trial_type"] == "normal"]
+    all_subjects = bool_to_int(all_subjects, ['correct', 'target_present'])  # cast bool to int for NetCDF
 
     # create an ID that is equal to the stimulus_set ID
     all_subjects['stimulus_id'] = all_subjects['stimulus'].apply(extract_and_concatenate)
@@ -83,9 +83,12 @@ def create_assembly_and_upload(name, experiment):
     assembly.name = f"{name}_{experiment}"
 
     # upload assembly to S3
-    package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
-                          stimulus_set_identifier=f"{name}_{experiment}", assembly_class_name="BehavioralAssembly",
-                          bucket_name="brainio-brainscore")
+    values = package_data_assembly(None, assembly, assembly_identifier=assembly.name,
+                                   stimulus_set_identifier=f"{name}_{experiment}",
+                                   assembly_class_name="BehavioralAssembly",
+                                   bucket_name="brainio-brainscore")
+
+    print(values)
 
 
 # helper function to take in a folder with the structure outlined in the above file docs, and move them
@@ -117,6 +120,16 @@ def extract_and_concatenate(url):
     block_part = parts[-3]
     file_name = parts[-1].replace(".png", "")
     return f"{block_part}_{file_name}"
+
+
+# Converts boolean values to integers in specified columns of a DataFrame.
+def bool_to_int(df, columns):
+    for column in columns:
+        if column in df.columns:
+            df[column] = df[column].map({'True': 1, 'False': 0, True: 1, False: 0}).fillna(df[column])
+        else:
+            print(f"Column '{column}' not found in DataFrame.")
+    return df
 
 
 # wrapper function to loop over all datasets

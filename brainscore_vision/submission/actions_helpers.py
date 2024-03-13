@@ -140,6 +140,12 @@ if __name__ == "__main__":
             print(pr_head)
         elif sys.argv[1] == "get_pr_num":
             print(get_pr_num_from_head(pr_head))
+        elif sys.arv[1] == "send_failure_email":
+            email = sys.argv[2]
+            pr_number = sys.argv[3]
+            mail_username = sys.argv[4]
+            mail_password = sys.argv[5]
+            send_failure_email(email, pr_number, mail_username, mail_password)
         sys.exit()
 
     # Check test results and ensure PR is automergeable

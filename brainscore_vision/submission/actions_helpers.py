@@ -78,12 +78,6 @@ def _return_last_result(results: list) -> Union[str, None]:
         last_result = None
     return last_result
 
-def get_check_runs_result(run_name: str, check_runs_json: dict) -> str:
-    check_runs = [{'end_time': run['completed_at'], 'result': run['conclusion']} 
-                  for run in check_runs_json['check_runs'] if run['name'] == run_name]
-    last_run_result = _return_last_result(check_runs)
-    return last_run_result
-
 def get_statuses_result(context: str, statuses_json: dict) -> str:
     statuses = [{'end_time': status['updated_at'], 'result': status['state']} 
                 for status in statuses_json if status['context'] == context]

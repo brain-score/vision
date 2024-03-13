@@ -96,16 +96,19 @@ class TestStartTask:
             assert probe_model.fitting_stimuli is None
 
         elif probe_model.task == BrainModel.Task.label:
-            if hasattr(probe_model.fitting_stimuli, '__iter__'):  # list of labels, not a string
-                assert all(isinstance(label, str) for label in probe_model.fitting_stimuli)
-            else:  # no list of labels --> has to be a string specification of a bag of labels
+            assert probe_model.fitting_stimuli is not None
+            if isinstance(probe_model.fitting_stimuli, str):  # string specification of a bag of labels
                 assert probe_model.fitting_stimuli == 'imagenet'  # only possible choice at the moment
+            else:  # not a string, has to be a list of labels
+                assert all(isinstance(label, str) for label in probe_model.fitting_stimuli), \
+                    "every list item should be a string"
+
 
         elif probe_model.task == BrainModel.Task.probabilities:
             assert probe_model.fitting_stimuli is not None
             assert 'stimulus_id' in probe_model.fitting_stimuli
             stimulus_paths = [probe_model.fitting_stimuli.get_stimulus(stimulus_id)
-                              for stimulus_id in probe_model.fitting_stimuli]
+                              for stimulus_id in probe_model.fitting_stimuli['stimulus_id']]
             assert all(Path(path).is_file() for path in stimulus_paths)
             assert 'image_label' in probe_model.fitting_stimuli
 
@@ -139,6 +142,7 @@ class TestStartRecording:
 
 
 def test_takesintoaccount_model_visual_degrees(identifier: str):
+    # make sure place_on_screen is called by adding a marker in that method
     ...
 
 

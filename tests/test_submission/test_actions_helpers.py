@@ -1,7 +1,7 @@
 import pytest
 from subprocess import call
 
-from brainscore_vision.submission.actions_helpers import BASE_URL, get_pr_num_from_head, get_data, get_check_runs_result, get_statuses_result, are_all_tests_passing, is_labeled_automerge, get_pr_head_from_github_event
+from brainscore_vision.submission.actions_helpers import BASE_URL, get_pr_num_from_head, get_data, get_statuses_result, are_all_tests_passing, is_labeled_automerge, get_pr_head_from_github_event
 
 PR_HEAD_SHA = '209e6c81d39179fd161a1bd3a5845682170abfd2'
 PR_BRANCH_NAME = 'web_submission_11/add_plugins'
@@ -47,11 +47,6 @@ def test_get_check_runs_data():
 def test_get_statuses_result():
     data = get_data(f"{BASE_URL}/statuses/{PR_HEAD_SHA}")
     assert len(data) == 9
-
-def test_get_check_runs_result():
-    data = get_data(f"{BASE_URL}/commits/{PR_HEAD_SHA}/check-runs")
-    travis_branch_result = get_check_runs_result('Travis CI - Branch', data)
-    assert travis_branch_result == 'success'
 
 def test_get_statuses_result():
     data = get_data(f"{BASE_URL}/statuses/{PR_HEAD_SHA}")

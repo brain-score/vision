@@ -13,9 +13,11 @@ import json
 import os
 import requests
 import sys
+import smtplib
 from typing import Union
+from email.mime.text import MIMEText
 
-BASE_URL = "https://api.github.com/repos/samwinebrake/brain-score"
+BASE_URL = "https://api.github.com/repos/brain-score/vision"
 
 
 def get_data(url: str) -> dict:
@@ -31,9 +33,9 @@ def get_pr_num_from_head(pr_head) -> int:
     event_type = os.environ["GITHUB_EVENT_NAME"]
 
     if event_type == "pull_request":
-        query = f"repo:samwinebrake/brain-score type:pr head:{pr_head}"
+        query = f"repo:brain-score/vision type:pr head:{pr_head}"
     else:
-        query = f"repo:samwinebrake/brain-score type:pr sha:{pr_head}"
+        query = f"repo:brain-score/vision type:pr sha:{pr_head}"
     url = f"https://api.github.com/search/issues?q={query}"
     pull_requests = get_data(url)
     assert pull_requests["total_count"] == 1, f'Expected one PR associated with this SHA but found none or more than one, cannot automerge'
@@ -108,6 +110,22 @@ def is_labeled_automerge(check_runs_json: dict) -> bool:
     pull_request_data = get_data(pull_requests[0][0]["url"])
     labeled_automerge = any(label['name'] in ('automerge', 'automerge-web') for label in pull_request_data['labels'])
     return labeled_automerge
+
+def send_failure_email(email: str, pr_number: str, mail_username: str, mail_password: str):
+    """ Send submitter an email if their web-submitted PR fails. """
+    body = "Your Brain-Score submission did not pass checks. " \
+           "Please review the test results and update the PR at " \
+           f"https://github.com/brain-score/vision/pull/{pr_number} " \
+           "or send in an updated submission via the website."
+    msg = MIMEText(body)
+    msg['Subject'] = "Brain-Score submission failed"
+    msg['From'] = "Brain-Score"
+    msg['To'] = email
+
+    # send email
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
+        smtp_server.login(mail_username, mail_password)
+        smtp_server.sendmail(mail_username, email, msg.as_string())
 
 
 if __name__ == "__main__":

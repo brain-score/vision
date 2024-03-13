@@ -132,7 +132,7 @@ jobs:
 
       - name: Send email notification
         run: |
-          python -c "from brainscore_vision.submission.actions_helpers import send_failure_email; send_failure_email(email='${{ needs.extract_email.outputs.EMAIL }}', pr_number='${{ inputs.pr_number }}', mail_username='${{ secrets.GMAIL_USERNAME }}', mail_password='${{ secrets.GMAIL_PASSWORD }}')"
+          python -c "from brainscore_vision.submission.actions_helpers import send_failure_email; send_failure_email(email='${{ needs.extract_email.outputs.email }}', pr_number='${{ inputs.pr_number }}', mail_username='${{ secrets.GMAIL_USERNAME }}', mail_password='${{ secrets.GMAIL_PASSWORD }}')"
 
       # - name: Send email notification
       #   uses: dawidd6/action-send-mail@v3

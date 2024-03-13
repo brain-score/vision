@@ -73,7 +73,7 @@ jobs:
         id: non_automerge_web
         run: |
           EMAIL=${{ steps.getemail.outputs.email }}
-          echo "::add-mask::EMAIL" # Mask the EMAIL
+          echo "::add-mask::$EMAIL" # Mask the EMAIL
           echo "EMAIL=$EMAIL" >> $GITHUB_ENV
 
       - name: Check if pr title provided
@@ -96,7 +96,7 @@ jobs:
         run: |
           BS_UID="$(echo $PR_TITLE | sed -E 's/.*\(user:([^)]+)\).*/\1/')"
           EMAIL=$(python -c "from brainscore_core.submission.database import email_from_uid; from brainscore_core.submission.endpoints import UserManager; user_manager=UserManager(db_secret='${{ secrets.BSC_DATABASESECRET }}'); print(email_from_uid($BS_UID))")
-          echo "::add-mask::EMAIL" # Mask the EMAIL
+          echo "::add-mask::$EMAIL" # Mask the EMAIL
           echo "EMAIL=$EMAIL" >> $GITHUB_ENV
 
       - name: Set job-level output for email

@@ -10,9 +10,7 @@ To that end, Brain-Score operationalizes experimental data into quantitative ben
 that any model candidate following the [`BrainModel`](brainscore_vision/model_interface.py) interface can be scored on.
 
 See the [Documentation](https://brain-score.readthedocs.io) for more details 
-and the [Tutorial](https://brain-score.readthedocs.io/en/latest/modules/model_tutorial.html) 
-and [Examples](https://github.com/brain-score/candidate_models/blob/master/examples/score-model.ipynb)
-for submitting a model to Brain-Score.
+and the [Tutorial](https://brain-score.readthedocs.io/en/latest/modules/model_tutorial.html) for submitting a model to Brain-Score.
 
 Brain-Score is made by and for the community. 
 To contribute, please [send in a pull request](https://github.com/brain-score/vision/pulls).
@@ -34,21 +32,22 @@ from brainscore_vision.benchmarks import public_benchmark_pool
 benchmark = public_benchmark_pool['dicarlo.MajajHong2015public.IT-pls']
 model = my_model()
 score = benchmark(model)
-# >  <xarray.Score (aggregation: 2)>
-# >  array([0.32641998, 0.0207475])
-# >  Coordinates:
-# >    * aggregation  (aggregation) <U6 'center' 'error'
+# >  <xarray.Score ()>
+# >  array(0.07637264)
 # >  Attributes:
-# >      raw:                   <xarray.Score (aggregation: 2)>\narray([0.4278365 ...
-# >      ceiling:               <xarray.Score (aggregation: 2)>\narray([0.7488407 ...
+# >  Attributes:
+# >      error:                 <xarray.Score ()>\narray(0.00548197)
+# >      raw:                   <xarray.Score ()>\narray(0.22545106)\nAttributes:\...
+# >      ceiling:               <xarray.DataArray ()>\narray(0.81579938)\nAttribut...
 # >      model_identifier:      my-model
 # >      benchmark_identifier:  dicarlo.MajajHong2015public.IT-pls
 ```
 
 Some steps may take minutes because data has to be downloaded during first-time use.
 
-For more details, see the [Documentation](https://brain-score.readthedocs.io) and 
-the [Examples](https://github.com/brain-score/vision/blob/master/examples).
+For more details, see the [Documentation](https://brain-score.readthedocs.io). 
+See these [Examples](https://github.com/brain-score/vision/blob/master/examples), [Tutorial](https://brain-score.readthedocs.io/en/latest/modules/model_tutorial.html) and [Web Tutorial](https://www.brain-score.org/tutorial/) for submitting a model to Brain-Score.
+These [previous examples](https://github.com/brain-score/candidate_models/blob/master/examples/score-model.ipynb) might be helpful but their usage has been deprecated after 2.0 update.
 
 
 ## Environment Variables

@@ -2,11 +2,13 @@ import pytest
 
 from brainscore_vision import load_benchmark, load_model
 
+
 @pytest.mark.private_access
 def test_ceiling():
     benchmark = load_benchmark('Hebart2023-match')
     ceiling = benchmark.ceiling
     assert ceiling == pytest.approx(0.6767, abs=0.0001)
+
 
 @pytest.mark.private_access
 def test_alexnet_consistency():

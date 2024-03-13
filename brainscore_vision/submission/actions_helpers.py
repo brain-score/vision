@@ -17,7 +17,7 @@ import smtplib
 from typing import Union
 from email.mime.text import MIMEText
 
-BASE_URL = "https://api.github.com/repos/brain-score/vision"
+BASE_URL = "https://api.github.com/repos/samwinebrake/brain-score"
 
 
 def get_data(url: str) -> dict:
@@ -33,9 +33,9 @@ def get_pr_num_from_head(pr_head) -> int:
     event_type = os.environ["GITHUB_EVENT_NAME"]
 
     if event_type == "pull_request":
-        query = f"repo:brain-score/vision type:pr head:{pr_head}"
+        query = f"repo:samwinebrake/brain-score type:pr head:{pr_head}"
     else:
-        query = f"repo:brain-score/vision type:pr sha:{pr_head}"
+        query = f"repo:samwinebrake/brain-score type:pr sha:{pr_head}"
     url = f"https://api.github.com/search/issues?q={query}"
     pull_requests = get_data(url)
     assert pull_requests["total_count"] == 1, f'Expected one PR associated with this SHA but found none or more than one, cannot automerge'

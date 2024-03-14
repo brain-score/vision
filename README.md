@@ -9,8 +9,12 @@ for the purpose of model testing, falsification, and comparison.
 To that end, Brain-Score operationalizes experimental data into quantitative benchmarks 
 that any model candidate following the [`BrainModel`](brainscore_vision/model_interface.py) interface can be scored on.
 
-See the [Documentation](https://brain-score.readthedocs.io) for more details 
-and the [Tutorial](https://brain-score.readthedocs.io/en/latest/modules/model_tutorial.html) for submitting a model to Brain-Score.
+Note that you can only access a limited set of public benchmarks when running locally. To score a model on all benchmarks, submit it via the [brain-score.org website](http://www.brain-score.org).
+
+See the [documentation](https://brain-score.readthedocs.io) for more details, e.g. for submitting a [model](https://brain-score.readthedocs.io/en/latest/modules/model_tutorial.html) or [benchmark](https://brain-score.readthedocs.io/en/latest/modules/benchmark_tutorial.html) to Brain-Score. For a step-by-step walkthrough on submitting models to the Brain-Score website, see these [web tutorials](https://www.brain-score.org/tutorial/).
+
+See these [code examples](https://github.com/brain-score/vision/blob/master/examples) on scoring models, retrieving data, using and defining benchmarks and metrics.
+These [previous examples](https://github.com/brain-score/candidate_models/blob/master/examples/score-model.ipynb) might be helpful, but their usage has been deprecated after the 2.0 update.
 
 Brain-Score is made by and for the community. 
 To contribute, please [send in a pull request](https://github.com/brain-score/vision/pulls).
@@ -19,12 +23,10 @@ To contribute, please [send in a pull request](https://github.com/brain-score/vi
 ## Local installation
 
 You will need Python = 3.7 and pip >= 18.1.
-Note that you can only access public benchmarks when running locally.
-To score a model on all benchmarks, submit it via the [brain-score.org website](http://www.brain-score.org).
 
 `pip install git+https://github.com/brain-score/vision`
 
-Score a model on a public benchmark:
+Test if the installation is successful by scoring a model on a public benchmark:
 
 ```python
 from brainscore_vision.benchmarks import public_benchmark_pool
@@ -32,6 +34,7 @@ from brainscore_vision.benchmarks import public_benchmark_pool
 benchmark = public_benchmark_pool['dicarlo.MajajHong2015public.IT-pls']
 model = my_model()
 score = benchmark(model)
+
 # >  <xarray.Score ()>
 # >  array(0.07637264)
 # >  Attributes:
@@ -44,11 +47,6 @@ score = benchmark(model)
 ```
 
 Some steps may take minutes because data has to be downloaded during first-time use.
-
-For more details, see the [Documentation](https://brain-score.readthedocs.io). 
-See these [Examples](https://github.com/brain-score/vision/blob/master/examples), [Tutorial](https://brain-score.readthedocs.io/en/latest/modules/model_tutorial.html) and [Web Tutorial](https://www.brain-score.org/tutorial/) for submitting a model to Brain-Score.
-These [previous examples](https://github.com/brain-score/candidate_models/blob/master/examples/score-model.ipynb) might be helpful but their usage has been deprecated after 2.0 update.
-
 
 ## Environment Variables
 

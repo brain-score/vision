@@ -1,6 +1,4 @@
-import pytest
 import numpy as np
-
 import pytest
 from brainscore_vision import load_dataset, load_stimulus_set
 from brainscore_vision.benchmark_helpers import check_standard_format

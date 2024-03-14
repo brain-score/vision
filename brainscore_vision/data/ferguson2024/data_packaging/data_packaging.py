@@ -49,8 +49,9 @@ def create_stimulus_set_and_upload(name: str, experiment: str) -> None:
     stimuli.name = f'{name}_{experiment}'  # give the StimulusSet an identifier name
 
     # upload to S3
-    package_stimulus_set(catalog_name=None, proto_stimulus_set=stimuli,
-                         stimulus_set_identifier=stimuli.name, bucket_name="brainio-brainscore")
+    init_data = package_stimulus_set(catalog_name=None, proto_stimulus_set=stimuli,
+                                     stimulus_set_identifier=stimuli.name, bucket_name="brainio-brainscore")
+    print(f"{experiment} stimulus_set\n{init_data}")
 
 
 # Packages the assemblies for the Ferguson2024 experiment. There are 14 in all.
@@ -83,12 +84,11 @@ def create_assembly_and_upload(name, experiment):
     assembly.name = f"{name}_{experiment}"
 
     # upload assembly to S3
-    values = package_data_assembly(None, assembly, assembly_identifier=assembly.name,
-                                   stimulus_set_identifier=f"{name}_{experiment}",
-                                   assembly_class_name="BehavioralAssembly",
-                                   bucket_name="brainio-brainscore")
-
-    print(values)
+    init_data = package_data_assembly(None, assembly, assembly_identifier=assembly.name,
+                                      stimulus_set_identifier=f"{name}_{experiment}",
+                                      assembly_class_name="BehavioralAssembly",
+                                      bucket_name="brainio-brainscore")
+    print(f"{experiment} assembly\n{init_data}")
 
 
 # helper function to take in a folder with the structure outlined in the above file docs, and move them
@@ -111,7 +111,6 @@ def combine_block_images(stimuli_directory: str) -> None:
             new_file_name = f"{subfolder}_{stimulus_id}.png"
             new_file_path = final_directory_path / new_file_name
             copy(filepath, new_file_path)
-            print(f"Copied {filepath} to {new_file_path}")
 
 
 # helper function to get the stimulus_set stimulus_id from the assembly stimulus:

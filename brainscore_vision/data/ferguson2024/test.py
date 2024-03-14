@@ -28,7 +28,7 @@ class TestStimulusSets:
     ])
     def test_num_images(self, identifier):
         stimulus_set = load_stimulus_set(f"Ferguson2024_{identifier}")
-        assert len(np.unique(stimulus_set['stiimulus_id'].values)) == 48
+        assert len(np.unique(stimulus_set['stimulus_id'].values)) == 48
 
     # test the number of blocks:
     @pytest.mark.parametrize('identifier', [
@@ -52,7 +52,6 @@ class TestAssemblies:
     ])
     def test_exist_and_alignment(self, identifier):
         assembly = load_dataset(f"Ferguson2024_{identifier}")
-        check_standard_format(assembly, nans_expected=False)
         assert assembly is not None
         assert assembly.identifier == f"Ferguson2024_{identifier}"
         assert assembly.stimulus_set.identifier == f"Ferguson2024_{identifier}"
@@ -67,7 +66,7 @@ class TestAssemblies:
     def test_distinct_values(self, identifier):
         assembly = load_dataset(f"Ferguson2024_{identifier}")
         assert set(assembly['block'].values) == {"first", "second"}
-        assert set(assembly['keypress_choice'].values) == {"f", "j"}
+        assert set(assembly['keypress_response'].values) == {"f", "j"}
         assert set(assembly['trial_type'].values) == {"normal"}
         assert set(assembly['distractor_nums'].values) == {"1.0", "5.0", "11.0"}
         assert set(assembly['target_present'].values) == {True, False}

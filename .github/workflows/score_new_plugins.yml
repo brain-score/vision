@@ -123,7 +123,9 @@ jobs:
           
       - name: Add email, domain, competition, and model_type to PLUGIN_INFO
         run: |
-          echo "PLUGIN_INFO=$(echo $PLUGIN_INFO | jq -c '. + {domain: "vision", competition: "None", model_type: "Brain_Model", email: "'${USER_EMAIL}'"}')" >> $GITHUB_ENV
+          PLUGIN_INFO=$(echo "$PLUGIN_INFO" | sed "s/^'//;s/'$//" | jq -c '. + {domain: "vision", competition: "None", model_type: "Brain_Model", email: "$USER_EMAIL"}')
+          echo "PLUGIN_INFO=${PLUGIN_INFO}" >> $GITHUB_ENV
+       # echo "PLUGIN_INFO=$(echo $PLUGIN_INFO | jq -c '. + {domain: "vision", competition: "None", model_type: "Brain_Model", email: "'${USER_EMAIL}'"}')" >> $GITHUB_ENV
 
       - name: Write PLUGIN_INFO to a json file
         run: |

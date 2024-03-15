@@ -29,20 +29,10 @@ def test_get_pr_head_status_event_master_only(monkeypatch, mocker):
     mocker.patch('brainscore_vision.submission.actions_helpers._load_event_file', return_value=mock_status_json)
     assert not get_pr_head_from_github_event()
 
-def test_get_pr_head_check_run_event(monkeypatch, mocker):
-    monkeypatch.setenv('GITHUB_EVENT_NAME', 'check_run')
-    mock_check_run_json = {'check_run': {'head_sha': PR_HEAD_SHA}}
-    mocker.patch('brainscore_vision.submission.actions_helpers._load_event_file', return_value=mock_check_run_json)
-    assert get_pr_head_from_github_event() == PR_HEAD_SHA
-
 def test_get_pr_head_pull_request_event(monkeypatch):
     monkeypatch.setenv('GITHUB_EVENT_NAME', 'pull_request')
     monkeypatch.setenv('GITHUB_HEAD_REF', PR_BRANCH_NAME)
     assert get_pr_head_from_github_event() == PR_BRANCH_NAME
-
-def test_get_check_runs_data():
-    data = get_data(f"{BASE_URL}/commits/{PR_HEAD_SHA}/check-runs")
-    assert data['total_count'] == 6
 
 def test_get_statuses_result():
     data = get_data(f"{BASE_URL}/statuses/{PR_HEAD_SHA}")
@@ -70,20 +60,8 @@ def test_one_test_failing():
     assert success == False
  
 def test_is_labeled_automerge(mocker):
-    dummy_check_runs_json = {"check_runs": [{"pull_requests": [{"url": "https://api.github.com/repos/brain-score/vision/pulls/453"}]}]}
-    dummy_pull_request_data  = {"labels": [{"name": "automerge-web"}]}
-    mocker.patch('brainscore_vision.submission.actions_helpers.get_data', return_value=dummy_pull_request_data) 
-    assert is_labeled_automerge(dummy_check_runs_json) == True
+    assert is_labeled_automerge(442) == True
 
 def test_is_not_labeled_automerge(mocker):
-    dummy_check_runs_json = {"check_runs": [{"pull_requests": [{"url": "https://api.github.com/repos/brain-score/vision/pulls/453"}]}]}
-    dummy_pull_request_data  = {'labels': []}
-    mocker.patch('brainscore_vision.submission.actions_helpers.get_data', return_value=dummy_pull_request_data) 
-    assert is_labeled_automerge(dummy_check_runs_json) == False
+    assert is_labeled_automerge(433) == False
 
-def test_sha_associated_with_more_than_one_pr():
-    dummy_check_runs_json = {"check_runs": [{"pull_requests": [{"url": "https://api.github.com/repos/brain-score/vision/pulls/453"}, {"url": "https://api.github.com/repos/brain-score/vision/pulls/452"}]}]}
-    with pytest.raises(AssertionError):
-        is_labeled_automerge(dummy_check_runs_json)
-
-        

@@ -105,9 +105,11 @@ jobs:
           echo "EMAIL=$EMAIL" >> $GITHUB_OUTPUT
           
       - name: Write email to file
+        if: inputs.action_type == 'send_email'
         run: echo "$EMAIL" > email.txt
       
       - name: Upload email as artifact
+        if: inputs.action_type == 'send_email'
         uses: actions/upload-artifact@v2
         with:
           name: email-artifact

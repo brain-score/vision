@@ -119,37 +119,17 @@ jobs:
     needs: extract_email
     if: inputs.action_type == 'send_email'
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
       - name: Download email artifact
         uses: actions/download-artifact@v2
         with:
           name: email-artifact
-
-      # - name: Send email notification
-      #   run: |
-      #     python -c brainscore_vision/submission/actions_helpers.py get_pr_num 
-        # $(python -c "from brainscore_core.submission.database import email_from_uid; from brainscore_core.submission.endpoints import UserManager; user_manager=UserManager(db_secret='${{ secrets.BSC_DATABASESECRET }}'); print(email_from_uid($BS_UID))")
-
-
+          
       - name: Send email notification
         run: |
           python brainscore_vision/submission/actions_helpers.py send_failure_email $(cat email.txt) ${{ inputs.pr_number }} ${{ secrets.GMAIL_USERNAME }} ${{ secrets.GMAIL_PASSWORD }}
-
-      # - name: Send email notification
-      #   uses: dawidd6/action-send-mail@v3
-      #   with:
-      #     # SMTP server configuration
-      #     server_address: smtp.gmail.com
-      #     server_port: 465
-      #     # credentials
-      #     username: ${{ secrets.GMAIL_USERNAME }}
-      #     password: ${{ secrets.GMAIL_PASSWORD }}
-      #     # email details
-      #     subject: "Brain-Score submission failed"
-      #     body: > 
-      #       Your Brain-Score submission did not pass checks. 
-      #       Please review the test results and update the PR at 
-      #       https://github.com/brain-score/vision/pull/${{ inputs.pr_number }} 
-      #       or send in an updated submission via the website. 
-      #     to: $(cat email-artifact/email.txt)
-      #     from: "Brain-Score"
 

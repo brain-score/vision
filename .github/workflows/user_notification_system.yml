@@ -99,10 +99,11 @@ jobs:
           echo "::add-mask::$EMAIL" # Mask the EMAIL
           echo "EMAIL=$EMAIL" >> $GITHUB_ENV
 
-      - name: Set job-level output for email
+      - name: Encrypt and set job-level output for email
         id: set_email_output
         run: |
-          echo "EMAIL=$EMAIL" >> $GITHUB_OUTPUT
+          ENCRYPTED_EMAIL=$(echo -n $EMAIL | openssl enc -aes-256-cbc -a -salt -pass pass:${{ secrets.EMAIL_ENCRYPTION_KEY }})
+          echo "EMAIL=$ENCRYPTED_EMAIL" >> $GITHUB_OUTPUT
           
       - name: Write email to file
         if: inputs.action_type == 'send_email'

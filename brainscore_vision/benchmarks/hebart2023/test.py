@@ -13,7 +13,7 @@ def test_ceiling():
 @pytest.mark.private_access
 def test_alexnet_consistency():
     benchmark = load_benchmark('Hebart2023-match')
-    benchmark.set_number_of_triplets(n=1000)
+    benchmark.set_number_of_triplets(n=1000)  # reduce number for faster running test
     model = load_model('alexnet')
     score = benchmark(model)
     assert score == pytest.approx(0.38, abs=0.02)

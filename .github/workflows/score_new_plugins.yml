@@ -100,7 +100,7 @@ jobs:
     secrets: inherit
   
   update_plugin_info:
-    name: Updates PLUGIN_INFO with various fields (domain, compertition, model_type, email)
+    name: Updates PLUGIN_INFO with various fields (domain, competition, model_type, email)
     runs-on: ubuntu-latest
     needs: extract_email
     steps:
@@ -109,10 +109,10 @@ jobs:
         with:
           name: plugin-info
           path: artifact-directory
-    
+            
       - name: Set PLUGIN_INFO as an environment variable
         run: |
-          PLUGIN_INFO="$(jq -c '.' artifact-directory/plugin-info.json)"
+          PLUGIN_INFO=$(cat artifact-directory/plugin-info.json)
           echo "PLUGIN_INFO=${PLUGIN_INFO}" >> $GITHUB_ENV
 
       - name: Decrypt and mask user email

@@ -39,7 +39,7 @@ class Hebart2023Match(BenchmarkBase):
         self._assembly = self._assembly[:n]
 
     def __call__(self, candidate: BrainModel):
-        # Create the new StimulusSet
+        # Create the new StimulusSet with triplets (all 3 consecutive stimuli form one trial following model_interface)
         self.triplets = np.array([
             self._assembly.coords["image_1"].values,
             self._assembly.coords["image_2"].values,

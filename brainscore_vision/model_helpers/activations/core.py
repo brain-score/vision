@@ -74,7 +74,8 @@ class ActivationsExtractorHelper:
         for hook in self._stimulus_set_hooks.copy().values():  # copy to avoid stale handles
             stimulus_set = hook(stimulus_set)
         stimuli_paths = [str(stimulus_set.get_stimulus(stimulus_id)) for stimulus_id in stimulus_set['stimulus_id']]
-        activations = self.from_paths(stimuli_paths=stimuli_paths, layers=layers, stimuli_identifier=stimuli_identifier)
+        activations = self.from_paths(stimuli_paths=stimuli_paths, layers=layers, stimuli_identifier=stimuli_identifier,
+                                      require_variance=require_variance)
         activations = attach_stimulus_set_meta(activations,
                                                stimulus_set,
                                                number_of_trials=self._microsaccade_helper.number_of_trials,

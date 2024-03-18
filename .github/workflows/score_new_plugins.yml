@@ -142,12 +142,17 @@ jobs:
           echo "::add-mask::$DECRYPTED_EMAIL"
           echo "USER_EMAIL=${DECRYPTED_EMAIL}" >> $GITHUB_ENV
           
+      # - name: Update PLUGIN_INFO
+      #   run: |
+      #     PLUGIN_JSON=$(echo "$PLUGIN_INFO" | jq .)
+      #     PLUGIN_JSON=$(echo "$PLUGIN_JSON" | jq '. + {domain: "vision", competition: "None", model_type: "Brain_Model"}')
+      #     PLUGIN_JSON=$(echo "$PLUGIN_JSON" | jq --arg email "$USER_EMAIL" '. + {email: $email}')
+      #     echo "PLUGIN_INFO=${PLUGIN_JSON}" >> $GITHUB_ENV
       - name: Update PLUGIN_INFO
         run: |
-          PLUGIN_JSON=$(echo "$PLUGIN_INFO" | jq .)
-          PLUGIN_JSON=$(echo "$PLUGIN_JSON" | jq '. + {domain: "vision", competition: "None", model_type: "Brain_Model"}')
-          PLUGIN_JSON=$(echo "$PLUGIN_JSON" | jq --arg email "$USER_EMAIL" '. + {email: $email}')
-          echo "PLUGIN_INFO=${PLUGIN_JSON}" >> $GITHUB_ENV
+          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO tr -d "'"  | jq -c '. + {domain: "vision", competition: "None", model_type: "Brain_Model"}')" >> $GITHUB_ENV
+          echo "This is plugin info now: ${PLUGIN_INFO}.
+          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO | jq -c '. + {email: /"$USER_EMAIL/"} >> $GITHUB_ENV
       
       # - name: Add email, domain, competition, and model_type to PLUGIN_INFO
       #   run: |

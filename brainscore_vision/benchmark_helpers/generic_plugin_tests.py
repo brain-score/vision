@@ -1,7 +1,10 @@
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 import pytest
+
+from brainio.assemblies import BehavioralAssembly, NeuroidAssembly
+from brainio.stimuli import StimulusSet
 
 from brainscore_core import Benchmark
 # the following import is needed to configure pytest
@@ -19,7 +22,6 @@ class ProbeModel(BrainModel):
         start_task = 'start_task'
         start_recording = 'start_recording'
         look_at = 'look_at'
-        visual_degrees = 'visual_degrees'
 
     # stop_on: Union[ProbeModel.STOP, List[ProbeModel.STOP]]
     def __init__(self, stop_on, visual_degrees: int = 8):
@@ -30,6 +32,8 @@ class ProbeModel(BrainModel):
         self.fitting_stimuli = None
         self.recording_target = None
         self.time_bins = None
+        self.visual_degrees_called = False
+        self.look_at_stimuli = None
 
         self._visual_degrees = visual_degrees
 
@@ -47,10 +51,15 @@ class ProbeModel(BrainModel):
             self.stopped_on = ProbeModel.STOP.start_recording
             raise StopIteration("planned stop")
 
-    def visual_degrees(self) -> int:
-        if self._stop_on == ProbeModel.STOP.visual_degrees or ProbeModel.STOP.visual_degrees in self._stop_on:
-            self.stopped_on = ProbeModel.STOP.visual_degrees
+    def look_at(self, stimuli: Union[StimulusSet, List[str]], number_of_trials=1) -> Union[
+        BehavioralAssembly, NeuroidAssembly]:
+        self.look_at_stimuli = stimuli
+        if self._stop_on == ProbeModel.STOP.look_at or ProbeModel.STOP.look_at in self._stop_on:
+            self.stopped_on = ProbeModel.STOP.look_at
             raise StopIteration("planned stop")
+
+    def visual_degrees(self) -> int:
+        self.visual_degrees_called = True
         return self._visual_degrees
 
 
@@ -133,26 +142,33 @@ class TestStartRecording:
         probe_model = ProbeModel(stop_on=(ProbeModel.STOP.start_task, ProbeModel.STOP.start_recording))
         _run_with_stop(benchmark, probe_model)
         if not probe_model.stopped_on == ProbeModel.STOP.start_recording:
-            return "skip"  # todo
+            return pytest.skip("benchmark does not call start_recording")
         # at this point we know that the start_recording method was called
+        assert probe_model.time_bins is not None
         for time_bin_num, (time_bin_start, time_bin_stop) in enumerate(probe_model.time_bins):
             assert isinstance(time_bin_start, int), f"time_bin {time_bin_num} start is not an integer: {time_bin_start}"
             assert isinstance(time_bin_stop, int), f"time_bin {time_bin_num} stop is not an integer: {time_bin_stop}"
+            assert time_bin_start >= 0, f"time_bin {time_bin_num} start is < 0: {time_bin_start}"
             assert time_bin_start < time_bin_stop, (f"time_bin {time_bin_num} start is not before stop: "
                                                     f"({time_bin_start}, {time_bin_stop})")
-
-
-def test_takesintoaccount_model_visual_degrees(identifier: str):
-    # make sure place_on_screen is called by adding a marker in that method
-    ...
 
 
 def test_calls_model_look_at(identifier: str):
     benchmark = load_benchmark(identifier)
     probe_model = ProbeModel(stop_on=ProbeModel.STOP.look_at)
+    _run_with_stop(benchmark, probe_model)  # will raise on its own if model.look_at isn't called
+
+
+def test_takesintoaccount_model_visual_degrees(identifier: str):
+    # make sure place_on_screen is called by adding a marker in that method
+    benchmark = load_benchmark(identifier)
+    probe_model = ProbeModel(stop_on=ProbeModel.STOP.look_at)
     _run_with_stop(benchmark, probe_model)
-    if not probe_model.stopped_on == ProbeModel.STOP.start_recording:
-        return pytest.skip("benchmark does not call start_recording")
+    assert (hasattr(probe_model.look_at_stimuli, 'placed_on_screen')
+            and probe_model.look_at_stimuli.placed_on_screen is True), \
+        ("Benchmark should place stimuli on screen using the `place_on_screen` method "
+         "to take the visual degrees of the experiment and the (computational) subject into account")
+    assert probe_model.visual_degrees_called, "Benchmark should use models' visual_degrees to place stimuli on screen"
 
 
 class TestScore:

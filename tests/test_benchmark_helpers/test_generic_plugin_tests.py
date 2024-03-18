@@ -9,6 +9,7 @@ from brainscore_vision import BrainModel, StimulusSet
 # Note that we cannot import `from brainscore_vision.model_helpers.generic_plugin_tests import test_*` directly
 # since this would expose the `test_*` methods during pytest test collection
 from brainscore_vision.benchmark_helpers import generic_plugin_tests
+from brainscore_vision.benchmark_helpers.screen import place_on_screen
 
 
 class TestIdentifier:
@@ -198,7 +199,7 @@ class TestTaskValidFittingStimuli:
         load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')
         stimulus_set = StimulusSet({'stimulus_id': [1, 2, 3], 'image_label': [1, 2, 3]})
         load_mock.return_value = self.BenchmarkDummy(
-            task=BrainModel.Task.probabilities, fitting_stimuli=self._add_stimulus_set_paths(stimulus_set))
+            task=BrainModel.Task.probabilities, fitting_stimuli=_add_stimulus_set_paths(stimulus_set))
         generic_plugin_tests.TestStartTask().test_task_valid_fitting_stimuli('dummy')
 
     def test_probabilities_fitting_stimuli_without_stimulus_id_fails(self, mocker):
@@ -213,15 +214,16 @@ class TestTaskValidFittingStimuli:
         load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')
         stimulus_set = StimulusSet({'stimulus_id': [1, 2, 3]})
         load_mock.return_value = self.BenchmarkDummy(
-            task=BrainModel.Task.probabilities, fitting_stimuli=self._add_stimulus_set_paths(stimulus_set))
+            task=BrainModel.Task.probabilities, fitting_stimuli=_add_stimulus_set_paths(stimulus_set))
         with pytest.raises(AssertionError):
             generic_plugin_tests.TestStartTask().test_task_valid_fitting_stimuli('dummy')
 
-    def _add_stimulus_set_paths(self, stimulus_set: StimulusSet) -> StimulusSet:
-        paths = [Path(__file__).parent / 'rgb1.jpg', Path(__file__).parent / 'rgb1-10to12.png']
-        stimulus_set.stimulus_paths = {stimulus_id: paths[num % len(paths)]
-                                       for num, stimulus_id in enumerate(stimulus_set['stimulus_id'])}
-        return stimulus_set
+
+def _add_stimulus_set_paths(stimulus_set: StimulusSet) -> StimulusSet:
+    paths = [Path(__file__).parent / 'rgb1.jpg', Path(__file__).parent / 'rgb1-10to12.png']
+    stimulus_set.stimulus_paths = {stimulus_id: paths[num % len(paths)]
+                                   for num, stimulus_id in enumerate(stimulus_set['stimulus_id'])}
+    return stimulus_set
 
 
 class TestTestStartRecordingValidTarget:
@@ -277,27 +279,83 @@ class TestTestStartRecordingValidTimebins:
         [(100, 150), (100, 120), (100, 101)],
         [(100, 500)],
     ])
-    def test_valid_target(self, time_bins, mocker):
+    def test_valid_timebins(self, time_bins, mocker):
         load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')
         load_mock.return_value = self.BenchmarkDummy(time_bins=time_bins)
-        generic_plugin_tests.TestStartRecording().test_starts_valid_recording_target('dummy')
+        generic_plugin_tests.TestStartRecording().test_starts_valid_recording_timebins('dummy')
 
     @pytest.mark.parametrize('time_bins', [
         [(70, 70)],
         [(80, 70)],
         [(-10, 0)],
     ])
-    def test_invalid_target_fails(self, time_bins, mocker):
+    def test_invalid_timebins_fails(self, time_bins, mocker):
         load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')
         load_mock.return_value = self.BenchmarkDummy(time_bins=time_bins)
         with pytest.raises(AssertionError):
-            generic_plugin_tests.TestStartRecording().test_starts_valid_recording_target('dummy')
+            generic_plugin_tests.TestStartRecording().test_starts_valid_recording_timebins('dummy')
 
-    def test_None_target_fails(self, mocker):
+    def test_None_timebins_fails(self, mocker):
         load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')
         load_mock.return_value = self.BenchmarkDummy(time_bins=None)
         with pytest.raises(AssertionError):
-            generic_plugin_tests.TestStartRecording().test_starts_valid_recording_target('dummy')
+            generic_plugin_tests.TestStartRecording().test_starts_valid_recording_timebins('dummy')
+
+
+class TestCallsModelLookAt:
+    class BenchmarkDummy(Benchmark):
+        def __init__(self, call_look_at: bool):
+            self.call_look_at = call_look_at
+
+        def __call__(self, candidate: BrainModel):
+            stimulus_set = StimulusSet({'stimulus_id': [1, 2, 3], 'image_label': [1, 2, 3]})
+            if self.call_look_at:
+                candidate.look_at(stimulus_set)
+
+    def test_proper_call(self, mocker):
+        load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')
+        load_mock.return_value = self.BenchmarkDummy(call_look_at=True)
+        generic_plugin_tests.test_calls_model_look_at('dummy')
+
+    def test_not_calling_fails(self, mocker):
+        load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')
+        load_mock.return_value = self.BenchmarkDummy(call_look_at=False)
+        with pytest.raises(AssertionError):
+            generic_plugin_tests.test_calls_model_look_at('dummy')
+
+
+class TestTakesIntoAccountModelVisualDegrees:
+    class BenchmarkDummy(Benchmark):
+        def __init__(self, do_place_on_screen: bool, use_candidate_visual_degrees: bool):
+            self.do_place_on_screen = do_place_on_screen
+            self.use_candidate_visual_degrees = use_candidate_visual_degrees
+
+        def __call__(self, candidate: BrainModel):
+            stimulus_set = StimulusSet({'stimulus_id': [1, 2, 3], 'image_label': [1, 2, 3]})
+            stimulus_set.identifier = 'dummy_stimulusset'
+            stimulus_set = _add_stimulus_set_paths(stimulus_set)
+            target_degrees = 3 if not self.use_candidate_visual_degrees else candidate.visual_degrees()
+            if self.do_place_on_screen:
+                stimulus_set = place_on_screen(stimulus_set=stimulus_set, source_visual_degrees=4,
+                                               target_visual_degrees=target_degrees)
+            candidate.look_at(stimulus_set)
+
+    def test_properly_uses_place_on_screen(self, mocker):
+        load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')
+        load_mock.return_value = self.BenchmarkDummy(do_place_on_screen=True, use_candidate_visual_degrees=True)
+        generic_plugin_tests.test_takesintoaccount_model_visual_degrees('dummy')
+
+    def test_not_using_place_on_screen_fails(self, mocker):
+        load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')
+        load_mock.return_value = self.BenchmarkDummy(do_place_on_screen=False, use_candidate_visual_degrees=True)
+        with pytest.raises(AssertionError):
+            generic_plugin_tests.test_takesintoaccount_model_visual_degrees('dummy')
+
+    def test_not_using_visual_degrees_fails(self, mocker):
+        load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')
+        load_mock.return_value = self.BenchmarkDummy(do_place_on_screen=True, use_candidate_visual_degrees=False)
+        with pytest.raises(AssertionError):
+            generic_plugin_tests.test_takesintoaccount_model_visual_degrees('dummy')
 
 
 @pytest.mark.slow

@@ -19,6 +19,11 @@ _logger = logging.getLogger(__name__)
 
 
 def place_on_screen(stimulus_set: StimulusSet, target_visual_degrees: int, source_visual_degrees: int = None):
+    """
+    :param stimulus_set: The stimulus set to place on the screen
+    :param target_visual_degrees: The visual degrees of the subject under study (e.g. a computational model)
+    :param source_visual_degrees: The visual degrees of the stimuli as they were presented to primate subjects
+    """
     _logger.debug(f"Converting {stimulus_set.identifier} to {target_visual_degrees} degrees")
 
     assert source_visual_degrees or 'degrees' in stimulus_set, \
@@ -62,6 +67,7 @@ def _place_on_screen(stimuli_identifier: str, stimulus_set: StimulusSet,
     converted_stimuli.identifier = converted_stimuli_id
     converted_stimuli['degrees'] = target_visual_degrees
     converted_stimuli.original_paths = copy.deepcopy(stimulus_set.stimulus_paths)
+    converted_stimuli.placed_on_screen = True
     return converted_stimuli
 
 

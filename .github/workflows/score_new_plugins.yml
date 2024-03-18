@@ -92,7 +92,7 @@ jobs:
           if [[ "$has_automerge_web" == "true" ]]; then
             BS_UID="$(echo '${{ github.event.pull_request.title }}' | sed -E 's/.*\(user:([^)]+)\).*/\1/')"
             BS_PUBLIC="$(echo '${{ github.event.pull_request.title }}' | sed -E 's/.*\(public:([^)]+)\).*/\1/')"
-            PLUGIN_INFO=$(echo '${{ steps.getpluginfo.outputs.PLUGIN_INFO }}' | tr -d "'" | jq -c ". + {user_id: \"$BS_UID\", public: \"$BS_PUBLIC\"}")
+            PLUGIN_INFO=$(echo ${{ steps.getpluginfo.outputs.PLUGIN_INFO }} | tr -d "'" | jq -c ". + {user_id: \"$BS_UID\", public: \"$BS_PUBLIC\"}")
             echo "PLUGIN_INFO=${PLUGIN_INFO}" >> $GITHUB_ENV
           else
             echo "PLUGIN_INFO=${{ steps.getpluginfo.outputs.PLUGIN_INFO }}" >> $GITHUB_ENV

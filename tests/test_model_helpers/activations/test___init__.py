@@ -1,9 +1,10 @@
 import functools
-import numpy as np
 import os
+from pathlib import Path
+
+import numpy as np
 import pytest
 import xarray as xr
-from pathlib import Path
 
 from brainio.stimuli import StimulusSet
 from brainscore_vision.model_helpers.activations import KerasWrapper, PytorchWrapper, TensorflowSlimWrapper
@@ -331,9 +332,9 @@ def test_exact_microsaccades(number_of_trials):
                       rtol=1e-05,
                       atol=1e-08).all()
     assert np.isclose(activations['microsaccade_shift_y_degrees'].values,
-                       exact_microsaccades['y_degrees'][number_of_trials],
-                       rtol=1e-05,
-                       atol=1e-08).all()
+                      exact_microsaccades['y_degrees'][number_of_trials],
+                      rtol=1e-05,
+                      atol=1e-08).all()
     assert np.isclose(activations['microsaccade_shift_x_pixels'].values,
                       exact_microsaccades['x_pixels'][number_of_trials],
                       rtol=1e-05,
@@ -351,7 +352,7 @@ def test_exact_microsaccades(number_of_trials):
     (tfslim_vgg16, ['vgg_16/pool5']),
 ])
 def test_mixed_layer_logits(model_ctr, internal_layers):
-    stimuli_paths = [os.path.join(os.path.dirname(__file__), 'rgb.jpg')]
+    stimuli_paths = [Path(__file__).parent / 'rgb.jpg']
 
     activations_extractor = model_ctr()
     layers = internal_layers + ['logits']
@@ -374,15 +375,18 @@ def test_infer_identifier(model_ctr, expected_identifier):
 
 def test_transformer_meta():
     model = pytorch_transformer_substitute()
-    activations = model(stimuli=[os.path.join(os.path.dirname(__file__), 'rgb.jpg')], layers=['relu1'])
+    activations = model(stimuli=[Path(__file__).parent / 'rgb.jpg'], layers=['relu1'])
     assert hasattr(activations, 'channel')
     assert hasattr(activations, 'embedding')
     assert len(set(activations['neuroid_id'].values)) == len(activations['neuroid'])
 
 
+# This test shouldn't really run slow, but travis keeps killing runs otherwise.
+# See e.g. https://app.travis-ci.com/github/brain-score/vision/jobs/619302581
+@pytest.mark.travis_slow
 def test_convolution_meta():
     model = pytorch_custom()
-    activations = model(stimuli=[os.path.join(os.path.dirname(__file__), 'rgb.jpg')], layers=['conv1'])
+    activations = model(stimuli=[Path(__file__).parent / 'rgb.jpg'], layers=['conv1'])
     assert hasattr(activations, 'channel')
     assert hasattr(activations, 'channel_x')
     assert hasattr(activations, 'channel_y')
@@ -391,7 +395,7 @@ def test_convolution_meta():
 
 def test_conv_and_fc():
     model = pytorch_custom()
-    activations = model(stimuli=[os.path.join(os.path.dirname(__file__), 'rgb.jpg')], layers=['conv1', 'linear'])
+    activations = model(stimuli=[Path(__file__).parent / 'rgb.jpg'], layers=['conv1', 'linear'])
     assert set(activations['layer'].values) == {'conv1', 'linear'}
 
 
@@ -414,7 +418,7 @@ def test_merge_large_layers():
 
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     model = PytorchWrapper(model=LargeModel(), preprocessing=preprocessing)
-    activations = model(stimuli=[os.path.join(os.path.dirname(__file__), 'rgb.jpg')] * 64, layers=['conv', 'relu'])
+    activations = model(stimuli=[Path(__file__).parent / 'rgb.jpg'] * 64, layers=['conv', 'relu'])
     assert len(activations['neuroid']) == 394272
     assert len(set(activations['neuroid_id'].values)) == len(activations['neuroid'])
     assert set(activations['layer'].values) == {'conv', 'relu'}

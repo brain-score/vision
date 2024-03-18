@@ -40,7 +40,7 @@ class Hebart2023Match(BenchmarkBase):
         self._assembly = self._assembly[:n]
 
     def __call__(self, candidate: BrainModel):
-        # Create StimulusSet with triplets (all 3 consecutive stimuli form one trial following model_interface)
+        # Create stimuli with triplets (all 3 consecutive stimuli form one trial following model_interface)
         self.triplets = np.array([
             self._assembly.coords["image_1"].values,
             self._assembly.coords["image_2"].values,
@@ -51,6 +51,7 @@ class Hebart2023Match(BenchmarkBase):
         stimuli = pd.concat(stimuli_data)
         stimuli.columns = self._stimulus_set.columns
 
+        # package into StimulusSet again
         stimuli = StimulusSet(stimuli)
         stimuli.identifier = 'Hebart2023'
         stimuli.stimulus_paths = self._stimulus_set.stimulus_paths

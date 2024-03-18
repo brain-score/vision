@@ -36,13 +36,13 @@ Others:
 DATASETS = ['rgb', 'contours', 'phosphenes-12', 'phosphenes-16', 'phosphenes-21', 'phosphenes-27', 'phosphenes-35',
             'phosphenes-46', 'phosphenes-59', 'phosphenes-77', 'phosphenes-100', 'segments-12', 'segments-16',
             'segments-21', 'segments-27', 'segments-35', 'segments-46', 'segments-59', 'segments-77', 'segments-100',
-            'phosphenes-composite', 'segments-composite']
+            'phosphenes-all', 'segments-all']
 PERCENTAGE_ELEMENTS = {'rgb': 'RGB', 'contours': 'contours', 'phosphenes-12': 12, 'phosphenes-16': 16,
                        'phosphenes-21': 21, 'phosphenes-27': 27, 'phosphenes-35': 35, 'phosphenes-46': 46,
                        'phosphenes-59': 59, 'phosphenes-77': 77, 'phosphenes-100': 100, 'segments-12': 12,
                        'segments-16': 16, 'segments-21': 21, 'segments-27': 27, 'segments-35': 35, 'segments-46': 46,
-                       'segments-59': 59, 'segments-77': 77, 'segments-100': 100, 'phosphenes-composite': 'all',
-                       'segments-composite': 'all'}
+                       'segments-59': 59, 'segments-77': 77, 'segments-100': 100, 'phosphenes-all': 'all',
+                       'segments-all': 'all'}
 
 
 def collect_scialom_stimulus_set(dataset, percentage_elements, stimuli_directory, metadata_filepath, which_composite):
@@ -94,9 +94,9 @@ if __name__ == '__main__':
     stimuli_directory = Path(r'../dataset')
     metadata_filepath = Path('../MetaData_Stimuli_experiment.csv')
     for dataset in DATASETS:
-        if dataset == 'phosphenes-composite':
+        if dataset == 'phosphenes-all':
             which_composite = 'phosphenes'
-        elif dataset == 'segments-composite':
+        elif dataset == 'segments-all':
             which_composite = 'segments'
         else:
             which_composite = None

@@ -10,11 +10,18 @@ from . import time_aligner as time_aligners
 
 
 class TemporalInferencer(Inferencer):
-    """Inferencer for video stimuli. The model should take video stimuli as input and generate the activations over time.
+    """Inferencer for video stimuli. The model takes video stimuli as input and generate the activations over time.
     Then, the activations will be aligned to video time by the time_aligner specified in the constructor. The aligned
-    activations will be again unified to have the same fps as the maximum fps across layers. Finally, the activations
+    activations will be again unified to the fps specified within the constructor (self.fps). Finally, the activations
     will be packaged into a NeuroidAssembly.
     
+    NOTE: for all the time_alignment method, the inference of time bins will only be done with the longest video, but ignore all other input videos.
+
+    Example:
+        temporal_inferencer = TemporalInferenver(..., fps=10)
+        model_assembly = temporal_inferencer(video_paths[1000ms], layers)
+        model_assembly.time_bins -> [(0, 100), (100, 200), ..., (900, 1000)]  # 1000ms, 10fps
+
     Parameters
     ----------
     fps: float
@@ -49,6 +56,7 @@ class TemporalInferencer(Inferencer):
     """
     def __init__(
             self,
+            *args,
             fps : float,
             num_frames : Union[int, Tuple[int, int]] = None,
             duration : Union[float, Tuple[float, float]] = None,
@@ -57,14 +65,13 @@ class TemporalInferencer(Inferencer):
             img_duration : float = 1000.,
             batch_size : int = 16,
             batch_grouper : Callable[[Video], Hashable] = lambda video: (video.duration, video.fps),  # not including video.frame_size because most preprocessors will change the frame size to be the same
-            *args,
             **kwargs,
     ):
         super().__init__(*args, stimulus_type=Video, batch_size=batch_size, 
                          batch_grouper=batch_grouper, **kwargs)
         self.fps = fps
-        self.num_frames = self._make_ran(num_frames, type="num_frames")
-        self.duration = self._make_ran(duration, type="duration")
+        self.num_frames = self._make_range(num_frames, type="num_frames")
+        self.duration = self._make_range(duration, type="duration")
         assert hasattr(time_aligners, time_alignment), f"Unknown time alignment method: {time_alignment}"
         self.time_aligner = getattr(time_aligners, time_alignment)
 
@@ -73,7 +80,7 @@ class TemporalInferencer(Inferencer):
         self.img_duration = img_duration
         self.convert_to_video = convert_img_to_video
 
-    def _make_ran(self, num, type="num_frames"):
+    def _make_range(self, num, type="num_frames"):
         if num is None:
             return (1 if type=='num_frames' else 0, np.inf)
         if isinstance(num, (tuple, list)):
@@ -102,6 +109,7 @@ class TemporalInferencer(Inferencer):
                 video = Video.from_path(path)
             videos.append(video)
         videos = [video.set_fps(self.fps) for video in videos]
+        self.longest_stimulus = videos[np.argmax(np.array([stimulus.duration for stimulus in videos]))]
         self._check_videos(videos)
         return videos
     
@@ -110,8 +118,7 @@ class TemporalInferencer(Inferencer):
         channels = self._map_dims(layer_spec)
         assembly = self._simple_package(activations, ["stimulus_path"] + channels)
         # align to the longest stimulus
-        longest_stimulus = stimuli[np.argmax(np.array([stimulus.duration for stimulus in stimuli]))]
-        assembly = self.time_aligner(assembly, longest_stimulus)
+        assembly = self.time_aligner(assembly, self.longest_stimulus)
         if "channel_temporal" in channels and not ignore_time: 
             channels.remove("channel_temporal")
         assembly = self._stack_neuroid(assembly, channels)

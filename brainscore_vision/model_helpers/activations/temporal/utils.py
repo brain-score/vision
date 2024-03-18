@@ -14,6 +14,7 @@ def assembly_align_to_fps(output_assembly, fps, mode="portion"):
     duration = output_assembly["time_bin_end"].values[-1]
     target_time_bin_starts = np.arange(0, duration-EPS, interval)
     target_time_bin_ends = target_time_bin_starts + interval
+    target_time_bin_ends[-1] = duration  # use this to avoid numerical error
     target_time_bins = [(start, end) for start, end in zip(target_time_bin_starts, target_time_bin_ends)]
     return assembly_time_align(output_assembly, target_time_bins, mode=mode)
 

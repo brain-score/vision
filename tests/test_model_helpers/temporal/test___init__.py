@@ -72,10 +72,6 @@ def test_video():
     video5 = video1.set_size((120, 100))
     assert tuple(video5.to_numpy().shape[1:3]) == (100, 120)
 
-    video1 = video1.set_fps(60)
-    # assert Video.concat(video2, video1).fps == Video.concat(video1, video2).fps
-    # assert Video.concat(video2, video1).fps == video1.fps
-
     video6 = video1.set_fps(30)
     assert (video6.to_numpy()[1] == video1.to_numpy()[2]).all()
     assert (video6.to_numpy()[2] == video1.to_numpy()[4]).all()

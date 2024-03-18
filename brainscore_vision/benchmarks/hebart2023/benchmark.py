@@ -35,7 +35,8 @@ class Hebart2023Match(BenchmarkBase):
             bibtex=BIBTEX
         )
 
-    def set_number_of_triplets(self, n):
+    def set_number_of_triplets(self, n: int):
+        """ Allows to reduce the number of triplets to reduce the compute requirements for debugging """
         self._assembly = self._assembly[:n]
 
     def __call__(self, candidate: BrainModel):

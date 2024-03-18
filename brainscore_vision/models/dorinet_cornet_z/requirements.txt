@@ -1,0 +1,5 @@
+numpy
+xarray==0.12
+torch
+tensorflow==1.15.0
+sample-model-submission @ git+https://github.com/brain-score/sample-model-submission

@@ -17,11 +17,12 @@ BIBTEX = """@article{10.7554/eLife.82580,
           volume = 12,
           year = 2023
           }"""
+VISUAL_DEGREES = 8
 
 
 class Hebart2023Match(BenchmarkBase):
     def __init__(self, similarity_measure='dot'):
-        self._visual_degrees = 8
+        self._visual_degrees = VISUAL_DEGREES
         self._number_of_trials = 1
         self._assembly = load_dataset('Hebart2023')
         self._stimulus_set = load_stimulus_set('Hebart2023')

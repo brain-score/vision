@@ -207,9 +207,7 @@ class BrainModel:
             or a list of image file paths
         :param number_of_trials: The number of repeated trials of the stimuli that the model should average over.
             E.g. 10 or 35. Non-stochastic models can likely ignore this parameter.
-        :param require_variance: Allows all models access to different activations to the same stimuli, currently
-            implemented using microsaccades. For more information, see the class
-            :cls:`~brainscore_vision.model_helpers.activations.core.MicrosaccadeHelper`.
+        :param require_variance: Whether to require models to return different activations for the same stimuli or not. This is typically true in biological measurements due to e.g. micro-saccades and noise. Ideally this would always be the same in the models, but for compute reasons this flag allows specifying the need more directly.
         :return: task behaviors or recordings as instructed
         """
         raise NotImplementedError()

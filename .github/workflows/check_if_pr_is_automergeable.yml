@@ -2,7 +2,7 @@ name: Check if PR is automergeable
 
 
 # Triggered on all PRs either by
-# - completion of CI checks (status or check_run events), OR
+# - completion of CI checks (status events), OR
 # - tagging with "automerge" or "automerge-web" labels
 # This workflow checks if the PR that invoked the trigger is automergeable. 
 # A PR is automergeable iff it:
@@ -16,8 +16,6 @@ name: Check if PR is automergeable
 on:
   pull_request:
     types: [labeled]
-  check_run:
-    types: [completed]
   status:
 
 permissions: write-all

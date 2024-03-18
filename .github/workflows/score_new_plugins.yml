@@ -148,11 +148,22 @@ jobs:
       #     PLUGIN_JSON=$(echo "$PLUGIN_JSON" | jq '. + {domain: "vision", competition: "None", model_type: "Brain_Model"}')
       #     PLUGIN_JSON=$(echo "$PLUGIN_JSON" | jq --arg email "$USER_EMAIL" '. + {email: $email}')
       #     echo "PLUGIN_INFO=${PLUGIN_JSON}" >> $GITHUB_ENV
+      # - name: Update PLUGIN_INFO
+      #   run: |
+      #     echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO tr -d "'"  | jq -c '. + {domain: "vision", competition: "None", model_type: "Brain_Model"}')" >> $GITHUB_ENV
+      #     echo "This is plugin info now: ${PLUGIN_INFO}.
+      #     echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO | jq -c '. + {email: /"$USER_EMAIL/"} >> $GITHUB_ENV
+
       - name: Update PLUGIN_INFO
         run: |
-          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO tr -d "'"  | jq -c '. + {domain: "vision", competition: "None", model_type: "Brain_Model"}')" >> $GITHUB_ENV
-          echo "This is plugin info now: ${PLUGIN_INFO}.
-          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO | jq -c '. + {email: /"$USER_EMAIL/"} >> $GITHUB_ENV
+          # Correctly adding 'domain', 'competition', and 'model_type' fields
+          echo "PLUGIN_INFO=$(echo \"$PLUGIN_INFO\" | jq -c '. + {domain: \"vision\", competition: \"None\", model_type: \"Brain_Model\"}')" >> $GITHUB_ENV
+          
+          # Correctly updating the 'PLUGIN_INFO' with 'email' field
+          echo "PLUGIN_INFO=$(echo \"$PLUGIN_INFO\" | jq -c --arg email \"$USER_EMAIL\" '. + {email: $email}')" >> $GITHUB_ENV
+          
+          # For debugging, to check the updated PLUGIN_INFO
+          echo "This is plugin info now: $PLUGIN_INFO"
       
       # - name: Add email, domain, competition, and model_type to PLUGIN_INFO
       #   run: |

@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 from brainio.assemblies import BehavioralAssembly
-
+from result_caching import store
 
 # assembly: 
 # - stimulus_id = COH_DIRECTION  (0 - RIGHT, 90 - UP, 180- LEFT, 270 DOWN)
@@ -15,7 +15,7 @@ from brainio.assemblies import BehavioralAssembly
 data_dir = '/home/ytang/workspace/tmp/data-FEF/data'
 video_dir = '/home/ytang/workspace/data/FEF/videos'
 
-
+@store()
 def load_dataset(identifier="Ding2012", filter_directions=[0, 180], num_samples=100):
 
     record = {}
@@ -79,6 +79,7 @@ def load_dataset(identifier="Ding2012", filter_directions=[0, 180], num_samples=
     return assembly
 
 
+@store()
 def load_stimulus_set(identifier, filter_directions=[0, 180], num_samples=100):
     # add stimulus_set
     if identifier == "Ding2012.train_stimuli":

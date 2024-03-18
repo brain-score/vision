@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 from pytest import approx
 
+import brainscore_vision
 from brainio.assemblies import BehavioralAssembly
 from brainio.stimuli import StimulusSet
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
@@ -79,6 +80,14 @@ def mock_stimulus_set():
     stimuli.identifier = 'TestLabelBehavior.rgb_1_2'
     return stimuli
 
+def mock_triplet():
+    stimuli = StimulusSet({'stimulus_id': ['1', '2', '3'], 'filename': ['rgb1', 'rgb2', 'rgb3']})
+    stimuli.stimulus_paths = {'1': os.path.join(os.path.dirname(__file__), 'rgb1.jpg'),
+                              '2': os.path.join(os.path.dirname(__file__), 'rgb2.jpg'),
+                              '3': os.path.join(os.path.dirname(__file__), 'rgb3.jpg')}
+    stimuli.identifier = 'TestLabelBehavior.rgb_1_2_3'
+    return stimuli
+
 
 class TestLogitsBehavior:
     """
@@ -125,3 +134,60 @@ class TestProbabilitiesMapping:
                                              probabilities.sel(stimulus_id='rgb2', choice='label2').values)
         assert probabilities.sel(stimulus_id='rgb1', choice='label1') + \
                probabilities.sel(stimulus_id='rgb1', choice='label2') == approx(1)
+
+
+class TestOddOneOut:
+    def test_import(self):
+        from brainscore_vision.model_helpers.brain_transformation.behavior import OddOneOut
+
+    def test_dot(self):
+        from brainscore_vision.model_helpers.brain_transformation.behavior import OddOneOut
+    
+        # Set up the task
+        activations_model = pytorch_custom()
+        brain_model = ModelCommitment(
+            identifier=activations_model.identifier, 
+            activations_model=activations_model, 
+            layers=["relu2"], 
+            behavioral_readout_layer='relu2')
+
+        brain_model = OddOneOut(identifier='pytorch-custom', 
+                                activations_model=activations_model,
+                                layer=["relu2"])
+
+        # Test similarity measure functionality
+        assert brain_model.similarity_measure == 'dot'
+
+        # Test the task and output
+        stimuli = mock_triplet()
+        brain_model.start_task(BrainModel.Task.odd_one_out)
+        choice = brain_model.look_at(stimuli)
+        assert isinstance(choice, BehavioralAssembly)
+        assert len(choice.values) == 1
+
+    def test_cosine(self):
+        from brainscore_vision.model_helpers.brain_transformation.behavior import OddOneOut
+
+        # Set up the task
+        activations_model = pytorch_custom()
+        brain_model = ModelCommitment(
+            identifier=activations_model.identifier, 
+            activations_model=activations_model, 
+            layers=["relu2"], 
+            behavioral_readout_layer='relu2')
+        
+        brain_model = OddOneOut(identifier='pytorch-custom',
+                                activations_model=activations_model,
+                                layer=["relu2"])
+        
+        # Test similarity measure functionality
+        brain_model.set_similarity_measure('cosine') 
+        assert brain_model.similarity_measure == 'cosine'
+        
+        # Test the task and output
+        stimuli = mock_triplet()
+        brain_model.start_task(BrainModel.Task.odd_one_out)
+        choice = brain_model.look_at(stimuli)
+        assert isinstance(choice, BehavioralAssembly)
+        assert len(choice.values) == 1
+        

@@ -83,7 +83,7 @@ jobs:
             PLUGIN_INFO=$(echo ${{ steps.getpluginfo.outputs.PLUGIN_INFO }} | tr -d "'" | jq -c ". + {user_id: \"$BS_UID\", public: \"$BS_PUBLIC\"}")
             echo "PLUGIN_INFO=${PLUGIN_INFO}" >> $GITHUB_ENV
           else
-            echo "PLUGIN_INFO=${{ steps.getpluginfo.outputs.PLUGIN_INFO }}" >> $GITHUB_ENV
+            echo "PLUGIN_INFO=$(echo {{ steps.getpluginfo.outputs.PLUGIN_INFO }} | tr -d "'")" >> $GITHUB_ENV
           fi
 
       - name: Write PLUGIN_INFO to a json file

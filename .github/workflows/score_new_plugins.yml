@@ -121,9 +121,16 @@ jobs:
           echo "::add-mask::$DECRYPTED_EMAIL"
           echo "USER_EMAIL=${DECRYPTED_EMAIL}" >> $GITHUB_ENV
           
-      - name: Add email, domain, competition, and model_type to PLUGIN_INFO
+      - name: Update PLUGIN_INFO
         run: |
-          echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO tr -d "'"  | jq -c ". + {domain: \"vision\", competition: \"None\", model_type: \"Brain_Model\", email: \"$USER_EMAIL\"}")" >> $GITHUB_ENV
+          PLUGIN_JSON=$(echo "$PLUGIN_INFO" | jq .)
+          PLUGIN_JSON=$(echo "$PLUGIN_JSON" | jq '. + {domain: "vision", competition: "None", model_type: "Brain_Model"}')
+          PLUGIN_JSON=$(echo "$PLUGIN_JSON" | jq --arg email "$USER_EMAIL" '. + {email: $email}')
+          echo "PLUGIN_INFO=${PLUGIN_JSON}" >> $GITHUB_ENV
+      
+      # - name: Add email, domain, competition, and model_type to PLUGIN_INFO
+      #   run: |
+      #     echo "PLUGIN_INFO=$(<<<$PLUGIN_INFO tr -d "'"  | jq -c ". + {domain: \"vision\", competition: \"None\", model_type: \"Brain_Model\", email: \"$USER_EMAIL\"}")" >> $GITHUB_ENV
 
       - name: Write PLUGIN_INFO to a json file
         run: |

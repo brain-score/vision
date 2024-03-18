@@ -124,8 +124,9 @@ class TestStartRecording:
         if not probe_model.stopped_on == ProbeModel.STOP.start_recording:
             return pytest.skip("benchmark does not call start_recording")
         # at this point we know that the start_recording method was called
-        assert probe_model.recording_target in attrs(
-            BrainModel.RecordingTarget)  # todo: direct attrs of RecordingTarget
+        all_recording_targets = [attribute for attribute in dir(BrainModel.RecordingTarget)
+                                 if not attribute.startswith('_')]
+        assert probe_model.recording_target in all_recording_targets
 
     def test_starts_valid_recording_timebins(self, identifier: str):
         benchmark = load_benchmark(identifier)

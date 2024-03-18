@@ -224,6 +224,82 @@ class TestTaskValidFittingStimuli:
         return stimulus_set
 
 
+class TestTestStartRecordingValidTarget:
+    class BenchmarkDummy(Benchmark):
+        def __init__(self, recording_target):
+            self.recording_target = recording_target
+
+        def __call__(self, candidate: BrainModel) -> Score:
+            candidate.start_recording(self.recording_target, time_bins=None)
+
+    @pytest.mark.parametrize('recording_target', [
+        BrainModel.RecordingTarget.V1,
+        BrainModel.RecordingTarget.V2,
+        BrainModel.RecordingTarget.V4,
+        BrainModel.RecordingTarget.IT,
+    ])
+    def test_valid_target(self, recording_target, mocker):
+        load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')
+        load_mock.return_value = self.BenchmarkDummy(recording_target=recording_target)
+        generic_plugin_tests.TestStartRecording().test_starts_valid_recording_target('dummy')
+
+    def test_None_target_fails(self, mocker):
+        load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')
+        load_mock.return_value = self.BenchmarkDummy(recording_target=None)
+        with pytest.raises(AssertionError):
+            generic_plugin_tests.TestStartRecording().test_starts_valid_recording_target('dummy')
+
+    def test_invalid_string_target_fails(self, mocker):
+        load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')
+        load_mock.return_value = self.BenchmarkDummy(recording_target='V0')
+        with pytest.raises(AssertionError):
+            generic_plugin_tests.TestStartRecording().test_starts_valid_recording_target('dummy')
+
+    def test_int_target_fails(self, mocker):
+        load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')
+        load_mock.return_value = self.BenchmarkDummy(recording_target=1)
+        with pytest.raises(AssertionError):
+            generic_plugin_tests.TestStartRecording().test_starts_valid_recording_target('dummy')
+
+
+class TestTestStartRecordingValidTimebins:
+    class BenchmarkDummy(Benchmark):
+        def __init__(self, time_bins):
+            self.time_bins = time_bins
+
+        def __call__(self, candidate: BrainModel) -> Score:
+            candidate.start_recording(BrainModel.RecordingTarget.IT, time_bins=self.time_bins)
+
+    @pytest.mark.parametrize('time_bins', [
+        [(70, 170)],
+        [(10, 20), (20, 30), (30, 40), (40, 50), (50, 60), (60, 70)],
+        [(50, 70), (60, 80), (70, 90)],
+        [(100, 150), (100, 120), (100, 101)],
+        [(100, 500)],
+    ])
+    def test_valid_target(self, time_bins, mocker):
+        load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')
+        load_mock.return_value = self.BenchmarkDummy(time_bins=time_bins)
+        generic_plugin_tests.TestStartRecording().test_starts_valid_recording_target('dummy')
+
+    @pytest.mark.parametrize('time_bins', [
+        [(70, 70)],
+        [(80, 70)],
+        [(-10, 0)],
+    ])
+    def test_invalid_target_fails(self, time_bins, mocker):
+        load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')
+        load_mock.return_value = self.BenchmarkDummy(time_bins=time_bins)
+        with pytest.raises(AssertionError):
+            generic_plugin_tests.TestStartRecording().test_starts_valid_recording_target('dummy')
+
+    def test_None_target_fails(self, mocker):
+        load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')
+        load_mock.return_value = self.BenchmarkDummy(time_bins=None)
+        with pytest.raises(AssertionError):
+            generic_plugin_tests.TestStartRecording().test_starts_valid_recording_target('dummy')
+
+
 @pytest.mark.slow
 @pytest.mark.private_access
 def test_existing_benchmark_plugin():

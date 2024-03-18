@@ -45,7 +45,8 @@ class ActivationsExtractorHelper:
         :param number_of_trials: An integer that determines how many repetitions of the same model performs.
         :param require_variance: A bool that asks models to output different responses to the same stimuli (i.e.,
             allows stochastic responses to identical stimuli, even in otherwise deterministic base models). 
-            We here implement this using microsaccades. For more, see ...
+            We here implement this using microsaccades. For more, see
+            :cls:`~brainscore_vision.model_helpers.activations.core.MicrosaccadeHelper`.
 
         """
         if require_variance:

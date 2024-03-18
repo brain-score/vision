@@ -44,13 +44,16 @@ If your code depends on additional requirements, it is good practice to addition
 or :code:`setup.py` file specifying the dependencies.
 
 Before executing the packaging methods to actually upload to S3, please check in with us
-(msch@mit.edu, mferg@mit.edu, jjpr@mit.edu) so that we can give you access. With the credentials, you can then
+(msch@mit.edu, mferg@mit.edu) so that we can give you access. With the credentials, you can then
 configure the awscli (:code:`pip install awscli`, :code:`aws configure` using region :code:`us-east-1`,
 output format :code:`json`) to make the packaging methods upload successfully.
 
 **StimulusSet**:
 The StimulusSet contains the stimuli that were used in the experiment as well as any kind of metadata for the stimuli.
-Here is a slim example of creating and uploading a StimulusSet:
+Below is a slim example of creating and uploading a StimulusSet. The :code:`package_stimulus_set` method returns the
+AWS metadata needed in the :code:`data/__init__.py` file (such as :code:`sha1` and the :code:`version_id`) and stores it
+(in this case) inside the , such as the :code:`init_data_ss`
+variable.
 
 .. code-block:: python
 
@@ -77,7 +80,8 @@ Here is a slim example of creating and uploading a StimulusSet:
 
     assert len(stimuli) == 1600  # make sure the StimulusSet is what you would expect
 
-    package_stimulus_set(stimuli, stimulus_set_identifier=stimuli.name)  # upload to S3
+    init_data_ss = package_stimulus_set(catalog_name=None, proto_stimulus_set=stimuli,
+                                 stimulus_set_identifier=stimuli.name, bucket_name="brainio-brainscore")  # upload to S3
 
 
 **DataAssembly**:
@@ -129,18 +133,28 @@ Here is an example of a BehavioralAssembly:
            == len(set(assembly['distractor_object'].values)) == 2
 
     # upload to S3
-    package_data_assembly(assembly, assembly_identifier=assembly.name,
-                          assembly_class='BehavioralAssembly',
-                          stimulus_set_identifier=stimuli.name)  # link to the StimulusSet
+    init_data_assembly = package_data_assembly(None, assembly, assembly_identifier=assembly.name,
+                                  stimulus_set_identifier=f"{name}_{experiment}",
+                                  assembly_class_name="BehavioralAssembly",
+                                  bucket_name="brainio-brainscore")
 
 In our experience, it is generally a good idea to include as much metadata as possible (on both StimulusSet and
 Assembly). This will increase the utility of the data and make it a more valuable long-term contribution.
+Please note that, like in :code:`package_stimulus_set`, The :code:`package_data_assembly` method returns the
+AWS metadata needed in the :code:`data/__init__.py` file (such as :code:`sha1` and the :code:`version_id`) and stores it
+(in this case) inside the , such as the :code:`init_data_assembly`
+variable.
 
+You can also put both of these packaging methods inside of one Python file, called :code:`data_packaging.py`. This file
+would then package and upload both the stimulus_set and assembly.
 
-**Unit Tests**:
+**Unit Tests (test.py)**:
 We ask that packaged stimuli and assemblies are tested so that their validity can be confirmed for a long time, even as
 details in the system might change. For instance, we want to avoid accidental overwrite of a packaged experiment,
 and the unit tests guard against that.
+
+When creating your benchmark, we require you to include a :code:`test.py` file. For what this  file should contain, see
+:code:`below`.
 
 |UnitTestSupport|
 
@@ -176,6 +190,48 @@ assembly:
         assert len(assembly.stimulus_set) == 123  # make sure number of stimuli in stimulus_set lines up with assembly
         # etc
 
+
+
+**Adding your data to Brain-Score**:
+You will also need an :code:`__init__.py` file to go along with your submission. The purpose of this file is to register the
+benchmark inside the Brain-Score ecosystem. This involves adding both the stimuli and the data to the :code:`data_registry`, as
+seen below for an actual example, in this case for one of the :code:`Geirhos2021` benchmarks:
+
+.. code-block:: python
+
+    # assembly
+    data_registry['Geirhos2021_colour'] = lambda: load_assembly_from_s3(
+        identifier='brendel.Geirhos2021_colour',
+        version_id="RDjCFAFt_J5mMwFBN9Ifo0OyNPKlToqf",
+        sha1="258862d82467614e45cc1e488a5ac909eb6e122d",
+        bucket="brainio-brainscore",
+        cls=BehavioralAssembly,
+        stimulus_set_loader=lambda: load_stimulus_set('Geirhos2021_colour'),
+    )
+
+    # stimulus set
+    stimulus_set_registry['Geirhos2021_colour'] = lambda: load_stimulus_set_from_s3(
+        identifier='brendel.Geirhos2021_colour',
+        bucket="brainio-brainscore",
+        csv_sha1="9c97c155fd6039a95978be89eb604c6894c5fa16",
+        zip_sha1="d166f1d3dc3d00c4f51a489e6fcf96dbbe778d2c",
+        csv_version_id="1ZaFYwHPBkDOrgdrwGHYqMfJJBCWei21",
+        zip_version_id="X62ivk_UuHgh7Sd7VwDxgnB8tWPK06gt")
+
+
+**Data Packaging Summary**:
+Part 1 of creating a benchmark involves packaging the stimuli and data, adding a :code:`test.py` file, and adding these stimuli
+and data to the :code:`data_registry`. The summary of what to submit is seen below with an example structure of an example
+submission structure:
+
+.. code-block:: python
+
+    /MyBenchmark2024_stimuli_and_data
+        /MyBenchmark2024
+            /data
+                data_packaging.py
+                test.py
+                __init__.py
 
 2. Create the benchmark
 =======================
@@ -257,7 +313,9 @@ Here is an example of a behavioral benchmark that uses an already defined metric
             return score
 
 
-We also need to register the benchmark in the benchmark registry in order to make it accessible by its identifier:
+We also need to register the benchmark in the benchmark registry in order to make it accessible by its identifier.
+This is done by creating a blank :code:`__init__.py` file inside the benchmark directory, and adding a line similiar to
+the one shown below:
 
 .. code-block:: python
 
@@ -297,6 +355,23 @@ and test that running them on the benchmark will reproduce the same score.
 
     actual_score = score(model_identifier='your-favorite-model', benchmark_identifier='mybenchmark')
     assert actual_score == expected
+
+**Benchmark Summary**:
+To summarize, Part 2 of creating a benchmark involves making the actual benchmark package. This is done by adding the
+:code:`benchmark.py` file, the :code:`test.py` file, and registering the benchmark via the :code:`__init__.py` file.
+
+The summary of what to submit is seen below with an example structure of an example
+submission structure:
+
+.. code-block:: python
+
+    /MyBenchmark2024_stimuli_and_data
+        /MyBenchmark2024
+            /benchmarks
+                benchmark.py
+                test.py
+                __init__.py
+
 
 
 3. Submit the benchmark and iterate to finalize

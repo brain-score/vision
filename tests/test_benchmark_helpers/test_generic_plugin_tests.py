@@ -1,7 +1,7 @@
-from brainscore_vision import load_metric
 from collections import namedtuple
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 import brainscore_vision
@@ -359,34 +359,67 @@ class TestTakesIntoAccountModelVisualDegrees:
             generic_plugin_tests.test_takesintoaccount_model_visual_degrees('dummy')
 
 
-class TestValidBehavioralScore:
+class TestValidScore:
     class BenchmarkDummy(Benchmark):
-        def __init__(self, task: BrainModel.Task, fitting_stimuli):
-            self.task = task
-            self.fitting_stimuli = fitting_stimuli
+        def __init__(self, score: Score):
+            self.score = score
 
         def __call__(self, candidate: BrainModel):
-            candidate.start_task(self.task, fitting_stimuli=self.fitting_stimuli)
-            stimulus_set = StimulusSet({'stimulus_id': [1, 2, 3], 'image_label': [1, 2, 3]})
-            predictions = candidate.look_at(stimulus_set)
-            metric = load_metric('accuracy')
-            score = metric(predictions.values, stimulus_set['image_label'].values)
-            return score
+            return self.score
 
-    @pytest.mark.parametrize('task, fitting_stimuli', [
-        (BrainModel.Task.label, ['dog', 'cat']),
-        (BrainModel.Task.probabilities, StimulusSet({'stimulus_id': [1, 2, 3], 'image_label': [1, 2, 3]})),
-        (BrainModel.Task.odd_one_out, None),
+    @pytest.mark.parametrize('score', [
+        Score(0.5),
+        Score(1.0),
+        Score(1),
+        Score(0.0),
+        Score(0),
+        Score(0.123456789),
+        Score(np.nan),  # explicitly allowed (signaling that the model outputs are not compliant)
+        .14,
     ])
-    def test_valid(self, task: BrainModel.Task, fitting_stimuli, mocker):
+    def test_valid(self, score: Score, mocker):
         load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')
-        load_mock.return_value = self.BenchmarkDummy(task=task, fitting_stimuli=fitting_stimuli)
-        generic_plugin_tests.TestScore().test_valid_behavioral_score('dummy')
+        load_mock.return_value = self.BenchmarkDummy(score=score)
+        generic_plugin_tests.test_valid_score('dummy')
+
+    def test_valid_with_attrs(self, mocker):
+        load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')
+        score = Score(0.42)
+        score.attrs['ceiling'] = Score(0.8)
+        raw = Score(0.336)
+        raw.attrs['raw'] = Score([0.3, 0.4, 0.4, 0.3, 0.5], coords={'split': [1, 2, 3, 4, 5]}, dims=['split'])
+        score.attrs['raw'] = raw
+        score.attrs['benchmark_identifier'] = 'my_benchmark'
+        score.attrs['model_identifier'] = 'my_model'
+        load_mock.return_value = self.BenchmarkDummy(score=score)
+        generic_plugin_tests.test_valid_score('dummy')
+
+    @pytest.mark.parametrize('score', [
+        Score(1.0000000000001),
+        Score(1.1),
+        Score(2),
+        Score(-0.1),
+        Score(-1),
+        None,
+        '12',
+        'score'
+        # (0.6, 0.3),
+        # np.array([0.12, 0.1]),
+    ])
+    def test_invalid_fails(self, score, mocker):
+        load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')
+        load_mock.return_value = self.BenchmarkDummy(score=score)
+        with pytest.raises((AssertionError, TypeError)):
+            generic_plugin_tests.test_valid_score('dummy')
 
 
 @pytest.mark.slow
 @pytest.mark.private_access
-@pytest.mark.parametrize('plugin_directory', ['rajalingham2020', 'majajhong2015'])
+@pytest.mark.parametrize('plugin_directory', [
+    'rajalingham2020', 'geirhos2021', 'hebart2023',
+    'majajhong2015',
+    'imagenet'
+])
 def test_existing_benchmark_plugin(plugin_directory):
     command = [
         generic_plugin_tests.__file__,

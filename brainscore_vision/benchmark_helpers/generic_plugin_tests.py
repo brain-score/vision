@@ -1,12 +1,13 @@
 from pathlib import Path
 from typing import List, Tuple, Union
-from numpy.random import RandomState
+
+import numpy as np
 import pytest
+from numpy.random import RandomState
 
 from brainio.assemblies import BehavioralAssembly, NeuroidAssembly
 from brainio.stimuli import StimulusSet
 from brainscore_core import Benchmark
-from brainscore_core import Score
 # the following import is needed to configure pytest
 # noinspection PyUnresolvedReferences
 from brainscore_core.plugin_management.generic_plugin_tests_helper import pytest_generate_tests
@@ -23,8 +24,8 @@ class ProbeModel(BrainModel):
         start_recording = 'start_recording'
         look_at = 'look_at'
 
-    # stop_on: Union[ProbeModel.STOP, List[ProbeModel.STOP]]
-    def __init__(self, stop_on, visual_degrees: int = 8):
+    # stop_on: Union[ProbeModel.STOP, List[ProbeModel.STOP]]  # cannot put in signature because class is being defined
+    def __init__(self, stop_on=[], visual_degrees: int = 8):
         self._stop_on = stop_on
         self.stopped_on = None
 
@@ -59,6 +60,8 @@ class ProbeModel(BrainModel):
             raise StopIteration("planned stop")
         return self._simulate_output(stimuli)
 
+    # Note that this method is currently not validated by regular running unit tests.
+    # Need to run `test_existing_benchmark_plugin` to verify.
     def _simulate_output(self, stimuli: StimulusSet) -> Union[BehavioralAssembly, NeuroidAssembly]:
         stimulus_coords = {column: ('presentation', stimuli[column]) for column in stimuli.columns}
         rnd = RandomState(1)
@@ -214,18 +217,11 @@ def test_takesintoaccount_model_visual_degrees(identifier: str):
     assert probe_model.visual_degrees_called, "Benchmark should use models' visual_degrees to place stimuli on screen"
 
 
-class TestScore:
-    def test_valid_behavioral_score(self, identifier: str):
-        benchmark = load_benchmark(identifier)
-        probe_model = ProbeModel(stop_on=[])
-        score = benchmark(probe_model)
-        self._validate_score(score)
-
-    def test_valid_neural_score(self, identifier: str):
-        ...
-
-    def _validate_score(self, score: Score):
-        assert 0 <= score <= 1
+def test_valid_score(identifier: str):
+    benchmark = load_benchmark(identifier)
+    probe_model = ProbeModel()
+    score = benchmark(probe_model)
+    assert np.isnan(score) or (0 <= score <= 1)
 
 
 def _run_with_stop(benchmark: Benchmark, model: ProbeModel):

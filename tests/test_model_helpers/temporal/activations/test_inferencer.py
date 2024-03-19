@@ -17,17 +17,25 @@ img_path = os.path.join(os.path.dirname(__file__), "../../activations/rgb.jpg")
 
 
 def dummy_get_features(model_inputs, layers):
+    feature = np.stack(model_inputs)
+    B, F, H, W, C = feature.shape
+    feature = feature.reshape(B, F, H//80, 80, W//80, 80, C).mean((3, 5))[..., :2]  # BFHWC=B,F,6,3,2
     batch_activation = OrderedDict(
-        {layer: model_inputs for layer in layers}
+        {layer: feature for layer in layers}
     )
     return batch_activation
 
 def dummy_preprocess(video):
-    return np.random.rand(video.num_frames, 6, 3)
+    feature = video.to_numpy()[:, 200:680, 200:440, :]
+    return feature
+
+def time_down_sample_preprocess(video):
+    feature = video.to_numpy()[::2, 200:680, 200:440, :]
+    return feature
 
 dummy_layer_activation_format = {
-    "layer1": "THW",
-    "layer2": "THW",
+    "layer1": "THWC",
+    "layer2": "THWC",
 }
 
 dummy_layers = ["layer1", "layer2"]
@@ -37,15 +45,15 @@ dummy_layers = ["layer1", "layer2"]
 def test_inferencer(max_spatial_size):
 
     inferencer = Inferencer(dummy_get_features, dummy_preprocess, dummy_layer_activation_format, 
-                            Video, max_spatial_size=max_spatial_size)
+                            Video, max_spatial_size=max_spatial_size, batch_grouper=lambda s: s.duration)
     model_assembly = inferencer(video_paths, layers=dummy_layers)
     if max_spatial_size is None:
         # 6 second video with fps 60 has 360 frames
         # the model simply return the same number of frames as the temporal size of activations
         # so the number of channel_temporal should be 360
-        assert model_assembly.sizes["neuroid"] == 360*6*3 * len(dummy_layers)
+        assert model_assembly.sizes["neuroid"] == 360*6*3*2 * len(dummy_layers)
     else:
-        assert model_assembly.sizes["neuroid"] == 360*max_spatial_size**2//2 * len(dummy_layers)
+        assert model_assembly.sizes["neuroid"] == 360*max_spatial_size**2//2 * 2 * len(dummy_layers)
     assert model_assembly.sizes["stimulus_path"] == 2 
 
 
@@ -67,6 +75,18 @@ def test_temporal_inferencer(time_alignment, fps):
         assert model_assembly.sizes["time_bin"] == 1
         assert model_assembly['time_bin_end'].values[0] - model_assembly['time_bin_start'].values[0] == max(video_durations)
 
+    # manual computation check
+    output_values = model_assembly.sel(stimulus_path=video_paths[1])\
+                                    .isel(neuroid=model_assembly.layer=="layer1")\
+                                    .transpose('time_bin', 'neuroid').values.reshape(-1)
+    
+    pred_values = []
+    video = Video.from_path(video_paths[1]).set_fps(fps)
+    pred_values = dummy_get_features([dummy_preprocess(video)], ["layer1"])["layer1"][0].reshape(-1)
+    pred_values = pred_values.astype(output_values.dtype)
+    assert np.allclose(output_values, pred_values)
+
+
 def test_img_input():
     fps = 30
     inferencer = TemporalInferencer(dummy_get_features, dummy_preprocess, 
@@ -74,7 +94,8 @@ def test_img_input():
     model_assembly = inferencer([img_path], layers=dummy_layers)
     assert model_assembly.sizes["time_bin"] == fps
 
-def test_temporal_context():
+
+def test_compute_temporal_context():
     fps=10
     inferencer = CausalInferencer(None, None, None, fps=fps, duration=(200, 1000), temporal_context_strategy="greedy")
     assert inferencer._compute_temporal_context() == (200, 1000)
@@ -91,7 +112,13 @@ def test_temporal_context():
     inferencer = CausalInferencer(None, None, None, fps=fps, duration=(0, 1000), num_frames=(2, 15), temporal_context_strategy="fix", fixed_temporal_context=500)
     assert inferencer._compute_temporal_context() == (200, 500)
 
-def test_causal_inferencer():
+
+@pytest.mark.parametrize("preprocess", ["normal", "downsample"])
+def test_causal_inferencer(preprocess):
+    if preprocess == "normal":
+        preprocess = dummy_preprocess
+    else:
+        preprocess = time_down_sample_preprocess
     fps = 10
     inferencer = CausalInferencer(dummy_get_features, dummy_preprocess, 
                                     dummy_layer_activation_format, fps=fps)
@@ -100,10 +127,46 @@ def test_causal_inferencer():
     assert np.isclose(model_assembly['time_bin_end'].values[0] - model_assembly['time_bin_start'].values[0], 1000/fps)
     assert inferencer._compute_temporal_context() == (100, np.inf)
 
-def test_block_inferencer():
+    # manual computation check
+    output_values = model_assembly.sel(stimulus_path=video_paths[1])\
+                                    .isel(neuroid=model_assembly.layer=="layer1")\
+                                    .transpose('time_bin', 'neuroid').values
+    pred_values = []
+    video = Video.from_path(video_paths[1]).set_fps(fps)
+    interval = 1000/fps
+    for time_end in np.arange(interval, 6000+interval, interval):
+        clip = video.set_window(0, time_end)
+        pred_values.append(dummy_get_features([dummy_preprocess(clip)], ["layer1"])["layer1"][0, -1])
+    pred_values = np.stack(pred_values).reshape(len(pred_values), -1).astype(output_values.dtype)
+    assert np.allclose(output_values, pred_values)
+
+
+@pytest.mark.parametrize("preprocess", ["normal", "downsample"])
+def test_block_inferencer(preprocess):
+    if preprocess == "normal":
+        preprocessing = dummy_preprocess
+    else:
+        preprocessing = time_down_sample_preprocess
     fps = 10
-    inferencer = BlockInferencer(dummy_get_features, dummy_preprocess, dummy_layer_activation_format, fps=fps, 
+    inferencer = BlockInferencer(dummy_get_features, preprocessing, dummy_layer_activation_format, fps=fps, 
                                  duration=(200, 4000), temporal_context_strategy="greedy")
     model_assembly = inferencer(video_paths, layers=dummy_layers)
     assert model_assembly.sizes["time_bin"] == 8 * fps  # block overflow 2 x 4 seconds
     assert np.isclose(model_assembly['time_bin_end'].values[0] - model_assembly['time_bin_start'].values[0], 1000/fps)
+
+    # manual computation check
+    output_values = model_assembly.sel(stimulus_path=video_paths[1])\
+                                    .isel(neuroid=model_assembly.layer=="layer1")\
+                                    .transpose('time_bin', 'neuroid').values
+    pred_values = []
+    video = Video.from_path(video_paths[1]).set_fps(fps)
+    interval = 4000
+    for time_end in np.arange(interval, 6000+interval, interval):
+        time_start = time_end - interval
+        clip = video.set_window(time_start, time_end)
+        pred_values.append(dummy_get_features([preprocessing(clip)], ["layer1"])["layer1"][0])
+    pred_values = np.concatenate(pred_values)
+    pred_values = pred_values.reshape(len(pred_values), -1).astype(output_values.dtype)
+    if preprocess == "downsample":
+        output_values = output_values[::2]
+    assert np.allclose(output_values, pred_values)

@@ -10,6 +10,7 @@ from brainio.assemblies import NeuroidAssembly, walk_coords
 from brainscore_vision.model_helpers.utils import fullname
 
 from brainscore_vision.model_helpers.activations.temporal.core.executor import BatchExecutor
+from brainscore_vision.model_helpers.activations.temporal.core.utils import stack_with_nan_padding
 from brainscore_vision.model_helpers.activations.temporal.inputs import Stimulus
 
 
@@ -122,6 +123,7 @@ class Inferencer:
     def package_layer(self, layer_activation, layer, layer_spec, stimuli):
         assert len(layer_activation) == len(stimuli)
         channels = self._map_dims(layer_spec)
+        layer_activation = stack_with_nan_padding(layer_activation)
         assembly = self._simple_package(layer_activation, ["stimulus_path"] + channels)
         assembly = self._stack_neuroid(assembly, channels)
         assembly = NeuroidAssembly(assembly)  # re-gather

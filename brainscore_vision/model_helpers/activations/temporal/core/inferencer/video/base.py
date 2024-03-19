@@ -3,6 +3,7 @@ from typing import Union, Tuple, Callable, Hashable
 
 from brainscore_vision.model_helpers.activations.temporal.inputs.video import Video
 from brainscore_vision.model_helpers.activations.temporal.utils import assembly_align_to_fps
+from brainscore_vision.model_helpers.activations.temporal.core.utils import stack_with_nan_padding
 from brainio.assemblies import NeuroidAssembly
 
 from ..base import Inferencer
@@ -116,6 +117,7 @@ class TemporalInferencer(Inferencer):
     def package_layer(self, activations, layer, layer_spec, stimuli):
         ignore_time = self.time_aligner is time_aligners.ignore_time
         channels = self._map_dims(layer_spec)
+        activations = stack_with_nan_padding(activations)
         assembly = self._simple_package(activations, ["stimulus_path"] + channels)
         # align to the longest stimulus
         assembly = self.time_aligner(assembly, self.longest_stimulus)

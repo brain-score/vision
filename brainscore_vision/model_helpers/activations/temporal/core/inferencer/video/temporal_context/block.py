@@ -3,7 +3,7 @@ from collections import OrderedDict
 
 from .base import TemporalContextInferencerBase
 from brainscore_vision.model_helpers.activations.temporal.inputs.video import Video
-from brainscore_vision.model_helpers.activations.temporal.core.executor import stack_with_nan_padding
+from brainscore_vision.model_helpers.activations.temporal.core.utils import stack_with_nan_padding
 
 
 class BlockInferencer(TemporalContextInferencerBase):

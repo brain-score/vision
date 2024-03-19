@@ -3,7 +3,7 @@ from collections import OrderedDict
 
 from .base import TemporalContextInferencerBase
 from brainscore_vision.model_helpers.activations.temporal.inputs.video import Video
-from brainscore_vision.model_helpers.activations.temporal.core.executor import stack_with_nan_padding
+from brainscore_vision.model_helpers.activations.temporal.core.utils import stack_with_nan_padding
 
 
 class CausalInferencer(TemporalContextInferencerBase):
@@ -95,7 +95,7 @@ class CausalInferencer(TemporalContextInferencerBase):
             layer_activations[layer] = stack_with_nan_padding(layer_activations[layer])
 
         self.longest_stimulus = inp.set_window(0, latest_time_end, padding=self.out_of_bound_strategy)  # hack: fake the longest stimulus
-
+        
         return layer_activations
     
     def package_layer(self, activations, layer, layer_spec, stimuli):

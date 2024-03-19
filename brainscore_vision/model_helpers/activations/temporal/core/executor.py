@@ -68,15 +68,16 @@ class BatchExecutor:
 
         if grouper is None:
             sorted_data = np.array(data, dtype='object')
-            sorted_indices = np.arange(N)
+            inverse_indices = np.arange(N)
             sorted_properties = [0] * N
         else:
             properties = parallelize(grouper, data, n_jobs=n_jobs)
             properties = np.array([hash(p) for p in properties])
             sorted_indices = np.argsort(properties)
+            inverse_indices = (sorted_indices == np.arange(N).reshape(-1, 1)).argmax(-1)  # inverse transform
             sorted_properties = properties[sorted_indices]
             sorted_data = np.array(data, dtype='object')[sorted_indices]
-        sorted_indices = list(sorted_indices)
+        inverse_indices = list(inverse_indices)
 
         index = 0
         all_batches = []
@@ -90,7 +91,7 @@ class BatchExecutor:
                 batch.append(sorted_data[index])
                 index += 1
             
-            batch_indices = sorted_indices[index-len(batch):index]
+            batch_indices = inverse_indices[index-len(batch):index]
 
             if padding:
                 num_padding = batch_size - len(batch)
@@ -169,23 +170,6 @@ class BatchExecutor:
 
         for layer, activations in layer_activations.items():
             layer_activations[layer] = [activations[i] for i, not_padding in zip(indices, mask) if not_padding]
-            layer_activations[layer] = stack_with_nan_padding(layer_activations[layer], axis=0, dtype=self.dtype)
 
         self.clear_stimuli()
         return layer_activations
-
-
-def stack_with_nan_padding(arr_list, axis=0, dtype=np.float16):
-    # Get shapes of all arrays
-    shapes = [np.array(arr.shape) for arr in arr_list]
-    max_shape = np.max(shapes, axis=0)
-
-    # Allocate concatenated array with NaN padding
-    result = np.full(np.concatenate(([len(arr_list)], max_shape)), np.nan, dtype=dtype)
-
-    # Fill in individual arrays
-    for i, arr in enumerate(arr_list):
-        slices = tuple(slice(0, s) for s in arr.shape)
-        result[i][slices] = arr
-
-    return result

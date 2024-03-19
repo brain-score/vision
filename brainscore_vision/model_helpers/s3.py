@@ -1,6 +1,8 @@
 """
 Contain functions for loading model contents such as weights from s3.
 """
+import os
+from os.path import expanduser
 from pathlib import Path
 
 import logging
@@ -26,3 +28,28 @@ def load_file_from_s3(bucket: str, path: str, version_id: str, sha1: str, local_
     fetcher.output_filename = str(local_filename)  # force using this local path instead of folder structure
     fetcher.fetch()
     verify_sha1(local_filename, sha1)
+
+
+def load_weight(bucket: str, relative_path: str, version_id: str, sha1: str):
+    s3_weight_folder = os.getenv("BRAINSCORE_S3_WEIGHT_FOLDER", "models-to-integrate-for-2.0")
+    brainscore_cache = os.getenv("BRAINSCORE_HOME", expanduser("~/.brain-score"))
+    local_path = Path(brainscore_cache) / "models" / relative_path
+    if not os.path.exists(local_path):
+        os.makedirs(local_path.parent, exist_ok=True)
+        load_file_from_s3(bucket=bucket, path=f"{s3_weight_folder}/{relative_path}", version_id=version_id, sha1=sha1,
+                        local_filename=local_path)
+    else:
+        _logger.info(f"Weight already exists at {local_path}.")
+    return local_path
+
+
+if __name__ == "__main__":
+    # Example usage
+    pth = load_weight(
+        bucket="brainscore-vision", 
+        relative_path="temporal_models/mae_st/mae_pretrain_vit_large_k400.pth", 
+        version_id="HuKboFIWw6Tl3fZIY4aVNEqvcS4Yag66",
+        sha1="c7fb91864a4ddf8b99309440121a3abe66b846bb"
+    )
+    
+    print(pth)

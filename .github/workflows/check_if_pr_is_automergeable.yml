@@ -91,7 +91,7 @@ jobs:
     name: If any test fails, notify the user through the brain-score email account (only needed for web submissions)
     uses: ./.github/workflows/user_notification_system.yml
     needs: check_pr_details
-    if: needs.check_pr_details.outputs.ALL_TESTS_PASS == 'Failure' && needs.check_pr_details.outputs.AUTOMERGE_WEB
+    if: needs.check_pr_details.outputs.ALL_TESTS_PASS == 'Failure' && needs.check_pr_details.outputs.AUTOMERGE_WEB == 'true'
     with:
       pr_number: ${{ needs.check_pr_details.outputs.PR_NUMBER }}
       is_automerge_web: true

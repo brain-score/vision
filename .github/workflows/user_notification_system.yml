@@ -1,0 +1,138 @@
+name: User notification system
+
+
+# Triggered by the 'check_if_pr_is_automereable.yml' and 'score_new_plugins.yml' workflows
+# This workflow has two distinct purposes:
+# - extracting an email address (either from a web submission, or from a PR)
+# - sending a PR failure email
+
+on:
+  workflow_call:
+    inputs:
+      pr_number:
+        required: false
+        type: string
+      pr_username:
+        required: false
+        type: string
+      pr_title:
+        required: false
+        type: string
+      is_automerge_web:
+        required: true
+        type: boolean
+      action_type:
+        required: true
+        type: string
+        description: 'Determines the action to take, e.g., "extract_email" or "send_email".'
+    outputs:
+      extracted_email:
+        description: 'The extracted email address.'
+        value: ${{ jobs.extract_email.outputs.email }}
+
+permissions: write-all
+
+jobs:
+  extract_email:
+    name: Extract user email
+    runs-on: ubuntu-latest
+    outputs:
+      email: ${{ steps.set_email_output.outputs.EMAIL }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.7
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Installing package dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools
+          python -m pip install "."
+
+      - name: Find PR author email for non-web submissions
+        if: ${{ !inputs.is_automerge_web }}
+        uses: evvanErb/get-github-email-by-username-action@v2.0
+        id: getemail
+        with:
+          github-username: ${{inputs.pr_username}}
+          token: ${{ secrets.GITHUB_TOKEN }}  # Including token enables most reliable way to get a user's email
+          
+      - name: Update email for non-web submissions
+        if: ${{ !inputs.is_automerge_web }}
+        id: non_automerge_web
+        run: |
+          EMAIL=${{ steps.getemail.outputs.email }}
+          echo "::add-mask::$EMAIL" # Mask the EMAIL
+          echo "EMAIL=$EMAIL" >> $GITHUB_ENV
+
+      - name: Check if pr title provided
+        if: inputs.is_automerge_web
+        id: get_pr_title
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -z "${{ inputs.pr_title }}" ]; then
+            echo "Fetching PR title because it wasn't provided"
+            PR_TITLE=$(gh pr view ${{ inputs.pr_number }} --repo ${{ github.repository }} --json title -q .title)
+            echo "PR_TITLE=$PR_TITLE" >> $GITHUB_ENV
+          else
+            echo "PR_TITLE=${{ inputs.pr_title }}" >> $GITHUB_ENV
+          fi
+
+      - name: Update email for automerge-web (find email from uid)
+        if: inputs.is_automerge_web
+        id: automerge_web
+        run: |
+          BS_UID="$(echo $PR_TITLE | sed -E 's/.*\(user:([^)]+)\).*/\1/')"
+          EMAIL=$(python -c "from brainscore_core.submission.database import email_from_uid; from brainscore_core.submission.endpoints import UserManager; user_manager=UserManager(db_secret='${{ secrets.BSC_DATABASESECRET }}'); print(email_from_uid($BS_UID))")
+          echo "::add-mask::$EMAIL" # Mask the EMAIL
+          echo "EMAIL=$EMAIL" >> $GITHUB_ENV
+
+      - name: Encrypt and set job-level output for email
+        id: set_email_output
+        run: |
+          ENCRYPTED_EMAIL=$(echo -n $EMAIL | openssl enc -aes-256-cbc -a -salt -pass pass:${{ secrets.EMAIL_ENCRYPTION_KEY }})
+          echo "EMAIL=$ENCRYPTED_EMAIL" >> $GITHUB_OUTPUT
+          
+      - name: Write email to file
+        if: inputs.action_type == 'send_email'
+        run: echo "$EMAIL" > email.txt
+      
+      - name: Upload email as artifact
+        if: inputs.action_type == 'send_email'
+        uses: actions/upload-artifact@v2
+        with:
+          name: email-artifact
+          path: email.txt
+
+  notify_user:
+    name: Notify user of failure  # only necessary for automerge_web labeled since github auto sends email on failure otherwise
+    runs-on: ubuntu-latest
+    needs: extract_email
+    if: inputs.action_type == 'send_email'
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Download email artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: email-artifact
+          
+      - name: Send email notification
+        run: |
+          python brainscore_vision/submission/actions_helpers.py send_failure_email $(cat email.txt) ${{ inputs.pr_number }} ${{ secrets.GMAIL_USERNAME }} ${{ secrets.GMAIL_PASSWORD }}

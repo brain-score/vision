@@ -45,14 +45,14 @@ jobs:
         id: get_pr_number
         run: |
           echo "PR_NUMBER=$( python brainscore_vision/submission/actions_helpers.py get_pr_num )" >> $GITHUB_OUTPUT
-      - name: Check if pr has 'automerge-web' label
+      - name: Check if PR has 'automerge-web' label
         id: check_automerge_web_label
         env: 
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           LABELS_JSON=$(gh pr view ${{ steps.get_pr_number.outputs.PR_NUMBER }} --json labels)
           echo "Labels: $LABELS_JSON"
-          if echo "$LABELS_JSON" | jq '.labels[] | select(.name == "automerge-web")'; then
+          if echo "$LABELS_JSON" | jq -e '.labels[] | select(.name == "automerge-web")' >/dev/null; then
             echo "Found automerge-web label."
             echo "AUTOMERGE_WEB='true'" >> $GITHUB_OUTPUT
           else

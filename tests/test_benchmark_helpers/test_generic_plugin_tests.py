@@ -1,3 +1,4 @@
+from brainscore_vision import load_metric
 from collections import namedtuple
 from pathlib import Path
 
@@ -358,12 +359,38 @@ class TestTakesIntoAccountModelVisualDegrees:
             generic_plugin_tests.test_takesintoaccount_model_visual_degrees('dummy')
 
 
+class TestValidBehavioralScore:
+    class BenchmarkDummy(Benchmark):
+        def __init__(self, task: BrainModel.Task, fitting_stimuli):
+            self.task = task
+            self.fitting_stimuli = fitting_stimuli
+
+        def __call__(self, candidate: BrainModel):
+            candidate.start_task(self.task, fitting_stimuli=self.fitting_stimuli)
+            stimulus_set = StimulusSet({'stimulus_id': [1, 2, 3], 'image_label': [1, 2, 3]})
+            predictions = candidate.look_at(stimulus_set)
+            metric = load_metric('accuracy')
+            score = metric(predictions.values, stimulus_set['image_label'].values)
+            return score
+
+    @pytest.mark.parametrize('task, fitting_stimuli', [
+        (BrainModel.Task.label, ['dog', 'cat']),
+        (BrainModel.Task.probabilities, StimulusSet({'stimulus_id': [1, 2, 3], 'image_label': [1, 2, 3]})),
+        (BrainModel.Task.odd_one_out, None),
+    ])
+    def test_valid(self, task: BrainModel.Task, fitting_stimuli, mocker):
+        load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')
+        load_mock.return_value = self.BenchmarkDummy(task=task, fitting_stimuli=fitting_stimuli)
+        generic_plugin_tests.TestScore().test_valid_behavioral_score('dummy')
+
+
 @pytest.mark.slow
 @pytest.mark.private_access
-def test_existing_benchmark_plugin():
+@pytest.mark.parametrize('plugin_directory', ['rajalingham2020', 'majajhong2015'])
+def test_existing_benchmark_plugin(plugin_directory):
     command = [
         generic_plugin_tests.__file__,
-        "--plugin_directory", Path(brainscore_vision.__file__).parent / 'benchmarks' / 'rajalingham2020'
+        "--plugin_directory", Path(brainscore_vision.__file__).parent / 'benchmarks' / plugin_directory
     ]
     retcode = pytest.main(command)
     assert retcode == 0, "Tests failed"  # https://docs.pytest.org/en/latest/reference/exit-codes.html

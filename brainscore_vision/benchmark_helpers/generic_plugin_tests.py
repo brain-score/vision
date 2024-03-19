@@ -1,12 +1,12 @@
 from pathlib import Path
 from typing import List, Tuple, Union
-
+from numpy.random import RandomState
 import pytest
 
 from brainio.assemblies import BehavioralAssembly, NeuroidAssembly
 from brainio.stimuli import StimulusSet
-
 from brainscore_core import Benchmark
+from brainscore_core import Score
 # the following import is needed to configure pytest
 # noinspection PyUnresolvedReferences
 from brainscore_core.plugin_management.generic_plugin_tests_helper import pytest_generate_tests
@@ -51,12 +51,55 @@ class ProbeModel(BrainModel):
             self.stopped_on = ProbeModel.STOP.start_recording
             raise StopIteration("planned stop")
 
-    def look_at(self, stimuli: Union[StimulusSet, List[str]], number_of_trials=1) -> Union[
-        BehavioralAssembly, NeuroidAssembly]:
+    def look_at(self, stimuli: Union[StimulusSet, List[str]], number_of_trials=1) \
+            -> Union[BehavioralAssembly, NeuroidAssembly]:
         self.look_at_stimuli = stimuli
         if self._stop_on == ProbeModel.STOP.look_at or ProbeModel.STOP.look_at in self._stop_on:
             self.stopped_on = ProbeModel.STOP.look_at
             raise StopIteration("planned stop")
+        return self._simulate_output(stimuli)
+
+    def _simulate_output(self, stimuli: StimulusSet) -> Union[BehavioralAssembly, NeuroidAssembly]:
+        stimulus_coords = {column: ('presentation', stimuli[column]) for column in stimuli.columns}
+        rnd = RandomState(1)
+
+        if self.task is not None and self.task is not BrainModel.Task.passive:  # behavior
+            if self.task == BrainModel.Task.label:
+                if self.fitting_stimuli == 'imagenet':
+                    some_imagenet_synsets = ['n02107574', 'n02123045', 'n02804414']
+                    choices = rnd.choice(some_imagenet_synsets, size=len(stimuli), replace=True)
+                else:
+                    choices = rnd.choice(self.fitting_stimuli, size=len(stimuli), replace=True)
+                return BehavioralAssembly([choices], coords=stimulus_coords, dims=['choice', 'presentation'])
+            elif self.task == BrainModel.Task.probabilities:
+                labels = list(sorted(set(self.fitting_stimuli['image_label'])))
+                probabilities = rnd.uniform(low=0, high=1, size=(len(stimuli), len(labels)))
+                probabilities = probabilities / probabilities.sum(axis=1, keepdims=True)  # have choices sum to 1
+                return BehavioralAssembly(probabilities, coords={**stimulus_coords, **{'choice': ('choice', labels)}},
+                                          dims=['presentation', 'choice'])
+            elif self.task == BrainModel.Task.odd_one_out:
+                triplet_choices = [0, 1, 2]
+                choices = rnd.choice(triplet_choices, size=len(stimuli) // 3, replace=True)
+                stimulus_ids = stimuli['stimulus_id'].values
+                return BehavioralAssembly([choices], coords={
+                    'stimulus_id': ('presentation', ['|'.join([f"{stimulus_ids[offset + i]}" for i in range(3)])
+                                                     for offset in range(0, len(stimulus_ids) - 2, 3)]),
+                }, dims=['choice', 'presentation'])
+            else:
+                return pytest.skip("task not implemented in probe")
+
+        elif self.recording_target is not None:  # neural
+            num_units = 300
+            activity = rnd.random(size=(len(stimuli), num_units, self.time_bins))
+            return NeuroidAssembly(activity, coords={**stimulus_coords, **{
+                'neuroid_id': ('neuroid', np.arange(num_units)),
+                'region': ('neuroid', [self.recording_target] * num_units),
+                'time_bin_start': ('time_bin', [start for start, end in self.time_bins]),
+                'time_bin_end': ('time_bin', [end for start, end in self.time_bins]),
+            }}, dims=['presentation', 'neuroid', 'time_bin'])
+
+        else:
+            raise ValueError("no task or recording set")
 
     def visual_degrees(self) -> int:
         self.visual_degrees_called = True
@@ -173,10 +216,16 @@ def test_takesintoaccount_model_visual_degrees(identifier: str):
 
 class TestScore:
     def test_valid_behavioral_score(self, identifier: str):
-        ...
+        benchmark = load_benchmark(identifier)
+        probe_model = ProbeModel(stop_on=[])
+        score = benchmark(probe_model)
+        self._validate_score(score)
 
     def test_valid_neural_score(self, identifier: str):
         ...
+
+    def _validate_score(self, score: Score):
+        assert 0 <= score <= 1
 
 
 def _run_with_stop(benchmark: Benchmark, model: ProbeModel):

@@ -43,17 +43,16 @@ which you keep all your packaging scripts.
 If your code depends on additional requirements, it is good practice to additionally keep a :code:`requirements.txt`
 or :code:`setup.py` file specifying the dependencies.
 
-Before executing the packaging methods to actually upload to S3, please check in with us
-(msch@mit.edu, mferg@mit.edu) so that we can give you access. With the credentials, you can then
-configure the awscli (:code:`pip install awscli`, :code:`aws configure` using region :code:`us-east-1`,
+Before executing the packaging methods to actually upload to S3, please check in with us via
+`Slack or Github Issue <https://www.brain-score.org/community>`_ so that we can give you access.
+With the credentials, you can then configure the awscli (:code:`pip install awscli`, :code:`aws configure` using region :code:`us-east-1`,
 output format :code:`json`) to make the packaging methods upload successfully.
 
 **StimulusSet**:
 The StimulusSet contains the stimuli that were used in the experiment as well as any kind of metadata for the stimuli.
 Below is a slim example of creating and uploading a StimulusSet. The :code:`package_stimulus_set` method returns the
-AWS metadata needed in the :code:`data/__init__.py` file (such as :code:`sha1` and the :code:`version_id`) and stores it
-(in this case) inside the , such as the :code:`init_data_ss`
-variable.
+AWS metadata needed in the :code:`data/__init__.py` file (such as :code:`sha1` and the :code:`version_id`).
+In this example, we store the metadata in the :code:`packaged_stimulus_metadata` variable.
 
 .. code-block:: python
 
@@ -80,7 +79,7 @@ variable.
 
     assert len(stimuli) == 1600  # make sure the StimulusSet is what you would expect
 
-    init_data_ss = package_stimulus_set(catalog_name=None, proto_stimulus_set=stimuli,
+    packaged_stimulus_metadata = package_stimulus_set(catalog_name=None, proto_stimulus_set=stimuli,
                                  stimulus_set_identifier=stimuli.name, bucket_name="brainio-brainscore")  # upload to S3
 
 
@@ -133,19 +132,18 @@ Here is an example of a BehavioralAssembly:
            == len(set(assembly['distractor_object'].values)) == 2
 
     # upload to S3
-    init_data_assembly = package_data_assembly(None, assembly, assembly_identifier=assembly.name,
-                                  stimulus_set_identifier=f"{name}_{experiment}",
-                                  assembly_class_name="BehavioralAssembly",
-                                  bucket_name="brainio-brainscore")
+    packaged_assembly_metadata = package_data_assembly(proto_data_assembly=assembly, assembly_identifier=assembly.name,
+                                 stimulus_set_identifier=stimuli.name,  # link to the StimulusSet packaged above
+                                 assembly_class_name="BehavioralAssembly", bucket_name="brainio-brainscore",
+                                 catalog_identifier=None)
 
 In our experience, it is generally a good idea to include as much metadata as possible (on both StimulusSet and
 Assembly). This will increase the utility of the data and make it a more valuable long-term contribution.
 Please note that, like in :code:`package_stimulus_set`, The :code:`package_data_assembly` method returns the
-AWS metadata needed in the :code:`data/__init__.py` file (such as :code:`sha1` and the :code:`version_id`) and stores it
-(in this case) inside the , such as the :code:`init_data_assembly`
-variable.
+AWS metadata needed in the :code:`data/__init__.py` file (such as :code:`sha1` and the :code:`version_id`).
+In this example, we store the metadata in the :code:`packaged_assembly_metadata` variable.
 
-You can also put both of these packaging methods inside of one Python file, called :code:`data_packaging.py`. This file
+You can also put both of these packaging methods inside of one Python file, called e.g. :code:`data_packaging.py`. This file
 would then package and upload both the stimulus_set and assembly.
 
 **Unit Tests (test.py)**:
@@ -154,7 +152,7 @@ details in the system might change. For instance, we want to avoid accidental ov
 and the unit tests guard against that.
 
 When creating your benchmark, we require you to include a :code:`test.py` file. For what this  file should contain, see
-:code:`below`.
+below.
 
 |UnitTestSupport|
 
@@ -194,8 +192,8 @@ assembly:
 
 **Adding your data to Brain-Score**:
 You will also need an :code:`__init__.py` file to go along with your submission. The purpose of this file is to register the
-benchmark inside the Brain-Score ecosystem. This involves adding both the stimuli and the data to the :code:`data_registry`, as
-seen below for an actual example, in this case for one of the :code:`Geirhos2021` benchmarks:
+benchmark inside the Brain-Score ecosystem. This involves adding both the stimuli and the data to the
+:code:`stimulus_set_registry` and :code:`data_registry` respectively. See below for an example from the data for :code:`Geirhos2021`:
 
 .. code-block:: python
 
@@ -226,12 +224,11 @@ submission structure:
 
 .. code-block:: python
 
-    /MyBenchmark2024_stimuli_and_data
-        /MyBenchmark2024
-            /data
-                data_packaging.py
-                test.py
-                __init__.py
+    MyBenchmark2024_stimuli_and_data/
+        data/
+            data_packaging.py
+            test.py
+            __init__.py
 
 2. Create the benchmark
 =======================
@@ -314,8 +311,7 @@ Here is an example of a behavioral benchmark that uses an already defined metric
 
 
 We also need to register the benchmark in the benchmark registry in order to make it accessible by its identifier.
-This is done by creating a blank :code:`__init__.py` file inside the benchmark directory, and adding a line similiar to
-the one shown below:
+This is done in the :code:`__init__.py` file inside the benchmark directory:
 
 .. code-block:: python
 
@@ -365,9 +361,8 @@ submission structure:
 
 .. code-block:: python
 
-    /MyBenchmark2024_stimuli_and_data
-        /MyBenchmark2024
-            /benchmarks
+    MyBenchmark2024_stimuli_and_data/
+            benchmarks/
                 benchmark.py
                 test.py
                 __init__.py

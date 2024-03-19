@@ -116,7 +116,7 @@ class Video(Stimulus):
         return [f for f in self.to_numpy()]
 
     def to_pil_imgs(self):
-        return [Image.fromarray(frame) for frame in self.to_numpy()]
+        return [PILImage.fromarray(frame) for frame in self.to_numpy()]
     
     def to_path(self):
         # use context manager ?

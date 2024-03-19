@@ -176,15 +176,16 @@ class BatchExecutor:
 
 
 def stack_with_nan_padding(arr_list, axis=0, dtype=np.float16):
-    arr_list = [np.array(arr, dtype=dtype) for arr in arr_list]
+    # Get shapes of all arrays
     shapes = [np.array(arr.shape) for arr in arr_list]
     max_shape = np.max(shapes, axis=0)
 
-    # Pad each array with NaN
-    padded_arr_list = [np.pad(arr, [(0, pad) for pad in (max_shape - shape)], constant_values=np.nan)
-                       for arr, shape in zip(arr_list, shapes)]
+    # Allocate concatenated array with NaN padding
+    result = np.full(np.concatenate(([len(arr_list)], max_shape)), np.nan, dtype=dtype)
 
-    # Concatenate the padded arrays along the specified axis
-    result = np.stack(padded_arr_list, axis=axis)
+    # Fill in individual arrays
+    for i, arr in enumerate(arr_list):
+        slices = tuple(slice(0, s) for s in arr.shape)
+        result[i][slices] = arr
 
     return result

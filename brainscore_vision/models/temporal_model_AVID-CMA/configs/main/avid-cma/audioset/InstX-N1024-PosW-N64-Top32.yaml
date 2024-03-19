@@ -1,0 +1,76 @@
+resume: false
+test_only: false
+num_workers: 32
+
+required_devices: 8
+no_test: false
+debug: false
+log2tb: true
+allow_double_bs: false
+seed: 0
+distributed: false
+test_freq: 1
+print_freq: 100
+
+dataset:
+  name: "audioset"
+  full_res: true
+  batch_size: 160
+  video_clip_duration: 0.5
+  video_fps: 16.
+  transforms: "msc+color"
+  crop_size: 224
+  audio_clip_duration: 2.
+  audio_fps: 24000.
+  spectrogram_fps: 100.
+  n_fft: 512
+  train:
+    split: "unbalanced_train"
+    use_augmentation: true
+    drop_last: true
+    clips_per_video: 5
+  test:
+    split: "eval"
+    use_augmentation: false
+    drop_last: true
+
+optimizer:
+  name: "adam"
+  weight_decay: 0.00001
+  num_epochs: 40
+  lr:
+    name: "multistep"
+    base_lr: 0.0001
+    gamma: 1.
+    milestones: [10, 20, 30]
+
+loss:
+  name: "AVID_CMA"
+  args:
+    checkpoint: "checkpoints/AVID/Audioset/Cross-N1024/checkpoint.pth.tar"
+    num_data: 1784108
+    momentum: 0.5
+    num_negatives: 1024
+    num_negatives_within: 64
+    xModalInstCoeff: 1.
+    wModalInstCoeff: 0.
+    xModalPosCoeff: 0.
+    wModalPosCoeff: 1.
+    resample_freq: 10
+    sampling_args:
+      type: "consensus"      # consensus, video, audio, union
+      pos_k: 32
+
+model:
+  name: "InstX-N1024-PosW-N64-Top32"
+  model_dir: "checkpoints/AVID-CMA/Audioset"
+  arch: "av_wrapper"
+  args:
+    checkpoint: "checkpoints/AVID/Audioset/Cross-N1024/checkpoint.pth.tar"
+    proj_dim: [512, 512, 128]
+    video_backbone: "R2Plus1D"
+    video_backbone_args:
+      depth: 18
+    audio_backbone: "Conv2D"
+    audio_backbone_args:
+      depth: 10

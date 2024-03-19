@@ -28,6 +28,7 @@ class ActivationsExtractor:
             self, 
             inferencer : Inferencer,
             identifier=False,
+            visual_degrees=8,
         ):
         self._logger = logging.getLogger(fullname(self))
 
@@ -35,6 +36,7 @@ class ActivationsExtractor:
         self.inferencer = inferencer
         self._stimulus_set_hooks = {}
         self._batch_activations_hooks = {}
+        self.set_visual_degrees(visual_degrees)
 
     @property
     def identifier(self):
@@ -42,6 +44,9 @@ class ActivationsExtractor:
             return f"{self._identifier}@{self.inferencer.identifier}"
         else:
             return False
+        
+    def set_visual_degrees(self, visual_degrees):
+        self.inferencer.set_visual_degrees(visual_degrees)
 
     def insert_attrs(self, wrapper):
         wrapper.from_stimulus_set = self.from_stimulus_set
@@ -49,10 +54,12 @@ class ActivationsExtractor:
         wrapper.register_batch_activations_hook = self.register_batch_activations_hook
         wrapper.register_stimulus_set_hook = self.register_stimulus_set_hook
 
-    def __call__(self, stimuli, layers, stimuli_identifier=None):
+    def __call__(self, stimuli, layers, stimuli_identifier=None, number_of_trials=1, require_variance=False):
         """
         :param stimuli_identifier: a stimuli identifier for the stored results file. False to disable saving.
         """
+        if number_of_trials > 1 or require_variance:
+            raise NotImplementedError("not yet supported")
         if isinstance(stimuli, StimulusSet):
             return self.from_stimulus_set(stimulus_set=stimuli, layers=layers, stimuli_identifier=stimuli_identifier)
         else:

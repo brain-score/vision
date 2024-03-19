@@ -1,0 +1,66 @@
+required_devices: 8
+resume: false
+
+no_test: false
+test_only: false
+debug: false
+seed: 0
+distributed: false
+test_freq: 5
+num_workers: 20
+
+benchmark:
+  name: "ucf101-wucls-8at16"
+
+dataset:
+  name: "ucf101"
+  fold: 2
+  batch_size: 64
+  clip_duration: 0.5
+  video_fps: 16.
+  crop_size: 224
+  transform: "msc+color"
+  min_area: 0.08
+  color: [0.4, 0.4, 0.4, 0.2]
+  train:
+    split: "trainlist{fold:02d}"
+    mode: "clip"
+    clips_per_video: 10
+    use_augmentation: true
+    use_shuffle: true
+    drop_last: true
+  test:
+    split: "testlist{fold:02d}"
+    mode: "clip"
+    clips_per_video: 5
+    use_augmentation: false
+    use_shuffle: false
+    drop_last: false
+  test_dense:
+    split: "testlist{fold:02d}"
+    mode: "video"
+    clips_per_video: 10
+    use_augmentation: false
+    use_shuffle: false
+    drop_last: false
+
+optimizer:
+  name: "adam"
+  num_epochs: 16
+  weight_decay: 0.0
+  warmup_classifier: true
+  lr:
+    name: "multistep"
+    base_lr: 0.0001
+    gamma: 0.3
+    milestones: [6, 10, 14]
+
+model:
+  name: "ClassificationWrapper"
+  args:
+    n_classes: 101
+    feat_name: "pool"
+    pooling_op: null
+    feat_dim: 512
+    use_dropout: true
+    dropout: 0.5

@@ -13,7 +13,7 @@ SUBMODULE_SEPARATOR = '.'
 
 
 def default_process_activation(layer, layer_name, inputs, output):
-    print(layer_name, output.shape)
+    # print(layer_name, output.shape)
     return output
 
 class PytorchWrapper(ActivationWrapper):

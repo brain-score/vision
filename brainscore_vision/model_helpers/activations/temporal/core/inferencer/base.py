@@ -46,9 +46,12 @@ class Inferencer:
     batch_padding: bool
         whether to pad the each batch with the last stimulus to make it the same size as the specified batch size.
         Otherwise, some batches will have size < batch_size because of the lacking of samples in that group.
+    visual_degrees: float
+        the visual degrees of the stimuli.
     dtype: np.dtype
         data type of the activations.
 
+        
     APIs
     ----
     __call__(paths, layers)
@@ -72,12 +75,14 @@ class Inferencer:
             batch_size : int = 64,
             batch_grouper : Callable[[Stimulus], Hashable] = None,
             batch_padding : bool = False,
+            visual_degrees : float = 8.,
             dtype : np.dtype = np.float16,
         ):
 
         self.stimulus_type = stimulus_type
         self.layer_activation_format = layer_activation_format
         self.max_spatial_size = max_spatial_size
+        self.visual_degrees = visual_degrees
         self.dtype = dtype
         self._executor = BatchExecutor(get_activations, preprocessing, batch_size, batch_padding, batch_grouper, dtype)
         self._stimulus_set_hooks = {}
@@ -86,11 +91,14 @@ class Inferencer:
 
     @property
     def identifier(self):
-        to_add = []
+        to_add = [f".visual_degrees={self.visual_degrees}"]
         if self.max_spatial_size is not None:
             to_add.append(f".max_spatial={self.max_spatial_size}")
         to_add = "".join(to_add)
         return f"{self.__class__.__name__}{to_add}"
+    
+    def set_visual_degrees(self, visual_degrees):
+        self.visual_degrees = visual_degrees
 
     def __call__(self, paths, layers):
         stimuli = self.convert_paths(paths)
@@ -164,6 +172,7 @@ class Inferencer:
 
     # add additional coords for the neuroid dim
     def _add_neuroid_meta(self, assembly, layer):
+        # TODO: slow
         num_neuroid = assembly.sizes["neuroid"]
         if "neuroid" in assembly.coords: 
             assembly = assembly.reset_index("neuroid")

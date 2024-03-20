@@ -31,31 +31,31 @@ def estimate_layer_fps(assembly, video):
     time_bin_ends = time_bin_starts + estimated_interval
     return _convert(assembly, time_bin_starts, time_bin_ends)
 
-def evenly_spaced(assembly, input):
+def evenly_spaced(assembly, video):
     # this function assumes that the activation of different time steps is evenly spaced
     num_t = assembly.sizes['channel_temporal'] if "channel_temporal" in assembly.dims else 1
-    interval = input.duration / num_t
-    time_bin_starts = np.linspace(0, input.duration, num_t+1)[:-1]
+    interval = video.duration / num_t
+    time_bin_starts = np.linspace(0, video.duration, num_t+1)[:-1]
     time_bin_ends = time_bin_starts + interval
-    time_bin_ends[-1] = input.duration
+    time_bin_ends[-1] = video.duration
     return _convert(assembly, time_bin_starts, time_bin_ends)
 
-def per_frame_aligned(assembly, input):
+def per_frame_aligned(assembly, video):
     # this function assumes that the activation of different time steps is aligned with the video frames
     num_t = assembly.sizes['channel_temporal'] if "channel_temporal" in assembly.dims else 1
-    assert input.num_frames <= num_t
-    interval = 1000 / input.fps
+    assert video.num_frames <= num_t
+    interval = 1000 / video.fps
     time_bin_starts = np.arange(0, num_t) * interval
     time_bin_ends = time_bin_starts + interval
     return _convert(assembly, time_bin_starts, time_bin_ends)
 
-def ignore_time(assembly, input):
+def ignore_time(assembly, video):
     # this function treats the activations from the entire video as from a single time bin,
     # and treat the "channel_temporal" as a regular channel dimension and does no conversion 
     asm_type = assembly.__class__
     assembly = assembly.expand_dims("time_bin")
     time_bin_starts = [0]
-    time_bin_ends = [input.duration]
+    time_bin_ends = [video.duration]
     assembly = assembly.assign_coords({
         "time_bin_start": ("time_bin", time_bin_starts),
         "time_bin_end": ("time_bin", time_bin_ends)

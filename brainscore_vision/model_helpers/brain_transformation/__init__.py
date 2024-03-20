@@ -2,7 +2,7 @@ from brainscore_vision import load_benchmark
 from brainscore_vision.model_helpers.brain_transformation.temporal import TemporalIgnore
 from brainscore_vision.model_interface import BrainModel
 from brainscore_vision.utils import LazyLoad
-from .behavior import BehaviorArbiter, LabelBehavior, ProbabilitiesMapping
+from .behavior import BehaviorArbiter, LabelBehavior, ProbabilitiesMapping, OddOneOut
 from .neural import LayerMappedModel, LayerSelection, LayerScores
 
 STANDARD_REGION_BENCHMARKS = {
@@ -24,6 +24,10 @@ class ModelCommitment(BrainModel):
                  visual_degrees=8):
         self.layers = layers
         self.activations_model = activations_model
+        # We set the visual degrees of the ActivationsExtractorHelper here to avoid changing its signature.
+        #  The ideal solution would be to not expose the _extractor of the activations_model here, but to change
+        #  the signature of the ActivationsExtractorHelper. See https://github.com/brain-score/vision/issues/554
+        self.activations_model._extractor.set_visual_degrees(visual_degrees)  # for microsaccades
         self._visual_degrees = visual_degrees
         # region-layer mapping
         if region_layer_map is None:
@@ -40,8 +44,12 @@ class ModelCommitment(BrainModel):
         behavioral_readout_layer = behavioral_readout_layer or layers[-1]
         probabilities_behavior = ProbabilitiesMapping(identifier=identifier, activations_model=activations_model,
                                                       layer=behavioral_readout_layer)
+        odd_one_out = OddOneOut(identifier=identifier, activations_model=activations_model,
+                                layer=behavioral_readout_layer)
         self.behavior_model = BehaviorArbiter({BrainModel.Task.label: logits_behavior,
-                                               BrainModel.Task.probabilities: probabilities_behavior})
+                                               BrainModel.Task.probabilities: probabilities_behavior,
+                                               BrainModel.Task.odd_one_out: odd_one_out,
+                                               })
         self.do_behavior = False
 
     def visual_degrees(self) -> int:

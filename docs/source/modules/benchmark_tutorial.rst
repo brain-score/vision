@@ -129,8 +129,8 @@ Here is an example of a BehavioralAssembly:
            == len(set(assembly['distractor_object'].values)) == 2
 
     # upload to S3
-    package_data_assembly(assembly, assembly_identifier=assembly.name, ,
-                          assembly_class='BehavioralAssembly'
+    package_data_assembly(assembly, assembly_identifier=assembly.name,
+                          assembly_class='BehavioralAssembly',
                           stimulus_set_identifier=stimuli.name)  # link to the StimulusSet
 
 In our experience, it is generally a good idea to include as much metadata as possible (on both StimulusSet and

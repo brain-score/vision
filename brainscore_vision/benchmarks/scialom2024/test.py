@@ -32,8 +32,8 @@ from brainscore_vision.data_helpers import s3
     'Scialom2024_segments-59BehavioralAccuracyDistance',
     'Scialom2024_segments-77BehavioralAccuracyDistance',
     'Scialom2024_segments-100BehavioralAccuracyDistance',
-    'Scialom2024_phosphenes-compositeBehavioralErrorConsistency',
-    'Scialom2024_segments-compositeBehavioralErrorConsistency'
+    'Scialom2024_phosphenes-allBehavioralErrorConsistency',
+    'Scialom2024_segments-allBehavioralErrorConsistency'
 ])
 def test_benchmark_registry(benchmark):
     assert benchmark in benchmark_registry

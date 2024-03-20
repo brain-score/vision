@@ -35,13 +35,13 @@ Experiment Information:
 SUBJECT_GROUPS = ['rgb', 'contours', 'phosphenes-12', 'phosphenes-16', 'phosphenes-21', 'phosphenes-27',
                   'phosphenes-35', 'phosphenes-46', 'phosphenes-59', 'phosphenes-77', 'phosphenes-100', 'segments-12',
                   'segments-16', 'segments-21', 'segments-27', 'segments-35', 'segments-46', 'segments-59',
-                  'segments-77', 'segments-100', 'phosphenes-composite', 'segments-composite']
+                  'segments-77', 'segments-100', 'phosphenes-all', 'segments-all']
 PERCENTAGE_ELEMENTS = {'rgb': 'RGB', 'contours': 'contours', 'phosphenes-12': 12, 'phosphenes-16': 16,
                        'phosphenes-21': 21, 'phosphenes-27': 27, 'phosphenes-35': 35, 'phosphenes-46': 46,
                        'phosphenes-59': 59, 'phosphenes-77': 77, 'phosphenes-100': 100, 'segments-12': 12,
                        'segments-16': 16, 'segments-21': 21, 'segments-27': 27, 'segments-35': 35, 'segments-46': 46,
-                       'segments-59': 59, 'segments-77': 77, 'segments-100': 100, 'phosphenes-composite': 'all',
-                       'segments-composite': 'all'}
+                       'segments-59': 59, 'segments-77': 77, 'segments-100': 100, 'phosphenes-all': 'all',
+                       'segments-all': 'all'}
 
 
 def collect_scialom_behavioral_assembly(data_path, subject_group, percentage_elements, which_composite):
@@ -110,10 +110,10 @@ if __name__ == '__main__':
             num_dims = 2400
             num_subjects = 50
             which_composite = None
-        elif subject_group == 'phosphenes-composite' or subject_group == 'segments-composite':
+        elif subject_group == 'phosphenes-all' or subject_group == 'segments-all':
             num_dims = 13200
             num_subjects = 25
-            which_composite = subject_group[:-10]
+            which_composite = subject_group[:-4]
         else:
             num_dims = 1200
             num_subjects = 25
@@ -136,7 +136,7 @@ if __name__ == '__main__':
         assert len(assembly['condition']) == num_dims
         assert len(assembly['stimulus_id']) == num_dims
 
-        if subject_group == 'phosphenes-composite' or subject_group == 'segments-composite':
+        if subject_group == 'phosphenes-all' or subject_group == 'segments-all':
             # all stimuli within-group shown to all subjects (11 conditions * 48 stimuli = 528 stimuli)
             assert len(np.unique(assembly['stimulus_id'].values)) == 528
         else:
@@ -152,9 +152,11 @@ if __name__ == '__main__':
         assert len(np.unique(assembly['subject_answer'].values)) == 12
 
         # upload to S3
-        package_data_assembly(catalog_identifier='brainio_brainscore',
+        prints = package_data_assembly(catalog_identifier=None,
                               proto_data_assembly=assembly,
                               assembly_identifier=assembly.name,
                               stimulus_set_identifier=assembly.name,
                               assembly_class_name="BehavioralAssembly",
                               bucket_name="brainio-brainscore")
+
+        print(prints)

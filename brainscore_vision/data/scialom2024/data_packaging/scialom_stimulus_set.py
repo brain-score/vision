@@ -110,7 +110,8 @@ if __name__ == '__main__':
         else:
             assert len(stimuli) == 528
         # upload to S3
-        package_stimulus_set(catalog_name="brainio_brainscore",
+        prints = package_stimulus_set(catalog_name=None,
                              proto_stimulus_set=stimuli,
                              stimulus_set_identifier=stimuli.name,
                              bucket_name="brainio-brainscore")
+        print(prints)

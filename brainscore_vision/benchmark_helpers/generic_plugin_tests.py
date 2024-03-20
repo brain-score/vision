@@ -93,12 +93,12 @@ class ProbeModel(BrainModel):
 
         elif self.recording_target is not None:  # neural
             num_units = 300
-            activity = rnd.random(size=(len(stimuli), num_units, self.time_bins))
+            activity = rnd.random(size=(len(stimuli), num_units, len(self.time_bins)))
             return NeuroidAssembly(activity, coords={**stimulus_coords, **{
                 'neuroid_id': ('neuroid', np.arange(num_units)),
                 'region': ('neuroid', [self.recording_target] * num_units),
-                'time_bin_start': ('time_bin', [start for start, end in self.time_bins]),
-                'time_bin_end': ('time_bin', [end for start, end in self.time_bins]),
+                'time_bin_start': ('time_bin', [start_end_from_time_bin(time_bin)[0] for time_bin in self.time_bins]),
+                'time_bin_end': ('time_bin', [start_end_from_time_bin(time_bin)[1] for time_bin in self.time_bins]),
             }}, dims=['presentation', 'neuroid', 'time_bin'])
 
         else:
@@ -158,7 +158,6 @@ class TestStartTask:
                 assert all(isinstance(label, str) for label in probe_model.fitting_stimuli), \
                     "every list item should be a string"
 
-
         elif probe_model.task == BrainModel.Task.probabilities:
             assert probe_model.fitting_stimuli is not None
             assert 'stimulus_id' in probe_model.fitting_stimuli
@@ -191,12 +190,15 @@ class TestStartRecording:
             return pytest.skip("benchmark does not call start_recording")
         # at this point we know that the start_recording method was called
         assert probe_model.time_bins is not None
-        for time_bin_num, (time_bin_start, time_bin_stop) in enumerate(probe_model.time_bins):
-            assert isinstance(time_bin_start, int), f"time_bin {time_bin_num} start is not an integer: {time_bin_start}"
-            assert isinstance(time_bin_stop, int), f"time_bin {time_bin_num} stop is not an integer: {time_bin_stop}"
+        for time_bin_num, time_bin in enumerate(probe_model.time_bins):
+            time_bin_start, time_bin_end = start_end_from_time_bin(time_bin)
+            assert isinstance(time_bin_start, (int, np.integer)), \
+                f"time_bin {time_bin_num} start is not an integer: {time_bin_start}"
+            assert isinstance(time_bin_end, (int, np.integer)), \
+                f"time_bin {time_bin_num} stop is not an integer: {time_bin_end}"
             assert time_bin_start >= 0, f"time_bin {time_bin_num} start is < 0: {time_bin_start}"
-            assert time_bin_start < time_bin_stop, (f"time_bin {time_bin_num} start is not before stop: "
-                                                    f"({time_bin_start}, {time_bin_stop})")
+            assert time_bin_start < time_bin_end, (f"time_bin {time_bin_num} start is not before stop: "
+                                                   f"({time_bin_start}, {time_bin_end})")
 
 
 def test_calls_model_look_at(identifier: str):
@@ -221,7 +223,7 @@ def test_valid_score(identifier: str):
     benchmark = load_benchmark(identifier)
     probe_model = ProbeModel()
     score = benchmark(probe_model)
-    assert np.isnan(score) or (0 <= score <= 1)
+    assert (0 <= score <= 1) or np.isnan(score)
 
 
 def _run_with_stop(benchmark: Benchmark, model: ProbeModel):
@@ -230,3 +232,11 @@ def _run_with_stop(benchmark: Benchmark, model: ProbeModel):
         assert False, "model did not stop on its own"
     except StopIteration:
         return
+
+
+def start_end_from_time_bin(time_bin):
+    try:
+        time_bin_start, time_bin_stop = time_bin
+    except TypeError:  # iteration over 0-d array, e.g. ndarray containing a tuple `ndarray () array((70, 170))`
+        time_bin_start, time_bin_stop = time_bin.item()
+    return time_bin_start, time_bin_stop

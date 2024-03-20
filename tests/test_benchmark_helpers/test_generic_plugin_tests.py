@@ -279,6 +279,7 @@ class TestTestStartRecordingValidTimebins:
         [(50, 70), (60, 80), (70, 90)],
         [(100, 150), (100, 120), (100, 101)],
         [(100, 500)],
+        [(np.int64(70), np.int64(170))],
     ])
     def test_valid_timebins(self, time_bins, mocker):
         load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')

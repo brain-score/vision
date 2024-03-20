@@ -2,4 +2,6 @@
 *.pyc
 *__pycache__*
 *AWSCLIV2.pkg
-*.egg-info
+*.egg-info/
+venv
+.venv

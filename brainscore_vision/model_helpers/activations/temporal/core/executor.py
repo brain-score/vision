@@ -28,6 +28,8 @@ class BatchExecutor:
             function that takes a stimulus and return the property based on which the stimuli can be grouped.
         dtype: np.dtype
             data type of the activations.
+        max_workers: int
+            number of workers for parallel processing. If None, the number of workers will be the number of cpus.
 
     APIs
     ----
@@ -49,7 +51,8 @@ class BatchExecutor:
     """
 
 
-    def __init__(self, get_activations, preprocessing, batch_size, batch_padding, batch_grouper=None, dtype=np.float16):
+    def __init__(self, get_activations, preprocessing, batch_size, batch_padding, 
+                 batch_grouper=None, dtype=np.float16, max_workers=None):
         self.stimuli = []
         self.get_activations = get_activations
         self.batch_size = batch_size
@@ -57,6 +60,7 @@ class BatchExecutor:
         self.batch_grouper = batch_grouper
         self.preprocess = preprocessing
         self.dtype = dtype
+        self.max_workers = max_workers
 
         self._logger = logging.getLogger(fullname(self))
 
@@ -74,7 +78,7 @@ class BatchExecutor:
             properties = parallelize(grouper, data, n_jobs=n_jobs)
             properties = np.array([hash(p) for p in properties])
             sorted_indices = np.argsort(properties)
-            inverse_indices = (sorted_indices == np.arange(N).reshape(-1, 1)).argmax(-1)  # inverse transform
+            inverse_indices = np.argsort(sorted_indices)  # inverse transform
             sorted_properties = properties[sorted_indices]
             sorted_data = np.array(data, dtype='object')[sorted_indices]
         inverse_indices = list(inverse_indices)
@@ -149,6 +153,8 @@ class BatchExecutor:
         
         # torch suggest using the number of cpus as the number of threads, but os.cpu_count() returns the number of threads
         num_threads = min(os.cpu_count() // 2, self.batch_size)  
+        if self.max_workers is not None:
+            num_threads = min(self.max_workers, num_threads)
         loader = DataLoader(_data(), batch_size=global_batch_size, shuffle=False, 
                             collate_fn=list_collate, num_workers=num_threads)
         return loader, indices, mask

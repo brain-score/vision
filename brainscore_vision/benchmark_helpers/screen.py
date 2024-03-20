@@ -32,6 +32,7 @@ def place_on_screen(stimulus_set: StimulusSet, target_visual_degrees: int, sourc
         "Got a parameter for the source images' visual degrees, but also found a 'degrees' column in the stimulus_set"
     inferred_visual_degrees = _determine_visual_degrees(source_visual_degrees, stimulus_set)
     if (inferred_visual_degrees == target_visual_degrees).all():
+        _mark_placed(stimulus_set)
         return stimulus_set
     return _place_on_screen(stimuli_identifier=stimulus_set.identifier, stimulus_set=stimulus_set,
                             target_visual_degrees=target_visual_degrees, source_visual_degrees=source_visual_degrees)
@@ -67,8 +68,12 @@ def _place_on_screen(stimuli_identifier: str, stimulus_set: StimulusSet,
     converted_stimuli.identifier = converted_stimuli_id
     converted_stimuli['degrees'] = target_visual_degrees
     converted_stimuli.original_paths = copy.deepcopy(stimulus_set.stimulus_paths)
-    converted_stimuli.placed_on_screen = True
+    _mark_placed(converted_stimuli)
     return converted_stimuli
+
+
+def _mark_placed(stimulus_set: StimulusSet):
+    stimulus_set.placed_on_screen = True
 
 
 class ImageConverter:

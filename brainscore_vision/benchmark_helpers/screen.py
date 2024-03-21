@@ -4,6 +4,7 @@ Methods to feed visual input to a system-under-test through the screen
 import copy
 import logging
 import os
+import shutil
 
 import numpy as np
 from PIL import Image
@@ -53,7 +54,9 @@ def _place_on_screen(stimuli_identifier: str, stimulus_set: StimulusSet,
     source_visual_degrees = _determine_visual_degrees(source_visual_degrees, stimulus_set)
 
     target_dir = root_path / converted_stimuli_id
-    target_dir.mkdir(parents=True, exist_ok=False)
+    if os.path.exists(target_dir):
+        shutil.rmtree(target_dir)
+    target_dir.mkdir(parents=True, exist_ok=False) 
     image_converter = ImageConverter(target_dir=target_dir)
 
     converted_image_paths = {}

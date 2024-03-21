@@ -223,7 +223,7 @@ def test_valid_score(identifier: str):
     benchmark = load_benchmark(identifier)
     probe_model = ProbeModel()
     score = benchmark(probe_model)
-    assert (0 <= score <= 1) or np.isnan(score)
+    assert (0 <= score <= 1) or np.isnan(score), f"Score {score} is out of bounds"
 
 
 def _run_with_stop(benchmark: Benchmark, model: ProbeModel):

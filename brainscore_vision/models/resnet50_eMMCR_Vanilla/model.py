@@ -28,7 +28,7 @@ def get_model(name):
     download_weights(
         bucket='brainscore-vision', 
         folder_path='models/resnet50_eMMCR_Vanilla',
-        filename_version_sha=[(ckpt_name, 'KadF3fD38Y5yYBmZVLkOJzYW65k728nD', '073f002546a4e940179983222bc99c713febed88')],
+        filename_version_sha=[(ckpt_name, 'BAD_VERSION_ID', '073f002546a4e940179983222bc99c713febed88')],
         save_directory=Path(__file__).parent
     )
     ckpt_path = os.path.join(os.path.dirname(__file__), ckpt_name)  

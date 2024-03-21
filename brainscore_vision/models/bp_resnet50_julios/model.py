@@ -31,6 +31,8 @@ def get_model(name):
         save_directory=Path(__file__).parent
     )
     ckpt_path = os.path.join(os.path.dirname(__file__), ckpt_name)
+    if os.path.exists(ckpt_path):
+        os.remove(ckpt_path)
     model = torch.load(ckpt_path)
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     print(preprocessing)

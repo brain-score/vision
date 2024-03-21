@@ -210,6 +210,9 @@ def test_calls_model_look_at(identifier: str):
 def test_takesintoaccount_model_visual_degrees(identifier: str):
     # make sure place_on_screen is called by adding a marker in that method
     benchmark = load_benchmark(identifier)
+    if benchmark.parent is not None and (
+            benchmark.parent == 'engineering' or benchmark.parent.endswith('-top1')):
+        return pytest.skip("Engineering benchmarks do not have to place on screen")
     probe_model = ProbeModel(stop_on=ProbeModel.STOP.look_at)
     _run_with_stop(benchmark, probe_model)
     assert (hasattr(probe_model.look_at_stimuli, 'placed_on_screen')

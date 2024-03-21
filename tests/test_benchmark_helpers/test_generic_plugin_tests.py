@@ -328,9 +328,10 @@ class TestCallsModelLookAt:
 
 class TestTakesIntoAccountModelVisualDegrees:
     class BenchmarkDummy(Benchmark):
-        def __init__(self, do_place_on_screen: bool, use_candidate_visual_degrees: bool):
+        def __init__(self, do_place_on_screen: bool, use_candidate_visual_degrees: bool, parent: str = 'neural'):
             self.do_place_on_screen = do_place_on_screen
             self.use_candidate_visual_degrees = use_candidate_visual_degrees
+            self._parent = parent
 
         def __call__(self, candidate: BrainModel):
             stimulus_set = StimulusSet({'stimulus_id': [1, 2, 3], 'image_label': [1, 2, 3]})
@@ -341,6 +342,10 @@ class TestTakesIntoAccountModelVisualDegrees:
                 stimulus_set = place_on_screen(stimulus_set=stimulus_set, source_visual_degrees=4,
                                                target_visual_degrees=target_degrees)
             candidate.look_at(stimulus_set)
+
+        @property
+        def parent(self) -> str:
+            return self._parent
 
     def test_properly_uses_place_on_screen(self, mocker):
         load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')
@@ -358,6 +363,18 @@ class TestTakesIntoAccountModelVisualDegrees:
         load_mock.return_value = self.BenchmarkDummy(do_place_on_screen=True, use_candidate_visual_degrees=False)
         with pytest.raises(AssertionError):
             generic_plugin_tests.test_takesintoaccount_model_visual_degrees('dummy')
+
+    @pytest.mark.parametrize('parent', [
+        'engineering',
+        'Geirhos2021-top1',
+        'ImageNet-top1',
+        'ImageNet-C-top1',
+    ])
+    def test_not_using_either_passes_for_engineering(self, parent, mocker):  # these tests are expected to skip
+        load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')
+        load_mock.return_value = self.BenchmarkDummy(do_place_on_screen=False, use_candidate_visual_degrees=False,
+                                                     parent=parent)
+        generic_plugin_tests.test_takesintoaccount_model_visual_degrees('dummy')
 
 
 class TestValidScore:
@@ -403,14 +420,14 @@ class TestValidScore:
         Score(-1),
         None,
         '12',
-        'score'
-        # (0.6, 0.3),
-        # np.array([0.12, 0.1]),
+        'score',
+        (0.6, 0.3),
+        np.array([0.12, 0.1]),
     ])
     def test_invalid_fails(self, score, mocker):
         load_mock = mocker.patch('brainscore_vision.benchmark_helpers.generic_plugin_tests.load_benchmark')
         load_mock.return_value = self.BenchmarkDummy(score=score)
-        with pytest.raises((AssertionError, TypeError)):
+        with pytest.raises((AssertionError, TypeError, ValueError)):
             generic_plugin_tests.test_valid_score('dummy')
 
 

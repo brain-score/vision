@@ -202,7 +202,7 @@ def test_from_image_path(model_ctr, layers, image_name, pca_components, logits):
     gc.collect()  # free some memory, we're piling up a lot of activations at this point
     return activations
 
-
+@pytest.mark.memory_intense
 @pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png',
                                         'palletized.png'])
 @pytest.mark.parametrize(["model_ctr", "layers"], models_layers)
@@ -223,7 +223,7 @@ def test_require_variance_has_shift_coords(model_ctr, layers, image_name, number
     assert len(activations['microsaccade_shift_x_degrees']) == number_of_trials * len(stimulus_paths)
     assert len(activations['microsaccade_shift_y_degrees']) == number_of_trials * len(stimulus_paths)
 
-
+@pytest.mark.memory_intense
 @pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png',
                                         'palletized.png'])
 @pytest.mark.parametrize(["model_ctr", "layers"], models_layers)
@@ -245,7 +245,7 @@ def test_require_variance_presentation_length(model_ctr, layers, image_name, req
     else:
         assert len(activations['presentation']) == 1
 
-
+@pytest.mark.memory_intense
 @pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png',
                                         'palletized.png'])
 @pytest.mark.parametrize(["model_ctr", "layers"], models_layers)

@@ -63,7 +63,7 @@ class Hebart2023Match(BenchmarkBase):
         # Score the model
         # We chose not to compute error estimates but you could compute them
         # by spliting the data into five folds and computing the standard deviation.
-        correct_choices = choices.values == self._assembly.coords["image_3"].values
+        correct_choices = choices.values == self._assembly.coords["image_3"].values  # third image is always correct
         raw_score = np.sum(correct_choices) / len(choices['presentation'])
         score = (raw_score - 1 / 3) / (self.ceiling - 1 / 3)
         bound_score(score)

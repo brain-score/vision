@@ -26,7 +26,7 @@ def get_model(name):
     ckpt_name = 'bp_export.pt'
     download_weights(
         bucket='brainscore-vision',
-        folder_path=f'models/{name}',
+        folder_path='models/bp_resnet50_julios',
         filename_version_sha=[(ckpt_name, 'PAH2BMGhcw9tWUH6RwTIADHodw.fyG4G', 'e504fc533aaec453f24e73a86e47ca6df3394c53')],
         save_directory=Path(__file__).parent
     )

@@ -6,3 +6,6 @@
 venv
 .venv
 .DS_Store
+
+# Model Weights
+brainscore_vision/models/**/*.pt

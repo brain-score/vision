@@ -1,11 +1,12 @@
 import numpy as np
 import pandas as pd
+
 from brainio.stimuli import StimulusSet
 from brainscore_vision import load_dataset, load_stimulus_set
-from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
-from brainscore_vision.model_interface import BrainModel
+from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.metrics import Score
+from brainscore_vision.model_interface import BrainModel
 
 BIBTEX = """@article{10.7554/eLife.82580,
           author = {Hebart, Martin N and Contier, Oliver and Teichmann, Lina and Rockter, Adam H and Zheng, Charles Y and Kidder, Alexis and Corriveau, Anna and Vaziri-Pashkam, Maryam and Baker, Chris I},
@@ -16,10 +17,12 @@ BIBTEX = """@article{10.7554/eLife.82580,
           volume = 12,
           year = 2023
           }"""
+VISUAL_DEGREES = 8
+
 
 class Hebart2023Match(BenchmarkBase):
     def __init__(self, similarity_measure='dot'):
-        self._visual_degrees = 8
+        self._visual_degrees = VISUAL_DEGREES
         self._number_of_trials = 1
         self._assembly = load_dataset('Hebart2023')
         self._stimulus_set = load_stimulus_set('Hebart2023')
@@ -32,12 +35,13 @@ class Hebart2023Match(BenchmarkBase):
             parent='Hebart2023',
             bibtex=BIBTEX
         )
-    
-    def set_number_of_triplets(self, n):
+
+    def set_number_of_triplets(self, n: int):
+        """ Allows to reduce the number of triplets to reduce the compute requirements for debugging """
         self._assembly = self._assembly[:n]
 
     def __call__(self, candidate: BrainModel):
-        # Create the new StimulusSet
+        # Create stimuli with triplets (all 3 consecutive stimuli form one trial following model_interface)
         self.triplets = np.array([
             self._assembly.coords["image_1"].values,
             self._assembly.coords["image_2"].values,
@@ -48,6 +52,7 @@ class Hebart2023Match(BenchmarkBase):
         stimuli = pd.concat(stimuli_data)
         stimuli.columns = self._stimulus_set.columns
 
+        # package into StimulusSet again
         stimuli = StimulusSet(stimuli)
         stimuli.identifier = 'Hebart2023'
         stimuli.stimulus_paths = self._stimulus_set.stimulus_paths
@@ -67,9 +72,9 @@ class Hebart2023Match(BenchmarkBase):
         # Score the model
         # We chose not to compute error estimates but you could compute them
         # by spliting the data into five folds and computing the standard deviation.
-        correct_choices = choices.values == self._assembly.coords["image_3"].values
-        raw_score = np.sum(correct_choices)/len(choices)
-        score = (raw_score - 1/3)/(self.ceiling - 1/3)
+        correct_choices = choices.values == self._assembly.coords["image_3"].values  # third image is always correct
+        raw_score = np.sum(correct_choices) / len(choices)
+        score = (raw_score - 1 / 3) / (self.ceiling - 1 / 3)
         score = max(0, score)
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = self.ceiling

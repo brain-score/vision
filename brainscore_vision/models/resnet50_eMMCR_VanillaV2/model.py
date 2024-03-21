@@ -27,7 +27,7 @@ def get_model(name):
     model = torchvision.models.resnet50(pretrained=False)
     url = "https://users.flatironinstitute.org/~tyerxa/equi_proj/training_checkpoints/classifiers/vanilla/classifier.pt"
     fh = urlretrieve(url)
-    state_dict = torch.load(fh, map_location=torch.device("cpu"))
+    state_dict = torch.load(fh[0], map_location=torch.device("cpu"))
     model.load_state_dict(state_dict)
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(

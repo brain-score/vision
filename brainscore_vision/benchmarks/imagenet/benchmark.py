@@ -24,7 +24,7 @@ class Imagenet2012(BenchmarkBase):
         ceiling = Score(1)
         super(Imagenet2012, self).__init__(identifier='ImageNet-top1', version=1,
                                            ceiling_func=lambda: ceiling,
-                                           parent='ImageNet',
+                                           parent='engineering',
                                            bibtex="""@INPROCEEDINGS{5206848,  
                                                 author={J. {Deng} and W. {Dong} and R. {Socher} and L. {Li} and  {Kai Li} and  {Li Fei-Fei}},  
                                                 booktitle={2009 IEEE Conference on Computer Vision and Pattern Recognition},   

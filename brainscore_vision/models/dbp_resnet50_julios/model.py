@@ -30,7 +30,7 @@ def get_model(name):
         filename_version_sha=[(ckpt_name, 'HpyXY.W.WtS8zD.wJ7BVfvSbQDX.1Md4', '6efa18bfe4b70221d7e88ac2d2279d08042f23da')],
         save_directory=Path(__file__).parent
     )
-    ckpt_path = os.path.join(os.path.dirname(__file__), ckpt_name)
+    ckpt_path = Path(__file__).parent / ckpt_name
     model = torch.load(ckpt_path)    
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     print(preprocessing)

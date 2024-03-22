@@ -31,7 +31,7 @@ def get_model(name):
         filename_version_sha=[(ckpt_name, 'KadF3fD38Y5yYBmZVLkOJzYW65k728nD', '073f002546a4e940179983222bc99c713febed88')],
         save_directory=Path(__file__).parent
     )
-    ckpt_path = os.path.join(os.path.dirname(__file__), ckpt_name)  
+    ckpt_path = Path(__file__).parent / ckpt_name
     state_dict = torch.load(ckpt_path, map_location=torch.device('cpu'))
     model.load_state_dict(state_dict)
     preprocessing = functools.partial(load_preprocess_images, image_size=224)

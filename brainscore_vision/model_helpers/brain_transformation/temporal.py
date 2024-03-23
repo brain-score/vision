@@ -100,7 +100,7 @@ def assembly_time_align(source, target_time_bins, mode="portion"):
         weights = source_belong_to[relevant]
         data = (data * weights).sum(-1) / weights.sum()  # weighted average
         ret_data.append(data)
-    ret_data = np.stack(ret_data, -1)
+    ret_data = np.stack(ret_data, -1)  # can be memory-intensive
 
     # create assembly
     coords = {k: v for k, v in source.coords.items() if k != "time_bin"}

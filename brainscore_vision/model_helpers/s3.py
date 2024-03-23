@@ -40,8 +40,7 @@ def load_file_from_s3(bucket: str, path: str, local_filepath: Union[Path, str],
                           local_filename=Path(local_filepath).parent)
     fetcher.output_filename = str(local_filepath)  # force using this local path instead of folder structure
     fetcher.fetch()
-<<<<<<< HEAD
-    verify_sha1(local_filename, sha1)
+    verify_sha1(local_filepath, sha1)
 
 
 def load_weight(bucket: str, relative_path: str, version_id: str, sha1: str):
@@ -67,6 +66,3 @@ if __name__ == "__main__":
     )
     
     print(pth)
-=======
-    verify_sha1(local_filepath, sha1)
->>>>>>> upstream/master

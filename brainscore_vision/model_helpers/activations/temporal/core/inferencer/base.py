@@ -10,7 +10,7 @@ from brainio.assemblies import NeuroidAssembly, walk_coords
 from brainscore_vision.model_helpers.utils import fullname
 
 from brainscore_vision.model_helpers.activations.temporal.core.executor import BatchExecutor
-from brainscore_vision.model_helpers.activations.temporal.core.utils import stack_with_nan_padding
+from brainscore_vision.model_helpers.activations.temporal.utils import stack_with_nan_padding, batch_2d_resize
 from brainscore_vision.model_helpers.activations.temporal.inputs import Stimulus
 
 
@@ -85,14 +85,21 @@ class Inferencer:
         self.max_spatial_size = max_spatial_size
         self.visual_degrees = visual_degrees
         self.dtype = dtype
-        self._executor = BatchExecutor(get_activations, preprocessing, batch_size, batch_padding, batch_grouper, dtype)
+        self._executor = BatchExecutor(get_activations, preprocessing, batch_size, batch_padding, batch_grouper)
         self._stimulus_set_hooks = {}
         self._batch_activations_hooks = {}
         self._logger = logging.getLogger(fullname(self))
 
+        # register hooks
+        self._executor.register_after_hook(self._make_dtype_hook(dtype))
+        self._executor.register_after_hook(self._make_spatial_downsample_hook(max_spatial_size))
+
     @property
     def identifier(self):
-        to_add = [f".visual_degrees={self.visual_degrees}"]
+        to_add = [
+            f".dtype={self.dtype}",
+            f".visual_degrees={self.visual_degrees}",
+        ]
         if self.max_spatial_size is not None:
             to_add.append(f".max_spatial={self.max_spatial_size}")
         to_add = "".join(to_add)
@@ -112,7 +119,14 @@ class Inferencer:
 
     # List[path] -> List[Stimulus] 
     def convert_paths(self, paths):
-        return [self.stimulus_type.from_path(p) for p in paths]
+        ret = []
+        for p in tqdm(paths, desc="Loading stimuli"):
+            ret.append(self.convert_single_path(p))
+        return ret
+
+    # path -> Stimulus 
+    def convert_single_path(self, path):
+        return self.stimulus_type.from_path(path)
     
     # List[Stimulus] -> Dict[layer: List[activation]]
     def inference(self, stimuli, layers):
@@ -200,7 +214,6 @@ class Inferencer:
         dims = channel_names
         coords = {dim: range(activation.shape[i]) for i, dim in enumerate(dims)}
         ret = NeuroidAssembly(activation, coords=coords, dims=dims)
-        ret = self._spatial_downsample(ret)
         return ret
     
     def _compute_new_size(self, w, h):
@@ -228,13 +241,7 @@ class Inferencer:
             tmp = tmp.reshape(h, w, -1)
             new_size = self._compute_new_size(w, h)
 
-            import cv2
-            if interpolation == "bilinear":
-                interpolation = cv2.INTER_LINEAR
-            else:
-                raise ValueError(f"Unknown interpolation method: {interpolation}")
-
-            new_vals = cv2_resize(tmp, new_size, interpolation)
+            new_vals = batch_2d_resize(tmp, new_size, interpolation)
             new_vals = new_vals.reshape(*new_size, *others)
             new_spatial_coords = {"channel_y": range(new_size[0]), "channel_x": range(new_size[1])}
             ret = packaged_activation.__class__(new_vals, coords={**nonspatial_coords, **new_spatial_coords}, dims=dims)
@@ -247,6 +254,32 @@ class Inferencer:
         asm_cls = assembly.__class__
         assembly = assembly.stack(neuroid=channels).reset_index('neuroid')
         return asm_cls(assembly)
+    
+    def _make_dtype_hook(self, dtype):
+        return lambda val, layer, stimulus: val.astype(dtype)
+    
+    def _make_spatial_downsample_hook(self, max_spatial_size):
+        def hook(val, layer, stimulus):
+            if max_spatial_size is None:
+                return val
+            
+            dims = self.layer_activation_format[layer]
+
+            if "H" not in dims or "W" not in dims:
+                return val
+
+            H_dim, W_dim = dims.index("H"), dims.index("W")
+            val = val.swapaxes(H_dim, 0).swapaxes(W_dim, 1)
+            shape = val.shape[2:]
+            h, w = val.shape[:2]
+            val = val.reshape(h, w, -1)
+            new_size = self._compute_new_size(w, h)
+            new_val = batch_2d_resize(val[None,:], new_size, mode="bilinear")[0]
+            new_val = new_val.reshape(*new_size, *shape)
+            new_val = new_val.swapaxes(0, H_dim).swapaxes(1, W_dim)
+
+            return new_val
+        return hook
 
 
 def flatten(layer_output, from_index=1, return_index=False):
@@ -273,14 +306,3 @@ def flatten(layer_output, from_index=1, return_index=False):
     return flattened, index
 
 
-# cv2 has the wierd bug of cannot handling too large channel size
-def cv2_resize(arr, size, mode, batch_size=256):
-    # arr [H, W, C]
-    import cv2
-    ori_dtype = arr.dtype
-    arr = arr.astype(float)
-    C = arr.shape[-1]
-    ret = []
-    for i in range(0, C, batch_size):
-        ret.append(cv2.resize(arr[..., i:i+batch_size], size, interpolation=mode))
-    return np.concatenate(ret, axis=-1).astype(ori_dtype)

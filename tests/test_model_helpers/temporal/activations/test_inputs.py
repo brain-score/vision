@@ -24,7 +24,7 @@ def test_video_load_frames():
 
 def test_video():
     video1 = Video.from_path(video_paths[0])
-    video2 = Video.from_img(img_path, 1000, 30)
+    video2 = Video.from_img_path(img_path, 1000, 30)
 
     assert video2.duration == 1000
 
@@ -68,5 +68,3 @@ def test_video():
         for t in [extra1, extra2, extra3] + common:
             video = v.set_window(t-duration, t, padding="repeat")
             assert video.to_numpy().shape[0] == target_num_frames
-
-    

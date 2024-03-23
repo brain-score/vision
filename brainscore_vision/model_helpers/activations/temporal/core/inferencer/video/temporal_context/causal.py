@@ -3,7 +3,7 @@ from collections import OrderedDict
 
 from .base import TemporalContextInferencerBase
 from brainscore_vision.model_helpers.activations.temporal.inputs.video import Video
-from brainscore_vision.model_helpers.activations.temporal.core.utils import stack_with_nan_padding
+from brainscore_vision.model_helpers.activations.temporal.utils import stack_with_nan_padding
 
 
 class CausalInferencer(TemporalContextInferencerBase):
@@ -29,18 +29,6 @@ class CausalInferencer(TemporalContextInferencerBase):
             else:
                 del kwargs["time_alignment"]
         super().__init__(*args, **kwargs, time_alignment="per_frame_aligned")
-
-    def convert_paths(self, paths):
-        videos = []
-        for path in paths:
-            if self.convert_to_video:
-                video = Video.from_img(path, self.img_duration, self.fps)
-            else:
-                video = Video.from_path(path)
-            videos.append(video)
-        videos = [video.set_fps(self.fps) for video in videos]
-        # do not check here.
-        return videos
         
     def _get_time_start(self, time_end, context, lower):
         assert context >= lower, f"Temporal context {context} is not within the range {lower}"

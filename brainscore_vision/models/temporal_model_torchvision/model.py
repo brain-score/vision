@@ -1,3 +1,4 @@
+import torch
 from torchvision import transforms
 from torchvision.models import video as vid
 
@@ -6,8 +7,9 @@ from brainscore_vision.model_helpers.activations.temporal.model.pytorch import P
 
 def get_transform_video(transform_img):
     def transform_video(video):
-        import torch
-        frames = torch.Tensor(video.to_numpy() / 255.0).permute(0, 3, 1, 2)
+        frames = video.to_numpy() / 255.
+        frames = torch.Tensor(frames)
+        frames = frames.permute(0, 3, 1, 2)
         frames = transform_img(frames)
         return frames.permute(1, 0, 2, 3)
     return transform_video

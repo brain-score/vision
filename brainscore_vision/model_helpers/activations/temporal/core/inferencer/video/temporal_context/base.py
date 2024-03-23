@@ -1,3 +1,5 @@
+from tqdm import tqdm
+
 from ..base import TemporalInferencer
 
 
@@ -76,3 +78,11 @@ class TemporalContextInferencerBase(TemporalInferencer):
             raise ValueError(f"Unknown temporal context strategy: {strategy}")
 
         return lower, context
+    
+    def convert_paths(self, paths):
+        videos = []
+        for path in tqdm(paths, desc="Loading videos"):
+            videos.append(self.convert_single_path(path))
+        videos = [video.set_fps(self.fps) for video in videos]
+        # do not check here.
+        return videos

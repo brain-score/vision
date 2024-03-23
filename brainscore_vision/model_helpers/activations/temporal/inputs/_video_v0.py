@@ -1,47 +1,30 @@
-import cv2
-from decord import VideoReader
 import numpy as np
+import moviepy.editor as mpe
 from PIL import Image as PILImage
-import multiprocessing as mp
+from typing import Union
 
 from .base import Stimulus
 from .image import Image
-from brainscore_vision.model_helpers.activations.temporal.utils import batch_2d_resize
-
-
-def get_video_stats(video_path):
-    cap = cv2.VideoCapture(video_path)
-    length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    fps    = cap.get(cv2.CAP_PROP_FPS)
-    size = (width, height)
-    duration = length / fps * 1000
-    cap.release()
-    return fps, duration, size
-
-
-def get_image_stats(image_path):
-    img = PILImage.open(image_path)
-    size = img.size
-    img.close()
-    return size
 
 
 class Video(Stimulus):
     """Video object that represents a video clip."""
 
-    def __init__(self, path, fps, start, end, size):
-        self._path = path
+    def __init__(self, frames: np.array, fps: int):
+        self._frames = frames  # [F, H, W, C]
         self._fps = fps
-        self._size = size
-        self._original_fps = self._fps
-        self._start = start
-        self._end = end
+        self._original_fps = fps
+        self._size = (frames.shape[2], frames.shape[1])  # (width, height)
+        self._start = 0
+        self._end = frames.shape[0] / fps * 1000  # in ms
 
     def copy(self):
         # return view
-        video = self.__class__(self._path, self._fps, self._start, self._end, self._size)
+        video = Video(self._frames, self._fps)
+        video._size = self._size
+        video._start = self._start
+        video._end = self._end
+        video._original_fps = self._original_fps
         return video
     
     @property
@@ -88,25 +71,28 @@ class Video(Stimulus):
         video._end = self._start + end
         return video
     
-    def get_frames(self, indices):
-        reader = VideoReader(self._path)
-        frames = reader.get_batch(indices).asnumpy()
-        del reader
-        return frames
-
     ### I/O
+    def _from_mpe_clip(clip):
+        frames = np.array(list(clip.iter_frames()))
+        ret = Video(frames, clip.fps)
+        clip.close()
+        return ret
+
     def from_path(path):
-        path = path
-        fps, end, size = get_video_stats(path)
-        start = 0
-        return Video(path, fps, start, end, size)
+        mov = mpe.VideoFileClip(path)
+        return Video._from_mpe_clip(mov)
     
-    def from_img_path(img_path, duration, fps):
+    def from_img(img: Union[PILImage.Image, str, Image], duration, fps):
         # duration in ms
-        size = get_image_stats(img_path)
-        return VideoFromImage(img_path, fps, 0, duration, size)
+        if isinstance(img, Image):
+            img = img._file
+        mov = mpe.ImageClip(img, duration=duration/1000).set_fps(fps)
+        return Video._from_mpe_clip(mov)
     
     def to_numpy(self):
+        # actual conversion
+        frames = self._frames
+
         # get the time stamps of frame samples
         start_frame = self._start * self._original_fps / 1000
         end_frame = self._end * self._original_fps / 1000
@@ -115,14 +101,14 @@ class Video(Stimulus):
         sample_indices = samples.astype(int)
 
         # padding: repeat the first/last frame
-        sample_indices = np.clip(sample_indices, 0, self.num_frames-1)
+        sample_indices = np.clip(sample_indices, 0, len(frames)-1)
 
         # actual sampling
-        frames = self.get_frames(sample_indices)
+        frames = frames[sample_indices]
 
         # resizing
         if self._size != (frames.shape[2], frames.shape[1]):
-            frames = batch_2d_resize(frames, self._size, cv2.INTER_LINEAR)
+            frames = np.array([mpe.ImageClip(frame).resize(self._size).get_frame(0) for frame in frames])
 
         return frames
     
@@ -138,10 +124,3 @@ class Video(Stimulus):
         raise NotImplementedError()
         return path
     
-
-class VideoFromImage(Video):
-    def get_frames(self, indices):
-        data = Image.from_path(self._path).to_numpy()
-        N = len(indices)
-        ret = np.repeat(data[np.newaxis, ...], N, axis=0)
-        return ret

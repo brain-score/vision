@@ -1,3 +1,5 @@
+from typing import Union
+
 import numpy as np
 
 from brainio.assemblies import NeuroidAssembly, DataAssembly

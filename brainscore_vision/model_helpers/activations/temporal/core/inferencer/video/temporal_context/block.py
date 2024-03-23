@@ -1,9 +1,9 @@
 import numpy as np
 from collections import OrderedDict
+from tqdm import tqdm
 
 from .base import TemporalContextInferencerBase
-from brainscore_vision.model_helpers.activations.temporal.inputs.video import Video
-from brainscore_vision.model_helpers.activations.temporal.core.utils import stack_with_nan_padding
+from brainscore_vision.model_helpers.activations.temporal.utils import stack_with_nan_padding
 
 
 class BlockInferencer(TemporalContextInferencerBase):
@@ -17,21 +17,13 @@ class BlockInferencer(TemporalContextInferencerBase):
     The block size is determined by the temporal parameters (num_frames & duration) and temporal_context_strategy.
     If num_frames or duration is given, the model's temporal context will be set to match the two.
     """
-
-    def convert_paths(self, paths):
-        videos = []
-        for path in paths:
-            if self.convert_to_video:
-                video = Video.from_img(path, self.img_duration, self.fps)
-            else:
-                video = Video.from_path(path)
-            videos.append(video)
-        videos = [video.set_fps(self.fps) for video in videos]
-        # do not check here.
-        return videos
     
     def inference(self, stimuli, layers):
         _, context = self._compute_temporal_context()
+
+        if np.isinf(context):
+            return super().inference(stimuli, layers)
+        
         num_clips = []
         latest_time_end = 0
         for inp in stimuli:

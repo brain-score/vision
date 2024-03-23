@@ -1,9 +1,9 @@
 import numpy as np
 from typing import Union, Tuple, Callable, Hashable
+from tqdm import tqdm
 
 from brainscore_vision.model_helpers.activations.temporal.inputs.video import Video
-from brainscore_vision.model_helpers.activations.temporal.utils import assembly_align_to_fps
-from brainscore_vision.model_helpers.activations.temporal.core.utils import stack_with_nan_padding
+from brainscore_vision.model_helpers.activations.temporal.utils import assembly_align_to_fps, stack_with_nan_padding
 from brainio.assemblies import NeuroidAssembly
 
 from ..base import Inferencer
@@ -101,14 +101,17 @@ class TemporalInferencer(Inferencer):
             if self.duration is not None:
                 assert self.duration[0] <= video.duration <= self.duration[1]
 
+    def convert_single_path(self, path):
+        if self.convert_to_video:
+            video = Video.from_img_path(path, self.img_duration, self.fps)
+        else:
+            video = Video.from_path(path)
+        return video
+
     def convert_paths(self, paths):
         videos = []
-        for path in paths:
-            if self.convert_to_video:
-                video = Video.from_img(path, self.img_duration, self.fps)
-            else:
-                video = Video.from_path(path)
-            videos.append(video)
+        for path in tqdm(paths, desc="Loading videos"):
+            videos.append(self.convert_single_path(path))
         videos = [video.set_fps(self.fps) for video in videos]
         self.longest_stimulus = videos[np.argmax(np.array([stimulus.duration for stimulus in videos]))]
         self._check_videos(videos)

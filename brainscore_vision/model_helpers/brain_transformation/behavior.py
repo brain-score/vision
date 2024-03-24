@@ -272,7 +272,7 @@ class OddOneOut(BrainModel):
 
     def calculate_similarity_matrix(self, features):
         features = features.transpose('presentation', 'neuroid')
-        values = abs(features.values)
+        values = np.maximum(0, features.values)
         if self.similarity_measure == 'dot':
             similarity_matrix = np.dot(values, np.transpose(values))
         elif self.similarity_measure == 'cosine':

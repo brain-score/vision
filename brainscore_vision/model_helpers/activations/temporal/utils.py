@@ -57,6 +57,7 @@ def stack_with_nan_padding(arr_list, axis=0, dtype=np.float16):
 
     result = np.stack(results, axis=axis)
     result = np.swapaxes(result, 0, axis)
+    result = result.astype(dtype)
 
     return result
 
@@ -70,7 +71,9 @@ def batch_2d_resize(arr, size, mode):
         mode = cv2.INTER_LINEAR
         ret = cv2_resize(arr, size, mode)
     elif mode == "pool":
-        ret = proportional_average_pooling(arr, size)
+        # ret = proportional_average_pooling(arr, size)
+        mode = cv2.INTER_AREA
+        ret = cv2_resize(arr, size, mode)
     ret = ret.reshape(size[1], size[0], C, N).transpose(3, 0, 1, 2)
     return ret
 
@@ -105,7 +108,7 @@ def proportional_average_pooling(arr, size):
 
 
 # cv2 has the wierd bug of cannot handling too large channel size
-def cv2_resize(arr, size, mode, batch_size=256):
+def cv2_resize(arr, size, mode, batch_size=3):
     # arr [H, W, C]
     import cv2
     ori_dtype = arr.dtype
@@ -113,7 +116,9 @@ def cv2_resize(arr, size, mode, batch_size=256):
     C = arr.shape[-1]
     ret = []
     for i in range(0, C, batch_size):
-        ret.append(cv2.resize(arr[..., i:i+batch_size], size, interpolation=mode))
+        val = cv2.resize(arr[..., i:i+batch_size], size, interpolation=mode)
+        if len(val.shape)<3: val = val[...,None]
+        ret.append(val)
     return np.concatenate(ret, axis=-1).astype(ori_dtype)
 
 

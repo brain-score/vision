@@ -1,11 +1,15 @@
 import sys
+import os
+import subprocess
 
 import torch
-from .models import models_vit, pathmgr, interpolate_pos_embed, misc
+from iopath.common.file_io import g_pathmgr as pathmgr
+from mae_st import models_vit 
+from mae_st.util import misc 
+from mae_st.util.pos_embed import interpolate_pos_embed
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
-from brainscore_vision.models.temporal_models.weights import weight_registry   
-
+from brainscore_vision.model_helpers.s3 import load_weight_file
 
 mean = (0.45, 0.45, 0.45)
 std = (0.225, 0.225, 0.225)
@@ -27,11 +31,17 @@ def transform_video(video):
 
 
 def get_model(identifier):
+
     if identifier == "MAE-ST-L":
         model_name = "vit_large_patch16"
-        pth = weight_registry["mae_st/mae_pretrain_vit_large_k400.pth"]
         num_blocks = 24
         feature_map_size = 14
+        load_path = load_weight_file(
+            bucket="brainscore-vision", 
+            relative_path="temporal_model_mae_st/mae_pretrain_vit_large_k400.pth", 
+            version_id="cPcP4AzpG95CimQ5Pn.CHKnGUJlLXM3m",
+            sha1="c7fb91864a4ddf8b99309440121a3abe66b846bb"
+        )
 
     num_frames = 16
     t_patch_size = 2
@@ -41,10 +51,10 @@ def get_model(identifier):
         t_patch_size=t_patch_size
     )
 
-    with pathmgr.open(pth, "rb") as f:
+    with pathmgr.open(load_path, "rb") as f:
         checkpoint = torch.load(f, map_location="cpu")
 
-    print("Load pre-trained checkpoint from: %s" % pth)
+    print("Load pre-trained checkpoint from: %s" % load_path)
     if "model" in checkpoint.keys():
         checkpoint_model = checkpoint["model"]
     else:

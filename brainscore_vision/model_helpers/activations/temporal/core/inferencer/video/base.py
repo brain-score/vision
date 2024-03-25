@@ -64,7 +64,7 @@ class TemporalInferencer(Inferencer):
             time_alignment : str = "evenly_spaced",
             convert_img_to_video : bool = True,
             img_duration : float = 1000.,
-            batch_size : int = 16,
+            batch_size : int = 32,
             batch_grouper : Callable[[Video], Hashable] = lambda video: (video.duration, video.fps),  # not including video.frame_size because most preprocessors will change the frame size to be the same
             **kwargs,
     ):

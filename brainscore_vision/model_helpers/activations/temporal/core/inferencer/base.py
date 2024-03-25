@@ -225,29 +225,6 @@ class Inferencer:
             new_h = int(h * new_w / w)
         return new_h, new_w
 
-    def _spatial_downsample(self, packaged_activation, interpolation="bilinear"):
-        if self.max_spatial_size is None:
-            return packaged_activation
-        else:
-            ori_dims = packaged_activation.dims
-            assert "channel_y" in ori_dims and "channel_x" in ori_dims
-            nonspatial_coords = {coord: (dims, values) for coord, dims, values in walk_coords(packaged_activation)
-                                 if "channel_y" not in dims and "channel_x" not in dims}
-            tmp = packaged_activation.transpose("channel_y", "channel_x", ...)
-            dims = tmp.dims
-            tmp = tmp.values
-            h, w = tmp.shape[:2]
-            others = tmp.shape[2:]
-            tmp = tmp.reshape(h, w, -1)
-            new_size = self._compute_new_size(w, h)
-
-            new_vals = batch_2d_resize(tmp, new_size, interpolation)
-            new_vals = new_vals.reshape(*new_size, *others)
-            new_spatial_coords = {"channel_y": range(new_size[0]), "channel_x": range(new_size[1])}
-            ret = packaged_activation.__class__(new_vals, coords={**nonspatial_coords, **new_spatial_coords}, dims=dims)
-            ret = ret.transpose(*ori_dims)
-            return ret
-
     # stack the channel dimensions to form the "neuroid" dimension
     @staticmethod
     def _stack_neuroid(assembly, channels):
@@ -258,7 +235,7 @@ class Inferencer:
     def _make_dtype_hook(self, dtype):
         return lambda val, layer, stimulus: val.astype(dtype)
     
-    def _make_spatial_downsample_hook(self, max_spatial_size):
+    def _make_spatial_downsample_hook(self, max_spatial_size, mode="pool"):
         def hook(val, layer, stimulus):
             if max_spatial_size is None:
                 return val
@@ -274,10 +251,9 @@ class Inferencer:
             h, w = val.shape[:2]
             val = val.reshape(h, w, -1)
             new_size = self._compute_new_size(w, h)
-            new_val = batch_2d_resize(val[None,:], new_size, mode="pool")[0]
+            new_val = batch_2d_resize(val[None,:], new_size, mode=mode)[0]
             new_val = new_val.reshape(*new_size, *shape)
             new_val = new_val.swapaxes(0, H_dim).swapaxes(1, W_dim)
-
             return new_val
         return hook
 

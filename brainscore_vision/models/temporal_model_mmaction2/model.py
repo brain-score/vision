@@ -2,6 +2,7 @@ import os
 import numpy as np
 
 import mmengine
+import mmaction
 from mmaction.apis import init_recognizer
 from mmengine.registry import init_default_scope
 from mmengine.dataset import Compose, pseudo_collate
@@ -9,13 +10,13 @@ from mmengine.dataset import Compose, pseudo_collate
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
 
 
-HOME = os.path.abspath(os.path.dirname(__file__))
+HOME = os.path.join(os.path.dirname(mmaction.__file__), "models")
 
 
 class MMActionModelWrapper(PytorchWrapper):
     meta = None
 
-    def load_meta(self, path=os.path.join(HOME, "mmaction2.csv")):
+    def load_meta(self, path=os.path.join(os.path.dirname(__file__), "mmaction2.csv")):
         if self.meta is None:
             import pandas as pd
             self.meta = pd.read_csv(path)

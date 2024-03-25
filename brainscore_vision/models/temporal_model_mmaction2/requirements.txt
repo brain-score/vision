@@ -1,2 +1,2 @@
-mmaction2==1.2.0
+mmaction2 @ git+https://github.com/YingtianDt/mmaction2.git@533edc3
 mmengine

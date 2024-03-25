@@ -43,26 +43,29 @@ def load_file_from_s3(bucket: str, path: str, local_filepath: Union[Path, str],
     verify_sha1(local_filepath, sha1)
 
 
-def load_weight(bucket: str, relative_path: str, version_id: str, sha1: str):
-    s3_weight_folder = os.getenv("BRAINSCORE_S3_WEIGHT_FOLDER", "models-to-integrate-for-2.0")
+def load_weight_file(bucket: str, relative_path: str, version_id: str, sha1: str):
+    """
+    :param relative_path: The path of the file inside the S3 bucket, relative to the `models/` directory.
+        The local path will be the same, relative to the local cache's `models/` directory (inside `BRAINSCORE_HOME`).
+        Example: `alexnet/weights.pth` will download from brain-score S3:models/alexnet/weights.pth and
+        and store into local ~/.brain-score/models/alexnet/weights.pth.
+    """
     brainscore_cache = os.getenv("BRAINSCORE_HOME", expanduser("~/.brain-score"))
+    s3_weight_folder = os.getenv("BRAINSCORE_S3_WEIGHT_FOLDER", "models-to-integrate-for-2.0")
     local_path = Path(brainscore_cache) / "models" / relative_path
-    if not os.path.exists(local_path):
-        os.makedirs(local_path.parent, exist_ok=True)
-        load_file_from_s3(bucket=bucket, path=f"{s3_weight_folder}/{relative_path}", version_id=version_id, sha1=sha1,
-                        local_filename=local_path)
-    else:
-        _logger.info(f"Weight already exists at {local_path}.")
+    local_path.parent.mkdir(parents=True, exist_ok=True)
+    load_file_from_s3(bucket=bucket, path=f"{s3_weight_folder}/{relative_path}", version_id=version_id, sha1=sha1,
+                          local_filepath=local_path)
     return local_path
 
 
 if __name__ == "__main__":
     # Example usage
-    pth = load_weight(
+    pth = load_weight_file(
         bucket="brainscore-vision", 
         relative_path="temporal_models/mae_st/mae_pretrain_vit_large_k400.pth", 
         version_id="HuKboFIWw6Tl3fZIY4aVNEqvcS4Yag66",
-        sha1="c7fb91864a4ddf8b99309440121a3abe66b846bb"
+        sha1="c7fb91864a4ddf8b99309440121a3abe66b846bb",
     )
     
     print(pth)

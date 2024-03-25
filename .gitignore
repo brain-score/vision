@@ -2,10 +2,6 @@
 *.pyc
 *__pycache__*
 *AWSCLIV2.pkg
-<<<<<<< HEAD
-*.egg-info
-=======
 *.egg-info/
 venv
 .venv
->>>>>>> upstream/master

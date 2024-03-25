@@ -70,12 +70,40 @@ def batch_2d_resize(arr, size, mode):
         mode = cv2.INTER_LINEAR
         ret = cv2_resize(arr, size, mode)
     elif mode == "pool":
-        mode = cv2.INTER_AREA
-        ret = cv2_resize(arr, size, mode)
+        ret = proportional_average_pooling(arr, size)
     ret = ret.reshape(size[1], size[0], C, N).transpose(3, 0, 1, 2)
     return ret
 
-    
+
+def proportional_average_pooling(arr, size):
+    H, W, C = arr.shape
+    w, h = size
+
+    ret = np.zeros((h, w, C))
+    for r in range(h):
+        for c in range(w):
+            y0 = r * H / h
+            x0 = c * W / w
+            y1 = (r + 1) * H / h
+            x1 = (c + 1) * W / w
+            r_start = int(y0)
+            r_end = np.ceil(y1).astype(int)
+            c_start = int(x0)
+            c_end = np.ceil(x1).astype(int)
+            val = arr[r_start:r_end, c_start:c_end]
+            y_overlap_start = np.maximum(y0, np.arange(r_start, r_end))
+            y_overlap_end = np.minimum(y1, np.arange(r_start, r_end)+1)
+            x_overlap_start = np.maximum(x0, np.arange(c_start, c_end))
+            x_overlap_end = np.minimum(x1, np.arange(c_start, c_end)+1)
+            y_overlap = y_overlap_end - y_overlap_start
+            x_overlap = x_overlap_end - x_overlap_start
+            areas = np.outer(y_overlap, x_overlap)
+            areas = areas / np.sum(areas)
+            val = (val * areas[...,None]).reshape(-1, C).sum(0)
+            ret[r, c] = val
+    return ret.astype(arr.dtype)
+
+
 # cv2 has the wierd bug of cannot handling too large channel size
 def cv2_resize(arr, size, mode, batch_size=256):
     # arr [H, W, C]

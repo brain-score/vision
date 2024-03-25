@@ -53,7 +53,7 @@ def test_inferencer(max_spatial_size):
         # so the number of channel_temporal should be 360
         assert model_assembly.sizes["neuroid"] == 360*6*3*2 * len(dummy_layers)
     else:
-        assert model_assembly.sizes["neuroid"] == 360*max_spatial_size**2//2 * 2 * len(dummy_layers)
+        assert model_assembly.sizes["neuroid"] == 360*max_spatial_size*(max_spatial_size//2) * 2 * len(dummy_layers)
     assert model_assembly.sizes["stimulus_path"] == 2 
 
 

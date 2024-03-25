@@ -274,7 +274,7 @@ class Inferencer:
             h, w = val.shape[:2]
             val = val.reshape(h, w, -1)
             new_size = self._compute_new_size(w, h)
-            new_val = batch_2d_resize(val[None,:], new_size, mode="bilinear")[0]
+            new_val = batch_2d_resize(val[None,:], new_size, mode="pool")[0]
             new_val = new_val.reshape(*new_size, *shape)
             new_val = new_val.swapaxes(0, H_dim).swapaxes(1, W_dim)
 

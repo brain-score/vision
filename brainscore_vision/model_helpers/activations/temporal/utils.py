@@ -68,7 +68,10 @@ def batch_2d_resize(arr, size, mode):
     arr = arr.transpose(1, 2, 3, 0).reshape(H, W, C*N)
     if mode == "bilinear":
         mode = cv2.INTER_LINEAR
-    ret = cv2_resize(arr, size, mode)
+        ret = cv2_resize(arr, size, mode)
+    elif mode == "pool":
+        mode = cv2.INTER_AREA
+        ret = cv2_resize(arr, size, mode)
     ret = ret.reshape(size[1], size[0], C, N).transpose(3, 0, 1, 2)
     return ret
 

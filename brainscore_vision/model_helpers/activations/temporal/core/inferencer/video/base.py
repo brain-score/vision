@@ -2,7 +2,7 @@ import numpy as np
 from typing import Union, Tuple, Callable, Hashable
 from tqdm import tqdm
 
-from brainscore_vision.model_helpers.activations.temporal.inputs.video import Video
+from brainscore_vision.model_helpers.activations.temporal.inputs import Video, Stimulus
 from brainscore_vision.model_helpers.activations.temporal.utils import assembly_align_to_fps, stack_with_nan_padding
 from brainio.assemblies import NeuroidAssembly
 
@@ -62,7 +62,7 @@ class TemporalInferencer(Inferencer):
             num_frames : Union[int, Tuple[int, int]] = None,
             duration : Union[float, Tuple[float, float]] = None,
             time_alignment : str = "evenly_spaced",
-            convert_img_to_video : bool = False,
+            convert_img_to_video : bool = True,
             img_duration : float = 1000.,
             batch_size : int = 16,
             batch_grouper : Callable[[Video], Hashable] = lambda video: (video.duration, video.fps),  # not including video.frame_size because most preprocessors will change the frame size to be the same
@@ -102,7 +102,7 @@ class TemporalInferencer(Inferencer):
                 assert self.duration[0] <= video.duration <= self.duration[1]
 
     def convert_single_path(self, path):
-        if self.convert_to_video:
+        if self.convert_to_video and Stimulus.is_image_path(path):
             video = Video.from_img_path(path, self.img_duration, self.fps)
         else:
             video = Video.from_path(path)

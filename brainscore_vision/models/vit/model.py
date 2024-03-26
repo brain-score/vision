@@ -20,17 +20,19 @@ BIBTEX = """@misc{wu2020visual,
 }"""
 
 LAYERS = []
-for i in range(12): # 12
+for i in range(12):  # 12
     LAYERS.append(f'model.encoder.layer.{i}')
 LAYERS.append('model.encoder')
 LAYERS.append('model.layernorm')
 LAYERS.append('last_hidden_state')
+
 
 class Wrapper(nn.Module):
     def __init__(self, model):
         super().__init__()
         self.model = model
         self.last_hidden_state = nn.Identity()
+
     def forward(self, x):
         # print(type(x))
         # print(x.shape)
@@ -39,6 +41,7 @@ class Wrapper(nn.Module):
         x = x['last_hidden_state']
         x = self.last_hidden_state(x)
         return x
+
 
 def get_model():
     # get model
@@ -51,9 +54,11 @@ def get_model():
     preprocessing = functools.partial(load_preprocess_images_torch, processor=processor, image_size=image_size)
 
     # get brainscore wrapper
-    wrapper = PytorchWrapperV2(identifier='vit-base-patch16-224-in21k_debug1118', model=custom_wrapper, preprocessing=preprocessing)
+    wrapper = PytorchWrapperV2(identifier='vit-base-patch16-224-in21k_debug1118', model=custom_wrapper,
+                               preprocessing=preprocessing)
     wrapper.image_size = image_size
     return wrapper
+
 
 def load_preprocess_images_torch(image_filepaths, processor, image_size, **kwargs):
     images = [load_image(image_filepath) for image_filepath in image_filepaths]
@@ -64,9 +69,10 @@ def load_preprocess_images_torch(image_filepaths, processor, image_size, **kwarg
     images = images.cpu()
     return images
 
+
 class PytorchWrapperV2(PytorchWrapper):
-    def __init__(self, identifier, model, preprocessing):
-        super().__init__(identifier, model, preprocessing)
+    def __init__(self, identifier: str, model, preprocessing):
+        super().__init__(identifier=identifier, model=model, preprocessing=preprocessing)
 
     @classmethod
     def _tensor_to_numpy(cls, output):

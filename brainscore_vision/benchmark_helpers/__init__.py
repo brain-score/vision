@@ -3,6 +3,7 @@ from typing import Union
 import numpy as np
 
 from brainio.assemblies import NeuroidAssembly, DataAssembly
+from brainscore_core import Score
 from brainscore_vision.model_interface import BrainModel
 
 
@@ -45,3 +46,14 @@ def check_standard_format(assembly, nans_expected=False):
     if not nans_expected:
         assert not np.isnan(assembly).any()
     assert 'stimulus_set_identifier' in assembly.attrs
+
+
+def bound_score(score: Score):
+    """
+    Force score value to be between 0 and 1.
+    If score is lower than 0, set to 0. If score is greater than 1, set to 1.
+    """
+    if score < 0:
+        score.loc[()] = 0
+    elif score > 1:
+        score.loc[()] = 1

@@ -5,18 +5,20 @@ from collections import OrderedDict
 
 import torch
 from torchvision import transforms
+import openstl
 from openstl.methods import method_maps
 from openstl.utils import reshape_patch
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
+from brainscore_vision.model_helpers.activations.temporal.utils import download_weight_file
 
 
 # We only use models trained on KITTI dataset, because it is the most ecological, 
 # diverse, challenging, and widely used dataset for next frame prediction among 
 # the datasets used by OpenSTL repo.
 IMAGE_SIZES = (128, 160)  # for KITTI
-KITTI_CONFIG_DIR = os.path.join(os.path.dirname(__file__), "kitticaltech")
-KITTI_FPS = 10  # BUG: not sure
+KITTI_CONFIG_DIR = os.path.join(os.path.dirname(openstl.__file__), "configs/kitticaltech")
+KITTI_FPS = 10  # from paper: https://www.cvlibs.net/publications/Geiger2012CVPR.pdf
 
 transform_image = transforms.Resize(IMAGE_SIZES)
 
@@ -166,7 +168,8 @@ def get_model(identifier):
 
 
     model = method_maps[config["method"]](**config).model
-    weight_path = f"/home/ytang/workspace/data/weights/temporal_model_openstl/{weight_name}"
+    url = f"https://github.com/chengtan9907/OpenSTL/releases/download/kitti-weights/{weight_name}"
+    weight_path = download_weight_file(url, folder="temporal_model_openstl")
     model.load_state_dict(torch.load(weight_path, map_location="cpu"))
 
     def transform_video_lstm(video):

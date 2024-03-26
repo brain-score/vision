@@ -1,3 +1,4 @@
+import os
 import numpy as np
 
 from brainscore_vision.model_helpers.brain_transformation.temporal import assembly_time_align
@@ -188,3 +189,34 @@ def switch_inferencer(any_model, new_inferencer_cls, **kwargs):
     for k, v in kwargs.items():
         if v == 'same': kwargs[k] = getattr(inferencer, k)
     base_model.build_extractor(new_inferencer_cls, **kwargs)
+
+
+## Others
+    
+def download_weight_file(url, folder=None):
+    import requests
+    from tqdm import tqdm
+    weight_fname = os.path.basename(url)
+    brainscore_home = os.getenv("BRAINSCORE_HOME", os.path.expanduser("~/.brain-score"))
+    model_cache = os.path.join(brainscore_home, "models")
+    if folder: model_cache = os.path.join(model_cache, folder)
+    os.makedirs(model_cache, exist_ok=True)
+    weight_path = os.path.join(model_cache, weight_fname)
+
+    # Streaming, so we can iterate over the response.
+    response = requests.get(url, stream=True)
+
+    # Sizes in bytes.
+    total_size = int(response.headers.get("content-length", 0))
+    block_size = 1024
+
+    with tqdm(total=total_size, unit="B", unit_scale=True, desc=f"{weight_fname}") as progress_bar:
+        with open(weight_path, "wb") as file:
+            for data in response.iter_content(block_size):
+                progress_bar.update(len(data))
+                file.write(data)
+
+    if total_size != 0 and progress_bar.n != total_size:
+        raise RuntimeError("Could not download file")
+
+    return weight_path

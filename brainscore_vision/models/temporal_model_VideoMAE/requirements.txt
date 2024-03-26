@@ -1,1 +1,2 @@
 timm
+videomae @ git+https://github.com/YingtianDt/VideoMAE.git

@@ -5,10 +5,10 @@ from timm.models import create_model
 from torchvision import transforms
 
 # NOTE: Do not comment `import models`, it is used to register models
-from . import models  # noqa: F401
+from videomae_v2 import *  # noqa: F401
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
-from brainscore_vision.model_helpers.s3 import load_file_from_s3
+from brainscore_vision.model_helpers.s3 import load_weight_file
 
 
 def to_normalized_float_tensor(vid):
@@ -55,12 +55,22 @@ def get_model(identifier):
 
     if identifier == "VideoMAE-V2-G":
         model_name = "vit_giant_patch14_224"
-        pth = weight_registry["VideoMAEv2/vit_g_hybrid_pt_1200e.pth"]
+        pth = load_weight_file(
+            bucket="brainscore-vision",
+            relative_path="temporal_model_VideoMAEv2/vit_g_hybrid_pt_1200e.pth",
+            version_id="HQHn_lw8ypHSCUz_4EsF_mepU9_R5bUD",
+            sha1="32126231526fe310a6aba20c16d0e6435f5f0bb8"
+        )
         num_blocks = 40
         feature_map_size = 16
     elif identifier == "VideoMAE-V2-B":
         model_name = "vit_base_patch16_224"
-        pth = weight_registry["VideoMAEv2/vit_b_hybrid_pt_800e.pth"]
+        pth = load_weight_file(
+            bucket="brainscore-vision",
+            relative_path="temporal_model_VideoMAEv2/vit_b_hybrid_pt_800e.pth",
+            version_id="rRjpYq21dAQ5KaCLbEHK.YaLZ_fbMPKw",
+            sha1="1e3602691964b1eb6f7c33529119243a5b235635"
+        )
         num_blocks = 12
         feature_map_size = 14
         

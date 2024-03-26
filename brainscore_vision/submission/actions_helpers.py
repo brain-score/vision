@@ -13,7 +13,9 @@ import json
 import os
 import requests
 import sys
+import smtplib
 from typing import Union
+from email.mime.text import MIMEText
 
 BASE_URL = "https://api.github.com/repos/brain-score/vision"
 
@@ -85,11 +87,33 @@ def are_all_tests_passing(test_results: dict) -> dict:
         return False
     else:
         return True
+        
+def any_tests_failing(test_results: dict) -> dict:
+    if any(result == "failure" for result in test_results.values()):
+        return True
+    else:
+        return False
     
 def is_labeled_automerge(pr_num: int) -> bool:
     label_data = get_data(f"{BASE_URL}/issues/{pr_num}/labels")
     labeled_automerge = any(label['name'] in ('automerge', 'automerge-web') for label in label_data)
     return labeled_automerge
+
+def send_failure_email(email: str, pr_number: str, mail_username: str, mail_password: str):
+    """ Send submitter an email if their web-submitted PR fails. """
+    body = "Your Brain-Score submission did not pass checks. " \
+           "Please review the test results and update the PR at " \
+           f"https://github.com/brain-score/vision/pull/{pr_number} " \
+           "or send in an updated submission via the website."
+    msg = MIMEText(body)
+    msg['Subject'] = "Brain-Score submission failed"
+    msg['From'] = "Brain-Score"
+    msg['To'] = email
+
+    # send email
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
+        smtp_server.login(mail_username, mail_password)
+        smtp_server.sendmail(mail_username, email, msg.as_string())
 
 
 if __name__ == "__main__":
@@ -115,6 +139,7 @@ if __name__ == "__main__":
                     'jenkins_unittests_result': get_statuses_result('Brain-Score Jenkins CI', statuses_json)}
 
     tests_pass = are_all_tests_passing(results_dict)
+    tests_fail = any_tests_failing(results_dict)
 
     if tests_pass:
         if is_labeled_automerge(pr_num):
@@ -122,4 +147,7 @@ if __name__ == "__main__":
         else:
             print("All tests pass but not labeled for automerge. Exiting.")
     else:
+        if tests_fail:
+            if is_labeled_automerge(pr_num):
+                print("Failure")
         print(results_dict)

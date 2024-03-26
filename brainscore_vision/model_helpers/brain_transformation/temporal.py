@@ -93,13 +93,14 @@ def assembly_time_align(source, target_time_bins, mode="portion"):
     assert len(invalid)==0, f"Target time bin(s):\n{target_time_bins[invalid]} invalid. The source time bins are:\n{source_time_bins}."
     source = source.transpose(..., "time_bin")
     source_data = source.values
+    source_dtype = source_data.dtype
     ret_data = []
     for source_belong_to in belong_to:
         relevant = source_belong_to>0
         data = source_data[..., relevant]
         weights = source_belong_to[relevant]
         data = (data * weights).sum(-1) / weights.sum()  # weighted average
-        ret_data.append(data)
+        ret_data.append(data.astype(source_dtype))
     ret_data = np.stack(ret_data, -1)  # can be memory-intensive
 
     # create assembly

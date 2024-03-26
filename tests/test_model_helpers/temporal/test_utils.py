@@ -1,6 +1,7 @@
 import numpy as np
-from brainscore_vision.model_helpers.activations.temporal.utils import proportional_average_pooling
-
+from brainscore_vision.model_helpers.activations.temporal.utils import (
+    batch_2d_resize
+)
 
 def test_proportional_average_pooling():
     arr = np.array([
@@ -13,6 +14,9 @@ def test_proportional_average_pooling():
     arr_0 = np.array([
         [3, 4],
     ])[...,None]
+
+    def proportional_average_pooling(arr, size):
+        return batch_2d_resize(arr[None,:], size, "pool")[0]
 
     assert np.allclose(proportional_average_pooling(arr, size_0), arr_0)
 

@@ -5,6 +5,7 @@ from typing import Callable, Hashable, List, Dict, Any
 
 import numpy as np
 from tqdm.auto import tqdm
+import gc
 
 from brainio.assemblies import NeuroidAssembly, walk_coords
 from brainscore_vision.model_helpers.utils import fullname
@@ -91,8 +92,8 @@ class Inferencer:
         self._logger = logging.getLogger(fullname(self))
 
         # register hooks
-        self._executor.register_after_hook(self._make_dtype_hook(dtype))
         self._executor.register_after_hook(self._make_spatial_downsample_hook(max_spatial_size))
+        self._executor.register_after_hook(self._make_dtype_hook(dtype))
 
     @property
     def identifier(self):
@@ -114,6 +115,9 @@ class Inferencer:
         layer_assemblies = OrderedDict()
         for layer in tqdm(layers, desc="Packaging layers"):
             layer_assemblies[layer] = self.package_layer(layer_activations[layer], layer, self.layer_activation_format[layer], stimuli)
+            del layer_activations[layer]
+            gc.collect()  # reduce memory usage
+        breakpoint()
         model_assembly = self.package(layer_assemblies, paths)
         return model_assembly
 
@@ -137,7 +141,7 @@ class Inferencer:
     def package_layer(self, layer_activation, layer, layer_spec, stimuli):
         assert len(layer_activation) == len(stimuli)
         channels = self._map_dims(layer_spec)
-        layer_activation = stack_with_nan_padding(layer_activation)
+        layer_activation = stack_with_nan_padding(layer_activation).astype(self.dtype)
         assembly = self._simple_package(layer_activation, ["stimulus_path"] + channels)
         assembly = self._stack_neuroid(assembly, channels)
         assembly = NeuroidAssembly(assembly)  # re-gather
@@ -154,8 +158,6 @@ class Inferencer:
                             for layer, assembly in layer_assemblies.items()}
         layer_assemblies = list(layer_assemblies.values())
         layer_assemblies = [asm.transpose(*layer_assemblies[0].dims) for asm in layer_assemblies]
-        model_assembly = np.concatenate([a.values for a in layer_assemblies],
-                                        axis=layer_assemblies[0].dims.index('neuroid')).astype(self.dtype)
         
         nonneuroid_coords = {coord: (dims, values) for coord, dims, values in walk_coords(layer_assemblies[0])
                              if set(dims) != {'neuroid'}}
@@ -182,6 +184,11 @@ class Inferencer:
 
         # add stimulus_paths
         nonneuroid_coords["stimulus_path"] = ('stimulus_path', stimuli_paths)
+
+        # data
+        values = [a.values for a in layer_assemblies]
+        neuroid_dim = layer_assemblies[0].dims.index('neuroid')
+        model_assembly = np.concatenate(values, axis=neuroid_dim)
 
         model_assembly = type(layer_assemblies[0])(model_assembly, coords={**nonneuroid_coords, **neuroid_coords},dims=layer_assemblies[0].dims)
         return model_assembly
@@ -254,7 +261,7 @@ class Inferencer:
             new_val = batch_2d_resize(val[None,:], new_size, mode=mode)[0]
             new_val = new_val.reshape(*new_size, *shape)
             new_val = new_val.swapaxes(0, H_dim).swapaxes(1, W_dim)
-            return new_val
+            return new_val.astype(self.dtype)
         return hook
 
 

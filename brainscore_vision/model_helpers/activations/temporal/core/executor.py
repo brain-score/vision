@@ -72,7 +72,7 @@ class BatchExecutor:
 
 
     def __init__(self, get_activations, preprocessing, batch_size, batch_padding, 
-                 batch_grouper=None, dtype=np.float16, max_workers=1):
+                 batch_grouper=None, dtype=np.float16, max_workers=None):
         self.stimuli = []
         self.get_activations = get_activations
         self.batch_size = batch_size

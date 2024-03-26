@@ -79,6 +79,13 @@ def batch_2d_resize(arr, size, mode):
 
 
 def proportional_average_pooling(arr, size):
+    import cv2
+    mode = cv2.INTER_AREA
+    ret = cv2_resize(arr, size, mode)
+    return ret
+
+
+def proportional_average_pooling_(arr, size):
     H, W, C = arr.shape
     w, h = size
 
@@ -108,7 +115,7 @@ def proportional_average_pooling(arr, size):
 
 
 # cv2 has the wierd bug of cannot handling too large channel size
-def cv2_resize(arr, size, mode, batch_size=3):
+def cv2_resize(arr, size, mode, batch_size=4):
     # arr [H, W, C]
     import cv2
     ori_dtype = arr.dtype
@@ -144,6 +151,8 @@ def assembly_align_to_fps(output_assembly, fps, mode="portion"):
     target_time_bins = [(start, end) for start, end in zip(target_time_bin_starts, target_time_bin_ends)]
     return assembly_time_align(output_assembly, target_time_bins, mode=mode)
 
+
+## model utils
 
 # get the inferencer from any model
 def get_inferencer(any_model):

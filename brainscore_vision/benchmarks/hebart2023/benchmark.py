@@ -45,7 +45,7 @@ class Hebart2023Match(BenchmarkBase):
             self._assembly.coords["image_1"].values,
             self._assembly.coords["image_2"].values,
             self._assembly.coords["image_3"].values
-        ]).T.reshape(-1)  # flatten
+        ]).T.reshape(-1)  # flatten into a list of stimuli ids
 
         triplet_stimuli = self._stimulus_set.loc[self.triplets]
 

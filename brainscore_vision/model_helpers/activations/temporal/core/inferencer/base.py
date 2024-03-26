@@ -117,7 +117,6 @@ class Inferencer:
             layer_assemblies[layer] = self.package_layer(layer_activations[layer], layer, self.layer_activation_format[layer], stimuli)
             del layer_activations[layer]
             gc.collect()  # reduce memory usage
-        breakpoint()
         model_assembly = self.package(layer_assemblies, paths)
         return model_assembly
 

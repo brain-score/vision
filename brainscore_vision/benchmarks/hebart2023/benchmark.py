@@ -20,7 +20,7 @@ VISUAL_DEGREES = 8
 
 
 class Hebart2023Match(BenchmarkBase):
-    def __init__(self, similarity_measure='dot'):
+    def __init__(self):
         self._visual_degrees = VISUAL_DEGREES
         self._number_of_trials = 1
         self._assembly = load_dataset('Hebart2023')
@@ -29,9 +29,9 @@ class Hebart2023Match(BenchmarkBase):
         # The noise ceiling was computed by averaging the percentage of participants 
         # who made the same choice for a given triplet. See the paper for more detail.
         super().__init__(
-            identifier=f'Habart2023Match_{similarity_measure}', version=1,
+            identifier='Hebart2023-match', version=1,
             ceiling_func=lambda: Score(0.6767),
-            parent='Hebart2023',
+            parent='behavior_vision',
             bibtex=BIBTEX
         )
 

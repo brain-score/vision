@@ -19,5 +19,5 @@ for dataset in DATASETS:
     else:
         # composite benchmark with a fine-grained metric
         benchmark_registry[
-            f"Scialom2024_{dataset}BehavioralErrorConsistency"] = benchmark._Scialom2024ErrorConsistency(
+            f"Scialom2024_{dataset}BehavioralErrorConsistency"] = benchmark._Scialom2024BehavioralErrorConsistency(
             dataset)

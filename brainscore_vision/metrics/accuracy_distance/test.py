@@ -9,7 +9,7 @@ def test_score():
     assembly = _make_data()
     metric = load_metric('accuracy_distance')
     score = metric(assembly.sel(subject='A'), assembly)
-    assert score == approx(0.777)
+    assert score == approx(0.77777778)
 
 
 def test_has_error():

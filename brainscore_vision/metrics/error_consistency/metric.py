@@ -91,9 +91,4 @@ def cohens_kappa(expected_consistency, observed_consistency):
     assert 0.0 <= expected_consistency <= 1.0
     assert 0.0 <= observed_consistency <= 1.0
 
-    # the original implementation linked above had this check, which is necessary for 'trivial' conditions, where
-    #  participants always respond correctly
-    if observed_consistency == 1.0:
-        return 1.0
-    else:
-        return (observed_consistency - expected_consistency) / (1.0 - expected_consistency)
+    return (observed_consistency - expected_consistency) / (1.0 - expected_consistency)

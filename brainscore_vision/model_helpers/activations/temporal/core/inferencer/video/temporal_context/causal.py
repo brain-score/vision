@@ -29,22 +29,6 @@ class CausalInferencer(TemporalContextInferencerBase):
             else:
                 del kwargs["time_alignment"]
         super().__init__(*args, **kwargs, time_alignment="per_frame_aligned")
-        
-    def _get_time_start(self, time_end, context, lower):
-        assert context >= lower, f"Temporal context {context} is not within the range {lower}"
-        if self.temporal_context_strategy == "fix":
-            return time_end - context
-        elif self.temporal_context_strategy == "greedy":
-            proposed_time_start = time_end - context
-            if proposed_time_start >= 0:
-                return proposed_time_start
-            else:
-                if time_end < lower:
-                    return time_end - lower
-                else:
-                    return 0 
-        elif self.temporal_context_strategy == "conservative":
-            return time_end - context
 
     def inference(self, stimuli, layers):
         interval = 1000 / self.fps
@@ -86,6 +70,22 @@ class CausalInferencer(TemporalContextInferencerBase):
         
         return layer_activations
     
-    def package_layer(self, activations, layer, layer_spec, stimuli):
+    def package_layer(self, activations, layer_spec, stimuli):
         layer_spec = "T" + layer_spec.replace('T', '')  # T has been moved to the first dimension
-        return super().package_layer(activations, layer, layer_spec, stimuli) 
+        return super().package_layer(activations, layer_spec, stimuli) 
+    
+    def _get_time_start(self, time_end, context, lower):
+        assert context >= lower, f"Temporal context {context} is not within the range {lower}"
+        if self.temporal_context_strategy == "fix":
+            return time_end - context
+        elif self.temporal_context_strategy == "greedy":
+            proposed_time_start = time_end - context
+            if proposed_time_start >= 0:
+                return proposed_time_start
+            else:
+                if time_end < lower:
+                    return time_end - lower
+                else:
+                    return 0 
+        elif self.temporal_context_strategy == "conservative":
+            return time_end - context

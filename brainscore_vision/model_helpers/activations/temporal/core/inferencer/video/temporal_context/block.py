@@ -25,15 +25,15 @@ class BlockInferencer(TemporalContextInferencerBase):
             return super().inference(stimuli, layers)
         
         num_clips = []
-        latest_time_end = 0
+        self._time_ends = []
         for inp in stimuli:
             duration = inp.duration
             videos = []
             for time_start in np.arange(0, duration, context):
                 time_end = time_start + context
                 clip = inp.set_window(time_start, time_end, padding=self.out_of_bound_strategy)
-                latest_time_end = max(latest_time_end, time_end)
                 videos.append(clip)
+            self._time_ends.append(time_end)
 
             self._executor.add_stimuli(videos)
             num_clips.append(len(videos))
@@ -57,10 +57,9 @@ class BlockInferencer(TemporalContextInferencerBase):
         for layer in layers:
             layer_activations[layer] = stack_with_nan_padding(layer_activations[layer])
 
-        self.longest_stimulus = inp.set_window(0, latest_time_end, padding=self.out_of_bound_strategy)  # hack: fake the longest stimulus
-
         return layer_activations
     
-    def package_layer(self, activations, layer, layer_spec, stimuli):
+    def package_layer(self, activations, layer_spec, stimuli):
         layer_spec = "T" + layer_spec.replace('T', '')  # T has been moved to the first dimension
-        return super().package_layer(activations, layer, layer_spec, stimuli) 
+        stimuli = [stimulus.set_window(0, time_end) for stimulus, time_end in zip(stimuli, self._time_ends)]
+        return super().package_layer(activations, layer_spec, stimuli) 

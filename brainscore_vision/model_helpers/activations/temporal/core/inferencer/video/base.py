@@ -81,6 +81,35 @@ class TemporalInferencer(Inferencer):
         self.img_duration = img_duration
         self.convert_to_video = convert_img_to_video
 
+    @property
+    def identifier(self):
+        return f"{self.__class__.__name__}.{self.time_aligner.__name__}.fps={self.fps}"
+
+    def load_stimulus(self, path):
+        if self.convert_to_video and Stimulus.is_image_path(path):
+            video = Video.from_img_path(path, self.img_duration, self.fps)
+        else:
+            video = Video.from_path(path)
+        video = video.set_fps(self.fps)
+        self._check_video(video)
+        return video
+    
+    def package_layer(self, layer_activations, layer_spec, stimuli):
+        assert len(layer_activations) == len(stimuli)
+        longest_stimulus = stimuli[np.argmax(np.array([stimulus.duration for stimulus in stimuli]))]
+        ignore_time = self.time_aligner is time_aligners.ignore_time
+        channels = self._map_dims(layer_spec)
+        layer_activations = stack_with_nan_padding(layer_activations)
+        assembly = self._package(layer_activations, ["stimulus_path"] + channels)
+        # align to the longest stimulus
+        assembly = self.time_aligner(assembly, longest_stimulus)
+        if "channel_temporal" in channels and not ignore_time: 
+            channels.remove("channel_temporal")
+        assembly = self._stack_neuroid(assembly, channels)
+        if not ignore_time:
+            assembly = assembly_align_to_fps(assembly, self.fps)
+        return assembly
+
     def _make_range(self, num, type="num_frames"):
         if num is None:
             return (1 if type=='num_frames' else 0, np.inf)
@@ -89,45 +118,9 @@ class TemporalInferencer(Inferencer):
         else:
             return (num, num)
 
-    @property
-    def identifier(self):
-        return f"{self.__class__.__name__}.{self.time_aligner.__name__}.fps={self.fps}"
-
-    def _check_videos(self, videos):
-        for video in videos:
-            if self.num_frames is not None:
-                estimated_num_frames = int(self.fps * video.duration / 1000)
-                assert self.num_frames[0] <= estimated_num_frames <= self.num_frames[1]
-            if self.duration is not None:
-                assert self.duration[0] <= video.duration <= self.duration[1]
-
-    def convert_single_path(self, path):
-        if self.convert_to_video and Stimulus.is_image_path(path):
-            video = Video.from_img_path(path, self.img_duration, self.fps)
-        else:
-            video = Video.from_path(path)
-        return video
-
-    def convert_paths(self, paths):
-        videos = []
-        for path in tqdm(paths, desc="Loading videos"):
-            videos.append(self.convert_single_path(path))
-        videos = [video.set_fps(self.fps) for video in videos]
-        self.longest_stimulus = videos[np.argmax(np.array([stimulus.duration for stimulus in videos]))]
-        self._check_videos(videos)
-        return videos
-    
-    def package_layer(self, activations, layer, layer_spec, stimuli):
-        ignore_time = self.time_aligner is time_aligners.ignore_time
-        channels = self._map_dims(layer_spec)
-        activations = stack_with_nan_padding(activations)
-        assembly = self._simple_package(activations, ["stimulus_path"] + channels)
-        # align to the longest stimulus
-        assembly = self.time_aligner(assembly, self.longest_stimulus)
-        if "channel_temporal" in channels and not ignore_time: 
-            channels.remove("channel_temporal")
-        assembly = self._stack_neuroid(assembly, channels)
-        if not ignore_time:
-            assembly = assembly_align_to_fps(assembly, self.fps)
-        assembly = NeuroidAssembly(assembly)
-        return assembly
+    def _check_video(self, video):
+        if self.num_frames is not None:
+            estimated_num_frames = int(self.fps * video.duration / 1000)
+            assert self.num_frames[0] <= estimated_num_frames <= self.num_frames[1]
+        if self.duration is not None:
+            assert self.duration[0] <= video.duration <= self.duration[1]

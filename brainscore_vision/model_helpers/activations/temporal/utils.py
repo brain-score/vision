@@ -58,7 +58,8 @@ def stack_with_nan_padding(arr_list, axis=0, dtype=np.float16):
 
     result = np.stack(results, axis=axis)
     result = np.swapaxes(result, 0, axis)
-    result = result.astype(dtype)
+    if result.dtype != dtype:
+        result = result.astype(dtype)
 
     return result
 
@@ -75,6 +76,8 @@ def batch_2d_resize(arr, size, mode):
         # ret = proportional_average_pooling(arr, size)
         mode = cv2.INTER_AREA
         ret = cv2_resize(arr, size, mode)
+    else:
+        raise ValueError(f"Unknown mode {mode}")
     ret = ret.reshape(size[1], size[0], C, N).transpose(3, 0, 1, 2)
     return ret
 

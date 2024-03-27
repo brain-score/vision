@@ -122,7 +122,7 @@ class Video(Stimulus):
 
         # resizing
         if self._size != (frames.shape[2], frames.shape[1]):
-            frames = batch_2d_resize(frames, self._size, cv2.INTER_LINEAR)
+            frames = batch_2d_resize(frames, self._size, "bilinear")
 
         return frames
     

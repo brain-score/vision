@@ -1,5 +1,6 @@
 from tqdm import tqdm
 
+from brainscore_vision.model_helpers.activations.temporal.inputs import Video, Stimulus
 from ..base import TemporalInferencer
 
 
@@ -48,6 +49,15 @@ class TemporalContextInferencerBase(TemporalInferencer):
         to_add = f".strategy={self.temporal_context_strategy}.context={self._compute_temporal_context()}"
         return f"{super().identifier}{to_add}"
         
+    def load_stimulus(self, path):
+        if self.convert_to_video and Stimulus.is_image_path(path):
+            video = Video.from_img_path(path, self.img_duration, self.fps)
+        else:
+            video = Video.from_path(path)
+        video = video.set_fps(self.fps)
+        # does no check here
+        return video
+
     def _overlapped_range(self, s1, e1, s2, e2):
         lower, upper = max(s1, s2), min(e1, e2)
         if lower > upper:
@@ -79,10 +89,3 @@ class TemporalContextInferencerBase(TemporalInferencer):
 
         return lower, context
     
-    def convert_paths(self, paths):
-        videos = []
-        for path in tqdm(paths, desc="Loading videos"):
-            videos.append(self.convert_single_path(path))
-        videos = [video.set_fps(self.fps) for video in videos]
-        # do not check here.
-        return videos

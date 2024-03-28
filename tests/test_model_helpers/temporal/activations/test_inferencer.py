@@ -20,9 +20,10 @@ def dummy_get_features(model_inputs, layers):
     feature = np.stack(model_inputs)
     B, F, H, W, C = feature.shape
     feature = feature.reshape(B, F, H//80, 80, W//80, 80, C).mean((3, 5))[..., :2]  # BFHWC=B,F,6,3,2
-    batch_activation = OrderedDict(
-        {layer: feature for layer in layers}
-    )
+    batch_activation = OrderedDict({
+        "layer1": feature,
+        "layer2": feature[:, 0, 0, 0]
+    })
     return batch_activation
 
 def dummy_preprocess(video):
@@ -35,7 +36,7 @@ def time_down_sample_preprocess(video):
 
 dummy_layer_activation_format = {
     "layer1": "THWC",
-    "layer2": "THWC",
+    "layer2": "C",
 }
 
 dummy_layers = ["layer1", "layer2"]
@@ -51,9 +52,9 @@ def test_inferencer(max_spatial_size):
         # 6 second video with fps 60 has 360 frames
         # the model simply return the same number of frames as the temporal size of activations
         # so the number of channel_temporal should be 360
-        assert model_assembly.sizes["neuroid"] == 360*6*3*2 * len(dummy_layers)
+        assert model_assembly.sizes["neuroid"] == 360*6*3*2 + 2
     else:
-        assert model_assembly.sizes["neuroid"] == 360*max_spatial_size*(max_spatial_size//2) * 2 * len(dummy_layers)
+        assert model_assembly.sizes["neuroid"] == 360*max_spatial_size*(max_spatial_size//2) * 2 + 2
     assert model_assembly.sizes["stimulus_path"] == 2 
 
 

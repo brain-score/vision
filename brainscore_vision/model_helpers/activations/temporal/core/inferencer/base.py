@@ -159,7 +159,7 @@ class Inferencer:
         nonneuroid_coords = {coord: (dims, values) for coord, dims, values in walk_coords(layer_assemblies[0])
                              if set(dims) != {'neuroid'}}
         neuroid_coords = [(coord, dims) for layer_assembly in layer_assemblies for coord, dims, values in walk_coords(layer_assembly)
-                             if set(dims) == {'neuroid'}]
+                             if set(dims) == {'neuroid'} and coord!='neuroid']
         neuroid_coord_names = set(neuroid_coords)
         neuroid_coords = {}
 
@@ -184,9 +184,9 @@ class Inferencer:
 
         # add layer, neuroid_num, neuroid_id
         layer_sizes = [asm.sizes['neuroid'] for asm in layer_assemblies]
-        neuroid_coords['layer'] = ('neuroid', np.concatenate([[layer] * size for layer, size in zip(layers, layer_sizes)]))
-        neuroid_coords['neuroid_num'] = ('neuroid', np.concatenate([np.arange(size) for size in layer_sizes]))
-        neuroid_coords['neuroid_id'] = ('neuroid', np.concatenate([np.array([f"{layer}.{neuroid_num}" for neuroid_num in range(size)]) 
+        neuroid_coords['layer'] = (('neuroid',), np.concatenate([[layer] * size for layer, size in zip(layers, layer_sizes)]))
+        neuroid_coords['neuroid_num'] = (('neuroid',), np.concatenate([np.arange(size) for size in layer_sizes]))
+        neuroid_coords['neuroid_id'] = (('neuroid',), np.concatenate([np.array([f"{layer}.{neuroid_num}" for neuroid_num in range(size)]) 
                                                                    for layer, size in zip(layers, layer_sizes)]))
 
         model_assembly = np.concatenate([a.values for a in layer_assemblies], axis=layer_assemblies[0].dims.index('neuroid'))

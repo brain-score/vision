@@ -9,7 +9,11 @@ from brainscore_vision.model_interface import BrainModel
 
 def iterable_to_list(arr):
     """ recursively converts a list, tuple, or numpy array into a python list. """
-    if isinstance(arr, (list, tuple, np.ndarray)):
+    if isinstance(arr, (list, tuple)):
+        return [iterable_to_list(a) for a in arr]
+    if isinstance(arr, np.ndarray):
+        if arr.dtype == np.object:
+            arr = arr.tolist()
         return [iterable_to_list(a) for a in arr]
     else:
         return arr
@@ -84,9 +88,9 @@ def time_align(source_time_bins: List[Tuple[int, int]], target_time_bins: List[T
 def assembly_time_align(source, target_time_bins, mode="portion"):
     assert hasattr(source, "time_bin")
     assert source.time_bin.variable.level_names == ['time_bin_start', 'time_bin_end']
-    assert len(target_time_bins[0]) == 2
     source_time_bins = np.array(iterable_to_list(source.time_bin.values))  # otherwise object array [(a,b), (c,d)...]
     target_time_bins = np.array(iterable_to_list(target_time_bins)) 
+    assert len(target_time_bins[0]) == 2
 
     belong_to = time_align(source_time_bins, target_time_bins, mode)
     invalid = np.where(belong_to.sum(1)==0)[0]

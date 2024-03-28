@@ -63,11 +63,6 @@ class CausalInferencer(TemporalContextInferencerBase):
                 layer_activations.setdefault(layer, []).append(np.stack(video_activations, axis=0))
                 clip_start += num_clip
 
-        for layer in layers:
-            layer_activations[layer] = stack_with_nan_padding(layer_activations[layer])
-
-        self.longest_stimulus = inp.set_window(0, latest_time_end, padding=self.out_of_bound_strategy)  # hack: fake the longest stimulus
-        
         return layer_activations
     
     def package_layer(self, activations, layer_spec, stimuli):

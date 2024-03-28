@@ -28,6 +28,8 @@ dependencies = [
     "peewee",
     "psycopg2-binary",
     "networkx",
+    "decord",
+    "psutil"
 ]
 
 [project.optional-dependencies]

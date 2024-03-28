@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from brainscore_vision.model_helpers import load_folder_from_s3
+from brainscore_vision.model_helpers import load_folder_from_s3, load_weight_file
 
 
 class TestLoadFolderFromS3:
@@ -26,3 +26,13 @@ class TestLoadFolderFromS3:
         assert len(list(self.save_directory.glob('*'))) == 3
         for filename, _, _ in filename_version_sha:
             assert (self.save_directory / filename).is_file()
+
+    @pytest.mark.private_access
+    def test_load_weight_file(self):
+        relative_path = 'resnet18_lr0.05_epoch60/model_best.pth.tar'
+        local_path = load_weight_file(
+            bucket='brainscore-vision', relative_path=relative_path,
+            version_id='5GeSHx6pAADhBtoRbAqj3JPAssZ4osMW', sha1='55a627678dd5670c945ae49dcbf83924c7772cd6'
+        )
+        assert local_path.is_file()
+        assert str(local_path).endswith(str(relative_path))

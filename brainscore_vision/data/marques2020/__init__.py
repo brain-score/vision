@@ -74,7 +74,16 @@ data_registry['Schiller1976c'] = lambda: load_assembly_from_s3(
 )
 
 # --- stimulus sets ---
-stimulus_set_registry['Marques2020_blank'] = lambda: load_stimulus_set_from_s3(
+def temporary_load_stimulus_set_from_s3(identifier, **kwargs):
+    """
+    Created to remove lab identifiers from stimulus sets to match their registry names.
+    Should be removed once lab identifiers are removed from stimulus set names in S3.
+    """
+    assembly = load_stimulus_set_from_s3(identifier=identifier, **kwargs)
+    assembly.identifier = "".join(identifier.split(".")[1:])
+    return assembly
+
+stimulus_set_registry['Marques2020_blank'] = lambda: temporary_load_stimulus_set_from_s3(
     identifier="dicarlo.Marques2020_blank",
     bucket="brainio-brainscore",
     csv_sha1="c02d44b0d3e157b29c6b96c5c5a478a8b37dc70b",
@@ -82,7 +91,7 @@ stimulus_set_registry['Marques2020_blank'] = lambda: load_stimulus_set_from_s3(
     csv_version_id="TPtJnOoJAKEnWSDrQ_1X9bvx_jUQkTvM",
     zip_version_id="4Zv7Mt0cGuKCV5i0uwGipVa91so_6U.V")
 
-stimulus_set_registry['Marques2020_receptive_field'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Marques2020_receptive_field'] = lambda: temporary_load_stimulus_set_from_s3(
     identifier="dicarlo.Marques2020_receptive_field",
     bucket="brainio-brainscore",
     csv_sha1="e3681c69122b20ff3dd22486f546a26b3a97e057",
@@ -90,7 +99,7 @@ stimulus_set_registry['Marques2020_receptive_field'] = lambda: load_stimulus_set
     csv_version_id="o6JVmVyn015uKDSqwH1Qfaek8I4AH0A2",
     zip_version_id="wFfNAHvgptFmzn58VdlABHeEPlnh54EO")
 
-stimulus_set_registry['Marques2020_orientation'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Marques2020_orientation'] = lambda: temporary_load_stimulus_set_from_s3(
     identifier="dicarlo.Marques2020_orientation",
     bucket="brainio-brainscore",
     csv_sha1="b316c6d9c6ddb58f8f21e79ae2b59b03933c0068",
@@ -98,7 +107,7 @@ stimulus_set_registry['Marques2020_orientation'] = lambda: load_stimulus_set_fro
     csv_version_id="FuItfnJQzVkbXuC6oDZYiIa6Ye.ZrtHp",
     zip_version_id="HAlNBCxxrzdFy6g9ofCM1rG49KXMgMjH")
 
-stimulus_set_registry['Marques2020_spatial_frequency'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Marques2020_spatial_frequency'] = lambda: temporary_load_stimulus_set_from_s3(
     identifier="dicarlo.Marques2020_spatial_frequency",
     bucket="brainio-brainscore",
     csv_sha1="31d0293c8aa1590f4680bb8a9446f56135b8d646",
@@ -106,7 +115,7 @@ stimulus_set_registry['Marques2020_spatial_frequency'] = lambda: load_stimulus_s
     csv_version_id="xtKupFJyMLIqtI64H9bFikeeyycg0esU",
     zip_version_id="cPxm7TfKmFPFigPdzJjOf3gHcdKDkVXi")
 
-stimulus_set_registry['Marques2020_size'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Marques2020_size'] = lambda: temporary_load_stimulus_set_from_s3(
     identifier="dicarlo.Marques2020_size",
     bucket="brainio-brainscore",
     csv_sha1="0fd0aeea8fa6ff2b30ee9a6a684d4600590d631f",
@@ -114,7 +123,7 @@ stimulus_set_registry['Marques2020_size'] = lambda: load_stimulus_set_from_s3(
     csv_version_id="VQsd1qLhSKqd5Wfz6tmnmypgs038.hoT",
     zip_version_id="RAfJJhR9.KQlwdiuZa6PiEiJTs62Jk.4")
 
-stimulus_set_registry['FreemanZiemba2013_properties'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['FreemanZiemba2013_properties'] = lambda: temporary_load_stimulus_set_from_s3(
     identifier="movshon.FreemanZiemba2013_properties",
     bucket="brainio-brainscore",
     csv_sha1="6f7bcb5d0c01e81c9fbdcec9bf586cbb579a9b02",

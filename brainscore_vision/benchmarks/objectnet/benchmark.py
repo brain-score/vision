@@ -33,7 +33,7 @@ class Objectnet(BenchmarkBase):
         self._similarity_metric = load_metric('accuracy')
         ceiling = Score(1)
 
-        super(Objectnet, self).__init__(identifier='BarbuMayo2019-top1', version=1,
+        super(Objectnet, self).__init__(identifier='ObjectNet-top1', version=1,
                                         ceiling_func=lambda: ceiling,
                                         parent='engineering',
                                         bibtex=BIBTEX)

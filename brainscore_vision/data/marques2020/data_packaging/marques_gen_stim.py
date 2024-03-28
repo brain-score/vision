@@ -4,12 +4,12 @@ from marques_stim_common import gen_grating_stim, gen_blank_stim, gen_texture_st
     load_stim_info
 from brainio_collection.packaging import package_stimulus_set
 
-BLANK_STIM_NAME = 'dicarlo.Marques2020_blank'
-RF_STIM_NAME = 'dicarlo.Marques2020_receptive_field'
-ORIENTATION_STIM_NAME = 'dicarlo.Marques2020_orientation'
-SF_STIM_NAME = 'dicarlo.Marques2020_spatial_frequency'
-SIZE_STIM_NAME = 'dicarlo.Marques2020_size'
-TEXTURE_STIM_NAME = 'movshon.FreemanZiemba2013_properties'
+BLANK_STIM_NAME = 'Marques2020_blank'
+RF_STIM_NAME = 'Marques2020_receptive_field'
+ORIENTATION_STIM_NAME = 'Marques2020_orientation'
+SF_STIM_NAME = 'Marques2020_spatial_frequency'
+SIZE_STIM_NAME = 'Marques2020_size'
+TEXTURE_STIM_NAME = 'FreemanZiemba2013_properties'
 
 DATA_DIR = '/braintree/data2/active/users/tmarques/bs_stimuli'
 DEGREES = 12

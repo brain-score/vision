@@ -110,7 +110,7 @@ stimulus_set_registry['FreemanZiemba2013.public'] = lambda: load_stimulus_set_fr
     identifier="movshon.FreemanZiemba2013-public",
     bucket="brainio-brainscore",
     csv_sha1="b4fee824f361fa0b78d7247ed4192b04cd675d4f",
-    zip_sha1="e14d691db081ace829f76bb24dfc055a4fa2eaf9",
+    zip_sha1="3a5e2cb347eb97d02ff9f7294abc11c1b45a78dc",
     csv_version_id="uUEhRWa1r3UqlishT48F35opJhGW1bLY",
     zip_version_id="qkNdZrXfYvItVlx1x9mMJgkIyJfXFm8j")
 
@@ -119,7 +119,7 @@ stimulus_set_registry['FreemanZiemba2013.private'] = lambda: load_stimulus_set_f
     identifier="movshon.FreemanZiemba2013-private",
     bucket="brainio-brainscore",
     csv_sha1="91bab3340410ff5171490a337c5931545f29da82",
-    zip_sha1="c2adb4c0f2f0fbbc6006a879234740131ed2dcbb",
+    zip_sha1="e973cf0f98eac3d9673b00b314deb3b85e76c23c",
     csv_version_id="WSssn5zVuXVSmtywgMUOMosIzU5RAxX9",
     zip_version_id="K8yB0pGfrsTbfFFMMPRwy_XY7wvOXjmQ")
 
@@ -128,6 +128,6 @@ stimulus_set_registry['FreemanZiemba2013.aperture'] = lambda: load_stimulus_set_
     identifier="movshon.FreemanZiemba2013.aperture",
     bucket="brainio-brainscore",
     csv_sha1="4205eca54974da46accba7812fce25c1b6df58e0",
-    zip_sha1="ab07880a0770bd73f68bcd5fd34e6cd945ee17fc",
+    zip_sha1="3eacddfecd825b18026da3e4c749d5d1bc9213ed",
     csv_version_id="peK1zN9yHKI9uEwolD.Wgxk6YRA8X1xi",
     zip_version_id="eCuC1NINJJyQIHVBz.Mzb1m111rNLe6m")

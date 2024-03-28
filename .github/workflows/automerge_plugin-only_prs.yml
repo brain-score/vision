@@ -44,7 +44,8 @@ jobs:
         uses: hmarr/auto-approve-action@v3.1.0
 
       - name: Auto Merge (GitHub submissions)
-        uses: plm9606/automerge_actions@1.2.2
+        if: contains(github.event.pull_request.labels.*.name, 'automerge')
+        uses: plm9606/automerge_actions@1.2.3
         with:
           github-token: ${{ secrets.WORKFLOW_TOKEN }}
           label-name: "automerge"
@@ -52,7 +53,8 @@ jobs:
           auto-delete: "true"
 
       - name: Auto Merge (brain-score.org submissions)
-        uses: plm9606/automerge_actions@1.2.2
+        if: contains(github.event.pull_request.labels.*.name, 'automerge-web')
+        uses: plm9606/automerge_actions@1.2.3
         with:
           github-token: ${{ secrets.WORKFLOW_TOKEN }}
           label-name: "automerge-web"

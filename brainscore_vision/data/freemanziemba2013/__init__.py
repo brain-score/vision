@@ -83,7 +83,7 @@ data_registry['FreemanZiemba2013.noaperture.public'] = lambda: load_assembly_fro
     sha1="68dd9e1da7207dc2ae17dbbb1adf628e922d15fa",
     bucket="brainio-brainscore",
     cls=NeuronRecordingAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('FreemanZiemba2013-public'),
+    stimulus_set_loader=lambda: load_stimulus_set('FreemanZiemba2013.public'),
 )
 
 # assembly: movshon.FreemanZiemba2013.noaperture.private
@@ -93,7 +93,7 @@ data_registry['FreemanZiemba2013.noaperture.private'] = lambda: load_assembly_fr
     sha1="9ffa772ce61754f6f5b7b391436680ebc25bb8dd",
     bucket="brainio-brainscore",
     cls=NeuronRecordingAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('FreemanZiemba2013-private'),
+    stimulus_set_loader=lambda: load_stimulus_set('FreemanZiemba2013.private'),
 )
 
 # stimulus set: movshon.FreemanZiemba2013

@@ -97,12 +97,13 @@ class Inferencer:
 
     @property
     def identifier(self):
+        # identifier for the inferencer: including all the features that may affect the activations
         to_add = [
-            f".dtype={self.dtype}",
-            f".visual_degrees={self.visual_degrees}",
+            f".dtype={self.dtype.__name__}",
+            f".vdeg={self.visual_degrees}",
         ]
         if self.max_spatial_size is not None:
-            to_add.append(f".max_spatial={self.max_spatial_size}")
+            to_add.append(f".max_s={self.max_spatial_size}")
         to_add = "".join(to_add)
         return f"{self.__class__.__name__}{to_add}"
     

@@ -4,6 +4,8 @@ from brainscore_vision.model_helpers.activations.temporal.inputs import Video, S
 from ..base import TemporalInferencer
 
 
+MS_ROUNDING_DIGITS = 3
+
 class TemporalContextInferencerBase(TemporalInferencer):
     """Inferencer base that computes the temporal context for concrete context-based inferencers,
     like CausalInferencer and BlockInferencer. 
@@ -46,7 +48,10 @@ class TemporalContextInferencerBase(TemporalInferencer):
 
     @property
     def identifier(self):
-        to_add = f".strategy={self.temporal_context_strategy}.context={self._compute_temporal_context()}"
+        lower, context = self._compute_temporal_context()
+        lower = round(lower, MS_ROUNDING_DIGITS)
+        context = round(context, MS_ROUNDING_DIGITS)
+        to_add = f".context={context}>{lower}.oob={self.out_of_bound_strategy}"
         return f"{super().identifier}{to_add}"
         
     def load_stimulus(self, path):

@@ -83,7 +83,10 @@ class TemporalInferencer(Inferencer):
 
     @property
     def identifier(self):
-        return f"{self.__class__.__name__}.{self.time_aligner.__name__}.fps={self.fps}"
+        id = f"{super().identifier}.{self.time_aligner.__name__}.fps={self.fps}"
+        if self.convert_to_video:
+            id += f".img_dur={self.img_duration}"
+        return id
 
     def load_stimulus(self, path):
         if self.convert_to_video and Stimulus.is_image_path(path):

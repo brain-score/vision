@@ -45,7 +45,7 @@ jobs:
 
       - name: Auto Merge (GitHub submissions)
         if: contains(github.event.pull_request.labels.*.name, 'automerge')
-        uses: plm9606/automerge_actions@1.2.3
+        uses: plm9606/automerge_actions@1.2.2
         with:
           github-token: ${{ secrets.WORKFLOW_TOKEN }}
           label-name: "automerge"
@@ -54,7 +54,7 @@ jobs:
 
       - name: Auto Merge (brain-score.org submissions)
         if: contains(github.event.pull_request.labels.*.name, 'automerge-web')
-        uses: plm9606/automerge_actions@1.2.3
+        uses: plm9606/automerge_actions@1.2.2
         with:
           github-token: ${{ secrets.WORKFLOW_TOKEN }}
           label-name: "automerge-web"

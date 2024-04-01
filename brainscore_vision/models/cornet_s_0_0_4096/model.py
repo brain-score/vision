@@ -143,12 +143,11 @@ def get_custom_cornet_s():
     region = regions[0]
 
     url = f'https://storage.googleapis.com/neurodp/0_0_4096_ckpt.pt'
-    ckpt_data = torch.hub.load_state_dict_from_url(url)
+    ckpt_data = torch.hub.load_state_dict_from_url(url, map_location='cpu')
 
-    for _ in range(0):
-        conv_layers = [module for module in region.modules() if isinstance(module, torch.nn.Conv2d)]
-        for x in conv_layers:
-            prune.random_unstructured(x, name='weight', amount=0.2)
+    conv_layers = [module for module in region.modules() if isinstance(module, torch.nn.Conv2d)]
+    for x in conv_layers:
+        prune.random_unstructured(x, name='weight', amount=0.2)
 
     model.load_state_dict(ckpt_data)
     model = model.module

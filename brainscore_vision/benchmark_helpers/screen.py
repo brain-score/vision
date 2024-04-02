@@ -20,17 +20,17 @@ _logger = logging.getLogger(__name__)
 
 
 def place_on_screen(stimulus_set: StimulusSet, target_visual_degrees: int, source_visual_degrees: int = None):
-    _logger.debug(f"Converting {stimulus_set.identifier} to {target_visual_degrees} degrees")
+    # _logger.debug(f"Converting {stimulus_set.identifier} to {target_visual_degrees} degrees")
 
-    assert source_visual_degrees or 'degrees' in stimulus_set, \
-        "Need to provide the source images' visual degrees either as a parameter or in the stimulus_set"
-    assert not (source_visual_degrees and 'degrees' in stimulus_set), \
-        "Got a parameter for the source images' visual degrees, but also found a 'degrees' column in the stimulus_set"
-    inferred_visual_degrees = _determine_visual_degrees(source_visual_degrees, stimulus_set)
-    if (inferred_visual_degrees == target_visual_degrees).all():
-        return stimulus_set
-    return _place_on_screen(stimuli_identifier=stimulus_set.identifier, stimulus_set=stimulus_set,
-                            target_visual_degrees=target_visual_degrees, source_visual_degrees=source_visual_degrees)
+    # assert source_visual_degrees or 'degrees' in stimulus_set, \
+    #     "Need to provide the source images' visual degrees either as a parameter or in the stimulus_set"
+    # assert not (source_visual_degrees and 'degrees' in stimulus_set), \
+    #     "Got a parameter for the source images' visual degrees, but also found a 'degrees' column in the stimulus_set"
+    # inferred_visual_degrees = _determine_visual_degrees(source_visual_degrees, stimulus_set)
+    # if (inferred_visual_degrees == target_visual_degrees).all():
+    return stimulus_set
+    # return _place_on_screen(stimuli_identifier=stimulus_set.identifier, stimulus_set=stimulus_set,
+    #                         target_visual_degrees=target_visual_degrees, source_visual_degrees=source_visual_degrees)
 
 
 def _determine_visual_degrees(visual_degrees, stimulus_set):

@@ -206,6 +206,9 @@ def download_weight_file(url, folder=None):
     os.makedirs(model_cache, exist_ok=True)
     weight_path = os.path.join(model_cache, weight_fname)
 
+    if os.path.exists(weight_path):
+        return weight_path
+
     # Streaming, so we can iterate over the response.
     response = requests.get(url, stream=True)
 

@@ -79,6 +79,8 @@ class Inferencer:
             batch_padding : bool = False,
             visual_degrees : float = 8.,
             dtype : np.dtype = np.float16,
+            *args,
+            **kwargs
         ):
 
         self.stimulus_type = stimulus_type

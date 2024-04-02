@@ -149,5 +149,5 @@ if __name__ == "__main__":
     else:
         if tests_fail:
             if is_labeled_automerge(pr_num):
-                print("Failure")
+                print(False)
         print(results_dict)

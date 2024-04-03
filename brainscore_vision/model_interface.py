@@ -196,8 +196,8 @@ class BrainModel:
         """
         raise NotImplementedError()
 
-    def look_at(self, stimuli: Union[StimulusSet, List[str]], number_of_trials=1) \
-            -> Union[BehavioralAssembly, NeuroidAssembly]:
+    def look_at(self, stimuli: Union[StimulusSet, List[str]], number_of_trials: int = 1,
+                require_variance: bool = False) -> Union[BehavioralAssembly, NeuroidAssembly]:
         """
         Digest a set of stimuli and return requested outputs. Which outputs to return is instructed by the
         :meth:`~brainscore_vision.model_interface.BrainMode.start_task` and
@@ -207,6 +207,7 @@ class BrainModel:
             or a list of image file paths
         :param number_of_trials: The number of repeated trials of the stimuli that the model should average over.
             E.g. 10 or 35. Non-stochastic models can likely ignore this parameter.
+        :param require_variance: Whether to require models to return different activations for the same stimuli or not. This is typically true in biological measurements due to e.g. micro-saccades and noise. Ideally this would always be the same in the models, but for compute reasons this flag allows specifying the need more directly.
         :return: task behaviors or recordings as instructed
         """
         raise NotImplementedError()

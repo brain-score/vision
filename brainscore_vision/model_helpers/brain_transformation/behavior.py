@@ -259,11 +259,13 @@ class OddOneOut(BrainModel):
         assert len(triplets) % 3 == 0, "No. of stimuli must be a multiple of 3"
         choices = self.calculate_choices(similarity_matrix, triplets)
 
-        # Return choices
+        # Package choices
+        stimulus_ids = ['|'.join([f"{triplets[offset + i]}" for i in range(3)])
+                        for offset in range(0, len(triplets) - 2, 3)]
         choices = BehavioralAssembly(
-            choices, 
-            coords={'stimulus_id': triplets[2::3]},
-            dims=['stimulus_id'])
+            [choices],
+            coords={'stimulus_id': ('presentation', stimulus_ids)},
+            dims=['choice', 'presentation'])
 
         return choices
 
@@ -282,13 +284,13 @@ class OddOneOut(BrainModel):
             similarity_matrix = dot_product / norm_product
         else:
             raise ValueError(
-            f"Unknown similarity_measure {self.similarity_measure} -- expected one of 'dot' or 'cosine'")
+                f"Unknown similarity_measure {self.similarity_measure} -- expected one of 'dot' or 'cosine'")
 
         similarity_matrix = DataAssembly(similarity_matrix, coords={
-                **{f"{coord}_left": ('presentation_left', values) for coord, _, values in
-                walk_coords(features['presentation'])},
-                **{f"{coord}_right": ('presentation_right', values) for coord, _, values in
-                walk_coords(features['presentation'])}
+            **{f"{coord}_left": ('presentation_left', values) for coord, _, values in
+               walk_coords(features['presentation'])},
+            **{f"{coord}_right": ('presentation_right', values) for coord, _, values in
+               walk_coords(features['presentation'])}
         }, dims=['presentation_left', 'presentation_right'])
         return similarity_matrix
 
@@ -298,7 +300,7 @@ class OddOneOut(BrainModel):
         for triplet in triplets:
             i, j, k = triplet
             sims = [similarity_matrix.sel(stimulus_id_left=i, stimulus_id_right=j),
-                    similarity_matrix.sel(stimulus_id_left=i, stimulus_id_right=k), 
+                    similarity_matrix.sel(stimulus_id_left=i, stimulus_id_right=k),
                     similarity_matrix.sel(stimulus_id_left=j, stimulus_id_right=k)]
             idx = triplet[2 - np.argmax(sims)]
             choice_predictions.append(idx)

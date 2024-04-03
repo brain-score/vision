@@ -1,23 +1,113 @@
 from brainscore_vision import benchmark_registry
 from . import benchmark
 
-DATASETS = ['rgb', 'contours', 'phosphenes-12', 'phosphenes-16', 'phosphenes-21', 'phosphenes-27', 'phosphenes-35',
-            'phosphenes-46', 'phosphenes-59', 'phosphenes-77', 'phosphenes-100', 'segments-12', 'segments-16',
-            'segments-21', 'segments-27', 'segments-35', 'segments-46', 'segments-59', 'segments-77', 'segments-100',
-            'phosphenes-all', 'segments-all']
+# behavioral benchmarks
+benchmark_registry[
+    'Scialom2024_rgbBehavioralAccuracyDistance'] = benchmark._Scialom2024BehavioralAccuracyDistance('rgb')
+benchmark_registry[
+    'Scialom2024_contoursBehavioralAccuracyDistance'] = benchmark._Scialom2024BehavioralAccuracyDistance(
+    'contours')
+benchmark_registry[
+    'Scialom2024_phosphenes-12BehavioralAccuracyDistance'] = benchmark._Scialom2024BehavioralAccuracyDistance(
+    'phosphenes-12')
+benchmark_registry[
+    'Scialom2024_phosphenes-16BehavioralAccuracyDistance'] = benchmark._Scialom2024BehavioralAccuracyDistance(
+    'phosphenes-16')
+benchmark_registry[
+    'Scialom2024_phosphenes-21BehavioralAccuracyDistance'] = benchmark._Scialom2024BehavioralAccuracyDistance(
+    'phosphenes-21')
+benchmark_registry[
+    'Scialom2024_phosphenes-27BehavioralAccuracyDistance'] = benchmark._Scialom2024BehavioralAccuracyDistance(
+    'phosphenes-27')
+benchmark_registry[
+    'Scialom2024_phosphenes-35BehavioralAccuracyDistance'] = benchmark._Scialom2024BehavioralAccuracyDistance(
+    'phosphenes-35')
+benchmark_registry[
+    'Scialom2024_phosphenes-46BehavioralAccuracyDistance'] = benchmark._Scialom2024BehavioralAccuracyDistance(
+    'phosphenes-46')
+benchmark_registry[
+    'Scialom2024_phosphenes-59BehavioralAccuracyDistance'] = benchmark._Scialom2024BehavioralAccuracyDistance(
+    'phosphenes-59')
+benchmark_registry[
+    'Scialom2024_phosphenes-77BehavioralAccuracyDistance'] = benchmark._Scialom2024BehavioralAccuracyDistance(
+    'phosphenes-77')
+benchmark_registry[
+    'Scialom2024_phosphenes-100BehavioralAccuracyDistance'] = benchmark._Scialom2024BehavioralAccuracyDistance(
+    'phosphenes-100')
+benchmark_registry[
+    'Scialom2024_segments-12BehavioralAccuracyDistance'] = benchmark._Scialom2024BehavioralAccuracyDistance(
+    'segments-12')
+benchmark_registry[
+    'Scialom2024_segments-16BehavioralAccuracyDistance'] = benchmark._Scialom2024BehavioralAccuracyDistance(
+    'segments-16')
+benchmark_registry[
+    'Scialom2024_segments-21BehavioralAccuracyDistance'] = benchmark._Scialom2024BehavioralAccuracyDistance(
+    'segments-21')
+benchmark_registry[
+    'Scialom2024_segments-27BehavioralAccuracyDistance'] = benchmark._Scialom2024BehavioralAccuracyDistance(
+    'segments-27')
+benchmark_registry[
+    'Scialom2024_segments-35BehavioralAccuracyDistance'] = benchmark._Scialom2024BehavioralAccuracyDistance(
+    'segments-35')
+benchmark_registry[
+    'Scialom2024_segments-46BehavioralAccuracyDistance'] = benchmark._Scialom2024BehavioralAccuracyDistance(
+    'segments-46')
+benchmark_registry[
+    'Scialom2024_segments-59BehavioralAccuracyDistance'] = benchmark._Scialom2024BehavioralAccuracyDistance(
+    'segments-59')
+benchmark_registry[
+    'Scialom2024_segments-77BehavioralAccuracyDistance'] = benchmark._Scialom2024BehavioralAccuracyDistance(
+    'segments-77')
+benchmark_registry[
+    'Scialom2024_segments-100BehavioralAccuracyDistance'] = benchmark._Scialom2024BehavioralAccuracyDistance(
+    'segments-100')
 
+# composites
+benchmark_registry[
+    'Scialom2024_phosphenes-allBehavioralErrorConsistency'] = benchmark._Scialom2024BehavioralErrorConsistency(
+    'phosphenes-all')
+benchmark_registry[
+    'Scialom2024_segments-allBehavioralErrorConsistency'] = benchmark._Scialom2024BehavioralErrorConsistency(
+    'segments-all')
 
-for dataset in DATASETS:
-    if 'all' not in dataset:
-        # condition-specific benchmarks with a coarse-grained metric
-        benchmark_registry[
-            f"Scialom2024_{dataset}BehavioralAccuracyDistance"] = benchmark._Scialom2024BehavioralAccuracyDistance(
-            dataset)
-        # engineering benchmark
-        benchmark_registry[
-            f"Scialom2024_{dataset}EngineeringAccuracy"] = benchmark._Scialom2024EngineeringAccuracy(dataset)
-    else:
-        # composite benchmark with a fine-grained metric
-        benchmark_registry[
-            f"Scialom2024_{dataset}BehavioralErrorConsistency"] = benchmark._Scialom2024BehavioralErrorConsistency(
-            dataset)
+# engineering benchmarks
+benchmark_registry[
+    'Scialom2024_rgbEngineeringAccuracy'] = benchmark._Scialom2024EngineeringAccuracy('rgb')
+benchmark_registry[
+    'Scialom2024_contoursEngineeringAccuracy'] = benchmark._Scialom2024EngineeringAccuracy('contours')
+benchmark_registry[
+    'Scialom2024_phosphenes-12EngineeringAccuracy'] = benchmark._Scialom2024EngineeringAccuracy('phosphenes-12')
+benchmark_registry[
+    'Scialom2024_phosphenes-16EngineeringAccuracy'] = benchmark._Scialom2024EngineeringAccuracy('phosphenes-16')
+benchmark_registry[
+    'Scialom2024_phosphenes-21EngineeringAccuracy'] = benchmark._Scialom2024EngineeringAccuracy('phosphenes-21')
+benchmark_registry[
+    'Scialom2024_phosphenes-27EngineeringAccuracy'] = benchmark._Scialom2024EngineeringAccuracy('phosphenes-27')
+benchmark_registry[
+    'Scialom2024_phosphenes-35EngineeringAccuracy'] = benchmark._Scialom2024EngineeringAccuracy('phosphenes-35')
+benchmark_registry[
+    'Scialom2024_phosphenes-46EngineeringAccuracy'] = benchmark._Scialom2024EngineeringAccuracy('phosphenes-46')
+benchmark_registry[
+    'Scialom2024_phosphenes-59EngineeringAccuracy'] = benchmark._Scialom2024EngineeringAccuracy('phosphenes-59')
+benchmark_registry[
+    'Scialom2024_phosphenes-77EngineeringAccuracy'] = benchmark._Scialom2024EngineeringAccuracy('phosphenes-77')
+benchmark_registry[
+    'Scialom2024_phosphenes-100EngineeringAccuracy'] = benchmark._Scialom2024EngineeringAccuracy('phosphenes-100')
+benchmark_registry[
+    'Scialom2024_segments-12EngineeringAccuracy'] = benchmark._Scialom2024EngineeringAccuracy('segments-12')
+benchmark_registry[
+    'Scialom2024_segments-16EngineeringAccuracy'] = benchmark._Scialom2024EngineeringAccuracy('segments-16')
+benchmark_registry[
+    'Scialom2024_segments-21EngineeringAccuracy'] = benchmark._Scialom2024EngineeringAccuracy('segments-21')
+benchmark_registry[
+    'Scialom2024_segments-27EngineeringAccuracy'] = benchmark._Scialom2024EngineeringAccuracy('segments-27')
+benchmark_registry[
+    'Scialom2024_segments-35EngineeringAccuracy'] = benchmark._Scialom2024EngineeringAccuracy('segments-35')
+benchmark_registry[
+    'Scialom2024_segments-46EngineeringAccuracy'] = benchmark._Scialom2024EngineeringAccuracy('segments-46')
+benchmark_registry[
+    'Scialom2024_segments-59EngineeringAccuracy'] = benchmark._Scialom2024EngineeringAccuracy('segments-59')
+benchmark_registry[
+    'Scialom2024_segments-77EngineeringAccuracy'] = benchmark._Scialom2024EngineeringAccuracy('segments-77')
+benchmark_registry[
+    'Scialom2024_segments-100EngineeringAccuracy'] = benchmark._Scialom2024EngineeringAccuracy('segments-100')

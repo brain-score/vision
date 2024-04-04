@@ -3,8 +3,10 @@ import os
 import pytest
 
 from brainio.stimuli import StimulusSet
-from brainscore_vision.model_helpers.activations.temporal.model.pytorch import PytorchWrapper
+from brainscore_vision.model_helpers.activations.temporal.inputs.base import Stimulus
+from brainscore_vision.model_helpers.activations.temporal.model import ActivationWrapper
 from brainscore_vision.model_helpers.activations.temporal.core import TemporalInferencer, CausalInferencer 
+from collections import OrderedDict
 
 
 video_paths = [
@@ -21,51 +23,22 @@ def get_fake_models(causal=False, **kwargs):
         frames = video.to_numpy()[:, :12, :12]
         return frames
     
-    class FakeModule:
-        def __init__(self, layer_name, func):
-            self.func = func
-            self.layer_name = layer_name
-            self.hook = None
+    class FakeActivationWrapper(ActivationWrapper):
+        def __init__(self, **kwargs):
+            super().__init__("dummy", transform_video, **kwargs)
 
-        def get(self, name):
-            return self
-        
-        def register_forward_hook(self, hook):
-            self.hook = hook
-        
-        def __call__(self, inputs):
-            output = self.func(inputs)
-            if self.hook is not None:
-                self.hook(self, inputs, output)
-            return output
-    
-    class FakeModel:
-        def __init__(self):
-            self.layer1 = FakeModule("layer1", lambda f: f/2)
-            self.layer2 = FakeModule("layer2", lambda f: f/2)
+        def get_activations(self, inputs, layers):
+            ret = OrderedDict()
+            for layer in layers:
+                ret[layer] = np.stack(inputs)
+            return ret
 
-        def forward(self, x):
-            x = self.layer1(x)
-            x = self.layer2(x)
-            return x
-
-        def to(self, device):
-            return self
-        
-        def eval(self):
-            return self
-        
-        def _modules(self):
-            return [self.layer1, self.layer2]  
-
-    layer_activation_format = {**{f'layer{i}': "CTHW" for i in range(1, 3)}}
-    identifier = "dummy"
-    model = FakeModel()
+    layer_activation_format = {**{f'layer{i}': "THWC" for i in range(1, 3)}}
 
     inferencer_cls = TemporalInferencer if not causal else CausalInferencer
     if inferencer_cls is CausalInferencer: 
         kwargs['duration'] = (0, 3000)
-    wrapper = PytorchWrapper(identifier, model, transform_video, inferencer_cls=inferencer_cls, fps=fps, 
+    wrapper = FakeActivationWrapper(inferencer_cls=inferencer_cls, fps=fps, 
                              layer_activation_format=layer_activation_format, max_workers=1, batch_size=4, **kwargs)
     layers = list(layer_activation_format.keys())
     return wrapper, layers

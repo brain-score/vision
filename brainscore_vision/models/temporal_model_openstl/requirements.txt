@@ -1,2 +1,3 @@
+torch
 torchvision
 openstl @ git+https://github.com/YingtianDt/OpenSTL.git

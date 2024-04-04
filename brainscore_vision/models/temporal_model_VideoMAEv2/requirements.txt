@@ -1,2 +1,4 @@
+torch
+torchvision
 timm
 videomae_v2 @ git+https://github.com/YingtianDt/VideoMAEv2.git

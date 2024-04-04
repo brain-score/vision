@@ -1,13 +1,12 @@
 from collections import OrderedDict
-from typing import Callable, List, Any, Union, Tuple, Dict
+from typing import Callable, List, Any
 
 import logging
 
 from brainscore_vision.model_helpers.utils import fullname
 from .base import ActivationWrapper
 from ..inputs import Stimulus
-import torch
-from torch import nn
+
 
 SUBMODULE_SEPARATOR = '.'
 
@@ -17,6 +16,7 @@ def default_process_activation(layer, layer_name, inputs, output):
     return output
 
 class PytorchWrapper(ActivationWrapper):
+    from torch import nn
     def __init__(
             self, 
             identifier : str, 

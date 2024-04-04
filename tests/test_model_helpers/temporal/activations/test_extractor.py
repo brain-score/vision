@@ -65,7 +65,6 @@ def test_from_video_path(causal, padding, time_align):
 
     import gc
     gc.collect()  # free some memory, we're piling up a lot of activations at this point
-    return activations
 
 
 def _build_stimulus_set(video_names):

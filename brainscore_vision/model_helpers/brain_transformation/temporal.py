@@ -12,7 +12,7 @@ def iterable_to_list(arr):
     if isinstance(arr, (list, tuple)):
         return [iterable_to_list(a) for a in arr]
     if isinstance(arr, np.ndarray):
-        if arr.dtype == np.object:
+        if arr.dtype == object:
             arr = arr.tolist()
         return [iterable_to_list(a) for a in arr]
     else:

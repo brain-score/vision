@@ -21,15 +21,42 @@ def get_fake_models(causal=False, **kwargs):
         frames = video.to_numpy()[:, :12, :12]
         return frames
     
+    class FakeModule:
+        def __init__(self, layer_name, func):
+            self.func = func
+            self.layer_name = layer_name
+            self.hook = None
+
+        def get(self, name):
+            return self
+        
+        def register_forward_hook(self, hook):
+            self.hook = hook
+        
+        def __call__(self, inputs):
+            output = self.func(inputs)
+            if self.hook is not None:
+                self.hook(self, inputs, output)
+            return output
+    
     class FakeModel:
         def __init__(self):
-            self.layer1 = lambda f: f/2
-            self.layer2 = lambda f: f/2
+            self.layer1 = FakeModule("layer1", lambda f: f/2)
+            self.layer2 = FakeModule("layer2", lambda f: f/2)
 
         def forward(self, x):
             x = self.layer1(x)
             x = self.layer2(x)
             return x
+
+        def to(self, device):
+            return self
+        
+        def eval(self):
+            return self
+        
+        def _modules(self):
+            return [self.layer1, self.layer2]  
 
     layer_activation_format = {**{f'layer{i}': "CTHW" for i in range(1, 3)}}
     identifier = "dummy"

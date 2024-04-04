@@ -8,8 +8,7 @@ from . import model
 def commit_model(identifier):
     activations_model=model.get_model(identifier)
     layers=get_specified_layers(activations_model)
-    region_layer_map={BrainModel.RecordingTarget.whole_brain: layers}
-    return ModelCommitment(identifier=identifier, activations_model=activations_model, layers=layers, region_layer_map=region_layer_map)
+    return ModelCommitment(identifier=identifier, activations_model=activations_model, layers=layers)
 
 
 model_registry["I3D"] = lambda: commit_model("I3D")

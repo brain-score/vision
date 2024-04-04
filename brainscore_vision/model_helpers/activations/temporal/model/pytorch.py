@@ -16,11 +16,10 @@ def default_process_activation(layer, layer_name, inputs, output):
     return output
 
 class PytorchWrapper(ActivationWrapper):
-    from torch import nn
     def __init__(
             self, 
             identifier : str, 
-            model : nn.Module, 
+            model, 
             preprocessing : Callable[[List[Stimulus]], Any], 
             process_output = None, 
             *args, 

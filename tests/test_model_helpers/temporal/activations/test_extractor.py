@@ -16,26 +16,15 @@ img_path = os.path.join(os.path.dirname(__file__), "../../activations/rgb.jpg")
 fps = 1
 
 
-def get_resnet_base_models(causal=False, **kwargs):
-    from torchvision import transforms
-
-    img_transform = transforms.Compose([
-        transforms.Resize(4),
-        transforms.Normalize(mean=[0.43216, 0.394666, 0.37645], std=[0.22803, 0.22145, 0.216989])
-    ])
-
+def get_fake_models(causal=False, **kwargs):
     def transform_video(video):
-        import torch
-        frames = torch.Tensor(video.to_numpy() / 255.0).permute(0, 3, 1, 2)
-        frames = img_transform(frames)
-        return frames.permute(1, 0, 2, 3)
+        frames = video.to_numpy()[:, :12, :12]
+        return frames
     
-    from torch import nn
-    class Dummy3DConv(nn.Module):
+    class FakeModel:
         def __init__(self):
-            super().__init__()
-            self.layer1 = nn.Conv3d(3, 2, kernel_size=(3, 3, 3), stride=(5, 5, 5), padding=(1, 1, 1))
-            self.layer2 = nn.Conv3d(2, 2, kernel_size=(3, 3, 3), stride=(5, 5, 5), padding=(1, 1, 1))
+            self.layer1 = lambda f: f/2
+            self.layer2 = lambda f: f/2
 
         def forward(self, x):
             x = self.layer1(x)
@@ -44,7 +33,7 @@ def get_resnet_base_models(causal=False, **kwargs):
 
     layer_activation_format = {**{f'layer{i}': "CTHW" for i in range(1, 3)}}
     identifier = "dummy"
-    model = Dummy3DConv()
+    model = FakeModel()
 
     inferencer_cls = TemporalInferencer if not causal else CausalInferencer
     if inferencer_cls is CausalInferencer: 
@@ -61,7 +50,7 @@ def test_from_video_path(causal, padding, time_align):
     video_names = ["dots1.mp4", "dots2.mp4"]  # 2s vs 6s
     stimuli_paths = video_paths
 
-    activations_extractor, layers = get_resnet_base_models(causal=causal, 
+    activations_extractor, layers = get_fake_models(causal=causal, 
                                                            batch_padding=padding, time_alignment=time_align)
     activations = activations_extractor.from_paths(stimuli_paths=stimuli_paths,
                                                    layers=layers)
@@ -93,7 +82,7 @@ def test_from_stimulus_set(causal, padding):
     video_names = ["dots1.mp4", "dots2.mp4"]
     stimulus_set = _build_stimulus_set(video_names)
 
-    activations_extractor, layers = get_resnet_base_models(causal=causal, batch_padding=padding)
+    activations_extractor, layers = get_fake_models(causal=causal, batch_padding=padding)
     activations = activations_extractor(stimulus_set, layers=layers)
     
     assert activations is not None

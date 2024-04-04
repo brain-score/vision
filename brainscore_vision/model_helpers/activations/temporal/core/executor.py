@@ -1,16 +1,14 @@
 import os
-import time
 import logging
 
 import numpy as np
 from tqdm.auto import tqdm
 from collections import OrderedDict
-from typing import List, Any, Callable
+from typing import Any, Callable
 from ..inputs import Stimulus
-from torch.utils.data import DataLoader
 
 from brainscore_vision.model_helpers.utils import fullname
-from joblib import Parallel, delayed, wrap_non_picklable_objects
+from joblib import Parallel, delayed
 
 
 def pipeline(*funcs):

@@ -38,9 +38,13 @@ class Inferencer:
     layer_activation_format: dict
         a dictionary that specifies the dimensions of the activations of each layer.
         For example, {"temp_conv": "TCHW", "spatial_conv": "CHW",  "fc": "C"}.
+    visual_degrees: float
+        the visual degrees of the stimuli.
     max_spatial_size: int
         the maximum spatial size of the activations. If the spatial size of the activations is larger than this value,
         the activations will be downsampled to this size. This is used to avoid the large memory consumption by the first layers of some model.
+    dtype: np.dtype
+        data type of the activations.
     batch_size: int
         number of stimuli to process in each batch.
     batch_grouper: function
@@ -48,10 +52,8 @@ class Inferencer:
     batch_padding: bool
         whether to pad the each batch with the last stimulus to make it the same size as the specified batch size.
         Otherwise, some batches will have size < batch_size because of the lacking of samples in that group.
-    visual_degrees: float
-        the visual degrees of the stimuli.
-    dtype: np.dtype
-        data type of the activations.
+    max_workers: int
+        the maximum number of workers to use for parallel processing.
 
         
     APIs
@@ -73,12 +75,13 @@ class Inferencer:
             preprocessing : Callable[[List[Stimulus]], Any],
             layer_activation_format : dict,
             stimulus_type : Stimulus,
+            visual_degrees : float = 8.,
             max_spatial_size : int = None,
+            dtype : np.dtype = np.float16,
             batch_size : int = 64,
             batch_grouper : Callable[[Stimulus], Hashable] = None,
             batch_padding : bool = False,
-            visual_degrees : float = 8.,
-            dtype : np.dtype = np.float16,
+            max_workers : int = None,
             *args,
             **kwargs
         ):
@@ -88,7 +91,7 @@ class Inferencer:
         self.max_spatial_size = max_spatial_size
         self.visual_degrees = visual_degrees
         self.dtype = dtype
-        self._executor = BatchExecutor(get_activations, preprocessing, batch_size, batch_padding, batch_grouper)
+        self._executor = BatchExecutor(get_activations, preprocessing, batch_size, batch_padding, batch_grouper, max_workers)
         self._stimulus_set_hooks = {}
         self._batch_activations_hooks = {}
         self._logger = logging.getLogger(fullname(self))
@@ -230,7 +233,7 @@ class Inferencer:
     @staticmethod
     def _stack_neuroid(assembly, channels):
         asm_cls = assembly.__class__
-        assembly = assembly.stack(neuroid=channels).reset_index('neuroid')
+        assembly = assembly.stack(neuroid=channels)
         return asm_cls(assembly)
 
     # package an activation numpy array into a NeuroidAssembly with specified dims

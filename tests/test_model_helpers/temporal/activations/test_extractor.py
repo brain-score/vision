@@ -13,14 +13,14 @@ video_paths = [
 ]
 video_durations = [2000, 6000]
 img_path = os.path.join(os.path.dirname(__file__), "../../activations/rgb.jpg")
+fps = 1
 
 
 def get_resnet_base_models(causal=False, **kwargs):
     from torchvision import transforms
 
     img_transform = transforms.Compose([
-        transforms.Resize((128, 171)),
-        transforms.CenterCrop(112),
+        transforms.Resize(4),
         transforms.Normalize(mean=[0.43216, 0.394666, 0.37645], std=[0.22803, 0.22145, 0.216989])
     ])
 
@@ -34,27 +34,23 @@ def get_resnet_base_models(causal=False, **kwargs):
     class Dummy3DConv(nn.Module):
         def __init__(self):
             super().__init__()
-            self.layer1 = nn.Conv3d(3, 64, kernel_size=(3, 3, 3), stride=(5, 5, 5), padding=(1, 1, 1))
-            self.layer2 = nn.Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(5, 5, 5), padding=(1, 1, 1))
-            self.layer3 = nn.Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(3, 3, 3), padding=(1, 1, 1))
-            self.layer4 = nn.Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            self.layer1 = nn.Conv3d(3, 2, kernel_size=(3, 3, 3), stride=(5, 5, 5), padding=(1, 1, 1))
+            self.layer2 = nn.Conv3d(2, 2, kernel_size=(3, 3, 3), stride=(5, 5, 5), padding=(1, 1, 1))
 
         def forward(self, x):
             x = self.layer1(x)
             x = self.layer2(x)
-            x = self.layer3(x)
-            x = self.layer4(x)
             return x
 
-    layer_activation_format = {**{f'layer{i}': "CTHW" for i in range(1, 5)}}
+    layer_activation_format = {**{f'layer{i}': "CTHW" for i in range(1, 3)}}
     identifier = "dummy"
     model = Dummy3DConv()
 
     inferencer_cls = TemporalInferencer if not causal else CausalInferencer
     if inferencer_cls is CausalInferencer: 
         kwargs['duration'] = (0, 3000)
-    wrapper = PytorchWrapper(identifier, model, transform_video, inferencer_cls=inferencer_cls, fps=25, 
-                             layer_activation_format=layer_activation_format, **kwargs)
+    wrapper = PytorchWrapper(identifier, model, transform_video, inferencer_cls=inferencer_cls, fps=fps, 
+                             layer_activation_format=layer_activation_format, max_workers=1, batch_size=4, **kwargs)
     layers = list(layer_activation_format.keys())
     return wrapper, layers
 
@@ -74,7 +70,7 @@ def test_from_video_path(causal, padding, time_align):
     assert len(activations['stimulus_path']) == 2
     assert len(np.unique(activations['layer'])) == len(layers)
 
-    expected_num_time_bins = 6 * 25
+    expected_num_time_bins = 6 * fps
     if causal:
         assert activations.sizes['time_bin'] == expected_num_time_bins 
 

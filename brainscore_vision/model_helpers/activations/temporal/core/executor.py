@@ -72,23 +72,23 @@ class BatchExecutor:
 
 
     def __init__(self, get_activations, preprocessing, batch_size, batch_padding, 
-                 batch_grouper=None, dtype=np.float16, max_workers=None):
+                 batch_grouper=None, max_workers=None):
         self.stimuli = []
         self.get_activations = get_activations
         self.batch_size = batch_size
         self.batch_padding = batch_padding
         self.batch_grouper = batch_grouper
         self.preprocess = preprocessing
-        self.dtype = dtype
         self.max_workers = max_workers
 
         self._logger = logging.getLogger(fullname(self))
 
         # Pool for I/O intensive ops
         # torch suggest using the number of cpus as the number of threads, but os.cpu_count() returns the number of threads
-        num_threads = min(int(os.cpu_count() / 1.5), self.batch_size)  
+        num_threads = max(min(int(os.cpu_count() / 1.5), self.batch_size), 1)  
         if self.max_workers is not None:
             num_threads = min(self.max_workers, num_threads)
+        self._logger.info(f"Using {num_threads} threads for parallel processing.")
         self._mapper = JoblibMapper(num_threads)
 
         # processing hooks

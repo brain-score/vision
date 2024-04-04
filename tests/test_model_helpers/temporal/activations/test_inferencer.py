@@ -42,11 +42,11 @@ dummy_layer_activation_format = {
 dummy_layers = ["layer1", "layer2"]
 
 
+@pytest.mark.memory_intense
 @pytest.mark.parametrize("max_spatial_size", [None, 2, 4])
 def test_inferencer(max_spatial_size):
-
     inferencer = Inferencer(dummy_get_features, dummy_preprocess, dummy_layer_activation_format, 
-                            Video, max_spatial_size=max_spatial_size, batch_grouper=lambda s: s.duration)
+                            Video, max_workers=1, max_spatial_size=max_spatial_size, batch_grouper=lambda s: s.duration)
     model_assembly = inferencer(video_paths, layers=dummy_layers)
     if max_spatial_size is None:
         # 6 second video with fps 60 has 360 frames
@@ -62,7 +62,8 @@ def test_inferencer(max_spatial_size):
 @pytest.mark.parametrize("fps", [10, 30, 45])
 def test_temporal_inferencer(time_alignment, fps):
     inferencer = TemporalInferencer(dummy_get_features, dummy_preprocess, 
-                                    dummy_layer_activation_format, fps=fps, time_alignment=time_alignment)
+                                    dummy_layer_activation_format, max_workers=1, 
+                                    fps=fps, time_alignment=time_alignment)
     model_assembly = inferencer(video_paths, layers=dummy_layers)
     assert model_assembly['time_bin_start'].values[0] == 0
     assert model_assembly['time_bin_end'].values[-1] == max(video_durations)
@@ -88,10 +89,12 @@ def test_temporal_inferencer(time_alignment, fps):
     assert np.allclose(output_values, pred_values)
 
 
+@pytest.mark.memory_intense
 def test_img_input():
     fps = 30
     inferencer = TemporalInferencer(dummy_get_features, dummy_preprocess, 
-                                    dummy_layer_activation_format, fps=fps, convert_img_to_video=True, img_duration=1000)
+                                    dummy_layer_activation_format, max_workers=1, 
+                                    fps=fps, convert_img_to_video=True, img_duration=1000)
     model_assembly = inferencer([img_path], layers=dummy_layers)
     assert model_assembly.sizes["time_bin"] == fps
 
@@ -114,6 +117,7 @@ def test_compute_temporal_context():
     assert inferencer._compute_temporal_context() == (200, 500)
 
 
+@pytest.mark.memory_intense
 @pytest.mark.parametrize("preprocess", ["normal", "downsample"])
 def test_causal_inferencer(preprocess):
     if preprocess == "normal":
@@ -122,7 +126,8 @@ def test_causal_inferencer(preprocess):
         preprocess = time_down_sample_preprocess
     fps = 10
     inferencer = CausalInferencer(dummy_get_features, dummy_preprocess, 
-                                    dummy_layer_activation_format, fps=fps)
+                                    dummy_layer_activation_format, 
+                                    fps=fps, max_workers=1)
     model_assembly = inferencer(video_paths, layers=dummy_layers)
     assert model_assembly.sizes["time_bin"] == 6 * fps
     assert np.isclose(model_assembly['time_bin_end'].values[0] - model_assembly['time_bin_start'].values[0], 1000/fps)
@@ -142,6 +147,7 @@ def test_causal_inferencer(preprocess):
     assert np.allclose(output_values, pred_values)
 
 
+@pytest.mark.memory_intense
 @pytest.mark.parametrize("preprocess", ["normal", "downsample"])
 def test_block_inferencer(preprocess):
     if preprocess == "normal":
@@ -150,7 +156,7 @@ def test_block_inferencer(preprocess):
         preprocessing = time_down_sample_preprocess
     fps = 10
     inferencer = BlockInferencer(dummy_get_features, preprocessing, dummy_layer_activation_format, fps=fps, 
-                                 duration=(200, 4000), temporal_context_strategy="greedy")
+                                 duration=(200, 4000), temporal_context_strategy="greedy", max_workers=1)
     model_assembly = inferencer(video_paths, layers=dummy_layers)
     assert model_assembly.sizes["time_bin"] == 8 * fps  # block overflow 2 x 4 seconds
     assert np.isclose(model_assembly['time_bin_end'].values[0] - model_assembly['time_bin_start'].values[0], 1000/fps)

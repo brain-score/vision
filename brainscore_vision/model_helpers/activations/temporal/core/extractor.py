@@ -99,6 +99,7 @@ class ActivationsExtractor:
 
     @store_xarray(identifier_ignore=['stimuli_paths', 'layers'], combine_fields={'layers': 'layer'})
     def _from_paths_stored(self, identifier, layers, stimuli_identifier, stimuli_paths):
+        stimuli_paths.sort()
         return self._from_paths(layers=layers, stimuli_paths=stimuli_paths)
 
     def _from_paths(self, layers, stimuli_paths):

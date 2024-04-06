@@ -136,12 +136,14 @@ class BatchExecutor:
             indices.extend(batch_indices)
         return indices, masks, all_batches
 
-    def register_before_hook(self, hook: Callable[[Stimulus], Stimulus], index=-1):
+    def register_before_hook(self, hook: Callable[[Stimulus], Stimulus], index=None):
         # hook: Stimulus -> Stimulus
+        if index is None: index = len(self.before_hooks)
         self.before_hooks.insert(index, hook)
 
-    def register_after_hook(self, hook: Callable[[Any, str, Stimulus], Any], index=-1):
+    def register_after_hook(self, hook: Callable[[Any, str, Stimulus], Any], index=None):
         # hook: value, layer_name, Stimulus -> value
+        if index is None: index = len(self.after_hooks)
         self.after_hooks.insert(index, hook)
     
     def add_stimuli(self, stimuli):

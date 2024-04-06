@@ -66,7 +66,7 @@ def get_model(identifier):
     layer_activation_format = {
         "base.stem": "CTHW",
         **{f"base.layer{i}": "CTHW" for i in range(1, 5)},
-        "base.fc": "C",  # no fc
+        # "base.fc": "C",  # no fc
     }
 
     return PytorchWrapper(identifier, model, transform_video, fps=30, layer_activation_format=layer_activation_format)

@@ -8,6 +8,16 @@ from brainscore_vision.model_helpers.activations.temporal.core import Inferencer
 from brainscore_vision.model_helpers.activations.temporal.inputs import Video, Stimulus
 
 
+"""This module tests model_helpers.activations.temporal.core.inferencer
+
+    Different inferencers are tested:
+    - Inferencer: the basic inferencer that does not enforce any temporal context
+    - TemporalInferencer: the inferencer that aligns the activations to the video time
+    - CausalInferencer: the inferencer that ensures the activations are causal
+    - BlockInferencer: the inferencer that divides the video into blocks and infer the activations for each block
+"""
+
+
 video_paths = [
     os.path.join(os.path.dirname(__file__), "..", "dots1.mp4"),
     os.path.join(os.path.dirname(__file__), "..", "dots2.mp4"),
@@ -82,11 +92,11 @@ def test_temporal_inferencer(time_alignment, fps):
                                     .isel(neuroid=model_assembly.layer=="layer1")\
                                     .transpose('time_bin', 'neuroid').values.reshape(-1)
     
-    pred_values = []
+    manual_compute_values = []
     video = Video.from_path(video_paths[1]).set_fps(fps)
-    pred_values = dummy_get_features([dummy_preprocess(video)], ["layer1"])["layer1"][0].reshape(-1)
-    pred_values = pred_values.astype(output_values.dtype)
-    assert np.allclose(output_values, pred_values)
+    manual_compute_values = dummy_get_features([dummy_preprocess(video)], ["layer1"])["layer1"][0].reshape(-1)
+    manual_compute_values = manual_compute_values.astype(output_values.dtype)
+    assert np.allclose(output_values, manual_compute_values)
 
 
 @pytest.mark.memory_intense
@@ -137,14 +147,14 @@ def test_causal_inferencer(preprocess):
     output_values = model_assembly.sel(stimulus_path=video_paths[1])\
                                     .isel(neuroid=model_assembly.layer=="layer1")\
                                     .transpose('time_bin', 'neuroid').values
-    pred_values = []
+    manual_compute_values = []
     video = Video.from_path(video_paths[1]).set_fps(fps)
     interval = 1000/fps
     for time_end in np.arange(interval, 6000+interval, interval):
         clip = video.set_window(0, time_end)
-        pred_values.append(dummy_get_features([dummy_preprocess(clip)], ["layer1"])["layer1"][0, -1])
-    pred_values = np.stack(pred_values).reshape(len(pred_values), -1).astype(output_values.dtype)
-    assert np.allclose(output_values, pred_values)
+        manual_compute_values.append(dummy_get_features([dummy_preprocess(clip)], ["layer1"])["layer1"][0, -1])
+    manual_compute_values = np.stack(manual_compute_values).reshape(len(manual_compute_values), -1).astype(output_values.dtype)
+    assert np.allclose(output_values, manual_compute_values)
 
 
 @pytest.mark.memory_intense
@@ -165,15 +175,15 @@ def test_block_inferencer(preprocess):
     output_values = model_assembly.sel(stimulus_path=video_paths[1])\
                                     .isel(neuroid=model_assembly.layer=="layer1")\
                                     .transpose('time_bin', 'neuroid').values
-    pred_values = []
+    manual_compute_values = []
     video = Video.from_path(video_paths[1]).set_fps(fps)
     interval = 4000
     for time_end in np.arange(interval, 6000+interval, interval):
         time_start = time_end - interval
         clip = video.set_window(time_start, time_end)
-        pred_values.append(dummy_get_features([preprocessing(clip)], ["layer1"])["layer1"][0])
-    pred_values = np.concatenate(pred_values)
-    pred_values = pred_values.reshape(len(pred_values), -1).astype(output_values.dtype)
+        manual_compute_values.append(dummy_get_features([preprocessing(clip)], ["layer1"])["layer1"][0])
+    manual_compute_values = np.concatenate(manual_compute_values)
+    manual_compute_values = manual_compute_values.reshape(len(manual_compute_values), -1).astype(output_values.dtype)
     if preprocess == "downsample":
         output_values = output_values[::2]
-    assert np.allclose(output_values, pred_values)
+    assert np.allclose(output_values, manual_compute_values)

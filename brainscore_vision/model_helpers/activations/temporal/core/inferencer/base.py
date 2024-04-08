@@ -102,8 +102,8 @@ class Inferencer:
         self._executor.register_after_hook(self._make_dtype_hook(dtype))
 
     @property
+    # identifier for the inferencer: including all the features that may affect the activations
     def identifier(self) -> str:
-        # identifier for the inferencer: including all the features that may affect the activations
         to_add = [
             f".dtype={self.dtype.__name__}",
             f".vdeg={self.visual_degrees}",
@@ -116,6 +116,7 @@ class Inferencer:
     def set_visual_degrees(self, visual_degrees: float):
         self.visual_degrees = visual_degrees
 
+    # given the paths of the stimuli and the layers, return the model activations as a NeuroidAssembly
     def __call__(self, paths: List[Union[str, Path]], layers: List[str]):
         stimuli = self.load_stimuli(paths)
         layer_activations = self.inference(stimuli, layers)
@@ -136,12 +137,14 @@ class Inferencer:
     def load_stimulus(self, path : Union[str, Path]) -> Stimulus:
         return self.stimulus_type.from_path(path)
     
+    # process the list of stimulus and return the activations (list of np.array, 
+    # whose length is the number of stimuli) of the specified layers
     def inference(self, stimuli : List[Stimulus], layers : List[str]) -> Dict[str, List[np.array]]:
-        # List[Stimulus] -> Dict[layer: List[activation]]
         self._executor.add_stimuli(stimuli)
         return self._executor.execute(layers)
     
-    # np.array -> NeuroidAssembly
+    # Take the layer_activation (a list of np.array) and the layer specification,
+    # and package them into a NeuroidAssembly with all channels flattened into the "neuroid" dimension
     def package_layer(
             self, 
             layer_activation : List[np.array],
@@ -155,6 +158,7 @@ class Inferencer:
         assembly = self._stack_neuroid(assembly, channels)
         return assembly
     
+    # package the assemblies from different layers into a single one by concat along the neuroid dimension
     def package(self, layer_assemblies : Dict[str, NeuroidAssembly], stimuli_paths : List[str]) -> NeuroidAssembly:
         # merge manually instead of using merge_data_arrays since `xarray.merge` is very slow with these large arrays
         # complication: (non)neuroid_coords are taken from the structure of layer_assemblies[0] i.e. the 1st assembly;
@@ -202,9 +206,11 @@ class Inferencer:
         model_assembly = type(layer_assemblies[0])(model_assembly, coords={**nonneuroid_coords, **neuroid_coords},dims=layer_assemblies[0].dims)
         return model_assembly
     
+    # turn the activations into the specified dtype
     def _make_dtype_hook(self, dtype):
         return lambda val, layer, stimulus: val.astype(dtype)
     
+    # downsample the activations with the largest spatial size (among width and height) to the specified size
     def _make_spatial_downsample_hook(self, max_spatial_size, mode="pool"):
         def hook(val, layer, stimulus):
             if max_spatial_size is None:
@@ -212,6 +218,7 @@ class Inferencer:
             
             dims = self.layer_activation_format[layer]
 
+            # require both H and W dimensions to do spatial downsampling
             if "H" not in dims or "W" not in dims:
                 return val
 

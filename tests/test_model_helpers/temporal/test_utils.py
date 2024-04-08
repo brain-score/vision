@@ -3,6 +3,8 @@ from brainscore_vision.model_helpers.activations.temporal.utils import (
     batch_2d_resize
 )
 
+
+# this tests whether the batch_2d_resize with "pool" mode works as expected (ie, average over regions)
 def test_proportional_average_pooling():
     arr = np.array([
         [1, 2],

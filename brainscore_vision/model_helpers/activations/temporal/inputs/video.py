@@ -2,7 +2,8 @@ import cv2
 from decord import VideoReader
 import numpy as np
 from PIL import Image as PILImage
-import multiprocessing as mp
+from typing import Tuple, Union
+from pathlib import Path
 
 from .base import Stimulus
 from .image import Image
@@ -30,7 +31,7 @@ def get_image_stats(image_path):
 class Video(Stimulus):
     """Video object that represents a video clip."""
 
-    def __init__(self, path, fps, start, end, size):
+    def __init__(self, path: Union[str, Path], fps: float, start: float, end: float, size: Tuple[int, int]):
         self._path = path
         self._fps = fps
         self._size = size

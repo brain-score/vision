@@ -9,6 +9,9 @@ from brainscore_vision.model_helpers.activations.temporal.core import TemporalIn
 from collections import OrderedDict
 
 
+"""This module tests model_helpers.activations.temporal.core.extractor using the default settings"""
+
+
 video_paths = [
     os.path.join(os.path.dirname(__file__), "..", "dots1.mp4"),
     os.path.join(os.path.dirname(__file__), "..", "dots2.mp4"),

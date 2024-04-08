@@ -1,7 +1,16 @@
 import os
 import numpy as np
 
-from brainscore_vision.model_helpers.activations.temporal.inputs import Video
+from brainscore_vision.model_helpers.activations.temporal.inputs import Video, Image
+
+
+"""This module tests model_helpers.activations.temporal.inputs
+
+    Different inputs are tested:
+    - Video
+    - Image
+    Specifically, the different transformations (set fps, set size, etc.) of the inputs are tested.
+"""
 
 video_paths = [
     os.path.join(os.path.dirname(__file__), "..", "dots1.mp4"),
@@ -68,3 +77,7 @@ def test_video():
         for t in [extra1, extra2, extra3] + common:
             video = v.set_window(t-duration, t, padding="repeat")
             assert video.to_numpy().shape[0] == target_num_frames
+
+def test_image():
+    img = Image.from_path(img_path)
+    assert img.set_size((10, 12)).to_numpy().shape[:2] == (12, 10)

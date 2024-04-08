@@ -1,3 +1,0 @@
-torch
-torchvision
-selavi @ git+https://github.com/YingtianDt/selavi.git

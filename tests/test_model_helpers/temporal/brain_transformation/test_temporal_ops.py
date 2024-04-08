@@ -6,6 +6,12 @@ import numpy as np
 from brainio.assemblies import DataAssembly
 
 
+"""
+    This module tests the time alignment functionalities: 
+    ie., given a set of target time bins, align the neural assembly with a set of source time bins to them.
+"""
+
+
 T = 3
 P = 6
 N = 4
@@ -63,7 +69,7 @@ def _except(func, *args, **kwargs):
 
 
 def test_time_align():
-    # 1
+    # case 1
     source_time_bins = [(0, 100), (100, 200), (200, 300)]
     target_time_bins = [(0, 50), (250, 300)]
 
@@ -75,7 +81,7 @@ def test_time_align():
     belong_to = np.array([[0.5, 0, 0], [0, 0, 0.5]])
     assert (ret == belong_to).all()
 
-    # 2
+    # case 2
     starts = np.arange(0, 100, 10)
     ends = starts + 10
     target_time_bins = np.stack([starts, ends], axis=-1)

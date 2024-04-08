@@ -58,14 +58,3 @@ def load_weight_file(bucket: str, relative_path: str, version_id: str, sha1: str
                           local_filepath=local_path)
     return local_path
 
-
-if __name__ == "__main__":
-    # Example usage
-    pth = load_weight_file(
-        bucket="brainscore-vision", 
-        relative_path="temporal_models/mae_st/mae_pretrain_vit_large_k400.pth", 
-        version_id="HuKboFIWw6Tl3fZIY4aVNEqvcS4Yag66",
-        sha1="c7fb91864a4ddf8b99309440121a3abe66b846bb",
-    )
-    
-    print(pth)

@@ -47,14 +47,14 @@ class TemporalContextInferencerBase(TemporalInferencer):
         super().__init__(*args, **kwargs)
 
     @property
-    def identifier(self):
+    def identifier(self) -> str:
         lower, context = self._compute_temporal_context()
         lower = round(lower, MS_ROUNDING_DIGITS)
         context = round(context, MS_ROUNDING_DIGITS)
         to_add = f".context={context}>{lower}.oob={self.out_of_bound_strategy}"
         return f"{super().identifier}{to_add}"
         
-    def load_stimulus(self, path):
+    def load_stimulus(self, path: Union[str, Path]) -> Video:
         if self.convert_to_video and Stimulus.is_image_path(path):
             video = Video.from_img_path(path, self.img_duration, self.fps)
         else:

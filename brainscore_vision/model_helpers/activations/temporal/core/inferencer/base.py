@@ -101,7 +101,7 @@ class Inferencer:
         self._executor.register_after_hook(self._make_dtype_hook(dtype))
 
     @property
-    def identifier(self):
+    def identifier(self) -> str:
         # identifier for the inferencer: including all the features that may affect the activations
         to_add = [
             f".dtype={self.dtype.__name__}",
@@ -112,10 +112,10 @@ class Inferencer:
         to_add = "".join(to_add)
         return f"{self.__class__.__name__}{to_add}"
     
-    def set_visual_degrees(self, visual_degrees):
+    def set_visual_degrees(self, visual_degrees: float):
         self.visual_degrees = visual_degrees
 
-    def __call__(self, paths, layers):
+    def __call__(self, paths: List[Union[str, Path]], layers: List[str]):
         stimuli = self.load_stimuli(paths)
         layer_activations = self.inference(stimuli, layers)
         layer_assemblies = OrderedDict()

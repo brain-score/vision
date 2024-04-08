@@ -27,8 +27,8 @@ class ActivationsExtractor:
     def __init__(
             self, 
             inferencer : Inferencer,
-            identifier=False,
-            visual_degrees=8,
+            identifier: str = False,
+            visual_degrees: float = 8,
         ):
         self._logger = logging.getLogger(fullname(self))
 

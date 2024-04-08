@@ -22,9 +22,8 @@ def get_video_stats(video_path):
 
 
 def get_image_stats(image_path):
-    img = PILImage.open(image_path)
-    size = img.size
-    img.close()
+    with PILImage.open(image_path) as img:
+        return img.size
     return size
 
 

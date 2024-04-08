@@ -3,12 +3,12 @@ class Stimulus:
         raise NotImplementedError("Choose a concrete Stimulus type to use.")
     
     @staticmethod
-    def is_video_path(path):
+    def is_video_path(path: Union[str, Path]) -> bool:
         extension = path.split('.')[-1]
         return extension in ['mp4', 'avi', 'mov', 'flv', 'wmv', 'webm', 'mkv', 'gif']
     
     @staticmethod
-    def is_image_path(path):
+    def is_image_path(path: Union[str, Path]) -> bool
         extension = path.split('.')[-1]
         return extension in ['jpg', 'jpeg', 'png', 'bmp', 'tiff']
         

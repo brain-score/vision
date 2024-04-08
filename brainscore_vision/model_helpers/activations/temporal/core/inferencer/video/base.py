@@ -88,7 +88,7 @@ class TemporalInferencer(Inferencer):
             id += f".img_dur={self.img_duration}"
         return id
 
-    def load_stimulus(self, path):
+    def load_stimulus(self, path: Union[str, Path]]) -> Video:
         if self.convert_to_video and Stimulus.is_image_path(path):
             video = Video.from_img_path(path, self.img_duration, self.fps)
         else:
@@ -121,7 +121,7 @@ class TemporalInferencer(Inferencer):
         else:
             return (num, num)
 
-    def _check_video(self, video):
+    def _check_video(self, video: Video):
         if self.num_frames is not None:
             estimated_num_frames = int(self.fps * video.duration / 1000)
             assert self.num_frames[0] <= estimated_num_frames <= self.num_frames[1]

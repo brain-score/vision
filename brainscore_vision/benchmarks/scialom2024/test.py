@@ -7,7 +7,6 @@ from pytest import approx
 from brainio.assemblies import BehavioralAssembly
 from brainscore_vision import benchmark_registry, load_benchmark
 from brainscore_vision.benchmark_helpers import PrecomputedFeatures
-from brainscore_vision.benchmarks.scialom2024 import DATASETS
 from brainscore_vision.data_helpers import s3
 
 

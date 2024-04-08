@@ -4,20 +4,21 @@ import functools
 import logging
 from collections import OrderedDict
 from multiprocessing.pool import ThreadPool
+from typing import List, Any, Callable
 
 import numpy as np
 
 from brainio.stimuli import StimulusSet
+from brainio.assemblies import DataAssembly
 from brainscore_vision.model_helpers.utils import fullname
 from result_caching import store_xarray
 from .inferencer import Inferencer
+from ..inputs import Stimulus
 
 
-"""
-    This effectively duplicates the existing non-temporal activations extractor with new functionality for temporal models,
-    with minor de-coupling: now all the packaging goes to the "inferencer". 
-    We hope the two can be unified again in the future or that this new wrapper will supersede the previous one
-"""
+# This effectively duplicates the existing non-temporal activations extractor with new functionality for temporal models,
+# with minor de-coupling: now all the packaging goes to the "inferencer". 
+# We hope the two can be unified again in the future or that this new wrapper will supersede the previous one
 class ActivationsExtractor:
     """A wrapper for the inferencer to provide additional functionalities.
     
@@ -54,7 +55,14 @@ class ActivationsExtractor:
         wrapper.register_batch_activations_hook = self.register_batch_activations_hook
         wrapper.register_stimulus_set_hook = self.register_stimulus_set_hook
 
-    def __call__(self, stimuli, layers, stimuli_identifier=None, number_of_trials=1, require_variance=False):
+    def __call__(
+            self, 
+            stimuli : List[Stimulus], 
+            layers : List[str],
+            stimuli_identifier : str = None,
+            number_of_trials : int = 1,
+            require_variance : bool = False,
+        ):
         """
         :param stimuli_identifier: a stimuli identifier for the stored results file. False to disable saving.
         """
@@ -65,7 +73,12 @@ class ActivationsExtractor:
         else:
             return self.from_paths(stimuli_paths=stimuli, layers=layers, stimuli_identifier=stimuli_identifier)
 
-    def from_stimulus_set(self, stimulus_set, layers, stimuli_identifier=None):
+    def from_stimulus_set(
+            self, 
+            stimulus_set : StimulusSet, 
+            layers : List[str],
+            stimuli_identifier : str = None,
+        ):
         """
         :param stimuli_identifier: a stimuli identifier for the stored results file.
             False to disable saving. None to use `stimulus_set.identifier`
@@ -79,7 +92,12 @@ class ActivationsExtractor:
         activations = attach_stimulus_set_meta(activations, stimulus_set)
         return activations
 
-    def from_paths(self, stimuli_paths, layers, stimuli_identifier=None):
+    def from_paths(
+            self, 
+            stimuli_paths : List[str], 
+            layers : List[str], 
+            stimuli_identifier : str = None,
+        ):
         if layers is None:
             layers = ['logits']
         if self.identifier and stimuli_identifier:
@@ -147,7 +165,13 @@ class ActivationsExtractor:
         return handle
 
 
-def change_dict(d, change_function, keep_name=False, multithread=False):
+def change_dict(
+        d : dict, 
+        change_function : Callable[[Any], Any], 
+        keep_name : bool=False, 
+        multithread : bool=False
+    ):
+    """Map a function over the values of a dictionary, recursively."""
     if not multithread:
         map_fnc = map
     else:
@@ -166,7 +190,8 @@ def change_dict(d, change_function, keep_name=False, multithread=False):
     return results
 
 
-def lstrip_local(path):
+def lstrip_local(path : str):
+    """Strip the relative path from ".brainio". If not present, return the original path."""
     parts = path.split(os.sep)
     try:
         start_index = parts.index('.brainio')
@@ -176,11 +201,17 @@ def lstrip_local(path):
     return path
 
 
-def attach_stimulus_set_meta(assembly, stimulus_set):
+def attach_stimulus_set_meta(assembly : DataAssembly, stimulus_set : Stimulus):
+    """Attach all columns in the stimulus set to the assembly. 
+    
+    The assembly must have the "stimulus_path" coord for the "presentation" dim. 
+    The stimulus set is assumed to have the same list of stimulus_path (determined by the list of stimulus_id) 
+    as the assembly has. 
+    """
     stimulus_paths = [str(stimulus_set.get_stimulus(stimulus_id)) for stimulus_id in stimulus_set['stimulus_id']]
     stimulus_paths = [lstrip_local(path) for path in stimulus_paths]
     assembly_paths = [lstrip_local(path) for path in assembly['stimulus_path'].values]
-    assert (np.array(assembly_paths) == np.array(stimulus_paths)).all()
+    assert (np.array(assembly_paths) == np.array(stimulus_paths)).all()  # check that the paths are the same
     assembly['stimulus_path'] = stimulus_set['stimulus_id'].values
     assembly = assembly.rename({'stimulus_path': 'stimulus_id'})
     for column in stimulus_set.columns:
@@ -190,6 +221,16 @@ def attach_stimulus_set_meta(assembly, stimulus_set):
 
 
 class HookHandle:
+    """A handle for enabling/disabling/removing hooks in a dictionary. 
+    
+    Pass a dictionary to the constructor to generate a handle in it.
+    
+    Example:
+    >>> handle = HookHandle(hook_dict)
+    >>> hook_dict[handle.id] = hook
+    >>> handle.disable()
+    """
+
     next_id = 0
 
     def __init__(self, hook_dict):
@@ -211,8 +252,13 @@ class HookHandle:
         self._saved_hook = None
 
 
-def flatten(layer_output, from_index=1, return_index=False):
-    flattened = layer_output.reshape(*layer_output.shape[:from_index], -1)
+def flatten(arr, from_index : int = 1, return_index : bool = False):
+    """Flatten the array from the given index.
+    
+    If return_index is True, return the index of the flattened array.
+    The index is a list of indices in the original array for each element.
+    """
+    flattened = arr.reshape(*arr.shape[:from_index], -1)
     if not return_index:
         return flattened
 
@@ -231,5 +277,5 @@ def flatten(layer_output, from_index=1, return_index=False):
             start, end = end, end + rows
         return out.reshape(cols, rows).T
 
-    index = cartesian_product_broadcasted(*[np.arange(s, dtype='int') for s in layer_output.shape[from_index:]])
+    index = cartesian_product_broadcasted(*[np.arange(s, dtype='int') for s in arr.shape[from_index:]])
     return flattened, index

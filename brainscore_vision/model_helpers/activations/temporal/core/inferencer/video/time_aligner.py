@@ -1,4 +1,14 @@
 import numpy as np
+from brainio.assemblies import DataAssembly
+from brainscore_vision.model_helpers.activations.temporal.inputs.video import Video
+
+
+"""This module includes different time alignment strategies for the activations of a temporal neural network.
+
+    A time alignment strategy is a function that takes the DataAssembly (with channel_temporal) and the video stimuli,
+    and aligns the activations to the video time. The channel_temporal dimension will be changed into time_bin dimension,
+    and the time_bin_start and time_bin_end will be added as coordinates of it.
+"""
 
 
 def _convert(assembly, time_bin_starts, time_bin_ends):
@@ -16,7 +26,7 @@ def _convert(assembly, time_bin_starts, time_bin_ends):
     })
     return asm_type(assembly)
 
-def estimate_layer_fps(assembly, video):
+def estimate_layer_fps(assembly : DataAssembly, video : Video) -> DataAssembly:
     # in a temporal neural net, different layers may have different temporal resolutions
     # this function estimates the temporal resolution of a layer, based on the video fps
     fps = video.fps
@@ -31,7 +41,7 @@ def estimate_layer_fps(assembly, video):
     time_bin_ends = time_bin_starts + estimated_interval
     return _convert(assembly, time_bin_starts, time_bin_ends)
 
-def evenly_spaced(assembly, video):
+def evenly_spaced(assembly : DataAssembly, video : Video) -> DataAssembly:
     # this function assumes that the activation of different time steps is evenly spaced
     num_t = assembly.sizes['channel_temporal'] if "channel_temporal" in assembly.dims else 1
     interval = video.duration / num_t
@@ -40,7 +50,7 @@ def evenly_spaced(assembly, video):
     time_bin_ends[-1] = video.duration
     return _convert(assembly, time_bin_starts, time_bin_ends)
 
-def per_frame_aligned(assembly, video):
+def per_frame_aligned(assembly : DataAssembly, video : Video) -> DataAssembly:
     # this function assumes that the activation of different time steps is aligned with the video frames
     num_t = assembly.sizes['channel_temporal'] if "channel_temporal" in assembly.dims else 1
     assert video.num_frames <= num_t
@@ -49,7 +59,7 @@ def per_frame_aligned(assembly, video):
     time_bin_ends = time_bin_starts + interval
     return _convert(assembly, time_bin_starts, time_bin_ends)
 
-def ignore_time(assembly, video):
+def ignore_time(assembly : DataAssembly, video : Video) -> DataAssembly:
     # this function treats the activations from the entire video as from a single time bin,
     # and treat the "channel_temporal" as a regular channel dimension and does no conversion 
     asm_type = assembly.__class__

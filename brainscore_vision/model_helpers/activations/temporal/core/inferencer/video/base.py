@@ -1,6 +1,6 @@
 import numpy as np
-from typing import Union, Tuple, Callable, Hashable
-from tqdm import tqdm
+from typing import Union, Tuple, Callable, Hashable, List, Dict
+from pathlib import Path
 
 from brainscore_vision.model_helpers.activations.temporal.inputs import Video, Stimulus
 from brainscore_vision.model_helpers.activations.temporal.utils import assembly_align_to_fps, stack_with_nan_padding
@@ -82,13 +82,13 @@ class TemporalInferencer(Inferencer):
         self.convert_to_video = convert_img_to_video
 
     @property
-    def identifier(self):
+    def identifier(self) -> str:
         id = f"{super().identifier}.{self.time_aligner.__name__}.fps={self.fps}"
         if self.convert_to_video:
             id += f".img_dur={self.img_duration}"
         return id
 
-    def load_stimulus(self, path: Union[str, Path]]) -> Video:
+    def load_stimulus(self, path: Union[str, Path]) -> Video:
         if self.convert_to_video and Stimulus.is_image_path(path):
             video = Video.from_img_path(path, self.img_duration, self.fps)
         else:
@@ -97,7 +97,12 @@ class TemporalInferencer(Inferencer):
         self._check_video(video)
         return video
     
-    def package_layer(self, layer_activations, layer_spec, stimuli):
+    def package_layer(
+            self, 
+            layer_activations : List[np.array],
+            layer_spec : str, 
+            stimuli : List[Stimulus]
+        ):
         assert len(layer_activations) == len(stimuli)
         longest_stimulus = stimuli[np.argmax(np.array([stimulus.duration for stimulus in stimuli]))]
         ignore_time = self.time_aligner is time_aligners.ignore_time

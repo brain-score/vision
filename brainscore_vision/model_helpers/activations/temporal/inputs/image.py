@@ -6,14 +6,6 @@ from PIL import Image as PILImage
 from .base import Stimulus
 
 
-def lazy_load(f):
-    def wrapper(self, *args, **kwargs):
-        if not hasattr(self, "_image") or self._image is None:
-            self._image = PILImage.open(self._file)
-        return f(self, *args, **kwargs)
-    return wrapper
-
-
 class Image(Stimulus):
     def __init__(self, path: str):
         self._file = path

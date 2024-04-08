@@ -1,7 +1,8 @@
 import functools
 import logging
 from collections import OrderedDict
-from typing import Callable, Hashable, List, Dict, Any
+from typing import Callable, Hashable, List, Dict, Any, Union
+from pathlib import Path
 
 import numpy as np
 from tqdm.auto import tqdm
@@ -126,24 +127,27 @@ class Inferencer:
         model_assembly = self.package(layer_assemblies, paths)
         return model_assembly
 
-    # List[path] -> List[Stimulus] 
-    def load_stimuli(self, paths):
+    def load_stimuli(self, paths : List[Union[str, Path]]) -> List[Stimulus]:
         ret = []
         for p in tqdm(paths, desc="Loading stimuli"):
             ret.append(self.load_stimulus(p))
         return ret
 
-    # path -> Stimulus 
-    def load_stimulus(self, path):
+    def load_stimulus(self, path : Union[str, Path]) -> Stimulus:
         return self.stimulus_type.from_path(path)
     
-    # List[Stimulus] -> Dict[layer: List[activation]]
-    def inference(self, stimuli, layers):
+    def inference(self, stimuli : List[Stimulus], layers : List[str]) -> Dict[str, List[np.array]]:
+        # List[Stimulus] -> Dict[layer: List[activation]]
         self._executor.add_stimuli(stimuli)
         return self._executor.execute(layers)
     
     # np.array -> NeuroidAssembly
-    def package_layer(self, layer_activation, layer_spec, stimuli):
+    def package_layer(
+            self, 
+            layer_activation : List[np.array],
+            layer_spec : str, 
+            stimuli : List[Stimulus]
+        ):
         assert len(layer_activation) == len(stimuli)
         layer_activation = stack_with_nan_padding(layer_activation, dtype=self.dtype)
         channels = self._map_dims(layer_spec)
@@ -151,8 +155,7 @@ class Inferencer:
         assembly = self._stack_neuroid(assembly, channels)
         return assembly
     
-    # Dict[layer: Assembly] -> NeuroidAssembly
-    def package(self, layer_assemblies, stimuli_paths):
+    def package(self, layer_assemblies : Dict[str, NeuroidAssembly], stimuli_paths : List[str]) -> NeuroidAssembly:
         # merge manually instead of using merge_data_arrays since `xarray.merge` is very slow with these large arrays
         # complication: (non)neuroid_coords are taken from the structure of layer_assemblies[0] i.e. the 1st assembly;
         # using these names/keys for all assemblies results in KeyError if the first layer contains dims
@@ -251,28 +254,3 @@ def _compute_new_size(w, h, max_spatial_size):
         new_w = max_spatial_size
         new_h = int(h * new_w / w)
     return new_h, new_w
-
-def flatten(layer_output, from_index=1, return_index=False):
-    flattened = layer_output.reshape(*layer_output.shape[:from_index], -1)
-    if not return_index:
-        return flattened
-
-    def cartesian_product_broadcasted(*arrays):
-        """
-        http://stackoverflow.com/a/11146645/190597
-        """
-        broadcastable = np.ix_(*arrays)
-        broadcasted = np.broadcast_arrays(*broadcastable)
-        dtype = np.result_type(*arrays)
-        rows, cols = functools.reduce(np.multiply, broadcasted[0].shape), len(broadcasted)
-        out = np.empty(rows * cols, dtype=dtype)
-        start, end = 0, rows
-        for a in broadcasted:
-            out[start:end] = a.reshape(-1)
-            start, end = end, end + rows
-        return out.reshape(cols, rows).T
-
-    index = cartesian_product_broadcasted(*[np.arange(s, dtype='int') for s in layer_output.shape[from_index:]])
-    return flattened, index
-
-

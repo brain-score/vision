@@ -23,6 +23,7 @@ class BlockInferencer(TemporalContextInferencerBase):
         self._time_ends = []
 
         if np.isinf(context):
+            # if the context is inf, pass the whole video directively
             self._time_ends = [inp.duration for inp in stimuli]
             layer_activations = super().inference(stimuli, layers)
             layer_activations = OrderedDict([(layer, [[a] for a in activations]) 
@@ -30,31 +31,37 @@ class BlockInferencer(TemporalContextInferencerBase):
                                              # make one-clip video activations
         else:
             num_clips = []
-            for inp in stimuli:
-                duration = inp.duration
+            for stimulus in stimuli:
+                duration = stimulus.duration
                 videos = []
+                # for each stimulus, divide it into block clips with the specified context
                 for time_start in np.arange(0, duration, context):
                     time_end = time_start + context
-                    clip = inp.set_window(time_start, time_end, padding=self.out_of_bound_strategy)
+                    clip = stimulus.set_window(time_start, time_end, padding=self.out_of_bound_strategy)
                     videos.append(clip)
+                # record the actual time_end (which could be larger than the duration of the original video)
+                # so that we can align the time correctly when packaging the activations
                 self._time_ends.append(time_end)
                 self._executor.add_stimuli(videos)
-                num_clips.append(len(videos))
+                num_clips.append(len(videos))  # record the number of clips for each video
 
             activations = self._executor.execute(layers)
             layer_activations = OrderedDict()
             for layer in layers:
                 clip_start = 0
                 for num_clip in num_clips:
+                    # retrieve clips from a video by num_clip
                     clips = activations[layer][clip_start:clip_start+num_clip]  # clips for this video
                     layer_activations.setdefault(layer, []).append(clips)
                     clip_start += num_clip
     
+        # concat the activations from the clips of the same video
         ret = OrderedDict()
         for layer in layers:
             activation_dims = self.layer_activation_format[layer]
             for clips in layer_activations[layer]:
-                # make T the first dimension, as [T, ...]
+                # make T the first dimension, as [T, ...] for easy concatenation
+                # the package_layer will change accordingly
                 if 'T' in activation_dims:
                     time_index = activation_dims.index('T')
                     clips = [np.moveaxis(a, time_index, 0) for a in clips]

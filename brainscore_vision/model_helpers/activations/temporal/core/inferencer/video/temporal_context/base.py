@@ -1,4 +1,5 @@
-from tqdm import tqdm
+from typing import Union, List
+from pathlib import Path
 
 from brainscore_vision.model_helpers.activations.temporal.inputs import Video, Stimulus
 from ..base import TemporalInferencer
@@ -30,6 +31,7 @@ class TemporalContextInferencerBase(TemporalInferencer):
         Options:
         - "repeat": the out-of-bound temporal context will be repeated.
         - TODO: "black": the out-of-bound temporal context will be zero-padded.
+        - TODO: "gray": the out-of-bound temporal context will be 128-padded.
     """
     def __init__(
             self, 
@@ -63,10 +65,11 @@ class TemporalContextInferencerBase(TemporalInferencer):
         # does no check here
         return video
 
-    def _overlapped_range(self, s1, e1, s2, e2):
-        lower, upper = max(s1, s2), min(e1, e2)
+    def _overlapped_range(self, start1, end1, start2, end2):
+        # compute the overlapped range of two ranges (start1, end1) and (start2, end2)
+        lower, upper = max(start1, start2), min(end1, end2)
         if lower > upper:
-            raise ValueError(f"Ranges [{s1}, {e1}] and [{s2}, {e2}] do not overlap.")
+            raise ValueError(f"Ranges [{start1}, {end1}] and [{start2}, {end2}] do not overlap.")
         return lower, upper
         
     def _compute_temporal_context(self):

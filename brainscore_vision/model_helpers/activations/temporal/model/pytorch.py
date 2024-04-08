@@ -1,5 +1,6 @@
 from collections import OrderedDict
-from typing import Callable, List, Any
+import typing
+from typing import Callable, List, Any, Dict
 
 import logging
 
@@ -12,7 +13,7 @@ SUBMODULE_SEPARATOR = '.'
 
 
 def default_process_activation(layer, layer_name, inputs, output):
-    # print(layer_name, output.shape)
+    # (torch.nn.Module, str, torch.Tensor, torch.Tensor) -> torch.Tensor
     return output
 
 class PytorchWrapper(ActivationWrapper):
@@ -35,13 +36,14 @@ class PytorchWrapper(ActivationWrapper):
         self._process_activation = default_process_activation if process_output is None else process_output
         super().__init__(identifier, preprocessing, *args, **kwargs)
 
-    def forward(self, inputs):
+    def forward(self, inputs : List[Any]) -> Any: 
+        # this function gets a list of preprocessed inputs and does the forward pass
         import torch
         tensor = torch.stack(inputs)
         tensor = tensor.to(self._device)
         return self._model(tensor)
 
-    def get_activations(self, inputs, layer_names):
+    def get_activations(self, inputs : List[Any], layer_names : List[str]) -> typing.OrderedDict[str, Any]:
         import torch
         self._model.eval()
         layer_results = OrderedDict()
@@ -59,7 +61,9 @@ class PytorchWrapper(ActivationWrapper):
             hook.remove()
         return layer_results
     
-    def get_layer(self, layer_name):
+    def get_layer(self, layer_name : str):
+        # the layer_name is a string that represents the module hierarchy up to the target layer,
+        # seperated by ".", e.g., "module1.submodule2.relu".
         if layer_name == 'logits':
             return self._output_layer()
         module = self._model

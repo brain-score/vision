@@ -4,23 +4,25 @@ import logging
 import numpy as np
 from tqdm.auto import tqdm
 from collections import OrderedDict
-from typing import Any, Callable
+from typing import Any, Callable, Dict, Hashable, List
 from ..inputs import Stimulus
 
 from brainscore_vision.model_helpers.utils import fullname
 from joblib import Parallel, delayed
 
 
-def pipeline(*funcs):
-    def _pipeline(x, *others):
+# a utility to apply a list of functions to inputs sequentially but only iterate over the first input
+def _pipeline(*funcs):
+    def _func(x, *others):
         for f in funcs:
             x = f(x, *others)
         return x
-    return _pipeline
+    return _func
 
     
+# a mapper that execute a function in parallel with joblib
 class JoblibMapper:
-    def __init__(self, num_threads):
+    def __init__(self, num_threads: int):
         self._num_threads = num_threads
         self._pool = Parallel(n_jobs=num_threads, verbose=False, backend="loky")
 
@@ -69,8 +71,14 @@ class BatchExecutor:
     """
 
 
-    def __init__(self, get_activations, preprocessing, batch_size, batch_padding, 
-                 batch_grouper=None, max_workers=None):
+    def __init__(self, 
+                get_activations : Callable[[List[Any]], Dict[str, np.array]], 
+                preprocessing : Callable[[List[Stimulus]], Any], 
+                batch_size : int, 
+                batch_padding : bool = False, 
+                batch_grouper : Callable[[Stimulus], Hashable] = None, 
+                max_workers : int = None
+            ):
         self.stimuli = []
         self.get_activations = get_activations
         self.batch_size = batch_size
@@ -93,7 +101,32 @@ class BatchExecutor:
         self.before_hooks = []
         self.after_hooks = []
 
-    def get_batches(self, data, batch_size, grouper=None, padding=False):
+    def _get_batches(
+            self, 
+            data, 
+            batch_size : int, 
+            grouper : Callable[[Stimulus], Hashable] = None, 
+            padding : bool = False
+        ):
+        """Group the data into batches based on the grouper.
+        
+        Parameters
+        ----------
+
+        data : array-like
+            list of data to be grouped.
+        batch_size, grouper, padding : int, function, bool, directly set by the class
+
+        Returns
+        -------
+        indices : list
+            indices of the source data after sorting.
+        masks : list of list
+            masks for each batch to indicate whether the datum is padding sample.
+        all_batches : list of list
+            list of batches.
+        """
+
         N = len(data)
 
         if grouper is None:
@@ -153,12 +186,12 @@ class BatchExecutor:
         self.stimuli = []
 
     def execute(self, layers):
-        indices, masks, batches = self.get_batches(self.stimuli, self.batch_size, 
+        indices, masks, batches = self._get_batches(self.stimuli, self.batch_size, 
                                                     grouper=self.batch_grouper,
                                                     padding=self.batch_padding)
         
-        before_pipe = pipeline(*self.before_hooks)
-        after_pipe = pipeline(*self.after_hooks)
+        before_pipe = _pipeline(*self.before_hooks)
+        after_pipe = _pipeline(*self.after_hooks)
         
         layer_activations = OrderedDict()
         for mask, batch in tqdm(zip(masks, batches), desc="activations", total=len(batches)):

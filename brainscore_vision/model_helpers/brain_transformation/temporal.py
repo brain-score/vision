@@ -2,7 +2,7 @@ import logging
 import numpy as np
 from typing import List, Tuple
 
-from brainio.assemblies import merge_data_arrays, walk_coords
+from brainio.assemblies import merge_data_arrays, walk_coords, DataAssembly
 from brainscore_vision.model_helpers.utils import fullname
 from brainscore_vision.model_interface import BrainModel
 
@@ -19,7 +19,11 @@ def iterable_to_list(arr):
         return arr
 
 
-def time_align(source_time_bins: List[Tuple[int, int]], target_time_bins: List[Tuple[int, int]], mode: str = "portion"):
+def time_align(
+        source_time_bins: List[Tuple[int, int]], 
+        target_time_bins: List[Tuple[int, int]], 
+        mode: str = "portion"
+    ) -> np.ndarray:
     """ return the aligned binary indicator in the source.
         belong_to matrix: (target_time_bin, source_time_bin)
           1 if the target time bin covers the source time bin
@@ -85,7 +89,13 @@ def time_align(source_time_bins: List[Tuple[int, int]], target_time_bins: List[T
     return belong_to
 
 
-def assembly_time_align(source, target_time_bins, mode="portion"):
+def assembly_time_align(
+        source : DataAssembly, 
+        target_time_bins : List[Tuple[int]], 
+        mode : str = "portion"
+    ) -> DataAssembly:
+    """ Align the time bins of the source assembly to the target time bins."""
+
     assert hasattr(source, "time_bin")
     assert source.time_bin.variable.level_names == ['time_bin_start', 'time_bin_end']
     source_time_bins = np.array(iterable_to_list(source.time_bin.values))  # otherwise object array [(a,b), (c,d)...]

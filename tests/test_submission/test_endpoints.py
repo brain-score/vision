@@ -23,18 +23,17 @@ class TestRunScoring:
     def setup_class(cls):
         logger.info('Connect to database')
         connect_db(test_database)
-        
+
         # generate unique schema name and create
         cls.schema_name = f'test_schema_{int(time.time())}'
         create_schema(cls.schema_name)
-        
+
         # set schema for all models
         database_models.PeeweeBase.set_schema(cls.schema_name)
-        
+
         # create tables in schema
         create_tables()
 
-    
     @classmethod
     def teardown_class(cls):
         drop_schema(cls.schema_name)
@@ -43,6 +42,8 @@ class TestRunScoring:
         logger.info('Initialize database entries')
         database_models.User.create(id=1, email='test@brainscore.com', password='abcde',
                                     is_active=True, is_staff=False, is_superuser=False, last_login='2022-10-14 9:25:00')
+        database_models.User.create(id=2, email='admin@brainscore.com', password='abcdef',
+                                    is_active=True, is_staff=True, is_superuser=True, last_login='2024-03-26 6:24:00')
 
     def teardown_method(self):
         logger.info('Clean database')

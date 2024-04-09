@@ -169,7 +169,6 @@ class BrainModel:
         V2 = 'V2'
         V4 = 'V4'
         IT = 'IT'
-        whole_brain = "whole_brain"
 
     def start_recording(self, recording_target: RecordingTarget, time_bins: List[Tuple[int]]) -> None:
         """

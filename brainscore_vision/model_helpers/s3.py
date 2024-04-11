@@ -1,6 +1,8 @@
 """
 Contain functions for loading model contents such as weights from s3.
 """
+import os
+from os.path import expanduser
 from pathlib import Path
 
 import logging
@@ -39,3 +41,20 @@ def load_file_from_s3(bucket: str, path: str, local_filepath: Union[Path, str],
     fetcher.output_filename = str(local_filepath)  # force using this local path instead of folder structure
     fetcher.fetch()
     verify_sha1(local_filepath, sha1)
+
+
+def load_weight_file(bucket: str, relative_path: str, version_id: str, sha1: str):
+    """
+    :param relative_path: The path of the file inside the S3 bucket, relative to the `models/` directory.
+        The local path will be the same, relative to the local cache's `models/` directory (inside `BRAINSCORE_HOME`).
+        Example: `alexnet/weights.pth` will download from brain-score S3:models/alexnet/weights.pth and
+        and store into local ~/.brain-score/models/alexnet/weights.pth.
+    """
+    brainscore_cache = os.getenv("BRAINSCORE_HOME", expanduser("~/.brain-score"))
+    s3_weight_folder = os.getenv("BRAINSCORE_S3_WEIGHT_FOLDER", "models-to-integrate-for-2.0")
+    local_path = Path(brainscore_cache) / "models" / relative_path
+    local_path.parent.mkdir(parents=True, exist_ok=True)
+    load_file_from_s3(bucket=bucket, path=f"{s3_weight_folder}/{relative_path}", version_id=version_id, sha1=sha1,
+                          local_filepath=local_path)
+    return local_path
+

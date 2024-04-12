@@ -15,10 +15,10 @@ def get_model():
     model_ctr = getattr(module, 'resnet50')
     model = model_ctr()
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
-
-    weights_path = load_weight_file("brainscore-vision", "resnet-50-robust/ImageNet.pt",
-                                    "swW_gKku3toBUe6urKUwTLrNUhK8_ZMC",
-                                    "cc6e4441abc8ad6d2f4da5db84836e544bfb53fd")
+    weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+                                    relative_path="resnet-50-robust/ImageNet.pt",
+                                    version_id="swW_gKku3toBUe6urKUwTLrNUhK8_ZMC",
+                                    sha1="cc6e4441abc8ad6d2f4da5db84836e544bfb53fd")
     checkpoint = torch.load(weights_path, map_location=torch.device('cpu'))
 
     # process weights -- remove the attacker and prepocessing weights

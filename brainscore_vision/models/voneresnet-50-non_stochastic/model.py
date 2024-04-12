@@ -23,7 +23,7 @@ def get_model_from_s3():
     model_arch = 'resnet50'
     pretrained = True
     if pretrained and model_arch:
-        weights_path = load_weight_file(bucket="brainscore-vision",
+        weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
                                         relative_path="voneresnet-50-non_stochastic/voneresnet50_ns_e70.pth.tar",
                                         version_id="Vgdhpj8hBvUvpV.3bTHyJCUaoG93hxF.",
                                         sha1="c270528818d6d7fc67a6aec86919d47311ad6221")

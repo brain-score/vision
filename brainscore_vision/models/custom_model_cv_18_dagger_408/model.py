@@ -48,7 +48,7 @@ def load_preprocess_custom_model(image_filepaths, image_size, **kwargs):
 def get_model():
     model = create_model('crossvit_18_dagger_408', pretrained=False)
 
-    weights_path = load_weight_file(bucket="brainscore-vision",
+    weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
                                     relative_path="custom_model_cv_18_dagger_408/crossvit_18_dagger_408_adv_finetuned_epoch5.pt",
                                     version_id="n_c9VACLSnWRmyRUGpfZOzaULlEbccsA",
                                     sha1="c769518485e352d5a2e6f3e588d6208cbad71b69")

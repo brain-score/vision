@@ -6,6 +6,7 @@ from setuptools import setup, find_packages
 requirements = ["numpy",
                 "torch",
                 "pytorch_pretrained_vit",
+                "ssl"
                 ]
 
 setup(

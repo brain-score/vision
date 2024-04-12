@@ -7,6 +7,7 @@ requirements = ["torchvision",
                 "torch",
                 "numpy",
                 "importlib",
+                "ssl",
                 "Fixing-the-train-test-resolution-discrepancy-scripts @ git+https://github.com/mschrimpf/FixRes.git"
                 ]
 

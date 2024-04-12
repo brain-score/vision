@@ -4,6 +4,9 @@
 from setuptools import setup, find_packages
 
 requirements = ["torchvision",
+                "torch",
+                'ssl',
+                "functools",
                 "torch"
                 ]
 

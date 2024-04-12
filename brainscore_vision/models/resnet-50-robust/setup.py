@@ -7,7 +7,8 @@ requirements = ["torchvision",
                 "functools",
                 "torch",
                 "importlib",
-                "ssl"
+                "ssl",
+                "torch"
                 ]
 
 setup(

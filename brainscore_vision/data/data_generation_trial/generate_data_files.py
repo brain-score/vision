@@ -149,7 +149,6 @@ def test_assembly():
     assert set(assembly['region'].values) == {assembly_metadata['region']}
     assert len(assembly['presentation']) == {assembly_metadata['presentation']}
     assert len(assembly['neuroid']) == {assembly_metadata['neuroid']}
-    # assert len(set(assembly['background_id'].values)) == 121
 
 
 @pytest.mark.private_access

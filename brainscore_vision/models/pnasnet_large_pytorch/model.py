@@ -1,16 +1,16 @@
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
-from model_helpers.activations.pytorch import load_images, load_preprocess_images
+from model_helpers.activations.pytorch import load_preprocess_images
 import ssl
-from transformers import MobileNetV2ForImageClassification
 import functools
+import timm
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
 '''
-This is a Pytorch implementation of mobilenet_v2_1.0_224.
+This is a Pytorch implementation of pnasnet_large.
 
 Previously on Brain-Score, this model existed as a Tensorflow model, and was converted via:
-    https://huggingface.co/Matthijs/mobilenet_v2_1.4_224
+    https://huggingface.co/timm/pnasnet5large.tf_in1k
     
 Disclaimer: This (pytorch) implementation's Brain-Score scores might not align identically with Tensorflow 
 implementation. 
@@ -18,12 +18,12 @@ implementation.
 '''
 
 
-MODEL = MobileNetV2ForImageClassification.from_pretrained("Matthijs/mobilenet_v2_1.0_224")
+MODEL = timm.create_model('pnasnet5large.tf_in1k', pretrained=True)
 
 
 def get_model():
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
-    wrapper = PytorchWrapper(identifier='mobilenet_v2_1-4_224_pytorch', model=MODEL,
+    wrapper = PytorchWrapper(identifier='pnasnet_large_pytorch', model=MODEL,
                              preprocessing=preprocessing,
                              batch_size=4)  # doesn't fit into 12 GB GPU memory otherwise
     wrapper.image_size = 224
@@ -43,10 +43,12 @@ def get_bibtex():
     """
     A method returning the bibtex reference of the requested model as a string.
     """
-    return """@inproceedings{mobilenetv22018,
-                title={MobileNetV2: Inverted Residuals and Linear Bottlenecks},
-                author={Mark Sandler and Andrew Howard and Menglong Zhu and Andrey Zhmoginov and Liang-Chieh Chen},
-                booktitle={CVPR},
-                year={2018}
-                }
+    return """@misc{liu2018progressive,
+              title={Progressive Neural Architecture Search}, 
+              author={Chenxi Liu and Barret Zoph and Maxim Neumann and Jonathon Shlens and Wei Hua and Li-Jia Li and Li Fei-Fei and Alan Yuille and Jonathan Huang and Kevin Murphy},
+              year={2018},
+              eprint={1712.00559},
+              archivePrefix={arXiv},
+              primaryClass={cs.CV}
+            }
             """

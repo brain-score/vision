@@ -25,7 +25,7 @@ class TestLoadFolderFromS3:
             for filename, _, _ in filename_version_sha:
                 assert (self.save_directory / filename).is_file()
         finally:
-            shutil.rmtree(self.save_directory)
+            shutil.rmtree(self.save_directory, ignore_errors=True)
 
     @pytest.mark.private_access
     def test_load_weight_file(self):

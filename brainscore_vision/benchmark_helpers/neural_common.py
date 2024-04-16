@@ -25,7 +25,7 @@ class NeuralBenchmark(BenchmarkBase):
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
         source_assembly = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
-        if 'time_bin' in source_assembly.dims:
+        if 'time_bin' in source_assembly.dims and source_assembly.sizes['time_bin'] == 1:
             source_assembly = source_assembly.squeeze('time_bin')  # static case for these benchmarks
         raw_score = self._similarity_metric(source_assembly, self._assembly)
         ceiled_score = explained_variance(raw_score, self.ceiling)
@@ -62,7 +62,6 @@ def average_repetition(assembly):
         return assembly
 
     return apply_keep_attrs(assembly, avg_repr)
-
 
 def apply_keep_attrs(assembly, fnc):  # workaround to keeping attrs
     attrs = assembly.attrs

@@ -5,3 +5,5 @@
 *.egg-info/
 venv
 .venv
+build
+.DS_Store

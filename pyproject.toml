@@ -13,7 +13,7 @@ requires-python = ">=3.7"
 
 dependencies = [
     "numpy>=1.17",
-    "brainscore_core @ git+https://github.com/brain-score/core@dk/xml_travis_timeout",
+    "brainscore_core @ git+https://github.com/brain-score/core@dk/xml_travis_timeout_2",
     "result_caching @ git+https://github.com/brain-score/result_caching",
     "importlib-metadata<5", # workaround to https://github.com/brain-score/brainio/issues/28
     "scikit-learn", # for metric_helpers/transformations.py cross-validation

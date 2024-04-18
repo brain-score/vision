@@ -43,11 +43,11 @@ def get_bibtex():
     """
     A method returning the bibtex reference of the requested model as a string.
     """
-    return """@misc{zoph2018learning,
-              title={Learning Transferable Architectures for Scalable Image Recognition},
-              author={Barret Zoph and Vijay Vasudevan and Jonathon Shlens and Quoc V. Le},
-              year={2018},
-              eprint={1707.07012},
+    return """@misc{szegedy2016inceptionv4,
+              title={Inception-v4, Inception-ResNet and the Impact of Residual Connections on Learning}, 
+              author={Christian Szegedy and Sergey Ioffe and Vincent Vanhoucke and Alex Alemi},
+              year={2016},
+              eprint={1602.07261},
               archivePrefix={arXiv},
               primaryClass={cs.CV}
         }

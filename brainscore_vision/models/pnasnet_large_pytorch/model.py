@@ -22,11 +22,11 @@ MODEL = timm.create_model('pnasnet5large.tf_in1k', pretrained=True)
 
 
 def get_model():
-    preprocessing = functools.partial(load_preprocess_images, image_size=224)
+    preprocessing = functools.partial(load_preprocess_images, image_size=331)
     wrapper = PytorchWrapper(identifier='pnasnet_large_pytorch', model=MODEL,
                              preprocessing=preprocessing,
                              batch_size=4)  # doesn't fit into 12 GB GPU memory otherwise
-    wrapper.image_size = 224
+    wrapper.image_size = 331
     return wrapper
 
 

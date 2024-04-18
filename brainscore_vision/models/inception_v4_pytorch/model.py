@@ -7,10 +7,10 @@ import timm
 ssl._create_default_https_context = ssl._create_unverified_context
 
 '''
-This is a Pytorch implementation of nasnet_large.
+This is a Pytorch implementation of inception_v4.
 
 Previously on Brain-Score, this model existed as a Tensorflow model, and was converted via:
-    https://huggingface.co/docs/timm/en/models/nasnet
+    https://huggingface.co/docs/timm/en/models/inception-v4
     
 Disclaimer: This (pytorch) implementation's Brain-Score scores might not align identically with Tensorflow 
 implementation. 
@@ -18,15 +18,15 @@ implementation.
 '''
 
 
-MODEL = timm.create_model('nasnetalarge', pretrained=True)
+MODEL = timm.create_model('inception_v4', pretrained=True)
 
 
 def get_model():
-    preprocessing = functools.partial(load_preprocess_images, image_size=331)
-    wrapper = PytorchWrapper(identifier='nasnet_large_pytorch', model=MODEL,
+    preprocessing = functools.partial(load_preprocess_images, image_size=299)
+    wrapper = PytorchWrapper(identifier='inception_v4_pytorch', model=MODEL,
                              preprocessing=preprocessing,
                              batch_size=4)  # doesn't fit into 12 GB GPU memory otherwise
-    wrapper.image_size = 331
+    wrapper.image_size = 299
     return wrapper
 
 

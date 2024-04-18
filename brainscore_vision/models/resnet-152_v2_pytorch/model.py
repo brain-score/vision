@@ -23,9 +23,9 @@ MODEL = torchvision.models.resnet152(weights='ResNet152_Weights.IMAGENET1K_V2') 
 
 def get_model():
     model_identifier = "resnet-152_v2_pytorch"
-    preprocessing = functools.partial(load_preprocess_images, image_size=224)
+    preprocessing = functools.partial(load_preprocess_images, image_size=299)
     wrapper = PytorchWrapper(identifier=model_identifier, model=MODEL, preprocessing=preprocessing)
-    wrapper.image_size = 224
+    wrapper.image_size = 299
     return wrapper
 
 

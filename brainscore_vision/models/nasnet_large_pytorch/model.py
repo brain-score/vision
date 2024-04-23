@@ -21,7 +21,12 @@ implementation.
 MODEL = timm.create_model('nasnetalarge', pretrained=True)
 
 
-def get_model():
+def get_model_list():
+    return ['nasnet_large_pytorch']
+
+
+def get_model(name):
+    assert name == 'nasnet_large_pytorch'
     preprocessing = functools.partial(load_preprocess_images, image_size=331)
     wrapper = PytorchWrapper(identifier='nasnet_large_pytorch', model=MODEL,
                              preprocessing=preprocessing,
@@ -30,7 +35,8 @@ def get_model():
     return wrapper
 
 
-def get_layers():
+def get_layers(name):
+    assert name == 'nasnet_large_pytorch'
     layer_names = []
 
     for name, module in MODEL.named_modules():
@@ -39,7 +45,7 @@ def get_layers():
     return layer_names[2:]
 
 
-def get_bibtex():
+def get_bibtex(model_identifier):
     """
     A method returning the bibtex reference of the requested model as a string.
     """

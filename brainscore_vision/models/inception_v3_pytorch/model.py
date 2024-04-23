@@ -21,7 +21,12 @@ implementation.
 MODEL = timm.create_model('inception_v3', pretrained=True)
 
 
-def get_model():
+def get_model_list():
+    return ['inception_v3_pytorch']
+
+
+def get_model(name):
+    assert name == 'inception_v3_pytorch'
     preprocessing = functools.partial(load_preprocess_images, image_size=299)
     wrapper = PytorchWrapper(identifier='inception_v3_pytorch', model=MODEL,
                              preprocessing=preprocessing,
@@ -30,7 +35,8 @@ def get_model():
     return wrapper
 
 
-def get_layers():
+def get_layers(name):
+    assert name == 'inception_v3_pytorch'
     layer_names = []
 
     for name, module in MODEL.named_modules():
@@ -39,7 +45,7 @@ def get_layers():
     return layer_names[2:]
 
 
-def get_bibtex():
+def get_bibtex(model_identifier):
     """
     A method returning the bibtex reference of the requested model as a string.
     """

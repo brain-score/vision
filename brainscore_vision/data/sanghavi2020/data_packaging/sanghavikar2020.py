@@ -115,7 +115,7 @@ def main():
     print(stimuli)
     # print(stimuli.columns)
     stimuli = collect_stimuli(data_dir)
-    # stimuli.name = 'dicarlo.Rust2012'
+    # stimuli.name = 'Rust2012'
     # assembly = load_responses(data_dir, stimuli)
     # assembly.name = 'dicarlo.SanghaviKar2020'
 

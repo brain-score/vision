@@ -209,12 +209,12 @@ benchmark inside the Brain-Score ecosystem. This involves adding both the stimul
 
     # stimulus set
     stimulus_set_registry['Geirhos2021_colour'] = lambda: load_stimulus_set_from_s3(
-        identifier='brendel.Geirhos2021_colour',
+        identifier='Geirhos2021_colour',
         bucket="brainio-brainscore",
         csv_sha1="9c97c155fd6039a95978be89eb604c6894c5fa16",
         zip_sha1="d166f1d3dc3d00c4f51a489e6fcf96dbbe778d2c",
-        csv_version_id="1ZaFYwHPBkDOrgdrwGHYqMfJJBCWei21",
-        zip_version_id="X62ivk_UuHgh7Sd7VwDxgnB8tWPK06gt")
+        csv_version_id="Rz_sX3_48Lg3vtvfT63AFiFslyXaRy.Y",
+        zip_version_id="OJh8OmoKjG_7guxLW2fF_GA7ehxbJrvG")
 
 
 **Data Packaging Summary**:

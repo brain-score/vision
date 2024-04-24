@@ -115,9 +115,9 @@ stimulus_set_registry['Marques2020_size'] = lambda: load_stimulus_set_from_s3(
     zip_version_id="kAMLBJIilOH6.ZyOmqAeqkyrllxkHEtl")
 
 stimulus_set_registry['FreemanZiemba2013_properties'] = lambda: load_stimulus_set_from_s3(
-    identifier="movshon.FreemanZiemba2013_properties",
+    identifier="FreemanZiemba2013_properties",
     bucket="brainio-brainscore",
     csv_sha1="6f7bcb5d0c01e81c9fbdcec9bf586cbb579a9b02",
     zip_sha1="c64a0d6b447676a6d5cff3d3625a5f294e62ff97",
-    csv_version_id="cXG5bRIhKTFX.36oAHk3zvmC.0TreoH8",
-    zip_version_id="PxoZZYyCCKJDbaoluOC.8nHZKWQ0.m8C")
+    csv_version_id="8yCRYPY.IyBJ5mwlkuYlV4VZEokg8Tke",
+    zip_version_id="pdzZwABgR1dxUL2Pfpj4TuBMCWND51_z")

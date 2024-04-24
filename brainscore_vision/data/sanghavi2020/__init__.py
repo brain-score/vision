@@ -31,7 +31,7 @@ BIBTEX_SANGHAVIJOZWIK = """  @misc{SanghaviJozwik2020,
   month={Nov}
 }"""  # images from (Rust & DiCarlo, 2012)
 
-# assemblies: dicarlo.Sanghavi2020 uses dicarlo.hvm
+# assemblies: dicarlo.Sanghavi2020 uses hvm
 data_registry['Sanghavi2020'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.Sanghavi2020",
     version_id="RZz2m5wUm.wgYyMEDY9UCMuyYjZKDuzw",

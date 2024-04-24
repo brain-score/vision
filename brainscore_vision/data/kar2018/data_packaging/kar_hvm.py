@@ -55,7 +55,7 @@ def load_stimuli_ids(data_dir):
                          for i in range(stimuli_filenames['hvm640_img_names'].value[0].size)]
     # the stimuli_ids in our packaged StimulusSets are SHA1 hashes on pixels.
     # we thus need to reference between those two ids.
-    packaged_stimuli = brainio_collection.get_stimulus_set('dicarlo.hvm')
+    packaged_stimuli = brainio_collection.get_stimulus_set('hvm')
     reference_table = {row.image_file_name: row.image_id for row in packaged_stimuli.itertuples()}
     referenced_ids = [reference_table[filename] for filename in stimuli_filenames]
     return {'image_id': ('image_id', referenced_ids),
@@ -69,7 +69,7 @@ def main():
     assembly = load_responses(data_dir / 'hvm640_neural.h5', additional_coords=stimuli_ids)
     assembly.name = 'dicarlo.Kar2018hvm'
 
-    package_data_assembly(assembly, data_assembly_name=assembly.name, stimulus_set_name='dicarlo.hvm',
+    package_data_assembly(assembly, data_assembly_name=assembly.name, stimulus_set_name='hvm',
                           bucket_name='brainio-dicarlo')
 
 

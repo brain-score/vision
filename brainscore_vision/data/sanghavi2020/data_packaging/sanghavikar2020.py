@@ -111,7 +111,7 @@ def main():
     import brainio_collection
     print(brainio_collection.list_stimulus_sets())
     print(brainio_collection.list_assemblies())
-    stimuli = brainio_collection.get_stimulus_set('dicarlo.objectome.public').sort_values(by='image_id')
+    stimuli = brainio_collection.get_stimulus_set('objectome.public').sort_values(by='image_id')
     print(stimuli)
     # print(stimuli.columns)
     stimuli = collect_stimuli(data_dir)

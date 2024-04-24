@@ -81,14 +81,14 @@ data_registry['SanghaviMurty2020THINGS2'] = lambda: load_assembly_from_s3(
     stimulus_set_loader=lambda: load_stimulus_set('THINGS2'),
 )
 
-# stimulus set: dicarlo.BOLD5000 - can put in sanghavi
+# stimulus set: BOLD5000 - can put in sanghavi
 stimulus_set_registry['BOLD5000'] = lambda: load_stimulus_set_from_s3(
-    identifier="dicarlo.BOLD5000",
+    identifier="BOLD5000",
     bucket="brainio-brainscore",
     csv_sha1="51ac47ea03ed2e72864a95065494c2fabe779f6e",
     zip_sha1="1a2e6d782dcd21bbe60460d85d83b13fa76a9543",
-    csv_version_id="2gHs8J9iH7PzBOO24USSwOmmZZZez0K8",
-    zip_version_id="r4gfAtAHaSj2WPc8kC5xkBpR2u4vkj_o")
+    csv_version_id="N9Z4t92mjMy5263NS7RR5aBdYO9dYfwk",
+    zip_version_id="jvMlEMa1EgRZkfH32gIFO4GcNpqktbgf")
 
 # stimulus set: dicarlo.THINGS1
 stimulus_set_registry['THINGS1'] = lambda: load_stimulus_set_from_s3(

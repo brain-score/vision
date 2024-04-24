@@ -3,6 +3,7 @@ from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 import torch.hub
 import ssl
+from brainscore_vision.model_helpers.check_submission import check_models
 
 
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -35,3 +36,7 @@ def get_layers(name):
 
 def get_bibtex(model_identifier):
     return """x"""
+
+
+if __name__ == '__main__':
+    check_models.check_base_models(__name__)

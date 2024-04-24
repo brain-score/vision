@@ -11,6 +11,7 @@ from albumentations import (
 from albumentations.pytorch import ToTensorV2
 from collections import OrderedDict
 from brainscore_vision.model_helpers.s3 import load_weight_file
+from brainscore_vision.model_helpers.check_submission import check_models
 
 image_resize = 247
 image_crop = 234
@@ -104,10 +105,14 @@ def get_bibtex(model_identifier):
     A method returning the bibtex reference of the requested model as a string.
     """
     return """@misc{he2015deep,
-      title={Deep Residual Learning for Image Recognition}, 
-      author={Kaiming He and Xiangyu Zhang and Shaoqing Ren and Jian Sun},
-      year={2015},
-      eprint={1512.03385},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
-}"""
+                  title={Deep Residual Learning for Image Recognition}, 
+                  author={Kaiming He and Xiangyu Zhang and Shaoqing Ren and Jian Sun},
+                  year={2015},
+                  eprint={1512.03385},
+                  archivePrefix={arXiv},
+                  primaryClass={cs.CV}
+            }"""
+
+
+if __name__ == '__main__':
+    check_models.check_base_models(__name__)

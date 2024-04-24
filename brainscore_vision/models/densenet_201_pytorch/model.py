@@ -3,6 +3,7 @@ from model_helpers.activations.pytorch import load_preprocess_images
 import ssl
 import functools
 import timm
+from brainscore_vision.model_helpers.check_submission import check_models
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -56,3 +57,7 @@ def get_bibtex(model_identifier):
               year={2017}
             }
             """
+
+
+if __name__ == '__main__':
+    check_models.check_base_models(__name__)

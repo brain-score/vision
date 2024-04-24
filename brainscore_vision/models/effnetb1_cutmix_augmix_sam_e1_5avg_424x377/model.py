@@ -10,6 +10,7 @@ from albumentations import (
 )
 from albumentations.pytorch import ToTensorV2
 from brainscore_vision.model_helpers import load_weight_file
+from brainscore_vision.model_helpers.check_submission import check_models
 
 image_resize = 424
 image_crop = 377
@@ -108,3 +109,7 @@ def get_bibtex(model_identifier):
                 url = 	 {https://proceedings.mlr.press/v97/tan19a.html},
                 abstract = 	 {Convolutional Neural Networks (ConvNets) are commonly developed at a fixed resource budget, and then scaled up for better accuracy if more resources are given. In this paper, we systematically study model scaling and identify that carefully balancing network depth, width, and resolution can lead to better performance. Based on this observation, we propose a new scaling method that uniformly scales all dimensions of depth/width/resolution using a simple yet highly effective compound coefficient. We demonstrate the effectiveness of this method on MobileNets and ResNet. To go even further, we use neural architecture search to design a new baseline network and scale it up to obtain a family of models, called EfficientNets, which achieve much better accuracy and efficiency than previous ConvNets. In particular, our EfficientNet-B7 achieves stateof-the-art 84.4% top-1 / 97.1% top-5 accuracy on ImageNet, while being 8.4x smaller and 6.1x faster on inference than the best existing ConvNet (Huang et al., 2018). Our EfficientNets also transfer well and achieve state-of-the-art accuracy on CIFAR-100 (91.7%), Flower (98.8%), and 3 other transfer learning datasets, with an order of magnitude fewer parameters.}
                 }"""
+
+
+if __name__ == '__main__':
+    check_models.check_base_models(__name__)

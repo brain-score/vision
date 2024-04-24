@@ -3,6 +3,7 @@ from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 import torch
 from importlib import import_module
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
+from brainscore_vision.model_helpers.check_submission import check_models
 import ssl
 from brainscore_vision.model_helpers.s3 import load_weight_file
 
@@ -10,7 +11,12 @@ from brainscore_vision.model_helpers.s3 import load_weight_file
 ssl._create_default_https_context = ssl._create_unverified_context
 
 
-def get_model():
+def get_model_list():
+    return ['resnet-50-robust']
+
+
+def get_model(name):
+    assert name == 'resnet-50-robust'
     module = import_module(f'torchvision.models')
     model_ctr = getattr(module, 'resnet50')
     model = model_ctr()
@@ -33,6 +39,7 @@ def get_model():
 
 
 def get_layers(name):
+    assert name == 'resnet-50-robust'
     layers = (
             ['conv1'] +
             ['layer1.0.conv3', 'layer1.1.conv3', 'layer1.2.conv3'] +
@@ -43,3 +50,11 @@ def get_layers(name):
             ['avgpool']
     )
     return layers
+
+
+def get_bibtex(model_identifier):
+    return """"""
+
+
+if __name__ == '__main__':
+    check_models.check_base_models(__name__)

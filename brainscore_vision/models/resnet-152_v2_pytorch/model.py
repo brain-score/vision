@@ -1,6 +1,7 @@
 import functools
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
+from brainscore_vision.model_helpers.check_submission import check_models
 import torchvision
 import ssl
 
@@ -21,7 +22,12 @@ implementation.
 MODEL = torchvision.models.resnet152(weights='ResNet152_Weights.IMAGENET1K_V2')  # use V2 weights
 
 
-def get_model():
+def get_model_list():
+    return ['resnet-152_v2_pytorch']
+
+
+def get_model(name):
+    assert name == 'resnet-152_v2_pytorch'
     model_identifier = "resnet-152_v2_pytorch"
     preprocessing = functools.partial(load_preprocess_images, image_size=299)
     wrapper = PytorchWrapper(identifier=model_identifier, model=MODEL, preprocessing=preprocessing)
@@ -29,7 +35,8 @@ def get_model():
     return wrapper
 
 
-def get_layers():
+def get_layers(name):
+    assert name == 'resnet-152_v2_pytorch'
     layer_names = []
 
     for name, module in MODEL.named_modules():
@@ -38,7 +45,7 @@ def get_layers():
     return layer_names[2:]
 
 
-def get_bibtex():
+def get_bibtex(model_identifier):
     """
     A method returning the bibtex reference of the requested model as a string.
     """
@@ -51,3 +58,7 @@ def get_bibtex():
               primaryClass={cs.CV}
         }
             """
+
+
+if __name__ == '__main__':
+    check_models.check_base_models(__name__)

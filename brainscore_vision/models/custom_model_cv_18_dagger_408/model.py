@@ -1,5 +1,6 @@
 import functools
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
+from brainscore_vision.model_helpers.check_submission import check_models
 import torch
 from brainscore_vision.model_helpers.s3 import load_weight_file
 from timm.models import create_model
@@ -45,7 +46,12 @@ def load_preprocess_custom_model(image_filepaths, image_size, **kwargs):
     return images
 
 
-def get_model():
+def get_model_list():
+    return ['custom_model_cv_18_dagger_408']
+
+
+def get_model(name):
+    assert name == 'custom_model_cv_18_dagger_408'
     model = create_model('crossvit_18_dagger_408', pretrained=False)
 
     weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
@@ -63,5 +69,14 @@ def get_model():
     return wrapper
 
 
-def get_layers():
+def get_layers(name):
+    assert name == 'custom_model_cv_18_dagger_408'
     return LAYERS
+
+
+def get_bibtex(model_identifier):
+    return """"""
+
+
+if __name__ == '__main__':
+    check_models.check_base_models(__name__)

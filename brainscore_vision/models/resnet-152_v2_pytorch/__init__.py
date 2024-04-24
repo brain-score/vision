@@ -4,5 +4,5 @@ from .model import get_model, get_layers
 
 
 model_registry['resnet-152_v2_pytorch'] = lambda: ModelCommitment(identifier='resnet-152_v2_pytorch',
-                                                               activations_model=get_model(),
-                                                               layers=get_layers())
+                                                               activations_model=get_model('resnet-152_v2_pytorch'),
+                                                               layers=get_layers('resnet-152_v2_pytorch'))

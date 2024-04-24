@@ -1,5 +1,6 @@
 import functools
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
+from brainscore_vision.model_helpers.check_submission import check_models
 import torch
 from torch.nn import Module
 import torch.nn as nn
@@ -61,7 +62,12 @@ def get_model_from_s3():
     return model
 
 
-def get_model():
+def get_model_list():
+    return ['voneresnet-50-non_stochastic']
+
+
+def get_model(name):
+    assert name == 'voneresnet-50-non_stochastic'
     model = get_model_from_s3()
     model = model.module
     preprocessing = functools.partial(load_preprocess_images, image_size=224,
@@ -71,7 +77,8 @@ def get_model():
     return wrapper
 
 
-def get_layers():
+def get_layers(name):
+    assert name == 'voneresnet-50-non_stochastic'
     layers = (
             ['vone_block'] +
             ['model.layer1.0', 'model.layer1.1', 'model.layer1.2'] +
@@ -82,3 +89,11 @@ def get_layers():
             ['model.avgpool']
     )
     return layers
+
+
+def get_bibtex(model_identifier):
+    return """"""
+
+
+if __name__ == '__main__':
+    check_models.check_base_models(__name__)

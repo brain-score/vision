@@ -1,5 +1,6 @@
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from model_helpers.activations.pytorch import load_images, load_preprocess_images
+from brainscore_vision.model_helpers.check_submission import check_models
 import ssl
 from transformers import MobileNetV2ForImageClassification
 import functools
@@ -21,7 +22,12 @@ implementation.
 MODEL = MobileNetV2ForImageClassification.from_pretrained("Matthijs/mobilenet_v2_1.0_224")
 
 
-def get_model():
+def get_model_list():
+    return ['mobilenet_v2_1-4_224_pytorch']
+
+
+def get_model(name):
+    assert name == 'mobilenet_v2_1-4_224_pytorch'
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(identifier='mobilenet_v2_1-4_224_pytorch', model=MODEL,
                              preprocessing=preprocessing,
@@ -30,7 +36,8 @@ def get_model():
     return wrapper
 
 
-def get_layers():
+def get_layers(name):
+    assert name == 'mobilenet_v2_1-4_224_pytorch'
     layer_names = []
 
     for name, module in MODEL.named_modules():
@@ -39,7 +46,7 @@ def get_layers():
     return layer_names[2:]
 
 
-def get_bibtex():
+def get_bibtex(model_identifier):
     """
     A method returning the bibtex reference of the requested model as a string.
     """
@@ -50,3 +57,7 @@ def get_bibtex():
                 year={2018}
                 }
             """
+
+
+if __name__ == '__main__':
+    check_models.check_base_models(__name__)

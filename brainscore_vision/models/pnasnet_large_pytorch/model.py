@@ -1,4 +1,5 @@
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
+from brainscore_vision.model_helpers.check_submission import check_models
 from model_helpers.activations.pytorch import load_preprocess_images
 import ssl
 import functools
@@ -21,7 +22,12 @@ implementation.
 MODEL = timm.create_model('pnasnet5large.tf_in1k', pretrained=True)
 
 
-def get_model():
+def get_model_list():
+    return ['pnasnet_large_pytorch']
+
+
+def get_model(name):
+    assert name == 'pnasnet_large_pytorch'
     preprocessing = functools.partial(load_preprocess_images, image_size=331)
     wrapper = PytorchWrapper(identifier='pnasnet_large_pytorch', model=MODEL,
                              preprocessing=preprocessing,
@@ -30,7 +36,8 @@ def get_model():
     return wrapper
 
 
-def get_layers():
+def get_layers(name):
+    assert name == 'pnasnet_large_pytorch'
     layer_names = []
 
     for name, module in MODEL.named_modules():
@@ -39,7 +46,7 @@ def get_layers():
     return layer_names[2:]
 
 
-def get_bibtex():
+def get_bibtex(model_identifier):
     """
     A method returning the bibtex reference of the requested model as a string.
     """
@@ -52,3 +59,7 @@ def get_bibtex():
               primaryClass={cs.CV}
             }
             """
+
+
+if __name__ == '__main__':
+    check_models.check_base_models(__name__)

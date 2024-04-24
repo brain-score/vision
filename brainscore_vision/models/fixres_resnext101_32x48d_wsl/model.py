@@ -1,4 +1,5 @@
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
+from brainscore_vision.model_helpers.check_submission import check_models
 from fixres.hubconf import load_state_dict_from_url
 from fixres.transforms_v2 import get_transforms
 from model_helpers.activations.pytorch import load_images
@@ -10,7 +11,12 @@ import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
 
-def get_model():
+def get_model_list():
+    return ['fixres_resnext101_32x48d_wsl']
+
+
+def get_model(name):
+    assert name == 'fixres_resnext101_32x48d_wsl'
     module = import_module('fixres.imnet_evaluate.resnext_wsl')
     model_ctr = getattr(module, 'resnext101_32x48d_wsl')
     model = model_ctr(pretrained=False)  # the pretrained flag here corresponds to standard resnext weights
@@ -50,8 +56,20 @@ def get_model():
 
 
 def get_layers(name):
+    assert name == 'fixres_resnext101_32x48d_wsl'
     return (['conv1'] +
             # note that while relu is used multiple times, by default the last one will overwrite all previous ones
             [f"layer{block + 1}.{unit}.relu"
              for block, block_units in enumerate([3, 4, 23, 3]) for unit in range(block_units)] +
             ['avgpool'])
+
+
+def get_bibtex(model_identifier):
+    """
+    A method returning the bibtex reference of the requested model as a string.
+    """
+    return """"""
+
+
+if __name__ == '__main__':
+    check_models.check_base_models(__name__)

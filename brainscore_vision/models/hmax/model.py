@@ -1,4 +1,5 @@
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
+from brainscore_vision.model_helpers.check_submission import check_models
 import functools
 from model_helpers.activations.pytorch import load_preprocess_images
 import ssl
@@ -10,7 +11,12 @@ from brainscore_vision.model_helpers.s3 import load_weight_file
 ssl._create_default_https_context = ssl._create_unverified_context
 
 
+def get_model_list():
+    return ['hmax']
+
+
 def get_model(name):
+    assert name == 'hmax'
     return get_hmax(name, 224)
 
 
@@ -27,11 +33,12 @@ def get_hmax(identifier, image_size):
     return wrapper
 
 
-def get_layers():
+def get_layers(name):
+    assert name == 'hmax'
     return ['s1_out', 'c1_out', 'c2_out', 's2_out']
 
 
-def get_bibtex():
+def get_bibtex(model_identifier):
     """
     A method returning the bibtex reference of the requested model as a string.
     """
@@ -51,3 +58,7 @@ def get_bibtex():
                 month = {apr}
                 }
             """
+
+
+if __name__ == '__main__':
+    check_models.check_base_models(__name__)

@@ -27,9 +27,9 @@ if PACKAGING_FIXED:
         stimulus_set_loader=lambda: load_stimulus_set('Zhang2018.search_obj_array'),
     )
 
-    # stimulus set: klab.Zhang2018.search_obj_array
+    # stimulus set: Zhang2018.search_obj_array
     stimulus_set_registry['Zhang2018.search_obj_array'] = lambda: load_stimulus_set_from_s3(
-        identifier="klab.Zhang2018.search_obj_array",
+        identifier="Zhang2018.search_obj_array",
         bucket="brainio-brainscore",
         csv_version_id="HC_2UVxrTqbKtBtMny2YqYjm6cjdx6JI",
         csv_sha1="e9c2f6b35b84256242d257e8d36261aa26d3ed4a",

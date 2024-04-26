@@ -63,6 +63,11 @@ def test_video():
     assert video8.duration == 100
     assert (video8.to_numpy() == video1.set_window(300, 400).to_numpy()).all()
 
+    # test copy
+    video9 = video1.set_fps(30).copy()
+    assert (video9.to_numpy()[1] == video1.to_numpy()[2]).all()
+    assert (video9.to_numpy()[2] == video1.to_numpy()[4]).all()
+
     for fps in [7.5, 9, 1, 43, 1000/video1.duration, 1001/video1.duration]:
         video9 = video1.set_fps(fps)
         assert video9.to_numpy().shape[0] == np.ceil(video1.duration * fps / 1000)

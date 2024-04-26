@@ -31,17 +31,17 @@ def get_image_stats(image_path):
 class Video(Stimulus):
     """Video object that represents a video clip."""
 
-    def __init__(self, path: Union[str, Path], fps: float, start: float, end: float, size: Tuple[int, int]):
+    def __init__(self, path: Union[str, Path], fps: float, start: float, end: float, size: Tuple[int, int], original_fps: int = None):
         self._path = path
         self._fps = fps
         self._size = size
-        self._original_fps = self._fps
+        self._original_fps = original_fps or fps
         self._start = start
         self._end = end
 
     def copy(self):
         # return view
-        video = self.__class__(self._path, self._fps, self._start, self._end, self._size)
+        video = self.__class__(self._path, self._fps, self._start, self._end, self._size, self._original_fps)
         return video
     
     @property

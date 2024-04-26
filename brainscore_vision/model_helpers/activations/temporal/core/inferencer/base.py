@@ -41,9 +41,10 @@ class Inferencer:
         For example, {"temp_conv": "TCHW", "spatial_conv": "CHW",  "fc": "C"}.
     visual_degrees: float
         the visual degrees of the stimuli.
-    max_spatial_size: int
+    max_spatial_size: int/float
         the maximum spatial size of the activations. If the spatial size of the activations is larger than this value,
         the activations will be downsampled to this size. This is used to avoid the large memory consumption by the first layers of some model.
+        If float, resize the image based on this factor.
     dtype: np.dtype
         data type of the activations.
     batch_size: int
@@ -77,7 +78,7 @@ class Inferencer:
             layer_activation_format : dict,
             stimulus_type : Stimulus,
             visual_degrees : float = 8.,
-            max_spatial_size : int = None,
+            max_spatial_size : Union[int, float] = None,
             dtype : np.dtype = np.float16,
             batch_size : int = 64,
             batch_grouper : Callable[[Stimulus], Hashable] = None,
@@ -89,6 +90,8 @@ class Inferencer:
 
         self.stimulus_type = stimulus_type
         self.layer_activation_format = layer_activation_format
+        if isinstance(max_spatial_size, float):
+            assert max_spatial_size < 1, "a proporational max_spatial_size should be < 1."
         self.max_spatial_size = max_spatial_size
         self.visual_degrees = visual_degrees
         self.dtype = dtype
@@ -254,10 +257,18 @@ class Inferencer:
         return ret
 
 def _compute_new_size(w, h, max_spatial_size):
-    if h > w:
-        new_h = max_spatial_size
-        new_w = int(w * new_h / h)
+    if isinstance(max_spatial_size, int):
+        if h > w:
+            new_h = max_spatial_size
+            new_w = int(w * new_h / h)
+        else:
+            new_w = max_spatial_size
+            new_h = int(h * new_w / w)
     else:
-        new_w = max_spatial_size
-        new_h = int(h * new_w / w)
+        new_h = int(h * max_spatial_size)
+        new_w = int(w * max_spatial_size)
+    
+    new_h = max(1, new_h)
+    new_w = max(1, new_w)
+
     return new_h, new_w

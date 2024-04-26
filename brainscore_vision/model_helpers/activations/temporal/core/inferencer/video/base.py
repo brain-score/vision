@@ -129,6 +129,6 @@ class TemporalInferencer(Inferencer):
     def _check_video(self, video: Video):
         if self.num_frames is not None:
             estimated_num_frames = int(self.fps * video.duration / 1000)
-            assert self.num_frames[0] <= estimated_num_frames <= self.num_frames[1]
+            assert self.num_frames[0] <= estimated_num_frames <= self.num_frames[1], f"The number of frames must be within {self.num_frames}, but got {estimated_num_frames}"
         if self.duration is not None:
-            assert self.duration[0] <= video.duration <= self.duration[1]
+            assert self.duration[0] <= video.duration <= self.duration[1], f"The duration must be within {self.duration}, but got {video.duration}"

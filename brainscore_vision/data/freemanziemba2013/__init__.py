@@ -39,7 +39,7 @@ stimulus_set_registry['FreemanZiemba2013.aperture-public'] = lambda: load_stimul
     identifier="FreemanZiemba2013.aperture-public",
     bucket="brainio.contrib",
     csv_sha1="194c9b301a4e3e9cff02481d4c19b39331d52660",
-    zip_sha1="ad3c6c237491485c863acd2f4d2f219f737e424c",
+    zip_sha1="3a6fec1fc28c212882d6833e267ea8654d289611",
     csv_version_id="vpWysN7O7LyA9k9PBbrawXauOcqf2LoY",
     zip_version_id="BQmourU.zS4hvTXs.LBIi.yVunyjZNE.",
 )
@@ -49,7 +49,7 @@ stimulus_set_registry['FreemanZiemba2013.aperture-private'] = lambda: load_stimu
     identifier="FreemanZiemba2013.aperture-private",
     bucket="brainio.contrib",
     csv_sha1="65bee31483dd743ae2a19c6af03b9abe5f4d5a41",
-    zip_sha1="0015c94e01d037994cdde1b2e3d169ab99f380dc",
+    zip_sha1="daa724a4797b23929df59c18744923790edf71cb",
     csv_version_id="aNkWLYtttATXQ8GUD8zXIRnWq9mEsdHz",
     zip_version_id="S9eCKFK5b_NcgfnkK2CcddILmkAF8cwP",
 )
@@ -110,7 +110,7 @@ stimulus_set_registry['FreemanZiemba2013.public'] = lambda: load_stimulus_set_fr
     identifier="FreemanZiemba2013-public",
     bucket="brainio-brainscore",
     csv_sha1="b4fee824f361fa0b78d7247ed4192b04cd675d4f",
-    zip_sha1="e14d691db081ace829f76bb24dfc055a4fa2eaf9",
+    zip_sha1="3a5e2cb347eb97d02ff9f7294abc11c1b45a78dc",
     csv_version_id="js9ggbU.g0bbRLwpbIs6CEQ2JgQIGaRR",
     zip_version_id="nb6oXpiKafGLNK0Ke6z9kEJNdZK4cOjw")
 
@@ -119,7 +119,7 @@ stimulus_set_registry['FreemanZiemba2013.private'] = lambda: load_stimulus_set_f
     identifier="FreemanZiemba2013-private",
     bucket="brainio-brainscore",
     csv_sha1="91bab3340410ff5171490a337c5931545f29da82",
-    zip_sha1="c2adb4c0f2f0fbbc6006a879234740131ed2dcbb",
+    zip_sha1="e973cf0f98eac3d9673b00b314deb3b85e76c23c",
     csv_version_id="91GuIJT87Gw5qxv3EfvFD0jf7pmr_XKI",
     zip_version_id="noTN92.53oxESqpZb79dJPl3EjQa41Sd")
 
@@ -128,6 +128,6 @@ stimulus_set_registry['FreemanZiemba2013.aperture'] = lambda: load_stimulus_set_
     identifier="FreemanZiemba2013.aperture",
     bucket="brainio-brainscore",
     csv_sha1="4205eca54974da46accba7812fce25c1b6df58e0",
-    zip_sha1="ab07880a0770bd73f68bcd5fd34e6cd945ee17fc",
+    zip_sha1="3eacddfecd825b18026da3e4c749d5d1bc9213ed",
     csv_version_id="AyDAcEdwVToN_rsCuW2OHj7EZNkOu_we",
     zip_version_id="APXK9Qlgn9PSRCiaWNpBaRla70HW.91h")

@@ -67,7 +67,8 @@ class ActivationsExtractor:
         :param stimuli_identifier: a stimuli identifier for the stored results file. False to disable saving.
         """
         if number_of_trials is not None and (number_of_trials > 1 or require_variance):
-            print("CAUTION: number_of_trials > 1 or require_variance=True is not supported yet. Bypassing...")
+            self._logger.warning("CAUTION: number_of_trials > 1 or require_variance=True is not supported yet. "
+                                 "Bypassing...")
         if isinstance(stimuli, StimulusSet):
             return self.from_stimulus_set(stimulus_set=stimuli, layers=layers, stimuli_identifier=stimuli_identifier)
         else:

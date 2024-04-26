@@ -68,6 +68,11 @@ def test_video():
     assert (video9.to_numpy()[1] == video1.to_numpy()[2]).all()
     assert (video9.to_numpy()[2] == video1.to_numpy()[4]).all()
 
+    # test padding
+    video10 = video1.set_window(1000, 1000+1000/video1.fps)
+    assert video10.to_numpy().shape[0] == 1
+    assert (video10.to_numpy()[0] == video1.to_numpy()[int(video1.fps)]).all()
+
     for fps in [7.5, 9, 1, 43, 1000/video1.duration, 1001/video1.duration]:
         video9 = video1.set_fps(fps)
         assert video9.to_numpy().shape[0] == np.ceil(video1.duration * fps / 1000)

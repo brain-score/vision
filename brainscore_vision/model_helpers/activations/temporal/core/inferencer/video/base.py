@@ -63,9 +63,9 @@ class TemporalInferencer(Inferencer):
             duration : Union[float, Tuple[float, float]] = None,
             time_alignment : str = "evenly_spaced",
             convert_img_to_video : bool = True,
-            img_duration : float = 1000.,
+            img_duration : float = 1000.0,
             batch_size : int = 32,
-            batch_grouper : Callable[[Video], Hashable] = lambda video: (video.duration, video.fps),  # not including video.frame_size because most preprocessors will change the frame size to be the same
+            batch_grouper : Callable[[Video], Hashable] = lambda video: (round(video.duration, 6), video.fps),  # not including video.frame_size because most preprocessors will change the frame size to be the same
             **kwargs,
     ):
         super().__init__(*args, stimulus_type=Video, batch_size=batch_size, 
@@ -83,9 +83,9 @@ class TemporalInferencer(Inferencer):
 
     @property
     def identifier(self) -> str:
-        id = f"{super().identifier}.{self.time_aligner.__name__}.fps={self.fps}"
+        id = f"{super().identifier}.{self.time_aligner.__name__}.fps={float(self.fps)}"
         if self.convert_to_video:
-            id += f".img_dur={self.img_duration}"
+            id += f".img_dur={float(self.img_duration)}"
         return id
 
     def load_stimulus(self, path: Union[str, Path]) -> Video:

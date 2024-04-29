@@ -50,55 +50,40 @@ class Video(Stimulus):
         self._original_duration = None
         self._original_size = None
 
-    def _set_original_stats(self):
-        self._original_fps, self._original_duration, self._original_size = get_video_stats(self._path)
+    def __getattribute__(self, key):
+        if key.startswith("_original_"):
+            if super().__getattribute__(key) is None:
+                self._original_fps, self._original_duration, self._original_size = get_video_stats(self._path)
+        return super().__getattribute__(key)
 
     def copy(self):
         # return view
         video = self.__class__(self._path, self._fps, self._start, self._end, self._size)
-        video._original_fps = self.original_fps
-        video._original_duration = self.original_duration
-        video._original_size = self.original_frame_size
+        video._original_fps = self._original_fps
+        video._original_duration = self._original_duration
+        video._original_size = self._original_size
         return video
     
     @property
     def duration(self):
         # in ms
         return self._end - self._start
-    
-    @property
-    def original_duration(self):
-        if self._original_duration is None:
-            self._set_original_stats()
-        return self._original_duration
-    
+
     @property
     def fps(self):
         return self._fps
-    
-    @property
-    def original_fps(self):
-        if self._original_fps is None:
-            self._set_original_stats()
-        return self._original_fps
-    
+
     @property
     def num_frames(self):
         return int(self.duration * self.fps/1000 + EPS)
     
     @property
     def original_num_frames(self):
-        return int(self.original_duration * self.original_fps/1000 + EPS)
+        return int(self._original_duration * self._original_fps/1000 + EPS)
     
     @property
     def frame_size(self):
         return self._size
-    
-    @property
-    def original_frame_size(self):
-        if self._original_size is None:
-            self._set_original_stats()
-        return self._original_size
     
     ### Transformations: return copy
     
@@ -147,21 +132,22 @@ class Video(Stimulus):
     
     def to_numpy(self):
         # get the time stamps of frame samples
-        start_frame = self._start * self.original_fps / 1000
-        end_frame = self._end * self.original_fps / 1000
+        start_frame = self._start * self._original_fps / 1000
+        end_frame = self._end * self._original_fps / 1000
         # avoid taking the last extra frame
-        samples = np.arange(start_frame, end_frame - EPS, self.original_fps/self.fps)
+        samples = np.arange(start_frame, end_frame - EPS, self._original_fps/self.fps)
         sample_indices = samples.astype(int)
 
         # padding: repeat the first/last frame
-        sample_indices = np.clip(sample_indices, 0, self.original_num_frames-1)
+        original_num_frames = int(self._original_duration * self._original_fps/1000 + EPS)
+        sample_indices = np.clip(sample_indices, 0, original_num_frames-1)
 
         # actual sampling
         frames = self.get_frames(sample_indices)
 
         # resizing
-        if self.frame_size != (frames.shape[2], frames.shape[1]):
-            frames = batch_2d_resize(frames, self.frame_size, "bilinear")
+        if self._size != (frames.shape[2], frames.shape[1]):
+            frames = batch_2d_resize(frames, self._size, "bilinear")
 
         return frames
     
@@ -175,6 +161,21 @@ class Video(Stimulus):
         # use context manager ?
         path = None  # make a temporal file
         raise NotImplementedError()
+        return path
+
+    def store_to_path(self, path):
+        # pick format based on path filename
+        if path.endswith(".avi"):
+            fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        elif path.endswith(".mp4"):
+            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        else:
+            raise ValueError("Unsupported video format.")
+
+        out = cv2.VideoWriter(path, fourcc, self._fps, self._size)
+        for frame in self.to_frames():
+            out.write(frame[...,::-1])  # to RGB
+        out.release()
         return path
     
 

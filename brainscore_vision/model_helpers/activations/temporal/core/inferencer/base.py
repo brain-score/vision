@@ -41,16 +41,10 @@ class Inferencer:
         For example, {"temp_conv": "TCHW", "spatial_conv": "CHW",  "fc": "C"}.
     visual_degrees: float
         the visual degrees of the stimuli.
-<<<<<<< HEAD
     max_spatial_size: int/float
         the maximum spatial size of the activations. If the spatial size of the activations is larger than this value,
         the activations will be downsampled to this size. This is used to avoid the large memory consumption by the first layers of some model.
         If float, resize the image based on this factor.
-=======
-    max_spatial_size: int
-        the maximum spatial size of the activations. If the spatial size of the activations is larger than this value,
-        the activations will be downsampled to this size. This is used to avoid the large memory consumption by the first layers of some model.
->>>>>>> 6051f72b3fda36319e8e85f5c41010b4a974f24a
     dtype: np.dtype
         data type of the activations.
     batch_size: int

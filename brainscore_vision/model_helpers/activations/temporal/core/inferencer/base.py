@@ -263,7 +263,6 @@ class Inferencer:
         return ret
 
 def _compute_new_size(w, h, max_spatial_size):
-<<<<<<< HEAD
     if isinstance(max_spatial_size, int):
         if h > w:
             new_h = max_spatial_size
@@ -278,12 +277,4 @@ def _compute_new_size(w, h, max_spatial_size):
     new_h = max(1, new_h)
     new_w = max(1, new_w)
 
-=======
-    if h > w:
-        new_h = max_spatial_size
-        new_w = int(w * new_h / h)
-    else:
-        new_w = max_spatial_size
-        new_h = int(h * new_w / w)
->>>>>>> 6051f72b3fda36319e8e85f5c41010b4a974f24a
     return new_h, new_w

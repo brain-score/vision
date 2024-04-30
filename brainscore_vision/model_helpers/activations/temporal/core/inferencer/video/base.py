@@ -83,15 +83,9 @@ class TemporalInferencer(Inferencer):
 
     @property
     def identifier(self) -> str:
-<<<<<<< HEAD
         id = f"{super().identifier}.{self.time_aligner.__name__}.fps={float(self.fps)}"
         if self.convert_to_video:
             id += f".img_dur={float(self.img_duration)}"
-=======
-        id = f"{super().identifier}.{self.time_aligner.__name__}.fps={self.fps}"
-        if self.convert_to_video:
-            id += f".img_dur={self.img_duration}"
->>>>>>> 6051f72b3fda36319e8e85f5c41010b4a974f24a
         return id
 
     def load_stimulus(self, path: Union[str, Path]) -> Video:
@@ -135,12 +129,6 @@ class TemporalInferencer(Inferencer):
     def _check_video(self, video: Video):
         if self.num_frames is not None:
             estimated_num_frames = int(self.fps * video.duration / 1000)
-<<<<<<< HEAD
             assert self.num_frames[0] <= estimated_num_frames <= self.num_frames[1], f"The number of frames must be within {self.num_frames}, but got {estimated_num_frames}"
         if self.duration is not None:
             assert self.duration[0] <= video.duration <= self.duration[1], f"The duration must be within {self.duration}, but got {video.duration}"
-=======
-            assert self.num_frames[0] <= estimated_num_frames <= self.num_frames[1]
-        if self.duration is not None:
-            assert self.duration[0] <= video.duration <= self.duration[1]
->>>>>>> 6051f72b3fda36319e8e85f5c41010b4a974f24a

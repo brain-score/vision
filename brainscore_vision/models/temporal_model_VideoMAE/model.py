@@ -7,11 +7,8 @@ from brainscore_vision.model_helpers.s3 import load_weight_file
 from torchvision import transforms
 
 
-<<<<<<< HEAD
 LAYER_SELECTION_STEP = 2
 
-=======
->>>>>>> 6051f72b3fda36319e8e85f5c41010b4a974f24a
 class VideoMAEv1Wrapper(PytorchWrapper):
     def forward(self, inputs):
         tensor = th.stack(inputs)
@@ -83,11 +80,7 @@ def get_model(identifier, num_frames=16):
         "fps": 6.25,
         "layer_activation_format": {
             "encoder.patch_embed": "THWC",
-<<<<<<< HEAD
             **{f"encoder.blocks.{i}": "THWC" for i in range(0, num_blocks, LAYER_SELECTION_STEP)},
-=======
-            **{f"encoder.blocks.{i}": "THWC" for i in range(num_blocks)},
->>>>>>> 6051f72b3fda36319e8e85f5c41010b4a974f24a
         },
         "num_frames": num_frames,
     }

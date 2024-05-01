@@ -43,15 +43,19 @@ def load_file_from_s3(bucket: str, path: str, local_filepath: Union[Path, str],
     verify_sha1(local_filepath, sha1)
 
 
-def load_weight_file(bucket: str, relative_path: str, version_id: str, sha1: str):
+def load_weight_file(bucket: str, relative_path: str, version_id: str, sha1: str, folder_name: str = None) -> Path:
     """
+    :param bucket: main bucket to add file to. Usually is 'brainscore_vision' for vision-related things.
     :param relative_path: The path of the file inside the S3 bucket, relative to the `models/` directory.
         The local path will be the same, relative to the local cache's `models/` directory (inside `BRAINSCORE_HOME`).
         Example: `alexnet/weights.pth` will download from brain-score S3:models/alexnet/weights.pth and
         and store into local ~/.brain-score/models/alexnet/weights.pth.
+    :param version_id: version_id of the object to upload, found in AWS under object properties
+    :param sha1: sha1 hash of the object
+    :param folder_name: name of the folder inside the bucket to upload to, i.e. 'models'
     """
     brainscore_cache = os.getenv("BRAINSCORE_HOME", expanduser("~/.brain-score"))
-    s3_weight_folder = os.getenv("BRAINSCORE_S3_WEIGHT_FOLDER", "models-to-integrate-for-2.0")
+    s3_weight_folder = folder_name if folder_name is not None else os.getenv("BRAINSCORE_S3_WEIGHT_FOLDER", "models-to-integrate-for-2.0")
     local_path = Path(brainscore_cache) / "models" / relative_path
     local_path.parent.mkdir(parents=True, exist_ok=True)
     load_file_from_s3(bucket=bucket, path=f"{s3_weight_folder}/{relative_path}", version_id=version_id, sha1=sha1,

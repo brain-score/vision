@@ -129,19 +129,19 @@ def test_compute_temporal_context():
 
 @pytest.mark.memory_intense
 @pytest.mark.parametrize("preprocess", ["normal", "downsample"])
-def test_causal_inferencer(preprocess):
+@pytest.mark.parametrize("fps", [1, 40])
+def test_causal_inferencer(preprocess, fps):
     if preprocess == "normal":
         preprocess = dummy_preprocess
     else:
         preprocess = time_down_sample_preprocess
-    fps = 10
     inferencer = CausalInferencer(dummy_get_features, dummy_preprocess, 
                                     dummy_layer_activation_format, 
                                     fps=fps, max_workers=1)
     model_assembly = inferencer(video_paths, layers=dummy_layers)
     assert model_assembly.sizes["time_bin"] == 6 * fps
     assert np.isclose(model_assembly['time_bin_end'].values[0] - model_assembly['time_bin_start'].values[0], 1000/fps)
-    assert inferencer._compute_temporal_context() == (100, np.inf)
+    assert inferencer._compute_temporal_context() == (1000/fps, np.inf)
 
     # manual computation check
     output_values = model_assembly.sel(stimulus_path=video_paths[1])\
@@ -159,12 +159,12 @@ def test_causal_inferencer(preprocess):
 
 @pytest.mark.memory_intense
 @pytest.mark.parametrize("preprocess", ["normal", "downsample"])
-def test_block_inferencer(preprocess):
+@pytest.mark.parametrize("fps", [1, 40])
+def test_block_inferencer(preprocess, fps):
     if preprocess == "normal":
         preprocessing = dummy_preprocess
     else:
         preprocessing = time_down_sample_preprocess
-    fps = 10
     inferencer = BlockInferencer(dummy_get_features, preprocessing, dummy_layer_activation_format, fps=fps, 
                                  duration=(200, 4000), temporal_context_strategy="greedy", max_workers=1)
     model_assembly = inferencer(video_paths, layers=dummy_layers)

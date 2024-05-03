@@ -11,5 +11,4 @@ def commit_model(identifier):
     return ModelCommitment(identifier=identifier, activations_model=activations_model, layers=layers)
 
 
-model_registry["VideoMAE-V1-B"] = lambda: commit_model("VideoMAE-V1-B")
-model_registry["VideoMAE-V1-L"] = lambda: commit_model("VideoMAE-V1-L")
+model_registry["MAE-LSTM"] = lambda: commit_model("MAE-LSTM")

@@ -6,8 +6,6 @@ from brainscore_vision.model_helpers.activations.temporal.model import PytorchWr
 from torchvision import transforms
 
 
-LAYER_SELECTION_STEP = 2
-
 class R3MWrapper(PytorchWrapper):
     def forward(self, inputs):
         tensor = th.stack(inputs)
@@ -56,12 +54,15 @@ def get_model(identifier, num_frames=16):
 
     net = load_r3m(model_name)
 
+    num_blocks = 4
     inferencer_kwargs = {
         "fps": 100,
         "layer_activation_format": {
             "convnet": "TC",
+            "convnet.conv1": "TCHW",
+            **{f"convnet.layer{i}": "TCHW" for i in range(1, num_blocks)},
         },
-        "num_frames": num_frames,
+        "duration": (0, 450),
     }
 
     for layer in inferencer_kwargs["layer_activation_format"].keys():

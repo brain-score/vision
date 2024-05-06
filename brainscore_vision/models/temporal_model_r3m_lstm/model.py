@@ -45,9 +45,10 @@ def get_model(identifier, num_frames=7):
     inferencer_kwargs = {
         "fps": 16,
         "layer_activation_format": {
+            "model.encoder": "TC",
             "model.dynamics": "TC",
         },
-        "num_frames": num_frames,
+        "duration": (0, 450),
     }
 
     for layer in inferencer_kwargs["layer_activation_format"].keys():

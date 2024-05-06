@@ -2,15 +2,16 @@ import torch as th
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
 from brainscore_vision.model_helpers.s3 import load_weight_file
-from resnet_model import pfDINO_LSTM_physion, load_model
+from resnet_model import pfMAE_LSTM_physion, load_model
 
 from torchvision import transforms
 
-class RESNETLSTMWrapper(PytorchWrapper):
+class MAELSTMWrapper(PytorchWrapper):
     def forward(self, inputs):
         tensor = th.stack(inputs)
+        tensor = tensor.to(self._device)
         with torch.no_grad():
-            output = self._model(videos)
+            output = self._model(tensor)
         features = output["input_states"]
         return features  # encoder only
 
@@ -26,10 +27,10 @@ def transform_video(video):
 
 
 def get_model(identifier, num_frames=7):
-    assert identifier.startswith("RESNET-LSTM")
+    assert identifier.startswith("MAE-LSTM")
     # Instantiate the model
     
-    net = pfDINO_LSTM_physion(n_past=num_frames, full_rollout=False)
+    net = pfMAE_LSTM_physion(n_past=num_frames, full_rollout=False)
     net = load_model(net, model_path)
 
     inferencer_kwargs = {
@@ -43,7 +44,7 @@ def get_model(identifier, num_frames=7):
     for layer in inferencer_kwargs["layer_activation_format"].keys():
         assert "decoder" not in layer, "Decoder layers are not supported."
 
-    wrapper = RESNETLSTMWrapper(identifier, net, transform_video, 
+    wrapper = MAELSTMWrapper(identifier, net, transform_video, 
                                 process_output=None,
                                 **inferencer_kwargs)
     return wrapper

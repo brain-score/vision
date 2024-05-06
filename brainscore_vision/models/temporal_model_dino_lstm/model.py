@@ -2,15 +2,16 @@ import torch as th
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
 from brainscore_vision.model_helpers.s3 import load_weight_file
-from r3m_model import pfR3M_LSTM_physion, load_model
+from dino_model import pfDINO_LSTM_physion, load_model
 
 from torchvision import transforms
 
-class R3MLSTMWrapper(PytorchWrapper):
+class DINOLSTMWrapper(PytorchWrapper):
     def forward(self, inputs):
         tensor = th.stack(inputs)
+        tensor = tensor.to(self._device)
         with torch.no_grad():
-            output = self._model(videos)
+            output = self._model(tensor)
         features = output["input_states"]
         return features  # encoder only
 
@@ -26,20 +27,11 @@ def transform_video(video):
 
 
 def get_model(identifier, num_frames=7):
-    assert identifier.startswith("R3M-LSTM")
-    pretrain_only = True
-
-    if identifier == "R3M-LSTM-EGO4D":
-        model_path = "TBD"
-    elif identifier == "R3M-LSTM-PHYS":
-        model_path = "TBD"
-    elif identifier == "R3M-LSTM-ARAN":
-        model_path = "TBD"
-
+    assert identifier.startswith("DINO-LSTM")
     # Instantiate the model
     
-    net = pfR3M_LSTM_physion(n_past=num_frames, full_rollout=False)
-    net = load_model(net, identifier, model_path)
+    net = pfDINO_LSTM_physion(n_past=num_frames, full_rollout=False)
+    net = load_model(net, model_path)
 
     inferencer_kwargs = {
         "fps": 16,
@@ -52,7 +44,7 @@ def get_model(identifier, num_frames=7):
     for layer in inferencer_kwargs["layer_activation_format"].keys():
         assert "decoder" not in layer, "Decoder layers are not supported."
 
-    wrapper = R3MLSTMWrapper(identifier, net, transform_video, 
+    wrapper = DINOLSTMWrapper(identifier, net, transform_video, 
                                 process_output=None,
                                 **inferencer_kwargs)
     return wrapper

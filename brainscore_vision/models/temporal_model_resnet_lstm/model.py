@@ -2,15 +2,16 @@ import torch as th
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
 from brainscore_vision.model_helpers.s3 import load_weight_file
-from dino_model import pfDINO_LSTM_physion, load_model
+from resnet_model import pfDINO_LSTM_physion, load_model
 
 from torchvision import transforms
 
-class DINOLSTMWrapper(PytorchWrapper):
+class RESNETLSTMWrapper(PytorchWrapper):
     def forward(self, inputs):
         tensor = th.stack(inputs)
+        tensor = tensor.to(self._device)
         with torch.no_grad():
-            output = self._model(videos)
+            output = self._model(tensor)
         features = output["input_states"]
         return features  # encoder only
 
@@ -26,7 +27,7 @@ def transform_video(video):
 
 
 def get_model(identifier, num_frames=7):
-    assert identifier.startswith("DINO-LSTM")
+    assert identifier.startswith("RESNET-LSTM")
     # Instantiate the model
     
     net = pfDINO_LSTM_physion(n_past=num_frames, full_rollout=False)
@@ -43,7 +44,7 @@ def get_model(identifier, num_frames=7):
     for layer in inferencer_kwargs["layer_activation_format"].keys():
         assert "decoder" not in layer, "Decoder layers are not supported."
 
-    wrapper = DINOLSTMWrapper(identifier, net, transform_video, 
+    wrapper = RESNETLSTMWrapper(identifier, net, transform_video, 
                                 process_output=None,
                                 **inferencer_kwargs)
     return wrapper

@@ -51,7 +51,7 @@ def load_weight_file(bucket: str, relative_path: str, version_id: str, sha1: str
         and store into local ~/.brain-score/models/alexnet/weights.pth.
     :param version_id: version_id of the object to upload, found in AWS under object properties
     :param sha1: sha1 hash of the object
-    :param folder_name: name of the folder inside the bucket to upload to, i.e. 'models'
+    :param folder_name: name of the folder inside the bucket to download from, i.e. 'models'
     """
     brainscore_cache = os.getenv("BRAINSCORE_HOME", expanduser("~/.brain-score"))
     s3_weight_folder = folder_name if folder_name is not None else os.getenv("BRAINSCORE_S3_WEIGHT_FOLDER", "models")

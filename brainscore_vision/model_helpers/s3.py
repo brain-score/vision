@@ -46,7 +46,7 @@ def load_weight_file(bucket: str, relative_path: str, version_id: str, sha1: str
     """
     :param bucket: main bucket to add file to. Usually is 'brainscore_vision' for vision model weights.
     :param relative_path: The path of the file inside the S3 bucket, relative to the `{folder_name}/` directory.
-        The local path will be the same, relative to the local cache's `models/` directory (inside `BRAINSCORE_HOME`).
+        The local path will be the same, relative to the local cache's `{folder_name}/` directory (inside `BRAINSCORE_HOME`).
         Example: `alexnet/weights.pth` will download from brain-score S3:models/alexnet/weights.pth and
         and store into local ~/.brain-score/models/alexnet/weights.pth.
     :param version_id: version_id of the object to download, found in AWS under object properties

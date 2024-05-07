@@ -55,7 +55,7 @@ def load_weight_file(bucket: str, relative_path: str, version_id: str, sha1: str
     """
     brainscore_cache = os.getenv("BRAINSCORE_HOME", expanduser("~/.brain-score"))
     s3_weight_folder = folder_name if folder_name is not None else os.getenv("BRAINSCORE_S3_WEIGHT_FOLDER", "models")
-    local_path = Path(brainscore_cache) / "models" / relative_path
+    local_path = Path(brainscore_cache) / s3_weight_folder / relative_path
     local_path.parent.mkdir(parents=True, exist_ok=True)
     load_file_from_s3(bucket=bucket, path=f"{s3_weight_folder}/{relative_path}", version_id=version_id, sha1=sha1,
                           local_filepath=local_path)

@@ -49,7 +49,7 @@ def load_weight_file(bucket: str, relative_path: str, version_id: str, sha1: str
         The local path will be the same, relative to the local cache's `models/` directory (inside `BRAINSCORE_HOME`).
         Example: `alexnet/weights.pth` will download from brain-score S3:models/alexnet/weights.pth and
         and store into local ~/.brain-score/models/alexnet/weights.pth.
-    :param version_id: version_id of the object to upload, found in AWS under object properties
+    :param version_id: version_id of the object to download, found in AWS under object properties
     :param sha1: sha1 hash of the object
     :param folder_name: name of the folder inside the bucket to download from, i.e. 'models'
     """

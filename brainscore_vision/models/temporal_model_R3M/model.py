@@ -18,7 +18,7 @@ class R3MWrapper(PytorchWrapper):
             feats = []
             for _x in torch.split(x, 1, dim=1):
                 _x = torch.squeeze(
-                    _x, dim=1
+                        _x, dim=1
                 ) 
                 feats.append(self._extract_feats(_x))
         return torch.stack(feats, axis=1)
@@ -28,9 +28,9 @@ class R3MWrapper(PytorchWrapper):
         feats = torch.flatten(feats, start_dim=1)  # (Bs, -1)
         return feats
 
-transform_img = T.Compose([T.Resize(256),
-    T.CenterCrop(224),
-    T.ToTensor()]) # ToTensor() divides by 255
+transform_img = transforms.Compose([transforms.Resize(256),
+    transforms.CenterCrop(224),
+    transforms.ToTensor()]) # ToTensor() divides by 255
 
 def transform_video(video):
     import torch

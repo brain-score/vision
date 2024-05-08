@@ -10,6 +10,11 @@ from brainscore_vision.model_helpers.activations import KerasWrapper, PytorchWra
 from brainscore_vision.model_helpers.activations.core import flatten
 from brainscore_vision.model_helpers.activations.pca import LayerPCA
 
+from tests import log_decorator
+import brainscore_vision.model_helpers.activations.core as core
+
+
+log_decorator.decorate_all_functions(core)
 
 def unique_preserved_order(a):
     _, idx = np.unique(a, return_index=True)

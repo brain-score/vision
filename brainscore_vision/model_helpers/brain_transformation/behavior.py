@@ -158,7 +158,7 @@ class LabelToImagenetIndices:
     def label_to_indices(cls, label):
         # for handling multi-word labels given by models or benchmarks
         label = label.lower().replace(" ", "")
-        
+
         synset_indices = getattr(cls, f"{label}_indices")
         return synset_indices
 

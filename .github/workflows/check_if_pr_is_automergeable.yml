@@ -71,6 +71,7 @@ jobs:
   check_pr_details:
     name: Check all details of the PR (if all tests have passed, PR meets automerge conditions, pr number, if label is 'automerge-web')
     runs-on: ubuntu-latest
+    needs: check-trigger
     if: needs.check-trigger.outputs.PROCEED == 'true'
     outputs:
       ALL_TESTS_PASS: ${{ steps.get_test_results.outputs.TEST_RESULTS }}

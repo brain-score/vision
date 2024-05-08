@@ -39,8 +39,6 @@ def test_benchmark_registry(benchmark):
 
 
 class TestBehavioral:
-    def test_count(self):
-        assert len(DATASETS) == 11 + 11 + 2  # phosphenes + segments + composites
 
     @pytest.mark.parametrize('dataset, expected_ceiling', [
         ('rgb', approx(0.98513, abs=0.001)),

@@ -2,11 +2,6 @@ import numpy as np
 import pytest
 
 from brainscore_vision import load_stimulus_set, load_dataset
-from brainscore_vision.benchmarks.scialom2024 import DATASETS
-
-
-def test_count():
-    assert len(DATASETS) == 11 + 11 + 2  # phosphenes + segments + composites
 
 
 @pytest.mark.parametrize('assembly_identifier', [

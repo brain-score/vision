@@ -30,7 +30,7 @@ class _DicarloRajalingham2018(BenchmarkBase):
         self._visual_degrees = 8
         self._number_of_trials = 2
         super(_DicarloRajalingham2018, self).__init__(
-            identifier='dicarlo.Rajalingham2018-' + metric_identifier, version=2,
+            identifier='Rajalingham2018-' + metric_identifier, version=2,
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
             parent='behavior',
             bibtex=BIBTEX)

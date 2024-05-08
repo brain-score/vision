@@ -68,6 +68,7 @@ jobs:
         with:
           github-username: ${{inputs.pr_username}}
           token: ${{ secrets.GITHUB_TOKEN }}  # Including token enables most reliable way to get a user's email
+          
       - name: Update email for non-web submissions
         if: ${{ !inputs.is_automerge_web }}
         id: non_automerge_web
@@ -136,3 +137,10 @@ jobs:
         run: |
           python brainscore_vision/submission/actions_helpers.py send_failure_email $(cat email.txt) ${{ inputs.pr_number }} ${{ secrets.GMAIL_USERNAME }} ${{ secrets.GMAIL_PASSWORD }}
 
+      - name: Add failure-notified label to PR
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ inputs.pr_number }}
+          LABELS: failure-notified
+        run: gh issue edit "$NUMBER" --add-label "$LABELS"

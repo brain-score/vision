@@ -1,8 +1,7 @@
 import numpy as np
-import pandas as pd
 
-from brainio.stimuli import StimulusSet
 from brainscore_vision import load_dataset, load_stimulus_set
+from brainscore_vision.benchmark_helpers import bound_score
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
 from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.metrics import Score
@@ -17,11 +16,12 @@ BIBTEX = """@article{10.7554/eLife.82580,
           volume = 12,
           year = 2023
           }"""
+VISUAL_DEGREES = 8
 
 
 class Hebart2023Match(BenchmarkBase):
     def __init__(self, similarity_measure='dot'):
-        self._visual_degrees = 8
+        self._visual_degrees = VISUAL_DEGREES
         self._number_of_trials = 1
         self._assembly = load_dataset('Hebart2023')
         self._stimulus_set = load_stimulus_set('Hebart2023')
@@ -40,40 +40,33 @@ class Hebart2023Match(BenchmarkBase):
         self._assembly = self._assembly[:n]
 
     def __call__(self, candidate: BrainModel):
-        # Create StimulusSet with triplets (all 3 consecutive stimuli form one trial following model_interface)
+        # Create stimuli with triplets (all 3 consecutive stimuli form one trial following model_interface)
         self.triplets = np.array([
             self._assembly.coords["image_1"].values,
             self._assembly.coords["image_2"].values,
             self._assembly.coords["image_3"].values
-        ]).T.reshape(-1, 1)
+        ]).T.reshape(-1)  # flatten into a list of stimuli ids
 
-        stimuli_data = [self._stimulus_set.loc[stim] for stim in self.triplets]
-        stimuli = pd.concat(stimuli_data)
-        stimuli.columns = self._stimulus_set.columns
-
-        stimuli = StimulusSet(stimuli)
-        stimuli.identifier = 'Hebart2023'
-        stimuli.stimulus_paths = self._stimulus_set.stimulus_paths
-        stimuli['stimulus_id'] = stimuli['stimulus_id'].astype(int)
+        triplet_stimuli = self._stimulus_set.loc[self.triplets]
 
         # Prepare the stimuli
         candidate.start_task(BrainModel.Task.odd_one_out)
-        stimuli = place_on_screen(
-            stimulus_set=stimuli,
+        triplet_stimuli = place_on_screen(
+            stimulus_set=triplet_stimuli,
             target_visual_degrees=candidate.visual_degrees(),
             source_visual_degrees=self._visual_degrees
         )
 
         # Run the model
-        choices = candidate.look_at(stimuli, self._number_of_trials)
+        choices = candidate.look_at(triplet_stimuli, self._number_of_trials)
 
         # Score the model
         # We chose not to compute error estimates but you could compute them
         # by spliting the data into five folds and computing the standard deviation.
-        correct_choices = choices.values == self._assembly.coords["image_3"].values
-        raw_score = np.sum(correct_choices) / len(choices)
+        correct_choices = choices.values == self._assembly.coords["image_3"].values  # third image is always correct
+        raw_score = np.sum(correct_choices) / len(choices['presentation'])
         score = (raw_score - 1 / 3) / (self.ceiling - 1 / 3)
-        score = max(0, score)
+        bound_score(score)
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = self.ceiling
         return score

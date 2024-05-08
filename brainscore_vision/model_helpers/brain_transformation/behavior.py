@@ -153,7 +153,6 @@ class LabelToImagenetIndices:
     shovel_indices = [792]
     # truck indices used as defined by Geirhos et al., 2021.
 
-
     @classmethod
     def label_to_indices(cls, label):
         # for handling multi-word labels given by models or benchmarks

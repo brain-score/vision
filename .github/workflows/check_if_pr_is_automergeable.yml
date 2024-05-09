@@ -75,7 +75,9 @@ jobs:
     needs: check_trigger
     if: ${{ needs.check_trigger.outputs.PROCEED }} == 'true'
     outputs:
-      ALL_TESTS_PASS: ${{ steps.get_test_results.outputs.TEST_RESULTS }}
+      # ALL_TESTS_PASS: ${{ steps.get_test_results.outputs.TEST_RESULTS }}
+      # testing failure
+      ALL_TESTS_PASS: "False"
       PR_NUMBER: ${{ steps.get_pr_number.outputs.PR_NUMBER }}
       AUTOMERGE_WEB: ${{ steps.check_automerge_web_label.outputs.AUTOMERGE_WEB }}
     steps:

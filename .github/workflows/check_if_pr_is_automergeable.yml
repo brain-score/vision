@@ -117,7 +117,7 @@ jobs:
     permissions:
       issues: write
     needs: [check_pr_details, check_trigger]
-    if: needs.check_pr_details.outputs.ALL_TESTS_PASS == 'True' && ${{ needs.check_trigger.outputs.PROCEED }} == 'true'
+    if: ${{ needs.check_pr_details.outputs.ALL_TESTS_PASS }} == 'True' && ${{ needs.check_trigger.outputs.PROCEED }} == 'true'
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -137,7 +137,7 @@ jobs:
     needs: [check_pr_details, check_trigger]
     outputs:
       FAILURE_NOTIFIED: ${{ steps.check_failure_notified_label.outputs.FAILURE_NOTIFIED }}
-    if: needs.check_pr_details.outputs.ALL_TESTS_PASS == 'False' && needs.check_pr_details.outputs.AUTOMERGE_WEB == 'true' && ${{ needs.check_trigger.outputs.PROCEED }} == 'true'
+    if: ${{ needs.check_pr_details.outputs.ALL_TESTS_PASS }} == 'False' && ${{ needs.check_pr_details.outputs.AUTOMERGE_WEB }} == 'true' && ${{ needs.check_trigger.outputs.PROCEED }} == 'true'
     steps:
       - name: Check if PR has 'failure-notified' label already
         id: check_failure_notified_label

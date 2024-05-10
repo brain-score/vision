@@ -27,7 +27,7 @@ install:
 - conda info -a
 - pip list # list installed package versions
 import:
-  - brain-score/core:brainscore_core/travis/script.yml@main # run tests
+  - brain-score/core:brainscore_core/travis/script.yml@dk/travis_aws_credentials # run tests
   - brain-score/core:brainscore_core/travis/submission_failure.yml@main # if tests fail on web submission, email submitter
 
 jobs:

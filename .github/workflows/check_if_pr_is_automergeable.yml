@@ -157,7 +157,7 @@ jobs:
         env: 
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          LABELS_JSON=$(gh pr view ${{ steps.get_pr_number.outputs.PR_NUMBER }} --json labels)
+          LABELS_JSON=$(gh pr view ${{ needs.check_pr_details.outputs.PR_NUMBER }} --json labels)
           echo "Labels: $LABELS_JSON"
           if echo "$LABELS_JSON" | jq -e '.labels[] | select(.name == "failure-notified")' >/dev/null; then
             echo "Found failure-notified label."

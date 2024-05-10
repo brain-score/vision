@@ -179,8 +179,9 @@ jobs:
           echo "here is email label: ${{ needs.check_email_label.outputs.FAILURE_NOTIFIED }}"
       - name: check equality
         run: |
-          EQUALITY= ${{ needs.check_email_label.outputs.FAILURE_NOTIFIED }} == 'false'
+          EQUALITY=$(echo "${{ needs.check_email_label.outputs.FAILURE_NOTIFIED }}" == 'false')
           echo "here is equality: $EQUALITY"
+
   
   notify_failure:
     name: If any test fails, notify the user through the brain-score email account (only needed for web submissions)

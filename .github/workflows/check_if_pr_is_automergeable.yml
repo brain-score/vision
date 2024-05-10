@@ -158,7 +158,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           LABELS_JSON=$(gh pr view ${{ needs.check_pr_details.outputs.PR_NUMBER }} --json labels)
-          echo "Labels: $LABELS_JSON"
+          echo "Labels: ${{ LABELS_JSON }}"
           if echo "$LABELS_JSON" | jq -e '.labels[] | select(.name == "failure-notified")' >/dev/null; then
             echo "Found failure-notified label."
             echo "FAILURE_NOTIFIED='true'" >> $GITHUB_OUTPUT
@@ -180,7 +180,7 @@ jobs:
       - name: check equality
         run: |
           EQUALITY= ${{ needs.check_email_label.outputs.FAILURE_NOTIFIED }} == 'false'
-          echo "here is equality: $EQUALITY
+          echo "here is equality: ${{ EQUALITY }}"
   
   notify_failure:
     name: If any test fails, notify the user through the brain-score email account (only needed for web submissions)

@@ -166,6 +166,17 @@ jobs:
             echo "failure-notified label not found."
             echo "FAILURE_NOTIFIED='false'" >> $GITHUB_OUTPUT
           fi
+
+  check_inputs:
+    name: check inputs for notify failure
+    runs-on: ubuntu-latest
+    needs: [check_pr_details, check_trigger, check_email_label]
+    steps:
+      - name: Echo inputs
+        run: |
+          echo "here is PROCEED: ${{ needs.check_trigger.outputs.PROCEED }}"
+          echo "here is check pr: ${{ needs.check_pr_details.outputs.ALL_TESTS_PASS }}"
+          echo "here is email label: ${{ needs.check_email_label.outputs.FAILURE_NOTIFIED }}"
   
   notify_failure:
     name: If any test fails, notify the user through the brain-score email account (only needed for web submissions)

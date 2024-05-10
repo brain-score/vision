@@ -14,8 +14,7 @@ before_install:
 # download large files
 - pip install awscli
 install:
-- travis_wait pip install --no-cache-dir torch
-- travis_wait pip install --no-cache-dir torchvision
+- pip install --no-cache-dir torch torchvision --default-timeout=1000 --retries=5
 - pip install --no-cache-dir -e ".[test]"
 # install conda for plugin runner
 - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh

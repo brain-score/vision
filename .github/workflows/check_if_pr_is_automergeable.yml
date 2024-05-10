@@ -37,12 +37,12 @@ jobs:
             LABEL_NAME="${{ github.event.label.name }}"
             echo "Trigger label: $LABEL_NAME"
             if [[ "$LABEL_NAME" == "failure-notified" ]]; then
-             echo "PROCEED='false'" >> $GITHUB_OUTPUT
+             echo "PROCEED=false" >> $GITHUB_OUTPUT
             else
-              echo "PROCEED='true'" >> $GITHUB_OUTPUT
+              echo "PROCEED=true" >> $GITHUB_OUTPUT
             fi
           else
-            echo "PROCEED='true'" >> $GITHUB_OUTPUT
+            echo "PROCEED=true" >> $GITHUB_OUTPUT
           fi
           
   remove_failure_notified_label:
@@ -73,7 +73,7 @@ jobs:
     name: Check all details of the PR (if all tests have passed, PR meets automerge conditions, pr number, if label is 'automerge-web')
     runs-on: ubuntu-latest
     needs: check_trigger
-    if: ${{ needs.check_trigger.outputs.PROCEED }} == 'true'
+    if: needs.check_trigger.outputs.PROCEED
     outputs:
       ALL_TESTS_PASS: 'False'
       PR_NUMBER: ${{ steps.get_pr_number.outputs.PR_NUMBER }}
@@ -99,10 +99,10 @@ jobs:
           echo "Labels: $LABELS_JSON"
           if echo "$LABELS_JSON" | jq -e '.labels[] | select(.name == "automerge-web")' >/dev/null; then
             echo "Found automerge-web label."
-            echo "AUTOMERGE_WEB='true'" >> $GITHUB_OUTPUT
+            echo "AUTOMERGE_WEB=true" >> $GITHUB_OUTPUT
           else
             echo "automerge-web label not found."
-            echo "AUTOMERGE_WEB='false'" >> $GITHUB_OUTPUT
+            echo "AUTOMERGE_WEB=false" >> $GITHUB_OUTPUT
           fi
       - name: Get test results and ensure automergeable
         id: get_test_results
@@ -118,7 +118,7 @@ jobs:
     permissions:
       issues: write
     needs: [check_pr_details, check_trigger]
-    if: needs.check_pr_details.outputs.ALL_TESTS_PASS == 'True' && needs.check_trigger.outputs.PROCEED == 'true'
+    if: needs.check_pr_details.outputs.ALL_TESTS_PASS == 'True' && needs.check_trigger.outputs.PROCEED
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -142,7 +142,7 @@ jobs:
     needs: [check_pr_details, check_trigger]
     outputs:
       FAILURE_NOTIFIED: ${{ steps.check_failure_notified_label.outputs.FAILURE_NOTIFIED }}
-    if: needs.check_pr_details.outputs.ALL_TESTS_PASS == 'False' && needs.check_pr_details.outputs.AUTOMERGE_WEB == 'true' && ${{ needs.check_trigger.outputs.PROCEED }} == 'true')
+    if: needs.check_pr_details.outputs.ALL_TESTS_PASS == 'False' && needs.check_pr_details.outputs.AUTOMERGE_WEB && needs.check_trigger.outputs.PROCEED
     steps:
       - name: Echo inputs
         run: |
@@ -187,7 +187,7 @@ jobs:
     name: If any test fails, notify the user through the brain-score email account (only needed for web submissions)
     uses: ./.github/workflows/user_notification_system.yml
     needs: [check_pr_details, check_email_label, check_trigger]
-    if: needs.check_pr_details.outputs.ALL_TESTS_PASS == 'False' && needs.check_pr_details.outputs.AUTOMERGE_WEB == 'true' && ${{ needs.check_email_label.outputs.FAILURE_NOTIFIED }} == 'false' && ${{ needs.check_trigger.outputs.PROCEED }} == 'true'
+    if: needs.check_pr_details.outputs.ALL_TESTS_PASS == 'False' && needs.check_pr_details.outputs.AUTOMERGE_WEB && !needs.check_email_label.outputs.FAILURE_NOTIFIED && needs.check_trigger.outputs.PROCEED
     with:
       pr_number: ${{ needs.check_pr_details.outputs.PR_NUMBER }}
       is_automerge_web: true

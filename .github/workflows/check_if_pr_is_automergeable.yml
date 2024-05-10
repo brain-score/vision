@@ -148,6 +148,10 @@ jobs:
         run: |
           echo "here is PROCEED: ${{ needs.check_trigger.outputs.PROCEED }}"
           echo "here is check pr: ${{ needs.check_pr_details.outputs.ALL_TESTS_PASS }}"
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Check if PR has 'failure-notified' label already
         id: check_failure_notified_label
         env: 

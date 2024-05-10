@@ -83,6 +83,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Echo inputs
+        run: |
+          echo "here is PROCEED: ${{ needs.check_trigger.outputs.PROCEED }}"
       - name: Get PR number from workflow context
         id: get_pr_number
         run: |
@@ -121,6 +124,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Echo inputs
+        run: |
+          echo "here is PROCEED: ${{ needs.check_trigger.outputs.PROCEED }}"
+          echo "here is check pr: ${{ needs.check_pr_details.outputs.ALL_TESTS_PASS }}"
       - name: Add automerge-approved label to PR
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
@@ -137,6 +144,10 @@ jobs:
       FAILURE_NOTIFIED: ${{ steps.check_failure_notified_label.outputs.FAILURE_NOTIFIED }}
     if: ${{ needs.check_pr_details.outputs.ALL_TESTS_PASS }} == 'False' && ${{ needs.check_pr_details.outputs.AUTOMERGE_WEB }} == 'true' && ${{ needs.check_trigger.outputs.PROCEED }} == 'true'
     steps:
+      - name: Echo inputs
+        run: |
+          echo "here is PROCEED: ${{ needs.check_trigger.outputs.PROCEED }}"
+          echo "here is check pr: ${{ needs.check_pr_details.outputs.ALL_TESTS_PASS }}"
       - name: Check if PR has 'failure-notified' label already
         id: check_failure_notified_label
         env: 

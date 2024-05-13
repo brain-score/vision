@@ -161,10 +161,10 @@ jobs:
           echo "Labels: $LABELS_JSON"
           if echo "$LABELS_JSON" | jq -e '.labels[] | select(.name == "failure-notified")' >/dev/null; then
             echo "Found failure-notified label."
-            echo "FAILURE_NOTIFIED='true'" >> $GITHUB_OUTPUT
+            echo "FAILURE_NOTIFIED=true" >> $GITHUB_OUTPUT
           else
             echo "failure-notified label not found."
-            echo "FAILURE_NOTIFIED='false'" >> $GITHUB_OUTPUT
+            echo "FAILURE_NOTIFIED=false" >> $GITHUB_OUTPUT
           fi
 
   check_inputs:
@@ -179,7 +179,7 @@ jobs:
           echo "here is email label: ${{ needs.check_email_label.outputs.FAILURE_NOTIFIED }}"
       - name: check equality
         run: |
-          EQUALITY=$(echo "${{ needs.check_email_label.outputs.FAILURE_NOTIFIED }}" == 'false')
+          EQUALITY=$(echo ${{ needs.check_email_label.outputs.FAILURE_NOTIFIED }} == 'false')
           echo "here is equality: $EQUALITY"
 
   

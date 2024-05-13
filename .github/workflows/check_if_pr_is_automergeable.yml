@@ -18,7 +18,7 @@ name: Check if PR is automergeable
 
 on:
   pull_request:
-    types: [labeled, synchronized]
+    types: [labeled, synchronize]
   status:
 
 permissions: write-all
@@ -46,7 +46,7 @@ jobs:
           fi
           
   remove_failure_notified_label:
-    if: ${{ (github.event_name == 'pull_request') && (github.event.action == 'synchronized') }}
+    if: ${{ (github.event_name == 'pull_request') && (github.event.action == 'synchronize') }}
     runs-on: ubuntu-latest
     steps:
       - name: Remove 'failure-notified' label on new push to PR

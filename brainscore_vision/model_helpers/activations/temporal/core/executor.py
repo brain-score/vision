@@ -25,9 +25,16 @@ class JoblibMapper:
     def __init__(self, num_threads: int):
         self._num_threads = num_threads
         self._pool = Parallel(n_jobs=num_threads, verbose=False, backend="loky")
+        self._not_supported = False
 
     def map(self, func, *data):
-        return self._pool(delayed(func)(*x) for x in zip(*data))
+        from joblib.externals.loky.process_executor import TerminatedWorkerError
+        if not self._not_supported:
+            try:
+                return self._pool(delayed(func)(*x) for x in zip(*data))
+            except TerminatedWorkerError:
+                self._not_supported = True
+        return [func(*x) for x in zip(*data)]
 
 
 class BatchExecutor:

@@ -120,7 +120,6 @@ class Video(Stimulus):
 
     ### I/O
     def from_path(path):
-        path = path
         fps, end, size = get_video_stats(path)
         start = 0
         return Video(path, fps, start, end, size)

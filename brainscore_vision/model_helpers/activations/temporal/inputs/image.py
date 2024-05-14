@@ -27,10 +27,13 @@ class Image(Stimulus):
     
     def to_img(self):
         return PILImage.fromarray(self.to_numpy())
+
+    def get_frame(self):
+        return np.array(PILImage.open(self._path).convert('RGB'))
     
     # return (H, W, C[RGB])
     def to_numpy(self):
-        arr = np.array(PILImage.open(self._path).convert('RGB'))
+        arr = self.get_frame()
 
         if arr.shape[:2][::-1] != self._size:
             arr = batch_2d_resize(arr[None,:], self._size, "bilinear")[0]

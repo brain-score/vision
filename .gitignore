@@ -5,3 +5,9 @@
 *.egg-info/
 venv
 .venv
+build
+.DS_Store
+
+# Model Weights
+*.pt
+

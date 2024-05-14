@@ -139,7 +139,7 @@ jobs:
 
       - name: Add failure-notified label to PR
         env:
-          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           NUMBER: ${{ inputs.pr_number }}
           LABELS: failure-notified

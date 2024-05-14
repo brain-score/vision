@@ -36,8 +36,8 @@ data_registry['FreemanZiemba2013.private'] = lambda: load_assembly_from_s3(
 
 # stimulus set: movshon.FreemanZiemba2013.aperture-public
 stimulus_set_registry['FreemanZiemba2013.aperture-public'] = lambda: load_stimulus_set_from_s3(
-    identifier="movshon.FreemanZiemba2013.aperture-public",
-    bucket="brainio.contrib",
+    identifier="FreemanZiemba2013.aperture-public",
+    bucket="brainio-brainscore",
     csv_sha1="194c9b301a4e3e9cff02481d4c19b39331d52660",
     zip_sha1="3a6fec1fc28c212882d6833e267ea8654d289611",
     csv_version_id="vpWysN7O7LyA9k9PBbrawXauOcqf2LoY",
@@ -46,8 +46,8 @@ stimulus_set_registry['FreemanZiemba2013.aperture-public'] = lambda: load_stimul
 
 # stimulus set: movshon.FreemanZiemba2013.aperture-private
 stimulus_set_registry['FreemanZiemba2013.aperture-private'] = lambda: load_stimulus_set_from_s3(
-    identifier="movshon.FreemanZiemba2013.aperture-private",
-    bucket="brainio.contrib",
+    identifier="FreemanZiemba2013.aperture-private",
+    bucket="brainio-brainscore",
     csv_sha1="65bee31483dd743ae2a19c6af03b9abe5f4d5a41",
     zip_sha1="daa724a4797b23929df59c18744923790edf71cb",
     csv_version_id="aNkWLYtttATXQ8GUD8zXIRnWq9mEsdHz",

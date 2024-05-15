@@ -75,7 +75,7 @@ class Imagenet_C_Category(BenchmarkBase):
 
     def __init__(self, noise_category, sampling_factor=10):
         self.noise_category = noise_category
-        self.stimulus_set_name = f'dietterich.Hendrycks2019.{noise_category}'
+        self.stimulus_set_name = f'imagenet_c.{noise_category}'
 
         self.sampling_factor = sampling_factor
         self.stimulus_set = self.load_stimulus_set()

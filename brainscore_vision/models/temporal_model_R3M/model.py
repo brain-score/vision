@@ -9,28 +9,30 @@ from torchvision import transforms
 class R3MWrapper(PytorchWrapper):
     def forward(self, inputs):
         tensor = th.stack(inputs)
+        tensor = tensor.permute(0, 2, 1, 3, 4)
         tensor = tensor.to(self._device)
-        return self._get_encoder_feats(tensor)  # encoder only
-    
+        r = self._get_encoder_feats(tensor)  # encoder only
+        return r#.squeeze(1)
+
     def _get_encoder_feats(self, x):
         # applies encoder to each image in x: (Bs, T, 3, H, W) or (Bs, 3, H, W)
-        with torch.no_grad():
+        with th.no_grad():
             feats = []
-            for _x in torch.split(x, 1, dim=1):
-                _x = torch.squeeze(
+            for _x in th.split(x, 1, dim=1):
+                _x = th.squeeze(
                         _x, dim=1
                 ) 
                 feats.append(self._extract_feats(_x))
-        return torch.stack(feats, axis=1)
+        return th.stack(feats, axis=1)
 
     def _extract_feats(self, x):
         feats = self._model(x)
-        feats = torch.flatten(feats, start_dim=1)  # (Bs, -1)
+        feats = th.flatten(feats, start_dim=1)  # (Bs, -1)
         return feats
 
 transform_img = transforms.Compose([transforms.Resize(256),
-    transforms.CenterCrop(224),
-    transforms.ToTensor()]) # ToTensor() divides by 255
+    transforms.CenterCrop(224),])
+    #transforms.ToTensor()]) # ToTensor() divides by 255
 
 def transform_video(video):
     import torch
@@ -53,16 +55,19 @@ def get_model(identifier, num_frames=16):
     # Instantiate the model
 
     net = load_r3m(model_name)
-
+    
     num_blocks = 4
     inferencer_kwargs = {
-        "fps": 100,
+        "fps": 10,
         "layer_activation_format": {
-            "convnet": "TC",
-            "convnet.conv1": "TCHW",
-            **{f"convnet.layer{i}": "TCHW" for i in range(1, num_blocks)},
+            "module.convnet": "TC",
+            #"module.convnet.conv1": "CHW",
+            #**{f"module.convnet.layer{i}": "CHW" for i in range(1, num_blocks)},
         },
-        "duration": (0, 450),
+        "duration": None,#(0, 450),
+        "time_alignment": "per_frame_aligned",#"evenly_spaced",
+        "convert_img_to_video":True,
+        "img_duration":450
     }
 
     for layer in inferencer_kwargs["layer_activation_format"].keys():

@@ -15,6 +15,6 @@ def test_score(model_identifier, benchmark_identifier, expected_score):
     assert actual_score == expected_score
 
 
-actual_score = score(model_identifier="R3M-ResNet50", benchmark_identifier="MajajHong2015.IT-pls",
+actual_score = score(model_identifier="R3M-ResNet50", benchmark_identifier="FreemanZiemba2013public.V2-pls",#"MajajHong2015public.IT-pls",
                          conda_active=True)
 print(actual_score)

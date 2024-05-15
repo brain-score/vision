@@ -40,6 +40,10 @@ class Image(Stimulus):
 
         return arr
 
+    def store_to_path(self, path):
+        self.to_img().save(path)
+        return path
+
 def get_image_size(path):
     with PILImage.open(path) as img:
         size = img.size

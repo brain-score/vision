@@ -61,8 +61,7 @@ def get_model(identifier):
             bucket="brainscore-vision",
             relative_path="temporal_model_VideoMAEv2/vit_g_hybrid_pt_1200e.pth",
             version_id="TxtkfbeMV105dzpzTwi0Kn5glnvQvIrq",
-            # sha1="9048f2bc0b0c7ba4d0e5228f3a7c0bef4dbaca69",
-            sha1="32126231526fe310a6aba20c16d0e6435f5f0bb8"
+            sha1="9048f2bc0b0c7ba4d0e5228f3a7c0bef4dbaca69",
         )
         num_blocks = 40
         feature_map_size = 16

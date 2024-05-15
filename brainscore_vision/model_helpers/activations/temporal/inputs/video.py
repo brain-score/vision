@@ -155,7 +155,7 @@ class Video(Stimulus):
 
     def to_pil_imgs(self):
         return [PILImage.fromarray(frame) for frame in self.to_numpy()]
-    
+
     def to_path(self):
         # use context manager ?
         path = None  # make a temporal file

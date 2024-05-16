@@ -1,7 +1,7 @@
-from model_helpers.check_submission import check_models
+from brainscore_vision.model_helpers.check_submission import check_models
 import functools
 from transformers import AutoFeatureExtractor, CvtForImageClassification
-from model_helpers.activations.pytorch import PytorchWrapper
+from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from PIL import Image
 import numpy as np
 import torch

@@ -2,7 +2,6 @@ from r3m_model import pfR3M
 import torch as th
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
-#from brainscore_vision.model_helpers.s3 import load_weight_file
 from torchvision import transforms
 
 
@@ -10,9 +9,7 @@ class R3MWrapper(PytorchWrapper):
     def forward(self, inputs):
         tensor = th.stack(inputs)
         tensor = tensor.permute(0, 2, 1, 3, 4)
-        print(tensor.shape)
         tensor = tensor.to(self._device)
-        print(tensor)
         return self._model(tensor)  # encoder only
 
 transform_img = transforms.Compose([transforms.Resize(256),
@@ -28,27 +25,25 @@ def transform_video(video):
 
 def get_model(identifier, num_frames=16):
     assert identifier.startswith("R3M")
-    pretrain_only = True
 
-    if identifier == "R3M-ResNet50":
+    if identifier == "R3M-ResNet50-Temporal":
         model_name = "resnet50"
-    elif identifier == "R3M-ResNet18":
+    elif identifier == "R3M-ResNet18-Temporal":
         model_name = "resnet18"
-    elif identifier == "R3M-ResNet34":
+    elif identifier == "R3M-ResNet34-Temporal":
         model_name = "resnet34"
 
     # Instantiate the model
 
-    net = pfR3M()
+    net = pfR3M(model_name)
 
-    num_blocks = 4
     inferencer_kwargs = {
         "fps": 10,
         "layer_activation_format": {
             "encoder": "TC",
         },
         "duration": None,#(0, 450),
-        "time_alignment": "evenly_spaced",
+        "time_alignment": "per_frame_aligned",#"evenly_spaced",
         "convert_img_to_video":True,
         "img_duration":450
     }

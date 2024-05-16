@@ -6,9 +6,9 @@ from torchvision import transforms
 from r3m import load_r3m
 
 class R3M_pretrained(nn.Module):
-    def __init__(self):
+    def __init__(self, model_name):
         super().__init__()
-        self.r3m = load_r3m("resnet50")
+        self.r3m = load_r3m(model_name)
         self.latent_dim = 2048  # resnet50 final fc in_features
 
     def forward(self, x):
@@ -30,16 +30,16 @@ class R3M_pretrained(nn.Module):
         return feats
 
     def _extract_feats(self, x):
-        feats = self.r3m(x * 255.0)
+        feats = self.r3m(x)
         feats = torch.flatten(feats, start_dim=1)  # (Bs, -1)
         return feats
 
 # Given sequence of images, predicts next latent
 class pfR3M(nn.Module):
-    def __init__(self):
+    def __init__(self, model_name):
         super().__init__()
 
-        self.encoder = R3M_pretrained()
+        self.encoder = R3M_pretrained(model_name)
 
     def forward(self, x):
         # set frozen pretrained encoder to eval mode

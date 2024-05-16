@@ -12,6 +12,6 @@ def commit_model(identifier):
     return ModelCommitment(identifier=identifier, activations_model=activations_model, layers=layers, region_layer_map=r)
 
 
-model_registry["R3M-ResNet50"] = lambda: commit_model("R3M-ResNet50")
-model_registry["R3M-ResNet34"] = lambda: commit_model("R3M-ResNet34")
-model_registry["R3M-ResNet18"] = lambda: commit_model("R3M-ResNet18")
+model_registry["R3M-ResNet50-Temporal"] = lambda: commit_model("R3M-ResNet50-Temporal")
+model_registry["R3M-ResNet34-Temporal"] = lambda: commit_model("R3M-ResNet34-Temporal")
+model_registry["R3M-ResNet18-Temporal"] = lambda: commit_model("R3M-ResNet18-Temporal")

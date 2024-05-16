@@ -3,4 +3,3 @@ torch
 transformers
 ssl
 PIL
-functools

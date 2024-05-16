@@ -39,7 +39,25 @@ def get_bibtex(model_identifier):
     """
     A method returning the bibtex reference of the requested model as a string.
     """
-    return ''
+    return """@article{DBLP:journals/corr/abs-2103-15808,
+  author       = {Haiping Wu and
+                  Bin Xiao and
+                  Noel Codella and
+                  Mengchen Liu and
+                  Xiyang Dai and
+                  Lu Yuan and
+                  Lei Zhang},
+  title        = {CvT: Introducing Convolutions to Vision Transformers},
+  journal      = {CoRR},
+  volume       = {abs/2103.15808},
+  year         = {2021},
+  url          = {https://arxiv.org/abs/2103.15808},
+  eprinttype    = {arXiv},
+  eprint       = {2103.15808},
+  timestamp    = {Tue, 18 Oct 2022 08:35:30 +0200},
+  biburl       = {https://dblp.org/rec/journals/corr/abs-2103-15808.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}"""
 
 
 def load_preprocess_images(image_filepaths, image_size, processor=None, **kwargs):

@@ -1,4 +1,4 @@
-from r3m import load_r3m
+from r3m_model import pfR3M
 import torch as th
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
@@ -10,25 +10,10 @@ class R3MWrapper(PytorchWrapper):
     def forward(self, inputs):
         tensor = th.stack(inputs)
         tensor = tensor.permute(0, 2, 1, 3, 4)
+        print(tensor.shape)
         tensor = tensor.to(self._device)
-        r = self._get_encoder_feats(tensor)  # encoder only
-        return r#.squeeze(1)
-
-    def _get_encoder_feats(self, x):
-        # applies encoder to each image in x: (Bs, T, 3, H, W) or (Bs, 3, H, W)
-        with th.no_grad():
-            feats = []
-            for _x in th.split(x, 1, dim=1):
-                _x = th.squeeze(
-                        _x, dim=1
-                ) 
-                feats.append(self._extract_feats(_x))
-        return th.stack(feats, axis=1)
-
-    def _extract_feats(self, x):
-        feats = self._model(x)
-        feats = th.flatten(feats, start_dim=1)  # (Bs, -1)
-        return feats
+        print(tensor)
+        return self._model(tensor)  # encoder only
 
 transform_img = transforms.Compose([transforms.Resize(256),
     transforms.CenterCrop(224),])
@@ -54,18 +39,16 @@ def get_model(identifier, num_frames=16):
 
     # Instantiate the model
 
-    net = load_r3m(model_name)
-    
+    net = pfR3M()
+
     num_blocks = 4
     inferencer_kwargs = {
         "fps": 10,
         "layer_activation_format": {
-            "module.convnet": "TC",
-            #"module.convnet.conv1": "CHW",
-            #**{f"module.convnet.layer{i}": "CHW" for i in range(1, num_blocks)},
+            "encoder": "TC",
         },
         "duration": None,#(0, 450),
-        "time_alignment": "per_frame_aligned",#"evenly_spaced",
+        "time_alignment": "evenly_spaced",
         "convert_img_to_video":True,
         "img_duration":450
     }
@@ -73,7 +56,11 @@ def get_model(identifier, num_frames=16):
     for layer in inferencer_kwargs["layer_activation_format"].keys():
         assert "decoder" not in layer, "Decoder layers are not supported."
 
+    def process_activation(layer, layer_name, inputs, output):
+        output = th.stack(output, axis=1)
+        return output
+    
     wrapper = R3MWrapper(identifier, net, transform_video, 
-                                process_output=None,
+                                process_output=process_activation,
                                 **inferencer_kwargs)
     return wrapper

@@ -2,6 +2,3 @@ numpy
 torch
 timm @ git+https://github.com/rwightman/pytorch-image-models.git
 albumentations==1.1.0
-ssl
-PIL
-functools

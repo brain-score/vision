@@ -1,10 +1,11 @@
 from brainscore_vision.model_helpers.check_submission import check_models
 import functools
+import numpy as np
+import torch
 from transformers import AutoFeatureExtractor, CvtForImageClassification
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from PIL import Image
-import numpy as np
-import torch
+
 
 """
 Template module for a base model submission to brain-score
@@ -142,6 +143,14 @@ if __name__ == '__main__':
     # Use this method to ensure the correctness of the BaseModel implementations.
     # It executes a mock run of brain-score benchmarks.
     check_models.check_base_models(__name__)
+
+
+'''
+Below Notes are from the original model file from Brain-Score 1.0, and 
+kept in this file for posterity. 
+
+'''
+
 
 """
 Notes on the error:

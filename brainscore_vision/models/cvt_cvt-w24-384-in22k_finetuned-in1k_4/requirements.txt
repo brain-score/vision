@@ -1,5 +1,4 @@
 numpy
 torch
 transformers
-ssl
 PIL

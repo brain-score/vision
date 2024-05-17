@@ -1,5 +1,6 @@
 ssl
 numpy
 torch
-timm
+timm @ git+https://github.com/rwightman/pytorch-image-models.git
+Pillow
 albumentations==1.1.0

@@ -1,11 +1,27 @@
 import torch
 from iopath.common.file_io import g_pathmgr as pathmgr
-from mae_st import models_vit 
+from mae_st import models_vit
+from mae_st.models_vit import VisionTransformer, nn, partial
 from mae_st.util import misc 
 from mae_st.util.pos_embed import interpolate_pos_embed
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
 from brainscore_vision.model_helpers.s3 import load_weight_file
+
+
+def vit_huge_patch16(**kwargs):
+    model = VisionTransformer(
+        patch_size=16,
+        embed_dim=1280,
+        depth=32,
+        num_heads=16,
+        mlp_ratio=4,
+        norm_layer=partial(nn.LayerNorm, eps=1e-6),
+        **kwargs,
+    )
+    return model
+
+models_vit.__dict__["vit_huge_patch16"] = vit_huge_patch16
 
 
 LAYER_SELECT_STEP = 2
@@ -42,9 +58,9 @@ def get_model(identifier):
         )
 
     elif identifier == "MAE-ST-G":
-        model_name = "vit_huge_patch14"
+        model_name = "vit_huge_patch16"
         num_blocks = 32
-        feature_map_size = 16
+        feature_map_size = 14
         load_path = load_weight_file(
             bucket="brainscore-vision", 
             relative_path="temporal_model_mae_st/mae_pretrain_vit_huge_k400.pth", 
@@ -57,7 +73,9 @@ def get_model(identifier):
 
     model = models_vit.__dict__[model_name](
         num_frames=num_frames,
-        t_patch_size=t_patch_size
+        t_patch_size=t_patch_size,
+        cls_embed=True,
+        sep_pos_embed=True
     )
 
     with pathmgr.open(load_path, "rb") as f:
@@ -90,6 +108,8 @@ def get_model(identifier):
     def process_activation(layer, layer_name, inputs, output):
         B = output.shape[0]
         C = output.shape[-1]
+        if layer_name.startswith("blocks"):
+            output = output[:, 1:]  # remove cls token
         output = output.reshape(B, -1, feature_map_size, feature_map_size, C)
         return output
 

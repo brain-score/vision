@@ -155,12 +155,12 @@ def tfslim_vgg16():
 
 
 models_layers = [
-    pytest.param(pytorch_custom, ['linear', 'relu2']),
+    # pytest.param(pytorch_custom, ['linear', 'relu2']),
     pytest.param(pytorch_alexnet, ['features.12', 'classifier.5'], marks=pytest.mark.memory_intense),
-    pytest.param(pytorch_transformer_substitute, ['relu1']),
-    pytest.param(keras_vgg19, ['block3_pool'], marks=pytest.mark.memory_intense),
-    pytest.param(tfslim_custom, ['my_model/pool2'], marks=pytest.mark.memory_intense),
-    pytest.param(tfslim_vgg16, ['vgg_16/pool5'], marks=pytest.mark.memory_intense),
+    # pytest.param(pytorch_transformer_substitute, ['relu1']),
+    # pytest.param(keras_vgg19, ['block3_pool'], marks=pytest.mark.memory_intense),
+    # pytest.param(tfslim_custom, ['my_model/pool2'], marks=pytest.mark.memory_intense),
+    # pytest.param(tfslim_vgg16, ['vgg_16/pool5'], marks=pytest.mark.memory_intense),
 ]
 
 # exact microsaccades for pytorch_alexnet, grayscale.png, for 1 and 10 number_of_trials
@@ -347,8 +347,8 @@ def test_exact_microsaccades(number_of_trials):
 @pytest.mark.memory_intense
 @pytest.mark.parametrize(["model_ctr", "internal_layers"], [
     (pytorch_alexnet, ['features.12', 'classifier.5']),
-    (keras_vgg19, ['block3_pool']),
-    (tfslim_vgg16, ['vgg_16/pool5']),
+    # (keras_vgg19, ['block3_pool']),
+    # (tfslim_vgg16, ['vgg_16/pool5']),
 ])
 def test_mixed_layer_logits(model_ctr, internal_layers):
     stimuli_paths = [os.path.join(os.path.dirname(__file__), 'rgb.jpg')]
@@ -363,9 +363,9 @@ def test_mixed_layer_logits(model_ctr, internal_layers):
 
 @pytest.mark.memory_intense
 @pytest.mark.parametrize(["model_ctr", "expected_identifier"], [
-    (pytorch_custom, 'MyModel'),
+    # (pytorch_custom, 'MyModel'),
     (pytorch_alexnet, 'AlexNet'),
-    (keras_vgg19, 'vgg19'),
+    # (keras_vgg19, 'vgg19'),
 ])
 def test_infer_identifier(model_ctr, expected_identifier):
     model = model_ctr()

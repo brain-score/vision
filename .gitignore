@@ -8,6 +8,9 @@ venv
 build
 .DS_Store
 
+# pytest monitor
+.pymon
+
 # Model Weights
 *.pt
 

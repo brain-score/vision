@@ -69,7 +69,7 @@ def get_firing_rates(model_identifier, model, region, stimulus_identifier, numbe
     affine_transformation = firing_rates_affine(model_identifier=model_identifier, model=model, region=region)
     affine_transformation = affine_transformation.values
 
-    activations = record_from_model(model, stimulus_identifier, number_of_trials)
+    activations = record_from_model(model, stimulus_identifier, number_of_trials).transpose('neuroid', 'presentation')
     activations = activations[in_rf]
     activations.values[activations.values < 0] = 0
 
@@ -106,11 +106,11 @@ def filter_receptive_fields(model_identifier, model, region, pos, rf_delta=RF_DE
 
 @store(identifier_ignore=['model'])
 def map_receptive_field_locations(model_identifier, model: BrainModel, region):
-    blank_activations = record_from_model(model, BLANK_STIM_NAME, RF_NUMBER_OF_TRIALS)
+    blank_activations = record_from_model(model, BLANK_STIM_NAME, RF_NUMBER_OF_TRIALS).transpose('neuroid', 'presentation')
     blank_activations = blank_activations.values
     blank_activations[blank_activations < 0] = 0
 
-    rf_activations = record_from_model(model, RF_STIM_NAME, RF_NUMBER_OF_TRIALS)
+    rf_activations = record_from_model(model, RF_STIM_NAME, RF_NUMBER_OF_TRIALS).transpose('neuroid', 'presentation')
 
     _assert_grating_activations(rf_activations)
 
@@ -155,8 +155,8 @@ def map_receptive_field_locations(model_identifier, model: BrainModel, region):
 
 @store(identifier_ignore=['model'])
 def firing_rates_affine(model_identifier, model: BrainModel, region):
-    blank_activations = record_from_model(model, BLANK_STIM_NAME, ORIENTATION_NUMBER_OF_TRIALS)
-    orientation_activations = record_from_model(model, ORIENTATION_STIM_NAME, ORIENTATION_NUMBER_OF_TRIALS)
+    blank_activations = record_from_model(model, BLANK_STIM_NAME, ORIENTATION_NUMBER_OF_TRIALS).transpose('neuroid', 'presentation')
+    orientation_activations = record_from_model(model, ORIENTATION_STIM_NAME, ORIENTATION_NUMBER_OF_TRIALS).transpose('neuroid', 'presentation')
 
     blank_activations = blank_activations.values
     blank_activations[blank_activations < 0] = 0

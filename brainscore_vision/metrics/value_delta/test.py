@@ -1,35 +1,40 @@
-import numpy as np
-from numpy.random import RandomState
-
-from brainio.assemblies import DataAssembly
-from brainscore_vision import load_metric
+from pytest import approx
+from brainscore_vision.metrics.value_delta import ValueDelta
 
 
-def test_perfect_score():
-    metric = load_metric('value_delta')
-    value_delta = metric(0.25, 0.25)
-    assert value_delta == 1
+class TestValueDelta:
 
+    def test_perfect_score(self):
+        metric = ValueDelta()
+        value_delta = metric(1.25, 1.25)
+        assert value_delta == 1
 
-def test_middle_score():
-    metric = load_metric('value_delta')
-    value_delta = metric(0.75, 0.25)
-    assert value_delta == 0.5
+    def test_middle_score(self):
+        metric = ValueDelta()
+        value_delta = metric(1.50, 1.00)
+        assert value_delta == approx(0.6065, abs=.0005)
 
+    def test_middle_score_reversed(self):
+        metric = ValueDelta()
+        value_delta = metric(1.00, 1.50)
+        assert value_delta == approx(0.6065, abs=.0005)
 
-def test_middle_score_reversed():
-    metric = load_metric('value_delta')
-    value_delta = metric(0.25, 0.75)
-    assert value_delta == 0.5
+    def test_bad_score(self):
+        metric = ValueDelta()
+        value_delta = metric(1.00, -1.00)
+        assert value_delta == approx(0.1353, abs=.0005)
 
+    def test_bad_score_reversed(self):
+        metric = ValueDelta()
+        value_delta = metric(-1.00, 1.00)
+        assert value_delta == approx(0.1353, abs=.0005)
 
-def test_worst_score():
-    metric = load_metric('value_delta')
-    value_delta = metric(1.0, 0.0)
-    assert value_delta == 0.0
+    def test_too_high_score(self):
+        metric = ValueDelta()
+        value_delta = metric(-5.00, 5.00)
+        assert value_delta == approx(0.0, abs=.0005)
 
-
-def test_worst_score_reversed():
-    metric = load_metric('value_delta')
-    value_delta = metric(0.0, 1.0)
-    assert value_delta == 0.0
+    def test_too_high_score_reversed(self):
+        metric = ValueDelta()
+        value_delta = metric(5.00, -5.00)
+        assert value_delta == approx(0.0, abs=.0005)

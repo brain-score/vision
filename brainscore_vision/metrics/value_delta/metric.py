@@ -1,5 +1,4 @@
 import numpy as np
-
 from brainscore_core import Metric
 from brainscore_vision.metrics import Score
 
@@ -17,7 +16,7 @@ class ValueDelta(Metric):
 
         :param scale: float, the "steepness" of the sigmoid curve. With a high scale value (> ~1.5), even small
         differences will result in a significantly lower score. With a low scale value (< ~0.5), the score will remain
-        relatively high for larger differences. 1.0 was chosen as a reasonable middle ground.
+        relatively high for larger differences. 1.0 was chosen as default due to being a reasonable middle ground.
         """
         self.scale = scale
 
@@ -26,6 +25,6 @@ class ValueDelta(Metric):
         center = 1 / (np.exp(self.scale * abs_diff))
         center = min(max(center, 0), 1)
         score = Score(center)
-        score.attrs['error'] = 0.00
+        score.attrs['error'] = np.nan
         score.attrs[Score.RAW_VALUES_KEY] = [source_value, target_value]
         return score

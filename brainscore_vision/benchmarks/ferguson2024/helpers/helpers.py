@@ -23,7 +23,7 @@ HUMAN_INTEGRAL_ERRORS = {'circle_line': 0.3078, 'color': 0.362, 'convergence': 0
 
 def get_adjusted_rate(acc: float, lapse_rate: float, n_way: int = 2) -> float:
     """
-    Adjusts the raw accuracy by a lapse rate correction
+    - Adjusts the raw accuracy by a lapse rate correction
 
     :param acc: float, the raw accuracy
     :param lapse_rate: a precomputed float defined above that represents avg. subject lapse rate in experiment
@@ -36,7 +36,7 @@ def get_adjusted_rate(acc: float, lapse_rate: float, n_way: int = 2) -> float:
 
 def sem(array: BehavioralAssembly) -> float:
     """
-    get the standard error of the mean (SEM) of an assembly
+    - Get the standard error of the mean (SEM) of an assembly
 
     :param array: the assembly to look at
     :return: float, the SEM of that array
@@ -47,7 +47,7 @@ def sem(array: BehavioralAssembly) -> float:
 
 def get_line(point_1: tuple, point_2: tuple) -> str:
     """
-    Calculate the equation of a line from two points
+    - Calculate the equation of a line from two points
 
     :param point_1: tuple in the form (x, y) of first point
     :param point_2: tuple in the form (x, y) of second point
@@ -63,7 +63,7 @@ def get_line(point_1: tuple, point_2: tuple) -> str:
 
 def integrate_line(equation: str, lower: float, upper: float) -> float:
     """
-    Integrates an equation.
+    - Integrates an equation.
 
     :param equation: a string representing the equation of the line to integrate
     :param lower: float, the lower bound of the definite integral
@@ -77,7 +77,7 @@ def integrate_line(equation: str, lower: float, upper: float) -> float:
 
 def get_averages(df_blue: DataFrame, df_orange: DataFrame, num_distractors: str) -> (float, float):
     """
-    Gets the per-distractor averages for a block
+    - Gets the per-distractor averages for a block
 
     :param df_blue: the first (blue) block of data (target on a field of distractors)
     :param df_orange: the second (orange) block of data (distractor on a field of targets)
@@ -93,7 +93,7 @@ def get_averages(df_blue: DataFrame, df_orange: DataFrame, num_distractors: str)
 
 def calculate_integral(df_blue: DataFrame, df_orange: DataFrame) -> float:
     """
-    Manually calculates the integral under the delta line
+    - Manually calculates the integral under the delta line
 
     :param df_blue: the first (blue) block of data (target on a field of distractors)
     :param df_orange: the second (orange) block of data (distractor on a field of targets)
@@ -126,7 +126,9 @@ def calculate_integral(df_blue: DataFrame, df_orange: DataFrame) -> float:
 
 def calculate_accuracy(df: BehavioralAssembly, lapse_rate: float) -> float:
     """
-    Calculates a per-subject lapse rate-corrected accuracy for an assembly
+    - Calculates a per-subject lapse rate-corrected accuracy for an assembly.
+    - Subject accuracy is averaged over all images with a certain distractor size and repetition coords (i.e. these
+      coords are mixed togather and the accuracy is calculated over this merged assembly).
 
     :param df: DataFrame Object that contains experimental data
     :param lapse_rate: a precomputed float defined above that represents avg. subject lapse rate in experiment
@@ -140,7 +142,8 @@ def calculate_accuracy(df: BehavioralAssembly, lapse_rate: float) -> float:
 def generate_summary_df(assembly: BehavioralAssembly, lapse_rate: float, block: str) -> pd.DataFrame:
     """
 
-    Takes in raw assembly data and outputs a dataframe of summary statistics, used for benchmark
+    - Takes in raw assembly data and outputs a dataframe of summary statistics, used for benchmark.
+    - For each distractor size, accuracy is calculated per subject.
 
     :param assembly: the data in the form of a BehavioralAssembly
     :param lapse_rate: a precomputed float defined above that represents avg. subject lapse rate in experiment
@@ -166,4 +169,22 @@ def generate_summary_df(assembly: BehavioralAssembly, lapse_rate: float, block: 
     summary_df = pd.DataFrame(summary_data, columns=['distractor_nums', 'participant_id', 'correct'])
     return summary_df
 
+
+def split_dataframe(df: BehavioralAssembly, seed: int) -> (BehavioralAssembly, BehavioralAssembly):
+    """
+    - Takes in one DF and splits it into two, randomly, on the presentation dim
+
+    :param df: The DataFrame (assembly) to split
+    :param seed: a seed for the numpy rng
+    :return: Two DataFrames (assemblies)
+    """
+    if seed is not None:
+        np.random.seed(seed)
+    shuffled_indices = np.random.permutation(df.presentation.size)
+    half = len(shuffled_indices) // 2
+    indices_1 = shuffled_indices[:half]
+    indices_2 = shuffled_indices[half:]
+    dataarray_1 = df.isel(presentation=indices_1)
+    dataarray_2 = df.isel(presentation=indices_2)
+    return dataarray_1, dataarray_2
 

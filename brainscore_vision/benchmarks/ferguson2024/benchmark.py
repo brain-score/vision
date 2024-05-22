@@ -1,18 +1,17 @@
 import numpy as np
 from brainscore_core import Metric
 from tqdm import tqdm
+from typing import Dict
 
-from brainio.assemblies import walk_coords
-from brainscore_vision import load_dataset, load_metric, load_stimulus_set
+from brainscore_vision import load_dataset, load_stimulus_set
 from brainio.assemblies import BehavioralAssembly
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
 from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.metrics import Score
 from brainscore_vision.metrics.value_delta import ValueDelta
 from brainscore_vision.model_interface import BrainModel
-from brainscore_vision.utils import LazyLoad
-import xarray as xr
-from .helpers.helpers import generate_summary_df, calculate_integral, HUMAN_INTEGRAL_ERRORS, LAPSE_RATES
+from .helpers.helpers import generate_summary_df, calculate_integral, HUMAN_INTEGRAL_ERRORS, LAPSE_RATES, \
+    split_dataframe
 
 BIBTEX = """TBD"""
 
@@ -21,9 +20,14 @@ DATASETS = ['circle_line', 'color', 'convergence', 'eighth',
             'lle', 'llh', 'quarter', 'round_f',
             'round_v', 'tilted_line']
 
+PRECOMPUTED_CEILINGS = {'circle_line': [0.0335, 0], 'color': [0.0578, 0], 'convergence': [0.0372, 0],
+                        'eighth': [0.05556, 0], 'gray_easy': [0.0414, 0], 'gray_hard': [0.02305, 0],
+                        'half': [0.0637, 0], 'juncture': [0.3715, 0], 'lle': [0.0573, 0], 'llh': [0.0402, 0],
+                        'quarter': [0.0534, 0], 'round_f': [0.08196, 0], 'round_v': [0.0561, 0],
+                        'tilted_line': [0.04986, 0]}
+
 for dataset in DATASETS:
-    # behavioral benchmark
-    identifier = f"Ferguson2024{dataset}AlignmentMeasure"
+    identifier = f"Ferguson2024{dataset}ValueDelta"
     globals()[identifier] = lambda dataset=dataset: _Ferguson2024ValueDelta(dataset)
 
 
@@ -34,13 +38,10 @@ class _Ferguson2024ValueDelta(BenchmarkBase):
         self._assembly = load_dataset(f'Ferguson2024_{dataset}')
         self._visual_degrees = 8
         self._number_of_trials = 3
-        self._ceiling = 0.0885 if precompute_ceiling is True else calculate_ceiling(dataset, self._assembly,
-                                                                                    self._metric, num_loops=500)
-        super(_Ferguson2024ValueDelta, self).__init__(
-            identifier="Ferguson2024", version=2,
-            ceiling_func=self._ceiling,
-            parent='behavior',
-            bibtex=BIBTEX)
+        self._ceiling = calculate_ceiling(precompute_ceiling, dataset, self._assembly, self._metric, num_loops=500)
+        super(_Ferguson2024ValueDelta, self).__init__(identifier="Ferguson2024", version=1, ceiling_func=self._ceiling,
+                                                      parent='behavior',
+                                                      bibtex=BIBTEX)
 
     def __call__(self, candidate: BrainModel) -> Score:
         # fitting_stimuli = place_on_screen(self._fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
@@ -50,11 +51,14 @@ class _Ferguson2024ValueDelta(BenchmarkBase):
         #                                source_visual_degrees=self._visual_degrees)
         # probabilities = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
 
-        human_integral, human_integral_error = get_human_integral_data(self._assembly, dataset)
-        # model_integral = accuracy_metric(ground_truth, probabilities)
-        # score = self._metric(model_accuracy, human_accuracy)
-        ceiling = self.ceiling
-        #score = self.ceil_score(1, ceiling)
+        human_results = get_human_integral_data(self._assembly, dataset)
+        human_integral = human_results["human_integral"]
+        model_integral = 1.5
+        raw_score = self._metric(model_integral, human_integral)
+        ceiling = self._ceiling
+        score = min(max(raw_score / ceiling, 0), 1)  # ensure ceiled score is between 0 and 1
+        score.attrs['raw'] = raw_score
+        score.attrs['ceiling'] = ceiling
         return score
 
 
@@ -62,55 +66,43 @@ def Ferguson2024ValueDelta(experiment):
     return _Ferguson2024ValueDelta(experiment)
 
 
-def calculate_ceiling(dataset: str, assembly: BehavioralAssembly, metric: Metric, num_loops: int) -> Score:
+def calculate_ceiling(precompute_ceiling, dataset: str, assembly: BehavioralAssembly, metric: Metric,
+                      num_loops: int) -> Score:
     """
-    A Version of split-half reliability, in which the data is split randomly in half
-    and the metric is called on those two halves.
+    - A Version of split-half reliability, in which the data is split randomly in half
+     and the metric is called on those two halves.
 
     :param dataset: str, the prefix of the experiment subtype, ex: "tilted_line" or "lle"
     :param assembly: the human behavioral data to look at
     :param metric: of type Metric, used to calculate the score between two subjects
-    :return: Score object consisting of the score between two halfs of hman data
+    :return: Score object consisting of the score between two halves of human data
     :param num_loops: int. number of times the score is calculated. Final score is the average of all of these.
     """
+    if precompute_ceiling:
+        score = Score(PRECOMPUTED_CEILINGS[dataset][0])
+        score.attrs['error'] = 0.054
+        score.attrs[Score.RAW_VALUES_KEY] = [0.8832, 0.054]
+        return score
+    else:
+        scores = []
+        for i in tqdm(range(num_loops)):
+            half_1, half_2 = split_dataframe(assembly, seed=i)
+            half_1_score = get_human_integral_data(half_1, dataset)["human_integral"]
+            half_2_score = get_human_integral_data(half_2, dataset)["human_integral"]
+            score = metric(half_1_score, half_2_score)
+            scores.append(score)
 
-    scores = []
-    for i in tqdm(range(num_loops)):
-        half_1, half_2 = split_dataframe(assembly, seed=i)
-        half_1_score = get_human_integral_data(half_1, dataset)["human_integral"]
-        half_2_score = get_human_integral_data(half_2, dataset)["human_integral"]
-        score = metric(half_1_score, half_2_score)
-        scores.append(score)
-
-    score = Score(np.mean(scores))
-    scores = np.array(scores, dtype=float)
-    score.attrs['error'] = np.std(scores)
-    score.attrs[Score.RAW_VALUES_KEY] = [np.mean(scores), np.std(scores)]
-    return score
+        score = Score(np.mean(scores))
+        scores = np.array(scores, dtype=float)
+        score.attrs['error'] = np.std(scores)
+        score.attrs[Score.RAW_VALUES_KEY] = [np.mean(scores), np.std(scores)]
+        print(f"Dataset: {dataset}, score: {np.mean(scores)}, error: {score.attrs['error']}")
+        return score
 
 
-def split_dataframe(df: BehavioralAssembly, seed: int) -> (BehavioralAssembly, BehavioralAssembly):
+def get_human_integral_data(assembly: BehavioralAssembly, dataset: str) -> Dict:
     """
-    Takes in one DF and splits it into two, randomly, on the presentation dim
-
-    :param df: The DataFrame (assembly) to split
-    :param seed: a seed for the numpy rng
-    :return: Two DataFrames (assemblies)
-    """
-    if seed is not None:
-        np.random.seed(seed)
-    shuffled_indices = np.random.permutation(df.presentation.size)
-    half = len(shuffled_indices) // 2
-    indices_1 = shuffled_indices[:half]
-    indices_2 = shuffled_indices[half:]
-    dataarray_1 = df.isel(presentation=indices_1)
-    dataarray_2 = df.isel(presentation=indices_2)
-    return dataarray_1, dataarray_2
-
-
-def get_human_integral_data(assembly: BehavioralAssembly, dataset: str) -> (float, float):
-    """
-    Generates summary data for the experiment and calculates the human integral of delta line
+    - Generates summary data for the experiment and calculates the human integral of delta line
 
     :param assembly: the human behavioral data to look at
     :param dataset: str, the prefix of the experiment subtype, ex: "tilted_line" or "lle"
@@ -121,5 +113,4 @@ def get_human_integral_data(assembly: BehavioralAssembly, dataset: str) -> (floa
     orange_data = generate_summary_df(assembly, lapse_rate, "second")
     human_integral = calculate_integral(blue_data, orange_data)
     human_integral_error = HUMAN_INTEGRAL_ERRORS[dataset]
-
     return dict(zip(["human_integral", "human_integral_error"], [human_integral, human_integral_error]))

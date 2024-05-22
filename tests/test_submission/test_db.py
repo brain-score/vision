@@ -9,6 +9,7 @@ from brainscore_core.submission.database_models import (
     clear_schema,
 )
 
+
 def init_user():
     User.create(id=1, email='test@brainscore.com', is_active=True, is_staff=False, is_superuser=False,
                 last_login=datetime.now(), password='abcde')
@@ -17,19 +18,22 @@ def init_user():
 
 
 def init_benchmark_parents():
-    BenchmarkType.create(identifier='neural', order=0)
-    BenchmarkType.create(identifier='V1', parent='neural', order=0)
-    BenchmarkType.create(identifier='V2', parent='neural', order=1)
-    BenchmarkType.create(identifier='V4', parent='neural', order=2)
-    BenchmarkType.create(identifier='IT', parent='neural', order=3)
+    BenchmarkType.create(identifier='average_vision', order=0, owner_id=2)
 
-    BenchmarkType.create(identifier='behavior', order=1)
+    BenchmarkType.create(identifier='behavior', parent='average_vision', order=1, owner_id=2)
+
+    BenchmarkType.create(identifier='neural_vision', parent='average_vision', order=0, owner_id=2)
+    BenchmarkType.create(identifier='V1', parent='neural_vision', order=0, owner_id=2)
+    BenchmarkType.create(identifier='V2', parent='neural_vision', order=1, owner_id=2)
+    BenchmarkType.create(identifier='V4', parent='neural_vision', order=2, owner_id=2)
+    BenchmarkType.create(identifier='IT', parent='neural_vision', order=3, owner_id=2)
 
 
 def init_models():
     Model.create(name='dummy_model_1', owner=1, public=True)
     Model.create(name='dummy_model_2', owner=2, public=True)
     Model.create(name='dummy_model_3', owner=1, public=True)
+
 
 @pytest.mark.memory_intense
 @pytest.mark.private_access
@@ -40,11 +44,11 @@ def test_db(database):
     init_user()
     init_benchmark_parents()
     init_models()
-    
-    user_entries = list(User.select())   
-    model_entries = list(Model.select())   
-    benchmark_type_entries = list(BenchmarkType.select())   
-     
+
+    user_entries = list(User.select())
+    model_entries = list(Model.select())
+    benchmark_type_entries = list(BenchmarkType.select())
+
     assert len(user_entries) == 2
     assert len(model_entries) == 3
-    assert len(benchmark_type_entries) == 6
+    assert len(benchmark_type_entries) == 7

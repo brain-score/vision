@@ -139,8 +139,25 @@ class LabelToImagenetIndices:
     motorbike_indices = [670, 665]
     bus_indices = [779, 874, 654]
 
+    # added from the Scialom2024 benchmark:
+    banana_indices = [954]
+    beanie_indices = [439, 452, 515, 808]
+    binoculars_indices = [447]
+    boot_indices = [514]
+    bowl_indices = [659, 809]
+    cup_indices = [968]
+    glasses_indices = [837]
+    lamp_indices = [470, 607, 818, 846]
+    pan_indices = [567]
+    sewingmachine_indices = [786]
+    shovel_indices = [792]
+    # truck indices used as defined by Geirhos et al., 2021.
+
     @classmethod
     def label_to_indices(cls, label):
+        # for handling multi-word labels given by models or benchmarks
+        label = label.lower().replace(" ", "")
+
         synset_indices = getattr(cls, f"{label}_indices")
         return synset_indices
 
@@ -259,11 +276,13 @@ class OddOneOut(BrainModel):
         assert len(triplets) % 3 == 0, "No. of stimuli must be a multiple of 3"
         choices = self.calculate_choices(similarity_matrix, triplets)
 
-        # Return choices
+        # Package choices
+        stimulus_ids = ['|'.join([f"{triplets[offset + i]}" for i in range(3)])
+                        for offset in range(0, len(triplets) - 2, 3)]
         choices = BehavioralAssembly(
-            choices, 
-            coords={'stimulus_id': triplets[2::3]},
-            dims=['stimulus_id'])
+            [choices],
+            coords={'stimulus_id': ('presentation', stimulus_ids)},
+            dims=['choice', 'presentation'])
 
         return choices
 
@@ -282,13 +301,13 @@ class OddOneOut(BrainModel):
             similarity_matrix = dot_product / norm_product
         else:
             raise ValueError(
-            f"Unknown similarity_measure {self.similarity_measure} -- expected one of 'dot' or 'cosine'")
+                f"Unknown similarity_measure {self.similarity_measure} -- expected one of 'dot' or 'cosine'")
 
         similarity_matrix = DataAssembly(similarity_matrix, coords={
-                **{f"{coord}_left": ('presentation_left', values) for coord, _, values in
-                walk_coords(features['presentation'])},
-                **{f"{coord}_right": ('presentation_right', values) for coord, _, values in
-                walk_coords(features['presentation'])}
+            **{f"{coord}_left": ('presentation_left', values) for coord, _, values in
+               walk_coords(features['presentation'])},
+            **{f"{coord}_right": ('presentation_right', values) for coord, _, values in
+               walk_coords(features['presentation'])}
         }, dims=['presentation_left', 'presentation_right'])
         return similarity_matrix
 
@@ -298,7 +317,7 @@ class OddOneOut(BrainModel):
         for triplet in triplets:
             i, j, k = triplet
             sims = [similarity_matrix.sel(stimulus_id_left=i, stimulus_id_right=j),
-                    similarity_matrix.sel(stimulus_id_left=i, stimulus_id_right=k), 
+                    similarity_matrix.sel(stimulus_id_left=i, stimulus_id_right=k),
                     similarity_matrix.sel(stimulus_id_left=j, stimulus_id_right=k)]
             idx = triplet[2 - np.argmax(sims)]
             choice_predictions.append(idx)

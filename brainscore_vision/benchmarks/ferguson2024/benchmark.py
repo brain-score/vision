@@ -15,24 +15,21 @@ from .helpers.helpers import generate_summary_df, calculate_integral, HUMAN_INTE
 
 BIBTEX = """TBD"""
 
-DATASETS = ['circle_line', 'color', 'convergence', 'eighth',
-            'gray_easy', 'gray_hard', 'half', 'juncture',
-            'lle', 'llh', 'quarter', 'round_f',
-            'round_v', 'tilted_line']
-
+# These ceilings were precomputed to save time in benchmark execution
 PRECOMPUTED_CEILINGS = {'circle_line': [0.883, 0.078], 'color': [0.897, 0.072], 'convergence': [0.862, 0.098],
                         'eighth': [0.852, 0.107], 'gray_easy': [0.907, 0.064], 'gray_hard': [0.863, 0.099],
                         'half': [0.898, 0.077], 'juncture': [0.767, 0.141], 'lle': [0.831, 0.116], 'llh': [0.812, 0.123],
                         'quarter': [0.876, 0.087], 'round_f': [0.874, 0.088], 'round_v': [0.853, 0.101],
                         'tilted_line': [0.912, 0.064]}
 
-for dataset in DATASETS:
+
+for dataset in PRECOMPUTED_CEILINGS.keys():
     identifier = f"Ferguson2024{dataset}ValueDelta"
     globals()[identifier] = lambda dataset=dataset: _Ferguson2024ValueDelta(dataset)
 
 
 class _Ferguson2024ValueDelta(BenchmarkBase):
-    def __init__(self, dataset, precompute_ceiling=False):
+    def __init__(self, dataset, precompute_ceiling=True):
         self._metric = ValueDelta(scale=0.75)  # 0.75 chosen after calibrating with ceiling
         self._fitting_stimuli = load_stimulus_set(f'Ferguson2024_{dataset}')
         self._assembly = load_dataset(f'Ferguson2024_{dataset}')
@@ -53,10 +50,10 @@ class _Ferguson2024ValueDelta(BenchmarkBase):
 
         human_results = get_human_integral_data(self._assembly, dataset)
         human_integral = human_results["human_integral"]
-        model_integral = 1.5
+        model_integral = -1.02
         raw_score = self._metric(model_integral, human_integral)
         ceiling = self._ceiling
-        score = min(max(raw_score / ceiling, 0), 1)  # ensure ceiled score is between 0 and 1
+        score = Score(min(max(raw_score / ceiling, 0), 1))  # ensure ceiled score is between 0 and 1
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling
         return score
@@ -72,6 +69,7 @@ def calculate_ceiling(precompute_ceiling, dataset: str, assembly: BehavioralAsse
     - A Version of split-half reliability, in which the data is split randomly in half
      and the metric is called on those two halves.
 
+    :param precompute_ceiling: True if using precomputed ceilings. Should almost always be True.
     :param dataset: str, the prefix of the experiment subtype, ex: "tilted_line" or "lle"
     :param assembly: the human behavioral data to look at
     :param metric: of type Metric, used to calculate the score between two subjects
@@ -80,8 +78,8 @@ def calculate_ceiling(precompute_ceiling, dataset: str, assembly: BehavioralAsse
     """
     if precompute_ceiling:
         score = Score(PRECOMPUTED_CEILINGS[dataset][0])
-        score.attrs['error'] = 0.054
-        score.attrs[Score.RAW_VALUES_KEY] = [0.8832, 0.054]
+        score.attrs['error'] = PRECOMPUTED_CEILINGS[dataset][1]
+        score.attrs[Score.RAW_VALUES_KEY] = [PRECOMPUTED_CEILINGS[dataset][0], PRECOMPUTED_CEILINGS[dataset][1]]
         return score
     else:
         scores = []

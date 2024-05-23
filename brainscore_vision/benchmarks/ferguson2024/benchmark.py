@@ -20,11 +20,11 @@ DATASETS = ['circle_line', 'color', 'convergence', 'eighth',
             'lle', 'llh', 'quarter', 'round_f',
             'round_v', 'tilted_line']
 
-PRECOMPUTED_CEILINGS = {'circle_line': [0.0335, 0], 'color': [0.0578, 0], 'convergence': [0.0372, 0],
-                        'eighth': [0.05556, 0], 'gray_easy': [0.0414, 0], 'gray_hard': [0.02305, 0],
-                        'half': [0.0637, 0], 'juncture': [0.3715, 0], 'lle': [0.0573, 0], 'llh': [0.0402, 0],
-                        'quarter': [0.0534, 0], 'round_f': [0.08196, 0], 'round_v': [0.0561, 0],
-                        'tilted_line': [0.04986, 0]}
+PRECOMPUTED_CEILINGS = {'circle_line': [0.883, 0.078], 'color': [0.897, 0.072], 'convergence': [0.862, 0.098],
+                        'eighth': [0.852, 0.107], 'gray_easy': [0.907, 0.064], 'gray_hard': [0.863, 0.099],
+                        'half': [0.898, 0.077], 'juncture': [0.767, 0.141], 'lle': [0.831, 0.116], 'llh': [0.812, 0.123],
+                        'quarter': [0.876, 0.087], 'round_f': [0.874, 0.088], 'round_v': [0.853, 0.101],
+                        'tilted_line': [0.912, 0.064]}
 
 for dataset in DATASETS:
     identifier = f"Ferguson2024{dataset}ValueDelta"

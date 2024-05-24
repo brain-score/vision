@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='dino v2 + lstm',
+    name='mae_lstm_temporal',
     version='1.0.0',
     author='NeuroAI Lab',
     description='A Python package for dino v2 lstm.',

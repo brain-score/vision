@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='r3m',
+    name='r3m_lstm',
     version='1.0.0',
     author='NeuroAI Lab',
     description='A Python package for r3m.',

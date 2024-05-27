@@ -25,7 +25,7 @@ class Image(Stimulus):
     def from_path(path):
         return Image(path, get_image_size(path))
     
-    def to_img(self):
+    def to_pil_img(self):
         return PILImage.fromarray(self.to_numpy())
 
     def get_frame(self):

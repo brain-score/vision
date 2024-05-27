@@ -138,7 +138,7 @@ class Video(Stimulus):
         sample_indices = samples.astype(int)
 
         # padding: repeat the first/last frame
-        original_num_frames = int(self._original_duration * self._original_fps/1000 + EPS)
+        original_num_frames = int(self._original_duration * self._original_fps/1000 - EPS)  # EPS to avoid last frame oob
         sample_indices = np.clip(sample_indices, 0, original_num_frames-1)
 
         # actual sampling

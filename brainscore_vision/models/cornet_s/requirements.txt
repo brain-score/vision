@@ -6,4 +6,4 @@ importlib
 xarray==0.17.0
 numpy==1.21.2
 scipy==1.7.1
-CORnet @ git+https://github.com/dicarlolab/CORnet"
+CORnet @ git+https://github.com/dicarlolab/CORnet

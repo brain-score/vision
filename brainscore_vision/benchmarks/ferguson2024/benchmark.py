@@ -41,6 +41,9 @@ class _Ferguson2024ValueDelta(BenchmarkBase):
                                                       bibtex=BIBTEX)
 
     def __call__(self, candidate: BrainModel) -> Score:
+
+        self._assembly.stimulus_set["image_label"] = np.where(self._assembly.stimulus_set["image_number"] % 2 == 0, "oddball", "same")
+
         # fitting_stimuli = place_on_screen(self._fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
         #                                   source_visual_degrees=self._visual_degrees)
         # candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli)
@@ -48,9 +51,8 @@ class _Ferguson2024ValueDelta(BenchmarkBase):
         #                                source_visual_degrees=self._visual_degrees)
         # probabilities = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
 
-        human_results = get_human_integral_data(self._assembly, dataset)
-        human_integral = human_results["human_integral"]
-        model_integral = -1.02
+        human_integral = get_integral_data(self._assembly, dataset)['integral']
+        model_integral = -1.67
         raw_score = self._metric(model_integral, human_integral)
         ceiling = self._ceiling
         score = Score(min(max(raw_score / ceiling, 0), 1))  # ensure ceiled score is between 0 and 1
@@ -85,8 +87,8 @@ def calculate_ceiling(precompute_ceiling, dataset: str, assembly: BehavioralAsse
         scores = []
         for i in tqdm(range(num_loops)):
             half_1, half_2 = split_dataframe(assembly, seed=i)
-            half_1_score = get_human_integral_data(half_1, dataset)["human_integral"]
-            half_2_score = get_human_integral_data(half_2, dataset)["human_integral"]
+            half_1_score = get_integral_data(half_1, dataset)["integral"]
+            half_2_score = get_integral_data(half_2, dataset)["integral"]
             score = metric(half_1_score, half_2_score)
             scores.append(score)
 
@@ -98,9 +100,9 @@ def calculate_ceiling(precompute_ceiling, dataset: str, assembly: BehavioralAsse
         return score
 
 
-def get_human_integral_data(assembly: BehavioralAssembly, dataset: str) -> Dict:
+def get_integral_data(assembly: BehavioralAssembly, dataset: str) -> Dict:
     """
-    - Generates summary data for the experiment and calculates the human integral of delta line
+    - Generates summary data for the experiment and calculates the integral of delta line
 
     :param assembly: the human behavioral data to look at
     :param dataset: str, the prefix of the experiment subtype, ex: "tilted_line" or "lle"
@@ -109,6 +111,6 @@ def get_human_integral_data(assembly: BehavioralAssembly, dataset: str) -> Dict:
     lapse_rate = LAPSE_RATES[dataset]
     blue_data = generate_summary_df(assembly, lapse_rate, "first")
     orange_data = generate_summary_df(assembly, lapse_rate, "second")
-    human_integral = calculate_integral(blue_data, orange_data)
-    human_integral_error = HUMAN_INTEGRAL_ERRORS[dataset]
-    return dict(zip(["human_integral", "human_integral_error"], [human_integral, human_integral_error]))
+    integral = calculate_integral(blue_data, orange_data)
+    integral_error = HUMAN_INTEGRAL_ERRORS[dataset]
+    return dict(zip(["integral", "integral_error"], [integral, integral_error]))

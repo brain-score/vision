@@ -58,7 +58,7 @@ def load_ceiling(identifier: str, *args, **kwargs) -> Ceiling:
 def load_benchmark(identifier: str) -> Benchmark:
     import_plugin('brainscore_vision', 'benchmarks', identifier)
 
-    return benchmark_registry[identifier]()
+    return benchmark_registry[identifier]
 
 
 def load_model(identifier: str) -> BrainModel:

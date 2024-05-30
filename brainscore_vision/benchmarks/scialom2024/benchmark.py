@@ -19,7 +19,7 @@ class _Scialom2024BehavioralErrorConsistency(BenchmarkBase):
         self._number_of_trials = 1
 
         super(_Scialom2024BehavioralErrorConsistency, self).__init__(
-            identifier=f'Scialom2024{dataset}-error_consistency', version=1,
+            identifier=f'Scialom2024_{dataset}-error_consistency', version=1,
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
             parent='Scialom2024',
             bibtex=BIBTEX)
@@ -46,7 +46,7 @@ class _Scialom2024BehavioralAccuracyDistance(BenchmarkBase):
         self._assembly = LazyLoad(lambda: load_assembly(dataset))
         self._stimulus_set = LazyLoad(lambda: load_assembly(dataset).stimulus_set)
         super(_Scialom2024BehavioralAccuracyDistance, self).__init__(
-            identifier=f'Scialom2024{dataset}-behavioral_accuracy', version=1,
+            identifier=f'Scialom2024_{dataset}-behavioral_accuracy', version=1,
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
             parent='Scialom2024-top1',
             bibtex=BIBTEX)
@@ -66,7 +66,7 @@ class _Scialom2024EngineeringAccuracy(BenchmarkBase):
         self._metric = load_metric('accuracy')
         self._stimulus_set = LazyLoad(lambda: load_assembly(dataset).stimulus_set)
         super(_Scialom2024EngineeringAccuracy, self).__init__(
-            identifier=f'Scialom2024{dataset}-engineering_accuracy', version=1,
+            identifier=f'Scialom2024_{dataset}-engineering_accuracy', version=1,
             ceiling_func=lambda: Score(1),
             parent='Scialom2024-top1',
             bibtex=BIBTEX)
@@ -81,5 +81,5 @@ class _Scialom2024EngineeringAccuracy(BenchmarkBase):
 
 
 def load_assembly(dataset: str) -> BehavioralAssembly:
-    assembly = brainscore_vision.load_dataset(f'Scialom2024{dataset}')
+    assembly = brainscore_vision.load_dataset(f'Scialom2024_{dataset}')
     return assembly

@@ -238,6 +238,43 @@ class ProbabilitiesMapping(BrainModel):
             return indices, index2label
 
 
+class SameDifferentDecoder:
+    def __init__(self, identifier: str, activations_model, layer: Union[str, List[str]]):
+        self._identifier = identifier
+        self.activations_model = activations_model
+        self.readout = make_list(layer)
+        self.current_task = None
+        self.decoder = self.ThresholdDecoder()
+
+    @property
+    def identifier(self):
+        return self._identifier
+
+    def start_task(self, task: BrainModel.Task, fitting_stimuli):
+        assert task == BrainModel.Task.same_different
+        self.current_task = task
+
+        # retrieve pairwise features
+        features = self.activations_model(fitting_stimuli, layers=self.readout)
+
+        # fit decoder
+        assert hasattr(features, 'label'), "Expected a 'label' coordinate for fitting labels"
+        labels = features['label'] == 'same'
+        self.decoder.fit(features.transpose('presentation', ...).values, labels.values)
+
+    def look_at(self, stimuli: StimulusSet, number_of_trials: int = 1) -> BehavioralAssembly:
+        assert self.current_task == BrainModel.Task.same_different
+        features = self.activations_model(stimuli, layers=self.readout)
+        choices = self.decoder.predict(features.values)
+        choice_labels = ['same' if choice else 'diff' for choice in choices]
+        coords = {**{coord: (dims, values) for coord, dims, values in walk_coords(features['presentation'])},
+                  **{'task': ('choice', [self.current_task]),
+                     'choice_value': ('presentation', choices),
+                     'choice_label': ('presentation', choice_labels)}}
+        behavior = BehavioralAssembly(data=[choice_labels], dims=['choice', 'presentation'], coords=coords)
+        return behavior
+
+
 class OddOneOut(BrainModel):
     def __init__(self, identifier: str, activations_model, layer: Union[str, List[str]]):
         """

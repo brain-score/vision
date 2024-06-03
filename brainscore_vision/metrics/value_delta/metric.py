@@ -5,7 +5,6 @@ from brainscore_vision.metrics import Score
 '''
 This metric takes in two floats and gives a score between 0 and 1 based on 
 how far apart the numbers are, using a sigmoid function.
-
 '''
 
 

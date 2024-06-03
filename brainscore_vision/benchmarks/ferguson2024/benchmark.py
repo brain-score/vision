@@ -11,9 +11,9 @@ from brainscore_vision.metrics import Score
 from brainscore_vision.metrics.value_delta import ValueDelta
 from brainscore_vision.model_interface import BrainModel
 from .helpers.helpers import generate_summary_df, calculate_integral, HUMAN_INTEGRAL_ERRORS, LAPSE_RATES, \
-    split_dataframe
+    split_dataframe, boostrap_integral
 
-BIBTEX = """TBD"""
+BIBTEX = """"""
 
 # These ceilings were precomputed to save time in benchmark execution
 PRECOMPUTED_CEILINGS = {'circle_line': [0.883, 0.078], 'color': [0.897, 0.072], 'convergence': [0.862, 0.098],
@@ -29,16 +29,17 @@ for dataset in PRECOMPUTED_CEILINGS.keys():
 
 
 class _Ferguson2024ValueDelta(BenchmarkBase):
-    def __init__(self, dataset, precompute_ceiling=True):
+    def __init__(self, experiment, precompute_ceiling=True):
+        self._experiment = experiment
+        self._precompute_ceiling = precompute_ceiling
         self._metric = ValueDelta(scale=0.75)  # 0.75 chosen after calibrating with ceiling
-        self._fitting_stimuli = load_stimulus_set(f'Ferguson2024_{dataset}')
-        self._assembly = load_dataset(f'Ferguson2024_{dataset}')
+        self._fitting_stimuli = load_stimulus_set(f'Ferguson2024_{self._experiment}')
+        self._assembly = load_dataset(f'Ferguson2024_{self._experiment}')
         self._visual_degrees = 8
         self._number_of_trials = 3
-        self._ceiling = calculate_ceiling(precompute_ceiling, dataset, self._assembly, self._metric, num_loops=500)
+        self._ceiling = calculate_ceiling(self._precompute_ceiling, self._experiment, self._assembly, self._metric, num_loops=500)
         super(_Ferguson2024ValueDelta, self).__init__(identifier="Ferguson2024", version=1, ceiling_func=self._ceiling,
-                                                      parent='behavior',
-                                                      bibtex=BIBTEX)
+                                                      parent='behavior', bibtex=BIBTEX)
 
     def __call__(self, candidate: BrainModel) -> Score:
 
@@ -51,7 +52,7 @@ class _Ferguson2024ValueDelta(BenchmarkBase):
         #                                source_visual_degrees=self._visual_degrees)
         # probabilities = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
 
-        human_integral = get_integral_data(self._assembly, dataset)['integral']
+        human_integral = get_integral_data(self._assembly, self._experiment)['integral']
         model_integral = -1.67
         raw_score = self._metric(model_integral, human_integral)
         ceiling = self._ceiling
@@ -100,17 +101,19 @@ def calculate_ceiling(precompute_ceiling, dataset: str, assembly: BehavioralAsse
         return score
 
 
-def get_integral_data(assembly: BehavioralAssembly, dataset: str) -> Dict:
+def get_integral_data(assembly: BehavioralAssembly, experiment: str, precompute_boostrap=True) -> Dict:
     """
     - Generates summary data for the experiment and calculates the integral of delta line
 
     :param assembly: the human behavioral data to look at
-    :param dataset: str, the prefix of the experiment subtype, ex: "tilted_line" or "lle"
+    :param experiment: str, the prefix of the experiment subtype, ex: "tilted_line" or "lle"
+    :param precompute_boostrap: True if using precomputed integral errors, else manually compute (Slow!)
     :return: tuple of calculated human integral and its boostrapped (precomputed) error
     """
-    lapse_rate = LAPSE_RATES[dataset]
+    lapse_rate = LAPSE_RATES[experiment]
     blue_data = generate_summary_df(assembly, lapse_rate, "first")
     orange_data = generate_summary_df(assembly, lapse_rate, "second")
     integral = calculate_integral(blue_data, orange_data)
-    integral_error = HUMAN_INTEGRAL_ERRORS[dataset]
+    integral_error = HUMAN_INTEGRAL_ERRORS[experiment] if precompute_boostrap else \
+        boostrap_integral(blue_data, orange_data)["integral_std"]
     return dict(zip(["integral", "integral_error"], [integral, integral_error]))

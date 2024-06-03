@@ -3,7 +3,9 @@ import numpy as np
 from brainio.assemblies import BehavioralAssembly
 import sympy as sp
 from pandas import DataFrame
-
+from tqdm import tqdm
+import statistics
+from typing import Dict
 
 # number of distractors in the experiment
 DISTRACTOR_NUMS = ["1.0", "5.0", "11.0"]
@@ -14,7 +16,7 @@ LAPSE_RATES = {'circle_line': 0.0335, 'color': 0.0578, 'convergence': 0.0372, 'e
                'lle': 0.0573, 'llh': 0.0402, 'quarter': 0.0534, 'round_f': 0.08196,
                'round_v': 0.0561, 'tilted_line': 0.04986}
 
-# These are precomputed integral errors, computed by boostrapping
+# These are precomputed integral errors, computed by bootstrapping (see below)
 HUMAN_INTEGRAL_ERRORS = {'circle_line': 0.3078, 'color': 0.362, 'convergence': 0.2773, 'eighth': 0.278,
                          'gray_easy': 0.309, 'gray_hard': 0.4246, 'half': 0.3661, 'juncture': 0.2198,
                          'lle': 0.209, 'llh': 0.195, 'quarter': 0.2959, 'round_f': 0.344,
@@ -188,3 +190,62 @@ def split_dataframe(df: BehavioralAssembly, seed: int) -> (BehavioralAssembly, B
     dataarray_2 = df.isel(presentation=indices_2)
     return dataarray_1, dataarray_2
 
+
+def get_acc_delta(df_blue: DataFrame, df_orange: DataFrame, num_dist: str) -> float:
+    """
+    Helper function for bootstrapping. Calculates an accuracy delta on a specific subject/distractor.
+
+    :param df_blue: DataFrame, the first (blue) block of data (target on a field of distractors)
+    :param df_orange: DataFrame, the second (orange) block of data (distractor on a field of targets)
+    :param num_dist: string, number of distractors
+    :return: float representing the requested accuracy delta.
+    """
+    d_blue = df_blue[df_blue["distractor_nums"] == num_dist]
+    d_orange = df_orange[df_orange["distractor_nums"] == num_dist]
+    sampled_blue = d_blue.sample(n=1, replace=True)
+    sampled_orange = d_orange.sample(n=1, replace=True)
+    accuracy_delta = sampled_blue["correct"].values[0] - sampled_orange["correct"].values[0]
+    return accuracy_delta
+
+
+def boostrap_integral(df_blue: DataFrame, df_orange: DataFrame, num_loops: int = 500) -> Dict:
+    """
+    Computes an error (std) on integral calculation by bootstrapping the integral via slices of subjects.
+
+    :param df_blue: DataFrame, the first (blue) block of data (target on a field of distractors)
+    :param df_orange: DataFrame, the second (orange) block of data (distractor on a field of targets)
+    :param num_loops: int, number of times the boostrap will run (and thus take the average)
+    :return: Dict of values {bootstrapped_integral, bootstrapped_integral_error)
+    """
+    num_subjects = len(set(df_blue["participant_id"]))
+    integral_list = []
+    for i in tqdm(range(num_loops)):
+        accuracy_delta_lows = []
+        accuracy_delta_mids = []
+        accuracy_delta_highs = []
+        for j in range(num_subjects):
+            accuracy_delta_lows.append(get_acc_delta(df_blue, df_orange, num_dist="1.0"))  # get low distractor case
+            accuracy_delta_mids.append(get_acc_delta(df_blue, df_orange, num_dist="5.0"))  # get mid distractor case
+            accuracy_delta_highs.append(get_acc_delta(df_blue, df_orange, num_dist="11.0"))  # get high distractor case
+        average_low_delta = statistics.mean(accuracy_delta_highs)
+        average_mid_delta = statistics.mean(accuracy_delta_mids)
+        average_high_delta = statistics.mean(accuracy_delta_lows)
+
+        # get equation for line through points 1 - 5 and integrate:
+        point_1 = (1, average_low_delta)
+        point_2 = (5, average_mid_delta)
+        equation = get_line(point_1, point_2)
+        first_half = integrate_line(equation, 1, 5)
+
+        # get line 5-11 equation and integrate
+        point_3 = (11, average_high_delta)
+        equation_2 = get_line(point_2, point_3)
+        second_half = integrate_line(equation_2, 5, 11)
+
+        total_integral = first_half + second_half
+        integral_list.append(total_integral)
+    data_array = np.array(integral_list, dtype=float)
+    integral_mean = -np.mean(data_array)
+    integral_std = np.std(data_array)
+
+    return {"bootstrap_integral_mean": integral_mean, "integral_std": integral_std}

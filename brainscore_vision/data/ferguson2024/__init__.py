@@ -2,7 +2,7 @@ from brainio.assemblies import BehavioralAssembly
 from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set
 from brainscore_vision.data_helpers.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
 
-BIBTEX = """TBD"""
+BIBTEX = """"""
 
 # circle_line:
 stimulus_set_registry['Ferguson2024_circle_line'] = lambda: load_stimulus_set_from_s3(

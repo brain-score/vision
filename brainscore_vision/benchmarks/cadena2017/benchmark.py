@@ -3,6 +3,8 @@ from brainscore_vision import load_metric, load_ceiling
 from brainio.assemblies import walk_coords, array_is_element
 from brainscore_vision.benchmark_helpers.neural_common import NeuralBenchmark
 
+# adding comment to trigger plugin tests
+
 VISUAL_DEGREES = 2
 NUMBER_OF_TRIALS = 2
 BIBTEX = """@article{cadena2019deep,

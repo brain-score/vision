@@ -28,8 +28,8 @@ dependencies = [
     "peewee",
     "psycopg2-binary",
     "networkx",
-    "decord",
-    "psutil"
+    "eva-decord",
+    "psutil",
 ]
 
 [project.optional-dependencies]
@@ -39,11 +39,12 @@ test = [
     "pytest-mock",
     "torch",
     "torchvision",
-    "tensorflow==1.15",
-    "keras==2.3.1",
-    "protobuf<=3.20",  # https://protobuf.dev/news/2022-05-06/#python-updates
+    "tensorflow==2.14",
+    "keras==2.14",
+    "protobuf==3.20.3",  # https://protobuf.dev/news/2022-05-06/#python-updates
     "matplotlib",  # for examples
     "pytest-mock",
+    "tf_slim",
 ]
 
 [build-system]

@@ -105,7 +105,7 @@ def keras_vgg19():
 def tfslim_custom():
     from brainscore_vision.model_helpers.activations.tensorflow import load_resize_image
     import tensorflow as tf
-    slim = tf.contrib.slim
+    import tf_slim as slim
     tf.compat.v1.reset_default_graph()
 
     image_size = 224

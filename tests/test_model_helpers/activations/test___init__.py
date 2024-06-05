@@ -6,7 +6,7 @@ import xarray as xr
 from pathlib import Path
 
 from brainio.stimuli import StimulusSet
-from brainscore_vision.model_helpers.activations import KerasWrapper, PytorchWrapper, TensorflowSlimWrapper
+from brainscore_vision.model_helpers.activations import PytorchWrapper
 from brainscore_vision.model_helpers.activations.core import flatten
 from brainscore_vision.model_helpers.activations.pca import LayerPCA
 
@@ -93,74 +93,10 @@ def pytorch_transformer_substitute():
     return PytorchWrapper(model=MyTransformer(), preprocessing=preprocessing)
 
 
-def keras_vgg19():
-    import keras
-    from keras.applications.vgg19 import VGG19, preprocess_input
-    from brainscore_vision.model_helpers.activations.keras import load_images
-    keras.backend.clear_session()
-    preprocessing = lambda image_filepaths: preprocess_input(load_images(image_filepaths, image_size=224))
-    return KerasWrapper(model=VGG19(), preprocessing=preprocessing)
-
-
-def tfslim_custom():
-    from brainscore_vision.model_helpers.activations.tensorflow import load_resize_image
-    import tensorflow as tf
-    import tf_slim as slim
-    tf.compat.v1.reset_default_graph()
-
-    image_size = 224
-    placeholder = tf.compat.v1.placeholder(dtype=tf.string, shape=[64])
-    preprocess = lambda image_path: load_resize_image(image_path, image_size)
-    preprocess = tf.map_fn(preprocess, placeholder, dtype=tf.float32)
-
-    with tf.compat.v1.variable_scope('my_model', values=[preprocess]) as sc:
-        end_points_collection = sc.original_name_scope + '_end_points'
-        # Collect outputs for conv2d, fully_connected and max_pool2d.
-        with slim.arg_scope([slim.conv2d, slim.fully_connected, slim.max_pool2d],
-                            outputs_collections=[end_points_collection]):
-            net = slim.conv2d(preprocess, 64, [11, 11], 4, padding='VALID', scope='conv1')
-            net = slim.max_pool2d(net, [5, 5], 5, scope='pool1')
-            net = slim.max_pool2d(net, [3, 3], 2, scope='pool2')
-            net = slim.flatten(net, scope='flatten')
-            net = slim.fully_connected(net, 1000, scope='logits')
-            endpoints = slim.utils.convert_collection_to_dict(end_points_collection)
-
-    session = tf.compat.v1.Session()
-    session.run(tf.compat.v1.initialize_all_variables())
-    return TensorflowSlimWrapper(identifier='tf-custom', labels_offset=0,
-                                 endpoints=endpoints, inputs=placeholder, session=session)
-
-
-def tfslim_vgg16():
-    import tensorflow as tf
-    from nets import nets_factory
-    from preprocessing import vgg_preprocessing
-    from brainscore_vision.model_helpers.activations.tensorflow import load_resize_image
-    tf.compat.v1.reset_default_graph()
-
-    image_size = 224
-    placeholder = tf.compat.v1.placeholder(dtype=tf.string, shape=[64])
-    preprocess_image = lambda image: vgg_preprocessing.preprocess_image(
-        image, image_size, image_size, resize_side_min=image_size)
-    preprocess = lambda image_path: preprocess_image(load_resize_image(image_path, image_size))
-    preprocess = tf.map_fn(preprocess, placeholder, dtype=tf.float32)
-
-    model_ctr = nets_factory.get_network_fn('vgg_16', num_classes=1001, is_training=False)
-    logits, endpoints = model_ctr(preprocess)
-
-    session = tf.compat.v1.Session()
-    session.run(tf.compat.v1.initialize_all_variables())
-    return TensorflowSlimWrapper(identifier='tf-vgg16', labels_offset=1,
-                                 endpoints=endpoints, inputs=placeholder, session=session)
-
-
 models_layers = [
     pytest.param(pytorch_custom, ['linear', 'relu2']),
     pytest.param(pytorch_alexnet, ['features.12', 'classifier.5'], marks=pytest.mark.memory_intense),
     pytest.param(pytorch_transformer_substitute, ['relu1']),
-    pytest.param(keras_vgg19, ['block3_pool'], marks=pytest.mark.memory_intense),
-    pytest.param(tfslim_custom, ['my_model/pool2'], marks=pytest.mark.memory_intense),
-    pytest.param(tfslim_vgg16, ['vgg_16/pool5'], marks=pytest.mark.memory_intense),
 ]
 
 # exact microsaccades for pytorch_alexnet, grayscale.png, for 1 and 10 number_of_trials
@@ -347,8 +283,6 @@ def test_exact_microsaccades(number_of_trials):
 @pytest.mark.memory_intense
 @pytest.mark.parametrize(["model_ctr", "internal_layers"], [
     (pytorch_alexnet, ['features.12', 'classifier.5']),
-    (keras_vgg19, ['block3_pool']),
-    (tfslim_vgg16, ['vgg_16/pool5']),
 ])
 def test_mixed_layer_logits(model_ctr, internal_layers):
     stimuli_paths = [os.path.join(os.path.dirname(__file__), 'rgb.jpg')]
@@ -365,7 +299,6 @@ def test_mixed_layer_logits(model_ctr, internal_layers):
 @pytest.mark.parametrize(["model_ctr", "expected_identifier"], [
     (pytorch_custom, 'MyModel'),
     (pytorch_alexnet, 'AlexNet'),
-    (keras_vgg19, 'vgg19'),
 ])
 def test_infer_identifier(model_ctr, expected_identifier):
     model = model_ctr()

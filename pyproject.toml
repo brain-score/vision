@@ -9,10 +9,10 @@ description = "The Brain-Score library enables model comparisons to behavioral a
 authors = []
 license = { 'file' = 'LICENSE' }
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.11"
 
 dependencies = [
-    "numpy>=1.17",
+    "numpy",
     "brainscore_core @ git+https://github.com/brain-score/core",
     "result_caching @ git+https://github.com/brain-score/result_caching",
     "importlib-metadata<5", # workaround to https://github.com/brain-score/brainio/issues/28
@@ -39,12 +39,9 @@ test = [
     "pytest-mock",
     "torch",
     "torchvision",
-    "tensorflow==2.14",
-    "keras==2.14",
-    "protobuf==3.20.3",  # https://protobuf.dev/news/2022-05-06/#python-updates
+    "protobuf",  # https://protobuf.dev/news/2022-05-06/#python-updates
     "matplotlib",  # for examples
     "pytest-mock",
-    "tf_slim",
 ]
 
 [build-system]

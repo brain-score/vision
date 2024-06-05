@@ -124,7 +124,7 @@ class TestAssemblies:
     ])
     def test_num_unique_images(self, identifier, num_unique_images):
         assembly = load_dataset(identifier)
-        assert len(np.unique(assembly['image_id'].values)) == num_unique_images
+        assert len(np.unique(assembly['stimulus_id'].values)) == num_unique_images
 
     # tests assembly dim for ALL datasets
     @pytest.mark.parametrize('identifier, length', [

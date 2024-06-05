@@ -70,7 +70,7 @@ def collect_scialom_behavioral_assembly(data_path, subject_group, percentage_ele
                                           'subject_answer': ('presentation', filtered_data['subject_answer']),
                                           'condition': ('presentation', filtered_data['subject_group']),
                                           'percentage_elements': ('presentation', filtered_data['percentage_elements']),
-                                          'stimulus_id': ('presentation', filtered_data['stimulus_id'].astype(str)),
+                                          'stimulus_id': ('presentation', filtered_data['stimulus_id'].astype(int)),
                                           'truth': ('presentation', filtered_data['correct_answer'])
                                       },
                                       dims=['presentation']
@@ -86,7 +86,7 @@ def collect_scialom_behavioral_assembly(data_path, subject_group, percentage_ele
                                           'subject_answer': ('presentation', filtered_data['subject_answer']),
                                           'condition': ('presentation', filtered_data['percentage_elements']),
                                           'percentage_elements': ('presentation', filtered_data['percentage_elements']),
-                                          'stimulus_id': ('presentation', filtered_data['stimulus_id'].astype(str)),
+                                          'stimulus_id': ('presentation', filtered_data['stimulus_id'].astype(int)),
                                           'truth': ('presentation', filtered_data['correct_answer'])
                                       },
                                       dims=['presentation']

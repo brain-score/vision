@@ -25,8 +25,8 @@ from brainscore_vision import load_stimulus_set, load_dataset
     pytest.param('Scialom2024_segments-59', marks=[pytest.mark.private_access]),
     pytest.param('Scialom2024_segments-77', marks=[pytest.mark.private_access]),
     pytest.param('Scialom2024_segments-100', marks=[pytest.mark.private_access]),
-    pytest.param('Scialom2024_phosphenes-composite', marks=[pytest.mark.private_access]),
-    pytest.param('Scialom2024_segments-composite', marks=[pytest.mark.private_access])
+    pytest.param('Scialom2024_phosphenes-all', marks=[pytest.mark.private_access]),
+    pytest.param('Scialom2024_segments-all', marks=[pytest.mark.private_access])
 ])
 def test_existence(assembly_identifier):
     assert load_dataset(assembly_identifier) is not None
@@ -54,8 +54,8 @@ class TestAssemblies:
         'Scialom2024_segments-59',
         'Scialom2024_segments-77',
         'Scialom2024_segments-100',
-        'Scialom2024_phosphenes-composite',
-        'Scialom2024_segments-composite',
+        'Scialom2024_phosphenes-all',
+        'Scialom2024_segments-all',
     ])
     @pytest.mark.parametrize('field', [
         'stimulus_id',
@@ -90,8 +90,8 @@ class TestAssemblies:
         ('Scialom2024_segments-59', 25),
         ('Scialom2024_segments-77', 25),
         ('Scialom2024_segments-100', 25),
-        ('Scialom2024_phosphenes-composite', 25),
-        ('Scialom2024_segments-composite', 25),
+        ('Scialom2024_phosphenes-all', 25),
+        ('Scialom2024_segments-all', 25),
     ])
     def test_num_subjects(self, identifier, num_subjects):
         assembly = load_dataset(identifier)
@@ -119,8 +119,8 @@ class TestAssemblies:
         ('Scialom2024_segments-59', 48),
         ('Scialom2024_segments-77', 48),
         ('Scialom2024_segments-100', 48),
-        ('Scialom2024_phosphenes-composite', 528),
-        ('Scialom2024_segments-composite', 528),
+        ('Scialom2024_phosphenes-all', 528),
+        ('Scialom2024_segments-all', 528),
     ])
     def test_num_unique_images(self, identifier, num_unique_images):
         assembly = load_dataset(identifier)
@@ -148,8 +148,8 @@ class TestAssemblies:
         ('Scialom2024_segments-59', 1200),
         ('Scialom2024_segments-77', 1200),
         ('Scialom2024_segments-100', 1200),
-        ('Scialom2024_phosphenes-composite', 13200),
-        ('Scialom2024_segments-composite', 13200),
+        ('Scialom2024_phosphenes-all', 13200),
+        ('Scialom2024_segments-all', 13200),
     ])
     def test_length(self, identifier, length):
         assembly = load_dataset(identifier)
@@ -177,8 +177,8 @@ class TestAssemblies:
         'Scialom2024_segments-59',
         'Scialom2024_segments-77',
         'Scialom2024_segments-100',
-        'Scialom2024_phosphenes-composite',
-        'Scialom2024_segments-composite',
+        'Scialom2024_phosphenes-all',
+        'Scialom2024_segments-all',
     ])
     @pytest.mark.parametrize('field', [
         'subject',
@@ -222,8 +222,8 @@ class TestStimulusSets:
         'Scialom2024_segments-59',
         'Scialom2024_segments-77',
         'Scialom2024_segments-100',
-        'Scialom2024_phosphenes-composite',
-        'Scialom2024_segments-composite',
+        'Scialom2024_phosphenes-all',
+        'Scialom2024_segments-all',
     ])
     def test_stimulus_set_exists(self, identifier):
         stimulus_set = load_stimulus_set(identifier)
@@ -252,8 +252,8 @@ class TestStimulusSets:
         ('Scialom2024_segments-59', 48),
         ('Scialom2024_segments-77', 48),
         ('Scialom2024_segments-100', 48),
-        ('Scialom2024_phosphenes-composite', 528),
-        ('Scialom2024_segments-composite', 528),
+        ('Scialom2024_phosphenes-all', 528),
+        ('Scialom2024_segments-all', 528),
     ])
     def test_num_images(self, identifier, num_images):
         stimulus_set = load_stimulus_set(identifier)
@@ -281,8 +281,8 @@ class TestStimulusSets:
         'Scialom2024_segments-59',
         'Scialom2024_segments-77',
         'Scialom2024_segments-100',
-        'Scialom2024_phosphenes-composite',
-        'Scialom2024_segments-composite',
+        'Scialom2024_phosphenes-all',
+        'Scialom2024_segments-all',
     ])
     @pytest.mark.parametrize('field', [
         'image_height',

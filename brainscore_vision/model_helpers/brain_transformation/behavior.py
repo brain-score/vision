@@ -2,16 +2,22 @@ import os
 from collections import OrderedDict
 from typing import Union, List
 
+import math
 import numpy as np
 import pandas as pd
 import xarray as xr
+import random
 import sklearn.linear_model
 import sklearn.multioutput
+import torch
+import torch.nn as nn
 
 from brainio.assemblies import walk_coords, array_is_element, BehavioralAssembly, DataAssembly
 from brainio.stimuli import StimulusSet
 from brainscore_vision.model_helpers.utils import make_list
 from brainscore_vision.model_interface import BrainModel
+from torch.utils.data import Dataset
+from torch.utils.data.sampler import Sampler
 
 
 class BehaviorArbiter(BrainModel):
@@ -307,7 +313,7 @@ class OddOneOut(BrainModel):
         return choice_predictions
     
 
-class ReadoutMapping(BrainModel):
+class VideoReadoutMapping(BrainModel):
     def __init__(self, identifier, activations_model, layer):
         """
         :param identifier: a string to identify the model
@@ -317,7 +323,7 @@ class ReadoutMapping(BrainModel):
         self._identifier = identifier
         self.activations_model = activations_model
         self.readout = make_list(layer)
-        self.classifier = ReadoutMapping.TransformerReadout()
+        self.classifier = VideoReadoutMapping.TransformerReadout(self.activations_model._model.encoder.latent_dim)
         self.current_task = None
 
     @property
@@ -325,26 +331,27 @@ class ReadoutMapping(BrainModel):
         return self._identifier
 
     def start_task(self, task: BrainModel.Task, fitting_stimuli):
-        assert task in BrainModel.Task.label
+        assert task in BrainModel.Task.video_readout
         self.current_task = task
 
         fitting_features = self.activations_model(fitting_stimuli['data'], layers=self.readout)
-        fitting_features = fitting_features.transpose('presentation', 'neuroid')
-        assert all(fitting_features['stimulus_id'].values == fitting_stimuli['stimulus_id'].values), \
+        assert all(fitting_features['stimulus_path'].values == fitting_stimuli['data']), \
             "stimulus_id ordering is incorrect"
-        self.classifier.fit(fitting_features, fitting_stimuli['label'], fitting_features['stimulus_id'])
+        self.classifier.fit(fitting_features, 
+                            fitting_stimuli['label'])#, fitting_features['stimulus_path'])
 
     def look_at(self, stimuli, number_of_trials=1):
         features = self.activations_model(stimuli, layers=self.readout)
-        features = features.transpose('presentation', 'neuroid')
         prediction = self.classifier.predict(features)
         return prediction
         
     class TransformerReadout:
         def __init__(self, model_dim):
-            self.model = ReadoutMapping.ReadoutModel(model_dim, 4, 1)
-            self.num_epochs = 1000
+            super(VideoReadoutMapping.TransformerReadout, self).__init__()
+            self.model = VideoReadoutMapping.ReadoutModel(model_dim, 4, 1)
+            self.num_epochs = 1#1000
             self.lr = 1e-4
+            self.val_after = 1
             self.best_val_accuracy = 0
             self.convergence_thresh = 20
             self.counter_converge = 0
@@ -357,6 +364,7 @@ class ReadoutMapping(BrainModel):
          
         def set_seed(self, seed_value=42):
             """Set seed for reproducibility."""
+            
             torch.manual_seed(seed_value)
             torch.cuda.manual_seed_all(seed_value)  # For CUDA devices
             np.random.seed(seed_value)
@@ -364,64 +372,77 @@ class ReadoutMapping(BrainModel):
             torch.backends.cudnn.deterministic = True
             torch.backends.cudnn.benchmark = False
             
-        def build_loader(features, labels, mode='train', indices=None):
-            train_dataset = ReadoutMapping.TransformerLoader(features, labels, indices=train_indices)
-            sampler = ReadoutMapping.BalancedBatchSampler(train_dataset.positive_indices, 
+        def build_loader(self, features, labels, mode='train', indices=None):
+            if mode == 'train':
+                indices = list(range(features.shape[0]))
+                random.shuffle(indices)
+                split_point = int(0.9 * len(indices))
+                train_indices = indices[:split_point]
+                val_indices = indices[split_point:]
+                
+                train_dataset = VideoReadoutMapping.TransformerLoader(features, labels, indices=train_indices)
+            
+                sampler = VideoReadoutMapping.BalancedBatchSampler(train_dataset.positive_indices, 
                                            train_dataset.negative_indices, 
-                                           batch_size=256, seed=42)
+                                           batch_size=2, seed=42)
 
-            train_loader = MultiEpochsDataLoader(train_dataset, 
+                train_loader = VideoReadoutMapping.MultiEpochsDataLoader(train_dataset, 
                                                  batch_sampler=sampler, 
                                                  num_workers=4)
-            if mode == 'train':
-                val_dataset = ReadoutMapping.TransformerLoader(features, labels, indices=val_indices)
-                val_loader = MultiEpochsDataLoader(val_dataset, 
-                                               batch_size=256, 
+            
+                val_dataset = VideoReadoutMapping.TransformerLoader(features, labels, indices=val_indices)
+                val_loader = VideoReadoutMapping.MultiEpochsDataLoader(val_dataset, 
+                                               batch_size=2, 
                                                shuffle=False, 
                                                num_workers=4)
             else:
-                val_dataset = None
-
+                train_dataset = VideoReadoutMapping.TransformerLoader(features, None)
+                train_loader = VideoReadoutMapping.MultiEpochsDataLoader(train_dataset,
+                                                 batch_size=2, shuffle=False, 
+                                                 num_workers=4)
+                val_loader = None
             return train_loader, val_loader
             
         def fit(self, features, labels):
+            features = np.transpose(features.values, (0, 2, 1))
             train_loader, val_loader = self.build_loader(features, labels, mode='train')
             self.model = nn.DataParallel(self.model)
             self.model = self.model.to(self.device)
 
-            logging.info(f'Total number of parameters: {total_params}')
             # Optimizer
             optimizer = torch.optim.AdamW(self.model.parameters(), lr=self.lr)
             criterion = nn.BCELoss()
            
             # Define the total number of steps
-            total_steps = num_epochs * len(train_loader)
+            total_steps = self.num_epochs * len(train_loader)
             warmup_steps = int(0.05 * total_steps)  # for example, 10% of total steps
 
             # Initialize the warmup scheduler
-            warmup_scheduler = WarmupScheduler(optimizer, warmup_steps, initial_lr=lr)
+            warmup_scheduler = VideoReadoutMapping.WarmupScheduler(optimizer, warmup_steps, initial_lr=self.lr)
 
             # Replace the ReduceLROnPlateau scheduler with CosineAnnealingLR
             scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=total_steps - warmup_steps, eta_min=0)
 
-            for epoch in range(num_epochs):
-                train_loss, train_acc = self.train(train_loader, optimizer, criterion, self.device,
+            for epoch in range(self.num_epochs):
+                train_loss, train_acc = self.train(train_loader, optimizer, criterion,
                                                    epoch, scheduler, warmup_scheduler, warmup_steps)
                 # optimize for prob
-                if epoch % val_after == 0:
+                if epoch % self.val_after == 0:
                     val_accuracy = self.validate(val_loader)  
-                    logging.info(f'Epoch:{epoch+1}, Val Accuracy:{val_accuracy*100:.2f}%')
+                    print(f'Epoch:{epoch+1}, Val Accuracy:{val_accuracy*100:.2f}%')
 
                     if val_accuracy > self.best_val_accuracy:
                         self.counter_converge = 0
                         self.best_val_accuracy = val_accuracy
-                        logging.info(f'Saving best model with val accuracy:{val_accuracy:.5f}')
+                        print(f'Saving best model with val accuracy:{val_accuracy:.5f}')
                         torch.save(self.model.state_dict(), 'transformer_readout.pt')
                     else:
                         self.counter_converge += 1
 
                 if self.counter_converge >= self.convergence_thresh:
                     break
+
+            # optimize prob threshold
                 
         def binary_accuracy(self, preds, y):
             # Round predictions to the closest integer (0 or 1)
@@ -432,7 +453,7 @@ class ReadoutMapping(BrainModel):
             
         def train(self, data_loader, optimizer, criterion, 
                   epoch, scheduler, warmup_scheduler,
-                  warmup_steps, log_step=50):
+                  warmup_steps, log_step=1):
             self.model.train()
             total_loss = 0
             total_acc = 0
@@ -455,7 +476,7 @@ class ReadoutMapping(BrainModel):
                 acc = self.binary_accuracy(outputs, targets)
 
                 if batch_idx % log_step == 0:
-                    logging.info(f'Epoch:{epoch+1}, Step: [{batch_idx}/{len(data_loader)}], Train Accuracy:{acc:.5f}')
+                    print(f'Epoch:{epoch+1}, Step: [{batch_idx}/{len(data_loader)}], Train Accuracy:{acc:.5f}')
 
                 loss.backward()
                 optimizer.step()
@@ -469,75 +490,77 @@ class ReadoutMapping(BrainModel):
 
             return avg_loss, avg_acc
         
-        def validate(val_loader):
+        def validate(self, val_loader):
             self.model.eval()
             correct = 0
             total = 0
             with torch.no_grad():
                 for data in val_loader:
                     inputs, labels = data['feature'], data['label']
-                    inputs, labels = inputs.to(device), labels.to(device)  
+                    inputs, labels = inputs.to(self.device), labels.to(self.device)  
                     outputs, _ = self.model(inputs)
-                    outputs = outputs.squeeze()
+                    outputs = outputs.squeeze(dim=1)
                     predicted = (outputs > self.prob_threshold).float() 
                     total += labels.size(0)
                     correct += (predicted == labels).sum().item()
             self.model.train()
             return correct / total
         
-        def predict(features, labels):
-            test_loader, _ = self.build_loader(features, labels, mode='test')
+        def predict(self, features):
+            features_ = np.transpose(features.values, (0, 2, 1))
+            test_loader, _ = self.build_loader(features_, None, mode='test')
             self.model.load_state_dict(torch.load('transformer_readout.pt'))
             self.model.eval()  # Set the model to evaluation mode
             predictions, proba = [], []
 
             with torch.no_grad():  # No gradients needed
                 for data in test_loader:
-                    inputs, labels = data['feature'], data['label']
-                    inputs, labels = inputs.to(self.device), labels.to(self.device)
-                    outputs, _ = model(inputs)
-                    outputs = outputs.squeeze()
-                    proba.extend(outputs.tolis())
+                    inputs = data['feature']
+                    inputs = inputs.to(self.device)
+                    outputs, _ = self.model(inputs)
+                    outputs = outputs.squeeze(dim=1)
+                    proba.extend(outputs.tolist())
                     predicted = (outputs > self.prob_threshold).float().tolist()
                     predictions.extend(predicted)
-                    
-            features_coords = {coord: (dims, value) for coord, dims, value in walk_coords(features)
+            features_coords = {coord: value for coord, dims, value in walk_coords(features)
                         if array_is_element(dims, features.dims[0])}
             proba = BehavioralAssembly(proba,
-                                       coords={**features_coords, **{'choice': predictions}},
-                                       dims=[features.dims[0], 'choice'])
-
-            return predictions
+                                       coords=
+                                       {'stimulus_path': ('presentation', features_coords['stimulus_path']),
+                                        'choice': ('presentation', predictions), 
+                                        'choice_threshold': ('presentation', [self.prob_threshold]*len(predictions))},
+                                       dims=['presentation'])
+            return proba
             
     class PositionalEncoding(nn.Module):
         def __init__(self, d_model, max_len=5000):
-            super(PositionalEncoding, self).__init__()
+            super(VideoReadoutMapping.PositionalEncoding, self).__init__()
             self.d_model = d_model
-
+    
         def forward(self, x):
             device = x.device
-            # Assuming x has shape [batch_size, seq_length, d_model] = [9, 10, 128] in this context
-            seq_length = x.size(1)
-
+            # Assuming x has shape [batch_size, seq_length, d_model]
+            batch_size, seq_length, d_model = x.size()
+    
             position = torch.arange(0, seq_length, dtype=torch.float).unsqueeze(1).to(device)
             div_term = torch.exp(torch.arange(0, self.d_model, 2).float() * (-math.log(10000.0) / self.d_model)).to(device)
-
+    
             encoding = torch.zeros(seq_length, self.d_model, device=device)
             encoding[:, 0::2] = torch.sin(position * div_term.unsqueeze(0))
             encoding[:, 1::2] = torch.cos(position * div_term.unsqueeze(0))
-
-            encoding = encoding.unsqueeze(0).expand(x.size(0), -1, -1)  # Expand encoding to match the batch size of x
+    
+            encoding = encoding.unsqueeze(0).expand(batch_size, -1, -1)  # Expand encoding to match the batch size of x
+    
             return x + encoding
-        
+            
     class ReadoutModel(nn.Module):
         def __init__(self, model_dim, num_heads, 
                      num_encoder_layers, num_classes=1, num_input_layers=2):
-            super(ReadoutModel, self).__init__()
-
+            super(VideoReadoutMapping.ReadoutModel, self).__init__()
             self.model_dim = model_dim
             self.encoder_layer = nn.TransformerEncoderLayer(d_model=model_dim, nhead=num_heads, dim_feedforward=128)
             self.transformer_encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=num_encoder_layers)
-            self.position_encoder = ReadoutMapping.PositionalEncoding(model_dim)
+            self.position_encoder = VideoReadoutMapping.PositionalEncoding(model_dim)
             self.fc = nn.Linear(model_dim, num_classes)
 
         def forward(self, x, mode=None):
@@ -553,22 +576,28 @@ class ReadoutMapping(BrainModel):
             self.indices = indices
             self.labels = labels
             self.features = features
-            self.positive_indices, self.negative_indices = [], []
-            for i, l in enumerate(labels):
-                if l == 1:
-                    self.positive_indices += [i]
-                else:
-                    self.negative_indices += [i]
+            if self.labels:
+                self.positive_indices, self.negative_indices = [], []
+                for i, l in enumerate(indices):
+                    if self.labels[l] == 1:
+                        self.positive_indices += [i]
+                    else:
+                        self.negative_indices += [i]
 
         def __len__(self):
             length = len(self.indices) if self.indices is not None else self.features.shape[0]
             return length
 
         def __getitem__(self, idx):
-            actual_idx = self.indices[idx] if self.indices is not None else idx
-            feature = self.features[actual_idx]
-            label = self.labels[actual_idx]
-
+            if self.indices is not None:
+                actual_idx = self.indices[idx] 
+            else:
+                actual_idx = idx
+            feature = np.nan_to_num(self.features[actual_idx], nan=0.0)
+            if self.labels: 
+                label = self.labels[actual_idx]
+            else:
+                label = 0#None
             return {
                 'feature': feature,
                 'label': label,
@@ -608,7 +637,7 @@ class ReadoutMapping(BrainModel):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self._DataLoader__initialized = False
-            self.batch_sampler = _RepeatSampler(self.batch_sampler)
+            self.batch_sampler = VideoReadoutMapping._RepeatSampler(self.batch_sampler)
             self._DataLoader__initialized = True
             self.iterator = super().__iter__()
 
@@ -618,3 +647,33 @@ class ReadoutMapping(BrainModel):
         def __iter__(self):
             for i in range(len(self)):
                 yield next(self.iterator)
+
+    class _RepeatSampler(object):
+        """ Sampler that repeats forever.
+        Args:
+            sampler (Sampler)
+        """
+    
+        def __init__(self, sampler):
+            self.sampler = sampler
+    
+        def __iter__(self):
+            while True:
+                yield from iter(self.sampler)
+    
+        def __len__(self):
+            return len(self.sampler)
+
+    class WarmupScheduler:
+        def __init__(self, optimizer, warmup_steps, initial_lr):
+            self.optimizer = optimizer
+            self.warmup_steps = warmup_steps
+            self.initial_lr = initial_lr
+            self.step_num = 0
+    
+        def step(self):
+            self.step_num += 1
+            if self.step_num <= self.warmup_steps:
+                lr = self.initial_lr * self.step_num / self.warmup_steps
+                for param_group in self.optimizer.param_groups:
+                    param_group['lr'] = lr

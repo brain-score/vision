@@ -118,6 +118,35 @@ class BrainModel:
                   - choice        (choice) object 'dog' 'cat' 'chair' 'flower' 'plane'
         """
 
+        video_readout = 'video_readout'
+        """ 
+        Predict transformer readout hypothesis for each video stimulus. 
+        Output a :class:`~brainio.assemblies.BehavioralAssembly` with probabilities as the values.
+
+        The model must be supplied with `fitting_stimuli` in the second argument which allow it to train a readout 
+        for a particular set of labels and video distribution. 
+        The `fitting_stimuli` are a :class:`~brainio.stimuli.StimulusSet` and must include an `label` column 
+        which is used as the labels to fit to. Each stimuli has a 'train' column to decide 
+        
+        Example:
+
+        Setting up a video readout task `start_task(BrainModel.Task.video_readout, <fitting_stimuli>)` 
+        (where `fitting_stimuli` includes 2 distinct labels)
+        and calling `look_at(<test_stimuli>)` could output 
+
+        .. code-block:: python
+
+           <xarray.BehavioralAssembly (presentation: 3, choice: 2)>
+                array([[0.9]
+                       [0.4]
+                       [0.5]]), # the probabilities
+                Coordinates:
+                  * presentation  (presentation) MultiIndex
+                  - stimulus_path (presentation) object '/home/me/.brainio/demo_stimuli/video.mp4' ...
+                  - choice        (presentation) object '1' '0' '0'
+                  - choice_threshold (presentation) object '0.5' '0.5' '0.5'
+        """
+
         odd_one_out = 'odd_one_out'
         """
         Predict the odd-one-out elements for a list of triplets of stimuli. 

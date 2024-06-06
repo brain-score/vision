@@ -18,7 +18,8 @@ class PhysionGlobalDetectionAccuracy(BenchmarkBase):
         #                                                'physion_full_brainscore.json'),
         #                              'r'))
         self._stimulus_set  = load_stimulus_set("PhysionGlobalDetection2024")
-
+        # at what degree visual angle stimuli were presented
+        self._visual_degrees = 8
         self._similarity_metric = load_metric('accuracy')
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         super(PhysionGlobalPredictionAccuracy, self).__init__(identifier='Physionv1.5-ocd', version=1,
@@ -32,11 +33,20 @@ class PhysionGlobalDetectionAccuracy(BenchmarkBase):
                                                     }""")
 
     def __call__(self, candidate):
-        candidate.start_task(BrainModel.Task.video_readout, self._stimulus_set[stimulus_set['train'] == 1])
-        predictions = candidate.look_at(self._stimulus_set[stimulus_set['train'] == 0])
+        # prepare fitting stimuli
+        fitting_stimuli = self._stimulus_set[self._stimulus_set['train'] == 1]
+        fitting_stimuli = place_on_screen(fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
+                                          source_visual_degrees=self._visual_degrees)
+        # prepare test stimuli
+        test_stimuli = self._stimulus_set[self._stimulus_set['train'] == 0]
+        test_stimuli = place_on_screen(test_stimuli, target_visual_degrees=candidate.visual_degrees(),
+                                          source_visual_degrees=self._visual_degrees)
+        
+        candidate.start_task(BrainModel.Task.video_readout, fitting_stimuli)
+        predictions = candidate.look_at(test_stimuli)
         score = self._similarity_metric(
             predictions['choice'],
-            self._stimulus_set[stimulus_set['train'] == 0]['label']
+            test_stimuli['label']
         )
         return score
 
@@ -47,6 +57,8 @@ class PhysionGlobalPredictionAccuracy(BenchmarkBase):
         #                              'r'))
         
         self._stimulus_set  = load_stimulus_set("PhysionGlobalPrediction2024")
+        # at what degree visual angle stimuli were presented
+        self._visual_degrees = 8
         self._similarity_metric = load_metric('accuracy')
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         super(PhysionGlobalPredictionAccuracy, self).__init__(identifier='Physionv1.5-ocp', version=1,
@@ -60,11 +72,20 @@ class PhysionGlobalPredictionAccuracy(BenchmarkBase):
                                                     }""")
 
     def __call__(self, candidate):
-        candidate.start_task(BrainModel.Task.video_readout, self._stimulus_set[stimulus_set['train'] == 1])
-        predictions = candidate.look_at(self._stimulus_set[stimulus_set['train'] == 0])
+        # prepare fitting stimuli
+        fitting_stimuli = self._stimulus_set[self._stimulus_set['train'] == 1]
+        fitting_stimuli = place_on_screen(fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
+                                          source_visual_degrees=self._visual_degrees)
+        # prepare test stimuli
+        test_stimuli = self._stimulus_set[self._stimulus_set['train'] == 0]
+        test_stimuli = place_on_screen(test_stimuli, target_visual_degrees=candidate.visual_degrees(),
+                                          source_visual_degrees=self._visual_degrees)
+        
+        candidate.start_task(BrainModel.Task.video_readout, fitting_stimuli)
+        predictions = candidate.look_at(test_stimuli)
         score = self._similarity_metric(
             predictions['choice'],
-            self._stimulus_set[stimulus_set['train'] == 0]['label']
+            test_stimuli['label']
         )
         return score
 
@@ -75,6 +96,8 @@ class PhysionGlobalDetectionIntraScenarioAccuracy(BenchmarkBase):
         #                                                'physion_full_intra_scenario_brainscore.json'),
         #                              'r'))
         self._stimulus_set  = load_stimulus_set("PhysionGlobalDetectionIntraScenario2024")
+        # at what degree visual angle stimuli were presented
+        self._visual_degrees = 8
         self._similarity_metric = load_metric('accuracy')
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         super(PhysionGlobalPredictionAccuracy, self).__init__(identifier='Physionv1.5-ocd-intra-generalization', version=1,
@@ -88,11 +111,20 @@ class PhysionGlobalDetectionIntraScenarioAccuracy(BenchmarkBase):
                                                     }""")
 
     def __call__(self, candidate):
-        candidate.start_task(BrainModel.Task.video_readout, self._stimulus_set[stimulus_set['train'] == 1])
-        predictions = candidate.look_at(self._stimulus_set[stimulus_set['train'] == 0])
+        # prepare fitting stimuli
+        fitting_stimuli = self._stimulus_set[self._stimulus_set['train'] == 1]
+        fitting_stimuli = place_on_screen(fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
+                                          source_visual_degrees=self._visual_degrees)
+        # prepare test stimuli
+        test_stimuli = self._stimulus_set[self._stimulus_set['train'] == 0]
+        test_stimuli = place_on_screen(test_stimuli, target_visual_degrees=candidate.visual_degrees(),
+                                          source_visual_degrees=self._visual_degrees)
+        
+        candidate.start_task(BrainModel.Task.video_readout, fitting_stimuli)
+        predictions = candidate.look_at(test_stimuli)
         score = self._similarity_metric(
             predictions['choice'],
-            self._stimulus_set[stimulus_set['train'] == 0]['label']
+            test_stimuli['label']
         )
         return score
 
@@ -102,6 +134,8 @@ class PhysionGlobalPredictionIntraScenarioAccuracy(BenchmarkBase):
         #                                                'physion_pred_intra_scenario_brainscore.json'),
         #                              'r'))
         self._stimulus_set  = load_stimulus_set("PhysionGlobalPredictionIntraScenario2024")
+        # at what degree visual angle stimuli were presented
+        self._visual_degrees = 8
         self._similarity_metric = load_metric('accuracy')
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         super(PhysionGlobalPredictionAccuracy, self).__init__(identifier='Physionv1.5-ocp-intra-generalization', version=1,
@@ -115,11 +149,20 @@ class PhysionGlobalPredictionIntraScenarioAccuracy(BenchmarkBase):
                                                     }""")
 
     def __call__(self, candidate):
-        candidate.start_task(BrainModel.Task.video_readout, self._stimulus_set[stimulus_set['train'] == 1])
-        predictions = candidate.look_at(self._stimulus_set[stimulus_set['train'] == 0])
+        # prepare fitting stimuli
+        fitting_stimuli = self._stimulus_set[self._stimulus_set['train'] == 1]
+        fitting_stimuli = place_on_screen(fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
+                                          source_visual_degrees=self._visual_degrees)
+        # prepare test stimuli
+        test_stimuli = self._stimulus_set[self._stimulus_set['train'] == 0]
+        test_stimuli = place_on_screen(test_stimuli, target_visual_degrees=candidate.visual_degrees(),
+                                          source_visual_degrees=self._visual_degrees)
+        
+        candidate.start_task(BrainModel.Task.video_readout, fitting_stimuli)
+        predictions = candidate.look_at(test_stimuli)
         score = self._similarity_metric(
             predictions['choice'],
-            self._stimulus_set[stimulus_set['train'] == 0]['label']
+            test_stimuli['label']
         )
         return score
 
@@ -131,6 +174,8 @@ class PhysionSnippetPredictionAccuracy(BenchmarkBase):
         #                              'r')
 
         self._stimulus_set  = load_stimulus_set("PhysionSnippetPrediction2024")
+        # at what degree visual angle stimuli were presented
+        self._visual_degrees = 8
         self._similarity_metric = load_metric('accuracy')
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         super(PhysionSnippetPredictionAccuracy, self).__init__(identifier='Physionv1.5-snippet-simulation-performance', version=1,
@@ -144,14 +189,21 @@ class PhysionSnippetPredictionAccuracy(BenchmarkBase):
                                                     }""")
 
     def __call__(self, candidate):
-        # add assert to candidate here? for non simulation-capable models 
-        # or specifiy simulation layers and work with only that in metric
-        candidate.start_task(BrainModel.Task.video_readout, self._stimulus_set[stimulus_set['train'] == 1])
-        predictions = candidate.look_at(self._stimulus_set[stimulus_set['train'] == 0])
+        # prepare fitting stimuli
+        fitting_stimuli = self._stimulus_set[self._stimulus_set['train'] == 1]
+        fitting_stimuli = place_on_screen(fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
+                                          source_visual_degrees=self._visual_degrees)
+        # prepare test stimuli
+        test_stimuli = self._stimulus_set[self._stimulus_set['train'] == 0]
+        test_stimuli = place_on_screen(test_stimuli, target_visual_degrees=candidate.visual_degrees(),
+                                          source_visual_degrees=self._visual_degrees)
+        
+        candidate.start_task(BrainModel.Task.video_readout, fitting_stimuli)
+        predictions = candidate.look_at(test_stimuli)
         predictions = aggregate_preds(predictions)
         score = self._similarity_metric(
-            predictions,
-            self._stimulus_set[stimulus_set['train'] == 0]['label']
+            predictions['choice'],
+            test_stimuli['label']
         )
         return score
 
@@ -161,6 +213,8 @@ class PhysionSnippetDetectionAccuracy(BenchmarkBase):
         #                                                'physion_behavior_brainscore.json')),
         #                              'r')
         self._stimulus_set  = load_stimulus_set("PhysionSnippetDetection2024")
+        # at what degree visual angle stimuli were presented
+        self._visual_degrees = 8
         self._similarity_metric = load_metric('accuracy')
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
         super(PhysionSnippetDetectionAccuracy, self).__init__(identifier='Physionv1.5-snippet-rollout-performance', version=1,
@@ -174,12 +228,21 @@ class PhysionSnippetDetectionAccuracy(BenchmarkBase):
                                                     }""")
 
     def __call__(self, candidate):
-        candidate.start_task(BrainModel.Task.video_readout, self._stimulus_set[stimulus_set['train'] == 1])
-        predictions = candidate.look_at(self._stimulus_set[stimulus_set['train'] == 0])
+        # prepare fitting stimuli
+        fitting_stimuli = self._stimulus_set[self._stimulus_set['train'] == 1]
+        fitting_stimuli = place_on_screen(fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
+                                          source_visual_degrees=self._visual_degrees)
+        # prepare test stimuli
+        test_stimuli = self._stimulus_set[self._stimulus_set['train'] == 0]
+        test_stimuli = place_on_screen(test_stimuli, target_visual_degrees=candidate.visual_degrees(),
+                                          source_visual_degrees=self._visual_degrees)
+        
+        candidate.start_task(BrainModel.Task.video_readout, fitting_stimuli)
+        predictions = candidate.look_at(test_stimuli)
         predictions = aggregate_preds(predictions)
         score = self._similarity_metric(
-            predictions,
-            self._stimulus_set[stimulus_set['train'] == 0]['label']
+            predictions['choice'],
+            test_stimuli['label']
         )
         return score
 

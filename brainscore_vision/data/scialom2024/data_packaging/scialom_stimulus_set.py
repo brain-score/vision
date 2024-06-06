@@ -59,7 +59,7 @@ def collect_scialom_stimulus_set(dataset, percentage_elements, stimuli_directory
                 'num_channels': int(row['channel']),
                 'dataset': str(row['representation_mode']),
                 'object_id': int(row['object_id']),
-                'stimulus_id': int(row['stimulus_id']),
+                'stimulus_id': str(row['stimulus_id']),
                 'truth': str(row['category']),
                 'percentage_elements': str(row['percentage_elements']),
             }
@@ -70,13 +70,13 @@ def collect_scialom_stimulus_set(dataset, percentage_elements, stimuli_directory
                     stimulus_meta = {**stimulus_meta,
                                      'condition': which_composite}
                     stimuli.append(stimulus_meta)
-                    stimulus_paths[int(row['stimulus_id'])] = Path(f'{stimuli_directory}/{row["file_name"]}')
+                    stimulus_paths[str(row['stimulus_id'])] = Path(f'{stimuli_directory}/{row["file_name"]}')
             elif row['percentage_elements'] == str(percentage_elements) and \
                     row['representation_mode'].lower() == dataset:
                 stimulus_meta = {**stimulus_meta,
                                  'condition': str(row['percentage_elements'])}
                 stimuli.append(stimulus_meta)
-                stimulus_paths[int(row['stimulus_id'])] = Path(f'{stimuli_directory}/{row["file_name"]}')
+                stimulus_paths[str(row['stimulus_id'])] = Path(f'{stimuli_directory}/{row["file_name"]}')
 
     stimuli = StimulusSet(stimuli)
     stimuli.stimulus_paths = stimulus_paths

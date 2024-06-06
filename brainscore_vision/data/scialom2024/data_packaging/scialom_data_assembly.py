@@ -47,6 +47,8 @@ PERCENTAGE_ELEMENTS = {'rgb': 'RGB', 'contours': 'contours', 'phosphenes-12': 12
 def collect_scialom_behavioral_assembly(data_path, subject_group, percentage_elements, which_composite):
     # load and filter the data to only take this benchmark
     data = pd.read_csv(data_path)
+    # convert data['percentage_elements'] to int if it contains numbers
+    data['percentage_elements'] = data['percentage_elements'].apply(lambda x: int(x) if x.isdigit() else x)
     subject_group = subject_group.split('-')[0]
     if which_composite is not None:
         filtered_data = data[(data['subject_group'] == which_composite) |
@@ -54,9 +56,9 @@ def collect_scialom_behavioral_assembly(data_path, subject_group, percentage_ele
                              (data['subject_group'] == 'contours')]
     elif subject_group in ['phosphenes', 'segments']:
         filtered_data = data[(data['subject_group'] == subject_group) &
-                             (data['percentage_elements'] == str(percentage_elements))]
+                             (data['percentage_elements'] == percentage_elements)]
     else:
-        filtered_data = data[(data['percentage_elements'] == str(percentage_elements))]
+        filtered_data = data[(data['percentage_elements'] == percentage_elements)]
 
     # construct the assembly
     if which_composite is not None:
@@ -151,12 +153,13 @@ if __name__ == '__main__':
         assert len(np.unique(assembly['truth'].values)) == 12
         assert len(np.unique(assembly['subject_answer'].values)) == 12
 
-        # upload to S3
-        prints = package_data_assembly(catalog_identifier=None,
-                              proto_data_assembly=assembly,
-                              assembly_identifier=assembly.name,
-                              stimulus_set_identifier=assembly.name,
-                              assembly_class_name="BehavioralAssembly",
-                              bucket_name="brainio-brainscore")
+        if subject_group == 'rgb' and subject_group != 'contours':
+            # upload to S3
+            prints = package_data_assembly(catalog_identifier=None,
+                                  proto_data_assembly=assembly,
+                                  assembly_identifier=assembly.name,
+                                  stimulus_set_identifier=assembly.name,
+                                  assembly_class_name="BehavioralAssembly",
+                                  bucket_name="brainio-brainscore")
 
-        print(prints)
+            print(prints)

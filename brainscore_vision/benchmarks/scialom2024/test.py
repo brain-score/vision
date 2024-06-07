@@ -103,10 +103,11 @@ class TestBehavioral:
         else:
             benchmark = f"Scialom2024_{dataset}BehavioralAccuracyDistance"
         benchmark = load_benchmark(benchmark)
-        filename = f"resnet50_julios_Scialom2024_{dataset}.nc"
+        nc_filename = dataset.upper() if dataset == 'rgb' else dataset
+        filename = f"resnet50_julios_Scialom2024_{nc_filename}.nc"
         precomputed_features = Path(__file__).parent / filename
         s3.download_file_if_not_exists(precomputed_features,
-                                       bucket='brainio-brainscore', remote_filepath=f'/benchmarks/Scialom2024/{filename}')
+                                       bucket='brainio-brainscore', remote_filepath=f'{filename}')
         precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)
         precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
         score = benchmark(precomputed_features)

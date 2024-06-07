@@ -38,7 +38,7 @@ class AccuracyDistance(Metric):
         assert (target['stimulus_id'].values == source['stimulus_id'].values).all()
 
         # .flatten() because models return lists of lists, and here we compare subject-by-subject
-        source_correct = source.values.flatten() == subject_assembly['truth'].values
+        source_correct = source.values.flatten() == target['truth'].values
         target_correct = target.values == target['truth'].values
         source_mean = sum(source_correct) / len(source_correct)
         target_mean = sum(target_correct) / len(target_correct)

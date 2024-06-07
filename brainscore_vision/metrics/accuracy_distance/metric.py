@@ -9,13 +9,13 @@ from brainscore_vision.metric_helpers.transformations import apply_aggregate
 
 
 class AccuracyDistance(Metric):
-    def __call__(self, source: BehavioralAssembly, assembly: BehavioralAssembly) -> Score:
+    def __call__(self, source: BehavioralAssembly, target: BehavioralAssembly) -> Score:
         """Target should be the entire BehavioralAssembly, containing truth values."""
 
         subjects = self.extract_subjects(assembly)
         subject_scores = []
         for subject in subjects:
-            subject_assembly = assembly.sel(subject=subject)
+            subject_assembly = target.sel(subject=subject)
             subject_score = self.compare_single_subject(source, subject_assembly)
             subject_score = subject_score.expand_dims('subject')
             subject_score['subject'] = 'subject', [subject]
@@ -32,14 +32,14 @@ class AccuracyDistance(Metric):
         score.attrs['error'] = scores.std('subject')
         return score
 
-    def compare_single_subject(self, source: BehavioralAssembly, subject_assembly: BehavioralAssembly):
+    def compare_single_subject(self, source: BehavioralAssembly, target: BehavioralAssembly):
         source = source.sortby('stimulus_id')
-        subject_assembly = subject_assembly.sortby('stimulus_id')
-        assert (subject_assembly['stimulus_id'].values == source['stimulus_id'].values).all()
+        target = target.sortby('stimulus_id')
+        assert (target['stimulus_id'].values == source['stimulus_id'].values).all()
 
         # .flatten() because models return lists of lists, and here we compare subject-by-subject
         source_correct = source.values.flatten() == subject_assembly['truth'].values
-        target_correct = subject_assembly.values == subject_assembly['truth'].values
+        target_correct = target.values == target['truth'].values
         source_mean = sum(source_correct) / len(source_correct)
         target_mean = sum(target_correct) / len(target_correct)
 

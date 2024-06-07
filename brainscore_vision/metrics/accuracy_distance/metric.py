@@ -12,7 +12,7 @@ class AccuracyDistance(Metric):
     def __call__(self, source: BehavioralAssembly, target: BehavioralAssembly) -> Score:
         """Target should be the entire BehavioralAssembly, containing truth values."""
 
-        subjects = self.extract_subjects(assembly)
+        subjects = self.extract_subjects(target)
         subject_scores = []
         for subject in subjects:
             subject_assembly = target.sel(subject=subject)

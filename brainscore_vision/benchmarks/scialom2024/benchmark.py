@@ -1,3 +1,5 @@
+import numpy as np
+
 import brainscore_vision
 from brainio.assemblies import BehavioralAssembly
 from brainscore_vision import load_dataset, load_metric
@@ -59,6 +61,9 @@ class _Scialom2024BehavioralAccuracyDistance(BenchmarkBase):
         raw_score = self._metric(labels, target=self._assembly)
         ceiling = self.ceiling
         score = raw_score / ceiling
+        # ensure score <= 1.0
+        if score.values > 1:
+            score = Score(np.array(1.))
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling
         return score

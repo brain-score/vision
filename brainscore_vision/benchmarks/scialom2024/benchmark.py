@@ -16,7 +16,6 @@ class _Scialom2024BehavioralErrorConsistency(BenchmarkBase):
     def __init__(self, dataset):
         self._metric = load_metric('error_consistency')
         self._assembly = LazyLoad(lambda: load_assembly(dataset))
-        self._stimulus_set = LazyLoad(lambda: load_assembly(dataset).stimulus_set)
         self._visual_degrees = 8
         self._number_of_trials = 1
 
@@ -30,7 +29,7 @@ class _Scialom2024BehavioralErrorConsistency(BenchmarkBase):
         choice_labels = set(self._assembly['truth'].values)
         choice_labels = list(sorted(choice_labels))
         candidate.start_task(BrainModel.Task.label, choice_labels)
-        stimulus_set = place_on_screen(self._stimulus_set, target_visual_degrees=candidate.visual_degrees(),
+        stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
         labels = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
         raw_score = self._metric(labels, self._assembly)
@@ -46,7 +45,6 @@ class _Scialom2024BehavioralAccuracyDistance(BenchmarkBase):
     def __init__(self, dataset):
         self._metric = load_metric('accuracy_distance')
         self._assembly = LazyLoad(lambda: load_assembly(dataset))
-        self._stimulus_set = LazyLoad(lambda: load_assembly(dataset).stimulus_set)
         super(_Scialom2024BehavioralAccuracyDistance, self).__init__(
             identifier=f'Scialom2024_{dataset}-behavioral_accuracy', version=1,
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
@@ -54,10 +52,10 @@ class _Scialom2024BehavioralAccuracyDistance(BenchmarkBase):
             bibtex=BIBTEX)
 
     def __call__(self, candidate: BrainModel):
-        choice_labels = set(self._stimulus_set['truth'].values)
+        choice_labels = set(self._assembly.stimulus_set['truth'].values)
         choice_labels = list(sorted(choice_labels))
         candidate.start_task(BrainModel.Task.label, choice_labels)
-        labels = candidate.look_at(self._stimulus_set, number_of_trials=1)
+        labels = candidate.look_at(self._assembly.stimulus_set, number_of_trials=1)
         raw_score = self._metric(labels, target=self._assembly)
         ceiling = self.ceiling
         score = raw_score / ceiling
@@ -73,7 +71,8 @@ class _Scialom2024EngineeringAccuracy(BenchmarkBase):
     # engineering/ML benchmark
     def __init__(self, dataset):
         self._metric = load_metric('accuracy')
-        self._stimulus_set = LazyLoad(lambda: load_assembly(dataset).stimulus_set)
+        # no lazyload because needed in candidate.look_at()
+        self._stimulus_set = load_assembly(dataset).stimulus_set
         super(_Scialom2024EngineeringAccuracy, self).__init__(
             identifier=f'Scialom2024_{dataset}-engineering_accuracy', version=1,
             ceiling_func=lambda: Score(1),

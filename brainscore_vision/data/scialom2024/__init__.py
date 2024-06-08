@@ -13,8 +13,8 @@ def force_stimulus_set_column_to_str(stimulus_set, columns=('percentage_elements
 
 data_registry['Scialom2024_rgb'] = lambda: load_assembly_from_s3(
     identifier='Scialom2024_rgb',
-    version_id='MJp9KUVX16iGojUJ6k0i4ub0U89z.G4v',
-    sha1='811b6af93443639d33140ffe885d2d14f2dba5a3',
+    version_id='NUjt_IuJg2fFhtGVHUscjz1dyECccVx0',
+    sha1='22b05b0c0554293f467cfcc7864ff89d748e6ca7',
     bucket="brainio-brainscore",
     cls=BehavioralAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('Scialom2024_rgb'))

@@ -144,7 +144,7 @@ class TestEngineering:
     def test_accuracy(self, dataset, expected_accuracy):
         benchmark = load_benchmark(f"Scialom2024_{dataset}EngineeringAccuracy")
         nc_filename = dataset.upper() if dataset == 'rgb' else dataset
-        filename = f"resnet50_julios_Scialom2024_{dataset}.nc"
+        filename = f"resnet50_julios_Scialom2024_{nc_filename}.nc"
         precomputed_features = Path(__file__).parent / filename
         s3.download_file_if_not_exists(precomputed_features,
                                        bucket='brainio-brainscore', remote_filepath=f'/benchmarks/Scialom2024/{filename}')

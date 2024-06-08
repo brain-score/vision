@@ -28,10 +28,10 @@ class PytorchWrapperFixed(PytorchWrapper):
         return hook
 
 def get_model_list():
-  return ['model-lecs']
+  return ['model-lecs-v1.0.1']
 
 def get_model(name):
-    assert name == 'model-lecs'
+    assert name == 'model-lecs-v1.0.1'
     # https://huggingface.co/models?sort=downloads&search=cvt
     image_size = 224
     processor = CLIPProcessor.from_pretrained('openai/clip-vit-base-patch32')
@@ -45,7 +45,7 @@ def get_model(name):
 
 
 def get_layers(name):
-    assert name == 'model-lecs'
+    assert name == 'model-lecs-v1.0.1'
     layers = []
     
     # Añadir las capas del modelo CLIPVisionModel

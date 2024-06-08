@@ -49,7 +49,7 @@ def get_layers(name):
     layers = []
     
     # Añadir las capas del modelo CLIPVisionModel
-    layers += [f'vision_model.encoder.layers.{i}' for i in range(1)]
+    layers += [f'vision_model.encoder.layers.{i}' for i in [2, 3, 6, 8]]
     # Ejemplo: puedes elegir algunas capas específicas si lo deseas
     # layers = ['vision_model.encoder.layers.3', 'vision_model.post_layernorm']
     

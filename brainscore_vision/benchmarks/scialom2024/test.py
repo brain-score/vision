@@ -74,26 +74,26 @@ class TestBehavioral:
         assert ceiling == expected_ceiling
 
     @pytest.mark.parametrize('dataset, expected_raw_score', [
-        ('rgb', approx(0.99000, abs=0.001)),
-        ('contours', approx(0.53791, abs=0.001)),
+        ('rgb', approx(0.92666, abs=0.001)),
+        ('contours', approx(0.26708, abs=0.001)),
         ('phosphenes-12', approx(0.87666, abs=0.001)),
         ('phosphenes-16', approx(0.83666, abs=0.001)),
         ('phosphenes-21', approx(0.83166, abs=0.001)),
         ('phosphenes-27', approx(0.73666, abs=0.001)),
-        ('phosphenes-35', approx(0.68250, abs=0.001)),
+        ('phosphenes-35', approx(0.72416, abs=0.001)),
         ('phosphenes-46', approx(0.59500, abs=0.001)),
         ('phosphenes-59', approx(0.50666, abs=0.001)),
         ('phosphenes-77', approx(0.42083, abs=0.001)),
-        ('phosphenes-100', approx(0.31083, abs=0.001)),
+        ('phosphenes-100', approx(0.33166, abs=0.001)),
         ('segments-12', approx(0.81500, abs=0.001)),
         ('segments-16', approx(0.73750, abs=0.001)),
         ('segments-21', approx(0.69666, abs=0.001)),
-        ('segments-27', approx(0.63666, abs=0.001)),
-        ('segments-35', approx(0.56833, abs=0.001)),
-        ('segments-46', approx(0.48416, abs=0.001)),
-        ('segments-59', approx(0.38750, abs=0.001)),
+        ('segments-27', approx(0.59500, abs=0.001)),
+        ('segments-35', approx(0.52666, abs=0.001)),
+        ('segments-46', approx(0.42166, abs=0.001)),
+        ('segments-59', approx(0.34583, abs=0.001)),
         ('segments-77', approx(0.28916, abs=0.001)),
-        ('segments-100', approx(0.23916, abs=0.001)),  # all of the above are AccuracyDistance
+        ('segments-100', approx(0.19750, abs=0.001)),  # all of the above are AccuracyDistance
         ('phosphenes-all', approx(0.18057, abs=0.01)),  # alls are ErrorConsistency
         ('segments-all', approx(0.15181, abs=0.01)),
     ])
@@ -120,26 +120,26 @@ class TestBehavioral:
 class TestEngineering:
     @pytest.mark.private_access
     @pytest.mark.parametrize('dataset, expected_accuracy', [
-        ('rgb', approx(1.00000, abs=0.001)),
-        ('contours', approx(0.52083, abs=0.001)),
+        ('rgb', approx(0.91666, abs=0.001)),
+        ('contours', approx(0.25000, abs=0.001)),
         ('phosphenes-12', approx(0.08333, abs=0.001)),
         ('phosphenes-16', approx(0.08333, abs=0.001)),
         ('phosphenes-21', approx(0.08333, abs=0.001)),
         ('phosphenes-27', approx(0.08333, abs=0.001)),
-        ('phosphenes-35', approx(0.08333, abs=0.001)),
+        ('phosphenes-35', approx(0.12500, abs=0.001)),
         ('phosphenes-46', approx(0.08333, abs=0.001)),
         ('phosphenes-59', approx(0.08333, abs=0.001)),
         ('phosphenes-77', approx(0.08333, abs=0.001)),
-        ('phosphenes-100', approx(0.06250, abs=0.001)),
+        ('phosphenes-100', approx(0.08333, abs=0.001)),
         ('segments-12', approx(0.08333, abs=0.001)),
         ('segments-16', approx(0.08333, abs=0.001)),
         ('segments-21', approx(0.08333, abs=0.001)),
-        ('segments-27', approx(0.12500, abs=0.001)),
-        ('segments-35', approx(0.12500, abs=0.001)),
-        ('segments-46', approx(0.14583, abs=0.001)),
-        ('segments-59', approx(0.12500, abs=0.001)),
+        ('segments-27', approx(0.08333, abs=0.001)),
+        ('segments-35', approx(0.08333, abs=0.001)),
+        ('segments-46', approx(0.08333, abs=0.001)),
+        ('segments-59', approx(0.08333, abs=0.001)),
         ('segments-77', approx(0.10416, abs=0.001)),
-        ('segments-100', approx(0.14583, abs=0.001))
+        ('segments-100', approx(0.10416, abs=0.001))
     ])
     def test_accuracy(self, dataset, expected_accuracy):
         benchmark = load_benchmark(f"Scialom2024_{dataset}EngineeringAccuracy")

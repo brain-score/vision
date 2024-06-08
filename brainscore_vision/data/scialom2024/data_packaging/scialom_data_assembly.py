@@ -47,8 +47,8 @@ PERCENTAGE_ELEMENTS = {'rgb': 'RGB', 'contours': 'contours', 'phosphenes-12': 12
 def collect_scialom_behavioral_assembly(data_path, subject_group, percentage_elements, which_composite):
     # load and filter the data to only take this benchmark
     data = pd.read_csv(data_path)
-    # convert data['percentage_elements'] to int if it contains numbers
-    data['percentage_elements'] = data['percentage_elements'].apply(lambda x: int(x) if x.isdigit() else x)
+    data['percentage_elements'] = data['percentage_elements'].astype(str)
+    percentage_elements = str(percentage_elements)
     subject_group = subject_group.split('-')[0]
     if which_composite is not None:
         filtered_data = data[(data['subject_group'] == which_composite) |

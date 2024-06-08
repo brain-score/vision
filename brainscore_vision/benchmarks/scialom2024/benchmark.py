@@ -84,9 +84,10 @@ class _Scialom2024EngineeringAccuracy(BenchmarkBase):
         choice_labels = list(sorted(choice_labels))
         candidate.start_task(BrainModel.Task.label, choice_labels)
         labels = candidate.look_at(self._stimulus_set, number_of_trials=10)
-        score = self._metric(labels, target=self._stimulus_set['truth'].values)
+        raw_score = self._metric(labels, target=self._stimulus_set['truth'].values)
         ceiling = Score(np.array(1.))
-        score.attrs['raw'] = score
+        score = raw_score / ceiling
+        score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling
         return score
 

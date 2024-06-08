@@ -153,13 +153,12 @@ if __name__ == '__main__':
         assert len(np.unique(assembly['truth'].values)) == 12
         assert len(np.unique(assembly['subject_answer'].values)) == 12
 
-        if subject_group == 'rgb' and subject_group != 'contours':
-            # upload to S3
-            prints = package_data_assembly(catalog_identifier=None,
-                                  proto_data_assembly=assembly,
-                                  assembly_identifier=assembly.name,
-                                  stimulus_set_identifier=assembly.name,
-                                  assembly_class_name="BehavioralAssembly",
-                                  bucket_name="brainio-brainscore")
+        # upload to S3
+        prints = package_data_assembly(catalog_identifier=None,
+                              proto_data_assembly=assembly,
+                              assembly_identifier=assembly.name,
+                              stimulus_set_identifier=assembly.name,
+                              assembly_class_name="BehavioralAssembly",
+                              bucket_name="brainio-brainscore")
 
-            print(prints)
+        print(prints)

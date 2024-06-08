@@ -48,7 +48,7 @@ class _Scialom2024BehavioralAccuracyDistance(BenchmarkBase):
         super(_Scialom2024BehavioralAccuracyDistance, self).__init__(
             identifier=f'Scialom2024_{dataset}-behavioral_accuracy', version=1,
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
-            parent='Scialom2024-top1',
+            parent='Scialom2024',
             bibtex=BIBTEX)
 
     def __call__(self, candidate: BrainModel):
@@ -56,7 +56,7 @@ class _Scialom2024BehavioralAccuracyDistance(BenchmarkBase):
         choice_labels = list(sorted(choice_labels))
         candidate.start_task(BrainModel.Task.label, choice_labels)
         labels = candidate.look_at(self._stimulus_set, number_of_trials=1)
-        score = self._metric(labels, target=self._stimulus_set['truth'].values)
+        score = self._metric(labels, target=self._assembly)
         return score
 
 

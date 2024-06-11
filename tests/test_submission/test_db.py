@@ -51,4 +51,4 @@ def test_db(database):
 
     assert len(user_entries) == 2
     assert len(model_entries) == 3
-    assert len(benchmark_type_entries) == 6
+    assert len(benchmark_type_entries) == 7

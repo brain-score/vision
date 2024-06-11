@@ -1,0 +1,7 @@
+from brainscore_vision import model_registry
+from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
+from .model import get_model, get_layers
+
+model_registry['alexnet_w1_mlp4096_simclr_baseline_64715_probe0'] = lambda: ModelCommitment(identifier='alexnet_w1_mlp4096_simclr_baseline_64715_probe0', activations_model=get_model('alexnet_w1_mlp4096_simclr_baseline_64715_probe0'), layers=get_layers('alexnet_w1_mlp4096_simclr_baseline_64715_probe0'))
+
+model_registry['alexnet_w1_mlp4096_simclr_ratio1augs_d3fbd_probe0'] = lambda: ModelCommitment(identifier='alexnet_w1_mlp4096_simclr_ratio1augs_d3fbd_probe0', activations_model=get_model('alexnet_w1_mlp4096_simclr_ratio1augs_d3fbd_probe0'), layers=get_layers('alexnet_w1_mlp4096_simclr_ratio1augs_d3fbd_probe0'))

@@ -61,8 +61,8 @@ class PrecomputedTests:
         benchmark = load_benchmark(benchmark)
         from brainscore_vision import load_stimulus_set
 
-        stimulus_identifiers = np.unique(np.array(['Marques2020_blank', 'Marques2020_receptive_field',
-                                                   'Marques2020_orientation',
+        stimulus_identifiers = np.unique(np.array(['dicarlo.Marques2020_blank', 'dicarlo.Marques2020_receptive_field',
+                                                   'dicarlo.Marques2020_orientation',
                                                    benchmark._assembly.stimulus_set.identifier]))
         precomputed_features = {}
         for current_stimulus in stimulus_identifiers:

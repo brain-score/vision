@@ -39,7 +39,7 @@ def test_benchmark_registry(benchmark):
 
 
 class TestBehavioral:
-
+    @pytest.mark.private_access
     @pytest.mark.parametrize('dataset, expected_ceiling', [
         ('rgb', approx(0.98513, abs=0.001)),
         ('contours', approx(0.97848, abs=0.001)),
@@ -73,6 +73,7 @@ class TestBehavioral:
         ceiling = benchmark.ceiling
         assert ceiling == expected_ceiling
 
+    @pytest.mark.private_access
     @pytest.mark.parametrize('dataset, expected_raw_score', [
         ('rgb', approx(0.92666, abs=0.001)),
         ('contours', approx(0.26708, abs=0.001)),

@@ -172,7 +172,7 @@ def main():
     stimuli_directory = os.path.join(data_path, 'stim')
     response_file = os.path.join(data_path, 'data', 'FreemanZiemba2013_V1V2data.mat')
     output_path = os.path.join(data_path, 'out')
-    stimulus_set_name = "movshon.FreemanZiemba2013"
+    stimulus_set_name = "FreemanZiemba2013"
     bucket_name = "brain-score-movshon"
     image_store_unique_name = "image_movshon_stimuli"
     target_zip_path = os.path.join(output_path, image_store_unique_name + ".zip")

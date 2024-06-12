@@ -90,5 +90,4 @@ def cohens_kappa(expected_consistency, observed_consistency):
     # https://github.com/bethgelab/model-vs-human/blob/745046c4d82ff884af618756bd6a5f47b6f36c45/modelvshuman/plotting/analyses.py#L147-L158
     assert 0.0 <= expected_consistency <= 1.0
     assert 0.0 <= observed_consistency <= 1.0
-
     return (observed_consistency - expected_consistency) / (1.0 - expected_consistency)

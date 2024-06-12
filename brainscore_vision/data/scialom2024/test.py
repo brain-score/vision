@@ -4,34 +4,36 @@ import pytest
 from brainscore_vision import load_stimulus_set, load_dataset
 
 
+@pytest.mark.private_access
 @pytest.mark.parametrize('assembly_identifier', [
-    pytest.param('Scialom2024_rgb', marks=[pytest.mark.private_access]),
-    pytest.param('Scialom2024_contours', marks=[pytest.mark.private_access]),
-    pytest.param('Scialom2024_phosphenes-12', marks=[pytest.mark.private_access]),
-    pytest.param('Scialom2024_phosphenes-16', marks=[pytest.mark.private_access]),
-    pytest.param('Scialom2024_phosphenes-21', marks=[pytest.mark.private_access]),
-    pytest.param('Scialom2024_phosphenes-27', marks=[pytest.mark.private_access]),
-    pytest.param('Scialom2024_phosphenes-35', marks=[pytest.mark.private_access]),
-    pytest.param('Scialom2024_phosphenes-46', marks=[pytest.mark.private_access]),
-    pytest.param('Scialom2024_phosphenes-59', marks=[pytest.mark.private_access]),
-    pytest.param('Scialom2024_phosphenes-77', marks=[pytest.mark.private_access]),
-    pytest.param('Scialom2024_phosphenes-100', marks=[pytest.mark.private_access]),
-    pytest.param('Scialom2024_segments-12', marks=[pytest.mark.private_access]),
-    pytest.param('Scialom2024_segments-16', marks=[pytest.mark.private_access]),
-    pytest.param('Scialom2024_segments-21', marks=[pytest.mark.private_access]),
-    pytest.param('Scialom2024_segments-27', marks=[pytest.mark.private_access]),
-    pytest.param('Scialom2024_segments-35', marks=[pytest.mark.private_access]),
-    pytest.param('Scialom2024_segments-46', marks=[pytest.mark.private_access]),
-    pytest.param('Scialom2024_segments-59', marks=[pytest.mark.private_access]),
-    pytest.param('Scialom2024_segments-77', marks=[pytest.mark.private_access]),
-    pytest.param('Scialom2024_segments-100', marks=[pytest.mark.private_access]),
-    pytest.param('Scialom2024_phosphenes-all', marks=[pytest.mark.private_access]),
-    pytest.param('Scialom2024_segments-all', marks=[pytest.mark.private_access])
+    'Scialom2024_rgb',
+    'Scialom2024_contours',
+    'Scialom2024_phosphenes-12',
+    'Scialom2024_phosphenes-16',
+    'Scialom2024_phosphenes-21',
+    'Scialom2024_phosphenes-27',
+    'Scialom2024_phosphenes-35',
+    'Scialom2024_phosphenes-46',
+    'Scialom2024_phosphenes-59',
+    'Scialom2024_phosphenes-77',
+    'Scialom2024_phosphenes-100',
+    'Scialom2024_segments-12',
+    'Scialom2024_segments-16',
+    'Scialom2024_segments-21',
+    'Scialom2024_segments-27',
+    'Scialom2024_segments-35',
+    'Scialom2024_segments-46',
+    'Scialom2024_segments-59',
+    'Scialom2024_segments-77',
+    'Scialom2024_segments-100',
+    'Scialom2024_phosphenes-all',
+    'Scialom2024_segments-all'
 ])
 def test_existence(assembly_identifier):
     assert load_dataset(assembly_identifier) is not None
 
 
+@pytest.mark.private_access
 class TestAssemblies:
     @pytest.mark.parametrize('identifier', [
         'Scialom2024_rgb',
@@ -197,7 +199,7 @@ class TestAssemblies:
         assert hasattr(assembly, field)
 
 
-# testing stimulus sets
+@pytest.mark.private_access
 @pytest.mark.slow
 class TestStimulusSets:
     # test stimulus_set data:
@@ -230,7 +232,6 @@ class TestStimulusSets:
         assert stimulus_set is not None
         assert stimulus_set.identifier == identifier
 
-    # test number of images
     @pytest.mark.parametrize('identifier, num_images', [
         ('Scialom2024_rgb', 48),
         ('Scialom2024_contours', 48),
@@ -255,7 +256,7 @@ class TestStimulusSets:
         ('Scialom2024_phosphenes-all', 528),
         ('Scialom2024_segments-all', 528),
     ])
-    def test_num_images(self, identifier, num_images):
+    def test_number_of_images(self, identifier, num_images):
         stimulus_set = load_stimulus_set(identifier)
         assert len(np.unique(stimulus_set['image_id'].values)) == num_images
 

@@ -63,9 +63,9 @@ class TemporalInferencer(Inferencer):
             duration : Union[float, Tuple[float, float]] = None,
             time_alignment : str = "evenly_spaced",
             convert_img_to_video : bool = True,
-            img_duration : float = 1000.,
+            img_duration : float = 1000.0,
             batch_size : int = 32,
-            batch_grouper : Callable[[Video], Hashable] = lambda video: (video.duration, video.fps),  # not including video.frame_size because most preprocessors will change the frame size to be the same
+            batch_grouper : Callable[[Video], Hashable] = lambda video: (round(video.duration, 6), video.fps),  # not including video.frame_size because most preprocessors will change the frame size to be the same
             **kwargs,
     ):
         super().__init__(*args, stimulus_type=Video, batch_size=batch_size, 
@@ -83,9 +83,9 @@ class TemporalInferencer(Inferencer):
 
     @property
     def identifier(self) -> str:
-        id = f"{super().identifier}.{self.time_aligner.__name__}.fps={self.fps}"
+        id = f"{super().identifier}.{self.time_aligner.__name__}.fps={float(self.fps)}"
         if self.convert_to_video:
-            id += f".img_dur={self.img_duration}"
+            id += f".img_dur={float(self.img_duration)}"
         return id
 
     def load_stimulus(self, path: Union[str, Path]) -> Video:
@@ -129,6 +129,6 @@ class TemporalInferencer(Inferencer):
     def _check_video(self, video: Video):
         if self.num_frames is not None:
             estimated_num_frames = int(self.fps * video.duration / 1000)
-            assert self.num_frames[0] <= estimated_num_frames <= self.num_frames[1]
+            assert self.num_frames[0] <= estimated_num_frames <= self.num_frames[1], f"The number of frames must be within {self.num_frames}, but got {estimated_num_frames}"
         if self.duration is not None:
-            assert self.duration[0] <= video.duration <= self.duration[1]
+            assert self.duration[0] <= video.duration <= self.duration[1], f"The duration must be within {self.duration}, but got {video.duration}"

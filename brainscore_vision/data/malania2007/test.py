@@ -46,7 +46,7 @@ class TestAssemblies:
         assert hasattr(assembly, field)
 
 
-@pytest.mark.slow
+@pytest.mark.private_access
 class TestStimulusSets:
     # test stimulus_set data:
     @pytest.mark.parametrize('identifier', [
@@ -76,29 +76,28 @@ class TestStimulusSets:
         assert stimulus_set is not None
         assert stimulus_set.identifier == full_name
 
-    # test the number of images
     @pytest.mark.parametrize('identifier, num_images', [
-        ('short-2', 1225),
-        ('short-4', 1225),
-        ('short-6', 1225),
-        ('short-8', 1225),
-        ('short-16', 1225),
-        ('equal-2', 1225),
-        ('long-2', 1225),
-        ('equal-16', 1225),
-        ('long-16', 1225),
-        ('short-2_fit', 1225),
-        ('short-4_fit', 1225),
-        ('short-6_fit', 1225),
-        ('short-8_fit', 1225),
-        ('short-16_fit', 1225),
-        ('equal-2_fit', 1225),
-        ('long-2_fit', 1225),
-        ('equal-16_fit', 1225),
-        ('long-16_fit', 1225),
-        ('vernier-only', 1225)
+        ('short-2', 50),
+        ('short-4', 50),
+        ('short-6', 50),
+        ('short-8', 50),
+        ('short-16', 50),
+        ('equal-2', 50),
+        ('long-2', 50),
+        ('equal-16', 50),
+        ('long-16', 50),
+        ('short-2_fit', 50),
+        ('short-4_fit', 50),
+        ('short-6_fit', 50),
+        ('short-8_fit', 50),
+        ('short-16_fit', 50),
+        ('equal-2_fit', 50),
+        ('long-2_fit', 50),
+        ('equal-16_fit', 50),
+        ('long-16_fit', 50),
+        ('vernier-only', 50)
     ])
-    def test_num_images(self, identifier, num_images):
+    def test_number_of_images(self, identifier, num_images):
         stimulus_set = load_stimulus_set(f"Malania2007_{identifier}")
         assert len(np.unique(stimulus_set['stimulus_id'].values)) == num_images
 
@@ -125,20 +124,20 @@ class TestStimulusSets:
         'vernier-only'
     ])
     @pytest.mark.parametrize('field', [
-        'image_size_x',
-        'image_size_y',
+        'image_size_x_pix',
+        'image_size_y_pix',
         'image_size_c',
         'image_size_degrees',
-        'vernier_height',
-        'vernier_offset',
+        'vernier_height_arcsec',
+        'vernier_offset_arcsec',
         'image_label',
-        'flanker_height',
-        'flanker_spacing',
-        'line_width',
-        'flanker_distance',
+        'flanker_height_arcsec',
+        'flanker_spacing_arcsec',
+        'line_width_arcsec',
+        'flanker_distance_arcsec',
         'num_flankers',
-        'vernier_position_x',
-        'vernier_position_y',
+        'vernier_position_x_pix',
+        'vernier_position_y_pix',
         'stimulus_id',
     ])
     def test_fields_present(self, identifier, field):

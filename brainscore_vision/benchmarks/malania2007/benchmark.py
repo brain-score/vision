@@ -56,7 +56,7 @@ class _Malania2007Base(BenchmarkBase):
     Benchmark Choices:
 
     1) The number and type of fitting stimuli are unfounded choices. Currently, the number of fitting stimuli is chosen
-        to be relatively small, but sufficient for good decoding performance in the baseline condition in general.
+        to be relatively large, and hopefully sufficient for decoding in the baseline condition in general.
         - Precisely faithful alternative: Present text instructions to models as they were presented to humans
             * Why not this alternative? Since the experiment is about early visual perception, and there are currently
             few/no models capable of a task like this, it would not be interesting.
@@ -64,6 +64,8 @@ class _Malania2007Base(BenchmarkBase):
         Lee & DiCarlo (2023), biorXiv (doi:https://doi.org/10.1101/2022.12.31.522402).
             * Why not this alternative? Since the experiment is not about perceptual learning but about early visual
             perception, and there are few/no models capable of a task like this, it would not be interesting.
+        - Importantly, this means the benchmark examines the models' capability to support a task like this, rather than
+        their capability to learn a task like this.
     2) In the human experiment, stimuli were presented at exactly the foveal position. In the model experiment,
         testing stimuli are presented at exactly the foveal position +- 72arcsec = 0.02deg.
         * Why this alternative? Since most models evaluated are test-time deterministic, we want a more precise
@@ -100,7 +102,7 @@ class _Malania2007Base(BenchmarkBase):
         self._ceiling = self._metric.ceiling(self._assemblies)
 
         self._visual_degrees = 2.986667
-        self._number_of_trials = 1
+        self._number_of_trials = 10  # arbitrary choice for microsaccades to improve precision of estimates
 
         super(_Malania2007Base, self).__init__(
             identifier=f'Malania2007_{condition}', version=1,

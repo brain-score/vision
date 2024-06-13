@@ -72,10 +72,14 @@ def remove_subjects_with_nans(assembly1, assembly2):
 
 
 if __name__ == '__main__':
-    root_directory = Path(r'../../../packaging/malania2007/malania2007_data_assembly')
+    root_directory = Path(r'../../data/malania2007/data_packaging/')
     for dataset in DATASETS:
         assembly = collect_malania_data_assembly(root_directory, dataset)
         # upload to S3
-        #package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
-        #                     stimulus_set_identifier=f"Malania2007_{dataset}",
-        #                     assembly_class_name="PropertyAssembly", bucket_name="brainio-brainscore")
+        prints = package_data_assembly(catalog_identifier=None,
+                                       proto_data_assembly=assembly,
+                                       assembly_identifier=assembly.name,
+                                       stimulus_set_identifier=assembly.name,
+                                       assembly_class_name="PropertyAssembly",
+                                       bucket_name="brainio-brainscore")
+        print(prints)

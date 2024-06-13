@@ -91,6 +91,7 @@ class _Malania2007Base(BenchmarkBase):
         self._fitting_stimuli = brainscore_vision.load_stimulus_set(f'Malania2007_{self.condition}_fit')
 
         self._metric = load_metric('threshold_elevation',
+                                   independent_variable='image_label',
                                    baseline_condition=self.baseline_condition,
                                    test_condition=self.condition,
                                    threshold_accuracy=0.75)

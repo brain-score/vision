@@ -3,7 +3,6 @@ Methods to feed visual input to a system-under-test through the screen
 """
 import copy
 import logging
-from typing import Union
 import os
 import shutil
 from typing import Union

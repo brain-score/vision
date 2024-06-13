@@ -51,12 +51,6 @@ def collect_malania_data_assembly(root_directory, dataset):
     return assembly
 
 
-def return_local_data_assembly(dataset):
-    root_directory = Path(r'../../../packaging/malania2007/malania2007_data_assembly')
-    assembly = collect_malania_data_assembly(root_directory, dataset)
-    return assembly
-
-
 def remove_subjects_with_nans(assembly1, assembly2):
     # Find the indices of the subjects with NaN values in the first PropertyAssembly
     nan_subjects = np.isnan(assembly1.values)
@@ -72,7 +66,7 @@ def remove_subjects_with_nans(assembly1, assembly2):
 
 
 if __name__ == '__main__':
-    root_directory = Path(r'../../data/malania2007/data_packaging/')
+    root_directory = Path(r'../data/malania2007/data_packaging/')
     for dataset in DATASETS:
         assembly = collect_malania_data_assembly(root_directory, dataset)
         # upload to S3

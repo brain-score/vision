@@ -67,7 +67,7 @@ def collect_malania_stimulus_set(root_directory, dataset):
 
 
 if __name__ == '__main__':
-    root_directory = Path(r'../../data/malania2007/data_packaging/')
+    root_directory = Path(r'../data/malania2007/data_packaging/')
     for stimulus_set in STIMULUS_SETS:
         stimuli = collect_malania_stimulus_set(root_directory, stimulus_set)
 

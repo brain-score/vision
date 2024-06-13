@@ -84,11 +84,11 @@ class _Malania2007Base(BenchmarkBase):
 
         self._assemblies = {'baseline_assembly': self._baseline_assembly,
                             'condition_assembly': self._assembly}
-        self._stimulus_set = brainscore_vision.load_stimulus_set(f'{self.condition}')
-        self._baseline_stimulus_set = brainscore_vision.load_stimulus_set(f'{self.baseline_condition}')
+        self._stimulus_set = brainscore_vision.load_stimulus_set(f'Malania2007_{self.condition}')
+        self._baseline_stimulus_set = brainscore_vision.load_stimulus_set(f'Malania2007_{self.baseline_condition}')
         self._stimulus_sets = {self.condition: self._stimulus_set,
                                self.baseline_condition: self._baseline_stimulus_set}
-        self._fitting_stimuli = brainscore_vision.load_stimulus_set(f'{self.condition}_fit')
+        self._fitting_stimuli = brainscore_vision.load_stimulus_set(f'Malania2007_{self.condition}_fit')
 
         self._metric = load_metric('threshold_elevation',
                                    baseline_condition=self.baseline_condition,
@@ -142,7 +142,7 @@ def filter_baseline_subjects(condition_assembly: PropertyAssembly,
                              baseline_assembly: PropertyAssembly
                              ) -> Tuple[PropertyAssembly, PropertyAssembly]:
     """A function to select only the unique subjects that exist in the condition_assembly."""
-    unique_ids = condition_assembly.coords['subject_unique_id'].values.tolist()
-    mask = baseline_assembly.coords['subject_unique_id'].isin(unique_ids)
+    unique_ids = condition_assembly.coords['subject'].values.tolist()
+    mask = baseline_assembly.coords['subject'].isin(unique_ids)
     filtered_baseline_assembly = baseline_assembly.where(mask, drop=True)
     return condition_assembly, filtered_baseline_assembly

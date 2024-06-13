@@ -32,11 +32,6 @@ NUM_FLANKERS_PER_CONDITION = {'short-2': 2, 'short-4': 4, 'short-6': 6, 'short-8
                               'short-16': 16, 'equal-2': 2, 'long-2': 2, 'equal-16': 16,
                               'long-16': 16, 'vernier-only': 0}
 
-for dataset in DATASETS:
-    # behavioral benchmark
-    identifier = f"Malania2007_{dataset}"
-    globals()[identifier] = lambda dataset=dataset: _Malania2007Base(dataset)
-
 
 class _Malania2007Base(BenchmarkBase):
     """

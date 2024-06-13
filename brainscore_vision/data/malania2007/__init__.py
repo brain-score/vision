@@ -24,7 +24,7 @@ data_registry['Malania2007_equal-2'] = lambda: load_assembly_from_s3(
     sha1="277b2fbffed00e16b6a69b488f73eeda5abaaf10",
     bucket="brainio-brainscore",
     cls=PropertyAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('Malania2007_equal-2'),
+    stimulus_set_loader=None,
 )
 data_registry['Malania2007_equal-16'] = lambda: load_assembly_from_s3(
     identifier='Malania2007_equal-16',
@@ -32,7 +32,7 @@ data_registry['Malania2007_equal-16'] = lambda: load_assembly_from_s3(
     sha1="ef49506238e8d2554918b113fbc60c133077186e",
     bucket="brainio-brainscore",
     cls=PropertyAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('Malania2007_equal-16'),
+    stimulus_set_loader=None,
 )
 data_registry['Malania2007_long-2'] = lambda: load_assembly_from_s3(
     identifier='Malania2007_long-2',
@@ -40,7 +40,7 @@ data_registry['Malania2007_long-2'] = lambda: load_assembly_from_s3(
     sha1="9076a5b693948c4992b6c8e753f04a7acd2014a1",
     bucket="brainio-brainscore",
     cls=PropertyAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('Malania2007_long-2'),
+    stimulus_set_loader=None,
 )
 data_registry['Malania2007_long-16'] = lambda: load_assembly_from_s3(
     identifier='Malania2007_long-16',
@@ -48,7 +48,7 @@ data_registry['Malania2007_long-16'] = lambda: load_assembly_from_s3(
     sha1="3106cf1f2fa9e66617ebf231df05d29077fc478f",
     bucket="brainio-brainscore",
     cls=PropertyAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('Malania2007_long-16'),
+    stimulus_set_loader=None,
 )
 data_registry['Malania2007_short-2'] = lambda: load_assembly_from_s3(
     identifier='Malania2007_short-2',
@@ -56,7 +56,7 @@ data_registry['Malania2007_short-2'] = lambda: load_assembly_from_s3(
     sha1="85fb65ad76de48033c704b9c5689771e1ea0457d",
     bucket="brainio-brainscore",
     cls=PropertyAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('Malania2007_short-2'),
+    stimulus_set_loader=None,
 )
 data_registry['Malania2007_short-4'] = lambda: load_assembly_from_s3(
     identifier='Malania2007_short-4',
@@ -64,7 +64,7 @@ data_registry['Malania2007_short-4'] = lambda: load_assembly_from_s3(
     sha1="75506be9a26ec38a223e41510f1a8cb32d5b0bc9",
     bucket="brainio-brainscore",
     cls=PropertyAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('Malania2007_short-4'),
+    stimulus_set_loader=None,
 )
 data_registry['Malania2007_short-6'] = lambda: load_assembly_from_s3(
     identifier='Malania2007_short-6',
@@ -72,7 +72,7 @@ data_registry['Malania2007_short-6'] = lambda: load_assembly_from_s3(
     sha1="2901be6b352e67550da040d79d744819365b8626",
     bucket="brainio-brainscore",
     cls=PropertyAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('Malania2007_short-6'),
+    stimulus_set_loader=None,
 )
 data_registry['Malania2007_short-8'] = lambda: load_assembly_from_s3(
     identifier='Malania2007_short-8',
@@ -80,7 +80,7 @@ data_registry['Malania2007_short-8'] = lambda: load_assembly_from_s3(
     sha1="6daf47b086cb969d75222e320f49453ed8437885",
     bucket="brainio-brainscore",
     cls=PropertyAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('Malania2007_short-8'),
+    stimulus_set_loader=None,
 )
 data_registry['Malania2007_short-16'] = lambda: load_assembly_from_s3(
     identifier='Malania2007_short-16',
@@ -88,7 +88,7 @@ data_registry['Malania2007_short-16'] = lambda: load_assembly_from_s3(
     sha1="8ae0898caad718b747f85fce5888416affc3a569",
     bucket="brainio-brainscore",
     cls=PropertyAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('Malania2007_short-16'),
+    stimulus_set_loader=None,
 )
 data_registry['Malania2007_vernier-only'] = lambda: load_assembly_from_s3(
     identifier='Malania2007_vernier-only',
@@ -96,7 +96,7 @@ data_registry['Malania2007_vernier-only'] = lambda: load_assembly_from_s3(
     sha1="1cf83e8b6141f8b0d67ea46994f342325f62001f",
     bucket="brainio-brainscore",
     cls=PropertyAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('Malania2007_vernier-only'),
+    stimulus_set_loader=None,
 )
 
 

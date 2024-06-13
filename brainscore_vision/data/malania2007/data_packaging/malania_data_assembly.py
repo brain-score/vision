@@ -36,7 +36,7 @@ def collect_malania_data_assembly(root_directory, dataset):
     #  without measurement
     assembly = PropertyAssembly(metadata['threshold'],
                                   coords={
-                                      'subject_unique_id': ('subject', metadata['subject_unique_id'])
+                                      'subject': ('subject', metadata['subject_unique_id']),
                                   },
                                   dims=['subject']
                                   )
@@ -66,7 +66,7 @@ def remove_subjects_with_nans(assembly1, assembly2):
 
 
 if __name__ == '__main__':
-    root_directory = Path(r'../data/malania2007/data_packaging/')
+    root_directory = Path(r'.')
     for dataset in DATASETS:
         assembly = collect_malania_data_assembly(root_directory, dataset)
         # upload to S3

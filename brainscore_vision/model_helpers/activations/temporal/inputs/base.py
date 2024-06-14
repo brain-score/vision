@@ -15,4 +15,3 @@ class Stimulus:
     def is_image_path(path: Union[str, Path]) -> bool:
         extension = path.split('.')[-1]
         return extension in ['jpg', 'jpeg', 'png', 'bmp', 'tiff']
-        

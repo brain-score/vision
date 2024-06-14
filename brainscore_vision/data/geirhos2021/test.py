@@ -236,7 +236,7 @@ class TestStimulusSets:
         full_name = f"Geirhos2021_{identifier}"
         stimulus_set = load_stimulus_set(full_name)
         assert stimulus_set is not None
-        assert stimulus_set.identifier == full_name
+        assert stimulus_set.identifier == f"brendel.{full_name}"
 
     # test the number of images
     @pytest.mark.parametrize('identifier, num_images', [

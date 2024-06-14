@@ -32,10 +32,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Python 3.7
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: 3.7
+          python-version: 3.11
       
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -131,10 +131,10 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.7
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: 3.7
+          python-version: 3.11
 
       - name: Build project
         run: |

@@ -86,16 +86,16 @@ class TestStimulusSets:
         ('long-2', 50),
         ('equal-16', 50),
         ('long-16', 50),
-        ('short-2_fit', 50),
-        ('short-4_fit', 50),
-        ('short-6_fit', 50),
-        ('short-8_fit', 50),
-        ('short-16_fit', 50),
-        ('equal-2_fit', 50),
-        ('long-2_fit', 50),
-        ('equal-16_fit', 50),
-        ('long-16_fit', 50),
-        ('vernier-only', 50)
+        ('short-2_fit', 500),
+        ('short-4_fit', 500),
+        ('short-6_fit', 500),
+        ('short-8_fit', 500),
+        ('short-16_fit', 500),
+        ('equal-2_fit', 500),
+        ('long-2_fit', 500),
+        ('equal-16_fit', 500),
+        ('long-16_fit', 500),
+        ('vernier-only', 500)
     ])
     def test_number_of_images(self, identifier, num_images):
         stimulus_set = load_stimulus_set(f"Malania2007_{identifier}")

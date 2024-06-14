@@ -37,6 +37,7 @@ test = [
     "pytest",
     "pytest_check",
     "pytest-mock",
+    "pytest-timeout",
     "torch",
     "torchvision",
     "protobuf",  # https://protobuf.dev/news/2022-05-06/#python-updates

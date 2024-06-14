@@ -108,7 +108,8 @@ class _Malania2007Base(BenchmarkBase):
 
     def __call__(self, candidate: BrainModel):
         model_responses = {}
-        candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli=self._fitting_stimuli)
+        candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli=self._fitting_stimuli,
+                             number_of_trials=self._number_of_trials, require_variance=True)
         for condition in (self.baseline_condition, self.condition):
             stimulus_set = place_on_screen(
                 self._stimulus_sets[condition],
@@ -143,7 +144,9 @@ def filter_baseline_subjects(condition_assembly: PropertyAssembly,
                              baseline_assembly: PropertyAssembly
                              ) -> Tuple[PropertyAssembly, PropertyAssembly]:
     """A function to select only the unique subjects that exist in the condition_assembly."""
-    unique_ids = condition_assembly.coords['subject'].values.tolist()
+    non_nan_mask = ~np.isnan(condition_assembly.values)
+    unique_ids = condition_assembly.coords['subject'][non_nan_mask].values.tolist()
+
     mask = baseline_assembly.coords['subject'].isin(unique_ids)
     filtered_baseline_assembly = baseline_assembly.where(mask, drop=True)
     return condition_assembly, filtered_baseline_assembly

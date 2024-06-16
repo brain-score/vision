@@ -150,4 +150,5 @@ if __name__ == "__main__":
         if tests_fail:
             if is_labeled_automerge(pr_num):
                 print(False)
+                return
         print(results_dict)

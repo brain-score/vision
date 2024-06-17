@@ -17,7 +17,7 @@ def collect_stimuli(data_path):
 def main():
     stimulus_path = os.path.normpath('/Users/chongguo/Dropbox (MIT)/CG@DiCarlo/Datasets/ImageNetSlim15000')
     stimulus_set = collect_stimuli(stimulus_path)
-    stimulus_set.identifier = 'dicarlo.ImageNetSlim15000'
+    stimulus_set.identifier = 'ImageNetSlim15000'
     package(stimulus_set)
 
 

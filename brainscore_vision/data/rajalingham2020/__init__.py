@@ -30,10 +30,10 @@ data_registry['Rajalingham2020'] = lambda: load_assembly_from_s3(
 
 # stimulus set
 stimulus_set_registry['Rajalingham2020'] = lambda: load_stimulus_set_from_s3(
-    identifier="dicarlo.Rajalingham2020",
+    identifier="Rajalingham2020",
     bucket="brainio-brainscore",
     csv_sha1="9a9a6b3115d2d8ce5d54ec2522093d8a87ed13a0",
     zip_sha1="6097086901032e20f8ae764e9cc06e0a891a3e18",
-    csv_version_id="kPZEA.xmFrtYesjID0KbTZxuuD_LCu4M",
-    zip_version_id="eTXlzNCSlwK.Lm6Smh.YJe2KmiaW_QNY")
+    csv_version_id="WR2Y5uv39CDSRj.c3Doec1CxzrvAMX2Y",
+    zip_version_id="l6liA374xHCunPq__HcouAqEKavc_XmY")
 

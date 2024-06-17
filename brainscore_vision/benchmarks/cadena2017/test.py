@@ -15,7 +15,7 @@ class TestAssembly:
         loader = AssemblyLoader()
         assembly = loader()
         check_standard_format(assembly)
-        assert assembly.attrs['stimulus_set_identifier'] == 'tolias.Cadena2017'
+        assert assembly.attrs['stimulus_set_identifier'] == 'Cadena2017'
         assert len(assembly['presentation']) == 6249
         assert len(assembly['neuroid']) == 166
 

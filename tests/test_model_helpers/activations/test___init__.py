@@ -292,6 +292,7 @@ def test_from_stimulus_set(model_ctr, layers, pca_components):
         assert len(activations['neuroid']) == pca_components * len(layers)
 
 
+@pytest.mark.memory_intense
 @pytest.mark.parametrize("number_of_trials", [3, 10])
 @pytest.mark.parametrize(["model_ctr", "layers"], models_layers)
 def test_microsaccades_from_stimulus_set(model_ctr, layers, number_of_trials):

@@ -292,6 +292,24 @@ def test_from_stimulus_set(model_ctr, layers, pca_components):
         assert len(activations['neuroid']) == pca_components * len(layers)
 
 
+@pytest.mark.parametrize("number_of_trials", [3, 10])
+@pytest.mark.parametrize(["model_ctr", "layers"], models_layers)
+def test_microsaccades_from_stimulus_set(model_ctr, layers, number_of_trials):
+    image_names = ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png', 'palletized.png']
+    stimulus_set = _build_stimulus_set(image_names)
+
+    activations_extractor = model_ctr()
+    activations_extractor._extractor.set_visual_degrees(8.)
+    activations_extractor._extractor._microsaccade_helper.number_of_trials = number_of_trials
+    activations = activations_extractor.from_stimulus_set(stimulus_set, layers=layers, stimuli_identifier=False,
+                                                          require_variance=True)
+
+    assert activations is not None
+    assert len(activations['presentation']) == len(image_names) * number_of_trials
+    assert set(activations['stimulus_id'].values) == set(image_names)
+    assert len(np.unique(activations['layer'])) == len(layers)
+
+
 @pytest.mark.memory_intense
 @pytest.mark.parametrize("pca_components", [None, 1000])
 def test_exact_activations(pca_components):

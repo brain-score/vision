@@ -147,7 +147,7 @@ if __name__ == "__main__":
         else:
             print("All tests pass but not labeled for automerge. Exiting.")
     else:
-        if tests_fail:
-            if is_labeled_automerge(pr_num):
-                print(False)
-        print(results_dict)
+        if tests_fail and is_labeled_automerge(pr_num):
+            print(False)
+        else:
+            print(results_dict)

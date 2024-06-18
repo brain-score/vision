@@ -28,11 +28,11 @@ class JoblibMapper:
         self._not_supported = False
 
     def map(self, func, *data):
-        from joblib.externals.loky.process_executor import TerminatedWorkerError
+        from joblib.externals.loky.process_executor import TerminatedWorkerError, BrokenProcessPool
         if not self._not_supported:
             try:
                 return self._pool(delayed(func)(*x) for x in zip(*data))
-            except TerminatedWorkerError:
+            except (TerminatedWorkerError, BrokenProcessPool):
                 self._not_supported = True
         return [func(*x) for x in zip(*data)]
 

@@ -17,12 +17,7 @@ def to_normalized_float_tensor(vid):
     vid = torch.Tensor(vid.to_numpy())
     return vid.permute(3, 0, 1, 2).to(torch.float32) / 255
 
-# NOTE: for those functions, which generally expect mini-batches, we keep them
-# as non-minibatch so that they are applied as if they were 4d (thus image).
-# this way, we only apply the transformation in the spatial domain
 def resize(vid, size, interpolation='bilinear'):
-    # NOTE: using bilinear interpolation because we don't work on minibatches
-    # at this level
     scale = None
     if isinstance(size, int):
         scale = float(size) / min(vid.shape[-2:])
@@ -35,13 +30,11 @@ def resize(vid, size, interpolation='bilinear'):
         align_corners=False)
 
 class ToFloatTensorInZeroOne(object):
-
     def __call__(self, vid):
         return to_normalized_float_tensor(vid)
 
 
 class Resize(object):
-
     def __init__(self, size):
         self.size = size
 

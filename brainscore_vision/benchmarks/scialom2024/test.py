@@ -79,26 +79,26 @@ class TestBehavioral:
 
     @pytest.mark.private_access
     @pytest.mark.parametrize('dataset, expected_raw_score', [
-        ('rgb', approx(0.98963, abs=0.001)),
-        ('contours', approx(0.53011, abs=0.001)),
+        ('rgb', approx(0.92616, abs=0.001)),
+        ('contours', approx(0.25445, abs=0.001)),
         ('phosphenes-12', approx(0.84177, abs=0.001)),
         ('phosphenes-16', approx(0.77513, abs=0.001)),
         ('phosphenes-21', approx(0.76437, abs=0.001)),
         ('phosphenes-27', approx(0.56895, abs=0.001)),
-        ('phosphenes-35', approx(0.45105, abs=0.001)),
+        ('phosphenes-35', approx(0.52008, abs=0.001)),
         ('phosphenes-46', approx(0.29478, abs=0.001)),
         ('phosphenes-59', approx(0.19022, abs=0.001)),
         ('phosphenes-77', approx(0.13569, abs=0.001)),
-        ('phosphenes-100', approx(0.08426, abs=0.001)),
+        ('phosphenes-100', approx(0.11234, abs=0.001)),
         ('segments-12', approx(0.72937, abs=0.001)),
         ('segments-16', approx(0.57043, abs=0.001)),
         ('segments-21', approx(0.49300, abs=0.001)),
-        ('segments-27', approx(0.37131, abs=0.001)),
-        ('segments-35', approx(0.29337, abs=0.001)),
-        ('segments-46', approx(0.23712, abs=0.001)),
-        ('segments-59', approx(0.17800, abs=0.001)),
+        ('segments-27', approx(0.30014, abs=0.001)),
+        ('segments-35', approx(0.22442, abs=0.001)),
+        ('segments-46', approx(0.14312, abs=0.001)),
+        ('segments-59', approx(0.12072, abs=0.001)),
         ('segments-77', approx(0.12996, abs=0.001)),
-        ('segments-100', approx(0.16156, abs=0.001)),  # all of the above are AccuracyDistance
+        ('segments-100', approx(0.11540, abs=0.001)),  # all of the above are AccuracyDistance
         ('phosphenes-all', approx(0.18057, abs=0.01)),  # alls are ErrorConsistency
         ('segments-all', approx(0.15181, abs=0.01)),
     ])

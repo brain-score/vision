@@ -51,7 +51,10 @@ class AccuracyDistance(Metric):
         # get the proportion of the distance between the source and target accuracies. e.g., if raw means are
         # 0.2 and 0.6 respectively, then the relative floor-adjusted distance is 0.33... since the score is
         # 33% of the way from the source to the target
-        relative_distance = source_mean / maximum_distance
+        relative_distance = 1 - np.abs(source_mean - target_mean) / maximum_distance
+        if relative_distance > 1:
+            print(relative_distance)
+
         return Score(relative_distance)
 
     def ceiling(self, assembly):
@@ -65,6 +68,8 @@ class AccuracyDistance(Metric):
             pairwise_score['subject_left'] = 'subject', [subject1]
             pairwise_score['subject_right'] = 'subject', [subject2]
             subject_scores.append(Score(pairwise_score))
+            if pairwise_score > 1.:
+                print(pairwise_score)
 
         subject_scores = Score.merge(*subject_scores)
         subject_scores = apply_aggregate(aggregate_fnc=self.aggregate, values=subject_scores)

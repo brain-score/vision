@@ -52,8 +52,6 @@ class AccuracyDistance(Metric):
         # 0.2 and 0.6 respectively, then the relative floor-adjusted distance is 0.33... since the score is
         # 33% of the way from the source to the target
         relative_distance = 1 - np.abs(source_mean - target_mean) / maximum_distance
-        if relative_distance > 1:
-            print(relative_distance)
 
         return Score(relative_distance)
 

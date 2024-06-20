@@ -68,8 +68,6 @@ class AccuracyDistance(Metric):
             pairwise_score['subject_left'] = 'subject', [subject1]
             pairwise_score['subject_right'] = 'subject', [subject2]
             subject_scores.append(Score(pairwise_score))
-            if pairwise_score > 1.:
-                print(pairwise_score)
 
         subject_scores = Score.merge(*subject_scores)
         subject_scores = apply_aggregate(aggregate_fnc=self.aggregate, values=subject_scores)

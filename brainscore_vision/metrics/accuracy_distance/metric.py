@@ -43,9 +43,12 @@ class AccuracyDistance(Metric):
         source_mean = sum(source_correct) / len(source_correct)
         target_mean = sum(target_correct) / len(target_correct)
 
-        source_to_target_distance = np.abs(source_mean - target_mean)
-        accuracy_distance_score = 1 - source_to_target_distance
-        return Score(accuracy_distance_score)
+        floor_score = np.max([1 - target_mean, target_mean])
+        # get the proportion of the distance between the source and target accuracies. e.g., if raw means are
+        # 0.2 and 0.6 respectively, then the relative floor-adjusted distance is 0.33... since the score is
+        # 33% of the way from the source to the target
+        relative_distance = source_mean / floor_score
+        return Score(relative_distance)
 
     def ceiling(self, assembly):
         subjects = self.extract_subjects(assembly)

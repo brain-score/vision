@@ -9,6 +9,10 @@ from brainscore_vision.metric_helpers.transformations import apply_aggregate
 
 
 class AccuracyDistance(Metric):
+    """
+    Computes the accuracy distance using the relative distance between the source and target accuracies, adjusted
+    for the maximum possible difference between the two accuracies.
+    """
     def __call__(self, source: BehavioralAssembly, target: BehavioralAssembly) -> Score:
         """Target should be the entire BehavioralAssembly, containing truth values."""
 

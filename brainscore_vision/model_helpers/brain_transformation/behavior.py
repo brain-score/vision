@@ -43,9 +43,10 @@ class LabelBehavior(BrainModel):
         self.current_task = task
         self.choice_labels = choice_labels
 
-    def look_at(self, stimuli, number_of_trials=1):
+    def look_at(self, stimuli, number_of_trials: int = 1, require_variance: bool = False):
         assert self.current_task == BrainModel.Task.label
-        logits = self.activations_model(stimuli, layers=['logits'])
+        logits = self.activations_model(stimuli, layers=['logits'], number_of_trials=number_of_trials,
+                                        require_variance=require_variance)
         choices = self.logits_to_choice(logits)
         return choices
 
@@ -262,13 +263,13 @@ class OddOneOut(BrainModel):
         assert task == BrainModel.Task.odd_one_out
         self.current_task = task
 
-    def look_at(self, triplets, number_of_trials=1):
+    def look_at(self, triplets, number_of_trials: int = 1, require_variance: bool = False):
         # Compute unique features and image_pathst
         stimuli = triplets.drop_duplicates(subset=['stimulus_id'])
         stimuli = stimuli.sort_values(by='stimulus_id')
 
         # Get features
-        features = self.activations_model(stimuli, layers=self.readout)
+        features = self.activations_model(stimuli, layers=self.readout, require_variance=require_variance)
         features = features.transpose('presentation', 'neuroid')
 
         # Compute similarity matrix

@@ -62,9 +62,9 @@ class ModelCommitment(BrainModel):
         else:
             self.do_behavior = False
 
-    def look_at(self, stimuli, number_of_trials=1, **kwargs):
+    def look_at(self, stimuli, number_of_trials: int = 1, require_variance: bool = False):
         if self.do_behavior:
-            return self.behavior_model.look_at(stimuli, number_of_trials=number_of_trials, **kwargs)
+            return self.behavior_model.look_at(stimuli, number_of_trials=number_of_trials, require_variance=require_variance)
         else:
             return self.layer_model.look_at(stimuli, number_of_trials=number_of_trials)
 

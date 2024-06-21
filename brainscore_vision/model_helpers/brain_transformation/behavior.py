@@ -191,14 +191,9 @@ class ProbabilitiesMapping(BrainModel):
                                                   number_of_trials=number_of_trials,
                                                   require_variance=require_variance)
         fitting_features = fitting_features.transpose('presentation', 'neuroid')
-        if require_variance and number_of_trials > 1:
-            # if microsaccades were collected for fitting trials, we use the image labels that
-            #  ActivationsExtractorHelper collected for us due to the dimension mismatch with the fitting_stimuli
-            self.classifier.fit(fitting_features, fitting_features['image_label'])
-        else:
-            assert all(fitting_features['stimulus_id'].values == fitting_stimuli['stimulus_id'].values), \
-                "stimulus_id ordering is incorrect"
-            self.classifier.fit(fitting_features, fitting_stimuli['image_label'])
+        assert all(fitting_features['stimulus_id'].values == fitting_stimuli['stimulus_id'].values), \
+            "stimulus_id ordering is incorrect"
+        self.classifier.fit(fitting_features, fitting_features['image_label'])
 
     def look_at(self, stimuli, number_of_trials=1, require_variance=False):
         if self.current_task is BrainModel.Task.passive:

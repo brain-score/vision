@@ -42,10 +42,10 @@ def get_model(name):
 
 def get_layers(name):
     assert name == 'fast_2px_step2_eps2_repeat1_trial1_model_best'
-    return ['layer1[0].conv3', 'layer1[1].conv3', 'layer1[2].conv3', 
-            'layer2[0].conv3', 'layer2[1].conv3', 'layer2[2].conv3', 'layer2[3].conv3',
-            'layer3[0].conv3', 'layer3[1].conv3', 'layer3[2].conv3', 'layer3[3].conv3', 'layer3[4].conv3', 'layer3[5].conv3',
-            'layer4[0].conv3', 'layer4[1].conv3', 'layer4[2].conv3']
+    return ['layer1.0.conv3', 'layer1.1.conv3', 'layer1.2.conv3', 
+            'layer2.0.conv3', 'layer2.1.conv3', 'layer2.2.conv3', 'layer2.3.conv3',
+            'layer3.0.conv3', 'layer3.1.conv3', 'layer3.2.conv3', 'layer3.3.conv3', 'layer3.4.conv3', 'layer3.5.conv3',
+            'layer4.0.conv3', 'layer4.1.conv3', 'layer4.2.conv3']
 
 
 def get_bibtex(model_identifier):

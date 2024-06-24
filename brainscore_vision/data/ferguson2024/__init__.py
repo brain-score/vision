@@ -268,3 +268,134 @@ data_registry['Ferguson2024_tilted_line'] = lambda: load_assembly_from_s3(
     cls=BehavioralAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('Ferguson2024_tilted_line'),
 )
+
+
+'''
+Pretraining Stimuli:
+'''
+
+# circle_line
+stimulus_set_registry['Ferguson2024_circle_line_training_stimuli'] = lambda: load_stimulus_set_from_s3(
+    identifier='Ferguson2024_circle_line_training_stimuli',
+    bucket="brainio-brainscore",
+    csv_sha1="098eb5999e9c4b723abc35ade862d2dc45899230",
+    zip_sha1="ba9088601d8c79ea5ff3d513e1a76b1232491918",
+    csv_version_id="fhYDvXCZNhij.2gnNfbTPlD.yOeiuz9G",
+    zip_version_id="i3lS29oWEn3JMReUaKZerehZKvZqaHq7")
+
+# color
+stimulus_set_registry['Ferguson2024_color_training_stimuli'] = lambda: load_stimulus_set_from_s3(
+    identifier='Ferguson2024_color_training_stimuli',
+    bucket="brainio-brainscore",
+    csv_sha1="098eb5999e9c4b723abc35ade862d2dc45899230",
+    zip_sha1="dcd5044c73e7523afc94f91543adb444a437f911",
+    csv_version_id="hfvHFxmWOQUwq0LnSwrhk8xecaa9XhQW",
+    zip_version_id="uwMSKXr5yRYqVDXA9aoS66BBXtsu2kcx")
+
+# convergence
+stimulus_set_registry['Ferguson2024_convergence_training_stimuli'] = lambda: load_stimulus_set_from_s3(
+    identifier='Ferguson2024_convergence_training_stimuli',
+    bucket="brainio-brainscore",
+    csv_sha1="098eb5999e9c4b723abc35ade862d2dc45899230",
+    zip_sha1="00eb401ddfc075a4bb448ec36b8a1c8f3ec1d6e4",
+    csv_version_id=".ZIqJlEMSgY_U5PeXBU33ifj2KMeMz2e",
+    zip_version_id="2bCuP2jVWc2WIuE9tD6b7TyPkuBbxyn0")
+
+# eighth
+stimulus_set_registry['Ferguson2024_eighth_training_stimuli'] = lambda: load_stimulus_set_from_s3(
+    identifier='Ferguson2024_eighth_training_stimuli',
+    bucket="brainio-brainscore",
+    csv_sha1="098eb5999e9c4b723abc35ade862d2dc45899230",
+    zip_sha1="26edaec1d0dd14343a117340283e091a2245f3aa",
+    csv_version_id="X7gv5Rztd.VmOIr8rmEd7XYBWtsGDJdR",
+    zip_version_id="wVfBxoqcy6YIZnFLLu6rj.8XUXQmOQMg")
+
+# gray_easy
+stimulus_set_registry['Ferguson2024_gray_easy_training_stimuli'] = lambda: load_stimulus_set_from_s3(
+    identifier='Ferguson2024_gray_easy_training_stimuli',
+    bucket="brainio-brainscore",
+    csv_sha1="098eb5999e9c4b723abc35ade862d2dc45899230",
+    zip_sha1="18211af83c680d5c916ec15b57b5b871494d6b28",
+    csv_version_id="j25..m3F2t7j.47YEiOHxTZxiq7ViPxc",
+    zip_version_id="h6fYQQ.DIWqr09rrqZIupCdUzJXFMTG9")
+
+# gray hard
+stimulus_set_registry['Ferguson2024_gray_hard_training_stimuli'] = lambda: load_stimulus_set_from_s3(
+    identifier='Ferguson2024_gray_hard_training_stimuli',
+    bucket="brainio-brainscore",
+    csv_sha1="098eb5999e9c4b723abc35ade862d2dc45899230",
+    zip_sha1="a54d84dbb548706bbfeb239113a1d92205dc3f67",
+    csv_version_id="nNGjK3Mgo2h4WVT0yx_yvJeP1htuWSUl",
+    zip_version_id="MeyqeiOhGSRRLYzG_bLsG.Nj4W2ktRf8")
+
+# half
+stimulus_set_registry['Ferguson2024_half_training_stimuli'] = lambda: load_stimulus_set_from_s3(
+    identifier='Ferguson2024_half_training_stimuli',
+    bucket="brainio-brainscore",
+    csv_sha1="098eb5999e9c4b723abc35ade862d2dc45899230",
+    zip_sha1="0db665619307d5c532a3ccd4311611e5a3830a10",
+    csv_version_id="bAg_H4VtFostaowCDqy2htVL9iBWCENh",
+    zip_version_id="rEsJ7ZopuRTyxSnA97ifpiHtkXqnWvR5")
+
+# juncture
+stimulus_set_registry['Ferguson2024_juncture_training_stimuli'] = lambda: load_stimulus_set_from_s3(
+    identifier='Ferguson2024_juncture_training_stimuli',
+    bucket="brainio-brainscore",
+    csv_sha1="098eb5999e9c4b723abc35ade862d2dc45899230",
+    zip_sha1="eb99fd862bec5e61900d037b6b38abf2a278c9f0",
+    csv_version_id="Uikb_kSDojTsL8LXORmShk_cuW8lFxa.",
+    zip_version_id="wRFpwf_J2kC2WtBUDGiv1Enhrj5Ah5Gh")
+
+# lle
+stimulus_set_registry['Ferguson2024_lle_training_stimuli'] = lambda: load_stimulus_set_from_s3(
+    identifier='Ferguson2024_lle_training_stimuli',
+    bucket="brainio-brainscore",
+    csv_sha1="098eb5999e9c4b723abc35ade862d2dc45899230",
+    zip_sha1="a1d19d0b77f0eb17ae886a1b7ccc649c5e51d84e",
+    csv_version_id="QXbtxFHLywcvLQy2enqL2Lxv9.bMgAwo",
+    zip_version_id="3izgx5jOCHDjH1fy_ncHOL7HxZIYt5nr")
+
+# llh
+stimulus_set_registry['Ferguson2024_llh_training_stimuli'] = lambda: load_stimulus_set_from_s3(
+    identifier='Ferguson2024_llh_training_stimuli',
+    bucket="brainio-brainscore",
+    csv_sha1="098eb5999e9c4b723abc35ade862d2dc45899230",
+    zip_sha1="1550f9f71e6930caa15b96aaf811aa97d48d7267",
+    csv_version_id="M3WlC_zVg5m8rYLyJd1KlKo2wQkf36G7",
+    zip_version_id="brEvqix1vzPM6mX8Jnx7pOgJEHETpOXM")
+
+# quarter
+stimulus_set_registry['Ferguson2024_quarter_training_stimuli'] = lambda: load_stimulus_set_from_s3(
+    identifier='Ferguson2024_quarter_training_stimuli',
+    bucket="brainio-brainscore",
+    csv_sha1="098eb5999e9c4b723abc35ade862d2dc45899230",
+    zip_sha1="22669e4a94718b3cbde3f5b2a493044bc091257e",
+    csv_version_id="lP4fsstG0Jfcnistm2H0AUhmPMHqAfTU",
+    zip_version_id="zpwv2_fwsmHk1TyR9_DYdmNGuLykgGX_")
+
+# round_f
+stimulus_set_registry['Ferguson2024_round_f_training_stimuli'] = lambda: load_stimulus_set_from_s3(
+    identifier='Ferguson2024_round_f_training_stimuli',
+    bucket="brainio-brainscore",
+    csv_sha1="098eb5999e9c4b723abc35ade862d2dc45899230",
+    zip_sha1="e33855c899f78a115cf377a228e07d87baa554b7",
+    csv_version_id="csLNw6RL7nen9TFyH552JSahJkKbnNLE.WcWp",
+    zip_version_id="7YYhm.tjysTS2e.IhjBx0ovOxWdAVv1M")
+
+# round_v
+stimulus_set_registry['Ferguson2024_round_v_training_stimuli'] = lambda: load_stimulus_set_from_s3(
+    identifier='Ferguson2024_round_v_training_stimuli',
+    bucket="brainio-brainscore",
+    csv_sha1="098eb5999e9c4b723abc35ade862d2dc45899230",
+    zip_sha1="b1555f8a140a12e01a87a2f4e452d5863be43a5b",
+    csv_version_id="QeNeoWjAxMZO4AjmB2SZFC4qEzwf1cBw",
+    zip_version_id="gj32aM8zE_VXh_N9hNI42g1Uo5AxNDJh")
+
+# tilted_line
+stimulus_set_registry['Ferguson2024_tilted_line_training_stimuli'] = lambda: load_stimulus_set_from_s3(
+    identifier='Ferguson2024_tilted_line_training_stimuli',
+    bucket="brainio-brainscore",
+    csv_sha1="098eb5999e9c4b723abc35ade862d2dc45899230",
+    zip_sha1="e92533d8aded07ed90ef25650d0cf07c3a458be7",
+    csv_version_id="l.8gS70OruIDfDU9Oj.DAWw6BQNB.LKc",
+    zip_version_id="cAv1IPQkKX8Jey1gFc4VCwItECIiSlLV")

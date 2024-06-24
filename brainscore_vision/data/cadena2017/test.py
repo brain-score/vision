@@ -13,7 +13,7 @@ def test_format():
 @pytest.mark.private_access
 def test_num_items():
     assembly = load_dataset('Cadena2017')
-    assert assembly.attrs['stimulus_set_identifier'] == 'tolias.Cadena2017'
+    assert assembly.attrs['stimulus_set_identifier'] == 'Cadena2017'
     assert len(assembly['presentation']) == 29000
     assert len(assembly['neuroid']) == 166
 

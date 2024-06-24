@@ -102,7 +102,7 @@ def main():
     assert os.path.isdir(data_dir)
 
     stimuli = collect_stimuli(data_dir)
-    stimuli.identifier = 'dicarlo.THINGS2'
+    stimuli.identifier = 'THINGS2'
     assembly = load_responses(data_dir, stimuli)
     assembly.name = 'dicarlo.SanghaviMurty2020THINGS2'
 

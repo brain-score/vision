@@ -37,6 +37,7 @@ test = [
     "pytest",
     "pytest_check",
     "pytest-mock",
+    "pytest-timeout",
     "torch",
     "torchvision",
     "tensorflow==1.15",

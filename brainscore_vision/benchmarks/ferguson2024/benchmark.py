@@ -1,11 +1,13 @@
 import numpy as np
 from brainscore_core import Metric
+from brainio.stimuli import StimulusSet
 from tqdm import tqdm
 from typing import Dict
 
 from brainscore_vision import load_dataset, load_stimulus_set
 from brainio.assemblies import BehavioralAssembly
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
+import pandas as pd
 from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.metrics import Score
 from brainscore_vision.metrics.value_delta import ValueDelta
@@ -33,7 +35,7 @@ class _Ferguson2024ValueDelta(BenchmarkBase):
         self._experiment = experiment
         self._precompute_ceiling = precompute_ceiling
         self._metric = ValueDelta(scale=0.75)  # 0.75 chosen after calibrating with ceiling
-        self._fitting_stimuli = load_stimulus_set(f'Ferguson2024_{self._experiment}')
+        self._fitting_stimuli = gather_all_fitting_stimuli()
         self._assembly = load_dataset(f'Ferguson2024_{self._experiment}')
         self._visual_degrees = 8
         self._number_of_trials = 3
@@ -44,9 +46,10 @@ class _Ferguson2024ValueDelta(BenchmarkBase):
     def __call__(self, candidate: BrainModel) -> Score:
 
         self._assembly.stimulus_set["image_label"] = np.where(self._assembly.stimulus_set["image_number"] % 2 == 0, "oddball", "same")
+        self._fitting_stimuli["image_label"] = np.where(self._assembly.stimulus_set["image_number"] % 2 == 0, "oddball", "same")
 
-        # fitting_stimuli = place_on_screen(self._fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
-        #                                   source_visual_degrees=self._visual_degrees)
+        fitting_stimuli = place_on_screen(self._fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
+                                           source_visual_degrees=self._visual_degrees)
         # candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli)
         # stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
         #                                source_visual_degrees=self._visual_degrees)
@@ -117,3 +120,18 @@ def get_integral_data(assembly: BehavioralAssembly, experiment: str, precompute_
     integral_error = HUMAN_INTEGRAL_ERRORS[experiment] if precompute_boostrap else \
         boostrap_integral(blue_data, orange_data)["integral_std"]
     return dict(zip(["integral", "integral_error"], [integral, integral_error]))
+
+
+def gather_all_fitting_stimuli() -> StimulusSet:
+    """
+    Combines all the training stimuli into one merged stimulus_set
+
+    :return: merged DataFrame of all 14 stimulus set's training data
+    """
+    all_stimulus_sets = []
+    for experiment in PRECOMPUTED_CEILINGS.keys():
+        stimulus_set = load_stimulus_set(f"Ferguson2024_{experiment}_training_stimuli")
+        all_stimulus_sets.append(stimulus_set)
+    merged_dataframe = pd.concat(all_stimulus_sets, axis=0, ignore_index=True)
+    merged_dataframe.name = "Ferguson2024_merged_training_stimuli"
+    return StimulusSet(merged_dataframe)

@@ -14,8 +14,7 @@ before_install:
 # download large files
 - pip install awscli
 install:
-- travis_wait pip install --no-cache-dir torch
-- travis_wait pip install --no-cache-dir torchvision
+- pip install --no-cache-dir torch torchvision --default-timeout=1000 --retries=5
 - pip install --no-cache-dir -e ".[test]"
 # install conda for plugin runner
 - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
@@ -35,6 +34,7 @@ jobs:
     - name: 3.7 public
       python: '3.7'
     - name: 3.7 private
+      if: fork = false
       python: '3.7'
       env:
       - PRIVATE_ACCESS=1
@@ -44,13 +44,12 @@ jobs:
     - stage: "Automerge check"
       python: '3.7'
       install:
-      - travis_wait pip install --no-cache-dir torch
-      - travis_wait pip install --no-cache-dir torchvision
+      - pip install --no-cache-dir torch torchvision --default-timeout=1000 --retries=5
       - pip install --no-cache-dir -e ".[test]"
       if: type = pull_request
       script:
         - |
-          CHANGED_FILES=$( git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*" && git fetch && echo $(git diff --name-only origin/$TRAVIS_PULL_REQUEST_BRANCH origin/$TRAVIS_BRANCH -C $TRAVIS_BUILD_DIR) | tr '\n' ' ' ) &&
+          CHANGED_FILES=$( git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*" && git fetch && echo $(git diff --name-only origin/$TRAVIS_BRANCH...origin/$TRAVIS_PULL_REQUEST_BRANCH -C $TRAVIS_BUILD_DIR) | tr '\n' ' ' ) &&
           PLUGIN_ONLY=$( python -c "from brainscore_core.plugin_management.parse_plugin_changes import is_plugin_only; is_plugin_only(\"${CHANGED_FILES}\", \"brainscore_${DOMAIN}\")" )
           if [ "$PLUGIN_ONLY" = "True" ] && [ "$TRAVIS_SECURE_ENV_VARS" = true ]; then
             bash ${TRAVIS_BUILD_DIR}/.github/workflows/workflow_trigger.sh $GH_WORKFLOW_TRIGGER $TRAVIS_PULL_REQUEST_SHA "Successful Travis PR build for plugin-only PR" "continuous-integration/travis"; 

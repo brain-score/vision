@@ -43,9 +43,10 @@ class LabelBehavior(BrainModel):
         self.current_task = task
         self.choice_labels = choice_labels
 
-    def look_at(self, stimuli, number_of_trials=1):
+    def look_at(self, stimuli, number_of_trials: int = 1, require_variance: bool = False):
         assert self.current_task == BrainModel.Task.label
-        logits = self.activations_model(stimuli, layers=['logits'])
+        logits = self.activations_model(stimuli, layers=['logits'], number_of_trials=number_of_trials,
+                                        require_variance=require_variance)
         choices = self.logits_to_choice(logits)
         return choices
 
@@ -183,20 +184,23 @@ class ProbabilitiesMapping(BrainModel):
     def identifier(self):
         return self._identifier
 
-    def start_task(self, task: BrainModel.Task, fitting_stimuli):
+    def start_task(self, task: BrainModel.Task, fitting_stimuli, number_of_trials=1, require_variance=False):
         assert task in [BrainModel.Task.passive, BrainModel.Task.probabilities]
         self.current_task = task
 
-        fitting_features = self.activations_model(fitting_stimuli, layers=self.readout)
+        fitting_features = self.activations_model(fitting_stimuli, layers=self.readout,
+                                                  number_of_trials=number_of_trials,
+                                                  require_variance=require_variance)
         fitting_features = fitting_features.transpose('presentation', 'neuroid')
         assert all(fitting_features['stimulus_id'].values == fitting_stimuli['stimulus_id'].values), \
             "stimulus_id ordering is incorrect"
-        self.classifier.fit(fitting_features, fitting_stimuli['image_label'])
+        self.classifier.fit(fitting_features, fitting_features['image_label'])
 
-    def look_at(self, stimuli, number_of_trials=1):
+    def look_at(self, stimuli, number_of_trials=1, require_variance=False):
         if self.current_task is BrainModel.Task.passive:
             return
-        features = self.activations_model(stimuli, layers=self.readout)
+        features = self.activations_model(stimuli, layers=self.readout, number_of_trials=number_of_trials,
+                                          require_variance=require_variance)
         features = features.transpose('presentation', 'neuroid')
         prediction = self.classifier.predict_proba(features)
         return prediction
@@ -259,13 +263,13 @@ class OddOneOut(BrainModel):
         assert task == BrainModel.Task.odd_one_out
         self.current_task = task
 
-    def look_at(self, triplets, number_of_trials=1):
+    def look_at(self, triplets, number_of_trials: int = 1, require_variance: bool = False):
         # Compute unique features and image_pathst
         stimuli = triplets.drop_duplicates(subset=['stimulus_id'])
         stimuli = stimuli.sort_values(by='stimulus_id')
 
         # Get features
-        features = self.activations_model(stimuli, layers=self.readout)
+        features = self.activations_model(stimuli, layers=self.readout, require_variance=require_variance)
         features = features.transpose('presentation', 'neuroid')
 
         # Compute similarity matrix

@@ -59,7 +59,7 @@ for filepath in Path(stimuli_directory).glob('*.png'):
 
 stimuli = StimulusSet(stimuli)
 stimuli.image_paths = image_paths
-stimuli.name = 'brendel.Geirhos2021_edge'  # give the StimulusSet an identifier name
+stimuli.name = 'Geirhos2021_edge'  # give the StimulusSet an identifier name
 
 # Ensure 100 images in dataset
 assert len(stimuli) == 160

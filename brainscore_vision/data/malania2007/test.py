@@ -22,7 +22,7 @@ class TestAssemblies:
     ])
     def test_num_subjects(self, identifier, num_subjects):
         assembly = load_dataset(f"Malania2007_{identifier}")
-        assembly = assembly.where(~np.isnan(assembly.values), drop=True)
+        assembly = assembly.where(assembly.isnull(), drop=True)
         assert len(np.unique(assembly['subject'].values)) == num_subjects
 
     # test assembly coords present in ALL 17 sets:

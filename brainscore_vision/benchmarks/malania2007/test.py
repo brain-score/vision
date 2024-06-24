@@ -23,7 +23,7 @@ class TestBehavioral:
     def test_mean_ceiling(self):
         benchmarks = [f"Malania2007_{dataset}" for dataset in DATASETS]
         benchmarks = [benchmark_registry[benchmark] for benchmark in benchmarks]
-        ceilings = [benchmark.ceiling.sel(aggregation='center') for benchmark in benchmarks]
+        ceilings = [benchmark._ceiling.sel(aggregation='center') for benchmark in benchmarks]
         mean_ceiling = np.mean(ceilings)
         assert mean_ceiling == approx(0.7724487108297781, abs=0.001)
 
@@ -43,7 +43,7 @@ class TestBehavioral:
     def test_dataset_ceiling(self, dataset, expected_ceiling):
         benchmark = f"Malania2007_{dataset}"
         benchmark = benchmark_registry[benchmark]
-        ceiling = benchmark.ceiling
+        ceiling = benchmark._ceiling
         assert ceiling.sel(aggregation='center').values.item() == expected_ceiling
 
     @pytest.mark.private_access

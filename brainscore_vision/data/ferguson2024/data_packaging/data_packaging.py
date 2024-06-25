@@ -13,23 +13,27 @@ DATASETS = ['circle_line', 'color', 'convergence', 'eighth',
 
 
 # Packages the stimulus_sets for the Ferguson2024 experiment. There are 14 in all.
-def create_stimulus_set_and_upload(name: str, experiment: str) -> None:
-    stimuli = []
-    stimulus_paths = {}
-    stimuli_directory = f'{experiment}'
-
-    '''
+def create_stimulus_set_and_upload(name: str, experiment: str, upload_to_s3=True) -> StimulusSet:
+    """
 
     Sample image from dataset:
     first_block_0.png
-    
+
     1) first_block -> what block the stimuli belong two (which image is target, which is distractor)
     2) 0 -> a number, 0-23 indicating which variation the image is
-    
+
     There are 24 images in the first block, and 24 in the second block, so the combined stimulus_set is length 48.
     The packaged stimuli were structured so that the root folder (tilted_line) had two subfolders, /first_block and /second_block.
-    
-    '''
+
+    :param name: the name of the experiment, usually Ferguson2024
+    :param experiment: the dataset, i.e. color
+    :param upload_to_s3: True if you want to upload this to BrainIO on S3
+    :return: the Stimulus Set
+    """
+
+    stimuli = []
+    stimulus_paths = {}
+    stimuli_directory = f'{experiment}'
     combine_block_images(stimuli_directory)
     for filepath in Path(f"{stimuli_directory}/final").glob('**/*.png'):
         stimulus_id = filepath.stem
@@ -49,13 +53,23 @@ def create_stimulus_set_and_upload(name: str, experiment: str) -> None:
     stimuli.name = f'{name}_{experiment}'  # give the StimulusSet an identifier name
 
     # upload to S3
-    init_data = package_stimulus_set(catalog_name=None, proto_stimulus_set=stimuli,
-                                     stimulus_set_identifier=stimuli.name, bucket_name="brainio-brainscore")
-    print(f"{experiment} stimulus_set\n{init_data}")
+    if upload_to_s3:
+        init_data = package_stimulus_set(catalog_name=None, proto_stimulus_set=stimuli,
+                                         stimulus_set_identifier=stimuli.name, bucket_name="brainio-brainscore")
+        print(f"{experiment} stimulus_set\n{init_data}")
+    return stimuli
 
 
 # Packages the assemblies for the Ferguson2024 experiment. There are 14 in all.
-def create_assembly_and_upload(name, experiment):
+def create_assembly_and_upload(name: str, experiment: str, upload_to_s3=True) -> BehavioralAssembly:
+    """
+    Takes in a sanity-processed csv file, converts to an assembly, and uploads it to BrainIO
+
+    :param name: the name of the experiment, usually Ferguson2024
+    :param experiment: the dataset, i.e. color
+    :param upload_to_s3: True if you want to upload this to BrainIO on S3
+    :return: the assmebly
+    """
     all_subjects = pd.read_csv(f'csvs/{experiment}_sanity_processed.csv')
 
     # only look at testing data (no warmup or sanity data):
@@ -84,11 +98,13 @@ def create_assembly_and_upload(name, experiment):
     assembly.name = f"{name}_{experiment}"
 
     # upload assembly to S3
-    init_data = package_data_assembly(None, assembly, assembly_identifier=assembly.name,
-                                      stimulus_set_identifier=f"{name}_{experiment}",
-                                      assembly_class_name="BehavioralAssembly",
-                                      bucket_name="brainio-brainscore")
-    print(f"{experiment} assembly\n{init_data}")
+    if upload_to_s3:
+        init_data = package_data_assembly(None, assembly, assembly_identifier=assembly.name,
+                                          stimulus_set_identifier=f"{name}_{experiment}",
+                                          assembly_class_name="BehavioralAssembly",
+                                          bucket_name="brainio-brainscore")
+        print(f"{experiment} assembly\n{init_data}")
+    return assembly
 
 
 # helper function to take in a folder with the structure outlined in the above file docs, and move them

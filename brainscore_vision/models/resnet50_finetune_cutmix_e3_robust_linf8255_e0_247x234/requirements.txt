@@ -1,0 +1,7 @@
+torchvision
+torch
+timm
+PIL
+numpy
+albumentations
+collections

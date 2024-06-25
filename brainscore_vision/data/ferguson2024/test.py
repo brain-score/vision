@@ -42,6 +42,8 @@ class TestStimulusSets:
         assert len(np.unique(stimulus_set['block'].values)) == 2
 
 
+# testing assemblies
+@pytest.mark.private_access
 class TestAssemblies:
     # test stimulus_set data:
     @pytest.mark.parametrize('identifier', [
@@ -114,7 +116,8 @@ class TestAssemblies:
         assembly = load_dataset(f"Ferguson2024_{identifier}")
         assert len(assembly) == size
 
-# testing stimulus sets
+
+# testing training sets
 @pytest.mark.private_access
 class TestTrainingStimulusSets:
     # test stimulus_set data:

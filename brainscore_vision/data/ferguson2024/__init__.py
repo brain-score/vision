@@ -29,7 +29,7 @@ stimulus_set_registry['Ferguson2024_color'] = lambda: load_stimulus_set_from_s3(
     bucket="brainio-brainscore",
     csv_sha1="bc351933e1f21eee9704985c1b8231be6955d816",
     zip_sha1="6ad04c58de8cc8c28b309572cc41c86470f0c322",
-    csv_version_id="jK6ddF6hF_oWmE5ccm4MyprQwjfeti3",
+    csv_version_id="jK6ddF6hF_oWmE5ccm4MyprQwjfeti3.",
     zip_version_id="Eku5pHE1CNJBrcaRstb8PCYCjOliHQmY")
 
 data_registry['Ferguson2024_color'] = lambda: load_assembly_from_s3(
@@ -379,7 +379,7 @@ stimulus_set_registry['Ferguson2024_round_f_training_stimuli'] = lambda: load_st
     bucket="brainio-brainscore",
     csv_sha1="098eb5999e9c4b723abc35ade862d2dc45899230",
     zip_sha1="e33855c899f78a115cf377a228e07d87baa554b7",
-    csv_version_id="csLNw6RL7nen9TFyH552JSahJkKbnNLE.WcWp",
+    csv_version_id="csLNw6RL7nen9TFyH552JSahJkKbnNLE",
     zip_version_id="7YYhm.tjysTS2e.IhjBx0ovOxWdAVv1M")
 
 # round_v

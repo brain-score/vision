@@ -42,6 +42,8 @@ class TestStimulusSets:
         assert len(np.unique(stimulus_set['block'].values)) == 2
 
 
+# testing assemblies
+@pytest.mark.private_access
 class TestAssemblies:
     # test stimulus_set data:
     @pytest.mark.parametrize('identifier', [
@@ -114,3 +116,40 @@ class TestAssemblies:
         assembly = load_dataset(f"Ferguson2024_{identifier}")
         assert len(assembly) == size
 
+
+# testing training sets
+@pytest.mark.private_access
+class TestTrainingStimulusSets:
+    # test stimulus_set data:
+    @pytest.mark.parametrize('identifier', [
+        'circle_line', 'color', 'convergence', 'eighth',
+        'gray_easy', 'gray_hard', 'half', 'juncture',
+        'lle', 'llh', 'quarter', 'round_f',
+        'round_v', 'tilted_line'
+    ])
+    def test_stimulus_set_exist(self, identifier):
+        stimulus_set = load_stimulus_set(f"Ferguson2024_{identifier}_training_stimuli")
+        assert stimulus_set is not None
+        assert stimulus_set.identifier == f"Ferguson2024_{identifier}_training_stimuli"
+
+    # test the number of images
+    @pytest.mark.parametrize('identifier', [
+        'circle_line', 'color', 'convergence', 'eighth',
+        'gray_easy', 'gray_hard', 'half', 'juncture',
+        'lle', 'llh', 'quarter', 'round_f',
+        'round_v', 'tilted_line'
+    ])
+    def test_num_images(self, identifier):
+        stimulus_set = load_stimulus_set(f"Ferguson2024_{identifier}_training_stimuli")
+        assert len(np.unique(stimulus_set['stimulus_id'].values)) == 1920
+
+    # test the number of blocks:
+    @pytest.mark.parametrize('identifier', [
+        'circle_line', 'color', 'convergence', 'eighth',
+        'gray_easy', 'gray_hard', 'half', 'juncture',
+        'lle', 'llh', 'quarter', 'round_f',
+        'round_v', 'tilted_line'
+    ])
+    def test_num_blocks(self, identifier):
+        stimulus_set = load_stimulus_set(f"Ferguson2024_{identifier}_training_stimuli")
+        assert len(np.unique(stimulus_set['block'].values)) == 2

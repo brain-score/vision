@@ -35,7 +35,7 @@ class _Ferguson2024ValueDelta(BenchmarkBase):
         self._experiment = experiment
         self._precompute_ceiling = precompute_ceiling
         self._metric = ValueDelta(scale=0.75)  # 0.75 chosen after calibrating with ceiling
-        self._fitting_stimuli = gather_all_fitting_stimuli()
+        self._fitting_stimuli = gather_fitting_stimuli()
         self._assembly = load_dataset(f'Ferguson2024_{self._experiment}')
         self._visual_degrees = 8
         self._number_of_trials = 3
@@ -45,8 +45,9 @@ class _Ferguson2024ValueDelta(BenchmarkBase):
 
     def __call__(self, candidate: BrainModel) -> Score:
 
+        # add truth labels to stimuli and training data
         self._assembly.stimulus_set["image_label"] = np.where(self._assembly.stimulus_set["image_number"] % 2 == 0, "oddball", "same")
-        self._fitting_stimuli["image_label"] = np.where(self._assembly.stimulus_set["image_number"] % 2 == 0, "oddball", "same")
+        self._fitting_stimuli["image_label"] = np.where(self._fitting_stimuli["image_number"] % 2 == 0, "oddball", "same")
 
         fitting_stimuli = place_on_screen(self._fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
                                            source_visual_degrees=self._visual_degrees)
@@ -122,16 +123,25 @@ def get_integral_data(assembly: BehavioralAssembly, experiment: str, precompute_
     return dict(zip(["integral", "integral_error"], [integral, integral_error]))
 
 
-def gather_all_fitting_stimuli() -> StimulusSet:
+def gather_fitting_stimuli(combine_all=True, experiment="") -> StimulusSet:
     """
-    Combines all the training stimuli into one merged stimulus_set
+    Combines all the training stimuli into one merged stimulus_set, or returns the selected set for the experiment
 
-    :return: merged DataFrame of all 14 stimulus set's training data
+    :param combine_all: True if you want to collapse all 14 stimuli pairs into 1 stimulus set
+    :param experiment: only if combine_all is False, then specify which experiment's stimuli you want
+    :return: merged StimulusSet of all 14 stimulus set's training data or a StimulusSet of that experiment only
     """
-    all_stimulus_sets = []
-    for experiment in PRECOMPUTED_CEILINGS.keys():
-        stimulus_set = load_stimulus_set(f"Ferguson2024_{experiment}_training_stimuli")
-        all_stimulus_sets.append(stimulus_set)
-    merged_dataframe = pd.concat(all_stimulus_sets, axis=0, ignore_index=True)
-    merged_dataframe.name = "Ferguson2024_merged_training_stimuli"
-    return StimulusSet(merged_dataframe)
+
+    if combine_all:
+        all_stimulus_sets = []
+        for experiment in PRECOMPUTED_CEILINGS.keys():
+            stimulus_set = load_stimulus_set(f"Ferguson2024_{experiment}_training_stimuli")
+            all_stimulus_sets.append(stimulus_set)
+        merged_dataframe = pd.concat(all_stimulus_sets, axis=0, ignore_index=True)
+        merged_dataframe.name = "Ferguson2024_merged_training_stimuli"
+        merged_dataframe.identifier = "Ferguson2024_merged_training_stimuli"
+        merged_stimulus_set = StimulusSet(merged_dataframe)
+        merged_stimulus_set.identifier = "Ferguson2024_merged_training_stimuli"
+        return merged_stimulus_set
+    else:
+        return load_stimulus_set(f"Ferguson2024_{experiment}_training_stimuli")

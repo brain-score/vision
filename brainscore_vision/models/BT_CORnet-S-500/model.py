@@ -25,14 +25,14 @@ def get_model(name):
     :param name: the name of the model to fetch
     :return: the model instance
     """
-    assert name == 'BT_CORnet-S-100'
+    assert name == 'BT_CORnet-S-500'
     
     model = getattr(cornet, f'cornet_s')
     model = model(pretrained=True, map_location=torch.device('cpu'))
     weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
-                                    relative_path="braintree-models/weights/epoch_100.pth.tar",
-                                    version_id="dMNYhC.9bg39SrPZ2bqmUC_5rdd3P5ax",
-                                    sha1="4d8c9639fca21234cd189db9db81b3f41f3afcf3")
+                                    relative_path="braintree-models/weights/epoch_500.pth.tar",
+                                    version_id="qQDh0hX088C9A.kt1i5GhTqCywh9JZrz",
+                                    sha1="e3c9f036a6bb3065a4908800dcd96c6d6a647688")
     checkpoint = torch.load(weights_path, map_location=torch.device('cpu'))
     model.load_state_dict(checkpoint['state_dict'], strict=True)
     model = model.module
@@ -53,7 +53,7 @@ def get_layers(name):
     :return: a list of strings containing all layers, that should be considered as brain area.
     """
     # return the same layers for all models, as they are all resnet50s
-    assert name == 'BT_CORnet-S-100'
+    assert name == 'BT_CORnet-S-500'
     return ['V1','V2','V4','IT']
 
 if __name__ == '__main__':

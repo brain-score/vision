@@ -11,6 +11,7 @@ from brainscore_vision import benchmark_registry
 
 @pytest.mark.parametrize('benchmark', [
     'Maniquet2024ConfusionSimilarity',
+    'Maniquet2024TasksConsistency',
 ])
 def test_benchmark_registry(benchmark):
     assert benchmark in benchmark_registry

@@ -63,7 +63,7 @@ class _Maniquet2024ConfusionSimilarity(BenchmarkBase):
 
         # Call the parent class constructor to complete initialization
         super(_Maniquet2024ConfusionSimilarity, self).__init__(
-            identifier="_Maniquet2024ConfusionSimilarity",
+            identifier="Maniquet2024ConfusionSimilarity",
             version=1,
             ceiling_func=lambda: self._metric._ceiling(self._assembly),
             parent="Maniquet2024",
@@ -101,7 +101,7 @@ class _Maniquet2024ConfusionSimilarity(BenchmarkBase):
         return score
 
 
-class Maniquet2024TasksConsistency(BenchmarkBase):
+class _Maniquet2024TasksConsistency(BenchmarkBase):
     """
     A benchmarking class designed to evaluate the consistency of the human accuracy profiles across
     all tasks with the model's accuracy profiles across the same tasks.
@@ -139,7 +139,7 @@ class Maniquet2024TasksConsistency(BenchmarkBase):
         self._number_of_trials = 1
 
         # Initialize parent class with benchmark-specific metadata
-        super(Maniquet2024TasksConsistency, self).__init__(
+        super(_Maniquet2024TasksConsistency, self).__init__(
             identifier="Maniquet2024TasksConsistency",
             version=1,
             ceiling_func=lambda: self._metric.ceiling(self._human_assembly),
@@ -181,3 +181,7 @@ class Maniquet2024TasksConsistency(BenchmarkBase):
 
 def Maniquet2024ConfusionSimilarity():
     return _Maniquet2024ConfusionSimilarity
+
+
+def Maniquet2024TasksConsistency():
+    return _Maniquet2024TasksConsistency

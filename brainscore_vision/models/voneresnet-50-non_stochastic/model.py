@@ -61,11 +61,6 @@ def get_model_from_s3():
     model.to("cpu")
     return model
 
-
-def get_model_list():
-    return ['voneresnet-50-non_stochastic']
-
-
 def get_model(name):
     assert name == 'voneresnet-50-non_stochastic'
     model = get_model_from_s3()

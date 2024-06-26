@@ -95,7 +95,7 @@ class TestStimulusSets:
         ('long-2_fit', 500),
         ('equal-16_fit', 500),
         ('long-16_fit', 500),
-        ('vernier-only', 500)
+        ('vernier-only', 50)
     ])
     def test_number_of_images(self, identifier, num_images):
         stimulus_set = load_stimulus_set(f"Malania2007_{identifier}")

@@ -346,6 +346,9 @@ class Threshold(Metric):
         else:
             target_mean = np.mean(target)
         # This score = 0 when the source exceeds target_mean by 100%
+        #  The logic is that the maximum distance below is target threshold is at 0, and thus
+        #  setting the maximum distance above the target threshold at the same distance will make
+        #  the score symmetric.
         raw_score = max((1 - ((np.abs(target_mean - source)) / target_mean)), 0)
         raw_score = Score([raw_score], coords={'aggregation': ['center']}, dims=['aggregation'])
         return raw_score

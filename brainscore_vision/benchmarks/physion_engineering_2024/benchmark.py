@@ -17,7 +17,7 @@ class PhysionGlobalDetectionAccuracy(BenchmarkBase):
         #self._stimulus_set = json.load(open(os.path.join(os.path.dirname(__file__),
         #                                                'physion_full_brainscore.json'),
         #                              'r'))
-        self._stimulus_set  = load_stimulus_set("PhysionGlobalDetection2024")
+        self._stimulus_set  = load_stimulus_set("PhysionOCPSmall")#PhysionGlobalDetection2024")
         # at what degree visual angle stimuli were presented
         self._visual_degrees = 8
         self._similarity_metric = load_metric('accuracy')

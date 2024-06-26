@@ -1,10 +1,10 @@
 from collections import defaultdict
 from typing import Dict, Tuple
-from model_helpers.brain_transformation.behavior import BehaviorArbiter, LogitsBehavior, ProbabilitiesMapping
+from brainscore_vision.model_helpers.brain_transformation.behavior import BehaviorArbiter, LogitsBehavior, ProbabilitiesMapping
 from result_caching import store
 from tqdm import tqdm
-from model_helpers.activations.core import ActivationsExtractorHelper
-from model_helpers.activations.pytorch import PytorchWrapper
+from brainscore_vision.model_helpers.activations.core import ActivationsExtractorHelper
+from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_interface import BrainModel
 from brainio.assemblies import merge_data_arrays, NeuroidAssembly, walk_coords
 import re

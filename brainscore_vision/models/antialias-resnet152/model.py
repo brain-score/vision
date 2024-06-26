@@ -1,5 +1,5 @@
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
-from model_helpers.activations.pytorch import load_preprocess_images
+from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 import ssl
 import functools
 import antialiased_cnns

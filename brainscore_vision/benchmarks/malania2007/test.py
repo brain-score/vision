@@ -42,8 +42,8 @@ class TestBehavioral:
     ])
     def test_dataset_ceiling(self, dataset, expected_ceiling):
         benchmark = f"Malania2007_{dataset}"
-        benchmark = benchmark_registry[benchmark]
-        ceiling = benchmark._ceiling
+        benchmark = load_benchmark(benchmark)
+        ceiling = benchmark.ceiling
         assert ceiling.sel(aggregation='center').values.item() == expected_ceiling
 
     @pytest.mark.private_access

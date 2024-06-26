@@ -121,7 +121,6 @@ class Threshold(Metric):
                  fit_function=psychometric_cum_gauss,
                  fit_inverse_function=inverse_psychometric_cum_gauss,
                  threshold_accuracy: Union[str, float] = 'inflection',
-                 scoring: str = 'pool',
                  required_accuracy: Optional[float] = 0.6,
                  plot_fit: bool = False
                  ):
@@ -135,14 +134,11 @@ class Threshold(Metric):
                                     is used, the function finds the inflection point of the curve and evaluates
                                     the threshold at that level. When a float is used, the function evaluates
                                     the threshold at that level.
-        :param scoring: The scoring function used to evaluate performance. Either Literal['individual'] or
-                         Literal['pool']. See the individual_score and pool_score methods for more information.
         """
         self.fit_function = fit_function
         self.fit_inverse_function = fit_inverse_function
         self._independent_variable = independent_variable
         self.threshold_accuracy = threshold_accuracy
-        self.scoring = scoring
         self.required_accuracy = required_accuracy
         self.plot_fit = plot_fit
 
@@ -152,7 +148,7 @@ class Threshold(Metric):
                         threshold as a float.
         :param target: Either a list containing human thresholds (for the ceiling function & ThresholdElevation),
                         or a PropertyAsssembly.
-        :return: A Score containing the evaluated model's ceiling-adjusted distance to target thresholds.
+        :return: A Score containing the evaluated model's distance to target thresholds.
         """
         # compute threshold from measurements if the input is not a threshold already
         if isinstance(source, float):
@@ -164,14 +160,7 @@ class Threshold(Metric):
                 return Score([0., 0.], coords={'aggregation': ['center', ]}, dims=['aggregation'])
         else:
             raise TypeError(f'source is type {type(source)}, but type BehavioralAssembly or float is required.')
-
-        # compare threshold to target thresholds
-        if self.scoring == 'pool':
-            return self.pool_score(source_threshold, target)
-        elif self.scoring == 'individual':
-            return self.individual_score(source_threshold, target)
-        else:
-            raise ValueError(f'Scoring method {self.scoring} is not a valid scoring method.')
+        return self.scoring_function(source_threshold, target)
 
     def ceiling(self, assembly: Union[PropertyAssembly, Dict[str, PropertyAssembly]]) -> Score:
         """
@@ -191,7 +180,7 @@ class Threshold(Metric):
             random_state = np.random.RandomState(i)
             random_human_score = random_state.choice(human_thresholds, replace=False)
             metric = Threshold(self._independent_variable, self.fit_function, self.fit_inverse_function,
-                               self.threshold_accuracy, scoring=self.scoring)
+                               self.threshold_accuracy)
             human_thresholds.remove(random_human_score)
             score = metric(random_human_score, human_thresholds)
             score = float(score[(score['aggregation'] == 'center')].values)
@@ -199,7 +188,8 @@ class Threshold(Metric):
             scores.append(score)
 
         ceiling, ceiling_error = np.mean(scores), np.std(scores)
-        ceiling = Score([ceiling, ceiling_error], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
+        ceiling = Score([ceiling], coords={'aggregation': ['center']}, dims=['aggregation'])
+        ceiling.attrs['error'] = ceiling_error
         return ceiling
 
     def compute_threshold(self, source: BehavioralAssembly, independent_variable: str) -> Union[float, str]:
@@ -318,7 +308,7 @@ class Threshold(Metric):
         return unique_x, correct_rate
 
     @staticmethod
-    def individual_score(source: float, target: Union[list, PropertyAssembly]) -> Score:
+    def scoring_function(source: float, target: Union[list, PropertyAssembly]) -> Score:
         """
         Computes the average distance of the source from each of the individual targets in units of the
         individual targets. This is generally a more stringent scoring method than pool_score, aimed
@@ -331,27 +321,11 @@ class Threshold(Metric):
             raw_scores.append(raw_score)
 
         raw_score, model_error = np.mean(raw_scores), np.std(raw_scores)
-        raw_score = Score([raw_score, model_error], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
-        return raw_score
-
-    @staticmethod
-    def pool_score(source: float, target: Union[list, PropertyAssembly]) -> Score:
-        """
-        Computes the distance of the source from the average of the target in units of the target average.
-        This is generally a less stringent scoring method than individual_score, aimed to measure the average
-        target effect.
-        """
-        if not isinstance(target, list):
-            target_mean = np.mean(target.values)
-        else:
-            target_mean = np.mean(target)
-        # This score = 0 when the source exceeds target_mean by 100%
-        #  The logic is that the maximum distance below is target threshold is at 0, and thus
-        #  setting the maximum distance above the target threshold at the same distance will make
-        #  the score symmetric.
-        raw_score = max((1 - ((np.abs(target_mean - source)) / target_mean)), 0)
-        raw_score = Score([raw_score], coords={'aggregation': ['center']}, dims=['aggregation'])
-        return raw_score
+        # add the aggregation: center coordinate to the score
+        score = Score([np.mean(raw_scores)], coords={'aggregation': ['center']}, dims=['aggregation'])
+        score.attrs['raw'] = raw_score
+        score.attrs['error'] = model_error
+        return score
 
     @staticmethod
     def convert_proba_to_correct(source: BehavioralAssembly) -> np.array:
@@ -421,7 +395,6 @@ class ThresholdElevation(Threshold):
                  baseline_condition: str,
                  test_condition: str,
                  threshold_accuracy: Union[str, float] = 'inflection',
-                 scoring: str = 'pool',
                  required_baseline_accuracy: Optional[float] = 0.6,
                  required_test_accuracy: Optional[float] = 0.6,
                  plot_fit: bool = False
@@ -437,7 +410,7 @@ class ThresholdElevation(Threshold):
                                     the threshold at that level. When a float is used, the function evaluates
                                     the threshold at that level.
         :param scoring: The scoring function used to evaluate performance. Either Literal['individual'] or
-                         Literal['pool']. See the individual_score and pool_score methods for more information.
+                         Literal['pool']. See the scoring_function and pool_score methods for more information.
         """
         super(ThresholdElevation, self).__init__(independent_variable)
         self.baseline_threshold_metric = Threshold(self._independent_variable,
@@ -451,11 +424,10 @@ class ThresholdElevation(Threshold):
         self.baseline_condition = baseline_condition
         self.test_condition = test_condition
         self.threshold_accuracy = threshold_accuracy
-        self.scoring = scoring
 
     def __call__(self,
                  source: Union[float, Dict[str, BehavioralAssembly]],
-                 target: Union[list, Dict[str, PropertyAssembly]]
+                 target: Union[list, PropertyAssembly, Dict[str, PropertyAssembly]]
                  ) -> Score:
         """
         :param source: Either a dictionary containing the BehavioralAssemblies for the test condition and the
@@ -488,18 +460,15 @@ class ThresholdElevation(Threshold):
         # check whether the targets are threshold elevations already - if not, compute them
         if isinstance(target, list):
             target_threshold_elevations = target
+        elif isinstance(target, PropertyAssembly):
+            target_threshold_elevations = target.values.tolist()
         elif isinstance(target, Dict):
             target_threshold_elevations = self.compute_threshold_elevations(target)
         else:
             raise TypeError(f'target is type {type(target)}, but type PropertyAssembly or list is required.')
 
         # compare threshold elevation to target threshold elevations
-        if self.scoring == 'pool':
-            return self.pool_score(raw_source_threshold_elevation, target_threshold_elevations)
-        elif self.scoring == 'individual':
-            return self.individual_score(raw_source_threshold_elevation, target_threshold_elevations)
-        else:
-            raise ValueError(f'Scoring method {self.scoring} is not a valid scoring method.')
+        return self.scoring_function(raw_source_threshold_elevation, target_threshold_elevations)
 
     def ceiling(self, assemblies: Dict[str, PropertyAssembly]) -> Score:
         """
@@ -515,7 +484,7 @@ class ThresholdElevation(Threshold):
             random_state = np.random.RandomState(i)
             random_human_score = random_state.choice(human_threshold_elevations, replace=False)
             metric = ThresholdElevation(self._independent_variable, self.baseline_condition, self.test_condition,
-                                        self.threshold_accuracy, scoring=self.scoring)
+                                        self.threshold_accuracy)
             human_threshold_elevations.remove(random_human_score)
             score = metric(random_human_score, human_threshold_elevations)
             score = float(score[(score['aggregation'] == 'center')].values)
@@ -523,7 +492,8 @@ class ThresholdElevation(Threshold):
             scores.append(score)
 
         ceiling, ceiling_error = np.mean(scores), np.std(scores)
-        ceiling = Score([ceiling, ceiling_error], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
+        ceiling = Score([ceiling], coords={'aggregation': ['center']}, dims=['aggregation'])
+        ceiling.attrs['error'] = ceiling_error
         return ceiling
 
     @staticmethod

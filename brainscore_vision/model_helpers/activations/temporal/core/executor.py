@@ -25,15 +25,15 @@ class JoblibMapper:
     def __init__(self, num_threads: int):
         self._num_threads = num_threads
         self._pool = Parallel(n_jobs=num_threads, verbose=False, backend="loky")
-        self._not_supported = False
+        self._failed_to_pickle_func = False
 
     def map(self, func, *data):
         from joblib.externals.loky.process_executor import TerminatedWorkerError, BrokenProcessPool
-        if not self._not_supported:
+        if not self._failed_to_pickle_func:
             try:
                 return self._pool(delayed(func)(*x) for x in zip(*data))
             except (TerminatedWorkerError, BrokenProcessPool):
-                self._not_supported = True
+                self._failed_to_pickle_func = True
         return [func(*x) for x in zip(*data)]
 
 

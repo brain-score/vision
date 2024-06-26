@@ -5,7 +5,7 @@ import torch
 from torch.nn import Module
 import torch.nn as nn
 from brainscore_vision.model_helpers.s3 import load_weight_file
-from model_helpers.activations.pytorch import load_preprocess_images
+from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 import ssl
 
 # needed import for globals() to work!

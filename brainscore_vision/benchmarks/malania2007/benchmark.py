@@ -116,7 +116,6 @@ class _Malania2007Base(BenchmarkBase):
                 target_visual_degrees=candidate.visual_degrees(),
                 source_visual_degrees=self._visual_degrees
             )
-            # model_requirements here
             model_responses[condition] = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials,
                                                            require_variance=True)
 

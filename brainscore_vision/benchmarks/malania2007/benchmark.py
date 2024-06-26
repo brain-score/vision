@@ -95,14 +95,13 @@ class _Malania2007Base(BenchmarkBase):
                                    baseline_condition=self.baseline_condition,
                                    test_condition=self.condition,
                                    threshold_accuracy=0.75)
-        self._ceiling = self._metric.ceiling(self._assemblies)
 
         self._visual_degrees = 2.986667
         self._number_of_trials = 10  # arbitrary choice for microsaccades to improve precision of estimates
 
         super(_Malania2007Base, self).__init__(
             identifier=f'Malania2007_{condition}', version=1,
-            ceiling_func=lambda: self._ceiling,
+            ceiling_func=lambda: self._metric.ceiling(self._assemblies),
             parent='Malania2007',
             bibtex=BIBTEX)
 
@@ -148,4 +147,5 @@ def filter_baseline_subjects(condition_assembly: PropertyAssembly,
 
     mask = baseline_assembly.coords['subject'].isin(unique_ids)
     filtered_baseline_assembly = baseline_assembly.where(mask, drop=True)
-    return condition_assembly, filtered_baseline_assembly
+    filtered_condition_assembly = condition_assembly.where(mask, drop=True)
+    return filtered_condition_assembly, filtered_baseline_assembly

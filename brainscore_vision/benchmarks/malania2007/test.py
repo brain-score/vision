@@ -30,15 +30,15 @@ class TestBehavioral:
     # these test values are for the pooled score ceiling
     @pytest.mark.private_access
     @pytest.mark.parametrize('dataset, expected_ceiling', [
-        ('short-2', approx(0.69824226, abs=0.001)),
-        ('short-4', approx(0.56750692, abs=0.001)),
-        ('short-6', approx(0.62480255, abs=0.001)),
-        ('short-8', approx(0.67478401, abs=0.001)),
-        ('short-16', approx(0.83471481, abs=0.001)),
-        ('equal-2', approx(0.59491172, abs=0.001)),
-        ('long-2', approx(0.52140858, abs=0.001)),
-        ('equal-16', approx(0.3824312, abs=0.001)),
-        ('long-16', approx(0.51425013, abs=0.001))
+        ('short-2', approx(0.78719345, abs=0.001)),
+        ('short-4', approx(0.49998989, abs=0.001)),
+        ('short-6', approx(0.50590051, abs=0.001)),
+        ('short-8', approx(0.4426336, abs=0.001)),
+        ('short-16', approx(0.8383443, abs=0.001)),
+        ('equal-2', approx(0.56664015, abs=0.001)),
+        ('long-2', approx(0.46470421, abs=0.001)),
+        ('equal-16', approx(0.44087153, abs=0.001)),
+        ('long-16', approx(0.50996587, abs=0.001))
     ])
     def test_dataset_ceiling(self, dataset, expected_ceiling):
         benchmark = f"Malania2007_{dataset}"

@@ -9,7 +9,7 @@ env:
     - WEB_SUBMISSION="False"
 before_install:
 - pip install --upgrade pip
-- pip install setuptools==65.5.0
+- pip install setuptools
 - pip install pytest
 # download large files
 - pip install awscli

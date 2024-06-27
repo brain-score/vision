@@ -49,7 +49,7 @@ test = [
 
 [build-system]
 requires = [
-    "setuptools>=65.*",
+    "setuptools",
     "wheel"
 ]
 

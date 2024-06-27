@@ -121,7 +121,7 @@ class _Malania2007Base(BenchmarkBase):
         raw_score = self._metric(model_responses, self._assemblies)
 
         # Adjust score to ceiling
-        ceiling = self._ceiling
+        ceiling = self.ceiling
         score = raw_score / ceiling.sel(aggregation='center')
 
         # cap score at 1 if ceiled score > 1
@@ -131,6 +131,69 @@ class _Malania2007Base(BenchmarkBase):
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling
         return score
+
+
+class _Malania2007VernierAcuity(BenchmarkBase):
+    def __init__(self):
+        self.baseline_condition = BASELINE_CONDITION
+        self.conditions = DATASETS
+
+        self._assemblies = {condition: {'baseline_assembly': self.get_assemblies(condition)['baseline_assembly'],
+                                        'condition_assembly': self.get_assemblies(condition)['condition_assembly']}
+                            for condition in self.conditions}
+        self._stimulus_set = brainscore_vision.load_stimulus_set(f'Malania2007_{self.baseline_condition}')
+        self._fitting_stimuli = {condition: brainscore_vision.load_stimulus_set(f'Malania2007_{condition}_fit')
+                               for condition in self.conditions}
+
+        self._metric = load_metric('threshold',
+                                   independent_variable='image_label',
+                                   threshold_accuracy=0.75)
+
+        self._visual_degrees = 2.986667
+        self._number_of_trials = 10  # arbitrary choice for microsaccades to improve precision of estimates
+
+        super(_Malania2007VernierAcuity, self).__init__(
+            identifier=f'Malania2007_vernieracuity', version=1,
+            ceiling_func=lambda: self._metric.ceiling(self._assemblies),
+            parent='Malania2007',
+            bibtex=BIBTEX)
+
+    def __call__(self, candidate: BrainModel):
+        scores = []
+        for condition in self.conditions:
+            candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli=self._fitting_stimuli[condition],
+                                 number_of_trials=self._number_of_trials, require_variance=True)
+            stimulus_set = place_on_screen(
+                self._stimulus_set,
+                target_visual_degrees=candidate.visual_degrees(),
+                source_visual_degrees=self._visual_degrees
+            )
+            model_response = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials,
+                                               require_variance=True)
+
+            raw_score = self._metric(model_response, self._assemblies[condition])
+            # Adjust score to ceiling
+            ceiling = self.ceiling
+            score = raw_score / ceiling.sel(aggregation='center')
+
+            # cap score at 1 if ceiled score > 1
+            if score[(score['aggregation'] == 'center')] > 1:
+                score.__setitem__({'aggregation': score['aggregation'] == 'center'}, 1)
+
+            score.attrs['raw'] = raw_score
+            score.attrs['ceiling'] = ceiling
+        # average all scores to get 1 average score
+        mean_score = np.mean(scores)
+        return mean_score
+
+    def get_assemblies(self, condition: str):
+        baseline_assembly = LazyLoad(lambda: load_assembly(self.baseline_condition))
+        condition_assembly = LazyLoad(lambda: load_assembly(condition))
+        assembly, baseline_assembly = filter_baseline_subjects(condition_assembly,
+                                                               baseline_assembly)
+        return {'condition_assembly': assembly,
+                'baseline_assembly': baseline_assembly}
+
 
 
 def load_assembly(dataset: str) -> PropertyAssembly:

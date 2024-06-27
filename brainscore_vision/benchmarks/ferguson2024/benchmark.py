@@ -50,6 +50,13 @@ class _Ferguson2024ValueDelta(BenchmarkBase):
         self._assembly.stimulus_set["image_label"] = np.where(self._assembly.stimulus_set["image_number"] % 2 == 0, "oddball", "same")
         self._fitting_stimuli["image_label"] = np.where(self._fitting_stimuli["image_number"] % 2 == 0, "oddball", "same")
 
+        # import pickle
+        # from brainio.packaging import write_netcdf
+        #
+        # with open('../identifier=alexnet,stimuli_identifier=Ferguson2024_circle_line,number_of_trials=1,require_variance=False.pkl', 'rb') as f:
+        #     activations = pickle.load(f)["data"]
+        #     write_netcdf(activations, 'alexnet_Ferguson2024circle_line-value_delta_updated.nc')
+
         # fit logistic binary decoder and perform task:
         fitting_stimuli = place_on_screen(self._fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
                                            source_visual_degrees=self._visual_degrees)

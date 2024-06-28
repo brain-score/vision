@@ -7,3 +7,8 @@ venv
 .venv
 build
 .DS_Store
+.pytest_cache
+
+# Model Weights
+*.pt
+

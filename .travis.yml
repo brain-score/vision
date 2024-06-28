@@ -17,12 +17,11 @@ install:
 - pip install --no-cache-dir torch torchvision --default-timeout=1000 --retries=5
 - pip install --no-cache-dir -e ".[test]"
 # install conda for plugin runner
-- wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+- wget https://repo.anaconda.com/miniconda/Miniconda3-py39_24.4.0-0-Linux-x86_64.sh -O miniconda.sh
 - bash miniconda.sh -b -p $HOME/miniconda
 - source "$HOME/miniconda/etc/profile.d/conda.sh"
 - hash -r
 - conda config --set always_yes yes --set changeps1 no
-- conda update -q conda
 - conda info -a
 - pip list # list installed package versions
 import:

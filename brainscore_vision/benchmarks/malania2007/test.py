@@ -12,7 +12,7 @@ from brainscore_vision.benchmarks.malania2007.benchmark import DATASETS
 
 class TestBehavioral:
     def test_count(self):
-        assert len(DATASETS) == 5 + 2 + 2
+        assert len(DATASETS) == 5 + 2 + 2 + 1
 
     @pytest.mark.parametrize('dataset', DATASETS)
     def test_in_pool(self, dataset):
@@ -23,8 +23,8 @@ class TestBehavioral:
     # TODO: recompute
     def test_mean_ceiling(self):
         benchmarks = [f"Malania2007_{dataset}" for dataset in DATASETS]
-        benchmarks = [benchmark_registry[benchmark] for benchmark in benchmarks]
-        ceilings = [benchmark.ceiling.sel(aggregation='center') for benchmark in benchmarks]
+        benchmarks = [load_benchmark(benchmark) for benchmark in benchmarks]
+        ceilings = [benchmark.ceiling for benchmark in benchmarks]
         mean_ceiling = np.mean(ceilings)
         assert mean_ceiling == approx(0.5757928329186803, abs=0.001)
 

@@ -205,7 +205,7 @@ class _Malania2007VernierAcuity(BenchmarkBase):
             this_ceiling = self._metric.ceiling(self._assemblies[assembly_name]['baseline_assembly'])
             ceilings.append(this_ceiling.values)
             errors.append(this_ceiling.error)
-        mean_ceiling = Score(np.mean(ceilings))
+        mean_ceiling = Score(np.mean(ceilings), coords={'aggregation': ['center']}, dims=['aggregation'])
         mean_ceiling.attrs['error'] = np.mean(errors)
         return mean_ceiling
 

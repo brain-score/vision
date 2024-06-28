@@ -120,7 +120,6 @@ class Video(Stimulus):
 
     ### I/O
     def from_path(path):
-        path = path
         fps, end, size = get_video_stats(path)
         start = 0
         return Video(path, fps, start, end, size)
@@ -139,7 +138,7 @@ class Video(Stimulus):
         sample_indices = samples.astype(int)
 
         # padding: repeat the first/last frame
-        original_num_frames = int(self._original_duration * self._original_fps/1000 + EPS)
+        original_num_frames = int(self._original_duration * self._original_fps/1000 - EPS)  # EPS to avoid last frame OOB error
         sample_indices = np.clip(sample_indices, 0, original_num_frames-1)
 
         # actual sampling
@@ -156,7 +155,7 @@ class Video(Stimulus):
 
     def to_pil_imgs(self):
         return [PILImage.fromarray(frame) for frame in self.to_numpy()]
-    
+
     def to_path(self):
         # use context manager ?
         path = None  # make a temporal file

@@ -34,6 +34,7 @@ jobs:
     - name: 3.7 public
       python: '3.7'
     - name: 3.7 private
+      if: fork = false
       python: '3.7'
       env:
       - PRIVATE_ACCESS=1
@@ -48,7 +49,7 @@ jobs:
       if: type = pull_request
       script:
         - |
-          CHANGED_FILES=$( git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*" && git fetch && echo $(git diff --name-only origin/$TRAVIS_PULL_REQUEST_BRANCH origin/$TRAVIS_BRANCH -C $TRAVIS_BUILD_DIR) | tr '\n' ' ' ) &&
+          CHANGED_FILES=$( git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*" && git fetch && echo $(git diff --name-only origin/$TRAVIS_BRANCH...origin/$TRAVIS_PULL_REQUEST_BRANCH -C $TRAVIS_BUILD_DIR) | tr '\n' ' ' ) &&
           PLUGIN_ONLY=$( python -c "from brainscore_core.plugin_management.parse_plugin_changes import is_plugin_only; is_plugin_only(\"${CHANGED_FILES}\", \"brainscore_${DOMAIN}\")" )
           if [ "$PLUGIN_ONLY" = "True" ] && [ "$TRAVIS_SECURE_ENV_VARS" = true ]; then
             bash ${TRAVIS_BUILD_DIR}/.github/workflows/workflow_trigger.sh $GH_WORKFLOW_TRIGGER $TRAVIS_PULL_REQUEST_SHA "Successful Travis PR build for plugin-only PR" "continuous-integration/travis"; 

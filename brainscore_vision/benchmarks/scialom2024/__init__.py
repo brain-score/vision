@@ -26,6 +26,8 @@ benchmark_registry['Scialom2024_segments-100BehavioralAccuracyDistance'] = lambd
 # composites
 benchmark_registry['Scialom2024_phosphenes-allBehavioralErrorConsistency'] = lambda: benchmark._Scialom2024BehavioralErrorConsistency('phosphenes-all')
 benchmark_registry['Scialom2024_segments-allBehavioralErrorConsistency'] = lambda: benchmark._Scialom2024BehavioralErrorConsistency('segments-all')
+benchmark_registry['Scialom2024_phosphenes-allBehavioralAccuracyDistance'] = lambda: benchmark._Scialom2024BehavioralAccuracyDistance('phosphenes-all')
+benchmark_registry['Scialom2024_segments-allBehavioralAccuracyDistance'] = lambda: benchmark._Scialom2024BehavioralAccuracyDistance('segments-all')
 
 # engineering benchmarks
 benchmark_registry['Scialom2024_rgbEngineeringAccuracy'] = lambda: benchmark._Scialom2024EngineeringAccuracy('rgb')

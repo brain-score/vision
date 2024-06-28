@@ -30,6 +30,6 @@ class TestSeibert:
     def test_content(self):
         assembly = load_dataset('Seibert2019')
         assert np.count_nonzero(np.isnan(assembly)) == 19118720
-        assert assembly.stimulus_set_identifier == "dicarlo.hvm"
+        assert assembly.stimulus_set_identifier == "hvm"
         hvm = assembly.stimulus_set
         assert hvm.shape == (5760, 19)

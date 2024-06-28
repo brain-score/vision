@@ -6,7 +6,7 @@ from brainio_collection.packaging import package_data_assembly
 from brainio_base.assemblies import DataAssembly
 
 ASSEMBLY_NAME = 'movshon.Cavanaugh2002a'
-SIZE_STIM_NAME = 'dicarlo.Marques2020_size'
+SIZE_STIM_NAME = 'Marques2020_size'
 
 PROPERTY_NAMES = ['surround_suppression_index', 'strongly_suppressed', 'grating_summation_field', 'surround_diameter',
                   'surround_grating_summation_field_ratio']

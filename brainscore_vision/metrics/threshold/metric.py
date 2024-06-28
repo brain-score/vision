@@ -157,7 +157,9 @@ class Threshold(Metric):
             source_threshold = self.compute_threshold(source, self._independent_variable)
             # check whether the psychometric function fit was successful - if not, return a score of 0
             if source_threshold == 'fit_fail':
-                return Score([0., 0.], coords={'aggregation': ['center', ]}, dims=['aggregation'])
+                score = Score([0.], coords={'aggregation': ['center', ]}, dims=['aggregation'])
+                score.attrs['error'] = 0.
+                return score
         else:
             raise TypeError(f'source is type {type(source)}, but type BehavioralAssembly or float is required.')
         return self.scoring_function(source_threshold, target)

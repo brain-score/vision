@@ -10,6 +10,8 @@ from brainscore_vision.model_interface import BrainModel
 from brainscore_vision.utils import LazyLoad
 from brainscore_core.metrics import Score
 
+from brainio.packaging import write_netcdf
+
 
 BIBTEX = """@article{malania2007,
             author = {Malania, Maka and Herzog, Michael H. and Westheimer, Gerald},
@@ -109,7 +111,7 @@ class _Malania2007Base(BenchmarkBase):
     def __call__(self, candidate: BrainModel):
         model_responses = {}
         candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli=self._fitting_stimuli,
-                             number_of_trials=self._number_of_trials, require_variance=True)
+                             number_of_trials=2, require_variance=True)
         for condition in (self.baseline_condition, self.condition):
             stimulus_set = place_on_screen(
                 self._stimulus_sets[condition],
@@ -123,7 +125,7 @@ class _Malania2007Base(BenchmarkBase):
 
         # Adjust score to ceiling
         ceiling = self.ceiling
-        score = raw_score / ceiling.sel(aggregation='center')
+        score = raw_score / ceiling
 
         # cap score at 1 if ceiled score > 1
         if score[(score['aggregation'] == 'center')] > 1:
@@ -164,7 +166,7 @@ class _Malania2007VernierAcuity(BenchmarkBase):
         scores = []
         for condition in self.conditions:
             candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli=self._fitting_stimuli[condition],
-                                 number_of_trials=self._number_of_trials, require_variance=True)
+                                 number_of_trials=2, require_variance=True)
             stimulus_set = place_on_screen(
                 self._stimulus_set,
                 target_visual_degrees=candidate.visual_degrees(),
@@ -176,7 +178,8 @@ class _Malania2007VernierAcuity(BenchmarkBase):
             raw_score = self._metric(model_response, self._assemblies[condition])
             # Adjust score to ceiling
             ceiling = self.ceiling
-            score = raw_score / ceiling.sel(aggregation='center')
+            score = raw_score / ceiling
+            score.attrs['error'] = raw_score.error
 
             # cap score at 1 if ceiled score > 1
             if score[(score['aggregation'] == 'center')] > 1:
@@ -187,7 +190,7 @@ class _Malania2007VernierAcuity(BenchmarkBase):
             scores.append(score)
         # average all scores to get 1 average score
         mean_score = Score(np.mean(scores))
-        mean_score.attrs['error'] = np.mean([score['error'] for score in scores])
+        mean_score.attrs['error'] = np.mean([score.error for score in scores])
         return mean_score
 
     def get_assemblies(self, condition: str):

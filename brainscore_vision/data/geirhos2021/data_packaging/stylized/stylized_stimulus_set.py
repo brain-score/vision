@@ -65,7 +65,7 @@ image_id_to_lookup = dict(zip(stimuli['image_id_long'], stimuli['image_id']))
 stimuli.image_paths = image_paths
 stimuli.image_paths = {image_id_to_lookup[image_id]: path
                        for image_id, path in stimuli.image_paths.items()}
-stimuli.name = 'brendel.Geirhos2021_stylized'
+stimuli.name = 'Geirhos2021_stylized'
 
 # Ensure 800 images in dataset
 assert len(stimuli) == 800

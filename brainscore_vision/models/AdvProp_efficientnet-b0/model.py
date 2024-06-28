@@ -2,8 +2,9 @@ import functools
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.check_submission import check_models
-from efficientnet_pytorch import EfficientNet
 from types import MethodType
+from efficientnet_pytorch import EfficientNet
+
 
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context

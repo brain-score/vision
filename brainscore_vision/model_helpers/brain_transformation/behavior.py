@@ -243,6 +243,11 @@ class ProbabilitiesMapping(BrainModel):
 
     @staticmethod
     def order_preserving_unique(array):
+        """
+        This function sorts an array and removes duplicates while preserving the order of the elements.
+        This function is used in favor of np.unique to ensure that the order of the stimulus_ids is preserved, as
+        np.unique performs sorting on the array.
+        """
         _, indices = np.unique(array, return_index=True)
         return array[np.sort(indices)]
 

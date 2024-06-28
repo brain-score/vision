@@ -7,7 +7,7 @@ from brainio_base.assemblies import DataAssembly
 
 DATA_DIR = '/braintree/data2/active/users/tmarques/bs_datasets/Ringach2002.mat'
 ASSEMBLY_NAME = 'shapley.Ringach2002'
-ORIENTATION_STIM_NAME = 'dicarlo.Marques2020_orientation'
+ORIENTATION_STIM_NAME = 'Marques2020_orientation'
 
 PROPERTY_NAMES = ['baseline', 'max_dc', 'min_dc', 'max_ac', 'modulation_ratio', 'circular_variance', 'bandwidth',
                   'orthogonal_preferred_ratio', 'orientation_selective', 'circular_variance_bandwidth_ratio',
@@ -87,7 +87,7 @@ def main():
     assembly.name = ASSEMBLY_NAME
     print('Packaging assembly')
     package_data_assembly(xarray.DataArray(assembly), assembly_identifier=assembly.name, stimulus_set_identifier=ORIENTATION_STIM_NAME,
-                          assembly_class='PropertyAssembly', bucket_name='brainio.contriib')
+                          assembly_class='PropertyAssembly', bucket_name='brainio.contrib')
 
 
 if __name__ == '__main__':

@@ -10,7 +10,7 @@ from brainio_collection.packaging import package_data_assembly
 
 
 def main():
-    stimuli = brainio_collection.get_stimulus_set('dicarlo.Rust2012')
+    stimuli = brainio_collection.get_stimulus_set('Rust2012')
 
     single_nc_path = Path("/Users/jjpr/dev/dldata/scripts/rust_single.nc")
     da_single = xr.open_dataarray(single_nc_path)

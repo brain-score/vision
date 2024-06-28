@@ -127,8 +127,8 @@ def main():
     target_bucket_name = "brainio-dicarlo"
     assembly_name = "dicarlo.Rajalingham2018"
 
-    public_stimulus_set_unique_name = "dicarlo.objectome.public"
-    public_image_store_unique_name = "image_dicarlo_objectome_public"
+    public_stimulus_set_unique_name = "objectome.public"
+    public_image_store_unique_name = "stimulus_objectome_public"
     public_assembly_unique_name = "dicarlo.Rajalingham2018.public"
     public_assembly_store_unique_name = "assy_dicarlo_Rajalingham2018_public"
     public_target_zip_basename = public_image_store_unique_name + ".zip"
@@ -138,8 +138,8 @@ def main():
     public_target_zip_s3_key = public_target_zip_basename
     public_target_netcdf_s3_key = public_target_netcdf_basename
 
-    private_stimulus_set_unique_name = "dicarlo.objectome.private"
-    private_image_store_unique_name = "image_dicarlo_objectome_private"
+    private_stimulus_set_unique_name = "objectome.private"
+    private_image_store_unique_name = "stimulus_objectome_private"
     private_assembly_unique_name = "dicarlo.Rajalingham2018.private"
     private_assembly_store_unique_name = "assy_dicarlo_Rajalingham2018_private"
     private_target_zip_basename = private_image_store_unique_name + ".zip"

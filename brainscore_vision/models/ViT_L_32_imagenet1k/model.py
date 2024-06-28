@@ -12,10 +12,6 @@ ssl._create_default_https_context = ssl._create_unverified_context
 # Visual Transformer (ViT)
 # Using PyTorch implementation and converted weights from https://github.com/lukemelas/PyTorch-Pretrained-ViT
 
-def get_model_list():
-    return ['ViT_L_32_imagenet1k']
-
-
 def get_model(name):
     assert name == 'ViT_L_32_imagenet1k'
     name = name[4:]

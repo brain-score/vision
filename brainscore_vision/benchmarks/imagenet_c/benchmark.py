@@ -75,7 +75,7 @@ class Imagenet_C_Category(BenchmarkBase):
 
     def __init__(self, noise_category, sampling_factor=10):
         self.noise_category = noise_category
-        self.stimulus_set_name = f'dietterich.Hendrycks2019.{noise_category}'
+        self.stimulus_set_name = f'imagenet_c.{noise_category}'
 
         self.sampling_factor = sampling_factor
         self.stimulus_set = self.load_stimulus_set()
@@ -98,11 +98,11 @@ class Imagenet_C_Category(BenchmarkBase):
             _logger.debug(f'Loading local Imagenet-C {self.noise_category}')
             category_path = os.path.join(
                 LOCAL_STIMULUS_DIRECTORY,
-                f'image_dietterich_Hendrycks2019_{self.noise_category}'
+                f'stimulus_imagenet_c_{self.noise_category}'
             )
             loader = SampledStimulusSetLoader(
                 cls=StimulusSet,
-                csv_path=os.path.join(category_path, f'image_dietterich_Hendrycks2019_{self.noise_category}.csv'),
+                csv_path=os.path.join(category_path, f'stimulus_imagenet_c_{self.noise_category}.csv'),
                 stimuli_directory=category_path,
                 sampling_factor=self.sampling_factor
             )

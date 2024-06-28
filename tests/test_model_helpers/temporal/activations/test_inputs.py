@@ -40,6 +40,7 @@ def test_video():
     video3 = video1.set_window(-10, 0, padding="repeat")
     video4 = video1.set_window(-20, -10, padding="repeat")
     assert (video3.to_numpy() == video4.to_numpy()).all()
+    assert (video3.to_numpy()[0] == video1.to_numpy()[0]).all()
 
     assert video2.fps == 30
     assert video2.set_fps(1).to_numpy().shape[0] == 1

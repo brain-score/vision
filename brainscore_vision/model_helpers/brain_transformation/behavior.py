@@ -192,7 +192,7 @@ class ProbabilitiesMapping(BrainModel):
                                                   number_of_trials=number_of_trials,
                                                   require_variance=require_variance)
         fitting_features = fitting_features.transpose('presentation', 'neuroid')
-        assert all(fitting_features['stimulus_id'].values == fitting_stimuli['stimulus_id'].values), \
+        assert all(self.order_preserving_unique(fitting_features['stimulus_id'].values) == fitting_stimuli['stimulus_id'].values), \
             "stimulus_id ordering is incorrect"
         self.classifier.fit(fitting_features, fitting_features['image_label'])
 
@@ -240,6 +240,11 @@ class ProbabilitiesMapping(BrainModel):
                 indices.append(label2index[label])
             index2label = OrderedDict((index, label) for label, index in label2index.items())
             return indices, index2label
+
+    @staticmethod
+    def order_preserving_unique(array):
+        _, indices = np.unique(array, return_index=True)
+        return array[np.sort(indices)]
 
 
 class OddOneOut(BrainModel):

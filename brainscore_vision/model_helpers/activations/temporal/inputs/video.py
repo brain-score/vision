@@ -10,6 +10,8 @@ from .image import Image
 from brainscore_vision.model_helpers.activations.temporal.utils import batch_2d_resize
 
 
+EPS = 1e-9  
+
 def get_video_stats(video_path):
     cap = cv2.VideoCapture(video_path)
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -31,31 +33,53 @@ def get_image_stats(image_path):
 class Video(Stimulus):
     """Video object that represents a video clip."""
 
-    def __init__(self, path: Union[str, Path], fps: float, start: float, end: float, size: Tuple[int, int]):
+    def __init__(
+            self, 
+            path: Union[str, Path], 
+            fps: float, 
+            start: float, 
+            end: float, 
+            size: Tuple[int, int]
+        ):
         self._path = path
         self._fps = fps
         self._size = size
-        self._original_fps = self._fps
         self._start = start
         self._end = end
+        self._original_fps = None
+        self._original_duration = None
+        self._original_size = None
+
+    def __getattribute__(self, key):
+        if key.startswith("_original_"):
+            if super().__getattribute__(key) is None:
+                self._original_fps, self._original_duration, self._original_size = get_video_stats(self._path)
+        return super().__getattribute__(key)
 
     def copy(self):
         # return view
         video = self.__class__(self._path, self._fps, self._start, self._end, self._size)
+        video._original_fps = self._original_fps
+        video._original_duration = self._original_duration
+        video._original_size = self._original_size
         return video
     
     @property
     def duration(self):
         # in ms
         return self._end - self._start
-    
+
     @property
     def fps(self):
         return self._fps
-    
+
     @property
     def num_frames(self):
-        return int(self.duration * self.fps/1000)
+        return int(self.duration * self.fps/1000 + EPS)
+    
+    @property
+    def original_num_frames(self):
+        return int(self._original_duration * self._original_fps/1000 + EPS)
     
     @property
     def frame_size(self):
@@ -96,7 +120,6 @@ class Video(Stimulus):
 
     ### I/O
     def from_path(path):
-        path = path
         fps, end, size = get_video_stats(path)
         start = 0
         return Video(path, fps, start, end, size)
@@ -110,12 +133,13 @@ class Video(Stimulus):
         # get the time stamps of frame samples
         start_frame = self._start * self._original_fps / 1000
         end_frame = self._end * self._original_fps / 1000
-        EPS = 1e-9  # avoid taking the last extra frame
-        samples = np.arange(start_frame, end_frame - EPS, self._original_fps/self._fps)
+        # avoid taking the last extra frame
+        samples = np.arange(start_frame, end_frame - EPS, self._original_fps/self.fps)
         sample_indices = samples.astype(int)
 
         # padding: repeat the first/last frame
-        sample_indices = np.clip(sample_indices, 0, self.num_frames-1)
+        original_num_frames = int(self._original_duration * self._original_fps/1000 - EPS)  # EPS to avoid last frame OOB error
+        sample_indices = np.clip(sample_indices, 0, original_num_frames-1)
 
         # actual sampling
         frames = self.get_frames(sample_indices)
@@ -131,11 +155,26 @@ class Video(Stimulus):
 
     def to_pil_imgs(self):
         return [PILImage.fromarray(frame) for frame in self.to_numpy()]
-    
+
     def to_path(self):
         # use context manager ?
         path = None  # make a temporal file
         raise NotImplementedError()
+        return path
+
+    def store_to_path(self, path):
+        # pick format based on path filename
+        if path.endswith(".avi"):
+            fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        elif path.endswith(".mp4"):
+            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        else:
+            raise ValueError("Unsupported video format.")
+
+        out = cv2.VideoWriter(path, fourcc, self._fps, self._size)
+        for frame in self.to_frames():
+            out.write(frame[...,::-1])  # to RGB
+        out.release()
         return path
     
 

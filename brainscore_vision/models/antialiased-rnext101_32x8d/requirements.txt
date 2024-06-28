@@ -1,3 +1,1 @@
-torchvision
-torch
 antialiased-cnns

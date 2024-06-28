@@ -9,6 +9,7 @@ from brainscore_vision.benchmark_helpers.screen import place_on_screen
 from brainscore_vision import load_dataset, load_stimulus_set, load_metric
 from brainscore_vision.model_interface import BrainModel
 from brainscore_vision.utils import LazyLoad
+from brainscore_core.metrics import Score
 
 
 BIBTEX = """@article{malania2007,
@@ -25,7 +26,8 @@ BIBTEX = """@article{malania2007,
         }"""
 
 BASELINE_CONDITION = 'vernier-only'
-DATASETS = ['short-2', 'short-4', 'short-6', 'short-8', 'short-16', 'equal-2', 'long-2', 'equal-16', 'long-16']
+DATASETS = ['short-2', 'short-4', 'short-6', 'short-8', 'short-16', 'equal-2', 'long-2', 'equal-16', 'long-16',
+            'vernieracuity']
 # Values in NUM_FLANKERS_PER_CONDITION denote the condition (i.e., in this case the number of flankers) to be selected
 # This is kept track of simply because the benchmark uses threshold elevation - i.e., a comparison of 2 conditions
 NUM_FLANKERS_PER_CONDITION = {'short-2': 2, 'short-4': 4, 'short-6': 6, 'short-8': 8,
@@ -136,7 +138,8 @@ class _Malania2007Base(BenchmarkBase):
 class _Malania2007VernierAcuity(BenchmarkBase):
     def __init__(self):
         self.baseline_condition = BASELINE_CONDITION
-        self.conditions = DATASETS
+        self.conditions = DATASETS.copy()
+        self.conditions.remove('vernieracuity')
 
         self._assemblies = {condition: {'baseline_assembly': self.get_assemblies(condition)['baseline_assembly'],
                                         'condition_assembly': self.get_assemblies(condition)['condition_assembly']}
@@ -154,7 +157,7 @@ class _Malania2007VernierAcuity(BenchmarkBase):
 
         super(_Malania2007VernierAcuity, self).__init__(
             identifier=f'Malania2007_vernieracuity', version=1,
-            ceiling_func=lambda: self._metric.ceiling(self._assemblies),
+            ceiling_func=lambda: self.mean_ceiling(),
             parent='Malania2007',
             bibtex=BIBTEX)
 
@@ -182,8 +185,10 @@ class _Malania2007VernierAcuity(BenchmarkBase):
 
             score.attrs['raw'] = raw_score
             score.attrs['ceiling'] = ceiling
+            scores.append(score)
         # average all scores to get 1 average score
-        mean_score = np.mean(scores)
+        mean_score = Score(np.mean(scores))
+        mean_score.attrs['error'] = np.mean([score['error'] for score in scores])
         return mean_score
 
     def get_assemblies(self, condition: str):
@@ -193,6 +198,17 @@ class _Malania2007VernierAcuity(BenchmarkBase):
                                                                baseline_assembly)
         return {'condition_assembly': assembly,
                 'baseline_assembly': baseline_assembly}
+
+    def mean_ceiling(self):
+        ceilings = []
+        errors = []
+        for assembly_name in self._assemblies.keys():
+            this_ceiling = self._metric.ceiling(self._assemblies[assembly_name]['baseline_assembly'])
+            ceilings.append(this_ceiling.values)
+            errors.append(this_ceiling.error)
+        mean_ceiling = Score(np.mean(ceilings))
+        mean_ceiling.attrs['error'] = np.mean(errors)
+        return mean_ceiling
 
 
 

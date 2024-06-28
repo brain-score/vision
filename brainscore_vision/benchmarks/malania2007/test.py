@@ -20,15 +20,17 @@ class TestBehavioral:
         assert identifier in benchmark_registry
 
     @pytest.mark.private_access
+    # TODO: recompute
     def test_mean_ceiling(self):
         benchmarks = [f"Malania2007_{dataset}" for dataset in DATASETS]
         benchmarks = [benchmark_registry[benchmark] for benchmark in benchmarks]
-        ceilings = [benchmark._ceiling.sel(aggregation='center') for benchmark in benchmarks]
+        ceilings = [benchmark.ceiling.sel(aggregation='center') for benchmark in benchmarks]
         mean_ceiling = np.mean(ceilings)
-        assert mean_ceiling == approx(0.7724487108297781, abs=0.001)
+        assert mean_ceiling == approx(0.5757928329186803, abs=0.001)
 
     # these test values are for the pooled score ceiling
     @pytest.mark.private_access
+    # TODO: ceiling for vernier acuity
     @pytest.mark.parametrize('dataset, expected_ceiling', [
         ('short-2', approx(0.78719345, abs=0.001)),
         ('short-4', approx(0.49998989, abs=0.001)),
@@ -38,7 +40,8 @@ class TestBehavioral:
         ('equal-2', approx(0.56664015, abs=0.001)),
         ('long-2', approx(0.46470421, abs=0.001)),
         ('equal-16', approx(0.44087153, abs=0.001)),
-        ('long-16', approx(0.50996587, abs=0.001))
+        ('long-16', approx(0.50996587, abs=0.001)),
+        ('vernieracuity', approx(0.70168481, abs=0.001))
     ])
     def test_dataset_ceiling(self, dataset, expected_ceiling):
         benchmark = f"Malania2007_{dataset}"

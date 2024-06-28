@@ -9,10 +9,6 @@ from brainscore_vision.model_helpers.check_submission import check_models
 ssl._create_default_https_context = ssl._create_unverified_context
 
 
-def get_model_list():
-    return ['resnext101_32x48d_wsl']
-
-
 def get_model(name):
     assert name == 'resnext101_32x48d_wsl'
     model_identifier = "resnext101_32x48d_wsl"

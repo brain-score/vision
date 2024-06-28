@@ -1,12 +1,11 @@
 from typing import Tuple
 import numpy as np
-import xarray as xr
 
 import brainscore_vision
 from brainio.assemblies import PropertyAssembly
 from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
-from brainscore_vision import load_dataset, load_stimulus_set, load_metric
+from brainscore_vision import load_metric
 from brainscore_vision.model_interface import BrainModel
 from brainscore_vision.utils import LazyLoad
 from brainscore_core.metrics import Score
@@ -209,7 +208,6 @@ class _Malania2007VernierAcuity(BenchmarkBase):
         mean_ceiling = Score(np.mean(ceilings))
         mean_ceiling.attrs['error'] = np.mean(errors)
         return mean_ceiling
-
 
 
 def load_assembly(dataset: str) -> PropertyAssembly:

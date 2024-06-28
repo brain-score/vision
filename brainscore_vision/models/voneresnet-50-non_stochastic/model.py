@@ -87,7 +87,17 @@ def get_layers(name):
 
 
 def get_bibtex(model_identifier):
-    return """"""
+    return """@inproceedings{NEURIPS2020_98b17f06,
+ author = {Dapello, Joel and Marques, Tiago and Schrimpf, Martin and Geiger, Franziska and Cox, David and DiCarlo, James J},
+ booktitle = {Advances in Neural Information Processing Systems},
+ editor = {H. Larochelle and M. Ranzato and R. Hadsell and M.F. Balcan and H. Lin},
+ pages = {13073--13087},
+ publisher = {Curran Associates, Inc.},
+ title = {Simulating a Primary Visual Cortex at the Front of CNNs Improves Robustness to Image Perturbations},
+ url = {https://proceedings.neurips.cc/paper_files/paper/2020/file/98b17f068d5d9b7668e19fb8ae470841-Paper.pdf},
+ volume = {33},
+ year = {2020}
+}"""
 
 
 if __name__ == '__main__':

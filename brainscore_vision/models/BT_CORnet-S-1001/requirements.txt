@@ -1,0 +1,5 @@
+cornet @ git+https://github.com/dicarlolab/CORnet
+numpy
+xarray
+torch
+torchvision

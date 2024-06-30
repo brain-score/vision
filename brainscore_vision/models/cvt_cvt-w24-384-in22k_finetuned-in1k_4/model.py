@@ -11,13 +11,6 @@ Template module for a base model submission to brain-score
 """
 
 
-def get_model_list(name):
-    assert name == 'cvt_cvt-w24-384-in22k_finetuned-in1k_4'
-    submit_version = 4
-    model_list = ['cvt_cvt-w24-384-in22k_finetuned-in1k_4']
-    return [model + '_' + str(submit_version) for model in model_list]
-
-
 def get_model(name):
     assert name == 'cvt_cvt-w24-384-in22k_finetuned-in1k_4'
     # https://huggingface.co/models?sort=downloads&search=cvt
@@ -33,12 +26,11 @@ def get_model(name):
 
 def get_layers(name):
     assert name == 'cvt_cvt-w24-384-in22k_finetuned-in1k_4'
-    # layers = []
-    # layers += [f'cvt.encoder.stages.0.layers.{i}' for i in range(2)]
-    # layers += [f'cvt.encoder.stages.1.layers.{i}' for i in range(2)]
-    # layers += [f'cvt.encoder.stages.2.layers.{i}' for i in range(20)]
-    # layers += ['layernorm']
-    layers = ['cvt.encoder.stages.2.layers.3']
+    layers = []
+    layers += [f'cvt.encoder.stages.0.layers.{i}' for i in range(2)]
+    layers += [f'cvt.encoder.stages.1.layers.{i}' for i in range(2)]
+    layers += [f'cvt.encoder.stages.2.layers.{i}' for i in range(20)]
+    layers += ['layernorm']
     return layers
 
 

@@ -1,6 +1,6 @@
 import functools
 import torch
-from model_helpers.activations.pytorch import PytorchWrapper
+from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from PIL import Image
 import numpy as np
 import timm
@@ -59,10 +59,6 @@ class EffNetBX(nn.Module):
     def forward(self, x):
         x = self.efnet_model(x)
         return x
-
-
-def get_model_list():
-    return ['effnetb1_cutmix_augmix_sam_e1_5avg_424x377']
 
 
 def get_model(name):

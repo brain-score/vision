@@ -14,8 +14,7 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 def get_model(name):
     assert name == 'ViT_L_32_imagenet1k'
-    name = name[4:]
-    model = ViT(name, pretrained=True)
+    model = ViT(name[4:], pretrained=True)
     preprocessing = functools.partial(load_preprocess_images, image_size=model.image_size[0])
     wrapper = PytorchWrapper(identifier=name, model=model, preprocessing=preprocessing)
     wrapper.image_size = model.image_size[0]

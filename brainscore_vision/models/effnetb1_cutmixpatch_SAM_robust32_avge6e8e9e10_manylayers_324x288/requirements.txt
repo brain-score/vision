@@ -1,3 +1,2 @@
-albumentations==1.1.0
-timm @ git+https://github.com/rwightman/pytorch-image-models.git
-model-tools @ git+https://github.com/brain-score/model-tools.git
+albumentations
+timm

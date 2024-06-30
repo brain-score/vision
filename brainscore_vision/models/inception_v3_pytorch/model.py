@@ -1,5 +1,5 @@
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
-from model_helpers.activations.pytorch import load_preprocess_images
+from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 import ssl
 import functools
 import timm
@@ -20,11 +20,6 @@ implementation.
 
 
 MODEL = timm.create_model('inception_v3', pretrained=True)
-
-
-def get_model_list():
-    return ['inception_v3_pytorch']
-
 
 def get_model(name):
     assert name == 'inception_v3_pytorch'

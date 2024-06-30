@@ -1,5 +1,5 @@
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
-from model_helpers.activations.pytorch import load_preprocess_images
+from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 import ssl
 import functools
 import timm
@@ -20,10 +20,6 @@ implementation.
 
 
 MODEL = timm.create_model('densenet201.tv_in1k', pretrained=True)
-
-
-def get_model_list():
-    return ['densenet_201_pytorch']
 
 
 def get_model(name):

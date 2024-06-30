@@ -1,8 +1,8 @@
 import functools
 
 import torch
-from model_helpers.activations import PytorchWrapper, KerasWrapper
-from model_helpers.activations.pytorch import load_preprocess_images
+from brainscore_vision.model_helpers.activations import PytorchWrapper, KerasWrapper
+from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 from PIL import Image
 import numpy as np
 import timm
@@ -20,7 +20,7 @@ from albumentations.pytorch import ToTensorV2
 # The results will otherwise be the same due to brain-scores internal result caching mechanism.
 # Please load your pytorch model for usage in CPU. There won't be GPUs available for scoring your model.
 # If the model requires a GPU, contact the brain-score team directly.
-from model_helpers.check_submission import check_models
+from brainscore_vision.model_helpers.check_submission import check_models
 
 import os 
 
@@ -62,10 +62,6 @@ def load_image(image_filepath):
             rgb_image = Image.new("RGB", pil_image.size)
             rgb_image.paste(pil_image)
             return rgb_image
-
-def get_model_list():
-    return ['effnetb1_cutmixpatch_SAM_robust32_avge6e8e9e10_manylayers_324x288']
-
 
 class EffNetBX(nn.Module):
     def __init__(self,):

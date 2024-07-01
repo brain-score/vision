@@ -18,7 +18,6 @@ implementation.
 
 '''
 
-
 MODEL = timm.create_model('inception_v3', pretrained=True)
 
 def get_model(name):

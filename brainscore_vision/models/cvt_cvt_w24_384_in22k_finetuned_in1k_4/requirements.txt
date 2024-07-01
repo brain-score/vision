@@ -1,4 +1,4 @@
 numpy
 torch
-transformers
+transformers==4.19.0
 PIL

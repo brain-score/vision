@@ -10,11 +10,6 @@ from brainscore_vision.model_helpers.s3 import load_weight_file
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
-
-def get_model_list():
-    return ['resnet-50-robust']
-
-
 def get_model(name):
     assert name == 'resnet-50-robust'
     module = import_module(f'torchvision.models')
@@ -23,7 +18,7 @@ def get_model(name):
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
                                     relative_path="resnet-50-robust/ImageNet.pt",
-                                    version_id="swW_gKku3toBUe6urKUwTLrNUhK8_ZMC",
+                                    version_id=".shHB0L_L9L3Mtco0Kf4EBP3Xj9nLKnC",
                                     sha1="cc6e4441abc8ad6d2f4da5db84836e544bfb53fd")
     checkpoint = torch.load(weights_path, map_location=torch.device('cpu'))
 

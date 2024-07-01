@@ -68,11 +68,6 @@ class _Ferguson2024ValueDelta(BenchmarkBase):
                                        source_visual_degrees=self._visual_degrees)
         model_labels_raw = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
         model_labels = process_model_choices(model_labels_raw)
-
-        reset = model_labels_raw.reset_index("presentation")
-        reset.to_netcdf(f"alexnet_Ferguson2024{self._experiment}-value_delta.nc")
-
-
         human_integral = get_integral_data(self._assembly, self._experiment)['integral']
         model_integral = get_integral_data(model_labels, self._experiment)['integral']
         raw_score = self._metric(model_integral, human_integral)

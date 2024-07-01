@@ -1,9 +1,6 @@
 from pathlib import Path
-
-import numpy as np
 import pytest
 from pytest import approx
-
 from brainio.assemblies import BehavioralAssembly
 from brainscore_vision import benchmark_registry, load_benchmark
 from brainscore_vision.benchmark_helpers import PrecomputedFeatures
@@ -63,25 +60,23 @@ class TestBehavioral:
         ('Ferguson2024gray_easy-value_delta', approx(0.799, abs=0.001)),
         ('Ferguson2024gray_hard-value_delta', approx(0.609, abs=0.001)),
         ('Ferguson2024half-value_delta', approx(0.379, abs=0.001)),
-        # ('Ferguson2024juncture-value_delta', approx(0.767, abs=0.001)),
-        # ('Ferguson2024lle-value_delta', approx(0.831, abs=0.001)),
-        # ('Ferguson2024llh-value_delta', approx(0.812, abs=0.001)),
-        # ('Ferguson2024quarter-value_delta', approx(0.876, abs=0.001)),
-        # ('Ferguson2024round_f-value_delta', approx(0.874, abs=0.001)),
-        # ('Ferguson2024round_v-value_delta', approx(0.853, abs=0.001)),
-        # ('Ferguson2024tilted_line-value_delta', approx(0.912, abs=0.001)),
+        ('Ferguson2024juncture-value_delta', approx(0.191, abs=0.001)),
+        ('Ferguson2024lle-value_delta', approx(0.208, abs=0.001)),
+        ('Ferguson2024llh-value_delta', approx(0.654, abs=0.001)),
+        ('Ferguson2024quarter-value_delta', approx(0.223, abs=0.001)),
+        ('Ferguson2024round_f-value_delta', approx(0.455, abs=0.001)),
+        ('Ferguson2024round_v-value_delta', approx(0.212, abs=0.001)),
+        ('Ferguson2024tilted_line-value_delta', approx(0.445, abs=0.001)),
     ])
     def test_model_raw_score(self, benchmark, expected_raw_score):
-        benchmark = load_benchmark(benchmark)
-        # filename = f"alexnet_{benchmark}.nc"
-        # precomputed_features = Path(__file__).parent / filename
-        # s3.download_file_if_not_exists(precomputed_features,
-        #                                bucket='brainscore-vision', remote_filepath=f'benchmarks/Ferguson2024/{filename}')
-
-        precomputed_features = BehavioralAssembly.from_files(file_path=f"alexnet_{benchmark}.nc")
-        #precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)
+        benchmark_object = load_benchmark(benchmark)
+        filename = f"alexnet_{benchmark}.nc"
+        precomputed_features = Path(__file__).parent / filename
+        s3.download_file_if_not_exists(precomputed_features,
+                                       bucket='brainscore-vision', remote_filepath=f'benchmarks/Ferguson2024/{filename}')
+        precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)
         precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
-        score = benchmark(precomputed_features)
+        score = benchmark_object(precomputed_features)
         raw_score = score.raw
         # division by ceiling <= 1 should result in higher score
         assert score >= raw_score
@@ -96,25 +91,22 @@ class TestBehavioral:
         ('Ferguson2024gray_easy-value_delta', approx(0.882, abs=0.001)),
         ('Ferguson2024gray_hard-value_delta', approx(0.706, abs=0.001)),
         ('Ferguson2024half-value_delta', approx(0.423, abs=0.001)),
-        # ('Ferguson2024juncture-value_delta', approx(0.767, abs=0.001)),
-        # ('Ferguson2024lle-value_delta', approx(0.831, abs=0.001)),
-        # ('Ferguson2024llh-value_delta', approx(0.812, abs=0.001)),
-        # ('Ferguson2024quarter-value_delta', approx(0.876, abs=0.001)),
-        # ('Ferguson2024round_f-value_delta', approx(0.874, abs=0.001)),
-        # ('Ferguson2024round_v-value_delta', approx(0.853, abs=0.001)),
-        # ('Ferguson2024tilted_line-value_delta', approx(0.912, abs=0.001)),
+        ('Ferguson2024juncture-value_delta', approx(0.248, abs=0.001)),
+        ('Ferguson2024lle-value_delta', approx(0.250, abs=0.001)),
+        ('Ferguson2024llh-value_delta', approx(0.805, abs=0.001)),
+        ('Ferguson2024quarter-value_delta', approx(0.255, abs=0.001)),
+        ('Ferguson2024round_f-value_delta', approx(0.520, abs=0.001)),
+        ('Ferguson2024round_v-value_delta', approx(0.249, abs=0.001)),
+        ('Ferguson2024tilted_line-value_delta', approx(0.489, abs=0.001)),
     ])
     def test_model_ceiled_score(self, benchmark, expected_ceiled_score):
-        benchmark = load_benchmark(benchmark)
-        # filename = f"alexnet_{benchmark}.nc"
-        #
-        # precomputed_features = Path(__file__).parent / filename
-        # s3.download_file_if_not_exists(precomputed_features,
-        #                                bucket='brainscore-vision', remote_filepath=f'benchmarks/Ferguson2024/{filename}')
-        # precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)
-        precomputed_features = BehavioralAssembly.from_files(file_path=f"alexnet_{benchmark}.nc")
+        benchmark_object = load_benchmark(benchmark)
+        filename = f"alexnet_{benchmark}.nc"
+        precomputed_features = Path(__file__).parent / filename
+        s3.download_file_if_not_exists(precomputed_features,
+                                       bucket='brainscore-vision', remote_filepath=f'benchmarks/Ferguson2024/{filename}')
+        precomputed_features = BehavioralAssembly.from_files(file_path=precomputed_features)
         precomputed_features = PrecomputedFeatures(precomputed_features, visual_degrees=8)
-        score = benchmark(precomputed_features)
-        ceiled_score = score.ceiling
-        assert ceiled_score == expected_ceiled_score
+        score = benchmark_object(precomputed_features)
+        assert score == expected_ceiled_score
 

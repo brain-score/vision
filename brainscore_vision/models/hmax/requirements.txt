@@ -1,0 +1,8 @@
+torchvision
+torch
+numpy
+os
+scipy
+logging
+PIL
+collections

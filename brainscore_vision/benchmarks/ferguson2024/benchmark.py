@@ -16,7 +16,17 @@ from brainscore_vision.model_interface import BrainModel
 from .helpers.helpers import generate_summary_df, calculate_integral, HUMAN_INTEGRAL_ERRORS, LAPSE_RATES, \
     split_dataframe, boostrap_integral
 
-BIBTEX = """"""
+BIBTEX = """
+        @misc{ferguson_ngo_lee_dicarlo_schrimpf_2024,
+         title={How Well is Visual Search Asymmetry predicted by a Binary-Choice, Rapid, Accuracy-based Visual-search, Oddball-detection (BRAVO) task?},
+         url={osf.io/5ba3n},
+         DOI={10.17605/OSF.IO/5BA3N},
+         publisher={OSF},
+         author={Ferguson, Michael E, Jr and Ngo, Jerry and Lee, Michael and DiCarlo, James and Schrimpf, Martin},
+         year={2024},
+         month={Jun}
+}
+"""
 
 # These ceilings were precomputed to save time in benchmark execution
 PRECOMPUTED_CEILINGS = {'circle_line': [0.883, 0.078], 'color': [0.897, 0.072], 'convergence': [0.862, 0.098],
@@ -50,13 +60,6 @@ class _Ferguson2024ValueDelta(BenchmarkBase):
         self._assembly.stimulus_set["image_label"] = np.where(self._assembly.stimulus_set["image_number"] % 2 == 0, "oddball", "same")
         self._fitting_stimuli["image_label"] = np.where(self._fitting_stimuli["image_number"] % 2 == 0, "oddball", "same")
 
-        # import pickle
-        # from brainio.packaging import write_netcdf
-        #
-        # with open('../identifier=alexnet,stimuli_identifier=Ferguson2024_circle_line,number_of_trials=1,require_variance=False.pkl', 'rb') as f:
-        #     activations = pickle.load(f)["data"]
-        #     write_netcdf(activations, 'alexnet_Ferguson2024circle_line-value_delta_updated.nc')
-
         # fit logistic binary decoder and perform task:
         fitting_stimuli = place_on_screen(self._fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
                                            source_visual_degrees=self._visual_degrees)
@@ -64,7 +67,11 @@ class _Ferguson2024ValueDelta(BenchmarkBase):
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
         model_labels_raw = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
-        model_labels = proces_model_choices(model_labels_raw)
+        model_labels = process_model_choices(model_labels_raw)
+
+        reset = model_labels_raw.reset_index("presentation")
+        reset.to_netcdf(f"alexnet_Ferguson2024{self._experiment}-value_delta.nc")
+
 
         human_integral = get_integral_data(self._assembly, self._experiment)['integral']
         model_integral = get_integral_data(model_labels, self._experiment)['integral']
@@ -157,7 +164,7 @@ def gather_fitting_stimuli(combine_all=True, experiment="") -> StimulusSet:
         return load_stimulus_set(f"Ferguson2024_{experiment}_training_stimuli")
 
 
-def proces_model_choices(raw_model_labels: BehavioralAssembly) -> BehavioralAssembly:
+def process_model_choices(raw_model_labels: BehavioralAssembly) -> BehavioralAssembly:
     """
     Takes in a raw Assembly and applies a softmax and threshold to get a string label for a class. Also
     builds the model's assembly to resemble a humans by adding fields (trial_type, num_distractors, etc)

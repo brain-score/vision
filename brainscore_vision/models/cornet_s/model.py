@@ -22,7 +22,7 @@ TIME_MAPPINGS = {
 
 
 def get_model(name):
-    assert name == 'cornet_s'
+    assert name == 'CORnet-S'
 
     class Wrapper(Module):
         def __init__(self, model):
@@ -48,7 +48,7 @@ def get_model(name):
 
 
 def get_layers(name):
-    assert name == 'cornet_s'
+    assert name == 'CORnet-S'
     return (['V1.output-t0'] +
                [f'{area}.output-t{timestep}'
                 for area, timesteps in [('V2', range(2)), ('V4', range(4)), ('IT', range(2))]

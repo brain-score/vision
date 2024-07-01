@@ -18,10 +18,7 @@ implementation.
 
 '''
 
-
 MODEL = timm.create_model('pnasnet5large.tf_in1k', pretrained=True)
-
-
 
 def get_model(name):
     assert name == 'pnasnet_large_pytorch'

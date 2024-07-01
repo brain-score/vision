@@ -1,5 +1,5 @@
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
-from model_helpers.activations.pytorch import load_images, load_preprocess_images
+from brainscore_vision.model_helpers.activations.pytorch import load_images, load_preprocess_images
 from brainscore_vision.model_helpers.check_submission import check_models
 import ssl
 from transformers import MobileNetV2ForImageClassification
@@ -20,10 +20,6 @@ implementation.
 
 
 MODEL = MobileNetV2ForImageClassification.from_pretrained("Matthijs/mobilenet_v2_1.4_224")
-
-
-def get_model_list():
-    return ['mobilenet_v2_1-4_224_pytorch']
 
 
 def get_model(name):

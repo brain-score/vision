@@ -4,7 +4,7 @@ from brainscore_vision.model_helpers.check_submission import check_models
 import torch
 from brainscore_vision.model_helpers.s3 import load_weight_file
 from timm.models import create_model
-from model_helpers.activations.pytorch import load_images
+from brainscore_vision.model_helpers.activations.pytorch import load_images
 import ssl
 import numpy as np
 from torchvision import transforms
@@ -43,11 +43,6 @@ def load_preprocess_custom_model(image_filepaths, image_size, **kwargs):
     images = load_images(image_filepaths)
     images = preprocess_images(images, image_size=image_size, **kwargs)
     return images
-
-
-def get_model_list():
-    return ['custom_model_cv_18_dagger_408']
-
 
 def get_model(name):
     assert name == 'custom_model_cv_18_dagger_408'

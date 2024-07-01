@@ -1,7 +1,7 @@
 torchvision
 torch
 timm
-PIL
+pillow
 numpy
 albumentations
 collections

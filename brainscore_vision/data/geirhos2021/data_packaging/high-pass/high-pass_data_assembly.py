@@ -80,5 +80,5 @@ assert len(np.unique(assembly['category'].values)) == 16
 
 # upload to S3
 package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
-                      stimulus_set_identifier="brendel.Geirhos2021_high-pass",
+                      stimulus_set_identifier="Geirhos2021_high-pass",
                       assembly_class="BehavioralAssembly", bucket_name="brainio-brainscore")

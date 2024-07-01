@@ -14,16 +14,6 @@ Template module for a base model submission to brain-score
 """
 
 
-def get_model_list():
-    """
-    This method defines all submitted model names. It returns a list of model names.
-    The name is then used in the get_model method to fetch the actual model instance.
-    If the submission contains only one model, return a one item list.
-    :return: a list of model string names
-    """
-    return ['focalnet_tiny_lrf_in1k']
-
-
 def get_model(name):
     """
     This method fetches an instance of a base model. The instance has to be callable and return a xarray object,

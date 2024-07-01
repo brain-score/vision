@@ -63,10 +63,6 @@ def load_image(image_filepath):
             rgb_image.paste(pil_image)
             return rgb_image
 
-def get_model_list():
-    return ['effnetb1_272x240']
-
-
 class EffNetBX(nn.Module):
     def __init__(self,):
         super().__init__ ()
@@ -79,8 +75,7 @@ class EffNetBX(nn.Module):
 def get_model(name):
     assert name == 'effnetb1_272x240'
     model_tf_efficientnet_b1_ns= EffNetBX()
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    #model_tf_efficientnet_b1_ns.load_state_dict(torch.load(dir_path + "/tf_efficientnet_b1_ns_cutmixhvyaugfrontpatch_augmix_epoch5_score0.5375620616440793_best.pth", map_location=torch.device('cpu'))["model"])
+    
     model = model_tf_efficientnet_b1_ns.efnet_model
     filter_elems = set(["se", "act", "bn", "conv"])
     layer_list = [layer for layer, _ in model.named_modules() if not any(i in layer for i in filter_elems)]

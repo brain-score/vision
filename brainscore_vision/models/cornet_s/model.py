@@ -7,6 +7,8 @@ import ssl
 from brainscore_vision.model_helpers.s3 import load_weight_file
 from torch.nn import Module
 from .helpers.helpers import TemporalPytorchWrapper
+import subprocess
+import sys
 
 
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -28,6 +30,11 @@ def get_model(name):
         def __init__(self, model):
             super(Wrapper, self).__init__()
             self.module = model
+
+    args = [sys.executable, "-m", "pip", "list"]
+    p = subprocess.run(args, check=True, capture_output=True)
+    print("Pip list:\n")
+    print(p.stdout.decode())
 
     mod = importlib.import_module(f'cornet.cornet_s')
     model_ctr = getattr(mod, 'CORnet_S')

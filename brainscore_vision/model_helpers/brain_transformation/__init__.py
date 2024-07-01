@@ -2,7 +2,7 @@ from brainscore_vision import load_benchmark
 from brainscore_vision.model_helpers.brain_transformation.temporal import TemporalAligned
 from brainscore_vision.model_interface import BrainModel
 from brainscore_vision.utils import LazyLoad
-from .behavior import BehaviorArbiter, LabelBehavior, ProbabilitiesMapping, OddOneOut
+from .behavior import BehaviorArbiter, LabelBehavior, ProbabilitiesMapping, OddOneOut, VideoReadoutMapping
 from .neural import LayerMappedModel, LayerSelection, LayerScores
 
 STANDARD_REGION_BENCHMARKS = {
@@ -46,9 +46,12 @@ class ModelCommitment(BrainModel):
                                                       layer=behavioral_readout_layer)
         odd_one_out = OddOneOut(identifier=identifier, activations_model=activations_model,
                                 layer=behavioral_readout_layer)
+        video_readout_behavior = VideoReadoutMapping(identifier=identifier, activations_model=activations_model,
+                                                      layer=behavioral_readout_layer)
         self.behavior_model = BehaviorArbiter({BrainModel.Task.label: logits_behavior,
                                                BrainModel.Task.probabilities: probabilities_behavior,
                                                BrainModel.Task.odd_one_out: odd_one_out,
+                                               BrainModel.Task.video_readout: video_readout_behavior,
                                                })
         self.do_behavior = False
 

@@ -1,4 +1,4 @@
-from brainscore_vision import data_registry
+from brainscore_vision import stimulus_set_registry
 from brainscore_vision.data_helpers.s3 import load_stimulus_set_from_s3
 
 BIBTEX = """@article{bear2021physion,
@@ -8,7 +8,7 @@ journal={arXiv preprint arXiv:2106.08261},
 year={2021}
 }"""
 
-data_registry['PhysionOCPSmall'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['PhysionOCPSmall'] = lambda: load_stimulus_set_from_s3(
     identifier='PhysionOCPSmall',
     bucket="brainio-brainscore",
     csv_sha1="5eef5bdd9a8c6f372b0c45fdc262507586376241",

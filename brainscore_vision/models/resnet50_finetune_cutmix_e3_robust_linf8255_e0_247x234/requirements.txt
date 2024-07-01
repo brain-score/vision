@@ -3,5 +3,5 @@ torch
 timm
 pillow
 numpy
-albumentations
+albumentations==0.9.0
 collections

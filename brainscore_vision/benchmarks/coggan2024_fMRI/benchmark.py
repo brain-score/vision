@@ -64,7 +64,7 @@ class Coggan2024_fMRI_Benchmark(BenchmarkBase):
         return ceiled_score
 
 
-def get_ceiling(assembly: NeuroidAssembly) -> np.array:
+def get_ceiling(assembly: NeuroidAssembly) -> Score:
 
     """
     Returns the noise ceiling for the roi of the assembly.

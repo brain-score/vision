@@ -23,16 +23,15 @@ def get_model_list():
 
 def get_model(name):
     assert name == 'dbp_resnet50_julios'
-    model = torch.load('brainscore_vision/models/dbp_resnet50_julios/dbp_export.pt')
-    # download_weights(
-    # bucket='brainscore-vision', 
-    # folder_path='models/resnet50-deepdive-2',
-    # filename_version_sha=[('ckpt.pth', 'C722T4BityNPpazdXWiAeu8pGBxKIudb', '0186929df5d04451995d94cd332a3603a00594fe')],
-    # save_directory=Path(__file__).parent)
-    # ckpt_path = os.path.join(os.path.dirname(__file__), 'ckpt.pth')
-    # state_dict = torch.load(ckpt_path, map_location=torch.device('cpu'))
-    # model.load_state_dict(state_dict)
-    
+    ckpt_name = 'dbp_export.pt'
+    download_weights(
+        bucket='brainscore-vision', 
+        folder_path='models/dbp_resnet50_julios',
+        filename_version_sha=[(ckpt_name, 'HpyXY.W.WtS8zD.wJ7BVfvSbQDX.1Md4', '6efa18bfe4b70221d7e88ac2d2279d08042f23da')],
+        save_directory=Path(__file__).parent
+    )
+    ckpt_path = Path(__file__).parent / ckpt_name
+    model = torch.load(ckpt_path)    
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     print(preprocessing)
     wrapper = PytorchWrapper(identifier='dbp_resnet50_julios', model=model, preprocessing=preprocessing)

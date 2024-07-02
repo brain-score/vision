@@ -33,7 +33,7 @@ def Igustibagus2024_ridge():
     similarity_metric = load_metric('ridge', crossvalidation_kwargs={'stratification_coord': 'object_label',
                                                                      'preprocess_indices': _preprocess_indices})
     ceiler=load_ceiling('internal_consistency')
-    return NeuralBenchmark(identifier=f'Igustibagus2024-pls', version=1, parent='IT',
+    return NeuralBenchmark(identifier=f'Igustibagus2024-ridge', version=1, parent='IT',
                            assembly=assembly, similarity_metric=similarity_metric,
                            visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
                            ceiling_func=lambda: ceiler(assembly_repetition),

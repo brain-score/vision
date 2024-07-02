@@ -1,12 +1,8 @@
-from pathlib import Path
-
 import numpy as np
 import pytest
 from pytest import approx
 
-from brainio.assemblies import BehavioralAssembly
-from brainscore_vision import benchmark_registry, load_benchmark
-from brainscore_vision.benchmark_helpers import PrecomputedFeatures
+from brainscore_vision import benchmark_registry, load_benchmark, load_model
 from brainscore_vision.benchmarks.malania2007.benchmark import DATASETS
 
 
@@ -46,3 +42,22 @@ class TestBehavioral:
         benchmark = load_benchmark(benchmark)
         ceiling = benchmark.ceiling
         assert ceiling.sel(aggregation='center').values.item() == expected_ceiling
+
+    @pytest.mark.parametrize('dataset, expected_score', [
+        ('short-2', approx(0.0, abs=0.001)),
+        ('short-4', approx(0.0, abs=0.001)),
+        ('short-6', approx(0.0, abs=0.001)),
+        ('short-8', approx(0.0, abs=0.001)),
+        ('short-16', approx(0.0, abs=0.001)),
+        ('equal-2', approx(0.0, abs=0.001)),
+        ('long-2', approx(0.0, abs=0.001)),
+        ('equal-16', approx(0.0, abs=0.001)),
+        ('long-16', approx(0.0, abs=0.001)),
+        ('vernieracuity', approx(0.0, abs=0.001))
+    ])
+    def test_model_score(dataset, expected_score):
+        benchmark = f"Malania2007_{dataset}"
+        benchmark = load_benchmark(benchmark)
+        model = load_model('alexnet')
+        model_score = benchmark(model)
+        assert model_score.values == expected_score

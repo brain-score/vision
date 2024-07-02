@@ -3,6 +3,7 @@ import functools
 import torch
 from brainscore_vision.model_helpers.activations import PytorchWrapper, KerasWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
+from brainscore_vision.model_helpers.s3 import load_weight_file
 from PIL import Image
 import numpy as np
 import timm
@@ -75,8 +76,12 @@ class EffNetBX(nn.Module):
 def get_model(name):
     assert name == 'effnetb1_cutmixpatch_SAM_robust32_avge6e8e9e10_manylayers_324x288'
     model_tf_efficientnet_b1_ns= EffNetBX()
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    model_tf_efficientnet_b1_ns.load_state_dict(torch.load(dir_path + "/tf_efficientnet_b1_ns_robust_cutmixpatchresize_SAM_e6e8e9e10.pth", map_location=torch.device('cpu'))["model"])
+    
+    weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+                                    relative_path="effnetb1_cutmixpatch_SAM_robust32_avge6e8e9e10_manylayers_324x288/tf_efficientnet_b1_ns_robust_cutmixpatchresize_SAM_e6e8e9e10.pth",
+                                    version_id="prSgvyJFh_c7OKQODIEqU_c_hg_YXh5M",
+                                    sha1="21ade95464b17818f860ca551731a43f-2")
+    model_tf_efficientnet_b1_ns.load_state_dict(torch.load(weights_path, map_location=torch.device('cpu'))["model"])
     model = model_tf_efficientnet_b1_ns.efnet_model
     filter_elems = set(["se", "act", "bn", "conv"])
     layer_list = [layer for layer, _ in model.named_modules() if not any(i in layer for i in filter_elems)]

@@ -2,9 +2,8 @@
 Contain functions for loading model contents such as weights from s3.
 """
 import os
-from os.path import expanduser
 from pathlib import Path
-
+from os.path import expanduser
 import logging
 from typing import Tuple, List, Union
 
@@ -43,18 +42,21 @@ def load_file_from_s3(bucket: str, path: str, local_filepath: Union[Path, str],
     verify_sha1(local_filepath, sha1)
 
 
-def load_weight_file(bucket: str, relative_path: str, version_id: str, sha1: str):
+def load_weight_file(bucket: str, relative_path: str, version_id: str, sha1: str, folder_name: str = None) -> Path:
     """
-    :param relative_path: The path of the file inside the S3 bucket, relative to the `models/` directory.
-        The local path will be the same, relative to the local cache's `models/` directory (inside `BRAINSCORE_HOME`).
+    :param bucket: main bucket to add file to. Usually is 'brainscore_vision' for vision model weights.
+    :param relative_path: The path of the file inside the S3 bucket, relative to the `{folder_name}/` directory.
+        The local path will be the same, relative to the local cache's `{folder_name}/` directory (inside `BRAINSCORE_HOME`).
         Example: `alexnet/weights.pth` will download from brain-score S3:models/alexnet/weights.pth and
         and store into local ~/.brain-score/models/alexnet/weights.pth.
+    :param version_id: version_id of the object to download, found in AWS under object properties
+    :param sha1: sha1 hash of the object
+    :param folder_name: name of the folder inside the bucket to download from, i.e. 'models'
     """
     brainscore_cache = os.getenv("BRAINSCORE_HOME", expanduser("~/.brain-score"))
-    s3_weight_folder = os.getenv("BRAINSCORE_S3_WEIGHT_FOLDER", "models-to-integrate-for-2.0")
-    local_path = Path(brainscore_cache) / "models" / relative_path
+    s3_weight_folder = folder_name if folder_name is not None else os.getenv("BRAINSCORE_S3_WEIGHT_FOLDER", "models")
+    local_path = Path(brainscore_cache) / s3_weight_folder / relative_path
     local_path.parent.mkdir(parents=True, exist_ok=True)
     load_file_from_s3(bucket=bucket, path=f"{s3_weight_folder}/{relative_path}", version_id=version_id, sha1=sha1,
                           local_filepath=local_path)
     return local_path
-

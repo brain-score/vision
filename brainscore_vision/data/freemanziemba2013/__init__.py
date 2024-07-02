@@ -34,24 +34,24 @@ data_registry['FreemanZiemba2013.private'] = lambda: load_assembly_from_s3(
     stimulus_set_loader=lambda: load_stimulus_set('FreemanZiemba2013.aperture-private'),
 )
 
-# stimulus set: movshon.FreemanZiemba2013.aperture-public
+# stimulus set: FreemanZiemba2013.aperture-public
 stimulus_set_registry['FreemanZiemba2013.aperture-public'] = lambda: load_stimulus_set_from_s3(
-    identifier="movshon.FreemanZiemba2013.aperture-public",
-    bucket="brainio.contrib",
+    identifier="FreemanZiemba2013.aperture-public",
+    bucket="brainio-brainscore",
     csv_sha1="194c9b301a4e3e9cff02481d4c19b39331d52660",
-    zip_sha1="ad3c6c237491485c863acd2f4d2f219f737e424c",
-    csv_version_id=None,  # "eAzVlM2C0Fv_9EfFZw7uuljFvG0d9sCw",
-    zip_version_id=None,  # "DcP1CnztWfy9a4kIoQIzEdrmYfiFQxAZ"
+    zip_sha1="3a6fec1fc28c212882d6833e267ea8654d289611",
+    csv_version_id="vpWysN7O7LyA9k9PBbrawXauOcqf2LoY",
+    zip_version_id="BQmourU.zS4hvTXs.LBIi.yVunyjZNE.",
 )
 
-# stimulus set: movshon.FreemanZiemba2013.aperture-private
+# stimulus set: FreemanZiemba2013.aperture-private
 stimulus_set_registry['FreemanZiemba2013.aperture-private'] = lambda: load_stimulus_set_from_s3(
-    identifier="movshon.FreemanZiemba2013.aperture-private",
-    bucket="brainio.contrib",
+    identifier="FreemanZiemba2013.aperture-private",
+    bucket="brainio-brainscore",
     csv_sha1="65bee31483dd743ae2a19c6af03b9abe5f4d5a41",
-    zip_sha1="0015c94e01d037994cdde1b2e3d169ab99f380dc",
-    csv_version_id=None,  # "ch8CiI4n2AsQUGO88tHqzrXy9NpQaEO_",
-    zip_version_id=None,  # "_EkMn3M3c_Yz8QyL6IweWSsillKxC7HI"
+    zip_sha1="daa724a4797b23929df59c18744923790edf71cb",
+    csv_version_id="aNkWLYtttATXQ8GUD8zXIRnWq9mEsdHz",
+    zip_version_id="S9eCKFK5b_NcgfnkK2CcddILmkAF8cwP",
 )
 
 ### secondary assemblies and stimulus sets
@@ -61,7 +61,7 @@ data_registry['FreemanZiemba2013'] = lambda: load_assembly_from_s3(
     identifier="movshon.FreemanZiemba2013",
     version_id="knfzP5wWG3BRWgD0PGy1CXCadExElV0f",
     sha1="f03f1630f0ab1e2dbd51816b47fbf2916876134e",
-    bucket="brainio.contriib",
+    bucket="brainio-brainscore",
     cls=NeuronRecordingAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('FreemanZiemba2013.aperture'),
 )
@@ -83,7 +83,7 @@ data_registry['FreemanZiemba2013.noaperture.public'] = lambda: load_assembly_fro
     sha1="68dd9e1da7207dc2ae17dbbb1adf628e922d15fa",
     bucket="brainio-brainscore",
     cls=NeuronRecordingAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('FreemanZiemba2013-public'),
+    stimulus_set_loader=lambda: load_stimulus_set('FreemanZiemba2013.public'),
 )
 
 # assembly: movshon.FreemanZiemba2013.noaperture.private
@@ -93,41 +93,41 @@ data_registry['FreemanZiemba2013.noaperture.private'] = lambda: load_assembly_fr
     sha1="9ffa772ce61754f6f5b7b391436680ebc25bb8dd",
     bucket="brainio-brainscore",
     cls=NeuronRecordingAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('FreemanZiemba2013-private'),
+    stimulus_set_loader=lambda: load_stimulus_set('FreemanZiemba2013.private'),
 )
 
-# stimulus set: movshon.FreemanZiemba2013
+# stimulus set: FreemanZiemba2013
 stimulus_set_registry['FreemanZiemba2013'] = lambda: load_stimulus_set_from_s3(
-    identifier="movshon.FreemanZiemba2013",
+    identifier="FreemanZiemba2013",
     bucket="brainio-brainscore",
     csv_sha1="de0e65a25c7de4c1740f48ac9b1ff513dcfa5caf",
     zip_sha1="bdfc3ba2d878d6aeaa842f9de6abeae50922f2f2",
-    csv_version_id="DbcMe82xZez8vTPdeCF.BV9dkW0vLICP",
-    zip_version_id="nGleGCtI3K4_GiqH1ZB30i38YrfaNa9Q")
+    csv_version_id="mWuK8gDwe9IC0bdPNPCo1XldIVM_7cdF",
+    zip_version_id="IxjtDWqHNtPwByvvSbSueXhrrurY1wjr")
 
-# stimulus set: movshon.FreemanZiemba2013.public
+# stimulus set: FreemanZiemba2013.public
 stimulus_set_registry['FreemanZiemba2013.public'] = lambda: load_stimulus_set_from_s3(
-    identifier="movshon.FreemanZiemba2013-public",
+    identifier="FreemanZiemba2013.public",
     bucket="brainio-brainscore",
     csv_sha1="b4fee824f361fa0b78d7247ed4192b04cd675d4f",
-    zip_sha1="e14d691db081ace829f76bb24dfc055a4fa2eaf9",
-    csv_version_id="uUEhRWa1r3UqlishT48F35opJhGW1bLY",
-    zip_version_id="qkNdZrXfYvItVlx1x9mMJgkIyJfXFm8j")
+    zip_sha1="3a5e2cb347eb97d02ff9f7294abc11c1b45a78dc",
+    csv_version_id="js9ggbU.g0bbRLwpbIs6CEQ2JgQIGaRR",
+    zip_version_id="nb6oXpiKafGLNK0Ke6z9kEJNdZK4cOjw")
 
-# stimulus set: movshon.FreemanZiemba2013.private
+# stimulus set: FreemanZiemba2013.private
 stimulus_set_registry['FreemanZiemba2013.private'] = lambda: load_stimulus_set_from_s3(
-    identifier="movshon.FreemanZiemba2013-private",
+    identifier="FreemanZiemba2013.private",
     bucket="brainio-brainscore",
     csv_sha1="91bab3340410ff5171490a337c5931545f29da82",
-    zip_sha1="c2adb4c0f2f0fbbc6006a879234740131ed2dcbb",
-    csv_version_id="WSssn5zVuXVSmtywgMUOMosIzU5RAxX9",
-    zip_version_id="K8yB0pGfrsTbfFFMMPRwy_XY7wvOXjmQ")
+    zip_sha1="e973cf0f98eac3d9673b00b314deb3b85e76c23c",
+    csv_version_id="91GuIJT87Gw5qxv3EfvFD0jf7pmr_XKI",
+    zip_version_id="noTN92.53oxESqpZb79dJPl3EjQa41Sd")
 
-# stimulus set: movshon.FreemanZiemba2013.aperture
+# stimulus set: FreemanZiemba2013.aperture
 stimulus_set_registry['FreemanZiemba2013.aperture'] = lambda: load_stimulus_set_from_s3(
-    identifier="movshon.FreemanZiemba2013.aperture",
+    identifier="FreemanZiemba2013.aperture",
     bucket="brainio-brainscore",
     csv_sha1="4205eca54974da46accba7812fce25c1b6df58e0",
-    zip_sha1="ab07880a0770bd73f68bcd5fd34e6cd945ee17fc",
-    csv_version_id="peK1zN9yHKI9uEwolD.Wgxk6YRA8X1xi",
-    zip_version_id="eCuC1NINJJyQIHVBz.Mzb1m111rNLe6m")
+    zip_sha1="3eacddfecd825b18026da3e4c749d5d1bc9213ed",
+    csv_version_id="AyDAcEdwVToN_rsCuW2OHj7EZNkOu_we",
+    zip_version_id="APXK9Qlgn9PSRCiaWNpBaRla70HW.91h")

@@ -25,7 +25,7 @@ BIBTEX = """@article {Rajalingham2020,
 def _DicarloRajalingham2020Region(region, identifier_metric_suffix, similarity_metric, ceiler):
     assembly_repetition = LazyLoad(lambda region=region: load_assembly(average_repetitions=False, region=region))
     assembly = LazyLoad(lambda region=region: load_assembly(average_repetitions=True, region=region))
-    return NeuralBenchmark(identifier=f'dicarlo.Rajalingham2020.{region}-{identifier_metric_suffix}', version=1,
+    return NeuralBenchmark(identifier=f'Rajalingham2020.{region}-{identifier_metric_suffix}', version=1,
                            assembly=assembly, similarity_metric=similarity_metric,
                            visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
                            ceiling_func=lambda: ceiler(assembly_repetition),
@@ -41,7 +41,7 @@ def DicarloRajalingham2020ITPLS():
 
 
 def load_assembly(average_repetitions, region):
-    assembly = load_dataset(identifier=f'dicarlo.Rajalingham2020')
+    assembly = load_dataset(identifier=f'Rajalingham2020')
     assembly = assembly.sel(region=region)
     assembly['region'] = 'neuroid', [region] * len(assembly['neuroid'])
     assembly.load()

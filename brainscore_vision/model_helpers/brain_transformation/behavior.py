@@ -1,11 +1,15 @@
+import os
 from collections import OrderedDict
+from typing import Union, List
 
 import numpy as np
-import os
+import pandas as pd
+import xarray as xr
 import sklearn.linear_model
 import sklearn.multioutput
 
-from brainio.assemblies import walk_coords, array_is_element, BehavioralAssembly
+from brainio.assemblies import walk_coords, array_is_element, BehavioralAssembly, DataAssembly
+from brainio.stimuli import StimulusSet
 from brainscore_vision.model_helpers.utils import make_list
 from brainscore_vision.model_interface import BrainModel
 
@@ -39,9 +43,10 @@ class LabelBehavior(BrainModel):
         self.current_task = task
         self.choice_labels = choice_labels
 
-    def look_at(self, stimuli, number_of_trials=1):
+    def look_at(self, stimuli, number_of_trials: int = 1, require_variance: bool = False):
         assert self.current_task == BrainModel.Task.label
-        logits = self.activations_model(stimuli, layers=['logits'])
+        logits = self.activations_model(stimuli, layers=['logits'], number_of_trials=number_of_trials,
+                                        require_variance=require_variance)
         choices = self.logits_to_choice(logits)
         return choices
 
@@ -135,8 +140,25 @@ class LabelToImagenetIndices:
     motorbike_indices = [670, 665]
     bus_indices = [779, 874, 654]
 
+    # added from the Scialom2024 benchmark:
+    banana_indices = [954]
+    beanie_indices = [439, 452, 515, 808]
+    binoculars_indices = [447]
+    boot_indices = [514]
+    bowl_indices = [659, 809]
+    cup_indices = [968]
+    glasses_indices = [837]
+    lamp_indices = [470, 607, 818, 846]
+    pan_indices = [567]
+    sewingmachine_indices = [786]
+    shovel_indices = [792]
+    # truck indices used as defined by Geirhos et al., 2021.
+
     @classmethod
     def label_to_indices(cls, label):
+        # for handling multi-word labels given by models or benchmarks
+        label = label.lower().replace(" ", "")
+
         synset_indices = getattr(cls, f"{label}_indices")
         return synset_indices
 
@@ -162,20 +184,23 @@ class ProbabilitiesMapping(BrainModel):
     def identifier(self):
         return self._identifier
 
-    def start_task(self, task: BrainModel.Task, fitting_stimuli):
+    def start_task(self, task: BrainModel.Task, fitting_stimuli, number_of_trials=1, require_variance=False):
         assert task in [BrainModel.Task.passive, BrainModel.Task.probabilities]
         self.current_task = task
 
-        fitting_features = self.activations_model(fitting_stimuli, layers=self.readout)
+        fitting_features = self.activations_model(fitting_stimuli, layers=self.readout,
+                                                  number_of_trials=number_of_trials,
+                                                  require_variance=require_variance)
         fitting_features = fitting_features.transpose('presentation', 'neuroid')
-        assert all(fitting_features['stimulus_id'].values == fitting_stimuli['stimulus_id'].values), \
+        assert all(self.order_preserving_unique(fitting_features['stimulus_id'].values) == fitting_stimuli['stimulus_id'].values), \
             "stimulus_id ordering is incorrect"
-        self.classifier.fit(fitting_features, fitting_stimuli['image_label'])
+        self.classifier.fit(fitting_features, fitting_features['image_label'])
 
-    def look_at(self, stimuli, number_of_trials=1):
+    def look_at(self, stimuli, number_of_trials=1, require_variance=False):
         if self.current_task is BrainModel.Task.passive:
             return
-        features = self.activations_model(stimuli, layers=self.readout)
+        features = self.activations_model(stimuli, layers=self.readout, number_of_trials=number_of_trials,
+                                          require_variance=require_variance)
         features = features.transpose('presentation', 'neuroid')
         prediction = self.classifier.predict_proba(features)
         return prediction
@@ -215,3 +240,99 @@ class ProbabilitiesMapping(BrainModel):
                 indices.append(label2index[label])
             index2label = OrderedDict((index, label) for label, index in label2index.items())
             return indices, index2label
+
+    @staticmethod
+    def order_preserving_unique(array):
+        """
+        This function sorts an array and removes duplicates while preserving the order of the elements.
+        This function is used in favor of np.unique to ensure that the order of the stimulus_ids is preserved, as
+        np.unique performs sorting on the array.
+        """
+        _, indices = np.unique(array, return_index=True)
+        return array[np.sort(indices)]
+
+
+class OddOneOut(BrainModel):
+    def __init__(self, identifier: str, activations_model, layer: Union[str, List[str]]):
+        """
+        :param identifier: a string to identify the model
+        :param activations_model: the model from which to retrieve representations for stimuli
+        :param layer: the single behavioral readout layer or a list of layers to read out of.
+        """
+        self._identifier = identifier
+        self.activations_model = activations_model
+        self.readout = make_list(layer)
+        self.current_task = BrainModel.Task.odd_one_out
+        self.similarity_measure = 'dot'
+
+    @property
+    def identifier(self):
+        return self._identifier
+
+    def start_task(self, task: BrainModel.Task):
+        assert task == BrainModel.Task.odd_one_out
+        self.current_task = task
+
+    def look_at(self, triplets, number_of_trials: int = 1, require_variance: bool = False):
+        # Compute unique features and image_pathst
+        stimuli = triplets.drop_duplicates(subset=['stimulus_id'])
+        stimuli = stimuli.sort_values(by='stimulus_id')
+
+        # Get features
+        features = self.activations_model(stimuli, layers=self.readout, require_variance=require_variance)
+        features = features.transpose('presentation', 'neuroid')
+
+        # Compute similarity matrix
+        similarity_matrix = self.calculate_similarity_matrix(features)
+
+        # Compute choices
+        triplets = np.array(triplets["stimulus_id"])
+        assert len(triplets) % 3 == 0, "No. of stimuli must be a multiple of 3"
+        choices = self.calculate_choices(similarity_matrix, triplets)
+
+        # Package choices
+        stimulus_ids = ['|'.join([f"{triplets[offset + i]}" for i in range(3)])
+                        for offset in range(0, len(triplets) - 2, 3)]
+        choices = BehavioralAssembly(
+            [choices],
+            coords={'stimulus_id': ('presentation', stimulus_ids)},
+            dims=['choice', 'presentation'])
+
+        return choices
+
+    def set_similarity_measure(self, similarity_measure):
+        self.similarity_measure = similarity_measure
+
+    def calculate_similarity_matrix(self, features):
+        features = features.transpose('presentation', 'neuroid')
+        values = features.values
+        if self.similarity_measure == 'dot':
+            similarity_matrix = np.dot(values, np.transpose(values))
+        elif self.similarity_measure == 'cosine':
+            row_norms = np.linalg.norm(values, axis=1).reshape(-1, 1)
+            norm_product = np.dot(row_norms, row_norms.T)
+            dot_product = np.dot(values, np.transpose(values))
+            similarity_matrix = dot_product / norm_product
+        else:
+            raise ValueError(
+                f"Unknown similarity_measure {self.similarity_measure} -- expected one of 'dot' or 'cosine'")
+
+        similarity_matrix = DataAssembly(similarity_matrix, coords={
+            **{f"{coord}_left": ('presentation_left', values) for coord, _, values in
+               walk_coords(features['presentation'])},
+            **{f"{coord}_right": ('presentation_right', values) for coord, _, values in
+               walk_coords(features['presentation'])}
+        }, dims=['presentation_left', 'presentation_right'])
+        return similarity_matrix
+
+    def calculate_choices(self, similarity_matrix, triplets):
+        triplets = np.array(triplets).reshape(-1, 3)
+        choice_predictions = []
+        for triplet in triplets:
+            i, j, k = triplet
+            sims = [similarity_matrix.sel(stimulus_id_left=i, stimulus_id_right=j),
+                    similarity_matrix.sel(stimulus_id_left=i, stimulus_id_right=k),
+                    similarity_matrix.sel(stimulus_id_left=j, stimulus_id_right=k)]
+            idx = triplet[2 - np.argmax(sims)]
+            choice_predictions.append(idx)
+        return choice_predictions

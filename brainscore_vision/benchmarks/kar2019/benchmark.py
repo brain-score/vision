@@ -33,7 +33,7 @@ TIME_BINS = [(time_bin_start, time_bin_start + 10) for time_bin_start in range(7
 class DicarloKar2019OST(BenchmarkBase):
     def __init__(self):
         ceiling = Score(.79)  # computed offline by Kohitij Kar
-        super(DicarloKar2019OST, self).__init__(identifier='dicarlo.Kar2019-ost', version=2,
+        super(DicarloKar2019OST, self).__init__(identifier='Kar2019-ost', version=2,
                                                 ceiling_func=lambda: ceiling,
                                                 parent='IT',
                                                 bibtex=BIBTEX)

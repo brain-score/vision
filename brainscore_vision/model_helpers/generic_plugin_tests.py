@@ -5,6 +5,7 @@ from brainio.stimuli import StimulusSet
 # noinspection PyUnresolvedReferences
 from brainscore_core.plugin_management.generic_plugin_tests_helper import pytest_generate_tests
 from brainscore_vision import BrainModel, load_model
+import pytest
 
 
 def test_identifier(identifier: str):
@@ -41,6 +42,7 @@ def test_look_at_behavior_probabilities(identifier: str):
     assert (predictions.values <= 1).all()
 
 
+@pytest.mark.memory_intense
 def test_look_at_neural_V1(identifier: str):
     model = load_model(identifier)
     if not ProbeModel().can_start_recording_region(model, recording_target=BrainModel.RecordingTarget.V1):
@@ -69,7 +71,7 @@ def _make_stimulus_set() -> StimulusSet:
         'image_label': ['label1', 'label1', 'label2'],
         'filename': ['rgb1', 'rgb2', 'rgb3'],
     })
-    stimuli.stimulus_paths = {'stimid1': Path(__file__) / 'generic_plugin_tests_resources' / 'rgb1.jpg',
+    stimuli.stimulus_paths = {'stimid1': Path(__file__).parent / 'generic_plugin_tests_resources' / 'rgb1.jpg',
                               'stimid2': Path(__file__).parent / 'generic_plugin_tests_resources' / 'rgb2.jpg',
                               'stimid3': Path(__file__).parent / 'generic_plugin_tests_resources' / 'rgb3.png',
                               }

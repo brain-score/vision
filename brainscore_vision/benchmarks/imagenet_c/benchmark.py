@@ -75,17 +75,17 @@ class Imagenet_C_Category(BenchmarkBase):
 
     def __init__(self, noise_category, sampling_factor=10):
         self.noise_category = noise_category
-        self.stimulus_set_name = f'dietterich.Hendrycks2019.{noise_category}'
+        self.stimulus_set_name = f'imagenet_c.{noise_category}'
 
         self.sampling_factor = sampling_factor
         self.stimulus_set = self.load_stimulus_set()
         self.noise_types = self.noise_category_map[noise_category]
 
         ceiling = Score(1)
-        super(Imagenet_C_Category, self).__init__(identifier=f'dietterich.Hendrycks2019-{noise_category}-top1',
+        super(Imagenet_C_Category, self).__init__(identifier=f'ImageNet-C-{noise_category}-top1',
                                                   version=2,
                                                   ceiling_func=lambda: ceiling,
-                                                  parent='dietterich.Hendrycks2019-top1',
+                                                  parent='Hendrycks2019-top1',
                                                   bibtex=BIBTEX)
 
 
@@ -98,11 +98,11 @@ class Imagenet_C_Category(BenchmarkBase):
             _logger.debug(f'Loading local Imagenet-C {self.noise_category}')
             category_path = os.path.join(
                 LOCAL_STIMULUS_DIRECTORY,
-                f'image_dietterich_Hendrycks2019_{self.noise_category}'
+                f'stimulus_imagenet_c_{self.noise_category}'
             )
             loader = SampledStimulusSetLoader(
                 cls=StimulusSet,
-                csv_path=os.path.join(category_path, f'image_dietterich_Hendrycks2019_{self.noise_category}.csv'),
+                csv_path=os.path.join(category_path, f'stimulus_imagenet_c_{self.noise_category}.csv'),
                 stimuli_directory=category_path,
                 sampling_factor=self.sampling_factor
             )
@@ -136,10 +136,10 @@ class Imagenet_C_Type(BenchmarkBase):
         self.noise_type = noise_type
         self.noise_category = noise_category
         ceiling = Score(1)
-        super(Imagenet_C_Type, self).__init__(identifier=f'dietterich.Hendrycks2019-{noise_category}-{noise_type}-top1',
+        super(Imagenet_C_Type, self).__init__(identifier=f'Hendrycks2019-{noise_category}-{noise_type}-top1',
                                               version=2,
                                               ceiling_func=lambda: ceiling,
-                                              parent=f'dietterich.Hendrycks2019-{noise_category}-top1',
+                                              parent=f'Hendrycks2019-{noise_category}-top1',
                                               bibtex=BIBTEX)
 
     def __call__(self, candidate):
@@ -159,12 +159,12 @@ class Imagenet_C_Individual(BenchmarkBase):
         self.stimulus_set = stimulus_set[stimulus_set['noise_level'] == noise_level]
         self.noise_level = noise_level
         self.noise_type = noise_type
-        self.benchmark_name = f'dietterich.Hendrycks2019-{noise_category}-{noise_type}-{noise_level}-top1'
+        self.benchmark_name = f'Hendrycks2019-{noise_category}-{noise_type}-{noise_level}-top1'
         self._similarity_metric = load_metric('accuracy')
         ceiling = Score(1)
         super(Imagenet_C_Individual, self).__init__(identifier=self.benchmark_name, version=2,
                                                     ceiling_func=lambda: ceiling,
-                                                    parent=f'dietterich.Hendrycks2019-{noise_category}-{noise_type}-top1',
+                                                    parent=f'Hendrycks2019-{noise_category}-{noise_type}-top1',
                                                     bibtex=BIBTEX)
 
     def __call__(self, candidate):

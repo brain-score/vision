@@ -57,6 +57,7 @@ class TestBoundScore:
 
     def test_retains_attrs(self):
         score = Score(.42)
-        score.attrs['ceiling'] = Score
+        score.attrs['ceiling'] = score
         bound_score(score)
-        assert score == Score(1)
+        assert 'ceiling' in score.attrs
+        assert score.attrs['ceiling'] == score

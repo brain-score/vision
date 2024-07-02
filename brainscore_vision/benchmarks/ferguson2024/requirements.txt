@@ -1,0 +1,8 @@
+pandas
+numpy
+sympy
+pandas
+tqdm
+statistics
+typing
+xarray

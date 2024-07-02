@@ -5,9 +5,9 @@ from brainscore_vision import benchmark_registry, load_benchmark
 from brainscore_vision import load_model
 
 
-def test_benchmark_registry():
-    for region in ['V1', 'V2', 'V4', 'IT']:
-        assert f'Coggan2024_fMRI.{region}' in benchmark_registry
+@pytest.mark.parametrize(region, ['V1', 'V2', 'V4', 'IT'])
+def test_benchmark_registry(region):
+    assert f'Coggan2024_fMRI.{region}-rdm' in benchmark_registry
 
 
 def test_benchmarks():

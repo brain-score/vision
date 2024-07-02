@@ -1,0 +1,7 @@
+torchvision
+torch
+timm
+pillow
+numpy
+albumentations
+collections

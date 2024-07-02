@@ -1,6 +1,5 @@
 import numpy as np
 import numpy.random
-
 from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
 from brainscore_vision.metrics import Score
@@ -9,6 +8,7 @@ from brainscore_vision.model_interface import BrainModel
 from brainscore_vision.utils import LazyLoad
 from typing import List
 from brainio.assemblies import DataAssembly
+from brainscore_vision import load_dataset
 
 BIBTEX = """@article{BAKER2022104913,
                 title = {Deep learning models fail to capture the configural nature of human shape perception},
@@ -85,7 +85,7 @@ def Baker2022InvertedAccuracyDelta():
 
 
 def load_assembly(dataset):
-    assembly = brainscore.get_assembly(f'Baker2022_{dataset}_distortion')
+    assembly = load_dataset(f'Baker2022_{dataset}_distortion')
     return assembly
 
 

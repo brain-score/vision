@@ -1,5 +1,5 @@
 import numpy as np
-
+from brainscore_vision.benchmark_helpers import bound_score
 from brainscore_core import Score
 from brainscore_vision import load_metric, load_stimulus_set, load_dataset
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
@@ -45,6 +45,7 @@ class _DicarloRajalingham2018(BenchmarkBase):
         score = self._metric(probabilities, self._assembly)
         ceiling = self.ceiling
         score = self.ceil_score(score, ceiling)
+        bound_score(score)
         return score
 
     def ceil_score(self, score, ceiling):

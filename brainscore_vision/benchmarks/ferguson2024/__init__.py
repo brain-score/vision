@@ -1,5 +1,5 @@
 from brainscore_vision import benchmark_registry
-from benchmarks.ferguson2024.benchmark import Ferguson2024ValueDelta
+from brainscore_vision.benchmarks.ferguson2024.benchmark import Ferguson2024ValueDelta
 
 DATASETS = ['circle_line', 'color', 'convergence', 'eighth',
             'gray_easy', 'gray_hard', 'half', 'juncture',

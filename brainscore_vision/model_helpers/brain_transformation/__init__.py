@@ -1,5 +1,5 @@
 from brainscore_vision import load_benchmark
-from brainscore_vision.model_helpers.brain_transformation.temporal import TemporalIgnore
+from brainscore_vision.model_helpers.brain_transformation.temporal import TemporalAligned
 from brainscore_vision.model_interface import BrainModel
 from brainscore_vision.utils import LazyLoad
 from .behavior import BehaviorArbiter, LabelBehavior, ProbabilitiesMapping, OddOneOut
@@ -39,7 +39,7 @@ class ModelCommitment(BrainModel):
         # neural
         layer_model = LayerMappedModel(identifier=identifier, activations_model=activations_model,
                                        region_layer_map=region_layer_map)
-        self.layer_model = TemporalIgnore(layer_model)
+        self.layer_model = TemporalAligned(layer_model)
         logits_behavior = LabelBehavior(identifier=identifier, activations_model=activations_model)
         behavioral_readout_layer = behavioral_readout_layer or layers[-1]
         probabilities_behavior = ProbabilitiesMapping(identifier=identifier, activations_model=activations_model,
@@ -62,9 +62,9 @@ class ModelCommitment(BrainModel):
         else:
             self.do_behavior = False
 
-    def look_at(self, stimuli, number_of_trials=1):
+    def look_at(self, stimuli, number_of_trials: int = 1, require_variance: bool = False):
         if self.do_behavior:
-            return self.behavior_model.look_at(stimuli, number_of_trials=number_of_trials)
+            return self.behavior_model.look_at(stimuli, number_of_trials=number_of_trials, require_variance=require_variance)
         else:
             return self.layer_model.look_at(stimuli, number_of_trials=number_of_trials)
 

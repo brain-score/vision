@@ -126,11 +126,12 @@ def convert_assembly(data_assembly_existing, data_assembly_name_new, stimulus_se
 # main function should be run two times, one for each stimulus set access='public' and access='target'
 def main(access):
     local_data_path = fetch._local_data_path
-    name_root = 'movshon.FreemanZiemba2013'
-    stimulus_set_name_existing = name_root + "-" + access if access != "both" else name_root
-    stimulus_set_name_new = name_root + ".aperture-" + access if access != "both" else name_root + ".aperture"
-    data_assembly_name_existing = name_root + "." + access if access != "both" else name_root
-    data_assembly_name_new = name_root + ".aperture." + access if access != "both" else name_root + ".aperture"
+    stimulus_name_root = 'FreemanZiemba2013'
+    assembly_name_root = 'movshon.FreemanZiemba2013'
+    stimulus_set_name_existing = stimulus_name_root + "-" + access if access != "both" else stimulus_name_root
+    stimulus_set_name_new = stimulus_name_root + ".aperture-" + access if access != "both" else stimulus_name_root + ".aperture"
+    data_assembly_name_existing = assembly_name_root + "." + access if access != "both" else assembly_name_root
+    data_assembly_name_new = assembly_name_root + ".aperture." + access if access != "both" else assembly_name_root + ".aperture"
     temp_dir = os.path.join(local_data_path, "temp_" + data_assembly_name_new.replace(".", "_"))
 
     stimulus_set_existing = get_stimulus_set(stimulus_set_name_existing)

@@ -1,0 +1,7 @@
+torchvision
+torch
+pandas
+xarray
+numpy
+scipy
+CORnet @ git+https://github.com/dicarlolab/CORnet.git

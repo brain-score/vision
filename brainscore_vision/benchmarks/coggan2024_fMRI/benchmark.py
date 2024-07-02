@@ -89,6 +89,7 @@ def get_ceiling(assembly: NeuroidAssembly) -> Score:
     noise_ceiling.attrs['raw'] = nc
     return noise_ceiling
 
+
 def get_score(source_rsm: NeuroidAssembly, target_rsm: NeuroidAssembly) -> Score:
 
     """
@@ -123,7 +124,7 @@ def ceiler(score: Score, ceiling: Score) -> Score:
     return ceiled_score
 
 
-def RSA(assembly: NeuroidAssembly, neuroid_dim: str):
+def RSA(assembly: NeuroidAssembly, neuroid_dim: str) -> DataAssembly:
 
     """
     Performs analogous unit selection and normalization as the fMRI analysis,
@@ -173,7 +174,7 @@ def _Coggan2024_Region(region: str):
     assembly = assembly.sel(region=region)
     assembly['region'] = ('subject', [region] * len(assembly['subject']))
     benchmark = Coggan2024_fMRI_Benchmark(
-        identifier=f'coggan2024_fMRI.{region}',
+        identifier=f'tong.Coggan2024_fMRI.{region}-rdm',
         version=1,
         assembly=assembly,
         visual_degrees=9,

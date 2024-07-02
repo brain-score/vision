@@ -80,7 +80,7 @@ def get_model(name):
     weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
                                     relative_path="effnetb1_cutmixpatch_SAM_robust32_avge6e8e9e10_manylayers_324x288/tf_efficientnet_b1_ns_robust_cutmixpatchresize_SAM_e6e8e9e10.pth",
                                     version_id="prSgvyJFh_c7OKQODIEqU_c_hg_YXh5M",
-                                    sha1="21ade95464b17818f860ca551731a43f-2")
+                                    sha1="9d60e49043b2d5354447c46cd011764cc6cf094e")
     model_tf_efficientnet_b1_ns.load_state_dict(torch.load(weights_path, map_location=torch.device('cpu'))["model"])
     model = model_tf_efficientnet_b1_ns.efnet_model
     filter_elems = set(["se", "act", "bn", "conv"])

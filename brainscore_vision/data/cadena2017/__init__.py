@@ -44,9 +44,9 @@ def reindex(assembly: DataAssembly) -> DataAssembly:  # make sure we have the ex
 
 # stimulus set
 stimulus_set_registry['Cadena2017'] = lambda: load_stimulus_set_from_s3(
-    identifier="tolias.Cadena2017",
+    identifier="Cadena2017",
     bucket="brainio-brainscore",
     csv_sha1="f55b174cc4540e5612cfba5e695324328064b051",
     zip_sha1="88cc2ce3ef5e197ffd1477144a2e6a68d424ef6c",
-    csv_version_id="qdO206S_7GBQUHUgrMFvZw7wGcJM0phU",
-    zip_version_id="G7kqboBHCS33fA_MYWD0TfXTWQjW7rgk")
+    csv_version_id="sHOpsR5jhCIPA4EwpqAhH3fLQX4L3sxM",
+    zip_version_id="HJVbo4DimkTtP5uS5zxA1rzMTUE6qU1B")

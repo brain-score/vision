@@ -6,7 +6,7 @@ from brainio_collection.packaging import package_data_assembly
 from brainio_base.assemblies import DataAssembly
 
 ASSEMBLY_NAME = 'devalois.DeValois1982a'
-ORIENTATION_STIM_NAME = 'dicarlo.Marques2020_orientation'
+ORIENTATION_STIM_NAME = 'Marques2020_orientation'
 
 
 def collect_data():

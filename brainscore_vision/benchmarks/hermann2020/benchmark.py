@@ -24,9 +24,9 @@ class _Hermann2020Match(BenchmarkBase):
         self._number_of_trials = 1
         self._stimulus_column = stimulus_column
         super(_Hermann2020Match, self).__init__(
-            identifier=f'kornblith.Hermann2020-{metric_identifier}', version=1,
+            identifier=f'Hermann2020cueconflict-{metric_identifier}', version=1,
             ceiling_func=lambda: Score(1),
-            parent='kornblith.Hermann2020',
+            parent='Hermann2020',
             bibtex=BIBTEX)
 
     def __call__(self, candidate: BrainModel):
@@ -48,7 +48,7 @@ class Hermann2020cueconflictShapeBias(BenchmarkBase):
         self.shape_benchmark = _Hermann2020Match("shape_match", "original_image_category")
         self.texture_benchmark = _Hermann2020Match("texture_match", "conflict_image_category")
         super(Hermann2020cueconflictShapeBias, self).__init__(
-            identifier=f'brendel.Hermann2020-shape_bias', version=1,
+            identifier=f'Hermann2020cueconflict-shape_bias', version=1,
             ceiling_func=lambda: Score(1),
             parent='Hermann2020',
             bibtex=BIBTEX)

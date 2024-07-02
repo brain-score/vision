@@ -2,3 +2,13 @@
 *.pyc
 *__pycache__*
 *AWSCLIV2.pkg
+*.egg-info/
+venv
+.venv
+build
+.DS_Store
+.pytest_cache
+
+# Model Weights
+*.pt
+

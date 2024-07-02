@@ -23,11 +23,14 @@ PROPERTY_NAMES = ['texture_modulation_index', 'absolute_texture_modulation_index
 RESPONSE_THRESHOLD = 5
 
 
-def _MarquesFreemanZiemba2013V1Property(property_name, parent):
+def _MarquesFreemanZiemba2013V1Property(property_name, parent, property_identifier=None):
     assembly = load_dataset(ASSEMBLY_NAME)
     similarity_metric = load_metric('ks_similarity', property_name=property_name)
     ceil_func = NeuronalPropertyCeiling(similarity_metric)
-    return PropertiesBenchmark(identifier=f'dicarlo.Marques_freemanziemba2013-{property_name}', assembly=assembly,
+    
+    if not property_identifier:
+        property_identifier = property_name
+    return PropertiesBenchmark(identifier=f'Marques2020_FreemanZiemba2013-{property_identifier}', assembly=assembly,
                                neuronal_property=freemanziemba2013_properties, similarity_metric=similarity_metric,
                                timebins=TIMEBINS,
                                parent=parent, ceiling_func=ceil_func, bibtex=BIBTEX, version=1)
@@ -41,8 +44,9 @@ def MarquesFreemanZiemba2013V1TextureModulationIndex():
 
 def MarquesFreemanZiemba2013V1AbsoluteTextureModulationIndex():
     property_name = 'absolute_texture_modulation_index'
+    property_identifier = 'abs_texture_modulation_index'
     parent = PARENT_TEXTURE_MODULATION
-    return _MarquesFreemanZiemba2013V1Property(property_name=property_name, parent=parent)
+    return _MarquesFreemanZiemba2013V1Property(property_name=property_name, parent=parent, property_identifier=property_identifier)
 
 
 def MarquesFreemanZiemba2013V1TextureSelectivity():
@@ -59,8 +63,9 @@ def MarquesFreemanZiemba2013V1TextureSparseness():
 
 def MarquesFreemanZiemba2013V1VarianceRatio():
     property_name = 'variance_ratio'
+    property_identifier = 'texture_variance_ratio'
     parent = PARENT_SELECTIVITY
-    return _MarquesFreemanZiemba2013V1Property(property_name=property_name, parent=parent)
+    return _MarquesFreemanZiemba2013V1Property(property_name=property_name, parent=parent, property_identifier=property_identifier)
 
 
 def MarquesFreemanZiemba2013V1MaxTexture():

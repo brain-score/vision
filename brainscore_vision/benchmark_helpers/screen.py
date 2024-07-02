@@ -4,6 +4,8 @@ Methods to feed visual input to a system-under-test through the screen
 import copy
 import logging
 import os
+import shutil
+from typing import Union
 
 import numpy as np
 from PIL import Image
@@ -18,7 +20,9 @@ root_path = framework_home / "stimuli_on_screen"
 _logger = logging.getLogger(__name__)
 
 
-def place_on_screen(stimulus_set: StimulusSet, target_visual_degrees: int, source_visual_degrees: int = None):
+def place_on_screen(stimulus_set: StimulusSet,
+                    target_visual_degrees: Union[int, float],
+                    source_visual_degrees: Union[int, float, None] = None):
     _logger.debug(f"Converting {stimulus_set.identifier} to {target_visual_degrees} degrees")
 
     assert source_visual_degrees or 'degrees' in stimulus_set, \
@@ -42,11 +46,15 @@ def _determine_visual_degrees(visual_degrees, stimulus_set):
 
 @store(identifier_ignore=['stimulus_set'])
 def _place_on_screen(stimuli_identifier: str, stimulus_set: StimulusSet,
-                     target_visual_degrees: int, source_visual_degrees: int = None):
-    converted_stimuli_id = f"{stimuli_identifier}--target{target_visual_degrees}--source{source_visual_degrees}"
+                     target_visual_degrees: Union[int, float], source_visual_degrees: Union[int, float, None] = None):
+    source_degrees_formatted = f"{source_visual_degrees}" if source_visual_degrees is None \
+        else f"{source_visual_degrees:.2f}"  # make sure we do not try to print a None with 2 decimal places
+    converted_stimuli_id = f"{stimuli_identifier}--target{target_visual_degrees:.2f}--source{source_degrees_formatted}"
     source_visual_degrees = _determine_visual_degrees(source_visual_degrees, stimulus_set)
 
     target_dir = root_path / converted_stimuli_id
+    if os.path.exists(target_dir):
+        shutil.rmtree(target_dir)
     target_dir.mkdir(parents=True, exist_ok=False)
     image_converter = ImageConverter(target_dir=target_dir)
 
@@ -69,7 +77,7 @@ class ImageConverter:
     def __init__(self, target_dir):
         self._target_dir = Path(target_dir)
 
-    def convert_image(self, image_path, source_degrees, target_degrees):
+    def convert_image(self, image_path, source_degrees: Union[int, float], target_degrees: Union[int, float]):
         if source_degrees == target_degrees:
             return image_path
         ratio = target_degrees / source_degrees

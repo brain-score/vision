@@ -2,5 +2,4 @@ torchvision
 torch
 timm
 pillow
-numpy
 collections

@@ -9,6 +9,7 @@ from brainscore_vision.model_helpers.s3 import load_weight_file
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
+
 def get_model(name):
     assert name == 'resnet-50-robust'
     module = import_module(f'torchvision.models')

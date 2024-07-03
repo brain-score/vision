@@ -9,11 +9,6 @@ from brainscore_core.metrics import Score
 from brainscore_vision.metric_helpers import Defaults as XarrayDefaults
 from brainscore_vision.model_interface import BrainModel
 from brainscore_vision.utils import LazyLoad
-from brainscore_vision.metrics import error_consistency
-from sklearn.svm import SVC
-from sklearn.decomposition import PCA
-from sklearn.multiclass import OneVsRestClassifier
-from sklearn.ensemble import BaggingClassifier
 from scipy.stats import sem
 import pandas as pd
 

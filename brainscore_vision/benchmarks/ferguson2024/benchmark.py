@@ -4,7 +4,6 @@ from brainio.stimuli import StimulusSet
 from tqdm import tqdm
 from typing import Dict
 import xarray as xr
-
 from brainscore_vision import load_dataset, load_stimulus_set
 from brainio.assemblies import BehavioralAssembly
 from brainscore_vision.benchmark_helpers.screen import place_on_screen

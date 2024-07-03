@@ -16,7 +16,7 @@ class _BMD_2024_BehavioralAccuracyDistance(BenchmarkBase):
         self._metric = load_metric('accuracy_distance')
         self._assembly = LazyLoad(lambda: load_assembly(dataset))
         super(_BMD_2024_BehavioralAccuracyDistance, self).__init__(
-            identifier=f'BMD_2024_{dataset}-behavioral_accuracy', version=1,
+            identifier=f'BMD_2024_{dataset}Behavioral-AccuracyDistance', version=1,
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
             parent='BMD_2024',
             bibtex=BIBTEX)

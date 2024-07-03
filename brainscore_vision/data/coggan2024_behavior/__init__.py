@@ -7,7 +7,6 @@ from brainscore_vision.data_helpers.s3 import (
     load_assembly_from_s3, load_stimulus_set_from_s3)
 
 # stimulus set
-@pytest.mark.private_access
 stimulus_set_registry['Coggan2024_behavior'] = lambda: load_stimulus_set_from_s3(
     identifier="tong.Coggan2024_behavior",
     bucket="brainio-brainscore",
@@ -17,7 +16,6 @@ stimulus_set_registry['Coggan2024_behavior'] = lambda: load_stimulus_set_from_s3
     zip_version_id="sgPkAllzqOgP6KZcuGenFdAecBmRYApo")
 
 # fitting stimuli
-@pytest.mark.private_access
 stimulus_set_registry['Coggan2024_behavior_fitting'] = lambda: (
     load_stimulus_set_from_s3(
         identifier="tong.Coggan2024_behavior_fitting",
@@ -28,7 +26,6 @@ stimulus_set_registry['Coggan2024_behavior_fitting'] = lambda: (
         zip_version_id="IU.vvRmzBBhxErneMgQHoB1OKaeyen17"))
 
 # behavioral data
-@pytest.mark.private_access
 data_registry['Coggan2024_behavior'] = lambda: load_assembly_from_s3(
     identifier="tong.Coggan2024_behavior",
     version_id="Xuov.DxZnqSD1.Ia.ZySbSu8IW7cFigT",

@@ -81,7 +81,12 @@ class _Maniquet2024ConfusionSimilarity(BenchmarkBase):
             float: The similarity score between the model and human data.
         """
         # Start the model on the task of predicting confusion probabilities
-        candidate.start_task(BrainModel.Task.probabilities, self._fitting_stimuli)
+        fitting_stimuli = place_on_screen(
+            self._fitting_stimuli,
+            target_visual_degrees=candidate.visual_degrees(),
+            source_visual_degrees=self._visual_degrees,
+        )
+        candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli)
 
         # Prepare the stimulus set by placing it on a virtual screen at a scale appropriate for the model
         stimulus_set = place_on_screen(
@@ -96,6 +101,7 @@ class _Maniquet2024ConfusionSimilarity(BenchmarkBase):
         )
 
         # Compute the confusion similarity score between model probabilities and human assembly data
+        # NOTE: score output here is *already* ceiling-normalized!!
         score = self._metric(probabilities, self._human_assembly)
 
         return score
@@ -159,7 +165,12 @@ class _Maniquet2024TasksConsistency(BenchmarkBase):
             float: A similarity score indicating how closely the model's responses match human responses.
         """
         # Task the model with generating predictions based on the fitting stimuli
-        candidate.start_task(BrainModel.Task.probabilities, self._fitting_stimuli)
+        fitting_stimuli = place_on_screen(
+            self._fitting_stimuli,
+            target_visual_degrees=candidate.visual_degrees(),
+            source_visual_degrees=self._visual_degrees,
+        )
+        candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli)
 
         # Adjust the stimulus presentation to match the model's expected input scale
         stimulus_set = place_on_screen(
@@ -174,6 +185,7 @@ class _Maniquet2024TasksConsistency(BenchmarkBase):
         )
 
         # Evaluate the consistency of model predictions with human data
+        # NOTE: score output here is *already* ceiling-normalized!!
         score = self._metric(probabilities, self._human_assembly)
 
         return score

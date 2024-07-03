@@ -47,13 +47,13 @@ class _Maniquet2024ConfusionSimilarity(BenchmarkBase):
         self._metric = load_metric('confusion_similarity')
 
         # Load training stimuli from the stimulus set registry
-        self._fitting_stimuli = LazyLoad(lambda: load_stimulus_set('Maniquet2024-train'))
+        self._fitting_stimuli = load_stimulus_set('Maniquet2024-train')
 
         # Load testing stimuli from the stimulus set registry
-        self._stimulus_set = LazyLoad(lambda: load_stimulus_set('Maniquet2024-test'))
+        self._stimulus_set = load_stimulus_set('Maniquet2024-test')
 
         # Load human behavioral data from the data registry
-        self._human_assembly = LazyLoad(lambda: load_dataset('Maniquet2024'))
+        self._human_assembly = load_dataset('Maniquet2024')
 
         # Set the visual degrees to which the human data was exposed
         self._visual_degrees = 8
@@ -81,29 +81,22 @@ class _Maniquet2024ConfusionSimilarity(BenchmarkBase):
             float: The similarity score between the model and human data.
         """
         # Start the model on the task of predicting confusion probabilities
-        fitting_stimuli = place_on_screen(
-            self._fitting_stimuli,
-            target_visual_degrees=candidate.visual_degrees(),
-            source_visual_degrees=self._visual_degrees,
-        )
+        fitting_stimuli = place_on_screen(self._fitting_stimuli,
+                                          target_visual_degrees=candidate.visual_degrees(),
+                                          source_visual_degrees=self._visual_degrees)
         candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli)
 
         # Prepare the stimulus set by placing it on a virtual screen at a scale appropriate for the model
-        stimulus_set = place_on_screen(
-            self._stimulus_set,
-            target_visual_degrees=candidate.visual_degrees(),
-            source_visual_degrees=self._visual_degrees,
-        )
+        stimulus_set = place_on_screen(self._stimulus_set,
+                                       target_visual_degrees=candidate.visual_degrees(),
+                                       source_visual_degrees=self._visual_degrees)
 
         # Model looks at the stimulus set and returns confusion probabilities
-        probabilities = candidate.look_at(
-            stimulus_set, number_of_trials=self._number_of_trials
-        )
+        probabilities = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
 
         # Compute the confusion similarity score between model probabilities and human assembly data
         # NOTE: score output here is *already* ceiling-normalized!!
         score = self._metric(probabilities, self._human_assembly)
-
         return score
 
 
@@ -130,13 +123,13 @@ class _Maniquet2024TasksConsistency(BenchmarkBase):
         self._metric = load_metric('tasks_consistency')
 
         # Load training stimuli from the stimulus set registry
-        self._fitting_stimuli = LazyLoad(lambda: load_stimulus_set('Maniquet2024-train'))
+        self._fitting_stimuli = load_stimulus_set('Maniquet2024-train')
 
         # Load testing stimuli from the stimulus set registry
-        self._stimulus_set = LazyLoad(lambda: load_stimulus_set('Maniquet2024-test'))
+        self._stimulus_set = load_stimulus_set('Maniquet2024-test')
 
         # Load human behavioral data from the data registry
-        self._human_assembly = LazyLoad(lambda: load_dataset('Maniquet2024'))
+        self._human_assembly = load_dataset('Maniquet2024')
 
         # Set the visual context to match human study conditions
         self._visual_degrees = 8
@@ -192,8 +185,8 @@ class _Maniquet2024TasksConsistency(BenchmarkBase):
 
 
 def Maniquet2024ConfusionSimilarity():
-    return _Maniquet2024ConfusionSimilarity
+    return _Maniquet2024ConfusionSimilarity()
 
 
 def Maniquet2024TasksConsistency():
-    return _Maniquet2024TasksConsistency
+    return _Maniquet2024TasksConsistency()

@@ -9,7 +9,7 @@ from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_
 import ssl
 
 # needed import for globals() to work!
-from vonenet import VOneNet
+from .vonenet.vonenet.vonenet import VOneNet
 
 ssl._create_default_https_context = ssl._create_unverified_context
 

@@ -64,10 +64,10 @@ class _Bracci2019RSA(BenchmarkBase):
         # self._human_assembly = data_registry["Bracci2019"]()
 
         # Load testing stimuli from the stimulus set registry
-        self._stimulus_set = LazyLoad(lambda: load_stimulus_set('Bracci2019'))
+        self._stimulus_set = load_stimulus_set('Bracci2019')
 
         # Load human behavioral data from the data registry
-        self._human_assembly = LazyLoad(lambda: load_dataset('Bracci2019'))
+        self._human_assembly = load_dataset('Bracci2019')
 
         # Set the visual degrees to which the human data was exposed
         self._visual_degrees = 8

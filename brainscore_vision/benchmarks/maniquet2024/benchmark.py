@@ -63,7 +63,7 @@ class _Maniquet2024ConfusionSimilarity(BenchmarkBase):
 
         # Call the parent class constructor to complete initialization
         super(_Maniquet2024ConfusionSimilarity, self).__init__(
-            identifier="Maniquet2024ConfusionSimilarity",
+            identifier="Maniquet2024-confusion_similarity'",
             version=1,
             ceiling_func=lambda: self._metric._ceiling(self._assembly),
             parent="Maniquet2024",
@@ -140,7 +140,7 @@ class _Maniquet2024TasksConsistency(BenchmarkBase):
 
         # Initialize parent class with benchmark-specific metadata
         super(_Maniquet2024TasksConsistency, self).__init__(
-            identifier="Maniquet2024TasksConsistency",
+            identifier="Maniquet2024-tasks_consistency",
             version=1,
             ceiling_func=lambda: self._metric.ceiling(self._human_assembly),
             parent="Maniquet2024",

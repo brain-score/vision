@@ -3,7 +3,7 @@
 import numpy as np
 import brainscore_vision
 
-
+@pytest.mark.private_access
 def test_Coggan2024_behavior_stimuli():
     stimulus_set = brainscore_vision.load_stimulus_set('Coggan2024_behavior')
     assert len(stimulus_set) == 22560
@@ -12,13 +12,13 @@ def test_Coggan2024_behavior_stimuli():
     assert len(set(stimulus_set['occluder_color'])) == 3
     assert len(set(stimulus_set['visibility'])) == 6
 
-
+@pytest.mark.private_access
 def test_Coggan2024_behavior_stimuli_fitting():
     stimulus_set = brainscore_vision.load_stimulus_set(
         'Coggan2024_behavior_fitting')
     assert len(stimulus_set) == 2048
 
-
+@pytest.mark.private_access
 def test_Coggan2024_behavior_dataset():
     assembly = brainscore_vision.load_dataset('Coggan2024_behavior')
     np.testing.assert_array_equal(

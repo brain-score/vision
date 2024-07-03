@@ -91,7 +91,7 @@ class _Bracci2019RSA(BenchmarkBase):
 
         # Call the parent class constructor to complete initialization
         super(_Bracci2019RSA, self).__init__(
-            identifier=f"Bracci2019_RSA-{region}",
+            identifier=f"Bracci2019.{region}-rdm",
             version=1,
             # ceiling_func=lambda: self._metric._ceiling(self._assembly),
             ceiling_func=lambda: 1,

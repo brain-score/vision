@@ -1,2 +1,3 @@
-torchvision
+timm
 torch
+torchvision

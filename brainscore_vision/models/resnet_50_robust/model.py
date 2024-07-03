@@ -7,7 +7,6 @@ from brainscore_vision.model_helpers.check_submission import check_models
 import ssl
 from brainscore_vision.model_helpers.s3 import load_weight_file
 
-
 ssl._create_default_https_context = ssl._create_unverified_context
 
 def get_model(name):

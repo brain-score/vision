@@ -1,5 +1,6 @@
 # Created by David Coggan on 2024 06 26
 
+import pytest
 import numpy as np
 import brainscore_vision
 

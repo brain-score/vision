@@ -1,1 +1,8 @@
-vonenet @ git+https://github.com/dicarlolab/vonenet.git
+torch
+torchvision
+numpy
+pandas
+scipy
+tqdm
+fire
+requests

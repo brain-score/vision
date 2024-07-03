@@ -6,8 +6,8 @@ from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_
 #from candidate_models import s3 
 import torch.nn as nn
 import math
-import ssl
 import torch.utils.model_zoo as model_zoo
+import ssl
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 ssl._create_default_https_context = ssl._create_unverified_context

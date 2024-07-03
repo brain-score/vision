@@ -26,7 +26,7 @@ def get_model_from_s3():
     if pretrained and model_arch:
         weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
                                         relative_path="voneresnet-50-non_stochastic/voneresnet50_ns_e70.pth.tar",
-                                        version_id="Vgdhpj8hBvUvpV.3bTHyJCUaoG93hxF.",
+                                        version_id="vDk2cwi2xjwGqhGyyjp8lEGSfcaFzB61",
                                         sha1="c270528818d6d7fc67a6aec86919d47311ad6221")
         ckpt_data = torch.load(weights_path, map_location=torch.device('cpu'))
         stride = ckpt_data['flags']['stride']

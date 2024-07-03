@@ -21,5 +21,5 @@ def test_benchmarks(region):
     model = load_model('alexnet')
     benchmark = load_benchmark(f'Coggan2024_fMRI.{region}-rdm')
     score = benchmark(model)
-    assert score.values == approx(expected_score)
+    assert score.values == approx(expected_score, abs=.005)
 

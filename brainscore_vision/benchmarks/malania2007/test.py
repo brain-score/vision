@@ -55,7 +55,7 @@ class TestBehavioral:
         ('long-16', approx(0.0, abs=0.001)),
         ('vernieracuity', approx(0.0, abs=0.001))
     ])
-    def test_model_score(dataset, expected_score):
+    def test_model_score(self, dataset, expected_score):
         benchmark = f"Malania2007_{dataset}"
         benchmark = load_benchmark(benchmark)
         model = load_model('alexnet')

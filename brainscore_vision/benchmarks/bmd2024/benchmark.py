@@ -16,9 +16,9 @@ class _BMD_2024_BehavioralAccuracyDistance(BenchmarkBase):
         self._metric = load_metric('accuracy_distance')
         self._assembly = LazyLoad(lambda: load_assembly(dataset))
         super(_BMD_2024_BehavioralAccuracyDistance, self).__init__(
-            identifier=f'BMD_2024_{dataset}Behavioral-AccuracyDistance', version=1,
+            identifier=f'BMD2024.{dataset}Behavioral-accuracy_distance', version=1,
             ceiling_func=lambda: self._metric.ceiling(self._assembly),
-            parent='BMD_2024',
+            parent='BMD2024',
             bibtex=BIBTEX)
 
     def __call__(self, candidate: BrainModel):
@@ -38,7 +38,7 @@ class _BMD_2024_BehavioralAccuracyDistance(BenchmarkBase):
 
 
 def load_assembly(dataset: str) -> BehavioralAssembly:
-    assembly = load_dataset(f'BMD_2024_{dataset}')
+    assembly = load_dataset(f'BMD2024.{dataset}')
     return assembly
 
 

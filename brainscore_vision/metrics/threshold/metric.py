@@ -1,4 +1,4 @@
-from typing import Dict, Union, Tuple, Optional, Callable
+from typing import Dict, Union, Tuple, List, Optional, Callable
 
 import numpy as np
 from scipy.optimize import minimize

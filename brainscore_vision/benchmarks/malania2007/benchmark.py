@@ -88,10 +88,10 @@ class _Malania2007Base(BenchmarkBase):
         self._assemblies = {'baseline_assembly': self._baseline_assembly,
                             'condition_assembly': self._assembly}
         self._stimulus_set = brainscore_vision.load_stimulus_set(f'Malania2007.{self.condition}'.rstrip('-threshold_elevation'))
-        self._baseline_stimulus_set = brainscore_vision.load_stimulus_set(f'Malania2007_{self.baseline_condition}'.rstrip('-threshold_elevation'))
+        self._baseline_stimulus_set = brainscore_vision.load_stimulus_set(f'Malania2007.{self.baseline_condition}'.rstrip('-threshold_elevation'))
         self._stimulus_sets = {self.condition: self._stimulus_set,
                                self.baseline_condition: self._baseline_stimulus_set}
-        self._fitting_stimuli = brainscore_vision.load_stimulus_set(f'Malania2007_{self.condition}'.rstrip('-threshold_elevation') + '_fit')
+        self._fitting_stimuli = brainscore_vision.load_stimulus_set(f'Malania2007.{self.condition}'.rstrip('-threshold_elevation') + '_fit')
 
         self._metric = load_metric('threshold_elevation',
                                    independent_variable='image_label',
@@ -141,8 +141,8 @@ class _Malania2007VernierAcuity(BenchmarkBase):
         self._assemblies = {condition: {'baseline_assembly': self.get_assemblies(condition)['baseline_assembly'],
                                         'condition_assembly': self.get_assemblies(condition)['condition_assembly']}
                             for condition in self.conditions}
-        self._stimulus_set = brainscore_vision.load_stimulus_set(f'Malania2007_{self.baseline_condition}')
-        self._fitting_stimuli = {condition: brainscore_vision.load_stimulus_set(f'Malania2007_{condition}'.rstrip('-threshold_elevation') + '_fit')
+        self._stimulus_set = brainscore_vision.load_stimulus_set(f'Malania2007.{self.baseline_condition}')
+        self._fitting_stimuli = {condition: brainscore_vision.load_stimulus_set(f'Malania2007.{condition}'.rstrip('-threshold_elevation') + '_fit')
                                  for condition in self.conditions}
 
         self._metric = load_metric('threshold',

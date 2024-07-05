@@ -18,7 +18,7 @@ BIBTEX = """@article{malania2007,
         }"""
 
 
-data_registry['Malania2007_equal-2'] = lambda: load_assembly_from_s3(
+data_registry['Malania2007.equal2'] = lambda: load_assembly_from_s3(
     identifier='Malania2007_equal-2',
     version_id="yFXK8xjGjEmuYTSfS58rGS_ah3.NGg0X",
     sha1="277b2fbffed00e16b6a69b488f73eeda5abaaf10",
@@ -26,7 +26,7 @@ data_registry['Malania2007_equal-2'] = lambda: load_assembly_from_s3(
     cls=PropertyAssembly,
     stimulus_set_loader=None,
 )
-data_registry['Malania2007_equal-16'] = lambda: load_assembly_from_s3(
+data_registry['Malania2007.equal16'] = lambda: load_assembly_from_s3(
     identifier='Malania2007_equal-16',
     version_id="SRZ7bs.Ek59GkeS084Pvdy38uTzFs4yw",
     sha1="ef49506238e8d2554918b113fbc60c133077186e",
@@ -34,7 +34,7 @@ data_registry['Malania2007_equal-16'] = lambda: load_assembly_from_s3(
     cls=PropertyAssembly,
     stimulus_set_loader=None,
 )
-data_registry['Malania2007_long-2'] = lambda: load_assembly_from_s3(
+data_registry['Malania2007.long2'] = lambda: load_assembly_from_s3(
     identifier='Malania2007_long-2',
     version_id="2c1lWuXthb3rymB3seTQX1jVqiKUTn1f",
     sha1="9076a5b693948c4992b6c8e753f04a7acd2014a1",
@@ -42,7 +42,7 @@ data_registry['Malania2007_long-2'] = lambda: load_assembly_from_s3(
     cls=PropertyAssembly,
     stimulus_set_loader=None,
 )
-data_registry['Malania2007_long-16'] = lambda: load_assembly_from_s3(
+data_registry['Malania2007.long16'] = lambda: load_assembly_from_s3(
     identifier='Malania2007_long-16',
     version_id="qshNxhxjgusWyWiXnbfFN6gqjLgRh8fO",
     sha1="3106cf1f2fa9e66617ebf231df05d29077fc478f",
@@ -50,7 +50,7 @@ data_registry['Malania2007_long-16'] = lambda: load_assembly_from_s3(
     cls=PropertyAssembly,
     stimulus_set_loader=None,
 )
-data_registry['Malania2007_short-2'] = lambda: load_assembly_from_s3(
+data_registry['Malania2007.short2'] = lambda: load_assembly_from_s3(
     identifier='Malania2007_short-2',
     version_id="8CQ9MupuljAgkkKUXs3hiOliHg8xoDxb",
     sha1="85fb65ad76de48033c704b9c5689771e1ea0457d",
@@ -58,7 +58,7 @@ data_registry['Malania2007_short-2'] = lambda: load_assembly_from_s3(
     cls=PropertyAssembly,
     stimulus_set_loader=None,
 )
-data_registry['Malania2007_short-4'] = lambda: load_assembly_from_s3(
+data_registry['Malania2007.short4'] = lambda: load_assembly_from_s3(
     identifier='Malania2007_short-4',
     version_id=".ZUO0upSfQrWLPgd4oGwAaCbN4bz6S6H",
     sha1="75506be9a26ec38a223e41510f1a8cb32d5b0bc9",
@@ -66,7 +66,7 @@ data_registry['Malania2007_short-4'] = lambda: load_assembly_from_s3(
     cls=PropertyAssembly,
     stimulus_set_loader=None,
 )
-data_registry['Malania2007_short-6'] = lambda: load_assembly_from_s3(
+data_registry['Malania2007.short6'] = lambda: load_assembly_from_s3(
     identifier='Malania2007_short-6',
     version_id="q4FugpNGkT_FQP..qIVzye83hAQR2xfS",
     sha1="2901be6b352e67550da040d79d744819365b8626",
@@ -74,7 +74,7 @@ data_registry['Malania2007_short-6'] = lambda: load_assembly_from_s3(
     cls=PropertyAssembly,
     stimulus_set_loader=None,
 )
-data_registry['Malania2007_short-8'] = lambda: load_assembly_from_s3(
+data_registry['Malania2007.short8'] = lambda: load_assembly_from_s3(
     identifier='Malania2007_short-8',
     version_id="4_lcRl_I7Mp0RHxcfqZ9tkAZjVh.5oMU",
     sha1="6daf47b086cb969d75222e320f49453ed8437885",
@@ -82,7 +82,7 @@ data_registry['Malania2007_short-8'] = lambda: load_assembly_from_s3(
     cls=PropertyAssembly,
     stimulus_set_loader=None,
 )
-data_registry['Malania2007_short-16'] = lambda: load_assembly_from_s3(
+data_registry['Malania2007.short16'] = lambda: load_assembly_from_s3(
     identifier='Malania2007_short-16',
     version_id="fFqEIyIC9CHzqTEmv0MitjCgpeMX5pxJ",
     sha1="8ae0898caad718b747f85fce5888416affc3a569",
@@ -90,7 +90,7 @@ data_registry['Malania2007_short-16'] = lambda: load_assembly_from_s3(
     cls=PropertyAssembly,
     stimulus_set_loader=None,
 )
-data_registry['Malania2007_vernier-only'] = lambda: load_assembly_from_s3(
+data_registry['Malania2007.vernier_only'] = lambda: load_assembly_from_s3(
     identifier='Malania2007_vernier-only',
     version_id="JLWf2pIR_UadQHqwtegJkC6XzWdbSNGi",
     sha1="1cf83e8b6141f8b0d67ea46994f342325f62001f",
@@ -100,7 +100,7 @@ data_registry['Malania2007_vernier-only'] = lambda: load_assembly_from_s3(
 )
 
 
-stimulus_set_registry['Malania2007_equal-2'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Malania2007.equal2'] = lambda: load_stimulus_set_from_s3(
     identifier='Malania2007_equal-2',
     bucket="brainio-brainscore",
     csv_sha1="77e94b9b5122a83ebbaffb4a06fcab68ef652751",
@@ -108,7 +108,7 @@ stimulus_set_registry['Malania2007_equal-2'] = lambda: load_stimulus_set_from_s3
     csv_version_id="MlRpSz.4.jvVRFAZl8tGEum1P0Q0GtyS",
     zip_version_id="vHbAM_FjTbjp5U12BkAelJu4KW6PLYFn"
 )
-stimulus_set_registry['Malania2007_equal-2_fit'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Malania2007.equal2_fit'] = lambda: load_stimulus_set_from_s3(
     identifier='Malania2007_equal-2_fit',
     bucket="brainio-brainscore",
     csv_sha1="bafdfc855c164d3e5443d67dcf9eb7762443f964",
@@ -116,7 +116,7 @@ stimulus_set_registry['Malania2007_equal-2_fit'] = lambda: load_stimulus_set_fro
     csv_version_id="PIXEW.2vHvjIBP0Q2KHIpnxns7t9o8Cf",
     zip_version_id="h7pp84CYFGLKlPhveD0L5ogePqisk_I7"
 )
-stimulus_set_registry['Malania2007_equal-16'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Malania2007.equal16'] = lambda: load_stimulus_set_from_s3(
     identifier='Malania2007_equal-16',
     bucket="brainio-brainscore",
     csv_sha1="5fedcff56c302339c3451ae2edbcb846c39c3189",
@@ -124,7 +124,7 @@ stimulus_set_registry['Malania2007_equal-16'] = lambda: load_stimulus_set_from_s
     csv_version_id="VmRGiQkhPALDwq74NpE2VpTiKTGn.30T",
     zip_version_id="c.DOlVULXZingRJ9gVY_NbZwRrj_xs_i"
 )
-stimulus_set_registry['Malania2007_equal-16_fit'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Malania2007.equal16_fit'] = lambda: load_stimulus_set_from_s3(
     identifier='Malania2007_equal-16_fit',
     bucket="brainio-brainscore",
     csv_sha1="3de3e5de19a638767a01ba68cb690dc746c29a77",
@@ -132,7 +132,7 @@ stimulus_set_registry['Malania2007_equal-16_fit'] = lambda: load_stimulus_set_fr
     csv_version_id="joAq8JBC_7axZDfLNFgoXFhTCLU_KKr_",
     zip_version_id="77JRwdldaHDr6TLW1NnB5HucIrkUCVg."
 )
-stimulus_set_registry['Malania2007_long-2'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Malania2007.long2'] = lambda: load_stimulus_set_from_s3(
     identifier='Malania2007_long-2',
     bucket="brainio-brainscore",
     csv_sha1="ba65316a63dc688d8dfb410219a28fd02850b991",
@@ -140,7 +140,7 @@ stimulus_set_registry['Malania2007_long-2'] = lambda: load_stimulus_set_from_s3(
     csv_version_id="_0fqObn6k5KvXurHMsuD4IqtrqbNskyo",
     zip_version_id="foL92ndVAAAETzMYHdmMtwIwKxXYhAB."
 )
-stimulus_set_registry['Malania2007_long-2_fit'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Malania2007.long2_fit'] = lambda: load_stimulus_set_from_s3(
     identifier='Malania2007_long-2_fit',
     bucket="brainio-brainscore",
     csv_sha1="b91dd9261c1d47bdd37f9b60eb8066b7b719709f",
@@ -148,7 +148,7 @@ stimulus_set_registry['Malania2007_long-2_fit'] = lambda: load_stimulus_set_from
     csv_version_id="mATh8lcVisdsDnPnU6ACE23iBPfpkLZA",
     zip_version_id="6nEviShTyCYQKrmxyjDyNov9Skc77eXT"
 )
-stimulus_set_registry['Malania2007_long-16'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Malania2007.long16'] = lambda: load_stimulus_set_from_s3(
     identifier='Malania2007_long-16',
     bucket="brainio-brainscore",
     csv_sha1="1f1b03319b81698ba5e7db389dcd4248f94e45ca",
@@ -156,7 +156,7 @@ stimulus_set_registry['Malania2007_long-16'] = lambda: load_stimulus_set_from_s3
     csv_version_id="4RtywQ40hfQA4N80g8lxEScAmMXFRg7E",
     zip_version_id="lJy2QosABzHtiA6BJaE4OqCn1w1Jhz2k"
 )
-stimulus_set_registry['Malania2007_long-16_fit'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Malania2007.long16_fit'] = lambda: load_stimulus_set_from_s3(
     identifier='Malania2007_long-16_fit',
     bucket="brainio-brainscore",
     csv_sha1="d80a02c75b9908301c3c8dc9f7116fecf8e060ec",
@@ -164,7 +164,7 @@ stimulus_set_registry['Malania2007_long-16_fit'] = lambda: load_stimulus_set_fro
     csv_version_id="gOxY6tjnT7LO.FDeL1xkRmowl5wYeAia",
     zip_version_id="71UAPTnZscIuqdx2dhuW9V0O0DO_TgTM"
 )
-stimulus_set_registry['Malania2007_short-2'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Malania2007.short2'] = lambda: load_stimulus_set_from_s3(
     identifier='Malania2007_short-2',
     bucket="brainio-brainscore",
     csv_sha1="bf0252056d2084e855646f624700ab03c19cfc3d",
@@ -172,7 +172,7 @@ stimulus_set_registry['Malania2007_short-2'] = lambda: load_stimulus_set_from_s3
     csv_version_id="zcJqM.ZPwJyiMRWa3RBdvv401yPnLQAp",
     zip_version_id="C8WZzAAQ0JGHAAKii4JpvlRhcUOhgSj."
 )
-stimulus_set_registry['Malania2007_short-2_fit'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Malania2007.short2_fit'] = lambda: load_stimulus_set_from_s3(
     identifier='Malania2007_short-2_fit',
     bucket="brainio-brainscore",
     csv_sha1="73127d279a2cd254ae4f07b0053580851e84b00c",
@@ -180,7 +180,7 @@ stimulus_set_registry['Malania2007_short-2_fit'] = lambda: load_stimulus_set_fro
     csv_version_id="iwGRp3_ktAHfJ6r7ktSK9gsthDjKek70",
     zip_version_id="6RpplJ9UVXTlvhmFSXla0Qa20b44m8Ds"
 )
-stimulus_set_registry['Malania2007_short-4'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Malania2007.short4'] = lambda: load_stimulus_set_from_s3(
     identifier='Malania2007_short-4',
     bucket="brainio-brainscore",
     csv_sha1="816326d89d358f6592bd1f789e5c8d429fbca1cd",
@@ -188,7 +188,7 @@ stimulus_set_registry['Malania2007_short-4'] = lambda: load_stimulus_set_from_s3
     csv_version_id="Waikk.bktXIncCUtCIAyB2EqynGk.H.F",
     zip_version_id="rl_muxI4UEpwXVaXuhsqroG..COGILvR"
 )
-stimulus_set_registry['Malania2007_short-4_fit'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Malania2007.short4_fit'] = lambda: load_stimulus_set_from_s3(
     identifier='Malania2007_short-4_fit',
     bucket="brainio-brainscore",
     csv_sha1="3512cfd029f4e4299bc41ede519e691d80cfc3d5",
@@ -196,7 +196,7 @@ stimulus_set_registry['Malania2007_short-4_fit'] = lambda: load_stimulus_set_fro
     csv_version_id="UhisdJqiEmkQ_4zsUtAmaxtle2kMZdcD",
     zip_version_id="xt_v0xgCB8YUptyPB0yZFHIUcel5MF_x"
 )
-stimulus_set_registry['Malania2007_short-6'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Malania2007.short6'] = lambda: load_stimulus_set_from_s3(
     identifier='Malania2007_short-6',
     bucket="brainio-brainscore",
     csv_sha1="3d5dd9b48a56ba0c31de94b6221b97df962b6f8a",
@@ -204,7 +204,7 @@ stimulus_set_registry['Malania2007_short-6'] = lambda: load_stimulus_set_from_s3
     csv_version_id="GwGHPJkMDdg8N_.boyj8qJ3ChsEx4w._",
     zip_version_id="gIN1O4yz.THvK0Ifm5M3AI58ZACE1QFh"
 )
-stimulus_set_registry['Malania2007_short-6_fit'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Malania2007.short6_fit'] = lambda: load_stimulus_set_from_s3(
     identifier='Malania2007_short-6_fit',
     bucket="brainio-brainscore",
     csv_sha1="27a5be4fca190837fc5b75ed2cdbbffbf6b41338",
@@ -212,7 +212,7 @@ stimulus_set_registry['Malania2007_short-6_fit'] = lambda: load_stimulus_set_fro
     csv_version_id="oMlj7wV85s00hJFE84ym0AJHLCfYHVA6",
     zip_version_id="oS.KrBTlcYAgr_lWyA_bIjVc2js_VeUe"
 )
-stimulus_set_registry['Malania2007_short-8'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Malania2007.short8'] = lambda: load_stimulus_set_from_s3(
     identifier='Malania2007_short-8',
     bucket="brainio-brainscore",
     csv_sha1="8fc35f607196b4c0cdcebd8102d17e3a637e5988",
@@ -220,7 +220,7 @@ stimulus_set_registry['Malania2007_short-8'] = lambda: load_stimulus_set_from_s3
     csv_version_id="gzys8s7j7euMEl7JJpqBFLFHMpFjwbA7",
     zip_version_id="3fYb4Iruh3lRKUwC1APqFH4CNbE5DEuk"
 )
-stimulus_set_registry['Malania2007_short-8_fit'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Malania2007.short8_fit'] = lambda: load_stimulus_set_from_s3(
     identifier='Malania2007_short-8_fit',
     bucket="brainio-brainscore",
     csv_sha1="aa4133a9fe19a3c9004a9cb5e6eb5a72564e4883",
@@ -228,7 +228,7 @@ stimulus_set_registry['Malania2007_short-8_fit'] = lambda: load_stimulus_set_fro
     csv_version_id="7N1Z.uiagqBknJUSBQ4mVfHKWgocM5aA",
     zip_version_id="kcEOPOkvWymO0wX5j_QKxcNPl9sZsjFd"
 )
-stimulus_set_registry['Malania2007_short-16'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Malania2007.short16'] = lambda: load_stimulus_set_from_s3(
     identifier='Malania2007_short-16',
     bucket="brainio-brainscore",
     csv_sha1="addd260c9959f2f315db03c0a39c6c1b01fef685",
@@ -236,7 +236,7 @@ stimulus_set_registry['Malania2007_short-16'] = lambda: load_stimulus_set_from_s
     csv_version_id="Peu7WU5vanLoZNOFIAbuPzZNPDRgbCSX",
     zip_version_id="wFkJkZMC8Fs_HfPJy32CMKcHJWeQIUDB"
 )
-stimulus_set_registry['Malania2007_short-16_fit'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Malania2007.short16_fit'] = lambda: load_stimulus_set_from_s3(
     identifier='Malania2007_short-16_fit',
     bucket="brainio-brainscore",
     csv_sha1="9b340fe242117482f6992f48a805297215ba9924",
@@ -244,7 +244,7 @@ stimulus_set_registry['Malania2007_short-16_fit'] = lambda: load_stimulus_set_fr
     csv_version_id="sYBPEmXDgbWipuepciLirlorQE3L8BLc",
     zip_version_id="pYvOkrLxadkQ67K3__wmciNwaCW.hyyN"
 )
-stimulus_set_registry['Malania2007_vernier-only'] = lambda: load_stimulus_set_from_s3(
+stimulus_set_registry['Malania2007.vernier_only'] = lambda: load_stimulus_set_from_s3(
     identifier='Malania2007_vernier-only',
     bucket="brainio-brainscore",
     csv_sha1="b2cb0f2ed32426b739f90187ae24ad4adf84110d",

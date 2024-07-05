@@ -26,14 +26,14 @@ BIBTEX = """@article{malania2007,
             url = {https://doi.org/10.1167/7.2.1}
         }"""
 
-BASELINE_CONDITION = 'vernier-only'
-DATASETS = ['short-2', 'short-4', 'short-6', 'short-8', 'short-16', 'equal-2', 'long-2', 'equal-16', 'long-16',
+BASELINE_CONDITION = 'vernier_only'
+DATASETS = ['short2', 'short4', 'short6', 'short8', 'short16', 'equal2', 'long2', 'equal16', 'long16',
             'vernieracuity']
 # Values in NUM_FLANKERS_PER_CONDITION denote the condition (i.e., in this case the number of flankers) to be selected
 # This is kept track of simply because the benchmark uses threshold elevation - i.e., a comparison of 2 conditions
-NUM_FLANKERS_PER_CONDITION = {'short-2': 2, 'short-4': 4, 'short-6': 6, 'short-8': 8,
-                              'short-16': 16, 'equal-2': 2, 'long-2': 2, 'equal-16': 16,
-                              'long-16': 16, 'vernier-only': 0}
+NUM_FLANKERS_PER_CONDITION = {'short2': 2, 'short4': 4, 'short6': 6, 'short8': 8,
+                              'short16': 16, 'equal2': 2, 'long2': 2, 'equal16': 16,
+                              'long16': 16, 'vernier_only': 0}
 
 
 class _Malania2007Base(BenchmarkBase):
@@ -103,7 +103,7 @@ class _Malania2007Base(BenchmarkBase):
         self._number_of_trials = 10  # arbitrary choice for microsaccades to improve precision of estimates
 
         super(_Malania2007Base, self).__init__(
-            identifier=f'Malania2007_{condition}', version=1,
+            identifier=f'Malania2007.{condition}', version=1,
             ceiling_func=lambda: self._metric.ceiling(self._assemblies),
             parent='Malania2007',
             bibtex=BIBTEX)
@@ -157,7 +157,7 @@ class _Malania2007VernierAcuity(BenchmarkBase):
         self._number_of_trials = 10  # arbitrary choice for microsaccades to improve precision of estimates
 
         super(_Malania2007VernierAcuity, self).__init__(
-            identifier=f'Malania2007_vernieracuity', version=1,
+            identifier=f'Malania2007.vernieracuity', version=1,
             ceiling_func=lambda: self.mean_ceiling(),
             parent='Malania2007',
             bibtex=BIBTEX)
@@ -214,7 +214,7 @@ class _Malania2007VernierAcuity(BenchmarkBase):
 
 
 def load_assembly(dataset: str) -> PropertyAssembly:
-    assembly = brainscore_vision.load_dataset(f'Malania2007_{dataset}')
+    assembly = brainscore_vision.load_dataset(f'Malania2007.{dataset}')
     return assembly
 
 

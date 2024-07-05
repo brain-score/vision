@@ -157,7 +157,7 @@ class Threshold(Metric):
             source_threshold = self.compute_threshold(source, self._independent_variable)
             # check whether the psychometric function fit was successful - if not, return a score of 0
             if source_threshold == 'fit_fail':
-                score = Score([0.], coords={'aggregation': ['center', ]}, dims=['aggregation'])
+                score = Score(0.)
                 score.attrs['error'] = 0.
                 return score
         else:
@@ -185,12 +185,11 @@ class Threshold(Metric):
                                self.threshold_accuracy)
             human_thresholds.remove(random_human_score)
             score = metric(random_human_score, human_thresholds)
-            score = float(score[(score['aggregation'] == 'center')].values)
             human_thresholds.append(random_human_score)
-            scores.append(score)
+            scores.append(score.values)
 
         ceiling, ceiling_error = np.mean(scores), np.std(scores)
-        ceiling = Score([ceiling], coords={'aggregation': ['center']}, dims=['aggregation'])
+        ceiling = Score(ceiling)
         ceiling.attrs['error'] = ceiling_error
         return ceiling
 
@@ -322,11 +321,10 @@ class Threshold(Metric):
             raw_score = max((1 - ((np.abs(target_value - source)) / target_value)), 0)
             raw_scores.append(raw_score)
 
-        raw_score, model_error = np.mean(raw_scores), np.std(raw_scores)
-        # add the aggregation: center coordinate to the score
-        score = Score([np.mean(raw_scores)], coords={'aggregation': ['center']}, dims=['aggregation'])
-        score.attrs['raw'] = raw_score
-        score.attrs['error'] = model_error
+        scores_mean, scores_std = np.mean(raw_scores), np.std(raw_scores)
+        score = Score(scores_mean)
+        score.attrs['raw'] = raw_scores
+        score.attrs['error'] = scores_std
         return score
 
     @staticmethod
@@ -454,7 +452,7 @@ class ThresholdElevation(Threshold):
             source_test_threshold = self.test_threshold_metric.compute_threshold(source[self.test_condition],
                                                                                  self._independent_variable)
             if source_baseline_threshold == 'fit_fail' or source_test_threshold == 'fit_fail':
-                return Score([0., 0.], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
+                return Score(0.)  # psychometric function could not be fit -- this typically means that the model is at chance throughout
             raw_source_threshold_elevation = source_test_threshold / source_baseline_threshold
         else:
             raise TypeError(f'source is type {type(source)}, but type BehavioralAssembly or float is required.')
@@ -489,17 +487,17 @@ class ThresholdElevation(Threshold):
                                         self.threshold_accuracy)
             human_threshold_elevations.remove(random_human_score)
             score = metric(random_human_score, human_threshold_elevations)
-            score = float(score[(score['aggregation'] == 'center')].values)
             human_threshold_elevations.append(random_human_score)
-            scores.append(score)
+            scores.append(score.values)
 
         ceiling, ceiling_error = np.mean(scores), np.std(scores)
-        ceiling = Score([ceiling], coords={'aggregation': ['center']}, dims=['aggregation'])
+        ceiling = Score(ceiling)
+        ceiling.attrs['raw'] = scores
         ceiling.attrs['error'] = ceiling_error
         return ceiling
 
     @staticmethod
-    def compute_threshold_elevations(assemblies: Dict[str, PropertyAssembly]) -> list:
+    def compute_threshold_elevations(assemblies: Dict[str, PropertyAssembly]) -> List:
         """
         Computes the threshold elevations of a baseline condition and a test condition:
 

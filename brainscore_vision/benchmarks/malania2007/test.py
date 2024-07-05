@@ -12,12 +12,12 @@ class TestBehavioral:
 
     @pytest.mark.parametrize('dataset', DATASETS)
     def test_in_pool(self, dataset):
-        identifier = f"Malania2007_{dataset}"
+        identifier = f"Malania2007.{dataset}"
         assert identifier in benchmark_registry
 
     @pytest.mark.private_access
     def test_mean_ceiling(self):
-        benchmarks = [f"Malania2007_{dataset}" for dataset in DATASETS]
+        benchmarks = [f"Malania2007.{dataset}" for dataset in DATASETS]
         benchmarks = [load_benchmark(benchmark) for benchmark in benchmarks]
         ceilings = [benchmark.ceiling for benchmark in benchmarks]
         mean_ceiling = np.mean(ceilings)
@@ -38,7 +38,7 @@ class TestBehavioral:
         ('vernieracuity', approx(0.70168481, abs=0.001))
     ])
     def test_dataset_ceiling(self, dataset, expected_ceiling):
-        benchmark = f"Malania2007_{dataset}"
+        benchmark = f"Malania2007.{dataset}"
         benchmark = load_benchmark(benchmark)
         ceiling = benchmark.ceiling
         assert ceiling.sel(aggregation='center').values.item() == expected_ceiling
@@ -56,7 +56,7 @@ class TestBehavioral:
         ('vernieracuity', approx(0.0, abs=0.001))
     ])
     def test_model_score(self, dataset, expected_score):
-        benchmark = f"Malania2007_{dataset}"
+        benchmark = f"Malania2007.{dataset}"
         benchmark = load_benchmark(benchmark)
         model = load_model('alexnet')
         model_score = benchmark(model)

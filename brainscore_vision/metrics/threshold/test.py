@@ -9,7 +9,6 @@ def test_threshold_score_from_thresholds():
     # independent_variable is not used since we compute from thresholds, and do not need to fit them
     metric = load_metric('threshold', independent_variable='placeholder')
     score = metric(float(assembly.sel(subject='A').values), assembly)
-    print(score)
     assert score == approx(0.5625)
 
 
@@ -21,7 +20,6 @@ def test_threshold_elevation_score_from_threshold_elevations():
                          baseline_condition='placeholder',
                          test_condition='placeholder')
     score = metric(float(assembly.sel(subject='A').values), assembly)
-    print(score)
     assert score == approx(0.525)
 
 

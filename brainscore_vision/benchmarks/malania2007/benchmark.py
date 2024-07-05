@@ -10,8 +10,6 @@ from brainscore_vision.model_interface import BrainModel
 from brainscore_vision.utils import LazyLoad
 from brainscore_core.metrics import Score
 
-from brainio.packaging import write_netcdf
-
 
 BIBTEX = """@article{malania2007,
             author = {Malania, Maka and Herzog, Michael H. and Westheimer, Gerald},
@@ -27,8 +25,10 @@ BIBTEX = """@article{malania2007,
         }"""
 
 BASELINE_CONDITION = 'vernier_only'
-DATASETS = ['short2', 'short4', 'short6', 'short8', 'short16', 'equal2', 'long2', 'equal16', 'long16',
-            'vernieracuity']
+DATASETS = ['short2-threshold_elevation', 'short4-threshold_elevation', 'short6-threshold_elevation',
+            'short8-threshold_elevation', 'short16-threshold_elevation', 'equal2-threshold_elevation',
+            'long2-threshold_elevation', 'equal16-threshold_elevation', 'long16-threshold_elevation',
+            'vernieracuity-threshold']
 # Values in NUM_FLANKERS_PER_CONDITION denote the condition (i.e., in this case the number of flankers) to be selected
 # This is kept track of simply because the benchmark uses threshold elevation - i.e., a comparison of 2 conditions
 NUM_FLANKERS_PER_CONDITION = {'short2': 2, 'short4': 4, 'short6': 6, 'short8': 8,
@@ -87,11 +87,11 @@ class _Malania2007Base(BenchmarkBase):
 
         self._assemblies = {'baseline_assembly': self._baseline_assembly,
                             'condition_assembly': self._assembly}
-        self._stimulus_set = brainscore_vision.load_stimulus_set(f'Malania2007_{self.condition}')
-        self._baseline_stimulus_set = brainscore_vision.load_stimulus_set(f'Malania2007_{self.baseline_condition}')
+        self._stimulus_set = brainscore_vision.load_stimulus_set(f'Malania2007.{self.condition}'.rstrip('-threshold_elevation'))
+        self._baseline_stimulus_set = brainscore_vision.load_stimulus_set(f'Malania2007_{self.baseline_condition}'.rstrip('-threshold_elevation'))
         self._stimulus_sets = {self.condition: self._stimulus_set,
                                self.baseline_condition: self._baseline_stimulus_set}
-        self._fitting_stimuli = brainscore_vision.load_stimulus_set(f'Malania2007_{self.condition}_fit')
+        self._fitting_stimuli = brainscore_vision.load_stimulus_set(f'Malania2007_{self.condition}'.rstrip('-threshold_elevation') + '_fit')
 
         self._metric = load_metric('threshold_elevation',
                                    independent_variable='image_label',
@@ -127,10 +127,6 @@ class _Malania2007Base(BenchmarkBase):
         ceiling = self.ceiling
         score = raw_score / ceiling
 
-        # cap score at 1 if ceiled score > 1
-        if score[(score['aggregation'] == 'center')] > 1:
-            score.__setitem__({'aggregation': score['aggregation'] == 'center'}, 1)
-
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling
         return score
@@ -140,14 +136,14 @@ class _Malania2007VernierAcuity(BenchmarkBase):
     def __init__(self):
         self.baseline_condition = BASELINE_CONDITION
         self.conditions = DATASETS.copy()
-        self.conditions.remove('vernieracuity')
+        self.conditions.remove('vernieracuity-threshold')
 
         self._assemblies = {condition: {'baseline_assembly': self.get_assemblies(condition)['baseline_assembly'],
                                         'condition_assembly': self.get_assemblies(condition)['condition_assembly']}
                             for condition in self.conditions}
         self._stimulus_set = brainscore_vision.load_stimulus_set(f'Malania2007_{self.baseline_condition}')
-        self._fitting_stimuli = {condition: brainscore_vision.load_stimulus_set(f'Malania2007_{condition}_fit')
-                               for condition in self.conditions}
+        self._fitting_stimuli = {condition: brainscore_vision.load_stimulus_set(f'Malania2007_{condition}'.rstrip('-threshold_elevation') + '_fit')
+                                 for condition in self.conditions}
 
         self._metric = load_metric('threshold',
                                    independent_variable='image_label',
@@ -157,7 +153,7 @@ class _Malania2007VernierAcuity(BenchmarkBase):
         self._number_of_trials = 10  # arbitrary choice for microsaccades to improve precision of estimates
 
         super(_Malania2007VernierAcuity, self).__init__(
-            identifier=f'Malania2007.vernieracuity', version=1,
+            identifier=f'Malania2007.vernieracuity-threshold', version=1,
             ceiling_func=lambda: self.mean_ceiling(),
             parent='Malania2007',
             bibtex=BIBTEX)
@@ -181,10 +177,6 @@ class _Malania2007VernierAcuity(BenchmarkBase):
             score = raw_score / ceiling
             score.attrs['error'] = raw_score.error
 
-            # cap score at 1 if ceiled score > 1
-            if score[(score['aggregation'] == 'center')] > 1:
-                score.__setitem__({'aggregation': score['aggregation'] == 'center'}, 1)
-
             score.attrs['raw'] = raw_score
             score.attrs['ceiling'] = ceiling
             scores.append(score)
@@ -194,6 +186,7 @@ class _Malania2007VernierAcuity(BenchmarkBase):
         return mean_score
 
     def get_assemblies(self, condition: str):
+        condition = condition.rstrip('-threshold_elevation')
         baseline_assembly = LazyLoad(lambda: load_assembly(self.baseline_condition))
         condition_assembly = LazyLoad(lambda: load_assembly(condition))
         assembly, baseline_assembly = filter_baseline_subjects(condition_assembly,
@@ -208,7 +201,7 @@ class _Malania2007VernierAcuity(BenchmarkBase):
             this_ceiling = self._metric.ceiling(self._assemblies[assembly_name]['baseline_assembly'])
             ceilings.append(this_ceiling.values)
             errors.append(this_ceiling.error)
-        mean_ceiling = Score(np.mean(ceilings), coords={'aggregation': ['center']}, dims=['aggregation'])
+        mean_ceiling = Score(np.mean(ceilings))
         mean_ceiling.attrs['error'] = np.mean(errors)
         return mean_ceiling
 

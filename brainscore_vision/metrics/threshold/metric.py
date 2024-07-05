@@ -121,8 +121,7 @@ class Threshold(Metric):
                  fit_function=psychometric_cum_gauss,
                  fit_inverse_function=inverse_psychometric_cum_gauss,
                  threshold_accuracy: Union[str, float] = 'inflection',
-                 required_accuracy: Optional[float] = 0.6,
-                 plot_fit: bool = False
+                 required_accuracy: Optional[float] = 0.6
                  ):
         """
         :param independent_variable: The independent variable in the benchmark that the threshold is computed
@@ -134,13 +133,13 @@ class Threshold(Metric):
                                     is used, the function finds the inflection point of the curve and evaluates
                                     the threshold at that level. When a float is used, the function evaluates
                                     the threshold at that level.
+        :param required_accuracy: The minimum accuracy required for the psychometric function fit to be considered.
         """
         self.fit_function = fit_function
         self.fit_inverse_function = fit_inverse_function
         self._independent_variable = independent_variable
         self.threshold_accuracy = threshold_accuracy
         self.required_accuracy = required_accuracy
-        self.plot_fit = plot_fit
 
     def __call__(self, source: Union[BehavioralAssembly, float], target: Union[list, PropertyAssembly]) -> Score:
         """
@@ -248,13 +247,6 @@ class Threshold(Metric):
             print('Fit fail due to low fit R^2.')
             params = 'fit_fail'
 
-        if self.plot_fit:
-            self.plot_fit_(x_points,
-                           aggregated_x_points,
-                           y_points,
-                           aggregated_y_points,
-                           params,
-                           fit_function=self.fit_function)
         return params, measurement_max
 
     def find_threshold(self, threshold_accuracy: float, fit_params: Tuple[float, ...]) -> float:
@@ -274,27 +266,6 @@ class Threshold(Metric):
         min_fit_accuracy = self.fit_function(np.min(x_points), *fit_params)
         threshold_accuracy = min_fit_accuracy + (max_fit_accuracy - min_fit_accuracy) / 2
         return threshold_accuracy
-
-    def plot_fit_(self, x_points, x_points_removed, y_points, y_points_removed, fit_params, fit_function):
-        # Create a dense set of x values for plotting the fitted curve
-        x_dense = np.linspace(min(x_points), max(x_points), 1000)
-        # Calculate the corresponding y values using the fit function and parameters
-        y_dense = fit_function(x_dense, *fit_params)
-
-        # Plot the original data points
-        plt.scatter(x_points, y_points, label='Before asymptote removal',
-                    marker='o', color='blue', alpha=0.5)
-        plt.scatter(x_points_removed, y_points_removed, label='After asymptote removal',
-                    marker='o', color='red', alpha=0.5)
-
-        # Plot the fitted curve
-        plt.plot(x_dense, y_dense, label='Fitted curve', color='red', linewidth=2)
-
-        # Add labels and a legend
-        plt.xlabel(self._independent_variable)
-        plt.ylabel('Accuracy')
-        plt.legend()
-        plt.show()
 
     @staticmethod
     def aggregate_psychometric_fit_data(x_points, y_points):
@@ -396,8 +367,7 @@ class ThresholdElevation(Threshold):
                  test_condition: str,
                  threshold_accuracy: Union[str, float] = 'inflection',
                  required_baseline_accuracy: Optional[float] = 0.6,
-                 required_test_accuracy: Optional[float] = 0.6,
-                 plot_fit: bool = False
+                 required_test_accuracy: Optional[float] = 0.6
                  ):
         """
         :param independent_variable: The independent variable in the benchmark that the threshold is computed
@@ -409,18 +379,18 @@ class ThresholdElevation(Threshold):
                                     is used, the function finds the inflection point of the curve and evaluates
                                     the threshold at that level. When a float is used, the function evaluates
                                     the threshold at that level.
-        :param scoring: The scoring function used to evaluate performance. Either Literal['individual'] or
-                         Literal['pool']. See the scoring_function and pool_score methods for more information.
+        :param required_baseline_accuracy: The minimum accuracy required for the psychometric function fit to be
+                                             considered for the baseline condition.
+        :param required_test_accuracy: The minimum accuracy required for the psychometric function fit to be
+                                        considered for the test condition.
         """
         super(ThresholdElevation, self).__init__(independent_variable)
         self.baseline_threshold_metric = Threshold(self._independent_variable,
                                                    threshold_accuracy=threshold_accuracy,
-                                                   required_accuracy=required_baseline_accuracy,
-                                                   plot_fit=plot_fit)
+                                                   required_accuracy=required_baseline_accuracy)
         self.test_threshold_metric = Threshold(self._independent_variable,
                                                threshold_accuracy=threshold_accuracy,
-                                               required_accuracy=required_test_accuracy,
-                                               plot_fit=plot_fit)
+                                               required_accuracy=required_test_accuracy)
         self.baseline_condition = baseline_condition
         self.test_condition = test_condition
         self.threshold_accuracy = threshold_accuracy

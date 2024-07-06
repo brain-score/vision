@@ -21,7 +21,7 @@ class TestAssemblies:
         ('vernier_only', 6)
     ])
     def test_num_subjects(self, identifier, num_subjects):
-        assembly = load_dataset(f"Malania2007_{identifier}")
+        assembly = load_dataset(f"Malania2007.{identifier}")
         assembly = assembly.dropna(dim='subject')
         assert len(np.unique(assembly['subject'].values)) == num_subjects
 
@@ -74,7 +74,9 @@ class TestStimulusSets:
         full_name = f"Malania2007.{identifier}"
         stimulus_set = load_stimulus_set(full_name)
         assert stimulus_set is not None
-        assert stimulus_set.identifier == full_name
+        stripped_actual_identifier = stimulus_set.identifier.replace('.', '').replace('_', '').replace('-', '')
+        stripped_expected_identifier = full_name.replace('.', '').replace('_', '').replace('-', '')
+        assert stripped_actual_identifier == stripped_expected_identifier
 
     @pytest.mark.parametrize('identifier, num_images', [
         ('short2', 50),

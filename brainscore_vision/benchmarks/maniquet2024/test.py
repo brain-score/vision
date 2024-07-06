@@ -7,11 +7,11 @@ Created on Mon Jun 24 17:22:59 2024
 """
 
 import pytest
-from brainscore_vision import benchmark_registry
+from brainscore_vision import load_benchmark
 
 @pytest.mark.parametrize('benchmark', [
     'Maniquet2024ConfusionSimilarity',
     'Maniquet2024TasksConsistency',
 ])
 def test_benchmark_registry(benchmark):
-    assert benchmark in benchmark_registry
+    assert load_benchmark(benchmark) is not None

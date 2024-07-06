@@ -41,7 +41,7 @@ class TestBehavioral:
         benchmark = f"Malania2007.{dataset}"
         benchmark = load_benchmark(benchmark)
         ceiling = benchmark.ceiling
-        assert ceiling.sel(aggregation='center').values.item() == expected_ceiling
+        assert ceiling == expected_ceiling
 
     @pytest.mark.parametrize('dataset, expected_score', [
         ('short2-threshold_elevation', approx(0.0, abs=0.001)),

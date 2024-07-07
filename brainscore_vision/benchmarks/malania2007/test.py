@@ -43,6 +43,7 @@ class TestBehavioral:
         ceiling = benchmark.ceiling
         assert ceiling == expected_ceiling
 
+    @pytest.mark.private_access
     @pytest.mark.parametrize('dataset, expected_score', [
         ('short2-threshold_elevation', approx(0.0, abs=0.001)),
         ('short4-threshold_elevation', approx(0.0, abs=0.001)),

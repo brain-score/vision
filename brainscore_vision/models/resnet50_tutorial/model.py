@@ -13,16 +13,16 @@ from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_
 
 
 def get_model(name):
-    assert name == 'resnet50'
+    assert name == 'resnet50_tutorial'
     model = torchvision.models.resnet50(pretrained=True)
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
-    wrapper = PytorchWrapper(identifier='resnet50', model=model, preprocessing=preprocessing)
+    wrapper = PytorchWrapper(identifier='resnet50_tutorial', model=model, preprocessing=preprocessing)
     wrapper.image_size = 224
     return wrapper
 
 
 def get_layers(name):
-    assert name == 'resnet50'
+    assert name == 'resnet50_tutorial'
     return ['conv1','layer1', 'layer2', 'layer3', 'layer4', 'fc']
 
 

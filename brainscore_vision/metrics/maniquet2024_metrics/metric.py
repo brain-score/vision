@@ -176,12 +176,7 @@ class ConfusionSimilarity(Metric):
         correlation_score = pearsonr(
             self._rollout_matrix(human_confmat), self._rollout_matrix(dnn_confmat)
         )[0]
-        ceiling = self._ceiling(human_assembly, precomputed=True)
-
-        # Normalize by ceiling
         score = Score(correlation_score)
-        score.attrs["normalized"] = correlation_score / ceiling
-        score.attrs["ceiling"] = ceiling
 
         return score
 

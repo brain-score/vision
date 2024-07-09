@@ -27,7 +27,7 @@ def get_layers(name):
 
 
 def get_bibtex(model_identifier):
-    return """xx"""
+    return """"""
 
 
 if __name__ == '__main__':

@@ -95,7 +95,12 @@ class _Maniquet2024ConfusionSimilarity(BenchmarkBase):
         probabilities = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
 
         # Compute the confusion similarity score between model probabilities and human assembly data
-        score = self._metric(probabilities, self._human_assembly)
+        raw_score = self._metric(probabilities, self._human_assembly)
+        # Normalize by ceiling
+        ceiling = self._ceiling(self._human_assembly, precomputed=True)
+        score = raw_score / ceiling
+        score.attrs["raw"] = raw_score
+        score.attrs["ceiling"] = ceiling
         return score
 
 

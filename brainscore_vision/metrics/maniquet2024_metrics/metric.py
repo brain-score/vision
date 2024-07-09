@@ -425,11 +425,5 @@ class TasksConsistency(Metric):
 
         # Compute the Pearson correlation between the model and human accuracy profiles.
         correlation_score = pearsonr(dnn_accs, human_accs)[0]
-        ceiling = self._ceiling(human_assembly, precomputed=True)
-
-        # Normalize by ceiling
         score = Score(correlation_score)
-        score.attrs["normalized"] = correlation_score / ceiling
-        score.attrs["ceiling"] = ceiling
-
         return score

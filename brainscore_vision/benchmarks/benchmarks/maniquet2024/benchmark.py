@@ -182,8 +182,12 @@ class _Maniquet2024TasksConsistency(BenchmarkBase):
         )
 
         # Evaluate the consistency of model predictions with human data
-        score = self._metric(probabilities, self._human_assembly)
-
+        raw_score = self._metric(probabilities, self._human_assembly)
+        # Normalize by ceiling
+        ceiling = self._ceiling(self._human_assembly, precomputed=True)
+        score = raw_score / ceiling
+        score.attrs["raw"] = raw_score
+        score.attrs["ceiling"] = ceiling
         return score
 
 

@@ -1,9 +1,9 @@
+from typing import List
+
 import numpy as np
 
-from brainscore_core import Metric, Score
-from typing import List
 from brainio.assemblies import BehavioralAssembly
-
+from brainscore_core import Metric, Score
 
 # controls how many half-splits are averaged together to get human delta.
 HUMAN_SPLITS = 100
@@ -19,7 +19,6 @@ class BakerAccuracyDelta(Metric):
 
         # calculate score over average of 100 sub splits of human delta
         for i in range(HUMAN_SPLITS):
-
             # grab one half of the subjeects
             random_state = np.random.RandomState(i)
             num_subjects = len(set(target["subject"].values))
@@ -32,9 +31,16 @@ class BakerAccuracyDelta(Metric):
         score = np.mean(scores)
         error = np.std(scores)
 
-        score = Score([score, error], coords={'aggregation': ['center', 'error']}, dims=('aggregation',))
+        score = Score(score)
+        score.attrs['error'] = error
         score.attrs['raw'] = scores
         return score
+
+    def compute_ceiling(self, source: BehavioralAssembly, target: BehavioralAssembly, image_types: List[str]) -> float:
+        half_1_delta = get_human_delta(target=source, image_types=image_types)
+        half_2_delta = get_human_delta(target=target, image_types=image_types)
+        ceiling = max((1 - ((np.abs(half_1_delta - half_2_delta)) / half_2_delta)), 0)
+        return ceiling
 
 
 def extract_subjects(assembly):
@@ -86,10 +92,3 @@ def get_model_delta(source, image_types):
     # return difference between whole and condition
     model_delta = condition_scores_model[0] - condition_scores_model[1]
     return model_delta
-
-
-def compute_ceiling(source: BehavioralAssembly, target: BehavioralAssembly, image_types: List[str]) -> float:
-    half_1_delta = get_human_delta(target=source, image_types=image_types)
-    half_2_delta = get_human_delta(target=target, image_types=image_types)
-    ceiling = max((1 - ((np.abs(half_1_delta - half_2_delta)) / half_2_delta)), 0)
-    return ceiling

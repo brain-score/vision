@@ -4,13 +4,12 @@ from brainio.stimuli import StimulusSet
 from tqdm import tqdm
 from typing import Dict
 import xarray as xr
-from brainscore_vision import load_dataset, load_stimulus_set
+from brainscore_vision import load_dataset, load_stimulus_set, load_metric
 from brainio.assemblies import BehavioralAssembly
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
 import pandas as pd
 from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.metrics import Score
-from brainscore_vision.metrics.value_delta import ValueDelta
 from brainscore_vision.model_interface import BrainModel
 from .helpers.helpers import generate_summary_df, calculate_integral, HUMAN_INTEGRAL_ERRORS, LAPSE_RATES, \
     split_dataframe, boostrap_integral
@@ -44,13 +43,14 @@ class _Ferguson2024ValueDelta(BenchmarkBase):
     def __init__(self, experiment, precompute_ceiling=True):
         self._experiment = experiment
         self._precompute_ceiling = precompute_ceiling
-        self._metric = ValueDelta(scale=0.75)  # 0.75 chosen after calibrating with ceiling
+        self._metric = load_metric('value_delta', scale=0.75)  # 0.75 chosen after calibrating with ceiling
         self._fitting_stimuli = gather_fitting_stimuli(combine_all=False, experiment=self._experiment)
         self._assembly = load_dataset(f'Ferguson2024_{self._experiment}')
         self._visual_degrees = 8
         self._number_of_trials = 3
         self._ceiling = calculate_ceiling(self._precompute_ceiling, self._experiment, self._assembly, self._metric, num_loops=500)
-        super(_Ferguson2024ValueDelta, self).__init__(identifier="Ferguson2024", version=1, ceiling_func=self._ceiling,
+        super(_Ferguson2024ValueDelta, self).__init__(identifier=f"Ferguson2024{self._experiment}-value_delta",
+                                                      version=1, ceiling_func=self._ceiling,
                                                       parent='behavior', bibtex=BIBTEX)
 
     def __call__(self, candidate: BrainModel) -> Score:

@@ -2,13 +2,13 @@ from pathlib import Path
 import pytest
 from pytest import approx
 from brainio.assemblies import BehavioralAssembly
-from brainscore_vision import benchmark_registry, load_benchmark
+from brainscore_vision import load_benchmark
 from brainscore_vision.benchmark_helpers import PrecomputedFeatures
 from brainscore_vision.data_helpers import s3
 
 
 class TestExist:
-    @pytest.mark.parametrize('benchmark', [
+    @pytest.mark.parametrize("identifier", [
         'Ferguson2024circle_line-value_delta',
         'Ferguson2024color-value_delta',
         'Ferguson2024convergence-value_delta',
@@ -24,8 +24,10 @@ class TestExist:
         'Ferguson2024round_v-value_delta',
         'Ferguson2024tilted_line-value_delta',
     ])
-    def test_benchmark_registry(self, benchmark):
-        assert benchmark in benchmark_registry
+    def test_benchmark_registry(self, identifier):
+        benchmark = load_benchmark(identifier)
+        assert benchmark is not None
+        assert benchmark.identifier == identifier
 
 
 class TestBehavioral:

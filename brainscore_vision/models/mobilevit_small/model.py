@@ -30,6 +30,7 @@ def get_layers(name):
 
     for name, module in MODEL.named_modules():
         layer_names.append(name)
+        print(f"Layer {name} in module {module} is type {type(name)}-{type(module)}")
 
     return layer_names[2:]
 

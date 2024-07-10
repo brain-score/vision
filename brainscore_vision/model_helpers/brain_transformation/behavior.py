@@ -251,7 +251,6 @@ class ProbabilitiesMapping(BrainModel):
         _, indices = np.unique(array, return_index=True)
         return array[np.sort(indices)]
 
-
 class OddOneOut(BrainModel):
     def __init__(self, identifier: str, activations_model, layer: Union[str, List[str]]):
         """

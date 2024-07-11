@@ -165,7 +165,7 @@ class ResNetV2(nn.Module):
 
 
 KNOWN_MODELS = OrderedDict([
-    ('BiT-S-R152x4', lambda *a, **kw: ResNetV2([3, 8, 36, 3], 4, *a, **kw)),
+    ('BiT-M-R152x4', lambda *a, **kw: ResNetV2([3, 8, 36, 3], 4, *a, **kw)),
 ])
 ALL_MODELS = list(KNOWN_MODELS.keys())
 R152_LAYERS = [

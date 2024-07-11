@@ -4,6 +4,7 @@ from brainscore_vision.model_helpers.check_submission import check_models
 import ssl
 from transformers import MobileViTForImageClassification
 import functools
+import torch.nn as nn
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -16,24 +17,22 @@ MODEL = MobileViTForImageClassification.from_pretrained("apple/mobilevit-small")
 
 def get_model(name):
     assert name == 'mobilevit_small'
+
     preprocessing = functools.partial(load_preprocess_images, image_size=256)
     wrapper = PytorchWrapper(identifier='mobilevit_small', model=MODEL,
                              preprocessing=preprocessing,
-                             batch_size=4)
+                             batch_size=1)
     wrapper.image_size = 256
     return wrapper
 
 
 def get_layers(name):
     assert name == 'mobilevit_small'
-    layer_names = []
 
-    for name, module in MODEL.named_modules():
-        layer_names.append(name)
-        print(f"Layer {name} in module {module} is type {type(name)}-{type(module)}")
+    layer_names = ["mobilevit.encoder.layer.0", "mobilevit.encoder.layer.1", "mobilevit.encoder.layer.2", "mobilevit.encoder.layer.2.fusion.activation",
+                   "mobilevit.encoder.layer.3", "mobilevit.encoder.layer.3.fusion.activation", "mobilevit.encoder.layer.4", "mobilevit.encoder.layer.4.fusion.activation"]
 
-    return layer_names[2:]
-
+    return layer_names
 
 def get_bibtex(model_identifier):
     """

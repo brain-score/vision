@@ -5,12 +5,12 @@ Created on Fri Jun 21 23:15:17 2024
 
 @author: costantino_ai
 """
+from brainscore_core import Score
 from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
 from brainscore_vision.model_interface import BrainModel
 from brainscore_vision import load_stimulus_set, load_metric, load_dataset
 from brainscore_vision.utils import LazyLoad
-
 
 BIBTEX = """@article {Maniquet2024.04.02.587669,
 	author = {Maniquet, Tim and de Beeck, Hans Op and Costantino, Andrea Ivan},
@@ -65,7 +65,7 @@ class _Maniquet2024ConfusionSimilarity(BenchmarkBase):
         super(_Maniquet2024ConfusionSimilarity, self).__init__(
             identifier="Maniquet2024-confusion_similarity'",
             version=1,
-            ceiling_func=lambda: self._metric._ceiling(self._assembly),
+            ceiling_func=lambda: Score(0.53526),  # use pre-computed from `self._metric._ceiling(self._human_assembly)`
             parent="Maniquet2024",
             bibtex=BIBTEX,
         )
@@ -97,7 +97,7 @@ class _Maniquet2024ConfusionSimilarity(BenchmarkBase):
         # Compute the confusion similarity score between model probabilities and human assembly data
         raw_score = self._metric(probabilities, self._human_assembly)
         # Normalize by ceiling
-        ceiling = self._ceiling(self._human_assembly, precomputed=True)
+        ceiling = self.ceiling
         score = raw_score / ceiling
         score.attrs["raw"] = raw_score
         score.attrs["ceiling"] = ceiling
@@ -145,7 +145,7 @@ class _Maniquet2024TasksConsistency(BenchmarkBase):
         super(_Maniquet2024TasksConsistency, self).__init__(
             identifier="Maniquet2024-tasks_consistency",
             version=1,
-            ceiling_func=lambda: self._metric.ceiling(self._human_assembly),
+            ceiling_func=lambda: Score(0.99810),  # use pre-computed from `self._metric.ceiling(self._human_assembly)`
             parent="Maniquet2024",
             bibtex=BIBTEX,
         )
@@ -184,7 +184,7 @@ class _Maniquet2024TasksConsistency(BenchmarkBase):
         # Evaluate the consistency of model predictions with human data
         raw_score = self._metric(probabilities, self._human_assembly)
         # Normalize by ceiling
-        ceiling = self._ceiling(self._human_assembly, precomputed=True)
+        ceiling = self.ceiling
         score = raw_score / ceiling
         score.attrs["raw"] = raw_score
         score.attrs["ceiling"] = ceiling

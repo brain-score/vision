@@ -317,10 +317,10 @@ class OddOneOut(BrainModel):
                 f"Unknown similarity_measure {self.similarity_measure} -- expected one of 'dot' or 'cosine'")
 
         similarity_matrix = DataAssembly(similarity_matrix, coords={
-            **{f"{coord}_left": ('presentation_left', values) for coord, _, values in
-               walk_coords(features['presentation'])},
-            **{f"{coord}_right": ('presentation_right', values) for coord, _, values in
-               walk_coords(features['presentation'])}
+            **{f"{coord}_left": ('presentation_left', values) for coord, dims, values in
+               walk_coords(features) if array_is_element(dims, 'presentation')},
+            **{f"{coord}_right": ('presentation_right', values) for coord, dims, values in
+               walk_coords(features) if array_is_element(dims, 'presentation')}
         }, dims=['presentation_left', 'presentation_right'])
         return similarity_matrix
 

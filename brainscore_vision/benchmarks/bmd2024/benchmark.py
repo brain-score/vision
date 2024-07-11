@@ -14,6 +14,7 @@ BIBTEX = ""  # to appear in a future article
 class _BMD_2024_BehavioralAccuracyDistance(BenchmarkBase):
     # behavioral benchmark
     def __init__(self, dataset):
+        self._visual_degrees = 8
         self._metric = load_metric('accuracy_distance')
         self._assembly = LazyLoad(lambda: load_assembly(dataset))
         super(_BMD_2024_BehavioralAccuracyDistance, self).__init__(

@@ -1,6 +1,1 @@
-torchvision
-torch
-numpy
-scipy
-logging
 pillow

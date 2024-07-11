@@ -28,6 +28,7 @@ def get_model(name):
 
 def get_layers(name):
     assert name == 'mobilevit_small'
+
     layer_names = ["mobilevit.encoder.layer.0", "mobilevit.encoder.layer.1", "mobilevit.encoder.layer.2", "mobilevit.encoder.layer.2.fusion.activation",
                    "mobilevit.encoder.layer.3", "mobilevit.encoder.layer.3.fusion.activation", "mobilevit.encoder.layer.4", "mobilevit.encoder.layer.4.fusion.activation"]
 

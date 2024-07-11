@@ -326,12 +326,16 @@ class OddOneOut(BrainModel):
 
     def calculate_choices(self, similarity_matrix, triplets):
         triplets = np.array(triplets).reshape(-1, 3)
+        for leftright in ['left', 'right']:
+            # indexing via `.sel(stimulus_id_left=..., stimulus_id_right=...)` is slow.
+            # If ids are in order, we can directly index into the values
+            assert all(index == stimulus_id for index, stimulus_id in enumerate(similarity_matrix[f'stimulus_id_{leftright}'].values))
         choice_predictions = []
         for triplet in triplets:
             i, j, k = triplet
-            sims = [similarity_matrix.sel(stimulus_id_left=i, stimulus_id_right=j),
-                    similarity_matrix.sel(stimulus_id_left=i, stimulus_id_right=k),
-                    similarity_matrix.sel(stimulus_id_left=j, stimulus_id_right=k)]
+            sims = [similarity_matrix.values[i, j].item(),
+                    similarity_matrix.values[i, k].item(),
+                    similarity_matrix.values[j, k].item()]
             idx = triplet[2 - np.argmax(sims)]
             choice_predictions.append(idx)
         return choice_predictions

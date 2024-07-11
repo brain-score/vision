@@ -73,7 +73,8 @@ class ActivationsExtractorHelper:
         for hook in self._stimulus_set_hooks.copy().values():  # copy to avoid stale handles
             stimulus_set = hook(stimulus_set)
         stimuli_paths = [str(stimulus_set.get_stimulus(stimulus_id)) for stimulus_id in stimulus_set['stimulus_id']]
-        activations = self.from_paths(stimuli_paths=stimuli_paths, layers=layers, stimuli_identifier=stimuli_identifier)
+        activations = self.from_paths(stimuli_paths=stimuli_paths, layers=layers, stimuli_identifier=stimuli_identifier,
+                                      require_variance=require_variance)
         activations = attach_stimulus_set_meta(activations,
                                                stimulus_set,
                                                number_of_trials=self._microsaccade_helper.number_of_trials,
@@ -578,14 +579,9 @@ def attach_stimulus_set_meta(assembly, stimulus_set, number_of_trials: int, requ
     assert (np.array(assembly_paths) == np.array(repeated_stimulus_paths)).all()
     repeated_stimulus_ids = np.repeat(stimulus_set['stimulus_id'].values, replication_factor)
 
-    if replication_factor > 1:
-        # repeat over the presentation dimension to accommodate multiple runs per stimulus
-        assembly = xr.concat([assembly for _ in range(replication_factor)], dim='presentation')
     assembly = assembly.reset_index('presentation')
     assembly['stimulus_path'] = ('presentation', repeated_stimulus_ids)
     assembly = assembly.rename({'stimulus_path': 'stimulus_id'})
-
-    assert (np.array(assembly_paths) == np.array(stimulus_paths)).all()
 
     all_columns = []
     for column in stimulus_set.columns:

@@ -43,9 +43,10 @@ class LabelBehavior(BrainModel):
         self.current_task = task
         self.choice_labels = choice_labels
 
-    def look_at(self, stimuli, number_of_trials=1):
+    def look_at(self, stimuli, number_of_trials: int = 1, require_variance: bool = False):
         assert self.current_task == BrainModel.Task.label
-        logits = self.activations_model(stimuli, layers=['logits'])
+        logits = self.activations_model(stimuli, layers=['logits'], number_of_trials=number_of_trials,
+                                        require_variance=require_variance)
         choices = self.logits_to_choice(logits)
         return choices
 
@@ -183,20 +184,23 @@ class ProbabilitiesMapping(BrainModel):
     def identifier(self):
         return self._identifier
 
-    def start_task(self, task: BrainModel.Task, fitting_stimuli):
+    def start_task(self, task: BrainModel.Task, fitting_stimuli, number_of_trials=1, require_variance=False):
         assert task in [BrainModel.Task.passive, BrainModel.Task.probabilities]
         self.current_task = task
 
-        fitting_features = self.activations_model(fitting_stimuli, layers=self.readout)
+        fitting_features = self.activations_model(fitting_stimuli, layers=self.readout,
+                                                  number_of_trials=number_of_trials,
+                                                  require_variance=require_variance)
         fitting_features = fitting_features.transpose('presentation', 'neuroid')
-        assert all(fitting_features['stimulus_id'].values == fitting_stimuli['stimulus_id'].values), \
+        assert all(self.order_preserving_unique(fitting_features['stimulus_id'].values) == fitting_stimuli['stimulus_id'].values), \
             "stimulus_id ordering is incorrect"
-        self.classifier.fit(fitting_features, fitting_stimuli['image_label'])
+        self.classifier.fit(fitting_features, fitting_features['image_label'])
 
-    def look_at(self, stimuli, number_of_trials=1):
+    def look_at(self, stimuli, number_of_trials=1, require_variance=False):
         if self.current_task is BrainModel.Task.passive:
             return
-        features = self.activations_model(stimuli, layers=self.readout)
+        features = self.activations_model(stimuli, layers=self.readout, number_of_trials=number_of_trials,
+                                          require_variance=require_variance)
         features = features.transpose('presentation', 'neuroid')
         prediction = self.classifier.predict_proba(features)
         return prediction
@@ -237,6 +241,15 @@ class ProbabilitiesMapping(BrainModel):
             index2label = OrderedDict((index, label) for label, index in label2index.items())
             return indices, index2label
 
+    @staticmethod
+    def order_preserving_unique(array):
+        """
+        This function sorts an array and removes duplicates while preserving the order of the elements.
+        This function is used in favor of np.unique to ensure that the order of the stimulus_ids is preserved, as
+        np.unique performs sorting on the array.
+        """
+        _, indices = np.unique(array, return_index=True)
+        return array[np.sort(indices)]
 
 class OddOneOut(BrainModel):
     def __init__(self, identifier: str, activations_model, layer: Union[str, List[str]]):
@@ -259,13 +272,13 @@ class OddOneOut(BrainModel):
         assert task == BrainModel.Task.odd_one_out
         self.current_task = task
 
-    def look_at(self, triplets, number_of_trials=1):
+    def look_at(self, triplets, number_of_trials: int = 1, require_variance: bool = False):
         # Compute unique features and image_pathst
         stimuli = triplets.drop_duplicates(subset=['stimulus_id'])
         stimuli = stimuli.sort_values(by='stimulus_id')
 
         # Get features
-        features = self.activations_model(stimuli, layers=self.readout)
+        features = self.activations_model(stimuli, layers=self.readout, require_variance=require_variance)
         features = features.transpose('presentation', 'neuroid')
 
         # Compute similarity matrix
@@ -304,21 +317,25 @@ class OddOneOut(BrainModel):
                 f"Unknown similarity_measure {self.similarity_measure} -- expected one of 'dot' or 'cosine'")
 
         similarity_matrix = DataAssembly(similarity_matrix, coords={
-            **{f"{coord}_left": ('presentation_left', values) for coord, _, values in
-               walk_coords(features['presentation'])},
-            **{f"{coord}_right": ('presentation_right', values) for coord, _, values in
-               walk_coords(features['presentation'])}
+            **{f"{coord}_left": ('presentation_left', values) for coord, dims, values in
+               walk_coords(features) if array_is_element(dims, 'presentation')},
+            **{f"{coord}_right": ('presentation_right', values) for coord, dims, values in
+               walk_coords(features) if array_is_element(dims, 'presentation')}
         }, dims=['presentation_left', 'presentation_right'])
         return similarity_matrix
 
     def calculate_choices(self, similarity_matrix, triplets):
         triplets = np.array(triplets).reshape(-1, 3)
+        for leftright in ['left', 'right']:
+            # indexing via `.sel(stimulus_id_left=..., stimulus_id_right=...)` is slow.
+            # If ids are in order, we can directly index into the values
+            assert all(index == stimulus_id for index, stimulus_id in enumerate(similarity_matrix[f'stimulus_id_{leftright}'].values))
         choice_predictions = []
         for triplet in triplets:
             i, j, k = triplet
-            sims = [similarity_matrix.sel(stimulus_id_left=i, stimulus_id_right=j),
-                    similarity_matrix.sel(stimulus_id_left=i, stimulus_id_right=k),
-                    similarity_matrix.sel(stimulus_id_left=j, stimulus_id_right=k)]
+            sims = [similarity_matrix.values[i, j].item(),
+                    similarity_matrix.values[i, k].item(),
+                    similarity_matrix.values[j, k].item()]
             idx = triplet[2 - np.argmax(sims)]
             choice_predictions.append(idx)
         return choice_predictions

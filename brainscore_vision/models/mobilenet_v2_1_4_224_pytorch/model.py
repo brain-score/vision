@@ -15,17 +15,20 @@ Previously on Brain-Score, this model existed as a Tensorflow model, and was con
     
 Disclaimer: This (pytorch) implementation's Brain-Score scores might not align identically with Tensorflow 
 implementation. 
-
 '''
-
-
-MODEL = MobileNetV2ForImageClassification.from_pretrained("Matthijs/mobilenet_v2_1.4_224")
 
 
 def get_model(name):
     assert name == 'mobilenet_v2_1-4_224_pytorch'
+    model = MobileNetV2ForImageClassification.from_pretrained("Matthijs/mobilenet_v2_1.4_224")
+
+    # this mobilenet was trained with 1001 classes where index 0 is the background class
+    # (https://huggingface.co/docs/transformers/en/model_doc/mobilenet_v2)
+    classifier_layer = model.classifier
+    classifier_layer.register_forward_hook(lambda _layer, _input, logits: logits[:, 1:])
+
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
-    wrapper = PytorchWrapper(identifier='mobilenet_v2_1-4_224_pytorch', model=MODEL,
+    wrapper = PytorchWrapper(identifier='mobilenet_v2_1-4_224_pytorch', model=model,
                              preprocessing=preprocessing,
                              batch_size=4)  # doesn't fit into 12 GB GPU memory otherwise
     wrapper.image_size = 224
@@ -34,12 +37,8 @@ def get_model(name):
 
 def get_layers(name):
     assert name == 'mobilenet_v2_1-4_224_pytorch'
-    layer_names = []
-
-    for name, module in MODEL.named_modules():
-        layer_names.append(name)
-
-    return layer_names[-50:]
+    layer_names = ['mobilenet_v2.conv_stem'] + [f'mobilenet_v2.layer.{i}' for i in range(16)] + ['pooler', 'classifier']
+    return layer_names
 
 
 def get_bibtex(model_identifier):

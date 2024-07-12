@@ -11,13 +11,11 @@ ssl._create_default_https_context = ssl._create_unverified_context
 Can be found on huggingface: https://huggingface.co/apple/mobilevit-small
 '''
 
-MODEL = MobileViTForImageClassification.from_pretrained("apple/mobilevit-small")
-
-
 def get_model(name):
     assert name == 'mobilevit_small'
+    model = MobileViTForImageClassification.from_pretrained("apple/mobilevit-small")
     preprocessing = functools.partial(load_preprocess_images, image_size=256)
-    wrapper = PytorchWrapper(identifier='mobilevit_small', model=MODEL,
+    wrapper = PytorchWrapper(identifier='mobilevit_small', model=model,
                              preprocessing=preprocessing,
                              batch_size=4)
     wrapper.image_size = 256

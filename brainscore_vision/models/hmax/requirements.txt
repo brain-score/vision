@@ -1,1 +1,4 @@
 pillow
+torch
+scipy
+numpy

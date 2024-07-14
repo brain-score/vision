@@ -250,6 +250,8 @@ class _Bracci2019RSA(BenchmarkBase):
         dnn_assembly = candidate.look_at(
             stimulus_set, number_of_trials=self._number_of_trials
         )
+        if 'time_bin' in dnn_assembly.dims and dnn_assembly.sizes['time_bin'] == 1:
+            dnn_assembly = dnn_assembly.squeeze('time_bin')  # static case for these benchmarks
 
         # Get the human data
         human_data = self._human_assembly

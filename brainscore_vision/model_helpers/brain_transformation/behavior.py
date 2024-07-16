@@ -251,6 +251,7 @@ class ProbabilitiesMapping(BrainModel):
         _, indices = np.unique(array, return_index=True)
         return array[np.sort(indices)]
 
+
 class OddOneOut(BrainModel):
     def __init__(self, identifier: str, activations_model, layer: Union[str, List[str]]):
         """
@@ -271,7 +272,6 @@ class OddOneOut(BrainModel):
     def start_task(self, task: BrainModel.Task):
         assert task == BrainModel.Task.odd_one_out
         self.current_task = task
-
 
     def look_at(self, triplets, number_of_trials: int = 1, require_variance: bool = False):
         # Compute unique features and image_paths
@@ -327,16 +327,22 @@ class OddOneOut(BrainModel):
 
     def calculate_choices(self, similarity_matrix, triplets):
         triplets = np.array(triplets).reshape(-1, 3)
+        # indexing via `.sel(stimulus_id_left=..., stimulus_id_right=...)` is slow.
+        # To speed this up, we pre-index all stimulus ids so that we can reference directly into the .values array.
+        stimulusid_index = {}
         for leftright in ['left', 'right']:
-            # indexing via `.sel(stimulus_id_left=..., stimulus_id_right=...)` is slow.
-            # If ids are in order, we can directly index into the values
-            assert all(index == stimulus_id for index, stimulus_id in enumerate(similarity_matrix[f'stimulus_id_{leftright}'].values))
+            for index, stimulus_id in enumerate(similarity_matrix[f'stimulus_id_{leftright}'].values):
+                stimulusid_index[(leftright, stimulus_id)] = index
         choice_predictions = []
         for triplet in triplets:
             i, j, k = triplet
-            sims = [similarity_matrix.values[i, j].item(),
-                    similarity_matrix.values[i, k].item(),
-                    similarity_matrix.values[j, k].item()]
+            i_index_left = stimulusid_index[('left', i)]
+            j_index_right = stimulusid_index[('right', j)]
+            j_index_left = stimulusid_index[('left', j)]
+            k_index_right = stimulusid_index[('right', k)]
+            sims = [similarity_matrix.values[i_index_left, j_index_right].item(),
+                    similarity_matrix.values[i_index_left, k_index_right].item(),
+                    similarity_matrix.values[j_index_left, k_index_right].item()]
             idx = triplet[2 - np.argmax(sims)]
             choice_predictions.append(idx)
         return choice_predictions

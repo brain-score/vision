@@ -37,7 +37,9 @@ def get_model(name):
 
 def get_layers(name):
     assert name == 'mobilenet_v2_1-4_224_pytorch'
-    layer_names = ['mobilenet_v2.conv_stem'] + [f'mobilenet_v2.layer.{i}' for i in range(16)] + ['pooler', 'classifier']
+    layer_names = (['mobilenet_v2.conv_stem'] +
+                   [f'mobilenet_v2.layer.{i}' for i in range(16)] +
+                   ['mobilenet_v2.pooler', 'classifier'])
     return layer_names
 
 

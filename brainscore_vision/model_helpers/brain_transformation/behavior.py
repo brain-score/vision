@@ -272,8 +272,9 @@ class OddOneOut(BrainModel):
         assert task == BrainModel.Task.odd_one_out
         self.current_task = task
 
+
     def look_at(self, triplets, number_of_trials: int = 1, require_variance: bool = False):
-        # Compute unique features and image_pathst
+        # Compute unique features and image_paths
         stimuli = triplets.drop_duplicates(subset=['stimulus_id'])
         stimuli = stimuli.sort_values(by='stimulus_id')
 

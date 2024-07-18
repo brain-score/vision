@@ -43,3 +43,12 @@ stimulus_set_registry['PhysionSnippetDetection2024'] = lambda: load_stimulus_set
     csv_version_id="qz8Za0xC2Uh49oAYiuie1AXd2oZqoRyZ",
     zip_version_id="ZZNcBz2oAumcAWwAu5azGHWtAzGK4ppx",
     filename_prefix="stimulus_")
+
+stimulus_set_registry['PhysionSnippetDebug'] = lambda: load_stimulus_set_from_s3(
+    identifier='PhysionSnippetDebug',
+    bucket="brainio-brainscore",
+    csv_sha1="bde4a2ffdb7c8aa75900ddd797dd0f156387092f",
+    zip_sha1="50debb292e722bf8fad9a2170c560f7e5b1a7235",
+    csv_version_id="Ach6l51PwhcTmfqZVN3d3VaXhUd9X_F4",
+    zip_version_id="VOmW6TrR6uuosOTUlwxWpYvBaFUwyji8",
+    filename_prefix="stimulus_")

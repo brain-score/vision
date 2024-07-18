@@ -177,15 +177,21 @@ class PhysionSnippetDetectionAccuracy(BenchmarkBase):
         candidate.start_task(BrainModel.Task.video_readout, fitting_stimuli)
         predictions = candidate.look_at(test_stimuli)
         predictions = aggregate_preds(predictions)
+        test_stimuli_assembly = BehavioralAssembly(test_stimuli['label'].values,
+                               coords=
+                               {'stimulus_id': ('presentation', test_stimuli['stimulus_id'].values),
+                                'choice': ('presentation', test_stimuli['label'].values)},
+                               dims=['presentation'])
+        test_stimuli_assembly = aggregate_preds(test_stimuli_assembly)
         score = self._similarity_metric(
-            predictions['choice'],
-            test_stimuli['label']
+            predictions,
+            test_stimuli_assembly
         )
         return score
 
 def aggregate_preds(predictions):
     # Extract stimulus_path and choice from proba
-    stimulus_paths = predictions['stimulus_path'].values
+    stimulus_paths = predictions['stimulus_id'].values
     choices = predictions['choice'].values
     
     # Extract video names from stimulus paths

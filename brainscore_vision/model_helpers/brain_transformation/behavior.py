@@ -351,9 +351,10 @@ class VideoReadoutMapping(BrainModel):
         assert task in BrainModel.Task.video_readout
         self.current_task = task
 
-        fitting_features = self.activations_model(fitting_stimuli['data'], layers=self.readout)
-        assert all(fitting_features['stimulus_path'].values == fitting_stimuli['data']), \
+        fitting_features = self.activations_model(fitting_stimuli, layers=self.readout)
+        assert all(fitting_features['stimulus_id'].values == fitting_stimuli['stimulus_id']), \
             "stimulus_id ordering is incorrect"
+        fitting_features = np.transpose(fitting_features.values, (2, 1, 0))
         self.classifier.fit(fitting_features, 
                             fitting_stimuli['label'])#, fitting_features['stimulus_path'])
 
@@ -366,7 +367,7 @@ class VideoReadoutMapping(BrainModel):
         def __init__(self, model_dim):
             super(VideoReadoutMapping.TransformerReadout, self).__init__()
             self.model = VideoReadoutMapping.ReadoutModel(model_dim, 4, 1)
-            self.num_epochs = 1#1000
+            self.num_epochs = 1000
             self.lr = 1e-4
             self.val_after = 1
             self.best_val_accuracy = 0
@@ -396,7 +397,7 @@ class VideoReadoutMapping(BrainModel):
                 split_point = int(0.9 * len(indices))
                 train_indices = indices[:split_point]
                 val_indices = indices[split_point:]
-                
+
                 train_dataset = VideoReadoutMapping.TransformerLoader(features, labels, indices=train_indices)
             
                 sampler = VideoReadoutMapping.BalancedBatchSampler(train_dataset.positive_indices, 
@@ -421,7 +422,6 @@ class VideoReadoutMapping(BrainModel):
             return train_loader, val_loader
             
         def fit(self, features, labels):
-            features = np.transpose(features.values, (0, 2, 1))
             train_loader, val_loader = self.build_loader(features, labels, mode='train')
             self.model = nn.DataParallel(self.model)
             self.model = self.model.to(self.device)
@@ -524,7 +524,7 @@ class VideoReadoutMapping(BrainModel):
             return correct / total
         
         def predict(self, features):
-            features_ = np.transpose(features.values, (0, 2, 1))
+            features_ = np.transpose(features.values, (2, 1, 0))
             test_loader, _ = self.build_loader(features_, None, mode='test')
             self.model.load_state_dict(torch.load('transformer_readout.pt'))
             self.model.eval()  # Set the model to evaluation mode
@@ -539,11 +539,10 @@ class VideoReadoutMapping(BrainModel):
                     proba.extend(outputs.tolist())
                     predicted = (outputs > self.prob_threshold).float().tolist()
                     predictions.extend(predicted)
-            features_coords = {coord: value for coord, dims, value in walk_coords(features)
-                        if array_is_element(dims, features.dims[0])}
+            
             proba = BehavioralAssembly(proba,
                                        coords=
-                                       {'stimulus_path': ('presentation', features_coords['stimulus_path']),
+                                       {'stimulus_id': ('presentation', features['stimulus_id'].data),
                                         'choice': ('presentation', predictions), 
                                         'choice_threshold': ('presentation', [self.prob_threshold]*len(predictions))},
                                        dims=['presentation'])
@@ -593,7 +592,7 @@ class VideoReadoutMapping(BrainModel):
             self.indices = indices
             self.labels = labels
             self.features = features
-            if self.labels:
+            if self.labels is not None:
                 self.positive_indices, self.negative_indices = [], []
                 for i, l in enumerate(indices):
                     if self.labels[l] == 1:
@@ -611,7 +610,7 @@ class VideoReadoutMapping(BrainModel):
             else:
                 actual_idx = idx
             feature = np.nan_to_num(self.features[actual_idx], nan=0.0)
-            if self.labels: 
+            if self.labels is not None: 
                 label = self.labels[actual_idx]
             else:
                 label = 0#None

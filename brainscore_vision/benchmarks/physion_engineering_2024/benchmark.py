@@ -82,7 +82,7 @@ class PhysionGlobalPredictionAccuracy(BenchmarkBase):
 
 class PhysionGlobalDetectionIntraScenarioAccuracy(BenchmarkBase):
     def __init__(self):
-        self._stimulus_set  = load_stimulus_set("PhysionGlobalDetectionIntraScenario2024")
+        self._stimulus_set  = load_stimulus_set("PhysionGlobalDetection2024")
         self._visual_degrees = 8
         self._similarity_metric = load_metric('accuracy')
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
@@ -116,7 +116,7 @@ class PhysionGlobalDetectionIntraScenarioAccuracy(BenchmarkBase):
 
 class PhysionGlobalPredictionIntraScenarioAccuracy(BenchmarkBase):
     def __init__(self):
-        self._stimulus_set  = load_stimulus_set("PhysionGlobalPredictionIntraScenario2024")
+        self._stimulus_set  = load_stimulus_set("PhysionGlobalPrediction2024")
         self._visual_degrees = 8
         self._similarity_metric = load_metric('accuracy')
         ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
@@ -133,10 +133,12 @@ class PhysionGlobalPredictionIntraScenarioAccuracy(BenchmarkBase):
     def __call__(self, candidate):
         # prepare fitting stimuli
         fitting_stimuli = self._stimulus_set[self._stimulus_set['train'] == 1]
+        fitting_stimuli = fitting_stimuli[fitting_stimuli['intra_generalizability'] == 1]
         fitting_stimuli = place_on_screen(fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
                                           source_visual_degrees=self._visual_degrees)
         # prepare test stimuli
         test_stimuli = self._stimulus_set[self._stimulus_set['train'] == 0]
+        test_stimuli = test_stimuli[test_stimuli['intra_generalizability'] == 1]
         test_stimuli = place_on_screen(test_stimuli, target_visual_degrees=candidate.visual_degrees(),
                                           source_visual_degrees=self._visual_degrees)
         
@@ -167,10 +169,12 @@ class PhysionSnippetDetectionAccuracy(BenchmarkBase):
     def __call__(self, candidate):
         # prepare fitting stimuli
         fitting_stimuli = self._stimulus_set[self._stimulus_set['train'] == 1]
+        fitting_stimuli = fitting_stimuli[fitting_stimuli['intra_generalizability'] == 1]
         fitting_stimuli = place_on_screen(fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
                                           source_visual_degrees=self._visual_degrees)
         # prepare test stimuli
         test_stimuli = self._stimulus_set[self._stimulus_set['train'] == 0]
+        test_stimuli = test_stimuli[test_stimuli['intra_generalizability'] == 1]
         test_stimuli = place_on_screen(test_stimuli, target_visual_degrees=candidate.visual_degrees(),
                                           source_visual_degrees=self._visual_degrees)
         

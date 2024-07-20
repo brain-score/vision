@@ -170,13 +170,13 @@ class TemporalAligned(BrainModel):
                 bin_responses = bin_responses.stack(time_bin=['time_bin_start', 'time_bin_end'])
                 time_responses.append(bin_responses)
             responses = merge_data_arrays(time_responses)
+            responses = fix_timebin_naming(responses)
         else:
             # for temporal models, align the time bins
             responses = assembly_time_align(responses, self._time_bins)
             
         if len(self._time_bins) == 1:
             responses = responses.squeeze('time_bin')
-        responses = fix_timebin_naming(responses)
         return responses
 
     @property

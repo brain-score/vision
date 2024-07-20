@@ -6,7 +6,7 @@ from brainio_collection.packaging import package_data_assembly
 from brainio_base.assemblies import DataAssembly
 
 ASSEMBLY_NAME = 'schiller.Schiller1976c'
-SPATIAL_FREQUENCY_STIM_NAME = 'dicarlo.Marques2020_spatial_frequency'
+SPATIAL_FREQUENCY_STIM_NAME = 'Marques2020_spatial_frequency'
 
 
 def collect_data():

@@ -209,12 +209,12 @@ benchmark inside the Brain-Score ecosystem. This involves adding both the stimul
 
     # stimulus set
     stimulus_set_registry['Geirhos2021_colour'] = lambda: load_stimulus_set_from_s3(
-        identifier='brendel.Geirhos2021_colour',
+        identifier='Geirhos2021_colour',
         bucket="brainio-brainscore",
         csv_sha1="9c97c155fd6039a95978be89eb604c6894c5fa16",
         zip_sha1="d166f1d3dc3d00c4f51a489e6fcf96dbbe778d2c",
-        csv_version_id="1ZaFYwHPBkDOrgdrwGHYqMfJJBCWei21",
-        zip_version_id="X62ivk_UuHgh7Sd7VwDxgnB8tWPK06gt")
+        csv_version_id="Rz_sX3_48Lg3vtvfT63AFiFslyXaRy.Y",
+        zip_version_id="OJh8OmoKjG_7guxLW2fF_GA7ehxbJrvG")
 
 
 **Data Packaging Summary**:
@@ -384,3 +384,21 @@ If any stimuli or data should be made public, please let us know so that we can 
 policy.
 
 After the PR has been merged, the submission system will automatically run all existing models on the new benchmark.
+
+
+Naming conventions
+==================
+**Identifiers**:
+
+* Benchmark: At the top level, benchmark identifiers should combine data and metric identifiers,
+  separated by a dash: ``{data}-{metric}``.
+
+* Data: Identifiers for datasets vary depending on the community but should ideally not include dashes
+  (which are used in the benchmark identifier, see above).
+  For brain and cognitive science datasets, data identifiers often point to the paper or report
+  where the data was first introduced (e.g. ``MajajHong2015`` or ``Sanghavi2020``).
+  When using components of datasets, we recommend separating those with a dot,
+  and to use an underscore between multiple words (e.g. ``MajajHong2015.IT`` or ``Malania2007.vernier_only``).
+  For machine learning ("engineering") datasets, data identifiers are often descriptive (e.g. ``ImageNet``).
+
+* Metric: Identifiers for metrics are typically descriptive (e.g. ``rdm``, ``pls``, ``accuracy``).

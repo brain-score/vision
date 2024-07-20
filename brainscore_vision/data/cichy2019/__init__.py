@@ -30,9 +30,9 @@ data_registry['Cichy2019'] = lambda: load_assembly_from_s3(
 
 # stimulus set
 stimulus_set_registry['Cichy2019'] = lambda: load_stimulus_set_from_s3(
-    identifier="aru.Cichy2019",
+    identifier="Cichy2019",
     bucket="brainio-brainscore",
     csv_sha1="281c4d9d0dd91a2916674638098fe94afb87d29a",
     zip_sha1="d2166dd9c2720cb24bc520f5041e6830779c0240",
-    csv_version_id="ZtjaClAgoeJPA24WVCsd2IywsML5_pBc",
-    zip_version_id="UmONlzEKwa7MaLWIKpWNONe9QSXM8NI6")
+    csv_version_id="NXC3IR_XZG9QuMtxL7QFtDIcmGJrMKz4",
+    zip_version_id="5lAaoRzViKRDRyqiTYXm2PB3ADaV2Szo")

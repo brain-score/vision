@@ -18,8 +18,8 @@ from brainscore_vision.data_helpers.lookup_legacy import version_id_df, build_fi
 
 # extract version ids from version_ids csv
 assembly_version = version_id_df.at[build_filename('dicarlo.Kar2019', '.nc'), 'version_id']
-csv_version = version_id_df.at[build_filename('dicarlo.Kar2019', '.csv'), 'version_id']
-zip_version = version_id_df.at[build_filename('dicarlo.Kar2019', '.zip'), 'version_id']
+csv_version = version_id_df.at[build_filename('Kar2019', '.csv'), 'version_id']
+zip_version = version_id_df.at[build_filename('Kar2019', '.zip'), 'version_id']
 
 object_lookup = {
     1: 'bear',
@@ -100,7 +100,7 @@ def main():
     assert len(set(assembly['image_label'].values)) == 10
 
     assembly.name = 'dicarlo.Kar2019'
-    stimuli.name = 'dicarlo.Kar2019'
+    stimuli.name = 'Kar2019'
     package(assembly, stimuli)
 
 

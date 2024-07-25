@@ -124,12 +124,12 @@ def main():
     h5 = tables.open_file(h5_path)
 
     stimuli_nat = collect_stimuli_nat(h5, data_dir)
-    stimuli_nat.identifier = "dicarlo.BashivanKar2019.naturalistic"
+    stimuli_nat.identifier = "BashivanKar2019.naturalistic"
 
     responses_nat_d = collect_responses_nat(h5, stimuli_nat)
 
     stimuli_synth, responses_synth_d = collect_synth(h5, data_dir)
-    stimuli_synth.identifier = "dicarlo.BashivanKar2019.synthetic"
+    stimuli_synth.identifier = "BashivanKar2019.synthetic"
 
     _logger.debug('Packaging naturalistic stimuli')
     package_stimulus_set(stimuli_nat, stimulus_set_identifier=stimuli_nat.identifier, bucket_name='brainio-brainscore')

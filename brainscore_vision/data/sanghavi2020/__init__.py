@@ -31,7 +31,7 @@ BIBTEX_SANGHAVIJOZWIK = """  @misc{SanghaviJozwik2020,
   month={Nov}
 }"""  # images from (Rust & DiCarlo, 2012)
 
-# assemblies: dicarlo.Sanghavi2020 uses dicarlo.hvm
+# assemblies: dicarlo.Sanghavi2020 uses hvm
 data_registry['Sanghavi2020'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.Sanghavi2020",
     version_id="RZz2m5wUm.wgYyMEDY9UCMuyYjZKDuzw",
@@ -61,7 +61,7 @@ data_registry['SanghaviMurty2020'] = lambda: load_assembly_from_s3(
     stimulus_set_loader=lambda: load_stimulus_set('Rust2012'),
 )
 
-# assemblies: dicarlo.SanghaviMurty2020THINGS1 uses dicarlo.THINGS1
+# assemblies: dicarlo.SanghaviMurty2020THINGS1 uses THINGS1
 data_registry['SanghaviMurty2020THINGS1'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.SanghaviMurty2020THINGS1",
     version_id=".n3o2r4SKG4fO829jJPl9zz1UaSM7okH",
@@ -71,7 +71,7 @@ data_registry['SanghaviMurty2020THINGS1'] = lambda: load_assembly_from_s3(
     stimulus_set_loader=lambda: load_stimulus_set('THINGS1'),
 )
 
-# assemblies: dicarlo.SanghaviMurty2020THINGS2 uses dicarlo.THINGS2
+# assemblies: dicarlo.SanghaviMurty2020THINGS2 uses THINGS2
 data_registry['SanghaviMurty2020THINGS2'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.SanghaviMurty2020THINGS2",
     version_id="z_MWZd12fk.AIcQzwRh6.vOIHhxInWRl",
@@ -81,32 +81,32 @@ data_registry['SanghaviMurty2020THINGS2'] = lambda: load_assembly_from_s3(
     stimulus_set_loader=lambda: load_stimulus_set('THINGS2'),
 )
 
-# stimulus set: dicarlo.BOLD5000 - can put in sanghavi
+# stimulus set: BOLD5000 - can put in sanghavi
 stimulus_set_registry['BOLD5000'] = lambda: load_stimulus_set_from_s3(
-    identifier="dicarlo.BOLD5000",
+    identifier="BOLD5000",
     bucket="brainio-brainscore",
     csv_sha1="51ac47ea03ed2e72864a95065494c2fabe779f6e",
     zip_sha1="1a2e6d782dcd21bbe60460d85d83b13fa76a9543",
-    csv_version_id="2gHs8J9iH7PzBOO24USSwOmmZZZez0K8",
-    zip_version_id="r4gfAtAHaSj2WPc8kC5xkBpR2u4vkj_o")
+    csv_version_id="N9Z4t92mjMy5263NS7RR5aBdYO9dYfwk",
+    zip_version_id="jvMlEMa1EgRZkfH32gIFO4GcNpqktbgf")
 
-# stimulus set: dicarlo.THINGS1
+# stimulus set: THINGS1
 stimulus_set_registry['THINGS1'] = lambda: load_stimulus_set_from_s3(
-    identifier="dicarlo.THINGS1",
+    identifier="THINGS1",
     bucket="brainio-brainscore",
     csv_sha1="e02469d805e1b9c1a18403e9b0b8a37ee6da5130",
     zip_sha1="fb716eb58c303157dd577a70caad5c8079e74e9b",
-    csv_version_id="PvdnGZPINuidsDNMZ3M2sZ4A3otjev1M",
-    zip_version_id="c7UP4sqx2LsayqNxhScM.Omad5cUhw8g")
+    csv_version_id="78G61z8fE5W7rTR9ciBzrFYfmGCPTxlK",
+    zip_version_id="fuYRTLrKs2PwHkobkh0DNK7MvfKJjGGa")
 
-# stimulus set: dicarlo.THINGS2
+# stimulus set: THINGS2
 stimulus_set_registry['THINGS2'] = lambda: load_stimulus_set_from_s3(
-    identifier="dicarlo.THINGS2",
+    identifier="THINGS2",
     bucket="brainio-brainscore",
     csv_sha1="86c8beda8f495cd69ed047d3457902dd98e4904c",
     zip_sha1="e7918dd10102b67464bc652fdb3ced25ee1fbe7a",
-    csv_version_id="uZK7NNq7mfVFYTw2tdwrmJs7LivGnLRx",
-    zip_version_id="xibNW6tiYOUZqhxO0XkeXammNehAjQY2")
+    csv_version_id="47dAhleyD_t8OsmsxUBLGu8zjXX8lgCY",
+    zip_version_id="uBlltL4vYjXyMv5bt_9HNoARpjuke2wQ")
 
 
 def filter_neuroids(assembly, threshold):

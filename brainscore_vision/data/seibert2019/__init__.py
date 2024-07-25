@@ -14,7 +14,7 @@ BIBTEX = """@article{lee2019sensitivity,
   publisher={The Association for Research in Vision and Ophthalmology}
 }"""
 
-# assembly: uses dicarlo.hvm
+# assembly: uses hvm
 data_registry['Seibert2019'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.Seibert2019",
     version_id="vSUte2bpVhGxPRKocfk_MP0s3LAPElBi",

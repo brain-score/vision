@@ -40,12 +40,12 @@ data_registry['Kar2018cocogray'] = lambda: load_assembly_from_s3(
 
 # stimulus set: cocogray
 stimulus_set_registry['Kar2018cocogray'] = lambda: load_stimulus_set_from_s3(
-    identifier="dicarlo.Kar2018cocogray",
+    identifier="Kar2018cocogray",
     bucket="brainio-brainscore",
     csv_sha1="be9bb267b80fd7ee36a88d025b73ae8a849165da",
     zip_sha1="1457003ee9b27ed51c018237009fe148c6e71fd3",
-    csv_version_id="3Y1o11OuW8dmEyqJ7WHxrKCTqacBC20_",
-    zip_version_id="bnYW48AQ7DoLBzWY5Bx0IZ9r8_bwvWRC")
+    csv_version_id="A6XtlkCYhgUp.Bw1fSxRAc53DU.RVEgC",
+    zip_version_id="e_YJ7G2C.wsGSN4qCw0WQvLc4DECI8eG")
 
 
 def filter_neuroids(assembly, threshold):

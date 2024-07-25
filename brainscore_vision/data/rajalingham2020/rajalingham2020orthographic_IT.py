@@ -80,7 +80,7 @@ def main():
     data_dir = Path(__file__).parents[5] / 'data2' / 'active' / 'users' / 'sachis' / 'database' / 'Rajalingham2020'
     assert os.path.isdir(data_dir)
     stimuli = collect_stimuli(data_dir)
-    stimuli.identifier = 'dicarlo.Rajalingham2020'
+    stimuli.identifier = 'Rajalingham2020'
     assembly = load_responses(data_dir, stimuli)
     assembly.name = 'dicarlo.Rajalingham2020'
 

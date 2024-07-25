@@ -35,9 +35,9 @@ data_registry['Kar2019'] = lambda: load_assembly_from_s3(
 
 # stimulus set
 stimulus_set_registry['Kar2019'] = lambda: load_stimulus_set_from_s3(
-    identifier="dicarlo.Kar2019",
+    identifier="Kar2019",
     bucket="brainio-brainscore",
     csv_sha1="7f705bdea02c0a72a76d7f5e7b6963531df818a6",
     zip_sha1="75ab7b8b499fc8e86c813f717b79d268bcb986be",
-    csv_version_id="CkijGNImwMjh2uTQ2iLzkPSlDCJcURHn",
-    zip_version_id="0JL0S_SGuysrnJ4zuGH_pYo8kmIvksFJ")
+    csv_version_id="RxErKK258xYBuO6.ThuQU0IACEWkZ20o",
+    zip_version_id="3ArjwRwvdMgjwA2VP63zQ4rhF5WIbr.L")

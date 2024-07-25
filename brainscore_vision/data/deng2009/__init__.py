@@ -14,9 +14,9 @@ BIBTEX = """@INPROCEEDINGS{5206848,
 
 # stimulus set
 stimulus_set_registry['imagenet_val'] = lambda: load_stimulus_set_from_s3(
-    identifier="fei-fei.Deng2009",
+    identifier="imagenet_val",
     bucket="brainio-brainscore",
     csv_sha1="ff79dcf6b0d115e6e8aa8d0fbba3af11dc649e57",
     zip_sha1="78172d752d8216a00833cfa34be67c8532ad7330",
-    csv_version_id="6cwRpiWNvf1iiYeg6jr444c8NIE4GTee",
-    zip_version_id="UX_CZSIoOrsFtWAK0j4vYdsprniIhgJB")
+    csv_version_id="7TGln_E5k.V8NdNYGB55mX9JYF0s7R4N",
+    zip_version_id="7DJHWmhFvqTYblo8amGykHR3LYyS.3UC")

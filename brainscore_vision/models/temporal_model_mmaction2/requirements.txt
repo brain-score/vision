@@ -1,0 +1,5 @@
+importlib-metadata<5
+mmaction2 @ git+https://github.com/YingtianDt/mmaction2.git@533edc3
+mmengine
+torch
+torchvision

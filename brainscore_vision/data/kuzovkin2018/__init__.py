@@ -27,10 +27,10 @@ data_registry['Kuzovkin2018'] = lambda: load_assembly_from_s3(
 
 # stimulus set
 stimulus_set_registry['Kuzovkin2018'] = lambda: load_stimulus_set_from_s3(
-    identifier="aru.Kuzovkin2018",
+    identifier="Kuzovkin2018",
     bucket="brainio-brainscore",
-    csv_version_id="XcZTPe65cRJ_vMibAAQOpKyXin0MDWnG",
     csv_sha1="f40cbe9f385c2f391952bcc91cec3878a18f0bc4",
-    zip_version_id="zg5gixyw1mI3e.45CH.O81v8Jqb3dgJp",
     zip_sha1="9698c22f30b19d68bbb72195eaefbdf4a5899f57",
+    csv_version_id="OGF_grA_sVBC6J5famXr0HXIpyww64Q1",
+    zip_version_id="Bi88nsPyg3Es5CbMTPQykR.Z3yABIksy",
 )

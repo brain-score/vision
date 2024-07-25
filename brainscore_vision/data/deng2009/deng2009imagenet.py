@@ -23,7 +23,7 @@ def main():
     assert os.path.isdir(data_dir)
 
     stimuli = collect_stimuli(data_dir)
-    stimuli.identifier = 'fei-fei.Deng2009'
+    stimuli.identifier = 'imagenet_val'
 
     print('Packaging stimuli')
     package_stimulus_set(stimuli, stimulus_set_identifier=stimuli.identifier, bucket_name='brainio.contrib')

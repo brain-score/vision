@@ -43,7 +43,7 @@ def stack_with_nan_padding_(arr_list, axis=0, dtype=np.float16):
     return result
 
 
-def stack_with_nan_padding(arr_list, axis=0, dtype=np.float16):
+def stack_with_nan_padding(arr_list, axis=0, dtype=None):
     # Get shapes of all arrays
     shapes = [np.array(arr.shape) for arr in arr_list]
     max_shape = np.max(shapes, axis=0)
@@ -58,7 +58,7 @@ def stack_with_nan_padding(arr_list, axis=0, dtype=np.float16):
 
     result = np.stack(results, axis=axis)
     result = np.swapaxes(result, 0, axis)
-    if result.dtype != dtype:
+    if dtype is not None and result.dtype != dtype:
         result = result.astype(dtype)
 
     return result

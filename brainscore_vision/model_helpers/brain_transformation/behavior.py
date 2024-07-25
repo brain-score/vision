@@ -11,6 +11,7 @@ import sklearn.linear_model
 import sklearn.multioutput
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from brainio.assemblies import walk_coords, array_is_element, BehavioralAssembly, DataAssembly
 from brainio.stimuli import StimulusSet
@@ -331,7 +332,7 @@ class OddOneOut(BrainModel):
     
 
 class VideoReadoutMapping(BrainModel):
-    def __init__(self, identifier, activations_model, layer):
+    def __init__(self, identifier, activations_model, layer, num_classes=1):
         """
         :param identifier: a string to identify the model
         :param activations_model: the model from which to retrieve representations for stimuli
@@ -340,8 +341,10 @@ class VideoReadoutMapping(BrainModel):
         self._identifier = identifier
         self.activations_model = activations_model
         self.readout = make_list(layer)
-        self.classifier = VideoReadoutMapping.TransformerReadout(self.activations_model._model.encoder.latent_dim)
+        self.classifier = None
         self.current_task = None
+        self.num_classes = num_classes
+        
 
     @property
     def identifier(self):
@@ -355,19 +358,25 @@ class VideoReadoutMapping(BrainModel):
         assert all(fitting_features['stimulus_id'].values == fitting_stimuli['stimulus_id']), \
             "stimulus_id ordering is incorrect"
         fitting_features = np.transpose(fitting_features.values, (2, 1, 0))
-        self.classifier.fit(fitting_features, 
-                            fitting_stimuli['label'])#, fitting_features['stimulus_path'])
-
+        self.classifier = VideoReadoutMapping.TransformerReadout(np.prod(fitting_features.shape[2:]),
+                                                                 self.num_classes)
+        if self.num_classes == 1:
+            self.classifier.fit(fitting_features, 
+                            fitting_stimuli['label'].values)
+        else:
+            self.classifier.fit(fitting_features, 
+                            fitting_stimuli['contacts'].values)
     def look_at(self, stimuli, number_of_trials=1):
         features = self.activations_model(stimuli, layers=self.readout)
         prediction = self.classifier.predict(features)
         return prediction
         
     class TransformerReadout:
-        def __init__(self, model_dim):
+        def __init__(self, model_dim, num_classes=1):
             super(VideoReadoutMapping.TransformerReadout, self).__init__()
-            self.model = VideoReadoutMapping.ReadoutModel(model_dim, 4, 1)
-            self.num_epochs = 1000
+            self.model = VideoReadoutMapping.ReadoutModel(model_dim, 4, 1, num_classes=num_classes)
+            self.num_classes = num_classes
+            self.num_epochs = 1
             self.lr = 1e-4
             self.val_after = 1
             self.best_val_accuracy = 0
@@ -382,7 +391,6 @@ class VideoReadoutMapping(BrainModel):
          
         def set_seed(self, seed_value=42):
             """Set seed for reproducibility."""
-            
             torch.manual_seed(seed_value)
             torch.cuda.manual_seed_all(seed_value)  # For CUDA devices
             np.random.seed(seed_value)
@@ -398,23 +406,32 @@ class VideoReadoutMapping(BrainModel):
                 train_indices = indices[:split_point]
                 val_indices = indices[split_point:]
 
-                train_dataset = VideoReadoutMapping.TransformerLoader(features, labels, indices=train_indices)
-            
-                sampler = VideoReadoutMapping.BalancedBatchSampler(train_dataset.positive_indices, 
-                                           train_dataset.negative_indices, 
-                                           batch_size=2, seed=42)
+                train_dataset = VideoReadoutMapping.TransformerLoader(features, labels, 
+                                                                      indices=train_indices,
+                                                                      num_classes=self.num_classes)
 
-                train_loader = VideoReadoutMapping.MultiEpochsDataLoader(train_dataset, 
+                if self.num_classes == 1:
+                    sampler = VideoReadoutMapping.BalancedBatchSampler(train_dataset.positive_indices, 
+                                               train_dataset.negative_indices, 
+                                               batch_size=2, seed=42)
+    
+                    train_loader = VideoReadoutMapping.MultiEpochsDataLoader(train_dataset, 
                                                  batch_sampler=sampler, 
                                                  num_workers=4)
+                else:
+                    train_loader = VideoReadoutMapping.MultiEpochsDataLoader(train_dataset, 
+                                               batch_size=2, 
+                                               shuffle=True, 
+                                               num_workers=4)
             
-                val_dataset = VideoReadoutMapping.TransformerLoader(features, labels, indices=val_indices)
+                val_dataset = VideoReadoutMapping.TransformerLoader(features, labels, indices=val_indices,
+                                                                   num_classes=self.num_classes)
                 val_loader = VideoReadoutMapping.MultiEpochsDataLoader(val_dataset, 
                                                batch_size=2, 
                                                shuffle=False, 
                                                num_workers=4)
             else:
-                train_dataset = VideoReadoutMapping.TransformerLoader(features, None)
+                train_dataset = VideoReadoutMapping.TransformerLoader(features, None, num_classes=self.num_classes)
                 train_loader = VideoReadoutMapping.MultiEpochsDataLoader(train_dataset,
                                                  batch_size=2, shuffle=False, 
                                                  num_workers=4)
@@ -429,6 +446,8 @@ class VideoReadoutMapping(BrainModel):
             # Optimizer
             optimizer = torch.optim.AdamW(self.model.parameters(), lr=self.lr)
             criterion = nn.BCELoss()
+            if self.num_classes != 1:
+                criterion = nn.CrossEntropyLoss()
            
             # Define the total number of steps
             total_steps = self.num_epochs * len(train_loader)
@@ -463,7 +482,10 @@ class VideoReadoutMapping(BrainModel):
                 
         def binary_accuracy(self, preds, y):
             # Round predictions to the closest integer (0 or 1)
-            rounded_preds = (preds > self.prob_threshold).float()
+            if self.num_classes == 1:
+                rounded_preds = (preds > self.prob_threshold).float()  
+            else:
+                rounded_preds = torch.argmax(preds, dim=-1)
             correct = (rounded_preds == y).float()  # Convert into float for division
             acc = correct.sum() / len(correct)
             return acc
@@ -489,7 +511,10 @@ class VideoReadoutMapping(BrainModel):
                 optimizer.zero_grad()
                 outputs, _ = self.model(inputs)  # Ensure the output is of correct shape
                 outputs = outputs.squeeze()
-                loss = criterion(outputs, targets.float())
+                if self.num_classes == 1:
+                    loss = criterion(outputs, targets.float())
+                else:
+                    loss = criterion(outputs, targets.long())
                 acc = self.binary_accuracy(outputs, targets)
 
                 if batch_idx % log_step == 0:
@@ -517,7 +542,10 @@ class VideoReadoutMapping(BrainModel):
                     inputs, labels = inputs.to(self.device), labels.to(self.device)  
                     outputs, _ = self.model(inputs)
                     outputs = outputs.squeeze(dim=1)
-                    predicted = (outputs > self.prob_threshold).float() 
+                    if self.num_classes == 1:
+                        predicted = (outputs > self.prob_threshold).float()
+                    else:
+                        predicted = torch.argmax(outputs, dim=-1)
                     total += labels.size(0)
                     correct += (predicted == labels).sum().item()
             self.model.train()
@@ -536,10 +564,13 @@ class VideoReadoutMapping(BrainModel):
                     inputs = inputs.to(self.device)
                     outputs, _ = self.model(inputs)
                     outputs = outputs.squeeze(dim=1)
-                    proba.extend(outputs.tolist())
-                    predicted = (outputs > self.prob_threshold).float().tolist()
+                    if self.num_classes == 1:
+                        proba.extend(outputs.tolist())
+                        predicted = (outputs > self.prob_threshold).float().tolist()
+                    else:
+                        proba.extend(torch.max(outputs, dim=-1).values.tolist())
+                        predicted = torch.argmax(outputs, dim=-1).tolist()
                     predictions.extend(predicted)
-            
             proba = BehavioralAssembly(proba,
                                        coords=
                                        {'stimulus_id': ('presentation', features['stimulus_id'].data),
@@ -573,8 +604,9 @@ class VideoReadoutMapping(BrainModel):
         def __init__(self, model_dim, num_heads, 
                      num_encoder_layers, num_classes=1, num_input_layers=2):
             super(VideoReadoutMapping.ReadoutModel, self).__init__()
+            self.num_classes = num_classes
             self.model_dim = model_dim
-            self.encoder_layer = nn.TransformerEncoderLayer(d_model=model_dim, nhead=num_heads, dim_feedforward=128)
+            self.encoder_layer = nn.TransformerEncoderLayer(d_model=self.model_dim, nhead=num_heads, dim_feedforward=128)
             self.transformer_encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=num_encoder_layers)
             self.position_encoder = VideoReadoutMapping.PositionalEncoding(model_dim)
             self.fc = nn.Linear(model_dim, num_classes)
@@ -585,14 +617,17 @@ class VideoReadoutMapping(BrainModel):
             x = self.transformer_encoder(x)
             x = x.mean(dim=1)  # Pooling, consider masking padded values
             x = self.fc(x)
-            return torch.sigmoid(x), None
+            if self.num_classes == 1:
+                return torch.sigmoid(x), None
+            else:
+                return F.softmax(x, dim=-1), None
 
     class TransformerLoader(Dataset):
-        def __init__(self, features, labels, indices=None):
+        def __init__(self, features, labels, indices=None, num_classes=1):
             self.indices = indices
             self.labels = labels
             self.features = features
-            if self.labels is not None:
+            if self.labels is not None and num_classes == 1:
                 self.positive_indices, self.negative_indices = [], []
                 for i, l in enumerate(indices):
                     if self.labels[l] == 1:

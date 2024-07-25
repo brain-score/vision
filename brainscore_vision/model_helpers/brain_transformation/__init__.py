@@ -21,7 +21,7 @@ class ModelCommitment(BrainModel):
 
     def __init__(self, identifier,
                  activations_model, layers, behavioral_readout_layer=None, region_layer_map=None,
-                 visual_degrees=8):
+                 visual_degrees=8, num_classes=1):
         self.layers = layers
         self.activations_model = activations_model
         # We set the visual degrees of the ActivationsExtractorHelper here to avoid changing its signature.
@@ -47,7 +47,7 @@ class ModelCommitment(BrainModel):
         odd_one_out = OddOneOut(identifier=identifier, activations_model=activations_model,
                                 layer=behavioral_readout_layer)
         video_readout_behavior = VideoReadoutMapping(identifier=identifier, activations_model=activations_model,
-                                                      layer=behavioral_readout_layer)
+                                                      layer=behavioral_readout_layer, num_classes=num_classes)
         self.behavior_model = BehaviorArbiter({BrainModel.Task.label: logits_behavior,
                                                BrainModel.Task.probabilities: probabilities_behavior,
                                                BrainModel.Task.odd_one_out: odd_one_out,

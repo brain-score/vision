@@ -34,21 +34,14 @@ def get_bibtex(name):
     A method returning the bibtex reference of the requested model as a string.
     """
     return '''
-@article{DBLP:journals/corr/HeZRS15,
-  author       = {Kaiming He and
-                  Xiangyu Zhang and
-                  Shaoqing Ren and
-                  Jian Sun},
-  title        = {Deep Residual Learning for Image Recognition},
-  journal      = {CoRR},
-  volume       = {abs/1512.03385},
-  year         = {2015},
-  url          = {http://arxiv.org/abs/1512.03385},
-  eprinttype    = {arXiv},
-  eprint       = {1512.03385},
-  timestamp    = {Wed, 25 Jan 2023 11:01:16 +0100},
-  biburl       = {https://dblp.org/rec/journals/corr/HeZRS15.bib},
-  bibsource    = {dblp computer science bibliography, https://dblp.org}
+@misc{simonyan2015deepconvolutionalnetworkslargescale,
+      title={Very Deep Convolutional Networks for Large-Scale Image Recognition}, 
+      author={Karen Simonyan and Andrew Zisserman},
+      year={2015},
+      eprint={1409.1556},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/1409.1556}, 
 }
 '''
 

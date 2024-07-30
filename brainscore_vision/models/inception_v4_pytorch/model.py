@@ -21,11 +21,6 @@ implementation.
 
 MODEL = timm.create_model('inception_v4', pretrained=True)
 
-
-def get_model_list():
-    return ['inception_v4_pytorch']
-
-
 def get_model(name):
     assert name == 'inception_v4_pytorch'
     preprocessing = functools.partial(load_preprocess_images, image_size=299)

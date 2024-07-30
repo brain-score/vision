@@ -33,14 +33,14 @@ def get_model(name):
 
 def get_layers(name):
     assert name == 'inception_v4_pytorch'
-    
-    layers = ['Conv2d_1a_3x3'] +
-        ['Mixed_3a'] +
-        ['Mixed_4a'] +
-        [f'Mixed_5{i}' for i in ['a', 'b', 'c', 'd', 'e']] +
-        [f'Mixed_6{i}' for i in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']] +
-        [f'Mixed_7{i}' for i in ['a', 'b', 'c', 'd']] +
-        ['global_pool']
+    layers = [] 
+    layers += ['Conv2d_1a_3x3']
+    layers += ['Mixed_3a']
+    layers += ['Mixed_4a']
+    layers += [f'Mixed_5{i}' for i in ['a', 'b', 'c', 'd', 'e']]
+    layers += [f'Mixed_6{i}' for i in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']]
+    layers += [f'Mixed_7{i}' for i in ['a', 'b', 'c', 'd']]
+    layers += ['global_pool']
     
     return layers
 

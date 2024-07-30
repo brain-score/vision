@@ -33,12 +33,16 @@ def get_model(name):
 
 def get_layers(name):
     assert name == 'inception_v4_pytorch'
-    layer_names = []
-
-    for name, module in MODEL.named_modules():
-        layer_names.append(name)
-
-    return layer_names[2:]
+    
+    layers = ['Conv2d_1a_3x3'] +
+        ['Mixed_3a'] +
+        ['Mixed_4a'] +
+        [f'Mixed_5{i}' for i in ['a', 'b', 'c', 'd', 'e']] +
+        [f'Mixed_6{i}' for i in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']] +
+        [f'Mixed_7{i}' for i in ['a', 'b', 'c', 'd']] +
+        ['global_pool']
+    
+    return layers
 
 
 def get_bibtex(model_identifier):

@@ -1,7 +1,7 @@
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from fixres.hubconf import load_state_dict_from_url
 from fixres.transforms_v2 import get_transforms
-from model_helpers.activations.pytorch import load_images
+from brainscore_vision.model_helpers.activations.pytorch import load_images
 import numpy as np
 from importlib import import_module
 import ssl

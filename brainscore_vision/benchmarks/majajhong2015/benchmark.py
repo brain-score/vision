@@ -1,7 +1,8 @@
 from brainscore_core import Metric
 
 from brainscore_vision import load_metric, Ceiling, load_ceiling, load_dataset
-from brainscore_vision.benchmark_helpers.neural_common import NeuralBenchmark, average_repetition
+from brainscore_vision.benchmark_helpers.neural_common import NeuralBenchmark, average_repetition, apply_keep_attrs
+from brainscore_vision.model_helpers.brain_transformation.temporal import assembly_time_align
 
 VISUAL_DEGREES = 8
 NUMBER_OF_TRIALS = 50
@@ -20,13 +21,14 @@ BIBTEX = """@article {Majaj13402,
             eprint = {https://www.jneurosci.org/content/35/39/13402.full.pdf},
             journal = {Journal of Neuroscience}}"""
 
-pls_metric = lambda: load_metric('pls', crossvalidation_kwargs=dict(stratification_coord='object_name'))
-
+crossvalidation_kwargs = dict(stratification_coord='object_name')
+pls_metric = lambda: load_metric('pls', crossvalidation_kwargs=crossvalidation_kwargs)
+spantime_pls_metric = lambda: load_metric('spantime_pls', crossvalidation_kwargs=crossvalidation_kwargs)
 
 def _DicarloMajajHong2015Region(region: str, access: str, identifier_metric_suffix: str,
-                                similarity_metric: Metric, ceiler: Ceiling):
-    assembly_repetition = load_assembly(average_repetitions=False, region=region, access=access)
-    assembly = load_assembly(average_repetitions=True, region=region, access=access)
+                                similarity_metric: Metric, ceiler: Ceiling, time_interval: float = None):
+    assembly_repetition = load_assembly(average_repetitions=False, region=region, access=access, time_interval=time_interval)
+    assembly = load_assembly(average_repetitions=True, region=region, access=access, time_interval=time_interval)
     benchmark_identifier = f'MajajHong2015.{region}' + ('.public' if access == 'public' else '')
     return NeuralBenchmark(identifier=f'{benchmark_identifier}-{identifier_metric_suffix}', version=3,
                            assembly=assembly, similarity_metric=similarity_metric,
@@ -60,13 +62,35 @@ def MajajHongITPublicBenchmark():
                                        ceiler=load_ceiling('internal_consistency'))
 
 
-def load_assembly(average_repetitions, region, access='private'):
-    assembly = load_dataset(f'MajajHong2015.{access}')
+def MajajHongV4TemporalPublicBenchmark(time_interval):
+    return _DicarloMajajHong2015Region(region='V4', access='public', identifier_metric_suffix='pls',
+                                       similarity_metric=spantime_pls_metric(), time_interval=time_interval,
+                                       ceiler=load_ceiling('pertime_internal_consistency'))
+
+
+def MajajHongITTemporalPublicBenchmark(time_interval):
+    return _DicarloMajajHong2015Region(region='IT', access='public', identifier_metric_suffix='pls',
+                                       similarity_metric=spantime_pls_metric(), time_interval=time_interval,
+                                       ceiler=load_ceiling('pertime_internal_consistency'))
+
+
+def load_assembly(average_repetitions, region, access='private', time_interval=None):
+    temporal = time_interval is not None
+    if not temporal:
+        assembly = load_dataset(f'MajajHong2015.{access}')
+        assembly = assembly.squeeze("time_bin")
+    else:
+        assembly = load_dataset(f'MajajHong2015.temporal.{access}')
+        assembly = assembly.__class__(assembly)
+        target_time_bins = [
+            (t, t+time_interval) for t in range(0, assembly.time_bin_end.max().item()-time_interval, time_interval)
+        ]
+        assembly = apply_keep_attrs(assembly, lambda assembly: assembly_time_align(assembly, target_time_bins))
+
     assembly = assembly.sel(region=region)
     assembly['region'] = 'neuroid', [region] * len(assembly['neuroid'])
-    assembly = assembly.squeeze("time_bin")
     assembly.load()
-    assembly = assembly.transpose('presentation', 'neuroid')
+    assembly = assembly.transpose('presentation', 'neuroid', ...)
     if average_repetitions:
         assembly = average_repetition(assembly)
     return assembly

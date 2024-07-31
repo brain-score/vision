@@ -239,8 +239,6 @@ def grcnn55(num_classes=1000):
 
 
 
-# init the model and the preprocessing:
-preprocessing = functools.partial(load_preprocess_images, image_size=224)
 #dir_path = os.path.dirname(os.path.realpath(""))
 
 weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
@@ -248,34 +246,10 @@ weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models"
                                 version_id="SnkgwO32ntpKnS9UzOz8RecLiaDK6iYn",
                                 sha1="20fb844e72f21aeb257c053adb2b645bc954839e")
 checkpoint = torch.load(weights_path, map_location=device)
-
 model_ft = grcnn55() #models.resnet50(pretrained=True)
 model_ft.load_state_dict(checkpoint)
-all_layers = [layer for layer, _ in model_ft.named_modules()]
-all_layers = all_layers[1:]
 model_ft = model_ft.to(device)
 
-
-# get an activations model from the Pytorch Wrapper
-activations_model = PytorchWrapper(identifier='grcnn', model= model_ft , preprocessing=preprocessing)
-
-# actually make the model, with the layers you want to see specified:
-model = ModelCommitment(identifier='gcrnn', activations_model=activations_model,
-                        # specify layers to consider
-                        layers=all_layers)
-
-
-# The model names to consider. If you are making a custom model, then you most likley want to change
-# the return value of this function.
-def get_model_list():
-    """
-    This method defines all submitted model names. It returns a list of model names.
-    The name is then used in the get_model method to fetch the actual model instance.
-    If the submission contains only one model, return a one item list.
-    :return: a list of model string names
-    """
-
-    return ['grcnn']
 
 
 # get_model method actually gets the model. For a custom model, this is just linked to the
@@ -290,9 +264,9 @@ def get_model(name):
     :return: the model instance
     """
     assert name == 'grcnn'
-
     # link the custom model to the wrapper object(activations_model above):
-    wrapper = activations_model
+    preprocessing = functools.partial(load_preprocess_images, image_size=224)
+    wrapper = PytorchWrapper(identifier='grcnn', model= model_ft, preprocessing=preprocessing)
     wrapper.image_size = 224
     return wrapper
 
@@ -314,7 +288,7 @@ def get_layers(name):
     assert name == 'grcnn'
 
     # returns the layers you want to consider
-    return  all_layers
+    return  [layer for layer, _ in model_ft.named_modules()][1:]
 
 # Bibtex Method. For submitting a custom model, you can either put your own Bibtex if your
 # model has been published, or leave the empty return value if there is no publication to refer to.
@@ -324,7 +298,15 @@ def get_bibtex(model_identifier):
     """
 
     # from pytorch.py:
-    return ''
+    return '''@misc{cheng2020grcnngraphrecognitionconvolutional,
+      title={GRCNN: Graph Recognition Convolutional Neural Network for Synthesizing Programs from Flow Charts}, 
+      author={Lin Cheng and Zijiang Yang},
+      year={2020},
+      eprint={2011.05980},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2011.05980}, 
+}'''
 
 # Main Method: In submitting a custom model, you should not have to mess with this.
 if __name__ == '__main__':

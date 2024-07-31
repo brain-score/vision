@@ -34,6 +34,7 @@ jobs:
     - name: 3.7 public
       python: '3.7'
     - name: 3.7 private
+      if: fork = false
       python: '3.7'
       env:
       - PRIVATE_ACCESS=1

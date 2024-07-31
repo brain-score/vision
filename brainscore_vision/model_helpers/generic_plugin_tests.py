@@ -5,6 +5,7 @@ from brainio.stimuli import StimulusSet
 # noinspection PyUnresolvedReferences
 from brainscore_core.plugin_management.generic_plugin_tests_helper import pytest_generate_tests
 from brainscore_vision import BrainModel, load_model
+import pytest
 
 
 def test_identifier(identifier: str):
@@ -40,7 +41,7 @@ def test_look_at_behavior_probabilities(identifier: str):
     assert (0 <= predictions.values).all()
     assert (predictions.values <= 1).all()
 
-
+@pytest.mark.memory_intense
 def test_look_at_neural_V1(identifier: str):
     model = load_model(identifier)
     if not ProbeModel().can_start_recording_region(model, recording_target=BrainModel.RecordingTarget.V1):

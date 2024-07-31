@@ -9,6 +9,10 @@ from brainscore_vision.metric_helpers.transformations import apply_aggregate
 
 
 class AccuracyDistance(Metric):
+    """
+    Computes the accuracy distance using the relative distance between the source and target accuracies, adjusted
+    for the maximum possible difference between the two accuracies.
+    """
     def __call__(self, source: BehavioralAssembly, target: BehavioralAssembly) -> Score:
         """Target should be the entire BehavioralAssembly, containing truth values."""
 
@@ -43,9 +47,12 @@ class AccuracyDistance(Metric):
         source_mean = sum(source_correct) / len(source_correct)
         target_mean = sum(target_correct) / len(target_correct)
 
-        source_to_target_distance = np.abs(source_mean - target_mean)
-        accuracy_distance_score = 1 - source_to_target_distance
-        return Score(accuracy_distance_score)
+        maximum_distance = np.max([1 - target_mean, target_mean])
+        # get the proportion of the distance between the source and target accuracies, adjusted for the maximum possible
+        # difference between the two accuracies
+        relative_distance = 1 - np.abs(source_mean - target_mean) / maximum_distance
+
+        return Score(relative_distance)
 
     def ceiling(self, assembly):
         subjects = self.extract_subjects(assembly)

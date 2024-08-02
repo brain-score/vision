@@ -87,7 +87,7 @@ def main():
     data_dir = Path(__file__).parents[6] / 'data2' / 'active' / 'users' / 'sachis' / 'database'
     assert os.path.isdir(data_dir)
 
-    stimuli = brainio_collection.get_stimulus_set('dicarlo.hvm')
+    stimuli = brainio_collection.get_stimulus_set('hvm')
     assembly = load_responses(data_dir, stimuli)
     assembly.name = 'dicarlo.Sanghavi2020'
 

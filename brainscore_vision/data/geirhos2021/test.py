@@ -62,7 +62,7 @@ class TestAssemblies:
         full_name = f"Geirhos2021_{identifier}"
         assembly = load_dataset(full_name)
         assert assembly.stimulus_set is not None
-        assert assembly.stimulus_set.identifier == f"brendel.{full_name}"
+        assert assembly.stimulus_set.identifier == f"{full_name}"
         assert set(assembly.stimulus_set[field]) == set(assembly[field].values)
 
     # test the number of subjects:

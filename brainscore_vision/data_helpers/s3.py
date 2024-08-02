@@ -24,7 +24,7 @@ def get_path(identifier: str, file_type: str, bucket: str, version_id: str, sha1
     Finds path of desired file (for .csvs, .zips, and .ncs).
     """
     if filename_prefix is None:
-        filename_prefix = 'image_' if file_type in ('csv', 'zip') else 'assy_'
+        filename_prefix = 'stimulus_' if file_type in ('csv', 'zip') else 'assy_'
 
     filename = f"{filename_prefix}{identifier.replace('.', '_')}.{file_type}"
     file_path = fetch_file(location_type="S3",

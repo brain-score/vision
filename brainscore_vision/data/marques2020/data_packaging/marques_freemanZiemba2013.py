@@ -7,7 +7,7 @@ from brainio_base.assemblies import DataAssembly
 
 DATA_DIR = '/braintree/data2/active/users/tmarques/bs_datasets/FreemanZiemba2013_V1V2data.mat'
 ASSEMBLY_NAME = 'movshon.FreemanZiemba2013_V1_properties'
-TEXTURE_STIM_NAME = 'movshon.FreemanZiemba2013_properties'
+TEXTURE_STIM_NAME = 'FreemanZiemba2013_properties'
 
 PROPERTY_NAMES = ['texture_modulation_index', 'absolute_texture_modulation_index', 'texture_selectivity',
                   'noise_selectivity', 'texture_sparseness', 'noise_sparseness', 'variance_ratio', 'sample_variance',

@@ -32,7 +32,7 @@ class TestLoadFolderFromS3:
         relative_path = 'resnet18_lr0.05_epoch60/model_best.pth.tar'
         local_path = load_weight_file(
             bucket='brainscore-vision', relative_path=relative_path,
-            version_id='5GeSHx6pAADhBtoRbAqj3JPAssZ4osMW', sha1='55a627678dd5670c945ae49dcbf83924c7772cd6'
+            version_id='H1en67w4bNnXY_rJ2CXKzvzFpsqGm_MG', sha1='55a627678dd5670c945ae49dcbf83924c7772cd6'
         )
         assert local_path.is_file()
         assert str(local_path).endswith(str(relative_path))

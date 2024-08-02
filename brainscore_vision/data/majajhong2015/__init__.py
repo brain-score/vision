@@ -85,29 +85,29 @@ data_registry['MajajHong2015.temporal.private'] = lambda: load_assembly_from_s3(
     stimulus_set_loader=lambda: brainscore_vision.load_stimulus_set('hvm-private'),
 )
 
-# stimulus set: dicarlo.hvm - majajhong2015
+# stimulus set: hvm - majajhong2015
 stimulus_set_registry['hvm'] = lambda: load_stimulus_set_from_s3(
-    identifier="dicarlo.hvm",
+    identifier="hvm",
     bucket="brainio-brainscore",
     csv_sha1="a56f55205904d5fb5ead4d0dc7bfad5cc4083b94",
     zip_sha1="6fd5080deccfb061699909ffcb86a26209516811",
-    csv_version_id="8hlPT.aceeOTOB9ri0KbSslJJx.mNR3y",
-    zip_version_id="VeCwvgVpj.UEDgu3TwiTqxn713a6TT15")
+    csv_version_id="zTmsdFX1qzUK5yXdUWclFdqboZo1mq4k",
+    zip_version_id="9lWeHMSXJUuVOzlPBYKZIKZmF3nPxUiQ")
 
-# stimulus set: dicarlo.hvm-public
+# stimulus set: hvm-public
 stimulus_set_registry['hvm-public'] = lambda: load_stimulus_set_from_s3(
-    identifier="dicarlo.hvm-public",
+    identifier="hvm-public",
     bucket="brainio-brainscore",
     csv_sha1="5ca7a3da00d8e9c694a9cd725df5ba0ad6d735af",
     zip_sha1="8aa44e038d7b551efa8077467622f9d48d72e473",
-    csv_version_id="PxkMLFgPqRM7wOe3tBfwsXI3pfB49RPR",
-    zip_version_id="UzgkNOtIWMXaMN7vUA0FVemXLTvdtH13")
+    csv_version_id="BnqAVAz2CVAoVf.sG3aNEU5qhtn_CuSq",
+    zip_version_id="_MlCmoGE0XqqeKiat0JJEWJDSOIVMVXm")
 
-# stimulus set: dicarlo.hvm-private
+# stimulus set: hvm-private
 stimulus_set_registry['hvm-private'] = lambda: load_stimulus_set_from_s3(
-    identifier="dicarlo.hvm-private",
+    identifier="hvm-private",
     bucket="brainio-brainscore",
     csv_sha1="6ff4981722fa05feb73a2bd26bbbba8b50dc29a6",
     zip_sha1="d7b1ca1876dad87e15b0242b4c82c0203ff3cbd3",
-    csv_version_id="AjHL0UBtYui_PwXV0zISNSilWJEWgL4a",
-    zip_version_id="0gLBR1UgyfhIuE5wHSK6Ctb4PBPIRUJN")
+    csv_version_id="1fi5pFw2RgzQRtUd1aGiBDbk8cBblvfE",
+    zip_version_id="611NJkxlYPozyS1J2AZNKvHrUGA8m7Mm")

@@ -37,9 +37,9 @@ data_registry['Rust2012.array'] = lambda: load_assembly_from_s3(
 
 # stimulus set
 stimulus_set_registry['Rust2012'] = lambda: load_stimulus_set_from_s3(
-    identifier="dicarlo.Rust2012",
+    identifier="Rust2012",
     bucket="brainio-brainscore",
     csv_sha1="482da1f9f4a0ab5433c3b7b57073ad30e45c2bf1",
     zip_sha1="7cbf5dcec235f7705eaad1cfae202eda77e261a2",
-    csv_version_id="wtjzAmRyAgzZUHcn_ThuAnlIbr5W7o3y",
-    zip_version_id=".lwNwrP6vLz3cnOOb6eqf8atHSOKoL6X")
+    csv_version_id="Rke9xnpOob26SiZOm6KAeHZ48ppvtkA8",
+    zip_version_id="Nd1aGb9bloW3HRYene6ogiAnA6PVc_5I")

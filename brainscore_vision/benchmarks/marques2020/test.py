@@ -101,7 +101,7 @@ def test_Marques2020(benchmark, expected):
                'Marques2020_orientation': 'alexnet-dicarlo.Marques2020_orientation.nc',
                'Marques2020_spatial_frequency': 'alexnet-dicarlo.Marques2020_spatial_frequency.nc',
                'Marques2020_size': 'alexnet-dicarlo.Marques2020_size.nc',
-               'movshon.FreemanZiemba2013_properties': 'alexnet-movshon.FreemanZiemba2013_properties.nc',
+               'FreemanZiemba2013_properties': 'alexnet-movshon.FreemanZiemba2013_properties.nc',
                },
         expected=expected)
 

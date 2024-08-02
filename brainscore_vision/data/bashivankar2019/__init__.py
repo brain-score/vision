@@ -35,18 +35,18 @@ data_registry['BashivanKar2019.synthetic'] = lambda: load_assembly_from_s3(
 # stimulus sets
 # naturalistic
 stimulus_set_registry['BashivanKar2019.naturalistic'] = lambda: load_stimulus_set_from_s3(
-    identifier="dicarlo.BashivanKar2019.naturalistic",
+    identifier="BashivanKar2019.naturalistic",
     bucket="brainio-brainscore",
     csv_sha1="48ef84282552b8796142ffe7d0d2c632f8ef061a",
     zip_sha1="d7b71b431cf23d435395205f1e38036a9e10acca",
-    csv_version_id="DVRPJT0fKdeRTu6FIjOWClzB9kyyg63R",
-    zip_version_id="ZxlD_lHE23VzgSCnYypZAHRzO7oblr4h")
+    csv_version_id="oPBzXglOBfXhFIDiNYJ8veuPTGYRvThW",
+    zip_version_id="YaEhNEoCIMD.NCO6DN29U.BB.x.8_Qzl")
 
 # synthetic
 stimulus_set_registry['BashivanKar2019.synthetic'] = lambda: load_stimulus_set_from_s3(
-    identifier="dicarlo.BashivanKar2019.synthetic",
+    identifier="BashivanKar2019.synthetic",
     bucket="brainio-brainscore",
     csv_sha1="81da195e9b2a128b228fc4867e23ae6b21bd7abd",
     zip_sha1="e2de33f25c5c19bcfb400055c1db399d553487e5",
-    csv_version_id="tV0YP8QZ5DahblYrItWsURtUxwMnPXOV",
-    zip_version_id="5YI9FrlUvtVMJETKmThsLJV2IOQlfzvm")
+    csv_version_id="D6rXwY6tL76Dqb1MkNKxW_8j2DaSRT7M",
+    zip_version_id="LmHolJMPFb42uq9B8sOZui_LiWZdIpTA")

@@ -384,13 +384,14 @@ class VideoReadoutMapping(BrainModel):
         fitting_features = np.transpose(fitting_features.values, (2, 1, 0))
         self.classifier = VideoReadoutMapping.TransformerReadout(np.prod(fitting_features.shape[2:]),
                                                                  self.num_classes)
+
         if self.num_classes == 1:
             self.classifier.fit(fitting_features, 
                             fitting_stimuli['label'].values)
         else:
             self.classifier.fit(fitting_features, 
                             fitting_stimuli['contacts'].values)
-    def look_at(self, stimuli, number_of_trials=1):
+    def look_at(self, stimuli, number_of_trials=1, require_variance=False):
         features = self.activations_model(stimuli, layers=self.readout)
         prediction = self.classifier.predict(features)
         return prediction
@@ -400,7 +401,7 @@ class VideoReadoutMapping(BrainModel):
             super(VideoReadoutMapping.TransformerReadout, self).__init__()
             self.model = VideoReadoutMapping.ReadoutModel(model_dim, 4, 1, num_classes=num_classes)
             self.num_classes = num_classes
-            self.num_epochs = 1
+            self.num_epochs = 1000
             self.lr = 1e-4
             self.val_after = 1
             self.best_val_accuracy = 0
@@ -437,34 +438,35 @@ class VideoReadoutMapping(BrainModel):
                 if self.num_classes == 1:
                     sampler = VideoReadoutMapping.BalancedBatchSampler(train_dataset.positive_indices, 
                                                train_dataset.negative_indices, 
-                                               batch_size=2, seed=42)
+                                               batch_size=128, seed=42)
     
                     train_loader = VideoReadoutMapping.MultiEpochsDataLoader(train_dataset, 
                                                  batch_sampler=sampler, 
                                                  num_workers=4)
                 else:
                     train_loader = VideoReadoutMapping.MultiEpochsDataLoader(train_dataset, 
-                                               batch_size=2, 
+                                               batch_size=128, 
                                                shuffle=True, 
                                                num_workers=4)
             
                 val_dataset = VideoReadoutMapping.TransformerLoader(features, labels, indices=val_indices,
                                                                    num_classes=self.num_classes)
                 val_loader = VideoReadoutMapping.MultiEpochsDataLoader(val_dataset, 
-                                               batch_size=2, 
+                                               batch_size=128, 
                                                shuffle=False, 
                                                num_workers=4)
             else:
                 train_dataset = VideoReadoutMapping.TransformerLoader(features, None, num_classes=self.num_classes)
                 train_loader = VideoReadoutMapping.MultiEpochsDataLoader(train_dataset,
-                                                 batch_size=2, shuffle=False, 
+                                                 batch_size=128, shuffle=False, 
                                                  num_workers=4)
                 val_loader = None
             return train_loader, val_loader
             
         def fit(self, features, labels):
             train_loader, val_loader = self.build_loader(features, labels, mode='train')
-            self.model = nn.DataParallel(self.model)
+            if self.device == torch.device("cuda"):
+                self.model = nn.DataParallel(self.model)
             self.model = self.model.to(self.device)
 
             # Optimizer
@@ -595,10 +597,18 @@ class VideoReadoutMapping(BrainModel):
                         proba.extend(torch.max(outputs, dim=-1).values.tolist())
                         predicted = torch.argmax(outputs, dim=-1).tolist()
                     predictions.extend(predicted)
+
+            all_scenarios = ['roll', 'drop', 'towers', 'link', 
+                              'collision', 'contain', 'dominoes']
+            scenario = [next((sc for sc in all_scenarios if sc in filename), 'unknown') 
+                        for filename in features['stimulus_id'].data]
+            map_ = {'collision': 'Collide', 'contain': 'Contain', 'link': 'Link', 'towers': 'Support',
+                     'domino': 'Dominoes', 'drop': 'Drop', 'roll': 'Roll'}
             proba = BehavioralAssembly(proba,
                                        coords=
                                        {'stimulus_id': ('presentation', features['stimulus_id'].data),
                                         'choice': ('presentation', predictions), 
+                                        'scenario': ('presentation', [map_[s] for s in scenario]),
                                         'choice_threshold': ('presentation', [self.prob_threshold]*len(predictions))},
                                        dims=['presentation'])
             return proba

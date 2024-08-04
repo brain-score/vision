@@ -8,7 +8,7 @@ Created on Mon Jun 24 17:22:59 2024
 
 import pytest
 from brainscore_vision import load_benchmark
-
+@pytest.mark.private_access
 
 @pytest.mark.parametrize("identifier", [
     'Maniquet2024-confusion_similarity',

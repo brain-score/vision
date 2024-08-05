@@ -17,7 +17,6 @@ from brainscore_vision.model_helpers import download_weights
 from brainscore_vision.model_helpers.check_submission import check_models
 from brainscore_vision.model_helpers.s3 import load_weight_file
 from collections import OrderedDict
-import os 
 # This is an example implementation for submitting alexnet as a pytorch model
 # If you use pytorch, don't forget to add it to the setup.py
 

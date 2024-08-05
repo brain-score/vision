@@ -1,3 +1,4 @@
 requests
 torch
 collections
+numpy

@@ -5,15 +5,9 @@ from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 #from candidate_models import s3 
 import torch.nn as nn
-import math
-import ssl
-import torch.utils.model_zoo as model_zoo
-
+from brainscore_vision.model_helpers.s3 import load_weight_file
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-ssl._create_default_https_context = ssl._create_unverified_context
-model_url = 'https://shanghuagao.oss-cn-beijing.aliyuncs.com/res2net/res2net50_26w_4s-06e79181.pth'
-
-
+import math
 
 class Bottle2neck(nn.Module):
     expansion = 4
@@ -161,7 +155,12 @@ def res2net50(**kwargs):
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
     model = Res2Net(Bottle2neck, [3, 4, 6, 3], baseWidth = 26, scale = 4, **kwargs)
-    model.load_state_dict(model_zoo.load_url(model_url,map_location=torch.device('cpu')))
+    weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+                                   relative_path="Res2Net50_26w_4s/res2net50_26w_4s-06e79181.pth",
+                                   version_id="_UlyCmdZm.DPjnq76GiQfRPP.SS0UcRA",
+                                   sha1="905ad1183c7c8fb4b13f0df8c1a22bb76ee2a2fb")
+    checkpoint = torch.load(weights_path, map_location=device)
+    model.load_state_dict(checkpoint)
     return model
 
 # init the model and the preprocessing:

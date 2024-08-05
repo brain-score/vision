@@ -1,7 +1,4 @@
-import os
 import functools
-from importlib import import_module
-from pathlib import Path
 import torch
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
@@ -9,8 +6,6 @@ from brainscore_vision.model_helpers.check_submission import check_models
 import cornet
 from brainscore_vision.model_helpers.s3 import load_weight_file
 
-import ssl
-ssl._create_default_https_context = ssl._create_unverified_context
 
 """
 Template module for a base model submission to brain-score

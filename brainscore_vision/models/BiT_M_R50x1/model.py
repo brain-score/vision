@@ -6,11 +6,9 @@ import functools
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.check_submission import check_models
-from types import MethodType
 import requests
 import numpy as np
 import io
-import sys
 
 class StdConv2d(nn.Conv2d):
 

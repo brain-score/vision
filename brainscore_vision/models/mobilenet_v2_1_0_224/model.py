@@ -36,14 +36,23 @@ def get_bibtex(name):
     A method returning the bibtex reference of the requested model as a string.
     """
     return '''
-@article{DBLP:journals/corr/ZagoruykoK16,
-@misc{chollet2017xception,
-      title={Xception: Deep Learning with Depthwise Separable Convolutions}, 
-      author={François Chollet},
-      year={2017},
-      eprint={1610.02357},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
+@article{DBLP:journals/corr/abs-1801-04381,
+  author       = {Mark Sandler and
+                  Andrew G. Howard and
+                  Menglong Zhu and
+                  Andrey Zhmoginov and
+                  Liang{-}Chieh Chen},
+  title        = {Inverted Residuals and Linear Bottlenecks: Mobile Networks for Classification,
+                  Detection and Segmentation},
+  journal      = {CoRR},
+  volume       = {abs/1801.04381},
+  year         = {2018},
+  url          = {http://arxiv.org/abs/1801.04381},
+  eprinttype    = {arXiv},
+  eprint       = {1801.04381},
+  timestamp    = {Tue, 12 Jan 2021 15:30:06 +0100},
+  biburl       = {https://dblp.org/rec/journals/corr/abs-1801-04381.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
 }
 '''
 

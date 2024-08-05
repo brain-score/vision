@@ -7,7 +7,6 @@ import torch
 #from torch import nn
 import functools
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
-from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 from brainscore_vision.model_helpers.s3 import load_weight_file
 #from candidate_models import s3 
@@ -17,7 +16,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn import init
 from functools import reduce
-import os
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 

@@ -1,22 +1,22 @@
 from brainscore_vision.model_helpers.check_submission import check_models
 import functools
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
-from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
-import ssl
+from brainscore_vision.model_helpers.s3 import load_weight_file
 import torch
-from torch.utils import model_zoo
+import torchvision 
 #from torchvision import datasets, models, transforms
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-ssl._create_default_https_context = ssl._create_unverified_context
-
-import torchvision 
 
 model_ft = torchvision.models.resnet50(pretrained=False)
 #model = torch.nn.DataParallel(model).cuda()
-ckpt = model_zoo.load_url("https://bitbucket.org/robert_geirhos/texture-vs-shape-pretrained-models/raw/60b770e128fffcbd8562a3ab3546c1a735432d03/resnet50_finetune_60_epochs_lr_decay_after_30_start_resnet50_train_45_epochs_combined_IN_SF-ca06340c.pth.tar"
-    , map_location = device)
+weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+                                relative_path="resnet_SIN_IN_FT_IN/\
+resnet50_finetune_60_epochs_lr_decay_after_30_start_resnet50_train_45_epochs_combined_IN_SF-ca06340c.pth.tar",
+                                version_id="Rq1PLXx1K5O2WdHFOBGOj3k_YEqAVXfQ",
+                                sha1="f659302d3ee6efe0e9459331ea99fc65b6aa636b")
+ckpt = torch.load(weights_path, map_location=device)
 
 state_dict = ckpt['state_dict']
 new_state_dict = {}

@@ -9,11 +9,11 @@ import imp
 model_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
                                     relative_path="mobilenet_v2_0.75_224/mobilenet.py",
                                     version_id="SynenaZwsrwYufIDCY0.ehA8mYcq.S48",
-                                    sha1="")
+                                    sha1="e2dc4cd2fc8f922755b45e1e6149c3d8cc19622e")
 model_weight_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
                                     relative_path="mobilenet_v2_0.75_224/mobilenet.pth",
                                     version_id="rR7TrqOVSWRkqoK4oQvpj4InONCDESR8",
-                                    sha1="")
+                                    sha1="df37e28722d56b91d2151c2d06b5b4bc1aef2390")
 MainModel = imp.load_source('MainModel',model_path.as_posix())
 model = torch.load(model_weight_path.as_posix()) 
     

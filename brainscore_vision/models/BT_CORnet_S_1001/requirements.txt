@@ -1,0 +1,2 @@
+cornet @ git+https://github.com/dicarlolab/CORnet
+torch

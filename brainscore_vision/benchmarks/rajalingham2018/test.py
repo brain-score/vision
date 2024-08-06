@@ -143,7 +143,7 @@ class TestMetricScore:
             def __init__(self, precomputed_features):
                 self.features = precomputed_features
 
-            def __call__(self, stimuli, layers):
+            def __call__(self, stimuli, layers, number_of_trials=None):
                 np.testing.assert_array_equal(layers, ['behavioral-layer'])
                 self_stimulus_ids = self.features['stimulus_id'].values.tolist()
                 indices = [self_stimulus_ids.index(stimulus_id) for stimulus_id in stimuli['stimulus_id'].values]

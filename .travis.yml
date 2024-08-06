@@ -1,5 +1,6 @@
 version: ~> 1.0
 language: python
+dist: jammy
 env:
   global:
     - PYTEST_SETTINGS="not requires_gpu and not memory_intense and not slow and not travis_slow"

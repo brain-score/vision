@@ -11,3 +11,8 @@ from .benchmark import MajajHongV4PublicBenchmark, MajajHongITPublicBenchmark
 
 benchmark_registry['MajajHong2015public.V4-pls'] = MajajHongV4PublicBenchmark
 benchmark_registry['MajajHong2015public.IT-pls'] = MajajHongITPublicBenchmark
+
+# temporal
+from .benchmark import MajajHongV4TemporalPublicBenchmark, MajajHongITTemporalPublicBenchmark
+benchmark_registry['MajajHong2015public.V4-temporal-pls'] = lambda: MajajHongV4TemporalPublicBenchmark(time_interval=10)
+benchmark_registry['MajajHong2015public.IT-temporal-pls'] = lambda: MajajHongITTemporalPublicBenchmark(time_interval=10)

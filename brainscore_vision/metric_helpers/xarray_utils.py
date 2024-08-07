@@ -1,4 +1,5 @@
 import numpy as np
+import xarray as xr
 
 from brainio.assemblies import NeuroidAssembly, array_is_element, walk_coords
 from brainscore_vision.metric_helpers import Defaults
@@ -90,3 +91,61 @@ class XarrayCorrelation:
                                for coord, dims, values in walk_coords(target) if dims == neuroid_dims},
                        dims=neuroid_dims)
         return result
+
+
+# ops that also applies to attrs (and attrs of attrs), which are xarrays
+def recursive_op(*arrs, op=lambda x:x):
+    # the attrs structure of each arr must be the same
+    val = op(*arrs)
+    attrs = arrs[0].attrs
+    for attr in attrs:
+        attr_val = arrs[0].attrs[attr]
+        if isinstance(attr_val, xr.DataArray):
+            attr_arrs = [arr.attrs[attr] for arr in arrs]
+            attr_val = recursive_op(*attr_arrs, op=op)
+        val.attrs[attr] = attr_val
+    return val
+
+
+# apply a callable to every slice of the xarray along the specified dimensions
+def apply_over_dims(callable, *asms, dims, njobs=-1):
+    asms = [asm.transpose(*dims, ...) for asm in asms]
+    sizes = [asms[0].sizes[dim] for dim in dims]
+
+    def apply_helper(sizes, dims, *asms):
+        xarr = []
+        attrs = {}
+        size = sizes[0]
+        rsizes = sizes[1:]
+        dim = dims[0]
+        rdims = dims[1:]
+
+        if len(sizes) == 1:
+            # parallel execution on the last applied dimension
+            from joblib import Parallel, delayed
+            results = Parallel(n_jobs=njobs)(delayed(callable)(*[asm.isel({dim:s}) for asm in asms]) for s in range(size))
+        else:
+            results = []
+            for s in range(size):
+                arr = apply_helper(rsizes, rdims, *[asm.isel({dim:s}) for asm in asms])
+                results.append(arr)
+
+        for arr in results:
+            if arr is not None:
+                for k,v in arr.attrs.items():
+                    assert isinstance(v, xr.DataArray)
+                    attrs.setdefault(k, []).append(v.expand_dims(dim))
+                xarr.append(arr)
+       
+        if not xarr:
+            return
+        else:
+            xarr = xr.concat(xarr, dim=dim)
+            attrs = {k: xr.concat(vs, dim=dim) for k,vs in attrs.items()}
+            xarr.coords[dim] = asms[0].coords[dim]
+            for k,v in attrs.items():
+                attrs[k].coords[dim] = asms[0].coords[dim]
+                xarr.attrs[k] = attrs[k]
+            return xarr
+
+    return apply_helper(sizes, dims, *asms)

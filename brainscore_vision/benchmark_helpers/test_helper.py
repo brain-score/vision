@@ -7,6 +7,7 @@ from PIL import Image
 from brainio.assemblies import NeuroidAssembly, PropertyAssembly
 from brainscore_vision import load_benchmark
 from brainscore_vision.model_interface import BrainModel
+from brainscore_vision.data_helpers import s3
 from . import PrecomputedFeatures
 
 

@@ -1,0 +1,4 @@
+numpy
+torch
+torchvision
+pytorch_pretrained_vit

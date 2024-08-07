@@ -68,6 +68,8 @@ class PrecomputedTests:
         for current_stimulus in stimulus_identifiers:
             stimulus_set = load_stimulus_set(current_stimulus)
             path = Path(__file__).parent / files[current_stimulus]
+            s3.download_file_if_not_exists(local_path=path,
+                               bucket='brainscore-unittests', remote_filepath=f'tests/test_benchmarks/{filename}')
             features = PropertyAssembly.from_files(path,
                                                    stimulus_set_identifier=stimulus_set.identifier,
                                                    stimulus_set=stimulus_set)

@@ -54,7 +54,8 @@ def get_model(identifier):
             bucket="brainscore-vision", 
             relative_path="temporal_model_mae_st/mae_pretrain_vit_large_k400.pth", 
             version_id="cPcP4AzpG95CimQ5Pn.CHKnGUJlLXM3m",
-            sha1="c7fb91864a4ddf8b99309440121a3abe66b846bb"
+            sha1="c7fb91864a4ddf8b99309440121a3abe66b846bb",
+            folder_name="models-to-integrate-for-2.0"
         )
 
     elif identifier == "MAE-ST-G":
@@ -65,7 +66,8 @@ def get_model(identifier):
             bucket="brainscore-vision", 
             relative_path="temporal_model_mae_st/mae_pretrain_vit_huge_k400.pth", 
             version_id="IYKa8QiocgBzo3EhsBouS62HboK6iqYT",
-            sha1="177e48577142ca01949c08254834ffa1198b9eb4"
+            sha1="177e48577142ca01949c08254834ffa1198b9eb4",
+            folder_name="models-to-integrate-for-2.0"
         )
 
     num_frames = 16

@@ -105,23 +105,6 @@ def get_model(identifier):
         kwargs = {}
         weight_name = "kitticaltech_predrnn_one_ep100.pth"
 
-    elif identifier == "PredNet":
-        layer_activation_format = {
-            **{f"layer{i}": "TCHW" for i in range(4)},
-            "layer5": "TCHW"
-        }
-
-        def process_output(layer, layer_name, inputs, output):
-            if layer_name.startswith("cell_list"):
-                h, c = output
-                return c
-            else:
-                return output
-        
-        wrapper_cls = LSTMWrapper
-        kwargs = {}
-        weight_name = "kitticaltech_prednet_one_ep100.pth"
-
     elif identifier == "ConvLSTM":
         layer_activation_format = {
             **{f"cell_list.{i}": "TCHW" for i in range(4)},

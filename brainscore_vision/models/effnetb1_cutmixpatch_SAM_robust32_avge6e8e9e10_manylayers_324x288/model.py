@@ -1,7 +1,7 @@
 import functools
 
 import torch
-from brainscore_vision.model_helpers.activations import PytorchWrapper, KerasWrapper
+from brainscore_vision.model_helpers.activations import PytorchWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 from brainscore_vision.model_helpers.s3 import load_weight_file
 from PIL import Image

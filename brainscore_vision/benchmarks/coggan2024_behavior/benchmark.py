@@ -75,9 +75,12 @@ class Coggan2024_behavior_ConditionWiseAccuracySimilarity(BenchmarkBase):
             data.model_prediction == data.object_class, dtype=int)
 
         # get correlation between model and human performance across conditions
-        performance = (data[data.visibility < 1]
+        performance = (
+            data[data.visibility < 1]
             .groupby(['subject', 'occluder_type', 'occluder_color'])
-            .mean(['human_accuracy', 'model_accuracy'])).reset_index()
+            .mean(numeric_only=True)
+            .reset_index()
+        )
         scores = performance.groupby('subject').apply(
             lambda df: np.corrcoef(df.human_accuracy, df.model_accuracy)[0, 1])
         score = Score(np.mean(scores))
@@ -100,8 +103,9 @@ def get_noise_ceiling(performance: pd.DataFrame) -> Score:
     nc = []
     for subject in performance.subject.unique():
         performance_ind = performance[performance.subject == subject]
-        performance_grp = (performance[performance.subject != subject]
-            .groupby(['occluder_type', 'occluder_color']).mean())
+        performance_grp = performance[performance.subject != subject]
+        numeric_cols = performance_grp.select_dtypes(include=np.number).columns
+        performance_grp = performance_grp.groupby(['occluder_type', 'occluder_color'])[numeric_cols].mean()
         merged_df = performance_ind.merge(
             performance_grp, on=['occluder_type', 'occluder_color'])
         nc.append(np.corrcoef(merged_df.human_accuracy_x, merged_df.human_accuracy_y)[0, 1])

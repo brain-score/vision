@@ -22,6 +22,7 @@ class PrecomputedFeatures(BrainModel):
     @property
     def identifier(self) -> str:
         # serialize the features to a string and create hash
+        features_data = str(self.features)
         features_hash = hashlib.md5(features_data.encode('utf-8')).hexdigest()
         return f"precomputed-{features_hash}"
 

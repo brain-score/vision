@@ -28,11 +28,19 @@ def get_model(identifier, num_frames=7):
     pretrain_only = True
 
     if identifier == "FITVID-EGO4D":
-        model_path = "TBD"
+        model_path = load_weight_file(
+            bucket="brainscore-vision", 
+            relative_path="neuroai_stanford_weights/fitvid_ego4d.pt", 
+            version_id="1cXzv4b9cPlnhSQU4zzmeRBgEdio9VFw",
+            sha1="0a757d4b6693d2c5890b0ea909ca4aaedc76453c"
+        )
     elif identifier == "FITVID-PHYS":
-        model_path = "TBD"
-    model_path = '/ccn2/u/thekej/R3M_pretrain/weights_ego4d/checkpoint_final.pt'
-    # Instantiate the model
+        model_path = load_weight_file(
+            bucket="brainscore-vision", 
+            relative_path="neuroai_stanford_weights/fitvid_physion.pt", 
+            version_id="inezcqO81.4Kpuouzba3sxEZiw5Bgoig",
+            sha1="0a757d4b6693d2c5890b0ea909ca4aaedc76453c"
+        )
     
     net = FitVidEncoder(n_past=num_frames)
     net = load_model(net, model_path)

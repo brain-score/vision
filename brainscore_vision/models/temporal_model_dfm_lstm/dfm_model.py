@@ -3,7 +3,6 @@ import torch
 import torch.nn as nn
 from torchvision import transforms
 from collections import OrderedDict
-from transformers import ResNetModel
 
 
 R3M_VAL_TRANSFORMS = [
@@ -33,28 +32,72 @@ def load_model(
 
     return model
 
-class ResNet50(nn.Module):
-    def __init__(self):
+class DFM(nn.Module):
+    def __init__(self, weights_path):
 
         super().__init__()
-        self.model = ResNetModel.from_pretrained("microsoft/resnet-50")
+
+        render_settings = {
+            "n_coarse": 64,
+            "n_fine": 64,
+            "n_coarse_coarse": 32,
+            "n_coarse_fine": 0,
+            "num_pixels": 64 ** 2,
+            "n_feats_out": 64,
+            "num_context": 1,
+            "sampling": "patch",
+            "cnn_refine": False,
+            "self_condition": False,
+            "lindisp": False,
+            # "cnn_refine": True,
+        }
+        from PixelNeRF import PixelNeRFModelCond
+
+        self.model = PixelNeRFModelCond(
+            near=1.0,
+            # dataset.z_near, we set this to be slightly larger than the one we used for training to avoid floaters
+            far=2,
+            model='dit',
+            use_first_pool=False,
+            mode='cond',
+            feats_cond=True,
+            use_high_res_feats=True,
+            render_settings=render_settings,
+            use_viewdir=False,
+            image_size=128,
+            use_abs_pose=False,
+        )
+        #weights_path = '/ccn2/u/rmvenkat/data/dfm_weights/re10k_model.pt'
         self.latent_dim = 8192
 
-
-    def forward(self, images):
+    def forward(self, videos):
         '''
-        images: [B, C, H, W], Image is normalized with imagenet norm
+        videos: [B, T, C, H, W], T is usually 4 and videos are normalized with imagenet norm
+        returns: [B, T, D] extracted features
         '''
-        input_dict = {'pixel_values': images}
+        ctxt_rgb = videos.unsqueeze(1)
 
-        decoder_outputs = self.model(**input_dict, output_hidden_states=True)
+        b, num_context, c, h, w = ctxt_rgb.shape
 
-        features = decoder_outputs.last_hidden_state
-        
-        features = features.reshape(features.shape[0], -1)
-        
+        ctxt_rgb = rearrange(ctxt_rgb, "b t h w c -> (b t) h w c")
+
+        t = torch.zeros((b, num_context), device=ctxt_rgb.device, dtype=torch.long)
+
+        t_resnet = rearrange(t, "b t -> (b t)")
+        ctxt_inp = ctxt_rgb
+        feature_map = self.model.get_feats(ctxt_inp, t_resnet, abs_camera_poses=None)
+
+        # To downscale it by a factor of 4, we are reducing the size of H and W
+        # Calculate the new dimensions
+        H_new = feature_map.shape[-1] // 4
+        W_new = feature_map.shape[-2] // 4
+
+        # Now, we will use the interpolate function from the torch.nn.functional module
+        feature_map = F.interpolate(feature_map, size=(H_new, W_new), mode='bilinear', align_corners=False)
+
+        features = feature_map.reshape(feature_map.shape[0], -1)
+
         features = nn.AdaptiveAvgPool1d(8192)(features.float())
-
         return features
 
 class LSTM(nn.Module):
@@ -122,5 +165,5 @@ class FrozenPretrainedEncoder(nn.Module):
         }
         return output
 
-def pfResNet_LSTM_physion(n_past=7, **kwargs):
+def pfDFM_LSTM_physion(n_past=7, **kwargs):
     return FrozenPretrainedEncoder(n_past=n_past, **kwargs)

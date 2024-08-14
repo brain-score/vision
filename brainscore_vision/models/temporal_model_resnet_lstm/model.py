@@ -2,7 +2,7 @@ import torch as th
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
 from brainscore_vision.model_helpers.s3 import load_weight_file
-from resnet_model import pfDINO_LSTM_physion, load_model
+from resnet_model import pfResNet_LSTM_physion, load_model
 
 from torchvision import transforms as T
 
@@ -13,7 +13,7 @@ class RESNETLSTMWrapper(PytorchWrapper):
         with torch.no_grad():
             output = self._model(tensor)
         features = output["input_states"]
-        return features  # encoder only
+        return features
 
 transform_img = T.Compose([T.Resize(256),
     T.CenterCrop(224),
@@ -30,7 +30,14 @@ def get_model(identifier, num_frames=7):
     assert identifier.startswith("RESNET-LSTM")
     # Instantiate the model
     
-    net = pfDINO_LSTM_physion(n_past=num_frames, full_rollout=False)
+    model_path = load_weight_file(
+            bucket="brainscore-vision", 
+            relative_path="neuroai_stanford_weights/resnet_lstm.pt", 
+            version_id="F1VgIiJONrw.PDcaoxS_l2JjaM.8RIvG",
+            sha1="ead964db02a855672b97f7a0b6d6c43c6b20ec88"
+        )
+    
+    net = pfResNet_LSTM_physion(n_past=num_frames, full_rollout=False)
     net = load_model(net, model_path)
 
     inferencer_kwargs = {

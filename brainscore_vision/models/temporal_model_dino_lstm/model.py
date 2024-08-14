@@ -26,8 +26,12 @@ def transform_video(video):
 def get_model(identifier, num_frames=7):
     assert identifier.startswith("DINO-LSTM")
 
-    model_path = '/ccn2/u/thekej/dino_lstm/checkpoint_final.pt'
-    # Instantiate the model
+    model_path = load_weight_file(
+            bucket="brainscore-vision", 
+            relative_path="neuroai_stanford_weights/dino_lstm.pt", 
+            version_id="EuKBPN7lh_WSE6uyR2Gs0.thPRo51tL6",
+            sha1="0a757d4b6693d2c5890b0ea909ca4aaedc76453c"
+        )
 
     net = pfDINO_LSTM_physion(n_past=num_frames)
     net = load_model(net, model_path)

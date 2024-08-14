@@ -12,3 +12,4 @@ def commit_model(identifier):
 
 
 model_registry["R3M-LSTM-EGO4D"] = lambda: commit_model("R3M-LSTM-EGO4D")
+model_registry["R3M-LSTM-PHYS"] = lambda: commit_model("R3M-LSTM-PHYS")

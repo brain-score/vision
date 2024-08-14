@@ -2,11 +2,11 @@ import torch as th
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
 from brainscore_vision.model_helpers.s3 import load_weight_file
-from mcvd_model import MCVDEncoder
+from mae_model import pfDFM_LSTM_physion, load_model
 
 from torchvision import transforms as T
 
-class MCVDWrapper(PytorchWrapper):
+class DFMLSTMWrapper(PytorchWrapper):
     def forward(self, inputs):
         tensor = th.stack(inputs)
         tensor = tensor.permute(0, 2, 1, 3, 4)
@@ -15,46 +15,38 @@ class MCVDWrapper(PytorchWrapper):
             output = self._model(tensor)
         return output#features  # encoder only
 
-transform_img = T.Compose([T.Resize(64)]) # ToTensor() divides by 255
+transform_img = T.Compose([T.Resize(256),
+    T.CenterCrop(224)])
 
 def transform_video(video):
     frames = th.Tensor(video.to_numpy()).permute(0, 3, 1, 2)
     frames = transform_img(frames)
     return frames.permute(1, 0, 2, 3)
 
-
 def get_model(identifier, num_frames=7):
-    assert identifier.startswith("MCVD")
-    pretrain_only = True
-
-    if identifier == "MCVD-EGO4D":
-        model_path = load_weight_file(
+    assert identifier.startswith("DFM-LSTM")
+    
+    model_path = load_weight_file(
             bucket="brainscore-vision", 
-            relative_path="neuroai_stanford_weights/mcvd_ego4d.pt", 
-            version_id="7_2SZtf5kXqmmTsJOPmkABI._HAX519c",
+            relative_path="neuroai_stanford_weights/dfm_lstm.pt", 
+            version_id="laVsH36NbMHw1WD7i0AP103k0Juv6BfL",
             sha1="ead964db02a855672b97f7a0b6d6c43c6b20ec88"
         )
-    elif identifier == "MCVD-PHYS":
-        model_path = load_weight_file(
-            bucket="brainscore-vision", 
-            relative_path="neuroai_stanford_weights/mcvd_physion.pt", 
-            version_id="Uo86X1URRUoqSAEOJ5oPhrt_bCfxb4ho",
-            sha1="0a757d4b6693d2c5890b0ea909ca4aaedc76453c"
-        )
-        
     # Instantiate the model
     
-    net = MCVDEncoder(model_path)
+    net = pfMAE_LSTM_physion(n_past=num_frames)
+    net = load_model(net, model_path)
 
     inferencer_kwargs = {
-        "fps": 25,
+        "fps": 16,
         "layer_activation_format": {
             "encoder": "TC",
+            "dynamics": "TC",
         },
         "duration": None,
         "time_alignment": "per_frame_aligned",#"evenly_spaced",
         "convert_img_to_video":True,
-        "img_duration":450
+        "img_duration":900
     }
 
     for layer in inferencer_kwargs["layer_activation_format"].keys():
@@ -67,7 +59,8 @@ def get_model(identifier, num_frames=7):
             activations = output["rollout_states"]
         return activations 
 
-    wrapper = R3MLSTMWrapper(identifier, net, transform_video, 
+    wrapper = DFMLSTMWrapper(identifier, net, transform_video, 
                                 process_output=process_activation,
                                 **inferencer_kwargs)
+
     return wrapper

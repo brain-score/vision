@@ -29,12 +29,20 @@ def get_model(identifier, num_frames=7):
     pretrain_only = True
 
     if identifier == "R3M-LSTM-EGO4D":
-        model_path = "TBD"
+        model_path = load_weight_file(
+            bucket="brainscore-vision", 
+            relative_path="neuroai_stanford_weights/r3m_lstm_ego4d.pt", 
+            version_id="Fz1LBUmhex5tT7tRuxC2ThLtzFUwSIx0",
+            sha1="ead964db02a855672b97f7a0b6d6c43c6b20ec88"
+        )
     elif identifier == "R3M-LSTM-PHYS":
-        model_path = "TBD"
-    elif identifier == "R3M-LSTM-ARAN":
-        model_path = "TBD"
-    model_path = '/ccn2/u/thekej/R3M_pretrain/weights_ego4d/checkpoint_final.pt'
+        model_path = load_weight_file(
+            bucket="brainscore-vision", 
+            relative_path="neuroai_stanford_weights/r3m_lstm_physion.pt", 
+            version_id="2ugg.9Hfp1s9E4MWvtfKZL6onawFHxSy",
+            sha1="ead964db02a855672b97f7a0b6d6c43c6b20ec88"
+        )
+
     # Instantiate the model
         
     net = pfR3M_LSTM_physion(n_past=num_frames)

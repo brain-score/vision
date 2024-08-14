@@ -26,7 +26,12 @@ def transform_video(video):
 def get_model(identifier, num_frames=7):
     assert identifier.startswith("MAE-LSTM")
     
-    model_path = '/ccn2/u/thekej/mae_lstm/checkpoint_final.pt'
+    model_path = load_weight_file(
+            bucket="brainscore-vision", 
+            relative_path="neuroai_stanford_weights/mae_lstm.pt", 
+            version_id="Bf6kKIbSp5wQlWpXcZhVnSCsB7vgKDPv",
+            sha1="ead964db02a855672b97f7a0b6d6c43c6b20ec88"
+        )
     # Instantiate the model
     
     net = pfMAE_LSTM_physion(n_past=num_frames)

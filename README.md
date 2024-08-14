@@ -3,7 +3,7 @@
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md) 
 
 Brain-Score is a platform to evaluate computational models of brain function 
-on their match to brain measurements in primate vision. 
+on their match to brain measurements in primate vision.
 The intent of Brain-Score is to adopt many (ideally all) the experimental benchmarks in the field
 for the purpose of model testing, falsification, and comparison.
 To that end, Brain-Score operationalizes experimental data into quantitative benchmarks 

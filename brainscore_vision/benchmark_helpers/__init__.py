@@ -1,6 +1,7 @@
 from typing import Union
 
 import numpy as np
+import hashlib
 
 from brainio.assemblies import NeuroidAssembly, DataAssembly
 from brainscore_core import Score
@@ -17,6 +18,12 @@ class PrecomputedFeatures(BrainModel):
         """
         self.features = features
         self._visual_degrees = visual_degrees
+
+    @property
+    def identifier(self) -> str:
+        # serialize the features to a string and create hash
+        features_hash = hashlib.md5(features_data.encode('utf-8')).hexdigest()
+        return f"precomputed-{features_hash}"
 
     def visual_degrees(self) -> int:
         return self._visual_degrees

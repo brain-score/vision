@@ -3,7 +3,9 @@ import torch
 import torch.nn as nn
 from torchvision import transforms
 from collections import OrderedDict
-from phys_readouts.models.DFM_physion.PixelNeRF import PixelNeRFModelCond
+from pyhocon import ConfigFactory
+
+from phys_readouts.models.pixelnerf.src.model import make_model
 
 R3M_VAL_TRANSFORMS = [
     transforms.Resize(256),
@@ -32,66 +34,30 @@ def load_model(
 
     return model
 
-class DFM(nn.Module):
-    def __init__(self, weights_path):
+class PN(nn.Module):
+    def __init__(self):
 
         super().__init__()
 
-        render_settings = {
-            "n_coarse": 64,
-            "n_fine": 64,
-            "n_coarse_coarse": 32,
-            "n_coarse_fine": 0,
-            "num_pixels": 64 ** 2,
-            "n_feats_out": 64,
-            "num_context": 1,
-            "sampling": "patch",
-            "cnn_refine": False,
-            "self_condition": False,
-            "lindisp": False,
-        }
+        conf = '../conf/exp/sn64.conf'
 
-        self.model = PixelNeRFModelCond(
-            near=1.0,
-            far=2,
-            model='dit',
-            use_first_pool=False,
-            mode='cond',
-            feats_cond=True,
-            use_high_res_feats=True,
-            render_settings=render_settings,
-            use_viewdir=False,
-            image_size=128,
-            use_abs_pose=False,
-        )
+        conf = ConfigFactory.parse_file(conf)
+
+        self.net = make_model(conf["model"])
+        
+        weights_path = '/ccn2/u/thekej/pixel_nerf/pixel_nerf_latest'
+        self.net.load_state_dict(torch.load(weights_path, map_location='cpu'))
+
         self.latent_dim = 8192
 
-    def forward(self, videos):
+    def forward(self, images):
         '''
         videos: [B, T, C, H, W], T is usually 4 and videos are normalized with imagenet norm
         returns: [B, T, D] extracted features
         '''
-        ctxt_rgb = videos.unsqueeze(1)
 
-        b, num_context, c, h, w = ctxt_rgb.shape
-
-        ctxt_rgb = rearrange(ctxt_rgb, "b t h w c -> (b t) h w c")
-
-        t = torch.zeros((b, num_context), device=ctxt_rgb.device, dtype=torch.long)
-
-        t_resnet = rearrange(t, "b t -> (b t)")
-        ctxt_inp = ctxt_rgb
-        feature_map = self.model.get_feats(ctxt_inp, t_resnet, abs_camera_poses=None)
-
-        # To downscale it by a factor of 4, we are reducing the size of H and W
-        # Calculate the new dimensions
-        H_new = feature_map.shape[-1] // 4
-        W_new = feature_map.shape[-2] // 4
-
-        # Now, we will use the interpolate function from the torch.nn.functional module
-        feature_map = F.interpolate(feature_map, size=(H_new, W_new), mode='bilinear', align_corners=False)
-
-        features = feature_map.reshape(feature_map.shape[0], -1)
+        features = self.net.encoder(images)
+        features = features.reshape(features.shape[0], -1)
 
         features = nn.AdaptiveAvgPool1d(8192)(features.float())
         return features
@@ -136,7 +102,7 @@ class FrozenPretrainedEncoder(nn.Module):
         super().__init__()
 
         self.n_past = n_past
-        self.encoder = DFM()
+        self.encoder = PN()
 
         dynamics_kwargs = {"latent_dim": self.encoder.latent_dim}
         self.dynamics = LSTM(**dynamics_kwargs)
@@ -161,5 +127,5 @@ class FrozenPretrainedEncoder(nn.Module):
         }
         return output
 
-def pfDFM_LSTM_physion(n_past=7, **kwargs):
+def pfPN_LSTM_physion(n_past=7, **kwargs):
     return FrozenPretrainedEncoder(n_past=n_past, **kwargs)

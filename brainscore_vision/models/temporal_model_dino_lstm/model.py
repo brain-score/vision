@@ -30,7 +30,7 @@ def get_model(identifier, num_frames=7):
             bucket="brainscore-vision", 
             relative_path="neuroai_stanford_weights/dino_lstm.pt", 
             version_id="EuKBPN7lh_WSE6uyR2Gs0.thPRo51tL6",
-            sha1="0a757d4b6693d2c5890b0ea909ca4aaedc76453c"
+            sha1="229c0f9eb4039c698039e843c07e76c67ebfde44"
         )
 
     net = pfDINO_LSTM_physion(n_past=num_frames)

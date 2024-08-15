@@ -34,7 +34,7 @@ def get_model(identifier, num_frames=7):
             bucket="brainscore-vision", 
             relative_path="neuroai_stanford_weights/resnet_lstm.pt", 
             version_id="F1VgIiJONrw.PDcaoxS_l2JjaM.8RIvG",
-            sha1="ead964db02a855672b97f7a0b6d6c43c6b20ec88"
+            sha1="41faf4b43c78045591e9c33e9670035c81ce6daa"
         )
     
     net = pfResNet_LSTM_physion(n_past=num_frames, full_rollout=False)

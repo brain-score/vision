@@ -32,14 +32,14 @@ def get_model(identifier, num_frames=7):
             bucket="brainscore-vision", 
             relative_path="neuroai_stanford_weights/fitvid_ego4d.pt", 
             version_id="1cXzv4b9cPlnhSQU4zzmeRBgEdio9VFw",
-            sha1="0a757d4b6693d2c5890b0ea909ca4aaedc76453c"
+            sha1="1764e964abc51d0b06e27cef46cfa4702391f3cc"
         )
     elif identifier == "FITVID-PHYS":
         model_path = load_weight_file(
             bucket="brainscore-vision", 
             relative_path="neuroai_stanford_weights/fitvid_physion.pt", 
             version_id="inezcqO81.4Kpuouzba3sxEZiw5Bgoig",
-            sha1="0a757d4b6693d2c5890b0ea909ca4aaedc76453c"
+            sha1="7a2fa16d235337182b08db3c467d66ae3e0c9333"
         )
     
     net = FitVidEncoder(n_past=num_frames)

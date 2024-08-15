@@ -33,14 +33,14 @@ def get_model(identifier, num_frames=7):
             bucket="brainscore-vision", 
             relative_path="neuroai_stanford_weights/r3m_lstm_ego4d.pt", 
             version_id="Fz1LBUmhex5tT7tRuxC2ThLtzFUwSIx0",
-            sha1="ead964db02a855672b97f7a0b6d6c43c6b20ec88"
+            sha1="8ae184cdfff3014b3dcdfffe9d52457a66339d32"
         )
     elif identifier == "R3M-LSTM-PHYS":
         model_path = load_weight_file(
             bucket="brainscore-vision", 
             relative_path="neuroai_stanford_weights/r3m_lstm_physion.pt", 
             version_id="2ugg.9Hfp1s9E4MWvtfKZL6onawFHxSy",
-            sha1="ead964db02a855672b97f7a0b6d6c43c6b20ec88"
+            sha1="b09b87a965a0ef5086224ce474af20e79a34d595"
         )
 
     # Instantiate the model

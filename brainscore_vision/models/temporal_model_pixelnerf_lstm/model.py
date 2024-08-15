@@ -30,7 +30,7 @@ def get_model(identifier, num_frames=7):
             bucket="brainscore-vision", 
             relative_path="neuroai_stanford_weights/pixelnerf_lstm.pt", 
             version_id="YV9zlBxLV4lBfVsAs1vIyh_gDkf7mu_j",
-            sha1="ead964db02a855672b97f7a0b6d6c43c6b20ec88"
+            sha1="14be113cd6f0ce4b9348cccc2018eb792ab2d0c1"
         )
     # Instantiate the model
     

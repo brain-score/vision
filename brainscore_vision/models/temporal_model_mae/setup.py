@@ -2,12 +2,29 @@ import subprocess
 import sys
 from setuptools import setup, find_packages
 from setuptools.command.install import install
+import pkg_resources
+
+# Check numpy version
+def check_numpy_version():
+    try:
+        numpy_version = pkg_resources.get_distribution("numpy").version
+        if numpy_version != "1.23.5":
+            raise RuntimeError(f"Incorrect numpy version {numpy_version} detected. Please install numpy==1.23.5.")
+    except pkg_resources.DistributionNotFound:
+        raise RuntimeError("numpy is not installed. Please install numpy==1.23.5 before running setup.py.")
+
+check_numpy_version()
 
 class PostInstallCommand(install):
     """Post-installation for installation mode."""
     def run(self):
         install.run(self)
         try:
+            # Reinstall specific version of numpy to ensure it remains the correct version
+            subprocess.check_output([
+                sys.executable, '-m', 'pip', 'install', 'numpy==1.23.5', '--force-reinstall'
+            ], stderr=subprocess.STDOUT)
+
             # Reinstall other dependencies using Pip with force reinstall
             pip_result = subprocess.check_output([
                 sys.executable, '-m', 'pip', 'install',
@@ -31,14 +48,11 @@ setup(
     description='A Python package for r3m.',
     packages=find_packages(),
     install_requires=[
-        'numpy',
-        'transformers',
-        'r3m @ git+https://github.com/facebookresearch/r3m.git#egg=r3m',
-        'phys_readouts @ https://github.com/thekej/phys_readouts.git'
+        'numpy==1.23.5',
+        'netCDF4!=1.6.0,<1.6.5',
     ],
     cmdclass={
         'install': PostInstallCommand,
     },
     python_requires='>=3.9',
 )
-

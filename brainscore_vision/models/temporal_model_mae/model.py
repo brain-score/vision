@@ -21,9 +21,6 @@ transform_img = transforms.Compose([
     # Resize the image to the size expected by ViT-MAE
     transforms.Resize((224, 224)),  # Example size for ViT
 
-    # Convert the image to a tensor
-    transforms.ToTensor(),
-
     # Normalize the image with ImageNet mean and std
     transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
 
@@ -65,12 +62,7 @@ def get_model(identifier, num_frames=16):
 
     for layer in inferencer_kwargs["layer_activation_format"].keys():
         assert "decoder" not in layer, "Decoder layers are not supported."
-
-    def process_activation(layer, layer_name, inputs, output):
-        output = th.stack(output, axis=1)
-        return output
     
     wrapper = MAEWrapper(identifier, net, transform_video, 
-                                process_output=process_activation,
                                 **inferencer_kwargs)
     return wrapper

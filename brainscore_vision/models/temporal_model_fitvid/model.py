@@ -2,7 +2,7 @@ import torch as th
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
 from brainscore_vision.model_helpers.s3 import load_weight_file
-from r3m_model import FitVidEncoder, load_model
+from fitvid_model import FitVidEncoder, load_model
 
 from torchvision import transforms as T
 
@@ -58,6 +58,10 @@ def get_model(identifier, num_frames=7):
 
     for layer in inferencer_kwargs["layer_activation_format"].keys():
         assert "decoder" not in layer, "Decoder layers are not supported."
+
+    def process_activation(layer, layer_name, inputs, output):
+        activations = output["h_preds"]
+        return activations 
 
     wrapper = FitVidWrapper(identifier, net, transform_video, 
                                 process_output=process_activation,

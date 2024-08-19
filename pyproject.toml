@@ -11,6 +11,7 @@ license = { 'file' = 'LICENSE' }
 readme = "README.md"
 requires-python = ">=3.7"
 
+
 dependencies = [
     "numpy>=1.17",
     "brainscore_core @ git+https://github.com/brain-score/core",

@@ -41,7 +41,7 @@ class ResNet50(nn.Module):
         self.latent_dim = 8192
 
 
-    def forward(self, images):
+    def get_encoder_feats(self, images):
         '''
         images: [B, C, H, W], Image is normalized with imagenet norm
         '''
@@ -57,15 +57,25 @@ class ResNet50(nn.Module):
 
         return features
 
+    def forward(self, videos, n_past=None):
+        bs, num_frames, num_channels, h, w = videos.shape
+        videos = videos.flatten(0, 1)
+        input_states = self.get_encoder_feats(videos)
+        input_states = input_states.reshape(bs, num_frames, -1)
+        output = {
+            "input_states": input_states[:, : n_past],
+            "observed_states": input_states[:, n_past :],
+        }
+        return output
+
 class LSTM(nn.Module):
     def __init__(self, latent_dim):
         super().__init__()
         self.latent_dim = latent_dim
-        self.lstm = nn.LSTM(self.latent_dim, 1024)
+        self.lstm = nn.LSTM(self.latent_dim, 1024, batch_first=True)
         self.regressor = nn.Linear(1024, self.latent_dim)
 
-    def forward_step(self, x):
-        feats = torch.stack(x)  # (T, Bs, self.latent_dim)
+    def forward_step(self, feats):
         assert feats.ndim == 3
         # note: for lstms, hidden is the last timestep output
         _, hidden = self.lstm(feats)
@@ -82,12 +92,12 @@ class LSTM(nn.Module):
             pred_state = self.forward_step(prev_states)
             simulated_states.append(pred_state)
             # add most recent pred and delete oldest (to maintain a temporal window of length n_past)
-            prev_states.append(pred_state)
-            prev_states.pop(0)
+            
+            prev_states = torch.cat([prev_states[:, 1:], pred_state.unsqueeze(1)], axis=1)
 
         output = {
             "simulated_states": torch.stack(simulated_states, axis=1),
-            "rollout_states": torch.cat([torch.stack(input_states, axis=1), torch.stack(simulated_states, axis=1)], axis=1),
+            "rollout_states": torch.cat([input_states, torch.stack(simulated_states, axis=1)], axis=1),
         }
         return output
 
@@ -97,7 +107,7 @@ class FrozenPretrainedEncoder(nn.Module):
         super().__init__()
 
         self.n_past = n_past
-        self.encoder = DFM()
+        self.encoder = ResNet50()
 
         dynamics_kwargs = {"latent_dim": self.encoder.latent_dim}
         self.dynamics = LSTM(**dynamics_kwargs)
@@ -115,7 +125,7 @@ class FrozenPretrainedEncoder(nn.Module):
         dynamics_output = self.dynamics(encoder_output['input_states'], rollout_steps)
 
         output = {
-            "input_states": torch.stack(encoder_output['input_states'], axis=1),
+            "input_states": encoder_output['input_states'],
             "observed_states": encoder_output['observed_states'],
             "simulated_states": dynamics_output['simulated_states'],
             "rollout_states": dynamics_output['rollout_states'],

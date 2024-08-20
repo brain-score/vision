@@ -40,16 +40,11 @@ class R3M_pretrained(nn.Module):
         self.latent_dim = 2048  # resnet50 final fc in_features
 
     def forward(self, x, n_past=None):
-        inputs = x[:, : n_past]
-        input_states = self.get_encoder_feats(inputs)
-
-        # roll out the entire trajectory
-        label_images = x[:, n_past :]
-        observed_states = self.get_encoder_feats(label_images)
+        input_states = self.get_encoder_feats(x)
         
         output = {
-            "input_states": input_states,
-            "observed_states": torch.stack(input_states + observed_states, axis=1),
+            "input_states": input_states[: n_past],
+            "observed_states": torch.stack(input_states, axis=1),
         }
         return output
 

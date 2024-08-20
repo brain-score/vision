@@ -64,7 +64,7 @@ class ResNet50(nn.Module):
         input_states = input_states.reshape(bs, num_frames, -1)
         output = {
             "input_states": input_states[:, : n_past],
-            "observed_states": input_states[:, n_past :],
+            "observed_states": input_states,
         }
         return output
 

@@ -1,0 +1,117 @@
+name: Sync develop with master
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  start:
+    name: "Starting -🤞"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Starting
+        id : init
+        run: |
+          echo "Starting branch synchronization of ${{ github.repository }}"
+
+  create_pr_for_nonplugin:
+    name: "Synchronizing non-plugin PR"
+    needs: start  # This job now needs the 'start' job to complete first
+    if: >
+      github.event.pull_request.merged == true && 
+      !(startsWith(github.event.pull_request.head.ref, 'web_submission_') && 
+      contains(github.event.pull_request.title, 'brain-score.org submission'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the develop branch
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch full history
+          ref: develop
+
+      - name: Reset the develop branch
+        run: |
+          git fetch origin master
+          git reset --hard origin/master
+
+      - name: Create pull request in develop
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.PAT }} # Expires after a year.
+          commit-message: "Sync master into develop"
+          title: "Sync master into develop"
+          body: "This PR syncs the latest changes from the master branch into the develop branch."
+          base: develop  # Target branch for the PR
+          branch: developer-sync-pr-${{ github.event.pull_request.number }}
+
+  auto_sync_for_plugin:
+    name: "Synchronizing plugin PR"
+    needs: start  # This job now needs the 'start' job to complete first
+    if: >
+      github.event.pull_request.merged == true && 
+      startsWith(github.event.pull_request.head.ref, 'web_submission_') && 
+      contains(github.event.pull_request.title, 'brain-score.org submission')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the develop branch
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch full history
+          ref: develop
+
+      - name: Configure Git user
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+
+      - name: Rebase develop onto master
+        id: rebase # Used to check status of this step below
+        run: | # Checks if there are unresolved merge conflicts
+          git fetch origin master
+          git checkout develop
+          git rebase origin/master || {
+            if git diff --name-only --diff-filter=U | grep -q '.'; then
+              echo "Rebase conflict detected"
+              echo "::set-output name=rebase_conflict::true"
+            else
+              echo "Rebase failed due to another reason"
+              exit 1
+            fi
+          }
+
+      - name: Ensure develop branch hasn't diverged
+        run: |
+          git fetch origin develop
+          if ! git diff --quiet origin/develop; then
+            echo "Branch has diverged, aborting push"
+            exit 1
+          fi
+
+      - name: Push changes to develop (if rebase is successful)
+        if: steps.rebase.conclusion == 'success'
+        run: |
+          git push origin develop --force-with-lease
+
+      - name: Create pull request for rebase conflicts
+        if: steps.rebase.outputs.rebase_conflict == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.PAT }}
+          commit-message: "Rebase master onto develop with conflict resolution"
+          title: "Resolve conflicts between master and develop"
+          body: "This PR resolves rebase conflicts between master and develop."
+          base: develop
+          branch: developer-sync-pr-conflict-${{ github.event.pull_request.number }}
+
+      - name: Handle other rebase failures
+        if: failure() && steps.rebase.outputs.rebase_conflict != 'true'
+        run: |
+          echo "Handle non-conflict related failure, such as network issues or missing branches"
+          # Possibly incorporate additional handling logic here (e.g., notifications or retries)
+
+# Check PAT token expiration. Considering using Slack as a way to notify when current date is approaching expiration date

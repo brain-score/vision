@@ -1,11 +1,13 @@
-from r3m_model import pfResNet
 import torch as th
 
-from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
 from torchvision import transforms
 
+from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
+from resnet_model import pfResNet
 
-class ResNetrapper(PytorchWrapper):
+
+
+class ResNetWrapper(PytorchWrapper):
     def forward(self, inputs):
         tensor = th.stack(inputs)
         tensor = tensor.permute(0, 2, 1, 3, 4)
@@ -21,14 +23,8 @@ transform_img = transforms.Compose([
     # Resize the image to the size expected by ViT-MAE
     transforms.Resize((224, 224)),  # Example size for ViT
 
-    # Convert the image to a tensor
-    transforms.ToTensor(),
-
     # Normalize the image with ImageNet mean and std
     transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
-
-    # Optional: Add more augmentations if needed
-    # For example, RandomHorizontalFlip, ColorJitter, etc.
 ])
 
 def transform_video(video):
@@ -39,7 +35,7 @@ def transform_video(video):
 
 
 def get_model(identifier, num_frames=16):
-    assert identifier.startswith("R3M")
+    assert identifier.startswith("ResNet")
 
     if identifier == "ResNet50-Temporal":
         model_name = "microsoft/resnet-50"
@@ -59,7 +55,7 @@ def get_model(identifier, num_frames=16):
     inferencer_kwargs = {
         "fps": 10,
         "layer_activation_format": {
-            "encoder": "TC",
+            "encoder": "TCHW",
         },
         "duration": None,#(0, 450),
         "time_alignment": "per_frame_aligned",#"evenly_spaced",
@@ -69,12 +65,7 @@ def get_model(identifier, num_frames=16):
 
     for layer in inferencer_kwargs["layer_activation_format"].keys():
         assert "decoder" not in layer, "Decoder layers are not supported."
-
-    def process_activation(layer, layer_name, inputs, output):
-        output = th.stack(output, axis=1)
-        return output
     
-    wrapper = ResNetrapper(identifier, net, transform_video, 
-                                process_output=process_activation,
+    wrapper = ResNetWrapper(identifier, net, transform_video, 
                                 **inferencer_kwargs)
     return wrapper

@@ -44,7 +44,7 @@ def get_model(identifier, num_frames=7):
             "dynamics": "TC",
         },
         "duration": None,
-        "time_alignment": "per_frame_aligned",#"evenly_spaced",
+        "time_alignment": "evenly_spaced",
         "convert_img_to_video":True,
         "img_duration":900
     }

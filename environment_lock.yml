@@ -1,4 +1,4 @@
-name: brainscore_vision
+name: brainscore_vision_env
 channels:
   - defaults
   - conda-forge
@@ -9,17 +9,26 @@ dependencies:
   - h5py=3.11.0
   - tqdm=4.66.4
   - gitpython=3.1.43
-  - fire=0.6.0
-  - jupyter=1.0.0
-  - pybtex=0.24.0
-  - peewee=3.17.5
-  - psycopg2-binary=2.9.9
-  - networkx=3.3
-  - eva-decord=0.6.1
   - psutil=5.9.8
   - pip:
-      - brainscore-core @ git+https://github.com/brain-score/core
+      - fire==0.6.0
+      - jupyter==1.0.0
+      - pybtex==0.24.0
+      - peewee==3.17.5
+      - networkx==3.3
+      - eva-decord==0.6.1
+      - brainscore-core @ git+https://github.com/brain-score/core@dk/fix_branch_fetching_travis
       - result-caching @ git+https://github.com/brain-score/result_caching
       - importlib-metadata==4.13.0
       - scikit-learn==1.5.0
       - opencv-python==4.9.0.80
+
+  # Test dependencies
+  - pip:
+      - pytest==8.2.1
+      - pytest-check==2.3.1
+      - pytest-mock==3.14.0
+      - torch==2.3.0
+      - torchvision==0.18.0
+      - protobuf==3.20.3
+      - matplotlib==3.9.0

@@ -108,5 +108,4 @@ jobs:
         run: >
           echo "Handle non-conflict related failure, such as network issues or missing branches"
   
-          # Possibly incorporate additional handling logic here (e.g.,
-          notifications or retries)
+          # Possibly incorporate additional handling logic here (e.g.,notifications or retries)

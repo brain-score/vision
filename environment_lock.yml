@@ -1,3 +1,6 @@
+# This environment_lock file is associated with the move to brainscore_vision 2.1.0. This lock includes all testing dependencies and dependencies
+# from adjacent repositories.
+
 name: brainscore_env
 channels:
   - defaults

@@ -17,7 +17,7 @@ dependencies:
       - peewee==3.17.5
       - networkx==3.3
       - eva-decord==0.6.1
-      - brainscore-core @ git+https://github.com/brain-score/core@dk/fix_branch_fetching_travis
+      - brainscore-core @ git+https://github.com/brain-score/core
       - result-caching @ git+https://github.com/brain-score/result_caching
       - importlib-metadata==4.13.0
       - scikit-learn==1.5.0

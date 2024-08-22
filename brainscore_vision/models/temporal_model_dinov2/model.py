@@ -1,4 +1,4 @@
-from r3m_model import pfDINOV2
+from dinov2_model import pfDINOV2
 import torch as th
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
@@ -10,7 +10,9 @@ class DINOV2Wrapper(PytorchWrapper):
         tensor = th.stack(inputs)
         tensor = tensor.permute(0, 2, 1, 3, 4)
         tensor = tensor.to(self._device)
-        return self._model(tensor)  # encoder only
+        with th.no_grad():
+            tensor = self._model(tensor)  # encoder only
+        return tensor
 
 transform_img = transforms.Compose([transforms.Resize(256),
     transforms.CenterCrop(224),])
@@ -50,12 +52,7 @@ def get_model(identifier, num_frames=16):
 
     for layer in inferencer_kwargs["layer_activation_format"].keys():
         assert "decoder" not in layer, "Decoder layers are not supported."
-
-    def process_activation(layer, layer_name, inputs, output):
-        output = th.stack(output, axis=1)
-        return output
     
     wrapper = DINOV2Wrapper(identifier, net, transform_video, 
-                                process_output=process_activation,
                                 **inferencer_kwargs)
     return wrapper

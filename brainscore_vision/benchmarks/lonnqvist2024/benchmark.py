@@ -12,51 +12,27 @@ from brainscore_vision.model_interface import BrainModel
 BIBTEX = ""  # to appear in a future article
 
 
-class _Lonnqvist2024BehavioralAccuracyDistance(BenchmarkBase):
-    # behavioral benchmark
-    def __init__(self, dataset):
-        self._metric = load_metric('accuracy_distance')
+class _Lonnqvist2024Base(BenchmarkBase):
+    def __init__(self, identifier, dataset, ceiling_func, metric):
+        self._metric = metric
         self._stimulus_set = load_stimulus_set('Lonnqvist2024_test')
         self._fitting_stimuli = load_stimulus_set('Lonnqvist2024_train')
         self._visual_degrees = 17.70753
         self.assembly = load_dataset(f'Lonnqvist2024_{dataset}')
 
-        super(_Lonnqvist2024BehavioralAccuracyDistance, self).__init__(
-            identifier=f'Lonnqvist2024-behavioral_accuracy_distance', version=1,
-            ceiling_func=self._metric.ceiling(self.assembly),
+        super(_Lonnqvist2024Base, self).__init__(
+            identifier=identifier, version=1,
+            ceiling_func=ceiling_func,
             parent='Lonnqvist2024',
             bibtex=BIBTEX)
 
     def __call__(self, candidate: BrainModel, return_raw_responses: bool = False):
-        stimulus_set = place_on_screen(self._stimulus_set, target_visual_degrees=candidate.visual_degrees())
-        model_response = candidate.look_at(stimulus_set, number_of_trials=1)
-        raw_score = self._metric(model_response, stimulus_set['truth'])
-        # Adjust score to ceiling
-        ceiling = Score(np.array(1.))
-        score = raw_score / ceiling
-        score.attrs['raw'] = raw_score
-        score.attrs['ceiling'] = ceiling
-        if return_raw_responses:
-            return score, model_response
-        return score
-
-
-class _Lonnqvist2024EngineeringAccuracy(BenchmarkBase):
-    # engineering/ML benchmark
-    def __init__(self):
-        self._metric = load_metric('accuracy')
-        self._stimulus_set = load_stimulus_set('Lonnqvist2024_test')
-        self._fitting_stimuli = load_stimulus_set('Lonnqvist2024_train')
-        self._visual_degrees = 17.70753
-
-        super(_Lonnqvist2024EngineeringAccuracy, self).__init__(
-            identifier=f'Lonnqvist2024-engineering_accuracy', version=1,
-            ceiling_func=lambda: Score(1),
-            parent='Lonnqvist2024',
-            bibtex=BIBTEX)
-
-    def __call__(self, candidate: BrainModel, return_raw_responses: bool = False):
-        candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli=self._fitting_stimuli, number_of_trials=1)
+        fitting_stimulus_set = place_on_screen(
+            self._fitting_stimuli,
+            target_visual_degrees=candidate.visual_degrees(),
+            source_visual_degrees=self._visual_degrees
+        )
+        candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli=fitting_stimulus_set, number_of_trials=1)
         stimulus_set = place_on_screen(
             self._stimulus_set,
             target_visual_degrees=candidate.visual_degrees(),
@@ -66,13 +42,53 @@ class _Lonnqvist2024EngineeringAccuracy(BenchmarkBase):
         model_response = convert_proba_to_choices(model_response)
         raw_score = self._metric(model_response, stimulus_set['truth'])
         # Adjust score to ceiling
-        ceiling = Score(np.array(1.))
+        ceiling = self.ceiling
         score = raw_score / ceiling
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling
         if return_raw_responses:
             return score, model_response
         return score
+
+
+class _Lonnqvist2024BehavioralAccuracyDistanceInlabInstructions(_Lonnqvist2024Base):
+    def __init__(self):
+        metric = load_metric('accuracy_distance')
+        ceiling_func = lambda: metric.ceiling(self.assembly)
+        super(_Lonnqvist2024BehavioralAccuracyDistanceInlabInstructions, self).__init__(
+            identifier='Lonnqvist2024-inlab-instructions_behavioral_accuracy_distance', dataset='inlab-instructions',
+            ceiling_func=ceiling_func,
+            metric=metric)
+
+
+class _Lonnqvist2024BehavioralAccuracyDistanceInlabNoInstructions(_Lonnqvist2024Base):
+    def __init__(self):
+        metric = load_metric('accuracy_distance')
+        ceiling_func = lambda: metric.ceiling(self.assembly)
+        super(_Lonnqvist2024BehavioralAccuracyDistanceInlabNoInstructions, self).__init__(
+            identifier='Lonnqvist2024-inlab-no-instructions_behavioral_accuracy_distance', dataset='inlab-no-instructions',
+            ceiling_func=ceiling_func,
+            metric=metric)
+
+
+class _Lonnqvist2024BehavioralAccuracyDistanceOnlineNoInstructions(_Lonnqvist2024Base):
+    def __init__(self):
+        metric = load_metric('accuracy_distance')
+        ceiling_func = lambda: metric.ceiling(self.assembly)
+        super(_Lonnqvist2024BehavioralAccuracyDistanceOnlineNoInstructions, self).__init__(
+            identifier='Lonnqvist2024-online-no-instructions_behavioral_accuracy_distance', dataset='online-no-instructions',
+            ceiling_func=ceiling_func,
+            metric=metric)
+
+
+class _Lonnqvist2024EngineeringAccuracy(_Lonnqvist2024Base):
+    def __init__(self):
+        metric = load_metric('accuracy')
+        ceiling_func = lambda: Score(1)
+        super(_Lonnqvist2024EngineeringAccuracy, self).__init__(
+            identifier='Lonnqvist2024-engineering_accuracy', dataset='inlab-instructions',
+            ceiling_func=ceiling_func,
+            metric=metric)
 
 
 def convert_proba_to_choices(source: BehavioralAssembly) -> np.array:

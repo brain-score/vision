@@ -11,4 +11,4 @@ def commit_model(identifier):
     return ModelCommitment(identifier=identifier, activations_model=activations_model, layers=layers)
 
 
-model_registry["DFM_LSTM"] = lambda: commit_model("DFM_LSTM")
+model_registry["DFM-LSTM"] = lambda: commit_model("DFM-LSTM")

@@ -2,7 +2,7 @@ import torch as th
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
 from brainscore_vision.model_helpers.s3 import load_weight_file
-from mae_model import pfDFM_LSTM_physion, load_model
+from dfm_model import pfDFM_LSTM_physion, load_model
 
 from torchvision import transforms as T
 
@@ -15,8 +15,7 @@ class DFMLSTMWrapper(PytorchWrapper):
             output = self._model(tensor)
         return output#features  # encoder only
 
-transform_img = T.Compose([T.Resize(256),
-    T.CenterCrop(224)])
+transform_img = T.Compose([T.Resize(128)])
 
 def transform_video(video):
     frames = th.Tensor(video.to_numpy()).permute(0, 3, 1, 2)
@@ -34,11 +33,12 @@ def get_model(identifier, num_frames=7):
         )
     # Instantiate the model
     
-    net = pfMAE_LSTM_physion(n_past=num_frames)
+    net = pfDFM_LSTM_physion(n_past=num_frames)
     net = load_model(net, model_path)
 
     inferencer_kwargs = {
         "fps": 16,
+        "batch_size": 4,
         "layer_activation_format": {
             "encoder": "TC",
             "dynamics": "TC",

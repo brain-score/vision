@@ -52,7 +52,9 @@ class PN(nn.Module):
         bs, num_frames, num_channels, h, w = videos.shape
         videos = videos.flatten(0, 1)
         input_states = self.get_encoder_feats(videos)
-        input_states = input_states.reshape(bs, num_frames, -1).cuda()
+        input_states = input_states.reshape(bs, num_frames, -1)
+        if torch.cuda.is_available():
+            input_states = input_states.cuda()
         output = {
             "input_states": input_states[:, : n_past],
             "observed_states": input_states,

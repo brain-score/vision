@@ -3,14 +3,8 @@ import torch
 import torch.nn as nn
 from torchvision import transforms
 from collections import OrderedDict
-from phys_readouts.models.DFM_physion.PixelNeRF import PixelNeRFModelCond
-
-R3M_VAL_TRANSFORMS = [
-    transforms.Resize(256),
-    transforms.CenterCrop(224),
-    transforms.ToTensor(),
-]
-
+from einops import rearrange
+from torch.functional import F
 
 def load_model(
     model, model_path, state_dict_key="state_dict"
@@ -33,10 +27,10 @@ def load_model(
     return model
 
 class DFM(nn.Module):
-    def __init__(self, weights_path):
+    def __init__(self):
 
         super().__init__()
-
+        from phys_extractors.models.DFM_physion.PixelNeRF import PixelNeRFModelCond
         render_settings = {
             "n_coarse": 64,
             "n_fine": 64,
@@ -66,12 +60,12 @@ class DFM(nn.Module):
         )
         self.latent_dim = 8192
 
-    def forward(self, videos):
+    def forward(self, videos, n_past):
         '''
         videos: [B, T, C, H, W], T is usually 4 and videos are normalized with imagenet norm
         returns: [B, T, D] extracted features
         '''
-        ctxt_rgb = videos.unsqueeze(1)
+        ctxt_rgb = videos
 
         b, num_context, c, h, w = ctxt_rgb.shape
 
@@ -93,18 +87,26 @@ class DFM(nn.Module):
 
         features = feature_map.reshape(feature_map.shape[0], -1)
 
-        features = nn.AdaptiveAvgPool1d(8192)(features.float())
-        return features
+        input_states = nn.AdaptiveAvgPool1d(8192)(features.float().cpu())
+        input_states = input_states.reshape(b, num_context, -1)
+
+        if torch.cuda.is_available():
+            input_states = input_states.cuda()
+
+        output = {
+            "input_states": input_states[:, : n_past],
+            "observed_states": input_states,
+        }
+        return output
 
 class LSTM(nn.Module):
     def __init__(self, latent_dim):
         super().__init__()
         self.latent_dim = latent_dim
-        self.lstm = nn.LSTM(self.latent_dim, 1024)
+        self.lstm = nn.LSTM(self.latent_dim, 1024, batch_first=True)
         self.regressor = nn.Linear(1024, self.latent_dim)
 
-    def forward_step(self, x):
-        feats = torch.stack(x)  # (T, Bs, self.latent_dim)
+    def forward_step(self, feats):
         assert feats.ndim == 3
         # note: for lstms, hidden is the last timestep output
         _, hidden = self.lstm(feats)
@@ -121,12 +123,12 @@ class LSTM(nn.Module):
             pred_state = self.forward_step(prev_states)
             simulated_states.append(pred_state)
             # add most recent pred and delete oldest (to maintain a temporal window of length n_past)
-            prev_states.append(pred_state)
-            prev_states.pop(0)
+            
+            prev_states = torch.cat([prev_states[:, 1:], pred_state.unsqueeze(1)], axis=1)
 
         output = {
             "simulated_states": torch.stack(simulated_states, axis=1),
-            "rollout_states": torch.cat([torch.stack(input_states, axis=1), torch.stack(simulated_states, axis=1)], axis=1),
+            "rollout_states": torch.cat([input_states, torch.stack(simulated_states, axis=1)], axis=1),
         }
         return output
 
@@ -154,7 +156,7 @@ class FrozenPretrainedEncoder(nn.Module):
         dynamics_output = self.dynamics(encoder_output['input_states'], rollout_steps)
 
         output = {
-            "input_states": torch.stack(encoder_output['input_states'], axis=1),
+            "input_states": encoder_output['input_states'],
             "observed_states": encoder_output['observed_states'],
             "simulated_states": dynamics_output['simulated_states'],
             "rollout_states": dynamics_output['rollout_states'],

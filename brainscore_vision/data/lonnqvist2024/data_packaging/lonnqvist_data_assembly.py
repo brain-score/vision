@@ -19,15 +19,16 @@ def collect_lonnqvist_data_assembly(root_directory, dataset):
     assembly = BehavioralAssembly(data['subject_answer'],
                                   coords={
                                       'subject': ('presentation', data['subject_id']),
-                                      'subject_group': ('presentation', data['subject_group']),
                                       'visual_degrees': ('presentation', data['visual_degrees']),
                                       'image_duration': ('presentation', data['image_duration']),
                                       'is_correct': ('presentation', data['is_correct']),
                                       'subject_answer': ('presentation', data['subject_answer']),
-                                      'condition': ('presentation', data['subject_group']),
-                                      'percentage_elements': ('presentation', data['percentage_elements']),
-                                      'stimulus_id': ('presentation', data['stimulus_id'].astype(int)),
-                                      'truth': ('presentation', data['correct_answer'])
+                                      'curve_length': ('presentation', data['curve_length']),
+                                      'n_cross': ('presentation', data['n_cross']),
+                                      'image_path': ('presentation', data['image_path']),
+                                      'stimulus_id': ('presentation', data['stimulus_id']),
+                                      'truth': ('presentation', data['truth']),
+                                      'image_label': ('presentation', data['truth'])
                                   },
                                   dims=['presentation']
                                   )
@@ -39,7 +40,7 @@ def collect_lonnqvist_data_assembly(root_directory, dataset):
 
 
 if __name__ == '__main__':
-    root_directory = Path(r'.')
+    root_directory = Path(r'./local')
     for dataset in DATASETS:
         assembly = collect_lonnqvist_data_assembly(root_directory, dataset)
         # upload to S3

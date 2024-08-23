@@ -6,20 +6,20 @@ channels:
   - defaults
   - conda-forge
 dependencies:
-  - bzip2=1.0.8=h80987f9_6
-  - ca-certificates=2024.7.2=hca03da5_0
-  - libffi=3.4.4=hca03da5_1
-  - ncurses=6.4=h313beb8_0
-  - openssl=3.0.14=h80987f9_0
-  - pip=24.2=py311hca03da5_0
-  - python=3.11.9=hb885b13_0
-  - readline=8.2=h1a28f6b_0
-  - setuptools=72.1.0=py311hca03da5_0
-  - sqlite=3.45.3=h80987f9_0
-  - tk=8.6.14=h6ba3021_0
-  - wheel=0.43.0=py311hca03da5_0
-  - xz=5.4.6=h80987f9_1
-  - zlib=1.2.13=h18a0788_1
+  - bzip2=1.0.8
+  - ca-certificates=2024.7.2
+  - libffi=3.4.4
+  - ncurses=6.4
+  - openssl=3.0.14
+  - pip=24.2
+  - python=3.11.9
+  - readline=8.2
+  - setuptools=72.1.0
+  - sqlite=3.45.3
+  - tk=8.6.14
+  - wheel=0.43.0
+  - xz=5.4.6
+  - zlib=1.2.13
   - pip:
       - anyio==4.4.0
       - appnope==0.1.4
@@ -34,9 +34,9 @@ dependencies:
       - bleach==6.1.0
       - boto3==1.35.3
       - botocore==1.35.3
-      - brainio==0.2.0
-      - brainscore-core==0.1.0
-      - brainscore-vision==2.0
+      - brainio @ git+https://github.com/brain-score/brainio.git@sw/python_3-11_migration
+      - brainscore_core @ git+https://github.com/brain-score/core@sw/tf2-python3_11_conversion
+      - brainscore-vision @ git+https://github.com/brain-score/vision.git@sw/bs_version_update
       - certifi==2024.7.4
       - cffi==1.17.0
       - cftime==1.6.4
@@ -104,7 +104,7 @@ dependencies:
       - nbconvert==7.16.4
       - nbformat==5.10.4
       - nest-asyncio==1.6.0
-      - netcdf4==1.6.4
+      - netcdf4==1.7.1.post1
       - networkx==3.3
       - notebook==7.2.1
       - notebook-shim==0.2.4
@@ -145,7 +145,7 @@ dependencies:
       - qtpy==2.4.1
       - referencing==0.35.1
       - requests==2.32.3
-      - result-caching==0.1.0
+      - result_caching @ git+https://github.com/brain-score/result_caching@sw/3-11_migration
       - rfc3339-validator==0.1.4
       - rfc3986-validator==0.1.1
       - rpds-py==0.20.0

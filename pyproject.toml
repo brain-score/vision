@@ -4,7 +4,7 @@
 
 [project]
 name = "brainscore_vision"
-version = "2.0"
+version = "2.1.0"
 description = "The Brain-Score library enables model comparisons to behavioral and neural experiments"
 authors = []
 license = { 'file' = 'LICENSE' }
@@ -13,8 +13,8 @@ requires-python = ">=3.11"
 
 dependencies = [
     "numpy<2",
-    "brainscore_core @ git+https://github.com/brain-score/core@dk/fix_branch_fetching_travis",
-    "result_caching @ git+https://github.com/brain-score/result_caching",
+    "brainscore_core @ git+https://github.com/brain-score/core@sw/tf2-python3_11_conversion",
+    "result_caching @ git+https://github.com/brain-score/result_caching@sw/3-11_migration",
     "importlib-metadata<5", # workaround to https://github.com/brain-score/brainio/issues/28
     "scikit-learn", # for metric_helpers/transformations.py cross-validation
     "scipy", # for benchmark_helpers/properties_common.py

@@ -44,15 +44,15 @@ def get_model(identifier, num_frames=7):
         
     # Instantiate the model
     
-    net = MCVDEncoder(model_path)
+    net = MCVDEncoder(model_path, identifier)
 
     inferencer_kwargs = {
         "fps": 25,
         "layer_activation_format": {
-            "encoder": "TC",
+            "encoder": "TCHW",
         },
         "duration": None,
-        "time_alignment": "per_frame_aligned",#"evenly_spaced",
+        "time_alignment": "evenly_spaced",
         "convert_img_to_video":True,
         "img_duration":450
     }
@@ -60,14 +60,6 @@ def get_model(identifier, num_frames=7):
     for layer in inferencer_kwargs["layer_activation_format"].keys():
         assert "decoder" not in layer, "Decoder layers are not supported."
 
-    def process_activation(layer, layer_name, inputs, output):
-        if layer_name == 'encoder':
-            activations = output["observed_states"]
-        else:
-            activations = output["rollout_states"]
-        return activations 
-
-    wrapper = R3MLSTMWrapper(identifier, net, transform_video, 
-                                process_output=process_activation,
+    wrapper = MCVDWrapper(identifier, net, transform_video, 
                                 **inferencer_kwargs)
     return wrapper

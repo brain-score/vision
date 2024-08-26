@@ -16,7 +16,7 @@ def get_model(name):
     :return: the model instance
     """
     assert name == 'vgg-19'
-    model = torchvision.models.vgg19()
+    model = torchvision.models.vgg19(weights='DEFAULT')
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(identifier='name', model=model, preprocessing=preprocessing)
     wrapper.image_size = 224

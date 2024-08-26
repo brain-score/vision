@@ -16,7 +16,7 @@ def get_model(name):
     """
     assert name == 'densenet-121'
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
-    model = densenet121()
+    model = densenet121(weights='DEFAULT')
     wrapper = PytorchWrapper(identifier='densenet-121', model=model, preprocessing=preprocessing)
     wrapper.image_size = 224
     return wrapper

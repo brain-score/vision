@@ -1,0 +1,14 @@
+torch>=2
+torchvision
+pyyaml
+numpy
+opencv-python
+submitit
+braceexpand
+webdataset
+timm
+decord
+pandas
+einops
+beartype
+jepa @ git+https://github.com/facebookresearch/jepa.git#egg=jepa

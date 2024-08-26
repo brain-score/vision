@@ -5,7 +5,7 @@ from brainscore_vision.model_helpers.check_submission import check_models
 import torchvision
 
 
-model = torchvision.models.resnet50()
+model = torchvision.models.resnet50(weights='DEFAULT')
 
 def get_model(name):
     """

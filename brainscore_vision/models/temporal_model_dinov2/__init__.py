@@ -8,8 +8,7 @@ from . import model
 def commit_model(identifier):
     activations_model=model.get_model(identifier)
     layers=get_specified_layers(activations_model)
-    r = {'V1': 'encoder', 'V2': 'encoder', 'V4': 'encoder', 'IT': 'encoder'}
-    return ModelCommitment(identifier=identifier, activations_model=activations_model, layers=layers, region_layer_map=r)
+    return ModelCommitment(identifier=identifier, activations_model=activations_model, layers=layers)
 
 
 model_registry["DINO-LARGE-Temporal"] = lambda: commit_model("DINO-LARGE-Temporal")

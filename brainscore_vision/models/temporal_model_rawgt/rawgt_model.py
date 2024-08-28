@@ -1,14 +1,13 @@
-from transformers import MaskFormerForInstanceSegmentation
-import torch
-import torch.nn as nn
-
-from jepa.evals.feature_extract_interface import ActivityRecogFeatureExtractor
+from einops import rearrange
 
 from transformers import AutoImageProcessor, AutoModelForDepthEstimation
+from transformers import MaskFormerForInstanceSegmentation
 
-import raft_core.raft as raft # this needs to be added to phys_readouts
-from einops import rearrange
+import torch
+import torch.nn as nn
 import os
+
+import phys_extractors.models.raft_core.raft as raft
 
 
 def patchify(x, tubelet_size, patch_size):
@@ -29,8 +28,8 @@ def patchify(x, tubelet_size, patch_size):
     return videos_patch
 
 
-class GT_encoder(ActivityRecogFeatureExtractor):
-    def __init__(self, embed_dim=256):
+class GT_encoder(nn.Module):
+    def __init__(self, model_name, embed_dim=256):
         super().__init__()
 
         self.mean = torch.tensor([[0.485, 0.456, 0.406]])[:, :, None, None, None]
@@ -40,8 +39,7 @@ class GT_encoder(ActivityRecogFeatureExtractor):
         self.embed_dim = embed_dim
 
         self.pretrained_raft_model = raft.load_raft_model(
-            load_path=os.path.expanduser(
-                '/ccn2/u/rmvenkat/code/deploy_code/BBNet/bbnet/models/raft_core/raft-sintel.pth'),
+            load_path=os.path.expanduser(model_name),
             multiframe=True,
             scale_inputs=True)
 
@@ -64,32 +62,10 @@ class GT_encoder(ActivityRecogFeatureExtractor):
         for param in self.seg_model.parameters():
             param.requires_grad = False
 
-        #         torch.Size([2, 1568, 896]) torch.Size([2, 512, 3072]) torch.Size([2, 200, 2048])
-
         n_flow = 1920
         n_depth = 1024
         n_seg = 1024
         pe_len = 1568
-
-        self.fc_flow = nn.Sequential(
-            nn.Linear(n_flow, embed_dim),
-            nn.ReLU(),
-            nn.Linear(embed_dim, embed_dim)
-        )
-
-        self.fc_depth = nn.Sequential(
-            nn.Linear(n_depth, embed_dim),
-            nn.ReLU(),
-            nn.Linear(embed_dim, embed_dim)
-        )
-
-        self.fc_seg = nn.Sequential(
-            nn.Linear(n_seg, embed_dim),
-            nn.ReLU(),
-            nn.Linear(embed_dim, embed_dim)
-        )
-
-        self.pos_embedding = nn.Parameter(torch.randn(1, pe_len, embed_dim))
 
     def get_embed_dim(self):
         return self.embed_dim
@@ -104,8 +80,9 @@ class GT_encoder(ActivityRecogFeatureExtractor):
         return outputs
 
     def unnormalize(self, x):
-
-        return x * self.std.to(x.device) + self.mean.to(x.device)
+        x = x.transpose(1,2)
+        x = x * self.std.to(x.device) + self.mean.to(x.device)
+        return x.transpose(1,2)
 
     def get_flow(self, videos):
         '''
@@ -115,20 +92,21 @@ class GT_encoder(ActivityRecogFeatureExtractor):
 
         videos = self.unnormalize(videos)
 
-        videos = videos.permute(0, 2, 1, 3, 4)
-
         with torch.no_grad():
             flow, features = self.pretrained_raft_model(videos)
-            flow = flow.flatten(1, 2)[:, :, None]
-            flow = patchify(flow, 1, (8, 8))
+            # Create a zero tensor with the same shape as one of the added dimensions
+            zero_tensor = torch.zeros(flow.shape[0], 1, flow.shape[2], flow.shape[3], flow.shape[4])
+            
+            # Concatenate the zero tensor with the original tensor
+            flow = torch.cat((zero_tensor.to(flow.device), flow), dim=1)
             
         return flow
 
     def get_depth(self, x):
 
-        B, C, T, H, W = x.shape
+        B, T, C, H, W = x.shape
 
-        x_ = x.transpose(1, 2).flatten(0, 1)
+        x_ = x.flatten(0, 1)
 
         with torch.no_grad():
             outputs = self.depth_model(x_, output_hidden_states=True)
@@ -136,15 +114,13 @@ class GT_encoder(ActivityRecogFeatureExtractor):
 
         predicted_depth = predicted_depth.view(B, T, predicted_depth.shape[1], predicted_depth.shape[2])[:, :, None]
 
-        predicted_depth = patchify(predicted_depth, 1, (8, 8))
-
         return predicted_depth
 
     def get_segmentation(self, x):
 
-        B, C, T, H, W = x.shape
+        B, T, C, H, W = x.shape
 
-        x = x.transpose(1, 2).flatten(0, 1)  # .cuda()
+        x = x.flatten(0, 1)  # .cuda()
 
         with torch.no_grad():
             outputs = self.seg_model(pixel_values=x, output_hidden_states=True)
@@ -166,26 +142,7 @@ class GT_encoder(ActivityRecogFeatureExtractor):
 
         all_results = all_results.view(B, T, all_results.shape[1], all_results.shape[2])[:, :, None]
 
-        all_results = patchify(all_results, 1, (8, 8))
-
         return all_results
-
-    def reorder_features(self, outputs, B, num_views_per_clip, num_clips):
-
-        # Unroll outputs into a 2D array [spatial_views x temporal_views]
-
-        eff_B = B * num_views_per_clip
-        all_outputs = [[] for _ in range(num_views_per_clip)]
-        for i in range(num_clips):
-            o = outputs[i * eff_B:(i + 1) * eff_B]
-            for j in range(num_views_per_clip):
-                all_outputs[j].append(o[j * B:(j + 1) * B])
-            # concatenate along first dimension
-
-        for i in range(num_views_per_clip):
-            all_outputs[i] = torch.cat(all_outputs[i], dim=1)
-
-        return all_outputs
 
     def forward(self, videos):
         '''
@@ -193,34 +150,15 @@ class GT_encoder(ActivityRecogFeatureExtractor):
         returns: views * [Tensor[B, K, D]] extracted features. The K tokens includes the features across many clips over time
         batch, channel, time, height, width: 16, 3, 16, 224, 224
         '''
+        flow_features = self.get_flow(videos)
 
-        x = [[videos]]
+        depth_features = self.get_depth(videos)
 
-        num_clips = len(x)
-        num_views_per_clip = len(x[0])
-        B, C, T, H, W = x[0][0].size()
+        seg_features = self.get_segmentation(videos).to(torch.float32)
 
-        x = [torch.cat(xi, dim=0) for xi in x]
-        x = torch.cat(x, dim=0)
+        merged_feat = torch.cat([flow_features, depth_features, seg_features], axis=2)
 
-        # print("flow", self.get_flow(x).shape, "depth", self.get_depth(x).shape, "seg", self.get_segmentation(x).shape)
-
-        flow_features = self.fc_flow(self.get_flow(x))
-
-        depth_features = self.fc_depth(self.get_depth(x))
-
-        seg_features = self.fc_seg(self.get_segmentation(x).to(torch.float32))
-
-        merged_feat = flow_features + depth_features + seg_features
-
-        merged_feat = self.reorder_features(merged_feat, B, num_views_per_clip, num_clips)
-
-        # add pe
-        all_pe_feats = []
-        for feats in merged_feat:
-            all_pe_feats.append(feats + self.pos_embedding)
-
-        merged_feat = all_pe_feats
+        merged_feat = patchify(merged_feat.transpose(1,2), 1, (8, 8))
 
         return merged_feat
 

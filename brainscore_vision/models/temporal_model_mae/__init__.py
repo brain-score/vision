@@ -8,10 +8,8 @@ from . import model
 def commit_model(identifier):
     activations_model=model.get_model(identifier)
     layers=get_specified_layers(activations_model)
-    r = {'V1': 'encoder', 'V2': 'encoder', 'V4': 'encoder', 'IT': 'encoder'}
-    return ModelCommitment(identifier=identifier, activations_model=activations_model, layers=layers, region_layer_map=r)
+    return ModelCommitment(identifier=identifier, activations_model=activations_model, layers=layers)
 
 
-model_registry["MAE-HUGE-Temporal"] = lambda: commit_model("MAE-HUGE-Temporal")
 model_registry["MAE-BASE-Temporal"] = lambda: commit_model("MAE-BASE-Temporal")
 model_registry["MAE-LARGE-Temporal"] = lambda: commit_model("MAE-LARGE-Temporal")

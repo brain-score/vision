@@ -2,7 +2,7 @@ import torch as th
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
 from brainscore_vision.model_helpers.s3 import load_weight_file
-from resnet_model import pfResNet_LSTM_physion, load_model
+from .resnet_model import pfResNet_LSTM_physion, load_model
 
 from torchvision import transforms as T
 
@@ -46,7 +46,7 @@ def get_model(identifier, num_frames=7):
             "dynamics": "TC",
         },
         "duration": None,
-        "time_alignment": "evenly_spaced",#"per_frame_aligned"
+        "time_alignment": "evenly_spaced",
         "convert_img_to_video":True,
         "img_duration":450
     }

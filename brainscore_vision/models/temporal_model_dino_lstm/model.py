@@ -2,7 +2,7 @@ import torch as th
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
 from brainscore_vision.model_helpers.s3 import load_weight_file
-from dino_model import pfDINO_LSTM_physion, load_model
+from .dino_model import pfDINO_LSTM_physion, load_model
 
 from torchvision import transforms as T
 

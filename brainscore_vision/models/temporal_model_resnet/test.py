@@ -1,24 +1,19 @@
-#import pytest
-#from pytest import approx
+import pytest
 
-from brainscore_vision import score
-
-
-#@pytest.mark.private_access
-#@pytest.mark.memory_intense
-#@pytest.mark.parametrize("model_identifier, benchmark_identifier, expected_score", [
-#    ("R3M-ResNet50", "MajajHong2015.IT-pls", approx(0.508, abs=0.0005)),
-#])
-
-import os
-os.environ["RESULTCACHING_DISABLE"] = "1"
-
-def test_score(model_identifier, benchmark_identifier, expected_score):
-    actual_score = score(model_identifier=model_identifier, benchmark_identifier=benchmark_identifier,
-                         conda_active=True)
-    assert actual_score == expected_score
+from brainscore_vision import load_model
 
 
-actual_score = score(model_identifier="ResNet18-Temporal", benchmark_identifier="FreemanZiemba2013public.V2-pls",#"MajajHong2015public.IT-pls",
-                         conda_active=True)
-print(actual_score)
+model_list = [
+    "ResNet18-Temporal",
+    "ResNet50-Temporal",
+    "ResNet34-Temporal",
+    "ResNet101-Temporal",
+    "ResNet152-Temporal"
+]
+
+@pytest.mark.private_access
+@pytest.mark.memory_intense
+@pytest.mark.parametrize("model_identifier", model_list)
+def test_load(model_identifier):
+    model = load_model(model_identifier)
+    assert model is not None

@@ -1,18 +1,14 @@
-#import pytest
-#from pytest import approx
+import pytest
 
-from brainscore_vision import score
-
-import os
-os.environ["RESULTCACHING_DISABLE"] = "1"
+from brainscore_vision import load_model
 
 
-def test_score(model_identifier, benchmark_identifier, expected_score):
-    actual_score = score(model_identifier=model_identifier, benchmark_identifier=benchmark_identifier,
-                         conda_active=True)
-    assert actual_score == expected_score
+model_list = ["MAE-BASE-Temporal",
+              "MAE-LARGE-Temporal"]
 
-
-actual_score = score(model_identifier="MAE-LARGE-Temporal", benchmark_identifier="FreemanZiemba2013public.V2-pls",#"MajajHong2015public.IT-pls",
-                         conda_active=True)
-print(actual_score)
+@pytest.mark.private_access
+@pytest.mark.memory_intense
+@pytest.mark.parametrize("model_identifier", model_list)
+def test_load(model_identifier):
+    model = load_model(model_identifier)
+    assert model is not None

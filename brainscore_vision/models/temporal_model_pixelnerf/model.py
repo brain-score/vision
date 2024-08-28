@@ -2,7 +2,7 @@ import torch as th
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
 from brainscore_vision.model_helpers.s3 import load_weight_file
-from pn_model import pfPN
+from .pn_model import pfPN
 
 from torchvision import transforms as T
 
@@ -32,8 +32,15 @@ def get_model(identifier, num_frames=7):
             version_id="No3poAbMlHORaazW3sw8GC0Adlp1tdJS",
             sha1="4c7338cbd8cb9cc6ed94e8dfde40bed1096e3a73"
         )
+
+    config_path = load_weight_file(
+            bucket="brainscore-vision", 
+            relative_path="neuroai_stanford_weights/merged_conf.conf", 
+            version_id="jjLOH81TcgEW9QBw8ZuuU.pjCMsXWwae",
+            sha1="c83621086331949a05524b055e278a09c94fc43e"
+        )
     # Instantiate the model
-    net = pfPN(model_path)
+    net = pfPN(model_path, config_path)
     
     inferencer_kwargs = {
         "fps": 16,
@@ -41,7 +48,7 @@ def get_model(identifier, num_frames=7):
             "encoder": "TC",
         },
         "duration": None,
-        "time_alignment": "per_frame_aligned",#"evenly_spaced",
+        "time_alignment": "evenly_spaced",
         "convert_img_to_video":True,
         "img_duration":900
     }

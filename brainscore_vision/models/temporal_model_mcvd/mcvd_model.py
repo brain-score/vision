@@ -8,7 +8,7 @@ from phys_extractors.models.mcvd_pytorch.datasets import data_transform
 from phys_extractors.models.mcvd_pytorch.runners.ncsn_runner import conditioning_fn
     
 class MCVD(nn.Module):
-    def __init__(self, weights_path, identifier):
+    def __init__(self, weights_path, cfg_path, identifier):
         
         super().__init__()
         device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
@@ -22,10 +22,6 @@ class MCVD(nn.Module):
         else:
             print("CUDA is not available.")
 
-        if 'EGO4D' in identifier:
-            cfg_path = 'config_ego4d.yml'
-        else:
-            cfg_path = 'config_physion.yml'
         self.scorenet, self.config = load_model(weights_path, device, cfg_path)
         self.sampler = get_readout_sampler(self.config)
 
@@ -55,9 +51,9 @@ class MCVD(nn.Module):
 
 # Given sequence of images, predicts next latent
 class MCVDEncoder(nn.Module):
-    def __init__(self, weights_path, identifier):
+    def __init__(self, weights_path, config_path, identifier):
         super().__init__()
-        self.encoder = MCVD(weights_path, identifier)
+        self.encoder = MCVD(weights_path, config_path, identifier)
 
     def forward(self, x):
         self.encoder.eval()

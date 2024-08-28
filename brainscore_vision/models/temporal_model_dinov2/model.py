@@ -1,4 +1,4 @@
-from dinov2_model import pfDINOV2
+from .dinov2_model import pfDINOV2
 import torch as th
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
@@ -45,7 +45,7 @@ def get_model(identifier, num_frames=16):
             "encoder": "TC",
         },
         "duration": None,#(0, 450),
-        "time_alignment": "per_frame_aligned",#"evenly_spaced",
+        "time_alignment": "evenly_spaced",
         "convert_img_to_video":True,
         "img_duration":450
     }

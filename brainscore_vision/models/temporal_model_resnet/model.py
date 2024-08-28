@@ -3,7 +3,7 @@ import torch as th
 from torchvision import transforms
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
-from resnet_model import pfResNet
+from .resnet_model import pfResNet
 
 
 

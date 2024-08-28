@@ -1,7 +1,9 @@
-from featsgt_model import FeatsModel
+from .featsgt_model import FeatsModel
 import torch as th
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
+from brainscore_vision.model_helpers.s3 import load_weight_file
+
 from torchvision import transforms
 
 
@@ -12,9 +14,17 @@ class FEATSGTWrapper(PytorchWrapper):
         tensor = tensor.to(self._device)
         return self._model(tensor)  # encoder only
 
-transform_img = transforms.Compose([transforms.Resize(256),
-    transforms.CenterCrop(224),])
-    #transforms.ToTensor()]) # ToTensor() divides by 255
+# Define the ImageNet mean and std
+IMAGENET_DEFAULT_MEAN = (0.485, 0.456, 0.406)
+IMAGENET_DEFAULT_STD = (0.229, 0.224, 0.225)
+
+transform_img = transforms.Compose([
+    # Resize the image to the size expected by ViT-MAE
+    transforms.Resize((224, 224)),  # Example size for ViT
+
+    # Normalize the image with ImageNet mean and std
+    transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
+])
 
 def transform_video(video):
     import torch
@@ -28,11 +38,11 @@ def get_model(identifier, num_frames=16):
 
     model_name = load_weight_file(
             bucket="brainscore-vision", 
-            relative_path="neuroai_stanford_weights/vitl16.pth.tar", # change this
-            version_id="7_2SZtf5kXqmmTsJOPmkABI._HAX519c",
-            sha1="ead964db02a855672b97f7a0b6d6c43c6b20ec88"
+            relative_path="neuroai_stanford_weights/raft-sintel.pth", # change this
+            version_id="QxI3fboAhgv82BnonbnM3cTouBvdL4N7",
+            sha1="88b0c4569f7098e2921846b2cc8eb5af2e4db0fc"
         )
-
+    
     # Instantiate the model
 
     net = FeatsModel(model_name)
@@ -44,18 +54,14 @@ def get_model(identifier, num_frames=16):
             "encoder": "TC",
         },
         "duration": None,#(0, 450),
-        "time_alignment": "per_frame_aligned",#"evenly_spaced",
+        "time_alignment": "evenly_spaced",
         "convert_img_to_video":True,
-        "img_duration":450
+        "img_duration":200
     }
 
     for layer in inferencer_kwargs["layer_activation_format"].keys():
         assert "decoder" not in layer, "Decoder layers are not supported."
-
-    def process_activation(layer, layer_name, inputs, output):
-        return output[0]
     
     wrapper = FEATSGTWrapper(identifier, net, transform_video, 
-                                process_output=process_activation,
                                 **inferencer_kwargs)
     return wrapper

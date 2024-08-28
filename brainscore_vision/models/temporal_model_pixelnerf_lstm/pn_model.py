@@ -27,11 +27,10 @@ def load_model(
     return model
 
 class PN(nn.Module):
-    def __init__(self):
+    def __init__(self, config_path):
         super().__init__()
         from phys_extractors.models.pixelnerf.src.model import make_model
-        conf = 'sn64.conf'
-        conf = ConfigFactory.parse_file(conf)
+        conf = ConfigFactory.parse_file(config_path)
         self.net = make_model(conf["model"])
         self.latent_dim = 8192
 
@@ -96,11 +95,11 @@ class LSTM(nn.Module):
 
 # Given sequence of images, predicts next latent
 class FrozenPretrainedEncoder(nn.Module):
-    def __init__(self, n_past=7):
+    def __init__(self, config_path, n_past=7):
         super().__init__()
 
         self.n_past = n_past
-        self.encoder = PN()
+        self.encoder = PN(config_path)
 
         dynamics_kwargs = {"latent_dim": self.encoder.latent_dim}
         self.dynamics = LSTM(**dynamics_kwargs)
@@ -125,5 +124,5 @@ class FrozenPretrainedEncoder(nn.Module):
         }
         return output
 
-def pfPN_LSTM_physion(n_past=7, **kwargs):
-    return FrozenPretrainedEncoder(n_past=n_past, **kwargs)
+def pfPN_LSTM_physion(config_path, n_past=7, **kwargs):
+    return FrozenPretrainedEncoder(config_path, n_past=n_past, **kwargs)

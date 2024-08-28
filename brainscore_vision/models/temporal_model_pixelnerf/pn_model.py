@@ -5,11 +5,10 @@ from collections import OrderedDict
 from pyhocon import ConfigFactory
 
 class PN(nn.Module):
-    def __init__(self, model_weights):
+    def __init__(self, model_weights, config_path):
         super().__init__()
         from phys_extractors.models.pixelnerf.src.model import make_model
-        conf = 'sn64.conf'
-        conf = ConfigFactory.parse_file(conf)
+        conf = ConfigFactory.parse_file(config_path)
         self.net = make_model(conf["model"])
         self.net.load_state_dict(torch.load(model_weights, map_location='cpu'))
         self.latent_dim = 8192
@@ -34,9 +33,9 @@ class PN(nn.Module):
 
 # Given sequence of images, predicts next latent
 class FrozenPretrainedEncoder(nn.Module):
-    def __init__(self, model_weights):
+    def __init__(self, model_weights, config_path):
         super().__init__()
-        self.encoder = PN(model_weights)
+        self.encoder = PN(model_weights, config_path)
 
     def forward(self, x):
         # set frozen pretrained encoder to eval mode
@@ -44,5 +43,5 @@ class FrozenPretrainedEncoder(nn.Module):
         encoder_output = self.encoder(x)
         return encoder_output
 
-def pfPN(model_weights, **kwargs):
-    return FrozenPretrainedEncoder(model_weights, **kwargs)
+def pfPN(model_weights, config_path, **kwargs):
+    return FrozenPretrainedEncoder(model_weights,config_path,  **kwargs)

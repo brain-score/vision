@@ -1,8 +1,8 @@
 numpy==1.23.5
 netCDF4!=1.6.0,<1.6.5
-torch==1.12.1+cu113
-torchvision==0.13.1+cu113
-torchaudio==0.12.1
+torch
+torchvision
+torchaudio
 transformers
 phys_readouts@ git+https://github.com/thekej/phys_readouts.git#egg=phys_readouts
 einops

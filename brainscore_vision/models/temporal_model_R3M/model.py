@@ -1,4 +1,4 @@
-from r3m_model import pfR3M
+from .r3m_model import pfR3M
 import torch as th
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
@@ -42,8 +42,8 @@ def get_model(identifier, num_frames=16):
         "layer_activation_format": {
             "encoder": "TC",
         },
-        "duration": None,#(0, 450),
-        "time_alignment": "per_frame_aligned",#"evenly_spaced",
+        "duration": None,
+        "time_alignment": "evenly_spaced",
         "convert_img_to_video":True,
         "img_duration":450
     }

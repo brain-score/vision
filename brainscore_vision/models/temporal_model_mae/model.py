@@ -1,4 +1,4 @@
-from mae_model import pfMAE
+from .mae_model import pfMAE
 import torch as th
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
@@ -38,9 +38,7 @@ def transform_video(video):
 def get_model(identifier, num_frames=16):
     assert identifier.startswith("MAE")
 
-    if identifier == "MAE-HUGE-Temporal":
-        model_name = "'facebook/vit-mae-huge'"
-    elif identifier == "MAE-BASE-Temporal":
+    if identifier == "MAE-BASE-Temporal":
         model_name = "facebook/vit-mae-base"
     elif identifier == "MAE-LARGE-Temporal":
         model_name = "facebook/vit-mae-large"
@@ -54,8 +52,8 @@ def get_model(identifier, num_frames=16):
         "layer_activation_format": {
             "encoder": "TC",
         },
-        "duration": None,#(0, 450),
-        "time_alignment": "per_frame_aligned",#"evenly_spaced",
+        "duration": None,
+        "time_alignment": "evenly_spaced",
         "convert_img_to_video":True,
         "img_duration":450
     }

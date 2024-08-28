@@ -11,4 +11,4 @@ decord
 pandas
 einops
 beartype
-jepa @ git+https://github.com/facebookresearch/jepa.git#egg=jepa
+phys_readouts@ git+https://github.com/thekej/phys_readouts.git#egg=phys_readouts

@@ -2,7 +2,7 @@ import torch as th
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
 from brainscore_vision.model_helpers.s3 import load_weight_file
-from fitvid_model import FitVidEncoder, load_model
+from .fitvid_model import FitVidEncoder, load_model
 
 from torchvision import transforms as T
 
@@ -51,9 +51,9 @@ def get_model(identifier, num_frames=7):
             "encoder": "TC",
         },
         "duration": None,
-        "time_alignment": "per_frame_aligned",#"evenly_spaced",
+        "time_alignment": "evenly_spaced",
         "convert_img_to_video":True,
-        "img_duration":900
+        "img_duration":450
     }
 
     for layer in inferencer_kwargs["layer_activation_format"].keys():

@@ -2,7 +2,7 @@ import torch as th
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
 from brainscore_vision.model_helpers.s3 import load_weight_file
-from pn_model import pfPN_LSTM_physion, load_model
+from .pn_model import pfPN_LSTM_physion, load_model
 
 from torchvision import transforms as T
 
@@ -32,9 +32,16 @@ def get_model(identifier, num_frames=7):
             version_id="YV9zlBxLV4lBfVsAs1vIyh_gDkf7mu_j",
             sha1="14be113cd6f0ce4b9348cccc2018eb792ab2d0c1"
         )
+    
+    config_path = load_weight_file(
+            bucket="brainscore-vision", 
+            relative_path="neuroai_stanford_weights/merged_conf.conf", 
+            version_id="jjLOH81TcgEW9QBw8ZuuU.pjCMsXWwae",
+            sha1="c83621086331949a05524b055e278a09c94fc43e"
+        )
     # Instantiate the model
     
-    net = pfPN_LSTM_physion(n_past=num_frames)
+    net = pfPN_LSTM_physion(config_path, n_past=num_frames)
     net = load_model(net, model_path)
 
     inferencer_kwargs = {
@@ -44,7 +51,7 @@ def get_model(identifier, num_frames=7):
             "dynamics": "TC",
         },
         "duration": None,
-        "time_alignment": "per_frame_aligned",#"evenly_spaced",
+        "time_alignment": "evenly_spaced",
         "convert_img_to_video":True,
         "img_duration":900
     }

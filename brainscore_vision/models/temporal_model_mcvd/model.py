@@ -2,7 +2,7 @@ import torch as th
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
 from brainscore_vision.model_helpers.s3 import load_weight_file
-from mcvd_model import MCVDEncoder
+from .mcvd_model import MCVDEncoder
 
 from torchvision import transforms as T
 
@@ -34,6 +34,12 @@ def get_model(identifier, num_frames=7):
             version_id="7_2SZtf5kXqmmTsJOPmkABI._HAX519c",
             sha1="ead964db02a855672b97f7a0b6d6c43c6b20ec88"
         )
+        config_path = load_weight_file(
+            bucket="brainscore-vision", 
+            relative_path="neuroai_stanford_weights/config_ego4d.yml", 
+            version_id="qzKSMsJLuj8al1F.lOUxjvkYMzGP09il",
+            sha1="00fc95dda440ceeb780878f0f0ab0f4ec9b16359"
+        )
     elif identifier == "MCVD-PHYS":
         model_path = load_weight_file(
             bucket="brainscore-vision", 
@@ -41,10 +47,16 @@ def get_model(identifier, num_frames=7):
             version_id="Uo86X1URRUoqSAEOJ5oPhrt_bCfxb4ho",
             sha1="0a757d4b6693d2c5890b0ea909ca4aaedc76453c"
         )
+        config_path = load_weight_file(
+            bucket="brainscore-vision", 
+            relative_path="neuroai_stanford_weights/config_physion.yml", 
+            version_id="p6ilLbUYCuhT5dBE97QkrA0GPQTlXLC6",
+            sha1="ba66f9f5b37db0049bb68f68279fe060a3b3f89a"
+        )
         
     # Instantiate the model
     
-    net = MCVDEncoder(model_path, identifier)
+    net = MCVDEncoder(model_path, config_path, identifier)
 
     inferencer_kwargs = {
         "fps": 25,

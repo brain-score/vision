@@ -12,6 +12,6 @@ pandas
 einops
 beartype
 phys_readouts@ git+https://github.com/thekej/phys_readouts.git#egg=phys_readouts
-filelock==3.15.4
+filelock
 transformers
 huggingface_hub

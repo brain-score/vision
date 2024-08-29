@@ -1,9 +1,9 @@
-numpy==1.23.5
-netCDF4!=1.6.0,<1.6.5
+numpy
+netCDF4
 torch
 torchvision
 chardet
-omegaconf>=2.1.1
-hydra-core>=1.1.1
-pillow>=9.0.1
+omegaconf
+hydra-core
+pillow
 r3m @ git+https://github.com/facebookresearch/r3m.git#egg=r3m

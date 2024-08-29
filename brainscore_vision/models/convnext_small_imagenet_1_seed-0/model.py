@@ -6,7 +6,6 @@ import torch
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 
-import timm
 import numpy as np
 import torchvision.transforms as T
 from PIL import Image

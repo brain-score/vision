@@ -100,7 +100,12 @@ def get_model():
             bias=model.fc.bias is not None,
         )
 
-    state_dict = torch.hub.load_state_dict_from_url(CKPT_URL, check_hash=True, file_name=f'{MODEL_NAME}_ep{EPOCH}.pt', map_location="cpu")
+    state_dict = torch.hub.load_state_dict_from_url(
+        CKPT_URL,
+        check_hash=True,
+        file_name=f"{MODEL_ID}_ep{EPOCH}.pt",
+        map_location="cpu",
+    )
     state_dict = state_dict["state"]["model_ema_state_dict"]
     state_dict = {k.replace("module.", ""): v for k, v in state_dict.items()}
     model.load_state_dict(state_dict, strict=True)

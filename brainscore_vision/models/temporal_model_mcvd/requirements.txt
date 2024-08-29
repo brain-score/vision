@@ -1,4 +1,5 @@
 PyYAML
+chardet
 progressbar
 psutil
 ninja

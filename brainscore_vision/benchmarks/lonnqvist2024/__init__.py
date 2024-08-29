@@ -1,8 +1,8 @@
 from brainscore_vision import benchmark_registry
 from . import benchmark
 
-benchmark_registry['Lonnqvist2024_BehavioralAccuracyDistanceInlabInstructions'] = lambda: benchmark._Lonnqvist2024BehavioralAccuracyDistanceInlabInstructions()
-benchmark_registry['Lonnqvist2024_BehavioralAccuracyDistanceInlabNoInstructions'] = lambda: benchmark._Lonnqvist2024BehavioralAccuracyDistanceInlabNoInstructions()
-benchmark_registry['Lonnqvist2024_BehavioralAccuracyDistanceInlabInstructions'] = lambda: benchmark._Lonnqvist2024BehavioralAccuracyDistanceInlabInstructions()
+benchmark_registry['Lonnqvist2024_InlabInstructionsBehavioralAccuracyDistance'] = lambda: benchmark._Lonnqvist2024BehavioralAccuracyDistanceInlabInstructions()
+benchmark_registry['Lonnqvist2024_InlabNoInstructionsBehavioralAccuracyDistance'] = lambda: benchmark._Lonnqvist2024BehavioralAccuracyDistanceInlabNoInstructions()
+benchmark_registry['Lonnqvist2024_InlabInstructionsBehavioralAccuracyDistance'] = lambda: benchmark._Lonnqvist2024BehavioralAccuracyDistanceInlabInstructions()
 
 benchmark_registry['Lonnqvist2024_EngineeringAccuracy'] = lambda: benchmark._Lonnqvist2024EngineeringAccuracy()

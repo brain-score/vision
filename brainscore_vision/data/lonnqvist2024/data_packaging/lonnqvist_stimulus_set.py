@@ -16,7 +16,6 @@ dataset Meta Info
 def collect_lonnqvist_stimulus_set(dataset, stimuli_directory, metadata_filepath):
     stimuli = []
     stimulus_paths = {}
-    dataset = dataset.split('-')[0]
 
     with open(metadata_filepath, 'r') as metadata:
         reader = csv.DictReader(metadata)
@@ -31,7 +30,7 @@ def collect_lonnqvist_stimulus_set(dataset, stimuli_directory, metadata_filepath
             }
 
             stimuli.append(stimulus_meta)
-            stimulus_paths[str(row['idx'])] = Path(f'{stimuli_directory}/{row["path"]}')
+            stimulus_paths[str(row['idx'])] = Path(f'{row["path"]}')
 
     stimuli = StimulusSet(stimuli)
     stimuli.stimulus_paths = stimulus_paths

@@ -4,9 +4,6 @@ from pytest import approx
 from brainscore_vision import benchmark_registry, load_benchmark
 
 
-# TODO: ceilings
-
-
 @pytest.mark.parametrize('benchmark', [
     'Lonnqvist2024_InlabInstructionsBehavioralAccuracyDistance',
     'Lonnqvist2024_InlabNoInstructionsBehavioralAccuracyDistance',
@@ -20,9 +17,9 @@ def test_benchmark_registry(benchmark):
 class TestBehavioral:
     @pytest.mark.private_access
     @pytest.mark.parametrize('dataset, expected_ceiling', [
-        ('InlabInstructionsBehavioralAccuracyDistance', approx(0.0, abs=0.001)),
-        ('InlabNoInstructionsBehavioralAccuracyDistance', approx(0.0, abs=0.001)),
-        ('InlabInstructionsBehavioralAccuracyDistance', approx(0.0, abs=0.001)),
+        ('InlabInstructionsBehavioralAccuracyDistance', approx(0.95646366, abs=0.001)),
+        ('InlabNoInstructionsBehavioralAccuracyDistance', approx(0.84258475, abs=0.001)),
+        ('OnlineNoInstructionsBehavioralAccuracyDistance', approx(0.79752907, abs=0.001)),
     ])
     def test_dataset_ceiling(self, dataset, expected_ceiling):
         benchmark = f"Lonnqvist2024_{dataset}BehavioralAccuracyDistance"
@@ -32,9 +29,9 @@ class TestBehavioral:
 
     @pytest.mark.private_access
     @pytest.mark.parametrize('dataset, expected_raw_score', [
-        ('InlabInstructionsBehavioralAccuracyDistance', approx(0.0, abs=0.001)),
-        ('InlabNoInstructionsBehavioralAccuracyDistance', approx(0.0, abs=0.001)),
-        ('InlabInstructionsBehavioralAccuracyDistance', approx(0.0, abs=0.001)),
+        ('InlabInstructionsBehavioralAccuracyDistance', approx(0.58568247, abs=0.001)),
+        ('InlabNoInstructionsBehavioralAccuracyDistance', approx(0.62883828, abs=0.001)),
+        ('OnlineNoInstructionsBehavioralAccuracyDistance', approx(0.9804305, abs=0.001)),
     ])
     def test_model(self, dataset, expected_raw_score):
         if 'all' in dataset:
@@ -52,7 +49,7 @@ class TestBehavioral:
 
 class TestEngineering:
     @pytest.mark.parametrize('dataset, expected_accuracy', [
-        ('EngineeringAccuracy', approx(0.0, abs=0.001)),
+        ('EngineeringAccuracy', approx(0.45, abs=0.001)),
     ])
     def test_accuracy(self, dataset, expected_accuracy):
         benchmark = load_benchmark(f"Lonnqvist2024_{dataset}")

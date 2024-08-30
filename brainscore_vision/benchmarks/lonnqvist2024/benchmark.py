@@ -40,7 +40,7 @@ class _Lonnqvist2024Base(BenchmarkBase):
         )
         model_response = candidate.look_at(stimulus_set, number_of_trials=1)
         model_response = convert_proba_to_choices(model_response)
-        raw_score = self._metric(model_response, stimulus_set['truth'])
+        raw_score = self._metric(model_response, self.assembly)
         # Adjust score to ceiling
         ceiling = self.ceiling
         score = raw_score / ceiling
@@ -89,6 +89,30 @@ class _Lonnqvist2024EngineeringAccuracy(_Lonnqvist2024Base):
             identifier='Lonnqvist2024-engineering_accuracy', dataset='inlab-instructions',
             ceiling_func=ceiling_func,
             metric=metric)
+
+    def __call__(self, candidate: BrainModel, return_raw_responses: bool = False):
+        fitting_stimulus_set = place_on_screen(
+            self._fitting_stimuli,
+            target_visual_degrees=candidate.visual_degrees(),
+            source_visual_degrees=self._visual_degrees
+        )
+        candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli=fitting_stimulus_set, number_of_trials=1)
+        stimulus_set = place_on_screen(
+            self._stimulus_set,
+            target_visual_degrees=candidate.visual_degrees(),
+            source_visual_degrees=self._visual_degrees
+        )
+        model_response = candidate.look_at(stimulus_set, number_of_trials=1)
+        model_response = convert_proba_to_choices(model_response)
+        raw_score = self._metric(model_response, stimulus_set['truth'])
+        # Adjust score to ceiling
+        ceiling = self.ceiling
+        score = raw_score / ceiling
+        score.attrs['raw'] = raw_score
+        score.attrs['ceiling'] = ceiling
+        if return_raw_responses:
+            return score, model_response
+        return score
 
 
 def convert_proba_to_choices(source: BehavioralAssembly) -> np.array:

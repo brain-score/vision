@@ -191,6 +191,51 @@ class PhysionSnippetDetectionAccuracy(BenchmarkBase):
         )
         return score
 
+
+class PhysionSnippetSimulationAccuracy(BenchmarkBase):
+    def __init__(self):
+        self._stimulus_set  = load_stimulus_set("PhysionSnippetDetection2024")
+        self._test_set  = load_stimulus_set("PhysionGlobalPrediction2024")
+        self._visual_degrees = 8
+        self._similarity_metric = load_metric('accuracy')
+        ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
+        super(PhysionSnippetSimulationAccuracy, self).__init__(identifier='Physionv1.5-snippet-simulation-performance', version=1,
+                                           ceiling_func=lambda: ceiling,
+                                           parent='PhysionV1.5',
+                                           bibtex="""@article{bear2021physion,
+                                               title={Physion: Evaluating physical prediction from vision in humans and machines},
+                                               author={Bear, Daniel M and Wang, Elias and Mrowca, Damian and Binder, Felix J and Tung, Hsiao-Yu Fish and Pramod, RT and Holdaway, Cameron and Tao, Sirui and Smith, Kevin and Sun, Fan-Yun and others},
+                                               journal={arXiv preprint arXiv:2106.08261},
+                                               year={2021}
+                                                    }""")
+
+    def __call__(self, candidate):
+        # prepare fitting stimuli
+        fitting_stimuli = self._stimulus_set[self._stimulus_set['train'] == 1]
+        fitting_stimuli = place_on_screen(fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
+                                          source_visual_degrees=self._visual_degrees)
+        # prepare test stimuli
+        test_stimuli = self._test_set#[self._test_set['train'] == 0]
+        test_stimuli = place_on_screen(test_stimuli, target_visual_degrees=candidate.visual_degrees(),
+                                          source_visual_degrees=self._visual_degrees)
+        
+        candidate.start_task(BrainModel.Task.video_readout, fitting_stimuli)
+        simulated_feats = candidate.look_at(test_stimuli, simulation=True)
+        predictions = aggregate_preds(simulated_feats, test_stimuli['stimulus_id'].values)
+
+        test_stimuli_assembly = BehavioralAssembly(test_stimuli['label'].values,
+                               coords=
+                               {'stimulus_id': ('presentation', test_stimuli['stimulus_id'].values),
+                                'choice': ('presentation', test_stimuli['label'].values)},
+                               dims=['presentation'])
+
+        score = self._similarity_metric(
+            predictions.values,
+            test_stimuli_assembly.values
+        )
+        return score
+        
+
 class PhysionSnippetDetectionIntraScenarioAccuracy(BenchmarkBase):
     def __init__(self):
         self._stimulus_set  = load_stimulus_set("PhysionSnippetDetection2024")
@@ -229,12 +274,12 @@ class PhysionSnippetDetectionIntraScenarioAccuracy(BenchmarkBase):
                                dims=['presentation'])
         test_stimuli_assembly = aggregate_preds(test_stimuli_assembly)
         score = self._similarity_metric(
-            predictions,
-            test_stimuli_assembly
+            predictions.values,
+            test_stimuli_assembly.values
         )
         return score
 
-def aggregate_preds(predictions):
+def aggregate_preds(predictions, ordered_stimuli=None):
     # Extract stimulus_path and choice from proba
     stimulus_paths = predictions['stimulus_id'].values
     choices = predictions['choice'].values
@@ -247,19 +292,28 @@ def aggregate_preds(predictions):
     
     # Group by video name and aggregate choices
     aggregated = data.groupby('video_name')['choice'].agg(lambda x: 1 if any(x) else 0).reset_index()
-    
+
     # Create a mapping from video name to aggregated choice
     video_to_choice = dict(zip(aggregated['video_name'], aggregated['choice']))
-    
+
     # Apply the aggregated choice back to the original data
-    aggregated_choices = [video_to_choice[video] for video in video_names]
+    if ordered_stimuli is not None:
+        aggregated_choices = [video_to_choice[video.split('_img')[0]] for video in ordered_stimuli]
+        # If you need to modify the BehavioralAssembly object, you can recreate it as needed
+        predictions = BehavioralAssembly(aggregated_choices,
+                                   coords={
+                                       'stimulus_id': ('presentation', [video for video in ordered_stimuli]),
+                                   },
+                                   dims=['presentation'])
+    else:
+        aggregated_choices = [video_to_choice[video] for video in aggregated['video_name']]
+        # If you need to modify the BehavioralAssembly object, you can recreate it as needed
+        predictions = BehavioralAssembly(aggregated_choices,
+                                   coords={
+                                       'stimulus_id': ('presentation', [video+'.mp4' for video in aggregated['video_name']]),
+                                   },
+                                   dims=['presentation'])
     
-    # If you need to modify the BehavioralAssembly object, you can recreate it as needed
-    predictions = BehavioralAssembly(aggregated_choices,
-                               coords={
-                                   'stimulus_path': ('presentation', video_names),
-                               },
-                               dims=['presentation'])
     return predictions
 
 

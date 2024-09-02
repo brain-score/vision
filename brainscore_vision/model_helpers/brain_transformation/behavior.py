@@ -13,7 +13,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from brainio.assemblies import walk_coords, array_is_element, BehavioralAssembly, DataAssembly
+from brainio.assemblies import walk_coords, array_is_element, BehavioralAssembly, DataAssembly, NeuroidAssembly
 from brainio.stimuli import StimulusSet
 from brainscore_vision.model_helpers.utils import make_list
 from brainscore_vision.model_interface import BrainModel
@@ -368,20 +368,21 @@ class VideoReadoutMapping(BrainModel):
         self.classifier = None
         self.current_task = None
         self.num_classes = num_classes
+        self.n_time_bins = None
         
 
     @property
     def identifier(self):
         return self._identifier
 
-    def start_task(self, task: BrainModel.Task, fitting_stimuli):
+    def start_task(self, task: BrainModel.Task, fitting_stimuli, simulation=False):
         assert task in BrainModel.Task.video_readout
         self.current_task = task
-
         fitting_features = self.activations_model(fitting_stimuli, layers=self.readout)
         assert all(fitting_features['stimulus_id'].values == fitting_stimuli['stimulus_id']), \
             "stimulus_id ordering is incorrect"
         fitting_features = np.transpose(fitting_features.values, (2, 1, 0))
+        self.n_time_bins = fitting_features.shape[1]
         self.classifier = VideoReadoutMapping.TransformerReadout(np.prod(fitting_features.shape[2:]),
                                                                  self.num_classes)
 
@@ -391,10 +392,53 @@ class VideoReadoutMapping(BrainModel):
         else:
             self.classifier.fit(fitting_features, 
                             fitting_stimuli['contacts'].values)
-    def look_at(self, stimuli, number_of_trials=1, require_variance=False):
-        features = self.activations_model(stimuli, layers=self.readout)
-        prediction = self.classifier.predict(features)
-        return prediction
+
+    def look_at(self, stimuli, number_of_trials=1, require_variance=False, simulation=False):
+        if not simulation:    
+            features = self.activations_model(stimuli, layers=self.readout)
+            prediction = self.classifier.predict(features)
+            return prediction
+        else:
+            assert '-SIM' in self._identifier, "model is unable to do simulation"
+            features = self.activations_model(stimuli, layers=self.readout)
+            
+            # Determine the number of splits
+            n_time_bins = self.n_time_bins
+            n_splits = features['time_bin'].size // n_time_bins
+            
+            # Split the features into smaller chunks along the time_bin dimension
+            splits = [features.isel(time_bin=slice(i * n_time_bins, (i + 1) * n_time_bins)) for i in range(n_splits)]
+            
+            # Prepare the data for each split
+            split_data = []
+            for i, split in enumerate(splits):
+                # Duplicate the presentation dimensions with updated indices
+                new_split = split.copy()
+                
+                # Update the stimulus_id by inserting the index before the '.mp4' extension
+                new_stimulus_ids = []
+                for id in features['stimulus_id'].values:
+                    if id.endswith(".mp4"):  # Check if the stimulus ID ends with '.mp4'
+                        base_id = id.rsplit('_', 1)[0]  # Split to remove the last part after the underscore
+                        new_id = f"{base_id}_img_snippet_{i}.mp4"   # Insert index before the '.mp4' extension
+                    else:
+                        new_id = id  # If it doesn't match the expected pattern, keep it unchanged
+                    new_stimulus_ids.append(new_id)
+
+                # Create a new NeuroidAssembly
+                layer_assembly = NeuroidAssembly(split.values,
+                                                 coords=
+                                           {'stimulus_id': ('presentation', new_stimulus_ids),
+                                            'length': ('presentation', [n_time_bins] * features['length'].values.shape[0]),
+                                            'label': ('presentation', features['label'].values)},
+                                           dims=['neuroid', 'time_bin', 'presentation'])
+            
+                split_data.append(layer_assembly)
+                
+            # Combine all splits back into a single xarray dataset or NeuroidAssembly
+            combined_features = xr.concat(split_data, dim='presentation')
+            prediction = self.classifier.predict(combined_features)
+            return prediction
         
     class TransformerReadout:
         def __init__(self, model_dim, num_classes=1):
@@ -468,7 +512,6 @@ class VideoReadoutMapping(BrainModel):
             if self.device == torch.device("cuda"):
                 self.model = nn.DataParallel(self.model)
             self.model = self.model.to(self.device)
-
             # Optimizer
             optimizer = torch.optim.AdamW(self.model.parameters(), lr=self.lr)
             criterion = nn.BCELoss()
@@ -533,7 +576,7 @@ class VideoReadoutMapping(BrainModel):
 
                 inputs, labels = data['feature'], data['label']
                 inputs, targets = inputs.to(self.device), labels.to(self.device)
-
+                
                 optimizer.zero_grad()
                 outputs, _ = self.model(inputs)  # Ensure the output is of correct shape
                 outputs = outputs.squeeze()
@@ -636,17 +679,27 @@ class VideoReadoutMapping(BrainModel):
             
     class ReadoutModel(nn.Module):
         def __init__(self, model_dim, num_heads, 
-                     num_encoder_layers, num_classes=1, num_input_layers=2):
+                     num_encoder_layers, embed_dim=256, num_classes=1, num_input_layers=2):
             super(VideoReadoutMapping.ReadoutModel, self).__init__()
             self.num_classes = num_classes
             self.model_dim = model_dim
-            self.encoder_layer = nn.TransformerEncoderLayer(d_model=self.model_dim, nhead=num_heads, dim_feedforward=128)
+            self.embed_dim = embed_dim
+            self.linear_layer = nn.Sequential(
+                    nn.Linear(self.model_dim, embed_dim),
+                    nn.ReLU(),
+                    nn.Linear(embed_dim, embed_dim),
+            )
+            self.encoder_layer = nn.TransformerEncoderLayer(d_model=self.embed_dim, nhead=num_heads, dim_feedforward=128)
             self.transformer_encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=num_encoder_layers)
-            self.position_encoder = VideoReadoutMapping.PositionalEncoding(model_dim)
-            self.fc = nn.Linear(model_dim, num_classes)
+            self.position_encoder = VideoReadoutMapping.PositionalEncoding(embed_dim)
+            self.fc = nn.Linear(embed_dim, num_classes)
 
         def forward(self, x, mode=None):
+            x = x.float()
             x = x.view(x.shape[0], x.shape[1], -1)  # Flatten keeping the last dimension
+            N, T, D = x.shape
+            x = self.linear_layer(x.flatten(0,1))
+            x = x.view(N, T, self.embed_dim)
             x = self.position_encoder(x)
             x = self.transformer_encoder(x)
             x = x.mean(dim=1)  # Pooling, consider masking padded values

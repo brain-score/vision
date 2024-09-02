@@ -215,7 +215,7 @@ class PhysionSnippetSimulationAccuracy(BenchmarkBase):
         fitting_stimuli = place_on_screen(fitting_stimuli, target_visual_degrees=candidate.visual_degrees(),
                                           source_visual_degrees=self._visual_degrees)
         # prepare test stimuli
-        test_stimuli = self._test_set#[self._test_set['train'] == 0]
+        test_stimuli = self._test_set[self._test_set['train'] == 0]
         test_stimuli = place_on_screen(test_stimuli, target_visual_degrees=candidate.visual_degrees(),
                                           source_visual_degrees=self._visual_degrees)
         

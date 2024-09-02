@@ -11,4 +11,6 @@ def commit_model(identifier):
     return ModelCommitment(identifier=identifier, activations_model=activations_model, layers=layers)
 
 
-model_registry["RESNET-LSTM"] = lambda: commit_model("RESNET-LSTM")
+model_registry["RESNET-LSTM-SIM"] = lambda: commit_model("RESNET-LSTM-SIM")
+model_registry["RESNET-LSTM-SIM-OBSERVED"] = lambda: commit_model("RESNET-LSTM-SIM-OBSERVED")
+model_registry["RESNET-LSTM-ENCODER"] = lambda: commit_model("RESNET-LSTM-ENCODER")

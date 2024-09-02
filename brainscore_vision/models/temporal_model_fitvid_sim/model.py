@@ -27,14 +27,14 @@ def get_model(identifier, num_frames=7):
     assert identifier.startswith("FITVID")
     pretrain_only = True
 
-    if identifier == "FITVID-EGO4D-OBSERVED":
+    if identifier == "FITVID-EGO4D-SIM":
         model_path = load_weight_file(
             bucket="brainscore-vision", 
             relative_path="neuroai_stanford_weights/fitvid_ego4d.pt", 
             version_id="1cXzv4b9cPlnhSQU4zzmeRBgEdio9VFw",
             sha1="1764e964abc51d0b06e27cef46cfa4702391f3cc"
         )
-    elif identifier == "FITVID-PHYS-OBSERVED":
+    elif identifier == "FITVID-PHYS-SIM":
         model_path = load_weight_file(
             bucket="brainscore-vision", 
             relative_path="neuroai_stanford_weights/fitvid_physion.pt", 
@@ -48,7 +48,7 @@ def get_model(identifier, num_frames=7):
     inferencer_kwargs = {
         "fps": 16,
         "layer_activation_format": {
-            "encoder": "TC",
+            "dynamics": "TC",
         },
         "duration": None,
         "time_alignment": "evenly_spaced",

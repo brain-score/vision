@@ -4,7 +4,9 @@ from brainscore_vision import load_model
 
 
 model_list = [
-    "DINO-LSTM",
+    "DINO-LSTM-ENCODER",
+    "DINO-LSTM-SIM-OBSERVED",
+    "DINO-LSTM-SIM",
 ]
 
 @pytest.mark.private_access

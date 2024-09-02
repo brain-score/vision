@@ -2,7 +2,7 @@ import torch as th
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
 from brainscore_vision.model_helpers.s3 import load_weight_file
-from .mcvd_model import MCVDEncoder
+from .mcvd_model import MCVDSimulator
 
 from torchvision import transforms as T
 
@@ -27,7 +27,7 @@ def get_model(identifier, num_frames=7):
     assert identifier.startswith("MCVD")
     pretrain_only = True
 
-    if identifier == "MCVD-EGO4D-OBSERVED":
+    if identifier == "MCVD-EGO4D-SIM":
         model_path = load_weight_file(
             bucket="brainscore-vision", 
             relative_path="neuroai_stanford_weights/mcvd_ego4d.pt", 
@@ -40,7 +40,7 @@ def get_model(identifier, num_frames=7):
             version_id="qzKSMsJLuj8al1F.lOUxjvkYMzGP09il",
             sha1="00fc95dda440ceeb780878f0f0ab0f4ec9b16359"
         )
-    elif identifier == "MCVD-PHYS-OBSERVED":
+    elif identifier == "MCVD-PHYS-SIM":
         model_path = load_weight_file(
             bucket="brainscore-vision", 
             relative_path="neuroai_stanford_weights/mcvd_physion.pt", 
@@ -56,12 +56,12 @@ def get_model(identifier, num_frames=7):
         
     # Instantiate the model
     
-    net = MCVDEncoder(model_path, config_path, identifier)
+    net = MCVDSimulator(model_path, config_path)
 
     inferencer_kwargs = {
         "fps": 25,
         "layer_activation_format": {
-            "encoder": "TCHW",
+            "dynamics": "TCHW",
         },
         "duration": None,
         "time_alignment": "evenly_spaced",

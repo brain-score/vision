@@ -39,24 +39,46 @@ def get_model(identifier, num_frames=7):
     net = pfResNet_LSTM_physion(n_past=num_frames)
     net = load_model(net, model_path)
 
-    inferencer_kwargs = {
-        "fps": 16,
-        "layer_activation_format": {
-            "encoder": "TC",
-            "dynamics": "TC",
-        },
-        "duration": None,
-        "time_alignment": "evenly_spaced",
-        "convert_img_to_video":True,
-        "img_duration":450
-    }
+    if identifier == "RESNET-LSTM-SIM":
+        inferencer_kwargs = {
+            "fps": 16,
+            "layer_activation_format": {
+                "dynamics": "TC",
+            },
+            "duration": None,
+            "time_alignment": "evenly_spaced",
+            "convert_img_to_video":True,
+            "img_duration":450
+        }
+        def process_activation(layer, layer_name, inputs, output):
+            return output["simulated_rollout_states"]
+    elif identifier == "RESNET-LSTM-SIM-OBSERVED":
+        inferencer_kwargs = {
+            "fps": 16,
+            "layer_activation_format": {
+                "dynamics": "TC",
+            },
+            "duration": None,
+            "time_alignment": "evenly_spaced",
+            "convert_img_to_video":True,
+            "img_duration":450
+        }
+        def process_activation(layer, layer_name, inputs, output):
+            return output["observed_dynamic_states"]
+    elif identifier == "RESNET-LSTM-ENCODER":
+        inferencer_kwargs = {
+            "fps": 16,
+            "layer_activation_format": {
+                "encoder": "TC",
+            },
+            "duration": None,
+            "time_alignment": "evenly_spaced",
+            "convert_img_to_video":True,
+            "img_duration":450
+        }
+        def process_activation(layer, layer_name, inputs, output):
+            return output["observed_encoder_states"]
 
-    def process_activation(layer, layer_name, inputs, output):
-        if layer_name == 'encoder':
-            activations = output["observed_states"]
-        else:
-            activations = output["rollout_states"]
-        return activations 
         
     for layer in inferencer_kwargs["layer_activation_format"].keys():
         assert "decoder" not in layer, "Decoder layers are not supported."

@@ -11,5 +11,5 @@ def commit_model(identifier):
     return ModelCommitment(identifier=identifier, activations_model=activations_model, layers=layers)
 
 
-model_registry["FITVID-EGO4D"] = lambda: commit_model("FITVID-EGO4D")
-model_registry["FITVID-PHYS"] = lambda: commit_model("FITVID-PHYS")
+model_registry["FITVID-EGO4D-OBSERVED"] = lambda: commit_model("FITVID-EGO4D-OBSERVED")
+model_registry["FITVID-PHYS-OBSERVED"] = lambda: commit_model("FITVID-PHYS-OBSERVED")

@@ -44,7 +44,7 @@ class R3M_pretrained(nn.Module):
         
         output = {
             "input_states": input_states[: n_past],
-            "observed_states": torch.stack(input_states, axis=1),
+            "observed_encoder_states": torch.stack(input_states, axis=1),
         }
         return output
 
@@ -85,29 +85,42 @@ class LSTM(nn.Module):
         x = self.regressor(x)
         return x
 
-    def forward(self, input_states, rollout_steps):
-        simulated_states = []
-        prev_states = input_states
+    def forward(self, input_states, rollout_steps, n_simulation):
+        observed_dynamics_states, simulated_states = [], []
+        prev_states = input_states["observed_encoder_states"]
+        n_context = prev_states.shape[1]
         for step in range(rollout_steps):
             # dynamics model predicts next latent from past latents
+            prev_states = prev_states[:, step:step+n_context]
             pred_state = self.forward_step(prev_states)
+            observed_dynamics_states.append(pred_state)
+            
+        simulation_input = input_states["input_states"]
+        for step in range(n_simulation):
+            # dynamics model predicts next latent from past latents
+            pred_state = self.forward_step(simulation_input)
             simulated_states.append(pred_state)
             # add most recent pred and delete oldest (to maintain a temporal window of length n_past)
-            prev_states.append(pred_state)
-            prev_states.pop(0)
+            
+            simulation_input = torch.cat([simulation_input[:, 1:], pred_state.unsqueeze(1)], axis=1)
 
         output = {
-            "simulated_states": torch.stack(simulated_states, axis=1),
-            "rollout_states": torch.cat([torch.stack(input_states, axis=1), torch.stack(simulated_states, axis=1)], axis=1),
+            "simulated_rollout_states": torch.cat([input_states["input_states"],
+                                            torch.stack(simulated_states, axis=1)], 
+                                            axis=1),
+            "observed_dynamic_states": torch.cat([input_states["input_states"], 
+                                                  torch.stack(observed_dynamics_states, axis=1)], 
+                                                 axis=1),
         }
         return output
 
 # Given sequence of images, predicts next latent
 class FrozenPretrainedEncoder(nn.Module):
-    def __init__(self, n_past=7):
+    def __init__(self, n_past=7, simulation_length=25):
         super().__init__()
 
         self.n_past = n_past
+        self.n_simulation = simulation_length
         self.encoder = R3M_pretrained()
 
         dynamics_kwargs = {"latent_dim": self.encoder.latent_dim}
@@ -117,19 +130,18 @@ class FrozenPretrainedEncoder(nn.Module):
         # set frozen pretrained encoder to eval mode
         self.encoder.eval()
         # x is (Bs, T, 3, H, W)
-        assert len(x.shape) == 5
-        if x.shape[1] <= self.n_past:
-            self.n_past = -1
+        assert len(x.shape) == 5 and x.shape[1] >= self.n_past
         
-        rollout_steps = x[:, self.n_past :].shape[1]
+        observed_rollout_steps = x[:, self.n_past :].shape[1]
         encoder_output = self.encoder(x, self.n_past)
-        dynamics_output = self.dynamics(encoder_output['input_states'], rollout_steps)
+        dynamics_output = self.dynamics(encoder_output, 
+                                        observed_rollout_steps, 
+                                        self.n_simulation)
 
         output = {
-            "input_states": torch.stack(encoder_output['input_states'], axis=1),
-            "observed_states": encoder_output['observed_states'],
-            "simulated_states": dynamics_output['simulated_states'],
-            "rollout_states": dynamics_output['rollout_states'],
+            "observed_encoder_states": encoder_output['observed_encoder_states'],
+            "observed_dynamic_states": dynamics_output['observed_dynamic_states'],
+            "simulated_rollout_states": dynamics_output['simulated_rollout_states'],
         }
         return output
 

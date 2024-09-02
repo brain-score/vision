@@ -4,7 +4,9 @@ from brainscore_vision import load_model
 
 
 model_list = [
-    "RESNET-LSTM",
+    "RESNET-LSTM-ENCODER",
+    "RESNET-LSTM-SIM-OBSERVED",
+    "RESNET-LSTM-SIM",
 ]
 
 @pytest.mark.private_access

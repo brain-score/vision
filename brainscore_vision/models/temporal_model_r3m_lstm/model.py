@@ -48,27 +48,53 @@ def get_model(identifier, num_frames=7):
     net = pfR3M_LSTM_physion(n_past=num_frames)
     net = load_model(net, identifier, model_path)
 
-    inferencer_kwargs = {
-        "fps": 16,
-        "layer_activation_format": {
-            "encoder": "TC",
-            "dynamics": "TC",
-        },
-        "duration": None,
-        "time_alignment": "evenly_spaced",
-        "convert_img_to_video":True,
-        "img_duration":450
-    }
+    if identifier == "R3M-LSTM-EGO4D-SIM" or identifier == "R3M-LSTM-PHYS-SIM":
+        inferencer_kwargs = {
+            "fps": 16,
+            "layer_activation_format": {
+                "dynamics": "TC",
+            },
+            "duration": None,
+            "time_alignment": "evenly_spaced",
+            "convert_img_to_video":True,
+            "img_duration":450
+        }
+        
+        def process_activation(layer, layer_name, inputs, output):
+            return output["simulated_rollout_states"]
+            
+    elif identifier == "R3M-LSTM-EGO4D-SIM-OBSERVED" or identifier == "R3M-LSTM-PHYS-SIM-OBSERVED":
+        inferencer_kwargs = {
+            "fps": 16,
+            "layer_activation_format": {
+                "dynamics": "TC",
+            },
+            "duration": None,
+            "time_alignment": "evenly_spaced",
+            "convert_img_to_video":True,
+            "img_duration":450
+        }
+        
+        def process_activation(layer, layer_name, inputs, output):
+            return output["observed_dynamic_states"]
+            
+    if identifier == "R3M-LSTM-EGO4D-ENCODER" or identifier == "R3M-LSTM-PHYS-ENCODER":
+        inferencer_kwargs = {
+            "fps": 16,
+            "layer_activation_format": {
+                "encoder": "TC",
+            },
+            "duration": None,
+            "time_alignment": "evenly_spaced",
+            "convert_img_to_video":True,
+            "img_duration":450
+        }
+        
+        def process_activation(layer, layer_name, inputs, output):
+            return output["observed_encoder_states"]
 
     for layer in inferencer_kwargs["layer_activation_format"].keys():
         assert "decoder" not in layer, "Decoder layers are not supported."
-
-    def process_activation(layer, layer_name, inputs, output):
-        if layer_name == 'encoder':
-            activations = output["observed_states"]
-        else:
-            activations = output["rollout_states"]
-        return activations 
 
     wrapper = R3MLSTMWrapper(identifier, net, transform_video, 
                                 process_output=process_activation,

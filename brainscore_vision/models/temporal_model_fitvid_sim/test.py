@@ -3,8 +3,8 @@ import pytest
 from brainscore_vision import load_model
 
 
-model_list = ["FITVID-EGO4D-OBSERVED",
-              "FITVID-PHYS-OBSERVED"]
+model_list = ["FITVID-EGO4D-SIM",
+              "FITVID-PHYS-SIM"]
 
 @pytest.mark.private_access
 @pytest.mark.memory_intense

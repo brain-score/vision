@@ -11,6 +11,5 @@ def commit_model(identifier):
     return ModelCommitment(identifier=identifier, activations_model=activations_model, layers=layers)
 
 
-model_registry["DINO-LSTM-ENCODER"] = lambda: commit_model("DINO-LSTM-ENCODER")
-model_registry["DINO-LSTM-SIM"] = lambda: commit_model("DINO-LSTM-SIM")
-model_registry["DINO-LSTM-SIM-OBSERVED"] = lambda: commit_model("DINO-LSTM-SIM-OBSERVED")
+model_registry["FITVID-EGO4D-SIM"] = lambda: commit_model("FITVID-EGO4D-SIM")
+model_registry["FITVID-PHYS-SIM"] = lambda: commit_model("FITVID-PHYS-SIM")

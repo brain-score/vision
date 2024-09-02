@@ -11,5 +11,5 @@ def commit_model(identifier):
     return ModelCommitment(identifier=identifier, activations_model=activations_model, layers=layers)
 
 
-model_registry["MCVD-EGO4D"] = lambda: commit_model("MCVD-EGO4D")
-model_registry["MCVD-PHYS"] = lambda: commit_model("MCVD-PHYS")
+model_registry["MCVD-EGO4D-OBSERVED"] = lambda: commit_model("MCVD-EGO4D-OBSERVED")
+model_registry["MCVD-PHYS-OBSERVED"] = lambda: commit_model("MCVD-PHYS-OBSERVED")

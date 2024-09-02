@@ -4,8 +4,8 @@ from brainscore_vision import load_model
 
 
 model_list = [
-    "MCVD-EGO4D",
-    "MCVD-PHYS",
+    "MCVD-EGO4D-OBSERVED",
+    "MCVD-PHYS-OBSERVED",
 ]
 
 @pytest.mark.private_access

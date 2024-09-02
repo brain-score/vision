@@ -11,5 +11,9 @@ def commit_model(identifier):
     return ModelCommitment(identifier=identifier, activations_model=activations_model, layers=layers)
 
 
-model_registry["R3M-LSTM-EGO4D"] = lambda: commit_model("R3M-LSTM-EGO4D")
-model_registry["R3M-LSTM-PHYS"] = lambda: commit_model("R3M-LSTM-PHYS")
+model_registry["R3M-LSTM-EGO4D-ENCODER"] = lambda: commit_model("R3M-LSTM-EGO4D-ENCODER")
+model_registry["R3M-LSTM-EGO4D-SIM"] = lambda: commit_model("R3M-LSTM-EGO4D-SIM")
+model_registry["R3M-LSTM-EGO4D-SIM-OBSERVED"] = lambda: commit_model("R3M-LSTM-EGO4D-SIM-OBSERVED")
+model_registry["R3M-LSTM-PHYS-ENCODER"] = lambda: commit_model("R3M-LSTM-PHYS-ENCODER")
+model_registry["R3M-LSTM-PHYS-SIM"] = lambda: commit_model("R3M-LSTM-PHYS-SIM")
+model_registry["R3M-LSTM-PHYS-SIM-OBSERVED"] = lambda: commit_model("R3M-LSTM-PHYS-SIM-OBSERVED")

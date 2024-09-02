@@ -3,7 +3,9 @@ import pytest
 from brainscore_vision import load_model
 
 
-model_list = ["DFM-LSTM"]
+model_list = ["DFM-LSTM-SIM",
+             "DFM-LSTM-SIM-OBSERVED",
+             "DFM-LSTM-ENCODER"]
 
 @pytest.mark.private_access
 @pytest.mark.memory_intense

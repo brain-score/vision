@@ -22,7 +22,7 @@ class TestBehavioral:
         ('OnlineNoInstructionsBehavioralAccuracyDistance', approx(0.79752907, abs=0.001)),
     ])
     def test_dataset_ceiling(self, dataset, expected_ceiling):
-        benchmark = f"Lonnqvist2024_{dataset}BehavioralAccuracyDistance"
+        benchmark = f"Lonnqvist2024_{dataset}"
         benchmark = load_benchmark(benchmark)
         ceiling = benchmark.ceiling
         assert ceiling == expected_ceiling
@@ -35,9 +35,9 @@ class TestBehavioral:
     ])
     def test_model(self, dataset, expected_raw_score):
         if 'all' in dataset:
-            benchmark = f"Scialom2024_{dataset}BehavioralErrorConsistency"
+            benchmark = f"Lonnqvist2024_{dataset}"
         else:
-            benchmark = f"Scialom2024_{dataset}BehavioralAccuracyDistance"
+            benchmark = f"Lonnqvist2024_{dataset}"
         benchmark = load_benchmark(benchmark)
         model = 'alexnet'
         score = benchmark(model)

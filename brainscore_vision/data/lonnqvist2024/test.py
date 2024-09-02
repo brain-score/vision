@@ -16,18 +16,21 @@ def test_existence(assembly_identifier):
 
 @pytest.mark.private_access
 class TestAssemblies:
-    @pytest.mark.parametrize('identifier', [
+    @pytest.mark.parametrize('assembly', [
         'Lonnqvist2024_inlab-instructions',
         'Lonnqvist2024_inlab-no-instructions',
         'Lonnqvist2024_online-no-instructions'
+    ])
+    @pytest.mark.parametrize('identifier', [
+        'Lonnqvist2024_test'
     ])
     @pytest.mark.parametrize('field', [
         'stimulus_id',
         'condition',
         'truth'
     ])
-    def test_stimulus_set_assembly_alignment(self, identifier, field):
-        assembly = load_dataset(identifier)
+    def test_stimulus_set_assembly_alignment(self, assembly, identifier, field):
+        assembly = load_dataset(assembly)
         assert assembly.stimulus_set is not None
         assert assembly.stimulus_set.identifier == identifier
         assert set(assembly.stimulus_set[field]) == set(assembly[field].values)

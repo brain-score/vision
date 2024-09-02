@@ -72,7 +72,7 @@ class TestAssemblies:
         'Lonnqvist2024_online-no-instructions'
     ])
     @pytest.mark.parametrize('field', [
-        'subject'
+        'subject',
         'visual_degrees',
         'image_duration',
         'is_correct',

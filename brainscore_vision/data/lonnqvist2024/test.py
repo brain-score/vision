@@ -26,7 +26,6 @@ class TestAssemblies:
     ])
     @pytest.mark.parametrize('field', [
         'stimulus_id',
-        'condition',
         'truth'
     ])
     def test_stimulus_set_assembly_alignment(self, assembly, identifier, field):

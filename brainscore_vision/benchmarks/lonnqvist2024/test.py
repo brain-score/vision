@@ -1,7 +1,7 @@
 import pytest
 from pytest import approx
 
-from brainscore_vision import benchmark_registry, load_benchmark
+from brainscore_vision import benchmark_registry, load_benchmark, load_model
 
 
 @pytest.mark.parametrize('benchmark', [
@@ -39,7 +39,7 @@ class TestBehavioral:
         else:
             benchmark = f"Lonnqvist2024_{dataset}"
         benchmark = load_benchmark(benchmark)
-        model = 'alexnet'
+        model = load_model('alexnet')
         score = benchmark(model)
         raw_score = score.raw
         # division by ceiling <= 1 should result in higher score
@@ -53,7 +53,7 @@ class TestEngineering:
     ])
     def test_accuracy(self, dataset, expected_accuracy):
         benchmark = load_benchmark(f"Lonnqvist2024_{dataset}")
-        model = 'alexnet'
+        model = load_model('alexnet')
         score = benchmark(model)
         raw_score = score.raw
         # division by ceiling <= 1 should result in higher score

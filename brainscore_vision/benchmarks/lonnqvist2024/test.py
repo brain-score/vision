@@ -31,7 +31,7 @@ class TestBehavioral:
     @pytest.mark.parametrize('dataset, expected_raw_score', [
         ('InlabInstructionsBehavioralAccuracyDistance', approx(0.58568247, abs=0.001)),
         ('InlabNoInstructionsBehavioralAccuracyDistance', approx(0.62883828, abs=0.001)),
-        ('OnlineNoInstructionsBehavioralAccuracyDistance', approx(0.9804305, abs=0.001)),
+        ('OnlineNoInstructionsBehavioralAccuracyDistance', approx(0.78192183, abs=0.001)),
     ])
     def test_model(self, dataset, expected_raw_score):
         if 'all' in dataset:

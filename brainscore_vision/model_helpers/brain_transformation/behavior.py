@@ -160,7 +160,8 @@ class LabelToImagenetIndices:
     jeep_indices = [609]
     teapot_indices = [849]
 
-    # car, bear, lamp, elephant
+    # car, bear, and elephant indices used as defined by Geirhos et al., 2021.
+    # lamp indices used as defined by the Scialom2024 benchmark
 
     @classmethod
     def label_to_indices(cls, label):

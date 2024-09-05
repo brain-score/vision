@@ -1,12 +1,10 @@
 # Created by David Coggan on 2024 06 25
 
 import numpy as np
-from brainio.assemblies import DataAssembly, BehavioralAssembly
-from brainscore_vision import load_stimulus_set, load_dataset
+from brainscore_vision import load_stimulus_set, load_dataset, load_metric
 from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
 from brainscore_core.metrics import Score
-from brainscore_vision.metric_helpers import Defaults as XarrayDefaults
 from brainscore_vision.model_interface import BrainModel
 from brainscore_vision.utils import LazyLoad
 from scipy.stats import sem
@@ -20,6 +18,39 @@ BIBTEX = """@article {
     year = {2024},
     url = {},
     journal = {in prep}}"""
+
+
+class Coggan2024_behavior_ConditionWiseLabelingAccuracySimilarity(BenchmarkBase):
+    def __init__(self):
+        self._metric = load_metric('conditionwise_accuracy_distance')
+        self._fitting_stimuli = load_stimulus_set('Coggan2024_behavior_fitting')  # this fails is wrapped by LazyLoad
+        self._assembly = LazyLoad(lambda: load_dataset('Coggan2024_behavior'))
+        self._visual_degrees = 10
+        self._number_of_trials = 1
+        self._ceiling_func = lambda assembly: get_noise_ceiling(assembly)
+        super(Coggan2024_behavior_ConditionWiseLabelingAccuracySimilarity, self).__init__(
+            identifier='tong.Coggan2024_behavior-LabelingConditionWiseAccuracySimilarity',
+            version=1,
+            ceiling_func=lambda: self._metric.ceiling(self._assembly),
+            parent='behavior',
+            bibtex=BIBTEX,
+        )
+
+    def __call__(self, candidate: BrainModel):
+        choice_labels = set(self._assembly['object_class'].values)
+        choice_labels = list(sorted(choice_labels))
+        candidate.start_task(BrainModel.Task.label, choice_labels)
+        stimulus_set = place_on_screen(self._assembly.stimulus_set,
+                                       target_visual_degrees=candidate.visual_degrees(),
+                                       source_visual_degrees=self._visual_degrees)
+        labels = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
+        raw_score = self._metric(labels, self._assembly)
+        ceiling = self.ceiling
+        score = raw_score / ceiling
+        score.attrs['raw'] = raw_score
+        score.attrs['ceiling'] = ceiling
+        return score
+
 
 class Coggan2024_behavior_ConditionWiseAccuracySimilarity(BenchmarkBase):
 
@@ -125,5 +156,27 @@ def ceiler(score: Score, ceiling: Score) -> Score:
     return ceiled_score
 
 
+class Coggan2024_behavior_ConditionWiseLabelingEngineeringAccuracy(BenchmarkBase):
+    def __init__(self):
+        self._metric = load_metric('accuracy')
+        self._ceiling_func = lambda assembly: get_noise_ceiling(assembly)
+        self._stimulus_set = load_dataset('Coggan2024_behavior').stimulus_set
+        super(Coggan2024_behavior_ConditionWiseLabelingEngineeringAccuracy, self).__init__(
+            identifier='tong.Coggan2024_behavior-LabelingConditionWiseEngineeringAccuracy',
+            version=1,
+            ceiling_func=lambda: Score(1),
+            parent='Coggan2024-top1',
+            bibtex=BIBTEX,
+        )
 
-
+    def __call__(self, candidate: BrainModel):
+        choice_labels = set(self._assembly['object_class'].values)
+        choice_labels = list(sorted(choice_labels))
+        candidate.start_task(BrainModel.Task.label, choice_labels)
+        labels = candidate.look_at(self._stimulus_set)
+        raw_score = self._metric(labels, self._stimulus_set['object_class'].values)
+        ceiling = self.ceiling
+        score = raw_score / ceiling
+        score.attrs['raw'] = raw_score
+        score.attrs['ceiling'] = ceiling
+        return score

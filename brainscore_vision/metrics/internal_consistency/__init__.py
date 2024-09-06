@@ -5,4 +5,4 @@ from brainscore_vision.metric_helpers.temporal import PerTime
 
 
 metric_registry['internal_consistency'] = InternalConsistency
-metric_registry['pertime_internal_consistency'] = lambda *args, **kwargs: PerTime(InternalConsistency(*args, **kwargs))
+metric_registry['internal_consistency_temporal'] = lambda *args, **kwargs: PerTime(InternalConsistency(*args, **kwargs))

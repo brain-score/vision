@@ -35,6 +35,7 @@ jobs:
     - name: 3.11 public
       python: '3.11'
     - name: 3.11 private
+      if: fork = false
       python: '3.11'
       env:
       - PRIVATE_ACCESS=1

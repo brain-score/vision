@@ -40,7 +40,6 @@ test = [
     "pytest-timeout",
     "torch",
     "torchvision",
-    "protobuf",  # https://protobuf.dev/news/2022-05-06/#python-updates
     "matplotlib",  # for examples
     "pytest-mock",
 ]

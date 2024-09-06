@@ -10,7 +10,7 @@ from .xarray_utils import apply_over_dims, recursive_op
 # take the mean of scores (medians of single neuron scores) over time
 
 
-def average_over_presentation(score):
+def average_over_presentation(score: Score) -> Score:
     raw = score
     score = raw.mean('presentation')
     score.attrs['raw'] = raw

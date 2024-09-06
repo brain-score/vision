@@ -65,13 +65,13 @@ def MajajHongITPublicBenchmark():
 def MajajHongV4TemporalPublicBenchmark(time_interval: float = None):
     return _DicarloMajajHong2015Region(region='V4', access='public', identifier_metric_suffix='pls',
                                        similarity_metric=spantime_pls_metric(), time_interval=time_interval,
-                                       ceiler=load_ceiling('pertime_internal_consistency'))
+                                       ceiler=load_ceiling('internal_consistency_temporal'))
 
 
 def MajajHongITTemporalPublicBenchmark(time_interval: float = None):
     return _DicarloMajajHong2015Region(region='IT', access='public', identifier_metric_suffix='pls',
                                        similarity_metric=spantime_pls_metric(), time_interval=time_interval,
-                                       ceiler=load_ceiling('pertime_internal_consistency'))
+                                       ceiler=load_ceiling('internal_consistency_temporal'))
 
 
 def load_assembly(average_repetitions: bool, region: str, access: str = 'private', time_interval: float = None):

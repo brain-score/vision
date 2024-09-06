@@ -74,7 +74,7 @@ def MajajHongITTemporalPublicBenchmark(time_interval):
                                        ceiler=load_ceiling('pertime_internal_consistency'))
 
 
-def load_assembly(average_repetitions, region, access='private', time_interval=None):
+def load_assembly(average_repetitions: bool, region: str, access: str = 'private', time_interval: float = None):
     temporal = time_interval is not None
     if not temporal:
         assembly = load_dataset(f'MajajHong2015.{access}')

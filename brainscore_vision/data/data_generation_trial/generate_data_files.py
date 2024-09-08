@@ -1,23 +1,28 @@
 from pathlib import Path
-from dandi_to_stimulus_set import convert_to_stimulus_set
-from create_assembly import output_assembly
+from brainio.stimuli import StimulusSet
+from dandi_to_stimulus_set import convert_to_stimulus_set, get_stimuli
+from extract_nwb_data import generate_json_file, validate_nwb_file
+from create_assembly import output_assembly, load_responses
 
+import os, json
 
 # currently hardcoded, change to take in as input
 # NWB_METADATA = {
+#     'dandiset_number': '000788', 
 #     'assembly': {
-#         'identifier': 'emogan',
-#         'stimulus_set_identifier': 'emogan',
+#         'identifier': 'DataGenerationTrial_emogan',
+#         'stimulus_set_identifier': 'DataGenerationTrial_emogan',
 #         'region': {'IT'},
-#         'presentation': 8550,
-#         'neuroid': 27
+#         'presentation': 8500,
+#         'neuroid': 18
 #     },
 #     'stimulus_set': {
-#         'identifier': 'emogan',
-#         'length': 171
+#         'identifier': 'DataGenerationTrial_emogan',
+#         'length': 170
 #     }
 # }
 # NWB_METADATA = {
+#     'dandiset_number': '000781', 
 #     'assembly': {
 #         'identifier': 'Co3D',
 #         'stimulus_set_identifier': 'Co3D',
@@ -43,12 +48,42 @@ NWB_METADATA = {
         'length': 10
     }
 }
+# NWB_METADATA = {
+#     'dandiset_number': '000786', 
+#     'assembly': {
+#         'identifier': 'domain-transfer-2023',
+#         'stimulus_set_identifier': 'domain-transfer-2023',
+#         'region': {'IT'},
+#         'presentation': 7588,
+#         'neuroid': 36
+#     },
+#     'stimulus_set': {
+#         'identifier': 'domain-transfer-2023',
+#         'length': 319
+#     }
+# }
 
 class DataFactory:
 
-    def __init__(self, directory: str, identifier: str):
+    def __init__(self, directory: str, exp_path: str, identifier: str, dandiset_id: str, nwb_file_path: str):
         self.directory = directory
+        self.exp_path = exp_path
         self.identifier = identifier
+
+        self.dandiset_id = dandiset_id
+        self.nwb_file_path = nwb_file_path
+
+        # nwb_file_name   = os.listdir(os.path.join(self.exp_path, "sub-pico"))[0]
+        # nwb_file_path   = os.path.join(os.path.join(self.exp_path, "sub-pico", nwb_file_name))
+        self.nwb_file   = validate_nwb_file(self.dandiset_id, self.nwb_file_path)
+
+        self.json_file_path = os.path.join(self.directory, "nwb_metadata.json")
+        print('json path', self.json_file_path)
+        generate_json_file(self.nwb_file, self.json_file_path)
+        input("Validate the values in the generated JSON file are correct, or edit the file. Press Enter to continue.")
+        with open(self.json_file_path, 'r') as f:
+            self.params = json.load(f)
+
 
     def __call__(self):
 
@@ -92,8 +127,8 @@ if __name__ == '__main__':
 
     def generate_init_code(self) -> str:
         from data_packaging import upload_assembly_to_s3, upload_stimulus_set_to_s3
-        stimuli = convert_to_stimulus_set()
-        assembly = output_assembly()
+        stimuli = get_stimuli(self.dandiset_id, self.nwb_file, self.exp_path, self.params['exp_name'][4:])[0]
+        assembly = load_responses(self.nwb_file, self.json_file_path, stimuli, use_QC_data = False, do_filter_neuroids = True, use_brainscore_filter_neuroids_method=True)
         stimuli_info = upload_stimulus_set_to_s3(stimuli)
         assembly_info = upload_assembly_to_s3(assembly)
 
@@ -161,5 +196,10 @@ def test_stimulus_set():
 
 
 if __name__ == '__main__':
-    data_factory = DataFactory(directory='/Users/caroljiang/Downloads/vision/brainscore_vision/data/data_generation_trial', identifier=NWB_METADATA['stimulus_set']['identifier'])
+    directory = '/Users/caroljiang/Downloads/vision/brainscore_vision/data/data_generation_trial'
+    exp_path = f"/Users/caroljiang/Downloads/vision/brainscore_vision/data/data_generation_trial/"
+    dandiset_id = '000812'
+    nwb_file_path = 'sub-pico/sub-pico_ecephys.nwb'
+    # nwb_file_path = 'sub-pico/sub-pico_ecephys+image.nwb'
+    data_factory = DataFactory(directory=directory, exp_path=exp_path, identifier=NWB_METADATA['stimulus_set']['identifier'], dandiset_id=dandiset_id, nwb_file_path=nwb_file_path)
     data_factory()

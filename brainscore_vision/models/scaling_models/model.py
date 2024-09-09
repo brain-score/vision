@@ -1,4 +1,6 @@
 import functools
+import json
+from pathlib import Path
 
 import torchvision.models
 import torch
@@ -6,6 +8,7 @@ import torch
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 
+import timm
 import numpy as np
 import torchvision.transforms as T
 from PIL import Image
@@ -15,25 +18,9 @@ from albumentations.pytorch import ToTensorV2
 
 BIBTEX = """"""
 
-MODEL_NAME = "resnet50"
-MODEL_ID = "resnet50_imagenet_100_seed-0"
-MODEL_COMMITMENT = {
-    "region_layer_map": {
-        "V1": "layer1.0.conv1",
-        "V2": "layer3.5.bn3",
-        "V4": "layer3.0.conv1",
-        "IT": "layer4.0.relu",
-    },
-    "behavioral_readout_layer": "favgpool",
-    "layers": ["layer1.0.conv1", "layer3.0.conv1", "layer3.5.bn3", "layer4.0.relu"]
-}
 
-RESIZE_SIZE = 256
-CROP_SIZE = 224
-INTERPOLATION = "bilinear"
-NUM_CLASSES = 1000
-EPOCH = 100
-CKPT_URL = "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/resnet50_imagenet_100_seed-0/ep100.pt"
+with open(Path(__file__).parent / "model_configs.json", "r") as f:
+    MODEL_CONFIGS = json.load(f)
 
 
 def load_image(image_filepath):
@@ -52,10 +39,10 @@ def get_interpolation_mode(interpolation: str) -> int:
 
 def custom_image_preprocess(
     images,
+    resize_size: int,
+    crop_size: int,
+    interpolation: str,
     transforms=None,
-    resize_size: int = RESIZE_SIZE,
-    crop_size: int = CROP_SIZE,
-    interpolation: str = INTERPOLATION,
 ):
     if transforms is None:
         interpolation = get_interpolation_mode(interpolation)
@@ -90,28 +77,62 @@ def load_preprocess_images_custom(
     return images
 
 
-def get_model():
-    model = torchvision.models.resnet50()
-    if NUM_CLASSES != 1000:
-        model.fc = torch.nn.Linear(
-            in_features=model.fc.in_features,
-            out_features=NUM_CLASSES,
-            bias=model.fc.bias is not None,
-        )
+def get_model(model_id:str):
+    
+    # Unpack model config
+    config = MODEL_CONFIGS[model_id]
+    model_name = config["model_name"]
+    model_id = config["model_id"]
+    resize_size = config["resize_size"]
+    crop_size = config["crop_size"]
+    interpolation = config["interpolation"]
+    num_classes = config["num_classes"]
+    ckpt_url = config["checkpoint_url"]
+    use_timm = config["use_timm"]
+    timm_model_name = config["timm_model_name"]
+    epoch = config["epoch"]
+    load_model_ema = config["load_model_ema"]
+    model_commitment = config["model_commitment"]
+    output_head = config["output_head"]
 
+    
+    # Initialize model
+    if use_timm:
+        model = timm.create_model(timm_model_name, pretrained=False, num_classes=num_classes)
+    else:
+        model = eval(f"torchvision.models.{model_name}(weights=None)")
+        if num_classes != 1000:
+            exec(f'''{output_head} = torch.nn.Linear(
+                in_features={output_head}.in_features,
+                out_features=num_classes,
+                bias={output_head}.bias is not None,
+                )'''
+            )
+
+    # Load model weights
     state_dict = torch.hub.load_state_dict_from_url(
-        CKPT_URL,
+        ckpt_url,
         check_hash=True,
-        file_name=f"{MODEL_ID}_ep{EPOCH}.pt",
+        file_name=f"{model_id}_ep{epoch}.pt",
         map_location="cpu",
     )
-    state_dict = state_dict["state"]["model"]
+    if load_model_ema:
+        state_dict = state_dict["state"]["model_ema_state_dict"]
+    else:
+        state_dict = state_dict["state"]["model"]
     state_dict = {k.replace("module.", ""): v for k, v in state_dict.items()}
     model.load_state_dict(state_dict, strict=True)
-    print(f"Model loaded from {CKPT_URL}")
+    print(f"Model loaded from {ckpt_url}")
 
-    preprocessing = functools.partial(load_preprocess_images_custom, transforms=None)
+    # Wrap model
+    preprocessing = functools.partial(
+        load_preprocess_images_custom,
+        resize_size=resize_size,
+        crop_size=crop_size,
+        interpolation=interpolation,
+        transforms=None
+    )
     wrapper = PytorchWrapper(
-        identifier=MODEL_ID, model=model, preprocessing=preprocessing
+        identifier=model_id, model=model, preprocessing=preprocessing
     )
     return wrapper

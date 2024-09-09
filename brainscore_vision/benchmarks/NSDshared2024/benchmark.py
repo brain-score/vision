@@ -46,8 +46,7 @@ def NSDV1SharedPLS():
 
 def load_assembly(identifier):
     assembly = load_dataset(identifier)
-    # Assuming 'assembly' is your NeuronRecordingAssembly
-    if 'time_bin' not in assembly.dims:
-        assembly = assembly.expand_dims('time_bin').assign_coords(time_bin=[(0, 1600)])  # Add a dummy 'time_bin' with one value
+    assembly = assembly.squeeze("time_bin")
+    assembly.load()
     return assembly
     

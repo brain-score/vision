@@ -18,8 +18,8 @@ BIBTEX = """@article{allen2022massive,
 # assembly: dicarlo.MajajHong2015
 data_registry['NSD.V1.SharedCombinedSubs.2024'] = lambda: load_assembly_from_s3(
     identifier="NSD.V1.SharedCombinedSubs.2024",
-    version_id="Hev4Mk4JRJKLFD8FxQoRLloiXKe9zgFF",
-    sha1="6b740523bc8407c02eee05df25f812d004cc8f6c",
+    version_id="Z3ITwtE8h93U_EmyuIDmp1wQ7OB83Qhs",
+    sha1="7d655b73fff7b2177e667c90b218be1556fcbd4c",
     bucket="brainio-brainscore",
     cls=NeuronRecordingAssembly,
     stimulus_set_loader=lambda: brainscore_vision.load_stimulus_set('NSDimagesShared2024'),

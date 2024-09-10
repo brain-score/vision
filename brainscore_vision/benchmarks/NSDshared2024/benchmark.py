@@ -24,29 +24,29 @@ pls_metric = lambda: load_metric('pls', crossvalidation_kwargs=dict(stratificati
 
 
 def _NSDSharedRegion(region: str, identifier_metric_suffix: str,
-                     similarity_metric: Metric):
-    assembly = load_assembly(f'NSD.{region}.SharedCombinedSubs.2024')
+        similarity_metric: Metric, ceiler: Ceiling):
+    assembly_repetition = load_assembly(f'NSD.{region}.SharedCombinedSubs.2024', average_repetitions=False)
+    assembly = load_assembly(f'NSD.{region}.SharedCombinedSubs.2024', average_repetitions=True)
     benchmark_identifier = f'NSD.{region}.PLS'
-    # only one repetition so divide by 1
-    ceiling = Score([1, np.nan], coords={'aggregation': ['center', 'error']}, dims=['aggregation'])
-    return NeuralBenchmark(identifier=f'{benchmark_identifier}-{identifier_metric_suffix}', version=3,
+    return NeuralBenchmark(identifier=f'{benchmark_identifier}-{identifier_metric_suffix}', version=1,
                            assembly=assembly, similarity_metric=similarity_metric,
                            visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
-                           ceiling_func=lambda: ceiling,
+                           ceiling_func=lambda: ceiler(assembly_repetition),
                            parent=region,
                            bibtex=BIBTEX)
 
 
 def NSDV1SharedPLS():
     return _NSDSharedRegion(region='V1', identifier_metric_suffix='pls',
-                           similarity_metric=pls_metric())
-                           # could be used if using each subject as trial
-                           #ceiler=load_ceiling('internal_consistency')) 
+                           similarity_metric=pls_metric(),
+                           ceiler=load_ceiling('internal_consistency')) 
 
 
-def load_assembly(identifier):
+def load_assembly(identifier, average_repetitions=False):
     assembly = load_dataset(identifier)
     assembly = assembly.squeeze("time_bin")
     assembly.load()
+    if average_repetitions:
+        assembly = average_repetition(assembly)
     return assembly
     

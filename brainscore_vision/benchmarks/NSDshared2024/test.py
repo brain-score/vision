@@ -10,6 +10,6 @@ def test_score(model_identifier, benchmark_identifier, expected_score):
     assert actual_score == expected_score
 
 
-actual_score = score(model_identifier="resnet18_imagenet21kP", benchmark_identifier="NSD.V1.pls",
+actual_score = score(model_identifier="resnet18_imagenet21kP", benchmark_identifier="NSD.V1.pls",#MajajHong2015public.IT-pls",#NSD.V1.pls",
                          conda_active=True)
 print(actual_score)

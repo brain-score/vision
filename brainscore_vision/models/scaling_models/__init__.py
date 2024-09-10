@@ -146,6 +146,60 @@ model_registry["efficientnet_b2_imagenet_full"] = lambda: ModelCommitment(
 )
 
 
+model_registry["deit_small_imagenet_full_seed-0"] = lambda: ModelCommitment(
+    identifier="deit_small_imagenet_full_seed-0",
+    activations_model=get_model("deit_small_imagenet_full_seed-0"),
+    layers=MODEL_CONFIGS["deit_small_imagenet_full_seed-0"]["model_commitment"]["layers"],
+    behavioral_readout_layer=MODEL_CONFIGS["deit_small_imagenet_full_seed-0"]["model_commitment"]["behavioral_readout_layer"],
+    region_layer_map=MODEL_CONFIGS["deit_small_imagenet_full_seed-0"]["model_commitment"]["region_layer_map"]
+)
+
+
+model_registry["deit_base_imagenet_full_seed-0"] = lambda: ModelCommitment(
+    identifier="deit_base_imagenet_full_seed-0",
+    activations_model=get_model("deit_base_imagenet_full_seed-0"),
+    layers=MODEL_CONFIGS["deit_base_imagenet_full_seed-0"]["model_commitment"]["layers"],
+    behavioral_readout_layer=MODEL_CONFIGS["deit_base_imagenet_full_seed-0"]["model_commitment"]["behavioral_readout_layer"],
+    region_layer_map=MODEL_CONFIGS["deit_base_imagenet_full_seed-0"]["model_commitment"]["region_layer_map"]
+)
+
+
+model_registry["deit_large_imagenet_full_seed-0"] = lambda: ModelCommitment(
+    identifier="deit_large_imagenet_full_seed-0",
+    activations_model=get_model("deit_large_imagenet_full_seed-0"),
+    layers=MODEL_CONFIGS["deit_large_imagenet_full_seed-0"]["model_commitment"]["layers"],
+    behavioral_readout_layer=MODEL_CONFIGS["deit_large_imagenet_full_seed-0"]["model_commitment"]["behavioral_readout_layer"],
+    region_layer_map=MODEL_CONFIGS["deit_large_imagenet_full_seed-0"]["model_commitment"]["region_layer_map"]
+)
+
+
+model_registry["deit_small_imagenet_1_seed-0"] = lambda: ModelCommitment(
+    identifier="deit_small_imagenet_1_seed-0",
+    activations_model=get_model("deit_small_imagenet_1_seed-0"),
+    layers=MODEL_CONFIGS["deit_small_imagenet_1_seed-0"]["model_commitment"]["layers"],
+    behavioral_readout_layer=MODEL_CONFIGS["deit_small_imagenet_1_seed-0"]["model_commitment"]["behavioral_readout_layer"],
+    region_layer_map=MODEL_CONFIGS["deit_small_imagenet_1_seed-0"]["model_commitment"]["region_layer_map"]
+)
+
+
+model_registry["deit_small_imagenet_10_seed-0"] = lambda: ModelCommitment(
+    identifier="deit_small_imagenet_10_seed-0",
+    activations_model=get_model("deit_small_imagenet_10_seed-0"),
+    layers=MODEL_CONFIGS["deit_small_imagenet_10_seed-0"]["model_commitment"]["layers"],
+    behavioral_readout_layer=MODEL_CONFIGS["deit_small_imagenet_10_seed-0"]["model_commitment"]["behavioral_readout_layer"],
+    region_layer_map=MODEL_CONFIGS["deit_small_imagenet_10_seed-0"]["model_commitment"]["region_layer_map"]
+)
+
+
+model_registry["deit_small_imagenet_100_seed-0"] = lambda: ModelCommitment(
+    identifier="deit_small_imagenet_100_seed-0",
+    activations_model=get_model("deit_small_imagenet_100_seed-0"),
+    layers=MODEL_CONFIGS["deit_small_imagenet_100_seed-0"]["model_commitment"]["layers"],
+    behavioral_readout_layer=MODEL_CONFIGS["deit_small_imagenet_100_seed-0"]["model_commitment"]["behavioral_readout_layer"],
+    region_layer_map=MODEL_CONFIGS["deit_small_imagenet_100_seed-0"]["model_commitment"]["region_layer_map"]
+)
+
+
 model_registry["convnext_tiny_imagenet_full_seed-0"] = lambda: ModelCommitment(
     identifier="convnext_tiny_imagenet_full_seed-0",
     activations_model=get_model("convnext_tiny_imagenet_full_seed-0"),
@@ -206,60 +260,6 @@ model_registry["convnext_small_imagenet_100_seed-0"] = lambda: ModelCommitment(
     layers=MODEL_CONFIGS["convnext_small_imagenet_100_seed-0"]["model_commitment"]["layers"],
     behavioral_readout_layer=MODEL_CONFIGS["convnext_small_imagenet_100_seed-0"]["model_commitment"]["behavioral_readout_layer"],
     region_layer_map=MODEL_CONFIGS["convnext_small_imagenet_100_seed-0"]["model_commitment"]["region_layer_map"]
-)
-
-
-model_registry["deit_small_imagenet_full_seed-0"] = lambda: ModelCommitment(
-    identifier="deit_small_imagenet_full_seed-0",
-    activations_model=get_model("deit_small_imagenet_full_seed-0"),
-    layers=MODEL_CONFIGS["deit_small_imagenet_full_seed-0"]["model_commitment"]["layers"],
-    behavioral_readout_layer=MODEL_CONFIGS["deit_small_imagenet_full_seed-0"]["model_commitment"]["behavioral_readout_layer"],
-    region_layer_map=MODEL_CONFIGS["deit_small_imagenet_full_seed-0"]["model_commitment"]["region_layer_map"]
-)
-
-
-model_registry["deit_base_imagenet_full_seed-0"] = lambda: ModelCommitment(
-    identifier="deit_base_imagenet_full_seed-0",
-    activations_model=get_model("deit_base_imagenet_full_seed-0"),
-    layers=MODEL_CONFIGS["deit_base_imagenet_full_seed-0"]["model_commitment"]["layers"],
-    behavioral_readout_layer=MODEL_CONFIGS["deit_base_imagenet_full_seed-0"]["model_commitment"]["behavioral_readout_layer"],
-    region_layer_map=MODEL_CONFIGS["deit_base_imagenet_full_seed-0"]["model_commitment"]["region_layer_map"]
-)
-
-
-model_registry["deit_large_imagenet_full_seed-0"] = lambda: ModelCommitment(
-    identifier="deit_large_imagenet_full_seed-0",
-    activations_model=get_model("deit_large_imagenet_full_seed-0"),
-    layers=MODEL_CONFIGS["deit_large_imagenet_full_seed-0"]["model_commitment"]["layers"],
-    behavioral_readout_layer=MODEL_CONFIGS["deit_large_imagenet_full_seed-0"]["model_commitment"]["behavioral_readout_layer"],
-    region_layer_map=MODEL_CONFIGS["deit_large_imagenet_full_seed-0"]["model_commitment"]["region_layer_map"]
-)
-
-
-model_registry["deit_small_imagenet_1_seed-0"] = lambda: ModelCommitment(
-    identifier="deit_small_imagenet_1_seed-0",
-    activations_model=get_model("deit_small_imagenet_1_seed-0"),
-    layers=MODEL_CONFIGS["deit_small_imagenet_1_seed-0"]["model_commitment"]["layers"],
-    behavioral_readout_layer=MODEL_CONFIGS["deit_small_imagenet_1_seed-0"]["model_commitment"]["behavioral_readout_layer"],
-    region_layer_map=MODEL_CONFIGS["deit_small_imagenet_1_seed-0"]["model_commitment"]["region_layer_map"]
-)
-
-
-model_registry["deit_small_imagenet_10_seed-0"] = lambda: ModelCommitment(
-    identifier="deit_small_imagenet_10_seed-0",
-    activations_model=get_model("deit_small_imagenet_10_seed-0"),
-    layers=MODEL_CONFIGS["deit_small_imagenet_10_seed-0"]["model_commitment"]["layers"],
-    behavioral_readout_layer=MODEL_CONFIGS["deit_small_imagenet_10_seed-0"]["model_commitment"]["behavioral_readout_layer"],
-    region_layer_map=MODEL_CONFIGS["deit_small_imagenet_10_seed-0"]["model_commitment"]["region_layer_map"]
-)
-
-
-model_registry["deit_small_imagenet_100_seed-0"] = lambda: ModelCommitment(
-    identifier="deit_small_imagenet_100_seed-0",
-    activations_model=get_model("deit_small_imagenet_100_seed-0"),
-    layers=MODEL_CONFIGS["deit_small_imagenet_100_seed-0"]["model_commitment"]["layers"],
-    behavioral_readout_layer=MODEL_CONFIGS["deit_small_imagenet_100_seed-0"]["model_commitment"]["behavioral_readout_layer"],
-    region_layer_map=MODEL_CONFIGS["deit_small_imagenet_100_seed-0"]["model_commitment"]["region_layer_map"]
 )
 
 

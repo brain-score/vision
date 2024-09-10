@@ -20,7 +20,7 @@ def get_model(identifier):
         cfg_path = os.path.join(HOME, "configs/main/avid-cma/kinetics/InstX-N1024-PosW-N64-Top32.yaml")
         weight_path = load_weight_file(
             bucket="brainscore-vision",
-            relative_path="temporal_model_AVID_CMA/AVID-CMA_Kinetics_InstX-N1024-PosW-N64-Top32_checkpoint.pth.tar",
+            relative_path="temporal_model_AVID-CMA/AVID-CMA_Kinetics_InstX-N1024-PosW-N64-Top32_checkpoint.pth.tar",
             version_id="yx9Pbq3SuNOOd4sX7csTolaHD1iTCx8y",
             sha1="6efe4464ca654a56affff766acf24e89e6f3ffbf"
         )

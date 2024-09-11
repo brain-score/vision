@@ -13,7 +13,6 @@ def commit_model(identifier):
 
 model_registry["ConvLSTM"] = lambda: commit_model("ConvLSTM")
 model_registry["PredRNN"] = lambda: commit_model("PredRNN")
-# model_registry["PredNet"] = lambda: commit_model("PredNet")
 model_registry["SimVP"] = lambda: commit_model("SimVP")
 model_registry["TAU"] = lambda: commit_model("TAU")
 model_registry["MIM"] = lambda: commit_model("MIM")

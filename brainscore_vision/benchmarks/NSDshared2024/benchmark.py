@@ -7,7 +7,7 @@ from brainscore_vision.benchmark_helpers.neural_common import NeuralBenchmark, a
 import numpy as np
 
 VISUAL_DEGREES = 8
-NUMBER_OF_TRIALS = 1
+NUMBER_OF_TRIALS = 3
 
 BIBTEX = """@article{allen2022massive,
               title={A massive 7T fMRI dataset to bridge cognitive neuroscience and artificial intelligence},
@@ -41,6 +41,40 @@ def NSDV1SharedPLS():
                            similarity_metric=pls_metric(),
                            ceiler=load_ceiling('internal_consistency')) 
 
+def NSDV2SharedPLS():
+    return _NSDSharedRegion(region='V2', identifier_metric_suffix='pls',
+                           similarity_metric=pls_metric(),
+                           ceiler=load_ceiling('internal_consistency'))
+
+def NSDV3SharedPLS():
+    return _NSDSharedRegion(region='V3', identifier_metric_suffix='pls',
+                           similarity_metric=pls_metric(),
+                           ceiler=load_ceiling('internal_consistency'))
+
+def NSDV4SharedPLS():
+    return _NSDSharedRegion(region='V4', identifier_metric_suffix='pls',
+                           similarity_metric=pls_metric(),
+                           ceiler=load_ceiling('internal_consistency'))
+
+def NSDEarlySharedPLS():
+    return _NSDSharedRegion(region='early', identifier_metric_suffix='pls',
+                           similarity_metric=pls_metric(),
+                           ceiler=load_ceiling('internal_consistency'))
+
+def NSDLateralSharedPLS():
+    return _NSDSharedRegion(region='lateral', identifier_metric_suffix='pls',
+                           similarity_metric=pls_metric(),
+                           ceiler=load_ceiling('internal_consistency'))
+
+def NSDParietalSharedPLS():
+    return _NSDSharedRegion(region='parietal', identifier_metric_suffix='pls',
+                           similarity_metric=pls_metric(),
+                           ceiler=load_ceiling('internal_consistency'))
+
+def NSDVentralSharedPLS():
+    return _NSDSharedRegion(region='ventral', identifier_metric_suffix='pls',
+                           similarity_metric=pls_metric(),
+                           ceiler=load_ceiling('internal_consistency'))
 
 def load_assembly(identifier, average_repetitions=False):
     assembly = load_dataset(identifier)
@@ -48,5 +82,4 @@ def load_assembly(identifier, average_repetitions=False):
     assembly.load()
     if average_repetitions:
         assembly = average_repetition(assembly)
-    return assembly
-    
+    return assembly    

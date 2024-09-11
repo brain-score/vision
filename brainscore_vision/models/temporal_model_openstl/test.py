@@ -6,7 +6,6 @@ from brainscore_vision import load_model
 model_list = [
     "ConvLSTM",
     "PredRNN",
-    "PredNet",
     "SimVP",
     "TAU",
     "MIM"

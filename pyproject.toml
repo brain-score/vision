@@ -4,17 +4,17 @@
 
 [project]
 name = "brainscore_vision"
-version = "2.0"
+version = "2.1"
 description = "The Brain-Score library enables model comparisons to behavioral and neural experiments"
 authors = []
 license = { 'file' = 'LICENSE' }
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.11"
 
 dependencies = [
-    "numpy>=1.17",
-    "brainscore_core @ git+https://github.com/brain-score/core",
-    "result_caching @ git+https://github.com/brain-score/result_caching",
+    "numpy<2",
+    "brainscore_core @ git+https://github.com/brain-score/core@main",
+    "result_caching @ git+https://github.com/brain-score/result_caching@master",
     "importlib-metadata<5", # workaround to https://github.com/brain-score/brainio/issues/28
     "scikit-learn", # for metric_helpers/transformations.py cross-validation
     "scipy", # for benchmark_helpers/properties_common.py
@@ -28,8 +28,8 @@ dependencies = [
     "peewee",
     "psycopg2-binary",
     "networkx",
-    "decord",
-    "psutil"
+    "eva-decord",
+    "psutil",
 ]
 
 [project.optional-dependencies]
@@ -40,9 +40,6 @@ test = [
     "pytest-timeout",
     "torch",
     "torchvision",
-    "tensorflow==1.15",
-    "keras==2.3.1",
-    "protobuf<=3.20",  # https://protobuf.dev/news/2022-05-06/#python-updates
     "matplotlib",  # for examples
     "pytest-mock",
 ]

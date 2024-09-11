@@ -16,6 +16,10 @@ from PIL import Image
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
+import os
+
+os.environ['RESULTCACHING_DISABLE'] = "1"
+
 BIBTEX = """"""
 
 

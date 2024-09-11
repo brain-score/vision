@@ -1,0 +1,21 @@
+name: Create PR
+on:
+  push:
+    branches: ['test-pr-workflow']
+
+jobs:
+  pull-request:
+    name: Open PR to main
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      name: checkout
+
+    - uses: repo-sync/pull-request@v2
+      name: pull-request
+      with:
+        destination_branch: "cj-data"
+        pr_title: "test automatic pr ${{ github.ref }} into cj-data"
+        pr_body: "test automatic pr via workflow"
+        pr_draft: true
+        github_token: ${{ secrets.GITHUB_TOKEN }}

@@ -16,10 +16,6 @@ from PIL import Image
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
-import os
-
-os.environ['RESULTCACHING_DISABLE'] = "1"
-
 BIBTEX = """"""
 
 
@@ -96,8 +92,14 @@ def get_model(model_id:str):
     timm_model_name = config["timm_model_name"]
     epoch = config["epoch"]
     load_model_ema = config["load_model_ema"]
-    model_commitment = config["model_commitment"]
     output_head = config["output_head"]
+    is_vit = config["is_vit"]
+    
+    # Temporary fix for vit models
+    # See https://github.com/brain-score/vision/pull/1232
+    if is_vit:
+        import os
+        os.environ['RESULTCACHING_DISABLED'] = 'brainscore_vision.model_helpers.activations.core'
 
     
     # Initialize model

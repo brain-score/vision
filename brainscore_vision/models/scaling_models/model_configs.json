@@ -9,6 +9,7 @@
     "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
+    "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
     "model_commitment": {
@@ -38,6 +39,7 @@
     "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
+    "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
     "model_commitment": {
@@ -67,6 +69,7 @@
     "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
+    "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
     "model_commitment": {
@@ -96,6 +99,7 @@
     "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
+    "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
     "model_commitment": {
@@ -125,6 +129,7 @@
     "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
+    "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
     "model_commitment": {
@@ -154,6 +159,7 @@
     "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
+    "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
     "model_commitment": {
@@ -183,6 +189,7 @@
     "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
+    "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
     "model_commitment": {
@@ -212,6 +219,7 @@
     "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
+    "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
     "model_commitment": {
@@ -241,6 +249,7 @@
     "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
+    "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
     "model_commitment": {
@@ -270,6 +279,7 @@
     "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
+    "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
     "model_commitment": {
@@ -299,6 +309,7 @@
     "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
+    "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
     "model_commitment": {
@@ -328,6 +339,7 @@
     "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
+    "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
     "model_commitment": {
@@ -357,6 +369,7 @@
     "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
+    "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
     "model_commitment": {
@@ -386,6 +399,7 @@
     "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
+    "is_vit": false,
     "epoch": 100,
     "output_head": "model.classifier[1]",
     "model_commitment": {
@@ -415,6 +429,7 @@
     "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
+    "is_vit": false,
     "epoch": 100,
     "output_head": "model.classifier[1]",
     "model_commitment": {
@@ -443,6 +458,7 @@
     "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
+    "is_vit": false,
     "epoch": 100,
     "output_head": "model.classifier[1]",
     "model_commitment": {
@@ -471,6 +487,7 @@
     "load_model_ema": true,
     "use_timm": true,
     "timm_model_name": "deit3_small_patch16_224",
+    "is_vit": true,
     "epoch": 300,
     "output_head": null,
     "model_commitment": {
@@ -500,6 +517,7 @@
     "load_model_ema": true,
     "use_timm": true,
     "timm_model_name": "deit3_base_patch16_224",
+    "is_vit": true,
     "epoch": 300,
     "output_head": null,
     "model_commitment": {
@@ -529,6 +547,7 @@
     "load_model_ema": true,
     "use_timm": true,
     "timm_model_name": "deit3_large_patch16_224",
+    "is_vit": true,
     "epoch": 300,
     "output_head": null,
     "model_commitment": {
@@ -558,6 +577,7 @@
     "load_model_ema": true,
     "use_timm": true,
     "timm_model_name": "deit3_small_patch16_224",
+    "is_vit": true,
     "epoch": 300,
     "output_head": null,
     "model_commitment": {
@@ -587,6 +607,7 @@
     "load_model_ema": true,
     "use_timm": true,
     "timm_model_name": "deit3_small_patch16_224",
+    "is_vit": true,
     "epoch": 300,
     "output_head": null,
     "model_commitment": {
@@ -616,6 +637,7 @@
     "load_model_ema": true,
     "use_timm": true,
     "timm_model_name": "deit3_small_patch16_224",
+    "is_vit": true,
     "epoch": 300,
     "output_head": null,
     "model_commitment": {
@@ -645,6 +667,7 @@
     "load_model_ema": true,
     "use_timm": false,
     "timm_model_name": null,
+    "is_vit": false,
     "epoch": 300,
     "output_head": "model.classifier[2]",
     "model_commitment": {
@@ -673,6 +696,7 @@
     "load_model_ema": true,
     "use_timm": false,
     "timm_model_name": null,
+    "is_vit": false,
     "epoch": 300,
     "output_head": "model.classifier[2]",
     "model_commitment": {
@@ -702,6 +726,7 @@
     "load_model_ema": true,
     "use_timm": false,
     "timm_model_name": null,
+    "is_vit": false,
     "epoch": 300,
     "output_head": "model.classifier[2]",
     "model_commitment": {
@@ -731,6 +756,7 @@
     "load_model_ema": true,
     "use_timm": false,
     "timm_model_name": null,
+    "is_vit": false,
     "epoch": 300,
     "output_head": "model.classifier[2]",
     "model_commitment": {
@@ -760,6 +786,7 @@
     "load_model_ema": true,
     "use_timm": false,
     "timm_model_name": null,
+    "is_vit": false,
     "epoch": 300,
     "output_head": "model.classifier[2]",
     "model_commitment": {
@@ -789,6 +816,7 @@
     "load_model_ema": true,
     "use_timm": false,
     "timm_model_name": null,
+    "is_vit": false,
     "epoch": 300,
     "output_head": "model.classifier[2]",
     "model_commitment": {
@@ -818,6 +846,7 @@
     "load_model_ema": true,
     "use_timm": false,
     "timm_model_name": null,
+    "is_vit": false,
     "epoch": 300,
     "output_head": "model.classifier[2]",
     "model_commitment": {

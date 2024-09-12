@@ -23,6 +23,7 @@ def test_start_task_or_recording(identifier: str):
     can_do = ProbeModel()
     assert can_do.can_start_task(model) or can_do.can_start_recording(model)
 
+
 @pytest.mark.memory_intense
 def test_look_at_neural_V1(identifier: str):
     model = load_model(identifier)

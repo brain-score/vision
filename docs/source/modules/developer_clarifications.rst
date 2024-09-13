@@ -34,3 +34,6 @@ anyone interested in contributing to Brain-Score's codebase or scientific workin
     the ventral visual stream, and is chosen by scoring models on the public version of a benchmark (the private
     benchmark data is heldout for the BrainModel to be scored on). See the more technical docs
     `here <https://brain-score.readthedocs.io/en/latest/modules/model_interface.html>`_  for additional notes.
+
+
+4. This is a quick change to the docs.

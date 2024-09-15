@@ -1,3 +1,4 @@
+import os
 import functools
 import json
 from pathlib import Path
@@ -97,9 +98,8 @@ def get_model(model_id:str):
     
     # Temporary fix for vit models
     # See https://github.com/brain-score/vision/pull/1232
-    # if is_vit:
-    #     import os
-    #     os.environ['RESULTCACHING_DISABLED'] = 'brainscore_vision.model_helpers.activations.core'
+    if is_vit:
+        os.environ['RESULTCACHING_DISABLED'] = 'brainscore_vision.model_helpers.activations.core.ActivationsExtractorHelper._from_paths_stored'
 
     
     # Initialize model

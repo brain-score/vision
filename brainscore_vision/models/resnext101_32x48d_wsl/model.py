@@ -10,8 +10,8 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 
 def get_model(name):
-    assert name == 'resnext101_32x48d_wsl'
-    model_identifier = "resnext101_32x48d_wsl"
+    assert name == 'resnext101_32x48d_wsl_TEST'
+    model_identifier = "resnext101_32x48d_wsl_TEST"
     model = torch.hub.load('facebookresearch/WSL-Images', model_identifier)
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     batch_size = {8: 32, 16: 16, 32: 8, 48: 4}
@@ -22,7 +22,7 @@ def get_model(name):
 
 
 def get_layers(name):
-    assert name == 'resnext101_32x48d_wsl'
+    assert name == 'resnext101_32x48d_wsl_TEST'
     return (['conv1'] +
             # note that while relu is used multiple times, by default the last one will overwrite all previous ones
             [f"layer{block + 1}.{unit}.relu"

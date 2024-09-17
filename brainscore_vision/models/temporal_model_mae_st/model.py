@@ -53,7 +53,7 @@ def get_model(identifier):
         load_path = load_weight_file(
             bucket="brainscore-vision", 
             relative_path="temporal_model_mae_st/mae_pretrain_vit_large_k400.pth", 
-            version_id="cPcP4AzpG95CimQ5Pn.CHKnGUJlLXM3m",
+            version_id="bHQ1XRM.a4NfgbP53TR5AsgvUsN40R_j",
             sha1="c7fb91864a4ddf8b99309440121a3abe66b846bb"
         )
 
@@ -64,7 +64,7 @@ def get_model(identifier):
         load_path = load_weight_file(
             bucket="brainscore-vision", 
             relative_path="temporal_model_mae_st/mae_pretrain_vit_huge_k400.pth", 
-            version_id="IYKa8QiocgBzo3EhsBouS62HboK6iqYT",
+            version_id="ARS9kz2wQQ29iRsssyc7u_kfA4wLDAji",
             sha1="177e48577142ca01949c08254834ffa1198b9eb4"
         )
 

@@ -145,13 +145,7 @@ class TestOddOneOut:
     
         # Set up the task
         activations_model = pytorch_custom()
-        brain_model = ModelCommitment(
-            identifier=activations_model.identifier, 
-            activations_model=activations_model, 
-            layers=["relu2"], 
-            behavioral_readout_layer='relu2')
-
-        brain_model = OddOneOut(identifier='pytorch-custom', 
+        brain_model = OddOneOut(identifier='pytorch-custom',
                                 activations_model=activations_model,
                                 layer=["relu2"])
 
@@ -170,12 +164,6 @@ class TestOddOneOut:
 
         # Set up the task
         activations_model = pytorch_custom()
-        brain_model = ModelCommitment(
-            identifier=activations_model.identifier, 
-            activations_model=activations_model, 
-            layers=["relu2"], 
-            behavioral_readout_layer='relu2')
-        
         brain_model = OddOneOut(identifier='pytorch-custom',
                                 activations_model=activations_model,
                                 layer=["relu2"])

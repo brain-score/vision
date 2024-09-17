@@ -62,7 +62,7 @@ class TestAssemblies:
         full_name = f"Geirhos2021_{identifier}"
         assembly = load_dataset(full_name)
         assert assembly.stimulus_set is not None
-        assert assembly.stimulus_set.identifier == f"{full_name}"
+        assert assembly.stimulus_set.identifier == full_name
         assert set(assembly.stimulus_set[field]) == set(assembly[field].values)
 
     # test the number of subjects:
@@ -236,7 +236,7 @@ class TestStimulusSets:
         full_name = f"Geirhos2021_{identifier}"
         stimulus_set = load_stimulus_set(full_name)
         assert stimulus_set is not None
-        assert stimulus_set.identifier == full_name
+        assert stimulus_set.identifier == f"{full_name}"
 
     # test the number of images
     @pytest.mark.parametrize('identifier, num_images', [

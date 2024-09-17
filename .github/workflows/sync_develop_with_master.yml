@@ -126,10 +126,9 @@ jobs:
   
   
   no_changes:
-    name: "No Changes Detected"
+    name: "No Changes Made. No synchronization needed."
     needs: start
     if: >
-      github.event.pull_request.merged == true &&
       (
         needs.create_pr_for_nonplugin.result != 'success' && 
         needs.auto_sync_for_plugin.result != 'success'

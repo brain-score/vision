@@ -76,7 +76,8 @@ class InternalConsistency(Ceiling):
     def __init__(self,
                  consistency_metric: Metric = None,
                  aggregate=None,
-                 split_coord=_SplitHalvesConsistency.Defaults.split_coord):
+                 split_coord=_SplitHalvesConsistency.Defaults.split_coord,
+                 cross_validation_kwargs: dict = None):
         """
         Creates a class to estimate the ceiling for a given assembly, based on split-half consistencies.
 
@@ -91,7 +92,8 @@ class InternalConsistency(Ceiling):
             aggregate = consistency_metric.aggregate
         self._consistency = _SplitHalvesConsistency(consistency_metric=consistency_metric,
                                                     aggregate=aggregate,
-                                                    split_coord=split_coord)
+                                                    split_coord=split_coord,
+                                                    cross_validation_kwargs=cross_validation_kwargs)
 
     def __call__(self, assembly: DataAssembly) -> Score:
         return self._consistency(assembly)
@@ -125,3 +127,4 @@ class TemporalCeiling:
             ceilings.append(ceiling)
         ceiling = Score.merge(*ceilings)
         return ceiling
+

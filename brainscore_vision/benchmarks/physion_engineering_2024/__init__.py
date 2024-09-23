@@ -1,0 +1,29 @@
+from brainscore_vision import benchmark_registry
+from .benchmark import PhysionGlobalPredictionAccuracy
+from .benchmark import PhysionGlobalDetectionAccuracy
+from .benchmark import PhysionSnippetDetectionAccuracy
+from .benchmark import PhysionSnippetDetectionIntraScenarioAccuracy
+from .benchmark import PhysionGlobalPredictionIntraScenarioAccuracy
+from .benchmark import PhysionGlobalDetectionIntraScenarioAccuracy
+from .benchmark import PhysionGlobalPredictionPlacementAccuracy
+from .benchmark import PhysionGlobalDetectionPlacementAccuracy
+from .benchmark import PhysionSnippetDetectionPlacementAccuracy
+from .benchmark import PhysionGlobalPredictionIntraScenarioPlacementAccuracy
+from .benchmark import PhysionGlobalDetectionIntraScenarioPlacementAccuracy
+from .benchmark import PhysionSnippetDetectionPlacementIntraScenarioAccuracy
+from .benchmark import PhysionSnippetSimulationAccuracy
+
+benchmark_registry['Physionv1.5-ocd'] = PhysionGlobalDetectionAccuracy
+benchmark_registry['Physionv1.5-ocp'] = PhysionGlobalPredictionAccuracy
+benchmark_registry['Physionv1.5-snippet-rollout-performance'] = PhysionSnippetDetectionAccuracy
+benchmark_registry['Physionv1.5-snippet-rollout-intra-performance'] =PhysionSnippetDetectionIntraScenarioAccuracy
+benchmark_registry['Physionv1.5-ocp-intra-generalization'] = PhysionGlobalPredictionIntraScenarioAccuracy
+benchmark_registry['Physionv1.5-ocd-intra-generalization'] = PhysionGlobalDetectionIntraScenarioAccuracy
+benchmark_registry['Physionv1.5-snippet-simulation-performance'] = PhysionSnippetSimulationAccuracy
+
+benchmark_registry['Physionv1.5-placement-ocd'] = PhysionGlobalDetectionPlacementAccuracy
+benchmark_registry['Physionv1.5-placement-ocp'] = PhysionGlobalPredictionPlacementAccuracy
+benchmark_registry['Physionv1.5-snippet-placement-performance'] = PhysionSnippetDetectionPlacementAccuracy
+benchmark_registry['Physionv1.5-snippet-placement-intra-performance'] = PhysionSnippetDetectionPlacementIntraScenarioAccuracy
+benchmark_registry['Physionv1.5-ocp-placement-intra-generalization'] = PhysionGlobalPredictionIntraScenarioPlacementAccuracy
+benchmark_registry['Physionv1.5-ocd-placement-intra-generalization'] = PhysionGlobalDetectionIntraScenarioPlacementAccuracy

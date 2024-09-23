@@ -19,6 +19,10 @@ from albumentations.pytorch import ToTensorV2
 
 BIBTEX = """"""
 
+# SSL error temp fix
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
+
 
 with open(Path(__file__).parent / "model_configs.json", "r") as f:
     MODEL_CONFIGS = json.load(f)

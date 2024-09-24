@@ -348,7 +348,7 @@ class MicrosaccadeHelper:
         """
         Translate images according to selected microsaccades, if microsaccades are required.
 
-        :param images: A list of images (in the case of tensorflow models), or a list of arrays (non-tf models).
+        :param images: A list of arrays.
         :param image_paths: A list of image paths. Both `image_paths` and `images` are needed since while both tf and
                              non-tf models preprocess images before this point, non-tf models' preprocessed images
                              are fixed as arrays when fed into here. As such, simply returning `image_paths` for
@@ -519,14 +519,9 @@ class MicrosaccadeHelper:
         return translated_image
 
     @staticmethod
-    def get_image_with_shape(image: Union[str, np.ndarray]) -> Tuple[np.array, Tuple[int, int], bool]:
-        if isinstance(image, str):  # tf models return strings after preprocessing
-            image = cv2.imread(image)
-            rows, cols, _ = image.shape  # cv2 uses height, width, channels
-            image_is_channels_first = False
-        else:
-            _, rows, cols, = image.shape  # pytorch and keras use channels, height, width
-            image_is_channels_first = True
+    def get_image_with_shape(image: np.ndarray) -> Tuple[np.array, Tuple[int, int], bool]:
+        _, rows, cols, = image.shape  # pytorch uses channels, height, width
+        image_is_channels_first = True
         return image, (rows, cols), image_is_channels_first
 
     @staticmethod

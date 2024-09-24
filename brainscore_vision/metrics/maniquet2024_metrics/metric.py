@@ -22,7 +22,7 @@ class ConfusionSimilarity(Metric):
         _rollout_matrix(matrix, remove_diagonal=True): Flattens a matrix into a vector, optionally removing diagonal elements.
         _label_from_probability(probabilities): Derives predicted labels from probabilities.
         _accuracy(y_true, y_pred): Calculates the accuracy of predictions.
-        _ceiling(assembly, precomputed=True): Computes the ceiling performance by assessing the highest correlation across subjects.
+        _ceiling(assembly): Computes the ceiling performance by assessing the highest correlation across subjects.
         __call__(probabilities, human_assembly): Computes the correlation between model and human confusion matrices normalized by the ceiling.
     """
 
@@ -86,23 +86,16 @@ class ConfusionSimilarity(Metric):
         """
         return sum(y_true == y_pred) / len(y_pred)
 
-    def _ceiling(self, assembly, precomputed=True):
+    def _ceiling(self, assembly):
         """
         Compute the noise ceiling of a confusion matrix using split-half correlations at the group level.
 
         Args:
             assembly: (Human) Assembly with expected columns 'predicted'and 'image_label'.
-            precomputed (Bool): If true, use precomputed ceiling measure to save time.
 
         Returns:
             score (float): Noise ceiling average.
         """
-        if precomputed:
-            # This is to save quite a lot of time. It was precomputed on the Maniquet2024
-            # human data assembly, which includes 218 participants tested on the
-            # Maniquet2024 stimulus set.
-            return 0.53526
-
         # Get labels and subjects lists
         labels = list(set(assembly.image_label.values))
         subjects = self._extract_subjects(assembly)
@@ -191,7 +184,7 @@ class TasksConsistency(Metric):
         _rollout_matrix(matrix, remove_diagonal=True): Flattens a matrix into a vector, optionally removing diagonal elements.
         _label_from_probability(probabilities): Derives predicted labels from probabilities.
         _accuracy(y_true, y_pred): Calculates the accuracy of predictions.
-        _ceiling(assembly, precomputed=True): Computes the ceiling performance by assessing the highest correlation across subjects.
+        _ceiling(assembly): Computes the ceiling performance by assessing the highest correlation across subjects.
         _map_human_to_dnn_categories(human_task): Maps a human task name to the corresponding DNN categories of 'manipulation' and 'manipulation_details'.
         __call__(probabilities, human_assembly): Computes the correlation between model and human confusion matrices normalized by the ceiling.
     """
@@ -268,22 +261,16 @@ class TasksConsistency(Metric):
         """
         return sum(y_true == y_pred) / len(y_pred)
 
-    def _ceiling(self, assembly, precomputed=True):
+    def _ceiling(self, assembly):
         """
         Computes the ceiling performance by assessing the average split-half correlation across subjects.
 
         Args:
             assembly (xarray.Dataset): The data assembly containing subject data.
-            precomputed (bool): Whether to use precomputed ceiling value.
 
         Returns:
             Score: The average correlation score across all subject pairs.
         """
-        if precomputed:
-            # This precomputed value is based on the Maniquet2024 human data assembly,
-            # which includes 218 participants tested on the Maniquet2024 stimulus set.
-            return 0.99810
-
         # Initialize an empty list to store correlations for each iteration
         iter_task_correlations = []
 

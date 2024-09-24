@@ -12,6 +12,20 @@ def test_score():
     assert score == approx(0.74074074)
 
 
+def test_score_single_variable():
+    assembly = _make_data()
+    metric = load_metric('accuracy_distance')
+    score = metric(assembly.sel(subject='C'), assembly, ('condition',))
+    assert score == approx(0.55555556)
+
+
+def test_score_multi_variable():
+    assembly = _make_data()
+    metric = load_metric('accuracy_distance')
+    score = metric(assembly.sel(subject='C'), assembly, ('condition','animacy'))
+    assert score == approx(0.55555556)
+
+
 def test_has_error():
     assembly = _make_data()
     metric = load_metric('accuracy_distance')
@@ -38,5 +52,6 @@ def _make_data():
                               coords={'stimulus_id': ('presentation', np.resize(np.arange(9), 9 * 3)),
                                       'truth': ('presentation', np.resize(['dog', 'cat', 'chair'], 9 * 3)),
                                       'condition': ('presentation', np.resize([1, 1, 1, 2, 2, 2, 3, 3, 3], 9 * 3)),
+                                      'animacy': ('presentation', np.resize(['animate', 'animate', 'inanimate'], 9 * 3)),
                                       'subject': ('presentation', ['A'] * 9 + ['B'] * 9 + ['C'] * 9)},
                               dims=['presentation'])

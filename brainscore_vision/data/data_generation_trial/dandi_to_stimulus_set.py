@@ -52,7 +52,8 @@ def get_video_stimulus_set(dandiset_id, exp_path):
     return video_paths
 
 def get_stimuli(dandiset_id, nwb_file, experiment_path, exp_name):
-    VideoStimulusSet = 'StimulusSet' not in nwb_file.stimulus_template
+    # VideoStimulusSet = 'StimulusSet' not in nwb_file.stimulus_template
+    # ImageStimulusSet = 'StimulusSet' in nwb_file.stimulus_template
     stimuli          = []
     stimulus_id      = 0
 
@@ -61,7 +62,10 @@ def get_stimuli(dandiset_id, nwb_file, experiment_path, exp_name):
     #     VideoStimulusSet = True
     #     list_videos = sorted(os.listdir(os.path.join(experiment_path, 'VideoStimulusSet')),key = extract_number)
 
-    if not VideoStimulusSet:
+    # weird formatting so try both for now
+    # if not VideoStimulusSet:
+    # if not ImageStimulusSet:
+    try:
         image_paths = []
         image_ids   = [int(x.split('_')[-1].split('.png')[0]) for x in sorted(list(nwb_file.stimulus_template[f'StimulusSet'].images), key = extract_number)]
         
@@ -105,16 +109,22 @@ def get_stimuli(dandiset_id, nwb_file, experiment_path, exp_name):
                 stimulus_id += 1
             except Exception as e: 
                 print(e)
-    else:
+    except Exception as e:
+        print(e)
+        print('no images found')
+
+    try:
         print("Iterating over the videos ...")
         video_paths = get_video_stimulus_set(dandiset_id, experiment_path)
-        for i in range(len(video_paths)):
+        for i in tqdm(range(len(video_paths))):
             stimuli.append({
                 'stimulus_id': stimulus_id,
+                'stimulus_path_within_store': f"{i}", # see iterating over images ^
                 'image_number': f'{i}',
                 'image_file_name': f'exp_{exp_name}_{i}.mp4'
             })
             stimulus_id += 1
+
         # for video, i in zip(list_videos, range(len(list_videos))): 
         #     video_paths.append(os.path.join(experiment_path, 'VideoStimulusSet', video))
         #     stimuli.append({
@@ -125,10 +135,13 @@ def get_stimuli(dandiset_id, nwb_file, experiment_path, exp_name):
         #             # 'stimulus_nwb_file_path': f"{nwb_file_name}/stimulus_template/StimulusSetTrain/external_file"
         #         })
         #     stimulus_id += 1
+    except Exception as e:
+        print(e)
+        print('no videos found')
 
-    # stimuli = pd.DataFrame(stimuli)   
     stimuli = StimulusSet(stimuli)
-    stimulus_paths = image_paths if not VideoStimulusSet else video_paths
+    # stimulus_paths = image_paths if not VideoStimulusSet else video_paths
+    stimulus_paths = image_paths if image_paths else video_paths
     stimuli.stimulus_paths = stimulus_paths
     stimuli.name = f"DataGenerationTrial_{exp_name}"
     stimuli.identifier = f"DataGenerationTrial_{exp_name}"

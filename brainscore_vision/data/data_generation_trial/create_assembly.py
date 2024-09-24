@@ -14,8 +14,8 @@ from IPython.display import display
 from pynwb import NWBHDF5IO
 
 # hardcoded based on dandiset
-DANDISET_NUMBER = '000788'
-IMAGE_SET = 'emogan'
+DANDISET_NUMBER = '000781'
+IMAGE_SET = 'Co3D'
 
 def create_neural_assembly(psth, meta, neuroid_meta, qc_array_and):
     timebase = np.arange(meta[0], meta[1], meta[2])
@@ -191,6 +191,7 @@ def load_responses(nwb_file, json_file_path, stimuli, use_QC_data = True, do_fil
     #-----------------------------------------------------------------------------------------------------------------------------
     # timebins = [[70, 170], [170, 270], [50, 100], [100, 150], [150, 200], [200, 250], [70, 270]]
     timebase = np.arange(meta[0], meta[1], meta[2])
+    # print('timebase: ', timebase)
     timebins = np.asarray([[int(x), int(x)+int(meta[2])] for x in timebase])
     assert len(timebase) == psth.shape[2]
     rate = np.empty((len(timebins), psth.shape[0], psth.shape[1], psth.shape[3]))
@@ -198,10 +199,13 @@ def load_responses(nwb_file, json_file_path, stimuli, use_QC_data = True, do_fil
         t_cols = np.where((timebase >= (tb[0])) & (timebase < (tb[1])))[0]
         rate[idx] = np.mean(psth[:, :, t_cols, :], axis=2)  # Shaped time bins x images x repetitions x channels
 
+    # print(f'rate shape: {rate.shape}')
     #-----------------------------------------------------------------------------------------------------------------------------
     # Load neuroid metadata and image metadata
     #-----------------------------------------------------------------------------------------------------------------------------
+    # leave stimulus set, ignore in assembly (keep only subset and leave out rest)
     image_id     = stimuli.image_number
+    # print(f'image_id: {image_id}')
     neuroid_meta = get_neuroids(nwb_file, subject)
 
     assembly = xr.DataArray(rate,
@@ -295,8 +299,9 @@ if __name__ == '__main__':
     nwb_file_name   = os.listdir(os.path.join(experiment_path, "sub-pico"))[0]
     nwb_file_path   = os.path.join(os.path.join(experiment_path, "sub-pico", nwb_file_name))    
 
-    dandiset_id = '000788'
-    filepath = 'sub-pico/sub-pico_ecephys.nwb'
+    dandiset_id = '000781'
+    # filepath = 'sub-pico/sub-pico_ecephys.nwb'
+    filepath = 'sub-pico/sub-pico_ecephys+image.nwb'
     nwb_file = validate_nwb_file(dandiset_id, filepath)
 
     stimuli = get_stimuli(dandiset_id, nwb_file, experiment_path, 'emogan')[0]

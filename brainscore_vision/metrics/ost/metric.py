@@ -63,7 +63,7 @@ class OSTCorrelation(Metric):
                 break  # stop early if threshold is already hit for every image
 
         # interpolate
-        predicted_osts = np.empty(len(test_osts), dtype=np.float)
+        predicted_osts = np.empty(len(test_osts), dtype=np.float64)
         predicted_osts[:] = np.nan
         for i, (last_ost, hit_ost) in enumerate(zip(last_osts, hit_osts)):
             if hit_ost is None:

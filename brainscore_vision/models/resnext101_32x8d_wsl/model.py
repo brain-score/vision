@@ -9,8 +9,7 @@ import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
 
-def get_model(name):
-    assert name == 'resnext101_32x8d_wsl'
+def get_model():
     model_identifier = "resnext101_32x8d_wsl"
     model = torch.hub.load('facebookresearch/WSL-Images', model_identifier)
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
@@ -21,8 +20,7 @@ def get_model(name):
     return wrapper
 
 
-def get_layers(name):
-    assert name == 'resnext101_32x8d_wsl'
+def get_layers():
     return (['conv1'] +
             # note that while relu is used multiple times, by default the last one will overwrite all previous ones
             [f"layer{block + 1}.{unit}.relu"
@@ -31,17 +29,16 @@ def get_layers(name):
 
 
 def get_bibtex(model_identifier):
-    """
-    A method returning the bibtex reference of the requested model as a string.
-    """
-    return """@inproceedings{mahajan2018exploring,
-              title={Exploring the limits of weakly supervised pretraining},
-              author={Mahajan, Dhruv and Girshick, Ross and Ramanathan, Vignesh and He, Kaiming and Paluri, Manohar and Li, Yixuan and Bharambe, Ashwin and Van Der Maaten, Laurens},
-              booktitle={Proceedings of the European conference on computer vision (ECCV)},
-              pages={181--196},
-              year={2018}
-            }"""
-
+     """
+     A method returning the bibtex reference of the requested model as a string.
+     """
+     return """@inproceedings{mahajan2018exploring,
+               title={Exploring the limits of weakly supervised pretraining},
+               author={Mahajan, Dhruv and Girshick, Ross and Ramanathan, Vignesh and He, Kaiming and Paluri, Manohar and Li, Yixuan and Bharambe, Ashwin and Van Der Maaten, Laurens},
+               booktitle={Proceedings of the European conference on computer vision (ECCV)},
+               pages={181--196},
+               year={2018}
+             }"""
 
 if __name__ == '__main__':
-    check_models.check_base_models(__name__)
+     check_models.check_base_models(__name__) 

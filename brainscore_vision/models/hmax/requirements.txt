@@ -1,8 +1,5 @@
-torchvision
+pillow
 torch
-numpy
-os
+torchvision
 scipy
-logging
-PIL
-collections
+numpy

@@ -16,6 +16,7 @@ jobs:
         id: init
         run: |
           echo "Starting branch synchronization of ${{ github.repository }}"
+          
   create_pr_for_nonplugin:
     name: Synchronizing non-plugin PR
     needs: start  # This job now needs the 'start' job to complete first
@@ -34,15 +35,21 @@ jobs:
         run: |
           git fetch origin master
           git reset --hard origin/master
+      - name: Get commit summary
+        id: commit_summary
+        run: |
+          git log -1 --pretty=format:"%s"
+          echo "::set-output name=summary::$(git log -1 --pretty=format:"%s")"
       - name: Create pull request in develop
         uses: peter-evans/create-pull-request@v6
         with:
           token: '${{ secrets.PAT }}'
           commit-message: Sync master into develop
-          title: Sync master into develop
+          title: Sync master into develop. Triggered by PR #${{ github.event.pull_request.number }}
           body: >-
             This PR syncs the latest changes from the master branch into the
             develop branch.
+            Commit Summary: ${{ steps.commit_summary.outputs.summary }}
           base: develop
           branch: 'developer-sync-pr-${{ github.event.pull_request.number }}'
 
@@ -85,7 +92,7 @@ jobs:
             fi
           }
       - name: Push changes to develop (if merge is successful)
-        if: steps.merge.conclusion == 'success'
+        if: steps.merge.outcome == 'success'
         run: | #Use force-with-lease to prevent accidental overwrite if branch has been updated. If fails, rebase the update and retry
           git push origin develop --force-with-lease || {
             echo "Push failed due to updates in develop. Attempting to rebase and retry..."
@@ -93,14 +100,21 @@ jobs:
             git rebase origin/develop
             git push origin develop --force-with-lease
           }
+      - name: Get commit summary
+        id: commit_summary
+        run: |
+          git log -1 --pretty=format:"%s"
+          echo "::set-output name=summary::$(git log -1 --pretty=format:"%s")"
       - name: Create pull request for merge conflicts
         if: steps.merge.outputs.merge_conflict == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
           token: '${{ secrets.PAT }}'
           commit-message: Merge master into develop with conflict resolution
-          title: Resolve conflicts between master and develop
-          body: This PR resolves merge conflicts between master and develop.
+          title: Resolve conflicts between master and develop. Triggered by PR #${{ github.event.pull_request.number }}
+          body: |
+            This PR resolves merge conflicts between master and develop.
+            Commit Summary: ${{ steps.commit_summary.outputs.summary }}
           base: develop
           branch: 'developer-sync-pr-conflict-${{ github.event.pull_request.number }}'
       - name: Handle other merge failures
@@ -109,3 +123,17 @@ jobs:
           echo "Handle non-conflict related failure, such as network issues or missing branches"
   
           # Possibly incorporate additional handling logic here (e.g.,notifications or retries)
+  
+  
+  no_changes:
+    name: "No Changes Made. No synchronization needed."
+    needs: start
+    if: >
+      (
+        needs.create_pr_for_nonplugin.result != 'success' && 
+        needs.auto_sync_for_plugin.result != 'success'
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo no changes
+        run: echo "No changes were made to master branch 👍"

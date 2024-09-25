@@ -2,6 +2,7 @@ import os
 import functools
 import json
 from pathlib import Path
+import ssl
 
 import torchvision.models
 import torch
@@ -16,6 +17,9 @@ from PIL import Image
 
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
+
+# Disable SSL verification 
+ssl._create_default_https_context = ssl._create_unverified_context
 
 BIBTEX = """"""
 

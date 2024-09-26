@@ -30,6 +30,7 @@ dependencies = [
     "networkx",
     "dandi",
     "pynwb",
+    "remfile",
 ]
 
 [project.optional-dependencies]

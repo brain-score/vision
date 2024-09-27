@@ -1,14 +1,17 @@
+import re
 from collections import defaultdict
 from typing import Dict, Tuple
-from brainscore_vision.model_helpers.brain_transformation.behavior import BehaviorArbiter, LogitsBehavior, ProbabilitiesMapping
-from result_caching import store
+
+import numpy as np
 from tqdm import tqdm
+
+from brainio.assemblies import merge_data_arrays, NeuroidAssembly, walk_coords
 from brainscore_vision.model_helpers.activations.core import ActivationsExtractorHelper
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
+from brainscore_vision.model_helpers.brain_transformation.behavior import BehaviorArbiter, LogitsBehavior, \
+    ProbabilitiesMapping, OddOneOut
 from brainscore_vision.model_interface import BrainModel
-from brainio.assemblies import merge_data_arrays, NeuroidAssembly, walk_coords
-import re
-import numpy as np
+from result_caching import store
 
 
 class TemporalPytorchWrapper(PytorchWrapper):
@@ -67,7 +70,6 @@ class CORnetCommitment(BrainModel):
         :param time_mapping: mapping from region -> {model_timestep -> (time_bin_start, time_bin_end)}
         """
         self.layers = layers
-        self.region_assemblies = {}
         self.activations_model = activations_model
         self.time_mapping = time_mapping
         self.recording_layers = None
@@ -79,8 +81,12 @@ class CORnetCommitment(BrainModel):
         behavioral_readout_layer = behavioral_readout_layer or layers[-1]
         probabilities_behavior = ProbabilitiesMapping(
             identifier=identifier, activations_model=TemporalIgnore(activations_model), layer=behavioral_readout_layer)
+        odd_one_out = OddOneOut(identifier=identifier, activations_model=TemporalIgnore(activations_model),
+                                layer=behavioral_readout_layer)
         self.behavior_model = BehaviorArbiter({BrainModel.Task.label: logits_behavior,
-                                               BrainModel.Task.probabilities: probabilities_behavior})
+                                               BrainModel.Task.probabilities: probabilities_behavior,
+                                               BrainModel.Task.odd_one_out: odd_one_out,
+                                               })
         self.do_behavior = False
 
         self._visual_degrees = visual_degrees
@@ -101,16 +107,20 @@ class CORnetCommitment(BrainModel):
             self.behavior_model.start_task(task, *args, **kwargs)
             self.do_behavior = True
 
-    def look_at(self, stimuli, number_of_trials=1):
+    def look_at(self, stimuli, number_of_trials: int = 1, require_variance: bool = False):
         if self.do_behavior:
-            return self.behavior_model.look_at(stimuli)
+            return self.behavior_model.look_at(stimuli,
+                                               number_of_trials=number_of_trials, require_variance=require_variance)
         else:
             # cache, since piecing times together is not too fast unfortunately
-            return self.look_at_cached(self.identifier, stimuli.identifier, stimuli)
+            return self.look_at_cached(self.identifier, stimuli.identifier, stimuli,
+                                       number_of_trials=number_of_trials, require_variance=require_variance)
 
-    @store(identifier_ignore=['stimuli'])
-    def look_at_cached(self, model_identifier, stimuli_identifier, stimuli):
-        responses = self.activations_model(stimuli, layers=self.recording_layers)
+    @store(identifier_ignore=['stimuli', 'number_of_trials', 'require_variance'])
+    def look_at_cached(self, model_identifier, stimuli_identifier, stimuli,
+                       number_of_trials, require_variance):
+        responses = self.activations_model(stimuli, layers=self.recording_layers,
+                                           number_of_trials=number_of_trials, require_variance=require_variance)
         # map time
         regions = set(responses['region'].values)
         if len(regions) > 1:

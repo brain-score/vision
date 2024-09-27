@@ -17,31 +17,34 @@ import gdown
 
 
 def get_model_list():
-    return ['fast_2px_step2_eps2_repeat1_trial1_model_best']
+    return ['Soumyadeep_inf_1']
 
 
 def get_model(name):
     trained_model = models.__dict__['resnet50']()
     trained_model = torch.nn.DataParallel(trained_model)
 
-    url = "https://drive.google.com/uc?id=1kNgOmtSrCQnyINVGw_l9vishwaNeqGN4"
-    output = "fast_2px_step2_eps2_repeat1_trial1_model_best.pth.tar"
+    #url = "https://drive.google.com/uc?id=1kNgOmtSrCQnyINVGw_l9vishwaNeqGN4"  
+    # fast_2px_step2_eps2_repeat1_trial1_model_best.pth.tar
+
+    url = "https://drive.google.com/uc?id=1uSpR1uVQkyW6wUY9DM6XbXNbhdW89cOc"
+    output = "Soumyadeep_inf_1.pth.tar"
     gdown.download(url, output)
 
-    checkpoint = torch.load("fast_2px_step2_eps2_repeat1_trial1_model_best.pth.tar", map_location=torch.device('cpu'))
+    checkpoint = torch.load("Soumyadeep_inf_1.pth.tar", map_location=torch.device('cpu'))
     trained_model.load_state_dict(checkpoint['state_dict'])
 
     trained_model = trained_model.module
 
-    assert name == 'fast_2px_step2_eps2_repeat1_trial1_model_best'
+    assert name == 'Soumyadeep_inf_1'
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     # Wrap the model in PytorchWrapper directly
-    activations_model = PytorchWrapper(identifier='fast_2px_step2_eps2_repeat1_trial1_model_best', model=trained_model, preprocessing=preprocessing)
+    activations_model = PytorchWrapper(identifier='Soumyadeep_inf_1', model=trained_model, preprocessing=preprocessing)
     return activations_model
 
 
 def get_layers(name):
-    assert name == 'fast_2px_step2_eps2_repeat1_trial1_model_best'
+    assert name == 'Soumyadeep_inf_1'
     return ['layer1.0.conv3', 'layer1.1.conv3', 'layer1.2.conv3', 
             'layer2.0.conv3', 'layer2.1.conv3', 'layer2.2.conv3', 'layer2.3.conv3',
             'layer3.0.conv3', 'layer3.1.conv3', 'layer3.2.conv3', 'layer3.3.conv3', 'layer3.4.conv3', 'layer3.5.conv3',

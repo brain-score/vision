@@ -34,9 +34,9 @@ dependencies:
       - bleach==6.1.0
       - boto3==1.35.3
       - botocore==1.35.3
-      - brainio @ git+https://github.com/brain-score/brainio.git@main
-      - brainscore_core @ git+https://github.com/brain-score/core@main
-      - brainscore-vision @ git+https://github.com/brain-score/vision.git@main
+      - brainscore-brainio==1.0.0
+      - brainscore-core==2.1
+      - brainscore-vision==2.1
       - certifi==2024.7.4
       - cffi==1.17.0
       - cftime==1.6.4
@@ -144,7 +144,7 @@ dependencies:
       - qtpy==2.4.1
       - referencing==0.35.1
       - requests==2.32.3
-      - result_caching @ git+https://github.com/brain-score/result_caching@master
+      - result_caching==0.1.0
       - rfc3339-validator==0.1.4
       - rfc3986-validator==0.1.1
       - rpds-py==0.20.0

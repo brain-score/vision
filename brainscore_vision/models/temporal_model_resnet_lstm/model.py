@@ -9,21 +9,36 @@ from torchvision import transforms as T
 class RESNETLSTMWrapper(PytorchWrapper):
     def forward(self, inputs):
         tensor = th.stack(inputs)
-        tensor = tensor.permute(0, 2, 1, 3, 4)
         tensor = tensor.to(self._device)
-        with th.no_grad():
-            output = self._model(tensor)
+        output = self._model(tensor)
         return output
 
+class GroupNormalize(object):
+    def __init__(self, mean, std):
+        self.mean = mean
+        self.std = std
+
+    def __call__(self, tensor):
+        rep_mean = self.mean * (tensor.size()[0]//len(self.mean))
+        rep_std = self.std * (tensor.size()[0]//len(self.std))
+
+        # TODO: make efficient
+        for t, m, s in zip(tensor, rep_mean, rep_std):
+            t.sub_(m).div_(s)
+
+        return tensor
+
 transform_img = T.Compose([T.Resize(256),
-    T.CenterCrop(224)]) # ToTensor() divides by 255
+    T.CenterCrop(224),
+    T.ToTensor(),
+    GroupNormalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))])
 
 def transform_video(video):
-    import torch
-    frames = torch.Tensor(video.to_numpy()).permute(0, 3, 1, 2)
-    frames = transform_img(frames)
-    return frames.permute(1, 0, 2, 3)
-
+    frames = []
+    for img in video.to_pil_imgs():
+        frames += [transform_img(img)]
+    frames = th.stack(frames)
+    return frames
 
 def get_model(identifier, num_frames=7):
     assert identifier.startswith("RESNET-LSTM")
@@ -47,8 +62,6 @@ def get_model(identifier, num_frames=7):
             },
             "duration": None,
             "time_alignment": "evenly_spaced",
-            "convert_img_to_video":True,
-            "img_duration":450
         }
         def process_activation(layer, layer_name, inputs, output):
             return output["simulated_rollout_states"]
@@ -60,8 +73,6 @@ def get_model(identifier, num_frames=7):
             },
             "duration": None,
             "time_alignment": "evenly_spaced",
-            "convert_img_to_video":True,
-            "img_duration":450
         }
         def process_activation(layer, layer_name, inputs, output):
             return output["observed_dynamic_states"]
@@ -73,8 +84,6 @@ def get_model(identifier, num_frames=7):
             },
             "duration": None,
             "time_alignment": "evenly_spaced",
-            "convert_img_to_video":True,
-            "img_duration":450
         }
         def process_activation(layer, layer_name, inputs, output):
             return output["observed_encoder_states"]

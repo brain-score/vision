@@ -52,8 +52,35 @@ class Coggan2024_behavior_ConditionWiseLabelingAccuracySimilarity(BenchmarkBase)
         return score
 
 
-class Coggan2024_behavior_ConditionWiseAccuracySimilarity(BenchmarkBase):
+class Coggan2024_behavior_ConditionWiseLabelingEngineeringAccuracy(BenchmarkBase):
+    def __init__(self):
+        self._metric = load_metric('accuracy')
+        self._ceiling_func = lambda assembly: get_noise_ceiling(assembly)
+        self._stimulus_set = load_dataset('Coggan2024_behavior').stimulus_set
+        super(Coggan2024_behavior_ConditionWiseLabelingEngineeringAccuracy, self).__init__(
+            identifier='tong.Coggan2024_behavior-LabelingConditionWiseEngineeringAccuracy',
+            version=1,
+            ceiling_func=lambda: Score(1),
+            parent='Coggan2024-top1',
+            bibtex=BIBTEX,
+        )
 
+    def __call__(self, candidate: BrainModel):
+        choice_labels = set(self._assembly['object_class'].values)
+        choice_labels = list(sorted(choice_labels))
+        candidate.start_task(BrainModel.Task.label, choice_labels)
+        labels = candidate.look_at(self._stimulus_set)
+        raw_score = self._metric(labels, self._stimulus_set['object_class'].values)
+        ceiling = self.ceiling
+        score = raw_score / ceiling
+        score.attrs['raw'] = raw_score
+        score.attrs['ceiling'] = ceiling
+        return score
+
+
+class Coggan2024_behavior_ConditionWiseAccuracySimilarity_Correlation(BenchmarkBase):
+    ### DEPRECATED IN FAVOR OF Coggan2024_behavior_ConditionWiseLabelingAccuracySimilarity
+    ### Here for future comparison/reference/proofing
     """
     This benchmark measures classification accuracy for a set of occluded object images, then attains the mean accuracy
     for each of the 18 occlusion conditions. This is then correlated with the corresponding accuracies for each of the
@@ -68,7 +95,7 @@ class Coggan2024_behavior_ConditionWiseAccuracySimilarity(BenchmarkBase):
         self._visual_degrees = 10
         self._number_of_trials = 1
         self._ceiling_func = lambda assembly: get_noise_ceiling(assembly)
-        super(Coggan2024_behavior_ConditionWiseAccuracySimilarity, self).__init__(
+        super(Coggan2024_behavior_ConditionWiseAccuracySimilarity_Correlation, self).__init__(
             identifier='tong.Coggan2024_behavior-ConditionWiseAccuracySimilarity',
             version=1,
             ceiling_func=lambda df: get_noise_ceiling(df),
@@ -158,29 +185,3 @@ def ceiler(score: Score, ceiling: Score) -> Score:
     ceiled_score.attrs[Score.RAW_VALUES_KEY] = score
     ceiled_score.attrs['ceiling'] = ceiling
     return ceiled_score
-
-
-class Coggan2024_behavior_ConditionWiseLabelingEngineeringAccuracy(BenchmarkBase):
-    def __init__(self):
-        self._metric = load_metric('accuracy')
-        self._ceiling_func = lambda assembly: get_noise_ceiling(assembly)
-        self._stimulus_set = load_dataset('Coggan2024_behavior').stimulus_set
-        super(Coggan2024_behavior_ConditionWiseLabelingEngineeringAccuracy, self).__init__(
-            identifier='tong.Coggan2024_behavior-LabelingConditionWiseEngineeringAccuracy',
-            version=1,
-            ceiling_func=lambda: Score(1),
-            parent='Coggan2024-top1',
-            bibtex=BIBTEX,
-        )
-
-    def __call__(self, candidate: BrainModel):
-        choice_labels = set(self._assembly['object_class'].values)
-        choice_labels = list(sorted(choice_labels))
-        candidate.start_task(BrainModel.Task.label, choice_labels)
-        labels = candidate.look_at(self._stimulus_set)
-        raw_score = self._metric(labels, self._stimulus_set['object_class'].values)
-        ceiling = self.ceiling
-        score = raw_score / ceiling
-        score.attrs['raw'] = raw_score
-        score.attrs['ceiling'] = ceiling
-        return score

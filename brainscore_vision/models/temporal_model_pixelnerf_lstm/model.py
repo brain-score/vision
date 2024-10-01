@@ -9,19 +9,35 @@ from torchvision import transforms as T
 class PNLSTMWrapper(PytorchWrapper):
     def forward(self, inputs):
         tensor = th.stack(inputs)
-        tensor = tensor.permute(0, 2, 1, 3, 4)
         tensor = tensor.to(self._device)
-        with th.no_grad():
-            output = self._model(tensor)
-        return output#features  # encoder only
+        output = self._model(tensor)
+        return output
 
-transform_img = T.Compose([T.Resize(256),
-    T.CenterCrop(224)])
+class GroupNormalize(object):
+    def __init__(self, mean, std):
+        self.mean = mean
+        self.std = std
+
+    def __call__(self, tensor):
+        rep_mean = self.mean * (tensor.size()[0]//len(self.mean))
+        rep_std = self.std * (tensor.size()[0]//len(self.std))
+        
+        # TODO: make efficient
+        for t, m, s in zip(tensor, rep_mean, rep_std):
+            t.sub_(m).div_(s)
+
+        return tensor
+
+transform_img = T.Compose([T.Resize(64),
+                           T.ToTensor(),
+                           GroupNormalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
 def transform_video(video):
-    frames = th.Tensor(video.to_numpy()).permute(0, 3, 1, 2)
-    frames = transform_img(frames)
-    return frames.permute(1, 0, 2, 3)
+    frames = []
+    for img in video.to_pil_imgs():
+        frames += [transform_img(img)]
+    frames = th.stack(frames)
+    return frames
 
 def get_model(identifier, num_frames=7):
     assert identifier.startswith("PN-LSTM")
@@ -40,7 +56,6 @@ def get_model(identifier, num_frames=7):
             sha1="c83621086331949a05524b055e278a09c94fc43e"
         )
     # Instantiate the model
-    
     net = pfPN_LSTM_physion(config_path, n_past=num_frames)
     net = load_model(net, model_path)
 
@@ -52,8 +67,6 @@ def get_model(identifier, num_frames=7):
             },
             "duration": None,
             "time_alignment": "evenly_spaced",
-            "convert_img_to_video":True,
-            "img_duration":450
         }
         
         def process_activation(layer, layer_name, inputs, output):
@@ -67,8 +80,6 @@ def get_model(identifier, num_frames=7):
             },
             "duration": None,
             "time_alignment": "evenly_spaced",
-            "convert_img_to_video":True,
-            "img_duration":450
         }
         
         def process_activation(layer, layer_name, inputs, output):
@@ -82,8 +93,6 @@ def get_model(identifier, num_frames=7):
             },
             "duration": None,
             "time_alignment": "evenly_spaced",
-            "convert_img_to_video":True,
-            "img_duration":450
         }
         
         def process_activation(layer, layer_name, inputs, output):

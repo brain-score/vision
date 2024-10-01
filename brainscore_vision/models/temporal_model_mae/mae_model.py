@@ -57,4 +57,3 @@ class pfMAE(nn.Module):
         self.encoder.eval()
         # x is (Bs, T, 3, H, W)
         return self.encoder(x)
-

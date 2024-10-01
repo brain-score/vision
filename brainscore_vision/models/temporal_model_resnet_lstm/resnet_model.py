@@ -5,14 +5,6 @@ from torchvision import transforms
 from collections import OrderedDict
 from transformers import ResNetModel
 
-
-R3M_VAL_TRANSFORMS = [
-    transforms.Resize(256),
-    transforms.CenterCrop(224),
-    transforms.ToTensor(),
-]
-
-
 def load_model(
     model, model_path, state_dict_key="state_dict"
 ):
@@ -35,7 +27,6 @@ def load_model(
 
 class ResNet50(nn.Module):
     def __init__(self):
-
         super().__init__()
         self.model = ResNetModel.from_pretrained("microsoft/resnet-50")
         self.latent_dim = 8192
@@ -46,15 +37,10 @@ class ResNet50(nn.Module):
         images: [B, C, H, W], Image is normalized with imagenet norm
         '''
         input_dict = {'pixel_values': images}
-
         decoder_outputs = self.model(**input_dict, output_hidden_states=True)
-
         features = decoder_outputs.last_hidden_state
-        
         features = features.reshape(features.shape[0], -1)
-        
         features = nn.AdaptiveAvgPool1d(8192)(features.float())
-
         return features
 
     def forward(self, videos, n_past=None):
@@ -84,14 +70,14 @@ class LSTM(nn.Module):
         x = self.regressor(x)
         return x
 
-    def forward(self, input_states, rollout_steps, n_simulation):
+    def forward(self, input_states, rollout_steps, n_simulation, n_past):
         observed_dynamics_states, simulated_states = [], []
         prev_states = input_states["observed_encoder_states"]
-        n_context = prev_states.shape[1]
+        n_context = n_past
         for step in range(rollout_steps):
             # dynamics model predicts next latent from past latents
-            prev_states = prev_states[:, step:step+n_context]
-            pred_state = self.forward_step(prev_states)
+            prev_states_ = prev_states[:, step:step+n_context]
+            pred_state = self.forward_step(prev_states_)
             observed_dynamics_states.append(pred_state)
             
         simulation_input = input_states["input_states"]
@@ -129,13 +115,14 @@ class FrozenPretrainedEncoder(nn.Module):
         # set frozen pretrained encoder to eval mode
         self.encoder.eval()
         # x is (Bs, T, 3, H, W)
-        assert len(x.shape) == 5 and x.shape[1] >= self.n_past
+        #assert len(x.shape) == 5 and x.shape[1] >= self.n_past
         
-        observed_rollout_steps = x[:, self.n_past :].shape[1]
+        observed_rollout_steps = max(1, x[:, self.n_past :].shape[1]-self.n_past)
         encoder_output = self.encoder(x, self.n_past)
         dynamics_output = self.dynamics(encoder_output, 
                                         observed_rollout_steps, 
-                                        self.n_simulation)
+                                        self.n_simulation,
+                                        self.n_past)
 
         output = {
             "observed_encoder_states": encoder_output['observed_encoder_states'],

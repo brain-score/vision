@@ -50,10 +50,8 @@ def get_model(identifier, num_frames=16):
         "layer_activation_format": {
             "encoder": "HW",
         },
-        "duration": None,#(0, 450),
+        "duration": None,
         "time_alignment": "evenly_spaced",
-        "convert_img_to_video":True,
-        "img_duration":450
     }
 
     for layer in inferencer_kwargs["layer_activation_format"].keys():

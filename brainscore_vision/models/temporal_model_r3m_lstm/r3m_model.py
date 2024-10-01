@@ -38,45 +38,31 @@ class R3M_pretrained(nn.Module):
         super().__init__()
         self.r3m = load_r3m(model_name)
         self.latent_dim = 2048  # resnet50 final fc in_features
-
-    def forward(self, x, n_past=None):
-        input_states = self.get_encoder_feats(x)
-        
-        output = {
-            "input_states": input_states[: n_past],
-            "observed_encoder_states": torch.stack(input_states, axis=1),
-        }
-        return output
-
+    
     def get_encoder_feats(self, x):
-        # applies encoder to each image in x: (Bs, T, 3, H, W) or (Bs, 3, H, W)
-        with torch.no_grad():  # TODO: best place to put this?
-            if x.ndim == 4:  # (Bs, 3, H, W)
-                feats = [self._extract_feats(x)]
-            else:
-                assert x.ndim == 5, "Expected input to be of shape (Bs, T, 3, H, W)"
-                feats = []
-                for _x in torch.split(x, 1, dim=1):
-                    _x = torch.squeeze(
-                        _x, dim=1
-                    )  # _x is shape (Bs, 1, 3, H, W) => (Bs, 3, H, W) TODO: put this in _extract_feats?
-                    feats.append(self._extract_feats(_x))
-        return feats
-
-    def _extract_feats(self, x):
-        feats = self.r3m(x)
+        feats = self.r3m(x * 255.0)
         feats = torch.flatten(feats, start_dim=1)  # (Bs, -1)
         return feats
+
+    def forward(self, videos, n_past=None):
+        bs, num_frames, num_channels, h, w = videos.shape
+        videos = videos.flatten(0, 1)
+        input_states = self.get_encoder_feats(videos)
+        input_states = input_states.reshape(bs, num_frames, -1)
+        output = {
+            "input_states": input_states[:, : n_past],
+            "observed_encoder_states": input_states,
+        }
+        return output
 
 class LSTM(nn.Module):
     def __init__(self, latent_dim):
         super().__init__()
         self.latent_dim = latent_dim
-        self.lstm = nn.LSTM(self.latent_dim, 1024)
+        self.lstm = nn.LSTM(self.latent_dim, 1024, batch_first=True)
         self.regressor = nn.Linear(1024, self.latent_dim)
 
-    def forward_step(self, x):
-        feats = torch.stack(x)  # (T, Bs, self.latent_dim)
+    def forward_step(self, feats):
         assert feats.ndim == 3
         # note: for lstms, hidden is the last timestep output
         _, hidden = self.lstm(feats)
@@ -85,31 +71,31 @@ class LSTM(nn.Module):
         x = self.regressor(x)
         return x
 
-    def forward(self, input_states, rollout_steps, n_simulation):
+    def forward(self, input_states, rollout_steps, n_simulation, n_past):
         observed_dynamics_states, simulated_states = [], []
         prev_states = input_states["observed_encoder_states"]
-        n_context = prev_states.shape[1]
+        n_context = n_past
         for step in range(rollout_steps):
             # dynamics model predicts next latent from past latents
-            prev_states = prev_states[:, step:step+n_context]
-            pred_state = self.forward_step(prev_states)
+            prev_states_ = prev_states[:, step:step+n_context]
+            pred_state = self.forward_step(prev_states_)
             observed_dynamics_states.append(pred_state)
-            
+
         simulation_input = input_states["input_states"]
         for step in range(n_simulation):
             # dynamics model predicts next latent from past latents
             pred_state = self.forward_step(simulation_input)
             simulated_states.append(pred_state)
             # add most recent pred and delete oldest (to maintain a temporal window of length n_past)
-            
+
             simulation_input = torch.cat([simulation_input[:, 1:], pred_state.unsqueeze(1)], axis=1)
 
         output = {
             "simulated_rollout_states": torch.cat([input_states["input_states"],
-                                            torch.stack(simulated_states, axis=1)], 
+                                            torch.stack(simulated_states, axis=1)],
                                             axis=1),
-            "observed_dynamic_states": torch.cat([input_states["input_states"], 
-                                                  torch.stack(observed_dynamics_states, axis=1)], 
+            "observed_dynamic_states": torch.cat([input_states["input_states"],
+                                                  torch.stack(observed_dynamics_states, axis=1)],
                                                  axis=1),
         }
         return output
@@ -130,13 +116,14 @@ class FrozenPretrainedEncoder(nn.Module):
         # set frozen pretrained encoder to eval mode
         self.encoder.eval()
         # x is (Bs, T, 3, H, W)
-        assert len(x.shape) == 5 and x.shape[1] >= self.n_past
+        #assert len(x.shape) == 5 and x.shape[1] >= self.n_past
         
-        observed_rollout_steps = x[:, self.n_past :].shape[1]
+        observed_rollout_steps = max(1, x[:, self.n_past :].shape[1]-self.n_past)
         encoder_output = self.encoder(x, self.n_past)
         dynamics_output = self.dynamics(encoder_output, 
                                         observed_rollout_steps, 
-                                        self.n_simulation)
+                                        self.n_simulation,
+                                        self.n_past)
 
         output = {
             "observed_encoder_states": encoder_output['observed_encoder_states'],

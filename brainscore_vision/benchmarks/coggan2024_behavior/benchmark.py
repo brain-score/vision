@@ -22,7 +22,7 @@ BIBTEX = """@article {
 
 class Coggan2024_behavior_ConditionWiseLabelingAccuracySimilarity(BenchmarkBase):
     def __init__(self):
-        self._metric = load_metric('conditionwise_accuracy_distance')
+        self._metric = load_metric('accuracy_distance')
         self._fitting_stimuli = load_stimulus_set('Coggan2024_behavior_fitting')  # this fails is wrapped by LazyLoad
         self._assembly = LazyLoad(lambda: load_dataset('Coggan2024_behavior'))
         self._visual_degrees = 10
@@ -44,7 +44,7 @@ class Coggan2024_behavior_ConditionWiseLabelingAccuracySimilarity(BenchmarkBase)
                                        target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
         labels = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
-        raw_score = self._metric(labels, self._assembly)
+        raw_score = self._metric(labels, self._assembly, variables=['occluder_type', 'occluder_color'])
         ceiling = self.ceiling
         score = raw_score / ceiling
         score.attrs['raw'] = raw_score

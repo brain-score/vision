@@ -1,4 +1,5 @@
 import torch as th
+import numpy as np
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
 from brainscore_vision.model_helpers.s3 import load_weight_file
@@ -9,19 +10,25 @@ from torchvision import transforms as T
 class DINOLSTMWrapper(PytorchWrapper):
     def forward(self, inputs):
         tensor = th.stack(inputs)
-        tensor = tensor.permute(0, 2, 1, 3, 4)
         tensor = tensor.to(self._device)
-        with th.no_grad():
-            output = self._model(tensor)
+        output = self._model(tensor)
         return output#features  # encoder only
 
-transform_img = T.Compose([T.Resize(256),
-    T.CenterCrop(224)]) # ToTensor() divides by 255
+# Define the ImageNet mean and std
+IMAGENET_DEFAULT_MEAN = (0.485, 0.456, 0.406)
+IMAGENET_DEFAULT_STD = (0.229, 0.224, 0.225)
+
+transform_img = T.Compose([
+    T.Resize(512),
+    T.ToTensor(),
+    T.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),])
 
 def transform_video(video):
-    frames = th.Tensor(video.to_numpy()).permute(0, 3, 1, 2)
-    frames = transform_img(frames)
-    return frames.permute(1, 0, 2, 3)
+    frames = []
+    for img in video.to_pil_imgs():
+        frames += [transform_img(img)]
+    frames = th.stack(frames)
+    return frames
 
 def get_model(identifier, num_frames=7):
     assert identifier.startswith("DINO-LSTM")
@@ -39,13 +46,12 @@ def get_model(identifier, num_frames=7):
     if identifier == "DINO-LSTM-SIM":
         inferencer_kwargs = {
             "fps": 16,
+            "batch_size": 2,
             "layer_activation_format": {
                 "dynamics": "TC",
             },
             "duration": None,
             "time_alignment": "evenly_spaced",
-            "convert_img_to_video":True,
-            "img_duration":450
         }
         
         def process_activation(layer, layer_name, inputs, output):
@@ -54,13 +60,12 @@ def get_model(identifier, num_frames=7):
     elif identifier == "DINO-LSTM-SIM-OBSERVED":
         inferencer_kwargs = {
             "fps": 16,
+            "batch_size": 2,
             "layer_activation_format": {
                 "dynamics": "TC",
             },
             "duration": None,
             "time_alignment": "evenly_spaced",
-            "convert_img_to_video":True,
-            "img_duration":450
         }
         
         def process_activation(layer, layer_name, inputs, output):
@@ -69,13 +74,12 @@ def get_model(identifier, num_frames=7):
     elif identifier == "DINO-LSTM-ENCODER":
         inferencer_kwargs = {
             "fps": 16,
+            "batch_size": 2,
             "layer_activation_format": {
                 "encoder": "TC",
             },
             "duration": None,
             "time_alignment": "evenly_spaced",
-            "convert_img_to_video":True,
-            "img_duration":450
         }
         
         def process_activation(layer, layer_name, inputs, output):

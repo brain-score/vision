@@ -43,7 +43,6 @@ class PN(nn.Module):
         features = self.net.encoder(images)
         features = features.reshape(features.shape[0], -1)
         # Make sure the number of elements in the last dimension is at least 8192
-        #features = nn.AdaptiveAvgPool1d(8192)(features.cpu())
         features = nn.AdaptiveAvgPool1d(8192)(features.float().cpu())
         return features
 
@@ -76,14 +75,14 @@ class LSTM(nn.Module):
         x = self.regressor(x)
         return x
         
-    def forward(self, input_states, rollout_steps, n_simulation):
+    def forward(self, input_states, rollout_steps, n_simulation, n_past):
         observed_dynamics_states, simulated_states = [], []
         prev_states = input_states["observed_encoder_states"]
-        n_context = prev_states.shape[1]
+        n_context = n_past
         for step in range(rollout_steps):
             # dynamics model predicts next latent from past latents
-            prev_states = prev_states[:, step:step+n_context]
-            pred_state = self.forward_step(prev_states)
+            prev_states_ = prev_states[:, step:step+n_context]
+            pred_state = self.forward_step(prev_states_)
             observed_dynamics_states.append(pred_state)
             
         simulation_input = input_states["input_states"]
@@ -121,13 +120,14 @@ class FrozenPretrainedEncoder(nn.Module):
         # set frozen pretrained encoder to eval mode
         self.encoder.eval()
         # x is (Bs, T, 3, H, W)
-        assert len(x.shape) == 5 and x.shape[1] >= self.n_past
+        #assert len(x.shape) == 5 and x.shape[1] >= self.n_past
         
-        observed_rollout_steps = x[:, self.n_past :].shape[1]
+        observed_rollout_steps = max(1, x[:, self.n_past :].shape[1]-self.n_past)
         encoder_output = self.encoder(x, self.n_past)
         dynamics_output = self.dynamics(encoder_output, 
                                         observed_rollout_steps, 
-                                        self.n_simulation)
+                                        self.n_simulation,
+                                        self.n_past)
 
         output = {
             "observed_encoder_states": encoder_output['observed_encoder_states'],

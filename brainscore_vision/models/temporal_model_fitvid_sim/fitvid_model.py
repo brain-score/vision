@@ -9,7 +9,7 @@ def load_model(
     params = torch.load(model_path, map_location="cpu")
     new_sd = OrderedDict()
     for k, v in params.items():
-        name = 'encoder.'+k[7:] if k.startswith("module.") else k
+        name = 'dynamics.'+k[7:] if k.startswith("module.") else k
         new_sd[name] = v
     model.load_state_dict(new_sd)
     print(f"Loaded parameters from {model_path}")

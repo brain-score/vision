@@ -47,7 +47,25 @@ class VJEPA_encoder(nn.Module):
     def forward(self, videos):
         B, T, C, H, W = videos.shape
         embeddings = self.encoder(videos.transpose(1,2))
+        embeddings = self.patchify(embeddings)
         return embeddings
+
+    def patchify(self, input_array, patch_height=32, patch_width=32):
+        # Step 2: Pad the matrix to size 392x1036
+        padding_size = 12  # Number of columns to add
+        padded_matrix = torch.nn.functional.pad(input_array, (0, padding_size))
+        # Step 3: Define patch size
+        N, _, _ = padded_matrix.shape
+        H_prime = 56
+        W_prime = 148
+
+        # Step 4: Patchify the padded matrix into 49 contiguous patches of size 56x148
+        # Reshape the matrix into shape (7, 56, 7, 148) and then swap axes to obtain patches
+        patches = padded_matrix.unfold(1, H_prime, H_prime)
+        patches = patches.unfold(2, W_prime, W_prime)
+        patches = patches.contiguous().view(N, -1, H_prime, W_prime)  # 49 patches of size 56x148
+
+        return patches
 
 # Given sequence of images, predicts next latent
 class VJEPA(nn.Module):

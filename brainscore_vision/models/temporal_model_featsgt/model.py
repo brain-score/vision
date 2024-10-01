@@ -19,7 +19,7 @@ IMAGENET_DEFAULT_STD = (0.229, 0.224, 0.225)
 
 transform_img = transforms.Compose([
     transforms.Resize((224, 224)),
-    T.ToTensor(),
+    transforms.ToTensor(),
     transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
 ])
 
@@ -50,10 +50,8 @@ def get_model(identifier, num_frames=16):
         "layer_activation_format": {
             "encoder": "TC",
         },
-        "duration": None,#(0, 450),
+        "duration": None,
         "time_alignment": "evenly_spaced",
-        "convert_img_to_video":True,
-        "img_duration":200
     }
 
     for layer in inferencer_kwargs["layer_activation_format"].keys():

@@ -11,7 +11,7 @@ def load_model(
 ):
     params = torch.load(model_path, map_location="cpu")
     sd = params
-        
+
     new_sd = OrderedDict()
     for k, v in sd.items():
         if k.startswith("module.") and 'dynamics' in k:
@@ -115,31 +115,32 @@ class LSTM(nn.Module):
         x = self.regressor(x)
         return x
 
-    def forward(self, input_states, rollout_steps, n_simulation):
+    def forward(self, input_states, rollout_steps, n_simulation, n_past):
         observed_dynamics_states, simulated_states = [], []
         prev_states = input_states["observed_encoder_states"]
-        n_context = prev_states.shape[1]
+        n_context = n_past
+
         for step in range(rollout_steps):
             # dynamics model predicts next latent from past latents
-            prev_states = prev_states[:, step:step+n_context]
-            pred_state = self.forward_step(prev_states)
+            prev_states_ = prev_states[:, step:step+n_context]
+            pred_state = self.forward_step(prev_states_)
             observed_dynamics_states.append(pred_state)
-            
+
         simulation_input = input_states["input_states"]
         for step in range(n_simulation):
             # dynamics model predicts next latent from past latents
             pred_state = self.forward_step(simulation_input)
             simulated_states.append(pred_state)
             # add most recent pred and delete oldest (to maintain a temporal window of length n_past)
-            
             simulation_input = torch.cat([simulation_input[:, 1:], pred_state.unsqueeze(1)], axis=1)
+
 
         output = {
             "simulated_rollout_states": torch.cat([input_states["input_states"],
-                                            torch.stack(simulated_states, axis=1)], 
+                                            torch.stack(simulated_states, axis=1)],
                                             axis=1),
-            "observed_dynamic_states": torch.cat([input_states["input_states"], 
-                                                  torch.stack(observed_dynamics_states, axis=1)], 
+            "observed_dynamic_states": torch.cat([input_states["input_states"],
+                                                  torch.stack(observed_dynamics_states, axis=1)],
                                                  axis=1),
         }
         return output
@@ -160,19 +161,27 @@ class FrozenPretrainedEncoder(nn.Module):
         # set frozen pretrained encoder to eval mode
         self.encoder.eval()
         # x is (Bs, T, 3, H, W)
-        assert len(x.shape) == 5 and x.shape[1] >= self.n_past
-        
-        observed_rollout_steps = x[:, self.n_past :].shape[1]
-        encoder_output = self.encoder(x, self.n_past)
-        dynamics_output = self.dynamics(encoder_output, 
-                                        observed_rollout_steps, 
-                                        self.n_simulation)
+        #assert len(x.shape) == 5 and x.shape[1] >= self.n_past
 
-        output = {
-            "observed_encoder_states": encoder_output['observed_encoder_states'],
-            "observed_dynamic_states": dynamics_output['observed_dynamic_states'],
-            "simulated_rollout_states": dynamics_output['simulated_rollout_states'],
-        }
+        observed_rollout_steps = max(1, x[:, self.n_past :].shape[1]-self.n_past)
+        encoder_output = self.encoder(x, self.n_past)
+        dynamics_output = self.dynamics(encoder_output,
+                                        observed_rollout_steps,
+                                        self.n_simulation,
+                                        self.n_past)
+
+        if x.shape[1] >= self.n_past:
+            output = {
+                "observed_encoder_states": encoder_output['observed_encoder_states'],
+                "observed_dynamic_states": dynamics_output['observed_dynamic_states'],
+                "simulated_rollout_states": dynamics_output['simulated_rollout_states'],
+            }
+        else:
+            output = {
+                "observed_encoder_states": encoder_output['observed_encoder_states'],
+                "observed_dynamic_states": dynamics_output['observed_dynamic_states'],
+                "simulated_rollout_states": dynamics_output['simulated_rollout_states'],
+            }
         return output
 
 def pfDFM_LSTM_physion(n_past=7, **kwargs):

@@ -53,6 +53,11 @@ class Coggan2024_behavior_ConditionWiseLabelingAccuracySimilarity(BenchmarkBase)
 
 
 class Coggan2024_behavior_ConditionWiseLabelingEngineeringAccuracy(BenchmarkBase):
+    # TODO: run locally
+    # TODO: check data format: need sports car indices => just the same as car
+    # TODO: is metric working?
+    # TODO: correct ish scores?
+    # TODO: tests?
     def __init__(self):
         self._metric = load_metric('accuracy')
         self._ceiling_func = lambda assembly: get_noise_ceiling(assembly)

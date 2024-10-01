@@ -9,33 +9,33 @@ from torchvision import transforms as T
 class R3MLSTMWrapper(PytorchWrapper):
     def forward(self, inputs):
         tensor = th.stack(inputs)
-        tensor = tensor.permute(0, 2, 1, 3, 4)
         tensor = tensor.to(self._device)
-        with th.no_grad():
-            output = self._model(tensor)
-        return output#features  # encoder only
+        output = self._model(tensor)
+        return output
 
 transform_img = T.Compose([T.Resize(256),
-    T.CenterCrop(224)]) # ToTensor() divides by 255
+    T.CenterCrop(224),
+    T.ToTensor()])
 
 def transform_video(video):
-    frames = th.Tensor(video.to_numpy()).permute(0, 3, 1, 2)
-    frames = transform_img(frames)
-    return frames.permute(1, 0, 2, 3)
-
+    frames = []
+    for img in video.to_pil_imgs():
+        frames += [transform_img(img)]
+    frames = th.stack(frames)
+    return frames
 
 def get_model(identifier, num_frames=7):
     assert identifier.startswith("R3M-LSTM")
     pretrain_only = True
 
-    if identifier == "R3M-LSTM-EGO4D":
+    if identifier.startswith("R3M-LSTM-EGO4D"):
         model_path = load_weight_file(
             bucket="brainscore-vision", 
             relative_path="neuroai_stanford_weights/r3m_lstm_ego4d.pt", 
             version_id="Fz1LBUmhex5tT7tRuxC2ThLtzFUwSIx0",
             sha1="8ae184cdfff3014b3dcdfffe9d52457a66339d32"
         )
-    elif identifier == "R3M-LSTM-PHYS":
+    elif identifier.startswith("R3M-LSTM-PHYS"):
         model_path = load_weight_file(
             bucket="brainscore-vision", 
             relative_path="neuroai_stanford_weights/r3m_lstm_physion.pt", 
@@ -56,8 +56,6 @@ def get_model(identifier, num_frames=7):
             },
             "duration": None,
             "time_alignment": "evenly_spaced",
-            "convert_img_to_video":True,
-            "img_duration":450
         }
         
         def process_activation(layer, layer_name, inputs, output):
@@ -71,8 +69,6 @@ def get_model(identifier, num_frames=7):
             },
             "duration": None,
             "time_alignment": "evenly_spaced",
-            "convert_img_to_video":True,
-            "img_duration":450
         }
         
         def process_activation(layer, layer_name, inputs, output):
@@ -86,8 +82,7 @@ def get_model(identifier, num_frames=7):
             },
             "duration": None,
             "time_alignment": "evenly_spaced",
-            "convert_img_to_video":True,
-            "img_duration":450
+            
         }
         
         def process_activation(layer, layer_name, inputs, output):

@@ -13,17 +13,25 @@ class MAELSTMWrapper(PytorchWrapper):
         output = self._model(tensor)
         return output#features  # encoder only
 
-# Define the ImageNet mean and std
-IMAGENET_DEFAULT_MEAN = (0.485, 0.456, 0.406)
-IMAGENET_DEFAULT_STD = (0.229, 0.224, 0.225)
+class GroupNormalize(object):
+    def __init__(self, mean, std):
+        self.mean = mean
+        self.std = std
 
-# Define the transform
-transform_img = transforms.Compose([
-    transforms.Resize(256),
-    transforms.CenterCrop(224),  # Example size for ViT
-    transforms.ToTensor()
-    transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
-])
+    def __call__(self, tensor):
+        rep_mean = self.mean * (tensor.size()[0]//len(self.mean))
+        rep_std = self.std * (tensor.size()[0]//len(self.std))
+
+        # TODO: make efficient
+        for t, m, s in zip(tensor, rep_mean, rep_std):
+            t.sub_(m).div_(s)
+
+        return tensor
+
+transform_img = T.Compose([T.Resize(256),
+    T.CenterCrop(224),
+    T.ToTensor(),
+    GroupNormalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))])
 
 def transform_video(video):
     frames = []

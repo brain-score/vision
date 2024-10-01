@@ -9,18 +9,19 @@ from torchvision import transforms as T
 class DFMLSTMWrapper(PytorchWrapper):
     def forward(self, inputs):
         tensor = th.stack(inputs)
-        tensor = tensor.permute(0, 2, 1, 3, 4)
         tensor = tensor.to(self._device)
-        with th.no_grad():
-            output = self._model(tensor)
-        return output#features  # encoder only
+        output = self._model(tensor)
+        return output
 
-transform_img = T.Compose([T.Resize(128)])
+transform_img = T.Compose([T.Resize(128),
+                          T.ToTensor()])
 
 def transform_video(video):
-    frames = th.Tensor(video.to_numpy()).permute(0, 3, 1, 2)
-    frames = transform_img(frames)
-    return frames.permute(1, 0, 2, 3)
+    frames = []
+    for img in video.to_pil_imgs():
+        frames += [transform_img(img)]
+    frames = th.stack(frames)
+    return frames
 
 def get_model(identifier, num_frames=7):
     assert identifier.startswith("DFM-LSTM")
@@ -44,9 +45,6 @@ def get_model(identifier, num_frames=7):
                 "dynamics": "TC",
             },
             "duration": None,
-            "time_alignment": "evenly_spaced",
-            "convert_img_to_video":True,
-            "img_duration":450
         }
         
         def process_activation(layer, layer_name, inputs, output):
@@ -60,9 +58,6 @@ def get_model(identifier, num_frames=7):
                 "dynamics": "TC",
             },
             "duration": None,
-            "time_alignment": "evenly_spaced",
-            "convert_img_to_video":True,
-            "img_duration":450
         }
         
         def process_activation(layer, layer_name, inputs, output):
@@ -76,9 +71,6 @@ def get_model(identifier, num_frames=7):
                 "encoder": "TC",
             },
             "duration": None,
-            "time_alignment": "evenly_spaced",
-            "convert_img_to_video":True,
-            "img_duration":450
         }
         
         def process_activation(layer, layer_name, inputs, output):

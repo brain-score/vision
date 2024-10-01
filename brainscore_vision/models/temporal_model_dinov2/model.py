@@ -8,21 +8,25 @@ from torchvision import transforms
 class DINOV2Wrapper(PytorchWrapper):
     def forward(self, inputs):
         tensor = th.stack(inputs)
-        tensor = tensor.permute(0, 2, 1, 3, 4)
         tensor = tensor.to(self._device)
-        with th.no_grad():
-            tensor = self._model(tensor)  # encoder only
+        tensor = self._model(tensor)  # encoder only
         return tensor
 
+# Define the ImageNet mean and std
+IMAGENET_DEFAULT_MEAN = (0.485, 0.456, 0.406)
+IMAGENET_DEFAULT_STD = (0.229, 0.224, 0.225)
+
 transform_img = transforms.Compose([transforms.Resize(256),
-    transforms.CenterCrop(224),])
-    #transforms.ToTensor()]) # ToTensor() divides by 255
+    transforms.CenterCrop(224)
+    transforms.ToTensor(),
+    transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),])
 
 def transform_video(video):
-    import torch
-    frames = torch.Tensor(video.to_numpy()).permute(0, 3, 1, 2)
-    frames = transform_img(frames)
-    return frames.permute(1, 0, 2, 3)
+    frames = []
+    for img in video.to_pil_imgs():
+        frames += [transform_img(img)]
+    frames = th.stack(frames)
+    return frames
 
 
 def get_model(identifier, num_frames=16):

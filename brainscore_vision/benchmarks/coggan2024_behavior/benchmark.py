@@ -33,7 +33,8 @@ class Coggan2024_behavior_ConditionWiseLabelingAccuracySimilarity(BenchmarkBase)
         super(Coggan2024_behavior_ConditionWiseLabelingAccuracySimilarity, self).__init__(
             identifier='tong.Coggan2024_behavior-LabelingConditionWiseAccuracySimilarity',
             version=1,
-            ceiling_func=lambda: self._metric.ceiling(self._assembly),
+            ceiling_func=lambda: self._metric.ceiling(self._assembly,
+                                                      variables=['occluder_type', 'visibility', 'occluder_color']),
             parent='behavior',
             bibtex=BIBTEX,
         )

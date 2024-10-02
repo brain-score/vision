@@ -25,6 +25,8 @@ class Coggan2024_behavior_ConditionWiseLabelingAccuracySimilarity(BenchmarkBase)
         self._metric = load_metric('accuracy_distance')
         self._fitting_stimuli = load_stimulus_set('Coggan2024_behavior_fitting')  # this fails is wrapped by LazyLoad
         self._assembly = LazyLoad(lambda: load_dataset('Coggan2024_behavior'))
+        self._assembly['truth'] = self._assembly['object_class']  # the assembly is missing a 'truth' column which is
+        # required by the labeling task
         self._visual_degrees = 10
         self._number_of_trials = 1
         self._ceiling_func = lambda assembly: get_noise_ceiling(assembly)
@@ -44,7 +46,7 @@ class Coggan2024_behavior_ConditionWiseLabelingAccuracySimilarity(BenchmarkBase)
                                        target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
         labels = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
-        raw_score = self._metric(labels, self._assembly, variables=['occluder_type', 'occluder_color'])
+        raw_score = self._metric(labels, self._assembly, variables=['occluder_type', 'visibility', 'occluder_color'])
         ceiling = self.ceiling
         score = raw_score / ceiling
         score.attrs['raw'] = raw_score
@@ -53,11 +55,6 @@ class Coggan2024_behavior_ConditionWiseLabelingAccuracySimilarity(BenchmarkBase)
 
 
 class Coggan2024_behavior_ConditionWiseLabelingEngineeringAccuracy(BenchmarkBase):
-    # TODO: run locally
-    # TODO: check data format: need sports car indices => just the same as car
-    # TODO: is metric working?
-    # TODO: correct ish scores?
-    # TODO: tests?
     def __init__(self):
         self._metric = load_metric('accuracy')
         self._ceiling_func = lambda assembly: get_noise_ceiling(assembly)

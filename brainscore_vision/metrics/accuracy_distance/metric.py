@@ -115,7 +115,7 @@ class AccuracyDistance(Metric):
                     subject_cond_assembly['stimulus_id'].values)
                 source_cond_assembly = source_cond_assembly.where(stimulus_id_mask, drop=True)
                 # to accomodate cases where not all conditions are present in both assemblies, filter out
-                #  calculation of the metric for cases where the
+                #  calculation of the metric for cases where either assembly has no matches to variables (empty)
                 if len(subject_cond_assembly) and len(source_cond_assembly):
                     cond_scores.append(self.compare_single_subject(
                         source_cond_assembly, subject_cond_assembly))

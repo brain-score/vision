@@ -15,7 +15,7 @@ class DataFactory:
         self.nwb_file   = validate_nwb_file(self.nwb_file_path, dandiset_id=self.dandiset_id)
         self.json_file_path = os.path.join(self.exp_path, "nwb_metadata.json")
         generate_json_file(self.nwb_file, self.json_file_path)
-        # input("Validate the values in the generated JSON file are correct, or edit the file. Press Enter to continue.")
+        input("Validate the values in the generated JSON file are correct, or edit the file. Press Enter to continue.")
         with open(self.json_file_path, 'r') as f:
             self.params = json.load(f)
 

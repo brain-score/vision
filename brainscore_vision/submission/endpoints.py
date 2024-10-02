@@ -46,11 +46,10 @@ if __name__ == '__main__':
     args, remaining_args = parser.parse_known_args()
     args_dict = vars(args)
 
-    if 'user_id' not in args_dict or args_dict['user_id'] is None:
-        user_id = get_user_id(args_dict['author_email'], db_secret=config.get_database_secret())
-        args_dict['user_id'] = user_id
-
     if args.fn == 'run_scoring':
+        if 'user_id' not in args_dict or args_dict['user_id'] is None:
+            user_id = get_user_id(args_dict['author_email'], db_secret=config.get_database_secret())
+            args_dict['user_id'] = user_id
         run_scoring(args_dict)
     elif args.fn == 'resolve_models_benchmarks':
         resolve_models_benchmarks(domain="vision", args_dict=args_dict)

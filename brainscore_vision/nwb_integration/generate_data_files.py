@@ -40,6 +40,8 @@ class DataFactory:
         test_path = Path(f"{output_dir}/test.py")
         self.write_code_into_file(test_code, test_path)
 
+        os.system('mv test_data_packaging/ ../data/test_data_packaging')
+
         # generate zip file
         path = Path(__file__).parent
         os.chdir(path)
@@ -136,7 +138,7 @@ def test_assembly():
     assembly = load_dataset('{self.identifier}')
     check_standard_format(assembly, nans_expected=True)
     assert assembly.attrs['stimulus_set_identifier'] == '{self.identifier}'
-    assert set(assembly['region'].values) == {self.assembly['region']}
+    assert set(assembly['region'].values) == {set(self.assembly['region'])}
     assert len(assembly['presentation']) == {self.assembly['presentation']}
     assert len(assembly['neuroid']) == {self.assembly['neuroid']}
 
@@ -173,7 +175,7 @@ if __name__ == '__main__':
     # nwb_file_path = 'sub-pico/sub-pico_ecephys+image.nwb'
     # data_factory = DataFactory(directory=directory, exp_path=exp_path, identifier=NWB_METADATA['stimulus_set']['identifier'], dandiset_id=dandiset_id, nwb_file_path=nwb_file_path)
 
-    with open('/Users/caroljiang/Downloads/vision/brainscore_vision/data/data_generation_trial/example_json.json', 'r') as file:
+    with open('/Users/caroljiang/Downloads/vision/brainscore_vision/nwb_integration/example_json.json', 'r') as file:
         user_json = json.load(file)
     data_factory = DataFactory(user_json=user_json)
     data_factory()

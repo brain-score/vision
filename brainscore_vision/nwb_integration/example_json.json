@@ -1,0 +1,14 @@
+{
+    "dandiset_id": "000788",
+    "nwb_file_path": "sub-pico/sub-pico_ecephys.nwb",
+    "exp_path": "/Users/caroljiang/Downloads/vision/brainscore_vision/nwb_integration/",
+    "identifier": "DataGenerationTrial_emogan",
+    "assembly": {
+        "region": ["IT"],
+        "presentation": 8500,
+        "neuroid": 18
+    },
+    "stimulus_set": {
+        "length": 170
+    }
+}

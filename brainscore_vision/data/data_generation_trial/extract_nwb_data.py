@@ -4,16 +4,20 @@ import remfile
 
 from dandi.dandiapi import DandiAPIClient
 from pynwb import NWBHDF5IO
+from pynwb.file import NWBFile
 
 
 ### Load nwb file
-def load_nwb_file(nwb_file_path):
+def load_nwb_file(nwb_file_path: str) -> NWBFile:
     print("Loading the NWB file ...")
     io = NWBHDF5IO(nwb_file_path, "r") 
     nwb_file = io.read()    
     return nwb_file
     
-def validate_nwb_file(nwb_file_path, dandiset_id=None):
+def validate_nwb_file(nwb_file_path: str, dandiset_id: str = None) -> NWBFile:
+    '''
+    Check if the provided NWB file contains PSTH electrode data
+    '''
     try:
         nwb_file = load_nwb_file(nwb_file_path)
     except:
@@ -27,7 +31,10 @@ def validate_nwb_file(nwb_file_path, dandiset_id=None):
     else:
         raise ValueError('Type of NWB file not accepted, needs to contain electrode data.')
 
-def generate_json_file(nwb_file, json_file_path):
+def generate_json_file(nwb_file: NWBFile, json_file_path: str) -> None:
+    '''
+    Extracts metadata from NWB file and writes to a JSON
+    '''
     scratch = nwb_file.scratch['PSTHs_QualityApproved_ZScored_SessionMerged'].description.split('[start_time_ms, stop_time_ms, tb_ms]: ')[-1]
     array = scratch.strip('[]').split()
     nwb_metadata = {'start_time_ms': array[0],
@@ -41,7 +48,10 @@ def generate_json_file(nwb_file, json_file_path):
     with open(json_file_path, "w") as f:
         f.write(json_str)
 
-def stream_from_dandi(dandiset_id, filepath):
+def stream_from_dandi(dandiset_id: str, filepath: str) -> NWBFile:
+    '''
+    Streams NWB file from DANDI using the DandiAPIClient
+    '''
     print('Streaming the NWB file from DANDI ...')
     with DandiAPIClient() as client:
         client.dandi_authenticate()

@@ -4,12 +4,14 @@ import pandas as pd
 import xarray as xr
 
 from brainio.assemblies import NeuronRecordingAssembly
+from brainio.stimuli import StimulusSet
 from brainscore_vision import load_ceiling
 from brainscore_vision.metric_helpers.transformations import CrossValidation
-from IPython.display import display
+from pynwb.file import NWBFile
+from typing import Tuple
 
 
-def get_neuroids(nwb_file, subject):
+def get_neuroids(nwb_file: NWBFile, subject: str) -> pd.DataFrame:
     #-----------------------------------------------------------------------------------------------------------------------------
     # Get electrode metadata from nwb file.
     #-----------------------------------------------------------------------------------------------------------------------------
@@ -54,7 +56,7 @@ def get_neuroids(nwb_file, subject):
     neuroid_meta = pd.DataFrame(data_list)
     return neuroid_meta
 
-def get_QC_neurids(nwb_file):
+def get_QC_neurids(nwb_file: NWBFile) -> Tuple[np.array, np.array]:
     '''
     This Method uses logical OR to find the common QC channels. (Closer to the BrainScore Method)
     '''
@@ -73,9 +75,10 @@ def get_QC_neurids(nwb_file):
 
     assert channel_mask_all.shape[0] == psth.shape[1]
     filtered_neurids = np.any(channel_mask_all, axis=0)
+    print(type(filtered_neurids), type(common_QC_channels))
     return filtered_neurids, common_QC_channels
 
-def filter_neuroids(assembly, threshold):
+def filter_neuroids(assembly: NeuronRecordingAssembly, threshold: float) -> NeuronRecordingAssembly:
     ceiler = load_ceiling('internal_consistency')
     ceiling = ceiler(assembly)
     ceiling = ceiling.raw
@@ -84,7 +87,10 @@ def filter_neuroids(assembly, threshold):
     assembly = assembly[{'neuroid': pass_threshold}]
     return assembly
 
-def load_responses(nwb_file, json_file_path, stimuli, use_QC_data = True, do_filter_neuroids = False, use_brainscore_filter_neuroids_method=False):
+def load_responses(nwb_file: NWBFile, json_file_path: str, 
+                   stimuli: StimulusSet, use_QC_data: bool = True, 
+                   do_filter_neuroids: bool = False, 
+                   use_brainscore_filter_neuroids_method: bool = False) -> NeuronRecordingAssembly:
     #-----------------------------------------------------------------------------------------------------------------------------
     # Get the PSTH and normalizer PSTH
     #-----------------------------------------------------------------------------------------------------------------------------
@@ -117,6 +123,8 @@ def load_responses(nwb_file, json_file_path, stimuli, use_QC_data = True, do_fil
 
     assembly = xr.DataArray(rate,
                             coords={'repetition': ('repetition', list(range(rate.shape[2]))),
+                                    'neuroid_id': ('neuroid', list(range(psth.shape[3]))),
+                                    'region': ('neuroid', ['IT'] * psth.shape[3]),
                                     'time_bin_id': ('time_bin', list(range(rate.shape[0]))),
                                     'time_bin_start': ('time_bin', [x[0] for x in timebins]),
                                     'time_bin_stop': ('time_bin', [x[1] for x in timebins]),

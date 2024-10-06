@@ -62,8 +62,7 @@ class DataFactory:
         Generate data_packaging.py file
         '''
 
-        data_packaging_code = f"""
-from brainio.packaging import package_stimulus_set, package_data_assembly
+        data_packaging_code = f"""from brainio.packaging import package_stimulus_set, package_data_assembly
 from brainscore_vision import load_dataset, load_stimulus_set
 
 def upload_stimulus_set_to_s3(stimuli):
@@ -94,8 +93,7 @@ if __name__ == '__main__':
         stimuli_info = upload_stimulus_set_to_s3(stimuli)
         assembly_info = upload_assembly_to_s3(assembly)
 
-        init_code = f"""
-from brainio.assemblies import NeuronRecordingAssembly
+        init_code = f"""from brainio.assemblies import NeuronRecordingAssembly
 from brainscore_vision import load_stimulus_set
 from brainscore_vision import stimulus_set_registry, data_registry
 from brainscore_vision.data_helpers.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
@@ -126,7 +124,8 @@ data_registry["{assembly_info['identifier']}"] = lambda: load_assembly_from_s3(
         '''
         Generate test.py file
         '''
-        test_code = f"""
+        test_code = f"""import pytest
+
 from brainscore_vision import load_dataset, load_stimulus_set
 from brainscore_vision.benchmark_helpers import check_standard_format
 

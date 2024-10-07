@@ -24,23 +24,6 @@ def test_start_task_or_recording(identifier: str):
     assert can_do.can_start_task(model) or can_do.can_start_recording(model)
 
 
-def test_look_at_behavior_probabilities(identifier: str):
-    model = load_model(identifier)
-    stimuli = fitting_stimuli = _make_stimulus_set()
-    if not ProbeModel().can_start_task_specific(model,
-                                                task=BrainModel.Task.probabilities, fitting_stimuli=fitting_stimuli):
-        # model cannot do this task, ignore. We're testing for behavior or neural in `test_supports_behavior_or_neural`
-        return
-
-    model.start_task(BrainModel.Task.probabilities, fitting_stimuli=stimuli)
-    predictions = model.look_at(stimuli=stimuli, number_of_trials=1)
-    assert set(predictions.dims) == {'presentation', 'choice'}
-    assert set(predictions['stimulus_id'].values) == {'stimid1', 'stimid2', 'stimid3'}
-    assert all(predictions['object_name'] == 'rgb')
-    assert set(predictions['choice'].values) == set(fitting_stimuli['image_label'].values)
-    assert (0 <= predictions.values).all()
-    assert (predictions.values <= 1).all()
-
 @pytest.mark.memory_intense
 def test_look_at_neural_V1(identifier: str):
     model = load_model(identifier)
@@ -61,6 +44,24 @@ def test_look_at_neural_V1(identifier: str):
     assert 'neuroid' in predictions.dims
     if len(predictions.dims) == 3:
         assert 'time_bin' in predictions.dims
+
+def test_look_at_behavior_probabilities(identifier: str):
+    model = load_model(identifier)
+    stimuli = fitting_stimuli = _make_stimulus_set()
+    if not ProbeModel().can_start_task_specific(model,
+                                                task=BrainModel.Task.probabilities, fitting_stimuli=fitting_stimuli):
+        # model cannot do this task, ignore. We're testing for behavior or neural in `test_supports_behavior_or_neural`
+        return
+
+    model.start_task(BrainModel.Task.probabilities, fitting_stimuli=stimuli)
+    predictions = model.look_at(stimuli=stimuli, number_of_trials=1)
+    assert set(predictions.dims) == {'presentation', 'choice'}
+    assert set(predictions['stimulus_id'].values) == {'stimid1', 'stimid2', 'stimid3'}
+    assert all(predictions['object_name'] == 'rgb')
+    assert set(predictions['choice'].values) == set(fitting_stimuli['image_label'].values)
+    assert (0 <= predictions.values).all()
+    assert (predictions.values <= 1).all()
+
 
 
 def _make_stimulus_set() -> StimulusSet:

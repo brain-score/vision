@@ -1,2 +1,2 @@
-from .base import TemporalInferencer
+from .base import TemporalInferencer, OnlineTemporalInferencer
 from .temporal_context import *

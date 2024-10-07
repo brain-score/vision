@@ -13,6 +13,7 @@ from brainio.assemblies import DataAssembly
 from brainscore_vision.model_helpers.utils import fullname
 from result_caching import store_xarray
 from .inferencer import Inferencer
+from .inferencer.video import OnlineTemporalInferencer
 from ..inputs import Stimulus
 
 
@@ -69,7 +70,9 @@ class ActivationsExtractor:
         if number_of_trials is not None and (number_of_trials > 1 or require_variance):
             self._logger.warning("CAUTION: number_of_trials > 1 or require_variance=True is not supported yet. "
                                  "Bypassing...")
-        if isinstance(stimuli, StimulusSet):
+        if isinstance(self.inferencer, OnlineTemporalInferencer):
+            return self.online_stimulus_set(stimulus_set=stimuli, layers=layers, stimuli_identifier=stimuli_identifier)
+        elif isinstance(stimuli, StimulusSet):
             return self.from_stimulus_set(stimulus_set=stimuli, layers=layers, stimuli_identifier=stimuli_identifier)
         else:
             return self.from_paths(stimuli_paths=stimuli, layers=layers, stimuli_identifier=stimuli_identifier)
@@ -114,6 +117,29 @@ class ActivationsExtractor:
         reduced_paths = self._reduce_paths(stimuli_paths)
         activations = fnc(layers=layers, stimuli_paths=reduced_paths)
         activations = self._expand_paths(activations, original_paths=stimuli_paths)
+        return activations
+
+    def online_stimulus_set(
+            self, 
+            stimulus_set : StimulusSet, 
+            layers : List[str],
+            stimuli_identifier : str = None,
+        ):
+        """
+        :param stimuli_identifier: a stimuli identifier for the stored results file.
+            False to disable saving. None to use `stimulus_set.identifier`
+        """
+        if stimuli_identifier is None and hasattr(stimulus_set, 'identifier'):
+            stimuli_identifier = stimulus_set.identifier
+        for hook in self._stimulus_set_hooks.copy().values():  # copy to avoid stale handles
+            stimulus_set = hook(stimulus_set)
+        stimuli_paths = [(str(stimulus_set.get_stimulus(stimulus_id)), label, train_flag) 
+                         for (stimulus_id, label, train_flag) in zip(stimulus_set['stimulus_id'], 
+                                                         stimulus_set['label'], 
+                                                         stimulus_set['train_flag'])
+                        ]
+        activations = self._from_paths(stimuli_paths=stimuli_paths, layers=layers)
+        activations = attach_stimulus_set_meta(activations, stimulus_set)
         return activations
 
     @store_xarray(identifier_ignore=['stimuli_paths', 'layers'], combine_fields={'layers': 'layer'})

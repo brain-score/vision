@@ -11,7 +11,7 @@ import gc
 from brainio.assemblies import NeuroidAssembly, walk_coords
 from brainscore_vision.model_helpers.utils import fullname
 
-from brainscore_vision.model_helpers.activations.temporal.core.executor import BatchExecutor
+from brainscore_vision.model_helpers.activations.temporal.core.executor import BatchExecutor, OnlineExecutor
 from brainscore_vision.model_helpers.activations.temporal.utils import stack_with_nan_padding, batch_2d_resize
 from brainscore_vision.model_helpers.activations.temporal.inputs import Stimulus
 
@@ -84,6 +84,8 @@ class Inferencer:
             batch_grouper : Callable[[Stimulus], Hashable] = None,
             batch_padding : bool = False,
             max_workers : int = None,
+            online_execution : bool = False,
+            num_classes : int = 1,
             *args,
             **kwargs
         ):
@@ -96,6 +98,9 @@ class Inferencer:
         self.visual_degrees = visual_degrees
         self.dtype = dtype
         self._executor = BatchExecutor(get_activations, preprocessing, batch_size, batch_padding, batch_grouper, max_workers)
+        if online_execution:
+                self._executor = OnlineExecutor(get_activations, preprocessing, batch_size, batch_padding, batch_grouper, 
+                                                max_workers, num_classes)
         self._stimulus_set_hooks = {}
         self._batch_activations_hooks = {}
         self._logger = logging.getLogger(fullname(self))

@@ -8,8 +8,8 @@ import zipfile
 
 
 class DataFactory:
-    def __init__(self, user_json: dict):
-        self.user_json = user_json
+    def __init__(self, user_json: str):
+        self.user_json = json.loads(user_json)
         self.parse_json()
 
         self.nwb_file   = validate_nwb_file(self.nwb_file_path, dandiset_id=self.dandiset_id)
@@ -179,3 +179,4 @@ if __name__ == '__main__':
         user_json = json.load(file)
     data_factory = DataFactory(user_json=user_json)
     data_factory()
+    

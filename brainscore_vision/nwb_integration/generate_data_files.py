@@ -9,7 +9,10 @@ import zipfile
 
 class DataFactory:
     def __init__(self, user_json: str):
+        print('!!!!!!')
+        print(user_json)
         self.user_json = json.loads(user_json)
+        print(self.user_json)
         self.parse_json()
 
         self.nwb_file   = validate_nwb_file(self.nwb_file_path, dandiset_id=self.dandiset_id)

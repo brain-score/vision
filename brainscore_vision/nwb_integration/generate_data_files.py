@@ -165,18 +165,3 @@ def test_stimulus_set():
                     file_path = os.path.join(root, file)
                     relative_path = os.path.relpath(file_path, folder_path)
                     zipf.write(file_path, relative_path)
-
-
-if __name__ == '__main__':
-    directory = '/Users/caroljiang/Downloads/vision/brainscore_vision/data/data_generation_trial'
-    exp_path = f"/Users/caroljiang/Downloads/vision/brainscore_vision/data/data_generation_trial/"
-    dandiset_id = '000788'
-    nwb_file_path = 'sub-pico/sub-pico_ecephys.nwb'
-    # nwb_file_path = 'sub-pico/sub-pico_ecephys+image.nwb'
-    # data_factory = DataFactory(directory=directory, exp_path=exp_path, identifier=NWB_METADATA['stimulus_set']['identifier'], dandiset_id=dandiset_id, nwb_file_path=nwb_file_path)
-
-    with open('/Users/caroljiang/Downloads/vision/brainscore_vision/nwb_integration/example_json.json', 'r') as file:
-        user_json = json.load(file)
-    data_factory = DataFactory(user_json=user_json)
-    data_factory()
-    

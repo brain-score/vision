@@ -50,7 +50,7 @@ class DataFactory:
         self.zip_files(folder_to_zip, output_zip_file)
 
     def parse_json(self):
-        self.dandiset_id = self.user_json['dandiset_id']
+        self.dandiset_id = str(self.user_json['dandiset_id'])
         self.directory = self.user_json['exp_path']
         self.exp_path = self.user_json['exp_path']
         self.nwb_file_path = self.user_json['nwb_file_path']

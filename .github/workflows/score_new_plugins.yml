@@ -25,7 +25,8 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     outputs:
-      RUN_SCORING: ${{ steps.scoringneeded.outputs.RUN_SCORING }}
+      RUN_SCORING: 'True'
+      # RUN_SCORING: ${{ steps.scoringneeded.outputs.RUN_SCORING }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4

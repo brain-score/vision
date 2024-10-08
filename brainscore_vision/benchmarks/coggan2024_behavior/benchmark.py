@@ -26,7 +26,7 @@ class Coggan2024_behavior_ConditionWiseLabelingAccuracySimilarity(BenchmarkBase)
         self._fitting_stimuli = load_stimulus_set('Coggan2024_behavior_fitting')  # this fails is wrapped by LazyLoad
         self._assembly = LazyLoad(lambda: load_dataset('Coggan2024_behavior'))
         self._assembly['truth'] = self._assembly['object_class']  # the assembly is missing a 'truth' column which is
-        # required by the labeling task
+                                                                  #  required by the labeling task
         self._visual_degrees = 10
         self._number_of_trials = 1
         self._ceiling_func = lambda assembly: get_noise_ceiling(assembly)
@@ -188,3 +188,13 @@ def ceiler(score: Score, ceiling: Score) -> Score:
     ceiled_score.attrs[Score.RAW_VALUES_KEY] = score
     ceiled_score.attrs['ceiling'] = ceiling
     return ceiled_score
+
+
+def remove_nans(data):
+    """
+    removes nans from the data and replaces them with a string 'none'. uses pandas to simultaneously hand numeric
+    and non-numeric data.
+    """
+    for coord in data.coords:
+        data[coord] = data[coord].where(~pd.isna(data[coord]), 'none')
+    return data

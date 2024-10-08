@@ -101,19 +101,23 @@ class AccuracyDistance(Metric):
                 conditions = set(subject[variables[0]].values)
                 conditions = [[c] for c in conditions]  # to mimic itertools.product
             else:
+                # get all combinations of variables that are present in both assemblies
                 conditions = itertools.product(
-                    *[set(subject[v].values) for v in variables])
+                    *[set(subject[v].values).intersection(set(source[v].values)) for v in variables]
+                )
 
             # loop over conditions and compute scores
+            # TODO: 91 conditions?? where do they come from?
+            # TODO: what did which participants do? is grouping across visibility correct or not? it does not look
+            #  like any participants did the same combination of conditions
+
+            # TODO: but the above is with the caveat that the stimulus_id field is NOT actually the stimulus id.
+            #  it contains the subject number and trial number, in addition to a 5-digit number that may or may not
+            #  be the actual stimulus_id. we should filter based on that, but need to clean up the data to do that.
             for cond in conditions:
                 # filter assemblies for selected condition
                 subject_cond_assembly = self.get_condition_filtered_assembly(subject, variables, cond)
                 source_cond_assembly = self.get_condition_filtered_assembly(source, variables, cond)
-                # select only the values in source_cond_assembly that has the same 'stimulus_id' as
-                #  subject_cond_assembly to accommodate comparisons where not all subjects saw all the same stimuli
-                stimulus_id_mask = source_cond_assembly['stimulus_id'].isin(
-                    subject_cond_assembly['stimulus_id'].values)
-                source_cond_assembly = source_cond_assembly.where(stimulus_id_mask, drop=True)
                 # to accomodate cases where not all conditions are present in both assemblies, filter out
                 #  calculation of the metric for cases where either assembly has no matches to variables (empty)
                 if len(subject_cond_assembly) and len(source_cond_assembly):

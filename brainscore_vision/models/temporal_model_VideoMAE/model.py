@@ -39,7 +39,7 @@ def get_model(identifier, num_frames=16):
         pth = load_weight_file(
             bucket="brainscore-vision",
             relative_path='temporal_model_VideoMAE/vit_b_k400_pt_1200e.pth',
-            version_id="Oi3VboRZujNyZAcwf5q7XZ2M8q1cPO6o",
+            version_id="YkdCqz8ywKAqAPMLv6iE9SfihuqExfcJ",
             sha1="8faf42df13f619a8970d653695e98f0643760b54"
         )
         num_blocks = 12
@@ -48,7 +48,7 @@ def get_model(identifier, num_frames=16):
         pth = load_weight_file(
             bucket="brainscore-vision",
             relative_path='temporal_model_VideoMAE/vit_l_k400_pt_1200e.pth',
-            version_id="MiPfczDaVponDGuUBrEPqmT.BiVvh_I1",
+            version_id="v8VsUKnAJQ23dyLiYOSYyjSrHI_zB60o",
             sha1="7ff6acbba221f85d7148223ec932ad7c57f2f40c"
         )
         num_blocks = 24

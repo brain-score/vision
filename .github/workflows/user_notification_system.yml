@@ -44,10 +44,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Python 3.7
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: 3.7
+          python-version: 3.11
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -103,7 +103,7 @@ jobs:
       - name: Encrypt and set job-level output for email
         id: set_email_output
         run: |
-          ENCRYPTED_EMAIL=$(echo -n $EMAIL | openssl enc -aes-256-cbc -a -salt -pass pass:${{ secrets.EMAIL_ENCRYPTION_KEY }})
+          ENCRYPTED_EMAIL=$(echo -n $EMAIL | openssl enc -aes-256-cbc -a -A -salt -pass pass:${{ secrets.EMAIL_ENCRYPTION_KEY }})
           echo "EMAIL=$ENCRYPTED_EMAIL" >> $GITHUB_OUTPUT
           
       - name: Write email to file

@@ -135,8 +135,8 @@ if __name__ == "__main__":
     statuses_json = get_data(f"{BASE_URL}/statuses/{pr_head}")
 
     results_dict = {'travis_pr_result': get_statuses_result('continuous-integration/travis', statuses_json),
-                    'jenkins_plugintests_result': get_statuses_result('Brain-Score Jenkins CI - plugin tests', statuses_json),
-                    'jenkins_unittests_result': get_statuses_result('Brain-Score Jenkins CI', statuses_json)}
+                    'jenkins_plugintests_result': get_statuses_result('Brain-Score Plugins Unit tests (AWS Jenkins, AWS Execution)', statuses_json),
+                    'jenkins_unittests_result': get_statuses_result('Brain-Score Non-Plugin Unit tests (AWS Jenkins, AWS Execution)', statuses_json)}
 
     tests_pass = are_all_tests_passing(results_dict)
     tests_fail = any_tests_failing(results_dict)

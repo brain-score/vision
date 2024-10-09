@@ -131,16 +131,16 @@ def load_responses(nwb_file: NWBFile, json_file_path: str,
                                     'image_id': ('image', image_id)},
                             dims=['time_bin', 'image', 'repetition', 'neuroid'])
     if use_QC_data:
-        for column_name, column_data in neuroid_meta.iteritems():
+        for column_name, column_data in neuroid_meta.items():
             assembly = assembly.assign_coords(**{f'{column_name}': ('neuroid', list(column_data.values[qc_array_and]))})
     else:
-        for column_name, column_data in neuroid_meta.iteritems():
+        for column_name, column_data in neuroid_meta.items():
             assembly = assembly.assign_coords(**{f'{column_name}': ('neuroid', list(column_data.values))})
 
     assembly = assembly.sortby(assembly.image_id)
     assembly.name = stimuli.name
     stimuli  = stimuli.sort_values(by='image_id').reset_index(drop=True)
-    for column_name, column_data in stimuli.iteritems():
+    for column_name, column_data in stimuli.items():
         assembly = assembly.assign_coords(**{f'{column_name}': ('image', list(column_data.values))})
     assembly = assembly.sortby(assembly.id)  
 
@@ -160,7 +160,7 @@ def load_responses(nwb_file: NWBFile, json_file_path: str,
                                                 'image_id': ('image', list(range(rate.shape[0]))),
                                                 'id': ('image', list(range(rate.shape[0])))},
                                         dims=['image', 'repetition', 'neuroid'])
-        for column_name, column_data in neuroid_meta.iteritems():
+        for column_name, column_data in neuroid_meta.items():
             normalizer_assembly = normalizer_assembly.assign_coords(
                 **{f'{column_name}': ('neuroid', list(column_data.values))})
 
@@ -176,7 +176,7 @@ def load_responses(nwb_file: NWBFile, json_file_path: str,
     elif do_filter_neuroids and not use_brainscore_filter_neuroids_method:
         filter_assembly = xr.DataArray(qc_array_or,
                                 dims=['neuroid'])
-        for column_name, column_data in neuroid_meta.iteritems():
+        for column_name, column_data in neuroid_meta.items():
             filter_assembly = filter_assembly.assign_coords(
                 **{f'{column_name}': ('neuroid', list(column_data.values))})
             
@@ -186,7 +186,7 @@ def load_responses(nwb_file: NWBFile, json_file_path: str,
     elif use_QC_data:
         filter_assembly = xr.DataArray(qc_array_and,
                                 dims=['neuroid'])
-        for column_name, column_data in neuroid_meta.iteritems():
+        for column_name, column_data in neuroid_meta.items():
             filter_assembly = filter_assembly.assign_coords(
                 **{f'{column_name}': ('neuroid', list(column_data.values))})
             

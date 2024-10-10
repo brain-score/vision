@@ -1,3 +1,6 @@
+import json
+import os
+from brainscore_core.plugin_management import import_plugin
 from brainscore_vision import load_benchmark
 from brainscore_vision.model_helpers.brain_transformation.temporal import TemporalAligned
 from brainscore_vision.model_interface import BrainModel
@@ -30,12 +33,18 @@ class ModelCommitment(BrainModel):
         self.activations_model._extractor.set_visual_degrees(visual_degrees)  # for microsaccades
         self._visual_degrees = visual_degrees
         # region-layer mapping
+
+        # Attempt to load region_layer_map from JSON, if available
+        region_layer_map = self.load_region_layer_map_json(identifier) if region_layer_map is None else region_layer_map
+
+        # If region_layer_map is unavailable
         if region_layer_map is None:
             layer_selection = LayerSelection(model_identifier=identifier,
                                              activations_model=activations_model, layers=layers,
                                              visual_degrees=visual_degrees)
             region_layer_map = RegionLayerMap(layer_selection=layer_selection,
                                               region_benchmarks=STANDARD_REGION_BENCHMARKS)
+
         # neural
         layer_model = LayerMappedModel(identifier=identifier, activations_model=activations_model,
                                        region_layer_map=region_layer_map)
@@ -51,6 +60,26 @@ class ModelCommitment(BrainModel):
                                                BrainModel.Task.odd_one_out: odd_one_out,
                                                })
         self.do_behavior = False
+
+    def load_region_layer_map_json(self, identifier):
+        '''
+        Attempts to load the region_layer_map from a JSON file in the model's directory
+        If file exists, load JSON. Otherwise, return None and proceed with legacy layer mapping
+        '''
+        try:
+            importer = import_plugin.ImportPlugin(library_root='brainscore_vision', plugin_type='models', identifier=identifier)
+            model_dir = importer.locate_plugin()
+            region_layer_map_path = os.path.join(os.getcwd(), f'vision/models/{model_dir}', f'region_layer_map/{identifier}.json')
+
+            if os.path.exists(region_layer_map_path):
+                with open(region_layer_map_path, 'r') as region_layer_map_file:
+                    return json.load(region_layer_map_file)
+            else:
+                print(f"No region_layer_map file found for {identifier}, proceeding with default layer mapping")
+                return None
+        except Exception as e:
+            print(f"Error importing model to search for region_layer_map: {e}")
+            return None
 
     def visual_degrees(self) -> int:
         return self._visual_degrees

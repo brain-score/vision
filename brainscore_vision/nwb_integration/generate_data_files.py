@@ -57,8 +57,17 @@ class DataFactory:
         self.zip_files(folder_to_zip, output_zip_file)
         self._logger.debug('Finished zipping files')
 
+        # generate submission config JSON
+        json_file_code = self.generate_submission_json()
+        self.write_code_into_file(json_file_code, 'submission_config.json')
+        self._logger.debug('Finished generating submission config')
+
     def parse_json(self):
-        self.dandiset_id = str(self.user_json['dandiset_id'])
+        self.domain = self.user_json['domain']
+        self.public = self.user_json['public']
+        self.user_id = self.user_json['user_id']
+
+        self.dandiset_id = self.user_json['dandiset_id']
         self.directory = self.user_json['exp_path']
         self.exp_path = self.user_json['exp_path']
         self.nwb_file_path = self.user_json['nwb_file_path']
@@ -173,3 +182,16 @@ def test_stimulus_set():
                     file_path = os.path.join(root, file)
                     relative_path = os.path.relpath(file_path, folder_path)
                     zipf.write(file_path, relative_path)
+
+    def generate_submission_json(self) -> str:
+        '''
+        Generates JSON of submission.config values (domain, public, user_id) for create_github_pr job
+        '''
+        data = {
+            'domain': self.domain,
+            'public': self.public,
+            'user_id': self.user_id
+        }
+        json_file_code = json.dumps(data, indent=4)
+        return json_file_code
+    

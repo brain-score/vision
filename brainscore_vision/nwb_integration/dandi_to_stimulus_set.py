@@ -1,4 +1,5 @@
 import os, re
+import logging
 
 from brainio.stimuli import StimulusSet
 from dandi.dandiapi import DandiAPIClient
@@ -8,6 +9,8 @@ from pynwb.file import NWBFile
 from tqdm import tqdm
 from typing import Tuple
 
+
+logger = logging.getLogger(__name__)
 
 def extract_number(filename: str) -> int: 
     # Extract the number from the filename and return it as an integer
@@ -45,7 +48,7 @@ def get_video_stimulus_set(dandiset_id: int, exp_path: str) -> list:
                     filepath.parent.mkdir(parents=True, exist_ok=True)
                     a.download(filepath, chunk_size=1024 * 1024 * 8)
         except Exception as e:
-            print(e)
+            logger.error(e)
 
     return video_paths
 
@@ -63,7 +66,7 @@ def get_stimuli(dandiset_id: str, nwb_file: NWBFile, experiment_path: str, exp_n
         try: os.mkdir(os.path.join(experiment_path, 'images'))
         except: pass 
 
-        print("Iterating over the images ...")
+        logger.info("Iterating over the images ...")
         for i in tqdm(image_ids):
             try:
                 image = nwb_file.stimulus_template[f'StimulusSet'][f'exp_{exp_name}_{i}.png'][:]
@@ -96,13 +99,13 @@ def get_stimuli(dandiset_id: str, nwb_file: NWBFile, experiment_path: str, exp_n
                 })
                 stimulus_id += 1
             except Exception as e: 
-                print(e)
+                logger.error(e)
     except Exception as e:
-        print(e)
-        print('no images found')
+        logger.error(e)
+        logger.info('No images found')
 
     try:
-        print("Iterating over the videos ...")
+        logger.info("Iterating over the videos ...")
         video_paths = get_video_stimulus_set(dandiset_id, experiment_path)
         for i in tqdm(range(len(video_paths))):
             stimuli.append({
@@ -113,8 +116,8 @@ def get_stimuli(dandiset_id: str, nwb_file: NWBFile, experiment_path: str, exp_n
             })
             stimulus_id += 1
     except Exception as e:
-        print(e)
-        print('no videos found')
+        logger.error(e)
+        logger.info('No videos found')
 
     stimuli = StimulusSet(stimuli)
     stimulus_paths = image_paths if image_paths else video_paths

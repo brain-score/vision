@@ -2,13 +2,17 @@ from pathlib import Path
 from dandi_to_stimulus_set import get_stimuli
 from extract_nwb_data import generate_json_file, validate_nwb_file
 from create_assembly import load_responses
+from brainscore_vision.model_helpers.utils import fullname
 
 import os, json
+import logging
 import zipfile
 
 
 class DataFactory:
     def __init__(self, user_json: str):
+        self._logger = logging.getLogger(fullname(self))
+
         self.user_json = json.loads(user_json)
         self.parse_json()
 
@@ -29,16 +33,19 @@ class DataFactory:
         data_packaging_code = self.generate_data_packaging_code()
         data_packaging_path = Path(f"{output_dir}/data_packaging.py")
         self.write_code_into_file(data_packaging_code, data_packaging_path)
+        self._logger.debug('Finished writing data_packaging.py')
 
         # create and write init code:
         init_code = self.generate_init_code()
         init_path = Path(f"{output_dir}/__init__.py")
         self.write_code_into_file(init_code, init_path)
+        self._logger.debug('Finished writing __init__.py')
 
         # create and write test code:
         test_code = self.generate_test_code()
         test_path = Path(f"{output_dir}/test.py")
         self.write_code_into_file(test_code, test_path)
+        self._logger.debug('Finished writing test.py')
 
         os.system('mv test_data_packaging/ ../data/test_data_packaging')
 
@@ -48,6 +55,7 @@ class DataFactory:
         folder_to_zip = 'test_data_packaging'
         output_zip_file = 'test_data_packaging.zip'
         self.zip_files(folder_to_zip, output_zip_file)
+        self._logger.debug('Finished zipping files')
 
     def parse_json(self):
         self.dandiset_id = str(self.user_json['dandiset_id'])

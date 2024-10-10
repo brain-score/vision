@@ -75,7 +75,6 @@ def get_QC_neurids(nwb_file: NWBFile) -> Tuple[np.array, np.array]:
 
     assert channel_mask_all.shape[0] == psth.shape[1]
     filtered_neurids = np.any(channel_mask_all, axis=0)
-    print(type(filtered_neurids), type(common_QC_channels))
     return filtered_neurids, common_QC_channels
 
 def filter_neuroids(assembly: NeuronRecordingAssembly, threshold: float) -> NeuronRecordingAssembly:

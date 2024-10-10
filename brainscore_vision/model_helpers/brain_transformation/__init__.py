@@ -1,3 +1,6 @@
+import json
+import os
+from brainscore_core.plugin_management import import_plugin
 from brainscore_vision import load_benchmark
 from brainscore_vision.model_helpers.brain_transformation.temporal import TemporalAligned
 from brainscore_vision.model_interface import BrainModel
@@ -30,7 +33,13 @@ class ModelCommitment(BrainModel):
         self.activations_model._extractor.set_visual_degrees(visual_degrees)  # for microsaccades
         self._visual_degrees = visual_degrees
         # region-layer mapping
+
+        # Attempt to load region_layer_map from JSON, if available
+        region_layer_map = self.load_region_layer_map_from_json(identifier) if region_layer_map is None else region_layer_map
+
+        # Legacy Region Layer Mapping
         if region_layer_map is None:
+            print("Need to manually compute mappings.")
             layer_selection = LayerSelection(model_identifier=identifier,
                                              activations_model=activations_model, layers=layers,
                                              visual_degrees=visual_degrees)
@@ -51,6 +60,20 @@ class ModelCommitment(BrainModel):
                                                BrainModel.Task.odd_one_out: odd_one_out,
                                                })
         self.do_behavior = False
+
+    def load_region_layer_map_from_json(self, identifier):
+        '''
+        Attempts to load the region_layer_map from a JSON file in the model's directory
+        If file exists, load JSON. Otherwise, return None and proceed with legacy layer mapping
+        '''
+        importer = import_plugin.ImportPlugin(library_root='brainscore_vision', plugin_type='models', identifier=identifier)
+        model_dir = importer.locate_plugin()
+        region_layer_map_path = os.path.join(model_dir, f'region_layer_map/{identifier}.json')
+        if os.path.exists(region_layer_map_path):
+            with open(region_layer_map_path, 'r') as region_layer_map_file:
+                self.region_layer_map = json.load(region_layer_map_file)
+        else:
+            self.region_layer_map
 
     def visual_degrees(self) -> int:
         return self._visual_degrees

@@ -23,23 +23,6 @@ jobs:
         || contains(github.event.pull_request.labels.*.name, 'trigger-mapping')
       )
     steps:
-      # Check if Plugins Unit test has passed
-      - name: Wait for plugin unit test checks
-        uses: lewagon/wait-on-check-action@v1.3.4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          check-name: 'Brain-Score Plugins Unit tests (AWS Jenkins, AWS Execution)'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 5
-
-      - name: Wait for non-plugin unit test checks
-        uses: lewagon/wait-on-check-action@v1.3.4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          check-name: 'Brain-Score Plugins Unit tests (AWS Jenkins, AWS Execution)'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 5
-
       - name: Check out repository code
         uses: actions/checkout@v4
         with:

@@ -48,6 +48,8 @@ def generate_json_file(nwb_file: NWBFile, json_file_path: str) -> None:
     }
     json_str = json.dumps(nwb_metadata, indent=4)
 
+    print('!!!!!!!')
+    print(json_file_path)
     with open(json_file_path, "w") as f:
         f.write(json_str)
 

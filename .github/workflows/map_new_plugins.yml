@@ -55,7 +55,11 @@ jobs:
       - name: Check if layer mapping needed
         id: mappingneeded
         run: |
-         echo "RUN_SCORING=$(jq -r '.run_score' <<< ${{ steps.getpluginfo.outputs.PLUGIN_INFO }})" >> $GITHUB_OUTPUT 
+          # Ensure PLUGIN_INFO is available
+          echo "PLUGIN_INFO is ${{ steps.getplugininfo.outputs.PLUGIN_INFO }}"
+          # Use jq to parse 'run_score' from PLUGIN_INFO
+          RUN_SCORING=$(echo '${{ steps.getplugininfo.outputs.PLUGIN_INFO }}' | jq -r '.run_score')
+          echo "RUN_SCORING=$RUN_SCORING" >> $GITHUB_OUTPUT
 
       - name: Check for automerge-web label
         id: check_label

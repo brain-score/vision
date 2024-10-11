@@ -107,12 +107,14 @@ jobs:
       - name: Trigger Jenkins
         env:
           JENKINS_USER: ${{ secrets.JENKINS_USER }}
-          JENKINS_TOKEN: ${{ secrets.JENKINS_TOKEN }}
-          JENKINS_TRIGGER: ${{ secrets.JENKINS_TRIGGER }}
+          JENKINS_USER_API: $${{ secrets.JENKINS_USER_API }}
+          JENKINS_TOKEN: ${{ secrets.JENKINS_MAPPING_TOKEN }}
+          JENKINS_TRIGGER: ${{ secrets.JENKINS_MAPPING_URL }}
           MODEL_LIST: ${{ env.NEW_MODELS }}
           PR_NUMBER: ${{ env.PR_NUMBER }}
         run: |
-          curl -X POST "$JENKINS_TRIGGER" \
-            --user "$JENKINS_USER:$JENKINS_TOKEN" \
+          curl -X POST "$MAPPING_JENKINS_TRIGGER" \
+            --user "$JENKINS_USER:$JENKINS_USER_API \
             --data-urlencode "NEW_MODELS=$NEW_MODELS" \
-            --data-urlencode "PR_NUMBER=$PR_NUMBER"
+            --data-urlencode "PR_NUMBER=$PR_NUMBER" \
+            --data-urlencode "TOKEN=$JENKINS_MAPPING_TOKEN

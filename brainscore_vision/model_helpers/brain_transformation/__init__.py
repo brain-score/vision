@@ -1,5 +1,7 @@
 import json
 import os
+import logging
+from brainscore_vision.utils import fullname
 from brainscore_core.plugin_management import import_plugin
 from brainscore_vision import load_benchmark
 from brainscore_vision.model_helpers.brain_transformation.temporal import TemporalAligned
@@ -25,6 +27,7 @@ class ModelCommitment(BrainModel):
     def __init__(self, identifier,
                  activations_model, layers, behavioral_readout_layer=None, region_layer_map=None,
                  visual_degrees=8):
+        self._logger = logging.getLogger(fullname(self))
         self.layers = layers
         self.activations_model = activations_model
         # We set the visual degrees of the ActivationsExtractorHelper here to avoid changing its signature.
@@ -73,12 +76,13 @@ class ModelCommitment(BrainModel):
 
             if os.path.exists(region_layer_map_path):
                 with open(region_layer_map_path, 'r') as region_layer_map_file:
+                    self._logger.info(f"Successfully loaded region_layer_map for {identifier}")
                     return json.load(region_layer_map_file)
             else:
-                print(f"No region_layer_map file found for {identifier}, proceeding with default layer mapping")
+                self._logger.info(f"No region_layer_map file found for {identifier}, proceeding with default layer mapping")
                 return None
         except Exception as e:
-            print(f"Error importing model to search for region_layer_map: {e}")
+            self._logger.error(f"Error importing model to search for region_layer_map: {e}")
             return None
 
     def visual_degrees(self) -> int:

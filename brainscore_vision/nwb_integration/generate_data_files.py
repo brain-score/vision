@@ -99,7 +99,7 @@ if __name__ == '__main__':
         '''
         Generate __init__.py file
         '''
-        from test_data_packaging.data_packaging import upload_assembly_to_s3, upload_stimulus_set_to_s3
+        from test_data_packaging.data.data_packaging import upload_assembly_to_s3, upload_stimulus_set_to_s3
         stimuli = get_stimuli(self.dandiset_id, self.nwb_file, self.exp_path, self.params['exp_name'][4:])[0]
         assembly = load_responses(self.nwb_file, self.json_file_path, stimuli, use_QC_data = True, do_filter_neuroids = True, use_brainscore_filter_neuroids_method=True)
         stimuli_info = upload_stimulus_set_to_s3(stimuli)

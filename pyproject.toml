@@ -44,6 +44,10 @@ test = [
     "pytest-mock",
 ]
 
+dev = [
+    "bump-my-version",
+]
+
 [build-system]
 requires = [
     "setuptools>=65.0.0",

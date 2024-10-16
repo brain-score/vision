@@ -1,0 +1,6 @@
+{
+    "V1": "mobilevit.encoder.layer.3",
+    "V2": "mobilevit.encoder.layer.4",
+    "V4": "mobilevit.encoder.layer.3",
+    "IT": "mobilevit.encoder.layer.4"
+}

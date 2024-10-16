@@ -28,6 +28,7 @@ class DataFactory:
         except: pass 
 
         output_dir = os.path.join(self.directory, 'test_data_packaging')
+        os.mkdir(os.path.join(output_dir, 'data'))
         output_dir = os.path.join(output_dir, 'data')
 
         # create and write data packaging code:

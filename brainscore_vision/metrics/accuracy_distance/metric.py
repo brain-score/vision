@@ -1,4 +1,6 @@
 import itertools
+from functools import reduce
+import operator
 
 import numpy as np
 
@@ -20,41 +22,16 @@ class AccuracyDistance(Metric):
     more target-like pattern of performance across conditions.
     """
     def __call__(self, source: BehavioralAssembly, target:
-            BehavioralAssembly, variables: tuple=()) -> Score:
+            BehavioralAssembly, variables: tuple = ()) -> Score:
         """Target should be the entire BehavioralAssembly, containing truth values."""
 
         subjects = self.extract_subjects(target)
         subject_scores = []
         for subject in subjects:
             subject_assembly = target.sel(subject=subject)
-
-            # compute single score across the entire dataset
-            if len(variables) == 0:
-                subject_score = self.compare_single_subject(source, subject_assembly)
-
-            # compute scores for each condition, then average
-            else:
-                cond_scores = []
-
-                # get iterator across all combinations of variables
-                if len(variables) == 1:
-                    conditions = set(subject_assembly[variables[0]].values)
-                    conditions = [[c] for c in conditions]  # to mimic itertools.product
-                else:
-                    conditions = itertools.product(
-                        *[set(subject_assembly[v].values) for v in variables])
-
-                # loop over conditions and compute scores
-                for cond in conditions:
-                    indexers = {v: cond[i] for i, v in enumerate(variables)}
-                    subject_cond_assembly = subject_assembly.sel(**indexers)
-                    source_cond_assembly = source.sel(**indexers)
-                    # to accomodate unbalanced designs, skip combinations of
-                    # variables that don't exist in both assemblies
-                    if len(subject_cond_assembly) and len(source_cond_assembly):
-                        cond_scores.append(self.compare_single_subject(
-                            source_cond_assembly, subject_cond_assembly))
-                subject_score = Score(np.mean(cond_scores))
+            subject_score = self.condition_filtered_score_per_subject_source_pair(source=source,
+                                                                                  subject=subject_assembly,
+                                                                                  variables=variables)
 
             subject_score = subject_score.expand_dims('subject')
             subject_score['subject'] = 'subject', [subject]
@@ -74,7 +51,10 @@ class AccuracyDistance(Metric):
     def compare_single_subject(self, source: BehavioralAssembly, target: BehavioralAssembly):
         source = source.sortby('stimulus_id')
         target = target.sortby('stimulus_id')
-        assert (target['stimulus_id'].values == source['stimulus_id'].values).all()
+
+        # we used to assert stimulus_ids being equal here, but since this is not an image-level metric, and because
+        # some benchmarks (e.g. Coggan2024) show different images from the same categories to humans, the metric
+        # does not guarantee that the stimulus_ids are the same.
 
         # .flatten() because models return lists of lists, and here we compare subject-by-subject
         source_correct = source.values.flatten() == target['truth'].values
@@ -89,13 +69,16 @@ class AccuracyDistance(Metric):
 
         return Score(relative_distance)
 
-    def ceiling(self, assembly):
+    def ceiling(self, assembly, variables = ()):
         subjects = self.extract_subjects(assembly)
         subject_scores = []
         for subject1, subject2 in itertools.combinations(subjects, 2):
             subject1_assembly = assembly.sel(subject=subject1)
             subject2_assembly = assembly.sel(subject=subject2)
-            pairwise_score = self.compare_single_subject(subject1_assembly, subject2_assembly)
+
+            pairwise_score = self.condition_filtered_score_per_subject_source_pair(
+                subject1_assembly, subject2_assembly, variables=variables)
+
             pairwise_score = pairwise_score.expand_dims('subject')
             pairwise_score['subject_left'] = 'subject', [subject1]
             pairwise_score['subject_right'] = 'subject', [subject2]
@@ -107,3 +90,61 @@ class AccuracyDistance(Metric):
 
     def extract_subjects(self, assembly):
         return list(sorted(set(assembly['subject'].values)))
+
+    def condition_filtered_score_per_subject_source_pair(self, source, subject, variables):
+        # compute single score across the entire dataset
+        if len(variables) == 0:
+            subject_score = self.compare_single_subject(source, subject)
+
+        # compute scores for each condition, then average
+        else:
+            cond_scores = []
+            # get iterator across all combinations of variables
+            if len(variables) == 1:
+                conditions = set(subject[variables[0]].values)
+                conditions = [[c] for c in conditions]  # to mimic itertools.product
+            else:
+                # get all combinations of variables that are present in both assemblies
+                conditions = itertools.product(
+                    *[set(subject[v].values).intersection(set(source[v].values)) for v in variables]
+                )
+
+            # loop over conditions and compute scores
+            for cond in conditions:
+                # filter assemblies for selected condition
+                subject_cond_assembly = self.get_condition_filtered_assembly(subject, variables, cond)
+                source_cond_assembly = self.get_condition_filtered_assembly(source, variables, cond)
+                # to accomodate cases where not all conditions are present in both assemblies, filter out
+                #  calculation of the metric for cases where either assembly has no matches to variables (empty)
+                if len(subject_cond_assembly) and len(source_cond_assembly):
+                    # filter the source_cond_assembly to select only the stimulus_ids in the subject_cond_assembly
+                    source_cond_assembly = self.get_stimulus_id_filtered_assembly(
+                        source_cond_assembly,
+                        subject_cond_assembly['stimulus_id'].values
+                    )
+                    cond_scores.append(self.compare_single_subject(
+                        source_cond_assembly, subject_cond_assembly))
+
+            subject_score = Score(np.mean(cond_scores))
+        return subject_score
+
+    @staticmethod
+    def get_condition_filtered_assembly(assembly, variables, cond):
+        # get the indexers for the condition
+        indexers = {v: cond[i] for i, v in enumerate(variables)}
+        # convert indexers into a list of boolean arrays for the assembly values
+        assembly_indexers = [(assembly[key] == value) for key, value in indexers.items()]
+        # combine the different conditions into an AND statement to require all conditions simultaneously
+        condition = reduce(operator.and_, assembly_indexers)
+        # filter the assembly based on the condition
+        condition_filtered_assembly = assembly.where(condition, drop=True)
+        return condition_filtered_assembly
+
+    @staticmethod
+    def get_stimulus_id_filtered_assembly(assembly, stimulus_ids):
+        # Create a boolean condition to match the stimulus_id
+        condition = reduce(operator.or_, [(assembly['stimulus_id'] == stimulus_id) for stimulus_id in stimulus_ids])
+        # Filter the assembly based on the condition
+        condition_filtered_assembly = assembly.where(condition, drop=True)
+        return condition_filtered_assembly
+

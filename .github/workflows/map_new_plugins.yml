@@ -119,8 +119,8 @@ jobs:
       - name: Trigger Jenkins
         if: ${{ steps.mappingneeded.outputs.RUN_MAPPING == 'True' && env.NEW_MODELS != '' }}
         env:
-          JENKINS_USER: ${{ secrets.JENKINS_USER }}
-          JENKINS_USER_API: ${{ secrets.JENKINS_USER_API }}
+          JENKINS_USER: ${{ secrets.JENKINS_MAPPING_USER }}
+          JENKINS_USER_API: ${{ secrets.JENKINS_MAPPING_USER_API }}
           JENKINS_TOKEN: ${{ secrets.JENKINS_MAPPING_TOKEN }}
           JENKINS_TRIGGER: ${{ secrets.JENKINS_MAPPING_URL }}
           # Relevant parameters for the Jenkins job

@@ -51,7 +51,10 @@ class AccuracyDistance(Metric):
     def compare_single_subject(self, source: BehavioralAssembly, target: BehavioralAssembly):
         source = source.sortby('stimulus_id')
         target = target.sortby('stimulus_id')
-        assert (target['stimulus_id'].values == source['stimulus_id'].values).all()
+
+        # we used to assert stimulus_ids being equal here, but since this is not an image-level metric, and because
+        # some benchmarks (e.g. Coggan2024) show different images from the same categories to humans, the metric
+        # does not guarantee that the stimulus_ids are the same.
 
         # .flatten() because models return lists of lists, and here we compare subject-by-subject
         source_correct = source.values.flatten() == target['truth'].values
@@ -107,13 +110,6 @@ class AccuracyDistance(Metric):
                 )
 
             # loop over conditions and compute scores
-            # TODO: 91 conditions?? where do they come from?
-            # TODO: what did which participants do? is grouping across visibility correct or not? it does not look
-            #  like any participants did the same combination of conditions
-
-            # TODO: but the above is with the caveat that the stimulus_id field is NOT actually the stimulus id.
-            #  it contains the subject number and trial number, in addition to a 5-digit number that may or may not
-            #  be the actual stimulus_id. we should filter based on that, but need to clean up the data to do that.
             for cond in conditions:
                 # filter assemblies for selected condition
                 subject_cond_assembly = self.get_condition_filtered_assembly(subject, variables, cond)
@@ -121,6 +117,11 @@ class AccuracyDistance(Metric):
                 # to accomodate cases where not all conditions are present in both assemblies, filter out
                 #  calculation of the metric for cases where either assembly has no matches to variables (empty)
                 if len(subject_cond_assembly) and len(source_cond_assembly):
+                    # filter the source_cond_assembly to select only the stimulus_ids in the subject_cond_assembly
+                    source_cond_assembly = self.get_stimulus_id_filtered_assembly(
+                        source_cond_assembly,
+                        subject_cond_assembly['stimulus_id'].values
+                    )
                     cond_scores.append(self.compare_single_subject(
                         source_cond_assembly, subject_cond_assembly))
 
@@ -136,6 +137,14 @@ class AccuracyDistance(Metric):
         # combine the different conditions into an AND statement to require all conditions simultaneously
         condition = reduce(operator.and_, assembly_indexers)
         # filter the assembly based on the condition
+        condition_filtered_assembly = assembly.where(condition, drop=True)
+        return condition_filtered_assembly
+
+    @staticmethod
+    def get_stimulus_id_filtered_assembly(assembly, stimulus_ids):
+        # Create a boolean condition to match the stimulus_id
+        condition = reduce(operator.or_, [(assembly['stimulus_id'] == stimulus_id) for stimulus_id in stimulus_ids])
+        # Filter the assembly based on the condition
         condition_filtered_assembly = assembly.where(condition, drop=True)
         return condition_filtered_assembly
 

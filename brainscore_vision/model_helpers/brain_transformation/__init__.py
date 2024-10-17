@@ -38,7 +38,6 @@ class ModelCommitment(BrainModel):
         # region-layer mapping
 
         # Attempt to load region_layer_map from JSON, if available
-        print(f"LOADING REGION LAYER MAP")
         region_layer_map = self.load_region_layer_map_json(identifier) if region_layer_map is None else region_layer_map
 
         # If region_layer_map is unavailable
@@ -75,7 +74,6 @@ class ModelCommitment(BrainModel):
             model_dir = importer.locate_plugin()
             project_root = Path(__file__).resolve().parent.parent
             region_layer_map_path = project_root / 'vision' / 'models' / model_dir / 'region_layer_map' / f'{identifier}.json'
-
             if region_layer_map_path.exists():
                 with region_layer_map_path.open('r') as region_layer_map_file:
                     self._logger.info(f"Successfully loaded region_layer_map for {identifier}")

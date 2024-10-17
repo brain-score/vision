@@ -1,5 +1,5 @@
 import json
-import os
+from pathlib import Path
 import logging
 from brainscore_vision.utils import fullname
 from brainscore_core.plugin_management import import_plugin
@@ -38,6 +38,7 @@ class ModelCommitment(BrainModel):
         # region-layer mapping
 
         # Attempt to load region_layer_map from JSON, if available
+        print(f"LOADING REGION LAYER MAP")
         region_layer_map = self.load_region_layer_map_json(identifier) if region_layer_map is None else region_layer_map
 
         # If region_layer_map is unavailable
@@ -72,10 +73,11 @@ class ModelCommitment(BrainModel):
         try:
             importer = import_plugin.ImportPlugin(library_root='brainscore_vision', plugin_type='models', identifier=identifier)
             model_dir = importer.locate_plugin()
-            region_layer_map_path = os.path.join(os.getcwd(), f'vision/models/{model_dir}', f'region_layer_map/{identifier}.json')
+            project_root = Path(__file__).resolve().parent.parent
+            region_layer_map_path = project_root / 'vision' / 'models' / model_dir / 'region_layer_map' / f'{identifier}.json'
 
-            if os.path.exists(region_layer_map_path):
-                with open(region_layer_map_path, 'r') as region_layer_map_file:
+            if region_layer_map_path.exists():
+                with region_layer_map_path.open('r') as region_layer_map_file:
                     self._logger.info(f"Successfully loaded region_layer_map for {identifier}")
                     return json.load(region_layer_map_file)
             else:

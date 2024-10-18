@@ -31,8 +31,10 @@ class Coggan2024_behavior_ConditionWiseLabelingAccuracySimilarity(BenchmarkBase)
         super(Coggan2024_behavior_ConditionWiseLabelingAccuracySimilarity, self).__init__(
             identifier='tong.Coggan2024_behavior-LabelingConditionWiseAccuracySimilarity',
             version=1,
-            ceiling_func=lambda: self._metric.ceiling(self._assembly,
-                                                      variables=['occluder_type', 'visibility', 'occluder_color']),
+            ceiling_func=lambda: self._metric.leave_one_out_ceiling(
+                self._assembly,
+                variables=['occluder_type', 'visibility', 'occluder_color'],
+                chance_level=1/8),
             parent='behavior',
             bibtex=BIBTEX,
         )
@@ -45,7 +47,8 @@ class Coggan2024_behavior_ConditionWiseLabelingAccuracySimilarity(BenchmarkBase)
                                        target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
         labels = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
-        raw_score = self._metric(labels, self._assembly, variables=['occluder_type', 'visibility', 'occluder_color'])
+        raw_score = self._metric(labels, self._assembly, variables=['occluder_type', 'visibility', 'occluder_color'],
+                                 chance_level=1/8)
         ceiling = self.ceiling
         score = raw_score / ceiling
         score.attrs['raw'] = raw_score
@@ -65,8 +68,11 @@ class Coggan2024_behavior_ConditionWiseProbabilitiesAccuracySimilarity(Benchmark
         super(Coggan2024_behavior_ConditionWiseProbabilitiesAccuracySimilarity, self).__init__(
             identifier='tong.Coggan2024_behavior-LabelingConditionWiseAccuracySimilarity',
             version=1,
-            ceiling_func=lambda: self._metric.ceiling(self._assembly,
-                                                      variables=['occluder_type', 'visibility', 'occluder_color']),
+            ceiling_func=lambda: self._metric.ceiling(
+                self._assembly,
+                variables=['occluder_type', 'visibility', 'occluder_color'],
+                chance_level=1/8
+            ),
             parent='behavior',
             bibtex=BIBTEX,
         )
@@ -82,7 +88,8 @@ class Coggan2024_behavior_ConditionWiseProbabilitiesAccuracySimilarity(Benchmark
                                        source_visual_degrees=self._visual_degrees)
         probabilities = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
         labels = [probabilities.choice[c].values for c in probabilities.argmax(axis=1)]
-        raw_score = self._metric(labels, self._assembly, variables=['occluder_type', 'visibility', 'occluder_color'])
+        raw_score = self._metric(labels, self._assembly, variables=['occluder_type', 'visibility', 'occluder_color'],
+                                 chance_level=1/8)
         ceiling = self.ceiling
         score = raw_score / ceiling
         score.attrs['raw'] = raw_score

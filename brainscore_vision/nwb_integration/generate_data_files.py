@@ -176,4 +176,4 @@ def test_stimulus_set():
                 for file in files:
                     file_path = os.path.join(root, file)
                     relative_path = os.path.relpath(file_path, os.path.dirname(folder_path))
-                    zipf.write(file_path, os.path.join(os.path.basename(folder_path), relative_path))
+                    zipf.write(file_path, relative_path)

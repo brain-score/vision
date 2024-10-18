@@ -3,6 +3,7 @@ from functools import reduce
 import operator
 
 import numpy as np
+import xarray as xr
 
 from brainio.assemblies import BehavioralAssembly
 from brainscore_core import Metric
@@ -22,9 +23,9 @@ class AccuracyDistance(Metric):
     more target-like pattern of performance across conditions.
     """
     def __call__(self, source: BehavioralAssembly, target:
-            BehavioralAssembly, variables: tuple = ()) -> Score:
+            BehavioralAssembly, variables: tuple = (), chance_level = 0.) -> Score:
         """Target should be the entire BehavioralAssembly, containing truth values."""
-
+        self.chance_level = chance_level
         subjects = self.extract_subjects(target)
         subject_scores = []
         for subject in subjects:
@@ -55,21 +56,26 @@ class AccuracyDistance(Metric):
         # we used to assert stimulus_ids being equal here, but since this is not an image-level metric, and because
         # some benchmarks (e.g. Coggan2024) show different images from the same categories to humans, the metric
         # does not guarantee that the stimulus_ids are the same.
-
         # .flatten() because models return lists of lists, and here we compare subject-by-subject
         source_correct = source.values.flatten() == target['truth'].values
         target_correct = target.values == target['truth'].values
         source_mean = sum(source_correct) / len(source_correct)
         target_mean = sum(target_correct) / len(target_correct)
 
-        maximum_distance = np.max([1 - target_mean, target_mean])
+        relative_distance = self.distance_measure(source_mean, target_mean)
+
+        return Score(relative_distance)
+
+    def distance_measure(self, source_mean, target_mean):
+        maximum_distance = np.max([1 - target_mean, target_mean - self.chance_level])
         # get the proportion of the distance between the source and target accuracies, adjusted for the maximum possible
         # difference between the two accuracies
         relative_distance = 1 - np.abs(source_mean - target_mean) / maximum_distance
 
-        return Score(relative_distance)
+        return relative_distance
 
-    def ceiling(self, assembly, variables = ()):
+    def ceiling(self, assembly, variables = (), chance_level = 0.):
+        self.chance_level = chance_level
         subjects = self.extract_subjects(assembly)
         subject_scores = []
         for subject1, subject2 in itertools.combinations(subjects, 2):
@@ -87,6 +93,29 @@ class AccuracyDistance(Metric):
         subject_scores = Score.merge(*subject_scores)
         subject_scores = apply_aggregate(aggregate_fnc=self.aggregate, values=subject_scores)
         return subject_scores
+
+    def leave_one_out_ceiling(self, assembly, variables = (), chance_level = 0.):
+        self.chance_level = chance_level
+        # convert the above to a working xarray implementation with variables
+        subjects = self.extract_subjects(assembly)
+        subject_scores = []
+        for subject in subjects:
+            subject_assembly = assembly.sel(subject=subject)
+            other_subjects = [s for s in subjects if s != subject]
+            other_assemblies = assembly.isel(presentation=assembly.subject.isin(other_subjects))
+            # merge other_assemblies from a list to a single assembly
+            group_correct = other_assemblies.multi_groupby(variables).apply(lambda x: x['human_accuracy'].mean())
+            subject_correct = subject_assembly.multi_groupby(variables).apply(lambda x: x['human_accuracy'].mean())
+            for i, group in enumerate(group_correct.values):
+                pairwise_score = self.distance_measure(subject_correct.values[i], group)
+                subject_scores.append(Score(pairwise_score))
+
+        score = np.mean(subject_scores)
+        error = np.std(subject_scores)
+        score = Score(score)
+        score.attrs['error'] = error
+        score.attrs['raw'] = subject_scores
+        return score
 
     def extract_subjects(self, assembly):
         return list(sorted(set(assembly['subject'].values)))

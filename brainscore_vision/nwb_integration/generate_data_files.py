@@ -51,7 +51,7 @@ class DataFactory:
         self.write_code_into_file(test_code, test_path)
         self._logger.debug('Finished writing test.py')
 
-        # os.system('mv test_data_packaging/ ../data/test_data_packaging')
+        os.system(f'mv test_data_packaging/data/data_packaging test_data_packaging/data/{self.identifier}')
 
         # generate zip file
         # path = Path(__file__).resolve().parent.parent

@@ -23,13 +23,11 @@ BIBTEX = """@article {
 class Coggan2024_behavior_ConditionWiseLabelingAccuracySimilarity(BenchmarkBase):
     def __init__(self):
         self._metric = load_metric('accuracy_distance')
-        self._fitting_stimuli = load_stimulus_set('Coggan2024_behavior_fitting')  # this fails is wrapped by LazyLoad
         self._assembly = LazyLoad(lambda: load_dataset('Coggan2024_behavior'))
         self._assembly['truth'] = self._assembly['object_class']  # the assembly is missing a 'truth' column which is
                                                                   #  required by the labeling task
         self._visual_degrees = 10
         self._number_of_trials = 1
-        self._ceiling_func = lambda assembly: get_noise_ceiling(assembly)
         super(Coggan2024_behavior_ConditionWiseLabelingAccuracySimilarity, self).__init__(
             identifier='tong.Coggan2024_behavior-LabelingConditionWiseAccuracySimilarity',
             version=1,
@@ -47,6 +45,43 @@ class Coggan2024_behavior_ConditionWiseLabelingAccuracySimilarity(BenchmarkBase)
                                        target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
         labels = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
+        raw_score = self._metric(labels, self._assembly, variables=['occluder_type', 'visibility', 'occluder_color'])
+        ceiling = self.ceiling
+        score = raw_score / ceiling
+        score.attrs['raw'] = raw_score
+        score.attrs['ceiling'] = ceiling
+        return score
+
+
+class Coggan2024_behavior_ConditionWiseProbabilitiesAccuracySimilarity(BenchmarkBase):
+    def __init__(self):
+        self._metric = load_metric('accuracy_distance')
+        self._fitting_stimuli = load_stimulus_set('Coggan2024_behavior_fitting')  # this fails is wrapped by LazyLoad
+        self._assembly = LazyLoad(lambda: load_dataset('Coggan2024_behavior'))
+        self._assembly['truth'] = self._assembly['object_class']  # the assembly is missing a 'truth' column which is
+                                                                  #  required by the labeling task
+        self._visual_degrees = 10
+        self._number_of_trials = 1
+        super(Coggan2024_behavior_ConditionWiseProbabilitiesAccuracySimilarity, self).__init__(
+            identifier='tong.Coggan2024_behavior-LabelingConditionWiseAccuracySimilarity',
+            version=1,
+            ceiling_func=lambda: self._metric.ceiling(self._assembly,
+                                                      variables=['occluder_type', 'visibility', 'occluder_color']),
+            parent='behavior',
+            bibtex=BIBTEX,
+        )
+
+    def __call__(self, candidate: BrainModel):
+        fitting_stimuli = place_on_screen(
+            self._fitting_stimuli,
+            target_visual_degrees=candidate.visual_degrees(),
+            source_visual_degrees=self._visual_degrees)
+        candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli)
+        stimulus_set = place_on_screen(self._assembly.stimulus_set,
+                                       target_visual_degrees=candidate.visual_degrees(),
+                                       source_visual_degrees=self._visual_degrees)
+        probabilities = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
+        labels = [probabilities.choice[c].values for c in probabilities.argmax(axis=1)]
         raw_score = self._metric(labels, self._assembly, variables=['occluder_type', 'visibility', 'occluder_color'])
         ceiling = self.ceiling
         score = raw_score / ceiling

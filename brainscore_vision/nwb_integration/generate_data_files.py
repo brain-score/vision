@@ -19,7 +19,6 @@ class DataFactory:
         self.nwb_file   = validate_nwb_file(self.nwb_file_path, dandiset_id=self.dandiset_id)
         self.json_file_path = os.path.join(self.exp_path, "nwb_metadata.json")
         generate_json_file(self.nwb_file, self.json_file_path)
-        # input("Validate the values in the generated JSON file are correct, or edit the file. Press Enter to continue.")
         with open(self.json_file_path, 'r') as f:
             self.params = json.load(f)
 
@@ -54,8 +53,6 @@ class DataFactory:
         os.system(f'mv test_data_packaging/data/data_packaging test_data_packaging/data/{self.identifier}')
 
         # generate zip file
-        # path = Path(__file__).resolve().parent.parent
-        # os.chdir(os.path.join(path, 'data'))
         folder_to_zip = 'test_data_packaging'
         output_zip_file = 'test_data_packaging.zip'
         self.zip_files(folder_to_zip, output_zip_file)

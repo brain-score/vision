@@ -77,7 +77,7 @@ class DataFactory:
             array = scratch.strip('[]').split()
             print(f'array: {array}')
             print(f'array type: {type(array)}')
-            print(f'user info: {[self.assembly['start_time_ms'], self.assembly['stop_time_ms'], self.assembly['tb_ms']]}')
+            print(f"user info: {[self.assembly['start_time_ms'], self.assembly['stop_time_ms'], self.assembly['tb_ms']]}")
             assert array == [self.assembly['start_time_ms'], self.assembly['stop_time_ms'], self.assembly['tb_ms']]
         except:
             self._logger.warning('Unable to extract PSTHs_QualityApproved_ZScored_SessionMerged scratch data')

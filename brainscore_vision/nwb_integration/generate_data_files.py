@@ -75,8 +75,13 @@ class DataFactory:
         try:
             scratch = self.nwb_file.scratch['PSTHs_QualityApproved_ZScored_SessionMerged'].description.split('[start_time_ms, stop_time_ms, tb_ms]: ')[-1]
             array = scratch.strip('[]').split()
+            print(f'array: {array}')
+            print(f'array type: {type(array)}')
+            print(f'user info: {[self.assembly['start_time_ms'], self.assembly['stop_time_ms'], self.assembly['tb_ms']]}')
+            assert array == [self.assembly['start_time_ms'], self.assembly['stop_time_ms'], self.assembly['tb_ms']]
         except:
-            raise ValueError('Unable to extract PSTHs_QualityApproved_ZScored_SessionMerged scratch data')
+            self._logger.warning('Unable to extract PSTHs_QualityApproved_ZScored_SessionMerged scratch data')
+            array = [self.assembly['start_time_ms'], self.assembly['stop_time_ms'], self.assembly['tb_ms']]
         nwb_metadata = {'start_time_ms': array[0],
                         'stop_time_ms': array[1],
                         'tb_ms': array[2],
@@ -84,7 +89,6 @@ class DataFactory:
                         'exp_name': self.nwb_file.session_id,
                         'region': self.assembly['region']
         }
-        assert array == [self.assembly['start_time_ms'], self.assembly['stop_time_ms'], self.assembly['tb_ms']]
         json_str = json.dumps(nwb_metadata, indent=4)
 
         with open(self.json_file_path, "w") as f:

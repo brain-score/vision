@@ -1,6 +1,6 @@
 from pathlib import Path
 from dandi_to_stimulus_set import get_stimuli
-from extract_nwb_data import generate_json_file, validate_nwb_file
+from extract_nwb_data import validate_nwb_file
 from create_assembly import load_responses
 from brainscore_vision.model_helpers.utils import fullname
 
@@ -18,7 +18,7 @@ class DataFactory:
 
         self.nwb_file   = validate_nwb_file(self.nwb_file_path, dandiset_id=self.dandiset_id)
         self.json_file_path = os.path.join(self.exp_path, "nwb_metadata.json")
-        generate_json_file(self.nwb_file, self.json_file_path)
+        self.generate_json_file()
         with open(self.json_file_path, 'r') as f:
             self.params = json.load(f)
 
@@ -67,6 +67,27 @@ class DataFactory:
 
         self.assembly = self.user_json['assembly']
         self.stimulus_set = self.user_json['stimulus_set']
+
+    def generate_json_file(self) -> None:
+        '''
+        Extracts metadata from NWB file and writes to a JSON
+        '''
+        try:
+            scratch = self.nwb_file.scratch['PSTHs_QualityApproved_ZScored_SessionMerged'].description.split('[start_time_ms, stop_time_ms, tb_ms]: ')[-1]
+            array = scratch.strip('[]').split()
+        except:
+            raise ValueError('Unable to extract PSTHs_QualityApproved_ZScored_SessionMerged scratch data')
+        nwb_metadata = {'start_time_ms': array[0],
+                        'stop_time_ms': array[1],
+                        'tb_ms': array[2],
+                        'subject': self.nwb_file.subject.subject_id,
+                        'exp_name': self.nwb_file.session_id,
+                        'region': self.assembly['region']
+        }
+        json_str = json.dumps(nwb_metadata, indent=4)
+
+        with open(self.json_file_path, "w") as f:
+            f.write(json_str)
 
     def generate_data_packaging_code(self) -> str:
         '''

@@ -34,26 +34,6 @@ def validate_nwb_file(nwb_file_path: str, dandiset_id: str = None) -> NWBFile:
     else:
         raise ValueError('Type of NWB file not accepted, needs to contain electrode data.')
 
-def generate_json_file(nwb_file: NWBFile, json_file_path: str) -> None:
-    '''
-    Extracts metadata from NWB file and writes to a JSON
-    '''
-    try:
-        scratch = nwb_file.scratch['PSTHs_QualityApproved_ZScored_SessionMerged'].description.split('[start_time_ms, stop_time_ms, tb_ms]: ')[-1]
-        array = scratch.strip('[]').split()
-    except:
-        raise ValueError('Unable to extract PSTHs_QualityApproved_ZScored_SessionMerged scratch data')
-    nwb_metadata = {'start_time_ms': array[0],
-                    'stop_time_ms': array[1],
-                    'tb_ms': array[2],
-                    'subject': nwb_file.subject.subject_id,
-                    'exp_name': nwb_file.session_id
-    }
-    json_str = json.dumps(nwb_metadata, indent=4)
-
-    with open(json_file_path, "w") as f:
-        f.write(json_str)
-
 def stream_from_dandi(dandiset_id: str, filepath: str) -> NWBFile:
     '''
     Streams NWB file from DANDI using the DandiAPIClient

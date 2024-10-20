@@ -84,6 +84,7 @@ class DataFactory:
                         'exp_name': self.nwb_file.session_id,
                         'region': self.assembly['region']
         }
+        assert array == [self.assembly['start_time_ms'], self.assembly['stop_time_ms'], self.assembly['tb_ms']]
         json_str = json.dumps(nwb_metadata, indent=4)
 
         with open(self.json_file_path, "w") as f:

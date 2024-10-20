@@ -30,6 +30,10 @@ def get_neuroids(nwb_file: NWBFile, subject: str) -> pd.DataFrame:
             data_dict['col'] = location_match.group(2)
             data_dict['row'] = location_match.group(1)
             data_dict['elec'] = location_match.group(3) 
+        else:
+            data_dict['col'] = None
+            data_dict['row'] = None
+            data_dict['elec'] = None
 
         serialnumer = group_item.description.split('Serialnumber: ')[-1]
         data_dict['arr'] = serialnumer
@@ -39,6 +43,10 @@ def get_neuroids(nwb_file: NWBFile, subject: str) -> pd.DataFrame:
             data_dict['hemisphere']  = group_match.group(1)
             data_dict['region']  = group_match.group(2)
             data_dict['subregion'] = group_match.group(3)
+        else:
+            data_dict['hemisphere'] = None
+            data_dict['region'] = None
+            data_dict['subregion'] = None
         
         data_dict['bank']  = bank_item.split('_')[-1]
         data_dict['animal'] = subject

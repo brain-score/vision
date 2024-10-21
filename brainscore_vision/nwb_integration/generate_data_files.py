@@ -75,10 +75,8 @@ class DataFactory:
         try:
             scratch = self.nwb_file.scratch['PSTHs_QualityApproved_ZScored_SessionMerged'].description.split('[start_time_ms, stop_time_ms, tb_ms]: ')[-1]
             array = scratch.strip('[]').split()
-            print(f'array: {array}')
-            print(f'array type: {type(array)}')
-            print(f"user info: {[self.assembly['start_time_ms'], self.assembly['stop_time_ms'], self.assembly['tb_ms']]}")
-            assert array == [self.assembly['start_time_ms'], self.assembly['stop_time_ms'], self.assembly['tb_ms']]
+            user_info = [self.assembly['start_time_ms'], self.assembly['stop_time_ms'], self.assembly['tb_ms']]
+            assert list(map(str, array)) == list(map(str, user_info))
         except:
             self._logger.warning('Unable to extract PSTHs_QualityApproved_ZScored_SessionMerged scratch data')
             array = [self.assembly['start_time_ms'], self.assembly['stop_time_ms'], self.assembly['tb_ms']]

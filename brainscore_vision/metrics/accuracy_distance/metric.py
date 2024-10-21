@@ -128,32 +128,17 @@ class AccuracyDistance(Metric):
         # compute scores for each condition, then average
         else:
             cond_scores = []
-            # get iterator across all combinations of variables
-            if len(variables) == 1:
-                conditions = set(subject[variables[0]].values)
-                conditions = [[c] for c in conditions]  # to mimic itertools.product
-            else:
-                # get all combinations of variables that are present in both assemblies
-                conditions = itertools.product(
-                    *[set(subject[v].values).intersection(set(source[v].values)) for v in variables]
-                )
-
-            # loop over conditions and compute scores
-            for cond in conditions:
-                # filter assemblies for selected condition
-                subject_cond_assembly = self.get_condition_filtered_assembly(subject, variables, cond)
-                source_cond_assembly = self.get_condition_filtered_assembly(source, variables, cond)
-                # to accomodate cases where not all conditions are present in both assemblies, filter out
-                #  calculation of the metric for cases where either assembly has no matches to variables (empty)
-                if len(subject_cond_assembly['presentation']) and len(source_cond_assembly['presentation']):
-                    # filter the source_cond_assembly to select only the stimulus_ids in the subject_cond_assembly
-                    if len(source_cond_assembly['presentation']) > len(subject_cond_assembly['presentation']):
-                        source_cond_assembly = self.get_stimulus_id_filtered_assembly(
-                            source_cond_assembly,
-                            subject_cond_assembly['stimulus_id'].values
-                        )
-                    cond_scores.append(self.compare_single_subject(
-                        source_cond_assembly, subject_cond_assembly))
+            source = self.get_stimulus_id_filtered_assembly(
+                source,
+                subject['stimulus_id'].values
+            )
+            # add a new coordinate to the source assembly that measures the accuracy of the model
+            source['is_correct'] = 'presentation', *(source['label'].values == source.values)
+            source_correct = source.multi_groupby(variables).apply(lambda x: x['is_correct'].mean())
+            subject_correct = subject.multi_groupby(variables).apply(lambda x: x['human_accuracy'].mean())
+            for i, this_source_correct in enumerate(source_correct.values):
+                condition_score = self.distance_measure(this_source_correct, subject_correct.values[i])
+                cond_scores.append(Score(condition_score))
 
             subject_score = Score(np.mean(cond_scores))
         return subject_score
@@ -172,9 +157,9 @@ class AccuracyDistance(Metric):
 
     @staticmethod
     def get_stimulus_id_filtered_assembly(assembly, stimulus_ids):
-        # Create a boolean condition to match the stimulus_id
-        condition = reduce(operator.or_, [(assembly['stimulus_id'] == stimulus_id) for stimulus_id in stimulus_ids])
-        # Filter the assembly based on the condition
-        condition_filtered_assembly = assembly.where(condition, drop=True)
+        # find the indices of the stimulus_ids in the assembly quickly
+        condition = xr.DataArray(np.isin(assembly['stimulus_id'].values, stimulus_ids),
+                                 dims=assembly['stimulus_id'].dims)
+        # Apply the condition with `where`
+        condition_filtered_assembly = BehavioralAssembly(assembly.where(condition, drop=True))
         return condition_filtered_assembly
-

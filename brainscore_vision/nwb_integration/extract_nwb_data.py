@@ -1,4 +1,3 @@
-import json
 import h5py
 import logging
 import remfile
@@ -10,17 +9,19 @@ from pynwb.file import NWBFile
 
 logger = logging.getLogger(__name__)
 
-### Load nwb file
 def load_nwb_file(nwb_file_path: str) -> NWBFile:
+    #-----------------------------------------------------------------------------------------------------------------------------
+    # Load nwb file
+    #-----------------------------------------------------------------------------------------------------------------------------
     logger.info("Loading the NWB file ...")
     io = NWBHDF5IO(nwb_file_path, "r") 
     nwb_file = io.read()    
     return nwb_file
     
 def validate_nwb_file(nwb_file_path: str, dandiset_id: str = None) -> NWBFile:
-    '''
-    Check if the provided NWB file contains PSTH electrode data
-    '''
+    #-----------------------------------------------------------------------------------------------------------------------------
+    # Check if the provided NWB file contains PSTH electrode data
+    #-----------------------------------------------------------------------------------------------------------------------------
     try:
         nwb_file = load_nwb_file(nwb_file_path)
     except:
@@ -35,9 +36,9 @@ def validate_nwb_file(nwb_file_path: str, dandiset_id: str = None) -> NWBFile:
         raise ValueError('Type of NWB file not accepted, needs to contain electrode data.')
 
 def stream_from_dandi(dandiset_id: str, filepath: str) -> NWBFile:
-    '''
-    Streams NWB file from DANDI using the DandiAPIClient
-    '''
+    #-----------------------------------------------------------------------------------------------------------------------------
+    # Streams NWB file from DANDI using the DandiAPIClient
+    #-----------------------------------------------------------------------------------------------------------------------------
     logger.info('Streaming the NWB file from DANDI ...')
     with DandiAPIClient() as client:
         client.dandi_authenticate()

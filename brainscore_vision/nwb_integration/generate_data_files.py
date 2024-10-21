@@ -69,9 +69,9 @@ class DataFactory:
         self.stimulus_set = self.user_json['stimulus_set']
 
     def generate_json_file(self) -> None:
-        '''
-        Extracts metadata from NWB file and writes to a JSON
-        '''
+        #-----------------------------------------------------------------------------------------------------------------------------
+        # Extracts metadata from NWB file and writes to a JSON
+        #-----------------------------------------------------------------------------------------------------------------------------
         try:
             scratch = self.nwb_file.scratch['PSTHs_QualityApproved_ZScored_SessionMerged'].description.split('[start_time_ms, stop_time_ms, tb_ms]: ')[-1]
             array = scratch.strip('[]').split()
@@ -93,10 +93,9 @@ class DataFactory:
             f.write(json_str)
 
     def generate_data_packaging_code(self) -> str:
-        '''
-        Generate data_packaging.py file
-        '''
-
+        #-----------------------------------------------------------------------------------------------------------------------------
+        # Generate contents of data_packaging.py file
+        #-----------------------------------------------------------------------------------------------------------------------------
         data_packaging_code = f"""from brainio.packaging import package_stimulus_set, package_data_assembly
 from brainscore_vision import load_dataset, load_stimulus_set
 
@@ -119,9 +118,9 @@ if __name__ == '__main__':
         return data_packaging_code
 
     def generate_init_code(self) -> str:
-        '''
-        Generate __init__.py file
-        '''
+        #-----------------------------------------------------------------------------------------------------------------------------
+        # Generate contents of __init__.py file
+        #-----------------------------------------------------------------------------------------------------------------------------
         from test_data_packaging.data.data_packaging.data_packaging import upload_assembly_to_s3, upload_stimulus_set_to_s3
         stimuli = get_stimuli(self.dandiset_id, self.nwb_file, self.exp_path, self.params['exp_name'][4:])[0]
         assembly = load_responses(self.nwb_file, self.json_file_path, stimuli, use_QC_data = True, do_filter_neuroids = True, use_brainscore_filter_neuroids_method=True)
@@ -156,9 +155,9 @@ data_registry["{assembly_info['identifier']}"] = lambda: load_assembly_from_s3(
         return init_code
 
     def generate_test_code(self) -> str:
-        '''
-        Generate test.py file
-        '''
+        #-----------------------------------------------------------------------------------------------------------------------------
+        # Generate contents of test.py file
+        #-----------------------------------------------------------------------------------------------------------------------------
         test_code = f"""import pytest
 
 from brainscore_vision import load_dataset, load_stimulus_set
@@ -189,9 +188,9 @@ def test_stimulus_set():
             f.write(file_code)
 
     def zip_files(self, folder_path: str, output_zip_path: str) -> None:
-        '''
-        Zip files in folder_path
-        '''
+        #-----------------------------------------------------------------------------------------------------------------------------
+        # Zip files in folder_path
+        #-----------------------------------------------------------------------------------------------------------------------------
         with zipfile.ZipFile(output_zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
             for root, _, files in os.walk(folder_path):
                 for file in files:

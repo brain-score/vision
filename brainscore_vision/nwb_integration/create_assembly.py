@@ -65,9 +65,9 @@ def get_neuroids(nwb_file: NWBFile, subject: str) -> pd.DataFrame:
     return neuroid_meta
 
 def get_QC_neurids(nwb_file: NWBFile) -> Tuple[np.array, np.array]:
-    '''
-    This Method uses logical OR to find the common QC channels. (Closer to the BrainScore Method)
-    '''
+    #-----------------------------------------------------------------------------------------------------------------------------
+    # This Method uses logical OR to find the common QC channels. (Closer to the BrainScore Method)
+    #-----------------------------------------------------------------------------------------------------------------------------
     psth = nwb_file.scratch['PSTHs_ZScored_SessionMerged'][:]
     common_QC_channels = np.logical_and.reduce(nwb_file.scratch['QualityApprovedChannelMasks'])
     channel_masks_day = nwb_file.scratch['QualityApprovedChannelMasks'][:]

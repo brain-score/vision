@@ -12,16 +12,18 @@ from typing import Tuple
 
 logger = logging.getLogger(__name__)
 
-def extract_number(filename: str) -> int: 
+def extract_number(filename: str) -> int:
+    #-----------------------------------------------------------------------------------------------------------------------------
     # Extract the number from the filename and return it as an integer
+    #-----------------------------------------------------------------------------------------------------------------------------
     match = re.search(r'\d+', filename)
     return int(match.group()) if match else 0
 
 def get_video_stimulus_set(dandiset_id: int, exp_path: str) -> list:
-    '''
-    Parses through video stimuli and returns list of paths. Attempts iterating through 
-    local file then if unable to do so, attempts streaming from DANDI.
-    '''
+    #-----------------------------------------------------------------------------------------------------------------------------
+    # Parses through video stimuli and returns list of paths. Attempts iterating through 
+    # local file then if unable to do so, attempts streaming from DANDI.
+    #-----------------------------------------------------------------------------------------------------------------------------
     video_paths = []
     try:
         list_videos = sorted(os.listdir(os.path.join(exp_path, 'VideoStimulusSet')),key = extract_number)
@@ -53,9 +55,9 @@ def get_video_stimulus_set(dandiset_id: int, exp_path: str) -> list:
     return video_paths
 
 def get_stimuli(dandiset_id: str, nwb_file: NWBFile, experiment_path: str, exp_name: str) -> Tuple[StimulusSet, list]:
-    ''''
-    Iterates over the stimuli and packages a StimulusSet with the corresponding information
-    '''
+    #-----------------------------------------------------------------------------------------------------------------------------
+    # Iterates over the stimuli and packages a StimulusSet with the corresponding information
+    #-----------------------------------------------------------------------------------------------------------------------------
     stimuli          = []
     stimulus_id      = 0
 

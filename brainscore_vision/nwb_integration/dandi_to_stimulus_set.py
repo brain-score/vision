@@ -1,6 +1,5 @@
 import os, re
 import logging
-
 from brainio.stimuli import StimulusSet
 from dandi.dandiapi import DandiAPIClient
 from pathlib import Path

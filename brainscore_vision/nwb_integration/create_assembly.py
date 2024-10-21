@@ -2,7 +2,6 @@ import re, json
 import numpy as np
 import pandas as pd
 import xarray as xr
-
 from brainio.assemblies import NeuronRecordingAssembly
 from brainio.stimuli import StimulusSet
 from brainscore_vision import load_ceiling
@@ -205,7 +204,6 @@ def load_responses(nwb_file: NWBFile, json_file_path: str,
     # Add other experiment related info
     assembly.attrs['image_size_degree'] = 8
     assembly.attrs['stim_on_time_ms'] = 100
-
     assembly.attrs['stimulus_set'] = stimuli
 
     return assembly

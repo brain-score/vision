@@ -1,7 +1,6 @@
 import h5py
 import logging
 import remfile
-
 from dandi.dandiapi import DandiAPIClient
 from pynwb import NWBHDF5IO
 from pynwb.file import NWBFile

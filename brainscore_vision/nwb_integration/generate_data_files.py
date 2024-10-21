@@ -3,7 +3,6 @@ from dandi_to_stimulus_set import get_stimuli
 from extract_nwb_data import validate_nwb_file
 from create_assembly import load_responses
 from brainscore_vision.model_helpers.utils import fullname
-
 import os, json
 import logging
 import zipfile
@@ -59,6 +58,9 @@ class DataFactory:
         self._logger.debug('Finished zipping files')
 
     def parse_json(self):
+        #-----------------------------------------------------------------------------------------------------------------------------
+        # Extract values from JSON provided by user
+        #-----------------------------------------------------------------------------------------------------------------------------
         self.dandiset_id = self.user_json['dandiset_id']
         self.directory = self.user_json['exp_path']
         self.exp_path = self.user_json['exp_path']
@@ -70,7 +72,7 @@ class DataFactory:
 
     def generate_json_file(self) -> None:
         #-----------------------------------------------------------------------------------------------------------------------------
-        # Extracts metadata from NWB file and writes to a JSON
+        # Extract metadata from NWB file and writes to a JSON
         #-----------------------------------------------------------------------------------------------------------------------------
         try:
             scratch = self.nwb_file.scratch['PSTHs_QualityApproved_ZScored_SessionMerged'].description.split('[start_time_ms, stop_time_ms, tb_ms]: ')[-1]

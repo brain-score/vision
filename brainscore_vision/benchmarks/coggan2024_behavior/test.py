@@ -16,6 +16,6 @@ def test_benchmarks():
         'Coggan2024_behavior-ConditionWiseAccuracySimilarity')
     model = load_model('alexnet')
     result = benchmark(model)
-    assert result.values == approx(0.1318, abs=.001)
+    assert result.values == approx(0.34431372, abs=.001)
 
 

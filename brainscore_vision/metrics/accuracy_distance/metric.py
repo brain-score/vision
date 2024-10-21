@@ -144,18 +144,6 @@ class AccuracyDistance(Metric):
         return subject_score
 
     @staticmethod
-    def get_condition_filtered_assembly(assembly, variables, cond):
-        # get the indexers for the condition
-        indexers = {v: cond[i] for i, v in enumerate(variables)}
-        # convert indexers into a list of boolean arrays for the assembly values
-        assembly_indexers = [(assembly[key] == value) for key, value in indexers.items()]
-        # combine the different conditions into an AND statement to require all conditions simultaneously
-        condition = reduce(operator.and_, assembly_indexers)
-        # filter the assembly based on the condition
-        condition_filtered_assembly = assembly.where(condition, drop=True)
-        return condition_filtered_assembly
-
-    @staticmethod
     def get_stimulus_id_filtered_assembly(assembly, stimulus_ids):
         # find the indices of the stimulus_ids in the assembly quickly
         condition = xr.DataArray(np.isin(assembly['stimulus_id'].values, stimulus_ids),

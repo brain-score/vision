@@ -13,6 +13,7 @@ def load_nwb_file(dandiset_id:str, nwb_file_path: str) -> NWBFile:
     # Load nwb file
     #-----------------------------------------------------------------------------------------------------------------------------
     logger.info("Loading the NWB file ...")
+    print(f'/home/ubuntu/{dandiset_id}/{nwb_file_path}')
     io = NWBHDF5IO(f'/home/ubuntu/{dandiset_id}/{nwb_file_path}', "r") 
     nwb_file = io.read()    
     return nwb_file
@@ -24,7 +25,8 @@ def validate_nwb_file(nwb_file_path: str, dandiset_id: str = None) -> NWBFile:
     try:
         print('in try')
         nwb_file = load_nwb_file(dandiset_id, nwb_file_path)
-    except:
+    except Exception as e:
+        print(e)
         print('in except')
         try:
             nwb_file = stream_from_dandi(dandiset_id, nwb_file_path)

@@ -5,6 +5,8 @@ from dandi.dandiapi import DandiAPIClient
 from pynwb import NWBHDF5IO
 from pynwb.file import NWBFile
 
+import os
+
 
 logger = logging.getLogger(__name__)
 
@@ -13,6 +15,8 @@ def load_nwb_file(dandiset_id:str, nwb_file_path: str) -> NWBFile:
     # Load nwb file
     #-----------------------------------------------------------------------------------------------------------------------------
     logger.info("Loading the NWB file ...")
+    print(os.getcwd())
+    print(os.listdir('/home/ubuntu/'))
     print(f'/home/ubuntu/vision/{dandiset_id}/{nwb_file_path}')
     io = NWBHDF5IO(f'/home/ubuntu/vision/{dandiset_id}/{nwb_file_path}', "r") 
     nwb_file = io.read()    

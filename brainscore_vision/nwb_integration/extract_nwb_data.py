@@ -16,9 +16,9 @@ def load_nwb_file(dandiset_id:str, nwb_file_path: str) -> NWBFile:
     #-----------------------------------------------------------------------------------------------------------------------------
     logger.info("Loading the NWB file ...")
     print(os.getcwd())
-    print(os.listdir('/home/ubuntu/'))
-    print(f'/home/ubuntu/vision/{dandiset_id}/{nwb_file_path}')
-    io = NWBHDF5IO(f'/home/ubuntu/vision/{dandiset_id}/{nwb_file_path}', "r") 
+    print(os.listdir('../../'))
+    print(f'../../{dandiset_id}/{nwb_file_path}')
+    io = NWBHDF5IO(f'../../vision/{dandiset_id}/{nwb_file_path}', "r") 
     nwb_file = io.read()    
     return nwb_file
     

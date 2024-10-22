@@ -40,9 +40,9 @@ def get_layers(name):
     return layer_names[1:]
 
 def get_model(name):
-    assert name == 'my_custom_model'
+    assert name == 'Yassine-test-1'
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
-    wrapper = PytorchWrapper(identifier='my_custom_model', model=YassineTest1(), preprocessing=preprocessing)
+    wrapper = PytorchWrapper(identifier='Yassine-test-1', model=YassineTest1(), preprocessing=preprocessing)
     wrapper.image_size = 224
     return wrapper
 

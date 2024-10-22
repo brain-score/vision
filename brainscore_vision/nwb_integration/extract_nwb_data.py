@@ -8,12 +8,12 @@ from pynwb.file import NWBFile
 
 logger = logging.getLogger(__name__)
 
-def load_nwb_file(nwb_file_path: str) -> NWBFile:
+def load_nwb_file(dandiset_id:str, nwb_file_path: str) -> NWBFile:
     #-----------------------------------------------------------------------------------------------------------------------------
     # Load nwb file
     #-----------------------------------------------------------------------------------------------------------------------------
     logger.info("Loading the NWB file ...")
-    io = NWBHDF5IO(nwb_file_path, "r") 
+    io = NWBHDF5IO(f'/home/ubuntu/{dandiset_id}/{nwb_file_path}', "r") 
     nwb_file = io.read()    
     return nwb_file
     
@@ -22,8 +22,10 @@ def validate_nwb_file(nwb_file_path: str, dandiset_id: str = None) -> NWBFile:
     # Check if the provided NWB file contains PSTH electrode data
     #-----------------------------------------------------------------------------------------------------------------------------
     try:
-        nwb_file = load_nwb_file(nwb_file_path)
+        print('in try')
+        nwb_file = load_nwb_file(dandiset_id, nwb_file_path)
     except:
+        print('in except')
         try:
             nwb_file = stream_from_dandi(dandiset_id, nwb_file_path)
         except:

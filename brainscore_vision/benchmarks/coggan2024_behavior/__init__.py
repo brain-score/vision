@@ -6,3 +6,4 @@ from .benchmark import (
 
 benchmark_registry['tong.Coggan2024_behavior-ConditionWiseAccuracySimilarity'] = (
     Coggan2024_behavior_ConditionWiseAccuracySimilarity)
+

@@ -8,7 +8,7 @@ from brainscore_vision import load_model
 
 @pytest.mark.parametrize('region', ['V1', 'V2', 'V4', 'IT'])
 def test_benchmark_registry(region):
-    assert f'Coggan2024_fMRI.{region}-rdm' in benchmark_registry
+    assert f'tong.Coggan2024_fMRI.{region}-rdm' in benchmark_registry
 
 
 @pytest.mark.parametrize('region', ['V1', 'V2', 'V4', 'IT'])
@@ -19,7 +19,7 @@ def test_benchmarks(region):
         V4=0.3008136,
         IT=0.4486508)[region]
     model = load_model('alexnet')
-    benchmark = load_benchmark(f'Coggan2024_fMRI.{region}-rdm')
+    benchmark = load_benchmark(f'tong.Coggan2024_fMRI.{region}-rdm')
     score = benchmark(model)
     assert score.values == approx(expected_score, abs=.005)
 

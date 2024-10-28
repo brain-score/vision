@@ -30,6 +30,7 @@ dependencies = [
     "networkx",
     "eva-decord",
     "psutil",
+    "jepa@ git+https://github.com/thekej/jepa.git#egg=jepa",
 ]
 
 [project.optional-dependencies]

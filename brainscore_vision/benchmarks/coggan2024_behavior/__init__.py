@@ -4,4 +4,4 @@ from brainscore_vision import benchmark_registry
 from .benchmark import (
     Coggan2024_behavior_ConditionWiseLabelingAccuracySimilarity)
 
-benchmark_registry['Coggan2024_behavior-ConditionWiseAccuracySimilarity'] = Coggan2024_behavior_ConditionWiseLabelingAccuracySimilarity
+benchmark_registry['tong.Coggan2024_behavior-ConditionWiseAccuracySimilarity'] = Coggan2024_behavior_ConditionWiseLabelingAccuracySimilarity

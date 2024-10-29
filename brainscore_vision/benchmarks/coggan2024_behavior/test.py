@@ -7,13 +7,13 @@ from brainscore_vision import load_model
 
 
 def test_benchmark_registry():
-    assert ('Coggan2024_behavior-ConditionWiseAccuracySimilarity' in
+    assert ('tong.Coggan2024_behavior-ConditionWiseAccuracySimilarity' in
             benchmark_registry)
 
 @pytest.mark.private_access
 def test_benchmarks():
     benchmark = load_benchmark(
-        'Coggan2024_behavior-ConditionWiseAccuracySimilarity')
+        'tong.Coggan2024_behavior-ConditionWiseAccuracySimilarity')
     model = load_model('alexnet')
     result = benchmark(model)
     assert result.values == approx(0.34431372, abs=.001)

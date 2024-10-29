@@ -24,11 +24,8 @@ def validate_nwb_file(nwb_file_path: str, dandiset_id: str = None) -> NWBFile:
     # Check if the provided NWB file contains PSTH electrode data
     #-----------------------------------------------------------------------------------------------------------------------------
     try:
-        print('in try')
         nwb_file = load_nwb_file(dandiset_id, nwb_file_path)
     except Exception as e:
-        print(e)
-        print('in except')
         try:
             nwb_file = stream_from_dandi(dandiset_id, nwb_file_path)
         except:

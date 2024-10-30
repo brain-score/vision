@@ -51,6 +51,7 @@ def _make_data():
                                ],
                               coords={'stimulus_id': ('presentation', np.resize(np.arange(9), 9 * 3)),
                                       'truth': ('presentation', np.resize(['dog', 'cat', 'chair'], 9 * 3)),
+                                      'label': ('presentation', np.resize(['dog', 'cat', 'chair'], 9 * 3)),
                                       'condition': ('presentation', np.resize([1, 1, 1, 2, 2, 2, 3, 3, 3], 9 * 3)),
                                       'animacy': ('presentation', np.resize(['animate', 'animate', 'inanimate'], 9 * 3)),
                                       'subject': ('presentation', ['A'] * 9 + ['B'] * 9 + ['C'] * 9)},

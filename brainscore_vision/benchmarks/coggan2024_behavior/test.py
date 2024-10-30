@@ -7,8 +7,9 @@ from brainscore_vision import load_model
 
 
 def test_benchmark_registry():
-    assert ('tong.Coggan2024_behavior-ConditionWiseAccuracySimilarity' in
-            benchmark_registry)
+    assert ('tong.Coggan2024_behavior-ConditionWiseLabelingAccuracySimilarity' in benchmark_registry and
+            'tong.Coggan2024_behavior-ConditionWiseProbabilitiesAccuracySimilarity' in benchmark_registry and
+            'tong.Coggan2024_behavior-ConditionWiseLabelingEngineeringAccuracy' in benchmark_registry)
 
 @pytest.mark.private_access
 def test_benchmarks():

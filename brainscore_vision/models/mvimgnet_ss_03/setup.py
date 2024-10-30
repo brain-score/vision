@@ -4,8 +4,7 @@
 from setuptools import setup, find_packages
 
 requirements = [ "torchvision",
-                 "torch",  
-                 "fire"
+                 "torch"
 ]
 
 setup(

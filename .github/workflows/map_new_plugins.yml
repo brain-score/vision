@@ -36,14 +36,14 @@ jobs:
           
           # Fetch the status of all checks for this commit
           statuses=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/brain-score/vision/commits/${{ github.event.pull_request.head.sha }}/status" | jq -r '.statuses[] | {context: .context, state: .state}')
+            "https://api.github.com/repos/brain-score/vision/commits/${{ github.event.pull_request.head.sha }}/status")
 
           echo "Statuses response from GitHub API:"
-          echo "$statuses" | jq '.'
+          echo "$statuses" | jq '.statuses[] | {context: .context, state: .state}'
           
           # Loop through each required check and verify if it has succeeded
           for check in "${required_checks[@]}"; do
-            if echo "$statuses" | grep -q "{\"context\":\"$check\",\"state\":\"success\"}"; then
+            if echo "$statuses" | jq -e --arg check "$check" '.statuses[] | select(.context == $check and .state == "success")' > /dev/null; then
               echo "Job '$check' is successful."
               ((completed_checks+=1))
             else

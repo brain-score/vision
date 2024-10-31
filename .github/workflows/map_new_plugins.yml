@@ -4,10 +4,8 @@ name: Perform layer mapping
 # THIS WORKFLOW ONLY WORKS WHEN NEW_MODEL CHANGES ARE MADE. BENCHMARKS ARE NOT SUPPORTED
 
 on:
-  pull_request_target:
-    branches:
-      - master
-    types: [opened, synchronize, reopened, labeled]
+  status:
+    types: [success]
 
 jobs:
   # Trigger Layer Mapping only on web_submissions OR if trigger-mapping label is added to PR
@@ -23,23 +21,29 @@ jobs:
         || contains(github.event.pull_request.labels.*.name, 'trigger-mapping')
       )
     steps:
-      # Check if Plugins Unit test has passed
-      - name: Wait for plugin unit test checks
-        uses: lewagon/wait-on-check-action@v1.3.4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          check-name: 'Brain-Score Plugins Unit tests (AWS Jenkins, AWS Execution)'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 15
-
-      # Check if Non-Plugin Unit test has passed
-      - name: Wait for non-plugin unit test checks
-        uses: lewagon/wait-on-check-action@v1.3.4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          check-name: 'Brain-Score Plugins Unit tests (AWS Jenkins, AWS Execution)'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 15
+      # Wait for Plugin Unit Test Checks to complete
+      - name: Check if both Jenkins jobs are successful
+        id: check_jenkins_jobs
+        run: |
+          required_checks=("Brain-Score Plugins Unit tests (AWS Jenkins, AWS Execution)" "Brain-Score Non-Plugin Unit tests (AWS Jenkins, AWS Execution)")
+          completed_checks=0
+          
+          # Fetch the status of all checks for this commit
+          statuses=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/brain-score/vision/commits/${{ github.event.commit.sha }}/status" | jq -r '.statuses[] | {context: .context, state: .state}')
+          
+          # Check if both required jobs are marked as 'success'
+          for check in "${required_checks[@]}"; do
+            if echo "$statuses" | grep -q "$check.*success"; then
+              ((completed_checks+=1))
+            fi
+          done
+          
+          # Fail this step if not all required jobs are completed
+          if [ "$completed_checks" -ne "${#required_checks[@]}" ]; then
+            echo "Not all required Jenkins jobs are complete. Exiting."
+            exit 1
+          fi
 
       # Check out PR head
       - name: Check out repository code

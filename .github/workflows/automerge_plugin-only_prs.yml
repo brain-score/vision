@@ -18,7 +18,7 @@ jobs:
   check_test_results:
     name: Check if all tests have passed and PR meets automerge conditions
     runs-on: ubuntu-latest
-    if: github.event.label.name == 'automerge-approved'
+    if: contains(github.event.pull_request.labels.*.name, 'automerge-approved') && contains(github.event.pull_request.labels.*.name, 'mapping-complete')
     outputs:
       ALL_TESTS_PASS: ${{ steps.gettestresults.outputs.TEST_RESULTS }}
     steps:

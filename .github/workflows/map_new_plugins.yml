@@ -41,9 +41,9 @@ jobs:
           echo "Statuses response from GitHub API:"
           echo "$statuses" | jq '.'
           
-          # Parse the statuses and check each required job for success
+          # Loop through each required check and verify if it has succeeded
           for check in "${required_checks[@]}"; do
-            if echo "$statuses" | jq -e --arg check "$check" '.statuses[] | select(.context == $check) | select(.state == "success")' > /dev/null; then
+            if echo "$statuses" | grep -q "{\"context\":\"$check\",\"state\":\"success\"}"; then
               echo "Job '$check' is successful."
               ((completed_checks+=1))
             else

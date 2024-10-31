@@ -6,6 +6,10 @@ name: Perform layer mapping
 on:
   status:
     types: [success]
+  pull_request_target:
+    types: [labeled]
+    branches:
+      - master
 
 jobs:
   # Trigger Layer Mapping only on web_submissions OR if trigger-mapping label is added to PR

@@ -10,9 +10,11 @@ on:
 
 jobs:
   # Trigger Layer Mapping only on web_submissions OR if trigger-mapping label is added to PR
-  trigger_layer_mapping:
-    name: Trigger Layer Mapping
+  check_jenkins_jobs:
+    name: Check Triggers
     runs-on: ubuntu-latest
+    outputs:
+      all_checks_passed: ${{ steps.set_output.outputs.all_checks_passed }}
     if: |
       (
         (
@@ -28,6 +30,7 @@ jobs:
         run: |
           required_checks=("Brain-Score Plugins Unit tests (AWS Jenkins, AWS Execution)" "Brain-Score Non-Plugin Unit tests (AWS Jenkins, AWS Execution)")
           completed_checks=0
+          all_checks_passed=true
 
           echo "Using github PR head sha: ${{ github.event.pull_request.head.sha }}"
           
@@ -45,17 +48,19 @@ jobs:
               ((completed_checks+=1))
             else
               echo "Job '$check' is NOT successful."
+              all_checks_passed=false
             fi
           done
 
           echo "Completed checks: $completed_checks / ${#required_checks[@]}"
+          echo "::set-output name=all_checks_passed::$all_checks_passed"
 
-          # Fail this step if not all required jobs are completed
-          if [ "$completed_checks" -ne "${#required_checks[@]}" ]; then
-            echo "Not all required Jenkins jobs are complete. Exiting."
-            exit 1
-          fi
-
+  trigger_layer_mapping:
+    name: Trigger Layer Mapping
+    runs-on: ubuntu-latest
+    needs: check_jenkins_jobs
+    if: ${{ needs.check_jenkins_jobs.outputs.all_checks_passed == 'true' }}
+    steps:
       # Check out PR head
       - name: Check out repository code
         uses: actions/checkout@v4

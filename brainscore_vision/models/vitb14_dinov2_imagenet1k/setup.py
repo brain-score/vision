@@ -3,16 +3,15 @@
 
 from setuptools import setup, find_packages
 
-requirements = [ "torchvision",
-                 "torch",  
-                 "fire"
+requirements = [ 'torchvision',
+                'torch'
 ]
 
 setup(
     packages=find_packages(exclude=['tests']),
     include_package_data=True,
     install_requires=requirements,
-    license="MIT license",
+    license='MIT license',
     zip_safe=False,
     keywords='brain-score template',
     classifiers=[

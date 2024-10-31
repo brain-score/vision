@@ -31,10 +31,13 @@ jobs:
         run: |
           required_checks=("Brain-Score Plugins Unit tests (AWS Jenkins, AWS Execution)" "Brain-Score Non-Plugin Unit tests (AWS Jenkins, AWS Execution)")
           completed_checks=0
+
+          echo "Using github PR head sha: ${{ github.event.pull_request.head.sha }}"
+          echo "Option to use github sha: ${{ github.sha }}"
           
           # Fetch the status of all checks for this commit
           statuses=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/brain-score/vision/commits/${{ github.event.commit.sha }}/status" | jq -r '.statuses[] | {context: .context, state: .state}')
+            "https://api.github.com/repos/brain-score/vision/commits/${{ github.event.pull_request.head.sha }}/status" | jq -r '.statuses[] | {context: .context, state: .state}')
           
           # Check if both required jobs are marked as 'success'
           for check in "${required_checks[@]}"; do

@@ -53,7 +53,7 @@ jobs:
           done
 
           echo "Completed checks: $completed_checks / ${#required_checks[@]}"
-          echo "::set-output name=all_checks_passed::$all_checks_passed"
+          echo "all_checks_passed=$all_checks_passed" >> $GITHUB_OUTPUT
 
   trigger_layer_mapping:
     name: Trigger Layer Mapping

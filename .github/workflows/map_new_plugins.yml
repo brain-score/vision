@@ -161,4 +161,3 @@ jobs:
             --data-urlencode "SOURCE_REPO=$SOURCE_REPO" \
             --data-urlencode "SOURCE_BRANCH=$SOURCE_BRANCH" \
             --data-urlencode "TOKEN=$JENKINS_TOKEN"
-

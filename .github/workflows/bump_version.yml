@@ -1,0 +1,112 @@
+name: Version Management
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [ master ]
+
+
+jobs:
+  version-bump:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for non-plugin changes
+        id: check-changes
+        run: |
+          # Get list of changed files
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
+          
+          # Initialize flag
+          NEEDS_VERSION_BUMP=false
+          
+          # Check each changed file
+          echo "Changed files:"
+          for file in $CHANGED_FILES; do
+            echo "- $file"
+            # Check if file is in brainscore_vision but not in plugin directories
+            if [[ $file != brainscore_vision/benchmarks/* && 
+                  $file != brainscore_vision/data/* && 
+                  $file != brainscore_vision/metrics/* && 
+                  $file != brainscore_vision/models/* ]]; then
+              NEEDS_VERSION_BUMP=true
+              echo "Found change requiring version bump: $file"
+            fi
+          done
+          
+          echo "needs_bump=$NEEDS_VERSION_BUMP" >> $GITHUB_OUTPUT
+
+      - name: Set up Python
+        if: steps.check-changes.outputs.needs_bump == 'true'
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install bump-my-version
+        if: steps.check-changes.outputs.needs_bump == 'true'
+        run: pip install bump-my-version
+
+      - name: Configure Git
+        if: steps.check-changes.outputs.needs_bump == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      - name: Determine version bump type
+        if: steps.check-changes.outputs.needs_bump == 'true'
+        id: bump-type
+        run: |
+          if [[ ${{ contains(github.event.pull_request.labels.*.name, 'major update') }} == true ]]; then
+            echo "type=major" >> $GITHUB_OUTPUT
+          elif [[ ${{ contains(github.event.pull_request.labels.*.name, 'minor update') }} == true ]]; then
+            echo "type=minor" >> $GITHUB_OUTPUT
+          else
+            echo "type=patch" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Bump version
+        if: steps.check-changes.outputs.needs_bump == 'true'
+        run: |
+          bump-my-version bump ${{ steps.bump-type.outputs.type }}
+
+      - name: Push changes
+        if: steps.check-changes.outputs.needs_bump == 'true'
+        run: |
+          git push
+          git push --tags
+
+  publish:
+    needs: version-bump
+    if: needs.version-bump.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build
+
+      - name: Build package
+        run: python -m build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

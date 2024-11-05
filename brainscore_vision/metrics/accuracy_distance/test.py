@@ -58,7 +58,3 @@ def _make_data():
                                       'animacy': ('presentation', np.resize(['animate', 'animate', 'inanimate'], 9 * 3)),
                                       'subject': ('presentation', ['A'] * 9 + ['B'] * 9 + ['C'] * 9)},
                               dims=['choice', 'presentation'])
-
-
-test_score_single_variable()
-test_score_multi_variable()

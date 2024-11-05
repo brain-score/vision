@@ -14,7 +14,7 @@ def test_benchmark_registry():
 @pytest.mark.private_access
 def test_benchmarks():
     benchmark = load_benchmark(
-        'tong.Coggan2024_behavior-ConditionWiseAccuracySimilarity')
+        'tong.Coggan2024_behavior-ConditionWiseLabelingAccuracySimilarity')
     model = load_model('alexnet')
     result = benchmark(model)
     assert result.values == approx(0.34431372, abs=.001)

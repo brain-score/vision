@@ -1,5 +1,5 @@
 import numpy as np
-#from pytest import approx
+from pytest import approx
 
 from brainio.assemblies import BehavioralAssembly
 from brainscore_vision import load_metric
@@ -17,7 +17,7 @@ def test_score_single_variable():
     metric = load_metric('accuracy_distance')
     score = metric(assembly.sel(subject='C'), assembly, ('condition',))
     print(score)
-    # assert score == approx(0.55555556)
+    assert score == approx(0.55555556)
 
 
 def test_score_multi_variable():
@@ -25,7 +25,7 @@ def test_score_multi_variable():
     metric = load_metric('accuracy_distance')
     score = metric(assembly.sel(subject='C'), assembly, ('condition','animacy'))
     print(score)
-    # assert score == approx(0.55555556)
+    assert score == approx(0.55555556)
 
 
 def test_has_error():

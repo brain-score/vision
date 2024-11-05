@@ -63,7 +63,7 @@ class _Maniquet2024ConfusionSimilarity(BenchmarkBase):
 
         # Call the parent class constructor to complete initialization
         super(_Maniquet2024ConfusionSimilarity, self).__init__(
-            identifier="Maniquet2024-confusion_similarity'",
+            identifier="Maniquet2024-confusion_similarity",
             version=1,
             ceiling_func=lambda: Score(0.53526),  # use pre-computed from `self._metric._ceiling(self._human_assembly)`
             parent="Maniquet2024",

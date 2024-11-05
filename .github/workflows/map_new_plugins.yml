@@ -4,16 +4,17 @@ name: Perform layer mapping
 # THIS WORKFLOW ONLY WORKS WHEN NEW_MODEL CHANGES ARE MADE. BENCHMARKS ARE NOT SUPPORTED
 
 on:
-  pull_request_target:
-    branches:
-      - master
-    types: [opened, synchronize, reopened, labeled]
+  status:
+  pull_request:
+    types: [labeled, synchronize]
 
 jobs:
   # Trigger Layer Mapping only on web_submissions OR if trigger-mapping label is added to PR
-  trigger_layer_mapping:
-    name: Trigger Layer Mapping
+  check_jenkins_jobs:
+    name: Check Triggers
     runs-on: ubuntu-latest
+    outputs:
+      all_checks_passed: ${{ steps.check_jenkins_jobs.outputs.all_checks_passed }}
     if: |
       (
         (
@@ -23,24 +24,43 @@ jobs:
         || contains(github.event.pull_request.labels.*.name, 'trigger-mapping')
       )
     steps:
-      # Check if Plugins Unit test has passed
-      - name: Wait for plugin unit test checks
-        uses: lewagon/wait-on-check-action@v1.3.4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          check-name: 'Brain-Score Plugins Unit tests (AWS Jenkins, AWS Execution)'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 15
+      # Wait for Plugin Unit Test Checks to complete
+      - name: Check if both Jenkins jobs are successful
+        id: check_jenkins_jobs
+        run: |
+          required_checks=("Brain-Score Plugins Unit tests (AWS Jenkins, AWS Execution)" "Brain-Score Non-Plugin Unit tests (AWS Jenkins, AWS Execution)")
+          completed_checks=0
+          all_checks_passed=true
 
-      # Check if Non-Plugin Unit test has passed
-      - name: Wait for non-plugin unit test checks
-        uses: lewagon/wait-on-check-action@v1.3.4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          check-name: 'Brain-Score Plugins Unit tests (AWS Jenkins, AWS Execution)'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 15
+          echo "Using github PR head sha: ${{ github.event.pull_request.head.sha }}"
+          
+          # Fetch the status of all checks for this commit
+          statuses=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/brain-score/vision/commits/${{ github.event.pull_request.head.sha }}/status")
 
+          echo "Statuses response from GitHub API:"
+          echo "$statuses" | jq '.statuses[] | {context: .context, state: .state}'
+          
+          # Loop through each required check and verify if it has succeeded
+          for check in "${required_checks[@]}"; do
+            if echo "$statuses" | jq -e --arg check "$check" '.statuses[] | select(.context == $check and .state == "success")' > /dev/null; then
+              echo "Job '$check' is successful."
+              ((completed_checks+=1))
+            else
+              echo "Job '$check' is NOT successful."
+              all_checks_passed=false
+            fi
+          done
+
+          echo "Completed checks: $completed_checks / ${#required_checks[@]}"
+          echo "all_checks_passed=$all_checks_passed" >> $GITHUB_OUTPUT
+
+  trigger_layer_mapping:
+    name: Trigger Layer Mapping
+    runs-on: ubuntu-latest
+    needs: check_jenkins_jobs
+    if: ${{ needs.check_jenkins_jobs.outputs.all_checks_passed == 'true' }}
+    steps:
       # Check out PR head
       - name: Check out repository code
         uses: actions/checkout@v4

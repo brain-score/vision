@@ -1,0 +1,6 @@
+{
+    "V1": "cvt.encoder.stages.1.layers.0",
+    "V2": "cvt.encoder.stages.1.layers.1",
+    "V4": "cvt.encoder.stages.2.layers.0",
+    "IT": "cvt.encoder.stages.2.layers.1"
+}

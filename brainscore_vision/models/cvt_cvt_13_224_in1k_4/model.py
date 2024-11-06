@@ -12,7 +12,7 @@ Template module for a base model submission to brain-score
 
 
 def get_model(name):
-    assert name == 'cvt_cvt-13-224-in1k_4'
+    assert name == 'cvt_cvt-13-224-in1k_4_LucyV4'
     # https://huggingface.co/models?sort=downloads&search=cvt
     image_size = 224
     processor = AutoFeatureExtractor.from_pretrained('microsoft/cvt-13')
@@ -25,7 +25,7 @@ def get_model(name):
 
 
 def get_layers(name):
-    assert name == 'cvt_cvt-13-224-in1k_4'
+    assert name == 'cvt_cvt-13-224-in1k_4_LucyV4'
     layers = []
     layers += [f'cvt.encoder.stages.0.layers.{i}' for i in range(1)]
     layers += [f'cvt.encoder.stages.1.layers.{i}' for i in range(2)]

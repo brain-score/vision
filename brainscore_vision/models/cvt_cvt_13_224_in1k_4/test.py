@@ -4,5 +4,5 @@ import brainscore_vision
 
 @pytest.mark.travis_slow
 def test_has_identifier():
-    model = brainscore_vision.load_model('cvt_cvt-13-224-in1k_4')
-    assert model.identifier == 'cvt_cvt-13-224-in1k_4'
+    model = brainscore_vision.load_model('cvt_cvt-13-224-in1k_4_LucyV4')
+    assert model.identifier == 'cvt_cvt-13-224-in1k_4_LucyV4'

@@ -12,11 +12,11 @@ Template module for a base model submission to brain-score
 
 
 def get_model(name):
-    assert name == 'cvt_cvt-13-224-in1k_4_LucyV4'
+    assert name == 'cvt_cvt-21-384-in22k_finetuned-in1k_4_LucyV4'
     # https://huggingface.co/models?sort=downloads&search=cvt
-    image_size = 224
-    processor = AutoFeatureExtractor.from_pretrained('microsoft/cvt-13')
-    model = CvtForImageClassification.from_pretrained('microsoft/cvt-13')
+    image_size = 384
+    processor = AutoFeatureExtractor.from_pretrained('microsoft/cvt-21-384-22k')
+    model = CvtForImageClassification.from_pretrained('microsoft/cvt-21-384-22k')
     preprocessing = functools.partial(load_preprocess_images, processor=processor, image_size=image_size)
     wrapper = PytorchWrapper(identifier=name, model=model, preprocessing=preprocessing)
     wrapper.image_size = image_size
@@ -25,11 +25,11 @@ def get_model(name):
 
 
 def get_layers(name):
-    assert name == 'cvt_cvt-13-224-in1k_4_LucyV4'
+    assert name == 'cvt_cvt-21-384-in22k_finetuned-in1k_4_LucyV4'
     layers = []
     layers += [f'cvt.encoder.stages.0.layers.{i}' for i in range(1)]
-    layers += [f'cvt.encoder.stages.1.layers.{i}' for i in range(2)]
-    layers += [f'cvt.encoder.stages.2.layers.{i}' for i in range(10)]
+    layers += [f'cvt.encoder.stages.1.layers.{i}' for i in range(4)]
+    layers += [f'cvt.encoder.stages.2.layers.{i}' for i in range(16)]
     layers += ['layernorm']
     return layers
 
@@ -47,8 +47,6 @@ def get_bibtex(model_identifier):
                     primaryClass={cs.CV},
                     url={https://arxiv.org/abs/2103.15808}, 
               }"""
-
-
 
 
 def load_preprocess_images(image_filepaths, image_size, processor=None, **kwargs):

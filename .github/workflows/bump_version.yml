@@ -85,9 +85,10 @@ jobs:
 
       - name: Create Pull Request
         if: steps.check-changes.outputs.needs_bump == 'true'
+        id: create-pr
         uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.WORKFLOW_TOKEN }}
           commit-message: "chore: bump version"
           title: "chore: version bump"
           body: |
@@ -96,7 +97,8 @@ jobs:
             version-bump
           branch: version-bump-${{ github.event.pull_request.head.sha }}
           base: master
-          delete-branch: true
+          delete-branch: false
+          draft: false
 
       - name: Auto-approve PR
         if: steps.check-changes.outputs.needs_bump == 'true'
@@ -112,13 +114,23 @@ jobs:
           ref: version-bump-${{ github.event.pull_request.head.sha }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
+          allowed-conclusions: success,skipped
+          verbose: true
 
       - name: Merge PR
         if: steps.check-changes.outputs.needs_bump == 'true'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+          PR_NUMBER: ${{ steps.create-pr.outputs.pull-request-number }}
         run: |
-          gh pr merge --auto --squash --delete-branch version-bump-${{ github.event.pull_request.head.sha }}
+          if [ ! -z "$PR_NUMBER" ]; then
+            gh pr merge $PR_NUMBER --auto --squash
+            # Only delete the branch after successful merge
+            gh pr close $PR_NUMBER --delete-branch
+          else
+            echo "No pull request number found"
+            exit 1
+          fi
 
   publish:
     needs: version-bump

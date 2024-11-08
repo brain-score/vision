@@ -1,0 +1,148 @@
+name: Version Management
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [ master ]
+
+jobs:
+  version-bump:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+
+      - name: Check for non-plugin changes
+        id: check-changes
+        run: |
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
+          NEEDS_VERSION_BUMP=false
+          
+          # ensure PR wasn't plugin-only
+          echo "Changed files:"
+          for file in $CHANGED_FILES; do
+            echo "- $file"
+            if [[ $file != brainscore_vision/benchmarks/* && 
+                  $file != brainscore_vision/data/* && 
+                  $file != brainscore_vision/metrics/* && 
+                  $file != brainscore_vision/models/* ]]; then
+              NEEDS_VERSION_BUMP=true
+              echo "Found change requiring version bump: $file"
+            fi
+          done
+          
+          echo "needs_bump=$NEEDS_VERSION_BUMP" >> $GITHUB_OUTPUT
+
+      - name: Set up Python
+        if: steps.check-changes.outputs.needs_bump == 'true'
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install bump-my-version
+        if: steps.check-changes.outputs.needs_bump == 'true'
+        run: pip install bump-my-version
+
+      - name: Configure Git
+        if: steps.check-changes.outputs.needs_bump == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      - name: Determine version bump type
+        if: steps.check-changes.outputs.needs_bump == 'true'
+        id: bump-type
+        run: |
+          if [[ ${{ contains(github.event.pull_request.labels.*.name, 'major update') }} == true ]]; then
+            echo "type=major" >> $GITHUB_OUTPUT
+          elif [[ ${{ contains(github.event.pull_request.labels.*.name, 'minor update') }} == true ]]; then
+            echo "type=minor" >> $GITHUB_OUTPUT
+          else
+            echo "type=patch" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create version bump branch
+        if: steps.check-changes.outputs.needs_bump == 'true'
+        run: |
+          # Create a new branch for version bump
+          git checkout -b version-bump-${{ github.event.pull_request.head.sha }}
+          
+          # Run bump-my-version
+          bump-my-version bump ${{ steps.bump-type.outputs.type }}
+          
+          # Push the branch
+          git push origin version-bump-${{ github.event.pull_request.head.sha }}
+
+      - name: Create Pull Request
+        if: steps.check-changes.outputs.needs_bump == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+          commit-message: "chore: bump version"
+          title: "chore: version bump"
+          body: |
+            Automated version bump triggered by changes in PR #${{ github.event.pull_request.number }}
+          labels: |
+            version-bump
+          branch: version-bump-${{ github.event.pull_request.head.sha }}
+          base: master
+          delete-branch: true
+
+      - name: Auto-approve PR
+        if: steps.check-changes.outputs.needs_bump == 'true'
+        uses: hmarr/auto-approve-action@v3
+        with:
+          pull-request-number: ${{ steps.create-pr.outputs.pull-request-number }}
+          github-token: ${{ secrets.WORKFLOW_TOKEN }}
+
+      - name: Wait for status checks
+        if: steps.check-changes.outputs.needs_bump == 'true'
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: version-bump-${{ github.event.pull_request.head.sha }}
+          repo-token: ${{ secrets.WORKFLOW_TOKEN }}
+          wait-interval: 10
+
+      - name: Merge PR
+        if: steps.check-changes.outputs.needs_bump == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+        run: |
+          gh pr merge --auto --squash --delete-branch version-bump-${{ github.event.pull_request.head.sha }}
+
+  publish:
+    needs: version-bump
+    if: needs.version-bump.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth:
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Build package
+        run: python -m build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

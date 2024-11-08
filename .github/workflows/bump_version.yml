@@ -150,10 +150,10 @@ jobs:
 
       - name: Auto-approve PR
         if: steps.version-update.outputs.pr_number
-        uses: hmarr/auto-approve-action@v3
+        uses: hmarr/auto-approve-action@v4
         with:
           pull-request-number: ${{ steps.version-update.outputs.pr_number }}
-          github-token: ${{ secrets.APPROVAL_BOT_TOKEN }}
+          github-token: ${{ secrets.APPROVAL_TOKEN }}
 
       - name: Wait for status checks
         if: steps.version-update.outputs.pr_number

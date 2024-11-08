@@ -89,6 +89,25 @@ jobs:
           git push origin $BRANCH_NAME --follow-tags
           git push origin $BRANCH_NAME:refs/heads/$BRANCH_NAME --force
 
+      - name: Debug Git Status
+        if: steps.check-changes.outputs.needs_bump == 'true'
+        run: |
+          echo "Checking Git status after bump-my-version:"
+          git status
+          echo "Recent Git commits:"
+          git log --oneline -n 5
+
+      - name: Ensure changes are committed
+        if: steps.check-changes.outputs.needs_bump == 'true'
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Changes detected. Committing..."
+            git add .
+            git commit -m "chore: bump version to $NEW_VERSION"
+          else
+            echo "No changes to commit."
+          fi
+
       - name: Create Pull Request
         if: steps.check-changes.outputs.needs_bump == 'true'
         id: create-pr

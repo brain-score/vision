@@ -13,6 +13,8 @@ jobs:
       contents: write
       pull-requests: write
       checks: write
+    outputs:
+        NEEDS_BUMP: steps.check-changes.outputs.needs_bump
 
     steps:
       - uses: actions/checkout@v4
@@ -120,7 +122,7 @@ jobs:
 
   publish:
     needs: version-bump
-    if: needs.version-bump.result == 'success'
+    if: needs.version-bump.outputs.NEEDS_BUMP == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -129,7 +131,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v4

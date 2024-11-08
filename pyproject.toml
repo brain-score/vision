@@ -4,7 +4,7 @@
 
 [project]
 name = "brainscore_vision"
-version = "2.1.0"
+version = "2.1.1"
 description = "The Brain-Score library enables model comparisons to behavioral and neural experiments"
 authors = []
 license = { 'file' = 'LICENSE' }

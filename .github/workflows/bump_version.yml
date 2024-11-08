@@ -85,13 +85,6 @@ jobs:
           NEW_VERSION=$(bump-my-version show current_version)
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           
-          # Run bump-my-version
-          bump-my-version bump ${{ steps.bump-type.outputs.type }}
-          
-          # Commit the changes
-          git add pyproject.toml
-          git commit -m "chore: bump version to $NEW_VERSION"
-          
           # Push the branch
           git push origin $BRANCH_NAME
 

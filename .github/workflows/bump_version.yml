@@ -74,6 +74,8 @@ jobs:
       - name: Create version bump branch
         id: version-update
         if: steps.check-changes.outputs.needs_bump == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Create and checkout new branch
           BRANCH_NAME="version-bump-${{ github.event.pull_request.head.sha }}"

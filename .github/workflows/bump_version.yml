@@ -83,6 +83,9 @@ jobs:
           echo "Current version before bump:"
           bump-my-version show current_version
           bump-my-version bump ${{ steps.bump-type.outputs.type }} --verbose
+          
+          echo "Version after bump:"
+          bump-my-version show current_version
           NEW_VERSION=$(bump-my-version show current_version)
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           

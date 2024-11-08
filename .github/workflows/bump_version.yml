@@ -14,7 +14,7 @@ jobs:
       pull-requests: write
       checks: write
     outputs:
-        NEEDS_BUMP: steps.check-changes.outputs.needs_bump
+      NEEDS_BUMP: ${{ steps.check-changes.outputs.needs_bump }}
 
     steps:
       - uses: actions/checkout@v4

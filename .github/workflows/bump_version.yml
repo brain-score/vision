@@ -85,8 +85,9 @@ jobs:
           NEW_VERSION=$(bump-my-version show current_version)
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           
-          # Push the branch
-          git push origin $BRANCH_NAME
+          # Push the branch with tags
+          git push origin $BRANCH_NAME --follow-tags
+          git push origin $BRANCH_NAME:refs/heads/$BRANCH_NAME --force
 
       - name: Create Pull Request
         if: steps.check-changes.outputs.needs_bump == 'true'
@@ -106,7 +107,15 @@ jobs:
           base: master
           delete-branch: false
 
-      - name: Auto-approve new PR
+      - name: Check PR creation
+        if: steps.create-pr.outputs.pull-request-number == ''
+        run: |
+          echo "Failed to create PR. Dumping git status:"
+          git status
+          git diff master
+          exit 1
+
+      - name: Auto-approve PR
         if: steps.create-pr.outputs.pull-request-number
         uses: hmarr/auto-approve-action@v3
         with:
@@ -123,14 +132,14 @@ jobs:
           allowed-conclusions: success,skipped
           verbose: true
 
-      - name: Merge version bump PR
+      - name: Merge PR
         if: steps.create-pr.outputs.pull-request-number
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
-          PR_NUMBER: ${{ steps.create-pr.outputs.pull-request-number }}
         run: |
-          echo "Merging PR #$PR_NUMBER"
-          gh pr merge $PR_NUMBER --auto --squash --delete-branch
+          pr_number="${{ steps.create-pr.outputs.pull-request-number }}"
+          echo "Merging PR #$pr_number"
+          gh pr merge $pr_number --auto --squash
 
   publish:
     needs: version-bump

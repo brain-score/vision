@@ -1,4 +1,3 @@
-
 import numpy as np
 
 from brainio.assemblies import array_is_element, walk_coords

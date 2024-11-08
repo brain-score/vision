@@ -99,8 +99,8 @@ jobs:
           gh pr create --title "chore: bump version to $NEW_VERSION" \
              --body "Automated version bump triggered by changes in PR #${{ github.event.pull_request.number }}" \
              --base master \
-             --head $BRANCH_NAME
-             --label version-bump
+             --head $BRANCH_NAME \
+             --label "version-bump"
 
       # - name: Debug Git Status
       #   if: steps.check-changes.outputs.needs_bump == 'true'

@@ -109,23 +109,30 @@ jobs:
             echo "No changes to commit."
           fi
 
-      - name: Create Pull Request
-        if: steps.check-changes.outputs.needs_bump == 'true'
-        id: create-pr
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore: bump version to ${{ steps.version-update.outputs.new_version }}"
-          title: "chore: bump version to ${{ steps.version-update.outputs.new_version }}"
-          body: |
-            Automated version bump triggered by changes in PR #${{ github.event.pull_request.number }}
+      # - name: Create Pull Request
+      #   if: steps.check-changes.outputs.needs_bump == 'true'
+      #   id: create-pr
+      #   uses: peter-evans/create-pull-request@v5
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     commit-message: "chore: bump version to ${{ steps.version-update.outputs.new_version }}"
+      #     title: "chore: bump version to ${{ steps.version-update.outputs.new_version }}"
+      #     body: |
+      #       Automated version bump triggered by changes in PR #${{ github.event.pull_request.number }}
             
-            New version: ${{ steps.version-update.outputs.new_version }}
-          labels: |
-            version-bump
-          branch: version-bump-${{ github.event.pull_request.head.sha }}
-          base: master
-          delete-branch: false
+      #       New version: ${{ steps.version-update.outputs.new_version }}
+      #     labels: |
+      #       version-bump
+      #     branch: version-bump-${{ github.event.pull_request.head.sha }}
+      #     base: master
+      #     delete-branch: false
+      
+      - name: Create Pull Request
+        run: |
+          gh pr create --title "chore: bump version to ${{ steps.version-update.outputs.new_version }}" \
+                       --body "Automated version bump triggered by changes in PR #${{ github.event.pull_request.number }}" \
+                       --base master \
+                       --head $BRANCH_NAME
 
       - name: Check PR creation
         if: steps.create-pr.outputs.pull-request-number == ''

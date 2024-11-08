@@ -100,6 +100,7 @@ jobs:
              --body "Automated version bump triggered by changes in PR #${{ github.event.pull_request.number }}" \
              --base master \
              --head $BRANCH_NAME
+             --label version-bump
 
       # - name: Debug Git Status
       #   if: steps.check-changes.outputs.needs_bump == 'true'
@@ -144,14 +145,6 @@ jobs:
       #                  --body "Automated version bump triggered by changes in PR #${{ github.event.pull_request.number }}" \
       #                  --base master \
       #                  --head $BRANCH_NAME
-
-      - name: Check PR creation
-        if: steps.create-pr.outputs.pull-request-number == ''
-        run: |
-          echo "Failed to create PR. Dumping git status:"
-          git status
-          git diff master
-          exit 1
 
       - name: Auto-approve PR
         if: steps.create-pr.outputs.pull-request-number

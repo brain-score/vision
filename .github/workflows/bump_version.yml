@@ -74,14 +74,26 @@ jobs:
       - name: Create version bump branch
         if: steps.check-changes.outputs.needs_bump == 'true'
         run: |
-          # Create a new branch for version bump
-          git checkout -b version-bump-${{ github.event.pull_request.head.sha }}
+          # Create and checkout new branch
+          BRANCH_NAME="version-bump-${{ github.event.pull_request.head.sha }}"
+          git checkout -b $BRANCH_NAME
+
+          # Show current version before bump, and new version
+          echo "Current version before bump:"
+          bump-my-version show current_version
+          bump-my-version bump ${{ steps.bump-type.outputs.type }} --verbose
+          NEW_VERSION=$(bump-my-version show current_version)
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           
           # Run bump-my-version
           bump-my-version bump ${{ steps.bump-type.outputs.type }}
           
+          # Commit the changes
+          git add pyproject.toml
+          git commit -m "chore: bump version to $NEW_VERSION"
+          
           # Push the branch
-          git push origin version-bump-${{ github.event.pull_request.head.sha }}
+          git push origin $BRANCH_NAME
 
       - name: Create Pull Request
         if: steps.check-changes.outputs.needs_bump == 'true'
@@ -89,48 +101,43 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.WORKFLOW_TOKEN }}
-          commit-message: "chore: bump version"
-          title: "chore: version bump"
+          commit-message: "chore: bump version to ${{ steps.version-update.outputs.new_version }}"
+          title: "chore: bump version to ${{ steps.version-update.outputs.new_version }}"
           body: |
             Automated version bump triggered by changes in PR #${{ github.event.pull_request.number }}
+            
+            New version: ${{ steps.version-update.outputs.new_version }}
           labels: |
             version-bump
           branch: version-bump-${{ github.event.pull_request.head.sha }}
           base: master
           delete-branch: false
-          draft: false
 
-      - name: Auto-approve PR
-        if: steps.check-changes.outputs.needs_bump == 'true'
+      - name: Auto-approve new PR
+        if: steps.create-pr.outputs.pull-request-number
         uses: hmarr/auto-approve-action@v3
         with:
           pull-request-number: ${{ steps.create-pr.outputs.pull-request-number }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.WORKFLOW_TOKEN }}
 
       - name: Wait for status checks
-        if: steps.check-changes.outputs.needs_bump == 'true'
+        if: steps.create-pr.outputs.pull-request-number
         uses: lewagon/wait-on-check-action@v1.3.1
         with:
           ref: version-bump-${{ github.event.pull_request.head.sha }}
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          repo-token: ${{ secrets.WORKFLOW_TOKEN }}
           wait-interval: 10
           allowed-conclusions: success,skipped
           verbose: true
 
-      - name: Merge PR
-        if: steps.check-changes.outputs.needs_bump == 'true'
+      - name: Merge version bump PR
+        if: steps.create-pr.outputs.pull-request-number
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
           PR_NUMBER: ${{ steps.create-pr.outputs.pull-request-number }}
         run: |
-          if [ ! -z "$PR_NUMBER" ]; then
-            gh pr merge $PR_NUMBER --auto --squash
-            # Only delete the branch after successful merge
-            gh pr close $PR_NUMBER --delete-branch
-          else
-            echo "No pull request number found"
-            exit 1
-          fi
+          echo "Merging PR #$PR_NUMBER"
+          gh pr merge $PR_NUMBER --auto --squash --delete-branch
 
   publish:
     needs: version-bump

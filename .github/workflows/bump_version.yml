@@ -72,6 +72,7 @@ jobs:
           fi
 
       - name: Create version bump branch
+        id: version-update
         if: steps.check-changes.outputs.needs_bump == 'true'
         run: |
           # Create and checkout new branch

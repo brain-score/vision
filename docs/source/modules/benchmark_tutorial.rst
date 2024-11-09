@@ -384,3 +384,21 @@ If any stimuli or data should be made public, please let us know so that we can 
 policy.
 
 After the PR has been merged, the submission system will automatically run all existing models on the new benchmark.
+
+
+Naming conventions
+==================
+**Identifiers**:
+
+* Benchmark: At the top level, benchmark identifiers should combine data and metric identifiers,
+  separated by a dash: ``{data}-{metric}``.
+
+* Data: Identifiers for datasets vary depending on the community but should ideally not include dashes
+  (which are used in the benchmark identifier, see above).
+  For brain and cognitive science datasets, data identifiers often point to the paper or report
+  where the data was first introduced (e.g. ``MajajHong2015`` or ``Sanghavi2020``).
+  When using components of datasets, we recommend separating those with a dot,
+  and to use an underscore between multiple words (e.g. ``MajajHong2015.IT`` or ``Malania2007.vernier_only``).
+  For machine learning ("engineering") datasets, data identifiers are often descriptive (e.g. ``ImageNet``).
+
+* Metric: Identifiers for metrics are typically descriptive (e.g. ``rdm``, ``pls``, ``accuracy``).

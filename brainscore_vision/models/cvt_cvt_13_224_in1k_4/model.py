@@ -49,8 +49,6 @@ def get_bibtex(model_identifier):
               }"""
 
 
-
-
 def load_preprocess_images(image_filepaths, image_size, processor=None, **kwargs):
     images = load_images(image_filepaths)
     # images = [<PIL.Image.Image image mode=RGB size=400x400 at 0x7F8654B2AC10>, ...]

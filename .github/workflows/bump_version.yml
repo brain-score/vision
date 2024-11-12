@@ -15,6 +15,7 @@ jobs:
       checks: write
     outputs:
       NEEDS_BUMP: ${{ steps.check-changes.outputs.needs_bump }}
+      NEW_VERSION: ${{ steps.version-update.outputs.new_version }}
 
     steps:
       - uses: actions/checkout@v4
@@ -129,6 +130,64 @@ jobs:
           pr_number="${{ steps.version-update.outputs.pr_number }}"
           echo "Merging PR #$pr_number"
           gh pr merge $pr_number --auto --squash
+
+  create-release:
+    needs: version-bump
+    runs-on: ubuntu-latest
+    if: needs.version-bump.outputs.NEEDS_BUMP == 'true'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate Release Notes
+        id: release_notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get previous tag
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          NEW_VERSION="${{ needs.version-bump.outputs.NEW_VERSION }}"
+          
+          # Generate release notes using GitHub API
+          if [ -n "$PREVIOUS_TAG" ]; then
+            gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              /repos/${{ github.repository }}/releases/generate-notes \
+              -f tag_name="v$NEW_VERSION" \
+              -f target_commitish="${{ github.sha }}" \
+              -f previous_tag_name="$PREVIOUS_TAG" \
+              > release_notes.json
+          else
+            gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              /repos/${{ github.repository }}/releases/generate-notes \
+              -f tag_name="v$NEW_VERSION" \
+              -f target_commitish="${{ github.sha }}" \
+              > release_notes.json
+          fi
+          
+          # Extract and save
+          body=$(jq -r .body release_notes.json)
+          echo "NOTES<<EOF" >> $GITHUB_OUTPUT
+          echo "$body" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.version-bump.outputs.NEW_VERSION }}
+          name: v${{ needs.version-bump.outputs.NEW_VERSION }}
+          body: ${{ steps.release_notes.outputs.NOTES }}
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
   publish:
     needs: version-bump

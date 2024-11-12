@@ -142,43 +142,54 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Generate Changelog
-        id: changelog
+      - name: Generate Release Notes
+        id: release_notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Get the previous tag
           PREVIOUS_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
           NEW_VERSION="${{ needs.version-bump.outputs.NEW_VERSION }}"
           
-          echo "CHANGELOG:" > CHANGES.md
-          echo "" >> CHANGES.md
-          
+          # Generate release notes using GitHub's API
           if [ -n "$PREVIOUS_TAG" ]; then
-            # Get all commit messages since last tag, excluding merge commits and version bump commits
-            git log --no-merges --pretty=format:"* %s (%h)" $PREVIOUS_TAG..HEAD \
-              | grep -v "Bump version" \
-              | grep -v "chore: bump version" >> CHANGES.md
+            gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              /repos/${{ github.repository }}/releases/generate-notes \
+              -f tag_name="v$NEW_VERSION" \
+              -f target_commitish="${{ github.sha }}" \
+              -f previous_tag_name="$PREVIOUS_TAG" \
+              > release_notes.json
           else
-            git log --no-merges --pretty=format:"* %s (%h)" \
-              | grep -v "Bump version" \
-              | grep -v "chore: bump version" >> CHANGES.md
+            gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              /repos/${{ github.repository }}/releases/generate-notes \
+              -f tag_name="v$NEW_VERSION" \
+              -f target_commitish="${{ github.sha }}" \
+              > release_notes.json
           fi
           
-          # Save changelog content for the next step
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          cat CHANGES.md >> $GITHUB_OUTPUT
+          # Extract the body from the JSON response
+          body=$(jq -r .body release_notes.json)
+          
+          # Save the release notes for the next step
+          echo "NOTES<<EOF" >> $GITHUB_OUTPUT
+          echo "$body" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ needs.version-bump.outputs.NEW_VERSION }}
-          name: Release v${{ needs.version-bump.outputs.NEW_VERSION }}
-          body: ${{ steps.changelog.outputs.changelog }}
+          name: v${{ needs.version-bump.outputs.NEW_VERSION }}
+          body: ${{ steps.release_notes.outputs.NOTES }}
           draft: false
           prerelease: false
+          generate_release_notes: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   publish:
     needs: version-bump
     if: needs.version-bump.outputs.NEEDS_BUMP == 'true'

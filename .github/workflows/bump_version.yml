@@ -91,6 +91,24 @@ jobs:
           cat pyproject.toml
           echo "=== bump-my-version config ==="
           bump-my-version show
+
+      - name: Debug tag information
+        run: |
+          echo "=== Git tag information ==="
+          echo "All tags (with dates):"
+          git for-each-ref --sort='-creatordate' --format '%(creatordate:short) %(refname:short)' refs/tags/
+          
+          echo "\n=== Tag ancestry ==="
+          for tag in $(git tag --sort=-version:refname); do
+            echo "$tag is on commit: $(git rev-list -n 1 $tag)"
+          done
+          
+          echo "\n=== Current commit info ==="
+          git describe --tags
+          
+          echo "\n=== Tag reachability ==="
+          git tag --contains HEAD
+          git tag --no-contains HEAD
           
       - name: Create version bump branch
         id: version-update
@@ -101,6 +119,11 @@ jobs:
           # Create and checkout new branch
           BRANCH_NAME="version-bump-${{ github.event.pull_request.head.sha }}"
           git checkout -b $BRANCH_NAME
+
+          # Get the latest tag by version number
+          LATEST_TAG=$(git tag --sort=-version:refname | head -n1)
+          CURRENT_VERSION=${LATEST_TAG#v}  # Remove 'v' prefix
+          echo "Latest tag: $LATEST_TAG (version: $CURRENT_VERSION)"
 
           # Show current version before bump, and new version
           echo "Current version before bump:"

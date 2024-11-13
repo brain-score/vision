@@ -15,7 +15,7 @@ from brainscore_vision.benchmarks.imagenet.benchmark import NUMBER_OF_TRIALS
 from brainscore_vision.model_interface import BrainModel
 
 _logger = logging.getLogger(__name__)
-LOCAL_STIMULUS_DIRECTORY = '/braintree/data2/active/common/imagenet-c-brainscore-stimuli/'
+LOCAL_STIMULUS_DIRECTORY = '/mnt/brainscore-ami/imagenet-c-brainscore-stimuli/'
 
 BIBTEX = """@ARTICLE{Hendrycks2019-di,
    title         = "Benchmarking Neural Network Robustness to Common Corruptions

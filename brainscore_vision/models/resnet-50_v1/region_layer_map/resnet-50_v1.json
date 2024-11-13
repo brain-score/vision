@@ -1,0 +1,6 @@
+{
+    "V1": "resnet_v1_50_block1_unit_1_bottleneck_v1_conv1_Conv2D",
+    "V2": "resnet_v1_50_block3_unit_1_bottleneck_v1_shortcut_BatchNorm_FusedBatchNormV3",
+    "V4": "resnet_v1_50_block1_unit_1_bottleneck_v1_conv2_Conv2D",
+    "IT": "resnet_v1_50_block4_unit_1_bottleneck_v1_shortcut_BatchNorm_FusedBatchNormV3"
+}

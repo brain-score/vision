@@ -83,7 +83,7 @@ jobs:
           echo "=== pyproject.toml content ==="
           cat pyproject.toml
           echo "=== bump-my-version config ==="
-          bump-my-version --config-file pyproject.toml --verbose show
+          bump-my-version show
           
       - name: Create version bump branch
         id: version-update

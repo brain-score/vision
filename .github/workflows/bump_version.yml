@@ -72,6 +72,19 @@ jobs:
             echo "type=patch" >> $GITHUB_OUTPUT
           fi
 
+      - name: Debug version files
+        run: |
+          echo "=== Current directory ==="
+          pwd
+          echo "=== Git status ==="
+          git status
+          echo "=== Current commit ==="
+          git rev-parse HEAD
+          echo "=== pyproject.toml content ==="
+          cat pyproject.toml
+          echo "=== bump-my-version config ==="
+          bump-my-version --config-file pyproject.toml --verbose show
+          
       - name: Create version bump branch
         id: version-update
         if: steps.check-changes.outputs.needs_bump == 'true'

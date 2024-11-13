@@ -120,19 +120,15 @@ jobs:
           BRANCH_NAME="version-bump-${{ github.event.pull_request.head.sha }}"
           git checkout -b $BRANCH_NAME
 
-          # Get the latest tag by version number
+          # Get latest version from tags
           LATEST_TAG=$(git tag --sort=-version:refname | head -n1)
           CURRENT_VERSION=${LATEST_TAG#v}  # Remove 'v' prefix
           echo "Latest tag: $LATEST_TAG (version: $CURRENT_VERSION)"
-
-          # Show current version before bump, and new version
-          echo "Current version before bump:"
-          bump-my-version show current_version
-          bump-my-version bump ${{ steps.bump-type.outputs.type }} --verbose
           
-          echo "Version after bump:"
-          bump-my-version show current_version
-          NEW_VERSION=$(bump-my-version show current_version)
+          echo "=== Performing bump ==="
+          bump-my-version --current-version $CURRENT_VERSION bump ${{ steps.bump-type.outputs.type }} --verbose
+          
+          NEW_VERSION=$(grep '^version = ' pyproject.toml | cut -d'"' -f2)
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           
           # Push the branch with tags

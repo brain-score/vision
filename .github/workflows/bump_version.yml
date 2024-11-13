@@ -21,7 +21,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          fetch-tags: true
           token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Fetch all tags
+        run: |
+          git fetch --tags --force  # Force update of tags
+          echo "Latest tags:"
+          git tag --sort=-creatordate | head -n 5  # Show 5 most recent tags
 
       - name: Check for non-plugin changes
         id: check-changes

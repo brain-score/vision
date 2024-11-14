@@ -1,0 +1,164 @@
+name: Perform layer mapping
+
+
+# THIS WORKFLOW ONLY WORKS WHEN NEW_MODEL CHANGES ARE MADE. BENCHMARKS ARE NOT SUPPORTED
+
+on:
+  status:
+  pull_request:
+    types: [labeled, synchronize]
+
+jobs:
+  # Trigger Layer Mapping only on web_submissions OR if trigger-mapping label is added to PR
+  check_jenkins_jobs:
+    name: Check Triggers
+    runs-on: ubuntu-latest
+    outputs:
+      all_checks_passed: ${{ steps.check_jenkins_jobs.outputs.all_checks_passed }}
+    if: |
+      (
+        (
+          startsWith(github.head_ref, 'web_submission_') &&
+          endsWith(github.head_ref, '/add_plugins')
+        )
+        || contains(github.event.pull_request.labels.*.name, 'trigger-mapping')
+      )
+    steps:
+      # Wait for Plugin Unit Test Checks to complete
+      - name: Check if both Jenkins jobs are successful
+        id: check_jenkins_jobs
+        run: |
+          required_checks=("Brain-Score Plugins Unit tests (AWS Jenkins, AWS Execution)" "Brain-Score Non-Plugin Unit tests (AWS Jenkins, AWS Execution)")
+          completed_checks=0
+          all_checks_passed=true
+
+          echo "Using github PR head sha: ${{ github.event.pull_request.head.sha }}"
+          
+          # Fetch the status of all checks for this commit
+          statuses=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/brain-score/vision/commits/${{ github.event.pull_request.head.sha }}/status")
+
+          echo "Statuses response from GitHub API:"
+          echo "$statuses" | jq '.statuses[] | {context: .context, state: .state}'
+          
+          # Loop through each required check and verify if it has succeeded
+          for check in "${required_checks[@]}"; do
+            if echo "$statuses" | jq -e --arg check "$check" '.statuses[] | select(.context == $check and .state == "success")' > /dev/null; then
+              echo "Job '$check' is successful."
+              ((completed_checks+=1))
+            else
+              echo "Job '$check' is NOT successful."
+              all_checks_passed=false
+            fi
+          done
+
+          echo "Completed checks: $completed_checks / ${#required_checks[@]}"
+          echo "all_checks_passed=$all_checks_passed" >> $GITHUB_OUTPUT
+
+  trigger_layer_mapping:
+    name: Trigger Layer Mapping
+    runs-on: ubuntu-latest
+    needs: check_jenkins_jobs
+    if: ${{ needs.check_jenkins_jobs.outputs.all_checks_passed == 'true' }}
+    steps:
+      # Check out PR head
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      # Set up Python 3.11 because we are using some brainscore_core functions
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools
+          python -m pip install ".[test]"
+
+      # Get a list of changed files. `score_new_plugins.yml` version was not working on my forked branch
+      # because it was always comparing to origin/masster. Can revert back to score version of this step
+      - name: Get Changed Files
+        id: changed_files
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = ${{ github.event.number }};
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+              per_page: 100,
+            });
+            const changedFiles = files.map(f => f.filename).join(' ');
+            core.setOutput('files', changedFiles);
+
+      # Store changed files as a variable
+      - name: Set CHANGED_FILES
+        run: |
+          echo "CHANGED_FILES=${{ steps.changed_files.outputs.files }}" >> $GITHUB_ENV
+
+      # Parse changes for relevant information
+      - name: Get plugin info
+        id: getplugininfo
+        run: |
+          set -e
+          # Execute the Python script and capture the JSON output
+          PLUGIN_INFO=$(python -c "from brainscore_core.plugin_management.parse_plugin_changes import get_scoring_info; get_scoring_info('${{ env.CHANGED_FILES }}', 'brainscore_vision')")
+          # Set the output correctly without extra quotes
+          echo "PLUGIN_INFO=$PLUGIN_INFO" >> $GITHUB_OUTPUT
+          # Debug output to verify
+          echo "PLUGIN_INFO is $PLUGIN_INFO"
+
+      # Extract run_score and store in RUN_MAPPING
+      - name: Check if layer mapping needed
+        id: mappingneeded
+        run: |
+          RUN_MAPPING=$(echo '${{ steps.getplugininfo.outputs.PLUGIN_INFO }}' | jq -r '.run_score')
+          echo "RUN_MAPPING=$RUN_MAPPING" >> $GITHUB_OUTPUT
+          echo "RUN_MAPPING is $RUN_MAPPING"
+
+      # Extract list of new_models and the pr_number and store as env var
+      - name: Extract new_models and pr_number
+        run: |
+          set -e
+          PLUGIN_INFO="${PLUGIN_INFO}"
+          NEW_MODELS=$(echo '${{ steps.getplugininfo.outputs.PLUGIN_INFO }}' | jq -r '.new_models')
+          PR_NUMBER="${{ github.event.number }}"
+          echo "NEW_MODELS=$NEW_MODELS"
+          echo "PR_NUMBER=$PR_NUMBER"
+          echo "NEW_MODELS=$NEW_MODELS" >> $GITHUB_ENV
+          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+
+      # If new_models is not empty and run_mapping is true, trigger Jenkins with correct payload
+      - name: Trigger Jenkins
+        if: ${{ steps.mappingneeded.outputs.RUN_MAPPING == 'True' && env.NEW_MODELS != '' }}
+        env:
+          JENKINS_USER: ${{ secrets.JENKINS_MAPPING_USER }}
+          JENKINS_USER_API: ${{ secrets.JENKINS_MAPPING_USER_API }}
+          JENKINS_TOKEN: ${{ secrets.JENKINS_MAPPING_TOKEN }}
+          JENKINS_TRIGGER: ${{ secrets.JENKINS_MAPPING_URL }}
+          # Relevant parameters for the Jenkins job
+          NEW_MODELS: ${{ env.NEW_MODELS }}
+          SOURCE_REPO: ${{ github.event.pull_request.head.repo.clone_url }}
+          SOURCE_BRANCH: ${{ github.head_ref }}
+          PR_NUMBER: ${{ env.PR_NUMBER }}
+        run: |
+          if [[ -z "$JENKINS_TRIGGER" || -z "$JENKINS_USER" || -z "$JENKINS_USER_API" || -z "$JENKINS_TOKEN" ]]; then
+            echo "One or more Jenkins environment variables are empty. Aborting."
+            exit 1
+          fi
+      
+          curl -X POST "$JENKINS_TRIGGER" \
+            --user "$JENKINS_USER:$JENKINS_USER_API" \
+            --data-urlencode "NEW_MODELS=$NEW_MODELS" \
+            --data-urlencode "PR_NUMBER=$PR_NUMBER" \
+            --data-urlencode "SOURCE_REPO=$SOURCE_REPO" \
+            --data-urlencode "SOURCE_BRANCH=$SOURCE_BRANCH" \
+            --data-urlencode "TOKEN=$JENKINS_TOKEN"
+

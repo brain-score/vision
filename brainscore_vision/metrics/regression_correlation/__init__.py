@@ -11,6 +11,15 @@ metric_registry['neuron_to_neuron'] = lambda *args, **kwargs: CrossRegressedCorr
 metric_registry['linear_predictivity'] = lambda *args, **kwargs: CrossRegressedCorrelation(
     regression=linear_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
 
+# temporal metrics
+from .metric import SpanTimeCrossRegressedCorrelation
+
+metric_registry['spantime_pls'] = lambda *args, **kwargs: SpanTimeCrossRegressedCorrelation(
+  regression=pls_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
+metric_registry['spantime_ridge'] = lambda *args, **kwargs: SpanTimeCrossRegressedCorrelation(
+  regression=ridge_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
+
+
 BIBTEX = """@article{schrimpf2018brain,
   title={Brain-score: Which artificial neural network for object recognition is most brain-like?},
   author={Schrimpf, Martin and Kubilius, Jonas and Hong, Ha and Majaj, Najib J and Rajalingham, Rishi and Issa, Elias B and Kar, Kohitij and Bashivan, Pouya and Prescott-Roy, Jonathan and Geiger, Franziska and others},

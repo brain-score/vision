@@ -22,9 +22,9 @@ To contribute, please [send in a pull request](https://github.com/brain-score/vi
 
 ## Local installation
 
-You will need Python = 3.7 and pip >= 18.1.
+You will need Python = 3.11 and pip >= 18.1.
 
-`pip install git+https://github.com/brain-score/vision`
+`pip install git+https://github.com/brain-score/vision.git`
 
 Test if the installation is successful by scoring a model on a public benchmark:
 

@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import RidgeClassifierCV
 from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 
 # import brain-score specific libraries
@@ -89,7 +91,10 @@ class _OOD_AnalysisBenchmark(BenchmarkBase):
 
 def OOD_AnalysisBenchmark():
     return _OOD_AnalysisBenchmark(
-        classifier=RidgeClassifierCV(alphas=[0.0001, 0.001, 0.01, 0.1, 1, 10], fit_intercept=True, normalize=True)
+        classifier=Pipeline([
+            ('scaler', StandardScaler()), 
+            ('classifier', RidgeClassifierCV(alphas=[0.0001, 0.001, 0.01, 0.1, 1, 10], fit_intercept=True))
+        ])
     )
 
 

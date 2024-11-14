@@ -1,0 +1,869 @@
+{
+  "resnet18_imagenet_full": {
+    "model_name": "resnet18",
+    "model_id": "resnet18_imagenet_full",
+    "num_classes": 1000,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bilinear",
+    "load_model_ema": false,
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "model_commitment": {
+      "layers": [
+        "layer1.0.bn1",
+        "layer2.0.bn2",
+        "layer3.0.conv2",
+        "layer4.0.bn1"
+      ],
+      "behavioral_readout_layer": "avgpool",
+      "region_layer_map": {
+        "V1": "layer1.0.bn1",
+        "V2": "layer3.0.conv2",
+        "V4": "layer2.0.bn2",
+        "IT": "layer4.0.bn1"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/resnet18_imagenet_full/ep100.pt"
+  },
+  "resnet34_imagenet_full": {
+    "model_name": "resnet34",
+    "model_id": "resnet34_imagenet_full",
+    "num_classes": 1000,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bilinear",
+    "load_model_ema": false,
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "model_commitment": {
+      "layers": [
+        "layer1.0.bn1",
+        "layer2.0.bn2",
+        "layer3.1.conv1",
+        "layer4.0.bn1"
+      ],
+      "behavioral_readout_layer": "avgpool",
+      "region_layer_map": {
+        "V1": "layer1.0.bn1",
+        "V2": "layer3.1.conv1",
+        "V4": "layer2.0.bn2",
+        "IT": "layer4.0.bn1"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/resnet34_imagenet_full/ep100.pt"
+  },
+  "resnet50_imagenet_full": {
+    "model_name": "resnet50",
+    "model_id": "resnet50_imagenet_full",
+    "num_classes": 1000,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bilinear",
+    "load_model_ema": false,
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "model_commitment": {
+      "layers": [
+        "layer1.0.conv1",
+        "layer3.0.conv1",
+        "layer3.5.bn3",
+        "layer4.0.relu"
+      ],
+      "behavioral_readout_layer": "avgpool",
+      "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/resnet50_imagenet_full/ep100.pt"
+  },
+  "resnet101_imagenet_full": {
+    "model_name": "resnet101",
+    "model_id": "resnet101_imagenet_full",
+    "num_classes": 1000,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bilinear",
+    "load_model_ema": false,
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "model_commitment": {
+      "layers": [
+        "layer1.0.bn1",
+        "layer3.0.bn3",
+        "layer4.0.bn1",
+        "layer4.0.relu"
+      ],
+      "behavioral_readout_layer": "avgpool",
+      "region_layer_map": {
+        "V1": "layer1.0.bn1",
+        "V2": "layer4.0.bn1",
+        "V4": "layer3.0.bn3",
+        "IT": "layer4.0.relu"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/resnet101_imagenet_full/ep100.pt"
+  },
+  "resnet152_imagenet_full": {
+    "model_name": "resnet152",
+    "model_id": "resnet152_imagenet_full",
+    "num_classes": 1000,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bilinear",
+    "load_model_ema": false,
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "model_commitment": {
+      "layers": [
+        "layer1.0.bn1",
+        "layer3.0.bn3",
+        "layer3.3.bn3",
+        "layer3.34.bn3"
+      ],
+      "behavioral_readout_layer": "avgpool",
+      "region_layer_map": {
+        "V1": "layer1.0.bn1",
+        "V2": "layer3.3.bn3",
+        "V4": "layer3.0.bn3",
+        "IT": "layer3.34.bn3"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/resnet152_imagenet_full/ep100.pt"
+  },
+  "resnet18_ecoset_full": {
+    "model_name": "resnet18",
+    "model_id": "resnet18_ecoset_full",
+    "num_classes": 565,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bilinear",
+    "load_model_ema": false,
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "model_commitment": {
+      "layers": [
+        "layer1.0.conv1",
+        "layer2.0.bn2",
+        "layer3.0.conv1",
+        "layer4.0.bn1"
+      ],
+      "behavioral_readout_layer": "avgpool",
+      "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.0.conv1",
+        "V4": "layer2.0.bn2",
+        "IT": "layer4.0.bn1"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/resnet18_ecoset_full/ep100.pt"
+  },
+  "resnet34_ecoset_full": {
+    "model_name": "resnet34",
+    "model_id": "resnet34_ecoset_full",
+    "num_classes": 565,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bilinear",
+    "load_model_ema": false,
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "model_commitment": {
+      "layers": [
+        "layer1.0.bn1",
+        "layer3.0.conv1",
+        "layer3.1.conv1",
+        "layer4.0.conv1"
+      ],
+      "behavioral_readout_layer": "avgpool",
+      "region_layer_map": {
+        "V1": "layer1.0.bn1",
+        "V2": "layer3.1.conv1",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.conv1"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/resnet34_ecoset_full/ep100.pt"
+  },
+  "resnet50_ecoset_full": {
+    "model_name": "resnet50",
+    "model_id": "resnet50_ecoset_full",
+    "num_classes": 565,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bilinear",
+    "load_model_ema": false,
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "model_commitment": {
+      "layers": [
+        "layer1.0.bn1",
+        "layer3.0.conv1",
+        "layer4.0.conv2",
+        "layer4.0.relu"
+      ],
+      "behavioral_readout_layer": "avgpool",
+      "region_layer_map": {
+        "V1": "layer1.0.bn1",
+        "V2": "layer4.0.conv2",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/resnet50_ecoset_full/ep100.pt"
+  },
+  "resnet101_ecoset_full": {
+    "model_name": "resnet101",
+    "model_id": "resnet101_ecoset_full",
+    "num_classes": 565,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bilinear",
+    "load_model_ema": false,
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "model_commitment": {
+      "layers": [
+        "layer1.0.bn1",
+        "layer3.0.bn3",
+        "layer3.4.relu",
+        "layer4.0.relu"
+      ],
+      "behavioral_readout_layer": "avgpool",
+      "region_layer_map": {
+        "V1": "layer1.0.bn1",
+        "V2": "layer3.4.relu",
+        "V4": "layer3.0.bn3",
+        "IT": "layer4.0.relu"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/resnet101_ecoset_full/ep100.pt"
+  },
+  "resnet152_ecoset_full": {
+    "model_name": "resnet152",
+    "model_id": "resnet152_ecoset_full",
+    "num_classes": 565,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bilinear",
+    "load_model_ema": false,
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "model_commitment": {
+      "layers": [
+        "layer1.0.bn1",
+        "layer3.0.bn3",
+        "layer3.3.bn3",
+        "layer4.0.relu"
+      ],
+      "behavioral_readout_layer": "avgpool",
+      "region_layer_map": {
+        "V1": "layer1.0.bn1",
+        "V2": "layer3.3.bn3",
+        "V4": "layer3.0.bn3",
+        "IT": "layer4.0.relu"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/resnet152_ecoset_full/ep100.pt"
+  },
+  "resnet50_imagenet_1_seed-0": {
+    "model_name": "resnet50",
+    "model_id": "resnet50_imagenet_1_seed-0",
+    "num_classes": 1000,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bilinear",
+    "load_model_ema": false,
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "model_commitment": {
+      "layers": [
+        "layer1.0.conv1",
+        "layer3.0.conv1",
+        "layer3.5.bn3",
+        "layer4.0.relu"
+      ],
+      "behavioral_readout_layer": "avgpool",
+      "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/resnet50_imagenet_1_seed-0/ep100.pt"
+  },
+  "resnet50_imagenet_10_seed-0": {
+    "model_name": "resnet50",
+    "model_id": "resnet50_imagenet_10_seed-0",
+    "num_classes": 1000,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bilinear",
+    "load_model_ema": false,
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "model_commitment": {
+      "layers": [
+        "layer1.0.conv1",
+        "layer3.0.conv1",
+        "layer3.5.bn3",
+        "layer4.0.relu"
+      ],
+      "behavioral_readout_layer": "avgpool",
+      "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/resnet50_imagenet_10_seed-0/ep100.pt"
+  },
+  "resnet50_imagenet_100_seed-0": {
+    "model_name": "resnet50",
+    "model_id": "resnet50_imagenet_100_seed-0",
+    "num_classes": 1000,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bilinear",
+    "load_model_ema": false,
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "model_commitment": {
+      "layers": [
+        "layer1.0.conv1",
+        "layer3.0.conv1",
+        "layer3.5.bn3",
+        "layer4.0.relu"
+      ],
+      "behavioral_readout_layer": "avgpool",
+      "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/resnet50_imagenet_100_seed-0/ep100.pt"
+  },
+  "efficientnet_b0_imagenet_full": {
+    "model_name": "efficientnet_b0",
+    "model_id": "efficientnet_b0_imagenet_full",
+    "num_classes": 1000,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bilinear",
+    "load_model_ema": false,
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.classifier[1]",
+    "model_commitment": {
+      "layers": [
+        "features.4.0.block.0.1",
+        "features.4.0.block.1.0",
+        "features.4.1.block.3.1",
+        "features.6.0.block.3.0"
+      ],
+      "behavioral_readout_layer": "avgpool",
+      "region_layer_map": {
+        "V1": "features.4.0.block.1.0",
+        "V2": "features.4.1.block.3.1",
+        "V4": "features.4.0.block.0.1",
+        "IT": "features.6.0.block.3.0"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/efficientnet_b0_imagenet_full/ep100.pt"
+  },
+  "efficientnet_b1_imagenet_full": {
+    "model_name": "efficientnet_b1",
+    "model_id": "efficientnet_b1_imagenet_full",
+    "num_classes": 1000,
+    "resize_size": 255,
+    "crop_size": 240,
+    "interpolation": "bilinear",
+    "load_model_ema": false,
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.classifier[1]",
+    "model_commitment": {
+      "layers": [
+        "features.4.0.block.0.1",
+        "features.4.0.block.1.0",
+        "features.6.0.block.3.0"
+      ],
+      "behavioral_readout_layer": "avgpool",
+      "region_layer_map": {
+        "V1": "features.4.0.block.0.1",
+        "V2": "features.4.0.block.1.0",
+        "V4": "features.4.0.block.0.1",
+        "IT": "features.6.0.block.3.0"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/efficientnet_b1_imagenet_full/ep100.pt"
+  },
+  "efficientnet_b2_imagenet_full": {
+    "model_name": "efficientnet_b2",
+    "model_id": "efficientnet_b2_imagenet_full",
+    "num_classes": 1000,
+    "resize_size": 288,
+    "crop_size": 288,
+    "interpolation": "bilinear",
+    "load_model_ema": false,
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.classifier[1]",
+    "model_commitment": {
+      "layers": [
+        "features.4.0.block.3.0",
+        "features.5.0.block.1.0",
+        "features.6.0.block.3.0"
+      ],
+      "behavioral_readout_layer": "avgpool",
+      "region_layer_map": {
+        "V1": "features.4.0.block.3.0",
+        "V2": "features.5.0.block.1.0",
+        "V4": "features.4.0.block.3.0",
+        "IT": "features.6.0.block.3.0"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/efficientnet_b2_imagenet_full/ep100.pt"
+  },
+  "deit_small_imagenet_full_seed-0": {
+    "model_name": "deit_small",
+    "model_id": "deit_small_imagenet_full_seed-0",
+    "num_classes": 1000,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bicubic",
+    "load_model_ema": true,
+    "use_timm": true,
+    "timm_model_name": "deit3_small_patch16_224",
+    "is_vit": true,
+    "epoch": 300,
+    "output_head": null,
+    "model_commitment": {
+      "layers": [
+        "blocks.2.norm1",
+        "blocks.5.norm1",
+        "blocks.6.norm2",
+        "blocks.9.norm2"
+      ],
+      "behavioral_readout_layer": "fc_norm",
+      "region_layer_map": {
+        "V1": "blocks.2.norm1",
+        "V2": "blocks.6.norm2",
+        "V4": "blocks.5.norm1",
+        "IT": "blocks.9.norm2"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/deit_small_imagenet_full_seed-0/ep300.pt"
+  },
+  "deit_base_imagenet_full_seed-0": {
+    "model_name": "deit_base",
+    "model_id": "deit_base_imagenet_full_seed-0",
+    "num_classes": 1000,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bicubic",
+    "load_model_ema": true,
+    "use_timm": true,
+    "timm_model_name": "deit3_base_patch16_224",
+    "is_vit": true,
+    "epoch": 300,
+    "output_head": null,
+    "model_commitment": {
+      "layers": [
+        "blocks.3.mlp.act",
+        "blocks.3.mlp.fc1",
+        "blocks.8.norm2",
+        "blocks.9.norm2"
+      ],
+      "behavioral_readout_layer": "fc_norm",
+      "region_layer_map": {
+        "V1": "blocks.3.mlp.fc1",
+        "V2": "blocks.8.norm2",
+        "V4": "blocks.3.mlp.act",
+        "IT": "blocks.9.norm2"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/deit_base_imagenet_full_seed-0/ep300.pt"
+  },
+  "deit_large_imagenet_full_seed-0": {
+    "model_name": "deit_large",
+    "model_id": "deit_large_imagenet_full_seed-0",
+    "num_classes": 1000,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bicubic",
+    "load_model_ema": true,
+    "use_timm": true,
+    "timm_model_name": "deit3_large_patch16_224",
+    "is_vit": true,
+    "epoch": 300,
+    "output_head": null,
+    "model_commitment": {
+      "layers": [
+        "blocks.18.norm2",
+        "blocks.20.norm2",
+        "blocks.4.norm1",
+        "blocks.9.norm1"
+      ],
+      "behavioral_readout_layer": "fc_norm",
+      "region_layer_map": {
+        "V1": "blocks.4.norm1",
+        "V2": "blocks.18.norm2",
+        "V4": "blocks.9.norm1",
+        "IT": "blocks.20.norm2"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/deit_large_imagenet_full_seed-0/ep300.pt"
+  },
+  "deit_small_imagenet_1_seed-0": {
+    "model_name": "deit_small",
+    "model_id": "deit_small_imagenet_1_seed-0",
+    "num_classes": 1000,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bicubic",
+    "load_model_ema": true,
+    "use_timm": true,
+    "timm_model_name": "deit3_small_patch16_224",
+    "is_vit": true,
+    "epoch": 300,
+    "output_head": null,
+    "model_commitment": {
+      "layers": [
+        "blocks.2.norm1",
+        "blocks.5.norm1",
+        "blocks.6.norm2",
+        "blocks.9.norm2"
+      ],
+      "behavioral_readout_layer": "fc_norm",
+      "region_layer_map": {
+        "V1": "blocks.2.norm1",
+        "V2": "blocks.6.norm2",
+        "V4": "blocks.5.norm1",
+        "IT": "blocks.9.norm2"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/deit_small_imagenet_1_seed-0/ep300.pt"
+  },
+  "deit_small_imagenet_10_seed-0": {
+    "model_name": "deit_small",
+    "model_id": "deit_small_imagenet_10_seed-0",
+    "num_classes": 1000,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bicubic",
+    "load_model_ema": true,
+    "use_timm": true,
+    "timm_model_name": "deit3_small_patch16_224",
+    "is_vit": true,
+    "epoch": 300,
+    "output_head": null,
+    "model_commitment": {
+      "layers": [
+        "blocks.2.norm1",
+        "blocks.5.norm1",
+        "blocks.6.norm2",
+        "blocks.9.norm2"
+      ],
+      "behavioral_readout_layer": "fc_norm",
+      "region_layer_map": {
+        "V1": "blocks.2.norm1",
+        "V2": "blocks.6.norm2",
+        "V4": "blocks.5.norm1",
+        "IT": "blocks.9.norm2"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/deit_small_imagenet_10_seed-0/ep300.pt"
+  },
+  "deit_small_imagenet_100_seed-0": {
+    "model_name": "deit_small",
+    "model_id": "deit_small_imagenet_100_seed-0",
+    "num_classes": 1000,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bicubic",
+    "load_model_ema": true,
+    "use_timm": true,
+    "timm_model_name": "deit3_small_patch16_224",
+    "is_vit": true,
+    "epoch": 300,
+    "output_head": null,
+    "model_commitment": {
+      "layers": [
+        "blocks.2.norm1",
+        "blocks.5.norm1",
+        "blocks.6.norm2",
+        "blocks.9.norm2"
+      ],
+      "behavioral_readout_layer": "fc_norm",
+      "region_layer_map": {
+        "V1": "blocks.2.norm1",
+        "V2": "blocks.6.norm2",
+        "V4": "blocks.5.norm1",
+        "IT": "blocks.9.norm2"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/deit_small_imagenet_100_seed-0/ep300.pt"
+  },
+  "convnext_tiny_imagenet_full_seed-0": {
+    "model_name": "convnext_tiny",
+    "model_id": "convnext_tiny_imagenet_full_seed-0",
+    "num_classes": 1000,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bicubic",
+    "load_model_ema": true,
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 300,
+    "output_head": "model.classifier[2]",
+    "model_commitment": {
+      "layers": [
+        "features.4.0",
+        "features.5.4.block.0",
+        "features.6.0"
+      ],
+      "behavioral_readout_layer": "classifier.1",
+      "region_layer_map": {
+        "V1": "features.6.0",
+        "V2": "features.5.4.block.0",
+        "V4": "features.4.0",
+        "IT": "features.5.4.block.0"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/convnext_tiny_imagenet_full_seed-0/ep300.pt"
+  },
+  "convnext_small_imagenet_full_seed-0": {
+    "model_name": "convnext_small",
+    "model_id": "convnext_small_imagenet_full_seed-0",
+    "num_classes": 1000,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bicubic",
+    "load_model_ema": true,
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 300,
+    "output_head": "model.classifier[2]",
+    "model_commitment": {
+      "layers": [
+        "features.4.0",
+        "features.5.17.block.0",
+        "features.5.2.block.0",
+        "features.5.9.block.0"
+      ],
+      "behavioral_readout_layer": "classifier.1",
+      "region_layer_map": {
+        "V1": "features.5.2.block.0",
+        "V2": "features.5.17.block.0",
+        "V4": "features.4.0",
+        "IT": "features.5.9.block.0"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/convnext_small_imagenet_full_seed-0/ep300.pt"
+  },
+  "convnext_base_imagenet_full_seed-0": {
+    "model_name": "convnext_base",
+    "model_id": "convnext_base_imagenet_full_seed-0",
+    "num_classes": 1000,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bicubic",
+    "load_model_ema": true,
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 300,
+    "output_head": "model.classifier[2]",
+    "model_commitment": {
+      "layers": [
+        "features.4.0",
+        "features.5.11.block.0",
+        "features.5.12.block.0",
+        "features.5.7.block.0"
+      ],
+      "behavioral_readout_layer": "classifier.1",
+      "region_layer_map": {
+        "V1": "features.5.7.block.0",
+        "V2": "features.5.12.block.0",
+        "V4": "features.4.0",
+        "IT": "features.5.11.block.0"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/convnext_base_imagenet_full_seed-0/ep300.pt"
+  },
+  "convnext_large_imagenet_full_seed-0": {
+    "model_name": "convnext_large",
+    "model_id": "convnext_large_imagenet_full_seed-0",
+    "num_classes": 1000,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bicubic",
+    "load_model_ema": true,
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 300,
+    "output_head": "model.classifier[2]",
+    "model_commitment": {
+      "layers": [
+        "features.4.1",
+        "features.5.11.block.0",
+        "features.5.7.block.0",
+        "features.5.7.block.5"
+      ],
+      "behavioral_readout_layer": "classifier.1",
+      "region_layer_map": {
+        "V1": "features.5.7.block.5",
+        "V2": "features.5.7.block.0",
+        "V4": "features.4.1",
+        "IT": "features.5.11.block.0"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/convnext_large_imagenet_full_seed-0/ep300.pt"
+  },
+  "convnext_small_imagenet_1_seed-0": {
+    "model_name": "convnext_small",
+    "model_id": "convnext_small_imagenet_1_seed-0",
+    "num_classes": 1000,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bicubic",
+    "load_model_ema": true,
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 300,
+    "output_head": "model.classifier[2]",
+    "model_commitment": {
+      "layers": [
+        "features.4.0",
+        "features.5.17.block.0",
+        "features.5.2.block.0",
+        "features.5.9.block.0"
+      ],
+      "behavioral_readout_layer": "classifier.1",
+      "region_layer_map": {
+        "V1": "features.5.2.block.0",
+        "V2": "features.5.17.block.0",
+        "V4": "features.4.0",
+        "IT": "features.5.9.block.0"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/convnext_small_imagenet_1_seed-0/ep300.pt"
+  },
+  "convnext_small_imagenet_10_seed-0": {
+    "model_name": "convnext_small",
+    "model_id": "convnext_small_imagenet_10_seed-0",
+    "num_classes": 1000,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bicubic",
+    "load_model_ema": true,
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 300,
+    "output_head": "model.classifier[2]",
+    "model_commitment": {
+      "layers": [
+        "features.4.0",
+        "features.5.17.block.0",
+        "features.5.2.block.0",
+        "features.5.9.block.0"
+      ],
+      "behavioral_readout_layer": "classifier.1",
+      "region_layer_map": {
+        "V1": "features.5.2.block.0",
+        "V2": "features.5.17.block.0",
+        "V4": "features.4.0",
+        "IT": "features.5.9.block.0"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/convnext_small_imagenet_10_seed-0/ep300.pt"
+  },
+  "convnext_small_imagenet_100_seed-0": {
+    "model_name": "convnext_small",
+    "model_id": "convnext_small_imagenet_100_seed-0",
+    "num_classes": 1000,
+    "resize_size": 256,
+    "crop_size": 224,
+    "interpolation": "bicubic",
+    "load_model_ema": true,
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 300,
+    "output_head": "model.classifier[2]",
+    "model_commitment": {
+      "layers": [
+        "features.4.0",
+        "features.5.17.block.0",
+        "features.5.2.block.0",
+        "features.5.9.block.0"
+      ],
+      "behavioral_readout_layer": "classifier.1",
+      "region_layer_map": {
+        "V1": "features.5.2.block.0",
+        "V2": "features.5.17.block.0",
+        "V4": "features.4.0",
+        "IT": "features.5.9.block.0"
+      }
+    },
+    "checkpoint_url": "https://epfl-neuroailab-scalinglaws.s3.eu-north-1.amazonaws.com/checkpoints/convnext_small_imagenet_100_seed-0/ep300.pt"
+  }
+}

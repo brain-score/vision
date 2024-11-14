@@ -258,7 +258,7 @@ class TestStimulusSets:
     ])
     def test_number_of_images(self, identifier, num_images):
         stimulus_set = load_stimulus_set(identifier)
-        assert len(np.unique(stimulus_set['image_id'].values)) == num_images
+        assert len(np.unique(stimulus_set['stimulus_id'].values)) == num_images
 
     # test assembly coords present in ALL 17 sets:
     @pytest.mark.parametrize('identifier', [

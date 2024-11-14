@@ -8,6 +8,7 @@ from brainio.assemblies import walk_coords, DataAssembly
 from brainscore_core.metrics import Metric, Score
 from brainscore_vision.metric_helpers.transformations import CrossValidation
 from brainscore_vision.metric_helpers.xarray_utils import XarrayRegression, XarrayCorrelation
+from brainscore_vision.metric_helpers.temporal import SpanTimeRegression, PerTime
 
 
 class CrossRegressedCorrelation(Metric):
@@ -63,6 +64,15 @@ class SingleRegression:
         X = X.values
         Ypred = X[:, self.mapping]
         return Ypred
+
+
+# make the crc to consider time as a sample dimension
+def SpanTimeCrossRegressedCorrelation(regression, correlation, *args, **kwargs):
+    return CrossRegressedCorrelation(
+                regression=SpanTimeRegression(regression), 
+                correlation=PerTime(correlation), 
+                *args, **kwargs
+            )    
 
 
 def pls_regression(regression_kwargs=None, xarray_kwargs=None):

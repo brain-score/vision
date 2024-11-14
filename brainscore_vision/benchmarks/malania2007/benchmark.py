@@ -110,7 +110,12 @@ class _Malania2007Base(BenchmarkBase):
 
     def __call__(self, candidate: BrainModel):
         model_responses = {}
-        candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli=self._fitting_stimuli,
+        fitting_stimulus_set = place_on_screen(
+            self._fitting_stimuli,
+            target_visual_degrees=candidate.visual_degrees(),
+            source_visual_degrees=self._visual_degrees
+        )
+        candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli=fitting_stimulus_set,
                              number_of_trials=2, require_variance=True)
         for condition in (self.baseline_condition, self.condition):
             stimulus_set = place_on_screen(
@@ -160,9 +165,15 @@ class _Malania2007VernierAcuity(BenchmarkBase):
 
     def __call__(self, candidate: BrainModel):
         scores = []
+
         for condition in self.conditions:
-            candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli=self._fitting_stimuli[condition],
-                                 number_of_trials=2, require_variance=True)
+            fitting_stimulus_set = place_on_screen(
+                self._fitting_stimuli[condition],
+                target_visual_degrees=candidate.visual_degrees(),
+                source_visual_degrees=self._visual_degrees
+            )
+            candidate.start_task(BrainModel.Task.probabilities, fitting_stimuli=fitting_stimulus_set,
+                                number_of_trials=2, require_variance=True)
             stimulus_set = place_on_screen(
                 self._stimulus_set,
                 target_visual_degrees=candidate.visual_degrees(),
@@ -175,6 +186,9 @@ class _Malania2007VernierAcuity(BenchmarkBase):
             # Adjust score to ceiling
             ceiling = self.ceiling
             score = raw_score / ceiling
+            # ensure score <= 1.0
+            if score.values > 1:
+                score = Score(np.array(1.))
             score.attrs['error'] = raw_score.error
 
             score.attrs['raw'] = raw_score

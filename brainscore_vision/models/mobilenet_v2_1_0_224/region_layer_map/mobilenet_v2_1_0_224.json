@@ -1,0 +1,6 @@
+{
+    "V1": "mobilenet_v2.layer.12.reduce_1x1",
+    "V2": "mobilenet_v2.layer.12.conv_3x3",
+    "V4": "mobilenet_v2.layer.12.conv_3x3",
+    "IT": "mobilenet_v2.layer.12.reduce_1x1.convolution"
+}

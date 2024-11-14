@@ -19,7 +19,7 @@ class TestInternalConsistency:
                                dims=['presentation', 'neuroid'])
         ceiler = load_ceiling('internal_consistency')
         ceiling = ceiler(data)
-        assert ceiling == 1
+        assert ceiling.item() == approx(1, abs=1e-8)
 
 
 class TestSplitHalfConsistency:

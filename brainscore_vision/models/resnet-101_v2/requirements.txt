@@ -1,4 +1,0 @@
-torch
-onnx
-onnx2pytorch
-torchvision

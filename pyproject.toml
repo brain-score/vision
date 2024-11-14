@@ -4,7 +4,7 @@
 
 [project]
 name = "brainscore_vision"
-version = "2.1"
+version = "2.2.1"
 description = "The Brain-Score library enables model comparisons to behavioral and neural experiments"
 authors = []
 license = { 'file' = 'LICENSE' }
@@ -50,6 +50,27 @@ requires = [
     "wheel"
 ]
 
+################################################################
+#### version management config ####
+################################################################
+
+[tool.bumpversion]
+parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
+serialize = ["{major}.{minor}.{patch}"]
+search = "version = \"{current_version}\""
+replace = "version = \"{new_version}\""
+regex = false
+ignore_missing_version = false
+tag = true
+sign_tags = false
+tag_name = "v{new_version}"
+tag_message = "Bump version: {current_version} → {new_version}"
+allow_dirty = false
+commit = true
+message = "Bump version: {current_version} → {new_version}"
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
 
 ################################################################
 #### mypy type-checking config ####

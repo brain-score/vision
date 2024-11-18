@@ -637,9 +637,9 @@ def get_model(name):
     assert name == 'nasnet_mobile'
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     model  = nasnetamobile()
-    weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+    weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                    relative_path="nasnet_mobile/nasnetamobile-7e03cead.pth",
-                                   version_id="W0LQScG7jRmZSYsF1MKSURkvZsnK2Fe_",
+                                   version_id="null",
                                    sha1="2f88f50ca7b16c9462cdf4b001bdca6cc82aea35")
     checkpoint = torch.load(weights_path)
     model.load_state_dict(checkpoint, strict=True)

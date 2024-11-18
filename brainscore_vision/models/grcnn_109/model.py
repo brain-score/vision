@@ -244,9 +244,9 @@ def grcnn109(num_classes=1000):
 # init the model and the preprocessing:
 
 
-weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                 relative_path="grcnn_109/checkpoint_params_grcnn109.pt",
-                                version_id="FYBpumw.BxP4tNhnb3rAL.0sQNbkw7Pq",
+                                version_id="null",
                                 sha1="9c5cedb91e1ddd977d899eccfb8e808e8e29c45c")
 checkpoint = torch.load(weights_path, map_location=device)
 model_ft = grcnn109() #models.resnet50(pretrained=True)

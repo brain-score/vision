@@ -9,9 +9,9 @@ import numpy as np
 from onnx2pytorch import ConvertModel
 import os
 
-onnx_model_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+onnx_model_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                    relative_path="resnet-101_v2/resnet-101_v2.onnx",
-                                   version_id="JPmn3lo1W.VI4lOP5mAZaoBQthE_MDZ1",
+                                   version_id="null",
                                    sha1="81798740ba5451ee3c4d71eafb7e569eb288edb5")
 onnx_model = onnx.load(onnx_model_path.as_posix())
 model = ConvertModel(onnx_model)

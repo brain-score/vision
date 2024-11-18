@@ -241,9 +241,9 @@ def grcnn55(num_classes=1000):
 
 #dir_path = os.path.dirname(os.path.realpath(""))
 
-weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                 relative_path="grcnn/checkpoint_params_grcnn55.pt",
-                                version_id="SnkgwO32ntpKnS9UzOz8RecLiaDK6iYn",
+                                version_id="null",
                                 sha1="20fb844e72f21aeb257c053adb2b645bc954839e")
 checkpoint = torch.load(weights_path, map_location=device)
 model_ft = grcnn55() #models.resnet50(pretrained=True)

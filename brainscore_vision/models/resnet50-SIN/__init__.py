@@ -4,4 +4,4 @@ from .model import get_layers,get_model
 
 
 model_registry['resnet50-SIN'] = \
-    lambda: ModelCommitment(identifier='resnet50-SIN_IN', activations_model=get_model('resnet50-SIN'), layers=get_layers('resnet50-SIN'))
+    lambda: ModelCommitment(identifier='resnet50-SIN', activations_model=get_model('resnet50-SIN'), layers=get_layers('resnet50-SIN'))

@@ -21,9 +21,9 @@ def get_model(name):
     assert name == 'resnet50-vicregl0p75'
     #model = torchvision.models.resnet50(pretrained=True)
     model = resnet50(pretrained=False).eval()
-    weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+    weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                    relative_path="resnet50-vicregl0p75/resnet50_alpha0p75.pth",
-                                   version_id="KRPVOjtEZwh2M9RmEtYeNLqQYNCF8HGi",
+                                   version_id="null",
                                    sha1="37a5e0d06050260d73ffbeb3ad163974e4361435")
     ckpt= torch.load(weights_path, map_location=torch.device('cpu'))
     ckpt['fc.weight'] = model.fc.weight

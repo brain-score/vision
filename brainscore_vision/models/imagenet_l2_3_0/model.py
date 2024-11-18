@@ -74,9 +74,9 @@ def get_model(name):
     assert name == "imagenet_l2_3_0"
     data_path = "" #os.path.expandvars(args.data)
     dataset = DATASETS['imagenet'](data_path)
-    weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+    weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                    relative_path="imagenet_l2_3_0/imagenet_l2_3_0.pt",
-                                   version_id="_DnkyyVaASCYaTelmFTl1bEGu1zGW7cM",
+                                   version_id="null",
                                    sha1="cc6e4441abc8ad6d2f4da5db84836e544bfb53fd")
     model, _ = make_and_restore_model(arch='resnet50', dataset=dataset, 
                                       resume_path=weights_path)

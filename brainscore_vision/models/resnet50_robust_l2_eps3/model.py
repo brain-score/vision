@@ -26,9 +26,9 @@ def get_model(name):
     assert name == 'resnet50_robust_l2_eps3'
 
     model = resnet50()
-    weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+    weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                    relative_path="resnet50_robust_l2_eps3/imagenet_l2_3_0.pt",
-                                   version_id="NzQYp41.1YLziaj0U21revm_xZoiMkaM",
+                                   version_id="null",
                                    sha1="cc6e4441abc8ad6d2f4da5db84836e544bfb53fd")
     sd = torch.load(weights_path, map_location=torch.device('cpu'))
     sd_processed = {}

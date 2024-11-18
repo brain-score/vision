@@ -12,7 +12,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn import init
 from functools import reduce
-import os
 import scipy.stats as stats
 from collections import OrderedDict
 import os
@@ -20,7 +19,7 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"]="0"
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-model_identifier = 'vonegrcnn_62e'
+model_identifier = 'vonegrcnn_62e_nobn'
 
 
 ###### DEFINE ELEMENTS OF THE MODELS
@@ -574,9 +573,9 @@ def get_model(name):
                 ]))
         
     model = nn.Sequential(OrderedDict([('module',model)]))
-    weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+    weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                     relative_path="vonegrcnn_62e/model_best.pth",
-                                    version_id="GqlSeSuFMHc.TGSDMBQbkzhIh6EDcSpy",
+                                    version_id="null",
                                     sha1="66f5319888ebd146565fb45144afa92d8a2bef3b")
     checkpoint = torch.load(weights_path, map_location=torch.device('cpu'))
     model.load_state_dict(checkpoint['state_dict'], strict=True)

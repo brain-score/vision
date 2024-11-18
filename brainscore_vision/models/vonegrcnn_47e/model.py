@@ -12,14 +12,9 @@ from functools import reduce
 import os
 import scipy.stats as stats
 from collections import OrderedDict
-from pathlib import Path
-from brainscore_vision.model_helpers import download_weights
-
 os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-import os
-
 
 #VARIABLES
 model_identifier = 'vonegrcnn_47e'
@@ -573,9 +568,9 @@ def get_model(name):
                 ]))
         
     model = nn.Sequential(OrderedDict([('module',model)]))
-    weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+    weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                     relative_path="vonegrcnn_47e/model_best.pth",
-                                    version_id="oDHtT5LGfazRtqwZV7gjci0UPWY6Jw9O",
+                                    version_id="null",
                                     sha1="b6f41387ad77c1565aacb19074a02a770eb27884")
     checkpoint = torch.load(weights_path, map_location=torch.device('cpu'))
     model.load_state_dict(checkpoint['state_dict'], strict=True)

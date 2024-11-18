@@ -1,17 +1,12 @@
 from brainscore_vision.model_helpers.check_submission import check_models
 import numpy as np
 import torch
-#from torch import nn
 import functools
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
-#from brainscore import score_model
 from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
-#from brainscore import score_model
 from pathlib import Path
 from brainscore_vision.model_helpers.s3 import load_weight_file
-#from candidate_models import s3 
-
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn import init
@@ -19,20 +14,11 @@ from functools import reduce
 import os
 import scipy.stats as stats
 from collections import OrderedDict
-
-#from vonenet import get_model
-#from vonenet.vonenet import VOneNet
-
 os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-
-   
-import logging
-import os
-import sys
 
 
 #VARIABLES
@@ -581,9 +567,9 @@ def get_model(name):
                 ]))
         
     model = nn.Sequential(OrderedDict([('module',model)]))   
-    weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+    weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                     relative_path="vonegrcnn_52e_full/model_best.pth",
-                                    version_id="DZnbl0LEfzCchLHIPtMb8zS9iu5wmDA5",
+                                    version_id="null",
                                     sha1="28c4bbef948b2bed1df79273e44b0f65094481a9")
     checkpoint = torch.load(weights_path, map_location=torch.device('cpu'))
     model.load_state_dict(checkpoint['state_dict'], strict=True)

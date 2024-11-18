@@ -4,17 +4,14 @@ from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 from brainscore_vision.model_helpers.s3 import load_weight_file
 import torch
-import torchvision 
-#from torchvision import datasets, models, transforms
-
+import torchvision
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 model_ft = torchvision.models.resnet50(pretrained=False)
-#model = torch.nn.DataParallel(model).cuda()
-weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                 relative_path="resnet_SIN_IN_FT_IN/\
 resnet50_finetune_60_epochs_lr_decay_after_30_start_resnet50_train_45_epochs_combined_IN_SF-ca06340c.pth.tar",
-                                version_id="Rq1PLXx1K5O2WdHFOBGOj3k_YEqAVXfQ",
+                                version_id="null",
                                 sha1="f659302d3ee6efe0e9459331ea99fc65b6aa636b")
 ckpt = torch.load(weights_path, map_location=device)
 

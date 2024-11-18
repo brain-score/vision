@@ -155,9 +155,9 @@ def res2net50(**kwargs):
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
     model = Res2Net(Bottle2neck, [3, 4, 6, 3], baseWidth = 26, scale = 4, **kwargs)
-    weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+    weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                    relative_path="Res2Net50_26w_4s/res2net50_26w_4s-06e79181.pth",
-                                   version_id="_UlyCmdZm.DPjnq76GiQfRPP.SS0UcRA",
+                                   version_id="null",
                                    sha1="905ad1183c7c8fb4b13f0df8c1a22bb76ee2a2fb")
     checkpoint = torch.load(weights_path, map_location=device)
     model.load_state_dict(checkpoint)

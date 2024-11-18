@@ -503,9 +503,9 @@ Template module for a base model submission to brain-score
 """
 model = resnet50(attn_pool=False)
 
-weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                    relative_path="resnet50-moclr8deg/resnet50_moclr_linear_sdnoattn.pth",
-                                   version_id="im7jCYUxfwzwL11iseAEaIh2rbXjVXkU",
+                                   version_id="null",
                                    sha1="e09f117c8e10c0a38ac914aff5b335327fcd4dbf")
 r50_vito_sd= torch.load(weights_path, map_location=torch.device('cpu'))
 

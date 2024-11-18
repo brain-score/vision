@@ -1,0 +1,6 @@
+{
+    "V1": "layer1.0.bn1",
+    "V2": "layer3.1.conv1",
+    "V4": "layer3.1.conv1",
+    "IT": "layer4.0.bn1"
+}

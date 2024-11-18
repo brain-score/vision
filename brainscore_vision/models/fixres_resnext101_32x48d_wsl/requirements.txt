@@ -1,0 +1,5 @@
+torchvision
+torch
+numpy
+importlib
+Fixing-the-train-test-resolution-discrepancy-scripts@ git+https://github.com/mschrimpf/FixRes.git

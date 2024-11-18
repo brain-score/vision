@@ -3,10 +3,10 @@
 
 from setuptools import setup, find_packages
 
-requirements = ["torchvision",
-                "torch",
-                "fire"
-                ]
+requirements = [ "torchvision",
+                 "torch",  
+                 "fire"
+]
 
 setup(
     packages=find_packages(exclude=['tests']),

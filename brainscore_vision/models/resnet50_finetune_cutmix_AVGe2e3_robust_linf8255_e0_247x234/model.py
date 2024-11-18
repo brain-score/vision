@@ -1,30 +1,19 @@
 import functools
 import torch
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
-from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 from PIL import Image
 import numpy as np
 import timm
-from timm.data import resolve_data_config
-from timm.data.transforms_factory import create_transform
+
 import torch.nn as nn
 from albumentations import (
     Compose, Normalize, Resize,CenterCrop
     )
 from albumentations.pytorch import ToTensorV2
-from pathlib import Path
-from brainscore_vision.model_helpers import download_weights
+
 from brainscore_vision.model_helpers.check_submission import check_models
 from brainscore_vision.model_helpers.s3 import load_weight_file
 from collections import OrderedDict
-# This is an example implementation for submitting alexnet as a pytorch model
-# If you use pytorch, don't forget to add it to the setup.py
-
-# Attention: It is important, that the wrapper identifier is unique per model!
-# The results will otherwise be the same due to brain-scores internal result caching mechanism.
-# Please load your pytorch model for usage in CPU. There won't be GPUs available for scoring your model.
-# If the model requires a GPU, contact the brain-score team directly.
-
 
 image_resize = 247
 image_crop = 234
@@ -76,9 +65,9 @@ def get_model(name):
     assert name == 'resnet50_finetune_cutmix_AVGe2e3_robust_linf8255_e0_247x234'
     model= EffNetBX()
 
-    weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+    weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                     relative_path="test_robust_sub/resnet50_robust_cutmixfrontpatchres_e2e3.pth",
-                                    version_id="5xRFpc2YjrU40xliQGh8FkWRzj084Zp7",
+                                    version_id="null",
                                     sha1="26c09e6ccac6d98bb8d384da35ed59da8f2ffa66")
     state_dict = torch.load(weights_path, map_location=torch.device('cpu'))["model"]
 

@@ -6,13 +6,13 @@ from brainscore_vision.model_helpers.s3 import load_weight_file
 import torch
 import imp
 
-model_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+model_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                     relative_path="mobilenet_v2_1.0_128/mobilenet_v2_1.py",
-                                    version_id="O4sHg_DCzi5opG4ihHXNW2x6lwalbNSP",
+                                    version_id="null",
                                     sha1="c5f5fe31e92fc8fee3580f1703fcd3db74f6a753")
-model_weight_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+model_weight_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                     relative_path="mobilenet_v2_1.0_128/mobilenet_v2_1.0_128_frozen.pth",
-                                    version_id="yRGYXVPHnDYCXnPqWNfj4Rw.TPrqGeHP",
+                                    version_id="null",
                                     sha1="5f7f2f0117fc74d16e839bddf63036e6ef6b3e42")
 MainModel = imp.load_source('MainModel',model_path.as_posix())
 model = torch.load(model_weight_path.as_posix()) 

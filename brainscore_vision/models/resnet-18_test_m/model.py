@@ -584,9 +584,9 @@ def get_model(name):
         name = name[:-2]
 
     model = resnet18(width_per_group=64, brain_score=True)
-    weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+    weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                    relative_path="resnet-18_test_m/resnet18-f37072fd.pth",
-                                   version_id="qPyl2ztX15EN7j240v9VP5cjZXv2JMNL",
+                                   version_id="null",
                                    sha1="93e13d94f74fdf476689608f146f47bde96b30b0")
     checkpoint = torch.load(weights_path)
 

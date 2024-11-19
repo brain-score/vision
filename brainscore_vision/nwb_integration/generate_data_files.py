@@ -12,24 +12,33 @@ class DataFactory:
     def __init__(self, user_json: str):
         self._logger = logging.getLogger(fullname(self))
 
+        # self.user_json = user_json
         self.user_json = json.loads(user_json)
         self.parse_json()
 
         self.nwb_file   = validate_nwb_file(self.nwb_file_path, dandiset_id=self.dandiset_id)
-        self.json_file_path = os.path.join(self.exp_path, "nwb_metadata.json")
+        # self.json_file_path = os.path.join(self.exp_path, "nwb_metadata.json")
+        self.json_file_path = Path(self.exp_path) / 'nwb_metadata.json'
         self.generate_json_file()
         with open(self.json_file_path, 'r') as f:
             self.params = json.load(f)
 
     def __call__(self):
-        try: os.mkdir(os.path.join(self.directory, 'test_data_packaging'))
+        # try: os.mkdir(os.path.join(self.directory, 'test_data_packaging'))
+        try: (Path(self.directory) / 'test_data_packaging').mkdir()
         except: pass 
 
-        output_dir = os.path.join(self.directory, 'test_data_packaging')
-        os.mkdir(os.path.join(output_dir, 'data'))
-        output_dir = os.path.join(output_dir, 'data')
-        os.mkdir(os.path.join(output_dir, 'data_packaging'))
-        output_dir = os.path.join(output_dir, 'data_packaging')
+        # output_dir = os.path.join(self.directory, 'test_data_packaging')
+        # os.mkdir(os.path.join(output_dir, 'data'))
+        # output_dir = os.path.join(output_dir, 'data')
+        # os.mkdir(os.path.join(output_dir, 'data_packaging'))
+        # output_dir = os.path.join(output_dir, 'data_packaging')
+        output_dir = Path(self.directory) / 'test_data_packaging'
+        output_dir.mkdir(exist_ok=True)
+        data_dir = output_dir / 'data'
+        data_dir.mkdir(exist_ok=True)
+        output_dir = data_dir / 'data_packaging'
+        output_dir.mkdir(exist_ok=True)
 
         # create and write data packaging code:
         data_packaging_code = self.generate_data_packaging_code()
@@ -49,7 +58,10 @@ class DataFactory:
         self.write_code_into_file(test_code, test_path)
         self._logger.debug('Finished writing test.py')
 
-        os.system(f'mv test_data_packaging/data/data_packaging test_data_packaging/data/{self.identifier}')
+        # os.system(f'mv test_data_packaging/data/data_packaging test_data_packaging/data/{self.identifier}')
+        source = Path('test_data_packaging/data/data_packaging')
+        destination = Path(f'test_data_packaging/data/{self.identifier}')
+        source.rename(destination)
 
         # generate zip file
         folder_to_zip = 'test_data_packaging'
@@ -193,9 +205,29 @@ def test_stimulus_set():
         #-----------------------------------------------------------------------------------------------------------------------------
         # Zip files in folder_path
         #-----------------------------------------------------------------------------------------------------------------------------
+        # with zipfile.ZipFile(output_zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        #     for root, _, files in os.walk(folder_path):
+        #         for file in files:
+        #             file_path = os.path.join(root, file)
+        #             relative_path = os.path.relpath(file_path, os.path.dirname(folder_path))
+        #             zipf.write(file_path, relative_path)
         with zipfile.ZipFile(output_zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-            for root, _, files in os.walk(folder_path):
-                for file in files:
-                    file_path = os.path.join(root, file)
-                    relative_path = os.path.relpath(file_path, os.path.dirname(folder_path))
+            folder_path = Path(folder_path)
+            for file_path in folder_path.rglob('*'):
+                if file_path.is_file():
+                    relative_path = file_path.relative_to(folder_path)
                     zipf.write(file_path, relative_path)
+
+
+if __name__ == '__main__':
+    directory = '/Users/caroljiang/Downloads/vision/brainscore_vision/data/data_generation_trial'
+    exp_path = f"/Users/caroljiang/Downloads/vision/brainscore_vision/data/data_generation_trial/"
+    dandiset_id = '000788'
+    nwb_file_path = 'sub-pico/sub-pico_ecephys.nwb'
+    # nwb_file_path = 'sub-pico/sub-pico_ecephys+image.nwb'
+    # data_factory = DataFactory(directory=directory, exp_path=exp_path, identifier=NWB_METADATA['stimulus_set']['identifier'], dandiset_id=dandiset_id, nwb_file_path=nwb_file_path)
+
+    with open('/Users/caroljiang/Downloads/vision/brainscore_vision/nwb_integration/example_json.json', 'r') as file:
+        user_json = json.load(file)
+    data_factory = DataFactory(user_json=user_json)
+    data_factory()

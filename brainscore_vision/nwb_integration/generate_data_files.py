@@ -213,10 +213,9 @@ def test_stimulus_set():
         #             zipf.write(file_path, relative_path)
         with zipfile.ZipFile(output_zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
             folder_path = Path(folder_path)
-            zipf.write(folder_path, folder_path.name)
             for file_path in folder_path.rglob('*'):
                 if file_path.is_file():
-                    relative_path = file_path.relative_to(folder_path)
+                    relative_path = file_path.relative_to(folder_path.parent)
                     zipf.write(file_path, relative_path)
 
 

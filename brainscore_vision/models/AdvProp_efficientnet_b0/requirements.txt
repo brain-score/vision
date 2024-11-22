@@ -1,2 +1,0 @@
-
-efficientnet_pytorch

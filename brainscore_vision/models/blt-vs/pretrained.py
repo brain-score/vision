@@ -1,4 +1,4 @@
-import os
+
 import hashlib
 import requests
 from pathlib import Path

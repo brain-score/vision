@@ -1,4 +1,4 @@
-from pretrained import (
+from .pretrained import (
     register_model,
     register_aliases,
     clear_models_and_aliases,

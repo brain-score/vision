@@ -22,7 +22,7 @@ MODEL = timm.create_model('pnasnet5large.tf_in1k', pretrained=True)
 
 def get_model(name):
     assert name == 'pnasnet_large_pytorch'
-    preprocessing = functools.partial(load_preprocess_images, image_size=331)
+    preprocessing = functools.partial(load_preprocess_images, image_size=331, preprocess_type='inception')
     wrapper = PytorchWrapper(identifier='pnasnet_large_pytorch', model=MODEL,
                              preprocessing=preprocessing,
                              batch_size=4)  # doesn't fit into 12 GB GPU memory otherwise
@@ -32,12 +32,8 @@ def get_model(name):
 
 def get_layers(name):
     assert name == 'pnasnet_large_pytorch'
-    layer_names = []
-
-    for name, module in MODEL.named_modules():
-        layer_names.append(name)
-
-    return layer_names[2:]
+    layer_names = [f'cell_{i + 1}' for i in range(-1, 11)] + ['global_pool']
+    return layer_names
 
 
 def get_bibtex(model_identifier):

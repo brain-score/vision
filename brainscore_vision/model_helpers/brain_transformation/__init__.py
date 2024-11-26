@@ -79,10 +79,9 @@ class ModelCommitment(BrainModel):
                     self._logger.info(f"Successfully loaded region_layer_map for {identifier}")
                     return json.load(region_layer_map_file)
             else:
-                self._logger.info(f"No region_layer_map file found for {identifier}, proceeding with default layer mapping")
+                self._logger.info(f"No region_layer_map file found for {identifier}. Will proceed with default layer mapping")
                 return None
         except Exception as e:
-            self._logger.error(f"Error importing model to search for region_layer_map: {e}")
             return None
 
     def visual_degrees(self) -> int:

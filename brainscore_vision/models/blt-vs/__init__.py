@@ -1,8 +1,10 @@
 
 from brainscore_vision import model_registry
 from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
-from .model import get_model, LAYERS
-from .model import BLT_VS
+import sys 
+import os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from model import get_model, LAYERS
 
 
 

@@ -1,3 +1,6 @@
+import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -6,7 +9,7 @@ import functools
 from torchvision import transforms 
 from brainscore_vision.model_helpers.check_submission import check_models
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
-from .pretrained import get_model_instance, clear_models_and_aliases, register_model, register_aliases
+from pretrained import get_model_instance, clear_models_and_aliases, register_model, register_aliases
 from PIL import Image
 
 SUBMODULE_SEPARATOR = '.'

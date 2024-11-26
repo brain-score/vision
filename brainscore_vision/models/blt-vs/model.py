@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import numpy as np
 import functools
 from torchvision import transforms 
-from model_tools.check_submission import check_models
+from brainscore_vision.model_helpers.check_submission import check_models
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from .pretrained import get_model_instance, clear_models_and_aliases, register_model, register_aliases
 from PIL import Image

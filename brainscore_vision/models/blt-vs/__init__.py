@@ -6,8 +6,8 @@ from .pretrained import (
 )
 from brainscore_vision import model_registry
 from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
-from model import get_model, LAYERS
-from model import BLT_VS
+from .model import get_model, LAYERS
+from .model import BLT_VS
 
 
 clear_models_and_aliases(BLT_VS)

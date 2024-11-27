@@ -952,11 +952,15 @@ def get_bibtex(model_identifier):
     A method returning the bibtex reference of the requested model as a string.
     """
 
-    return ''  
+    return """@misc{KietzmannLab2024BLT-VS,
+                author       = {Sushrut Thorat,},
+                title        = {BLT-VS: A Tool for Brain-Like Transfer in Vision Systems},
+                year         = {2024},
+                url          = {https://github.com/KietzmannLab/BLT-VS},
+                note         = {GitHub repository},
+                }""" 
     
 if __name__ == '__main__':
-    # Use this method to ensure the correctness of the BaseModel implementations.
-    # It executes a mock run of brain-score benchmarks.
     check_models.check_base_models(__name__)
        
      

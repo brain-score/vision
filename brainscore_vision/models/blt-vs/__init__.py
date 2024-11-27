@@ -11,5 +11,6 @@ from model import get_model, LAYERS
 model_registry['blt_vs'] = lambda: ModelCommitment(
     identifier='blt_vs',
     activations_model=get_model(),
-    layers=LAYERS)
+    layers=LAYERS,
+    visual_degrees=5)
 

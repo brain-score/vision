@@ -953,7 +953,7 @@ def get_bibtex(model_identifier):
     """
 
     return """@misc{KietzmannLab2024BLT-VS,
-                author       = {Sushrut Thorat,},
+                author       = {Sushrut Thorat, KietzmannLab},
                 title        = {BLT-VS: A Tool for Brain-Like Transfer in Vision Systems},
                 year         = {2024},
                 url          = {https://github.com/KietzmannLab/BLT-VS},

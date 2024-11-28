@@ -13,8 +13,8 @@ region_layer_map = {
     "IT": "LOC_5"
 }
 
-model_registry['blt_vs'] = lambda: ModelCommitment(
-    identifier='blt_vs',
+model_registry['BLT_VS'] = lambda: ModelCommitment(
+    identifier='BLT_VS',
     activations_model=get_model(),
     layers=LAYERS,
     region_layer_map=region_layer_map,

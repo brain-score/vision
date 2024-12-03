@@ -1,0 +1,1350 @@
+
+"resnet50_imagenet_trained_iteration=1" : {
+    "model_name": "alexnet",
+    "keyword": "imagenet_trained",
+    "model_id": "resnet50_imagenet_trained_iteration=1",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/imagenet_trained_1.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_imagenet_trained_iteration=2" : {
+    "model_name": "alexnet",
+    "keyword": "imagenet_trained",
+    "model_id": "resnet50_imagenet_trained_iteration=2",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/imagenet_trained_2.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_imagenet_trained_iteration=3" : {
+    "model_name": "alexnet",
+    "keyword": "imagenet_trained",
+    "model_id": "resnet50_imagenet_trained_iteration=3",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/imagenet_trained_3.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_imagenet_trained_iteration=4" : {
+    "model_name": "alexnet",
+    "keyword": "imagenet_trained",
+    "model_id": "resnet50_imagenet_trained_iteration=4",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/imagenet_trained_4.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_imagenet_trained_iteration=5" : {
+    "model_name": "alexnet",
+    "keyword": "imagenet_trained",
+    "model_id": "resnet50_imagenet_trained_iteration=5",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/imagenet_trained_5.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_less_variation_iteration=1" : {
+    "model_name": "alexnet",
+    "keyword": "less_variation",
+    "model_id": "resnet50_less_variation_iteration=1",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/less_variation_1.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_less_variation_iteration=2" : {
+    "model_name": "alexnet",
+    "keyword": "less_variation",
+    "model_id": "resnet50_less_variation_iteration=2",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/less_variation_2.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_less_variation_iteration=3" : {
+    "model_name": "alexnet",
+    "keyword": "less_variation",
+    "model_id": "resnet50_less_variation_iteration=3",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/less_variation_3.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_less_variation_iteration=4" : {
+    "model_name": "alexnet",
+    "keyword": "less_variation",
+    "model_id": "resnet50_less_variation_iteration=4",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/less_variation_4.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_less_variation_iteration=5" : {
+    "model_name": "alexnet",
+    "keyword": "less_variation",
+    "model_id": "resnet50_less_variation_iteration=5",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/less_variation_5.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_no_variation_iteration=1" : {
+    "model_name": "alexnet",
+    "keyword": "no_variation",
+    "model_id": "resnet50_no_variation_iteration=1",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/no_variation_1.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_no_variation_iteration=2" : {
+    "model_name": "alexnet",
+    "keyword": "no_variation",
+    "model_id": "resnet50_no_variation_iteration=2",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/no_variation_2.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_no_variation_iteration=3" : {
+    "model_name": "alexnet",
+    "keyword": "no_variation",
+    "model_id": "resnet50_no_variation_iteration=3",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/no_variation_3.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_no_variation_iteration=4" : {
+    "model_name": "alexnet",
+    "keyword": "no_variation",
+    "model_id": "resnet50_no_variation_iteration=4",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/no_variation_4.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_no_variation_iteration=5" : {
+    "model_name": "alexnet",
+    "keyword": "no_variation",
+    "model_id": "resnet50_no_variation_iteration=5",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/no_variation_5.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_z_axis_iteration=1" : {
+    "model_name": "alexnet",
+    "keyword": "z_axis",
+    "model_id": "resnet50_z_axis_iteration=1",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/z_axis_1.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_z_axis_iteration=2" : {
+    "model_name": "alexnet",
+    "keyword": "z_axis",
+    "model_id": "resnet50_z_axis_iteration=2",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/z_axis_2.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_z_axis_iteration=3" : {
+    "model_name": "alexnet",
+    "keyword": "z_axis",
+    "model_id": "resnet50_z_axis_iteration=3",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/z_axis_3.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_z_axis_iteration=4" : {
+    "model_name": "alexnet",
+    "keyword": "z_axis",
+    "model_id": "resnet50_z_axis_iteration=4",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/z_axis_4.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_z_axis_iteration=5" : {
+    "model_name": "alexnet",
+    "keyword": "z_axis",
+    "model_id": "resnet50_z_axis_iteration=5",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/z_axis_5.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_wo_shading_iteration=1" : {
+    "model_name": "alexnet",
+    "keyword": "wo_shading",
+    "model_id": "resnet50_wo_shading_iteration=1",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/wo_shading_1.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_wo_shading_iteration=2" : {
+    "model_name": "alexnet",
+    "keyword": "wo_shading",
+    "model_id": "resnet50_wo_shading_iteration=2",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/wo_shading_2.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_wo_shading_iteration=3" : {
+    "model_name": "alexnet",
+    "keyword": "wo_shading",
+    "model_id": "resnet50_wo_shading_iteration=3",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/wo_shading_3.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_wo_shading_iteration=4" : {
+    "model_name": "alexnet",
+    "keyword": "wo_shading",
+    "model_id": "resnet50_wo_shading_iteration=4",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/wo_shading_4.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_wo_shading_iteration=5" : {
+    "model_name": "alexnet",
+    "keyword": "wo_shading",
+    "model_id": "resnet50_wo_shading_iteration=5",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/wo_shading_5.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_wo_shadows_iteration=1" : {
+    "model_name": "alexnet",
+    "keyword": "wo_shadows",
+    "model_id": "resnet50_wo_shadows_iteration=1",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/wo_shadows_1.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_wo_shadows_iteration=2" : {
+    "model_name": "alexnet",
+    "keyword": "wo_shadows",
+    "model_id": "resnet50_wo_shadows_iteration=2",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/wo_shadows_2.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_wo_shadows_iteration=3" : {
+    "model_name": "alexnet",
+    "keyword": "wo_shadows",
+    "model_id": "resnet50_wo_shadows_iteration=3",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/wo_shadows_3.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_wo_shadows_iteration=4" : {
+    "model_name": "alexnet",
+    "keyword": "wo_shadows",
+    "model_id": "resnet50_wo_shadows_iteration=4",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/wo_shadows_4.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_wo_shadows_iteration=5" : {
+    "model_name": "alexnet",
+    "keyword": "wo_shadows",
+    "model_id": "resnet50_wo_shadows_iteration=5",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/wo_shadows_5.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_ambient_iteration=1" : {
+    "model_name": "alexnet",
+    "keyword": "ambient",
+    "model_id": "resnet50_ambient_iteration=1",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/ambient_1.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_ambient_iteration=2" : {
+    "model_name": "alexnet",
+    "keyword": "ambient",
+    "model_id": "resnet50_ambient_iteration=2",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/ambient_2.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_ambient_iteration=3" : {
+    "model_name": "alexnet",
+    "keyword": "ambient",
+    "model_id": "resnet50_ambient_iteration=3",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/ambient_3.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_ambient_iteration=4" : {
+    "model_name": "alexnet",
+    "keyword": "ambient",
+    "model_id": "resnet50_ambient_iteration=4",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/ambient_4.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_ambient_iteration=5" : {
+    "model_name": "alexnet",
+    "keyword": "ambient",
+    "model_id": "resnet50_ambient_iteration=5",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/ambient_5.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_textures_iteration=1" : {
+    "model_name": "alexnet",
+    "keyword": "textures",
+    "model_id": "resnet50_textures_iteration=1",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/textures_1.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_textures_iteration=2" : {
+    "model_name": "alexnet",
+    "keyword": "textures",
+    "model_id": "resnet50_textures_iteration=2",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/textures_2.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_textures_iteration=3" : {
+    "model_name": "alexnet",
+    "keyword": "textures",
+    "model_id": "resnet50_textures_iteration=3",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/textures_3.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_textures_iteration=4" : {
+    "model_name": "alexnet",
+    "keyword": "textures",
+    "model_id": "resnet50_textures_iteration=4",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/textures_4.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_textures_iteration=5" : {
+    "model_name": "alexnet",
+    "keyword": "textures",
+    "model_id": "resnet50_textures_iteration=5",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/textures_5.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_no_specular_iteration=1" : {
+    "model_name": "alexnet",
+    "keyword": "no_specular",
+    "model_id": "resnet50_no_specular_iteration=1",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/no_specular_1.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_no_specular_iteration=2" : {
+    "model_name": "alexnet",
+    "keyword": "no_specular",
+    "model_id": "resnet50_no_specular_iteration=2",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/no_specular_2.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_no_specular_iteration=3" : {
+    "model_name": "alexnet",
+    "keyword": "no_specular",
+    "model_id": "resnet50_no_specular_iteration=3",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/no_specular_3.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_no_specular_iteration=4" : {
+    "model_name": "alexnet",
+    "keyword": "no_specular",
+    "model_id": "resnet50_no_specular_iteration=4",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/no_specular_4.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},
+
+"resnet50_no_specular_iteration=5" : {
+    "model_name": "alexnet",
+    "keyword": "no_specular",
+    "model_id": "resnet50_no_specular_iteration=5",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/latest_resnet50/no_specular_5.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1", "bn1", "relu", "maxpool", 
+            "layer1", "layer1.0", "layer1.0.conv1",
+              "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", 
+              "layer1.0.bn2", "layer1.0.relu_2", "layer1.0.conv3",
+                "layer1.0.bn3", "layer1.0.shortcut",
+                  "layer1.0.shortcut.conv1", "layer1.0.shortcut.bn1", 
+                  "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", 
+                  "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", 
+                  "layer2.0.relu_2", "layer2.0.conv3", "layer2.0.bn3",
+                    "layer2.0.shortcut", "layer2.0.shortcut.conv1", "layer2.0.shortcut.bn1", 
+                    "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", 
+                    "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu_2", "layer3.0.conv3", "layer3.0.bn3",
+                      "layer3.0.shortcut", "layer3.0.shortcut.conv1", "layer3.0.shortcut.bn1", "layer4", "layer4.0",
+                        "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu_2", 
+                        "layer4.0.conv3", "layer4.0.bn3", "layer4.0.shortcut", "layer4.0.shortcut.conv1", "layer4.0.shortcut.bn1", "fc"
+
+
+        ]
+    } 
+},

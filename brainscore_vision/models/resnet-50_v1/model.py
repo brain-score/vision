@@ -6,16 +6,16 @@ from brainscore_vision.model_helpers.s3 import load_weight_file
 import torch
 import imp
 
-model_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
+model_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
                                     relative_path="resnet-50_v1/tf_resnet_to_pth.py",
-                                    version_id="null",
+                                    version_id="EvvsqSCrjI3yIBRtPdm.sG971Ne6LMzZ",
                                     sha1="c1ae529e0368e0c1804b2d6ab2feea443734023f")
-model_weight_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
+model_weight_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
                                     relative_path="resnet-50_v1/tf_resnet_to_pth.pth",
-                                    version_id="null",
+                                    version_id="29SKJxBWqkwARadLKKH5pg9yS4pGi2HL",
                                     sha1="11bf09095fbcbf6b6ad109a574c691c12b339374")
 MainModel = imp.load_source('MainModel',model_path.as_posix())
-model = torch.load(model_weight_path.as_posix()) 
+model = torch.load(model_weight_path.as_posix())
 
 def get_model(name):
     """
@@ -27,15 +27,17 @@ def get_model(name):
     :return: the model instance
     """
     assert name == 'resnet-50_v1'
-    preprocessing = functools.partial(load_preprocess_images, image_size=224, preprocess_type='vgg')
+    preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(identifier=name, model=model, preprocessing=preprocessing)
     wrapper.image_size = 224
     return wrapper
 
 
-# should follow this: 'resnet-50_v1': [f"resnet_v1_50/{layer}" for layer in resnet50_layers(1)] + ['global_pool'],
 def get_layers(name):
     assert name == 'resnet-50_v1'
+    for name, module in model.named_modules():
+        print(name)
+    print(list(dict(model.named_modules()).keys())[1:])
     return list(dict(model.named_modules()).keys())[1:]
 
 

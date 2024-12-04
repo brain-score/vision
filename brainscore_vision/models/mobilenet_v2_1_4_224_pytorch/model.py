@@ -27,7 +27,7 @@ def get_model(name):
     classifier_layer = model.classifier
     classifier_layer.register_forward_hook(lambda _layer, _input, logits: logits[:, 1:])
 
-    preprocessing = functools.partial(load_preprocess_images, image_size=224)
+    preprocessing = functools.partial(load_preprocess_images, image_size=224, preprocess_type='inception')
     wrapper = PytorchWrapper(identifier='mobilenet_v2_1-4_224_pytorch', model=model,
                              preprocessing=preprocessing,
                              batch_size=4)  # doesn't fit into 12 GB GPU memory otherwise

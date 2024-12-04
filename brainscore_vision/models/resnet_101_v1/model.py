@@ -17,6 +17,10 @@ def get_model(name):
 
 def get_layers(name):
     assert name == 'resnet-101_v1'
+    for name, module in model.named_children():
+        print(name)
+    for name, module in model.named_modules():
+        print(name)
     return [n for n, _ in model.named_children()]
 
 def get_bibtex(model_identifier):

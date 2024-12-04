@@ -24,7 +24,7 @@ MODEL = torchvision.models.resnet152(weights='ResNet152_Weights.IMAGENET1K_V2') 
 def get_model(name):
     assert name == 'resnet-152_v2_pytorch'
     model_identifier = "resnet-152_v2_pytorch"
-    preprocessing = functools.partial(load_preprocess_images, image_size=299)
+    preprocessing = functools.partial(load_preprocess_images, image_size=299, preprocess_type='inception')
     wrapper = PytorchWrapper(identifier=model_identifier, model=MODEL, preprocessing=preprocessing)
     wrapper.image_size = 299
     return wrapper
@@ -35,6 +35,7 @@ def get_layers(name):
     layer_names = []
 
     for name, module in MODEL.named_modules():
+        print(name)
         layer_names.append(name)
 
     return layer_names[-15:]

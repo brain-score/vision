@@ -34,12 +34,14 @@ def get_model(name):
 
 def get_layers(name):
     assert name == 'densenet_201_pytorch'
-    layer_names = []
-
-    for name, module in MODEL.named_modules():
-        layer_names.append(name)
-
-    return layer_names[2:]
+    layer_names = (['norm0.act'] + ['pool0'] +
+                   [f'denseblock1.denselayer{i}' for i in range(1, 7)] + ['transition1.pool'] +
+                   [f'denseblock2.denselayer{i}' for i in range(1, 13)] + ['transition2.pool'] +
+                   [f'denseblock3.denselayer{i}' for i in range(1, 49)] + ['transition3.pool'] +
+                   [f'denseblock4.denselayer{i}' for i in range(1, 33)])
+    layer_names = [f"features.{name}" for name in layer_names]
+    layer_names += ['global_pool']
+    return layer_names
 
 
 def get_bibtex(model_identifier):

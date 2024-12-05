@@ -32,13 +32,11 @@ def get_model(name):
 
 def get_layers(name):
     assert name == 'resnet-152_v2_pytorch'
-    layer_names = []
-
-    for name, module in MODEL.named_modules():
-        print(name)
-        layer_names.append(name)
-
-    return layer_names[-15:]
+    layer_names = (['conv1'] + [f'layer1.{i}' for i in range(3)] +
+                   [f'layer2.{i}' for i in range(8)] +
+                   [f'layer3.{i}' for i in range(36)] +
+                   [f'layer4.{i}' for i in range(3)] + ['avgpool'])
+    return layer_names
 
 
 def get_bibtex(model_identifier):

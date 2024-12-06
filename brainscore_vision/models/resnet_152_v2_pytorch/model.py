@@ -25,7 +25,7 @@ def get_model(name):
     assert name == 'resnet-152_v2_pytorch'
     model_identifier = "resnet-152_v2_pytorch"
     preprocessing = functools.partial(load_preprocess_images, image_size=299, preprocess_type='inception')
-    wrapper = PytorchWrapper(identifier=model_identifier, model=MODEL, preprocessing=preprocessing)
+    wrapper = PytorchWrapper(identifier=model_identifier, model=MODEL, preprocessing=preprocessing, batch_size=4)
     wrapper.image_size = 299
     return wrapper
 

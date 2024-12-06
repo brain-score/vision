@@ -37,7 +37,7 @@ def get_layers(name):
     assert name == 'nasnet_large_pytorch'
     layer_names = ([f'cell_{i + 1}' for i in range(-1, 5)] + ['reduction_cell_0'] +
                    [f'cell_{i + 1}' for i in range(5, 11)] + ['reduction_cell_1'] +
-                   [f'cell_{i + 1}' for i in range(11, 17)] + ['global_pool'],)
+                   [f'cell_{i + 1}' for i in range(11, 17)] + ['global_pool'])
     return layer_names
 
 

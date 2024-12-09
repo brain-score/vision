@@ -23,6 +23,7 @@ model_weight_path = load_weight_file(bucket="brainscore-vision", folder_name="mo
                                     version_id="29SKJxBWqkwARadLKKH5pg9yS4pGi2HL",
                                     sha1="11bf09095fbcbf6b6ad109a574c691c12b339374")
 MainModel = load_module('MainModel', model_path.as_posix())
+globals()['MainModel'] = MainModel
 model = torch.load(model_weight_path.as_posix())
 
 def get_model(name):

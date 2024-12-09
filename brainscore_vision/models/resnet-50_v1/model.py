@@ -27,7 +27,7 @@ def get_model(name):
     :return: the model instance
     """
     assert name == 'resnet-50_v1'
-    preprocessing = functools.partial(load_preprocess_images, image_size=224)
+    preprocessing = functools.partial(load_preprocess_images, image_size=224, preprocess_type='vgg')
     wrapper = PytorchWrapper(identifier=name, model=model, preprocessing=preprocessing)
     wrapper.image_size = 224
     return wrapper
@@ -35,11 +35,11 @@ def get_model(name):
 
 def get_layers(name):
     assert name == 'resnet-50_v1'
-    for name, module in model.named_modules():
-        print(name)
-    print(list(dict(model.named_modules()).keys())[1:])
-    return list(dict(model.named_modules()).keys())[1:]
-
+    units = [3, 4, 6, 3]
+    layer_names = ['resnet_v1_50_conv1_Conv2D'] + [
+        f'resnet_v1_50_block{block + 1}_unit_{unit + 1}_bottleneck_v1_conv1_Conv2d' for block, block_units in
+        enumerate(units) for unit in range(block_units)] + ['resnet_v1_50_logits_Conv2D']
+    return layer_names
 
 def get_bibtex(name):
     """

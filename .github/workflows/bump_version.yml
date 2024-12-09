@@ -1,0 +1,238 @@
+name: Version Management
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [ master ]
+
+jobs:
+  version-bump:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+    outputs:
+      NEEDS_BUMP: ${{ steps.check-changes.outputs.needs_bump }}
+      NEW_VERSION: ${{ steps.version-update.outputs.new_version }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for non-plugin changes
+        id: check-changes
+        run: |
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
+          NEEDS_VERSION_BUMP=false
+          
+          # ensure PR wasn't plugin-only
+          echo "Changed files:"
+          for file in $CHANGED_FILES; do
+            echo "- $file"
+            if [[ $file != brainscore_vision/benchmarks/* && 
+                  $file != brainscore_vision/data/* && 
+                  $file != brainscore_vision/metrics/* && 
+                  $file != brainscore_vision/models/* ]]; then
+              NEEDS_VERSION_BUMP=true
+              echo "Found change requiring version bump: $file"
+            fi
+          done
+          
+          echo "needs_bump=$NEEDS_VERSION_BUMP" >> $GITHUB_OUTPUT
+          
+      - name: Set up Python
+        if: steps.check-changes.outputs.needs_bump == 'true'
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install bump-my-version
+        if: steps.check-changes.outputs.needs_bump == 'true'
+        run: pip install bump-my-version
+
+      - name: Configure Git
+        if: steps.check-changes.outputs.needs_bump == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+      - name: Determine version bump type
+        if: steps.check-changes.outputs.needs_bump == 'true'
+        id: bump-type
+        run: |
+          if [[ ${{ contains(github.event.pull_request.labels.*.name, 'major update') }} == true ]]; then
+            echo "type=major" >> $GITHUB_OUTPUT
+          elif [[ ${{ contains(github.event.pull_request.labels.*.name, 'minor update') }} == true ]]; then
+            echo "type=minor" >> $GITHUB_OUTPUT
+          else
+            echo "type=patch" >> $GITHUB_OUTPUT
+          fi
+          
+      - name: Create version bump branch and PR
+        id: version-update
+        if: steps.check-changes.outputs.needs_bump == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Create and checkout new branch
+          BRANCH_NAME="version-bump-${{ github.event.pull_request.head.sha }}"
+          git checkout -b $BRANCH_NAME
+
+          # Get latest version from tags
+          LATEST_TAG=$(git tag --sort=-version:refname | head -n1)
+          CURRENT_VERSION=${LATEST_TAG#v}  # Remove 'v' prefix
+          echo "Latest tag: $LATEST_TAG (version: $CURRENT_VERSION)"
+          
+          # Bump version
+          echo "Bumping version..."
+          bump-my-version bump --current-version $CURRENT_VERSION ${{ steps.bump-type.outputs.type }} --config-file pyproject.toml --verbose
+          
+          echo "Version after bump:"
+          bump-my-version show current_version
+          NEW_VERSION=$(bump-my-version show current_version)
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          
+          # Push the branch with tags
+          git push origin $BRANCH_NAME --follow-tags
+          git push origin $BRANCH_NAME:refs/heads/$BRANCH_NAME --force
+          
+          # Create PR and extract PR number
+          PR_URL=$(gh pr create --title "chore: bump version to $NEW_VERSION" \
+             --body "Automated version bump triggered by changes in PR #${{ github.event.pull_request.number }}" \
+             --base master \
+             --head $BRANCH_NAME \
+             --label "version-bump")
+          PR_NUMBER=$(echo $PR_URL | grep -oE '[0-9]+$')
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+
+      - name: Auto-approve PR
+        if: steps.version-update.outputs.pr_number
+        uses: hmarr/auto-approve-action@v4
+        with:
+          pull-request-number: ${{ steps.version-update.outputs.pr_number }}
+          github-token: ${{ secrets.APPROVAL_TOKEN }}
+
+      - name: Wait for status checks
+        if: steps.version-update.outputs.pr_number
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: version-bump-${{ github.event.pull_request.head.sha }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10
+          allowed-conclusions: success,skipped
+          verbose: true
+
+      - name: Merge PR
+        if: steps.version-update.outputs.pr_number
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pr_number="${{ steps.version-update.outputs.pr_number }}"
+          echo "Merging PR #$pr_number"
+          gh pr merge $pr_number --auto --squash
+
+  create-release:
+    needs: version-bump
+    runs-on: ubuntu-latest
+    if: needs.version-bump.outputs.NEEDS_BUMP == 'true'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate Release Notes
+        id: release_notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get previous tag
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          NEW_VERSION="${{ needs.version-bump.outputs.NEW_VERSION }}"
+          
+          # Generate release notes using GitHub API
+          if [ -n "$PREVIOUS_TAG" ]; then
+            gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              /repos/${{ github.repository }}/releases/generate-notes \
+              -f tag_name="v$NEW_VERSION" \
+              -f target_commitish="${{ github.sha }}" \
+              -f previous_tag_name="$PREVIOUS_TAG" \
+              > release_notes.json
+          else
+            gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              /repos/${{ github.repository }}/releases/generate-notes \
+              -f tag_name="v$NEW_VERSION" \
+              -f target_commitish="${{ github.sha }}" \
+              > release_notes.json
+          fi
+          
+          # Extract and save
+          body=$(jq -r .body release_notes.json)
+          echo "NOTES<<EOF" >> $GITHUB_OUTPUT
+          echo "$body" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.version-bump.outputs.NEW_VERSION }}
+          name: v${{ needs.version-bump.outputs.NEW_VERSION }}
+          body: ${{ steps.release_notes.outputs.NOTES }}
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+  publish:
+    needs: version-bump
+    if: needs.version-bump.outputs.NEEDS_BUMP == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Wait for Git operations to complete
+        run: sleep 30
+        
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Fetch latest master
+        run: |
+          git fetch origin master
+          git checkout master
+          git pull origin master
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Clean previous builds
+        run: rm -rf dist/ build/
+          
+      - name: Build package
+        run: python -m build
+
+      - name: Verify package
+        run: twine check dist/*
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

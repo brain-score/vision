@@ -44,6 +44,9 @@ class _Lonnqvist2024Base(BenchmarkBase):
         # Adjust score to ceiling
         ceiling = self.ceiling
         score = raw_score / ceiling
+        # ensure score <= 1.0
+        if score.values > 1:
+            score = Score(np.array(1.))
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling
         if return_raw_responses:

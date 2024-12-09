@@ -4,6 +4,15 @@ from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.check_submission import check_models
 from brainscore_vision.model_helpers.s3 import load_weight_file
 import torch
+import importlib.util
+
+
+def load_module(module_name, module_path):
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
 
 model_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
                                     relative_path="resnet-50_v1/tf_resnet_to_pth.py",
@@ -13,6 +22,7 @@ model_weight_path = load_weight_file(bucket="brainscore-vision", folder_name="mo
                                     relative_path="resnet-50_v1/tf_resnet_to_pth.pth",
                                     version_id="29SKJxBWqkwARadLKKH5pg9yS4pGi2HL",
                                     sha1="11bf09095fbcbf6b6ad109a574c691c12b339374")
+MainModel = load_module('MainModel', model_path.as_posix())
 model = torch.load(model_weight_path.as_posix())
 
 def get_model(name):

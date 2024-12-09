@@ -164,6 +164,7 @@ def torchvision_preprocess_input(image_size, **kwargs):
 def torchvision_preprocess(preprocess_type="imagenet", **kwargs):
     from torchvision import transforms
     if preprocess_type.lower() == "vgg":
+        import torch
         mean = [123.68, 116.78, 103.94]
         return transforms.Compose([
             transforms.ToTensor(),

@@ -8,11 +8,11 @@ import imp
 
 model_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
                                     relative_path="mobilenet_v2_0.75_192/mobilenet_v2_0.py",
-                                    version_id="null",
+                                    version_id=".Cx.l320j.RVVHTABgJpQO.deOHI.ldd",
                                     sha1="8d253c2faad210834b4d39b9ccc644165ed8e3f6")
 model_weight_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
                                     relative_path="mobilenet_v2_0.75_192/mobilenet_v2_0.75_192_frozen.pth",
-                                    version_id="null",
+                                    version_id="XNBog9emIZQ7ngr8v2X1Om6YQsV7okFU",
                                     sha1="af063236e83cb92fd78ed3eb7d9d2d4a65d794ab")
 MainModel = imp.load_source('MainModel', model_path.as_posix())
 model = torch.load(model_weight_path.as_posix())
@@ -27,7 +27,7 @@ def get_model(name):
     :return: the model instance
     """
     assert name == 'mobilenet_v2_0_75_192'
-    preprocessing = functools.partial(load_preprocess_images, image_size=192)
+    preprocessing = functools.partial(load_preprocess_images, image_size=192, preprocess_type='inception')
     wrapper = PytorchWrapper(identifier=name, model=model, preprocessing=preprocessing)
     wrapper.image_size = 192
     return wrapper

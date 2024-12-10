@@ -27,7 +27,7 @@ def get_model(name):
     :return: the model instance
     """
     assert name == 'mobilenet_v2_0_75_224'
-    preprocessing = functools.partial(load_preprocess_images, image_size=224)
+    preprocessing = functools.partial(load_preprocess_images, image_size=224, preprocess_type='inception')
     wrapper = PytorchWrapper(identifier=name, model=model, preprocessing=preprocessing)
     wrapper.image_size = 224
     return wrapper

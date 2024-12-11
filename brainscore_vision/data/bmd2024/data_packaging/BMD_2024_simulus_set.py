@@ -42,7 +42,7 @@ if __name__ == '__main__':
         prints = package_stimulus_set(catalog_name=None,
                              proto_stimulus_set=assembly,
                              stimulus_set_identifier=assembly.name,
-                             bucket_name="brainio-brainscore")
+                             bucket_name="brainscore_storage/brainio_brainscore")
         print(prints)
 
 

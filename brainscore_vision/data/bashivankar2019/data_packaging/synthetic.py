@@ -152,9 +152,9 @@ def main():
     assert responses_synth_concat.shape ==(21360, 233, 1)
     package_data_assembly(
         responses_synth_concat,
-        assembly_identifier="dicarlo.BashivanKar2019.synthetic",
+        assembly_identifier=None,
         stimulus_set_identifier=stimuli_synth.identifier,
-        bucket_name='brainio-dicarlo'
+        bucket_name='brainscore_storage/'
     )
 
 

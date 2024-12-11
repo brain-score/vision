@@ -41,6 +41,6 @@ assembly.name = 'Baker2022_normal_distortion'
 
 
 # upload to S3
-package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
+package_data_assembly('brainscore_storage/brainio_brainscore', assembly, assembly_identifier=assembly.name,
                       stimulus_set_identifier='Baker2022_normal_distortion',
-                      assembly_class_name="BehavioralAssembly", bucket_name="brainio-brainscore")
+                      assembly_class_name="BehavioralAssembly", bucket_name="brainscore_storage/brainio_brainscore")

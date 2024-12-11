@@ -159,6 +159,6 @@ if __name__ == '__main__':
                               assembly_identifier=assembly.name,
                               stimulus_set_identifier=assembly.name,
                               assembly_class_name="BehavioralAssembly",
-                              bucket_name="brainio-brainscore")
+                              bucket_name="brainscore_storage/brainio-brainscore")
 
         print(prints)

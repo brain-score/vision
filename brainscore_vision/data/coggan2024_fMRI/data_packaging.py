@@ -81,7 +81,7 @@ packaged_stimulus_metadata = package_stimulus_set(
     catalog_name=None,
     proto_stimulus_set=stimuli,
     stimulus_set_identifier=stimuli.name,
-    bucket_name="brainio-brainscore")
+    bucket_name="brainscore_storage/brainio-brainscore")
 pkl.dump(packaged_stimulus_metadata, open('packaged_stimulus_metadata.pkl', 'wb'))
 print(packaged_stimulus_metadata)
 """
@@ -115,7 +115,7 @@ packaged_neural_metadata = package_data_assembly(
     assembly_identifier=assembly.name,
     stimulus_set_identifier=stimuli.name,
     assembly_class_name="NeuroidAssembly",
-    bucket_name="brainio-brainscore",
+    bucket_name="brainscore_storage/brainio-brainscore",
     catalog_identifier=None)
 
 # save the packaged metadata

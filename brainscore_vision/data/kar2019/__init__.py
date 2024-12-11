@@ -26,9 +26,9 @@ BIBTEX = """@Article{Kar2019,
 # assembly
 data_registry['Kar2019'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.Kar2019",
-    version_id="mQZ1nNRfE_m_IjFbox.xvlJvbudFwsWo",
+    version_id="null",
     sha1="147717ce397e11d56164d472063a84a83bbcbb94",
-    bucket="brainio-brainscore",
+    bucket="brainscore_storage/brainio-brainscore",
     cls=DataAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('Kar2019'),
 )
@@ -36,8 +36,8 @@ data_registry['Kar2019'] = lambda: load_assembly_from_s3(
 # stimulus set
 stimulus_set_registry['Kar2019'] = lambda: load_stimulus_set_from_s3(
     identifier="Kar2019",
-    bucket="brainio-brainscore",
+    bucket="brainscore_storage/brainio-brainscore",
     csv_sha1="7f705bdea02c0a72a76d7f5e7b6963531df818a6",
     zip_sha1="75ab7b8b499fc8e86c813f717b79d268bcb986be",
-    csv_version_id="RxErKK258xYBuO6.ThuQU0IACEWkZ20o",
-    zip_version_id="3ArjwRwvdMgjwA2VP63zQ4rhF5WIbr.L")
+    csv_version_id="null",
+    zip_version_id="null")

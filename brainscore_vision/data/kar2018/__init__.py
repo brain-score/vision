@@ -21,9 +21,9 @@ BIBTEX = """@article {19,
 # assemblies: hvm
 data_registry['Kar2018hvm'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.Kar2018hvm",
-    version_id="4sytUtSGiyB.G0oBmPCVnnQ6l4FChj8z",
+    version_id="null",
     sha1="96ccacc76c5fa30ee68bdc8736d1d43ace93f3e7",
-    bucket="brainio-brainscore",
+    bucket="brainscore_storage/brainio-brainscore",
     cls=NeuronRecordingAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('hvm'),
 )
@@ -31,9 +31,9 @@ data_registry['Kar2018hvm'] = lambda: load_assembly_from_s3(
 # assemblies: cocogray
 data_registry['Kar2018cocogray'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.Kar2018cocogray",
-    version_id="RxiK296HHAe2ql_STmZ2K..uEsfCuHtF",
+    version_id="null",
     sha1="4202cb3992a5d71f71a7ca9e28ba3f8b27937b43",
-    bucket="brainio-brainscore",
+    bucket="brainscore_storage/brainio-brainscore",
     cls=NeuronRecordingAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('Kar2018cocogray'),
 )
@@ -41,11 +41,11 @@ data_registry['Kar2018cocogray'] = lambda: load_assembly_from_s3(
 # stimulus set: cocogray
 stimulus_set_registry['Kar2018cocogray'] = lambda: load_stimulus_set_from_s3(
     identifier="Kar2018cocogray",
-    bucket="brainio-brainscore",
+    bucket="brainscore_storage/brainio-brainscore",
     csv_sha1="be9bb267b80fd7ee36a88d025b73ae8a849165da",
     zip_sha1="1457003ee9b27ed51c018237009fe148c6e71fd3",
-    csv_version_id="A6XtlkCYhgUp.Bw1fSxRAc53DU.RVEgC",
-    zip_version_id="e_YJ7G2C.wsGSN4qCw0WQvLc4DECI8eG")
+    csv_version_id="null",
+    zip_version_id="null")
 
 
 def filter_neuroids(assembly, threshold):

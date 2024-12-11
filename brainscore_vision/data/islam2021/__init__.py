@@ -10,9 +10,9 @@ BIBTEX = """@article{islam2021shape,
 
 stimulus_set_registry['Islam2021'] = lambda: load_stimulus_set_from_s3(
     identifier="Islam2021",
-    bucket="brainio-brainscore",
+    bucket="brainscore_storage/brainio-brainscore",
     filename_prefix='stimulus_',
     csv_sha1="93ab0f6386d8d5fb56640da45980a819c7dd6efc",
     zip_sha1="e55b673117a472f463e0705ac3e330ef8dfd938b",
-    csv_version_id="_HABybRKD6XaqqyO4oEehXhG6ah1wW.G",
-    zip_version_id="B30p0DM9KNuAgT1d.U9iT6DNYawriYoK")
+    csv_version_id="null",
+    zip_version_id="null")

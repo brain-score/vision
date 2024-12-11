@@ -17,9 +17,9 @@ BIBTEX = """@article{rust2012balanced,
 # dicarlo.Rust2012.single assembly
 data_registry['Rust2012.single'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.Rust2012.single",
-    version_id="8T7Pt1LwHPRoxCC9c9xBfMNGDSJ0b3e4",
+    version_id="null",
     sha1="4ef420e70fbd0de3745df5be7c83dfc0a8f2e528",
-    bucket="brainio-brainscore",
+    bucket="brainscore_storage/brainio-brainscore",
     cls=NeuronRecordingAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('Rust2012'),
 )
@@ -27,9 +27,9 @@ data_registry['Rust2012.single'] = lambda: load_assembly_from_s3(
 # dicarlo.Rust2012.array assembly
 data_registry['Rust2012.array'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.Rust2012.array",
-    version_id="O_8qaKqFhzRNOIvVx8djTQDUE0a6g.w9",
+    version_id="null",
     sha1="6709b641751370acfccd9567e3d75b71865a71ab",
-    bucket="brainio-brainscore",
+    bucket="brainscore_storage/brainio-brainscore",
     cls=NeuronRecordingAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('Rust2012'),
 )
@@ -38,8 +38,8 @@ data_registry['Rust2012.array'] = lambda: load_assembly_from_s3(
 # stimulus set
 stimulus_set_registry['Rust2012'] = lambda: load_stimulus_set_from_s3(
     identifier="Rust2012",
-    bucket="brainio-brainscore",
+    bucket="brainscore_storage/brainio-brainscore",
     csv_sha1="482da1f9f4a0ab5433c3b7b57073ad30e45c2bf1",
     zip_sha1="7cbf5dcec235f7705eaad1cfae202eda77e261a2",
-    csv_version_id="Rke9xnpOob26SiZOm6KAeHZ48ppvtkA8",
-    zip_version_id="Nd1aGb9bloW3HRYene6ogiAnA6PVc_5I")
+    csv_version_id="null",
+    zip_version_id="null")

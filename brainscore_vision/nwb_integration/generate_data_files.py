@@ -15,24 +15,18 @@ class DataFactory:
         # self.user_json = user_json
         self.user_json = json.loads(user_json)
         self.parse_json()
+        self.exp_path = "/home/ubuntu/vision/brainscore_vision/nwb_integration/"
 
         self.nwb_file   = validate_nwb_file(self.nwb_file_path, dandiset_id=self.dandiset_id)
-        # self.json_file_path = os.path.join(self.exp_path, "nwb_metadata.json")
         self.json_file_path = Path(self.exp_path) / 'nwb_metadata.json'
         self.generate_json_file()
         with open(self.json_file_path, 'r') as f:
             self.params = json.load(f)
 
     def __call__(self):
-        # try: os.mkdir(os.path.join(self.directory, 'test_data_packaging'))
         try: (Path(self.directory) / 'test_data_packaging').mkdir()
         except: pass 
 
-        # output_dir = os.path.join(self.directory, 'test_data_packaging')
-        # os.mkdir(os.path.join(output_dir, 'data'))
-        # output_dir = os.path.join(output_dir, 'data')
-        # os.mkdir(os.path.join(output_dir, 'data_packaging'))
-        # output_dir = os.path.join(output_dir, 'data_packaging')
         output_dir = Path(self.directory) / 'test_data_packaging'
         output_dir.mkdir(exist_ok=True)
         data_dir = output_dir / 'data'
@@ -58,7 +52,6 @@ class DataFactory:
         self.write_code_into_file(test_code, test_path)
         self._logger.debug('Finished writing test.py')
 
-        # os.system(f'mv test_data_packaging/data/data_packaging test_data_packaging/data/{self.identifier}')
         source = Path('test_data_packaging/data/data_packaging')
         destination = Path(f'test_data_packaging/data/{self.identifier}')
         source.rename(destination)
@@ -75,7 +68,6 @@ class DataFactory:
         #-----------------------------------------------------------------------------------------------------------------------------
         self.dandiset_id = self.user_json['dandiset_id']
         self.directory = self.user_json['exp_path']
-        self.exp_path = self.user_json['exp_path']
         self.nwb_file_path = self.user_json['nwb_file_path']
         self.identifier = self.user_json['identifier']
 

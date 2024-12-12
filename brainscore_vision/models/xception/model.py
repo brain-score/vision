@@ -5,7 +5,6 @@ from brainscore_vision.model_helpers.check_submission import check_models
 import timm
 
 
-
 def get_model(name):
     """
     This method fetches an instance of a base model. The instance has to be callable and return a xarray object,
@@ -18,7 +17,7 @@ def get_model(name):
     assert name == 'xception'
     model = timm.create_model('xception', pretrained=True)
     preprocessing = functools.partial(load_preprocess_images, image_size=299)
-    wrapper = PytorchWrapper(identifier=name, model=model, preprocessing=preprocessing)
+    wrapper = PytorchWrapper(identifier=name, model=model, preprocessing=preprocessing, batch_size=8)
     wrapper.image_size = 299
     return wrapper
 

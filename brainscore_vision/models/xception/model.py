@@ -17,7 +17,7 @@ def get_model(name):
     assert name == 'xception'
     model = timm.create_model('xception', pretrained=True)
     preprocessing = functools.partial(load_preprocess_images, image_size=299)
-    wrapper = PytorchWrapper(identifier=name, model=model, preprocessing=preprocessing, batch_size=8)
+    wrapper = PytorchWrapper(identifier=name, model=model, preprocessing=preprocessing, batch_size=4)
     wrapper.image_size = 299
     return wrapper
 
@@ -42,6 +42,8 @@ def get_layers(name):
         # Final layers
         ['conv3.pointwise', 'conv4.pointwise', 'global_pool.pool']
     )
+    problematic_layer = layer_names[31]
+    layer_names = [layer for layer in layer_names if layer != problematic_layer]
     return layer_names
 
 

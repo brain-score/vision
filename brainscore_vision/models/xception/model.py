@@ -40,10 +40,9 @@ def get_layers(name):
         # Block 12 (2 layers)
         [f'block12.rep.{i}.pointwise' for i in [1, 4]] +
         # Final layers
-        ['conv3.pointwise', 'conv4.pointwise', 'global_pool.pool']
+        # ['conv3.pointwise', 'conv4.pointwise', 'global_pool.pool']
+        ['global_pool.pool']
     )
-    problematic_layer = layer_names[31]
-    layer_names = [layer for layer in layer_names if layer != problematic_layer]
     return layer_names
 
 

@@ -1,4 +1,5 @@
 import functools
+import torch
 from torchvision.models import googlenet
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
@@ -16,7 +17,8 @@ def get_model(name):
     """
     assert name == 'inception_v1'
     preprocessing = functools.partial(load_preprocess_images, image_size=224, preprocess_type='inception')
-    model = googlenet()
+    # model = googlenet()
+    model = torch.hub.load('pytorch/vision:v0.10.0', 'googlenet', pretrained=True)
     wrapper = PytorchWrapper(identifier='inception_v1', model=model, preprocessing=preprocessing)
     wrapper.image_size = 224
     return wrapper
@@ -24,7 +26,9 @@ def get_model(name):
 
 def get_layers(name):
     assert name == 'inception_v1'
-    model = googlenet()
+    # model = torch.hub.load('pytorch/vision:v0.10.0', 'googlenet', pretrained=True)
+    # for n, _ in model.named_modules():
+    #     print(n)
     layer_names = (['maxpool2'] +
                    [f'inception3{i}' for i in ['a', 'b']] +
                    [f'inception4{i}' for i in ['a', 'b', 'c', 'd', 'e']] +

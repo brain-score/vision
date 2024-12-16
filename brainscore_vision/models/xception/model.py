@@ -37,8 +37,8 @@ def get_layers(name):
         [f'block{block}.rep.{layer}.pointwise'
          for block in range(5, 12)
          for layer in [1, 4, 7]] +
-        # Block 12 (2 layers)
-        [f'block12.rep.{i}.pointwise' for i in [1, 4]] +
+        # Block 12 (2 layers) REMOVING THIS FOR NOW
+        # [f'block12.rep.{i}.pointwise' for i in [1, 4]] +
         # Final layers
         # ['conv3.pointwise', 'conv4.pointwise', 'global_pool.pool']
         ['global_pool.pool']

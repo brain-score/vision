@@ -165,12 +165,14 @@ def torchvision_preprocess(preprocess_type="imagenet", **kwargs):
     from torchvision import transforms
     if preprocess_type.lower() == "vgg":
         import torch
-        mean = [123.68, 116.78, 103.94]
+        mean = [123.68, 116.78, 103.94]  # VGG-specific mean values
         return transforms.Compose([
+            transforms.Resize(kwargs.get("resize_side", 256), interpolation=transforms.InterpolationMode.BILINEAR),
+            transforms.CenterCrop(kwargs.get("crop_size", 224)),
             transforms.ToTensor(),
-            lambda img: img * 255.0,  # scale to 0-255 range
-            lambda img: img - torch.FloatTensor(mean).view(3, 1, 1),  # subtract mean
-            lambda img: img.unsqueeze(0)
+            lambda img: img * 255.0,  # Scale to 0-255 range
+            lambda img: img - torch.tensor(mean, dtype=torch.float32).view(3, 1, 1),  # Subtract mean
+            lambda img: img.unsqueeze(0)  # Add batch dimension
         ])
     elif preprocess_type.lower() == "inception":
         return transforms.Compose([

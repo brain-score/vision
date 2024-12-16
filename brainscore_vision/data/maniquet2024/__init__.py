@@ -20,7 +20,7 @@ BIBTEX = """@article {Maniquet2024.04.02.587669,
 # Human Stimulus Set
 stimulus_set_registry["Maniquet2024"] = lambda: load_stimulus_set_from_s3(
     identifier="Maniquet2024",
-    bucket="brainscore_storage/brainio-brainscore",
+    bucket="brainscore-storage/brainio-brainscore",
     csv_sha1="ec61e1d7776a6c3b467fee862302edac8d4a156e",
     zip_sha1="bbdaf09528974c4ca3ee4cddbc91e0e03351291f",
     csv_version_id="null",
@@ -30,7 +30,7 @@ stimulus_set_registry["Maniquet2024"] = lambda: load_stimulus_set_from_s3(
 # DNN test Stimulus Set
 stimulus_set_registry["Maniquet2024-test"] = lambda: load_stimulus_set_from_s3(
     identifier="Maniquet2024-test",
-    bucket="brainscore_storage/brainio-brainscore",
+    bucket="brainscore-storage/brainio-brainscore",
     csv_sha1="993089ba4aaeffbc61303acb2a5171a5fa271ea5",
     zip_sha1="39f9aaf13fdd66d284bcea99f187bb0c065144e4",
     csv_version_id="null",
@@ -40,7 +40,7 @@ stimulus_set_registry["Maniquet2024-test"] = lambda: load_stimulus_set_from_s3(
 #  DNN train Stimulus Set
 stimulus_set_registry["Maniquet2024-train"] = lambda: load_stimulus_set_from_s3(
     identifier="Maniquet2024-train",
-    bucket="brainscore_storage/brainio-brainscore",
+    bucket="brainscore-storage/brainio-brainscore",
     csv_sha1="da965af3ae5ab6e49d46c28f682ef4b75d0a2045",
     zip_sha1="6685effb52f6870175988c47892b3f9a916a0375",
     csv_version_id="null",
@@ -52,6 +52,6 @@ data_registry["Maniquet2024"] = lambda: load_assembly_from_s3(
     identifier="Maniquet2024",
     version_id="null",
     sha1="39b8b7b29fad080ebba6df8a46ac4426261342d5",
-    bucket="brainscore_storage/brainio-brainscore",
+    bucket="brainscore-storage/brainio-brainscore",
     cls=BehavioralAssembly,
 )

@@ -154,7 +154,7 @@ def main():
         responses_synth_concat,
         assembly_identifier=None,
         stimulus_set_identifier=stimuli_synth.identifier,
-        bucket_name='brainscore_storage/'
+        bucket_name='brainscore-storage/'
     )
 
 

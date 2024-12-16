@@ -36,7 +36,7 @@ data_registry['Sanghavi2020'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.Sanghavi2020",
     version_id="null",
     sha1="12e94e9dcda797c851021dfe818b64615c785866",
-    bucket="brainscore_storage/brainio-brainscore",
+    bucket="brainscore-storage/brainio-brainscore",
     cls=NeuronRecordingAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('hvm'),
 )
@@ -46,7 +46,7 @@ data_registry['SanghaviJozwik2020'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.SanghaviJozwik2020",
     version_id="null",
     sha1="c5841f1e7d2cf0544a6ee010e56e4e2eb0994ee0",
-    bucket="brainscore_storage/brainio-brainscore",
+    bucket="brainscore-storage/brainio-brainscore",
     cls=NeuronRecordingAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('BOLD5000'),
 )
@@ -56,7 +56,7 @@ data_registry['SanghaviMurty2020'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.SanghaviMurty2020",
     version_id="null",
     sha1="6cb8e054688066d1d86d4944e1385efc6a69ebd4",
-    bucket="brainscore_storage/brainio-brainscore",
+    bucket="brainscore-storage/brainio-brainscore",
     cls=NeuronRecordingAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('Rust2012'),
 )
@@ -66,7 +66,7 @@ data_registry['SanghaviMurty2020THINGS1'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.SanghaviMurty2020THINGS1",
     version_id="null",
     sha1="718def227d38c8425f449512e47a2df81c04de62",
-    bucket="brainscore_storage/brainio-brainscore",
+    bucket="brainscore-storage/brainio-brainscore",
     cls=NeuronRecordingAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('THINGS1'),
 )
@@ -76,7 +76,7 @@ data_registry['SanghaviMurty2020THINGS2'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.SanghaviMurty2020THINGS2",
     version_id="null",
     sha1="80962139823cb145e2385c344e3945e99ed97fa2",
-    bucket="brainscore_storage/brainio-brainscore",
+    bucket="brainscore-storage/brainio-brainscore",
     cls=NeuronRecordingAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('THINGS2'),
 )
@@ -84,7 +84,7 @@ data_registry['SanghaviMurty2020THINGS2'] = lambda: load_assembly_from_s3(
 # stimulus set: BOLD5000 - can put in sanghavi
 stimulus_set_registry['BOLD5000'] = lambda: load_stimulus_set_from_s3(
     identifier="BOLD5000",
-    bucket="brainscore_storage/brainio-brainscore",
+    bucket="brainscore-storage/brainio-brainscore",
     csv_sha1="51ac47ea03ed2e72864a95065494c2fabe779f6e",
     zip_sha1="1a2e6d782dcd21bbe60460d85d83b13fa76a9543",
     csv_version_id="null",
@@ -93,7 +93,7 @@ stimulus_set_registry['BOLD5000'] = lambda: load_stimulus_set_from_s3(
 # stimulus set: THINGS1
 stimulus_set_registry['THINGS1'] = lambda: load_stimulus_set_from_s3(
     identifier="THINGS1",
-    bucket="brainscore_storage/brainio-brainscore",
+    bucket="brainscore-storage/brainio-brainscore",
     csv_sha1="e02469d805e1b9c1a18403e9b0b8a37ee6da5130",
     zip_sha1="fb716eb58c303157dd577a70caad5c8079e74e9b",
     csv_version_id="null",
@@ -102,7 +102,7 @@ stimulus_set_registry['THINGS1'] = lambda: load_stimulus_set_from_s3(
 # stimulus set: THINGS2
 stimulus_set_registry['THINGS2'] = lambda: load_stimulus_set_from_s3(
     identifier="THINGS2",
-    bucket="brainscore_storage/brainio-brainscore",
+    bucket="brainscore-storage/brainio-brainscore",
     csv_sha1="86c8beda8f495cd69ed047d3457902dd98e4904c",
     zip_sha1="e7918dd10102b67464bc652fdb3ced25ee1fbe7a",
     csv_version_id="null",

@@ -77,5 +77,5 @@ stimuli.stimulus_paths = image_paths
 stimuli.name = 'Baker2022_inverted_distortion'
 
 # upload to S3
-package_stimulus_set("brainscore_storage/brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,
-                     bucket_name="brainscore_storage/brainio_brainscore")
+package_stimulus_set("brainscore-storage/brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,
+                     bucket_name="brainscore-storage/brainio_brainscore")

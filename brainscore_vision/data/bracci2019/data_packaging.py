@@ -210,7 +210,7 @@ def main():
         data_assembly.name,
         human_stimulus_set.name,
         "NeuroidAssembly",
-        "brainscore_storage/brainio-brainscore",
+        "brainscore-storage/brainio-brainscore",
     )
 
     print(human_stimulus_meta)

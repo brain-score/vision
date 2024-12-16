@@ -38,6 +38,6 @@ assembly = BehavioralAssembly(all_subjects['RSP'],
 assembly.name = 'Baker2022_inverted_distortion'
 
 # upload to S3
-package_data_assembly('brainscore_storage/brainio_brainscore', assembly, assembly_identifier=assembly.name,
+package_data_assembly('brainscore-storage/brainio_brainscore', assembly, assembly_identifier=assembly.name,
                       stimulus_set_identifier='Baker2022_inverted_distortion',
-                      assembly_class_name="BehavioralAssembly", bucket_name="brainscore_storage/brainio_brainscore")
+                      assembly_class_name="BehavioralAssembly", bucket_name="brainscore-storage/brainio_brainscore")

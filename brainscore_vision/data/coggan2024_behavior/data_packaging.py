@@ -138,7 +138,7 @@ packaged_stimulus_metadata = package_stimulus_set(
     catalog_name=None,
     proto_stimulus_set=stimuli,
     stimulus_set_identifier=stimuli.name,
-    bucket_name="brainscore_storage/brainio-brainscore")
+    bucket_name="brainscore-storage/brainio-brainscore")
 print(packaged_stimulus_metadata)
 
 
@@ -161,6 +161,6 @@ packaged_behavioral_metadata = package_data_assembly(
     assembly_identifier=assembly.name,
     stimulus_set_identifier=stimuli.name,
     assembly_class_name="BehavioralAssembly",
-    bucket_name="brainscore_storage/brainio-brainscore",
+    bucket_name="brainscore-storage/brainio-brainscore",
     catalog_identifier=None)
 print(packaged_behavioral_metadata)

@@ -44,7 +44,7 @@ def load_assembly_from_s3(identifier: str, version_id: str, sha1: str, bucket: s
     """
     Load a data assembly from S3, optionally within a specific folder.
     """
-    # Get the file path from S3
+    # Parse bucket name and folder name
     if '/' in bucket:
         folder_name = bucket.split('/')[1]
         bucket = bucket.split('/')[0]
@@ -66,7 +66,7 @@ def load_assembly_from_s3(identifier: str, version_id: str, sha1: str, bucket: s
 
 def load_stimulus_set_from_s3(identifier: str, bucket: str, csv_sha1: str, zip_sha1: str,
                               csv_version_id: str, zip_version_id: str, filename_prefix: str = None):
-        # Get the file path from S3
+    # Parse bucket name and folder name
     if '/' in bucket:
         folder_name = bucket.split('/')[1]
         bucket = bucket.split('/')[0]

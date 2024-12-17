@@ -10,8 +10,8 @@ model = resnet101(weights='IMAGENET1K_V1')
 
 def get_model(name):
     assert name == 'resnet-101_v1'
-    # preprocessing = functools.partial(load_preprocess_images, image_size=224, preprocess_type='vgg')
-    preprocessing = functools.partial(load_preprocess_images, image_size=224)
+    preprocessing = functools.partial(load_preprocess_images, image_size=224, preprocess_type='vgg')
+    # preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(identifier='resnet-101_v1', model=model, preprocessing=preprocessing)
     wrapper.image_size = 224
     return wrapper

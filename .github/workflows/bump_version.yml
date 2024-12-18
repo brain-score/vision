@@ -151,10 +151,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Get previous tag
-          PREVIOUS_TAG=$(git tag --sort=-version:refname | head -n 1)
-          echo "Previous tag: $PREVIOUS_TAG"
           NEW_VERSION="${{ needs.version-bump.outputs.NEW_VERSION }}"
+          PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -v "v$NEW_VERSION" | head -n 1)
+          echo "Previous tag: $PREVIOUS_TAG"
           
           # Generate release notes using GitHub API
           if [ -n "$PREVIOUS_TAG" ]; then

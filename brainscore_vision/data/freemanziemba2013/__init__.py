@@ -131,3 +131,4 @@ stimulus_set_registry['FreemanZiemba2013.aperture'] = lambda: load_stimulus_set_
     zip_sha1="3eacddfecd825b18026da3e4c749d5d1bc9213ed",
     csv_version_id="null",
     zip_version_id="null")
+

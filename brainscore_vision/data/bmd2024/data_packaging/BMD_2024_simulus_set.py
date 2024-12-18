@@ -43,6 +43,7 @@ if __name__ == '__main__':
                              proto_stimulus_set=assembly,
                              stimulus_set_identifier=assembly.name,
                              bucket_name="brainscore-storage/brainio-brainscore")
+
         print(prints)
 
 

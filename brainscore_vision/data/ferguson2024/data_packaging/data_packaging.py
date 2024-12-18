@@ -55,7 +55,7 @@ def create_stimulus_set_and_upload(name: str, experiment: str, upload_to_s3=True
     # upload to S3
     if upload_to_s3:
         init_data = package_stimulus_set(catalog_name=None, proto_stimulus_set=stimuli,
-                                         stimulus_set_identifier=stimuli.name, bucket_name="brainio-brainscore")
+                                         stimulus_set_identifier=stimuli.name, bucket_name="brainscore-storage/brainio-brainscore")
         print(f"{experiment} stimulus_set\n{init_data}")
     return stimuli
 
@@ -102,7 +102,7 @@ def create_assembly_and_upload(name: str, experiment: str, upload_to_s3=True) ->
         init_data = package_data_assembly(None, assembly, assembly_identifier=assembly.name,
                                           stimulus_set_identifier=f"{name}_{experiment}",
                                           assembly_class_name="BehavioralAssembly",
-                                          bucket_name="brainio-brainscore")
+                                          bucket_name="brainscore-storage/brainio-brainscore")
         print(f"{experiment} assembly\n{init_data}")
     return assembly
 

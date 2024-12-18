@@ -24,4 +24,3 @@ data_registry['Coggan2024_fMRI'] = lambda: load_assembly_from_s3(
     cls=NeuroidAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('Coggan2024_fMRI'),
 )
-

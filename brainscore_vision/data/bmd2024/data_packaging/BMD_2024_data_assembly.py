@@ -88,4 +88,5 @@ if __name__ == '__main__':
                               assembly_class_name="BehavioralAssembly",
                               bucket_name="brainscore-storage/brainio-brainscore")
 
+
         print(prints)

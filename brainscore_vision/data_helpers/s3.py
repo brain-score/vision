@@ -19,14 +19,15 @@ from brainio.stimuli import StimulusSetLoader, StimulusSet
 _logger = logging.getLogger(__name__)
 
 
-def get_path(identifier: str, file_type: str, bucket: str, version_id: str, sha1: str, filename_prefix: str = None,
-             folder_name: str = None):
+
+def get_path(identifier: str, file_type: str, bucket: str, version_id: str, sha1: str, filename_prefix: str = None, folder_name: str = None):
+  
     """
     Finds path of desired file (for .csvs, .zips, and .ncs).
     """
     if filename_prefix is None:
         filename_prefix = 'stimulus_' if file_type in ('csv', 'zip') else 'assy_'
-
+    
     filename = f"{filename_prefix}{identifier.replace('.', '_')}.{file_type}"
     if folder_name:
         remote_path = f"{folder_name}/{filename}"
@@ -73,10 +74,8 @@ def load_stimulus_set_from_s3(identifier: str, bucket: str, csv_sha1: str, zip_s
         bucket = bucket.split('/')[0]
     else:
         folder_name = None
-    csv_path = get_path(identifier, 'csv', bucket, csv_version_id, csv_sha1, filename_prefix=filename_prefix,
-                        folder_name=folder_name)
-    zip_path = get_path(identifier, 'zip', bucket, zip_version_id, zip_sha1, filename_prefix=filename_prefix,
-                        folder_name=folder_name)
+    csv_path = get_path(identifier, 'csv', bucket, csv_version_id, csv_sha1, filename_prefix=filename_prefix, folder_name=folder_name)
+    zip_path = get_path(identifier, 'zip', bucket, zip_version_id, zip_sha1, filename_prefix=filename_prefix, folder_name=folder_name)
     stimuli_directory = unzip(zip_path)
     loader = StimulusSetLoader(
         csv_path=csv_path,

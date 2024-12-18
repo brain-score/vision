@@ -24,9 +24,9 @@ def get_model_from_s3():
     model_arch = 'resnet50'
     pretrained = True
     if pretrained and model_arch:
-        weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+        weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                         relative_path="voneresnet-50-non_stochastic/voneresnet50_ns_e70.pth.tar",
-                                        version_id="vDk2cwi2xjwGqhGyyjp8lEGSfcaFzB61",
+                                        version_id="null",
                                         sha1="c270528818d6d7fc67a6aec86919d47311ad6221")
         ckpt_data = torch.load(weights_path, map_location=torch.device('cpu'))
         stride = ckpt_data['flags']['stride']

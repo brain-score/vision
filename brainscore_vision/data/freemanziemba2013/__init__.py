@@ -50,8 +50,8 @@ stimulus_set_registry['FreemanZiemba2013.aperture-private'] = lambda: load_stimu
     bucket="brainscore-storage/brainio-brainscore",
     csv_sha1="65bee31483dd743ae2a19c6af03b9abe5f4d5a41",
     zip_sha1="daa724a4797b23929df59c18744923790edf71cb",
-    csv_version_id="1r95S2LT71TMH.JQd.BMGLWb_9eZPPCO",
-    zip_version_id="6Udgp2V5m78PLyZ3VvgMIaff99kdsLqo",
+    csv_version_id="Klo0lMygUX0IZPkLoypccXH55a1hZjf2",
+    zip_version_id="nZES.el0vF3KXuRrB2ELQOqzCcxumFMY",
 )
 
 ### secondary assemblies and stimulus sets

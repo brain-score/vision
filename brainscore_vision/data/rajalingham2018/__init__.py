@@ -19,9 +19,9 @@ BIBTEX = """@article{rajalingham2018large,
 # public assembly: uses objectome.public stimuli
 data_registry['Rajalingham2018.public'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.Rajalingham2018.public",
-    version_id="WEBNb7Azz4CWpzO25JanNjdPSLArltS2",
+    version_id="null",
     sha1="34c6a8b6f7c523589c1861e4123232e5f7c7df4c",
-    bucket="brainio-brainscore",
+    bucket="brainscore-storage/brainio-brainscore",
     cls=BehavioralAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('objectome.public'),
 )
@@ -29,9 +29,9 @@ data_registry['Rajalingham2018.public'] = lambda: load_assembly_from_s3(
 # private assembly: uses objectome.private stimuli
 data_registry['Rajalingham2018.private'] = lambda: load_assembly_from_s3(
     identifier="dicarlo.Rajalingham2018.private",
-    version_id="gwBpHTT2al4FN35Yje7MU2d_ByA_HphX",
+    version_id="null",
     sha1="516f13793d1c5b72bb445bb4008448ce97a02d23",
-    bucket="brainio-brainscore",
+    bucket="brainscore-storage/brainio-brainscore",
     cls=BehavioralAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('objectome.private'),
 )
@@ -40,17 +40,17 @@ data_registry['Rajalingham2018.private'] = lambda: load_assembly_from_s3(
 # stimulus set: objectome.public - rajalingham2018
 stimulus_set_registry['objectome.public'] = lambda: load_stimulus_set_from_s3(
     identifier="objectome.public",
-    bucket="brainio-brainscore",
+    bucket="brainscore-storage/brainio-brainscore",
     csv_sha1="47884e17106a3be471d6481279cab33889b80850",
     zip_sha1="064f2955f98e63867755fee2e3ead8cddf6bfab8",
-    csv_version_id="CwFzXLOclwodJZpInD6hc15yeTOywg6J",
-    zip_version_id="g.vVSa77K84jjeto5KAryLESzxJz0yUB")
+    csv_version_id="null",
+    zip_version_id="null")
 
 # stimulus set: objectome.private - same
 stimulus_set_registry['objectome.private'] = lambda: load_stimulus_set_from_s3(
     identifier="objectome.private",
-    bucket="brainio-brainscore",
+    bucket="brainscore-storage/brainio-brainscore",
     csv_sha1="ac38e8f7c08fa8294ed25a3bf84a6adb108bf3fc",
     zip_sha1="ccd39f7f9b8b4a92da06e3960d06225e46208593",
-    csv_version_id=".c_qSre8xH31QWCHU_0bExY4YgWVyxXY",
-    zip_version_id="TKj6DP8Aesj8IH8WDTtPVtdMCKUtAvJK")
+    csv_version_id="null",
+    zip_version_id="null")

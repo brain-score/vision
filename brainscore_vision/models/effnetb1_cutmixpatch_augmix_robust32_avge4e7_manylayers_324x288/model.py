@@ -70,9 +70,9 @@ class EffNetBX(nn.Module):
 def get_model(name):
     assert name == 'effnetb1_cutmixpatch_augmix_robust32_avge4e7_manylayers_324x288'
     model_tf_efficientnet_b1_ns = EffNetBX()
-    weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+    weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                     relative_path="effnetb1_cutmixpatch_augmix_robust32_avge4e7_manylayers_324x288/tf_efficientnet_b1_ns_robust_cutmixpatchresize_augmix_e4toe7.pth",
-                                    version_id="iB0UqbguDpYHD0HRbMt1F1er3c414yWr",
+                                    version_id="null",
                                     sha1="37f3ac1b14e80cfaa99fa5f412c1e132480ed5b6")
 
     model_tf_efficientnet_b1_ns.load_state_dict(torch.load(weights_path,map_location=torch.device('cpu'))["model"])

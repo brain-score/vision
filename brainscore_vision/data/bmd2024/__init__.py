@@ -64,6 +64,6 @@ stimulus_set_registry['BMD2024.dotted_2'] = lambda: load_stimulus_set_from_s3(
     identifier='BMD_2024_dotted_2',
     bucket="brainscore-storage/brainio-brainscore",
     csv_sha1='4555daa5257dee10c6c6a5625d3bb2d94452e294',
-    zip_sha1='20337c1fac66ed0eec16410c6801cca830e6c20c',
+    zip_sha1='939985a3b205db78bb84112d07c2242f0daabf9e',
     csv_version_id='null',
     zip_version_id='null')

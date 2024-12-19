@@ -19,9 +19,7 @@ from brainio.stimuli import StimulusSetLoader, StimulusSet
 _logger = logging.getLogger(__name__)
 
 
-
-def get_path(identifier: str, file_type: str, bucket: str, version_id: str, sha1: str, filename_prefix: str = None, folder_name: str = None):
-  
+def get_path(identifier: str, file_type: str, bucket: str, version_id: str, sha1: str, filename_prefix: str = None, folder_name: str = None):  
     """
     Finds path of desired file (for .csvs, .zips, and .ncs).
     """

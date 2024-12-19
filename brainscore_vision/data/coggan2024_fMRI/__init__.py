@@ -18,7 +18,7 @@ stimulus_set_registry['Coggan2024_fMRI'] = lambda: load_stimulus_set_from_s3(
 # fMRI data
 data_registry['Coggan2024_fMRI'] = lambda: load_assembly_from_s3(
     identifier="tong.Coggan2024_fMRI",
-    version_id="pNHkcl7putBblyhdFqBX3d1F2kid6TGj",
+    version_id="LRYpTHYG7IoNCexbzZdQM4_LjML_M3CS",
     sha1="da3adbca5247d0491d366f94e8431fb3e4e58db2",
     bucket="brainscore-storage/brainio-brainscore",
     cls=NeuroidAssembly,

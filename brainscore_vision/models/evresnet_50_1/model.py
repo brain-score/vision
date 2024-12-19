@@ -6,7 +6,7 @@ from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_
 
 import os
 import gdown
-from evnet.evnet import EVNet, evnet_params
+from .evnet.evnet import EVNet, evnet_params
 
 def get_model(name):
     assert name == 'evresnet_50_1'

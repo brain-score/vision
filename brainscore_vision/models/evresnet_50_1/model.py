@@ -20,7 +20,7 @@ def get_model(name):
         id='1-41doOH_lePAMp3XryKgmuhX496VytgG',
         output=weight_file
         )
-    checkpoint = torch.load(weight_file)
+    checkpoint = torch.load(weight_file, map_location=torch.device('cpu'))
     os.remove(weight_file)
     model.load_state_dict(checkpoint['model'])
     preprocessing = functools.partial(load_preprocess_images, image_size=224)

@@ -17,8 +17,8 @@ BIBTEX = """@article{freeman2013functional,
 # assembly: movshon.FreemanZiemba2013.public
 data_registry['FreemanZiemba2013.public'] = lambda: load_assembly_from_s3(
     identifier="movshon.FreemanZiemba2013.public",
-    version_id="null",
-    sha1="250fdca53dec8b469babefd1c429f872401a8cc0",
+    version_id="W2vx7jdh9utZdVumHHarXa4L1zOrA8Fd",
+    sha1="761c08f796db4e342555cdb60eef23a4f19ead43",
     bucket="brainscore-storage/brainio-brainscore",
     cls=NeuronRecordingAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('FreemanZiemba2013.aperture-public'),
@@ -27,8 +27,8 @@ data_registry['FreemanZiemba2013.public'] = lambda: load_assembly_from_s3(
 # assembly: movshon.FreemanZiemba2013.private
 data_registry['FreemanZiemba2013.private'] = lambda: load_assembly_from_s3(
     identifier="movshon.FreemanZiemba2013.private",
-    version_id="null",
-    sha1="f86345d5213063fd3e9098ed5cda0e4ce6b241af",
+    version_id="wx5LB7Nq42SV74RQ8Cw6EtyabywsnSyG",
+    sha1="63f636fa2e2b51b47a676768a69b06ce95efdd8f",
     bucket="brainscore-storage/brainio-brainscore",
     cls=NeuronRecordingAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('FreemanZiemba2013.aperture-private'),

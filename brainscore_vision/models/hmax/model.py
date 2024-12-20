@@ -18,9 +18,9 @@ def get_model(name):
 
 
 def get_hmax(identifier, image_size):
-    weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+    weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                     relative_path="hmax/universal_patch_set.mat",
-                                    version_id="fIX.lsvnc8qqjDr_sG_Dl9RyqWuG0OGC",
+                                    version_id="null",
                                     sha1="acc7316fcb0d1797486bb62753b71e158216a92a")
     global model 
     model = HMAX(str(weights_path))

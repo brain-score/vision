@@ -9,16 +9,15 @@ from torch.nn import functional as F
 
 
 class PooledModelWrapper(nn.Module):
-    def __init__(self, base_model, layer_names, pooling_size=(16, 16)):
+    def __init__(self, base_model, pooling_size=(16, 16)):
         super().__init__()
         self.model = base_model
-        self.layer_names = layer_names
         self.pooling_size = pooling_size
         self.hooks = []
         self.activations = {}
 
         # Register hooks for each layer
-        for name in layer_names:
+        for name in base_model.named_modules:
             layer = self._get_layer(name)
             hook = layer.register_forward_hook(self._get_hook(name))
             self.hooks.append(hook)
@@ -69,7 +68,7 @@ def get_model(name):
     layer_names = get_layers(name)
 
     # Create wrapped model with pooling
-    pooled_model = PooledModelWrapper(base_model, layer_names, pooling_size=(16, 16))
+    pooled_model = PooledModelWrapper(base_model, pooling_size=(16, 16))
 
     preprocessing = functools.partial(load_preprocess_images, image_size=299)
     wrapper = PytorchWrapper(identifier=name, model=pooled_model,

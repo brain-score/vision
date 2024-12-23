@@ -33,12 +33,19 @@ class PooledModelWrapper(nn.Module):
 
     def _get_hook(self, name):
         def hook(module, input, output):
+            # Print original dimensions
+            if isinstance(output, torch.Tensor):
+                print(f"\nLayer {name}")
+                print(f"Original dimensions: {output.shape}")
+                # [batch_size, channels, height, width]
+
             # Apply adaptive pooling to reduce dimensions
             # Skip pooling for global pool layer which is already pooled
             if 'global_pool' not in name:
                 if isinstance(output, torch.Tensor):
                     # For single tensor output
                     output = F.adaptive_avg_pool2d(output, self.pooling_size)
+                    print(f"After pooling: {output.shape}")
                 else:
                     # For tuple/list outputs, apply to each tensor
                     output = tuple(F.adaptive_avg_pool2d(o, self.pooling_size)
@@ -89,6 +96,9 @@ def get_model(name):
 
 def get_layers(name):
     assert name == 'xception'
+    # model = timm.create_model('xception', pretrained=True)
+    # for n, _ in model.named_modules():
+    #     print(n)
     layer_names = (
         # Block 1 (2 layers)
         [f'block1.rep.{i}.pointwise' for i in [0, 3]] +

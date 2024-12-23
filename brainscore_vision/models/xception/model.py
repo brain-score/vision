@@ -64,10 +64,7 @@ def get_model(name):
     # Create wrapped model with pooling
     pooled_model = PooledModelWrapper(base_model, layer_names, pooling_size=(16, 16))
 
-    # Create preprocessing function
     preprocessing = functools.partial(load_preprocess_images, image_size=299)
-
-    # Wrap with PytorchWrapper
     wrapper = PytorchWrapper(identifier=name, model=pooled_model,
                              preprocessing=preprocessing, batch_size=4)
     wrapper.image_size = 299

@@ -33,8 +33,8 @@ assembly = BehavioralAssembly(
 assembly.name = 'Hebart2023'
 assert len(assembly) == 453642
 
-package_data_assembly('brainio_brainscore', 
+package_data_assembly('brainscore_storge/brainio_brainscore',
                       assembly, assembly_identifier=assembly.name,
                       stimulus_set_identifier='Hebart2023',
                       assembly_class_name="BehavioralAssembly", 
-                      bucket_name="brainio-brainscore")
+                      bucket_name="brainscore_storge/brainio-brainscore")

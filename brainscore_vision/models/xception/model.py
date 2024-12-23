@@ -17,7 +17,7 @@ class PooledModelWrapper(nn.Module):
         self.activations = {}
 
         # Register hooks for each layer
-        for name in base_model.named_modules:
+        for name, _ in base_model.named_modules:
             layer = self._get_layer(name)
             hook = layer.register_forward_hook(self._get_hook(name))
             self.hooks.append(hook)

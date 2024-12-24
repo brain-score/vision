@@ -8,7 +8,8 @@ requirements = [
     "torch",
     "gdown",
     "pytorch_lightning",
-    "brainscore_vision"
+    "brainscore_vision",
+     "timm"
 ]
 
 setup(

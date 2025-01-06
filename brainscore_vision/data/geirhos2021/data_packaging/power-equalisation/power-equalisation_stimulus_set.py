@@ -79,4 +79,4 @@ assert len(stimuli) == 1120
 
 # upload to S3
 package_stimulus_set("brainio_brainscore", stimuli, stimulus_set_identifier=stimuli.name,
-                     bucket_name="brainio-brainscore")
+                     bucket_name="brainscore-storage/brainio-brainscore")

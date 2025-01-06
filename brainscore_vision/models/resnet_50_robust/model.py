@@ -16,9 +16,9 @@ def get_model(name):
     model_ctr = getattr(module, 'resnet50')
     model = model_ctr()
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
-    weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+    weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                     relative_path="resnet-50-robust/ImageNet.pt",
-                                    version_id=".shHB0L_L9L3Mtco0Kf4EBP3Xj9nLKnC",
+                                    version_id="null",
                                     sha1="cc6e4441abc8ad6d2f4da5db84836e544bfb53fd")
     checkpoint = torch.load(weights_path, map_location=torch.device('cpu'))
 

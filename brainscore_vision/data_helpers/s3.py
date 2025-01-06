@@ -19,16 +19,20 @@ from brainio.stimuli import StimulusSetLoader, StimulusSet
 _logger = logging.getLogger(__name__)
 
 
-def get_path(identifier: str, file_type: str, bucket: str, version_id: str, sha1: str, filename_prefix: str = None):
+def get_path(identifier: str, file_type: str, bucket: str, version_id: str, sha1: str, filename_prefix: str = None, folder_name: str = None):
     """
     Finds path of desired file (for .csvs, .zips, and .ncs).
     """
     if filename_prefix is None:
         filename_prefix = 'stimulus_' if file_type in ('csv', 'zip') else 'assy_'
-
+    
     filename = f"{filename_prefix}{identifier.replace('.', '_')}.{file_type}"
+    if folder_name:
+        remote_path = f"{folder_name}/{filename}"
+    else:
+        remote_path = filename
     file_path = fetch_file(location_type="S3",
-                           location=f"https://{bucket}.s3.amazonaws.com/{filename}",
+                           location=f"https://{bucket}.s3.amazonaws.com/{remote_path}",
                            version_id=version_id,
                            sha1=sha1)
     return file_path
@@ -37,7 +41,16 @@ def get_path(identifier: str, file_type: str, bucket: str, version_id: str, sha1
 def load_assembly_from_s3(identifier: str, version_id: str, sha1: str, bucket: str, cls: type,
                           stimulus_set_loader: Callable[[], StimulusSet] = None,
                           merge_stimulus_set_meta: bool = True) -> DataAssembly:
-    file_path = get_path(identifier, 'nc', bucket, version_id, sha1)
+    """
+    Load a data assembly from S3, optionally within a specific folder.
+    """
+    # Parse bucket name and folder name
+    if '/' in bucket:
+        folder_name = bucket.split('/')[1]
+        bucket = bucket.split('/')[0]
+    else:
+        folder_name = None
+    file_path = get_path(identifier, 'nc', bucket, version_id, sha1, folder_name=folder_name)
     if stimulus_set_loader:  # merge stimulus set meta into assembly if `stimulus_set_loader` is passed
         stimulus_set = stimulus_set_loader()
         loader_base_class = StimulusMergeAssemblyLoader if merge_stimulus_set_meta else StimulusReferenceAssemblyLoader
@@ -53,8 +66,14 @@ def load_assembly_from_s3(identifier: str, version_id: str, sha1: str, bucket: s
 
 def load_stimulus_set_from_s3(identifier: str, bucket: str, csv_sha1: str, zip_sha1: str,
                               csv_version_id: str, zip_version_id: str, filename_prefix: str = None):
-    csv_path = get_path(identifier, 'csv', bucket, csv_version_id, csv_sha1, filename_prefix=filename_prefix)
-    zip_path = get_path(identifier, 'zip', bucket, zip_version_id, zip_sha1, filename_prefix=filename_prefix)
+    # Parse bucket name and folder name
+    if '/' in bucket:
+        folder_name = bucket.split('/')[1]
+        bucket = bucket.split('/')[0]
+    else:
+        folder_name = None
+    csv_path = get_path(identifier, 'csv', bucket, csv_version_id, csv_sha1, filename_prefix=filename_prefix, folder_name=folder_name)
+    zip_path = get_path(identifier, 'zip', bucket, zip_version_id, zip_sha1, filename_prefix=filename_prefix, folder_name=folder_name)
     stimuli_directory = unzip(zip_path)
     loader = StimulusSetLoader(
         csv_path=csv_path,

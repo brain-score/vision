@@ -138,15 +138,7 @@ def preprocess_images(images, image_size, **kwargs):
 def torchvision_preprocess_input(image_size, **kwargs):
     from torchvision import transforms
     preprocess_type = kwargs.get('preprocess_type', 'imagenet')
-    if preprocess_type.lower() == 'vgg':
-        # vgg-style resize (maintain aspect ratio)
-        resize_size = int(image_size * 256 / 224)
-        return transforms.Compose([
-            transforms.Resize(resize_size),
-            transforms.CenterCrop(image_size),
-            torchvision_preprocess(preprocess_type='vgg')
-        ])
-    elif preprocess_type.lower() == 'inception':
+    if preprocess_type.lower() == 'inception':
         # inception-style resize
         resize_size = int(image_size * 256 / 224)
         return transforms.Compose([
@@ -163,22 +155,13 @@ def torchvision_preprocess_input(image_size, **kwargs):
 
 def torchvision_preprocess(preprocess_type="imagenet", **kwargs):
     from torchvision import transforms
-    if preprocess_type.lower() == "vgg":
-        mean = [123.68, 116.78, 103.94]
-        return transforms.Compose([
-            transforms.ToTensor(),
-            lambda img: img * 255.0,  # scale to 0-255 range
-            lambda img: img - torch.FloatTensor(mean).view(3, 1, 1),  # subtract mean
-            lambda img: img.unsqueeze(0)
-        ])
-    elif preprocess_type.lower() == "inception":
+    if preprocess_type.lower() == "inception":
         return transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
             lambda img: img.unsqueeze(0)
         ])
-    else:
-        # defaults to imagenet preprocessing
+    else:  # defaults to imagenet preprocessing
         normalize_mean = kwargs.get('normalize_mean', (0.485, 0.456, 0.406))
         normalize_std = kwargs.get('normalize_std', (0.229, 0.224, 0.225))
         return transforms.Compose([

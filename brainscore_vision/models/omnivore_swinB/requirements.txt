@@ -1,4 +1,3 @@
 torch
-hydra
 einops
 iopath

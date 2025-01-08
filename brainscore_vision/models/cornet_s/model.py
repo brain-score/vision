@@ -33,9 +33,9 @@ def get_model(name):
     model_ctr = getattr(mod, 'CORnet_S')
     model = model_ctr()
     model = Wrapper(model)  # model was wrapped with DataParallel, so weights require `module.` prefix
-    weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+    weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                     relative_path="cornet_s/cornet_s_epoch43.pth.tar",
-                                    version_id="4EAQnCqTy.2MCKiXTJ4l02iG8l3e.yfQ",
+                                    version_id="null",
                                     sha1="a4bfd8eda33b45fd945da1b972ab0b7cad38d60f")
     checkpoint = torch.load(weights_path, map_location=lambda storage, loc: storage)  # map onto cpu
     model.load_state_dict(checkpoint['state_dict'])

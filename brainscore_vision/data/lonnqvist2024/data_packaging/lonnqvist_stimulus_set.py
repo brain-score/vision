@@ -57,5 +57,5 @@ if __name__ == '__main__':
         prints = package_stimulus_set(catalog_name=None,
                                       proto_stimulus_set=stimulus_set,
                                       stimulus_set_identifier=stimulus_set.name,
-                                      bucket_name="brainio-brainscore")
+                                      bucket_name="brainscore-storage/brainio-brainscore")
         print(prints)

@@ -1,4 +1,0 @@
-numpy
-requests
-torch
-collections

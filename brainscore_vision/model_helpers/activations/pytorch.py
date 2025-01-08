@@ -137,9 +137,13 @@ def preprocess_images(images, image_size, **kwargs):
 
 def torchvision_preprocess_input(image_size, **kwargs):
     from torchvision import transforms
-    preprocess_type = kwargs.get('preprocess_type', 'imagenet')
-    if preprocess_type.lower() == 'inception':
-        # inception-style resize
+    preprocess_type = kwargs.get('preprocess_type', 'imagenet').lower()
+    if preprocess_type == 'imagenet':
+        return transforms.Compose([
+            transforms.Resize((image_size, image_size)),
+            torchvision_preprocess(**kwargs),
+        ])
+    elif preprocess_type == 'inception':  # inception-style resize
         resize_size = int(image_size * 256 / 224)
         return transforms.Compose([
             transforms.Resize(resize_size),
@@ -147,10 +151,7 @@ def torchvision_preprocess_input(image_size, **kwargs):
             torchvision_preprocess(preprocess_type='inception')
         ])
     else:
-        return transforms.Compose([
-            transforms.Resize((image_size, image_size)),
-            torchvision_preprocess(**kwargs),
-        ])
+        raise ValueError(f"Unknown preprocess_type '{preprocess_type}'")
 
 
 def torchvision_preprocess(preprocess_type="imagenet", **kwargs):

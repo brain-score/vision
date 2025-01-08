@@ -1,8 +1,0 @@
-torch
-torchvision
-numpy
-pandas
-scipy
-tqdm
-fire
-requests

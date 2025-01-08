@@ -1,2 +1,1 @@
-functools
 texture-vs-shape @ git+https://github.com/kartikp/texture-vs-shape

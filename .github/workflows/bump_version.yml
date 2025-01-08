@@ -126,13 +126,14 @@ jobs:
           allowed-conclusions: success,skipped
           verbose: true
 
-      - name: Auto Merge PR
+      - name: Merge PR
         if: steps.version-update.outputs.pr_number
-        uses: plm9606/automerge_actions@1.2.2
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          merge-method: "squash"
-          auto-delete: "true"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pr_number="${{ steps.version-update.outputs.pr_number }}"
+          echo "Merging PR #$pr_number"
+          gh pr merge $pr_number --squash
 
   create-release:
     needs: version-bump

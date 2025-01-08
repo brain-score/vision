@@ -156,13 +156,7 @@ def torchvision_preprocess_input(image_size, **kwargs):
 
 def torchvision_preprocess(preprocess_type="imagenet", **kwargs):
     from torchvision import transforms
-    if preprocess_type.lower() == "inception":
-        return transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
-            lambda img: img.unsqueeze(0)
-        ])
-    else:  # defaults to imagenet preprocessing
+    if preprocess_type == "imagenet":
         normalize_mean = kwargs.get('normalize_mean', (0.485, 0.456, 0.406))
         normalize_std = kwargs.get('normalize_std', (0.229, 0.224, 0.225))
         return transforms.Compose([
@@ -170,3 +164,11 @@ def torchvision_preprocess(preprocess_type="imagenet", **kwargs):
             transforms.Normalize(mean=normalize_mean, std=normalize_std),
             lambda img: img.unsqueeze(0)
         ])
+    elif preprocess_type == "inception":
+        return transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
+            lambda img: img.unsqueeze(0)
+        ])
+    else:
+        raise ValueError(f"Unknown preprocess_type '{preprocess_type}'")

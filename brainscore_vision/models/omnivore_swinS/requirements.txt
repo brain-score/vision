@@ -1,4 +1,5 @@
 torch
-hydra
+hydra-core
 einops
 iopath
+timm

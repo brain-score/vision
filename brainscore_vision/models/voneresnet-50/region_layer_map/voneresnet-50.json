@@ -1,0 +1,6 @@
+{
+    "V1": "vone_block",
+    "V2": "model.layer3.0.downsample.0",
+    "V4": "model.layer3.0.downsample.0",
+    "IT": "model.layer4.0.downsample.0"
+}

@@ -2,7 +2,7 @@ import functools
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.check_submission import check_models
-from texture_vs_shape.load_pretrained_models import load_model
+from texture_vs_shape.models import load_model
 
 
 

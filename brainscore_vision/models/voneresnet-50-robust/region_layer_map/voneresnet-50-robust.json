@@ -1,0 +1,6 @@
+{
+    "V1": "model.layer3.0.downsample.0",
+    "V2": "model.layer3.0.downsample.0",
+    "V4": "model.layer2.1.conv3",
+    "IT": "model.layer4.1.conv3"
+}

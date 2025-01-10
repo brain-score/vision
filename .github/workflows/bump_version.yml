@@ -133,7 +133,7 @@ jobs:
         run: |
           pr_number="${{ steps.version-update.outputs.pr_number }}"
           echo "Merging PR #$pr_number"
-          gh pr merge $pr_number --auto --squash
+          gh pr merge $pr_number --squash
 
   create-release:
     needs: version-bump

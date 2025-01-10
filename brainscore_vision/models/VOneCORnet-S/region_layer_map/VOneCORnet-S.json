@@ -1,0 +1,6 @@
+{
+    "V1": "bottleneck",
+    "V2": "model.V4.norm3_1",
+    "V4": "model.V4.norm3_0",
+    "IT": "model.IT.conv1"
+}

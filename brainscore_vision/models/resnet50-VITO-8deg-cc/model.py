@@ -6,6 +6,8 @@ import torch
 import os
 from torchvision.models import resnet50
 from brainscore_vision.model_helpers.s3 import load_weight_file
+from model_helpers.brain_transformation import ModelCommitment
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 """
@@ -41,7 +43,6 @@ def get_model(name):
     layers = LAYERS
     vito_brain_model = ModelCommitment('resnet50-VITO-8deg-cc', activations_model=wrapper, layers=layers,
                                        visual_degrees=8)
-
     return vito_brain_model
 
 

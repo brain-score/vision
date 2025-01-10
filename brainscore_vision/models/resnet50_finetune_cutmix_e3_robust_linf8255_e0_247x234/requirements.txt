@@ -1,5 +1,4 @@
 torchvision
 torch
 timm
-pillow
-collections
+PIL

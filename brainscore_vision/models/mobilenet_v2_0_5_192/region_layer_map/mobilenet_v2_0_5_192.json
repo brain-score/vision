@@ -1,0 +1,6 @@
+{
+    "V1": "MobilenetV2_expanded_conv_6_depthwise_BatchNorm_FusedBatchNorm",
+    "V2": "MobilenetV2_expanded_conv_6_depthwise_depthwise",
+    "V4": "MobilenetV2_expanded_conv_6_depthwise_BatchNorm_FusedBatchNorm",
+    "IT": "MobilenetV2_expanded_conv_13_project_Conv2D"
+}

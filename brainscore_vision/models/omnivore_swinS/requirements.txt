@@ -1,0 +1,5 @@
+torch
+hydra-core
+einops
+iopath
+timm

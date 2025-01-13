@@ -1,7 +1,7 @@
 import logging
 import numpy as np
 from brainio.assemblies import merge_data_arrays, NeuroidAssembly, walk_coords
-from model_helpers.brain_transformation import ModelCommitment
+from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
 from brainscore_vision.model_helpers.brain_transformation.temporal import fix_timebin_naming
 from tqdm import tqdm
 from typing import Dict, Tuple

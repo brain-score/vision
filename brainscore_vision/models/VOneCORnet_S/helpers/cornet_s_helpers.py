@@ -1,6 +1,5 @@
 import importlib
 import logging
-import os
 from collections import defaultdict
 import functools
 import re
@@ -8,7 +7,6 @@ import torch
 from torch.nn import Module
 from brainio.assemblies import merge_data_arrays, NeuroidAssembly, walk_coords
 from brainscore_vision.model_helpers.s3 import load_weight_file
-# from candidate_models.base_models.cornet.cornet_r2 import fix_state_dict_naming as fix_r2_state_dict_naming
 from brainscore_vision.model_helpers.activations.core import ActivationsExtractorHelper
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images

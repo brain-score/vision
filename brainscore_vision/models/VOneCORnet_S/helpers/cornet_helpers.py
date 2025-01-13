@@ -1,6 +1,6 @@
 import logging
 from importlib import import_module
-from model_helpers.activations import PytorchWrapper
+from brainscore_vision.model_helpers.activations import PytorchWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 from .cornet_s_helpers import cornet as cornet_ctr
 from vonenet import get_model

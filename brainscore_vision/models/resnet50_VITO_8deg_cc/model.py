@@ -4,9 +4,9 @@ from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_
 import functools
 import torch
 import os
-from torchvision.models import resnet50
 from brainscore_vision.model_helpers.s3 import load_weight_file
 from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
+from .helpers.resnet import resnet50
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -40,10 +40,10 @@ def get_model(name):
     model.eval()
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(identifier='resnet50-VITO-8deg-cc', model=model, preprocessing=preprocessing)
-    layers = LAYERS
-    vito_brain_model = ModelCommitment('resnet50-VITO-8deg-cc', activations_model=wrapper, layers=layers,
-                                       visual_degrees=8)
-    return vito_brain_model
+    #layers = LAYERS
+    #vito_brain_model = ModelCommitment('resnet50-VITO-8deg-cc', activations_model=wrapper, layers=layers,
+    #                                   visual_degrees=8)
+    return wrapper
 
 
 def get_layers(name):

@@ -5,5 +5,5 @@ import pytest
 
 @pytest.mark.travis_slow
 def test_has_identifier():
-    model = brainscore_vision.load_model('CLIP-RN50')
-    assert model.identifier == 'CLIP-RN50'
+    model = brainscore_vision.load_model('omnivore_swinB')
+    assert model.identifier == 'omnivore_swinB'

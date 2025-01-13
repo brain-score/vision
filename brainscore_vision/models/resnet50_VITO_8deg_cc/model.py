@@ -6,7 +6,7 @@ import torch
 import os
 from torchvision.models import resnet50
 from brainscore_vision.model_helpers.s3 import load_weight_file
-from model_helpers.brain_transformation import ModelCommitment
+from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 

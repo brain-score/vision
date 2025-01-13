@@ -1,4 +1,4 @@
 torchvision
 torch
 timm
-PIL
+Pillow

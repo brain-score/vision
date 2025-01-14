@@ -1,5 +1,0 @@
-albumentations
-torchvision
-torch
-timm
-Pillow

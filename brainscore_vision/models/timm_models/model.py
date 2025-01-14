@@ -4,16 +4,12 @@ import json
 from pathlib import Path
 import ssl
 
-import torchvision.models
-import torch
-
-from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
-
 import timm
 import numpy as np
 import torchvision.transforms as T
 from PIL import Image
 
+from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 
 # Disable SSL verification 
 ssl._create_default_https_context = ssl._create_unverified_context

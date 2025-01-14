@@ -1,3 +1,2 @@
 torchvision
-functools
 torch

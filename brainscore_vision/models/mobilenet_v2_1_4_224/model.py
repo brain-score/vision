@@ -19,7 +19,7 @@ implementation.
 
 
 def get_model(name):
-    assert name == 'mobilenet_v2_1-4_224_pytorch'
+    assert name == 'mobilenet_v2_1-4_224'
     model = MobileNetV2ForImageClassification.from_pretrained("Matthijs/mobilenet_v2_1.4_224")
 
     # this mobilenet was trained with 1001 classes where index 0 is the background class
@@ -28,7 +28,7 @@ def get_model(name):
     classifier_layer.register_forward_hook(lambda _layer, _input, logits: logits[:, 1:])
 
     preprocessing = functools.partial(load_preprocess_images, image_size=224, preprocess_type='inception')
-    wrapper = PytorchWrapper(identifier='mobilenet_v2_1-4_224_pytorch', model=model,
+    wrapper = PytorchWrapper(identifier='mobilenet_v2_1-4_224', model=model,
                              preprocessing=preprocessing,
                              batch_size=4)  # doesn't fit into 12 GB GPU memory otherwise
     wrapper.image_size = 224
@@ -36,7 +36,7 @@ def get_model(name):
 
 
 def get_layers(name):
-    assert name == 'mobilenet_v2_1-4_224_pytorch'
+    assert name == 'mobilenet_v2_1-4_224'
     layer_names = (['mobilenet_v2.conv_stem'] +
                    [f'mobilenet_v2.layer.{i}' for i in range(16)] +
                    ['mobilenet_v2.pooler', 'classifier'])

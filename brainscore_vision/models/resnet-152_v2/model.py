@@ -22,23 +22,20 @@ implementation.
 MODEL = torchvision.models.resnet152(weights='ResNet152_Weights.IMAGENET1K_V2')  # use V2 weights
 
 def get_model(name):
-    assert name == 'resnet-152_v2_pytorch'
-    model_identifier = "resnet-152_v2_pytorch"
+    assert name == 'resnet-152_v2'
     preprocessing = functools.partial(load_preprocess_images, image_size=299, preprocess_type='inception')
-    wrapper = PytorchWrapper(identifier=model_identifier, model=MODEL, preprocessing=preprocessing)
+    wrapper = PytorchWrapper(identifier=name, model=MODEL, preprocessing=preprocessing, batch_size=4)
     wrapper.image_size = 299
     return wrapper
 
 
 def get_layers(name):
-    assert name == 'resnet-152_v2_pytorch'
-    layer_names = []
-
-    for name, module in MODEL.named_modules():
-        print(name)
-        layer_names.append(name)
-
-    return layer_names[-15:]
+    assert name == 'resnet-152_v2'
+    layer_names = (['conv1'] + [f'layer1.{i}' for i in range(3)] +
+                   [f'layer2.{i}' for i in range(8)] +
+                   [f'layer3.{i}' for i in range(36)] +
+                   [f'layer4.{i}' for i in range(3)] + ['avgpool'])
+    return layer_names
 
 
 def get_bibtex(model_identifier):

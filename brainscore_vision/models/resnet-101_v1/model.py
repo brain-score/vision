@@ -10,18 +10,18 @@ model = resnet101(weights='IMAGENET1K_V1')
 
 def get_model(name):
     assert name == 'resnet-101_v1'
-    preprocessing = functools.partial(load_preprocess_images, image_size=224, preprocess_type='vgg')
+    preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(identifier='resnet-101_v1', model=model, preprocessing=preprocessing)
     wrapper.image_size = 224
     return wrapper
 
 def get_layers(name):
     assert name == 'resnet-101_v1'
-    for name, module in model.named_children():
-        print(name)
-    for name, module in model.named_modules():
-        print(name)
-    return [n for n, _ in model.named_children()]
+    units = [3, 4, 23, 3]
+    layer_names = ['conv1'] + [f'layer{block+1}.{unit}' for block, block_units in
+                               enumerate(units) for unit in range(block_units)] + ['avgpool']
+    return layer_names
+
 
 def get_bibtex(model_identifier):
     assert model_identifier == 'resnet-101_v1'

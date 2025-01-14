@@ -20,13 +20,13 @@ MODEL = timm.create_model('nasnetalarge', pretrained=True)
 
 
 def get_model_list():
-    return ['nasnet_large_pytorch']
+    return ['nasnet_large']
 
 
 def get_model(name):
-    assert name == 'nasnet_large_pytorch'
+    assert name == 'nasnet_large'
     preprocessing = functools.partial(load_preprocess_images, image_size=331, preprocess_type='inception')
-    wrapper = PytorchWrapper(identifier='nasnet_large_pytorch', model=MODEL,
+    wrapper = PytorchWrapper(identifier='nasnet_large', model=MODEL,
                              preprocessing=preprocessing,
                              batch_size=4)  # doesn't fit into 12 GB GPU memory otherwise
     wrapper.image_size = 331
@@ -34,7 +34,7 @@ def get_model(name):
 
 
 def get_layers(name):
-    assert name == 'nasnet_large_pytorch'
+    assert name == 'nasnet_large'
     layer_names = ([f'cell_{i + 1}' for i in range(-1, 5)] + ['reduction_cell_0'] +
                    [f'cell_{i + 1}' for i in range(5, 11)] + ['reduction_cell_1'] +
                    [f'cell_{i + 1}' for i in range(11, 17)] + ['global_pool'],)

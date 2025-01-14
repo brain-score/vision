@@ -1,5 +1,5 @@
-import brainscore_vision
 import pytest
+import brainscore_vision
 
 
 @pytest.mark.travis_slow

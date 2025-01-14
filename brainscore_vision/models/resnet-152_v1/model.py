@@ -1,4 +1,4 @@
-from torchvision.models import resnet50
+from torchvision.models import resnet152
 from brainscore_vision.model_helpers.check_submission import check_models
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
@@ -6,25 +6,25 @@ from brainscore_vision.model_helpers.check_submission import check_models
 import functools
 
 
-model = resnet50(weights='IMAGENET1K_V1')
+model = resnet152(weights='IMAGENET1K_V1')
 
 def get_model(name):
-    assert name == 'resnet-50_v1'
+    assert name == 'resnet-152_v1'
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
-    wrapper = PytorchWrapper(identifier='resnet-50_v1', model=model, preprocessing=preprocessing)
+    wrapper = PytorchWrapper(identifier=name, model=model, preprocessing=preprocessing)
     wrapper.image_size = 224
     return wrapper
 
 def get_layers(name):
-    assert name == 'resnet-50_v1'
-    units = [3, 4, 6, 3]
+    assert name == 'resnet-152_v1'
+    units = [3, 8, 36, 3]
     layer_names = ['conv1'] + [f'layer{block+1}.{unit}' for block, block_units in
                                enumerate(units) for unit in range(block_units)] + ['avgpool']
     return layer_names
 
 
 def get_bibtex(model_identifier):
-    assert model_identifier == 'resnet-50_v1'
+    assert model_identifier == 'resnet-152_v1'
     return """
     @inproceedings{he2016deep,
   title={Deep residual learning for image recognition},

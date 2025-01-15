@@ -16,6 +16,8 @@ import timm
 import numpy as np
 import torchvision.transforms as T
 from PIL import Image
+from brainscore_vision.model_helpers.s3 import load_weight_file
+
 
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
@@ -132,6 +134,7 @@ def get_model(model_id:str):
     version_id = weights_info['version_ids'][identifier]
     sha1 = weights_info['sha1s'][identifier]
     filename = weights_info["filenames"][identifier]
+
 
     weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                         relative_path="alexnet_all_variation_scenes/{filename}",

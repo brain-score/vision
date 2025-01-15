@@ -1,5 +1,6 @@
 
-{"resnet50_less_variation_iteration=1" : {
+{
+"resnet50_less_variation_iteration=1" : {
     "model_name": "alexnet",
     "keyword": "less_variation",
     "model_id": "resnet50_less_variation_iteration=1",
@@ -7,22 +8,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/less_variation_1.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "less_variation",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_less_variation_iteration=2" : {
@@ -33,22 +36,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/less_variation_2.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "less_variation",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_less_variation_iteration=3" : {
@@ -59,22 +64,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/less_variation_3.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "less_variation",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_less_variation_iteration=4" : {
@@ -85,22 +92,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/less_variation_4.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "less_variation",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_less_variation_iteration=5" : {
@@ -111,22 +120,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/less_variation_5.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "less_variation",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_no_variation_iteration=1" : {
@@ -137,22 +148,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/no_variation_1.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "no_variation",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_no_variation_iteration=2" : {
@@ -163,22 +176,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/no_variation_2.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "no_variation",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_no_variation_iteration=3" : {
@@ -189,22 +204,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/no_variation_3.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "no_variation",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_no_variation_iteration=4" : {
@@ -215,22 +232,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/no_variation_4.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "no_variation",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_no_variation_iteration=5" : {
@@ -241,22 +260,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/no_variation_5.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "no_variation",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_z_axis_iteration=1" : {
@@ -267,22 +288,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/z_axis_1.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "z_axis",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_z_axis_iteration=2" : {
@@ -293,22 +316,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/z_axis_2.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "z_axis",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_z_axis_iteration=3" : {
@@ -319,22 +344,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/z_axis_3.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "z_axis",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_z_axis_iteration=4" : {
@@ -345,22 +372,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/z_axis_4.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "z_axis",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_z_axis_iteration=5" : {
@@ -371,22 +400,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/z_axis_5.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "z_axis",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_wo_shading_iteration=1" : {
@@ -397,22 +428,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/wo_shading_1.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "wo_shading",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_wo_shading_iteration=2" : {
@@ -423,22 +456,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/wo_shading_2.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "wo_shading",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_wo_shading_iteration=3" : {
@@ -449,22 +484,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/wo_shading_3.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "wo_shading",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_wo_shading_iteration=4" : {
@@ -475,22 +512,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/wo_shading_4.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "wo_shading",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_wo_shading_iteration=5" : {
@@ -501,22 +540,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/wo_shading_5.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "wo_shading",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_wo_shadows_iteration=1" : {
@@ -527,22 +568,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/wo_shadows_1.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "wo_shadows",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_wo_shadows_iteration=2" : {
@@ -553,22 +596,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/wo_shadows_2.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "wo_shadows",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_wo_shadows_iteration=3" : {
@@ -579,22 +624,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/wo_shadows_3.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "wo_shadows",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_wo_shadows_iteration=4" : {
@@ -605,22 +652,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/wo_shadows_4.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "wo_shadows",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_wo_shadows_iteration=5" : {
@@ -631,22 +680,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/wo_shadows_5.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "wo_shadows",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_ambient_iteration=1" : {
@@ -657,22 +708,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/ambient_1.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "ambient",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_ambient_iteration=2" : {
@@ -683,22 +736,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/ambient_2.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "ambient",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_ambient_iteration=3" : {
@@ -709,22 +764,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/ambient_3.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "ambient",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_ambient_iteration=4" : {
@@ -735,22 +792,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/ambient_4.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "ambient",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_ambient_iteration=5" : {
@@ -761,22 +820,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/ambient_5.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "ambient",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_textures_iteration=1" : {
@@ -787,22 +848,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/textures_1.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "textures",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_textures_iteration=2" : {
@@ -813,22 +876,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/textures_2.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "textures",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_textures_iteration=3" : {
@@ -839,22 +904,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/textures_3.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "textures",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_textures_iteration=4" : {
@@ -865,22 +932,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/textures_4.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "textures",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_textures_iteration=5" : {
@@ -891,22 +960,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/textures_5.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "textures",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_no_specular_iteration=1" : {
@@ -917,22 +988,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/no_specular_1.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "no_specular",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_no_specular_iteration=2" : {
@@ -943,22 +1016,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/no_specular_2.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "no_specular",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_no_specular_iteration=3" : {
@@ -969,22 +1044,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/no_specular_3.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "no_specular",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_no_specular_iteration=4" : {
@@ -995,22 +1072,24 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/no_specular_4.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "no_specular",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 },
 
 "resnet50_no_specular_iteration=5" : {
@@ -1021,20 +1100,22 @@
     "crop_size": 224,
     "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/no_specular_5.ckpt",
     "model_commitment": {
-        "layers": [
-            "conv1" , "bn1" , "relu",
-            "maxpool", "layer1", "layer2",
-            "layer3", "layer4", "avgpool", "fc"
-        ]
+        "layers": ["conv1", "bn1", "relu", "maxpool", "layer1", "layer1.0", "layer1.0.conv1", "layer1.0.bn1", "layer1.0.relu", "layer1.0.conv2", "layer1.0.bn2", "layer1.0.relu", "layer1.0.conv3", "layer1.0.bn3", "layer1.0.relu", "layer1.1", "layer1.1.conv1", "layer1.1.bn1", "layer1.1.relu", "layer1.1.conv2", "layer1.1.bn2", "layer1.1.relu", "layer1.1.conv3", "layer1.1.bn3", "layer1.1.relu", "layer2", "layer2.0", "layer2.0.conv1", "layer2.0.bn1", "layer2.0.relu", "layer2.0.conv2", "layer2.0.bn2", "layer2.0.relu", "layer2.0.conv3", "layer2.0.bn3", "layer2.0.relu", "layer2.1", "layer2.1.conv1", "layer2.1.bn1", "layer2.1.relu", "layer2.1.conv2", "layer2.1.bn2", "layer2.1.relu", "layer2.1.conv3", "layer2.1.bn3", "layer2.1.relu", "layer2.2", "layer2.2.conv1", "layer2.2.bn1", "layer2.2.relu", "layer2.2.conv2", "layer2.2.bn2", "layer2.2.relu", "layer2.2.conv3", "layer2.2.bn3", "layer2.2.relu", "layer3", "layer3.0", "layer3.0.conv1", "layer3.0.bn1", "layer3.0.relu", "layer3.0.conv2", "layer3.0.bn2", "layer3.0.relu", "layer3.0.conv3", "layer3.0.bn3", "layer3.0.relu", "layer3.1", "layer3.1.conv1", "layer3.1.bn1", "layer3.1.relu", "layer3.1.conv2", "layer3.1.bn2", "layer3.1.relu", "layer3.1.conv3", "layer3.1.bn3", "layer3.1.relu", "layer3.2", "layer3.2.conv1", "layer3.2.bn1", "layer3.2.relu", "layer3.2.conv2", "layer3.2.bn2", "layer3.2.relu", "layer3.2.conv3", "layer3.2.bn3", "layer3.2.relu", "layer4", "layer4.0", "layer4.0.conv1", "layer4.0.bn1", "layer4.0.relu", "layer4.0.conv2", "layer4.0.bn2", "layer4.0.relu", "layer4.0.conv3", "layer4.0.bn3", "layer4.0.relu", "layer4.1", "layer4.1.conv1", "layer4.1.bn1", "layer4.1.relu", "layer4.1.conv2", "layer4.1.bn2", "layer4.1.relu", "layer4.1.conv3", "layer4.1.bn3", "layer4.1.relu", "layer4.2", "layer4.2.conv1", "layer4.2.bn1", "layer4.2.relu", "layer4.2.conv2", "layer4.2.bn2", "layer4.2.relu", "layer4.2.conv3", "layer4.2.bn3", "layer4.2.relu", "avgpool", "fc"]
     },
     "interpolation": "bilinear",
-    "load_model_ema": false,   
+    "load_model_ema": false,
     "use_timm": false,
     "timm_model_name": null,
     "is_vit": false,
     "epoch": 100,
     "output_head": "model.fc",
-    "behavioral_readout_layer": "avgpool", 
+    "behavioral_readout_layer": "avgpool",
     "keyword": "no_specular",
-    "network" : "resnet50"
+    "network" : "resnet50",
+    "region_layer_map": {
+        "V1": "layer1.0.conv1",
+        "V2": "layer3.5.bn3",
+        "V4": "layer3.0.conv1",
+        "IT": "layer4.0.relu"
+    }
 }}

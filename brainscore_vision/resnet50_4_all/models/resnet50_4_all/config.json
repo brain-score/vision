@@ -1,6 +1,5 @@
 
-{
-"resnet50_less_variation_iteration=1" : {
+{"resnet50_less_variation_iteration=1" : {
     "model_name": "alexnet",
     "keyword": "less_variation",
     "model_id": "resnet50_less_variation_iteration=1",

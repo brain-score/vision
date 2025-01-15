@@ -16,8 +16,6 @@ import timm
 import numpy as np
 import torchvision.transforms as T
 from PIL import Image
-from brainscore_vision.model_helpers.s3 import load_weight_file
-
 
 import albumentations as A
 from albumentations.pytorch import ToTensorV2

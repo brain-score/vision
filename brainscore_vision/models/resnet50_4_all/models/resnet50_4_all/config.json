@@ -1,0 +1,1040 @@
+
+{"resnet50_less_variation_iteration=1" : {
+    "model_name": "alexnet",
+    "keyword": "less_variation",
+    "model_id": "resnet50_less_variation_iteration=1",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/less_variation_1.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "less_variation",
+    "network" : "resnet50"
+},
+
+"resnet50_less_variation_iteration=2" : {
+    "model_name": "alexnet",
+    "keyword": "less_variation",
+    "model_id": "resnet50_less_variation_iteration=2",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/less_variation_2.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "less_variation",
+    "network" : "resnet50"
+},
+
+"resnet50_less_variation_iteration=3" : {
+    "model_name": "alexnet",
+    "keyword": "less_variation",
+    "model_id": "resnet50_less_variation_iteration=3",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/less_variation_3.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "less_variation",
+    "network" : "resnet50"
+},
+
+"resnet50_less_variation_iteration=4" : {
+    "model_name": "alexnet",
+    "keyword": "less_variation",
+    "model_id": "resnet50_less_variation_iteration=4",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/less_variation_4.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "less_variation",
+    "network" : "resnet50"
+},
+
+"resnet50_less_variation_iteration=5" : {
+    "model_name": "alexnet",
+    "keyword": "less_variation",
+    "model_id": "resnet50_less_variation_iteration=5",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/less_variation_5.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "less_variation",
+    "network" : "resnet50"
+},
+
+"resnet50_no_variation_iteration=1" : {
+    "model_name": "alexnet",
+    "keyword": "no_variation",
+    "model_id": "resnet50_no_variation_iteration=1",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/no_variation_1.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "no_variation",
+    "network" : "resnet50"
+},
+
+"resnet50_no_variation_iteration=2" : {
+    "model_name": "alexnet",
+    "keyword": "no_variation",
+    "model_id": "resnet50_no_variation_iteration=2",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/no_variation_2.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "no_variation",
+    "network" : "resnet50"
+},
+
+"resnet50_no_variation_iteration=3" : {
+    "model_name": "alexnet",
+    "keyword": "no_variation",
+    "model_id": "resnet50_no_variation_iteration=3",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/no_variation_3.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "no_variation",
+    "network" : "resnet50"
+},
+
+"resnet50_no_variation_iteration=4" : {
+    "model_name": "alexnet",
+    "keyword": "no_variation",
+    "model_id": "resnet50_no_variation_iteration=4",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/no_variation_4.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "no_variation",
+    "network" : "resnet50"
+},
+
+"resnet50_no_variation_iteration=5" : {
+    "model_name": "alexnet",
+    "keyword": "no_variation",
+    "model_id": "resnet50_no_variation_iteration=5",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/no_variation_5.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "no_variation",
+    "network" : "resnet50"
+},
+
+"resnet50_z_axis_iteration=1" : {
+    "model_name": "alexnet",
+    "keyword": "z_axis",
+    "model_id": "resnet50_z_axis_iteration=1",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/z_axis_1.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "z_axis",
+    "network" : "resnet50"
+},
+
+"resnet50_z_axis_iteration=2" : {
+    "model_name": "alexnet",
+    "keyword": "z_axis",
+    "model_id": "resnet50_z_axis_iteration=2",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/z_axis_2.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "z_axis",
+    "network" : "resnet50"
+},
+
+"resnet50_z_axis_iteration=3" : {
+    "model_name": "alexnet",
+    "keyword": "z_axis",
+    "model_id": "resnet50_z_axis_iteration=3",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/z_axis_3.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "z_axis",
+    "network" : "resnet50"
+},
+
+"resnet50_z_axis_iteration=4" : {
+    "model_name": "alexnet",
+    "keyword": "z_axis",
+    "model_id": "resnet50_z_axis_iteration=4",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/z_axis_4.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "z_axis",
+    "network" : "resnet50"
+},
+
+"resnet50_z_axis_iteration=5" : {
+    "model_name": "alexnet",
+    "keyword": "z_axis",
+    "model_id": "resnet50_z_axis_iteration=5",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/z_axis_5.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "z_axis",
+    "network" : "resnet50"
+},
+
+"resnet50_wo_shading_iteration=1" : {
+    "model_name": "alexnet",
+    "keyword": "wo_shading",
+    "model_id": "resnet50_wo_shading_iteration=1",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/wo_shading_1.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "wo_shading",
+    "network" : "resnet50"
+},
+
+"resnet50_wo_shading_iteration=2" : {
+    "model_name": "alexnet",
+    "keyword": "wo_shading",
+    "model_id": "resnet50_wo_shading_iteration=2",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/wo_shading_2.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "wo_shading",
+    "network" : "resnet50"
+},
+
+"resnet50_wo_shading_iteration=3" : {
+    "model_name": "alexnet",
+    "keyword": "wo_shading",
+    "model_id": "resnet50_wo_shading_iteration=3",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/wo_shading_3.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "wo_shading",
+    "network" : "resnet50"
+},
+
+"resnet50_wo_shading_iteration=4" : {
+    "model_name": "alexnet",
+    "keyword": "wo_shading",
+    "model_id": "resnet50_wo_shading_iteration=4",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/wo_shading_4.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "wo_shading",
+    "network" : "resnet50"
+},
+
+"resnet50_wo_shading_iteration=5" : {
+    "model_name": "alexnet",
+    "keyword": "wo_shading",
+    "model_id": "resnet50_wo_shading_iteration=5",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/wo_shading_5.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "wo_shading",
+    "network" : "resnet50"
+},
+
+"resnet50_wo_shadows_iteration=1" : {
+    "model_name": "alexnet",
+    "keyword": "wo_shadows",
+    "model_id": "resnet50_wo_shadows_iteration=1",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/wo_shadows_1.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "wo_shadows",
+    "network" : "resnet50"
+},
+
+"resnet50_wo_shadows_iteration=2" : {
+    "model_name": "alexnet",
+    "keyword": "wo_shadows",
+    "model_id": "resnet50_wo_shadows_iteration=2",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/wo_shadows_2.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "wo_shadows",
+    "network" : "resnet50"
+},
+
+"resnet50_wo_shadows_iteration=3" : {
+    "model_name": "alexnet",
+    "keyword": "wo_shadows",
+    "model_id": "resnet50_wo_shadows_iteration=3",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/wo_shadows_3.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "wo_shadows",
+    "network" : "resnet50"
+},
+
+"resnet50_wo_shadows_iteration=4" : {
+    "model_name": "alexnet",
+    "keyword": "wo_shadows",
+    "model_id": "resnet50_wo_shadows_iteration=4",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/wo_shadows_4.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "wo_shadows",
+    "network" : "resnet50"
+},
+
+"resnet50_wo_shadows_iteration=5" : {
+    "model_name": "alexnet",
+    "keyword": "wo_shadows",
+    "model_id": "resnet50_wo_shadows_iteration=5",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/wo_shadows_5.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "wo_shadows",
+    "network" : "resnet50"
+},
+
+"resnet50_ambient_iteration=1" : {
+    "model_name": "alexnet",
+    "keyword": "ambient",
+    "model_id": "resnet50_ambient_iteration=1",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/ambient_1.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "ambient",
+    "network" : "resnet50"
+},
+
+"resnet50_ambient_iteration=2" : {
+    "model_name": "alexnet",
+    "keyword": "ambient",
+    "model_id": "resnet50_ambient_iteration=2",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/ambient_2.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "ambient",
+    "network" : "resnet50"
+},
+
+"resnet50_ambient_iteration=3" : {
+    "model_name": "alexnet",
+    "keyword": "ambient",
+    "model_id": "resnet50_ambient_iteration=3",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/ambient_3.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "ambient",
+    "network" : "resnet50"
+},
+
+"resnet50_ambient_iteration=4" : {
+    "model_name": "alexnet",
+    "keyword": "ambient",
+    "model_id": "resnet50_ambient_iteration=4",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/ambient_4.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "ambient",
+    "network" : "resnet50"
+},
+
+"resnet50_ambient_iteration=5" : {
+    "model_name": "alexnet",
+    "keyword": "ambient",
+    "model_id": "resnet50_ambient_iteration=5",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/ambient_5.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "ambient",
+    "network" : "resnet50"
+},
+
+"resnet50_textures_iteration=1" : {
+    "model_name": "alexnet",
+    "keyword": "textures",
+    "model_id": "resnet50_textures_iteration=1",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/textures_1.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "textures",
+    "network" : "resnet50"
+},
+
+"resnet50_textures_iteration=2" : {
+    "model_name": "alexnet",
+    "keyword": "textures",
+    "model_id": "resnet50_textures_iteration=2",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/textures_2.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "textures",
+    "network" : "resnet50"
+},
+
+"resnet50_textures_iteration=3" : {
+    "model_name": "alexnet",
+    "keyword": "textures",
+    "model_id": "resnet50_textures_iteration=3",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/textures_3.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "textures",
+    "network" : "resnet50"
+},
+
+"resnet50_textures_iteration=4" : {
+    "model_name": "alexnet",
+    "keyword": "textures",
+    "model_id": "resnet50_textures_iteration=4",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/textures_4.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "textures",
+    "network" : "resnet50"
+},
+
+"resnet50_textures_iteration=5" : {
+    "model_name": "alexnet",
+    "keyword": "textures",
+    "model_id": "resnet50_textures_iteration=5",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/textures_5.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "textures",
+    "network" : "resnet50"
+},
+
+"resnet50_no_specular_iteration=1" : {
+    "model_name": "alexnet",
+    "keyword": "no_specular",
+    "model_id": "resnet50_no_specular_iteration=1",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/no_specular_1.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "no_specular",
+    "network" : "resnet50"
+},
+
+"resnet50_no_specular_iteration=2" : {
+    "model_name": "alexnet",
+    "keyword": "no_specular",
+    "model_id": "resnet50_no_specular_iteration=2",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/no_specular_2.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "no_specular",
+    "network" : "resnet50"
+},
+
+"resnet50_no_specular_iteration=3" : {
+    "model_name": "alexnet",
+    "keyword": "no_specular",
+    "model_id": "resnet50_no_specular_iteration=3",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/no_specular_3.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "no_specular",
+    "network" : "resnet50"
+},
+
+"resnet50_no_specular_iteration=4" : {
+    "model_name": "alexnet",
+    "keyword": "no_specular",
+    "model_id": "resnet50_no_specular_iteration=4",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/no_specular_4.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "no_specular",
+    "network" : "resnet50"
+},
+
+"resnet50_no_specular_iteration=5" : {
+    "model_name": "alexnet",
+    "keyword": "no_specular",
+    "model_id": "resnet50_no_specular_iteration=5",
+    "resize_size": 256,
+    "crop_size": 224,
+    "checkpoint_url": "https://eggerbernhard.ch/shreya/latest_resnet50/no_specular_5.ckpt",
+    "model_commitment": {
+        "layers": [
+            "conv1" , "bn1" , "relu",
+            "maxpool", "layer1", "layer2",
+            "layer3", "layer4", "avgpool", "fc"
+        ]
+    },
+    "interpolation": "bilinear",
+    "load_model_ema": false,   
+    "use_timm": false,
+    "timm_model_name": null,
+    "is_vit": false,
+    "epoch": 100,
+    "output_head": "model.fc",
+    "behavioral_readout_layer": "avgpool", 
+    "keyword": "no_specular",
+    "network" : "resnet50"
+}}

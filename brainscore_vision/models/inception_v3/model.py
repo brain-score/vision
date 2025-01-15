@@ -21,9 +21,9 @@ implementation.
 MODEL = timm.create_model('inception_v3', pretrained=True)
 
 def get_model(name):
-    assert name == 'inception_v3_pytorch'
-    preprocessing = functools.partial(load_preprocess_images, image_size=299)
-    wrapper = PytorchWrapper(identifier='inception_v3_pytorch', model=MODEL,
+    assert name == 'inception_v3'
+    preprocessing = functools.partial(load_preprocess_images, image_size=299, preprocess_type='inception')
+    wrapper = PytorchWrapper(identifier='inception_v3', model=MODEL,
                              preprocessing=preprocessing,
                              batch_size=4)  # doesn't fit into 12 GB GPU memory otherwise
     wrapper.image_size = 299
@@ -31,13 +31,13 @@ def get_model(name):
 
 
 def get_layers(name):
-    assert name == 'inception_v3_pytorch'
-    layer_names = []
-
-    for name, module in MODEL.named_modules():
-        layer_names.append(name)
-
-    return layer_names[2:]
+    assert name == 'inception_v3'
+    layer_names = (['Conv2d_1a_3x3', 'Pool1', 'Pool2'] +
+                   [f'Mixed_5{i}' for i in ['b', 'c', 'd']] +
+                   [f'Mixed_6{i}' for i in ['a', 'b', 'c', 'd', 'e']] +
+                   [f'Mixed_7{i}' for i in ['a', 'b', 'c']] +
+                   ['global_pool'])
+    return layer_names
 
 
 def get_bibtex(model_identifier):

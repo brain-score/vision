@@ -8,7 +8,7 @@ from brainscore_vision.model_helpers.check_submission import check_models
 ssl._create_default_https_context = ssl._create_unverified_context
 
 '''
-This is a Pytorch implementation of densenet_201.
+This is a Pytorch implementation of densenet-201.
 
 Previously on Brain-Score, this model existed as a Tensorflow model, and was converted via:
     https://huggingface.co/timm/densenet201.tv_in1k
@@ -23,9 +23,9 @@ MODEL = timm.create_model('densenet201.tv_in1k', pretrained=True)
 
 
 def get_model(name):
-    assert name == 'densenet_201_pytorch'
+    assert name == 'densenet-201'
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
-    wrapper = PytorchWrapper(identifier='densenet_201_pytorch', model=MODEL,
+    wrapper = PytorchWrapper(identifier='densenet-201', model=MODEL,
                              preprocessing=preprocessing,
                              batch_size=4)  # doesn't fit into 12 GB GPU memory otherwise
     wrapper.image_size = 224
@@ -33,13 +33,15 @@ def get_model(name):
 
 
 def get_layers(name):
-    assert name == 'densenet_201_pytorch'
-    layer_names = []
-
-    for name, module in MODEL.named_modules():
-        layer_names.append(name)
-
-    return layer_names[2:]
+    assert name == 'densenet-201'
+    layer_names = (['norm0.act'] + ['pool0'] +
+                   [f'denseblock1.denselayer{i}' for i in range(1, 7)] + ['transition1.pool'] +
+                   [f'denseblock2.denselayer{i}' for i in range(1, 13)] + ['transition2.pool'] +
+                   [f'denseblock3.denselayer{i}' for i in range(1, 49)] + ['transition3.pool'] +
+                   [f'denseblock4.denselayer{i}' for i in range(1, 33)])
+    layer_names = [f"features.{name}" for name in layer_names]
+    layer_names += ['global_pool']
+    return layer_names
 
 
 def get_bibtex(model_identifier):

@@ -20,7 +20,7 @@ def import_model():
 model = import_model()
 
 
-with open(Path(__file__).parent / "config.json", "r") as f:
+with open("config.json", "r") as f:
     MODEL_CONFIGS = json.load(f)
 
 model_registry['resnet50_less_variation_iteration=1'] = lambda: ModelCommitment(identifier='resnet50_less_variation_iteration=1',

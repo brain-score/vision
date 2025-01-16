@@ -112,9 +112,9 @@ def get_model(model_id:str):
     if is_vit:
         os.environ['RESULTCACHING_DISABLE'] = 'brainscore_vision.model_helpers.activations.core.ActivationsExtractorHelper._from_paths_stored'
 
-    ckpt_url = "https://drive.google.com/file/d/1K7GcuEsvHBzVT2T7ONqPDJrNqpCTH-K3/view?usp=share_link"
-    output = 'checkpoint.ckpt'
-    gdown.download('checkpoint.ckpt',output)
+    ckpt_url = "/Users/shreya/Desktop/latest_resnet50/less_variation_4.ckpt"
+    output = '/Users/shreya/Desktop/latest_resnet50/less_variation_4.ckpt'
+    #gdown.download(ckpt_url,output)
     if keyword != 'imagenet_trained' and keyword != 'no_training':
         lx_whole = [f"checkpoint.ckpt"]
         if len(lx_whole) > 1:
@@ -142,7 +142,8 @@ def get_model(model_id:str):
     else:
         model = torch.hub.load('pytorch/vision', network, pretrained=False)
     if model_ckpt != 'x':
-        ckpt = torch.load(weights_path, map_location='cpu')
+        #ckpt = torch.load(weights_path, map_location='cpu')
+        ckpt = ckpt
     if model_ckpt != 'x' and network == 'alexnet' and keyword != 'imagenet_trained':
         ckpt2 = {}
         for keys in ckpt['state_dict']:

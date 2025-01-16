@@ -10,7 +10,7 @@ name: Check if PR is automergeable
 # A PR is automergeable iff it:
 # 1) is labeled "automerge" OR "automerge-web" (originates from web submission) (checked in actions_helpers.py)
 # 2) only changes plugins (subdirs of /benchmarks, /data, /models, /metrics)
-# 3) passes all tests (Travis and Jenkins). 
+# 3) passes all tests (Jenkins tests specified in actions_helpers.py). 
 # If all 3 conditions are met, the "automerge-approved" label is applied to the PR
 # (This label triggers the `automerge_plugin-only_prs` workflow to merge the PR.)
 #

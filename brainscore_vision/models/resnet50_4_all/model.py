@@ -112,18 +112,27 @@ def get_model(model_id:str):
     if is_vit:
         os.environ['RESULTCACHING_DISABLE'] = 'brainscore_vision.model_helpers.activations.core.ActivationsExtractorHelper._from_paths_stored'
 
-    ckpt_url = "/Users/shreya/Desktop/latest_resnet50/less_variation_4.ckpt"
-    output = '/Users/shreya/Desktop/latest_resnet50/less_variation_4.ckpt'
+    weight_file = "resnet50_all_variations_scenes_weights.json"
+    weights_info = load_config(weight_file)
+    version_id = weights_info['version_ids'][identifier]
+    sha1 = weights_info['sha1s'][identifier]
+    print(version_id)
+    print(type(version_id))
+    print(sha1)
+    file_path = f"resnet50_all_variations_scenes/{weights_info['filenames'][identifier]}"
+    print(file_path)
+    weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
+                                    relative_path=file_path,
+                                    version_id=version_id,
+                                    sha1=sha1)
+    
     #gdown.download(ckpt_url,output)
     if keyword != 'imagenet_trained' and keyword != 'no_training':
-        lx_whole = [f"checkpoint.ckpt"]
-        if len(lx_whole) > 1:
-            lx_whole = [lx_whole[-1]]
+        model_ckpt = weights_path
     elif keyword == 'imagenet_trained' or keyword == 'no_training':
         print('keyword is imagenet')
-        lx_whole = ['x']  
+        model_ckpt = 'x'
     model = torch.hub.load('pytorch/vision', network, pretrained=False)
-    ckpt = torch.load(output, map_location='cpu')
     if keyword == 'imagenet_trained' or keyword=='no_training':
         model_ckpt = 'x'
     else: 
@@ -143,17 +152,8 @@ def get_model(model_id:str):
         model = torch.hub.load('pytorch/vision', network, pretrained=False)
     if model_ckpt != 'x':
         #ckpt = torch.load(weights_path, map_location='cpu')
-        ckpt = ckpt
-    if model_ckpt != 'x' and network == 'alexnet' and keyword != 'imagenet_trained':
-        ckpt2 = {}
-        for keys in ckpt['state_dict']:
-            print(keys)
-            print(ckpt['state_dict'][keys].shape)
-            print('---')
-            k2 = keys.split('model.')[1]
-            ckpt2[k2] = ckpt['state_dict'][keys]
-        model.load_state_dict(ckpt2)
-    if model_ckpt != 'x' and network == 'vgg16' and keyword != 'imagenet_trained':
+        ckpt = torch.load(model_ckpt, map_location='cpu')
+    if model_ckpt != 'x' and network == 'resnet50' and keyword != 'imagenet_trained':
         ckpt2 = {}
         for keys in ckpt['state_dict']:
             print(keys)

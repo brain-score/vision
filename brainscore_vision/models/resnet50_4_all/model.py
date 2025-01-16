@@ -22,6 +22,7 @@ from brainscore_vision.model_helpers.s3 import load_weight_file
 # Disable SSL verification 
 ssl._create_default_https_context = ssl._create_unverified_context
 
+
 BIBTEX=""""""
 
 with open(Path(__file__).parent / "config.json", "r") as f:
@@ -111,15 +112,18 @@ def get_model(model_id:str):
     if is_vit:
         os.environ['RESULTCACHING_DISABLE'] = 'brainscore_vision.model_helpers.activations.core.ActivationsExtractorHelper._from_paths_stored'
 
-    weight_file = "resnet50_all_variations_scenes_weights.json"
-    weights_info = load_config(weight_file)
-    version_id = weights_info['version_ids'][identifier]
-    sha1 = weights_info['sha1s'][identifier]
-    weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
-                                        relative_path="resnet50_all_variation_scenes/{filename}",
-                                        version_id=version_id,
-                                        sha1=sha1)
-    ckpt = torch.load(weights_path, map_location='cpu')
+    ckpt_url = "https://drive.google.com/file/d/1K7GcuEsvHBzVT2T7ONqPDJrNqpCTH-K3/view?usp=share_link"
+    output = 'checkpoint.ckpt'
+    gdown.download('checkpoint.ckpt',output)
+    if keyword != 'imagenet_trained' and keyword != 'no_training':
+        lx_whole = [f"checkpoint.ckpt"]
+        if len(lx_whole) > 1:
+            lx_whole = [lx_whole[-1]]
+    elif keyword == 'imagenet_trained' or keyword == 'no_training':
+        print('keyword is imagenet')
+        lx_whole = ['x']  
+    model = torch.hub.load('pytorch/vision', network, pretrained=False)
+    ckpt = torch.load(output, map_location='cpu')
     if keyword == 'imagenet_trained' or keyword=='no_training':
         model_ckpt = 'x'
     else: 

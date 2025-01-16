@@ -18,7 +18,7 @@ from PIL import Image
 
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
-
+from brainscore_vision.model_helpers.s3 import load_weight_file
 # Disable SSL verification 
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -97,47 +97,37 @@ def get_model(model_id:str):
     
     # Unpack model config
     config = MODEL_CONFIGS[model_id]
-    model_name = config["model_name"]
     model_id = config["model_id"]
     resize_size = config["resize_size"]
     crop_size = config["crop_size"]
     interpolation = config["interpolation"]
-    num_classes = config["num_classes"]
-    ckpt_url = config["checkpoint_url"]
-    use_timm = config["use_timm"]
-    timm_model_name = config["timm_model_name"]
-    epoch = config["epoch"]
-    load_model_ema = config["load_model_ema"]
-    output_head = config["output_head"]
     is_vit = config["is_vit"]
     keyword = config["keyword"]
     network = config["network"]
     identifier = config["model_id"]
-    
+    # Unpack model config
     # Temporary fix for vit models
     # See https://github.com/brain-score/vision/pull/1232
     if is_vit:
         os.environ['RESULTCACHING_DISABLE'] = 'brainscore_vision.model_helpers.activations.core.ActivationsExtractorHelper._from_paths_stored'
 
-    device = "cpu"
     config = MODEL_CONFIGS[model_id]
-    model_name = config["model_name"]
     resize_size = config["resize_size"]
     crop_size = config["crop_size"]
-
 
     weight_file = "resnet50_all_variations_scenes_weights.json"
     weights_info = load_config(weight_file)
     version_id = weights_info['version_ids'][identifier]
     sha1 = weights_info['sha1s'][identifier]
-    filename = weights_info["filenames"][identifier]
-
-
     weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
-                                        relative_path="alexnet_all_variation_scenes/{filename}",
+                                        relative_path="resnet50_all_variation_scenes/{filename}",
                                         version_id=version_id,
                                         sha1=sha1)
-
+    ckpt = torch.load(weights_path, map_location='cpu')
+    if keyword == 'imagenet_trained' or keyword=='no_training':
+        model_ckpt = 'x'
+    else: 
+        model_ckpt = None
     last_module_name = None
     last_module = None
     layers = []
@@ -171,9 +161,6 @@ def get_model(model_id:str):
             k2 = keys.split('model.')[1]
             ckpt2[k2] = ckpt['state_dict'][keys]
         model.load_state_dict(ckpt2)
-
-    
-
     # Wrap model
     preprocessing = functools.partial(
         load_preprocess_images_custom,

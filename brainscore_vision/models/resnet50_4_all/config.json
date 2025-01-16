@@ -1,6 +1,6 @@
 {
 "resnet50_less_variation_iteration=1" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "less_variation",
     "model_id": "resnet50_less_variation_iteration=1",
     "resize_size": 256,
@@ -41,7 +41,7 @@
 },
 
     "resnet50_less_variation_iteration=2" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "less_variation",
     "model_id": "resnet50_less_variation_iteration=2",
     "resize_size": 256,
@@ -82,7 +82,7 @@
 },
 
     "resnet50_less_variation_iteration=3" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "less_variation",
     "model_id": "resnet50_less_variation_iteration=3",
     "resize_size": 256,
@@ -123,7 +123,7 @@
 },
 
     "resnet50_less_variation_iteration=4" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "less_variation",
     "model_id": "resnet50_less_variation_iteration=4",
     "resize_size": 256,
@@ -164,7 +164,7 @@
 },
 
     "resnet50_less_variation_iteration=5" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "less_variation",
     "model_id": "resnet50_less_variation_iteration=5",
     "resize_size": 256,
@@ -205,7 +205,7 @@
 },
 
     "resnet50_no_variation_iteration=1" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "no_variation",
     "model_id": "resnet50_no_variation_iteration=1",
     "resize_size": 256,
@@ -246,7 +246,7 @@
 },
 
     "resnet50_no_variation_iteration=2" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "no_variation",
     "model_id": "resnet50_no_variation_iteration=2",
     "resize_size": 256,
@@ -287,7 +287,7 @@
 },
 
     "resnet50_no_variation_iteration=3" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "no_variation",
     "model_id": "resnet50_no_variation_iteration=3",
     "resize_size": 256,
@@ -328,7 +328,7 @@
 },
 
     "resnet50_no_variation_iteration=4" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "no_variation",
     "model_id": "resnet50_no_variation_iteration=4",
     "resize_size": 256,
@@ -369,7 +369,7 @@
 },
 
     "resnet50_no_variation_iteration=5" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "no_variation",
     "model_id": "resnet50_no_variation_iteration=5",
     "resize_size": 256,
@@ -410,7 +410,7 @@
 },
 
     "resnet50_z_axis_iteration=1" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "z_axis",
     "model_id": "resnet50_z_axis_iteration=1",
     "resize_size": 256,
@@ -451,7 +451,7 @@
 },
 
     "resnet50_z_axis_iteration=2" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "z_axis",
     "model_id": "resnet50_z_axis_iteration=2",
     "resize_size": 256,
@@ -492,7 +492,7 @@
 },
 
     "resnet50_z_axis_iteration=3" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "z_axis",
     "model_id": "resnet50_z_axis_iteration=3",
     "resize_size": 256,
@@ -533,7 +533,7 @@
 },
 
     "resnet50_z_axis_iteration=4" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "z_axis",
     "model_id": "resnet50_z_axis_iteration=4",
     "resize_size": 256,
@@ -574,7 +574,7 @@
 },
 
     "resnet50_z_axis_iteration=5" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "z_axis",
     "model_id": "resnet50_z_axis_iteration=5",
     "resize_size": 256,
@@ -615,7 +615,7 @@
 },
 
     "resnet50_wo_shading_iteration=1" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "wo_shading",
     "model_id": "resnet50_wo_shading_iteration=1",
     "resize_size": 256,
@@ -656,7 +656,7 @@
 },
 
     "resnet50_wo_shading_iteration=2" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "wo_shading",
     "model_id": "resnet50_wo_shading_iteration=2",
     "resize_size": 256,
@@ -697,7 +697,7 @@
 },
 
     "resnet50_wo_shading_iteration=3" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "wo_shading",
     "model_id": "resnet50_wo_shading_iteration=3",
     "resize_size": 256,
@@ -738,7 +738,7 @@
 },
 
     "resnet50_wo_shading_iteration=4" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "wo_shading",
     "model_id": "resnet50_wo_shading_iteration=4",
     "resize_size": 256,
@@ -779,7 +779,7 @@
 },
 
     "resnet50_wo_shading_iteration=5" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "wo_shading",
     "model_id": "resnet50_wo_shading_iteration=5",
     "resize_size": 256,
@@ -820,7 +820,7 @@
 },
 
     "resnet50_wo_shadows_iteration=1" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "wo_shadows",
     "model_id": "resnet50_wo_shadows_iteration=1",
     "resize_size": 256,
@@ -861,7 +861,7 @@
 },
 
     "resnet50_wo_shadows_iteration=2" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "wo_shadows",
     "model_id": "resnet50_wo_shadows_iteration=2",
     "resize_size": 256,
@@ -902,7 +902,7 @@
 },
 
     "resnet50_wo_shadows_iteration=3" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "wo_shadows",
     "model_id": "resnet50_wo_shadows_iteration=3",
     "resize_size": 256,
@@ -943,7 +943,7 @@
 },
 
     "resnet50_wo_shadows_iteration=4" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "wo_shadows",
     "model_id": "resnet50_wo_shadows_iteration=4",
     "resize_size": 256,
@@ -984,7 +984,7 @@
 },
 
     "resnet50_wo_shadows_iteration=5" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "wo_shadows",
     "model_id": "resnet50_wo_shadows_iteration=5",
     "resize_size": 256,
@@ -1025,7 +1025,7 @@
 },
 
     "resnet50_ambient_iteration=1" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "ambient",
     "model_id": "resnet50_ambient_iteration=1",
     "resize_size": 256,
@@ -1066,7 +1066,7 @@
 },
 
     "resnet50_ambient_iteration=2" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "ambient",
     "model_id": "resnet50_ambient_iteration=2",
     "resize_size": 256,
@@ -1107,7 +1107,7 @@
 },
 
     "resnet50_ambient_iteration=3" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "ambient",
     "model_id": "resnet50_ambient_iteration=3",
     "resize_size": 256,
@@ -1148,7 +1148,7 @@
 },
 
     "resnet50_ambient_iteration=4" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "ambient",
     "model_id": "resnet50_ambient_iteration=4",
     "resize_size": 256,
@@ -1189,7 +1189,7 @@
 },
 
     "resnet50_ambient_iteration=5" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "ambient",
     "model_id": "resnet50_ambient_iteration=5",
     "resize_size": 256,
@@ -1230,7 +1230,7 @@
 },
 
     "resnet50_textures_iteration=1" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "textures",
     "model_id": "resnet50_textures_iteration=1",
     "resize_size": 256,
@@ -1271,7 +1271,7 @@
 },
 
     "resnet50_textures_iteration=2" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "textures",
     "model_id": "resnet50_textures_iteration=2",
     "resize_size": 256,
@@ -1312,7 +1312,7 @@
 },
 
     "resnet50_textures_iteration=3" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "textures",
     "model_id": "resnet50_textures_iteration=3",
     "resize_size": 256,
@@ -1353,7 +1353,7 @@
 },
 
     "resnet50_textures_iteration=4" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "textures",
     "model_id": "resnet50_textures_iteration=4",
     "resize_size": 256,
@@ -1394,7 +1394,7 @@
 },
 
     "resnet50_textures_iteration=5" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "textures",
     "model_id": "resnet50_textures_iteration=5",
     "resize_size": 256,
@@ -1435,7 +1435,7 @@
 },
 
     "resnet50_no_specular_iteration=1" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "no_specular",
     "model_id": "resnet50_no_specular_iteration=1",
     "resize_size": 256,
@@ -1476,7 +1476,7 @@
 },
 
     "resnet50_no_specular_iteration=2" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "no_specular",
     "model_id": "resnet50_no_specular_iteration=2",
     "resize_size": 256,
@@ -1517,7 +1517,7 @@
 },
 
     "resnet50_no_specular_iteration=3" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "no_specular",
     "model_id": "resnet50_no_specular_iteration=3",
     "resize_size": 256,
@@ -1558,7 +1558,7 @@
 },
 
     "resnet50_no_specular_iteration=4" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "no_specular",
     "model_id": "resnet50_no_specular_iteration=4",
     "resize_size": 256,
@@ -1599,7 +1599,7 @@
 },
 
     "resnet50_no_specular_iteration=5" : {
-    "model_name": "alexnet",
+    "model_name": "resnet50",
     "keyword": "no_specular",
     "model_id": "resnet50_no_specular_iteration=5",
     "resize_size": 256,

@@ -111,10 +111,6 @@ def get_model(model_id:str):
     if is_vit:
         os.environ['RESULTCACHING_DISABLE'] = 'brainscore_vision.model_helpers.activations.core.ActivationsExtractorHelper._from_paths_stored'
 
-    config = MODEL_CONFIGS[model_id]
-    resize_size = config["resize_size"]
-    crop_size = config["crop_size"]
-
     weight_file = "resnet50_all_variations_scenes_weights.json"
     weights_info = load_config(weight_file)
     version_id = weights_info['version_ids'][identifier]

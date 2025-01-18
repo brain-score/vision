@@ -208,7 +208,7 @@ def model_load_weights(identifier: str):
     sha1 = weights_info['sha1s'][identifier]
 
     weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
-                                        relative_path="ReAlnet/{identifier}_best_model_params.pt",
+                                        relative_path=f"ReAlnet/{identifier}_best_model_params.pt",
                                         version_id=version_id,
                                         sha1=sha1)
 

@@ -16,6 +16,7 @@ import torchvision.models
 from brainscore_vision.model_helpers.s3 import load_weight_file
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
+import json
 
 LAYERS = ['V1', 'V2', 'V4', 'IT', 'decoder.avgpool']
 
@@ -183,32 +184,54 @@ realnet = CORnet_S()
 # (Optional) remove DataParallel if not needed for CPU
 # realnet = torch.nn.DataParallel(realnet)
 
+def load_config(json_file):
+    # Get the directory containing this script (model.py)
+    base_dir = os.path.dirname(__file__)
+    
+    # Construct the path to the JSON file
+    json_path = os.path.join(base_dir, json_file)
+    
+    # Read the JSON
+    with open(json_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return data
+
+
 # Build encoder model
 encoder = Encoder(realnet, 340)
+def model_load_weights(identifier: str):
+    # Download weights (Brain-Score team modification)
+    # Read the version id and sha1 from json file called "weights.json"
+    weights_info = load_config("weights.json")
 
-# Download weights (Brain-Score team modification)
-weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
-                                    relative_path="ReAlnet01/best_model_params.pt",
-                                    version_id="3EduTJ.gv2rlVA_W1b7KSkOfyldAWIDc",
-                                    sha1="05e4e401e8734b97e561aad306fc584b7e027225")
+    version_id = weights_info['version_ids'][identifier]
+    sha1 = weights_info['sha1s'][identifier]
 
-# Load weights onto CPU and remove "module." from keys
-weights = torch.load(weights_path, map_location='cpu')
-new_state_dict = {}
-for key, val in weights.items():
-    # remove "module." (if it exists) from the key
-    new_key = key.replace("module.", "")
-    new_state_dict[new_key] = val
+    weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
+                                        relative_path=f"ReAlnet/{identifier}_best_model_params.pt",
+                                        version_id=version_id,
+                                        sha1=sha1)
 
-encoder.load_state_dict(new_state_dict)
+    # Load weights onto CPU and remove "module." from keys
+    weights = torch.load(weights_path, map_location='cpu')
+    new_state_dict = {}
+    for key, val in weights.items():
+        # remove "module." (if it exists) from the key
+        new_key = key.replace("module.", "")
+        new_state_dict[new_key] = val
 
-# Retrieve the realnet portion from the encoder
-realnet = encoder.realnet
-realnet.eval()
+    encoder.load_state_dict(new_state_dict)
 
-def get_model():
-    model = realnet
+    # Retrieve the realnet portion from the encoder
+    realnet = encoder.realnet
+    realnet.eval()
+    return realnet
+
+def get_model(identifier: str):
+    model = model_load_weights(identifier)
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
-    wrapper = PytorchWrapper(identifier='ReAlnet01', model=model, preprocessing=preprocessing)
+    wrapper = PytorchWrapper(identifier=identifier, model=model, preprocessing=preprocessing)
     wrapper.image_size = 224
     return wrapper
+
+# if __name__ == "__main__":

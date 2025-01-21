@@ -12,6 +12,7 @@ This is a Pytorch implementation of inception_v4.
 
 Previously on Brain-Score, this model existed as a Tensorflow model, and was converted via:
     https://huggingface.co/docs/timm/en/models/inception-v4
+    https://huggingface.co/timm/inception_v4.tf_in1k
     
 Disclaimer: This (pytorch) implementation's Brain-Score scores might not align identically with Tensorflow 
 implementation. 
@@ -19,12 +20,12 @@ implementation.
 '''
 
 
-MODEL = timm.create_model('inception_v4', pretrained=True)
+MODEL = timm.create_model('inception_v4.tf_in1k', pretrained=True)
 
 def get_model(name):
-    assert name == 'inception_v4_pytorch'
-    preprocessing = functools.partial(load_preprocess_images, image_size=299)
-    wrapper = PytorchWrapper(identifier='inception_v4_pytorch', model=MODEL,
+    assert name == 'inception_v4'
+    preprocessing = functools.partial(load_preprocess_images, image_size=299, preprocess_type='inception')
+    wrapper = PytorchWrapper(identifier='inception_v4', model=MODEL,
                              preprocessing=preprocessing,
                              batch_size=4)  # doesn't fit into 12 GB GPU memory otherwise
     wrapper.image_size = 299
@@ -32,17 +33,9 @@ def get_model(name):
 
 
 def get_layers(name):
-    assert name == 'inception_v4_pytorch'
-    layers = [] 
-    layers += ['Conv2d_1a_3x3']
-    layers += ['Mixed_3a']
-    layers += ['Mixed_4a']
-    layers += [f'Mixed_5{i}' for i in ['a', 'b', 'c', 'd', 'e']]
-    layers += [f'Mixed_6{i}' for i in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']]
-    layers += [f'Mixed_7{i}' for i in ['a', 'b', 'c', 'd']]
-    layers += ['global_pool']
-    
-    return layers
+    assert name == 'inception_v4'
+    layer_names = ['features.0.conv'] + [f'features.{i}' for i in range(1, 22)] + ['global_pool']
+    return layer_names
 
 
 def get_bibtex(model_identifier):

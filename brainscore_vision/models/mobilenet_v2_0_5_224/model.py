@@ -27,6 +27,15 @@ def get_model(name):
     :return: the model instance
     """
     assert name == 'mobilenet_v2_0_5_224'
+    last_layer = model
+    while last_layer._modules:
+        last_layer = last_layer._modules[next(reversed(last_layer._modules))]
+    last_layer.register_forward_hook(lambda _layer, _input, logits: logits[:, 1:])
+    
+    preprocessing = functools.partial(load_preprocess_images, image_size=224, preprocess_type='inception')
+    wrapper = PytorchWrapper(identifier=name, model=model, preprocessing=preprocessing)
+    wrapper.image_size = 224
+    return wrapper
     preprocessing = functools.partial(load_preprocess_images, image_size=224, preprocess_type='inception')
     wrapper = PytorchWrapper(identifier=name, model=model, preprocessing=preprocessing)
     wrapper.image_size = 224

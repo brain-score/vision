@@ -3,5 +3,5 @@ from brainscore_vision import model_registry
 from .model import get_layers,get_model
 
 
-model_registry['vgg-19'] = \
-    lambda: ModelCommitment(identifier='vgg-19', activations_model=get_model('vgg-19'), layers=get_layers('vgg-19'))
+model_registry['vgg_16'] = \
+    lambda: ModelCommitment(identifier='vgg_16', activations_model=get_model('vgg_16'), layers=get_layers('vgg_16'))

@@ -4,5 +4,5 @@ import pytest
 
 @pytest.mark.travis_slow
 def test_has_identifier():
-    model = brainscore_vision.load_model('vgg-19')
-    assert model.identifier == 'vgg-19'
+    model = brainscore_vision.load_model('vgg_16')
+    assert model.identifier == 'vgg_16'

@@ -15,8 +15,8 @@ def get_model(name):
     :param name: the name of the model to fetch
     :return: the model instance
     """
-    assert name == 'vgg-19'
-    model = torchvision.models.vgg19(weights='DEFAULT')
+    assert name == 'vgg_16'
+    model = torchvision.models.vgg16(weights='DEFAULT')
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(identifier=name, model=model, preprocessing=preprocessing)
     wrapper.image_size = 224
@@ -24,8 +24,8 @@ def get_model(name):
 
 
 def get_layers(name):
-    assert name == 'vgg-19'
-    layer_names = [f'features.{i}' for i in [4, 8, 18, 27, 36]] + [f'classifier.{i}' for i in [0, 3]]
+    assert name == 'vgg_16'
+    layer_names = [f'features.{i}' for i in [4, 9, 16, 23, 30]] + [f'classifier.{i}' for i in [0, 3]]
     return layer_names
 
 

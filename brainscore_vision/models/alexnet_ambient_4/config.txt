@@ -1,0 +1,900 @@
+{
+    "alexnet_less_variation_1": {
+        "model_name": "alexnet",
+        "keyword": "less_variation",
+        "model_id": "alexnet_less_variation_iteration=1",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/less_variation_1.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_less_variation_2": {
+        "model_name": "alexnet",
+        "keyword": "less_variation",
+        "model_id": "alexnet_less_variation_iteration=2",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/less_variation_2.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_less_variation_3": {
+        "model_name": "alexnet",
+        "keyword": "less_variation",
+        "model_id": "alexnet_less_variation_iteration=3",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/less_variation_3.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_less_variation_4": {
+        "model_name": "alexnet",
+        "keyword": "less_variation",
+        "model_id": "alexnet_less_variation_iteration=4",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/less_variation_4.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_less_variation_5": {
+        "model_name": "alexnet",
+        "keyword": "less_variation",
+        "model_id": "alexnet_less_variation_iteration=5",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/less_variation_5.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_no_variation_1": {
+        "model_name": "alexnet",
+        "keyword": "no_variation",
+        "model_id": "alexnet_no_variation_iteration=1",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/no_variation_1.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_no_variation_2": {
+        "model_name": "alexnet",
+        "keyword": "no_variation",
+        "model_id": "alexnet_no_variation_iteration=2",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/no_variation_2.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_no_variation_3": {
+        "model_name": "alexnet",
+        "keyword": "no_variation",
+        "model_id": "alexnet_no_variation_iteration=3",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/no_variation_3.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_no_variation_4": {
+        "model_name": "alexnet",
+        "keyword": "no_variation",
+        "model_id": "alexnet_no_variation_iteration=4",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/no_variation_4.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_no_variation_5": {
+        "model_name": "alexnet",
+        "keyword": "no_variation",
+        "model_id": "alexnet_no_variation_iteration=5",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/no_variation_5.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_z_axis_1": {
+        "model_name": "alexnet",
+        "keyword": "z_axis",
+        "model_id": "alexnet_z_axis_iteration=1",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/z_axis_1.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_z_axis_2": {
+        "model_name": "alexnet",
+        "keyword": "z_axis",
+        "model_id": "alexnet_z_axis_iteration=2",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/z_axis_2.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_z_axis_3": {
+        "model_name": "alexnet",
+        "keyword": "z_axis",
+        "model_id": "alexnet_z_axis_iteration=3",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/z_axis_3.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_z_axis_4": {
+        "model_name": "alexnet",
+        "keyword": "z_axis",
+        "model_id": "alexnet_z_axis_iteration=4",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/z_axis_4.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_z_axis_5": {
+        "model_name": "alexnet",
+        "keyword": "z_axis",
+        "model_id": "alexnet_z_axis_iteration=5",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/z_axis_5.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_wo_shading_1": {
+        "model_name": "alexnet",
+        "keyword": "wo_shading",
+        "model_id": "alexnet_wo_shading_iteration=1",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/wo_shading_1.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_wo_shading_2": {
+        "model_name": "alexnet",
+        "keyword": "wo_shading",
+        "model_id": "alexnet_wo_shading_iteration=2",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/wo_shading_2.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_wo_shading_3": {
+        "model_name": "alexnet",
+        "keyword": "wo_shading",
+        "model_id": "alexnet_wo_shading_iteration=3",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/wo_shading_3.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_wo_shading_4": {
+        "model_name": "alexnet",
+        "keyword": "wo_shading",
+        "model_id": "alexnet_wo_shading_iteration=4",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/wo_shading_4.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_wo_shading_5": {
+        "model_name": "alexnet",
+        "keyword": "wo_shading",
+        "model_id": "alexnet_wo_shading_iteration=5",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/wo_shading_5.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_wo_shadows_1": {
+        "model_name": "alexnet",
+        "keyword": "wo_shadows",
+        "model_id": "alexnet_wo_shadows_iteration=1",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/wo_shadows_1.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_wo_shadows_2": {
+        "model_name": "alexnet",
+        "keyword": "wo_shadows",
+        "model_id": "alexnet_wo_shadows_iteration=2",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/wo_shadows_2.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_wo_shadows_3": {
+        "model_name": "alexnet",
+        "keyword": "wo_shadows",
+        "model_id": "alexnet_wo_shadows_iteration=3",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/wo_shadows_3.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_wo_shadows_4": {
+        "model_name": "alexnet",
+        "keyword": "wo_shadows",
+        "model_id": "alexnet_wo_shadows_iteration=4",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/wo_shadows_4.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_wo_shadows_5": {
+        "model_name": "alexnet",
+        "keyword": "wo_shadows",
+        "model_id": "alexnet_wo_shadows_iteration=5",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/wo_shadows_5.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_ambient_1": {
+        "model_name": "alexnet",
+        "keyword": "ambient",
+        "model_id": "alexnet_ambient_iteration=1",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/ambient_1.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_ambient_2": {
+        "model_name": "alexnet",
+        "keyword": "ambient",
+        "model_id": "alexnet_ambient_iteration=2",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/ambient_2.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_ambient_3": {
+        "model_name": "alexnet",
+        "keyword": "ambient",
+        "model_id": "alexnet_ambient_iteration=3",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/ambient_3.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}{
+    "alexnet_ambient_4": {
+        "model_name": "alexnet",
+        "keyword": "ambient",
+        "model_id": "alexnet_ambient_iteration=4",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/ambient_4.ckpt",
+        "model_commitment": {
+            "layers": [
+                "conv1",
+                "bn1",
+                "relu",
+                "maxpool",
+                "layer1",
+                "layer1.0",
+                "layer1.0.conv1",
+                "layer1.0.bn1",
+                "layer1.0.relu",
+                "layer1.0.conv2",
+                "layer1.0.bn2",
+                "layer1.0.relu_2",
+                "layer1.0.conv3",
+                "layer1.0.bn3",
+                "layer1.0.shortcut",
+                "layer1.0.shortcut.conv1",
+                "layer1.0.shortcut.bn1",
+                "fc"
+            ]
+        }
+    }
+}

@@ -95,12 +95,12 @@ def get_model(name):
         return hook_function
 
     layer_mapping = {
-    'V1': model.features[0],     # conv1
-    'V2': model.features[3],     # conv2
+    'features.0': model.features[0],     # conv1
+    'features.3': model.features[3],     # conv2
     'features.6': model.features[6],     # conv3
-    'V4': model.features[8],     # conv4
+    'features.8': model.features[8],     # conv4
     'features.10': model.features[10],  # conv5
-    'IT': model.classifier[0],  # fc6
+    'classifier.0': model.classifier[0],  # fc6
     'classifier.3': model.classifier[3],  # fc7
     }
 

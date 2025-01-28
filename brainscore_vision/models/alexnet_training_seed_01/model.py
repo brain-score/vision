@@ -77,7 +77,7 @@ def get_model(name):
     
     model = alexnet_v2_pytorch()
     # Load the pretrained weights
-    weights_path = load_weight_file(bucket = "brainscorevariability", relative_path = "model_weights/training_seed_01.pth", version_id = "null", sha1 = "4b1bb7810d5288631c04cf4cde882540d6ebee77" )
+    weights_path = load_weight_file(bucket = "brainscorevariability", relative_path = "model_weights/training_seed_01.pth", version_id = "null", sha1 = "4b1bb7810d5288631c04cf4cde882540d6ebee77" ) #new hash
     state_dict = torch.load(weights_path)  # Load the .pth file
     
     # Extract the actual model weights

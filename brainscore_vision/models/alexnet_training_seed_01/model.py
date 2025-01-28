@@ -67,7 +67,8 @@ def alexnet_v2_pytorch(num_classes=1000, dropout_keep_prob=0.5, global_pool=Fals
             x = torch.flatten(x, start_dim=1)
             return x
 
-
+  # Instantiate and return the AlexNetV2 model
+    return AlexNetV2(num_classes, dropout_keep_prob, global_pool)
 
 def get_model_list():
     return ['alexnet_training_seed_01']
@@ -75,30 +76,41 @@ def get_model_list():
 def get_model(name):
     assert name == 'alexnet_training_seed_01'
     
-    model = alexnet_v2_pytorch()
-    # Load the pretrained weights
-    weights_path = load_weight_file(bucket = "brainscorevariability", relative_path = "model_weights/training_seed_01.pth", version_id = None, sha1 = "4b1bb7810d5288631c04cf4cde882540d6ebee77" ) #new hash
-    state_dict = torch.load(weights_path)  # Load the .pth file
-    
-    # Extract the actual model weights
-    model_weights = state_dict
-    model.load_state_dict(model_weights)
-    
-    preprocessing = functools.partial(load_preprocess_images, image_size=224)
-    wrapper = PytorchWrapper(identifier='alexnet_training_seed_01', model=model, preprocessing=preprocessing)
-    return ModelCommitment(identifier='alexnet_training_seed_01', activations_model=wrapper,
-                            # specify layers to consider
-                            layers=[
-                                'features.0',  # conv1
-                                'features.3',  # conv2
-                                'features.6',  # conv3
-                                'features.8',  # conv4
-                                'features.10',  # conv5
-                                'classifier.0',  # fc6
-                                'classifier.3',  # fc7
-                            ])
-                            #fc8 is a classifier layer and is not included
 
+    model = alexnet_v2_pytorch()
+
+  
+    weights_path = load_weight_file(bucket = "brainscorevariability", relative_path = "model_weights/training_seed_01.pth", version_id = None, sha1 = "4b1bb7810d5288631c04cf4cde882540d6ebee77" )
+    state_dict = torch.load(weights_path, map_location='cpu') 
+    model_weights = state_dict  
+    model.load_state_dict(model_weights)
+
+    preprocessing = functools.partial(load_preprocess_images, image_size=224)
+    
+    def layer_output_hook(layer):
+        def hook_function(module, input, output):
+            if isinstance(output, tuple):  
+                return output[0]
+            return output
+        return hook_function
+
+    layer_mapping = {
+        'features.0': model.features[0],  # conv1
+        'features.3': model.features[3],  # conv2
+        'features.6': model.features[6],  # conv3
+        'features.8': model.features[8],  # conv4
+        'features.10': model.features[10],  # conv5
+        'classifier.0': model.classifier[0],  # fc6
+        'classifier.3': model.classifier[3],  # fc7
+    }
+
+    for layer_name, layer in layer_mapping.items():
+        layer.register_forward_hook(layer_output_hook(layer))
+
+  
+    wrapper = PytorchWrapper(identifier='alexnet_training_seed_01', model=model, preprocessing=preprocessing)
+   
+    return wrapper
 
 def get_layers(name):
     assert name == 'alexnet_training_seed_01'

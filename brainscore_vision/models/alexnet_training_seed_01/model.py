@@ -81,7 +81,7 @@ def get_model(name):
     state_dict = torch.load(weights_path)  # Load the .pth file
     
     # Extract the actual model weights
-    model_weights = state_dict['model_state_dict']
+    model_weights = state_dict
     model.load_state_dict(model_weights)
     
     preprocessing = functools.partial(load_preprocess_images, image_size=224)

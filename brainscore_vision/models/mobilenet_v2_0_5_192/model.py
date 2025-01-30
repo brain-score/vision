@@ -38,7 +38,7 @@ def get_model(name):
     assert name == 'mobilenet_v2_0_5_192'
     model = torch.load(model_weight_path.as_posix(), weights_only=False)
     preprocessing = functools.partial(load_preprocess_images, image_size=192, preprocess_type='inception')
-    wrapper = MobilenetPytorchWrapper(identifier=name, model=base_model, preprocessing=preprocessing)
+    wrapper = MobilenetPytorchWrapper(identifier=name, model=model, preprocessing=preprocessing)
     wrapper.image_size = 192
     return wrapper
 

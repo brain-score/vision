@@ -19,9 +19,6 @@ MainModel = imp.load_source('MainModel',model_path.as_posix())
 
 # This custom wrapper handles background class removal, and is used in related mobilenets
 class MobilenetPytorchWrapper(PytorchWrapper):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def __call__(self, *args, **kwargs):
         result = super().__call__(*args, **kwargs)  # retrieve original output
         if 'logits' in kwargs.get('layers', []):

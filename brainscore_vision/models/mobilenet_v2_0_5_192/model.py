@@ -24,7 +24,8 @@ class MobilenetPytorchWrapper(PytorchWrapper):
 
     def __call__(self, *args, **kwargs):
         result = super().__call__(*args, **kwargs)  # retrieve original output
-        result = result.isel(neuroid=slice(1, None))  # remove the background class from the neuroid dimension
+        if 'logits' in kwargs.get('layers', []):
+            result = result.isel(neuroid=slice(1, None))  # remove background class in last layer
         return result
 
 

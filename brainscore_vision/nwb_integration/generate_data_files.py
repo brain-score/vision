@@ -12,7 +12,6 @@ class DataFactory:
     def __init__(self, user_json: str):
         self._logger = logging.getLogger(fullname(self))
 
-        # self.user_json = user_json
         self.user_json = json.loads(user_json)
         self.parse_json()
         self.exp_path = "/home/ubuntu/vision/brainscore_vision/nwb_integration/"
@@ -197,29 +196,9 @@ def test_stimulus_set():
         #-----------------------------------------------------------------------------------------------------------------------------
         # Zip files in folder_path
         #-----------------------------------------------------------------------------------------------------------------------------
-        # with zipfile.ZipFile(output_zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-        #     for root, _, files in os.walk(folder_path):
-        #         for file in files:
-        #             file_path = os.path.join(root, file)
-        #             relative_path = os.path.relpath(file_path, os.path.dirname(folder_path))
-        #             zipf.write(file_path, relative_path)
         with zipfile.ZipFile(output_zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
             folder_path = Path(folder_path)
             for file_path in folder_path.rglob('*'):
                 if file_path.is_file():
                     relative_path = file_path.relative_to(folder_path.parent)
                     zipf.write(file_path, relative_path)
-
-
-if __name__ == '__main__':
-    directory = '/Users/caroljiang/Downloads/vision/brainscore_vision/data/data_generation_trial'
-    exp_path = f"/Users/caroljiang/Downloads/vision/brainscore_vision/data/data_generation_trial/"
-    dandiset_id = '000788'
-    nwb_file_path = 'sub-pico/sub-pico_ecephys.nwb'
-    # nwb_file_path = 'sub-pico/sub-pico_ecephys+image.nwb'
-    # data_factory = DataFactory(directory=directory, exp_path=exp_path, identifier=NWB_METADATA['stimulus_set']['identifier'], dandiset_id=dandiset_id, nwb_file_path=nwb_file_path)
-
-    with open('/Users/caroljiang/Downloads/vision/brainscore_vision/nwb_integration/example_json.json', 'r') as file:
-        user_json = json.load(file)
-    data_factory = DataFactory(user_json=user_json)
-    data_factory()

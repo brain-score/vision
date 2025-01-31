@@ -15,7 +15,16 @@ model_weight_path = load_weight_file(bucket="brainscore-storage", folder_name="b
                                     version_id="null",
                                     sha1="e5aa083caa4833fccd48af0c578a45064824dd7f")
 MainModel = imp.load_source('MainModel',model_path.as_posix())
-model = torch.load(model_weight_path.as_posix())
+
+
+# This custom wrapper handles background class removal, and is used in related mobilenets
+class MobilenetPytorchWrapper(PytorchWrapper):
+    def __call__(self, *args, **kwargs):
+        result = super().__call__(*args, **kwargs)  # retrieve original output
+        if 'logits' in kwargs.get('layers', []):
+            result = result.isel(neuroid=slice(1, None))  # remove background class in last layer
+        return result
+
 
 def get_model(name):
     """
@@ -27,8 +36,9 @@ def get_model(name):
     :return: the model instance
     """
     assert name == 'mobilenet_v2_0_5_192'
+    model = torch.load(model_weight_path.as_posix(), weights_only=False)
     preprocessing = functools.partial(load_preprocess_images, image_size=192, preprocess_type='inception')
-    wrapper = PytorchWrapper(identifier=name, model=model, preprocessing=preprocessing)
+    wrapper = MobilenetPytorchWrapper(identifier=name, model=model, preprocessing=preprocessing)
     wrapper.image_size = 192
     return wrapper
 

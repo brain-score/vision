@@ -1,8 +1,8 @@
 import functools
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
-from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.check_submission import check_models
 from brainscore_vision.model_helpers.s3 import load_weight_file
+from brainscore_vision.models.mobilenet_v2_0_5_192.model import MobilenetPytorchWrapper
 import torch
 import imp
 
@@ -15,7 +15,7 @@ model_weight_path = load_weight_file(bucket="brainscore-storage", folder_name="b
                                     version_id="null",
                                     sha1="af063236e83cb92fd78ed3eb7d9d2d4a65d794ab")
 MainModel = imp.load_source('MainModel', model_path.as_posix())
-model = torch.load(model_weight_path.as_posix())
+
 
 def get_model(name):
     """
@@ -28,7 +28,8 @@ def get_model(name):
     """
     assert name == 'mobilenet_v2_0_75_192'
     preprocessing = functools.partial(load_preprocess_images, image_size=192, preprocess_type='inception')
-    wrapper = PytorchWrapper(identifier=name, model=model, preprocessing=preprocessing)
+    model = torch.load(model_weight_path.as_posix(), weights_only=False)
+    wrapper = MobilenetPytorchWrapper(identifier=name, model=model, preprocessing=preprocessing)
     wrapper.image_size = 192
     return wrapper
 

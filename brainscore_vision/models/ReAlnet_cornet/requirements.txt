@@ -1,4 +1,5 @@
 
+CORnet @ git+https://github.com/dicarlolab/CORnet.git
 torch
 torchvision
 pandas

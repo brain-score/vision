@@ -1,30 +1,20 @@
 import functools
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
-from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.check_submission import check_models
 from brainscore_vision.model_helpers.s3 import load_weight_file
+from brainscore_vision.models.mobilenet_v2_0_5_192.model import MobilenetPytorchWrapper
 import torch
 import imp
 
 model_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
-                                    relative_path="mobilenet_v2_0.5_192/mobilenet_v2_0.py",
+                                    relative_path="mobilenet_v2_1.3_224/mobilenet_v2_1.py",
                                     version_id="null",
-                                    sha1="d5c7af8768f9f2475367ac1e48e204cc5cf004a0")
+                                    sha1="9ad5d1f7a44053db0fa61a0c02a0faf76c110a5d")
 model_weight_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
-                                    relative_path="mobilenet_v2_0.5_192/mobilenet_v2_0.5_192_frozen.pth",
+                                    relative_path="mobilenet_v2_1.3_224/mobilenet_v2_1.3_224_frozen.pth",
                                     version_id="null",
-                                    sha1="e5aa083caa4833fccd48af0c578a45064824dd7f")
-MainModel = imp.load_source('MainModel',model_path.as_posix())
-
-
-# This custom wrapper handles background class removal, and is used in related mobilenets
-class MobilenetPytorchWrapper(PytorchWrapper):
-    def __call__(self, *args, **kwargs):
-        result = super().__call__(*args, **kwargs)  # retrieve original output
-        if 'logits' in kwargs.get('layers', []):
-            result = result.isel(neuroid=slice(1, None))  # remove background class in last layer
-        return result
-
+                                    sha1="70b67fed9290691e41e5dde42cfa2edf4dabcfe1")
+MainModel = imp.load_source('MainModel', model_path.as_posix())
 
 def get_model(name):
     """
@@ -35,16 +25,16 @@ def get_model(name):
     :param name: the name of the model to fetch
     :return: the model instance
     """
-    assert name == 'mobilenet_v2_0_5_192'
+    assert name == 'mobilenet_v2_1_3_224'
+    preprocessing = functools.partial(load_preprocess_images, image_size=224, preprocess_type='inception')
     model = torch.load(model_weight_path.as_posix(), weights_only=False)
-    preprocessing = functools.partial(load_preprocess_images, image_size=192, preprocess_type='inception')
     wrapper = MobilenetPytorchWrapper(identifier=name, model=model, preprocessing=preprocessing)
-    wrapper.image_size = 192
+    wrapper.image_size = 224
     return wrapper
 
 
 def get_layers(name):
-    assert name == 'mobilenet_v2_0_5_192'
+    assert name == 'mobilenet_v2_1_3_224'
     layer_names = (['MobilenetV2_Conv_Conv2D'] +
                    [f'MobilenetV2_expanded_conv_{i}_expand_Conv2D' for i in range(1, 17)] +
                    ['MobilenetV2_Conv_1_Conv2D'])

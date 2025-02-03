@@ -3,9 +3,6 @@ from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.check_submission import check_models
 import timm
-# import torch
-import torch.nn as nn
-# from torch.nn import functional as F
 
 
 def get_model(name):
@@ -72,72 +69,3 @@ if __name__ == '__main__':
     # Use this method to ensure the correctness of the BaseModel implementations.
     # It executes a mock run of brain-score benchmarks.
     check_models.check_base_models(__name__)
-
-
-class PooledModelWrapper(nn.Module):
-#     def __init__(self, base_model, pooling_size=(16, 16)):
-#         super().__init__()
-#         self.model = base_model
-#         self.pooling_size = pooling_size
-#         self.hooks = []
-#         self.activations = {}
-#
-#         # Register hooks for each layer
-#         for name, _ in base_model.named_modules():
-#             layer = self._get_layer(name)
-#             hook = layer.register_forward_hook(self._get_hook(name))
-#             self.hooks.append(hook)
-#
-#     def _get_layer(self, name):
-#         # Navigate nested model structure using name parts
-#         parts = name.split('.')
-#         current = self.model
-#         for part in parts:
-#             current = getattr(current, part)
-#         return current
-#
-#     def _get_hook(self, name):
-#         def hook(module, input, output):
-#             # Print original dimensions
-#             if isinstance(output, torch.Tensor):
-#                 print(f"\nLayer {name}")
-#                 print(f"Original dimensions: {output.shape}")
-#                 # [batch_size, channels, height, width]
-#
-#             # Apply adaptive pooling to reduce dimensions
-#             # Skip pooling for global pool layer which is already pooled
-#             if 'global_pool' not in name:
-#                 if isinstance(output, torch.Tensor):
-#                     # For single tensor output
-#                     output = F.adaptive_avg_pool2d(output, self.pooling_size)
-#                     print(f"After pooling: {output.shape}")
-#                 else:
-#                     # For tuple/list outputs, apply to each tensor
-#                     output = tuple(F.adaptive_avg_pool2d(o, self.pooling_size)
-#                                    if isinstance(o, torch.Tensor) else o
-#                                    for o in output)
-#             self.activations[name] = output
-#
-#         return hook
-#
-#     def forward(self, x):
-#         self.activations.clear()
-#         return self.model(x)
-#
-#
-# def get_model(name):
-#     """
-#     Get a model with pooled activations to prevent memory overflow in PCA.
-#     """
-#     assert name == 'xception'
-#     base_model = timm.create_model('xception', pretrained=True)
-#     layer_names = get_layers(name)
-#
-#     # Create wrapped model with pooling
-#     pooled_model = PooledModelWrapper(base_model, pooling_size=(16, 16))
-#
-#     preprocessing = functools.partial(load_preprocess_images, image_size=299)
-#     wrapper = PytorchWrapper(identifier=name, model=pooled_model,
-#                              preprocessing=preprocessing, batch_size=4)
-#     wrapper.image_size = 299
-#     return wrapper

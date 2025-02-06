@@ -4,17 +4,17 @@
 
 [project]
 name = "brainscore_vision"
-version = "2.0"
+version = "2.2.5"
 description = "The Brain-Score library enables model comparisons to behavioral and neural experiments"
 authors = []
 license = { 'file' = 'LICENSE' }
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.11"
 
 dependencies = [
-    "numpy>=1.17",
-    "brainscore_core @ git+https://github.com/brain-score/core",
-    "result_caching @ git+https://github.com/brain-score/result_caching",
+    "numpy<2",
+    "brainscore-core",
+    "result-caching",
     "importlib-metadata<5", # workaround to https://github.com/brain-score/brainio/issues/28
     "scikit-learn", # for metric_helpers/transformations.py cross-validation
     "scipy", # for benchmark_helpers/properties_common.py
@@ -31,6 +31,8 @@ dependencies = [
     "dandi",
     "pynwb",
     "remfile",
+    "eva-decord",
+    "psutil",
 ]
 
 [project.optional-dependencies]
@@ -38,21 +40,40 @@ test = [
     "pytest",
     "pytest_check",
     "pytest-mock",
+    "pytest-timeout",
     "torch",
     "torchvision",
-    "tensorflow==1.15",
-    "keras==2.3.1",
-    "protobuf<=3.20",  # https://protobuf.dev/news/2022-05-06/#python-updates
     "matplotlib",  # for examples
     "pytest-mock",
 ]
 
 [build-system]
 requires = [
-    "setuptools>=65.*",
+    "setuptools>=65.0.0",
     "wheel"
 ]
 
+################################################################
+#### version management config ####
+################################################################
+
+[tool.bumpversion]
+parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
+serialize = ["{major}.{minor}.{patch}"]
+search = "version = \"{current_version}\""
+replace = "version = \"{new_version}\""
+regex = false
+ignore_missing_version = false
+tag = true
+sign_tags = false
+tag_name = "v{new_version}"
+tag_message = "Bump version: {current_version} → {new_version}"
+allow_dirty = false
+commit = true
+message = "Bump version: {current_version} → {new_version}"
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
 
 ################################################################
 #### mypy type-checking config ####

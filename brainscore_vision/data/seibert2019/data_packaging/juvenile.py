@@ -90,7 +90,7 @@ def main():
     metric_bins_path = Path("/braintree/home/darren/work/metric_bins.npy")
     csv_path = Path(__file__).parents[2] / "notebooks" / "2020-11-22_hvm_from_dldata.csv"
 
-    stimuli = brainio_collection.get_stimulus_set('dicarlo.hvm')
+    stimuli = brainio_collection.get_stimulus_set('hvm')
     assembly = load_responses(metric_bins_path, csv_path)
     assembly.name = 'dicarlo.Seibert2019'
 

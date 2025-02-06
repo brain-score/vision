@@ -29,4 +29,4 @@ if __name__ == '__main__':
     assembly = xr.open_dataarray(assembly_path)
     assembly = NeuroidAssembly(assembly)
     package_data_assembly(assembly, data_assembly_name='dicarlo.Majaj2015.temporal-10ms', bucket_name='brainio-dicarlo',
-                          stimulus_set_name='dicarlo.hvm')
+                          stimulus_set_name='hvm')

@@ -4,7 +4,7 @@ from brainscore_vision import load_stimulus_set
 
 @pytest.mark.private_access
 @pytest.mark.slow
-class TestDietterichHendrycks2019:
+class TestImagenetC:
     def test_noise(self):
         stimulus_set = load_stimulus_set('imagenet_c.noise')
         assert len(stimulus_set) == 3 * 5 * 50000

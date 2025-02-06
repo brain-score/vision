@@ -73,7 +73,8 @@ class ActivationsExtractorHelper:
         for hook in self._stimulus_set_hooks.copy().values():  # copy to avoid stale handles
             stimulus_set = hook(stimulus_set)
         stimuli_paths = [str(stimulus_set.get_stimulus(stimulus_id)) for stimulus_id in stimulus_set['stimulus_id']]
-        activations = self.from_paths(stimuli_paths=stimuli_paths, layers=layers, stimuli_identifier=stimuli_identifier)
+        activations = self.from_paths(stimuli_paths=stimuli_paths, layers=layers, stimuli_identifier=stimuli_identifier,
+                                      require_variance=require_variance)
         activations = attach_stimulus_set_meta(activations,
                                                stimulus_set,
                                                number_of_trials=self._microsaccade_helper.number_of_trials,
@@ -347,7 +348,7 @@ class MicrosaccadeHelper:
         """
         Translate images according to selected microsaccades, if microsaccades are required.
 
-        :param images: A list of images (in the case of tensorflow models), or a list of arrays (non-tf models).
+        :param images: A list of arrays.
         :param image_paths: A list of image paths. Both `image_paths` and `images` are needed since while both tf and
                              non-tf models preprocess images before this point, non-tf models' preprocessed images
                              are fixed as arrays when fed into here. As such, simply returning `image_paths` for
@@ -518,14 +519,9 @@ class MicrosaccadeHelper:
         return translated_image
 
     @staticmethod
-    def get_image_with_shape(image: Union[str, np.ndarray]) -> Tuple[np.array, Tuple[int, int], bool]:
-        if isinstance(image, str):  # tf models return strings after preprocessing
-            image = cv2.imread(image)
-            rows, cols, _ = image.shape  # cv2 uses height, width, channels
-            image_is_channels_first = False
-        else:
-            _, rows, cols, = image.shape  # pytorch and keras use channels, height, width
-            image_is_channels_first = True
+    def get_image_with_shape(image: np.ndarray) -> Tuple[np.array, Tuple[int, int], bool]:
+        _, rows, cols, = image.shape  # pytorch uses channels, height, width
+        image_is_channels_first = True
         return image, (rows, cols), image_is_channels_first
 
     @staticmethod
@@ -578,14 +574,9 @@ def attach_stimulus_set_meta(assembly, stimulus_set, number_of_trials: int, requ
     assert (np.array(assembly_paths) == np.array(repeated_stimulus_paths)).all()
     repeated_stimulus_ids = np.repeat(stimulus_set['stimulus_id'].values, replication_factor)
 
-    if replication_factor > 1:
-        # repeat over the presentation dimension to accommodate multiple runs per stimulus
-        assembly = xr.concat([assembly for _ in range(replication_factor)], dim='presentation')
     assembly = assembly.reset_index('presentation')
     assembly['stimulus_path'] = ('presentation', repeated_stimulus_ids)
     assembly = assembly.rename({'stimulus_path': 'stimulus_id'})
-
-    assert (np.array(assembly_paths) == np.array(stimulus_paths)).all()
 
     all_columns = []
     for column in stimulus_set.columns:

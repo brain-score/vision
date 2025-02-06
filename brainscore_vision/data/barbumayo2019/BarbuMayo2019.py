@@ -19,7 +19,7 @@ print(df.dtypes)
 stimuli = StimulusSet(df)
 stimuli.image_paths = {row.image_id: row.filepath for row in stimuli.itertuples()}
 
-stimuli.name = 'katz.BarbuMayo2019'  # give the StimulusSet an identifier name
+stimuli.name = 'BarbuMayo2019'  # give the StimulusSet an identifier name
 
 assert len(stimuli) == 17261  # make sure the StimulusSet is what you would expect
 

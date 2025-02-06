@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/brain-score/vision.svg?token=vqt7d2yhhpLGwHsiTZvT&branch=master)](https://travis-ci.com/brain-score/vision)
+[![Build Status](https://app.travis-ci.com/brain-score/vision.svg?token=vqt7d2yhhpLGwHsiTZvT&branch=master)](https://app.travis-ci.com/brain-score/vision)
 [![Documentation Status](https://readthedocs.org/projects/brain-score/badge/?version=latest)](https://brain-score.readthedocs.io/en/latest/?badge=latest)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md) 
 
@@ -22,9 +22,9 @@ To contribute, please [send in a pull request](https://github.com/brain-score/vi
 
 ## Local installation
 
-You will need Python = 3.7 and pip >= 18.1.
+You will need Python = 3.11 and pip >= 18.1.
 
-`pip install git+https://github.com/brain-score/vision`
+`pip install git+https://github.com/brain-score/vision.git`
 
 Test if the installation is successful by scoring a model on a public benchmark:
 

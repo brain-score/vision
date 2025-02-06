@@ -1,5 +1,10 @@
+import json
+from pathlib import Path
+import logging
+from brainscore_vision.utils import fullname
+from brainscore_core.plugin_management import import_plugin
 from brainscore_vision import load_benchmark
-from brainscore_vision.model_helpers.brain_transformation.temporal import TemporalIgnore
+from brainscore_vision.model_helpers.brain_transformation.temporal import TemporalAligned
 from brainscore_vision.model_interface import BrainModel
 from brainscore_vision.utils import LazyLoad
 from .behavior import BehaviorArbiter, LabelBehavior, ProbabilitiesMapping, OddOneOut
@@ -22,6 +27,7 @@ class ModelCommitment(BrainModel):
     def __init__(self, identifier,
                  activations_model, layers, behavioral_readout_layer=None, region_layer_map=None,
                  visual_degrees=8):
+        self._logger = logging.getLogger(fullname(self))
         self.layers = layers
         self.activations_model = activations_model
         # We set the visual degrees of the ActivationsExtractorHelper here to avoid changing its signature.
@@ -30,16 +36,22 @@ class ModelCommitment(BrainModel):
         self.activations_model._extractor.set_visual_degrees(visual_degrees)  # for microsaccades
         self._visual_degrees = visual_degrees
         # region-layer mapping
+
+        # Attempt to load region_layer_map from JSON, if available
+        region_layer_map = self.load_region_layer_map_json(identifier) if region_layer_map is None else region_layer_map
+
+        # If region_layer_map is unavailable
         if region_layer_map is None:
             layer_selection = LayerSelection(model_identifier=identifier,
                                              activations_model=activations_model, layers=layers,
                                              visual_degrees=visual_degrees)
             region_layer_map = RegionLayerMap(layer_selection=layer_selection,
                                               region_benchmarks=STANDARD_REGION_BENCHMARKS)
+
         # neural
         layer_model = LayerMappedModel(identifier=identifier, activations_model=activations_model,
                                        region_layer_map=region_layer_map)
-        self.layer_model = TemporalIgnore(layer_model)
+        self.layer_model = TemporalAligned(layer_model)
         logits_behavior = LabelBehavior(identifier=identifier, activations_model=activations_model)
         behavioral_readout_layer = behavioral_readout_layer or layers[-1]
         probabilities_behavior = ProbabilitiesMapping(identifier=identifier, activations_model=activations_model,
@@ -52,6 +64,26 @@ class ModelCommitment(BrainModel):
                                                })
         self.do_behavior = False
 
+    def load_region_layer_map_json(self, identifier):
+        '''
+        Attempts to load the region_layer_map from a JSON file in the model's directory
+        If file exists, load JSON. Otherwise, return None and proceed with legacy layer mapping
+        '''
+        try:
+            importer = import_plugin.ImportPlugin(library_root='brainscore_vision', plugin_type='models', identifier=identifier)
+            model_dir = importer.locate_plugin()
+            project_root = Path(__file__).resolve().parent.parent
+            region_layer_map_path = project_root / 'vision' / 'models' / model_dir / 'region_layer_map' / f'{identifier}.json'
+            if region_layer_map_path.exists():
+                with region_layer_map_path.open('r') as region_layer_map_file:
+                    self._logger.info(f"Successfully loaded region_layer_map for {identifier}")
+                    return json.load(region_layer_map_file)
+            else:
+                self._logger.info(f"No region_layer_map file found for {identifier}. Will proceed with default layer mapping")
+                return None
+        except Exception as e:
+            return None
+
     def visual_degrees(self) -> int:
         return self._visual_degrees
 
@@ -62,9 +94,9 @@ class ModelCommitment(BrainModel):
         else:
             self.do_behavior = False
 
-    def look_at(self, stimuli, number_of_trials=1):
+    def look_at(self, stimuli, number_of_trials: int = 1, require_variance: bool = False):
         if self.do_behavior:
-            return self.behavior_model.look_at(stimuli, number_of_trials=number_of_trials)
+            return self.behavior_model.look_at(stimuli, number_of_trials=number_of_trials, require_variance=require_variance)
         else:
             return self.layer_model.look_at(stimuli, number_of_trials=number_of_trials)
 

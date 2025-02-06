@@ -12,11 +12,11 @@ By following a unified :ref:`interface`, all models can be treated as an experim
    :caption: Contents:
 
    examples
-   modules/model_tutorial
-   modules/benchmark_tutorial
    modules/model_interface
+   modules/developer_clarifications.rst
    modules/benchmarks
    modules/metrics
    modules/submission
    modules/utils
    modules/api_reference
+   modules/version_bumping

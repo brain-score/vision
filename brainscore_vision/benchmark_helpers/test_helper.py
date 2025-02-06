@@ -7,6 +7,7 @@ from PIL import Image
 from brainio.assemblies import NeuroidAssembly, PropertyAssembly
 from brainscore_vision import load_benchmark
 from brainscore_vision.model_interface import BrainModel
+from brainscore_vision.data_helpers import s3
 from . import PrecomputedFeatures
 
 
@@ -61,13 +62,15 @@ class PrecomputedTests:
         benchmark = load_benchmark(benchmark)
         from brainscore_vision import load_stimulus_set
 
-        stimulus_identifiers = np.unique(np.array(['dicarlo.Marques2020_blank', 'dicarlo.Marques2020_receptive_field',
-                                                   'dicarlo.Marques2020_orientation',
+        stimulus_identifiers = np.unique(np.array(['Marques2020_blank', 'Marques2020_receptive_field',
+                                                   'Marques2020_orientation',
                                                    benchmark._assembly.stimulus_set.identifier]))
         precomputed_features = {}
         for current_stimulus in stimulus_identifiers:
             stimulus_set = load_stimulus_set(current_stimulus)
             path = Path(__file__).parent / files[current_stimulus]
+            s3.download_file_if_not_exists(local_path=path,
+                               bucket='brainscore-unittests', remote_filepath=f'tests/test_benchmarks/{files[current_stimulus]}')
             features = PropertyAssembly.from_files(path,
                                                    stimulus_set_identifier=stimulus_set.identifier,
                                                    stimulus_set=stimulus_set)

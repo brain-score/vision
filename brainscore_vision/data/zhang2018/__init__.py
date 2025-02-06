@@ -20,19 +20,19 @@ if PACKAGING_FIXED:
     # assembly: klab.Zhang2018search_obj_array
     data_registry['Zhang2018search_obj_array'] = lambda: load_assembly_from_s3(
         identifier="klab.Zhang2018search_obj_array",
-        version_id="EDRblSpQTmoaKRdiY4JEoQ.1UO8mo0Tk",
+        version_id="null",
         sha1="9357581c4082de3ed5031c914468fd24c57ac9cf",
-        bucket="brainio-brainscore",
+        bucket="brainscore-storage/brainio-brainscore",
         cls=BehavioralAssembly,
         stimulus_set_loader=lambda: load_stimulus_set('Zhang2018.search_obj_array'),
     )
 
-    # stimulus set: klab.Zhang2018.search_obj_array
+    # stimulus set: Zhang2018.search_obj_array
     stimulus_set_registry['Zhang2018.search_obj_array'] = lambda: load_stimulus_set_from_s3(
-        identifier="klab.Zhang2018.search_obj_array",
-        bucket="brainio-brainscore",
-        csv_version_id="HC_2UVxrTqbKtBtMny2YqYjm6cjdx6JI",
+        identifier="Zhang2018.search_obj_array",
+        bucket="brainscore-storage/brainio-brainscore",
         csv_sha1="e9c2f6b35b84256242d257e8d36261aa26d3ed4a",
-        zip_version_id="B2uxHg7zx9Zx4dnAD2Lk_TxaQZPB6p_P",
         zip_sha1="eab5e52730cc236e71e583a2c401208380dc8628",
+        csv_version_id="null",
+        zip_version_id="null",
     )

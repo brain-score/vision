@@ -1,0 +1,6 @@
+{
+    "V1": "module.layer1.0.relu",
+    "V2": "module.layer3.0.relu",
+    "V4": "module.layer2.3.relu",
+    "IT": "module.layer4.0.relu"
+}

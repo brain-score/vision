@@ -81,7 +81,7 @@ def load_responses(response_file, stimuli):
 def main():
     data_dir = Path(__file__).parent / 'coco'
     stimuli = collect_stimuli(data_dir / 'stimuli')
-    stimuli.name = 'dicarlo.Kar2018cocogray'
+    stimuli.name = 'Kar2018cocogray'
     assembly = load_responses(data_dir / 'cocoGray_neural.h5', stimuli)
     assembly.name = 'dicarlo.Kar2018cocogray'
 

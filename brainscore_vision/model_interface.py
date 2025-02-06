@@ -131,7 +131,8 @@ class BrainModel:
         
         Example:
 
-        Setting up an odd-one-out task for a list of triplets with `start_task(BrainModel.Task.odd_one_out)` and calling 
+        Setting up an odd-one-out task for a list of triplets with `start_task(BrainModel.Task.odd_one_out)` and calling
+
         .. code-block:: python
         
             look_at(['image1.png', 'image2.png', 'image3.png',    #triplet 1 
@@ -141,6 +142,7 @@ class BrainModel:
                      'image4.png', 'image8.png', 'image10.png'])  #triplet 50 
 
         with 50 triplet trials and 10 unique stimuli could output 
+
         .. code-block:: python
 
            <xarray.BehavioralAssembly (presentation: 50, choice: 1)>
@@ -170,7 +172,7 @@ class BrainModel:
         V4 = 'V4'
         IT = 'IT'
 
-    def start_recording(self, recording_target: RecordingTarget, time_bins: List[Tuple[int]]) -> None:
+    def start_recording(self, recording_target: RecordingTarget, time_bins: List[Tuple[int, int]]) -> None:
         """
         Instructs the model to begin recording in a specified
         :data:`~brainscore_vision.model_interface.BrainModel.RecordingTarget` and return the specified `time_bins`.

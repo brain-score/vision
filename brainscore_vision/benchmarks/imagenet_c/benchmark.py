@@ -15,7 +15,7 @@ from brainscore_vision.benchmarks.imagenet.benchmark import NUMBER_OF_TRIALS
 from brainscore_vision.model_interface import BrainModel
 
 _logger = logging.getLogger(__name__)
-LOCAL_STIMULUS_DIRECTORY = '/braintree/data2/active/common/imagenet-c-brainscore-stimuli/'
+LOCAL_STIMULUS_DIRECTORY = '/mnt/brainscore-ami/imagenet-c-brainscore-stimuli/'
 
 BIBTEX = """@ARTICLE{Hendrycks2019-di,
    title         = "Benchmarking Neural Network Robustness to Common Corruptions
@@ -75,7 +75,7 @@ class Imagenet_C_Category(BenchmarkBase):
 
     def __init__(self, noise_category, sampling_factor=10):
         self.noise_category = noise_category
-        self.stimulus_set_name = f'dietterich.Hendrycks2019.{noise_category}'
+        self.stimulus_set_name = f'imagenet_c.{noise_category}'
 
         self.sampling_factor = sampling_factor
         self.stimulus_set = self.load_stimulus_set()
@@ -98,11 +98,11 @@ class Imagenet_C_Category(BenchmarkBase):
             _logger.debug(f'Loading local Imagenet-C {self.noise_category}')
             category_path = os.path.join(
                 LOCAL_STIMULUS_DIRECTORY,
-                f'image_dietterich_Hendrycks2019_{self.noise_category}'
+                f'stimulus_imagenet_c_{self.noise_category}'
             )
             loader = SampledStimulusSetLoader(
                 cls=StimulusSet,
-                csv_path=os.path.join(category_path, f'image_dietterich_Hendrycks2019_{self.noise_category}.csv'),
+                csv_path=os.path.join(category_path, f'stimulus_imagenet_c_{self.noise_category}.csv'),
                 stimuli_directory=category_path,
                 sampling_factor=self.sampling_factor
             )

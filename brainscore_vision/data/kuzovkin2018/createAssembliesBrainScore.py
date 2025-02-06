@@ -86,7 +86,7 @@ def load_responses(response_file, stimuli):
 
 def main():
     stimuli = collect_stimuli(storage_location)
-    stimuli.name = 'aru.Kuzovkin2018'
+    stimuli.name = 'Kuzovkin2018'
 
     assembly = load_responses(storage_location, stimuli)
     assembly.name = 'aru.Kuzovkin2018'

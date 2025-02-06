@@ -49,7 +49,7 @@ def collect_stylizedvoc_stimuli(data_dir):
             
     stimuli = StimulusSet(stimuli)
     stimuli.stimulus_paths = stimulus_paths
-    stimuli.identifier = 'neil.Islam2021'
+    stimuli.identifier = 'Islam2021'
     assert len(stimuli) == 4369 * 5 
     return stimuli
     

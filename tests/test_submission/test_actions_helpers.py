@@ -44,17 +44,13 @@ def test_get_statuses_result():
     assert jenkins_plugintests_result == 'failure'
 
 def test_are_all_tests_passing():
-    results_dict = {'travis_branch_result': 'success',
-                'travis_pr_result': 'success',
-                'jenkins_plugintests_result': 'success',
+    results_dict = {'jenkins_plugintests_result': 'success',
                 'jenkins_unittests_result': 'success'}
     success = are_all_tests_passing(results_dict)
     assert success == True
 
 def test_one_test_failing():
-    results_dict = {'travis_branch_result': 'success',
-                    'travis_pr_result': 'failure',
-                    'jenkins_plugintests_result': 'success',
+    results_dict = {'jenkins_plugintests_result': 'failure',
                     'jenkins_unittests_result': 'success'}
     success = are_all_tests_passing(results_dict)
     assert success == False

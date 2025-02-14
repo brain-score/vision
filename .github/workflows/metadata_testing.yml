@@ -52,5 +52,7 @@ jobs:
           git config --local user.name "github-actions[bot]"
 
       - name: Run Metadata Handler
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python -m brainscore_core.plugin_management.handle_metadata --plugin-dir "${{ inputs.plugin-dir }}" --plugin-type "${{ inputs.plugin-type }}"

@@ -1,0 +1,50 @@
+name: Metadata Handler
+# A callable workflow that handles all things metadata.
+
+on:
+  workflow_call:
+    inputs:
+      plugin-dir:
+        description: "Path to the plugin directory"
+        required: true
+        type: string
+      plugin-type:
+        description: "Plugin type (e.g., models or benchmarks)"
+        required: true
+        type: string
+
+  workflow_dispatch:
+    inputs:
+      plugin-dir:
+        description: "Path to the plugin directory"
+        required: true
+        default: "plugins/example"
+        type: string
+      plugin-type:
+        description: "Plugin type (e.g., models or benchmarks)"
+        required: true
+        default: "models"
+        type: string
+
+jobs:
+  handle_metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools
+          pip install pyyaml
+
+      - name: Run Metadata Handler
+        run: |
+          python -m brainscore_core.plugin_management.handle_metadata --plugin-dir "${{ inputs.plugin-dir }}" --plugin-type "${{ inputs.plugin-type }}"

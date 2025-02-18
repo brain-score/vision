@@ -1,0 +1,13 @@
+models:
+  dummy-model:
+    architecture: null
+    model_family: null
+    model_size_MB: null
+    source_link: null
+    task_specialization: null
+    total_layers: null
+    total_parameter_count: null
+    trainable_layers: null
+    trainable_parameter_count: null
+    training_dataset: null
+    user_tags: null

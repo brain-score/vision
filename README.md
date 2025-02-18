@@ -29,9 +29,9 @@ You will need Python = 3.11 and pip >= 18.1.
 Test if the installation is successful by scoring a model on a public benchmark:
 
 ```python
-from brainscore_vision.benchmarks import public_benchmark_pool
+import brainscore_vision
 
-benchmark = public_benchmark_pool['dicarlo.MajajHong2015public.IT-pls']
+benchmark = brainscore_vision.load_benchmark('MajajHong2015public.IT-pls')
 model = my_model()
 score = benchmark(model)
 
@@ -43,7 +43,7 @@ score = benchmark(model)
 # >      raw:                   <xarray.Score ()>\narray(0.22545106)\nAttributes:\...
 # >      ceiling:               <xarray.DataArray ()>\narray(0.81579938)\nAttribut...
 # >      model_identifier:      my-model
-# >      benchmark_identifier:  dicarlo.MajajHong2015public.IT-pls
+# >      benchmark_identifier:  MajajHong2015public.IT-pls
 ```
 
 Some steps may take minutes because data has to be downloaded during first-time use.

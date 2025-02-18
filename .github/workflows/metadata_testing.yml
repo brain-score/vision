@@ -12,19 +12,11 @@ on:
         description: "Plugin type (e.g., models or benchmarks)"
         required: true
         type: string
-
-  workflow_dispatch:
-    inputs:
-      plugin-dir:
-        description: "Path to the plugin directory"
-        required: true
-        default: "plugins/example"
-        type: string
-      plugin-type:
-        description: "Plugin type (e.g., models or benchmarks)"
-        required: true
-        default: "models"
-        type: string
+      is-new:
+        description: "Flag indicating if this is a new plugin"
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   handle_metadata:
@@ -55,4 +47,34 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python -m brainscore_core.plugin_management.handle_metadata --plugin-dir "${{ inputs.plugin-dir }}" --plugin-type "${{ inputs.plugin-type }}"
+          pr_number=$(python -m brainscore_core.plugin_management.handle_metadata --plugin-dir "${{ inputs.plugin-dir }}" --plugin-type "${{ inputs.plugin-type }}")
+          echo "PR number: $pr_number"
+          # Set the output variable for use in subsequent steps.
+          echo "pr_number=${pr_number}" >> $GITHUB_OUTPUT
+      
+      - name: Auto-approve PR
+        if: steps.run_metadata.outputs.pr_number != ''
+        uses: hmarr/auto-approve-action@v4
+        with:
+          pull-request-number: ${{ steps.run_metadata.outputs.pr_number }}
+          github-token: ${{ secrets.APPROVAL_TOKEN }}
+
+      - name: Wait for Status Checks
+        if: steps.run_metadata.outputs.pr_number != ''
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10
+          allowed-conclusions: success,skipped
+          verbose: true
+
+      - name: Merge PR and delete branch
+        if: steps.run_metadata.outputs.pr_number != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pr_number="${{ steps.run_metadata.outputs.pr_number }}"
+          echo "Merging PR #$pr_number"
+          gh pr merge $pr_number --squash --delete-branch
+

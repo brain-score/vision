@@ -52,6 +52,7 @@ jobs:
           git config --local user.name "github-actions[bot]"
 
       - name: Run Metadata Handler
+        id: run_metadata
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

@@ -12,11 +12,19 @@ on:
         description: "Plugin type (e.g., models or benchmarks)"
         required: true
         type: string
-      is-new:
-        description: "Flag indicating if this is a new plugin"
-        required: false
-        type: boolean
-        default: false
+
+  workflow_dispatch:
+    inputs:
+      plugin-dir:
+        description: "Path to the plugin directory"
+        required: true
+        default: "plugins/example"
+        type: string
+      plugin-type:
+        description: "Plugin type (e.g., models or benchmarks)"
+        required: true
+        default: "models"
+        type: string
 
 jobs:
   handle_metadata:

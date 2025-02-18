@@ -60,6 +60,13 @@ jobs:
           echo "PR number: $pr_number"
           # Set the output variable for use in subsequent steps.
           echo "pr_number=${pr_number}" >> $GITHUB_OUTPUT
+          
+      - name: Get PR Head Commit SHA
+        if: steps.run_metadata.outputs.pr_number != ''
+        id: get_commit
+        run: |
+          commit_sha=$(gh pr view ${{ steps.run_metadata.outputs.pr_number }} --json headRefOid --jq '.headRefOid')
+          echo "commit_sha=${commit_sha}" >> $GITHUB_OUTPUT
       
       - name: Auto-approve PR
         if: steps.run_metadata.outputs.pr_number != ''
@@ -72,7 +79,7 @@ jobs:
         if: steps.run_metadata.outputs.pr_number != ''
         uses: lewagon/wait-on-check-action@v1.3.1
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ steps.get_commit.outputs.commit_sha }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
           allowed-conclusions: success,skipped

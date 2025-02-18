@@ -64,6 +64,8 @@ jobs:
       - name: Get PR Head Commit SHA
         if: steps.run_metadata.outputs.pr_number != ''
         id: get_commit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           commit_sha=$(gh pr view ${{ steps.run_metadata.outputs.pr_number }} --json headRefOid --jq '.headRefOid')
           echo "commit_sha=${commit_sha}" >> $GITHUB_OUTPUT

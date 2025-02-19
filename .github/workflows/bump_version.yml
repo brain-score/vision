@@ -26,7 +26,7 @@ jobs:
       - name: Check for non-plugin changes
         id: check-changes
         run: |
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.merge_commit_sha }})
           NEEDS_VERSION_BUMP=false
           
           # ensure PR wasn't plugin-only
@@ -129,7 +129,7 @@ jobs:
       - name: Merge PR
         if: steps.version-update.outputs.pr_number
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_AUTOMERGE }}
         run: |
           pr_number="${{ steps.version-update.outputs.pr_number }}"
           echo "Merging PR #$pr_number"

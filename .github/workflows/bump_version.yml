@@ -126,7 +126,7 @@ jobs:
       
           # Initial delay to allow statuses to start being reported
           echo "Sleeping for initial delay to allow statuses to be reported..."
-          sleep 10
+          sleep 60
           ELAPSED=$((ELAPSED + 10))
       
           while true; do

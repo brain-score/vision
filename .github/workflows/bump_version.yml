@@ -116,15 +116,48 @@ jobs:
           pull-request-number: ${{ steps.version-update.outputs.pr_number }}
           github-token: ${{ secrets.APPROVAL_TOKEN }}
 
-      - name: Wait for status checks
-        if: steps.version-update.outputs.pr_number
-        uses: lewagon/wait-on-check-action@v1.3.1
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 20
-          allowed-conclusions: success,skipped
-          verbose: true
+      - name: Wait for statuses
+        run: |
+          COMMIT_SHA="${{ github.event.pull_request.head.sha }}"
+          TOKEN="${{ secrets.GITHUB_TOKEN }}"
+          MAX_WAIT=600
+          ELAPSED=0
+          SLEEP_INTERVAL=10
+      
+          # Initial delay to allow statuses to start being reported
+          echo "Sleeping for initial delay to allow statuses to be reported..."
+          sleep 10
+          ELAPSED=$((ELAPSED + 10))
+      
+          while true; do
+            echo "Polling statuses for commit $COMMIT_SHA"
+            statuses=$(curl -s -H "Authorization: token $TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/repos/brain-score/vision/commits/$COMMIT_SHA/statuses")
+      
+            latest_statuses=$(echo "$statuses" | jq '[group_by(.context)[] | max_by(.created_at)]')
+            pending=$(echo "$latest_statuses" | jq 'map(select(.state=="pending")) | length')
+            failures=$(echo "$latest_statuses" | jq 'map(select(.state=="failure" or .state=="error")) | length')
+      
+            echo "Found $pending pending statuses; $failures failures/errors."
+      
+            if [ "$failures" -gt 0 ]; then
+              echo "One or more statuses have failed. Exiting."
+              exit 1
+            fi
+      
+            if [ "$pending" -eq 0 ]; then
+              echo "All statuses have completed."
+              break
+            fi
+      
+            sleep $SLEEP_INTERVAL
+            ELAPSED=$((ELAPSED + SLEEP_INTERVAL))
+            if [ "$ELAPSED" -ge "$MAX_WAIT" ]; then
+              echo "Timeout of $MAX_WAIT seconds reached. Exiting."
+              exit 1
+            fi
+          done
 
       - name: Merge PR
         if: steps.version-update.outputs.pr_number

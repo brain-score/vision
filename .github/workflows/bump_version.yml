@@ -36,32 +36,35 @@ jobs:
             if [[ $file != brainscore_vision/benchmarks/* && 
                   $file != brainscore_vision/data/* && 
                   $file != brainscore_vision/metrics/* && 
-                  $file != brainscore_vision/models/* ]]; then
+                  $file != brainscore_vision/models/* &&
+                  $file != pyproject.toml ]]; then
               NEEDS_VERSION_BUMP=true
               echo "Found change requiring version bump: $file"
             fi
           done
           
           echo "needs_bump=$NEEDS_VERSION_BUMP" >> $GITHUB_OUTPUT
+
+      - name: Skip version bump if not needed
+        if: steps.check-changes.outputs.needs_bump != 'true'
+        run: |
+          echo "No version bump needed. Exiting job."
+          exit 0
           
       - name: Set up Python
-        if: steps.check-changes.outputs.needs_bump == 'true'
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
       - name: Install bump-my-version
-        if: steps.check-changes.outputs.needs_bump == 'true'
         run: pip install bump-my-version
 
       - name: Configure Git
-        if: steps.check-changes.outputs.needs_bump == 'true'
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
       - name: Determine version bump type
-        if: steps.check-changes.outputs.needs_bump == 'true'
         id: bump-type
         run: |
           if [[ ${{ contains(github.event.pull_request.labels.*.name, 'major update') }} == true ]]; then
@@ -74,7 +77,6 @@ jobs:
           
       - name: Create version bump branch and PR
         id: version-update
-        if: steps.check-changes.outputs.needs_bump == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

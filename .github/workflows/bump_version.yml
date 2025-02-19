@@ -127,7 +127,7 @@ jobs:
           # Initial delay to allow statuses to start being reported
           echo "Sleeping for initial delay to allow statuses to be reported..."
           sleep 60
-          ELAPSED=$((ELAPSED + 10))
+          ELAPSED=$((ELAPSED + 60))
       
           while true; do
             echo "Polling statuses for commit $COMMIT_SHA"

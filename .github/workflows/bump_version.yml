@@ -120,9 +120,9 @@ jobs:
         if: steps.version-update.outputs.pr_number
         uses: lewagon/wait-on-check-action@v1.3.1
         with:
-          ref: refs/pull/${{ steps.version-update.outputs.pr_number }}/merge
+          ref: ${{ github.event.pull_request.head.sha }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 10
+          wait-interval: 20
           allowed-conclusions: success,skipped
           verbose: true
 

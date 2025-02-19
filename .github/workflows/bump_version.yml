@@ -138,8 +138,9 @@ jobs:
             latest_statuses=$(echo "$statuses" | jq '[group_by(.context)[] | max_by(.created_at)]')
             pending=$(echo "$latest_statuses" | jq 'map(select(.state=="pending")) | length')
             failures=$(echo "$latest_statuses" | jq 'map(select(.state=="failure" or .state=="error")) | length')
-      
-            echo "Found $pending pending statuses; $failures failures/errors."
+            successes=$(echo "$latest_statuses" | jq 'map(select(.state=="success")) | length')
+
+            echo "Found $pending pending statuses; $failures failures/errors; $successes successes."
       
             if [ "$failures" -gt 0 ]; then
               echo "One or more statuses have failed. Exiting."
@@ -166,7 +167,7 @@ jobs:
         run: |
           pr_number="${{ steps.version-update.outputs.pr_number }}"
           echo "Merging PR #$pr_number"
-          gh pr merge $pr_number --squash
+          gh pr merge $pr_number --squash --admin
 
   create-release:
     needs: version-bump

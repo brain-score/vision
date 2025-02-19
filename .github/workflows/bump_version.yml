@@ -129,7 +129,7 @@ jobs:
       - name: Merge PR
         if: steps.version-update.outputs.pr_number
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_AUTOMERGE }}
         run: |
           pr_number="${{ steps.version-update.outputs.pr_number }}"
           echo "Merging PR #$pr_number"

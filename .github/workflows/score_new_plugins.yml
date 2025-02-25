@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       RUN_SCORING: ${{ steps.scoringneeded.outputs.RUN_SCORING }}
-      METADATA_ONLY: ${{ steps.check_metdata_only.only_metadata }}
+      METADATA_ONLY: ${{ steps.check_metadata_only.outputs.only_metadata }}
       PLUGIN_DIRS: ${{ steps.derive_plugin_dirs.outputs.PLUGIN_DIRS }}
       PLUGIN_TYPE: ${{ steps.derive_plugin_dirs.outputs.PLUGIN_TYPE }}
     steps:

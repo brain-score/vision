@@ -27,6 +27,8 @@ jobs:
     outputs:
       RUN_SCORING: ${{ steps.scoringneeded.outputs.RUN_SCORING }}
       METADATA_ONLY: ${{ steps.check_metdata_only.only_metadata }}
+      PLUGIN_DIRS: ${{ steps.derive_plugin_dirs.outputs.PLUGIN_DIRS }}
+      PLUGIN_TYPE: ${{ steps.derive_plugin_dirs.outputs.PLUGIN_TYPE }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -78,9 +80,8 @@ jobs:
           fi
           echo "non_metadata files: $non_metadata" 1>&2
 
-      - name: Derive Plugin Directories (if only metadata changed)
+      - name: Derive Plugin Directories
         id: derive_plugin_dirs
-        if: steps.check_metadata_only.outputs.only_metadata == 'true'
         run: |
           plugin_dirs=$(echo "${{ env.CHANGED_FILES }}" | tr ' ' '\n' | grep "metadata.yml" | xargs -n 1 dirname | sort | uniq | paste -sd, -)
           echo "PLUGIN_DIRS=${plugin_dirs}" >> $GITHUB_OUTPUT
@@ -94,13 +95,13 @@ jobs:
           echo "Derived plugin type: ${plugin_type}" 1>&2
 
       # If only metadata changed, update db directly (no PR)
-      - name: Process metadata directly
-        if: steps.check_metadata_only.outputs.only_metadata == 'true'
-        uses: ./.github/workflows/metadata_testing.yml
-        with:
-          plugin-dir:  ${{ steps.derive_plugin_dirs.outputs.PLUGIN_DIRS }}
-          plugin-type:  ${{ steps.derive_plugin_dirs.outputs.PLUGIN_TYPE }}
-          db-connection: true
+      # - name: Process metadata directly
+      #   if: steps.check_metadata_only.outputs.only_metadata == 'true'
+      #   uses: ./.github/workflows/metadata_testing.yml
+      #   with:
+      #     plugin-dir:  ${{ steps.derive_plugin_dirs.outputs.PLUGIN_DIRS }}
+      #     plugin-type:  ${{ steps.derive_plugin_dirs.outputs.PLUGIN_TYPE }}
+      #     db-connection: true
 
       - name: Check if scoring needed
         if: steps.check_metadata_only.outputs.only_metadata == 'false'
@@ -142,6 +143,17 @@ jobs:
         with:
           name: plugin-info
           path: plugin-info.json
+
+  process_metadata:
+    name: Process metadata changes only
+    needs: process_submission
+    if: needs.process_submission.outputs.METADATA_ONLY == 'true'
+    uses: ./.github/workflows/metadata_testing.yml
+    with:
+      plugin-dir: ${{ needs.process_submission.outputs.PLUGIN_DIRS }}
+      plugin-type: ${{ needs.process_submission.outputs.PLUGIN_TYPE }}
+      db-connection: true
+    secrets: inherit
   
   extract_email:
     name: Extracts email for both PRs and web submissions

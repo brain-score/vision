@@ -26,6 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       RUN_SCORING: ${{ steps.scoringneeded.outputs.RUN_SCORING }}
+      METADATA_ONLY: ${{ steps.check_metdata_only.only_metadata }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -60,12 +61,55 @@ jobs:
         run: |
           echo "PLUGIN_INFO='$(python -c 'from brainscore_core.plugin_management.parse_plugin_changes import get_scoring_info; get_scoring_info("${{ env.CHANGED_FILES }}", "brainscore_vision")')'"  >> $GITHUB_OUTPUT
 
+        # teting metadata things here  
+      - name: Check if only metadata changed
+        id: check_metadata_only
+        run: |
+          MODIFIES_PLUGINS=$(echo '${{ steps.getpluginfo.outputs.PLUGIN_INFO }}' | jq -r '.modifies_plugins')
+          echo "modifies_plugins=${MODIFIES_PLUGINS}" >> $GITHUB_OUTPUT
+          
+          # filter out metadata.yml
+          non_metadata=$(echo "${{ env.CHANGED_FILES }}" | tr ' ' '\n' | grep -v "metadata.yml" || true)
+
+          if [ -z "$non_metadata" ] && [ "$MODIFIES_PLUGINS" = "true" ]; then
+            echo "only_metadata=true" >> $GITHUB_OUTPUT
+          else
+            echo "only_metadata=false" >> $GITHUB_OUTPUT
+          fi
+          echo "non_metadata files: $non_metadata" 1>&2
+
+      - name: Derive Plugin Directories (if only metadata changed)
+        id: derive_plugin_dirs
+        if: steps.check_metadata_only.outputs.only_metadata == 'true'
+        run: |
+          plugin_dirs=$(echo "${{ env.CHANGED_FILES }}" | tr ' ' '\n' | grep "metadata.yml" | xargs -n 1 dirname | sort | uniq | paste -sd, -)
+          echo "PLUGIN_DIRS=${plugin_dirs}" >> $GITHUB_OUTPUT
+          
+          # Get the first metadata file from the changed files
+          first_file=$(echo "${{ env.CHANGED_FILES }}" | tr ' ' '\n' | grep "metadata.yml" | head -n 1)
+          # Split the path on '/' and take the second field (the plugin type)
+          plugin_type=$(echo "$first_file" | cut -d'/' -f2)
+          echo "PLUGIN_TYPE=${plugin_type}" >> $GITHUB_OUTPUT
+          echo "Derived plugin directories: ${plugin_dirs}" 1>&2
+          echo "Derived plugin type: ${plugin_type}" 1>&2
+
+      # If only metadata changed, update db directly (no PR)
+      - name: Process metadata directly
+        if: steps.check_metadata_only.outputs.only_metadata == 'true'
+        uses: ./.github/workflows/metadata_handler.yml
+        with:
+          plugin-dir:  ${{ steps.derive_plugin_dirs.outputs.PLUGIN_DIRS }}
+          plugin-type:  ${{ steps.derive_plugin_dirs.outputs.PLUUGIN_TYPE }}
+          db-connection: true
+
       - name: Check if scoring needed
+        if: steps.check_metadata_only.outputs.only_metadata == 'false'
         id: scoringneeded
         run: |
           echo "RUN_SCORING=$(jq -r '.run_score' <<< ${{ steps.getpluginfo.outputs.PLUGIN_INFO }})" >> $GITHUB_OUTPUT
 
       - name: Check for automerge-web label
+        if: steps.check_metadata_only.outputs.only_metadata == 'false'
         id: check_label
         run: |
           LABELS_JSON="${{ toJSON(github.event.pull_request.labels.*.name) }}"
@@ -76,6 +120,7 @@ jobs:
           fi
 
       - name: Update PLUGIN_INFO based on label
+        if: steps.check_metadata_only.outputs.only_metadata == 'false'
         run: |
           if [[ "$has_automerge_web" == "true" ]]; then
             BS_UID="$(echo '${{ github.event.pull_request.title }}' | sed -E 's/.*\(user:([^)]+)\).*/\1/')"
@@ -87,10 +132,12 @@ jobs:
           fi
 
       - name: Write PLUGIN_INFO to a json file
+        if: steps.check_metadata_only.outputs.only_metadata == 'false'
         run: |
           echo "$PLUGIN_INFO" > plugin-info.json
       
       - name: Upload PLUGIN_INFO as an artifact
+        if: steps.check_metadata_only.outputs.only_metadata == 'false'
         uses: actions/upload-artifact@v4
         with:
           name: plugin-info
@@ -100,7 +147,7 @@ jobs:
     name: Extracts email for both PRs and web submissions
     uses: ./.github/workflows/user_notification_system.yml
     needs: process_submission
-    if: ${{ needs.process_submission.outputs.RUN_SCORING == 'True' }}
+    if: needs.process_submission.outputs.RUN_SCORING == 'True' && needs.process_submission.outputs.METADATA_ONLY == 'false'
     with:
       pr_username: ${{github.event.pull_request.user.login}} 
       pr_title: ${{ github.event.pull_request.title }}
@@ -188,5 +235,5 @@ jobs:
 
       - name: Run scoring
         run: |
-          python -c 'from brainscore_core.submission.endpoints import call_jenkins; call_jenkins('\''${{ env.PLUGIN_INFO }}'\'')'
+          # python -c 'from brainscore_core.submission.endpoints import call_jenkins; call_jenkins('\''${{ env.PLUGIN_INFO }}'\'')'
         

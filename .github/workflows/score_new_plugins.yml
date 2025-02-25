@@ -65,7 +65,7 @@ jobs:
       - name: Check if only metadata changed
         id: check_metadata_only
         run: |
-          MODIFIES_PLUGINS=$(echo '${{ steps.getpluginfo.outputs.PLUGIN_INFO }}' | jq -r '.modifies_plugins')
+          MODIFIES_PLUGINS=$(echo ${{ steps.getpluginfo.outputs.PLUGIN_INFO }} | jq -r '.modifies_plugins')
           echo "modifies_plugins=${MODIFIES_PLUGINS}" >> $GITHUB_OUTPUT
           
           # filter out metadata.yml
@@ -99,7 +99,7 @@ jobs:
         uses: ./.github/workflows/metadata_testing.yml
         with:
           plugin-dir:  ${{ steps.derive_plugin_dirs.outputs.PLUGIN_DIRS }}
-          plugin-type:  ${{ steps.derive_plugin_dirs.outputs.PLUUGIN_TYPE }}
+          plugin-type:  ${{ steps.derive_plugin_dirs.outputs.PLUGIN_TYPE }}
           db-connection: true
 
       - name: Check if scoring needed

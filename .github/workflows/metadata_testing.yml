@@ -12,6 +12,11 @@ on:
         description: "Plugin type (e.g., models or benchmarks)"
         required: true
         type: string
+      db-connection:
+        description: "If true, establish a new database connection"
+        required: false
+        type: boolean
+        default: false
 
   workflow_dispatch:
     inputs:
@@ -25,6 +30,11 @@ on:
         required: true
         default: "models"
         type: string
+      db-connection:
+        description: "If true, establish a new database connection"
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   handle_metadata:
@@ -51,48 +61,107 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
+      # testing with multiple files at once
       - name: Run Metadata Handler
         id: run_metadata
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          pr_number=$(python -m brainscore_core.plugin_management.handle_metadata --plugin-dir "${{ inputs.plugin-dir }}" --plugin-type "${{ inputs.plugin-type }}")
-          echo "PR number: $pr_number"
-          # Set the output variable for use in subsequent steps.
-          echo "pr_number=${pr_number}" >> $GITHUB_OUTPUT
-          
-      - name: Get PR Head Commit SHA
-        if: steps.run_metadata.outputs.pr_number != ''
-        id: get_commit
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Split the comma-separated plugin-dir input into an array.
+          IFS=',' read -ra PLUGIN_DIRS <<< "${{ inputs.plugin-dir }}"
+          pr_numbers=""
+          for dir in "${PLUGIN_DIRS[@]}"; do
+            echo "Processing metadata in directory: $dir" 1>&2
+            if [ "${{ inputs.db-connection }}" = "true" ]; then
+              # Process metadata and update DB directly.
+              python -m brainscore_core.plugin_management.handle_metadata --plugin-dir "$dir" --plugin-type "${{ inputs.plugin-type }}" --db-connection
+            else
+              # Create a PR if necessary.
+              pr_num=$(python -m brainscore_core.plugin_management.handle_metadata --plugin-dir "$dir" --plugin-type "${{ inputs.plugin-type }}")
+              echo "PR number for $dir: $pr_num" 1>&2
+              # Append to the list (if multiple directories are provided)
+              if [ -z "$pr_numbers" ]; then
+                pr_numbers="$pr_num"
+              else
+                pr_numbers="$pr_numbers,$pr_num"
+              fi
+            fi
+          done
+          echo "pr_numbers=${pr_numbers}" >> $GITHUB_OUTPUT
+
+      - name: Auto-approve PRs
+        if: steps.run_metadata.outputs.pr_numbers != ''
         run: |
-          commit_sha=$(gh pr view ${{ steps.run_metadata.outputs.pr_number }} --json headRefOid --jq '.headRefOid')
-          echo "commit_sha=${commit_sha}" >> $GITHUB_OUTPUT
-      
-      - name: Auto-approve PR
-        if: steps.run_metadata.outputs.pr_number != ''
-        uses: hmarr/auto-approve-action@v4
-        with:
-          pull-request-number: ${{ steps.run_metadata.outputs.pr_number }}
-          github-token: ${{ secrets.APPROVAL_TOKEN }}
+          IFS=',' read -ra PR_ARRAY <<< "${{ steps.run_metadata.outputs.pr_numbers }}"
+          for pr in "${PR_ARRAY[@]}"; do
+            echo "Auto-approving PR #$pr" 1>&2
+            gh pr review $pr --approve --repo ${{ github.repository }} --token ${{ secrets.APPROVAL_TOKEN }}
+          done
 
       - name: Wait for Status Checks
-        if: steps.run_metadata.outputs.pr_number != ''
-        uses: lewagon/wait-on-check-action@v1.3.1
-        with:
-          ref: ${{ steps.get_commit.outputs.commit_sha }}
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 10
-          allowed-conclusions: success,skipped
-          verbose: true
+        if: steps.run_metadata.outputs.pr_numbers != ''
+        run: |
+          IFS=',' read -ra PR_ARRAY <<< "${{ steps.run_metadata.outputs.pr_numbers }}"
+          for pr in "${PR_ARRAY[@]}"; do
+            echo "Waiting for status checks on PR #$pr" 1>&2
+            commit_sha=$(gh pr view $pr --json headRefOid --jq '.headRefOid')
+            echo "Commit SHA for PR #$pr is $commit_sha" 1>&2
+            # add in this step later
+          done
 
-      - name: Merge PR and delete branch
-        if: steps.run_metadata.outputs.pr_number != ''
+      - name: Merge PRs
+        if: steps.run_metadata.outputs.pr_numbers != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          pr_number="${{ steps.run_metadata.outputs.pr_number }}"
-          echo "Merging PR #$pr_number"
-          gh pr merge $pr_number --squash --delete-branch
+          IFS=',' read -ra PR_ARRAY <<< "${{ steps.run_metadata.outputs.pr_numbers }}"
+          for pr in "${PR_ARRAY[@]}"; do
+            echo "Merging PR #$pr" 1>&2
+            gh pr merge $pr --squash --delete-branch --repo ${{ github.repository }}
+          done
+
+      # - name: Run Metadata Handler
+      #   id: run_metadata
+      #   env:
+      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     pr_number=$(python -m brainscore_core.plugin_management.handle_metadata --plugin-dir "${{ inputs.plugin-dir }}" --plugin-type "${{ inputs.plugin-type }}")
+      #     echo "PR number: $pr_number"
+      #     # Set the output variable for use in subsequent steps.
+      #     echo "pr_number=${pr_number}" >> $GITHUB_OUTPUT
+          
+      # - name: Get PR Head Commit SHA
+      #   if: steps.run_metadata.outputs.pr_number != ''
+      #   id: get_commit
+      #   env:
+      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     commit_sha=$(gh pr view ${{ steps.run_metadata.outputs.pr_number }} --json headRefOid --jq '.headRefOid')
+      #     echo "commit_sha=${commit_sha}" >> $GITHUB_OUTPUT
+      
+      # - name: Auto-approve PR
+      #   if: steps.run_metadata.outputs.pr_number != ''
+      #   uses: hmarr/auto-approve-action@v4
+      #   with:
+      #     pull-request-number: ${{ steps.run_metadata.outputs.pr_number }}
+      #     github-token: ${{ secrets.APPROVAL_TOKEN }}
+
+      # - name: Wait for Status Checks
+      #   if: steps.run_metadata.outputs.pr_number != ''
+      #   uses: lewagon/wait-on-check-action@v1.3.1
+      #   with:
+      #     ref: ${{ steps.get_commit.outputs.commit_sha }}
+      #     repo-token: ${{ secrets.GITHUB_TOKEN }}
+      #     wait-interval: 10
+      #     allowed-conclusions: success,skipped
+      #     verbose: true
+
+      # - name: Merge PR and delete branch
+      #   if: steps.run_metadata.outputs.pr_number != ''
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     pr_number="${{ steps.run_metadata.outputs.pr_number }}"
+      #     echo "Merging PR #$pr_number"
+      #     gh pr merge $pr_number --squash --delete-branch
 

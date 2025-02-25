@@ -31,7 +31,8 @@ def run_scoring(args_dict: Dict[str, Union[str, List]]):
             run_scoring_endpoint(domain="vision", jenkins_id=args_dict["jenkins_id"],
                                  model_identifier=model, benchmark_identifier=benchmark,
                                  user_id=args_dict["user_id"], model_type="brainmodel",
-                                 public=args_dict["public"], competition=args_dict["competition"])
+                                 public=args_dict["public"], model_meta=args_dict["model_meta"], 
+                                 competition=args_dict["competition"])
 
 
 def send_email_to_submitter(uid: int, domain: str, pr_number: str,

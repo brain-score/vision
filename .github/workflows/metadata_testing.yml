@@ -18,23 +18,23 @@ on:
         type: boolean
         default: false
 
-  workflow_dispatch:
-    inputs:
-      plugin-dir:
-        description: "Path to the plugin directory"
-        required: true
-        default: "plugins/example"
-        type: string
-      plugin-type:
-        description: "Plugin type (e.g., models or benchmarks)"
-        required: true
-        default: "models"
-        type: string
-      db-connection:
-        description: "If true, establish a new database connection"
-        required: false
-        type: boolean
-        default: false
+  # workflow_dispatch:
+  #   inputs:
+  #     plugin-dir:
+  #       description: "Path to the plugin directory"
+  #       required: true
+  #       default: "plugins/example"
+  #       type: string
+  #     plugin-type:
+  #       description: "Plugin type (e.g., models or benchmarks)"
+  #       required: true
+  #       default: "models"
+  #       type: string
+  #     db-connection:
+  #       description: "If true, establish a new database connection"
+  #       required: false
+  #       type: boolean
+  #       default: false
 
 jobs:
   handle_metadata:

@@ -96,7 +96,7 @@ jobs:
       # If only metadata changed, update db directly (no PR)
       - name: Process metadata directly
         if: steps.check_metadata_only.outputs.only_metadata == 'true'
-        uses: ./.github/workflows/metadata_handler.yml
+        uses: ./.github/workflows/metadata_testing.yml
         with:
           plugin-dir:  ${{ steps.derive_plugin_dirs.outputs.PLUGIN_DIRS }}
           plugin-type:  ${{ steps.derive_plugin_dirs.outputs.PLUUGIN_TYPE }}

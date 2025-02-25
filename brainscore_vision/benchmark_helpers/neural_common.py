@@ -8,7 +8,10 @@ from .screen import place_on_screen
 
 
 class NeuralBenchmark(BenchmarkBase):
-    def __init__(self, identifier, assembly, similarity_metric, visual_degrees, number_of_trials, **kwargs):
+    def __init__(self, identifier, assembly, similarity_metric,
+                 visual_degrees, number_of_trials,
+                 inter_subject_ceiling_func=None,
+                 **kwargs):
         super(NeuralBenchmark, self).__init__(identifier=identifier, **kwargs)
         self._assembly = assembly
         self._similarity_metric = similarity_metric
@@ -19,6 +22,7 @@ class NeuralBenchmark(BenchmarkBase):
         self.timebins = timebins
         self._visual_degrees = visual_degrees
         self._number_of_trials = number_of_trials
+        self._inter_subject_ceiling_func = inter_subject_ceiling_func
 
     def __call__(self, candidate: BrainModel):
         candidate.start_recording(self.region, time_bins=self.timebins)
@@ -30,6 +34,10 @@ class NeuralBenchmark(BenchmarkBase):
         raw_score = self._similarity_metric(source_assembly, self._assembly)
         ceiled_score = explained_variance(raw_score, self.ceiling)
         return ceiled_score
+
+    @property
+    def inter_subject_ceiling(self):
+        return self._inter_subject_ceiling_func()
 
 
 def timebins_from_assembly(assembly):
@@ -62,6 +70,7 @@ def average_repetition(assembly):
         return assembly
 
     return apply_keep_attrs(assembly, avg_repr)
+
 
 def apply_keep_attrs(assembly, fnc):  # workaround to keeping attrs
     attrs = assembly.attrs

@@ -20,23 +20,23 @@ def get_model(identifier):
 
     if dataset == "Kinetics400":
         pth = load_weight_file(
-            bucket="brainscore-vision",
+            bucket="brainscore-storage", folder_name="brainscore-vision/models",
             relative_path="temporal_model_GDT/gdt_K400.pth",
-            version_id="JpU_tnCzrbTejn6sOrQMk8eRsJ97yFgt",
+            version_id="null",
             sha1="7f12c60670346b1aab15194eb44c341906e1bca6"
         )
     elif dataset == "IG65M":
         pth = load_weight_file(
-            bucket="brainscore-vision",
+            bucket="brainscore-storage", folder_name="brainscore-vision/models",
             relative_path="temporal_model_GDT/gdt_IG65M.pth",
-            version_id="R.NoD6VAbFbJdf8tg5jnXIWB3hQ8GlSD",
+            version_id="null",
             sha1="3dcee3af61691e1e7e47e4b115be6808f4ea8172"
         )
     elif dataset == "HowTo100M":
         pth = load_weight_file(
-            bucket="brainscore-vision",
+            bucket="brainscore-storage", folder_name="brainscore-vision/models",
             relative_path="temporal_model_GDT/gdt_HT100M.pth",
-            version_id="BVRl9t_134PoKZCn9W54cyfkImCW2ioq",
+            version_id="null",
             sha1="a9a979c82e83b955794814923af736eb34e6f080"
         )
     else:

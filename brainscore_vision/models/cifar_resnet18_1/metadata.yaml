@@ -1,0 +1,12 @@
+models:
+  cifar_resnet18_1:
+    architecture: DCNN
+    model_family: null
+    total_parameter_count: 11681832
+    trainable_parameter_count: 11681832
+    total_layers: 68
+    trainable_layers: 21
+    model_size_MB: 46.73
+    training_dataset: null
+    task_specialization: null
+    source_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/cifar_resnet18_1

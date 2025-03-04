@@ -1,0 +1,14 @@
+models:
+    swin_small_patch4_window7_224:ms_in22k_ft_in1k:
+        architecture: DCNN, Transformer
+        model_family: swin
+        total_parameter_count: 49606258
+        trainable_parameter_count: 49606258
+        total_layers: 463
+        trainable_layers: 125
+        model_size_MB: 198.43
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
+        huggingface_link: null
+        extra_notes: null

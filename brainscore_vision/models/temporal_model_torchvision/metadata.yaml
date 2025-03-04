@@ -51,3 +51,16 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
         huggingface_link: null
         extra_notes: null
+    s3d:
+        architecture: DCNN
+        model_family: s3d
+        total_parameter_count: 8320048
+        trainable_parameter_count: 8320048
+        total_layers: 383
+        trainable_layers: 78
+        model_size_MB: 33.28
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
+        huggingface_link: null
+        extra_notes: null

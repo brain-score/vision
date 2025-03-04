@@ -51,9 +51,9 @@ def get_model(identifier):
     if identifier == "VideoMAE-V2-G":
         model_name = "vit_giant_patch14_224"
         pth = load_weight_file(
-            bucket="brainscore-storage", folder_name="brainscore-vision/models",
+            bucket="brainscore-vision",
             relative_path="temporal_model_VideoMAEv2/vit_g_hybrid_pt_1200e.pth",
-            version_id="null",
+            version_id="TxtkfbeMV105dzpzTwi0Kn5glnvQvIrq",
             sha1="9048f2bc0b0c7ba4d0e5228f3a7c0bef4dbaca69"
         )
         num_blocks = 40
@@ -61,9 +61,9 @@ def get_model(identifier):
     elif identifier == "VideoMAE-V2-B":
         model_name = "vit_base_patch16_224"
         pth = load_weight_file(
-            bucket="brainscore-storage", folder_name="brainscore-vision/models",
+            bucket="brainscore-vision",
             relative_path="temporal_model_VideoMAEv2/vit_b_hybrid_pt_800e.pth",
-            version_id="null",
+            version_id="rRjpYq21dAQ5KaCLbEHK.YaLZ_fbMPKw",
             sha1="1e3602691964b1eb6f7c33529119243a5b235635"
         )
         num_blocks = 12

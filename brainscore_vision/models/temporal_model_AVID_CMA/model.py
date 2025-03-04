@@ -11,11 +11,10 @@ from avid_cma.datasets import preprocessing
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
 from brainscore_vision.model_helpers.s3 import load_weight_file
 
-
 HOME = os.path.dirname(os.path.abspath(avid_cma.__file__))
 
-def get_model(identifier):
 
+def get_model(identifier):
     if identifier == 'AVID-CMA-Kinetics400':
         cfg_path = os.path.join(HOME, "configs/main/avid-cma/kinetics/InstX-N1024-PosW-N64-Top32.yaml")
         weight_path = load_weight_file(
@@ -55,7 +54,6 @@ def get_model(identifier):
     else:
         raise ValueError(f"Unknown model identifier: {identifier}")
 
-
     cfg = yaml.safe_load(open(cfg_path))
     cfg['model']['args']['checkpoint'] = weight_path
     logger = Logger()
@@ -89,4 +87,5 @@ def get_model(identifier):
         **{f"conv{i}x": 'CTHW' for i in range(2, 6)},
     }
 
-    return PytorchWrapper(identifier, model, video_transform, fps=db_cfg['video_fps'], layer_activation_format=layer_activation_format)
+    return PytorchWrapper(identifier, model, video_transform, fps=db_cfg['video_fps'],
+                          layer_activation_format=layer_activation_format)

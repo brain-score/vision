@@ -25,13 +25,13 @@ def get_model(name):
     assert name == 'dbp_resnet50_julios'
     ckpt_name = 'dbp_export.pt'
     download_weights(
-        bucket='brainscore-storage',
-        folder_path='brainscore-vision/models/dbp_resnet50_julios',
+        bucket='brainscore-vision',
+        folder_path='models/dbp_resnet50_julios',
         filename_version_sha=[(ckpt_name, 'HpyXY.W.WtS8zD.wJ7BVfvSbQDX.1Md4', '6efa18bfe4b70221d7e88ac2d2279d08042f23da')],
         save_directory=Path(__file__).parent
     )
     ckpt_path = Path(__file__).parent / ckpt_name
-    model = torch.load(ckpt_path, map_location=torch.device('cpu'))
+    model = torch.load(ckpt_path)
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     print(preprocessing)
     wrapper = PytorchWrapper(identifier='dbp_resnet50_julios', model=model, preprocessing=preprocessing)

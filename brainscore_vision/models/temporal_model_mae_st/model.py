@@ -51,9 +51,9 @@ def get_model(identifier):
         num_blocks = 24
         feature_map_size = 14
         load_path = load_weight_file(
-            bucket="brainscore-vision", 
+            bucket="brainscore-storage", folder_name="brainscore-vision/models",
             relative_path="temporal_model_mae_st/mae_pretrain_vit_large_k400.pth", 
-            version_id="cPcP4AzpG95CimQ5Pn.CHKnGUJlLXM3m",
+            version_id="null",
             sha1="c7fb91864a4ddf8b99309440121a3abe66b846bb"
         )
 
@@ -62,9 +62,9 @@ def get_model(identifier):
         num_blocks = 32
         feature_map_size = 14
         load_path = load_weight_file(
-            bucket="brainscore-vision", 
+            bucket="brainscore-storage", folder_name="brainscore-vision/models",
             relative_path="temporal_model_mae_st/mae_pretrain_vit_huge_k400.pth", 
-            version_id="IYKa8QiocgBzo3EhsBouS62HboK6iqYT",
+            version_id="null",
             sha1="177e48577142ca01949c08254834ffa1198b9eb4"
         )
 

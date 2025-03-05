@@ -41,7 +41,7 @@ def get_model(name):
 
 def get_layers(name):
     assert name == 'bp_resnet50_julios'
-    return ['layer1', 'layer2', 'layer3', 'layer4']
+    return ['layer1', 'layer2', 'layer3', 'layer4']  
 
 
 def get_bibtex(model_identifier):

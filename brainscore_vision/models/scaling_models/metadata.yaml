@@ -1,0 +1,40 @@
+models:
+    efficientnet_b0_imagenet_full:
+        architecture: DCNN
+        model_family: efficientnet
+        total_parameter_count: 5288548
+        trainable_parameter_count: 5288548
+        total_layers: 337
+        trainable_layers: 82
+        model_size_MB: 21.15
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+        huggingface_link: null
+        extra_notes: null
+    efficientnet_b1_imagenet_full:
+        architecture: DCNN
+        model_family: efficientnet
+        total_parameter_count: 7794184
+        trainable_parameter_count: 7794184
+        total_layers: 473
+        trainable_layers: 116
+        model_size_MB: 31.18
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+        huggingface_link: null
+        extra_notes: null
+    efficientnet_b2_imagenet_full:
+        architecture: DCNN
+        model_family: efficientnet
+        total_parameter_count: 9109994
+        trainable_parameter_count: 9109994
+        total_layers: 473
+        trainable_layers: 116
+        model_size_MB: 36.44
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+        huggingface_link: null
+        extra_notes: null

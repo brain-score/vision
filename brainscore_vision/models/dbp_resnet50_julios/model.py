@@ -25,7 +25,7 @@ def get_model(name):
     assert name == 'dbp_resnet50_julios'
     ckpt_name = 'dbp_export.pt'
     download_weights(
-        bucket='brainscore-vision',
+        bucket='brainscore-vision', 
         folder_path='models/dbp_resnet50_julios',
         filename_version_sha=[(ckpt_name, 'HpyXY.W.WtS8zD.wJ7BVfvSbQDX.1Md4', '6efa18bfe4b70221d7e88ac2d2279d08042f23da')],
         save_directory=Path(__file__).parent

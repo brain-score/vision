@@ -25,13 +25,13 @@ def get_model(name):
     assert name == 'bp_resnet50_julios'
     ckpt_name = 'bp_export.pt'
     download_weights(
-        bucket='brainscore-storage',
-        folder_path='brainscore-vision/models/bp_resnet50_julios',
+        bucket='brainscore-vision',
+        folder_path='models/bp_resnet50_julios',
         filename_version_sha=[(ckpt_name, 'PAH2BMGhcw9tWUH6RwTIADHodw.fyG4G', 'e504fc533aaec453f24e73a86e47ca6df3394c53')],
         save_directory=Path(__file__).parent
     )
     ckpt_path = Path(__file__).parent / ckpt_name
-    model = torch.load(ckpt_path, map_location=torch.device('cpu'))
+    model = torch.load(ckpt_path)
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     print(preprocessing)
     wrapper = PytorchWrapper(identifier='bp_resnet50_julios', model=model, preprocessing=preprocessing)
@@ -41,7 +41,7 @@ def get_model(name):
 
 def get_layers(name):
     assert name == 'bp_resnet50_julios'
-    return ['layer1', 'layer2', 'layer3', 'layer4']  
+    return ['layer1', 'layer2', 'layer3', 'layer4']
 
 
 def get_bibtex(model_identifier):

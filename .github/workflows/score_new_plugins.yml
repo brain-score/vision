@@ -50,10 +50,11 @@ jobs:
           python -m pip install ".[test]"
 
       - name: Save changed files to env var
+        # Only allow Added, Copied, Modified, Renamed, Changed (T) to trigger scoring
         run: |
           git fetch origin refs/pull/${{ github.event.number }}/head
           MERGE_COMMIT=$(git log --format='%H %P' --all | grep "$(git rev-parse FETCH_HEAD)\$" | cut -f1 -d' ')
-          echo "CHANGED_FILES=$(git diff --name-only origin/master~1 $MERGE_COMMIT | tr '\n' ' ')"  >> $GITHUB_ENV
+          echo "CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRT origin/master~1 $MERGE_COMMIT | tr '\n' ' ')"  >> $GITHUB_ENV
 
       - name: Get plugin info
         id: getpluginfo

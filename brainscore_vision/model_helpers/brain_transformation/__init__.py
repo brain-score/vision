@@ -72,7 +72,7 @@ class ModelCommitment(BrainModel):
         try:
             importer = import_plugin.ImportPlugin(library_root='brainscore_vision', plugin_type='models', identifier=identifier)
             model_dir = importer.locate_plugin()
-            project_root = Path(__file__).resolve().parent.parent.parent
+            project_root = Path(__file__).resolve().parent[2]
             region_layer_map_path = project_root / 'models' / model_dir / 'region_layer_map' / f'{identifier}.json'
             self._logger.info(f"Searching for mapping at {region_layer_map_path}")
             if region_layer_map_path.exists():

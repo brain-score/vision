@@ -13,20 +13,21 @@ def get_model(name):
     wrapper.image_size = 224
     return wrapper
 
+
 def get_layers(name):
     assert name == "dinov2_base"
     layer_names = [
         "embeddings.patch_embeddings.projection",  # Early feature extraction
-        "encoder.layer.0.attention.output.dense",  # Shallow self-attention
-        "encoder.layer.0.mlp.fc2",                 # Shallow MLP
-        "encoder.layer.5.attention.output.dense",  # Mid self-attention
-        "encoder.layer.5.mlp.fc2",                 # Mid MLP
-        "encoder.layer.11.attention.output.dense", # Deep self-attention
-        "encoder.layer.11.mlp.fc2",                # Deep MLP
-        "layernorm"                                # Final output representation
     ]
-    for n,_ in AutoModel.from_pretrained('facebook/dinov2-base').named_modules():
-        print(n)
+    # Add layers for each transformer block (0-11)
+    for i in range(12):
+        layer_names.append(f"encoder.layer.{i}.attention.output.dense")  # Attention output
+        layer_names.append(f"encoder.layer.{i}.mlp.fc2")                 # MLP output
+    
+    layer_names.append("layernorm")  # Final output representation
+
+    # for n,_ in AutoModel.from_pretrained('facebook/dinov2-base').named_modules():
+    #     print(n)
     return layer_names
 
 

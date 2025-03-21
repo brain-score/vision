@@ -10,6 +10,9 @@ benchmarks:
         data:
             benchmark_type: neural
             task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
             duration_ms: null
             species: human
             datatype: null
@@ -37,6 +40,9 @@ benchmarks:
         data:
             benchmark_type: neural
             task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
             duration_ms: null
             species: human
             datatype: null

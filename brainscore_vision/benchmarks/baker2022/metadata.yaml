@@ -10,6 +10,9 @@ benchmarks:
         data:
             benchmark_type: behavioral
             task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
             duration_ms: null
             species: human
             datatype: behavioral
@@ -37,6 +40,9 @@ benchmarks:
         data:
             benchmark_type: behavioral
             task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
             duration_ms: null
             species: human
             datatype: behavioral
@@ -64,6 +70,9 @@ benchmarks:
         data:
             benchmark_type: behavioral
             task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
             duration_ms: null
             species: human
             datatype: behavioral

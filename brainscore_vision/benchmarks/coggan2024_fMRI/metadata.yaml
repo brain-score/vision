@@ -1,0 +1,109 @@
+benchmarks:
+    tong.Coggan2024_fMRI.IT-rdm:
+        stimulus_set:
+            num_stimuli: 24
+            datatype: image
+            stimuli_subtype: null
+            total_size_MB: 0.0119
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/coggan2024_fMRI
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            duration_ms: null
+            species: human
+            datatype: fMRI
+            num_subjects: 9
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/coggan2024_fMRI
+        metric:
+            type: custom
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/coggan2024_fMRI
+        ceiling:
+            ceiling: null
+            ceiling_error: null
+            identifier: tong.Coggan2024_fMRI.IT-rdm
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/coggan2024_fMRI
+    tong.Coggan2024_fMRI.V1-rdm:
+        stimulus_set:
+            num_stimuli: 24
+            datatype: image
+            stimuli_subtype: null
+            total_size_MB: 0.0119
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/coggan2024_fMRI
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            duration_ms: null
+            species: human
+            datatype: fMRI
+            num_subjects: 9
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/coggan2024_fMRI
+        metric:
+            type: custom
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/coggan2024_fMRI
+        ceiling:
+            ceiling: null
+            ceiling_error: null
+            identifier: tong.Coggan2024_fMRI.V1-rdm
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/coggan2024_fMRI
+    tong.Coggan2024_fMRI.V2-rdm:
+        stimulus_set:
+            num_stimuli: 24
+            datatype: image
+            stimuli_subtype: null
+            total_size_MB: 0.0119
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/coggan2024_fMRI
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            duration_ms: null
+            species: human
+            datatype: fMRI
+            num_subjects: 9
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/coggan2024_fMRI
+        metric:
+            type: custom
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/coggan2024_fMRI
+        ceiling:
+            ceiling: null
+            ceiling_error: null
+            identifier: tong.Coggan2024_fMRI.V2-rdm
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/coggan2024_fMRI
+    tong.Coggan2024_fMRI.V4-rdm:
+        stimulus_set:
+            num_stimuli: 24
+            datatype: image
+            stimuli_subtype: null
+            total_size_MB: 0.0119
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/coggan2024_fMRI
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            duration_ms: null
+            species: human
+            datatype: fMRI
+            num_subjects: 9
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/coggan2024_fMRI
+        metric:
+            type: custom
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/coggan2024_fMRI
+        ceiling:
+            ceiling: null
+            ceiling_error: null
+            identifier: tong.Coggan2024_fMRI.V4-rdm
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/coggan2024_fMRI

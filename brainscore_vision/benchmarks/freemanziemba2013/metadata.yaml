@@ -19,16 +19,19 @@ benchmarks:
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/freemanziemba2013
+            extra_notes: null
         metric:
             type: pls
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/pls
+            extra_notes: null
         ceiling:
             ceiling: null
             ceiling_error: null
             identifier: FreemanZiemba2013.V1-pls
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/freemanziemba2013
+            extra_notes: null
     FreemanZiemba2013.V2-pls:
         stimulus_set:
             num_stimuli: 315
@@ -49,16 +52,19 @@ benchmarks:
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/freemanziemba2013
+            extra_notes: null
         metric:
             type: pls
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/pls
+            extra_notes: null
         ceiling:
             ceiling: null
             ceiling_error: null
             identifier: FreemanZiemba2013.V2-pls
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/freemanziemba2013
+            extra_notes: null
     FreemanZiemba2013public.V1-pls:
         stimulus_set:
             num_stimuli: 135
@@ -79,16 +85,19 @@ benchmarks:
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/freemanziemba2013
+            extra_notes: null
         metric:
             type: pls
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/pls
+            extra_notes: null
         ceiling:
             ceiling: null
             ceiling_error: null
             identifier: FreemanZiemba2013.V1.public-pls
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/freemanziemba2013
+            extra_notes: null
     FreemanZiemba2013public.V2-pls:
         stimulus_set:
             num_stimuli: 135
@@ -109,13 +118,16 @@ benchmarks:
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/freemanziemba2013
+            extra_notes: null
         metric:
             type: pls
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/pls
+            extra_notes: null
         ceiling:
             ceiling: null
             ceiling_error: null
             identifier: FreemanZiemba2013.V2.public-pls
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/freemanziemba2013
+            extra_notes: null

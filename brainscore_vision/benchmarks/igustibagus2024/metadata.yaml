@@ -19,16 +19,19 @@ benchmarks:
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/igustibagus2024
+            extra_notes: null
         metric:
             type: custom
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/igustibagus2024
+            extra_notes: null
         ceiling:
             ceiling: null
             ceiling_error: null
             identifier: Igustibagus2024-ridge
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/igustibagus2024
+            extra_notes: null
     Igustibagus2024.IT_readout-accuracy:
         stimulus_set:
             num_stimuli: null
@@ -49,13 +52,16 @@ benchmarks:
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/igustibagus2024
+            extra_notes: null
         metric:
             type: custom
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/igustibagus2024
+            extra_notes: null
         ceiling:
             ceiling: null
             ceiling_error: null
             identifier: Igustibagus2024-IT_accuracy
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/igustibagus2024
+            extra_notes: null

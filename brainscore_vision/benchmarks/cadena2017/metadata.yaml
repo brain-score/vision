@@ -19,16 +19,19 @@ benchmarks:
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/cadena2017
+            extra_notes: null
         metric:
             type: pls
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/pls
+            extra_notes: null
         ceiling:
             ceiling: null
             ceiling_error: null
             identifier: Cadena2017-pls
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/cadena2017
+            extra_notes: null
     Cadena2017-mask:
         stimulus_set:
             num_stimuli: 6249
@@ -49,13 +52,16 @@ benchmarks:
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/cadena2017
+            extra_notes: null
         metric:
             type: mask_regression
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/mask_regression
+            extra_notes: null
         ceiling:
             ceiling: null
             ceiling_error: null
             identifier: tolias.Cadena2017-mask
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/cadena2017
+            extra_notes: null

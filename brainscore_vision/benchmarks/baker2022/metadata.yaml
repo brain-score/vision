@@ -19,16 +19,19 @@ benchmarks:
             num_subjects: 32
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/baker2022
+            extra_notes: null
         metric:
             type: baker_accuracy_delta
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/baker_accuracy_delta
+            extra_notes: null
         ceiling:
             ceiling: null
             ceiling_error: null
             identifier: Baker2022fragmented-accuracy_delta
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/baker2022
+            extra_notes: null
     Baker2022frankenstein-accuracy_delta:
         stimulus_set:
             num_stimuli: 716
@@ -49,16 +52,19 @@ benchmarks:
             num_subjects: 32
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/baker2022
+            extra_notes: null
         metric:
             type: baker_accuracy_delta
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/baker_accuracy_delta
+            extra_notes: null
         ceiling:
             ceiling: null
             ceiling_error: null
             identifier: Baker2022frankenstein-accuracy_delta
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/baker2022
+            extra_notes: null
     Baker2022inverted-accuracy_delta:
         stimulus_set:
             num_stimuli: 360
@@ -79,13 +85,16 @@ benchmarks:
             num_subjects: 12
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/baker2022
+            extra_notes: null
         metric:
             type: baker_accuracy_delta
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/baker_accuracy_delta
+            extra_notes: null
         ceiling:
             ceiling: null
             ceiling_error: null
             identifier: Baker2022inverted-accuracy_delta
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/baker2022
+            extra_notes: null

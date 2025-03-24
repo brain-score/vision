@@ -19,13 +19,16 @@ benchmarks:
             num_subjects: 12
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/bracci2019
+            extra_notes: null
         metric:
             type: rdm
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/rdm
+            extra_notes: null
         ceiling:
             ceiling: null
             ceiling_error: null
             identifier: Bracci2019.anteriorVTC-rdm
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/bracci2019
+            extra_notes: null

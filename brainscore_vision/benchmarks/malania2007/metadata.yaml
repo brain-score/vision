@@ -19,16 +19,19 @@ benchmarks:
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
         metric:
             type: threshold
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/threshold
+            extra_notes: null
         ceiling:
             ceiling: null
             ceiling_error: null
             identifier: Malania2007.equal16
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/malania2007
+            extra_notes: null
     Malania2007.equal2-threshold_elevation:
         stimulus_set:
             num_stimuli: null
@@ -49,16 +52,19 @@ benchmarks:
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
         metric:
             type: threshold
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/threshold
+            extra_notes: null
         ceiling:
             ceiling: null
             ceiling_error: null
             identifier: Malania2007.equal2
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/malania2007
+            extra_notes: null
     Malania2007.long16-threshold_elevation:
         stimulus_set:
             num_stimuli: null
@@ -79,16 +85,19 @@ benchmarks:
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
         metric:
             type: threshold
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/threshold
+            extra_notes: null
         ceiling:
             ceiling: null
             ceiling_error: null
             identifier: Malania2007.long16
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/malania2007
+            extra_notes: null
     Malania2007.long2-threshold_elevation:
         stimulus_set:
             num_stimuli: null
@@ -109,16 +118,19 @@ benchmarks:
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
         metric:
             type: threshold
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/threshold
+            extra_notes: null
         ceiling:
             ceiling: null
             ceiling_error: null
             identifier: Malania2007.long2
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/malania2007
+            extra_notes: null
     Malania2007.short16-threshold_elevation:
         stimulus_set:
             num_stimuli: null
@@ -139,16 +151,19 @@ benchmarks:
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
         metric:
             type: threshold
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/threshold
+            extra_notes: null
         ceiling:
             ceiling: null
             ceiling_error: null
             identifier: Malania2007.short16
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/malania2007
+            extra_notes: null
     Malania2007.short2-threshold_elevation:
         stimulus_set:
             num_stimuli: null
@@ -169,16 +184,19 @@ benchmarks:
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
         metric:
             type: threshold
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/threshold
+            extra_notes: null
         ceiling:
             ceiling: null
             ceiling_error: null
             identifier: Malania2007.short2
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/malania2007
+            extra_notes: null
     Malania2007.short4-threshold_elevation:
         stimulus_set:
             num_stimuli: null
@@ -199,16 +217,19 @@ benchmarks:
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
         metric:
             type: threshold
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/threshold
+            extra_notes: null
         ceiling:
             ceiling: null
             ceiling_error: null
             identifier: Malania2007.short4
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/malania2007
+            extra_notes: null
     Malania2007.short6-threshold_elevation:
         stimulus_set:
             num_stimuli: null
@@ -229,16 +250,19 @@ benchmarks:
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
         metric:
             type: threshold
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/threshold
+            extra_notes: null
         ceiling:
             ceiling: null
             ceiling_error: null
             identifier: Malania2007.short6
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/malania2007
+            extra_notes: null
     Malania2007.short8-threshold_elevation:
         stimulus_set:
             num_stimuli: null
@@ -259,16 +283,19 @@ benchmarks:
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
         metric:
             type: threshold
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/threshold
+            extra_notes: null
         ceiling:
             ceiling: null
             ceiling_error: null
             identifier: Malania2007.short8
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/malania2007
+            extra_notes: null
     Malania2007.vernieracuity-threshold:
         stimulus_set:
             num_stimuli: null
@@ -289,13 +316,16 @@ benchmarks:
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
         metric:
             type: threshold
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/threshold
+            extra_notes: null
         ceiling:
             ceiling: null
             ceiling_error: null
             identifier: Malania2007.vernieracuity-threshold
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/malania2007
+            extra_notes: null

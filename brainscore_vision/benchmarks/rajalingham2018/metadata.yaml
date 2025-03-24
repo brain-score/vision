@@ -19,16 +19,19 @@ benchmarks:
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/rajalingham2018
+            extra_notes: null
         metric:
             type: i2n
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/i1i2
+            extra_notes: null
         ceiling:
             ceiling: null
             ceiling_error: null
             identifier: Rajalingham2018-i2n
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/rajalingham2018
+            extra_notes: null
     Rajalingham2018public-i2n:
         stimulus_set:
             num_stimuli: 2160
@@ -49,13 +52,16 @@ benchmarks:
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/rajalingham2018
+            extra_notes: null
         metric:
             type: i2n
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/i1i2
+            extra_notes: null
         ceiling:
             ceiling: null
             ceiling_error: null
             identifier: Rajalingham2018-i2n
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/rajalingham2018
+            extra_notes: null

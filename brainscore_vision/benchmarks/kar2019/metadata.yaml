@@ -15,7 +15,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: behavioral
+            datatype: null
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/kar2019

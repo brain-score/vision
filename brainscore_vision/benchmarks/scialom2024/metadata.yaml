@@ -735,7 +735,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: engineering_data
+            datatype: engineering
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -765,7 +765,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: engineering_data
+            datatype: engineering
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -795,7 +795,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: engineering_data
+            datatype: engineering
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -825,7 +825,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: engineering_data
+            datatype: engineering
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -855,7 +855,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: engineering_data
+            datatype: engineering
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -885,7 +885,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: engineering_data
+            datatype: engineering
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -915,7 +915,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: engineering_data
+            datatype: engineering
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -945,7 +945,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: engineering_data
+            datatype: engineering
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -975,7 +975,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: engineering_data
+            datatype: engineering
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -1005,7 +1005,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: engineering_data
+            datatype: engineering
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -1035,7 +1035,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: engineering_data
+            datatype: engineering
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -1065,7 +1065,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: engineering_data
+            datatype: engineering
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -1095,7 +1095,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: engineering_data
+            datatype: engineering
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -1125,7 +1125,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: engineering_data
+            datatype: engineering
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -1155,7 +1155,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: engineering_data
+            datatype: engineering
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -1185,7 +1185,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: engineering_data
+            datatype: engineering
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -1215,7 +1215,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: engineering_data
+            datatype: engineering
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -1245,7 +1245,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: engineering_data
+            datatype: engineering
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -1275,7 +1275,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: engineering_data
+            datatype: engineering
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -1305,7 +1305,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: engineering_data
+            datatype: engineering
             num_subjects: null
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024

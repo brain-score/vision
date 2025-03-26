@@ -154,6 +154,16 @@ class LabelToImagenetIndices:
     shovel_indices = [792]
     # truck indices used as defined by Geirhos et al., 2021.
 
+    # added from the Coggan 2024 behavioral benchmark:
+    bison_indices = [347]
+    hare_indices = [331]
+    jeep_indices = [609]
+    teapot_indices = [849]
+    sportscar_indices = [817]
+
+    # car, bear, and elephant indices used as defined by Geirhos et al., 2021.
+    # lamp indices used as defined by the Scialom2024 benchmark
+
     @classmethod
     def label_to_indices(cls, label):
         # for handling multi-word labels given by models or benchmarks

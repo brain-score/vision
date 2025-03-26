@@ -26,9 +26,3 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/coggan2024_behavior
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: tong.Coggan2024_behavior-ConditionWiseAccuracySimilarity
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/coggan2024_behavior
-            extra_notes: null

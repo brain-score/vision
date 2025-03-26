@@ -26,12 +26,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/hermann2020
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Hermann2020cueconflict-shape_bias
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/hermann2020
-            extra_notes: null
     Hermann2020cueconflict-shape_match:
         stimulus_set:
             num_stimuli: null
@@ -58,10 +52,4 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Hermann2020cueconflict-shape_match
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/hermann2020
             extra_notes: null

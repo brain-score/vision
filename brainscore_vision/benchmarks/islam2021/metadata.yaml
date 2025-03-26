@@ -26,12 +26,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/dimensionality
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Islam2021-IT_shape_dimensionality
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/islam2021
-            extra_notes: null
     Islam2021-shape_v1_dimensionality:
         stimulus_set:
             num_stimuli: 21845
@@ -58,12 +52,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/dimensionality
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Islam2021-V1_shape_dimensionality
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/islam2021
             extra_notes: null
     Islam2021-shape_v2_dimensionality:
         stimulus_set:
@@ -92,12 +80,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/dimensionality
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Islam2021-V2_shape_dimensionality
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/islam2021
-            extra_notes: null
     Islam2021-shape_v4_dimensionality:
         stimulus_set:
             num_stimuli: 21845
@@ -124,12 +106,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/dimensionality
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Islam2021-V4_shape_dimensionality
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/islam2021
             extra_notes: null
     Islam2021-texture_it_dimensionality:
         stimulus_set:
@@ -158,12 +134,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/dimensionality
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Islam2021-IT_texture_dimensionality
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/islam2021
-            extra_notes: null
     Islam2021-texture_v1_dimensionality:
         stimulus_set:
             num_stimuli: 21845
@@ -190,12 +160,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/dimensionality
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Islam2021-V1_texture_dimensionality
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/islam2021
             extra_notes: null
     Islam2021-texture_v2_dimensionality:
         stimulus_set:
@@ -224,12 +188,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/dimensionality
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Islam2021-V2_texture_dimensionality
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/islam2021
-            extra_notes: null
     Islam2021-texture_v4_dimensionality:
         stimulus_set:
             num_stimuli: 21845
@@ -256,10 +214,4 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/dimensionality
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Islam2021-V4_texture_dimensionality
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/islam2021
             extra_notes: null

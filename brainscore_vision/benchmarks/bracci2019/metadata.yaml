@@ -26,9 +26,3 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/rdm
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Bracci2019.anteriorVTC-rdm
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/bracci2019
-            extra_notes: null

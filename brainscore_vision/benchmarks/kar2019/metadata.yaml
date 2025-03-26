@@ -26,9 +26,3 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/ost
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Kar2019-ost
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/kar2019
-            extra_notes: null

@@ -26,12 +26,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/maniquet2024_metrics
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Maniquet2024-confusion_similarity
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/maniquet2024
-            extra_notes: null
     Maniquet2024-tasks_consistency:
         stimulus_set:
             num_stimuli: 13600
@@ -58,10 +52,4 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/maniquet2024_metrics
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Maniquet2024-tasks_consistency
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/maniquet2024
             extra_notes: null

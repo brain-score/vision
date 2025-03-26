@@ -26,9 +26,3 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: BarbuMayo2019-top1
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/objectnet
-            extra_notes: null

@@ -26,12 +26,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: MajajHong2015.IT-pls
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/majajhong2015
-            extra_notes: null
     MajajHong2015.V4-pls:
         stimulus_set:
             num_stimuli: 2560
@@ -58,12 +52,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: MajajHong2015.V4-pls
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/majajhong2015
             extra_notes: null
     MajajHong2015public.IT-pls:
         stimulus_set:
@@ -92,12 +80,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: MajajHong2015.IT.public-pls
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/majajhong2015
-            extra_notes: null
     MajajHong2015public.IT-temporal-pls:
         stimulus_set:
             num_stimuli: 3200
@@ -124,12 +106,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: MajajHong2015.IT.public-pls
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/majajhong2015
             extra_notes: null
     MajajHong2015public.V4-pls:
         stimulus_set:
@@ -158,12 +134,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: MajajHong2015.V4.public-pls
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/majajhong2015
-            extra_notes: null
     MajajHong2015public.V4-temporal-pls:
         stimulus_set:
             num_stimuli: 3200
@@ -190,10 +160,4 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: MajajHong2015.V4.public-pls
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/majajhong2015
             extra_notes: null

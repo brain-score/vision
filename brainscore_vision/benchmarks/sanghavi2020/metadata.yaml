@@ -26,12 +26,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Sanghavi2020.IT-pls
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/sanghavi2020
-            extra_notes: null
     Sanghavi2020.V4-pls:
         stimulus_set:
             num_stimuli: 5760
@@ -58,12 +52,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Sanghavi2020.V4-pls
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/sanghavi2020
             extra_notes: null
     SanghaviJozwik2020.IT-pls:
         stimulus_set:
@@ -92,12 +80,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: SanghaviJozwik2020.IT-pls
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/sanghavi2020
-            extra_notes: null
     SanghaviJozwik2020.V4-pls:
         stimulus_set:
             num_stimuli: 4916
@@ -124,12 +106,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: SanghaviJozwik2020.V4-pls
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/sanghavi2020
             extra_notes: null
     SanghaviMurty2020.IT-pls:
         stimulus_set:
@@ -158,12 +134,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: SanghaviMurty2020.IT-pls
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/sanghavi2020
-            extra_notes: null
     SanghaviMurty2020.V4-pls:
         stimulus_set:
             num_stimuli: 300
@@ -190,10 +160,4 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: SanghaviMurty2020.V4-pls
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/sanghavi2020
             extra_notes: null

@@ -26,12 +26,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_contours-behavioral_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
-            extra_notes: null
     Scialom2024_phosphenes-100BehavioralAccuracyDistance:
         stimulus_set:
             num_stimuli: 48
@@ -58,12 +52,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_phosphenes-100-behavioral_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
             extra_notes: null
     Scialom2024_phosphenes-12BehavioralAccuracyDistance:
         stimulus_set:
@@ -92,12 +80,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_phosphenes-12-behavioral_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
-            extra_notes: null
     Scialom2024_phosphenes-16BehavioralAccuracyDistance:
         stimulus_set:
             num_stimuli: 48
@@ -124,12 +106,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_phosphenes-16-behavioral_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
             extra_notes: null
     Scialom2024_phosphenes-21BehavioralAccuracyDistance:
         stimulus_set:
@@ -158,12 +134,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_phosphenes-21-behavioral_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
-            extra_notes: null
     Scialom2024_phosphenes-27BehavioralAccuracyDistance:
         stimulus_set:
             num_stimuli: 48
@@ -190,12 +160,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_phosphenes-27-behavioral_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
             extra_notes: null
     Scialom2024_phosphenes-35BehavioralAccuracyDistance:
         stimulus_set:
@@ -224,12 +188,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_phosphenes-35-behavioral_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
-            extra_notes: null
     Scialom2024_phosphenes-46BehavioralAccuracyDistance:
         stimulus_set:
             num_stimuli: 48
@@ -256,12 +214,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_phosphenes-46-behavioral_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
             extra_notes: null
     Scialom2024_phosphenes-59BehavioralAccuracyDistance:
         stimulus_set:
@@ -290,12 +242,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_phosphenes-59-behavioral_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
-            extra_notes: null
     Scialom2024_phosphenes-77BehavioralAccuracyDistance:
         stimulus_set:
             num_stimuli: 48
@@ -322,12 +268,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_phosphenes-77-behavioral_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
             extra_notes: null
     Scialom2024_phosphenes-allBehavioralAccuracyDistance:
         stimulus_set:
@@ -356,12 +296,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_phosphenes-all-behavioral_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
-            extra_notes: null
     Scialom2024_phosphenes-allBehavioralErrorConsistency:
         stimulus_set:
             num_stimuli: 528
@@ -388,12 +322,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/error_consistency
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_phosphenes-all-error_consistency
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
             extra_notes: null
     Scialom2024_rgbBehavioralAccuracyDistance:
         stimulus_set:
@@ -422,12 +350,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_rgb-behavioral_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
-            extra_notes: null
     Scialom2024_segments-100BehavioralAccuracyDistance:
         stimulus_set:
             num_stimuli: 48
@@ -454,12 +376,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_segments-100-behavioral_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
             extra_notes: null
     Scialom2024_segments-12BehavioralAccuracyDistance:
         stimulus_set:
@@ -488,12 +404,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_segments-12-behavioral_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
-            extra_notes: null
     Scialom2024_segments-16BehavioralAccuracyDistance:
         stimulus_set:
             num_stimuli: 48
@@ -520,12 +430,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_segments-16-behavioral_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
             extra_notes: null
     Scialom2024_segments-21BehavioralAccuracyDistance:
         stimulus_set:
@@ -554,12 +458,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_segments-21-behavioral_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
-            extra_notes: null
     Scialom2024_segments-27BehavioralAccuracyDistance:
         stimulus_set:
             num_stimuli: 48
@@ -586,12 +484,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_segments-27-behavioral_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
             extra_notes: null
     Scialom2024_segments-35BehavioralAccuracyDistance:
         stimulus_set:
@@ -620,12 +512,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_segments-35-behavioral_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
-            extra_notes: null
     Scialom2024_segments-46BehavioralAccuracyDistance:
         stimulus_set:
             num_stimuli: 48
@@ -652,12 +538,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_segments-46-behavioral_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
             extra_notes: null
     Scialom2024_segments-59BehavioralAccuracyDistance:
         stimulus_set:
@@ -686,12 +566,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_segments-59-behavioral_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
-            extra_notes: null
     Scialom2024_segments-77BehavioralAccuracyDistance:
         stimulus_set:
             num_stimuli: 48
@@ -718,12 +592,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_segments-77-behavioral_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
             extra_notes: null
     Scialom2024_segments-allBehavioralAccuracyDistance:
         stimulus_set:
@@ -752,12 +620,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_segments-all-behavioral_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
-            extra_notes: null
     Scialom2024_segments-allBehavioralErrorConsistency:
         stimulus_set:
             num_stimuli: 528
@@ -784,12 +646,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/error_consistency
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_segments-all-error_consistency
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
             extra_notes: null
     Scialom2024_contoursEngineeringAccuracy:
         stimulus_set:
@@ -818,12 +674,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_contours-engineering_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
-            extra_notes: null
     Scialom2024_phosphenes-100EngineeringAccuracy:
         stimulus_set:
             num_stimuli: 48
@@ -850,12 +700,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_phosphenes-100-engineering_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
             extra_notes: null
     Scialom2024_phosphenes-12EngineeringAccuracy:
         stimulus_set:
@@ -884,12 +728,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_phosphenes-12-engineering_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
-            extra_notes: null
     Scialom2024_phosphenes-16EngineeringAccuracy:
         stimulus_set:
             num_stimuli: 48
@@ -916,12 +754,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_phosphenes-16-engineering_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
             extra_notes: null
     Scialom2024_phosphenes-21EngineeringAccuracy:
         stimulus_set:
@@ -950,12 +782,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_phosphenes-21-engineering_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
-            extra_notes: null
     Scialom2024_phosphenes-27EngineeringAccuracy:
         stimulus_set:
             num_stimuli: 48
@@ -982,12 +808,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_phosphenes-27-engineering_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
             extra_notes: null
     Scialom2024_phosphenes-35EngineeringAccuracy:
         stimulus_set:
@@ -1016,12 +836,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_phosphenes-35-engineering_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
-            extra_notes: null
     Scialom2024_phosphenes-46EngineeringAccuracy:
         stimulus_set:
             num_stimuli: 48
@@ -1048,12 +862,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_phosphenes-46-engineering_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
             extra_notes: null
     Scialom2024_phosphenes-59EngineeringAccuracy:
         stimulus_set:
@@ -1082,12 +890,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_phosphenes-59-engineering_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
-            extra_notes: null
     Scialom2024_phosphenes-77EngineeringAccuracy:
         stimulus_set:
             num_stimuli: 48
@@ -1114,12 +916,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_phosphenes-77-engineering_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
             extra_notes: null
     Scialom2024_rgbEngineeringAccuracy:
         stimulus_set:
@@ -1148,12 +944,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_rgb-engineering_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
-            extra_notes: null
     Scialom2024_segments-100EngineeringAccuracy:
         stimulus_set:
             num_stimuli: 48
@@ -1180,12 +970,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_segments-100-engineering_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
             extra_notes: null
     Scialom2024_segments-12EngineeringAccuracy:
         stimulus_set:
@@ -1214,12 +998,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_segments-12-engineering_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
-            extra_notes: null
     Scialom2024_segments-16EngineeringAccuracy:
         stimulus_set:
             num_stimuli: 48
@@ -1246,12 +1024,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_segments-16-engineering_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
             extra_notes: null
     Scialom2024_segments-21EngineeringAccuracy:
         stimulus_set:
@@ -1280,12 +1052,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_segments-21-engineering_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
-            extra_notes: null
     Scialom2024_segments-27EngineeringAccuracy:
         stimulus_set:
             num_stimuli: 48
@@ -1312,12 +1078,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_segments-27-engineering_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
             extra_notes: null
     Scialom2024_segments-35EngineeringAccuracy:
         stimulus_set:
@@ -1346,12 +1106,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_segments-35-engineering_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
-            extra_notes: null
     Scialom2024_segments-46EngineeringAccuracy:
         stimulus_set:
             num_stimuli: 48
@@ -1378,12 +1132,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_segments-46-engineering_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
             extra_notes: null
     Scialom2024_segments-59EngineeringAccuracy:
         stimulus_set:
@@ -1412,12 +1160,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_segments-59-engineering_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
-            extra_notes: null
     Scialom2024_segments-77EngineeringAccuracy:
         stimulus_set:
             num_stimuli: 48
@@ -1444,10 +1186,4 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: Scialom2024_segments-77-engineering_accuracy
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/scialom2024
             extra_notes: null

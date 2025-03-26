@@ -26,12 +26,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: BMD2024.dotted_1Behavioral-accuracy_distance
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/bmd2024
-            extra_notes: null
     BMD2024.dotted_2Behavioral-accuracy_distance:
         stimulus_set:
             num_stimuli: 100
@@ -58,12 +52,6 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: BMD2024.dotted_2Behavioral-accuracy_distance
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/bmd2024
             extra_notes: null
     BMD2024.texture_1Behavioral-accuracy_distance:
         stimulus_set:
@@ -92,12 +80,6 @@ benchmarks:
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
             extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: BMD2024.texture_1Behavioral-accuracy_distance
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/bmd2024
-            extra_notes: null
     BMD2024.texture_2Behavioral-accuracy_distance:
         stimulus_set:
             num_stimuli: 100
@@ -124,10 +106,4 @@ benchmarks:
             reference: null
             public: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
-            extra_notes: null
-        ceiling:
-            ceiling: null
-            ceiling_error: null
-            identifier: BMD2024.texture_2Behavioral-accuracy_distance
-            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/bmd2024
             extra_notes: null

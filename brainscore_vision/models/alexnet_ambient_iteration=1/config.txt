@@ -1,0 +1,937 @@
+{
+    "alexnet_less_variation_1": {
+        "model_name": "alexnet",
+        "keyword": "less_variation",
+        "model_id": "alexnet_less_variation_iteration=1",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/less_variation_1.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_less_variation_2": {
+        "model_name": "alexnet",
+        "keyword": "less_variation",
+        "model_id": "alexnet_less_variation_iteration=2",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/less_variation_2.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_less_variation_3": {
+        "model_name": "alexnet",
+        "keyword": "less_variation",
+        "model_id": "alexnet_less_variation_iteration=3",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/less_variation_3.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_less_variation_4": {
+        "model_name": "alexnet",
+        "keyword": "less_variation",
+        "model_id": "alexnet_less_variation_iteration=4",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/less_variation_4.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_less_variation_5": {
+        "model_name": "alexnet",
+        "keyword": "less_variation",
+        "model_id": "alexnet_less_variation_iteration=5",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/less_variation_5.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_no_variation_1": {
+        "model_name": "alexnet",
+        "keyword": "no_variation",
+        "model_id": "alexnet_no_variation_iteration=1",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/no_variation_1.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_no_variation_2": {
+        "model_name": "alexnet",
+        "keyword": "no_variation",
+        "model_id": "alexnet_no_variation_iteration=2",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/no_variation_2.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_no_variation_3": {
+        "model_name": "alexnet",
+        "keyword": "no_variation",
+        "model_id": "alexnet_no_variation_iteration=3",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/no_variation_3.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_no_variation_4": {
+        "model_name": "alexnet",
+        "keyword": "no_variation",
+        "model_id": "alexnet_no_variation_iteration=4",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/no_variation_4.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_no_variation_5": {
+        "model_name": "alexnet",
+        "keyword": "no_variation",
+        "model_id": "alexnet_no_variation_iteration=5",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/no_variation_5.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_z_axis_1": {
+        "model_name": "alexnet",
+        "keyword": "z_axis",
+        "model_id": "alexnet_z_axis_iteration=1",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/z_axis_1.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_z_axis_2": {
+        "model_name": "alexnet",
+        "keyword": "z_axis",
+        "model_id": "alexnet_z_axis_iteration=2",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/z_axis_2.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_z_axis_3": {
+        "model_name": "alexnet",
+        "keyword": "z_axis",
+        "model_id": "alexnet_z_axis_iteration=3",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/z_axis_3.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_z_axis_4": {
+        "model_name": "alexnet",
+        "keyword": "z_axis",
+        "model_id": "alexnet_z_axis_iteration=4",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/z_axis_4.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_z_axis_5": {
+        "model_name": "alexnet",
+        "keyword": "z_axis",
+        "model_id": "alexnet_z_axis_iteration=5",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/z_axis_5.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_wo_shading_1": {
+        "model_name": "alexnet",
+        "keyword": "wo_shading",
+        "model_id": "alexnet_wo_shading_iteration=1",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/wo_shading_1.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_wo_shading_2": {
+        "model_name": "alexnet",
+        "keyword": "wo_shading",
+        "model_id": "alexnet_wo_shading_iteration=2",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/wo_shading_2.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_wo_shading_3": {
+        "model_name": "alexnet",
+        "keyword": "wo_shading",
+        "model_id": "alexnet_wo_shading_iteration=3",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/wo_shading_3.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_wo_shading_4": {
+        "model_name": "alexnet",
+        "keyword": "wo_shading",
+        "model_id": "alexnet_wo_shading_iteration=4",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/wo_shading_4.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_wo_shading_5": {
+        "model_name": "alexnet",
+        "keyword": "wo_shading",
+        "model_id": "alexnet_wo_shading_iteration=5",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/wo_shading_5.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_wo_shadows_1": {
+        "model_name": "alexnet",
+        "keyword": "wo_shadows",
+        "model_id": "alexnet_wo_shadows_iteration=1",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/wo_shadows_1.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_wo_shadows_2": {
+        "model_name": "alexnet",
+        "keyword": "wo_shadows",
+        "model_id": "alexnet_wo_shadows_iteration=2",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/wo_shadows_2.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_wo_shadows_3": {
+        "model_name": "alexnet",
+        "keyword": "wo_shadows",
+        "model_id": "alexnet_wo_shadows_iteration=3",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/wo_shadows_3.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_wo_shadows_4": {
+        "model_name": "alexnet",
+        "keyword": "wo_shadows",
+        "model_id": "alexnet_wo_shadows_iteration=4",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/wo_shadows_4.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_wo_shadows_5": {
+        "model_name": "alexnet",
+        "keyword": "wo_shadows",
+        "model_id": "alexnet_wo_shadows_iteration=5",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/wo_shadows_5.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}{
+    "alexnet_ambient_1": {
+        "model_name": "alexnet",
+        "keyword": "ambient",
+        "model_id": "alexnet_ambient_iteration=1",
+        "resize_size": 256,
+        "crop_size": 224,
+        "checkpoint_url": "https://eggerbernhard.ch/latest_alexnet/ambient_1.ckpt",
+        "model_commitment": {
+            "layers": [
+                "features",
+                "features.0",
+                "features.1",
+                "features.2",
+                "features.3",
+                "features.4",
+                "features.5",
+                "features.6",
+                "features.7",
+                "features.8",
+                "features.9",
+                "features.10",
+                "features.11",
+                "features.12",
+                "avgpool",
+                "classifier",
+                "classifier.0",
+                "classifier.1",
+                "classifier.2",
+                "classifier.3",
+                "classifier.4",
+                "classifier.5",
+                "classifier.6"
+            ]
+        }
+    }
+}

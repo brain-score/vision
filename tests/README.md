@@ -1,6 +1,6 @@
 # Unit Tests
 ## Markers
-Unit tests have various markers that denote possible issues.
+Unit tests have various markers that denote possible issues in the travis build.
 The registered markers we use are listed in the `pyproject.toml` in `[tool.pytest.ini_options]`.
 
 Use the following syntax to mark a test:

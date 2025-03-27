@@ -1,9 +1,9 @@
 # Unit Tests
 ## Markers
-Unit tests have various markers that denote possible issues in the travis build:
+Unit tests have various markers that denote possible issues in the build:
 
-* **private_access**: tests that require access to a private ressource, such as assemblies on S3 (travis pull request builds can not have private access)
-* **memory_intense**: tests requiring more memory than is available in the travis sandbox (currently 3 GB, https://docs.travis-ci.com/user/common-build-problems/#my-build-script-is-killed-without-any-error)
+* **private_access**: tests that require access to a private ressource, such as assemblies on S3
+* **memory_intense**: tests requiring more than 3 GB of memory
 
 Use the following syntax to mark a test:
 ```

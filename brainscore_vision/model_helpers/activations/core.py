@@ -250,6 +250,9 @@ class ActivationsExtractorHelper:
                           if set(dims) == {'neuroid'}}
         for layer_assembly in layer_assemblies[1:]:
             for coord in neuroid_coords:
+                if coord not in layer_assembly.coords:
+                    self._logger.warning(f"[WARNING] Coord '{coord}' missing in layer '{layer_assembly['layer'].values[0]}'. Skipping.")
+                    continue
                 neuroid_coords[coord][1] = np.concatenate((neuroid_coords[coord][1], layer_assembly[coord].values))
             assert layer_assemblies[0].dims == layer_assembly.dims
             for coord, dims, values in walk_coords(layer_assembly):

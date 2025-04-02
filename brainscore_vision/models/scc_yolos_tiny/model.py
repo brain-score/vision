@@ -3,23 +3,13 @@ from brainscore_vision.model_helpers.check_submission import check_models
 import functools
 from transformers import AutoImageProcessor, AutoModelForObjectDetection
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
-from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 
 def get_model(name):
     assert name == "yolos_tiny"
-    
-    model = AutoModelForObjectDetection.from_pretrained("hustvl/yolos-tiny")
     processor = AutoImageProcessor.from_pretrained("hustvl/yolos-tiny")
-
-    def preprocess_yolos(image_paths):
-        # Load images from disk
-        images = [Image.open(path).convert("RGB") for path in image_paths]
-        # Use Hugging Face processor to do padding, resizing, tensor conversion
-        inputs = processor(images=images, return_tensors="pt")
-        return inputs["pixel_values"]
-        
-    wrapper = PytorchWrapper(identifier='yolos_tiny', model=model, preprocessing=preprocess_yolos, batch_size=4)
-    wrapper.image_size = 224
+    model = AutoModelForObjectDetection.from_pretrained("hustvl/yolos-tiny")
+    preprocessing = functools.partial(load_preprocess_images, processor=processor)
+    wrapper = PytorchWrapper(identifier=name, model=model, preprocessing=preprocessing)
     return wrapper
 
 
@@ -70,7 +60,7 @@ def get_layers(name):
     return layer_names
 
 
-def get_bibitex(model_identifier):
+def get_bibtex(model_identifier):
     return """
         @article{DBLP:journals/corr/abs-2106-00666,
         author    = {Yuxin Fang and
@@ -94,6 +84,57 @@ def get_bibitex(model_identifier):
         bibsource = {dblp computer science bibliography, https://dblp.org}
         }
 """
+
+def load_preprocess_images(image_filepaths, processor=None, **kwargs):
+    images = load_images(image_filepaths)
+    # Do not resize here — YOLOS processor handles it
+    if processor is not None:
+        inputs = processor(images=images, return_tensors="pt", **kwargs)
+        pixel_values = inputs["pixel_values"]  # [batch, 3, H, W]
+        return pixel_values.cpu().numpy()  # For brainscore pipeline
+    else:
+        raise ValueError("YOLOS requires a processor for preprocessing")
+
+
+def load_images(image_filepaths):
+    return [load_image(image_filepath) for image_filepath in image_filepaths]
+
+
+def load_image(image_filepath):
+    with Image.open(image_filepath) as pil_image:
+        if 'L' not in pil_image.mode.upper() and 'A' not in pil_image.mode.upper() \
+                and 'P' not in pil_image.mode.upper():  # not binary and not alpha and not palletized
+            # work around to https://github.com/python-pillow/Pillow/issues/1144,
+            # see https://stackoverflow.com/a/30376272/2225200
+            return pil_image.copy()
+        else:  # make sure potential binary images are in RGB
+            rgb_image = Image.new("RGB", pil_image.size)
+            rgb_image.paste(pil_image)
+            return rgb_image
+
+
+def preprocess_images(images, image_size, **kwargs):
+    preprocess = torchvision_preprocess_input(image_size, **kwargs)
+    images = [preprocess(image) for image in images]
+    images = np.concatenate(images)
+    return images
+
+
+def torchvision_preprocess_input(image_size, **kwargs):
+    from torchvision import transforms
+    return transforms.Compose([
+        transforms.Resize((image_size, image_size)),
+        torchvision_preprocess(**kwargs),
+    ])
+
+
+def torchvision_preprocess(normalize_mean=(0.485, 0.456, 0.406), normalize_std=(0.229, 0.224, 0.225)):
+    from torchvision import transforms
+    return transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(mean=normalize_mean, std=normalize_std),
+        lambda img: img.unsqueeze(0)
+    ])
 
 if __name__ == '__main__':
     # get_layers("yolos_tiny")

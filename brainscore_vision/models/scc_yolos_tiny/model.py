@@ -8,8 +8,14 @@ def get_model(name):
     assert name == "yolos_tiny"
     
     model = AutoModelForObjectDetection.from_pretrained("hustvl/yolos-tiny")
-    preprocessing = functools.partial(load_preprocess_images, image_size=224)
-    wrapper = PytorchWrapper(identifier='yolos_tiny', model=model, preprocessing=preprocessing, batch_size=4)
+    processor = AutoImageProcessor.from_pretrained("hustvl/yolos-tiny")
+
+    def preprocess_yolos(images):
+        # images: list of PIL.Image or np.ndarray
+        inputs = processor(images=images, return_tensors="pt")
+        return inputs['pixel_values']
+        
+    wrapper = PytorchWrapper(identifier='yolos_tiny', model=model, preprocessing=preprocess_yolos, batch_size=4)
     wrapper.image_size = 224
     return wrapper
 

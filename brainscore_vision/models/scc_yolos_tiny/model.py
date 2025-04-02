@@ -1,3 +1,4 @@
+from PIL import Image
 from brainscore_vision.model_helpers.check_submission import check_models
 import functools
 from transformers import AutoImageProcessor, AutoModelForObjectDetection

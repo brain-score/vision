@@ -10,12 +10,12 @@ def get_model(name):
     model = AutoModelForObjectDetection.from_pretrained("hustvl/yolos-tiny")
     processor = AutoImageProcessor.from_pretrained("hustvl/yolos-tiny")
 
-    def preprocess_yolos(images):
-        # Flatten if nested (e.g. [[img1, img2], [img3]] -> [img1, img2, img3])
-        if isinstance(images[0], list):
-            images = [img for sublist in images for img in sublist]
+    def preprocess_yolos(image_paths):
+        # Load images from disk
+        images = [Image.open(path).convert("RGB") for path in image_paths]
+        # Use Hugging Face processor to do padding, resizing, tensor conversion
         inputs = processor(images=images, return_tensors="pt")
-        return inputs['pixel_values']
+        return inputs["pixel_values"]
         
     wrapper = PytorchWrapper(identifier='yolos_tiny', model=model, preprocessing=preprocess_yolos, batch_size=4)
     wrapper.image_size = 224

@@ -26,6 +26,10 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       RUN_SCORING: ${{ steps.scoringneeded.outputs.RUN_SCORING }}
+      METADATA_ONLY: ${{ steps.check_metadata_only.outputs.only_metadata }}
+      PLUGIN_DIRS: ${{ steps.derive_plugin_dirs.outputs.PLUGIN_DIRS }}
+      PLUGIN_TYPE: ${{ steps.derive_plugin_dirs.outputs.PLUGIN_TYPE }}
+      RUN_METADATA: ${{  steps.check_metadata.outputs.RUN_METADATA  }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -50,23 +54,96 @@ jobs:
           python -m pip install ".[test]"
 
       - name: Save changed files to env var
-        # Only allow Added, Copied, Modified, Renamed, Changed (T) to trigger scoring
         run: |
           git fetch origin refs/pull/${{ github.event.number }}/head
           MERGE_COMMIT=$(git log --format='%H %P' --all | grep "$(git rev-parse FETCH_HEAD)\$" | cut -f1 -d' ')
-          echo "CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRT origin/master~1 $MERGE_COMMIT | tr '\n' ' ')"  >> $GITHUB_ENV
+          echo "CHANGED_FILES=$(git diff --name-only origin/master~1 $MERGE_COMMIT | tr '\n' ' ')"  >> $GITHUB_ENV
 
       - name: Get plugin info
         id: getpluginfo
         run: |
           echo "PLUGIN_INFO='$(python -c 'from brainscore_core.plugin_management.parse_plugin_changes import get_scoring_info; get_scoring_info("${{ env.CHANGED_FILES }}", "brainscore_vision")')'"  >> $GITHUB_OUTPUT
 
+      - name: Check if only metadata changed
+        id: check_metadata_only
+        run: |
+          MODIFIES_PLUGINS=$(echo ${{ steps.getpluginfo.outputs.PLUGIN_INFO }} | jq -r '.modifies_plugins')
+          echo "modifies_plugins=${MODIFIES_PLUGINS}" >> $GITHUB_OUTPUT
+          
+          # filter out metadata.yml
+          non_metadata=$(echo "${{ env.CHANGED_FILES }}" | tr ' ' '\n' | grep -v "metadata.yml" || true)
+
+          if [ -z "$non_metadata" ] && [ "$MODIFIES_PLUGINS" = "true" ]; then
+            echo "only_metadata=true" >> $GITHUB_OUTPUT
+          else
+            echo "only_metadata=false" >> $GITHUB_OUTPUT
+          fi
+          echo "non_metadata files: $non_metadata" 1>&2
+
+      - name: Derive Plugin Directories
+        id: derive_plugin_dirs
+        if: steps.check_metadata_only.outputs.modifies_plugins == 'true'
+        run: |
+          # extract plugin directories from changed files
+          plugin_dirs=$(echo "${{ env.CHANGED_FILES }}" | tr ' ' '\n' | grep -E 'brainscore_vision/(models|benchmarks)/' | awk -F'/' '{print $1"/"$2"/"$3}' | sort | uniq | paste -sd, - || echo "")
+          echo "PLUGIN_DIRS=${plugin_dirs}" >> $GITHUB_OUTPUT
+          
+          # determine plugin type from directory structure
+          plugin_type=$(echo "${{ env.CHANGED_FILES }}" | tr ' ' '\n' | grep -E 'brainscore_vision/(models|benchmarks)/' | grep -o -E '(models|benchmarks)' | head -n 1 || echo "")
+          echo "PLUGIN_TYPE=${plugin_type}" >> $GITHUB_OUTPUT
+          
+          echo "Derived plugin directories: ${plugin_dirs}" 1>&2
+          echo "Derived plugin type: ${plugin_type}" 1>&2
+
+      - name: Check metadata status
+        if: steps.check_metadata_only.outputs.modifies_plugins == 'true'
+        id: check_metadata
+        run: |
+          # first check out the PR branch to access new directories
+          git fetch origin pull/${{ github.event.number }}/head:pr-branch
+          git checkout pr-branch
+          
+          # check if metadata.yml is in the PR changes
+          metadata_in_pr=false
+          if echo "${{ env.CHANGED_FILES }}" | grep -q "metadata.yml"; then
+            metadata_in_pr=true
+            echo "Metadata changes found in PR" 1>&2
+          fi
+          echo "METADATA_IN_PR=${metadata_in_pr}" >> $GITHUB_OUTPUT
+          
+          # get all plugin directories affected by this PR
+          IFS=',' read -ra DIRS <<< "${{ steps.derive_plugin_dirs.outputs.PLUGIN_DIRS }}"
+          
+          # check if metadata.yml exists in each plugin directory
+          metadata_missing=false
+          for dir in "${DIRS[@]}"; do
+            if [ -n "$dir" ] && [ ! -f "${dir}/metadata.yml" ]; then
+              metadata_missing=true
+              echo "Metadata is missing in directory: ${dir}" 1>&2
+              break
+            fi
+          done
+          
+          echo "METADATA_MISSING=${metadata_missing}" >> $GITHUB_OUTPUT
+          
+          # determine if should run metadata processing
+          if [ "$metadata_in_pr" = "true" ] || [ "$metadata_missing" = "true" ]; then
+            echo "RUN_METADATA=true" >> $GITHUB_OUTPUT
+          else
+            echo "RUN_METADATA=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # switch back to the original branch
+          git checkout -
+
       - name: Check if scoring needed
+        if: steps.check_metadata_only.outputs.only_metadata == 'false'
         id: scoringneeded
         run: |
           echo "RUN_SCORING=$(jq -r '.run_score' <<< ${{ steps.getpluginfo.outputs.PLUGIN_INFO }})" >> $GITHUB_OUTPUT
 
       - name: Check for automerge-web label
+        if: steps.check_metadata_only.outputs.only_metadata == 'false'
         id: check_label
         run: |
           LABELS_JSON="${{ toJSON(github.event.pull_request.labels.*.name) }}"
@@ -77,6 +154,7 @@ jobs:
           fi
 
       - name: Update PLUGIN_INFO based on label
+        if: steps.check_metadata_only.outputs.only_metadata == 'false'
         run: |
           if [[ "$has_automerge_web" == "true" ]]; then
             BS_UID="$(echo '${{ github.event.pull_request.title }}' | sed -E 's/.*\(user:([^)]+)\).*/\1/')"
@@ -88,20 +166,33 @@ jobs:
           fi
 
       - name: Write PLUGIN_INFO to a json file
+        if: steps.check_metadata_only.outputs.only_metadata == 'false'
         run: |
           echo "$PLUGIN_INFO" > plugin-info.json
       
       - name: Upload PLUGIN_INFO as an artifact
+        if: steps.check_metadata_only.outputs.only_metadata == 'false'
         uses: actions/upload-artifact@v4
         with:
           name: plugin-info
           path: plugin-info.json
+
+  process_metadata:
+    name: Process metadata changes
+    needs: process_submission
+    if: needs.process_submission.outputs.RUN_METADATA == 'true'
+    uses: ./.github/workflows/metadata_testing.yml
+    with:
+      plugin-dir: ${{ needs.process_submission.outputs.PLUGIN_DIRS }}
+      plugin-type: ${{ needs.process_submission.outputs.PLUGIN_TYPE }}
+      db-connection: true
+    secrets: inherit
   
   extract_email:
     name: Extracts email for both PRs and web submissions
     uses: ./.github/workflows/user_notification_system.yml
     needs: process_submission
-    if: ${{ needs.process_submission.outputs.RUN_SCORING == 'True' }}
+    if: needs.process_submission.outputs.RUN_SCORING == 'True' && needs.process_submission.outputs.METADATA_ONLY == 'false'
     with:
       pr_username: ${{github.event.pull_request.user.login}} 
       pr_title: ${{ github.event.pull_request.title }}

@@ -4,7 +4,7 @@ benchmarks:
             num_stimuli: 22560
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 12.6584
+            total_size_mb: 12.6584
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/coggan2024_behavior
             extra_notes: null
         data:

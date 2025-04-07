@@ -4,7 +4,7 @@ benchmarks:
             num_stimuli: 1854
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 1.4543
+            total_size_mb: 1.4543
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/hebart2023
             extra_notes: null
         data:

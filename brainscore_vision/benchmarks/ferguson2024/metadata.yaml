@@ -4,7 +4,7 @@ benchmarks:
             num_stimuli: 48
             datatype: image
             stimuli_subtype: synthetic
-            total_size_MB: 0.01
+            total_size_mb: 0.01
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
         data:
@@ -28,7 +28,7 @@ benchmarks:
             num_stimuli: 48
             datatype: image
             stimuli_subtype: synthetic
-            total_size_MB: 0.01
+            total_size_mb: 0.01
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
         data:
@@ -52,7 +52,7 @@ benchmarks:
             num_stimuli: 48
             datatype: image
             stimuli_subtype: synthetic
-            total_size_MB: 0.01
+            total_size_mb: 0.01
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
         data:
@@ -76,7 +76,7 @@ benchmarks:
             num_stimuli: 48
             datatype: image
             stimuli_subtype: synthetic
-            total_size_MB: 0.01
+            total_size_mb: 0.01
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
         data:
@@ -100,7 +100,7 @@ benchmarks:
             num_stimuli: 48
             datatype: image
             stimuli_subtype: synthetic
-            total_size_MB: 0.01
+            total_size_mb: 0.01
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
         data:
@@ -124,7 +124,7 @@ benchmarks:
             num_stimuli: 48
             datatype: image
             stimuli_subtype: synthetic
-            total_size_MB: 0.01
+            total_size_mb: 0.01
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
         data:
@@ -148,7 +148,7 @@ benchmarks:
             num_stimuli: 48
             datatype: image
             stimuli_subtype: synthetic
-            total_size_MB: 0.01
+            total_size_mb: 0.01
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
         data:
@@ -172,7 +172,7 @@ benchmarks:
             num_stimuli: 48
             datatype: image
             stimuli_subtype: synthetic
-            total_size_MB: 0.01
+            total_size_mb: 0.01
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
         data:
@@ -196,7 +196,7 @@ benchmarks:
             num_stimuli: 48
             datatype: image
             stimuli_subtype: synthetic
-            total_size_MB: 0.01
+            total_size_mb: 0.01
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
         data:
@@ -220,7 +220,7 @@ benchmarks:
             num_stimuli: 48
             datatype: image
             stimuli_subtype: synthetic
-            total_size_MB: 0.01
+            total_size_mb: 0.01
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
         data:
@@ -244,7 +244,7 @@ benchmarks:
             num_stimuli: 48
             datatype: image
             stimuli_subtype: synthetic
-            total_size_MB: 0.01
+            total_size_mb: 0.01
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
         data:
@@ -268,7 +268,7 @@ benchmarks:
             num_stimuli: 48
             datatype: image
             stimuli_subtype: synthetic
-            total_size_MB: 0.01
+            total_size_mb: 0.01
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
         data:
@@ -292,7 +292,7 @@ benchmarks:
             num_stimuli: 48
             datatype: image
             stimuli_subtype: synthetic
-            total_size_MB: 0.01
+            total_size_mb: 0.01
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
         data:
@@ -316,7 +316,7 @@ benchmarks:
             num_stimuli: 48
             datatype: image
             stimuli_subtype: synthetic
-            total_size_MB: 0.01
+            total_size_mb: 0.01
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
         data:

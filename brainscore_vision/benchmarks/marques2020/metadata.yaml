@@ -4,7 +4,7 @@ benchmarks:
             num_stimuli: 2304
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.533
+            total_size_mb: 0.533
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
             extra_notes: null
         data:
@@ -31,7 +31,7 @@ benchmarks:
             num_stimuli: 2304
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.533
+            total_size_mb: 0.533
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
             extra_notes: null
         data:
@@ -58,7 +58,7 @@ benchmarks:
             num_stimuli: 2304
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.533
+            total_size_mb: 0.533
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
             extra_notes: null
         data:
@@ -85,7 +85,7 @@ benchmarks:
             num_stimuli: 2112
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.5147
+            total_size_mb: 0.5147
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
             extra_notes: null
         data:
@@ -112,7 +112,7 @@ benchmarks:
             num_stimuli: 1152
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.2737
+            total_size_mb: 0.2737
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
             extra_notes: null
         data:
@@ -139,7 +139,7 @@ benchmarks:
             num_stimuli: 450
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.0947
+            total_size_mb: 0.0947
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
             extra_notes: null
         data:
@@ -166,7 +166,7 @@ benchmarks:
             num_stimuli: 450
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.0947
+            total_size_mb: 0.0947
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
             extra_notes: null
         data:
@@ -193,7 +193,7 @@ benchmarks:
             num_stimuli: 450
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.0947
+            total_size_mb: 0.0947
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
             extra_notes: null
         data:
@@ -220,7 +220,7 @@ benchmarks:
             num_stimuli: 450
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.0947
+            total_size_mb: 0.0947
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
             extra_notes: null
         data:
@@ -247,7 +247,7 @@ benchmarks:
             num_stimuli: 450
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.0947
+            total_size_mb: 0.0947
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
             extra_notes: null
         data:
@@ -274,7 +274,7 @@ benchmarks:
             num_stimuli: 450
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.0947
+            total_size_mb: 0.0947
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
             extra_notes: null
         data:
@@ -301,7 +301,7 @@ benchmarks:
             num_stimuli: 450
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.0947
+            total_size_mb: 0.0947
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
             extra_notes: null
         data:
@@ -328,7 +328,7 @@ benchmarks:
             num_stimuli: 1152
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.2737
+            total_size_mb: 0.2737
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
             extra_notes: null
         data:
@@ -355,7 +355,7 @@ benchmarks:
             num_stimuli: 1152
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.2737
+            total_size_mb: 0.2737
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
             extra_notes: null
         data:
@@ -382,7 +382,7 @@ benchmarks:
             num_stimuli: 1152
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.2737
+            total_size_mb: 0.2737
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
             extra_notes: null
         data:
@@ -409,7 +409,7 @@ benchmarks:
             num_stimuli: 1152
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.2737
+            total_size_mb: 0.2737
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
             extra_notes: null
         data:
@@ -436,7 +436,7 @@ benchmarks:
             num_stimuli: 1152
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.2737
+            total_size_mb: 0.2737
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
             extra_notes: null
         data:
@@ -463,7 +463,7 @@ benchmarks:
             num_stimuli: 1152
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.2737
+            total_size_mb: 0.2737
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
             extra_notes: null
         data:
@@ -490,7 +490,7 @@ benchmarks:
             num_stimuli: 1152
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.2737
+            total_size_mb: 0.2737
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
             extra_notes: null
         data:
@@ -517,7 +517,7 @@ benchmarks:
             num_stimuli: 1152
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.2737
+            total_size_mb: 0.2737
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
             extra_notes: null
         data:
@@ -544,7 +544,7 @@ benchmarks:
             num_stimuli: 2112
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.5147
+            total_size_mb: 0.5147
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
             extra_notes: null
         data:
@@ -571,7 +571,7 @@ benchmarks:
             num_stimuli: 2112
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.5147
+            total_size_mb: 0.5147
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
             extra_notes: null
         data:

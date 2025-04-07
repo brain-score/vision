@@ -4,7 +4,7 @@ benchmarks:
             num_stimuli: 50000
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 27.0368
+            total_size_mb: 27.0368
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/imagenet
             extra_notes: null
         data:

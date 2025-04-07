@@ -4,7 +4,7 @@ benchmarks:
             num_stimuli: 2560
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 2.1133
+            total_size_mb: 2.1133
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/majajhong2015
             extra_notes: null
         data:
@@ -31,7 +31,7 @@ benchmarks:
             num_stimuli: 2560
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 2.1133
+            total_size_mb: 2.1133
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/majajhong2015
             extra_notes: null
         data:
@@ -58,7 +58,7 @@ benchmarks:
             num_stimuli: 3200
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 2.6413
+            total_size_mb: 2.6413
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/majajhong2015
             extra_notes: null
         data:
@@ -85,7 +85,7 @@ benchmarks:
             num_stimuli: 3200
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 2.6413
+            total_size_mb: 2.6413
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/majajhong2015
             extra_notes: null
         data:
@@ -112,7 +112,7 @@ benchmarks:
             num_stimuli: 3200
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 2.6413
+            total_size_mb: 2.6413
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/majajhong2015
             extra_notes: null
         data:
@@ -139,7 +139,7 @@ benchmarks:
             num_stimuli: 3200
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 2.6413
+            total_size_mb: 2.6413
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/majajhong2015
             extra_notes: null
         data:

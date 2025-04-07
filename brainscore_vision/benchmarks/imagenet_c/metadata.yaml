@@ -4,7 +4,7 @@ benchmarks:
             num_stimuli: 1000000
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 436.783
+            total_size_mb: 436.783
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/imagenet_c
             extra_notes: null
         data:
@@ -31,7 +31,7 @@ benchmarks:
             num_stimuli: 1000000
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 443.4587
+            total_size_mb: 443.4587
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/imagenet_c
             extra_notes: null
         data:
@@ -58,7 +58,7 @@ benchmarks:
             num_stimuli: 750000
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 332.8325
+            total_size_mb: 332.8325
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/imagenet_c
             extra_notes: null
         data:
@@ -85,7 +85,7 @@ benchmarks:
             num_stimuli: 1000000
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 417.7095
+            total_size_mb: 417.7095
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/imagenet_c
             extra_notes: null
         data:

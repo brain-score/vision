@@ -4,7 +4,7 @@ benchmarks:
             num_stimuli: 240
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.1024
+            total_size_mb: 0.1024
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/rajalingham2018
             extra_notes: null
         data:
@@ -31,7 +31,7 @@ benchmarks:
             num_stimuli: 2160
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.9206
+            total_size_mb: 0.9206
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/rajalingham2018
             extra_notes: null
         data:

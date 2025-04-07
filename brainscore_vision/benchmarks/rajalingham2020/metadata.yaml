@@ -4,7 +4,7 @@ benchmarks:
             num_stimuli: 616
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 3.5858
+            total_size_mb: 3.5858
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/rajalingham2020
             extra_notes: null
         data:

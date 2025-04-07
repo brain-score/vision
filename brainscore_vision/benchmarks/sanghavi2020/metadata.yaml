@@ -4,7 +4,7 @@ benchmarks:
             num_stimuli: 5760
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 4.7545
+            total_size_mb: 4.7545
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/sanghavi2020
             extra_notes: null
         data:
@@ -31,7 +31,7 @@ benchmarks:
             num_stimuli: 5760
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 4.7545
+            total_size_mb: 4.7545
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/sanghavi2020
             extra_notes: null
         data:
@@ -58,7 +58,7 @@ benchmarks:
             num_stimuli: 4916
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 2.6779
+            total_size_mb: 2.6779
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/sanghavi2020
             extra_notes: null
         data:
@@ -85,7 +85,7 @@ benchmarks:
             num_stimuli: 4916
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 2.6779
+            total_size_mb: 2.6779
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/sanghavi2020
             extra_notes: null
         data:
@@ -112,7 +112,7 @@ benchmarks:
             num_stimuli: 300
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.0431
+            total_size_mb: 0.0431
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/sanghavi2020
             extra_notes: null
         data:
@@ -139,7 +139,7 @@ benchmarks:
             num_stimuli: 300
             datatype: image
             stimuli_subtype: null
-            total_size_MB: 0.0431
+            total_size_mb: 0.0431
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/sanghavi2020
             extra_notes: null
         data:

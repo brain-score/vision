@@ -4,7 +4,7 @@ benchmarks:
             num_stimuli: null
             datatype: image
             stimuli_subtype: null
-            total_size_MB: null
+            total_size_mb: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
             extra_notes: null
         data:
@@ -31,7 +31,7 @@ benchmarks:
             num_stimuli: null
             datatype: image
             stimuli_subtype: null
-            total_size_MB: null
+            total_size_mb: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
             extra_notes: null
         data:
@@ -58,7 +58,7 @@ benchmarks:
             num_stimuli: null
             datatype: image
             stimuli_subtype: null
-            total_size_MB: null
+            total_size_mb: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
             extra_notes: null
         data:
@@ -85,7 +85,7 @@ benchmarks:
             num_stimuli: null
             datatype: image
             stimuli_subtype: null
-            total_size_MB: null
+            total_size_mb: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
             extra_notes: null
         data:
@@ -112,7 +112,7 @@ benchmarks:
             num_stimuli: null
             datatype: image
             stimuli_subtype: null
-            total_size_MB: null
+            total_size_mb: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
             extra_notes: null
         data:
@@ -139,7 +139,7 @@ benchmarks:
             num_stimuli: null
             datatype: image
             stimuli_subtype: null
-            total_size_MB: null
+            total_size_mb: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
             extra_notes: null
         data:
@@ -166,7 +166,7 @@ benchmarks:
             num_stimuli: null
             datatype: image
             stimuli_subtype: null
-            total_size_MB: null
+            total_size_mb: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
             extra_notes: null
         data:
@@ -193,7 +193,7 @@ benchmarks:
             num_stimuli: null
             datatype: image
             stimuli_subtype: null
-            total_size_MB: null
+            total_size_mb: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
             extra_notes: null
         data:
@@ -220,7 +220,7 @@ benchmarks:
             num_stimuli: null
             datatype: image
             stimuli_subtype: null
-            total_size_MB: null
+            total_size_mb: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
             extra_notes: null
         data:
@@ -247,7 +247,7 @@ benchmarks:
             num_stimuli: null
             datatype: image
             stimuli_subtype: null
-            total_size_MB: null
+            total_size_mb: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
             extra_notes: null
         data:

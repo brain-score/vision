@@ -4,7 +4,7 @@ benchmarks:
             num_stimuli: 716
             datatype: image
             stimuli_subtype: synthetic
-            total_size_MB: 0.2663
+            total_size_mb: 0.2663
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/baker2022
             extra_notes: null
         data:
@@ -31,7 +31,7 @@ benchmarks:
             num_stimuli: 716
             datatype: image
             stimuli_subtype: synthetic
-            total_size_MB: 0.2663
+            total_size_mb: 0.2663
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/baker2022
             extra_notes: null
         data:
@@ -58,7 +58,7 @@ benchmarks:
             num_stimuli: 360
             datatype: image
             stimuli_subtype: synthetic
-            total_size_MB: 0.1357
+            total_size_mb: 0.1357
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/baker2022
             extra_notes: null
         data:

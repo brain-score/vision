@@ -16,9 +16,7 @@ def get_model(name):
 
 def get_layers(name):
     assert name == "dinov2_base"
-    layer_names = [
-        "embeddings.patch_embeddings.projection",  # Early feature extraction
-    ]
+    layer_names = []
     # Add layers for each transformer block (0-11)
     for i in range(12):
         layer_names.append(f"encoder.layer.{i}.attention.output.dense")  # Attention output

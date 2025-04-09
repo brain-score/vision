@@ -16,6 +16,8 @@ def get_model(name):
 def get_layers(name):
     assert name == "yolos_tiny"
     return [
+        "vit.embeddings.patch_embeddings.projection",
+
         "vit.encoder.layer.0.attention.output.dense",
         "vit.encoder.layer.0.output.dense",
         "vit.encoder.layer.2.attention.output.dense",

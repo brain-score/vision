@@ -26,7 +26,7 @@ def get_model_list():
 
 def get_model(name):
     assert name == 'yolos_tiny'
-    image_size = 224  # YOLOS works with 640x640 images
+    image_size = 224  
     processor = YolosImageProcessor.from_pretrained('hustvl/yolos-tiny')
     model = YolosForObjectDetection.from_pretrained('hustvl/yolos-tiny')
     preprocessing = functools.partial(load_preprocess_images, processor=processor, image_size=image_size)

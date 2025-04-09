@@ -1,3 +1,5 @@
 torchvision
 torch
 transformers
+PIL
+numpy

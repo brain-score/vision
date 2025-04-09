@@ -25,45 +25,17 @@ def get_model(name):
 
 def get_layers(name):
     assert name == "yolos_tiny"
-    return [
+    layer_names = [
         "vit.embeddings.patch_embeddings.projection",
-
-        "vit.encoder.layer.0.attention.output.dense",
-        "vit.encoder.layer.0.output.dense",
-        "vit.encoder.layer.2.attention.output.dense",
-        "vit.encoder.layer.2.output.dense",
-        "vit.encoder.layer.4.attention.output.dense",
-        "vit.encoder.layer.4.output.dense",
-        "vit.encoder.layer.6.attention.output.dense",
-        "vit.encoder.layer.6.output.dense",
-        "vit.encoder.layer.8.attention.output.dense",
-        "vit.encoder.layer.8.output.dense",
-        "vit.encoder.layer.10.attention.output.dense",
-        "vit.encoder.layer.10.output.dense",
-        "vit.encoder.layer.11.attention.output.dense",
-        "vit.encoder.layer.11.output.dense",
-
+        "vit.embeddings.interpolation",
         "vit.layernorm",
-
-        "class_labels_classifier.layers.0",
-        "class_labels_classifier.layers.1",
         "class_labels_classifier.layers.2",
-
-        "bbox_predictor.layers.0",
-        "bbox_predictor.layers.1",
         "bbox_predictor.layers.2",
     ]
-    # layer_names = [
-    #     "vit.embeddings.patch_embeddings.projection",
-    #     "vit.embeddings.interpolation",
-    #     "vit.layernorm",
-    #     "class_labels_classifier.layers.2",
-    #     "bbox_predictor.layers.2",
-    # ]
 
-    # for i in range(12):
-    #     layer_names.append(f"vit.encoder.layer.{i}.attention.output.dense") 
-    #     layer_names.append(f"vit.encoder.layer.{i}.output.dense")          
+    for i in range(12):
+        layer_names.append(f"vit.encoder.layer.{i}.attention.output.dense") 
+        layer_names.append(f"vit.encoder.layer.{i}.output.dense")          
 
     # for n,_ in AutoModelForObjectDetection.from_pretrained("hustvl/yolos-tiny").named_modules():
     #     print(n)

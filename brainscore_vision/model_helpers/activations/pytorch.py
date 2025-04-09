@@ -2,7 +2,6 @@ from collections import OrderedDict
 
 import logging
 import numpy as np
-import pandas as pd
 from PIL import Image
 
 from brainscore_vision.model_helpers.activations.core import ActivationsExtractorHelper
@@ -51,51 +50,16 @@ class PytorchWrapper:
 
         layer_results = OrderedDict()
         hooks = []
-        layer_summary = []
 
         for layer_name in layer_names:
             layer = self.get_layer(layer_name)
-            print(f"[INFO] Layer: {layer_name} | Type: {type(layer)}")
-            
-            def hook_function(_layer, _input, output, name=layer_name):
-                if output is None:
-                    print(f"[WARNING] No output from layer: {name}")
-                    shape = None
-                    dtype = None
-                    device = None
-                else:
-                    if isinstance(output, tuple):
-                        output = output[0]
-                    shape = tuple(output.shape)
-                    dtype = output.dtype
-                    device = output.device
-    
-                    print(f"[DEBUG] Hooked layer: {name} | Output shape: {shape}")
-    
-                    target_output = output.detach().cpu().numpy()
-                    layer_results[name] = target_output
-    
-                # Add to summary
-                layer_summary.append({
-                    "Layer Name": name,
-                    "Layer Type": type(layer).__name__,
-                    "Output Shape": shape,
-                    "Dtype": str(dtype),
-                    "Device": str(device),
-                })
-    
-            hook = layer.register_forward_hook(hook_function)
+            hook = self.register_hook(layer, layer_name, target_dict=layer_results)
             hooks.append(hook)
 
         with torch.no_grad():
             self._model(images, **self._forward_kwargs)
         for hook in hooks:
             hook.remove()
-
-        summary_df = pd.DataFrame(layer_summary)
-        print("\n========== Layer Summary ==========")
-        print(summary_df.to_string(index=False))
-        print("==================================\n")
         return layer_results
 
     def get_layer(self, layer_name):

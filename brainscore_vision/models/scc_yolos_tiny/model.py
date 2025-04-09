@@ -11,9 +11,7 @@ def get_model(name):
     processor = AutoImageProcessor.from_pretrained("hustvl/yolos-tiny")
 
     def preprocess_yolos(images):
-        # Flatten if nested (e.g. [[img1, img2], [img3]] -> [img1, img2, img3])
-        if isinstance(images[0], list):
-            images = [img for sublist in images for img in sublist]
+        # images: list of PIL.Image or np.ndarray
         inputs = processor(images=images, return_tensors="pt")
         return inputs['pixel_values']
         

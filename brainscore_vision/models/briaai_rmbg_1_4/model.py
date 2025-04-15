@@ -5,6 +5,7 @@ from transformers import AutoModelForImageSegmentation
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from PIL import Image
 import torch.nn.functional as F
+from brainscore_vision.model_helpers.check_submission import check_models
 
 class PytorchWrapperFixed(PytorchWrapper):
     @staticmethod

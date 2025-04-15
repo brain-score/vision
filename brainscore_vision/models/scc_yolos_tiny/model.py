@@ -57,10 +57,6 @@ def get_layers(name):
         "class_labels_classifier.layers.0",
         "class_labels_classifier.layers.1",
         "class_labels_classifier.layers.2",
-
-        "bbox_predictor.layers.0",
-        "bbox_predictor.layers.1",
-        "bbox_predictor.layers.2",
     ]
     return layer_names
 

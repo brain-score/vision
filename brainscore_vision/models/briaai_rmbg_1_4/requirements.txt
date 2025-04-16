@@ -1,7 +1,5 @@
 torchvision
 torch
 transformers
-PIL
 numpy
-functools
 

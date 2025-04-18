@@ -1,29 +1,189 @@
-# Custom Pytorch model from:
-# https://github.com/brain-score/candidate_models/blob/master/examples/score-model.ipynb
-
-from brainscore_vision.model_helpers.check_submission import check_models
 import functools
-from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
-from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
-import torch
-import numpy as np
-from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
-
-import os
-from torch import nn
-from torchvision.models import resnet50
-
-import sys
-sys.path.append(os.path.dirname(__file__))
-from DivisiveNormalization import OpponentChannelInhibition
-from DoG_v2 import DoGConv2DLayer_v2
-from LocallyConnected2d import LocallyConnected2d
-from LPP_v49 import LPP49
-
 from functools import partial
 from typing import Any, Callable, List, Optional, Type, Union
-from torch import Tensor
 
+import numpy as np
+import torch
+from torch import Tensor
+import torch.nn as nn
+from torch.nn.modules.utils import _pair
+from torchvision import transforms
+
+from brainscore_vision.model_helpers.check_submission import check_models
+from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
+from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
+from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
+
+
+class OpponentChannelInhibition(nn.Module):
+    def __init__(self, n_channels):
+        super(OpponentChannelInhibition, self).__init__()
+        self.n_channels = n_channels
+        channel_inds = torch.arange(n_channels, dtype=torch.float32)+1.
+        channel_inds = channel_inds-channel_inds[n_channels//2]
+        self.channel_inds = torch.abs(channel_inds)
+        channel_distances = []
+        for i in range(n_channels):
+            channel_distances.append(torch.roll(self.channel_inds, i))
+        self.channel_distances = nn.Parameter(torch.stack(channel_distances), requires_grad=False)
+        self.sigmas = nn.Parameter(torch.rand(n_channels)+(n_channels/8), requires_grad=True)
+
+    def forward(self, x):
+        sigmas = torch.clamp(self.sigmas, min=0.5)
+        gaussians = (1/(2.5066*sigmas))*torch.exp(-1*(self.channel_distances**2)/(2*(sigmas**2))) # sqrt(2*pi) ~= 2.5066
+        gaussians = gaussians/torch.sum(gaussians, dim=0)
+        gaussians = gaussians.view(self.n_channels,self.n_channels,1,1)
+        weighted_channel_inhibition = nn.functional.conv2d(x, weight=gaussians, stride=1, padding=0)
+        return x/(weighted_channel_inhibition+1)
+    
+
+class DoGConv2D_v2(nn.Module):
+    def __init__(self, in_channels, out_channels, k, stride, padding, dilation=1, groups=1, bias=True):
+        super(DoGConv2D_v2, self).__init__()
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.k = int(k)
+        self.kernel_size = 2*k+1
+        self.stride = stride
+        self.padding = padding
+        self.dilation = dilation
+        self.groups = groups
+
+        x_coords = torch.arange(1,self.kernel_size+1,dtype=torch.float32).repeat(self.kernel_size,1)
+        y_coords = torch.arange(1,self.kernel_size+1,dtype=torch.float32).view(-1,1).repeat(1, self.kernel_size)
+        coords = torch.concat([x_coords.unsqueeze(0), y_coords.unsqueeze(0)], dim=0)
+        kernel_dists = torch.sum(torch.square((coords-(k+1))),dim=0)
+        self.kernel_dists = nn.Parameter(kernel_dists, requires_grad=False)
+        self.sigma1 = nn.Parameter(torch.rand((out_channels*in_channels, 1, 1))+(k/2), requires_grad=True)
+        self.sigma2_scale = nn.Parameter(torch.rand((out_channels*in_channels, 1, 1))+(k/2), requires_grad=True)
+        self.total_scale = nn.Parameter(torch.randn((out_channels*in_channels, 1, 1))*2., requires_grad=True)
+        if bias:
+            self.bias = nn.Parameter(torch.randn(self.out_channels))
+        else:
+            self.bias = nn.Parameter(torch.zeros(self.out_channels), requires_grad=False)
+
+    def forward(self, x):
+        sigma1 = torch.clamp(self.sigma1, min=0.1)
+        excite_component = (1/torch.pi*sigma1)*torch.exp(-1*self.kernel_dists/sigma1)
+        sigma2 = sigma1 * torch.clamp(self.sigma2_scale, min=1+1e-4)
+        inhibit_component = (1/torch.pi*sigma2)*torch.exp(-1*self.kernel_dists/torch.clamp(sigma2, min=1e-6))
+        kernels = (excite_component - inhibit_component)*self.total_scale
+        kernels = torch.nn.functional.normalize(kernels, dim=0)
+        kernels = kernels.view(self.out_channels, self.in_channels, self.kernel_size, self.kernel_size)
+        return nn.functional.conv2d(x, kernels, self.bias, stride=self.stride, padding=self.padding, dilation=self.dilation, groups=self.groups)
+
+
+class DoGConv2DLayer_v2(nn.Module):
+    def __init__(self, dog_channels, k, stride, padding, dilation=1, groups=1, bias=True):
+        super(DoGConv2DLayer_v2, self).__init__()
+        self.dog_conv = DoGConv2D_v2(dog_channels, dog_channels, k=k, stride=stride, padding=padding, \
+                                     dilation=dilation, groups=groups, bias=bias)
+        self.dog_channels = dog_channels
+        self.non_dog_transform = nn.Identity()
+
+    def forward(self, x):
+        x_dog = self.dog_conv(x[:,:self.dog_channels,:,:])
+        x_non_dog = self.non_dog_transform(x[:,self.dog_channels:,:,:])
+        return torch.concat([x_dog, x_non_dog], dim=1)
+
+
+class LPP49(nn.Module):
+    def __init__(self, input_h, input_w, output_h, output_w, radius_bins, angle_bins, interpolation=None, subbatch_size=128):
+        super(LPP49, self).__init__()
+        # Polar coordinate rho and theta vals for each input location
+        center_h, center_w = int(input_h/2), int(input_w/2)
+        x_coords = torch.arange(input_w).repeat(input_h,1) - center_w
+        y_coords = center_h - torch.arange(input_h).unsqueeze(-1).repeat(1,input_w)
+        distances = torch.sqrt(x_coords**2 + y_coords**2)
+        angles = torch.atan2(y_coords, x_coords)
+        angles[y_coords < 0] += 2*torch.pi
+        self.distances = distances
+        self.angles = angles
+        self.radius_bins = radius_bins
+        self.angle_bins = angle_bins
+        self.n_radii = len(radius_bins)-1
+        self.n_angles = len(angle_bins)-1
+        self.edge_radius = min(center_h, center_w)
+
+        pooling_masks = []
+        for i, (min_dist, max_dist) in enumerate(zip(radius_bins, radius_bins[1:])):
+            in_distance = torch.logical_and(distances >= min_dist, distances < max_dist)
+            for j, (min_angle, max_angle) in enumerate(zip(angle_bins, angle_bins[1:])):
+                in_angle = torch.logical_and(angles >= min_angle, angles < max_angle)
+                ind_mask = torch.logical_and(in_distance, in_angle).to(torch.float32)
+                pooling_masks.append(ind_mask)
+        pooling_masks = torch.stack(pooling_masks)
+
+        if interpolation:
+            for mask_idx in range(0, pooling_masks.shape[0], self.n_angles):
+                radius = radius_bins[mask_idx//self.n_angles]
+                if radius > self.edge_radius:
+                    continue
+                radius_masks = pooling_masks[mask_idx:mask_idx+self.n_angles]
+                nonzero_masks = radius_masks[torch.sum(radius_masks, dim=(1,2)).to(torch.bool)]
+                interpolated_masks = torch.nn.functional.interpolate(nonzero_masks.permute(1,2,0), size=self.n_angles, mode=interpolation).permute(2,0,1)
+                pooling_masks[mask_idx:mask_idx+self.n_angles] = interpolated_masks
+        pooling_mask_counts = torch.sum(pooling_masks, dim=(1,2))
+        pooling_mask_counts[pooling_mask_counts == 0] = 1
+        self.register_buffer('pooling_masks', pooling_masks)
+        self.register_buffer('pooling_mask_counts', pooling_mask_counts)
+        self.pooling_masks = self.pooling_masks.half()
+        self.pooling_mask_counts = self.pooling_mask_counts.half()
+        self.interpolation = interpolation
+        self.output_transform = transforms.Resize((output_h, output_w), \
+                                    interpolation=transforms.InterpolationMode.BILINEAR)
+        self.subbatch_size = subbatch_size
+
+
+    def forward(self, x):
+        n, c, h, w = x.size()
+        out = []
+        for i in range(0, n, self.subbatch_size):
+            # Process batch in subbatches to avoid to reduce memory consumption.  It ain't pretty, but will run on consumer gpu.
+            out_i = (torch.sum(torch.mul(x[i:i+self.subbatch_size].unsqueeze(2), self.pooling_masks), dim=(-1,-2)) / self.pooling_mask_counts)
+            out_i = out_i.view(out_i.size(0),c,self.n_radii,self.n_angles)
+            out.append(out_i)
+        out = torch.cat(out)
+        out = torch.nn.functional.pad(out, (0,0,1,1), mode='reflect')
+        out = torch.nn.functional.pad(out, (1,1,0,0), mode='reflect')
+        out = self.output_transform(out)
+        return out
+
+
+class LocallyConnected2d(nn.Module):
+    def __init__(self, in_channels, out_channels, output_size, kernel_size, stride, padding, bias=False):
+        super(LocallyConnected2d, self).__init__()
+        output_size = _pair(output_size)
+        self.weight = nn.Parameter(
+            torch.randn(1, out_channels, in_channels, output_size[0], output_size[1], kernel_size**2)
+        )
+        if bias:
+            self.bias = nn.Parameter(
+                torch.randn(1, out_channels, output_size[0], output_size[1])
+            )
+        else:
+            self.register_parameter('bias', None)
+        self.kernel_size = _pair(kernel_size)
+        self.stride = _pair(stride)
+
+        self.padding = tuple([padding]*4)
+        
+    def forward(self, x):
+        x = nn.functional.pad(x, self.padding)
+        _, c, h, w = x.size()
+        kh, kw = self.kernel_size
+        dh, dw = self.stride
+        x = x.unfold(2, kh, dh).unfold(3, kw, dw)
+        x = x.contiguous().view(*x.size()[:-2], -1)
+        # Sum in in_channel and kernel_size dims
+        out = (x.unsqueeze(1) * self.weight).sum([2, -1])
+        if self.bias is not None:
+            out += self.bias
+        return out
+
+"""
+Modification of pytorch ResNet implementation: https://github.com/pytorch/vision/blob/main/torchvision/models/resnet.py
+"""
 def conv3x3(in_planes: int, out_planes: int, stride: int = 1, groups: int = 1, dilation: int = 1) -> nn.Conv2d:
     """3x3 convolution with padding"""
     return nn.Conv2d(
@@ -508,9 +668,10 @@ def get_model(name):
     assert name == "resnet50_primary_visual_cortex"
 
     model = resnet_pvc()
-    ckpt_path = os.path.join(os.path.dirname(__file__), "{}.pt".format(name))
+    ckpt_path = "TODO: get S3 uri"
+    ckpt_path = "./resnet50_primary_visual_cortex.pt"
     checkpoint = torch.load(ckpt_path, map_location=torch.device("cpu"))
-    model.load_state_dict(checkpoint["model"])
+    model.load_state_dict(checkpoint)
     model.eval()
 
     preprocessing = functools.partial(

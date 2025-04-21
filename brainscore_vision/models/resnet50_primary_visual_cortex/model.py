@@ -1,6 +1,7 @@
 import functools
 from functools import partial
 from typing import Any, Callable, List, Optional, Type, Union
+from urllib.request import urlretrieve
 
 import numpy as np
 import torch
@@ -667,10 +668,13 @@ def get_model(name):
     """
     assert name == "resnet50_primary_visual_cortex"
 
+    identifier_short = "resnet50_primary_visual_cortex"
+    url = f"https://brainscore-storage.s3.us-east-2.amazonaws.com/brainscore-vision/models/resnet50_primary_visual_cortex/{identifier_short}.pt"
+    fh = urlretrieve(url, f"{identifier_short}.pth")
+    load_path = fh[0]
+    checkpoint = torch.load(load_path, map_location=lambda storage, loc: storage)
+
     model = resnet_pvc()
-    ckpt_path = "TODO: get S3 uri"
-    ckpt_path = "./resnet50_primary_visual_cortex.pt"
-    checkpoint = torch.load(ckpt_path, map_location=torch.device("cpu"))
     model.load_state_dict(checkpoint)
     model.eval()
 

@@ -1,18 +1,28 @@
 from brainscore_vision.model_helpers.check_submission import check_models
-import functools
 from transformers import AutoImageProcessor, AutoModel
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 
 def get_model(name):
     assert name == "dinov2_base"
-    
+
     model = AutoModel.from_pretrained('facebook/dinov2-base')
-    preprocessing = functools.partial(load_preprocess_images, image_size=224)
+    processor = AutoImageProcessor.from_pretrained('facebook/dinov2-base')
+
+    def preprocessing(images):
+        # Assumes images are in PIL.Image format or a format processor accepts
+        inputs = processor(images=images, return_tensors="pt")
+        return inputs['pixel_values']  # what the model expects
+
     wrapper = PytorchWrapper(identifier='dinov2_base', model=model, preprocessing=preprocessing, batch_size=4)
     wrapper.image_size = 224
     return wrapper
-
+    # assert name == "dinov2_base"
+    # model = AutoModel.from_pretrained('facebook/dinov2-base')
+    # preprocessing = functools.partial(load_preprocess_images, image_size=224)
+    # wrapper = PytorchWrapper(identifier='dinov2_base', model=model, preprocessing=preprocessing, batch_size=4)
+    # wrapper.image_size = 224
+    # return wrapper
 
 def get_layers(name):
     assert name == "dinov2_base"
@@ -24,8 +34,6 @@ def get_layers(name):
     
     layer_names.append("layernorm")  # Final output representation
 
-    # for n,_ in AutoModel.from_pretrained('facebook/dinov2-base').named_modules():
-    #     print(n)
     return layer_names
 
 
@@ -42,5 +50,31 @@ def get_bibitex(model_identifier):
 """
 
 if __name__ == '__main__':
-    # get_layers("dinov2-base")
+    # get_layers("dinov2_base")
     check_models.check_base_models(__name__)
+    # Load the model
+    # model = AutoModel.from_pretrained('facebook/dinov2-base')
+
+    # # Create a dummy input (batch size 1, 3 channels, 224x224 image)
+    # dummy_input = torch.randn(1, 3, 224, 224)
+
+    # # Dictionary to store outputs
+    # outputs = OrderedDict()
+
+    # # Register hooks
+    # def hook_fn(name):
+    #     def hook(module, input, output):
+    #         outputs[name] = output.shape if hasattr(output, 'shape') else str(type(output))
+    #     return hook
+
+    # # Attach hooks
+    # for name, module in model.named_modules():
+    #     module.register_forward_hook(hook_fn(name))
+
+    # # Forward pass
+    # with torch.no_grad():
+    #     _ = model(dummy_input)
+
+    # # Print output shapes
+    # for name, shape in outputs.items():
+    #     print(f"{name}: {shape}")

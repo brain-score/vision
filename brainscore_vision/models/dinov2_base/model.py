@@ -11,7 +11,7 @@ def get_model(name):
 
     def preprocessing(images):
         # Assumes images are in PIL.Image format or a format processor accepts
-        inputs = processor(images=images, return_tensors="pt")
+        inputs = processor(images=images[0], return_tensors="pt")
         return inputs['pixel_values']  # what the model expects
 
     wrapper = PytorchWrapper(identifier='dinov2_base', model=model, preprocessing=preprocessing, batch_size=4)

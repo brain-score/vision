@@ -2,6 +2,7 @@ from brainscore_vision.model_helpers.check_submission import check_models
 from transformers import AutoImageProcessor, AutoModel
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
+from PIL import Image
 
 def get_model(name):
     assert name == "dinov2_base"
@@ -9,10 +10,12 @@ def get_model(name):
     model = AutoModel.from_pretrained('facebook/dinov2-base')
     processor = AutoImageProcessor.from_pretrained('facebook/dinov2-base')
 
-    def preprocessing(images):
-        # Assumes images are in PIL.Image format or a format processor accepts
-        inputs = processor(images=images[0], return_tensors="pt")
-        return inputs['pixel_values']  # what the model expects
+    def preprocessing(image_paths):
+        # Load each image from its path
+        images = [Image.open(path).convert("RGB") for path in image_paths]
+
+        inputs = processor(images=images, return_tensors="pt")
+        return inputs['pixel_values']
 
     wrapper = PytorchWrapper(identifier='dinov2_base', model=model, preprocessing=preprocessing, batch_size=4)
     wrapper.image_size = 224

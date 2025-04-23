@@ -9,6 +9,22 @@ import snntorch as snn
 import torch.nn as nn
 from snntorch import surrogate
 
+# class PytorchWrapperFixed(PytorchWrapper):
+#     @staticmethod
+#     def _tensor_to_numpy(output):
+#         if isinstance(output, tuple):
+#             output = output[0]
+#         return output.cpu().data.numpy()
+
+#     def register_hook(self, layer, layer_name, target_dict):
+#         def hook_function(_layer, _input, output, name=layer_name):
+#             if isinstance(output, tuple):
+#                 output = output[0]
+#             target_dict[name] = PytorchWrapperFixed._tensor_to_numpy(output)
+#         hook = layer.register_forward_hook(hook_function)
+#         return hook
+import xarray as xr
+
 class PytorchWrapperFixed(PytorchWrapper):
     @staticmethod
     def _tensor_to_numpy(output):
@@ -23,6 +39,16 @@ class PytorchWrapperFixed(PytorchWrapper):
             target_dict[name] = PytorchWrapperFixed._tensor_to_numpy(output)
         hook = layer.register_forward_hook(hook_function)
         return hook
+
+    def look_at(self, stimuli, layers):
+        activations = super().look_at(stimuli, layers)
+
+        # Fix missing 'embedding' coordinate in each DataArray
+        for layer, act in activations.items():
+            if 'embedding' not in act.coords and 'neuroid' in act.coords:
+                act.coords['embedding'] = ('neuroid', act.coords['neuroid'].values)
+        return activations
+
 
 class YolosSpikingHead(nn.Module):
     def __init__(self, input_dim, num_classes, beta=0.5, spike_grad=surrogate.fast_sigmoid(slope=25)):

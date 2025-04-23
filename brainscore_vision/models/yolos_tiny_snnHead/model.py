@@ -42,6 +42,12 @@ class PytorchWrapperFixed(PytorchWrapper):
 
     def look_at(self, stimuli, layers):
         activations = super().look_at(stimuli, layers)
+        print("\n--- Activation Coordinate Debug ---")
+        for layer, act in activations.items():
+            print(f"Layer: {layer}")
+            print(f"Coords: {list(act.coords.keys())}")
+            print(f"Shape: {act.shape}")
+            print(f"Coords Detail: {act.coords}\n")
 
         # Fix missing 'embedding' coordinate in each DataArray
         for layer, act in activations.items():

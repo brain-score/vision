@@ -63,8 +63,7 @@ def get_layers(name):
     # Add layers for each transformer block (0-11)
     for i in range(12):
         layer_names.append(f"encoder.layer.{i}.attention.output.dense")  # Attention output
-        layer_names.append(f"encoder.layer.{i}.mlp.fc2")                 # MLP output
-    
+        
     layer_names.append("layernorm")  # Final output representation
 
     return layer_names

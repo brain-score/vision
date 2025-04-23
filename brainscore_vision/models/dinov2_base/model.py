@@ -6,43 +6,10 @@ import functools
 import torch 
 
 from PIL import Image
-class PytorchWrapperFixed(PytorchWrapper):
-    @staticmethod
-    def _tensor_to_numpy(output):
-        if isinstance(output, tuple):
-            output = output[0]
-        return output.cpu().data.numpy()
-
-    def register_hook(self, layer, layer_name, target_dict):
-        def hook_function(_layer, _input, output, name=layer_name):
-            if isinstance(output, tuple):
-                output = output[0]
-            target_dict[name] = PytorchWrapperFixed._tensor_to_numpy(output)
-        hook = layer.register_forward_hook(hook_function)
-        return hook
-
-def get_model_list():
-    return ['dinov2_base']
-
-def load_preprocess_images(image_filepaths, image_size, processor=None, **kwargs):
-    images = [Image.open(filepath).convert('RGB') for filepath in image_filepaths]
-    images = [image.resize((image_size, image_size)) for image in images]
-    if processor is not None:
-        images = [processor(images=image, return_tensors="pt", **kwargs)['pixel_values'] for image in images]
-        images = torch.cat(images).cpu().numpy()
-    return images
 
 
 def get_model(name):
-    assert name == "dinov2_base"
-
-    image_size = 224  
-    processor = AutoImageProcessor.from_pretrained('hustvl/yolos-tiny')
-    model = AutoModel.from_pretrained('hustvl/yolos-tiny')
-    preprocessing = functools.partial(load_preprocess_images, processor=processor, image_size=image_size)
-    wrapper = PytorchWrapperFixed(identifier=name, model=model, preprocessing=preprocessing)
-    wrapper.image_size = image_size
-    return wrapper
+    # assert name == "dinov2_base"
     # model = AutoModel.from_pretrained('facebook/dinov2-base')
     # processor = AutoImageProcessor.from_pretrained('facebook/dinov2-base')
     # image_size = 224
@@ -50,12 +17,12 @@ def get_model(name):
     # wrapper = PytorchWrapper(identifier='dinov2_base', model=model, preprocessing=preprocessing, batch_size=4)
     # wrapper.image_size = 224
     # return wrapper
-    # assert name == "dinov2_base"
-    # model = AutoModel.from_pretrained('facebook/dinov2-base')
-    # preprocessing = functools.partial(load_preprocess_images, image_size=224)
-    # wrapper = PytorchWrapper(identifier='dinov2_base', model=model, preprocessing=preprocessing, batch_size=4)
-    # wrapper.image_size = 224
-    # return wrapper
+    assert name == "dinov2_base"
+    model = AutoModel.from_pretrained('facebook/dinov2-base')
+    preprocessing = functools.partial(load_preprocess_images, image_size=224)
+    wrapper = PytorchWrapper(identifier='dinov2_base', model=model, preprocessing=preprocessing, batch_size=4)
+    wrapper.image_size = 224
+    return wrapper
 
 def get_layers(name):
     assert name == "dinov2_base"
@@ -63,9 +30,7 @@ def get_layers(name):
     # Add layers for each transformer block (0-11)
     for i in range(12):
         layer_names.append(f"encoder.layer.{i}.attention.output.dense")  # Attention output
-        
     layer_names.append("layernorm")  # Final output representation
-
     return layer_names
 
 

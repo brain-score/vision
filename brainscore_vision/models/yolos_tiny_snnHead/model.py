@@ -212,8 +212,15 @@ def print_layer_names(model):
         print(f"Layer name: {name}, Type: {type(module).__name__}")
 
 if __name__ == '__main__':
-    get_model('yolos_tiny_snnHead')
-    check_models.check_base_models(__name__)
+    wrapper = get_model('yolos_tiny_snnHead')
+    dummy_image = np.random.rand(1, 3, 224, 224).astype(np.float32)
+    layers = get_layers('yolos_tiny_snnHead')
+    print("\nCalling look_at manually...\n")
+    wrapper.look_at(dummy_image, layers)
+    
+# if __name__ == '__main__':
+#     get_model('yolos_tiny_snnHead')
+#     check_models.check_base_models(__name__)
 
 # class PytorchWrapperFixed(PytorchWrapper):
 #     @staticmethod

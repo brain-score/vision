@@ -2,24 +2,54 @@ from brainscore_vision.model_helpers.check_submission import check_models
 from transformers import AutoImageProcessor, AutoModel
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
+import functools
+import torch 
+
 from PIL import Image
+class PytorchWrapperFixed(PytorchWrapper):
+    @staticmethod
+    def _tensor_to_numpy(output):
+        if isinstance(output, tuple):
+            output = output[0]
+        return output.cpu().data.numpy()
+
+    def register_hook(self, layer, layer_name, target_dict):
+        def hook_function(_layer, _input, output, name=layer_name):
+            if isinstance(output, tuple):
+                output = output[0]
+            target_dict[name] = PytorchWrapperFixed._tensor_to_numpy(output)
+        hook = layer.register_forward_hook(hook_function)
+        return hook
+
+def get_model_list():
+    return ['dinov2_base']
+
+def load_preprocess_images(image_filepaths, image_size, processor=None, **kwargs):
+    images = [Image.open(filepath).convert('RGB') for filepath in image_filepaths]
+    images = [image.resize((image_size, image_size)) for image in images]
+    if processor is not None:
+        images = [processor(images=image, return_tensors="pt", **kwargs)['pixel_values'] for image in images]
+        images = torch.cat(images).cpu().numpy()
+    return images
+
 
 def get_model(name):
     assert name == "dinov2_base"
 
-    model = AutoModel.from_pretrained('facebook/dinov2-base')
-    processor = AutoImageProcessor.from_pretrained('facebook/dinov2-base')
-
-    def preprocessing(image_paths):
-        # Load each image from its path
-        images = [Image.open(path).convert("RGB") for path in image_paths]
-
-        inputs = processor(images=images, return_tensors="pt")
-        return inputs['pixel_values']
-
-    wrapper = PytorchWrapper(identifier='dinov2_base', model=model, preprocessing=preprocessing, batch_size=4)
-    wrapper.image_size = 224
+    image_size = 224  
+    processor = AutoImageProcessor.from_pretrained('hustvl/yolos-tiny')
+    model = AutoModel.from_pretrained('hustvl/yolos-tiny')
+    preprocessing = functools.partial(load_preprocess_images, processor=processor, image_size=image_size)
+    wrapper = PytorchWrapperFixed(identifier=name, model=model, preprocessing=preprocessing)
+    wrapper.image_size = image_size
     return wrapper
+    # model = AutoModel.from_pretrained('facebook/dinov2-base')
+    # processor = AutoImageProcessor.from_pretrained('facebook/dinov2-base')
+    # image_size = 224
+    # preprocessing = functools.partial(load_preprocess_images, processor=processor, image_size=image_size)
+    # wrapper = PytorchWrapper(identifier='dinov2_base', model=model, preprocessing=preprocessing, batch_size=4)
+    # wrapper.image_size = 224
+    # return wrapper
     # assert name == "dinov2_base"
     # model = AutoModel.from_pretrained('facebook/dinov2-base')
     # preprocessing = functools.partial(load_preprocess_images, image_size=224)

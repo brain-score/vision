@@ -9,14 +9,6 @@ from PIL import Image
 
 
 def get_model(name):
-    # assert name == "dinov2_base"
-    # model = AutoModel.from_pretrained('facebook/dinov2-base')
-    # processor = AutoImageProcessor.from_pretrained('facebook/dinov2-base')
-    # image_size = 224
-    # preprocessing = functools.partial(load_preprocess_images, processor=processor, image_size=image_size)
-    # wrapper = PytorchWrapper(identifier='dinov2_base', model=model, preprocessing=preprocessing, batch_size=4)
-    # wrapper.image_size = 224
-    # return wrapper
     assert name == "dinov2_base"
     model = AutoModel.from_pretrained('facebook/dinov2-base')
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
@@ -27,7 +19,6 @@ def get_model(name):
 def get_layers(name):
     assert name == "dinov2_base"
     layer_names = []
-    # Add layers for each transformer block (0-11)
     for i in range(12):
         layer_names.append(f"encoder.layer.{i}.attention.output.dense")  # Attention output
     layer_names.append("layernorm")  # Final output representation
@@ -47,31 +38,4 @@ def get_bibitex(model_identifier):
 """
 
 if __name__ == '__main__':
-    # get_layers("dinov2_base")
     check_models.check_base_models(__name__)
-    # Load the model
-    # model = AutoModel.from_pretrained('facebook/dinov2-base')
-
-    # # Create a dummy input (batch size 1, 3 channels, 224x224 image)
-    # dummy_input = torch.randn(1, 3, 224, 224)
-
-    # # Dictionary to store outputs
-    # outputs = OrderedDict()
-
-    # # Register hooks
-    # def hook_fn(name):
-    #     def hook(module, input, output):
-    #         outputs[name] = output.shape if hasattr(output, 'shape') else str(type(output))
-    #     return hook
-
-    # # Attach hooks
-    # for name, module in model.named_modules():
-    #     module.register_forward_hook(hook_fn(name))
-
-    # # Forward pass
-    # with torch.no_grad():
-    #     _ = model(dummy_input)
-
-    # # Print output shapes
-    # for name, shape in outputs.items():
-    #     print(f"{name}: {shape}")

@@ -41,7 +41,7 @@ class PytorchWrapperFixed(PytorchWrapper):
                 # output shape: [batch_size, seq_len, hidden_dim]
                 # e.g., [1, 197, 768] — let's use the [CLS] token (index 0)
                 cls_token = output[:, 0, :]  # shape: [batch_size, hidden_dim]
-                print("CLS shape:", cls_token.shape)
+                # print("CLS shape:", cls_token.shape)
                 spiking_out = self.spiking_head(cls_token)
                 output = spiking_out
             target_dict[name] = PytorchWrapperFixed._tensor_to_numpy(output)
@@ -81,7 +81,6 @@ def get_model(name):
     model = YolosForObjectDetection.from_pretrained('hustvl/yolos-tiny')
     hidden_dim = model.config.hidden_size  # This will be 192 for YOLOS-Tiny
     spiking_head = SpikingHead(input_dim=hidden_dim)
-    # Define your spiking head
  
 
     preprocessing = functools.partial(load_preprocess_images, processor=processor, image_size=image_size)

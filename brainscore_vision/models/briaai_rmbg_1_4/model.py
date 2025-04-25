@@ -8,12 +8,13 @@ import torch.nn.functional as F
 from brainscore_vision.model_helpers.check_submission import check_models
 
 class briaa_rmbg_PytorchWrapper(PytorchWrapper):
-    @staticmethod
+    
     def __call__(self, *args, **kwargs):
         result = super().__call__(*args, **kwargs)  # retrieve original output
         if 'logits' in kwargs.get('layers', []):
             result = result.isel(neuroid=slice(1, None))  # remove background class in last layer
         return result
+    @staticmethod
     def _tensor_to_numpy(output):
         if isinstance(output, tuple):
             output = output[0]

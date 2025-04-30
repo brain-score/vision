@@ -6,7 +6,12 @@ from transformers import YolosImageProcessor, YolosForObjectDetection
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from PIL import Image
 
-class PytorchWrapperFixed(PytorchWrapper):
+class Yolos_Tiny_PytorchWrapper(PytorchWrapper):
+    def __call__(self, *args, **kwargs):
+        result = super().__call__(*args, **kwargs)  # retrieve original output
+        if 'logits' in kwargs.get('layers', []):
+            result = result.isel(neuroid=slice(1, None))  # remove background class in last layer
+        return result
     @staticmethod
     def _tensor_to_numpy(output):
         if isinstance(output, tuple):
@@ -17,7 +22,7 @@ class PytorchWrapperFixed(PytorchWrapper):
         def hook_function(_layer, _input, output, name=layer_name):
             if isinstance(output, tuple):
                 output = output[0]
-            target_dict[name] = PytorchWrapperFixed._tensor_to_numpy(output)
+            target_dict[name] = Yolos_Tiny_PytorchWrapper._tensor_to_numpy(output)
         hook = layer.register_forward_hook(hook_function)
         return hook
 
@@ -30,7 +35,7 @@ def get_model(name):
     processor = YolosImageProcessor.from_pretrained('hustvl/yolos-tiny')
     model = YolosForObjectDetection.from_pretrained('hustvl/yolos-tiny')
     preprocessing = functools.partial(load_preprocess_images, processor=processor, image_size=image_size)
-    wrapper = PytorchWrapperFixed(identifier=name, model=model, preprocessing=preprocessing)
+    wrapper = Yolos_Tiny_PytorchWrapper(identifier=name, model=model, preprocessing=preprocessing)
     wrapper.image_size = image_size
     return wrapper
 

@@ -190,7 +190,7 @@ def get_model(name):
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     
     # Create the wrapper
-    wrapper = SpikingResNetWrapper(identifier='resnet_50_v1_spiking', model=model, preprocessing=preprocessing)
+    wrapper = SpikingResNetWrapper(identifier=name, model=model, preprocessing=preprocessing)
     wrapper.image_size = 224
     
     return wrapper

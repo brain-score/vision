@@ -8,63 +8,58 @@ import torch.nn as nn
 from spikingjelly.activation_based import neuron, surrogate
 import copy
 
-class SpikingResNet(nn.Module):
-    def __init__(self, original_model, spiking_layers=None):
-        super().__init__()
-        # Create a deep copy of the original model
-        self.model = copy.deepcopy(original_model)
-        
-        # Default to converting all layers if not specified
-        if spiking_layers is None:
-            spiking_layers = ['layer1', 'layer2', 'layer3', 'layer4']
-        
-        # Replace ReLUs with spiking neurons in specified layers
-        for layer_name in spiking_layers:
-            if hasattr(self.model, layer_name):
-                self._replace_relu_with_spiking(getattr(self.model, layer_name))
-        
-        # Reset all spiking neurons before each forward pass
-        self.reset_neurons()
+def convert_to_spiking_model(model, spiking_layers=None):
+    """
+    Converts specified layers of a model to use spiking neurons in-place.
+    Returns the modified model (same instance).
+    """
+    # Default to converting specific layers if not specified
+    if spiking_layers is None:
+        spiking_layers = ['layer3', 'layer4']
     
-    def _replace_relu_with_spiking(self, module):
-        """Replace ReLU with properly configured LIF neurons"""
-        for name, child in module.named_children():
-            if isinstance(child, nn.ReLU):
-                # Configure LIF neurons with appropriate parameters
-                # Using surrogate gradient for better training stability
-                lif = neuron.LIFNode(
-                    tau=2.0,  # Time constant
-                    v_threshold=1.0,  # Firing threshold
-                    v_reset=0.0,  # Reset potential
-                    surrogate_function=surrogate.ATan(),  # Surrogate gradient function
-                    detach_reset=True,  # Detach reset for training stability
-                    step_mode='s',  # Single-step mode
-                    backend='torch'  # Pure PyTorch backend for compatibility
-                )
-                setattr(module, name, lif)
-            else:
-                self._replace_relu_with_spiking(child)
+    # Replace ReLUs with spiking neurons in specified layers
+    for layer_name in spiking_layers:
+        if hasattr(model, layer_name):
+            replace_relu_with_spiking(getattr(model, layer_name))
     
-    def reset_neurons(self):
-        """Reset all spiking neurons in the model"""
-        for m in self.model.modules():
+    # Create a forward hook to reset neurons before each forward pass
+    def reset_neurons_hook(module, input):
+        for m in module.modules():
             if isinstance(m, neuron.BaseNode):
                 m.reset()
+        return None
     
-    def forward(self, x):
-        # Reset neuron states before each forward pass
-        self.reset_neurons()
-        return self.model(x)
+    # Register the hook
+    model.register_forward_pre_hook(reset_neurons_hook)
+    return model
+
+def replace_relu_with_spiking(module):
+    """Replace ReLU with properly configured LIF neurons"""
+    for name, child in module.named_children():
+        if isinstance(child, nn.ReLU):
+            # Configure LIF neurons with appropriate parameters
+            # Using surrogate gradient for better training stability
+            lif = neuron.LIFNode(
+                tau=2.0,  # Time constant
+                v_threshold=1.0,  # Firing threshold
+                v_reset=0.0,  # Reset potential
+                surrogate_function=surrogate.ATan(),  # Surrogate gradient function
+                detach_reset=True,  # Detach reset for training stability
+                step_mode='s',  # Single-step mode
+                backend='torch'  # Pure PyTorch backend for compatibility
+            )
+            setattr(module, name, lif)
+        else:
+            replace_relu_with_spiking(child)
 
 def get_model(name):
     assert name == 'resnet_50_v1_spiking'
 
     # Load base model
-    base_model = resnet50(weights='IMAGENET1K_V1')
+    model = resnet50(weights='IMAGENET1K_V1')
     
-    # Create spiking model - only convert layer3 and layer4 to spiking neurons
-    # This is a more conservative approach that maintains more of the original model's performance
-    model = SpikingResNet(base_model, spiking_layers=['layer3', 'layer4'])
+    # Convert to spiking in-place (only layer3 and layer4)
+    convert_to_spiking_model(model, spiking_layers=['layer3', 'layer4'])
     
     # Create preprocessing and wrapper
     preprocessing = functools.partial(load_preprocess_images, image_size=224)

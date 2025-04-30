@@ -5,8 +5,62 @@ from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_
 import functools
 import torch
 import torch.nn as nn
-from spikingjelly.activation_based import neuron, surrogate
-import copy
+
+# Simple custom spiking neuron implementation
+class SimpleLIF(nn.Module):
+    """
+    A simplified Leaky Integrate-and-Fire neuron with automatic tensor shape handling.
+    This implementation is designed to be more robust to tensor shape changes.
+    """
+    def __init__(self, threshold=1.0, reset_value=0.0, tau=2.0, detach_reset=True):
+        super().__init__()
+        self.threshold = threshold
+        self.reset_value = reset_value
+        self.tau = tau
+        self.detach_reset = detach_reset
+        self.v = None  # Membrane potential
+
+    def forward(self, x):
+        # Create a new membrane potential tensor if None or shape mismatch
+        if self.v is None or self.v.shape != x.shape:
+            self.v = torch.zeros_like(x)
+        
+        # Update membrane potential
+        self.v = self.v + (x - (self.v - self.reset_value)) / self.tau
+        
+        # Generate spikes
+        spike = (self.v >= self.threshold).float()
+        
+        # Reset membrane potential
+        if self.detach_reset:
+            self.v = (1.0 - spike) * self.v + spike * self.reset_value
+        else:
+            self.v = self.v * (1.0 - spike) + spike * self.reset_value
+            
+        return spike
+
+    def reset(self):
+        self.v = None  # Reset membrane potential
+
+class SimplifiedSpikingBlock(nn.Module):
+    """
+    A simple block that adds spiking functionality to the model.
+    This can be inserted at various points in the architecture.
+    """
+    def __init__(self, threshold=1.0, tau=2.0):
+        super().__init__()
+        self.lif = SimpleLIF(threshold=threshold, tau=tau)
+        
+    def forward(self, x):
+        return self.lif(x)
+
+def replace_relu_with_spiking(module):
+    """Replace ReLU with custom spiking neurons"""
+    for name, child in module.named_children():
+        if isinstance(child, nn.ReLU):
+            setattr(module, name, SimpleLIF())
+        else:
+            replace_relu_with_spiking(child)
 
 def convert_to_spiking_model(model, spiking_layers=None):
     """
@@ -25,7 +79,7 @@ def convert_to_spiking_model(model, spiking_layers=None):
     # Create a forward hook to reset neurons before each forward pass
     def reset_neurons_hook(module, input):
         for m in module.modules():
-            if isinstance(m, neuron.BaseNode):
+            if isinstance(m, SimpleLIF):
                 m.reset()
         return None
     
@@ -33,24 +87,16 @@ def convert_to_spiking_model(model, spiking_layers=None):
     model.register_forward_pre_hook(reset_neurons_hook)
     return model
 
-def replace_relu_with_spiking(module):
-    """Replace ReLU with properly configured LIF neurons"""
-    for name, child in module.named_children():
-        if isinstance(child, nn.ReLU):
-            # Configure LIF neurons with appropriate parameters
-            # Using surrogate gradient for better training stability
-            lif = neuron.LIFNode(
-                tau=2.0,  # Time constant
-                v_threshold=1.0,  # Firing threshold
-                v_reset=0.0,  # Reset potential
-                surrogate_function=surrogate.ATan(),  # Surrogate gradient function
-                detach_reset=True,  # Detach reset for training stability
-                step_mode='s',  # Single-step mode
-                backend='torch'  # Pure PyTorch backend for compatibility
-            )
-            setattr(module, name, lif)
-        else:
-            replace_relu_with_spiking(child)
+# Add a new spiking layer between fc and the final output
+def add_spiking_output_layer(model):
+    """Add a spiking layer after the final fully connected layer"""
+    original_fc = model.fc
+    new_fc = nn.Sequential(
+        original_fc,
+        SimplifiedSpikingBlock()
+    )
+    model.fc = new_fc
+    return model
 
 def get_model(name):
     assert name == 'resnet_50_v1_spiking'
@@ -58,8 +104,11 @@ def get_model(name):
     # Load base model
     model = resnet50(weights='IMAGENET1K_V1')
     
-    # Convert to spiking in-place (only layer3 and layer4)
+    # Option 1: Convert existing layers to spiking neurons
     convert_to_spiking_model(model, spiking_layers=['layer3', 'layer4'])
+    
+    # Option 2 (commented out): Add a spiking layer to the output
+    # add_spiking_output_layer(model)
     
     # Create preprocessing and wrapper
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
@@ -70,8 +119,14 @@ def get_model(name):
 def get_layers(name):
     assert name == 'resnet_50_v1_spiking'
     units = [3, 4, 6, 3]
+    
+    # Standard ResNet layers
     layer_names = ['conv1'] + [f'layer{block+1}.{unit}' for block, block_units in
                               enumerate(units) for unit in range(block_units)] + ['avgpool']
+    
+    # Uncomment below to add the new spiking output layer for scoring
+    # layer_names.append('fc.1')  # This would reference the added spiking layer after fc
+    
     return layer_names
 
 def get_bibtex(model_identifier):
@@ -83,12 +138,6 @@ def get_bibtex(model_identifier):
       booktitle={Proceedings of the IEEE conference on computer vision and pattern recognition},
       pages={770--778},
       year={2016}
-    }
-    @article{fang2020incorporating,
-      title={Incorporating Learnable Membrane Time Constant to Enhance Learning of Spiking Neural Networks},
-      author={Fang, Wei and Yu, Zhaofei and Chen, Yanqi and Masquelier, Timothée and Huang, Tiejun and Tian, Yonghong},
-      journal={arXiv preprint arXiv:2007.05785},
-      year={2020}
     }"""
 
 if __name__ == '__main__':

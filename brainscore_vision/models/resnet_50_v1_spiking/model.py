@@ -31,10 +31,9 @@ class SpikingHead(nn.Module):
 def replace_relu_with_spiking(module):
     for name, child in module.named_children():
         if isinstance(child, nn.ReLU):
-            setattr(module, name, neuron.LIFNode())
+            setattr(module, name, neuron.LIFNode(step_mode='m', backend='torch'))
         else:
             replace_relu_with_spiking(child)
-
 
 
 # Brain-Score interface

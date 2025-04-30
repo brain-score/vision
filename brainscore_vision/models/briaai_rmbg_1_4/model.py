@@ -7,7 +7,13 @@ from PIL import Image
 import torch.nn.functional as F
 from brainscore_vision.model_helpers.check_submission import check_models
 
-class PytorchWrapperFixed(PytorchWrapper):
+class briaa_rmbg_PytorchWrapper(PytorchWrapper):
+    
+    def __call__(self, *args, **kwargs):
+        result = super().__call__(*args, **kwargs)  # retrieve original output
+        if 'logits' in kwargs.get('layers', []):
+            result = result.isel(neuroid=slice(1, None))  # remove background class in last layer
+        return result
     @staticmethod
     def _tensor_to_numpy(output):
         if isinstance(output, tuple):
@@ -18,7 +24,7 @@ class PytorchWrapperFixed(PytorchWrapper):
         def hook_function(_layer, _input, output, name=layer_name):
             if isinstance(output, tuple):
                 output = output[0]
-            target_dict[name] = PytorchWrapperFixed._tensor_to_numpy(output)
+            target_dict[name] = briaa_rmbg_PytorchWrapper._tensor_to_numpy(output)
         hook = layer.register_forward_hook(hook_function)
         return hook
 
@@ -30,7 +36,7 @@ def get_model(name):
     image_size = 224  # Set the input size for the model
     model = AutoModelForImageSegmentation.from_pretrained('briaai/rmbg-1.4', trust_remote_code=True)
     preprocessing = functools.partial(load_preprocess_images, image_size=image_size)
-    wrapper = PytorchWrapperFixed(identifier=name, model=model, preprocessing=preprocessing)
+    wrapper = briaa_rmbg_PytorchWrapper(identifier=name, model=model, preprocessing=preprocessing)
     wrapper.image_size = image_size
     return wrapper
 

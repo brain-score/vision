@@ -6,7 +6,8 @@ import functools
 import torch.nn as nn
 from spikingjelly.activation_based import neuron
 
-# Define a modified residual block with spiking activation
+
+# Safe replacement block for layer2[1]
 class SpikingBottleneck(nn.Module):
     def __init__(self, original_block):
         super().__init__()
@@ -16,42 +17,49 @@ class SpikingBottleneck(nn.Module):
         self.bn2 = original_block.bn2
         self.conv3 = original_block.conv3
         self.bn3 = original_block.bn3
-        self.relu = neuron.LIFNode()  # Spiking activation
-        self.downsample = original_block.downsample
+
+        # Spiking neurons with proper step_mode
+        self.relu1 = neuron.LIFNode(step_mode='s')
+        self.relu2 = neuron.LIFNode(step_mode='s')
+        self.relu3 = neuron.LIFNode(step_mode='s')
+
+        # No downsample for layer2[1], so we skip that
 
     def forward(self, x):
+        # Reset neuron states
+        self.relu1.reset()
+        self.relu2.reset()
+        self.relu3.reset()
+
         identity = x
 
         out = self.conv1(x)
         out = self.bn1(out)
-        out = self.relu(out)
+        out = self.relu1(out)
 
         out = self.conv2(out)
         out = self.bn2(out)
-        out = self.relu(out)
+        out = self.relu2(out)
 
         out = self.conv3(out)
         out = self.bn3(out)
 
-        # FIX: Apply downsample if needed
-        if self.downsample is not None:
-            identity = self.downsample(x)  # Project to match shape
-
         out += identity
-        out = self.relu(out)
+        out = self.relu3(out)
 
         return out
 
-
 def get_model(name):
-    assert name == 'resnet_50_v1_spiking'
-    # Replace layer3[5] with the spiking block
+
+# Modify the model
     model = resnet50(weights='IMAGENET1K_V1')
-    model.layer3[5] = SpikingBottleneck(model.layer3[5])  # Inject spiking version of one block
+    model.layer2[1] = SpikingBottleneck(model.layer2[1])  # Replace a safe block
+    assert name == 'resnet_50_v1_spiking'
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(identifier='resnet_50_v1_spiking', model=model, preprocessing=preprocessing)
     wrapper.image_size = 224
     return wrapper
+
 
 def get_layers(name):
     assert name == 'resnet_50_v1_spiking'
@@ -73,9 +81,9 @@ def get_bibtex(model_identifier):
 }"""
 
 
-# Optional: check with Brain-Score mock test
 if __name__ == '__main__':
     check_models.check_base_models(__name__)
+
 
 
 

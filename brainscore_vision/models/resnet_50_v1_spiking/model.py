@@ -33,8 +33,9 @@ class SpikingBottleneck(nn.Module):
         out = self.conv3(out)
         out = self.bn3(out)
 
+        # FIX: Apply downsample if needed
         if self.downsample is not None:
-            identity = self.downsample(x)
+            identity = self.downsample(x)  # Project to match shape
 
         out += identity
         out = self.relu(out)

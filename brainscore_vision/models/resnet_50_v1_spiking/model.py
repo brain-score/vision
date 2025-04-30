@@ -5,29 +5,9 @@ from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_
 import functools
 import torch
 import torch.nn as nn
-from spikingjelly.activation_based import neuron, functional
+from spikingjelly.activation_based import neuron
 
-# Optional: define a spiking head (not scored unless added to get_layers)
-class SpikingHead(nn.Module):
-    def __init__(self, input_dim=2048, output_dim=1000, T=4):
-        super().__init__()
-        self.T = T
-        self.fc = nn.Linear(input_dim, output_dim)
-        self.spike_layer = neuron.LIFNode()
-
-    def forward(self, x):
-        # x shape: [batch, input_dim]
-        x = x.unsqueeze(0).repeat(self.T, 1, 1)  # [T, batch, input_dim]
-        out_spike = 0
-        for t in range(self.T):
-            out = self.fc(x[t])
-            out = self.spike_layer(out)
-            out_spike += out
-        functional.reset_net(self)
-        return out_spike / self.T
-
-
-# Replace ReLU with spiking neurons in selected parts of the model
+# Replace ReLU with spiking neurons using single-step mode
 def replace_relu_with_spiking(module):
     for name, child in module.named_children():
         if isinstance(child, nn.ReLU):
@@ -36,15 +16,16 @@ def replace_relu_with_spiking(module):
             replace_relu_with_spiking(child)
 
 
-
-# Brain-Score interface
 def get_model(name):
-        # Load model and modify
+    assert name == 'resnet_50_v1_spiking'
+
+    # Load and modify model
     model = resnet50(weights='IMAGENET1K_V1')
     replace_relu_with_spiking(model.layer3)
     replace_relu_with_spiking(model.layer4)
-    model.fc = SpikingHead(input_dim=2048, output_dim=1000)  # not scored, but included for completeness
-    assert name == 'resnet_50_v1_spiking'
+
+    # Note: We do NOT modify model.fc to use a spiking head here — it's not scored
+
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(identifier='resnet_50_v1_spiking', model=model, preprocessing=preprocessing)
     wrapper.image_size = 224
@@ -73,6 +54,7 @@ def get_bibtex(model_identifier):
 
 if __name__ == '__main__':
     check_models.check_base_models(__name__)
+
 
 
 # from torchvision.models import resnet50

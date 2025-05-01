@@ -218,12 +218,10 @@ def get_model_list():
 def get_model(name):
     assert name == 'simple_spiking_model'
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
-    model_instance = MySpikingModel()
-    wrapper = PytorchWrapper(identifier='simple_spiking_model', model=model_instance, preprocessing=preprocessing)
-    model = ModelCommitment(identifier='simple_spiking_model', activations_model=wrapper,
-                            layers=['conv', 'sn'])  # list only relevant layers
+    model = MySpikingModel()
+    wrapper = PytorchWrapper(identifier='simple_spiking_model', model=model, preprocessing=preprocessing)
     wrapper.image_size = 224
-    return model
+    return wrapper
 
 def get_layers(name):
     assert name == 'simple_spiking_model'

@@ -2,12 +2,10 @@ from torchvision.models import resnet50
 from brainscore_vision.model_helpers.check_submission import check_models
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
-from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
 from spikingjelly.clock_driven import neuron
 import torch
 import functools
 
-from spikingjelly.clock_driven import neuron
 
 class ResNet50WithSpikingHead(torch.nn.Module):
     def __init__(self):
@@ -17,6 +15,7 @@ class ResNet50WithSpikingHead(torch.nn.Module):
             torch.nn.Identity(),  # Dummy wrapper so we can hook the spike node
             neuron.IFNode()
         )
+
 
     def forward(self, x):
         x = self.resnet.conv1(x)
@@ -34,6 +33,13 @@ class ResNet50WithSpikingHead(torch.nn.Module):
         x = torch.flatten(x, 1)
         x = self.resnet.fc(x)
         return x
+    
+    def __getattr__(self, name):
+        try:
+            return super().__getattr__(name)
+        except AttributeError:
+            return getattr(self.resnet, name)
+
 
 # class ResNet50WithSpikingHead(torch.nn.Module):
 #     def __init__(self):

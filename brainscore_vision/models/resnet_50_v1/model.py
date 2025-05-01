@@ -37,11 +37,9 @@ def get_model_list():
 
 def get_model(name):
     assert name == 'resnet_50_spiking'
-    model_instance = ResNet50WithSpikingHead()
+    model = ResNet50WithSpikingHead()
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
-    wrapper = PytorchWrapper(identifier='resnet_50_spiking', model=model_instance, preprocessing=preprocessing)
-    model = ModelCommitment(identifier='resnet_50_spiking', activations_model=wrapper,
-                            layers=get_layers(name))  # reuse the full set of original layers
+    wrapper = PytorchWrapper(identifier='resnet_50_spiking', model=model, preprocessing=preprocessing)# reuse the full set of original layers
     wrapper.image_size = 224
     return model
 

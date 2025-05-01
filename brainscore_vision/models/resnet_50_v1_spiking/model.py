@@ -7,12 +7,16 @@ from spikingjelly.clock_driven import neuron
 import torch
 import functools
 
+from spikingjelly.clock_driven import neuron
 
 class ResNet50WithSpikingHead(torch.nn.Module):
     def __init__(self):
         super().__init__()
         self.resnet = resnet50(weights='IMAGENET1K_V1')
-        self.spike = neuron.IFNode()  # Insert a spiking node *after* avgpool
+        self.spike = torch.nn.Sequential(
+            torch.nn.Identity(),  # Dummy wrapper so we can hook the spike node
+            neuron.IFNode()
+        )
 
     def forward(self, x):
         x = self.resnet.conv1(x)
@@ -25,11 +29,34 @@ class ResNet50WithSpikingHead(torch.nn.Module):
         x = self.resnet.layer3(x)
         x = self.resnet.layer4(x)
 
-        x = self.resnet.avgpool(x)  # Brain-Score can still access this
-        x = self.spike(x)  # Spiking head added here (not interfering with exposed layers)
+        x = self.resnet.avgpool(x)
+        x = self.spike(x)  # Now named and hookable
         x = torch.flatten(x, 1)
         x = self.resnet.fc(x)
         return x
+
+# class ResNet50WithSpikingHead(torch.nn.Module):
+#     def __init__(self):
+#         super().__init__()
+#         self.resnet = resnet50(weights='IMAGENET1K_V1')
+#         self.spike = neuron.IFNode()  # Insert a spiking node *after* avgpool
+
+#     def forward(self, x):
+#         x = self.resnet.conv1(x)
+#         x = self.resnet.bn1(x)
+#         x = self.resnet.relu(x)
+#         x = self.resnet.maxpool(x)
+
+#         x = self.resnet.layer1(x)
+#         x = self.resnet.layer2(x)
+#         x = self.resnet.layer3(x)
+#         x = self.resnet.layer4(x)
+
+#         x = self.resnet.avgpool(x)  # Brain-Score can still access this
+#         x = self.spike(x)  # Spiking head added here (not interfering with exposed layers)
+#         x = torch.flatten(x, 1)
+#         x = self.resnet.fc(x)
+#         return x
 
 
 def get_model_list():
@@ -44,12 +71,11 @@ def get_model(name):
     wrapper.image_size = 224
     return model
 
-
 def get_layers(name):
-    assert name == 'resnet_50_v1_spiking'
+    assert name == 'resnet_50_spiking'
     units = [3, 4, 6, 3]
     layer_names = ['conv1'] + [f'layer{block+1}.{unit}' for block, block_units in
-                               enumerate(units) for unit in range(block_units)] + ['avgpool']
+                               enumerate(units) for unit in range(block_units)] + ['avgpool', 'spike']
     return layer_names
 
 

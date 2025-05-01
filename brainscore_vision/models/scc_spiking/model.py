@@ -12,11 +12,11 @@ class SimpleSpikingModel(torch.nn.Module):
     def __init__(self):
         super(SimpleSpikingModel, self).__init__()
         self.conv1 = torch.nn.Conv2d(in_channels=3, out_channels=2, kernel_size=3)
-        self.spike1 = neuron.LIFNode(tau=2.0, v_threshold=1.0, v_reset=0.0)
+        self.spike1 = neuron.LIFNode(tau=2.0, v_threshold=1.0, v_reset=0.0, step_mode='s')
         conv_output_size = (224 - 3 + 1)  # 222
         linear_input_size = conv_output_size * conv_output_size * 2
         self.linear = torch.nn.Linear(linear_input_size, 1000)
-        self.spike2 = neuron.LIFNode(tau=2.0, v_threshold=1.0, v_reset=0.0)
+        self.spike2 = neuron.LIFNode(tau=2.0, v_threshold=1.0, v_reset=0.0, step_mode='s')
 
     def forward(self, x):
         # Reset membrane potentials at the start of every forward pass

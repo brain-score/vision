@@ -69,7 +69,7 @@ def get_model(name):
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     wrapper = PytorchWrapper(identifier='resnet_50_v1_spiking', model=model, preprocessing=preprocessing)
     wrapper.image_size = 224
-    return model
+    return wrapper
 
 def get_layers(name):
     assert name == 'resnet_50_v1_spiking'

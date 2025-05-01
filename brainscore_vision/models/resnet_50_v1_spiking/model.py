@@ -72,7 +72,7 @@ def get_model(name):
     return model
 
 def get_layers(name):
-    assert name == 'resnet_50_spiking'
+    assert name == 'resnet_50_v1_spiking'
     units = [3, 4, 6, 3]
     layer_names = ['conv1'] + [f'layer{block+1}.{unit}' for block, block_units in
                                enumerate(units) for unit in range(block_units)] + ['avgpool', 'spike']

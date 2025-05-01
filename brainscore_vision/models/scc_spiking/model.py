@@ -40,10 +40,7 @@ def get_model(name):
     assert name == 'simple_spiking_model'
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
     model = SimpleSpikingModel()
-    activations_model = PytorchWrapper(identifier='simple_spiking_model', model=model, preprocessing=preprocessing)
-    wrapper = ModelCommitment(identifier='simple_spiking_model',
-                              activations_model=activations_model,
-                              layers=['conv1', 'spike1', 'spike2'])
+    wrapper = PytorchWrapper(identifier='simple_spiking_model', model=model, preprocessing=preprocessing)
     wrapper.image_size = 224
     return wrapper
 

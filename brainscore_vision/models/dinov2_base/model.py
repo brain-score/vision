@@ -57,6 +57,9 @@ def get_bibtex(model_identifier):
 
 
 if __name__ == '__main__':
+    model = AutoModel.from_pretrained('facebook/dinov2-base')
+    for name, layer in model.named_modules():
+        print(name)
     check_models.check_base_models(__name__)
 
 

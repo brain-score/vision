@@ -40,7 +40,8 @@ def get_model(name):
 
 def get_layers(name):
     assert name == "dinov2_base"
-    return [f'layer_{i}' for i in range(12)]
+    layer_names = [f'encoder.layer.{i}' for i in range(12)] 
+    return layer_names
 
 
 def get_bibtex(model_identifier):

@@ -12,6 +12,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/blur_timm_models
         huggingface_link: null
         extra_notes: null
+        runnable: True
     blur25_convnext_tiny:in12k_ft_in1k:
         architecture: DCNN, Transformer
         model_family: convnext
@@ -25,3 +26,4 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/blur_timm_models
         huggingface_link: null
         extra_notes: null
+        runnable: True

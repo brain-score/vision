@@ -39,5 +39,5 @@ models:
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_GDT
         huggingface_link: null
-        runnable: True
         extra_notes: null
+        runnable: True

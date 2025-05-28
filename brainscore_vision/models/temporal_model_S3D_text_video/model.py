@@ -39,16 +39,16 @@ def get_model(identifier="s3d-HowTo100M"):
     model_name = identifier
 
     model_pth = load_weight_file(
-        bucket="brainscore-vision",
+        bucket="brainscore-storage", folder_name="brainscore-vision/models",
         relative_path="temporal_model_S3D_text_video/s3d_howto100m.pth",
-        version_id="hRp6I8bpwreIMUVL0H.zCdK0hqRggL7n",
+        version_id="null",
         sha1="31e99d2a1cd48f2259ca75e719ac82c8b751ea75"
     )
 
     dict_pth = load_weight_file(
-        bucket="brainscore-vision",
+        bucket="brainscore-storage", folder_name="brainscore-vision/models",
         relative_path="temporal_model_S3D_text_video/s3d_dict.npy",
-        version_id="4NxVLe8DSL6Uue0F7e2rz8HZuOk.tkBI",
+        version_id="null",
         sha1="d368ff7d397ec8240f1f963b5efe8ff245bac35f"
     )
 

@@ -6,9 +6,10 @@ models:
         trainable_parameter_count: 16537362
         total_layers: 68
         trainable_layers: 21
-        model_size_MB: 66.15
+        model_size_mb: 66.15
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet18_imagenet21kP
         huggingface_link: null
         extra_notes: null
+        runnable: True

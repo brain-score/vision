@@ -6,7 +6,7 @@ models:
         trainable_parameter_count: 49606258
         total_layers: 463
         trainable_layers: 125
-        model_size_MB: 198.43
+        model_size_mb: 198.43
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models

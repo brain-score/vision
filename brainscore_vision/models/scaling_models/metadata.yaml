@@ -6,12 +6,13 @@ models:
         trainable_parameter_count: 43657845
         total_layers: 287
         trainable_layers: 105
-        model_size_MB: 174.63
+        model_size_mb: 174.63
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
+        runnable: True
     resnet101_imagenet_full:
         architecture: DCNN
         model_family: resnet
@@ -19,12 +20,13 @@ models:
         trainable_parameter_count: 44549160
         total_layers: 287
         trainable_layers: 105
-        model_size_MB: 178.2
+        model_size_mb: 178.2
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
+        runnable: True
     resnet152_ecoset_full:
         architecture: DCNN
         model_family: resnet
@@ -32,12 +34,13 @@ models:
         trainable_parameter_count: 59301493
         total_layers: 423
         trainable_layers: 156
-        model_size_MB: 237.21
+        model_size_mb: 237.21
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
+        runnable: True
     resnet152_imagenet_full:
         architecture: DCNN
         model_family: resnet
@@ -45,12 +48,13 @@ models:
         trainable_parameter_count: 60192808
         total_layers: 423
         trainable_layers: 156
-        model_size_MB: 240.77
+        model_size_mb: 240.77
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
+        runnable: True
     resnet18_ecoset_full:
         architecture: DCNN
         model_family: resnet
@@ -58,12 +62,13 @@ models:
         trainable_parameter_count: 11466357
         total_layers: 68
         trainable_layers: 21
-        model_size_MB: 45.87
+        model_size_mb: 45.87
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
+        runnable: True
     resnet18_imagenet_full:
         architecture: DCNN
         model_family: resnet
@@ -71,12 +76,13 @@ models:
         trainable_parameter_count: 11689512
         total_layers: 68
         trainable_layers: 21
-        model_size_MB: 46.76
+        model_size_mb: 46.76
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
+        runnable: True
     resnet34_ecoset_full:
         architecture: DCNN
         model_family: resnet
@@ -84,12 +90,13 @@ models:
         trainable_parameter_count: 21574517
         total_layers: 116
         trainable_layers: 37
-        model_size_MB: 86.3
+        model_size_mb: 86.3
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
+        runnable: True
     resnet34_imagenet_full:
         architecture: DCNN
         model_family: resnet
@@ -97,12 +104,13 @@ models:
         trainable_parameter_count: 21797672
         total_layers: 116
         trainable_layers: 37
-        model_size_MB: 87.19
+        model_size_mb: 87.19
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
+        runnable: True
     resnet50_ecoset_full:
         architecture: DCNN
         model_family: resnet
@@ -110,12 +118,13 @@ models:
         trainable_parameter_count: 24665717
         total_layers: 151
         trainable_layers: 54
-        model_size_MB: 98.66
+        model_size_mb: 98.66
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
+        runnable: True
     resnet50_imagenet_100_seed-0:
         architecture: DCNN
         model_family: resnet
@@ -123,12 +132,13 @@ models:
         trainable_parameter_count: 25557032
         total_layers: 151
         trainable_layers: 54
-        model_size_MB: 102.23
+        model_size_mb: 102.23
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
+        runnable: True
     resnet50_imagenet_10_seed-0:
         architecture: DCNN
         model_family: resnet
@@ -136,12 +146,13 @@ models:
         trainable_parameter_count: 25557032
         total_layers: 151
         trainable_layers: 54
-        model_size_MB: 102.23
+        model_size_mb: 102.23
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
+        runnable: True
     resnet50_imagenet_1_seed-0:
         architecture: DCNN
         model_family: resnet
@@ -149,12 +160,13 @@ models:
         trainable_parameter_count: 25557032
         total_layers: 151
         trainable_layers: 54
-        model_size_MB: 102.23
+        model_size_mb: 102.23
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
+        runnable: True
     resnet50_imagenet_full:
         architecture: DCNN
         model_family: resnet
@@ -162,9 +174,10 @@ models:
         trainable_parameter_count: 25557032
         total_layers: 151
         trainable_layers: 54
-        model_size_MB: 102.23
+        model_size_mb: 102.23
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
+        runnable: True

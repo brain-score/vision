@@ -6,12 +6,13 @@ models:
         trainable_parameter_count: 36610672
         total_layers: 381
         trainable_layers: 106
-        model_size_MB: 146.44
+        model_size_mb: 146.44
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
         huggingface_link: null
         extra_notes: null
+        runnable: True
     mvit_v2_s:
         architecture: DCNN, Transformer
         model_family: mvit, vit
@@ -19,12 +20,13 @@ models:
         trainable_parameter_count: 34537744
         total_layers: 433
         trainable_layers: 165
-        model_size_MB: 138.15
+        model_size_mb: 138.15
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
         huggingface_link: null
         extra_notes: null
+        runnable: True
     r2plus1d_18:
         architecture: DCNN
         model_family: r2plus1d
@@ -32,12 +34,13 @@ models:
         trainable_parameter_count: 31505325
         total_layers: 159
         trainable_layers: 38
-        model_size_MB: 126.02
+        model_size_mb: 126.02
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
         huggingface_link: null
         extra_notes: null
+        runnable: True
     r3d_18:
         architecture: DCNN
         model_family: r3d
@@ -45,12 +48,13 @@ models:
         trainable_parameter_count: 33371472
         total_layers: 92
         trainable_layers: 21
-        model_size_MB: 133.49
+        model_size_mb: 133.49
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
         huggingface_link: null
         extra_notes: null
+        runnable: True
     s3d:
         architecture: DCNN
         model_family: s3d
@@ -58,9 +62,10 @@ models:
         trainable_parameter_count: 8320048
         total_layers: 383
         trainable_layers: 78
-        model_size_MB: 33.28
+        model_size_mb: 33.28
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
         huggingface_link: null
         extra_notes: null
+        runnable: True

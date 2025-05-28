@@ -6,12 +6,13 @@ models:
         trainable_parameter_count: 31300125
         total_layers: 160
         trainable_layers: 37
-        model_size_MB: 125.2
+        model_size_mb: 125.2
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_GDT
         huggingface_link: null
         extra_notes: null
+        runnable: True
     GDT-IG65M:
         architecture: DCNN
         model_family: null
@@ -19,12 +20,13 @@ models:
         trainable_parameter_count: 31300125
         total_layers: 160
         trainable_layers: 37
-        model_size_MB: 125.2
+        model_size_mb: 125.2
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_GDT
         huggingface_link: null
         extra_notes: null
+        runnable: True
     GDT-Kinetics400:
         architecture: DCNN
         model_family: null
@@ -32,9 +34,10 @@ models:
         trainable_parameter_count: 31300125
         total_layers: 160
         trainable_layers: 37
-        model_size_MB: 125.2
+        model_size_mb: 125.2
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_GDT
         huggingface_link: null
+        runnable: True
         extra_notes: null

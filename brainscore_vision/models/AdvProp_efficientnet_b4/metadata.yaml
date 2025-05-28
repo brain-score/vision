@@ -6,9 +6,10 @@ models:
         trainable_parameter_count: 19341616
         total_layers: 486
         trainable_layers: 161
-        model_size_MB: 77.37
+        model_size_mb: 77.37
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AdvProp_efficientnet_b4
         huggingface_link: null
         extra_notes: null
+        runnable: True

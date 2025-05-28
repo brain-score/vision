@@ -6,9 +6,10 @@ models:
         trainable_parameter_count: 61100840
         total_layers: 25
         trainable_layers: 8
-        model_size_MB: 244.4
+        model_size_mb: 244.4
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AlexNet_SIN
         huggingface_link: null
         extra_notes: null
+        runnable: True

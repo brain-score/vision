@@ -6,12 +6,13 @@ models:
         trainable_parameter_count: 88591464
         total_layers: 465
         trainable_layers: 113
-        model_size_MB: 354.37
+        model_size_mb: 354.37
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
         huggingface_link: null
         extra_notes: null
+        runnable: True
     convnext_femto_ols:d1_in1k:
         architecture: DCNN, Transformer
         model_family: convnext
@@ -19,12 +20,13 @@ models:
         trainable_parameter_count: 5226520
         total_layers: 178
         trainable_layers: 42
-        model_size_MB: 20.91
+        model_size_mb: 20.91
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
         huggingface_link: null
         extra_notes: null
+        runnable: True
     convnext_large:fb_in22k_ft_in1k:
         architecture: DCNN, Transformer
         model_family: convnext
@@ -32,12 +34,13 @@ models:
         trainable_parameter_count: 197767336
         total_layers: 465
         trainable_layers: 113
-        model_size_MB: 791.07
+        model_size_mb: 791.07
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
         huggingface_link: null
         extra_notes: null
+        runnable: True
     convnext_large_mlp:clip_laion2b_augreg_ft_in1k_384:
         architecture: DCNN, Transformer
         model_family: clip, convnext
@@ -45,12 +48,13 @@ models:
         trainable_parameter_count: 200128168
         total_layers: 467
         trainable_layers: 114
-        model_size_MB: 800.51
+        model_size_mb: 800.51
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
         huggingface_link: null
         extra_notes: null
+        runnable: True
     convnext_tiny:in12k_ft_in1k:
         architecture: DCNN, Transformer
         model_family: convnext
@@ -58,12 +62,13 @@ models:
         trainable_parameter_count: 28589128
         total_layers: 249
         trainable_layers: 59
-        model_size_MB: 114.36
+        model_size_mb: 114.36
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
         huggingface_link: null
         extra_notes: null
+        runnable: True
     convnext_xlarge:fb_in22k_ft_in1k:
         architecture: DCNN, Transformer
         model_family: convnext
@@ -71,12 +76,13 @@ models:
         trainable_parameter_count: 350196968
         total_layers: 465
         trainable_layers: 113
-        model_size_MB: 1400.79
+        model_size_mb: 1400.79
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
         huggingface_link: null
         extra_notes: null
+        runnable: True
     convnext_xxlarge:clip_laion2b_soup_ft_in1k:
         architecture: DCNN, Transformer
         model_family: clip, convnext
@@ -84,9 +90,10 @@ models:
         trainable_parameter_count: 846471016
         total_layers: 513
         trainable_layers: 125
-        model_size_MB: 3385.88
+        model_size_mb: 3385.88
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
         huggingface_link: null
         extra_notes: null
+        runnable: True

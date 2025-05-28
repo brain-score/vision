@@ -6,12 +6,13 @@ models:
         trainable_parameter_count: 86585320
         total_layers: 264
         trainable_layers: 52
-        model_size_MB: 346.34
+        model_size_mb: 346.34
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
+        runnable: True
     deit_large_imagenet_full_seed-0:
         architecture: DCNN, Transformer
         model_family: deit
@@ -19,12 +20,13 @@ models:
         trainable_parameter_count: 304374760
         total_layers: 516
         trainable_layers: 100
-        model_size_MB: 1217.5
+        model_size_mb: 1217.5
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
+        runnable: True
     deit_small_imagenet_100_seed-0:
         architecture: DCNN, Transformer
         model_family: deit
@@ -32,12 +34,13 @@ models:
         trainable_parameter_count: 22059496
         total_layers: 264
         trainable_layers: 52
-        model_size_MB: 88.24
+        model_size_mb: 88.24
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
+        runnable: True
     deit_small_imagenet_10_seed-0:
         architecture: DCNN, Transformer
         model_family: deit
@@ -45,12 +48,13 @@ models:
         trainable_parameter_count: 22059496
         total_layers: 264
         trainable_layers: 52
-        model_size_MB: 88.24
+        model_size_mb: 88.24
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
+        runnable: True
     deit_small_imagenet_1_seed-0:
         architecture: DCNN, Transformer
         model_family: deit
@@ -58,12 +62,13 @@ models:
         trainable_parameter_count: 22059496
         total_layers: 264
         trainable_layers: 52
-        model_size_MB: 88.24
+        model_size_mb: 88.24
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
+        runnable: True
     deit_small_imagenet_full_seed-0:
         architecture: DCNN, Transformer
         model_family: deit
@@ -71,9 +76,10 @@ models:
         trainable_parameter_count: 22059496
         total_layers: 264
         trainable_layers: 52
-        model_size_MB: 88.24
+        model_size_mb: 88.24
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
+        runnable: True

@@ -6,7 +6,7 @@ models:
         trainable_parameter_count: 200128168
         total_layers: 467
         trainable_layers: 114
-        model_size_MB: 800.51
+        model_size_mb: 800.51
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/blur_timm_models
@@ -19,7 +19,7 @@ models:
         trainable_parameter_count: 28589128
         total_layers: 249
         trainable_layers: 59
-        model_size_MB: 114.36
+        model_size_mb: 114.36
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/blur_timm_models

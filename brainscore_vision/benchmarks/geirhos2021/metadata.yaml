@@ -20,6 +20,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: accuracy
             reference: null
@@ -47,6 +48,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: accuracy
             reference: null
@@ -74,6 +76,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: accuracy
             reference: null
@@ -101,6 +104,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: accuracy
             reference: null
@@ -128,6 +132,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: accuracy
             reference: null
@@ -155,6 +160,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: accuracy
             reference: null
@@ -182,6 +188,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: accuracy
             reference: null
@@ -209,6 +216,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: accuracy
             reference: null
@@ -236,6 +244,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: accuracy
             reference: null
@@ -263,6 +272,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: accuracy
             reference: null
@@ -290,6 +300,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: accuracy
             reference: null
@@ -317,6 +328,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: accuracy
             reference: null
@@ -344,6 +356,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: accuracy
             reference: null
@@ -371,6 +384,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: accuracy
             reference: null
@@ -398,6 +412,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: accuracy
             reference: null
@@ -425,6 +440,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: accuracy
             reference: null
@@ -452,6 +468,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: accuracy
             reference: null
@@ -479,6 +496,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: error_consistency
             reference: null
@@ -506,6 +524,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: error_consistency
             reference: null
@@ -533,6 +552,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: error_consistency
             reference: null
@@ -560,6 +580,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: error_consistency
             reference: null
@@ -587,6 +608,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: error_consistency
             reference: null
@@ -614,6 +636,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: error_consistency
             reference: null
@@ -641,6 +664,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: error_consistency
             reference: null
@@ -668,6 +692,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: error_consistency
             reference: null
@@ -695,6 +720,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: error_consistency
             reference: null
@@ -722,6 +748,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: error_consistency
             reference: null
@@ -749,6 +776,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: error_consistency
             reference: null
@@ -776,6 +804,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: error_consistency
             reference: null
@@ -803,6 +832,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: error_consistency
             reference: null
@@ -830,6 +860,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: error_consistency
             reference: null
@@ -857,6 +888,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: error_consistency
             reference: null
@@ -884,6 +916,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: error_consistency
             reference: null
@@ -911,6 +944,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: error_consistency
             reference: null

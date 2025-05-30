@@ -17,6 +17,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: value_delta
             reference: null
@@ -41,6 +42,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: value_delta
             reference: null
@@ -65,6 +67,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: value_delta
             reference: null
@@ -89,6 +92,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: value_delta
             reference: null
@@ -113,6 +117,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: value_delta
             reference: null
@@ -137,6 +142,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: value_delta
             reference: null
@@ -161,6 +167,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: value_delta
             reference: null
@@ -185,6 +192,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: value_delta
             reference: null
@@ -209,6 +217,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: value_delta
             reference: null
@@ -233,6 +242,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: value_delta
             reference: null
@@ -257,6 +267,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: value_delta
             reference: null
@@ -281,6 +292,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: value_delta
             reference: null
@@ -305,6 +317,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: value_delta
             reference: null
@@ -329,6 +342,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: value_delta
             reference: null

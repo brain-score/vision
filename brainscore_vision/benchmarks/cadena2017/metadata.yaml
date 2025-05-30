@@ -20,6 +20,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/cadena2017
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: pls
             reference: null
@@ -47,6 +48,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/cadena2017
             extra_notes: null
+            data_publicly_available: True
         metric:
             type: mask_regression
             reference: null

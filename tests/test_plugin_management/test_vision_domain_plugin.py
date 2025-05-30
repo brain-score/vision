@@ -36,7 +36,7 @@ class TestVisionDomainPluginUnit:
             assert hasattr(plugin, 'get_model_family')
             assert hasattr(plugin, 'create_model_metadata')
             
-            print("✅ VisionDomainPlugin interface compliance verified")
+            print("VisionDomainPlugin interface compliance verified")
             
         except ImportError as e:
             pytest.skip(f"VisionDomainPlugin not available: {e}")
@@ -80,7 +80,7 @@ class TestVisionDomainPluginUnit:
             assert "brainscore_link" in metric_meta
             assert "benchmark_type" in data_meta
             
-            print("✅ VisionDomainPlugin benchmark metadata structure verified")
+            print("VisionDomainPlugin benchmark metadata structure verified")
             
         except ImportError as e:
             pytest.skip(f"VisionDomainPlugin not available: {e}")
@@ -118,7 +118,7 @@ class TestVisionDomainPluginUnit:
             # Check vision-specific values
             assert "brainscore_vision/models" in model_meta["brainscore_link"]
             
-            print("✅ VisionDomainPlugin model metadata structure verified")
+            print("VisionDomainPlugin model metadata structure verified")
             
         except ImportError as e:
             pytest.skip(f"VisionDomainPlugin not available: {e}")
@@ -137,7 +137,7 @@ class TestVisionDomainPluginUnit:
             assert behavioral_plugin.benchmark_type == "behavioral"
             assert engineering_plugin.benchmark_type == "engineering"
             
-            print("✅ VisionDomainPlugin benchmark type handling verified")
+            print("VisionDomainPlugin benchmark type handling verified")
             
         except ImportError as e:
             pytest.skip(f"VisionDomainPlugin not available: {e}")
@@ -162,7 +162,7 @@ class TestVisionDomainPluginUnit:
             assert "DCNN" in cornet_arch
             assert "RNN" in cornet_arch  # Vision-specific hardcoded pattern
             
-            print("✅ VisionDomainPlugin architecture detection verified")
+            print("VisionDomainPlugin architecture detection verified")
             
         except ImportError as e:
             pytest.skip(f"VisionDomainPlugin not available: {e}")
@@ -181,7 +181,7 @@ class TestVisionDomainPluginUnit:
             assert plugin.get_model_family("vone_resnet") == "resnet, vone"  # Multiple families (space-separated)
             assert plugin.get_model_family("unknown_model") is None
             
-            print("✅ VisionDomainPlugin model family detection verified")
+            print("VisionDomainPlugin model family detection verified")
             
         except ImportError as e:
             pytest.skip(f"VisionDomainPlugin not available: {e}")
@@ -210,7 +210,7 @@ class TestVisionDomainPluginIntegration:
                 # Verify real data values
                 assert stimuli_meta["num_stimuli"] == 616
                 assert data_meta["benchmark_type"] == "neural"
-                print("✅ Real benchmark integration verified")
+                print("Real benchmark integration verified")
             else:
                 pytest.skip("Rajalingham2020 benchmark not available")
                 
@@ -238,7 +238,7 @@ class TestVisionDomainPluginIntegration:
                 assert model_meta["architecture"] == "DCNN"
                 assert model_meta["model_family"] == "resnet"
                 assert model_meta["total_parameter_count"] > 0
-                print("✅ Real model integration verified")
+                print("Real model integration verified")
             else:
                 pytest.skip("resnet50_tutorial model not available")
                 
@@ -262,4 +262,4 @@ if __name__ == "__main__":
     test_unit.test_model_architecture_detection()
     test_unit.test_model_family_detection()
     
-    print("\n🎉 All vision plugin unit tests passed!") 
+    print("\nAll vision plugin unit tests passed!") 

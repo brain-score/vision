@@ -109,7 +109,7 @@ class TestVisionDomainPluginUnit:
             required_fields = [
                 "architecture", "model_family", "total_parameter_count",
                 "trainable_parameter_count", "total_layers", "trainable_layers",
-                "model_size_MB", "training_dataset", "task_specialization",
+                "model_size_mb", "training_dataset", "task_specialization",
                 "brainscore_link", "huggingface_link", "extra_notes"
             ]
             for field in required_fields:

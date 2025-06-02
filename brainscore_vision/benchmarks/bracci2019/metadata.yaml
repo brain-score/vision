@@ -1,0 +1,29 @@
+benchmarks:
+    Bracci2019.anteriorVTC-rdm:
+        stimulus_set:
+            num_stimuli: 27
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0074
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/bracci2019
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: IT
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: null
+            num_subjects: 12
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/bracci2019
+            extra_notes: null
+            data_publicly_available: false
+        metric:
+            type: rdm
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/rdm
+            extra_notes: null

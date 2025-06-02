@@ -1,0 +1,29 @@
+benchmarks:
+    tong.Coggan2024_behavior-ConditionWiseAccuracySimilarity:
+        stimulus_set:
+            num_stimuli: 22560
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 12.6584
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/coggan2024_behavior
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral
+            num_subjects: 30
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/coggan2024_behavior
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: custom
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/coggan2024_behavior
+            extra_notes: null

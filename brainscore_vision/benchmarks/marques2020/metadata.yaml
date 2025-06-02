@@ -1,0 +1,617 @@
+benchmarks:
+    Marques2020_Cavanaugh2002-grating_summation_field:
+        stimulus_set:
+            num_stimuli: 2304
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.533
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: ks_similarity
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/distribution_similarity
+            extra_notes: null
+    Marques2020_Cavanaugh2002-surround_diameter:
+        stimulus_set:
+            num_stimuli: 2304
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.533
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: ks_similarity
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/distribution_similarity
+            extra_notes: null
+    Marques2020_Cavanaugh2002-surround_suppression_index:
+        stimulus_set:
+            num_stimuli: 2304
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.533
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: ks_similarity
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/distribution_similarity
+            extra_notes: null
+    Marques2020_DeValois1982-peak_sf:
+        stimulus_set:
+            num_stimuli: 2112
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.5147
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: ks_similarity
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/distribution_similarity
+            extra_notes: null
+    Marques2020_DeValois1982-pref_or:
+        stimulus_set:
+            num_stimuli: 1152
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.2737
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: ks_similarity
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/distribution_similarity
+            extra_notes: null
+    Marques2020_FreemanZiemba2013-abs_texture_modulation_index:
+        stimulus_set:
+            num_stimuli: 450
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0947
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+            data_publicly_available: false
+        metric:
+            type: ks_similarity
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/distribution_similarity
+            extra_notes: null
+    Marques2020_FreemanZiemba2013-max_noise:
+        stimulus_set:
+            num_stimuli: 450
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0947
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+            data_publicly_available: false
+        metric:
+            type: ks_similarity
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/distribution_similarity
+            extra_notes: null
+    Marques2020_FreemanZiemba2013-max_texture:
+        stimulus_set:
+            num_stimuli: 450
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0947
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+            data_publicly_available: false
+        metric:
+            type: ks_similarity
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/distribution_similarity
+            extra_notes: null
+    Marques2020_FreemanZiemba2013-texture_modulation_index:
+        stimulus_set:
+            num_stimuli: 450
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0947
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+            data_publicly_available: false
+        metric:
+            type: ks_similarity
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/distribution_similarity
+            extra_notes: null
+    Marques2020_FreemanZiemba2013-texture_selectivity:
+        stimulus_set:
+            num_stimuli: 450
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0947
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+            data_publicly_available: false
+        metric:
+            type: ks_similarity
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/distribution_similarity
+            extra_notes: null
+    Marques2020_FreemanZiemba2013-texture_sparseness:
+        stimulus_set:
+            num_stimuli: 450
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0947
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+            data_publicly_available: false
+        metric:
+            type: ks_similarity
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/distribution_similarity
+            extra_notes: null
+    Marques2020_FreemanZiemba2013-texture_variance_ratio:
+        stimulus_set:
+            num_stimuli: 450
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0947
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+            data_publicly_available: false
+        metric:
+            type: ks_similarity
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/distribution_similarity
+            extra_notes: null
+    Marques2020_Ringach2002-circular_variance:
+        stimulus_set:
+            num_stimuli: 1152
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.2737
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: ks_similarity
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/distribution_similarity
+            extra_notes: null
+    Marques2020_Ringach2002-cv_bandwidth_ratio:
+        stimulus_set:
+            num_stimuli: 1152
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.2737
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: ks_similarity
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/distribution_similarity
+            extra_notes: null
+    Marques2020_Ringach2002-max_dc:
+        stimulus_set:
+            num_stimuli: 1152
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.2737
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: ks_similarity
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/distribution_similarity
+            extra_notes: null
+    Marques2020_Ringach2002-modulation_ratio:
+        stimulus_set:
+            num_stimuli: 1152
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.2737
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: ks_similarity
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/distribution_similarity
+            extra_notes: null
+    Marques2020_Ringach2002-opr_cv_diff:
+        stimulus_set:
+            num_stimuli: 1152
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.2737
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: ks_similarity
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/distribution_similarity
+            extra_notes: null
+    Marques2020_Ringach2002-or_bandwidth:
+        stimulus_set:
+            num_stimuli: 1152
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.2737
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: ks_similarity
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/distribution_similarity
+            extra_notes: null
+    Marques2020_Ringach2002-or_selective:
+        stimulus_set:
+            num_stimuli: 1152
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.2737
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: ks_similarity
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/distribution_similarity
+            extra_notes: null
+    Marques2020_Ringach2002-orth_pref_ratio:
+        stimulus_set:
+            num_stimuli: 1152
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.2737
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: ks_similarity
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/distribution_similarity
+            extra_notes: null
+    Marques2020_Schiller1976-sf_bandwidth:
+        stimulus_set:
+            num_stimuli: 2112
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.5147
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: ks_similarity
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/distribution_similarity
+            extra_notes: null
+    Marques2020_Schiller1976-sf_selective:
+        stimulus_set:
+            num_stimuli: 2112
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.5147
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/marques2020
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: ks_similarity
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/distribution_similarity
+            extra_notes: null

@@ -1,0 +1,29 @@
+benchmarks:
+    Hebart2023-match:
+        stimulus_set:
+            num_stimuli: 1854
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 1.4543
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/hebart2023
+            extra_notes: null
+        data:
+            benchmark_type: behavior
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/hebart2023
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: custom
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/hebart2023
+            extra_notes: null

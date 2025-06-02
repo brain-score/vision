@@ -1,0 +1,57 @@
+benchmarks:
+    Igustibagus2024-ridge:
+        stimulus_set:
+            num_stimuli: 780
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.4847
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/igustibagus2024
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: IT
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/igustibagus2024
+            extra_notes: null
+            data_publicly_available: false
+        metric:
+            type: custom
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/igustibagus2024
+            extra_notes: null
+    Igustibagus2024.IT_readout-accuracy:
+        stimulus_set:
+            num_stimuli: null
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/igustibagus2024
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/igustibagus2024
+            extra_notes: null
+            data_publicly_available: false
+        metric:
+            type: custom
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/igustibagus2024
+            extra_notes: null

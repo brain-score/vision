@@ -1,0 +1,57 @@
+benchmarks:
+    Rajalingham2018-i2n:
+        stimulus_set:
+            num_stimuli: 240
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.1024
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/rajalingham2018
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: behavioral
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/rajalingham2018
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: i2n
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/i1i2
+            extra_notes: null
+    Rajalingham2018public-i2n:
+        stimulus_set:
+            num_stimuli: 2160
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.9206
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/rajalingham2018
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: behavioral
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/rajalingham2018
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: i2n
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/i1i2
+            extra_notes: null

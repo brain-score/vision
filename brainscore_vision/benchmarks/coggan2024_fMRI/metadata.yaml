@@ -1,0 +1,113 @@
+benchmarks:
+    tong.Coggan2024_fMRI.IT-rdm:
+        stimulus_set:
+            num_stimuli: 24
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0119
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/coggan2024_fMRI
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: IT
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: fMRI
+            num_subjects: 9
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/coggan2024_fMRI
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: custom
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/coggan2024_fMRI
+            extra_notes: null
+    tong.Coggan2024_fMRI.V1-rdm:
+        stimulus_set:
+            num_stimuli: 24
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0119
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/coggan2024_fMRI
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: fMRI
+            num_subjects: 9
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/coggan2024_fMRI
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: custom
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/coggan2024_fMRI
+            extra_notes: null
+    tong.Coggan2024_fMRI.V2-rdm:
+        stimulus_set:
+            num_stimuli: 24
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0119
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/coggan2024_fMRI
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V2
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: fMRI
+            num_subjects: 9
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/coggan2024_fMRI
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: custom
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/coggan2024_fMRI
+            extra_notes: null
+    tong.Coggan2024_fMRI.V4-rdm:
+        stimulus_set:
+            num_stimuli: 24
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0119
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/coggan2024_fMRI
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V4
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: fMRI
+            num_subjects: 9
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/coggan2024_fMRI
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: custom
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/benchmarks/coggan2024_fMRI
+            extra_notes: null

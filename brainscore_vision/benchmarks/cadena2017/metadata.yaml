@@ -1,0 +1,57 @@
+benchmarks:
+    Cadena2017-pls:
+        stimulus_set:
+            num_stimuli: 6249
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 2.9082
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/cadena2017
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/cadena2017
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: pls
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/pls
+            extra_notes: null
+    Cadena2017-mask:
+        stimulus_set:
+            num_stimuli: 6249
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 2.9082
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/cadena2017
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/cadena2017
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: mask_regression
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/mask_regression
+            extra_notes: null

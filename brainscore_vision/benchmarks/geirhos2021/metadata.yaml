@@ -1,0 +1,953 @@
+benchmarks:
+    Geirhos2021colour-top1:
+        stimulus_set:
+            num_stimuli: 640
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.421
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Geirhos2021contrast-top1:
+        stimulus_set:
+            num_stimuli: 800
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.5315
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Geirhos2021cueconflict-top1:
+        stimulus_set:
+            num_stimuli: 1280
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.8105
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Geirhos2021edge-top1:
+        stimulus_set:
+            num_stimuli: 160
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0587
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Geirhos2021eidolonI-top1:
+        stimulus_set:
+            num_stimuli: 800
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.5484
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Geirhos2021eidolonII-top1:
+        stimulus_set:
+            num_stimuli: 640
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.4351
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Geirhos2021eidolonIII-top1:
+        stimulus_set:
+            num_stimuli: 480
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.3259
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Geirhos2021falsecolour-top1:
+        stimulus_set:
+            num_stimuli: 560
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.3801
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Geirhos2021highpass-top1:
+        stimulus_set:
+            num_stimuli: 640
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.4216
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Geirhos2021lowpass-top1:
+        stimulus_set:
+            num_stimuli: 800
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.5232
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Geirhos2021phasescrambling-top1:
+        stimulus_set:
+            num_stimuli: 640
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.4219
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Geirhos2021powerequalisation-top1:
+        stimulus_set:
+            num_stimuli: 560
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.3721
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Geirhos2021rotation-top1:
+        stimulus_set:
+            num_stimuli: 960
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.6364
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Geirhos2021silhouette-top1:
+        stimulus_set:
+            num_stimuli: 160
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0587
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Geirhos2021sketch-top1:
+        stimulus_set:
+            num_stimuli: 800
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.5461
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Geirhos2021stylized-top1:
+        stimulus_set:
+            num_stimuli: 800
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.6002
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Geirhos2021uniformnoise-top1:
+        stimulus_set:
+            num_stimuli: 800
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.5351
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Geirhos2021colour-error_consistency:
+        stimulus_set:
+            num_stimuli: 640
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.421
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: behavioral
+            num_subjects: 4
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: error_consistency
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/error_consistency
+            extra_notes: null
+    Geirhos2021contrast-error_consistency:
+        stimulus_set:
+            num_stimuli: 800
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.5315
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: behavioral
+            num_subjects: 4
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: error_consistency
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/error_consistency
+            extra_notes: null
+    Geirhos2021cueconflict-error_consistency:
+        stimulus_set:
+            num_stimuli: 1280
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.8105
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: behavioral
+            num_subjects: 10
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: error_consistency
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/error_consistency
+            extra_notes: null
+    Geirhos2021edge-error_consistency:
+        stimulus_set:
+            num_stimuli: 160
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0587
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: behavioral
+            num_subjects: 10
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: error_consistency
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/error_consistency
+            extra_notes: null
+    Geirhos2021eidolonI-error_consistency:
+        stimulus_set:
+            num_stimuli: 800
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.5484
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: behavioral
+            num_subjects: 4
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: error_consistency
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/error_consistency
+            extra_notes: null
+    Geirhos2021eidolonII-error_consistency:
+        stimulus_set:
+            num_stimuli: 640
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.4351
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: behavioral
+            num_subjects: 4
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: error_consistency
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/error_consistency
+            extra_notes: null
+    Geirhos2021eidolonIII-error_consistency:
+        stimulus_set:
+            num_stimuli: 480
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.3259
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: behavioral
+            num_subjects: 4
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: error_consistency
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/error_consistency
+            extra_notes: null
+    Geirhos2021falsecolour-error_consistency:
+        stimulus_set:
+            num_stimuli: 560
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.3801
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: behavioral
+            num_subjects: 4
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: error_consistency
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/error_consistency
+            extra_notes: null
+    Geirhos2021highpass-error_consistency:
+        stimulus_set:
+            num_stimuli: 640
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.4216
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: behavioral
+            num_subjects: 4
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: error_consistency
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/error_consistency
+            extra_notes: null
+    Geirhos2021lowpass-error_consistency:
+        stimulus_set:
+            num_stimuli: 800
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.5232
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: behavioral
+            num_subjects: 4
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: error_consistency
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/error_consistency
+            extra_notes: null
+    Geirhos2021phasescrambling-error_consistency:
+        stimulus_set:
+            num_stimuli: 640
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.4219
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: behavioral
+            num_subjects: 4
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: error_consistency
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/error_consistency
+            extra_notes: null
+    Geirhos2021powerequalisation-error_consistency:
+        stimulus_set:
+            num_stimuli: 560
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.3721
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: behavioral
+            num_subjects: 4
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: error_consistency
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/error_consistency
+            extra_notes: null
+    Geirhos2021rotation-error_consistency:
+        stimulus_set:
+            num_stimuli: 960
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.6364
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: behavioral
+            num_subjects: 4
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: error_consistency
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/error_consistency
+            extra_notes: null
+    Geirhos2021silhouette-error_consistency:
+        stimulus_set:
+            num_stimuli: 160
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0587
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: behavioral
+            num_subjects: 10
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: error_consistency
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/error_consistency
+            extra_notes: null
+    Geirhos2021sketch-error_consistency:
+        stimulus_set:
+            num_stimuli: 800
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.5461
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: behavioral
+            num_subjects: 7
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: error_consistency
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/error_consistency
+            extra_notes: null
+    Geirhos2021stylized-error_consistency:
+        stimulus_set:
+            num_stimuli: 800
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.6002
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: behavioral
+            num_subjects: 5
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: error_consistency
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/error_consistency
+            extra_notes: null
+    Geirhos2021uniformnoise-error_consistency:
+        stimulus_set:
+            num_stimuli: 800
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.5351
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: behavioral
+            num_subjects: 4
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/geirhos2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: error_consistency
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/error_consistency
+            extra_notes: null

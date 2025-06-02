@@ -20,7 +20,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/lonnqvist2024
             extra_notes: null
-            data_publicly_available: True
+            data_publicly_available: true
         metric:
             type: accuracy
             reference: null
@@ -48,7 +48,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/lonnqvist2024
             extra_notes: null
-            data_publicly_available: True
+            data_publicly_available: true
         metric:
             type: accuracy_distance
             reference: null
@@ -76,7 +76,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/lonnqvist2024
             extra_notes: null
-            data_publicly_available: True
+            data_publicly_available: true
         metric:
             type: accuracy_distance
             reference: null
@@ -104,7 +104,7 @@ benchmarks:
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/lonnqvist2024
             extra_notes: null
-            data_publicly_available: True
+            data_publicly_available: true
         metric:
             type: accuracy_distance
             reference: null

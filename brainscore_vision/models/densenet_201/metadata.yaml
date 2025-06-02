@@ -1,0 +1,15 @@
+models:
+    densenet-201:
+        architecture: DCNN
+        model_family: densenet
+        total_parameter_count: 20013928
+        trainable_parameter_count: 20013928
+        total_layers: 919
+        trainable_layers: 201
+        model_size_mb: 80.06
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/densenet_201
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

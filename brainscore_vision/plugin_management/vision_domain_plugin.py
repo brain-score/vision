@@ -149,7 +149,8 @@ class VisionDomainPlugin(DomainPluginInterface):
             "num_subjects": get_num_subjects(assembly),
             "pre_processing": None,
             "brainscore_link": f"https://github.com/brain-score/vision/tree/master/brainscore_vision/data/{benchmark_dir_name}",
-            "extra_notes": None
+            "extra_notes": None,
+            "data_publicly_available": None
         }
 
         return new_metadata
@@ -340,5 +341,6 @@ class VisionDomainPlugin(DomainPluginInterface):
             "task_specialization": None,
             "brainscore_link": f"https://github.com/brain-score/vision/tree/master/brainscore_vision/models/{model_dir_name}",
             "huggingface_link": self.get_huggingface_link(model_name),
-            "extra_notes": None
+            "extra_notes": None,
+            "runnable": True
         } 

@@ -12,7 +12,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     efficientnet_b1_imagenet_full:
         architecture: DCNN
         model_family: efficientnet
@@ -26,7 +26,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     efficientnet_b2_imagenet_full:
         architecture: DCNN
         model_family: efficientnet
@@ -40,4 +40,4 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true

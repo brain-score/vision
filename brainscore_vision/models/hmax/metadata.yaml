@@ -12,4 +12,4 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/hmax
         huggingface_link: https://huggingface.co/hmax
         extra_notes: null
-        runnable: True
+        runnable: true

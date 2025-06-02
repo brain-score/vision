@@ -12,7 +12,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     mvit_v2_s:
         architecture: DCNN, Transformer
         model_family: mvit, vit
@@ -26,7 +26,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     r2plus1d_18:
         architecture: DCNN
         model_family: r2plus1d
@@ -40,7 +40,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     r3d_18:
         architecture: DCNN
         model_family: r3d
@@ -54,7 +54,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     s3d:
         architecture: DCNN
         model_family: s3d
@@ -68,4 +68,4 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true

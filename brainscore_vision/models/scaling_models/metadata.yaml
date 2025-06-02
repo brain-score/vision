@@ -12,7 +12,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     resnet101_imagenet_full:
         architecture: DCNN
         model_family: resnet
@@ -26,7 +26,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     resnet152_ecoset_full:
         architecture: DCNN
         model_family: resnet
@@ -40,7 +40,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     resnet152_imagenet_full:
         architecture: DCNN
         model_family: resnet
@@ -54,7 +54,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     resnet18_ecoset_full:
         architecture: DCNN
         model_family: resnet
@@ -68,7 +68,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     resnet18_imagenet_full:
         architecture: DCNN
         model_family: resnet
@@ -82,7 +82,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     resnet34_ecoset_full:
         architecture: DCNN
         model_family: resnet
@@ -96,7 +96,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     resnet34_imagenet_full:
         architecture: DCNN
         model_family: resnet
@@ -110,7 +110,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     resnet50_ecoset_full:
         architecture: DCNN
         model_family: resnet
@@ -124,7 +124,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     resnet50_imagenet_100_seed-0:
         architecture: DCNN
         model_family: resnet
@@ -138,7 +138,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     resnet50_imagenet_10_seed-0:
         architecture: DCNN
         model_family: resnet
@@ -152,7 +152,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     resnet50_imagenet_1_seed-0:
         architecture: DCNN
         model_family: resnet
@@ -166,7 +166,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     resnet50_imagenet_full:
         architecture: DCNN
         model_family: resnet
@@ -180,4 +180,4 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true

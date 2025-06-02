@@ -1,0 +1,15 @@
+models:
+    antialiased-rnext101_32x8d:
+        architecture: DCNN
+        model_family: null
+        total_parameter_count: 88791336
+        trainable_parameter_count: 88791336
+        total_layers: 305
+        trainable_layers: 105
+        model_size_mb: 355.17
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/antialiased_rnext101_32x8d
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

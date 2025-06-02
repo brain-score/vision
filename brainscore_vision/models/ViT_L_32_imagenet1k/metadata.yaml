@@ -1,0 +1,15 @@
+models:
+    ViT_L_32_imagenet1k:
+        architecture: DCNN, Transformer
+        model_family: vit
+        total_parameter_count: 306632680
+        trainable_parameter_count: 306632680
+        total_layers: 319
+        trainable_layers: 148
+        model_size_mb: 1226.53
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ViT_L_32_imagenet1k
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

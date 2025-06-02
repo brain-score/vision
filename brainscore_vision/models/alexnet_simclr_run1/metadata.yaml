@@ -1,0 +1,29 @@
+models:
+    alexnet_w1_mlp4096_simclr_baseline_64715_probe0:
+        architecture: DCNN
+        model_family: alexnet
+        total_parameter_count: 96581568
+        trainable_parameter_count: 96581568
+        total_layers: 38
+        trainable_layers: 12
+        model_size_mb: 386.33
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_simclr_run1
+        huggingface_link: null
+        extra_notes: null
+        runnable: true
+    alexnet_w1_mlp4096_simclr_ratio1augs_d3fbd_probe0:
+        architecture: DCNN
+        model_family: alexnet
+        total_parameter_count: 96581568
+        trainable_parameter_count: 96581568
+        total_layers: 38
+        trainable_layers: 12
+        model_size_mb: 386.33
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_simclr_run1
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

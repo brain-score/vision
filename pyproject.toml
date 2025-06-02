@@ -82,21 +82,28 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 markers = [
-    "private_access: tests that require access to a private resource, such as assemblies on S3 (note that travis builds originating from forks can not have private access)",
-    "memory_intense: tests requiring more memory than is available in the travis sandbox (currently 3 GB)", # see https://docs.travis-ci.com/user/common-build-problems/#my-build-script-is-killed-without-any-error
-    "requires_gpu: tests requiring a GPU to run or to run in a reasonable time (travis does not support GPUs/CUDA)",
-    "travis_slow: tests running for more than 10 minutes without output (which leads travis to error)",
-    "slow: tests leading to runtimes that are not possible on the openmind cluster (>1 hour per test)",
-]
-testpaths = [
-    "tests"
+    "integration: marks tests as integration tests (slow, requires real components)",
+    "slow: marks tests as slow running tests",
+    "memory_intense: marks tests that require significant memory",
+    "travis_slow: tests running for more than 10 minutes without output (which leads Travis to error)",
+    "private_access: tests that require access to a private resource, such as assemblies on S3 (note that Travis builds originating from forks can not have private access)",
+    "requires_gpu: tests requiring a GPU to run or to run in a reasonable time (Travis does not support GPUs/CUDA)",
 ]
 
+# Test discovery patterns  
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+# Console output
+console_output_style = "progress"
+
+# Warnings configuration
 filterwarnings = [
+    "ignore::UserWarning",
     "ignore::DeprecationWarning",
-    "ignore::FutureWarning"
+    "ignore::FutureWarning",
 ]
-
 
 ################################################################
 #### setuptools packaging config ####

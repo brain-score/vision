@@ -1,0 +1,15 @@
+models:
+    voneresnet-50-non_stochastic:
+        architecture: DCNN
+        model_family: resnet, vone
+        total_parameter_count: 27500264
+        trainable_parameter_count: 25580264
+        total_layers: 157
+        trainable_layers: 54
+        model_size_mb: 110.0
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/voneresnet_50_non_stochastic
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

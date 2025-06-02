@@ -1,0 +1,15 @@
+models:
+    yudixie_resnet50_distance_reg_0_240908:
+        architecture: DCNN
+        model_family: resnet
+        total_parameter_count: 24889058
+        trainable_parameter_count: 24889058
+        total_layers: 151
+        trainable_layers: 54
+        model_size_mb: 99.56
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/yudixie_resnet50_250117_0
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

@@ -12,4 +12,4 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/custom_model_cv_18_dagger_408
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true

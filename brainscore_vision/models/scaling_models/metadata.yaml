@@ -12,7 +12,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     deit_large_imagenet_full_seed-0:
         architecture: DCNN, Transformer
         model_family: deit
@@ -26,7 +26,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     deit_small_imagenet_100_seed-0:
         architecture: DCNN, Transformer
         model_family: deit
@@ -40,7 +40,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     deit_small_imagenet_10_seed-0:
         architecture: DCNN, Transformer
         model_family: deit
@@ -54,7 +54,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     deit_small_imagenet_1_seed-0:
         architecture: DCNN, Transformer
         model_family: deit
@@ -68,7 +68,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     deit_small_imagenet_full_seed-0:
         architecture: DCNN, Transformer
         model_family: deit
@@ -82,4 +82,4 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true

@@ -1,0 +1,99 @@
+models:
+    convnext_base_imagenet_full_seed-0:
+        architecture: DCNN, Transformer
+        model_family: convnext
+        total_parameter_count: 88591464
+        trainable_parameter_count: 88591464
+        total_layers: 383
+        trainable_layers: 149
+        model_size_mb: 354.37
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+        huggingface_link: null
+        extra_notes: null
+        runnable: true
+    convnext_large_imagenet_full_seed-0:
+        architecture: DCNN, Transformer
+        model_family: convnext
+        total_parameter_count: 197767336
+        trainable_parameter_count: 197767336
+        total_layers: 383
+        trainable_layers: 149
+        model_size_mb: 791.07
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+        huggingface_link: null
+        extra_notes: null
+        runnable: true
+    convnext_small_imagenet_100_seed-0:
+        architecture: DCNN, Transformer
+        model_family: convnext
+        total_parameter_count: 50223688
+        trainable_parameter_count: 50223688
+        total_layers: 383
+        trainable_layers: 149
+        model_size_mb: 200.89
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+        huggingface_link: null
+        extra_notes: null
+        runnable: true
+    convnext_small_imagenet_10_seed-0:
+        architecture: DCNN, Transformer
+        model_family: convnext
+        total_parameter_count: 50223688
+        trainable_parameter_count: 50223688
+        total_layers: 383
+        trainable_layers: 149
+        model_size_mb: 200.89
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+        huggingface_link: null
+        extra_notes: null
+        runnable: true
+    convnext_small_imagenet_1_seed-0:
+        architecture: DCNN, Transformer
+        model_family: convnext
+        total_parameter_count: 50223688
+        trainable_parameter_count: 50223688
+        total_layers: 383
+        trainable_layers: 149
+        model_size_mb: 200.89
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+        huggingface_link: null
+        extra_notes: null
+        runnable: true
+    convnext_small_imagenet_full_seed-0:
+        architecture: DCNN, Transformer
+        model_family: convnext
+        total_parameter_count: 50223688
+        trainable_parameter_count: 50223688
+        total_layers: 383
+        trainable_layers: 149
+        model_size_mb: 200.89
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+        huggingface_link: null
+        extra_notes: null
+        runnable: true
+    convnext_tiny_imagenet_full_seed-0:
+        architecture: DCNN, Transformer
+        model_family: convnext
+        total_parameter_count: 28589128
+        trainable_parameter_count: 28589128
+        total_layers: 203
+        trainable_layers: 77
+        model_size_mb: 114.36
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

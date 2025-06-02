@@ -1,0 +1,15 @@
+models:
+    mc3_18:
+        architecture: DCNN
+        model_family: null
+        total_parameter_count: 11695440
+        trainable_parameter_count: 11695440
+        total_layers: 92
+        trainable_layers: 21
+        model_size_mb: 46.78
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

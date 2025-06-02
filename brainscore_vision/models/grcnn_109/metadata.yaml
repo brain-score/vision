@@ -1,0 +1,15 @@
+models:
+    grcnn_109:
+        architecture: DCNN
+        model_family: null
+        total_parameter_count: 45075880
+        trainable_parameter_count: 45075880
+        total_layers: 483
+        trainable_layers: 120
+        model_size_mb: 180.3
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/grcnn_109
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

@@ -1,0 +1,15 @@
+models:
+    hmax:
+        architecture: DCNN
+        model_family: null
+        total_parameter_count: 1382448
+        trainable_parameter_count: 0
+        total_layers: 101
+        trainable_layers: 0
+        model_size_mb: 5.53
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/hmax
+        huggingface_link: https://huggingface.co/hmax
+        extra_notes: null
+        runnable: true

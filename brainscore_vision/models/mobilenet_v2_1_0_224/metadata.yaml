@@ -1,0 +1,15 @@
+models:
+    mobilenet_v2_1_0_224:
+        architecture: DCNN
+        model_family: mobilenet
+        total_parameter_count: 3506153
+        trainable_parameter_count: 3506153
+        total_layers: 214
+        trainable_layers: 53
+        model_size_mb: 14.02
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mobilenet_v2_1_0_224
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

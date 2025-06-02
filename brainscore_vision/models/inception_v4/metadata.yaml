@@ -1,0 +1,15 @@
+models:
+    inception_v4:
+        architecture: DCNN
+        model_family: inception
+        total_parameter_count: 42679816
+        trainable_parameter_count: 42679816
+        total_layers: 830
+        trainable_layers: 150
+        model_size_mb: 170.72
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/inception_v4
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

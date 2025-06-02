@@ -1,0 +1,15 @@
+models:
+    focalnet_tiny_lrf_in1k:
+        architecture: DCNN, Transformer
+        model_family: null
+        total_parameter_count: 28647928
+        trainable_parameter_count: 28647928
+        total_layers: 427
+        trainable_layers: 101
+        model_size_mb: 114.59
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/focalnet_tiny_in1k_submission
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

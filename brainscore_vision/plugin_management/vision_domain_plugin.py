@@ -150,7 +150,7 @@ class VisionDomainPlugin(DomainPluginInterface):
             "pre_processing": None,
             "brainscore_link": f"https://github.com/brain-score/vision/tree/master/brainscore_vision/data/{benchmark_dir_name}",
             "extra_notes": None,
-            "data_publicly_available": None
+            "data_publicly_available": True
         }
 
         return new_metadata

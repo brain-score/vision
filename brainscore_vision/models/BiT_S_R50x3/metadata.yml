@@ -1,0 +1,15 @@
+models:
+    BiT-S-R50x3:
+        architecture: DCNN
+        model_family: null
+        total_parameter_count: 217319080
+        trainable_parameter_count: 217319080
+        total_layers: 147
+        trainable_layers: 54
+        model_size_mb: 869.28
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/BiT_S_R50x3
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

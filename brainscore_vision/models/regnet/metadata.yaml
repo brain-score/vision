@@ -1,0 +1,15 @@
+models:
+    regnet_y_400mf:
+        architecture: DCNN
+        model_family: null
+        total_parameter_count: 4344144
+        trainable_parameter_count: 4344144
+        total_layers: 344
+        trainable_layers: 86
+        model_size_mb: 17.38
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/regnet
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

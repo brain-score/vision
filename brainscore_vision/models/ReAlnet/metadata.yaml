@@ -12,7 +12,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     ReAlnet02:
         architecture: DCNN
         model_family: null
@@ -26,7 +26,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     ReAlnet03:
         architecture: DCNN
         model_family: null
@@ -40,7 +40,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     ReAlnet04:
         architecture: DCNN
         model_family: null
@@ -54,7 +54,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     ReAlnet05:
         architecture: DCNN
         model_family: null
@@ -68,7 +68,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     ReAlnet06:
         architecture: DCNN
         model_family: null
@@ -82,7 +82,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     ReAlnet07:
         architecture: DCNN
         model_family: null
@@ -96,7 +96,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     ReAlnet08:
         architecture: DCNN
         model_family: null
@@ -110,7 +110,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     ReAlnet09:
         architecture: DCNN
         model_family: null
@@ -124,7 +124,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     ReAlnet10:
         architecture: DCNN
         model_family: null
@@ -138,4 +138,4 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true

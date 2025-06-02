@@ -26,7 +26,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_GDT
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     GDT-Kinetics400:
         architecture: DCNN
         model_family: null
@@ -40,4 +40,4 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_GDT
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true

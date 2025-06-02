@@ -12,7 +12,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     vit_base_patch16_clip_224:openai_ft_in1k:
         architecture: DCNN, Transformer
         model_family: clip, vit
@@ -26,7 +26,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     vit_huge_patch14_clip_224:laion2b_ft_in12k_in1k:
         architecture: DCNN, Transformer
         model_family: clip, vit
@@ -40,7 +40,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     vit_huge_patch14_clip_336:laion2b_ft_in12k_in1k:
         architecture: DCNN, Transformer
         model_family: clip, vit
@@ -54,7 +54,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     vit_large_patch14_clip_224:laion2b_ft_in12k_in1k:
         architecture: DCNN, Transformer
         model_family: clip, vit
@@ -68,7 +68,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     vit_large_patch14_clip_224:laion2b_ft_in1k:
         architecture: DCNN, Transformer
         model_family: clip, vit
@@ -82,7 +82,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     vit_large_patch14_clip_224:openai_ft_in12k_in1k:
         architecture: DCNN, Transformer
         model_family: clip, vit
@@ -96,7 +96,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     vit_large_patch14_clip_224:openai_ft_in1k:
         architecture: DCNN, Transformer
         model_family: clip, vit
@@ -110,7 +110,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     vit_large_patch14_clip_336:laion2b_ft_in1k:
         architecture: DCNN, Transformer
         model_family: clip, vit
@@ -124,7 +124,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     vit_large_patch14_clip_336:openai_ft_in12k_in1k:
         architecture: DCNN, Transformer
         model_family: clip, vit
@@ -138,7 +138,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     vit_relpos_base_patch16_clsgap_224:sw_in1k:
         architecture: DCNN, Transformer
         model_family: vit
@@ -152,7 +152,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     vit_relpos_base_patch32_plus_rpn_256:sw_in1k:
         architecture: DCNN, Transformer
         model_family: vit
@@ -166,7 +166,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true
     vit_tiny_r_s16_p8_384:augreg_in21k_ft_in1k:
         architecture: DCNN, Transformer
         model_family: vit
@@ -180,4 +180,4 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
         huggingface_link: null
         extra_notes: null
-        runnable: True
+        runnable: true

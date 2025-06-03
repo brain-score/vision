@@ -1,0 +1,201 @@
+name: Metadata Handler
+# A callable workflow that handles all things metadata.
+
+on:
+  workflow_call:
+    inputs:
+      plugin-dir:
+        description: "Path to the plugin directory"
+        required: true
+        type: string
+      plugin-type:
+        description: "Plugin type (e.g., models or benchmarks)"
+        required: true
+        type: string
+      db-connection:
+        description: "If true, establish a new database connection"
+        required: false
+        type: boolean
+        default: false
+
+  workflow_dispatch:
+    inputs:
+      plugin-dir:
+        description: "Path to the plugin directory"
+        required: true
+        default: "plugins/example"
+        type: string
+      plugin-type:
+        description: "Plugin type (e.g., models or benchmarks)"
+        required: true
+        default: "models"
+        type: string
+      db-connection:
+        description: "If true, establish a new database connection"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  handle_metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools
+          python -m pip install ".[test]"
+          pip install pyyaml
+          
+      - name: Configure Git
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: "us-east-1"
+
+      - name: Run Metadata Handler
+        id: run_metadata
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BSC_DATABASESECRET: ${{ secrets.BSC_DATABASESECRET }}
+        run: |
+          # split the comma-separated plugin-dir input into an array.
+          IFS=',' read -ra PLUGIN_DIRS <<< "${{ inputs.plugin-dir }}"
+          pr_numbers=""
+          for dir in "${PLUGIN_DIRS[@]}"; do
+            echo "Processing metadata in directory: $dir" 1>&2
+            pr_num=$(python -m brainscore_core.plugin_management.handle_metadata --plugin-dir "$dir" --plugin-type "${{ inputs.plugin-type }}" --db-connection)
+            echo "PR number for $dir: $pr_num" 1>&2
+            # Append to the list (if multiple directories are provided)
+            if [ -z "$pr_numbers" ]; then
+              pr_numbers="$pr_num"
+            else
+              pr_numbers="$pr_numbers,$pr_num"
+              fi
+          done
+          echo "pr_numbers=${pr_numbers}" >> $GITHUB_OUTPUT
+          
+      - name: Auto-approve PRs
+        if: steps.run_metadata.outputs.pr_numbers != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.APPROVAL_TOKEN }}
+        run: |
+          IFS=',' read -ra PR_ARRAY <<< "${{ steps.run_metadata.outputs.pr_numbers }}"
+          for pr in "${PR_ARRAY[@]}"; do
+            echo "Auto-approving PR #$pr" 1>&2
+            gh pr review $pr --approve --repo ${{ github.repository }}
+          done
+          
+      - name: Wait for Status Checks
+        if: steps.run_metadata.outputs.pr_numbers != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          IFS=',' read -ra PR_ARRAY <<< "${{ steps.run_metadata.outputs.pr_numbers }}"
+          TOKEN="${{ secrets.GITHUB_TOKEN }}"
+          MAX_WAIT=600  # 10 minutes maximum wait time per PR
+          SLEEP_INTERVAL=10
+          
+          for pr in "${PR_ARRAY[@]}"; do
+            echo "Waiting for status checks on PR #$pr"
+            commit_sha=$(gh pr view $pr --json headRefOid --jq '.headRefOid')
+            echo "Commit SHA for PR #$pr is $commit_sha"
+            
+            # initial delay to allow statuses to start being reported
+            echo "Sleeping for initial delay (30s) to allow statuses to be reported..."
+            sleep 30
+            ELAPSED=30
+            
+            while true; do
+              echo "Polling statuses for PR #$pr (commit $commit_sha)"
+              statuses=$(curl -s -H "Authorization: token $TOKEN" \
+                  -H "Accept: application/vnd.github+json" \
+                  "https://api.github.com/repos/${{ github.repository }}/commits/$commit_sha/statuses")
+              
+              # get required status checks for the branch
+              branch=$(gh pr view $pr --json headRefName --jq '.headRefName')
+              required_checks=$(curl -s -H "Authorization: token $TOKEN" \
+                  -H "Accept: application/vnd.github+json" \
+                  "https://api.github.com/repos/${{ github.repository }}/branches/$branch/protection" | \
+                  jq -r '.required_status_checks.contexts[]' 2>/dev/null || echo "")
+              
+              # process the latest status for each context
+              latest_statuses=$(echo "$statuses" | jq '[group_by(.context)[] | max_by(.created_at)]')
+              
+              # count by state
+              pending=$(echo "$latest_statuses" | jq 'map(select(.state=="pending")) | length')
+              failures=$(echo "$latest_statuses" | jq 'map(select(.state=="failure" or .state=="error")) | length')
+              successes=$(echo "$latest_statuses" | jq 'map(select(.state=="success")) | length')
+              total=$(echo "$latest_statuses" | jq 'length')
+              
+              # list the current statuses for visibility
+              echo "$latest_statuses" | jq -r '.[] | "  - \(.context): \(.state)"' | sort
+              echo "Status summary: $pending pending, $failures failures, $successes successes (total: $total)"
+              
+              # check for required status checks
+              missing_required=0
+              if [ ! -z "$required_checks" ]; then
+                echo "Required status checks for branch $branch:"
+                echo "$required_checks" | while read -r check; do
+                  exists=$(echo "$latest_statuses" | jq --arg check "$check" 'map(select(.context == $check)) | length')
+                  if [ "$exists" -eq 0 ]; then
+                    echo "  - $check: MISSING"
+                    missing_required=1
+                  else
+                    state=$(echo "$latest_statuses" | jq -r --arg check "$check" '.[] | select(.context == $check) | .state')
+                    echo "  - $check: $state"
+                  fi
+                done
+              else
+                echo "No required status checks found for branch $branch"
+              fi
+              
+              if [ "$failures" -gt 0 ]; then
+                echo "❌ One or more status checks failed for PR #$pr - aborting"
+                exit 1
+              fi
+              
+              if [ "$pending" -eq 0 ] && [ "$missing_required" -eq 0 ]; then
+                echo "✅ All status checks passed for PR #$pr"
+                break
+              fi
+              
+              # sleep and check again
+              sleep $SLEEP_INTERVAL
+              ELAPSED=$((ELAPSED + SLEEP_INTERVAL))
+              if [ "$ELAPSED" -ge "$MAX_WAIT" ]; then
+                echo "⏱️ Timeout of $MAX_WAIT seconds reached for PR #$pr - aborting"
+                exit 1
+              fi
+              
+              echo "Waiting for status checks to complete (elapsed time: ${ELAPSED}s)..."
+            done
+          done
+          
+          echo "All PRs have passed their status checks!"
+          
+      - name: Merge PRs
+        if: steps.run_metadata.outputs.pr_numbers != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          IFS=',' read -ra PR_ARRAY <<< "${{ steps.run_metadata.outputs.pr_numbers }}"
+          for pr in "${PR_ARRAY[@]}"; do
+            echo "Merging PR #$pr" 1>&2
+            gh pr merge $pr --squash --delete-branch --repo ${{ github.repository }}
+          done

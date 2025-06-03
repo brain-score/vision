@@ -181,7 +181,7 @@ jobs:
     name: Process metadata changes
     needs: process_submission
     if: needs.process_submission.outputs.RUN_METADATA == 'true'
-    uses: ./.github/workflows/metadata_testing.yml
+    uses: ./.github/workflows/handle_metadata.yml
     with:
       plugin-dir: ${{ needs.process_submission.outputs.PLUGIN_DIRS }}
       plugin-type: ${{ needs.process_submission.outputs.PLUGIN_TYPE }}

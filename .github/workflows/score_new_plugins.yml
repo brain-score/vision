@@ -176,17 +176,6 @@ jobs:
         with:
           name: plugin-info
           path: plugin-info.json
-
-  process_metadata:
-    name: Process metadata changes
-    needs: process_submission
-    if: needs.process_submission.outputs.RUN_METADATA == 'true'
-    uses: ./.github/workflows/handle_metadata.yml
-    with:
-      plugin-dir: ${{ needs.process_submission.outputs.PLUGIN_DIRS }}
-      plugin-type: ${{ needs.process_submission.outputs.PLUGIN_TYPE }}
-      db-connection: true
-    secrets: inherit
   
   extract_email:
     name: Extracts email for both PRs and web submissions
@@ -281,4 +270,15 @@ jobs:
       - name: Run scoring
         run: |
           python -c 'from brainscore_core.submission.endpoints import call_jenkins; call_jenkins('\''${{ env.PLUGIN_INFO }}'\'')'
+
+  process_metadata:
+    name: Process metadata changes
+    needs: process_submission
+    if: needs.process_submission.outputs.RUN_METADATA == 'true'
+    uses: ./.github/workflows/handle_metadata.yml
+    with:
+      plugin-dir: ${{ needs.process_submission.outputs.PLUGIN_DIRS }}
+      plugin-type: ${{ needs.process_submission.outputs.PLUGIN_TYPE }}
+      db-connection: true
+    secrets: inherit
         

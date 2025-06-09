@@ -12,7 +12,7 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_mae_st
         huggingface_link: null
         extra_notes: null
-        runnable: true
+        runnable: false
     MAE-ST-L:
         architecture: DCNN, Transformer
         model_family: null
@@ -26,4 +26,4 @@ models:
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_mae_st
         huggingface_link: null
         extra_notes: null
-        runnable: true
+        runnable: false

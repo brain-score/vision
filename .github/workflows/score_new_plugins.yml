@@ -190,9 +190,9 @@ jobs:
     secrets: inherit
   
   update_plugin_info:
-    name: Updates PLUGIN_INFO with various fields (domain, competition, model_type, email)
+    name: Updates PLUGIN_INFO with various fields (domain, competition, model_type, email, metadata info)
     runs-on: ubuntu-latest
-    needs: extract_email
+    needs: [extract_email, process_submission]
     steps:
       - name: Download PLUGIN_INFO artifact
         uses: actions/download-artifact@v4
@@ -219,6 +219,12 @@ jobs:
           PLUGIN_JSON=$(echo "$PLUGIN_JSON" | jq -c --arg email "$USER_EMAIL" '. + {email: $email}')
           echo "PLUGIN_INFO=$PLUGIN_JSON" >> $GITHUB_ENV
           echo "Updated PLUGIN_INFO: $PLUGIN_JSON"
+          
+          PLUGIN_JSON=$(echo "$PLUGIN_JSON" | jq -c \
+            --arg plugin_dirs "${{ needs.process_submission.outputs.PLUGIN_DIRS }}" \
+            --arg plugin_type "${{ needs.process_submission.outputs.PLUGIN_TYPE }}" \
+            --arg run_metadata "${{ needs.process_submission.outputs.RUN_METADATA }}" \
+            '. + {plugin_dirs: $plugin_dirs, plugin_type: $plugin_type, run_metadata: $run_metadata}')
 
       - name: Write PLUGIN_INFO to a json file
         run: |
@@ -274,7 +280,7 @@ jobs:
   process_metadata:
     name: Process metadata changes
     needs: process_submission
-    if: needs.process_submission.outputs.RUN_METADATA == 'true'
+    if: needs.process_submission.outputs.METADATA_ONLY == 'true'
     uses: ./.github/workflows/handle_metadata.yml
     with:
       plugin-dir: ${{ needs.process_submission.outputs.PLUGIN_DIRS }}

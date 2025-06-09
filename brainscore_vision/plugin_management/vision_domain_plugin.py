@@ -1,12 +1,32 @@
 import os
 import re
 import sys
+import logging
 import requests
+import contextlib
 import torch.nn as nn
 from typing import Optional, Dict, Any, List
 from brainscore_core.plugin_management.import_plugin import import_plugin
 from brainscore_core.plugin_management.domain_plugin_interface import DomainPluginInterface
 from brainscore_vision import load_benchmark
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+# output suppression to ensure github action logs don't have random print statements
+@contextlib.contextmanager
+def suppress_output():
+    with open(os.devnull, 'w') as devnull:
+        old_stdout = sys.stdout
+        old_stderr = sys.stderr
+        sys.stdout = devnull
+        sys.stderr = devnull
+        try:
+            yield
+        finally:
+            sys.stdout = old_stdout
+            sys.stderr = old_stderr
 
 
 class VisionDomainPlugin(DomainPluginInterface):
@@ -213,7 +233,8 @@ class VisionDomainPlugin(DomainPluginInterface):
         try:
             import_plugin('brainscore_vision', 'models', identifier)
             from brainscore_vision import model_registry
-            model_instance = model_registry[identifier]()
+            with suppress_output():
+                model_instance = model_registry[identifier]()
             return model_instance
         except Exception as e:
             print(f"ERROR: Failed to load model '{identifier}': {e}")
@@ -320,9 +341,9 @@ class VisionDomainPlugin(DomainPluginInterface):
             response = requests.head(hf_url, timeout=1)
             if response.status_code == 200:
                 return hf_url
-            print(f"HuggingFace link for {model_name} found.")
+            logger.info(f"HuggingFace link for {model_name} found.")
         except requests.RequestException as e:
-            print(f"WARNING: checking HuggingFace link for '{model_name}': {e} failed.")
+            logger.info(f"WARNING: checking HuggingFace link for '{model_name}': {e} failed.")
         return None
 
     def create_model_metadata(self, model: Any, model_name: str, model_dir_name: str) -> Dict[str, Any]:

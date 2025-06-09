@@ -71,7 +71,7 @@ jobs:
           echo "modifies_plugins=${MODIFIES_PLUGINS}" >> $GITHUB_OUTPUT
           
           # filter out metadata.yml
-          non_metadata=$(echo "${{ env.CHANGED_FILES }}" | tr ' ' '\n' | grep -v "metadata.yml" || true)
+          non_metadata=$(echo "${{ env.CHANGED_FILES }}" | tr ' ' '\n' | grep -Ev "metadata\.ya?ml" || true)
 
           if [ -z "$non_metadata" ] && [ "$MODIFIES_PLUGINS" = "true" ]; then
             echo "only_metadata=true" >> $GITHUB_OUTPUT

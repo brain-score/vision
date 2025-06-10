@@ -1,0 +1,15 @@
+models:
+    barlow_twins_custom:
+        architecture: DCNN
+        model_family: null
+        total_parameter_count: 11689512
+        trainable_parameter_count: 11689512
+        total_layers: 68
+        trainable_layers: 21
+        model_size_mb: 46.76
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/barlow_twins_custom
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

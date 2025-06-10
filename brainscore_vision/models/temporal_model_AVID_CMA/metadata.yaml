@@ -1,0 +1,57 @@
+models:
+    AVID-Audioset:
+        architecture: DCNN
+        model_family: null
+        total_parameter_count: 15379136
+        trainable_parameter_count: 15379136
+        total_layers: 94
+        trainable_layers: 36
+        model_size_mb: 61.52
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_AVID_CMA
+        huggingface_link: null
+        extra_notes: null
+        runnable: false
+    AVID-CMA-Audioset:
+        architecture: DCNN
+        model_family: null
+        total_parameter_count: 15379136
+        trainable_parameter_count: 15379136
+        total_layers: 94
+        trainable_layers: 36
+        model_size_mb: 61.52
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_AVID_CMA
+        huggingface_link: null
+        extra_notes: null
+        runnable: false
+    AVID-CMA-Kinetics400:
+        architecture: DCNN
+        model_family: null
+        total_parameter_count: 15379136
+        trainable_parameter_count: 15379136
+        total_layers: 94
+        trainable_layers: 36
+        model_size_mb: 61.52
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_AVID_CMA
+        huggingface_link: null
+        extra_notes: null
+        runnable: false
+    AVID-Kinetics400:
+        architecture: DCNN
+        model_family: null
+        total_parameter_count: 15379136
+        trainable_parameter_count: 15379136
+        total_layers: 94
+        trainable_layers: 36
+        model_size_mb: 61.52
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_AVID_CMA
+        huggingface_link: null
+        extra_notes: null
+        runnable: false

@@ -1,0 +1,113 @@
+benchmarks:
+    ImageNet-C-blur-top1:
+        stimulus_set:
+            num_stimuli: 1000000
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 436.783
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/imagenet_c
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/imagenet_c
+            extra_notes: null
+            data_publicly_available: false
+        metric:
+            type: custom
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/imagenet_c
+            extra_notes: null
+    ImageNet-C-digital-top1:
+        stimulus_set:
+            num_stimuli: 1000000
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 443.4587
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/imagenet_c
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/imagenet_c
+            extra_notes: null
+            data_publicly_available: false
+        metric:
+            type: custom
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/imagenet_c
+            extra_notes: null
+    ImageNet-C-noise-top1:
+        stimulus_set:
+            num_stimuli: 750000
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 332.8325
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/imagenet_c
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/imagenet_c
+            extra_notes: null
+            data_publicly_available: false
+        metric:
+            type: custom
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/imagenet_c
+            extra_notes: null
+    ImageNet-C-weather-top1:
+        stimulus_set:
+            num_stimuli: 1000000
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 417.7095
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/imagenet_c
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/imagenet_c
+            extra_notes: null
+            data_publicly_available: false
+        metric:
+            type: custom
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/imagenet_c
+            extra_notes: null

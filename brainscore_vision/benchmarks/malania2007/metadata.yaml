@@ -1,0 +1,281 @@
+benchmarks:
+    Malania2007.equal16-threshold_elevation:
+        stimulus_set:
+            num_stimuli: null
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
+        data:
+            benchmark_type: behavior
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: threshold
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/threshold
+            extra_notes: null
+    Malania2007.equal2-threshold_elevation:
+        stimulus_set:
+            num_stimuli: null
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
+        data:
+            benchmark_type: behavior
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: threshold
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/threshold
+            extra_notes: null
+    Malania2007.long16-threshold_elevation:
+        stimulus_set:
+            num_stimuli: null
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
+        data:
+            benchmark_type: behavior
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: threshold
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/threshold
+            extra_notes: null
+    Malania2007.long2-threshold_elevation:
+        stimulus_set:
+            num_stimuli: null
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
+        data:
+            benchmark_type: behavior
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: threshold
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/threshold
+            extra_notes: null
+    Malania2007.short16-threshold_elevation:
+        stimulus_set:
+            num_stimuli: null
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
+        data:
+            benchmark_type: behavior
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: threshold
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/threshold
+            extra_notes: null
+    Malania2007.short2-threshold_elevation:
+        stimulus_set:
+            num_stimuli: null
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
+        data:
+            benchmark_type: behavior
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: threshold
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/threshold
+            extra_notes: null
+    Malania2007.short4-threshold_elevation:
+        stimulus_set:
+            num_stimuli: null
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
+        data:
+            benchmark_type: behavior
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: threshold
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/threshold
+            extra_notes: null
+    Malania2007.short6-threshold_elevation:
+        stimulus_set:
+            num_stimuli: null
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
+        data:
+            benchmark_type: behavior
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: threshold
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/threshold
+            extra_notes: null
+    Malania2007.short8-threshold_elevation:
+        stimulus_set:
+            num_stimuli: null
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
+        data:
+            benchmark_type: behavior
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: threshold
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/threshold
+            extra_notes: null
+    Malania2007.vernieracuity-threshold:
+        stimulus_set:
+            num_stimuli: null
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
+        data:
+            benchmark_type: behavior
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/malania2007
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: threshold
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/threshold
+            extra_notes: null

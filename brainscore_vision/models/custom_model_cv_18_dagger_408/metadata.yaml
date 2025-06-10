@@ -1,0 +1,15 @@
+models:
+    custom_model_cv_18_dagger_408:
+        architecture: DCNN, Transformer
+        model_family: null
+        total_parameter_count: 44606560
+        trainable_parameter_count: 44606560
+        total_layers: 595
+        trainable_layers: 132
+        model_size_mb: 178.43
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/custom_model_cv_18_dagger_408
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

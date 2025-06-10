@@ -1,0 +1,6 @@
+{
+    "V1": "vit.encoder.layer.2.attention.output.dense",
+    "V2": "vit.encoder.layer.4.attention.output.dense",
+    "V4": "vit.encoder.layer.2.attention.output.dense",
+    "IT": "vit.encoder.layer.6.attention.output.dense"
+}

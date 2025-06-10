@@ -1,0 +1,15 @@
+models:
+    AdvProp_efficientnet-b8:
+        architecture: DCNN
+        model_family: efficientnet
+        total_parameter_count: 87413142
+        trainable_parameter_count: 87413142
+        total_layers: 915
+        trainable_layers: 304
+        model_size_mb: 349.65
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AdvProp_efficientnet_b8
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

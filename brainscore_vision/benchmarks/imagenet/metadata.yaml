@@ -1,0 +1,29 @@
+benchmarks:
+    ImageNet-top1:
+        stimulus_set:
+            num_stimuli: 50000
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 27.0368
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/imagenet
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/imagenet
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null

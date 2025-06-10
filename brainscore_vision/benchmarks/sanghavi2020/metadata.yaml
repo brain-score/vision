@@ -1,0 +1,169 @@
+benchmarks:
+    Sanghavi2020.IT-pls:
+        stimulus_set:
+            num_stimuli: 5760
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 4.7545
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/sanghavi2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: IT
+            hemisphere: L
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/sanghavi2020
+            extra_notes: null
+            data_publicly_available: false
+        metric:
+            type: pls
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
+            extra_notes: null
+    Sanghavi2020.V4-pls:
+        stimulus_set:
+            num_stimuli: 5760
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 4.7545
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/sanghavi2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V4
+            hemisphere: L
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/sanghavi2020
+            extra_notes: null
+            data_publicly_available: false
+        metric:
+            type: pls
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
+            extra_notes: null
+    SanghaviJozwik2020.IT-pls:
+        stimulus_set:
+            num_stimuli: 4916
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 2.6779
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/sanghavi2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: IT
+            hemisphere: L
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/sanghavi2020
+            extra_notes: null
+            data_publicly_available: false
+        metric:
+            type: pls
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
+            extra_notes: null
+    SanghaviJozwik2020.V4-pls:
+        stimulus_set:
+            num_stimuli: 4916
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 2.6779
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/sanghavi2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V4
+            hemisphere: L
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/sanghavi2020
+            extra_notes: null
+            data_publicly_available: false
+        metric:
+            type: pls
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
+            extra_notes: null
+    SanghaviMurty2020.IT-pls:
+        stimulus_set:
+            num_stimuli: 300
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0431
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/sanghavi2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: IT
+            hemisphere: L
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/sanghavi2020
+            extra_notes: null
+            data_publicly_available: false
+        metric:
+            type: pls
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
+            extra_notes: null
+    SanghaviMurty2020.V4-pls:
+        stimulus_set:
+            num_stimuli: 300
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0431
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/sanghavi2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V4
+            hemisphere: L
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/sanghavi2020
+            extra_notes: null
+            data_publicly_available: false
+        metric:
+            type: pls
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
+            extra_notes: null

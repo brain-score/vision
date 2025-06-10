@@ -1,0 +1,225 @@
+benchmarks:
+    Islam2021-shape_it_dimensionality:
+        stimulus_set:
+            num_stimuli: 21845
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 7.4723
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/islam2021
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: IT
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/islam2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: factor_dimensionality
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/dimensionality
+            extra_notes: null
+    Islam2021-shape_v1_dimensionality:
+        stimulus_set:
+            num_stimuli: 21845
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 7.4723
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/islam2021
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V4
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/islam2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: factor_dimensionality
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/dimensionality
+            extra_notes: null
+    Islam2021-shape_v2_dimensionality:
+        stimulus_set:
+            num_stimuli: 21845
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 7.4723
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/islam2021
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V2
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/islam2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: factor_dimensionality
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/dimensionality
+            extra_notes: null
+    Islam2021-shape_v4_dimensionality:
+        stimulus_set:
+            num_stimuli: 21845
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 7.4723
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/islam2021
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V4
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/islam2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: factor_dimensionality
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/dimensionality
+            extra_notes: null
+    Islam2021-texture_it_dimensionality:
+        stimulus_set:
+            num_stimuli: 21845
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 7.4723
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/islam2021
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: IT
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/islam2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: factor_dimensionality
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/dimensionality
+            extra_notes: null
+    Islam2021-texture_v1_dimensionality:
+        stimulus_set:
+            num_stimuli: 21845
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 7.4723
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/islam2021
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/islam2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: factor_dimensionality
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/dimensionality
+            extra_notes: null
+    Islam2021-texture_v2_dimensionality:
+        stimulus_set:
+            num_stimuli: 21845
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 7.4723
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/islam2021
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V2
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/islam2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: factor_dimensionality
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/dimensionality
+            extra_notes: null
+    Islam2021-texture_v4_dimensionality:
+        stimulus_set:
+            num_stimuli: 21845
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 7.4723
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/islam2021
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V4
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/islam2021
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: factor_dimensionality
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/dimensionality
+            extra_notes: null

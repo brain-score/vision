@@ -1,0 +1,15 @@
+models:
+    resnet_101_v2:
+        architecture: DCNN
+        model_family: resnet
+        total_parameter_count: 44549160
+        trainable_parameter_count: 44549160
+        total_layers: 287
+        trainable_layers: 105
+        model_size_mb: 178.2
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet_101_v2
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

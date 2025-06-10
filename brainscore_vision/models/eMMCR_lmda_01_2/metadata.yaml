@@ -1,0 +1,15 @@
+models:
+    eMMCR_lmda_01_2:
+        architecture: DCNN
+        model_family: null
+        total_parameter_count: 25557032
+        trainable_parameter_count: 25557032
+        total_layers: 151
+        trainable_layers: 54
+        model_size_mb: 102.23
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/eMMCR_lmda_01_2
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

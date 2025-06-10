@@ -1,0 +1,15 @@
+models:
+    evresnet_50_4:
+        architecture: DCNN
+        model_family: resnet
+        total_parameter_count: 28154892
+        trainable_parameter_count: 25580264
+        total_layers: 171
+        trainable_layers: 54
+        model_size_mb: 112.62
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/evresnet_50_4
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

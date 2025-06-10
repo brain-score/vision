@@ -1,0 +1,15 @@
+models:
+    model-lecs:
+        architecture: DCNN, Transformer
+        model_family: null
+        total_parameter_count: 87456000
+        trainable_parameter_count: 87456000
+        total_layers: 153
+        trainable_layers: 74
+        model_size_mb: 349.82
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/clipvision
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

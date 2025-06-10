@@ -1,0 +1,15 @@
+models:
+    bp_resnet50_julios:
+        architecture: DCNN
+        model_family: resnet
+        total_parameter_count: 25503912
+        trainable_parameter_count: 25503912
+        total_layers: 151
+        trainable_layers: 54
+        model_size_mb: 102.02
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/bp_resnet50_julios
+        huggingface_link: null
+        extra_notes: null
+        runnable: false

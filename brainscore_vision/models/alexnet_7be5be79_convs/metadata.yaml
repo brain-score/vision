@@ -1,0 +1,15 @@
+models:
+    alexnet_7be5be79_convs:
+        architecture: DCNN
+        model_family: alexnet
+        total_parameter_count: 61100840
+        trainable_parameter_count: 61100840
+        total_layers: 24
+        trainable_layers: 8
+        model_size_mb: 244.4
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_7be5be79_convs
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

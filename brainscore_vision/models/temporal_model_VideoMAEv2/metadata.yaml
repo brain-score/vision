@@ -1,0 +1,29 @@
+models:
+    VideoMAE-V2-B:
+        architecture: DCNN, Transformer
+        model_family: null
+        total_parameter_count: 86996200
+        trainable_parameter_count: 86996200
+        total_layers: 177
+        trainable_layers: 50
+        model_size_mb: 347.98
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_VideoMAEv2
+        huggingface_link: null
+        extra_notes: null
+        runnable: false
+    VideoMAE-V2-G:
+        architecture: DCNN, Transformer
+        model_family: null
+        total_parameter_count: 1013019752
+        trainable_parameter_count: 1013019752
+        total_layers: 569
+        trainable_layers: 162
+        model_size_mb: 4052.08
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_VideoMAEv2
+        huggingface_link: null
+        extra_notes: null
+        runnable: false

@@ -1,0 +1,29 @@
+benchmarks:
+    Rajalingham2020.IT-pls:
+        stimulus_set:
+            num_stimuli: 616
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 3.5858
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/rajalingham2020
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: IT
+            hemisphere: L
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: neural
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/rajalingham2020
+            extra_notes: null
+            data_publicly_available: false
+        metric:
+            type: pls
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
+            extra_notes: null

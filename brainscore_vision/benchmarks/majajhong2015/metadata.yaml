@@ -1,0 +1,169 @@
+benchmarks:
+    MajajHong2015.IT-pls:
+        stimulus_set:
+            num_stimuli: 2560
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 2.1133
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/majajhong2015
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: IT
+            hemisphere: L
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/majajhong2015
+            extra_notes: null
+            data_publicly_available: false
+        metric:
+            type: pls
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
+            extra_notes: null
+    MajajHong2015.V4-pls:
+        stimulus_set:
+            num_stimuli: 2560
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 2.1133
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/majajhong2015
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V4
+            hemisphere: L
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/majajhong2015
+            extra_notes: null
+            data_publicly_available: false
+        metric:
+            type: pls
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
+            extra_notes: null
+    MajajHong2015public.IT-pls:
+        stimulus_set:
+            num_stimuli: 3200
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 2.6413
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/majajhong2015
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: IT
+            hemisphere: L
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/majajhong2015
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: pls
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
+            extra_notes: null
+    MajajHong2015public.IT-temporal-pls:
+        stimulus_set:
+            num_stimuli: 3200
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 2.6413
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/majajhong2015
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: IT
+            hemisphere: L
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/majajhong2015
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: pls
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
+            extra_notes: null
+    MajajHong2015public.V4-pls:
+        stimulus_set:
+            num_stimuli: 3200
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 2.6413
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/majajhong2015
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V4
+            hemisphere: L
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/majajhong2015
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: pls
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
+            extra_notes: null
+    MajajHong2015public.V4-temporal-pls:
+        stimulus_set:
+            num_stimuli: 3200
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 2.6413
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/majajhong2015
+            extra_notes: null
+        data:
+            benchmark_type: neural
+            task: null
+            region: V4
+            hemisphere: L
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: null
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/majajhong2015
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: pls
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
+            extra_notes: null

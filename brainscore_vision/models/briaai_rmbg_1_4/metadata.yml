@@ -1,0 +1,15 @@
+models:
+    briaai_rmbg_1_4:
+        architecture: DCNN
+        model_family: null
+        total_parameter_count: 44046790
+        trainable_parameter_count: 44046790
+        total_layers: 501
+        trainable_layers: 119
+        model_size_mb: 176.19
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/briaai_rmbg_1_4
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

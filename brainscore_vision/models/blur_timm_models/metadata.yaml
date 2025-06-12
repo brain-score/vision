@@ -7,10 +7,10 @@ models:
         total_layers: 465
         trainable_layers: 113
         model_size_mb: 1400.79
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k; imagenet-22k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/blur_timm_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/convnext_large.fb_in22k_ft_in1k
         extra_notes: null
         runnable: true
     blur25_convnext_xxlarge:clip_laion2b_soup_ft_in1k:
@@ -21,10 +21,10 @@ models:
         total_layers: 513
         trainable_layers: 125
         model_size_mb: 3385.88
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k; laion-2b
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/blur_timm_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/convnext_xxlarge.clip_laion2b_soup_ft_in1k
         extra_notes: null
         runnable: true
     blur25_vit_huge_patch14_clip_224:laion2b_ft_in12k_in1k:
@@ -35,10 +35,10 @@ models:
         total_layers: 684
         trainable_layers: 132
         model_size_mb: 2528.19
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k; laion-2b; imagenet-12k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/blur_timm_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/vit_huge_patch14_clip_224.laion2b_ft_in12k_in1k
         extra_notes: null
         runnable: true
     blur25_vit_large_patch14_clip_224:laion2b_ft_in12k_in1k:
@@ -49,10 +49,10 @@ models:
         total_layers: 516
         trainable_layers: 100
         model_size_mb: 1216.82
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k; laion-2b; imagenet-12k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/blur_timm_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/vit_large_patch14_clip_224.laion2b_ft_in12k_in1k
         extra_notes: null
         runnable: true
     blur25_vit_large_patch14_clip_224:openai_ft_in12k_in1k:
@@ -63,10 +63,10 @@ models:
         total_layers: 516
         trainable_layers: 100
         model_size_mb: 1216.82
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k; wit-400m; imagenet-12k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/blur_timm_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/vit_large_patch14_clip_224.openai_ft_in12k_in1k
         extra_notes: null
         runnable: true
     blur25_vit_large_patch14_clip_336:openai_ft_in12k_in1k:
@@ -77,10 +77,10 @@ models:
         total_layers: 516
         trainable_layers: 100
         model_size_mb: 1218.13
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k; wit-400m; imagenet-12k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/blur_timm_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/vit_large_patch14_clip_336.openai_ft_in12k_in1k
         extra_notes: null
         runnable: true
     blur25_convnext_large_mlp:clip_laion2b_augreg_ft_in1k_384:
@@ -91,10 +91,10 @@ models:
         total_layers: 467
         trainable_layers: 114
         model_size_mb: 800.51
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k; laion-2b
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/blur_timm_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/convnext_large_mlp.clip_laion2b_augreg_ft_in1k_384
         extra_notes: null
         runnable: true
     blur25_convnext_tiny:in12k_ft_in1k:
@@ -105,9 +105,9 @@ models:
         total_layers: 249
         trainable_layers: 59
         model_size_mb: 114.36
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k; imagenet-12k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/blur_timm_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/convnext_tiny.in12k_ft_in1k
         extra_notes: null
         runnable: true

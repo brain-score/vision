@@ -7,9 +7,9 @@ models:
         total_layers: 318
         trainable_layers: 90
         model_size_mb: 22.31
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mobilevit_small
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/apple/mobilevit-small
         extra_notes: null
         runnable: true

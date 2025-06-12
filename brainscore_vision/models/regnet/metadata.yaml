@@ -7,9 +7,9 @@ models:
         total_layers: 344
         trainable_layers: 86
         model_size_mb: 17.38
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/regnet
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/PrunaAI/regnet_y_400mf-turbo-green-smashed
         extra_notes: null
         runnable: true

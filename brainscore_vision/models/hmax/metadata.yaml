@@ -10,6 +10,6 @@ models:
         training_dataset: null
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/hmax
-        huggingface_link: https://huggingface.co/hmax
+        huggingface_link: null
         extra_notes: null
         runnable: true

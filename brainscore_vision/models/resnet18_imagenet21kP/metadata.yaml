@@ -7,9 +7,9 @@ models:
         total_layers: 68
         trainable_layers: 21
         model_size_mb: 66.15
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-21k; imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet18_imagenet21kP
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/microsoft/resnet-18
         extra_notes: null
         runnable: true

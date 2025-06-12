@@ -7,10 +7,10 @@ models:
         total_layers: 287
         trainable_layers: 105
         model_size_mb: 174.63
-        training_dataset: null
-        task_specialization: null
+        training_dataset: ecoset
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/keras/resnet_101_imagenet
         extra_notes: null
         runnable: true
     resnet101_imagenet_full:
@@ -21,10 +21,10 @@ models:
         total_layers: 287
         trainable_layers: 105
         model_size_mb: 178.2
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/keras/resnet_101_imagenet
         extra_notes: null
         runnable: true
     resnet152_ecoset_full:
@@ -35,10 +35,10 @@ models:
         total_layers: 423
         trainable_layers: 156
         model_size_mb: 237.21
-        training_dataset: null
-        task_specialization: null
+        training_dataset: ecoset
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/keras/resnet_152_imagenet
         extra_notes: null
         runnable: true
     resnet152_imagenet_full:
@@ -49,10 +49,10 @@ models:
         total_layers: 423
         trainable_layers: 156
         model_size_mb: 240.77
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/keras/resnet_152_imagenet
         extra_notes: null
         runnable: true
     resnet18_ecoset_full:
@@ -63,10 +63,10 @@ models:
         total_layers: 68
         trainable_layers: 21
         model_size_mb: 45.87
-        training_dataset: null
-        task_specialization: null
+        training_dataset: ecoset
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/resnet18.a1_in1k
         extra_notes: null
         runnable: true
     resnet18_imagenet_full:
@@ -77,10 +77,10 @@ models:
         total_layers: 68
         trainable_layers: 21
         model_size_mb: 46.76
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/resnet18.a1_in1k
         extra_notes: null
         runnable: true
     resnet34_ecoset_full:
@@ -91,10 +91,10 @@ models:
         total_layers: 116
         trainable_layers: 37
         model_size_mb: 86.3
-        training_dataset: null
-        task_specialization: null
+        training_dataset: ecoset
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/resnet34.a1_in1k
         extra_notes: null
         runnable: true
     resnet34_imagenet_full:
@@ -105,10 +105,10 @@ models:
         total_layers: 116
         trainable_layers: 37
         model_size_mb: 87.19
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/resnet34.a1_in1k
         extra_notes: null
         runnable: true
     resnet50_ecoset_full:
@@ -119,10 +119,10 @@ models:
         total_layers: 151
         trainable_layers: 54
         model_size_mb: 98.66
-        training_dataset: null
-        task_specialization: null
+        training_dataset: ecoset
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/resnet50.a1_in1k
         extra_notes: null
         runnable: true
     resnet50_imagenet_100_seed-0:
@@ -133,10 +133,10 @@ models:
         total_layers: 151
         trainable_layers: 54
         model_size_mb: 102.23
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/resnet50.a1_in1k
         extra_notes: null
         runnable: true
     resnet50_imagenet_10_seed-0:
@@ -147,10 +147,10 @@ models:
         total_layers: 151
         trainable_layers: 54
         model_size_mb: 102.23
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/resnet50.a1_in1k
         extra_notes: null
         runnable: true
     resnet50_imagenet_1_seed-0:
@@ -161,10 +161,10 @@ models:
         total_layers: 151
         trainable_layers: 54
         model_size_mb: 102.23
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/resnet50.a1_in1k
         extra_notes: null
         runnable: true
     resnet50_imagenet_full:
@@ -175,10 +175,10 @@ models:
         total_layers: 151
         trainable_layers: 54
         model_size_mb: 102.23
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/resnet50.a1_in1k
         extra_notes: null
         runnable: true
     convnext_base_imagenet_full_seed-0:
@@ -189,10 +189,10 @@ models:
         total_layers: 383
         trainable_layers: 149
         model_size_mb: 354.37
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/facebook/convnext-base-224
         extra_notes: null
         runnable: true
     convnext_large_imagenet_full_seed-0:
@@ -203,10 +203,10 @@ models:
         total_layers: 383
         trainable_layers: 149
         model_size_mb: 791.07
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/facebook/convnext-large-224
         extra_notes: null
         runnable: true
     convnext_small_imagenet_100_seed-0:
@@ -217,10 +217,10 @@ models:
         total_layers: 383
         trainable_layers: 149
         model_size_mb: 200.89
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/facebook/convnext-small-224
         extra_notes: null
         runnable: true
     convnext_small_imagenet_10_seed-0:
@@ -231,10 +231,10 @@ models:
         total_layers: 383
         trainable_layers: 149
         model_size_mb: 200.89
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/facebook/convnext-small-224
         extra_notes: null
         runnable: true
     convnext_small_imagenet_1_seed-0:
@@ -245,10 +245,10 @@ models:
         total_layers: 383
         trainable_layers: 149
         model_size_mb: 200.89
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/facebook/convnext-small-224
         extra_notes: null
         runnable: true
     convnext_small_imagenet_full_seed-0:
@@ -259,10 +259,10 @@ models:
         total_layers: 383
         trainable_layers: 149
         model_size_mb: 200.89
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/facebook/convnext-small-224
         extra_notes: null
         runnable: true
     convnext_tiny_imagenet_full_seed-0:
@@ -273,10 +273,10 @@ models:
         total_layers: 203
         trainable_layers: 77
         model_size_mb: 114.36
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/1ucky40nc3/convnext_tiny_imagenet-1k
         extra_notes: null
         runnable: true
     deit_base_imagenet_full_seed-0:
@@ -287,10 +287,10 @@ models:
         total_layers: 264
         trainable_layers: 52
         model_size_mb: 346.34
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/deit3_base_patch16_224.fb_in1k
         extra_notes: null
         runnable: true
     deit_large_imagenet_full_seed-0:
@@ -301,10 +301,10 @@ models:
         total_layers: 516
         trainable_layers: 100
         model_size_mb: 1217.5
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/deit3_large_patch16_224.fb_in1k
         extra_notes: null
         runnable: true
     deit_small_imagenet_100_seed-0:
@@ -315,10 +315,10 @@ models:
         total_layers: 264
         trainable_layers: 52
         model_size_mb: 88.24
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/deit3_small_patch16_224.fb_in1k
         extra_notes: null
         runnable: true
     deit_small_imagenet_10_seed-0:
@@ -329,10 +329,10 @@ models:
         total_layers: 264
         trainable_layers: 52
         model_size_mb: 88.24
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/deit3_small_patch16_224.fb_in1k
         extra_notes: null
         runnable: true
     deit_small_imagenet_1_seed-0:
@@ -343,10 +343,10 @@ models:
         total_layers: 264
         trainable_layers: 52
         model_size_mb: 88.24
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/deit3_small_patch16_224.fb_in1k
         extra_notes: null
         runnable: true
     deit_small_imagenet_full_seed-0:
@@ -357,10 +357,10 @@ models:
         total_layers: 264
         trainable_layers: 52
         model_size_mb: 88.24
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/deit3_small_patch16_224.fb_in1k
         extra_notes: null
         runnable: true
     efficientnet_b0_imagenet_full:
@@ -371,10 +371,10 @@ models:
         total_layers: 337
         trainable_layers: 82
         model_size_mb: 21.15
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/smp-hub/efficientnet-b0.imagenet
         extra_notes: null
         runnable: true
     efficientnet_b1_imagenet_full:
@@ -385,10 +385,10 @@ models:
         total_layers: 473
         trainable_layers: 116
         model_size_mb: 31.18
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/smp-hub/efficientnet-b1.imagenet
         extra_notes: null
         runnable: true
     efficientnet_b2_imagenet_full:
@@ -399,9 +399,9 @@ models:
         total_layers: 473
         trainable_layers: 116
         model_size_mb: 36.44
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/smp-hub/efficientnet-b2.imagenet
         extra_notes: null
         runnable: true

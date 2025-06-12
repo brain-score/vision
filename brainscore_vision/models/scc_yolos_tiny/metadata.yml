@@ -7,9 +7,9 @@ models:
         total_layers: 224
         trainable_layers: 82
         model_size_mb: 25.95
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k; coco
+        task_specialization: object-detection
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scc_yolos_tiny
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/hustvl/yolos-tiny
         extra_notes: null
         runnable: true

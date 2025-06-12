@@ -8,8 +8,8 @@ models:
         trainable_layers: 54
         model_size_mb: 99.56
         training_dataset: null
-        task_specialization: null
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/yudixie_resnet50_250117_8
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/resnet50.a1_in1k
         extra_notes: null
         runnable: true

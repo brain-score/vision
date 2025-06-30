@@ -27,7 +27,9 @@ jobs:
               per_page: 100
             });
             const filtered = prs.filter(pr => pr.title.startsWith('brain-score.org submission'));
-            return JSON.stringify(filtered.map(pr => ({ number: pr.number, sha: pr.head.sha, updated_at: pr.updated_at })));
+            console.log(`Found ${filtered.length} PR(s) matching 'brain-score.org submission'.`);
+            const result = JSON.stringify(filtered.map(pr => ({ number: pr.number, sha: pr.head.sha, updated_at: pr.updated_at })));
+            core.setOutput('prs', result);
           result-encoding: string
 
   process_prs:
@@ -41,7 +43,13 @@ jobs:
             const MAX_DAYS_PASSED_CHECKS = 28;
             const MAX_DAYS_FAILED_CHECKS = 14;
 
+            if (!process.env.PR_LIST || process.env.PR_LIST.trim() === '') {
+              console.log('No PRs to process. Exiting.');
+              return;
+            }
+
             const prs = JSON.parse(process.env.PR_LIST);
+            console.log(`Processing ${prs.length} PR(s) for potential closure.`);
             const now = new Date();
             
             // Iterate over all PRs
@@ -57,6 +65,7 @@ jobs:
 
               // If PR has passed status checks, allow for more time
               if (statusState === 'success' && ageInDays > MAX_DAYS_PASSED_CHECKS) {
+                console.log(`Closing PR #${pr.number} with passed checks, age ${ageInDays.toFixed(1)} days.`);
                 await github.rest.pulls.update({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
@@ -71,6 +80,7 @@ jobs:
                 });
               // If PR has failed stastus checks, close more quickly  
               } else if (statusState === 'failure' && ageInDays > MAX_DAYS_FAILED_CHECKS) {
+                console.log(`Closing PR #${pr.number} with failed checks, age ${ageInDays.toFixed(1)} days.`);
                 await github.rest.pulls.update({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
@@ -83,6 +93,8 @@ jobs:
                   issue_number: pr.number,
                   body: `Closing this PR as it has been inactive for more than ${MAX_DAYS_FAILED_CHECKS} days since last update.`
                 });
+              } else {
+                console.log(`Keeping PR #${pr.number} open: status=${statusState}, age=${ageInDays.toFixed(1)} days.`);
               }
             }
         env:

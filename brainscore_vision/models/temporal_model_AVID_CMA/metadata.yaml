@@ -7,8 +7,8 @@ models:
         total_layers: 94
         trainable_layers: 36
         model_size_mb: 61.52
-        training_dataset: null
-        task_specialization: null
+        training_dataset: audioset
+        task_specialization: video-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_AVID_CMA
         huggingface_link: null
         extra_notes: null
@@ -21,8 +21,8 @@ models:
         total_layers: 94
         trainable_layers: 36
         model_size_mb: 61.52
-        training_dataset: null
-        task_specialization: null
+        training_dataset: audioset
+        task_specialization: video-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_AVID_CMA
         huggingface_link: null
         extra_notes: null
@@ -35,8 +35,8 @@ models:
         total_layers: 94
         trainable_layers: 36
         model_size_mb: 61.52
-        training_dataset: null
-        task_specialization: null
+        training_dataset: kinetics-400
+        task_specialization: video-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_AVID_CMA
         huggingface_link: null
         extra_notes: null
@@ -49,8 +49,8 @@ models:
         total_layers: 94
         trainable_layers: 36
         model_size_mb: 61.52
-        training_dataset: null
-        task_specialization: null
+        training_dataset: kinetics-400
+        task_specialization: video-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_AVID_CMA
         huggingface_link: null
         extra_notes: null

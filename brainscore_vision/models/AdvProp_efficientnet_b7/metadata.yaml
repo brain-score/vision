@@ -7,9 +7,9 @@ models:
         total_layers: 825
         trainable_layers: 274
         model_size_mb: 265.39
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AdvProp_efficientnet_b7
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/smp-hub/efficientnet-b7.advprop
         extra_notes: null
         runnable: true

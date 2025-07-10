@@ -7,9 +7,9 @@ models:
         total_layers: 427
         trainable_layers: 101
         model_size_mb: 114.59
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/focalnet_tiny_in1k_submission
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/focalnet_tiny_lrf.ms_in1k
         extra_notes: null
         runnable: true

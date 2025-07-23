@@ -137,16 +137,38 @@ def preprocess_images(images, image_size, **kwargs):
 
 def torchvision_preprocess_input(image_size, **kwargs):
     from torchvision import transforms
-    return transforms.Compose([
-        transforms.Resize((image_size, image_size)),
-        torchvision_preprocess(**kwargs),
-    ])
+    preprocess_type = kwargs.get('preprocess_type', 'imagenet').lower()
+    if preprocess_type == 'imagenet':
+        return transforms.Compose([
+            transforms.Resize((image_size, image_size)),
+            torchvision_preprocess(**kwargs),
+        ])
+    elif preprocess_type == 'inception':  # inception-style resize
+        resize_size = int(image_size * 256 / 224)
+        return transforms.Compose([
+            transforms.Resize(resize_size),
+            transforms.CenterCrop(image_size),
+            torchvision_preprocess(preprocess_type='inception')
+        ])
+    else:
+        raise ValueError(f"Unknown preprocess_type '{preprocess_type}'")
 
 
-def torchvision_preprocess(normalize_mean=(0.485, 0.456, 0.406), normalize_std=(0.229, 0.224, 0.225)):
+def torchvision_preprocess(preprocess_type="imagenet", **kwargs):
     from torchvision import transforms
-    return transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(mean=normalize_mean, std=normalize_std),
-        lambda img: img.unsqueeze(0)
-    ])
+    if preprocess_type == "imagenet":
+        normalize_mean = kwargs.get('normalize_mean', (0.485, 0.456, 0.406))
+        normalize_std = kwargs.get('normalize_std', (0.229, 0.224, 0.225))
+        return transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(mean=normalize_mean, std=normalize_std),
+            lambda img: img.unsqueeze(0)
+        ])
+    elif preprocess_type == "inception":
+        return transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
+            lambda img: img.unsqueeze(0)
+        ])
+    else:
+        raise ValueError(f"Unknown preprocess_type '{preprocess_type}'")

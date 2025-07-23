@@ -1,0 +1,141 @@
+models:
+    ReAlnet01_ALL:
+        architecture: DCNN, RNN, SKIP_CONNECTIONS
+        model_family: cornet
+        total_parameter_count: 53416616
+        trainable_parameter_count: 53416616
+        total_layers: 72
+        trainable_layers: 18
+        model_size_mb: 213.67
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_ALL
+        huggingface_link: null
+        extra_notes: null
+        runnable: true
+    ReAlnet02_ALL:
+        architecture: DCNN, RNN, SKIP_CONNECTIONS
+        model_family: cornet
+        total_parameter_count: 53416616
+        trainable_parameter_count: 53416616
+        total_layers: 72
+        trainable_layers: 18
+        model_size_mb: 213.67
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_ALL
+        huggingface_link: null
+        extra_notes: null
+        runnable: true
+    ReAlnet03_ALL:
+        architecture: DCNN, RNN, SKIP_CONNECTIONS
+        model_family: cornet
+        total_parameter_count: 53416616
+        trainable_parameter_count: 53416616
+        total_layers: 72
+        trainable_layers: 18
+        model_size_mb: 213.67
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_ALL
+        huggingface_link: null
+        extra_notes: null
+        runnable: true
+    ReAlnet04_ALL:
+        architecture: DCNN, RNN, SKIP_CONNECTIONS
+        model_family: cornet
+        total_parameter_count: 53416616
+        trainable_parameter_count: 53416616
+        total_layers: 72
+        trainable_layers: 18
+        model_size_mb: 213.67
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_ALL
+        huggingface_link: null
+        extra_notes: null
+        runnable: true
+    ReAlnet05_ALL:
+        architecture: DCNN, RNN, SKIP_CONNECTIONS
+        model_family: cornet
+        total_parameter_count: 53416616
+        trainable_parameter_count: 53416616
+        total_layers: 72
+        trainable_layers: 18
+        model_size_mb: 213.67
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_ALL
+        huggingface_link: null
+        extra_notes: null
+        runnable: true
+    ReAlnet06_ALL:
+        architecture: DCNN, RNN, SKIP_CONNECTIONS
+        model_family: cornet
+        total_parameter_count: 53416616
+        trainable_parameter_count: 53416616
+        total_layers: 72
+        trainable_layers: 18
+        model_size_mb: 213.67
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_ALL
+        huggingface_link: null
+        extra_notes: null
+        runnable: true
+    ReAlnet07_ALL:
+        architecture: DCNN, RNN, SKIP_CONNECTIONS
+        model_family: cornet
+        total_parameter_count: 53416616
+        trainable_parameter_count: 53416616
+        total_layers: 72
+        trainable_layers: 18
+        model_size_mb: 213.67
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_ALL
+        huggingface_link: null
+        extra_notes: null
+        runnable: true
+    ReAlnet08_ALL:
+        architecture: DCNN, RNN, SKIP_CONNECTIONS
+        model_family: cornet
+        total_parameter_count: 53416616
+        trainable_parameter_count: 53416616
+        total_layers: 72
+        trainable_layers: 18
+        model_size_mb: 213.67
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_ALL
+        huggingface_link: null
+        extra_notes: null
+        runnable: true
+    ReAlnet09_ALL:
+        architecture: DCNN, RNN, SKIP_CONNECTIONS
+        model_family: cornet
+        total_parameter_count: 53416616
+        trainable_parameter_count: 53416616
+        total_layers: 72
+        trainable_layers: 18
+        model_size_mb: 213.67
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_ALL
+        huggingface_link: null
+        extra_notes: null
+        runnable: true
+    ReAlnet10_ALL:
+        architecture: DCNN, RNN, SKIP_CONNECTIONS
+        model_family: cornet
+        total_parameter_count: 53416616
+        trainable_parameter_count: 53416616
+        total_layers: 72
+        trainable_layers: 18
+        model_size_mb: 213.67
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_ALL
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

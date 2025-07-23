@@ -21,7 +21,7 @@ def load_folder_from_s3(bucket: str, folder_path: str, filename_version_sha: Lis
 
 
 def load_file_from_s3(bucket: str, path: str, local_filepath: Union[Path, str],
-                      sha1: str, version_id: Union[str, None] = None):
+                      sha1: Union[str, None] = None, version_id: Union[str, None] = None):
     """
     Load a file from AWS S3 and validate its contents.
     :param bucket: The name of the S3 bucket
@@ -39,24 +39,34 @@ def load_file_from_s3(bucket: str, path: str, local_filepath: Union[Path, str],
                           local_filename=Path(local_filepath).parent)
     fetcher.output_filename = str(local_filepath)  # force using this local path instead of folder structure
     fetcher.fetch()
-    verify_sha1(local_filepath, sha1)
 
 
-def load_weight_file(bucket: str, relative_path: str, version_id: str, sha1: str, folder_name: str = None) -> Path:
+def load_file(bucket: str, relative_path: str, version_id: str, folder_name: str = None) -> Path:
     """
-    :param bucket: main bucket to add file to. Usually is 'brainscore_vision' for vision model weights.
+    :param bucket: bucket to download file from. Usually is brainscore-storage
     :param relative_path: The path of the file inside the S3 bucket, relative to the `{folder_name}/` directory.
-        The local path will be the same, relative to the local cache's `{folder_name}/` directory (inside `BRAINSCORE_HOME`).
-        Example: `alexnet/weights.pth` will download from brain-score S3:models/alexnet/weights.pth and
-        and store into local ~/.brain-score/models/alexnet/weights.pth.
     :param version_id: version_id of the object to download, found in AWS under object properties
-    :param sha1: sha1 hash of the object
     :param folder_name: name of the folder inside the bucket to download from, i.e. 'models'
+    :return: Posix Path for the file.
     """
     brainscore_cache = os.getenv("BRAINSCORE_HOME", expanduser("~/.brain-score"))
     s3_weight_folder = folder_name if folder_name is not None else os.getenv("BRAINSCORE_S3_WEIGHT_FOLDER", "models")
     local_path = Path(brainscore_cache) / s3_weight_folder / relative_path
     local_path.parent.mkdir(parents=True, exist_ok=True)
-    load_file_from_s3(bucket=bucket, path=f"{s3_weight_folder}/{relative_path}", version_id=version_id, sha1=sha1,
+    load_file_from_s3(bucket=bucket, path=f"{s3_weight_folder}/{relative_path}", version_id=version_id,
                           local_filepath=local_path)
     return local_path
+
+
+def load_weight_file(bucket: str, relative_path: str, version_id: str, sha1: str, folder_name: str = None) -> Path:
+    """
+    Wrapper function for backwards compatibility, post large-file upload
+
+    :param bucket: bucket to download file from. Usually is 'brainscore-storage
+    :param relative_path: The path of the file inside the S3 bucket, relative to the `{folder_name}/` directory.
+    :param version_id: version_id of the object to download, found in AWS under object properties
+    :param sha1: string SHA1 hash of the file to download. Deprecated as of 5/14/25.
+    :param folder_name: :param folder_name: name of the folder inside the bucket to download from, i.e. 'models'
+    :return: Posix Path for the file.
+    """
+    return load_file(bucket=bucket, relative_path=relative_path, version_id=version_id, folder_name=folder_name)

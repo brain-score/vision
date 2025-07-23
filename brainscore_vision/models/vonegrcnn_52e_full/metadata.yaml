@@ -1,0 +1,15 @@
+models:
+    vonegrcnn_52e_full:
+        architecture: DCNN
+        model_family: vone
+        total_parameter_count: 26836072
+        trainable_parameter_count: 24916072
+        total_layers: 255
+        trainable_layers: 65
+        model_size_mb: 107.34
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/vonegrcnn_52e_full
+        huggingface_link: null
+        extra_notes: null
+        runnable: false

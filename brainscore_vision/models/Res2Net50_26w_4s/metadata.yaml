@@ -1,0 +1,15 @@
+models:
+    Res2Net50_26w_4s:
+        architecture: DCNN
+        model_family: null
+        total_parameter_count: 25699120
+        trainable_parameter_count: 25699120
+        total_layers: 251
+        trainable_layers: 86
+        model_size_mb: 102.8
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/Res2Net50_26w_4s
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

@@ -1,0 +1,15 @@
+models:
+    resnet50-VITO-8deg-cc:
+        architecture: DCNN
+        model_family: resnet, vit
+        total_parameter_count: 42342440
+        trainable_parameter_count: 42342440
+        total_layers: 158
+        trainable_layers: 57
+        model_size_mb: 169.37
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet50_VITO_8deg_cc
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

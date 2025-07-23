@@ -34,9 +34,8 @@ dependencies:
       - bleach==6.1.0
       - boto3==1.35.3
       - botocore==1.35.3
-      - brainscore-brainio==1.0.0
+      - brainscore-brainio==1.1.0
       - brainscore-core==2.1
-      - brainscore-vision==2.1
       - certifi==2024.7.4
       - cffi==1.17.0
       - cftime==1.6.4

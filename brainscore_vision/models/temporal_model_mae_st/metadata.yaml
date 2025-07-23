@@ -1,0 +1,29 @@
+models:
+    MAE-ST-G:
+        architecture: DCNN, Transformer
+        model_family: null
+        total_parameter_count: 632424080
+        trainable_parameter_count: 632424080
+        total_layers: 551
+        trainable_layers: 198
+        model_size_mb: 2529.7
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_mae_st
+        huggingface_link: null
+        extra_notes: null
+        runnable: false
+    MAE-ST-L:
+        architecture: DCNN, Transformer
+        model_family: null
+        total_parameter_count: 304506256
+        trainable_parameter_count: 304506256
+        total_layers: 415
+        trainable_layers: 150
+        model_size_mb: 1218.03
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_mae_st
+        huggingface_link: null
+        extra_notes: null
+        runnable: false

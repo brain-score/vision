@@ -1,0 +1,200 @@
+{
+  "blur25_convnext_large_mlp:clip_laion2b_augreg_ft_in1k_384": {
+    "model_name": "convnext_large_mlp",
+    "model_id": "blur25_convnext_large_mlp:clip_laion2b_augreg_ft_in1k_384",
+    "timm_model_name": "convnext_large_mlp.clip_laion2b_augreg_ft_in1k_384",
+    "is_vit": false,
+    "model_commitment": {
+      "region_layer_map": {
+        "IT": "stages.2.blocks.4.conv_dw",
+        "V1": "stages.2.blocks.3",
+        "V2": "stages.2.blocks.4.conv_dw",
+        "V4": "stages.2.downsample.1"
+      },
+      "layers": [
+        "stages.2.blocks.4.conv_dw",
+        "stages.2.blocks.3",
+        "stages.2.blocks.4.conv_dw",
+        "stages.2.downsample.1",
+        "head.pre_logits"
+      ],
+      "behavioral_readout_layer": "head.pre_logits"
+    }
+  },
+  "blur25_convnext_tiny:in12k_ft_in1k": {
+    "model_name": "convnext_tiny",
+    "model_id": "blur25_convnext_tiny:in12k_ft_in1k",
+    "timm_model_name": "convnext_tiny.in12k_ft_in1k",
+    "is_vit": false,
+    "model_commitment": {
+      "region_layer_map": {
+        "IT": "stages.2.blocks.3.conv_dw",
+        "V1": "stages.3.downsample.0",
+        "V2": "stages.2.blocks.5.conv_dw",
+        "V4": "stages.2.downsample.1"
+      },
+      "layers": [
+        "stages.2.blocks.3.conv_dw",
+        "stages.3.downsample.0",
+        "stages.2.blocks.5.conv_dw",
+        "stages.2.downsample.1",
+        "head.pre_logits"
+      ],
+      "behavioral_readout_layer": "head.pre_logits"
+    }
+  },
+  "blur25_convnext_xlarge:fb_in22k_ft_in1k": {
+    "model_name": "convnext_xlarge",
+    "model_id": "blur25_convnext_xlarge:fb_in22k_ft_in1k",
+    "timm_model_name": "convnext_xlarge.fb_in22k_ft_in1k",
+    "is_vit": false,
+    "model_commitment": {
+      "region_layer_map": {
+        "IT": "stages.2.blocks.1.conv_dw",
+        "V1": "stages.2.blocks.2.mlp.act",
+        "V2": "stages.2.blocks.15.norm",
+        "V4": "stages.2.blocks.0.conv_dw"
+      },
+      "layers": [
+        "stages.2.blocks.1.conv_dw",
+        "stages.2.blocks.2.mlp.act",
+        "stages.2.blocks.15.norm",
+        "stages.2.blocks.0.conv_dw",
+        "head.pre_logits"
+      ],
+      "behavioral_readout_layer": "head.pre_logits"
+    }
+  },
+  "blur25_convnext_xxlarge:clip_laion2b_soup_ft_in1k": {
+    "model_name": "convnext_xxlarge",
+    "model_id": "blur25_convnext_xxlarge:clip_laion2b_soup_ft_in1k",
+    "timm_model_name": "convnext_xxlarge.clip_laion2b_soup_ft_in1k",
+    "is_vit": false,
+    "model_commitment": {
+      "region_layer_map": {
+        "IT": "stages.2.blocks.2.conv_dw",
+        "V1": "stages.2.blocks.1.mlp.fc2",
+        "V2": "stages.2.blocks.2",
+        "V4": "stages.2.blocks.0.mlp.fc1"
+      },
+      "layers": [
+        "stages.2.blocks.2.conv_dw",
+        "stages.2.blocks.1.mlp.fc2",
+        "stages.2.blocks.2",
+        "stages.2.blocks.0.mlp.fc1",
+        "head.pre_logits"
+      ],
+      "behavioral_readout_layer": "head.pre_logits"
+    }
+  },
+  "blur25_vit_base_patch16_clip_224:openai_ft_in12k_in1k": {
+    "model_name": "vit_base_patch16_clip_224",
+    "model_id": "blur25_vit_base_patch16_clip_224:openai_ft_in12k_in1k",
+    "timm_model_name": "vit_base_patch16_clip_224.openai_ft_in12k_in1k",
+    "is_vit": true,
+    "model_commitment": {
+      "region_layer_map": {
+        "IT": "blocks.6.norm2",
+        "V1": "blocks.2.attn",
+        "V2": "blocks.2.attn",
+        "V4": "blocks.2.attn"
+      },
+      "layers": [
+        "blocks.6.norm2",
+        "blocks.2.attn",
+        "blocks.2.attn",
+        "blocks.2.attn",
+        "fc_norm"
+      ],
+      "behavioral_readout_layer": "fc_norm"
+    }
+  },
+  "blur25_vit_huge_patch14_clip_224:laion2b_ft_in12k_in1k": {
+    "model_name": "vit_huge_patch14_clip_224",
+    "model_id": "blur25_vit_huge_patch14_clip_224:laion2b_ft_in12k_in1k",
+    "timm_model_name": "vit_huge_patch14_clip_224.laion2b_ft_in12k_in1k",
+    "is_vit": true,
+    "model_commitment": {
+      "region_layer_map": {
+        "IT": "blocks.11.attn",
+        "V1": "blocks.7.attn.qkv",
+        "V2": "blocks.7.attn",
+        "V4": "blocks.6.attn.qkv"
+      },
+      "layers": [
+        "blocks.11.attn",
+        "blocks.7.attn.qkv",
+        "blocks.7.attn",
+        "blocks.6.attn.qkv",
+        "fc_norm"
+      ],
+      "behavioral_readout_layer": "fc_norm"
+    }
+  },
+  "blur25_vit_large_patch14_clip_224:laion2b_ft_in12k_in1k": {
+    "model_name": "vit_large_patch14_clip_224",
+    "model_id": "blur25_vit_large_patch14_clip_224:laion2b_ft_in12k_in1k",
+    "timm_model_name": "vit_large_patch14_clip_224.laion2b_ft_in12k_in1k",
+    "is_vit": true,
+    "model_commitment": {
+      "region_layer_map": {
+        "IT": "blocks.13.norm2",
+        "V1": "blocks.4.attn.qkv",
+        "V2": "blocks.8.attn",
+        "V4": "blocks.5.attn.qkv"
+      },
+      "layers": [
+        "blocks.13.norm2",
+        "blocks.4.attn.qkv",
+        "blocks.8.attn",
+        "blocks.5.attn.qkv",
+        "fc_norm"
+      ],
+      "behavioral_readout_layer": "fc_norm"
+    }
+  },
+  "blur25_vit_large_patch14_clip_224:openai_ft_in12k_in1k": {
+    "model_name": "vit_large_patch14_clip_224",
+    "model_id": "blur25_vit_large_patch14_clip_224:openai_ft_in12k_in1k",
+    "timm_model_name": "vit_large_patch14_clip_224.openai_ft_in12k_in1k",
+    "is_vit": true,
+    "model_commitment": {
+      "region_layer_map": {
+        "IT": "blocks.10.attn",
+        "V1": "blocks.5",
+        "V2": "blocks.7.attn",
+        "V4": "blocks.6.attn.qkv"
+      },
+      "layers": [
+        "blocks.10.attn",
+        "blocks.5",
+        "blocks.7.attn",
+        "blocks.6.attn.qkv",
+        "fc_norm"
+      ],
+      "behavioral_readout_layer": "fc_norm"
+    }
+  },
+  "blur25_vit_large_patch14_clip_336:openai_ft_in12k_in1k": {
+    "model_name": "vit_large_patch14_clip_336",
+    "model_id": "blur25_vit_large_patch14_clip_336:openai_ft_in12k_in1k",
+    "timm_model_name": "vit_large_patch14_clip_336.openai_ft_in12k_in1k",
+    "is_vit": true,
+    "model_commitment": {
+      "region_layer_map": {
+        "IT": "blocks.10.attn.proj",
+        "V1": "blocks.4.attn",
+        "V2": "blocks.7.attn",
+        "V4": "blocks.6.attn"
+      },
+      "layers": [
+        "blocks.10.attn.proj",
+        "blocks.4.attn",
+        "blocks.7.attn",
+        "blocks.6.attn",
+        "fc_norm"
+      ],
+      "behavioral_readout_layer": "fc_norm"
+    }
+  }
+}

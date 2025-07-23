@@ -1,0 +1,101 @@
+name: Close stale web submissions
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  fetch_prs:
+    runs-on: ubuntu-latest
+    outputs:
+      pr_list: ${{ steps.get_prs.outputs.prs }}
+    steps:
+      - name: Get relevant PRs
+        id: get_prs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prs = await github.paginate(github.rest.pulls.list, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100
+            });
+            const filtered = prs.filter(pr => pr.title.startsWith('brain-score.org submission'));
+            console.log(`Found ${filtered.length} PR(s) matching 'brain-score.org submission'.`);
+            const result = JSON.stringify(filtered.map(pr => ({ number: pr.number, sha: pr.head.sha, updated_at: pr.updated_at })));
+            core.setOutput('prs', result);
+          result-encoding: string
+
+  process_prs:
+    needs: fetch_prs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Process and close stale PRs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const MAX_DAYS_PASSED_CHECKS = 28;
+            const MAX_DAYS_FAILED_CHECKS = 14;
+
+            if (!process.env.PR_LIST || process.env.PR_LIST.trim() === '') {
+              console.log('No PRs to process. Exiting.');
+              return;
+            }
+
+            const prs = JSON.parse(process.env.PR_LIST);
+            console.log(`Processing ${prs.length} PR(s) for potential closure.`);
+            const now = new Date();
+            
+            // Iterate over all PRs
+            for (const pr of prs) {
+              const { data: combinedStatus } = await github.rest.repos.getCombinedStatusForRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: pr.sha
+              });
+              const statusState = combinedStatus.state;
+              const updatedAt = new Date(pr.updated_at);
+              const ageInDays = (now - updatedAt) / (1000 * 60 * 60 * 24);
+
+              // If PR has passed status checks, allow for more time
+              if (statusState === 'success' && ageInDays > MAX_DAYS_PASSED_CHECKS) {
+                console.log(`Closing PR #${pr.number} with passed checks, age ${ageInDays.toFixed(1)} days.`);
+                await github.rest.pulls.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: pr.number,
+                  state: 'closed'
+                });
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  body: `Closing this PR as it has been inactive for more than ${MAX_DAYS_PASSED_CHECKS} days since last update.`
+                });
+              // If PR has failed stastus checks, close more quickly  
+              } else if (statusState === 'failure' && ageInDays > MAX_DAYS_FAILED_CHECKS) {
+                console.log(`Closing PR #${pr.number} with failed checks, age ${ageInDays.toFixed(1)} days.`);
+                await github.rest.pulls.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: pr.number,
+                  state: 'closed'
+                });
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  body: `Closing this PR as it has been inactive for more than ${MAX_DAYS_FAILED_CHECKS} days since last update.`
+                });
+              } else {
+                console.log(`Keeping PR #${pr.number} open: status=${statusState}, age=${ageInDays.toFixed(1)} days.`);
+              }
+            }
+        env:
+          PR_LIST: ${{ needs.fetch_prs.outputs.pr_list }}

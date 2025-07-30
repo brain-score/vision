@@ -1,0 +1,6 @@
+{
+    "V1": "model_backbone.s2b.s2b_seqs.0.0",
+    "V2": "model_backbone.s2b.s2b_seqs.0.0",
+    "V4": "model_backbone.s2b.s2b_seqs.3.1.conv1",
+    "IT": "model_backbone.c2b_seq.0"
+}

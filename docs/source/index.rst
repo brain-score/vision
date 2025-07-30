@@ -19,3 +19,4 @@ By following a unified :ref:`interface`, all models can be treated as an experim
    modules/submission
    modules/utils
    modules/api_reference
+   modules/version_bumping

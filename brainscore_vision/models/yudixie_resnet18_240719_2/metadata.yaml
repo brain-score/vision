@@ -1,0 +1,15 @@
+models:
+    yudixie_resnet18_rotation_reg_0_240719:
+        architecture: DCNN
+        model_family: resnet
+        total_parameter_count: 11522274
+        trainable_parameter_count: 11522274
+        total_layers: 68
+        trainable_layers: 21
+        model_size_mb: 46.09
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/yudixie_resnet18_240719_2
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

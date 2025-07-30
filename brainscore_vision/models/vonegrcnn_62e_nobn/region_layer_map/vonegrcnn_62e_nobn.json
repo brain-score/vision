@@ -1,0 +1,6 @@
+{
+    "V1": "module.model.layer1.conv_f",
+    "V2": "module.model.layer3.conv_f",
+    "V4": "module.model.layer2",
+    "IT": "module.model.layer4.conv_f"
+}

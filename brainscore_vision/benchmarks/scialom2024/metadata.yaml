@@ -1,0 +1,1233 @@
+benchmarks:
+    Scialom2024_contoursBehavioralAccuracyDistance:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0167
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral_data
+            num_subjects: 50
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    Scialom2024_phosphenes-100BehavioralAccuracyDistance:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0163
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral_data
+            num_subjects: 25
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    Scialom2024_phosphenes-12BehavioralAccuracyDistance:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0162
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral_data
+            num_subjects: 25
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    Scialom2024_phosphenes-16BehavioralAccuracyDistance:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0162
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral_data
+            num_subjects: 25
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    Scialom2024_phosphenes-21BehavioralAccuracyDistance:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0162
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral_data
+            num_subjects: 25
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    Scialom2024_phosphenes-27BehavioralAccuracyDistance:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0162
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral_data
+            num_subjects: 25
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    Scialom2024_phosphenes-35BehavioralAccuracyDistance:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0162
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral_data
+            num_subjects: 25
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    Scialom2024_phosphenes-46BehavioralAccuracyDistance:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0162
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral_data
+            num_subjects: 25
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    Scialom2024_phosphenes-59BehavioralAccuracyDistance:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0162
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral_data
+            num_subjects: 25
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    Scialom2024_phosphenes-77BehavioralAccuracyDistance:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0162
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral_data
+            num_subjects: 25
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    Scialom2024_phosphenes-allBehavioralAccuracyDistance:
+        stimulus_set:
+            num_stimuli: 528
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.1813
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral_data
+            num_subjects: 25
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    Scialom2024_phosphenes-allBehavioralErrorConsistency:
+        stimulus_set:
+            num_stimuli: 528
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.1813
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral_data
+            num_subjects: 25
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: error_consistency
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/error_consistency
+            extra_notes: null
+    Scialom2024_rgbBehavioralAccuracyDistance:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.016
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral_data
+            num_subjects: 50
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    Scialom2024_segments-100BehavioralAccuracyDistance:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0162
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral_data
+            num_subjects: 25
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    Scialom2024_segments-12BehavioralAccuracyDistance:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0161
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral_data
+            num_subjects: 25
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    Scialom2024_segments-16BehavioralAccuracyDistance:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0161
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral_data
+            num_subjects: 25
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    Scialom2024_segments-21BehavioralAccuracyDistance:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0161
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral_data
+            num_subjects: 25
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    Scialom2024_segments-27BehavioralAccuracyDistance:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0161
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral_data
+            num_subjects: 25
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    Scialom2024_segments-35BehavioralAccuracyDistance:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0161
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral_data
+            num_subjects: 25
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    Scialom2024_segments-46BehavioralAccuracyDistance:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0161
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral_data
+            num_subjects: 25
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    Scialom2024_segments-59BehavioralAccuracyDistance:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0161
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral_data
+            num_subjects: 25
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    Scialom2024_segments-77BehavioralAccuracyDistance:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0161
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral_data
+            num_subjects: 25
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    Scialom2024_segments-allBehavioralAccuracyDistance:
+        stimulus_set:
+            num_stimuli: 528
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.1795
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral_data
+            num_subjects: 25
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    Scialom2024_segments-allBehavioralErrorConsistency:
+        stimulus_set:
+            num_stimuli: 528
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.1795
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral_data
+            num_subjects: 25
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: error_consistency
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/error_consistency
+            extra_notes: null
+    Scialom2024_contoursEngineeringAccuracy:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0167
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Scialom2024_phosphenes-100EngineeringAccuracy:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0163
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Scialom2024_phosphenes-12EngineeringAccuracy:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0162
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Scialom2024_phosphenes-16EngineeringAccuracy:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0162
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Scialom2024_phosphenes-21EngineeringAccuracy:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0162
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Scialom2024_phosphenes-27EngineeringAccuracy:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0162
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Scialom2024_phosphenes-35EngineeringAccuracy:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0162
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Scialom2024_phosphenes-46EngineeringAccuracy:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0162
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Scialom2024_phosphenes-59EngineeringAccuracy:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0162
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Scialom2024_phosphenes-77EngineeringAccuracy:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0162
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Scialom2024_rgbEngineeringAccuracy:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.016
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Scialom2024_segments-100EngineeringAccuracy:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0162
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Scialom2024_segments-12EngineeringAccuracy:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0161
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Scialom2024_segments-16EngineeringAccuracy:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0161
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Scialom2024_segments-21EngineeringAccuracy:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0161
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Scialom2024_segments-27EngineeringAccuracy:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0161
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Scialom2024_segments-35EngineeringAccuracy:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0161
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Scialom2024_segments-46EngineeringAccuracy:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0161
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Scialom2024_segments-59EngineeringAccuracy:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0161
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null
+    Scialom2024_segments-77EngineeringAccuracy:
+        stimulus_set:
+            num_stimuli: 48
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0161
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+        data:
+            benchmark_type: engineering
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: engineering
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+            extra_notes: null

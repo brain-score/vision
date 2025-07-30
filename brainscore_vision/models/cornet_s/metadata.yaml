@@ -1,0 +1,15 @@
+models:
+    CORnet-S:
+        architecture: DCNN, RNN, SKIP_CONNECTIONS
+        model_family: cornet
+        total_parameter_count: 53416616
+        trainable_parameter_count: 53416616
+        total_layers: 72
+        trainable_layers: 18
+        model_size_mb: 213.67
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/cornet_s
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

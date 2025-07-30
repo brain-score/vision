@@ -4,7 +4,7 @@ Submission System
 To submit a model or benchmark to the Brain-Score leaderboard, Brain-Score provides an automated submission system.
 This allows us to publicly score new models on existing benchmarks and score existing models against new benchmarks.
 
-.. image:: docs/source/modules/brainscore_submission.png
+.. image:: brainscore_submission.png
     :width: 400px
     :align: center
     :height: 200px

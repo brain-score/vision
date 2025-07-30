@@ -1,0 +1,113 @@
+benchmarks:
+    BMD2024.dotted_1Behavioral-accuracy_distance:
+        stimulus_set:
+            num_stimuli: 100
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0256
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/bmd2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral
+            num_subjects: 54
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/bmd2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    BMD2024.dotted_2Behavioral-accuracy_distance:
+        stimulus_set:
+            num_stimuli: 100
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0256
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/bmd2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral
+            num_subjects: 54
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/bmd2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    BMD2024.texture_1Behavioral-accuracy_distance:
+        stimulus_set:
+            num_stimuli: 100
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0257
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/bmd2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral
+            num_subjects: 51
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/bmd2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null
+    BMD2024.texture_2Behavioral-accuracy_distance:
+        stimulus_set:
+            num_stimuli: 100
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 0.0257
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/bmd2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral
+            num_subjects: 52
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/bmd2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: accuracy_distance
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy_distance
+            extra_notes: null

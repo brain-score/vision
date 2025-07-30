@@ -26,7 +26,7 @@ jobs:
       - name: Check for non-plugin changes
         id: check-changes
         run: |
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.merge_commit_sha }})
           NEEDS_VERSION_BUMP=false
           
           # ensure PR wasn't plugin-only
@@ -36,7 +36,8 @@ jobs:
             if [[ $file != brainscore_vision/benchmarks/* && 
                   $file != brainscore_vision/data/* && 
                   $file != brainscore_vision/metrics/* && 
-                  $file != brainscore_vision/models/* ]]; then
+                  $file != brainscore_vision/models/* &&
+                  $file != pyproject.toml ]]; then
               NEEDS_VERSION_BUMP=true
               echo "Found change requiring version bump: $file"
             fi
@@ -73,8 +74,8 @@ jobs:
           fi
           
       - name: Create version bump branch and PR
-        id: version-update
         if: steps.check-changes.outputs.needs_bump == 'true'
+        id: version-update
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -116,24 +117,59 @@ jobs:
           pull-request-number: ${{ steps.version-update.outputs.pr_number }}
           github-token: ${{ secrets.APPROVAL_TOKEN }}
 
-      - name: Wait for status checks
-        if: steps.version-update.outputs.pr_number
-        uses: lewagon/wait-on-check-action@v1.3.1
-        with:
-          ref: version-bump-${{ github.event.pull_request.head.sha }}
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 10
-          allowed-conclusions: success,skipped
-          verbose: true
+      - name: Wait for statuses
+        if: steps.check-changes.outputs.needs_bump == 'true'
+        run: |
+          COMMIT_SHA="${{ github.event.pull_request.head.sha }}"
+          TOKEN="${{ secrets.GITHUB_TOKEN }}"
+          MAX_WAIT=600
+          ELAPSED=0
+          SLEEP_INTERVAL=10
+      
+          # Initial delay to allow statuses to start being reported
+          echo "Sleeping for initial delay to allow statuses to be reported..."
+          sleep 60
+          ELAPSED=$((ELAPSED + 60))
+      
+          while true; do
+            echo "Polling statuses for commit $COMMIT_SHA"
+            statuses=$(curl -s -H "Authorization: token $TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/repos/brain-score/vision/commits/$COMMIT_SHA/statuses")
+      
+            latest_statuses=$(echo "$statuses" | jq '[group_by(.context)[] | max_by(.created_at)]')
+            pending=$(echo "$latest_statuses" | jq 'map(select(.state=="pending")) | length')
+            failures=$(echo "$latest_statuses" | jq 'map(select(.state=="failure" or .state=="error")) | length')
+            successes=$(echo "$latest_statuses" | jq 'map(select(.state=="success")) | length')
+
+            echo "Found $pending pending statuses; $failures failures/errors; $successes successes."
+      
+            if [ "$failures" -gt 0 ]; then
+              echo "One or more statuses have failed. Exiting."
+              exit 1
+            fi
+      
+            if [ "$pending" -eq 0 ]; then
+              echo "All statuses have completed."
+              break
+            fi
+      
+            sleep $SLEEP_INTERVAL
+            ELAPSED=$((ELAPSED + SLEEP_INTERVAL))
+            if [ "$ELAPSED" -ge "$MAX_WAIT" ]; then
+              echo "Timeout of $MAX_WAIT seconds reached. Exiting."
+              exit 1
+            fi
+          done
 
       - name: Merge PR
-        if: steps.version-update.outputs.pr_number
+        if: steps.check-changes.outputs.needs_bump == 'true'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_AUTOMERGE }}
         run: |
           pr_number="${{ steps.version-update.outputs.pr_number }}"
           echo "Merging PR #$pr_number"
-          gh pr merge $pr_number --auto --squash
+          gh pr merge $pr_number --squash --admin
 
   create-release:
     needs: version-bump

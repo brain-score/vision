@@ -1,5 +1,4 @@
 import numpy as np
-
 from brainio.assemblies import walk_coords
 from brainscore_vision import load_dataset, load_metric
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
@@ -7,6 +6,7 @@ from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.metrics import Score
 from brainscore_vision.model_interface import BrainModel
 from brainscore_vision.utils import LazyLoad
+from brainscore_vision.benchmark_helpers import bound_score
 
 BIBTEX = """@article{geirhos2021partial,
               title={Partial success in closing the gap between human and machine vision},
@@ -76,6 +76,7 @@ class _Geirhos2021ErrorConsistency(BenchmarkBase):
         raw_score = self._metric(labels, self._assembly)
         ceiling = self.ceiling
         score = raw_score / ceiling
+        bound_score(score)
         score.attrs['raw'] = raw_score
         score.attrs['ceiling'] = ceiling
         return score

@@ -7,8 +7,8 @@ models:
         total_layers: 461
         trainable_layers: 105
         model_size_mb: 178.2
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/sewresnet101
         huggingface_link: null
         extra_notes: null

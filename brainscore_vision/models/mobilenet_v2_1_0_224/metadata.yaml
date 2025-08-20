@@ -7,9 +7,9 @@ models:
         total_layers: 214
         trainable_layers: 53
         model_size_mb: 14.02
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mobilenet_v2_1_0_224
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/google/mobilenet_v2_1.0_224
         extra_notes: null
         runnable: true

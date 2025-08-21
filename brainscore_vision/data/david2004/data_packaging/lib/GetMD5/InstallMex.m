@@ -270,7 +270,7 @@ end
 % Run the unit-test: -----------------------------------------------------------
 if ~isempty(UnitTestFcn) && compiled
    fprintf('\n\n== Post processing:\n');
-   [dum, UnitTestName] = fileparts(UnitTestFcn);  %#ok<ASGLU> % Remove extension
+   [dummy, UnitTestName] = fileparts(UnitTestFcn);  %#ok<ASGLU> % Remove extension
    if ~isempty(which(UnitTestName))
       fprintf('  Call: %s\n\n', UnitTestName);
       feval(UnitTestName);

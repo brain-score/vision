@@ -122,7 +122,7 @@ packages = { find = { where = ["."] } }
 
 [tool.codespell]
 # Ref: https://github.com/codespell-project/codespell#using-a-config-file
-skip = '.git*'
+skip = '.git*,imagenet_categories.txt'
 check-hidden = true
 ignore-regex = '^\s*("image/\S+": ".*|author = {.*)'
 ignore-words-list = 'bu,nin,indx,evnet'

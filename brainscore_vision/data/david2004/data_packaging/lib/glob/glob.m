@@ -427,11 +427,11 @@ expression = regexprep(expression, '/\.\*\.\*/', '(/\.\*\.\*/|/)');
 
 % return matching names
 if ~isempty(varargin{end})
-    % determing matching names ignoring trailing '/'
+    % determine matching names ignoring trailing '/'
     L_no_trailing_fsep = regexprep(L, '/$', '');
     I = regexp_fhandle(L_no_trailing_fsep, ['^' expression '$']);
 else
-    % determing matching names including trailing '/'
+    % determine matching names including trailing '/'
     I = regexp_fhandle(L, ['^' expression '$']);
 end
 I = cellfun('isempty', I);

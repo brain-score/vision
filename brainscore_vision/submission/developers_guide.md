@@ -1,7 +1,7 @@
 ## Submission system
 
 ### Components
-To provide an automatical scoring mechanism for artificial models of the ventral stream, Brain-Score has implemented a whole system, which is explained in the follows. The system consists of following components:
+To provide an automatic scoring mechanism for artificial models of the ventral stream, Brain-Score has implemented a whole system, which is explained in the follows. The system consists of following components:
 ![](brainscore_submission.png)
 
 - **Brain-Score Website:**
@@ -12,7 +12,7 @@ To provide an automatical scoring mechanism for artificial models of the ventral
  - **[Jenkins](http://braintree.mit.edu:8080/):**
  
     [Jenkins](http://braintree.mit.edu:8080/) is a continuous integration tool, which we use to automatically run project unittests and the scoring process for brain models.
-    Jenkins is running on Braintree, the lab's internal server. Jenkins defines different jobs, executing different taks. The task for a new submission is triggered by the website, the unittest tasks are triggered by GitHub web hooks.
+    Jenkins is running on Braintree, the lab's internal server. Jenkins defines different jobs, executing different tasks. The task for a new submission is triggered by the website, the unittest tasks are triggered by GitHub web hooks.
     Once the jobs are triggered, jenkins runs a procedure to execute the tests or scoring and communicate the results back to the user or back to GitHub. 
 -  **Openmind**
 

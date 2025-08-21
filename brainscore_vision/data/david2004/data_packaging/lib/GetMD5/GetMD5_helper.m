@@ -76,7 +76,7 @@ else  % Most likely this is a user-defined object: =============================
       S = uint8(V);
       
       % Matt Raum had this excellent idea - unfortunately this function is
-      % undocumented and might not be supported in te future:
+      % undocumented and might not be supported in the future:
       % S = getByteStreamFromArray(DataObj);
 
    catch ME  % Or perhaps this is better:

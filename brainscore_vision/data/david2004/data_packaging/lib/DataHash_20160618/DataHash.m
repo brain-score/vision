@@ -400,7 +400,7 @@ try    % Perhaps a direct conversion is implemented:
    DataBin = uint8(DataObj);
    
    % Matt Raum had this excellent idea - unfortunately this function is
-   % undocumented and might not be supported in te future:
+   % undocumented and might not be supported in the future:
    % DataBin = getByteStreamFromArray(DataObj);
    
 catch  % Or perhaps this is better:

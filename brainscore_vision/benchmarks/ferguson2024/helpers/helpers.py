@@ -130,7 +130,7 @@ def calculate_accuracy(df: BehavioralAssembly, lapse_rate: float) -> float:
     """
     - Calculates a per-subject lapse rate-corrected accuracy for an assembly.
     - Subject accuracy is averaged over all images with a certain distractor size and repetition coords (i.e. these
-      coords are mixed togather and the accuracy is calculated over this merged assembly).
+      coords are mixed together and the accuracy is calculated over this merged assembly).
 
     :param df: DataFrame Object that contains experimental data
     :param lapse_rate: a precomputed float defined above that represents avg. subject lapse rate in experiment

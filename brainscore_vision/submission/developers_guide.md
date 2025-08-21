@@ -12,12 +12,12 @@ To provide an automatical scoring mechanism for artificial models of the ventral
  - **[Jenkins](http://braintree.mit.edu:8080/):**
  
     [Jenkins](http://braintree.mit.edu:8080/) is a continuous integration tool, which we use to automatically run project unittests and the scoring process for brain models.
-    Jenkins is running on Braintree, the lab's internal server. Jenkins defines different jobs, executing different taks. The task for a new submission is triggered by the website, the unittest tasks are triggerd by GitHub web hooks.
+    Jenkins is running on Braintree, the lab's internal server. Jenkins defines different jobs, executing different taks. The task for a new submission is triggered by the website, the unittest tasks are triggered by GitHub web hooks.
     Once the jobs are triggered, jenkins runs a procedure to execute the tests or scoring and communicate the results back to the user or back to GitHub. 
 -  **Openmind**
 
       Scoring submissions is a computation and memory expensive process, we cannot execute model scoring on small machines. Because we do not want to execute the jobs on Braintree, we submit jobs to Openmind, the department cluster system.
-        The big advantage of Openmind is its queuing system, which allows to define detailed ressource requirements and jobs are executed, once their requested ressources are available. The jenkins related contents are stored on ``/om5/group/dicarlo/jenkins``. 
+        The big advantage of Openmind is its queuing system, which allows to define detailed resource requirements and jobs are executed, once their requested resources are available. The jenkins related contents are stored on ``/om5/group/dicarlo/jenkins``. 
         This directory contains a script for model submission (`score_model.sh`) and for unittests (`unittests_brainscore.sh`). 
         The scripts are executed in an openmind job and are responsible for fully installing a conda environment, executing the process, shutting everything down again. Results are stored in the database or copied to amazon S3 cloud file system. 
         From there jenkins reports the results back to its caller.

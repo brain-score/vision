@@ -101,7 +101,7 @@ class MLP(nn.Module):
         f = list(map(int, mlp_spec.split("-")))
         f[-2] = int(f[-2] * mlp_coeff)
         
-        # constuct each linear block
+        # construct each linear block
         for i in range(len(f) - 2):
             fc_layers = []
             

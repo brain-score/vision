@@ -42,7 +42,7 @@
 %           * GLOB returns only directory names when a trailing file
 %             separator is specified.
 %           * On Windows GLOB is not case sensitive, but it returns
-%             matching names exactely in the case as they are defined on
+%             matching names exactly in the case as they are defined on
 %             the filesystem. Case of host and sharename of a UNC path and
 %             case of drive letters will be returned as specified in 
 %             FILESPEC.
@@ -319,7 +319,7 @@ regexp_str = strrep(regexp_str, '[^/]*[^/]*', '.*.*');
 % ------------------------------------------------------------------------
 function L = ls_regexp(regexp_fhandle, path, varargin)
 % List files that match PATH/r1/r2/r3/... where PATH is a string without
-% any wildcards and r1..rn are regular expresions that contain the parts of
+% any wildcards and r1..rn are regular expressions that contain the parts of
 % a filespec between the file separators.
 % L is a cell array with matching file or directory names.
 % REGEXP_FHANDLE contain a file handle to REGEXP or REGEXPI depending

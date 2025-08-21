@@ -49,7 +49,7 @@ class AccuracyDistance(Metric):
                     indexers = {v: cond[i] for i, v in enumerate(variables)}
                     subject_cond_assembly = subject_assembly.sel(**indexers)
                     source_cond_assembly = source.sel(**indexers)
-                    # to accomodate unbalanced designs, skip combinations of
+                    # to accommodate unbalanced designs, skip combinations of
                     # variables that don't exist in both assemblies
                     if len(subject_cond_assembly) and len(source_cond_assembly):
                         cond_scores.append(self.compare_single_subject(

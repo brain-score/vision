@@ -5,7 +5,7 @@ from brainscore_vision.data_helpers.s3 import load_assembly_from_s3, load_stimul
 
 BIBTEX = """@article{zhang2018finding,
   title={Finding any Waldo with zero-shot invariant and efficient visual search},
-  author={Zhang, Mengmi and Feng, Jiashi and Ma, Keng Teck and Lim, Joo Hwee and Zhao, Qi and Kreiman, Gabriel},
+  author={Zhang, Mengmi and Feng, Jiashi and Ma, Keng Teck and Lim, You Hwee and Zhao, Qi and Kreiman, Gabriel},
   journal={Nature communications},
   volume={9},
   number={1},

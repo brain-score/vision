@@ -214,7 +214,7 @@ def boostrap_integral(df_blue: DataFrame, df_orange: DataFrame, num_loops: int =
 
     :param df_blue: DataFrame, the first (blue) block of data (target on a field of distractors)
     :param df_orange: DataFrame, the second (orange) block of data (distractor on a field of targets)
-    :param num_loops: int, number of times the boostrap will run (and thus take the average)
+    :param num_loops: int, number of times the bootstrap will run (and thus take the average)
     :return: Dict of values {bootstrapped_integral, bootstrapped_integral_error)
     """
     num_subjects = len(set(df_blue["participant_id"]))

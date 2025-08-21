@@ -124,5 +124,5 @@ packages = { find = { where = ["."] } }
 # Ref: https://github.com/codespell-project/codespell#using-a-config-file
 skip = '.git*'
 check-hidden = true
-ignore-regex = '^\s*"image/\S+": ".*'
+ignore-regex = '^\s*("image/\S+": ".*|author = {.*)'
 ignore-words-list = 'bu,nin,indx,evnet'

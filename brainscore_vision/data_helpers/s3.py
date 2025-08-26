@@ -46,8 +46,9 @@ def load_assembly_from_s3(identifier: str, version_id: str, sha1: str, bucket: s
     """
     # Parse bucket name and folder name
     if '/' in bucket:
-        folder_name = bucket.split('/')[1]
-        bucket = bucket.split('/')[0]
+        parts = bucket.split('/', 1)  # Split only on first '/', preserving the rest as folder path
+        bucket = parts[0]
+        folder_name = parts[1]
     else:
         folder_name = None
     file_path = get_path(identifier, 'nc', bucket, version_id, sha1, folder_name=folder_name)
@@ -68,8 +69,9 @@ def load_stimulus_set_from_s3(identifier: str, bucket: str, csv_sha1: str, zip_s
                               csv_version_id: str, zip_version_id: str, filename_prefix: str = None):
     # Parse bucket name and folder name
     if '/' in bucket:
-        folder_name = bucket.split('/')[1]
-        bucket = bucket.split('/')[0]
+        parts = bucket.split('/', 1)  # Split only on first '/', preserving the rest as folder path
+        bucket = parts[0]
+        folder_name = parts[1]
     else:
         folder_name = None
     csv_path = get_path(identifier, 'csv', bucket, csv_version_id, csv_sha1, filename_prefix=filename_prefix, folder_name=folder_name)

@@ -47,9 +47,9 @@ def load_preprocess_custom_model(image_filepaths, image_size, **kwargs):
 def get_model(name):
     assert name == 'custom_model_cv_18_dagger_408'
     model = create_model('crossvit_18_dagger_408', pretrained=False)
-    weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+    weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                     relative_path="custom_model_cv_18_dagger_408/crossvit_18_dagger_408_adv_finetuned_epoch5.pt",
-                                    version_id="pQVPFC_iiWpRRr7P54qxQfRzjNSn2uYB",
+                                    version_id="null",
                                     sha1="c769518485e352d5a2e6f3e588d6208cbad71b69")
     checkpoint = torch.load(weights_path, map_location=torch.device('cpu'))
     model.load_state_dict(checkpoint['state_dict'], strict=True)

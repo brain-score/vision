@@ -1,0 +1,15 @@
+models:
+    voneresnet_50_3:
+        architecture: DCNN
+        model_family: resnet, vone
+        total_parameter_count: 28532456
+        trainable_parameter_count: 25580264
+        total_layers: 158
+        trainable_layers: 54
+        model_size_mb: 114.13
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/voneresnet_50_3
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

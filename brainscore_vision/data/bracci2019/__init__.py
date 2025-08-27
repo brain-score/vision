@@ -19,18 +19,18 @@ BIBTEX = """"@article{bracci2019ventral,
 # Human Stimulus Set
 stimulus_set_registry["Bracci2019"] = lambda: load_stimulus_set_from_s3(
     identifier="Bracci2019",
-    bucket="brainio-brainscore",
+    bucket="brainscore-storage/brainio-brainscore",
     csv_sha1="05b1af9b8e6ed478ea49339e11b0024c2da8c35f",
     zip_sha1="a79b249e758421f46ec781301cd4b498f64853ce",
-    csv_version_id="0B6H2003B.aOml25nlWsxSTkQib1ndZP",
-    zip_version_id="DCqvGpnGL7J0JbQ6T6uAax5M5jbe_O8Q",
+    csv_version_id="null",
+    zip_version_id="null",
 )
 
 # Human Data Assembly (brain)
 data_registry["Bracci2019"] = lambda: load_assembly_from_s3(
     identifier="Bracci2019",
-    version_id="0w_eqBDiwxlSkuqSGK0sqUz1YhsgvY3C",
+    version_id="null",
     sha1="cbec165bb20f09d0527fddba7cfbf115a396a2f3",
-    bucket="brainio-brainscore",
+    bucket="brainscore-storage/brainio-brainscore",
     cls=NeuroidAssembly,
 )

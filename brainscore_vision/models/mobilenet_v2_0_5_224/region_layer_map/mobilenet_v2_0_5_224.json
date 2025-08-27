@@ -1,0 +1,6 @@
+{
+    "V1": "MobilenetV2_expanded_conv_9_expand_Conv2D",
+    "V2": "MobilenetV2_expanded_conv_8_expand_Conv2D",
+    "V4": "MobilenetV2_expanded_conv_7_expand_Conv2D",
+    "IT": "MobilenetV2_Conv_1_Conv2D"
+}

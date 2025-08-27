@@ -1,0 +1,15 @@
+models:
+    s3d-HowTo100M:
+        architecture: DCNN
+        model_family: s3d
+        total_parameter_count: 31211336
+        trainable_parameter_count: 31211336
+        total_layers: 376
+        trainable_layers: 117
+        model_size_mb: 124.85
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_S3D_text_video
+        huggingface_link: null
+        extra_notes: null
+        runnable: false

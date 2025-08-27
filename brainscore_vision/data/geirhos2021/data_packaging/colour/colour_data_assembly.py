@@ -82,6 +82,6 @@ assert len(np.unique(assembly['category'].values)) == 16
 assert len(np.unique(assembly['condition'].values)) == 2
 
 # upload to S3
-package_data_assembly('brainio_brainscore', assembly, assembly_identifier=assembly.name,
+package_data_assembly('brainscore_storge/brainio_brainscore', assembly, assembly_identifier=assembly.name,
                       stimulus_set_identifier="Geirhos2021_colour",
-                      assembly_class="BehavioralAssembly", bucket_name="brainio-brainscore")
+                      assembly_class="BehavioralAssembly", bucket_name="brainscore_storge/brainio-brainscore")

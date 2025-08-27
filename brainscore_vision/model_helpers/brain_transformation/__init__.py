@@ -72,17 +72,17 @@ class ModelCommitment(BrainModel):
         try:
             importer = import_plugin.ImportPlugin(library_root='brainscore_vision', plugin_type='models', identifier=identifier)
             model_dir = importer.locate_plugin()
-            project_root = Path(__file__).resolve().parent.parent
-            region_layer_map_path = project_root / 'vision' / 'models' / model_dir / 'region_layer_map' / f'{identifier}.json'
+            project_root = Path(__file__).resolve().parent.parent.parent
+            region_layer_map_path = project_root / 'models' / model_dir / 'region_layer_map' / f'{identifier}.json'
+            self._logger.info(f"Searching for mapping at {region_layer_map_path}")
             if region_layer_map_path.exists():
                 with region_layer_map_path.open('r') as region_layer_map_file:
                     self._logger.info(f"Successfully loaded region_layer_map for {identifier}")
                     return json.load(region_layer_map_file)
             else:
-                self._logger.info(f"No region_layer_map file found for {identifier}, proceeding with default layer mapping")
+                self._logger.info(f"No region_layer_map file found for {identifier}. Will proceed with default layer mapping")
                 return None
         except Exception as e:
-            self._logger.error(f"Error importing model to search for region_layer_map: {e}")
             return None
 
     def visual_degrees(self) -> int:

@@ -1,0 +1,57 @@
+benchmarks:
+    Maniquet2024-confusion_similarity:
+        stimulus_set:
+            num_stimuli: 13600
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 4.9919
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/maniquet2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: behavioral
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/maniquet2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: confusion_similarity
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/maniquet2024_metrics
+            extra_notes: null
+    Maniquet2024-tasks_consistency:
+        stimulus_set:
+            num_stimuli: 13600
+            datatype: image
+            stimuli_subtype: null
+            total_size_mb: 4.9919
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/maniquet2024
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: null
+            datatype: behavioral
+            num_subjects: null
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/maniquet2024
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: tasks_consistency
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/maniquet2024_metrics
+            extra_notes: null

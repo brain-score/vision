@@ -1,0 +1,7 @@
+torch
+hydra-core
+einops
+iopath
+timm
+Pillow
+pytorchvideo

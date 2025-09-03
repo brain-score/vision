@@ -63,13 +63,13 @@ Soon...
   $ git clone https://github.com/dicarlolab/vonenet.git
    
 2. And when you setup its codes, you must need 'val' directory. so here is link.
-  this link is from Korean's blog I refered as below https://seongkyun.github.io/others/2019/03/06/imagenet_dn/
+  this link is from Korean's blog I referred as below https://seongkyun.github.io/others/2019/03/06/imagenet_dn/
   
        ** Download link**
   https://academictorrents.com/collection/imagenet-2012 
   
   Once you download that large tar files, you must unzip that files
-  -- all instructions below are refered above link, I only translate it
+  -- all instructions below are referred above link, I only translate it
   
   # Unzip training dataset
   $ mkdir train && mb ILSVRC2012_img_train.tar train/ && cd train

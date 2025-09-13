@@ -7,9 +7,9 @@ models:
         total_layers: 287
         trainable_layers: 105
         model_size_mb: 1874.12
-        training_dataset: null
+        training_dataset: imagenet-1k
         task_specialization: null
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnext101_32x32d_wsl
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/resnext101_32x32d.fb_wsl_ig1b_ft_in1k
         extra_notes: null
         runnable: true

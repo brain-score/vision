@@ -8,7 +8,7 @@ models:
         trainable_layers: 106
         model_size_mb: 146.44
         training_dataset: null
-        task_specialization: null
+        task_specialization: video-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
         huggingface_link: null
         extra_notes: null
@@ -22,7 +22,7 @@ models:
         trainable_layers: 165
         model_size_mb: 138.15
         training_dataset: null
-        task_specialization: null
+        task_specialization: video-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
         huggingface_link: null
         extra_notes: null
@@ -35,8 +35,8 @@ models:
         total_layers: 159
         trainable_layers: 38
         model_size_mb: 126.02
-        training_dataset: null
-        task_specialization: null
+        training_dataset: kinetics-400
+        task_specialization: video-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
         huggingface_link: null
         extra_notes: null
@@ -49,8 +49,8 @@ models:
         total_layers: 92
         trainable_layers: 21
         model_size_mb: 133.49
-        training_dataset: null
-        task_specialization: null
+        training_dataset: kinetics-400
+        task_specialization: video-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
         huggingface_link: null
         extra_notes: null
@@ -63,8 +63,8 @@ models:
         total_layers: 383
         trainable_layers: 78
         model_size_mb: 33.28
-        training_dataset: null
-        task_specialization: null
+        training_dataset: kinetics-400; something-something
+        task_specialization: video-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
         huggingface_link: null
         extra_notes: null
@@ -77,8 +77,8 @@ models:
         total_layers: 92
         trainable_layers: 21
         model_size_mb: 46.78
-        training_dataset: null
-        task_specialization: null
+        training_dataset: kinetics-400
+        task_specialization: video-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
         huggingface_link: null
         extra_notes: null

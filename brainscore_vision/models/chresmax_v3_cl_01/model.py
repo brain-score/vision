@@ -996,7 +996,7 @@ def load_model(model_name,
             bypass=True, main_route=False,
             c_scoring='v2'      
         ).to(device).eval()
-        model.load_state_dict(checkpoint['state_dict'], strict=False)
+        model.load_state_dict(checkpoint['state_dict'], strict=True)
         return model
     else:
         raise ValueError(f"Unsupported model: {model_name}")

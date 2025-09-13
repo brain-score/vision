@@ -20,7 +20,7 @@ anyone interested in contributing to Brain-Score's codebase or scientific workin
 
     Result Caching is a Brain-Score `repo <https://github.com/brain-score/result_caching>`_ that allows model activations (and other functions) to be cached
     to disk, in order to speed up the process of rescoring models. It contains a decorator that can be attached to a function
-    right before it is defined. On the first run of that function, `result_caching` will save to disk the result of tha function
+    right before it is defined. On the first run of that function, `result_caching` will save to disk the result of the function
     and will load that result from disk in future calls with the same parameters. All files are saved in the user's `~/result_caching`
     folder, and they are persistent, as there is no garbage collection built in. You can deactivate
     `result_caching` by simply setting the environment flag `RESULTCACHING_DISABLE` to `1`. Please see the link above

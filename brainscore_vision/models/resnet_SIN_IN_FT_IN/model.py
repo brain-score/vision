@@ -43,7 +43,7 @@ def get_model(name):
 
 
 # get_layers method to tell the code what layers to consider. If you are submitting a custom
-# model, then you will most likley need to change this method's return values.
+# model, then you will most likely need to change this method's return values.
 def get_layers(name):
     """
     This method returns a list of string layer names to consider per model. The benchmarks maps brain regions to

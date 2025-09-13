@@ -123,7 +123,7 @@ def get_integral_data(assembly: BehavioralAssembly, experiment: str, precompute_
     :param assembly: the human behavioral data to look at
     :param experiment: str, the prefix of the experiment subtype, ex: "tilted_line" or "lle"
     :param precompute_boostrap: True if using precomputed integral errors, else manually compute (Slow!)
-    :return: tuple of calculated human integral and its boostrapped (precomputed) error
+    :return: tuple of calculated human integral and its bootstrapped (precomputed) error
     """
     lapse_rate = LAPSE_RATES[experiment]
     blue_data = generate_summary_df(assembly, lapse_rate, "first")

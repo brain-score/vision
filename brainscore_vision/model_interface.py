@@ -96,8 +96,9 @@ class BrainModel:
 
         The model must be supplied with `fitting_stimuli` in the second argument which allow it to train a readout 
         for a particular set of labels and image distribution. 
-        The `fitting_stimuli` are a :class:`~brainio.stimuli.StimulusSet` and must include an `image_label` column 
-        which is used as the labels to fit to.
+        The `fitting_stimuli` are a :class:`~brainio.stimuli.StimulusSet` and must include at least
+        a `stimulus_id` column and
+        an `image_label` column which is used as the labels to fit to.
 
         Example:
 

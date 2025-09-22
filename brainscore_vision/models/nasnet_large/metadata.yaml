@@ -1,0 +1,15 @@
+models:
+    nasnet_large:
+        architecture: DCNN
+        model_family: nasnet
+        total_parameter_count: 88753150
+        trainable_parameter_count: 88753150
+        total_layers: 1506
+        trainable_layers: 489
+        model_size_mb: 355.01
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/nasnet_large
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

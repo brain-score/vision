@@ -1,0 +1,15 @@
+models:
+    resnext101_32x48d_wsl:
+        architecture: DCNN
+        model_family: resnext
+        total_parameter_count: 828411176
+        trainable_parameter_count: 828411176
+        total_layers: 287
+        trainable_layers: 105
+        model_size_mb: 3313.64
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnext101_32x48d_wsl
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

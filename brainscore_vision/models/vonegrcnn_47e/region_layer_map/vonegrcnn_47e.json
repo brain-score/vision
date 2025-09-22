@@ -1,0 +1,6 @@
+{
+    "V1": "module.bottleneck",
+    "V2": "module.model.layer2",
+    "V4": "module.model.layer2",
+    "IT": "module.model.layer3"
+}

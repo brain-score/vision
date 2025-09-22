@@ -8,6 +8,7 @@ from brainscore_vision.benchmark_helpers.screen import place_on_screen
 from brainscore_core.metrics import Score
 from brainscore_vision.metric_helpers import Defaults as XarrayDefaults
 from brainscore_vision.model_interface import BrainModel
+from brainscore_vision.benchmark_helpers import bound_score
 
 
 # the BIBTEX will be used to link to the publication from the benchmark for further details
@@ -60,7 +61,7 @@ class Coggan2024_fMRI_Benchmark(BenchmarkBase):
 
         # obtain the ceiled score
         ceiled_score = ceiler(raw_score, ceiling)
-
+        bound_score(ceiled_score)
         return ceiled_score
 
 

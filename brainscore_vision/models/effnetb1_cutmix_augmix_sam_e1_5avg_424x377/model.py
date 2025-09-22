@@ -65,9 +65,9 @@ def get_model(name):
     assert name == 'effnetb1_cutmix_augmix_sam_e1_5avg_424x377'
     model_tf_efficientnet_b1_ns = EffNetBX()
 
-    weights_path = load_weight_file(bucket="brainscore-vision", folder_name="models",
+    weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                     relative_path="effnetb1_cutmix_augmix_sam_e1_5avg_424x377/weights1_5_avg.pth",
-                                    version_id="EqB6P7BittVdkgRd3oMncq_j9AAdiYvz",
+                                    version_id="null",
                                     sha1="871bd10e6ce164bfe8f3ce10bb77a69d326d7b65")
     model_tf_efficientnet_b1_ns.load_state_dict(torch.load(weights_path, map_location=torch.device('cpu'))["model"])
     model = model_tf_efficientnet_b1_ns.efnet_model

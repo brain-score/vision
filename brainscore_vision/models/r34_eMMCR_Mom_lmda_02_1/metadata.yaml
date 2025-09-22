@@ -1,0 +1,15 @@
+models:
+    r34_eMMCR_Mom_lmda_02_1:
+        architecture: DCNN
+        model_family: null
+        total_parameter_count: 21797672
+        trainable_parameter_count: 21797672
+        total_layers: 116
+        trainable_layers: 37
+        model_size_mb: 87.19
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/r34_eMMCR_Mom_lmda_02_1
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

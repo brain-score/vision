@@ -186,6 +186,9 @@ class _Malania2007VernierAcuity(BenchmarkBase):
             # Adjust score to ceiling
             ceiling = self.ceiling
             score = raw_score / ceiling
+            # ensure score <= 1.0
+            if score.values > 1:
+                score = Score(np.array(1.))
             score.attrs['error'] = raw_score.error
 
             score.attrs['raw'] = raw_score

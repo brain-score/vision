@@ -1,0 +1,85 @@
+benchmarks:
+    Baker2022fragmented-accuracy_delta:
+        stimulus_set:
+            num_stimuli: 716
+            datatype: image
+            stimuli_subtype: synthetic
+            total_size_mb: 0.2663
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/baker2022
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral
+            num_subjects: 32
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/baker2022
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: baker_accuracy_delta
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/baker_accuracy_delta
+            extra_notes: null
+    Baker2022frankenstein-accuracy_delta:
+        stimulus_set:
+            num_stimuli: 716
+            datatype: image
+            stimuli_subtype: synthetic
+            total_size_mb: 0.2663
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/baker2022
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral
+            num_subjects: 32
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/baker2022
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: baker_accuracy_delta
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/baker_accuracy_delta
+            extra_notes: null
+    Baker2022inverted-accuracy_delta:
+        stimulus_set:
+            num_stimuli: 360
+            datatype: image
+            stimuli_subtype: synthetic
+            total_size_mb: 0.1357
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/baker2022
+            extra_notes: null
+        data:
+            benchmark_type: behavioral
+            task: null
+            region: null
+            hemisphere: null
+            num_recording_sites: null
+            duration_ms: null
+            species: human
+            datatype: behavioral
+            num_subjects: 12
+            pre_processing: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/baker2022
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: baker_accuracy_delta
+            reference: null
+            public: null
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/baker_accuracy_delta
+            extra_notes: null

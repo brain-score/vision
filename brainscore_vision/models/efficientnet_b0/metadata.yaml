@@ -1,0 +1,15 @@
+models:
+    efficientnet_b0:
+        architecture: DCNN
+        model_family: efficientnet
+        total_parameter_count: 5288548
+        trainable_parameter_count: 5288548
+        total_layers: 337
+        trainable_layers: 82
+        model_size_mb: 21.15
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/efficientnet_b0
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

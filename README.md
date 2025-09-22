@@ -1,4 +1,4 @@
-[![Build Status](https://app.travis-ci.com/brain-score/vision.svg?token=vqt7d2yhhpLGwHsiTZvT&branch=master)](https://app.travis-ci.com/brain-score/vision)
+[![Build Status](http://www.brain-score-jenkins.com:8080/job/vision_daily_test/badge/icon)](http://www.brain-score-jenkins.com:8080/job/vision_daily_test/)
 [![Documentation Status](https://readthedocs.org/projects/brain-score/badge/?version=latest)](https://brain-score.readthedocs.io/en/latest/?badge=latest)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md) 
 
@@ -24,14 +24,14 @@ To contribute, please [send in a pull request](https://github.com/brain-score/vi
 
 You will need Python = 3.11 and pip >= 18.1.
 
-`pip install git+https://github.com/brain-score/vision`
+`pip install brainscore-vision`
 
 Test if the installation is successful by scoring a model on a public benchmark:
 
 ```python
-from brainscore_vision.benchmarks import public_benchmark_pool
+import brainscore_vision
 
-benchmark = public_benchmark_pool['dicarlo.MajajHong2015public.IT-pls']
+benchmark = brainscore_vision.load_benchmark('MajajHong2015public.IT-pls')
 model = my_model()
 score = benchmark(model)
 
@@ -43,7 +43,7 @@ score = benchmark(model)
 # >      raw:                   <xarray.Score ()>\narray(0.22545106)\nAttributes:\...
 # >      ceiling:               <xarray.DataArray ()>\narray(0.81579938)\nAttribut...
 # >      model_identifier:      my-model
-# >      benchmark_identifier:  dicarlo.MajajHong2015public.IT-pls
+# >      benchmark_identifier:  MajajHong2015public.IT-pls
 ```
 
 Some steps may take minutes because data has to be downloaded during first-time use.

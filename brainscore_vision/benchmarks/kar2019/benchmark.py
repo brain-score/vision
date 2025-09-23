@@ -56,6 +56,9 @@ class DicarloKar2019OST(BenchmarkBase):
         self._time_bins = TIME_BINS
 
     def __call__(self, candidate: BrainModel) -> Score:
+        # Override temporal settings for models with frame requirements
+        self._override_temporal_settings(candidate)
+        
         candidate.start_recording('IT', time_bins=self._time_bins)
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
@@ -74,6 +77,35 @@ class DicarloKar2019OST(BenchmarkBase):
             score = self._similarity_metric(recordings, self._assembly)
         score = ceil_score(score, self.ceiling)
         return score
+
+    def _override_temporal_settings(self, candidate: BrainModel):
+        """Override temporal settings for models with specific frame requirements"""
+        try:
+            from brainscore_vision.model_helpers.activations.temporal.utils import get_inferencer
+            inferencer = get_inferencer(candidate)
+            
+            # Simple frame count fix for models that require exact frame counts
+            if hasattr(inferencer, 'num_frames') and hasattr(inferencer, 'fps'):
+                # Only handle fixed frame count requirements
+                if isinstance(inferencer.num_frames, int):
+                    required_frames = inferencer.num_frames
+                elif isinstance(inferencer.num_frames, tuple) and len(inferencer.num_frames) == 2 and inferencer.num_frames[0] == inferencer.num_frames[1]:
+                    required_frames = inferencer.num_frames[0]
+                else:
+                    return  # Flexible frame requirements, no need to override
+                
+                # Calculate the exact duration needed
+                # Formula: num_frames = int(duration * fps / 1000 + EPS)
+                # Rearranged: duration = (required_frames * 1000) / fps
+                required_duration = (required_frames * 1000.0) / inferencer.fps
+                
+                # Set the img_duration to get exactly the required frames
+                if hasattr(inferencer, 'img_duration'):
+                    inferencer.img_duration = required_duration
+                
+        except (ImportError, ValueError, AttributeError):
+            # Not a temporal model, skip silently
+            pass
 
 
 def temporally_varying(recordings):

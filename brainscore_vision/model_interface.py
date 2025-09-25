@@ -5,8 +5,8 @@ between benchmarks and models.
 
 from typing import List, Tuple, Union
 
-from brainio.assemblies import BehavioralAssembly, NeuroidAssembly
-from brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly, NeuroidAssembly
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 
 
 class BrainModel:

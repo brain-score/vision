@@ -2,7 +2,7 @@ import math
 
 import numpy as np
 
-from brainio.assemblies import DataAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import DataAssembly
 from brainscore_core import Metric
 from brainscore_vision.metric_helpers import Defaults as XarrayDefaults
 from brainscore_vision.metric_helpers.transformations import TestOnlyCrossValidation, apply_aggregate

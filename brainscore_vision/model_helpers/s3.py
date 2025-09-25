@@ -7,8 +7,10 @@ from os.path import expanduser
 import logging
 from typing import Tuple, List, Union
 
-from brainio.fetch import BotoFetcher, verify_sha1
-from brainio.lookup import sha1_hash  # so that users can easily import and get the hash of their file(s)
+#from brainio.fetch import BotoFetcher, verify_sha1
+#from brainio.lookup import sha1_hash  # so that users can easily import and get the hash of their file(s)
+
+from brainscore_core.supported_data_standards.brainio.fetch import BotoFetcher, verify_sha1
 
 _logger = logging.getLogger(__name__)
 

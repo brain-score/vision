@@ -1,11 +1,11 @@
 import numpy as np
 from brainscore_core import Metric
-from brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from tqdm import tqdm
 from typing import Dict
 import xarray as xr
 from brainscore_vision import load_dataset, load_stimulus_set, load_metric
-from brainio.assemblies import BehavioralAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
 import pandas as pd
 from brainscore_vision.benchmarks import BenchmarkBase

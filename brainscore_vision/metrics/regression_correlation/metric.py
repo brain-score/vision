@@ -4,7 +4,7 @@ from sklearn.cross_decomposition import PLSRegression
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.preprocessing import scale
 
-from brainio.assemblies import walk_coords, DataAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import walk_coords, DataAssembly
 from brainscore_core.metrics import Metric, Score
 from brainscore_vision.metric_helpers.transformations import CrossValidation
 from brainscore_vision.metric_helpers.xarray_utils import XarrayRegression, XarrayCorrelation

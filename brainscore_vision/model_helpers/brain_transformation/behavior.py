@@ -8,8 +8,8 @@ import xarray as xr
 import sklearn.linear_model
 import sklearn.multioutput
 
-from brainio.assemblies import walk_coords, array_is_element, BehavioralAssembly, DataAssembly
-from brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.assemblies import walk_coords, array_is_element, BehavioralAssembly, DataAssembly
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from brainscore_vision.model_helpers.utils import make_list
 from brainscore_vision.model_interface import BrainModel
 

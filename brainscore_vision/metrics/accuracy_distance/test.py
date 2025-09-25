@@ -1,7 +1,7 @@
 import numpy as np
 from pytest import approx
 
-from brainio.assemblies import BehavioralAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
 from brainscore_vision import load_metric
 
 

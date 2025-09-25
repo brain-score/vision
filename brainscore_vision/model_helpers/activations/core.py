@@ -13,8 +13,8 @@ import numpy as np
 from tqdm.auto import tqdm
 import xarray as xr
 
-from brainio.assemblies import NeuroidAssembly, walk_coords
-from brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly, walk_coords
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from brainscore_vision.model_helpers.utils import fullname
 from result_caching import store_xarray
 

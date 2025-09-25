@@ -3,7 +3,7 @@ from typing import Union
 import numpy as np
 import hashlib
 
-from brainio.assemblies import NeuroidAssembly, DataAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly, DataAssembly
 from brainscore_core import Score
 from brainscore_vision.model_interface import BrainModel
 

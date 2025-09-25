@@ -13,7 +13,7 @@ from pathlib import Path
 from result_caching import store, is_iterable
 from tqdm import tqdm
 
-from brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 
 framework_home = Path(os.getenv('BRAINSCORE_HOME', '~/.brain-score')).expanduser()
 root_path = framework_home / "stimuli_on_screen"

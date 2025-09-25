@@ -6,7 +6,7 @@ from scipy.stats import norm
 from sklearn.metrics import r2_score
 
 from brainscore_core.metrics import Metric, Score
-from brainio.assemblies import PropertyAssembly, BehavioralAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import PropertyAssembly, BehavioralAssembly
 
 
 def psychometric_cum_gauss(x: np.array, alpha: float, beta: float, lambda_: float, gamma: float = 0.5) -> float:

@@ -4,7 +4,7 @@ from typing import List, Tuple
 import numpy as np
 from PIL import Image
 
-from brainio.assemblies import NeuroidAssembly, PropertyAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly, PropertyAssembly
 from brainscore_vision import load_benchmark
 from brainscore_vision.model_interface import BrainModel
 from brainscore_vision.data_helpers import s3

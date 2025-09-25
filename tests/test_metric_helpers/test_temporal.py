@@ -3,7 +3,7 @@ import scipy.stats
 from pytest import approx
 from sklearn.linear_model import LinearRegression
 
-from brainio.assemblies import NeuroidAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly
 from brainscore_vision.metric_helpers.xarray_utils import XarrayRegression, XarrayCorrelation
 from brainscore_vision.metric_helpers.temporal import PerTime, SpanTime, PerTimeRegression, SpanTimeRegression
 

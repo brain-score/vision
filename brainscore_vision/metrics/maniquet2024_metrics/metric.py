@@ -10,7 +10,7 @@ import numpy as np
 from sklearn.metrics import confusion_matrix
 from scipy.stats import pearsonr
 from brainscore_core.metrics import Metric, Score
-from brainio.assemblies import BehavioralAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
 
 
 class ConfusionSimilarity(Metric):

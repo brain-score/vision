@@ -6,8 +6,8 @@ import pytest
 from pytest import approx
 
 import brainscore_vision
-from brainio.assemblies import BehavioralAssembly
-from brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
 from brainscore_vision.model_helpers.activations import PytorchWrapper
 from brainscore_vision.model_helpers.brain_transformation import ModelCommitment

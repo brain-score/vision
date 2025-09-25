@@ -2,7 +2,7 @@ import numpy as np
 import os
 import pytest
 
-from brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from brainscore_vision.model_helpers.activations.temporal.inputs.base import Stimulus
 from brainscore_vision.model_helpers.activations.temporal.model import ActivationWrapper
 from brainscore_vision.model_helpers.activations.temporal.core import TemporalInferencer, CausalInferencer 

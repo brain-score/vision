@@ -1,6 +1,6 @@
 import numpy as np
 
-from brainio.assemblies import PropertyAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import PropertyAssembly
 from brainscore_core.metrics import Metric, Score
 
 NSAMPLES = 1000

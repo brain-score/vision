@@ -11,10 +11,10 @@ import boto3
 from botocore import UNSIGNED
 from botocore.config import Config
 
-from brainio.assemblies import DataAssembly, AssemblyLoader, StimulusMergeAssemblyLoader, \
+from brainscore_core.supported_data_standards.brainio.assemblies import DataAssembly, AssemblyLoader, StimulusMergeAssemblyLoader, \
     StimulusReferenceAssemblyLoader
-from brainio.fetch import fetch_file, unzip, resolve_stimulus_set_class
-from brainio.stimuli import StimulusSetLoader, StimulusSet
+from brainscore_core.supported_data_standards.brainio.fetch import fetch_file, unzip, resolve_stimulus_set_class
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSetLoader, StimulusSet
 
 _logger = logging.getLogger(__name__)
 

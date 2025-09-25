@@ -2,7 +2,7 @@ from typing import List
 
 import numpy as np
 
-from brainio.assemblies import BehavioralAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
 from brainscore_core import Metric, Score
 
 # controls how many half-splits are averaged together to get human delta.

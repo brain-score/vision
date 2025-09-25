@@ -4,7 +4,7 @@ from pathlib import Path
 
 from brainscore_vision.model_helpers.activations.temporal.inputs import Video, Stimulus
 from brainscore_vision.model_helpers.activations.temporal.utils import assembly_align_to_fps, stack_with_nan_padding
-from brainio.assemblies import NeuroidAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly
 
 from ..base import Inferencer
 from . import time_aligner as time_aligners 

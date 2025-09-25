@@ -1,7 +1,7 @@
 import numpy as np
 from pytest import approx
 
-from brainio.assemblies import NeuroidAssembly, DataAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly, DataAssembly
 from brainscore_vision import load_metric
 from .metric import RDM
 

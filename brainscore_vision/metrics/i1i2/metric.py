@@ -8,7 +8,7 @@ import xarray
 from numpy.random.mtrand import RandomState
 from scipy.stats import pearsonr
 
-from brainio.assemblies import walk_coords, DataAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import walk_coords, DataAssembly
 from brainscore_core.metrics import Metric, Score
 from brainscore_vision.metric_helpers.transformations import apply_aggregate
 from brainscore_vision.utils import fullname

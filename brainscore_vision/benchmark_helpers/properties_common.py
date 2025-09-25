@@ -1,7 +1,7 @@
 import numpy as np
 
 import brainscore_vision
-from brainio.assemblies import DataAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import DataAssembly
 from brainscore_vision.benchmarks import BenchmarkBase, ceil_score
 from .screen import place_on_screen
 from brainscore_vision.model_interface import BrainModel

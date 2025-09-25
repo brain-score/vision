@@ -1,8 +1,12 @@
 import logging
 from typing import Dict, Any, Union, Callable
 
-from brainio.assemblies import DataAssembly
-from brainio.stimuli import StimulusSet
+#from brainio.assemblies import DataAssembly
+#from brainio.stimuli import StimulusSet
+
+from brainscore_core.supported_data_standards.brainio.assemblies import DataAssembly
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
+
 from brainscore_core.benchmarks import Benchmark
 from brainscore_core.metrics import Metric, Score
 from brainscore_core.plugin_management.conda_score import wrap_score

@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from brainio.assemblies import NeuroidAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly
 from brainscore_vision.model_helpers.brain_transformation import TemporalAligned
 from brainscore_vision.model_interface import BrainModel
 

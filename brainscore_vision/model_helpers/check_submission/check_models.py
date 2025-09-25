@@ -1,7 +1,7 @@
 import numpy as np
 import os
-from brainio.assemblies import NeuroidAssembly
-from brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from brainscore_vision import load_ceiling, load_metric, load_dataset
 from brainscore_vision.benchmark_helpers.neural_common import average_repetition, timebins_from_assembly
 from brainscore_vision.benchmark_helpers.screen import place_on_screen

@@ -8,7 +8,7 @@ import numpy as np
 from tqdm.auto import tqdm
 import gc
 
-from brainio.assemblies import NeuroidAssembly, walk_coords
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly, walk_coords
 from brainscore_vision.model_helpers.utils import fullname
 
 from brainscore_vision.model_helpers.activations.temporal.core.executor import BatchExecutor

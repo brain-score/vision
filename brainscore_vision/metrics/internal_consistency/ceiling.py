@@ -2,7 +2,7 @@ import scipy.stats
 import xarray as xr
 from tqdm import tqdm
 
-from brainio.assemblies import walk_coords, DataAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import walk_coords, DataAssembly
 from brainscore_core import Metric, Score
 from brainscore_vision.metric_helpers import Defaults as XarrayDefaults
 from brainscore_vision.metric_helpers.transformations import CrossValidationSingle

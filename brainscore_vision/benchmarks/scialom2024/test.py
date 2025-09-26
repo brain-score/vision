@@ -99,7 +99,7 @@ class TestBehavioral:
         ('segments-59', approx(0.12072, abs=0.001)),
         ('segments-77', approx(0.12996, abs=0.001)),
         ('segments-100', approx(0.11540, abs=0.001)),  # all of the above are AccuracyDistance
-        ('phosphenes-all', approx(0.18057, abs=0.01)),  # alls are ErrorConsistency
+        ('phosphenes-all', approx(0.18057, abs=0.01)),  # all are ErrorConsistency
         ('segments-all', approx(0.15181, abs=0.01)),
     ])
     def test_model_8_degrees(self, dataset, expected_raw_score):

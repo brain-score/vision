@@ -124,7 +124,7 @@ class MaxBlurPool2d(nn.Module):
         elif blur_position == 'before':
             self.layer = [self.blurpool, self.maxpool]
         else:
-            raise ValueError('invalid blur postion: {}'.format(blur_position))
+            raise ValueError('invalid blur position: {}'.format(blur_position))
 
         self.main = nn.Sequential(self.maxpool, self.blurpool)
 

@@ -1,0 +1,34 @@
+defaults:
+  stimulus_set:
+    num_stimuli: 24
+    datatype: image
+    stimuli_subtype: null
+    total_size_mb: 0.0119
+    brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/coggan2024_fMRI
+    extra_notes: null
+  data_assembly:
+    benchmark_type: neural
+    task: null
+    hemisphere: null
+    num_recording_sites: null
+    duration_ms: null
+    species: null
+    datatype: null
+    num_subjects: 9
+    pre_processing: null
+    brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/coggan2024_fMRI
+    extra_notes: null
+    data_publicly_available: true
+data:
+  tong.Coggan2024_fMRI.V1:
+    data_assembly:
+      region: V1
+  tong.Coggan2024_fMRI.V2:
+    data_assembly:
+      region: V2
+  tong.Coggan2024_fMRI.V4:
+    data_assembly:
+      region: V4
+  tong.Coggan2024_fMRI.IT:
+    data_assembly:
+      region: IT

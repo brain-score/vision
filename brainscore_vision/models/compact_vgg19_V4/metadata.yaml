@@ -1,0 +1,15 @@
+models:
+    compact_vgg19_V4:
+        architecture: DCNN
+        model_family: compact
+        total_parameter_count: 
+        trainable_parameter_count: 109018
+        total_layers: 5
+        trainable_layers: 5
+        model_size_mb: 0.891
+        training_dataset: null
+        task_specialization: null
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/compact_vgg19_V4
+        huggingface_link: null
+        extra_notes: null
+        runnable: true

@@ -7,9 +7,9 @@ import xarray as xr
 import pandas as pd
 import scipy.io as sio
 
-from brainio_base.assemblies import NeuronRecordingAssembly
-from brainio_base.stimuli import StimulusSet
-from brainio_collection.packaging import package_data_assembly, package_stimulus_set
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuronRecordingAssembly
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.packaging import package_data_assembly, package_stimulus_set
 from mkgu_packaging.dicarlo.sanghavi import filter_neuroids
 
 
@@ -108,10 +108,8 @@ def main():
     data_dir = Path(__file__).parents[6] / 'data2' / 'active' / 'users' / 'sachis'
     assert os.path.isdir(data_dir)
 
-    import brainio_collection
-    print(brainio_collection.list_stimulus_sets())
-    print(brainio_collection.list_assemblies())
-    stimuli = brainio_collection.get_stimulus_set('objectome.public').sort_values(by='image_id')
+    from brainscore_core.supported_data_standards.brainio.fetch import get_stimulus_set
+    stimuli = get_stimulus_set('objectome.public').sort_values(by='image_id')
     print(stimuli)
     # print(stimuli.columns)
     stimuli = collect_stimuli(data_dir)

@@ -1,0 +1,19 @@
+benchmarks:
+    MajajHong2015.V4-pls:
+        data_id: dicarlo.MajajHong2015.private.V4
+        metric_id: pls
+    MajajHong2015.IT-pls:
+        data_id: dicarlo.MajajHong2015.private.IT
+        metric_id: pls
+    MajajHong2015public.V4-pls:
+        data_id: dicarlo.MajajHong2015.public.V4
+        metric_id: pls
+    MajajHong2015public.IT-pls:
+        data_id: dicarlo.MajajHong2015.public.IT
+        metric_id: pls
+    MajajHong2015public.V4-temporal-pls:
+        data_id: dicarlo.MajajHong2015.temporal.public.V4
+        metric_id: pls
+    MajajHong2015public.IT-temporal-pls:
+        data_id: dicarlo.MajajHong2015.temporal.public.IT
+        metric_id: pls

@@ -1,0 +1,56 @@
+defaults:
+  stimulus_set:
+    datatype: image
+    stimuli_subtype: null
+    brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/majajhong2015
+    extra_notes: null
+  data_assembly:
+    benchmark_type: neural
+    task: null
+    hemisphere: L
+    num_recording_sites: null
+    duration_ms: null
+    species: null
+    datatype: null
+    num_subjects: null
+    pre_processing: null
+    brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/majajhong2015
+    extra_notes: null
+    data_publicly_available: true
+data:
+  dicarlo.MajajHong2015.private.V4:
+    stimulus_set:
+      num_stimuli: 2560
+      total_size_mb: 2.1133
+    data_assembly:
+      region: V4
+  dicarlo.MajajHong2015.private.IT:
+    stimulus_set:
+      num_stimuli: 2560
+      total_size_mb: 2.1133
+    data_assembly:
+      region: IT
+  dicarlo.MajajHong2015.public.V4:
+    stimulus_set:
+      num_stimuli: 3200
+      total_size_mb: 2.6413
+    data_assembly:
+      region: V4
+  dicarlo.MajajHong2015.public.IT:
+    stimulus_set:
+      num_stimuli: 3200
+      total_size_mb: 2.6413
+    data_assembly:
+      region: IT
+  dicarlo.MajajHong2015.temporal.public.V4:
+    stimulus_set:
+      num_stimuli: 3200
+      total_size_mb: 2.6413
+    data_assembly:
+      region: V4
+  dicarlo.MajajHong2015.temporal.public.IT:
+    stimulus_set:
+      num_stimuli: 3200
+      total_size_mb: 2.6413
+    data_assembly:
+      region: IT

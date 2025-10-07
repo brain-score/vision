@@ -1,0 +1,5 @@
+type: accuracy
+reference: null
+public: null
+brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/accuracy
+extra_notes: null

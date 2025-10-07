@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import yaml
 import logging
 import requests
 import contextlib
@@ -45,6 +46,205 @@ class VisionDomainPlugin(DomainPluginInterface):
         """
         self.benchmark_type = benchmark_type
 
+    def _extract_data_id(self, plugin) -> Optional[str]:
+        """Extract data ID from benchmark plugin."""
+        try:
+            # For multi-region assemblies, check benchmark identifier first to get region-specific ID
+            if hasattr(plugin, 'identifier'):
+                identifier = plugin.identifier
+                
+                # Handle multi-region data assemblies like Coggan
+                if 'tong.Coggan2024_fMRI' in identifier:
+                    # tong.Coggan2024_fMRI.V1-rdm -> tong.Coggan2024_fMRI.V1
+                    parts = identifier.split('.')
+                    if len(parts) >= 3:
+                        region_part = parts[2].split('-')[0]  # V1 from V1-rdm
+                        return f"tong.Coggan2024_fMRI.{region_part}"
+                    return "tong.Coggan2024_fMRI"
+                
+                # Handle patterns like "Geirhos2021colour-top1" -> "Geirhos2021_colour"
+                elif 'Geirhos2021' in identifier and '-' in identifier:
+                    parts = identifier.split('-')
+                    if len(parts) >= 2:
+                        return parts[0].replace('Geirhos2021', 'Geirhos2021_')
+            
+            # Try assembly-based identifiers for single-assembly cases
+            if hasattr(plugin, '_assembly') and hasattr(plugin._assembly, 'identifier'):
+                assembly_id = plugin._assembly.identifier
+                # If this is a multi-region case but we have a region, append it
+                if hasattr(plugin, 'region') and plugin.region:
+                    return f"{assembly_id}.{plugin.region}"
+                return assembly_id
+            elif hasattr(plugin, '_stimulus_set') and hasattr(plugin._stimulus_set, 'identifier'):
+                return plugin._stimulus_set.identifier
+            elif hasattr(plugin, 'stimulus_set') and hasattr(plugin.stimulus_set, 'identifier'):
+                return plugin.stimulus_set.identifier
+            elif hasattr(plugin, '_data_identifier'):
+                return plugin._data_identifier
+            elif hasattr(plugin, 'data_identifier'):
+                return plugin.data_identifier
+            elif hasattr(plugin, 'identifier'):
+                return plugin.identifier
+            elif hasattr(plugin, '_identifier'):
+                return plugin._identifier
+            return None
+        except:
+            return None
+
+    def _extract_data_plugin_name(self, data_id: str) -> Optional[str]:
+        """Extract plugin name from data ID. E.g., Ferguson2024_circle_line -> ferguson2024"""
+        if not data_id:
+            return None
+        
+        # Handle different naming patterns
+        if data_id.startswith('Ferguson2024'):
+            return 'ferguson2024'
+        elif data_id.startswith('MajajHong2015') or data_id.startswith('dicarlo.MajajHong2015'):
+            return 'majajhong2015'
+        elif data_id.startswith('Geirhos2021'):
+            return 'geirhos2021'
+        elif 'Coggan2024' in data_id:
+            if 'fMRI' in data_id:
+                return 'coggan2024_fmri'
+            elif 'behavior' in data_id:
+                return 'coggan2024_behavior'
+            else:
+                return 'coggan2024'
+        elif data_id.startswith('tong.Coggan2024'):
+            return 'coggan2024_fmri'  # tong.Coggan2024_fMRI format
+        elif data_id.startswith('dicarlo.'):
+            # Handle dicarlo.MajajHong2015.* format
+            parts = data_id.split('.')
+            if len(parts) >= 2 and 'MajajHong2015' in parts[1]:
+                return 'majajhong2015'
+        elif '_' in data_id:
+            return data_id.split('_')[0].lower()
+        elif '.' in data_id:
+            return data_id.split('.')[0].lower()
+        else:
+            return data_id.lower()
+
+    def _extract_metric_id(self, plugin) -> Optional[str]:
+        """Extract metric ID from benchmark plugin."""
+        try:
+            if hasattr(plugin, '_metric') and hasattr(plugin._metric, '__class__'):
+                metric_class_name = plugin._metric.__class__.__name__
+                metric_module = plugin._metric.__class__.__module__
+                
+                # Map class names to metric IDs
+                if 'ValueDelta' in metric_class_name:
+                    return 'value_delta'
+                elif 'PLS' in metric_class_name or 'Regression' in metric_class_name:
+                    return 'pls'
+                elif 'Accuracy' in metric_class_name:
+                    return 'accuracy'
+                elif 'ErrorConsistency' in metric_class_name:
+                    return 'error_consistency'
+                
+                # Check metric module/function names for additional patterns
+                if 'regression_correlation' in metric_module:
+                    return 'pls'
+                elif 'value_delta' in metric_module:
+                    return 'value_delta'
+                elif 'accuracy' in metric_module:
+                    return 'accuracy'
+                elif 'error_consistency' in metric_module:
+                    return 'error_consistency'
+            
+            # Also check benchmark identifier for metric hints
+            if hasattr(plugin, 'identifier'):
+                identifier = plugin.identifier.lower()
+                if 'pls' in identifier:
+                    return 'pls'
+                elif 'value_delta' in identifier:
+                    return 'value_delta'
+                elif 'top1' in identifier or 'accuracy' in identifier:
+                    return 'accuracy'
+                elif 'error_consistency' in identifier:
+                    return 'error_consistency'
+                elif 'rdm' in identifier:
+                    return 'rdm'
+                elif 'coggan' in identifier and 'fmri' in identifier:
+                    return 'rdm'  # Coggan fMRI benchmarks use RDM
+                elif 'coggan' in identifier and 'behavior' in identifier:
+                    return 'custom'  # Coggan behavior benchmarks use custom metrics
+                    
+            return None
+        except:
+            return None
+
+    def _load_metadata_template(self, plugin_type: str, plugin_name: str) -> Dict[str, Any]:
+        """Load metadata template from plugin folder."""
+        try:
+            # Get the directory where this script is located
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            # Go up one level to brainscore_vision
+            brainscore_vision_dir = os.path.dirname(current_dir)
+            
+            metadata_path = os.path.join(brainscore_vision_dir, plugin_type, plugin_name, 'metadata.yaml')
+            
+            if os.path.exists(metadata_path):
+                with open(metadata_path, 'r') as f:
+                    return yaml.safe_load(f) or {}
+            return {}
+        except Exception as e:
+            print(f"Warning: Could not load {plugin_type}/{plugin_name}/metadata.yaml: {e}", file=sys.stderr)
+            return {}
+
+    def _resolve_data_metadata(self, data_id: str, data_plugin_name: str, metadata_type: str) -> Dict[str, Any]:
+        """Resolve data metadata using inheritance system."""
+        data_metadata = self._load_metadata_template('data', data_plugin_name)
+        
+        if not data_metadata:
+            return {}
+        
+        # Get defaults for the metadata type
+        defaults = data_metadata.get('defaults', {}).get(metadata_type, {})
+        
+        # Get dataset-specific overrides
+        dataset_overrides = data_metadata.get('data', {}).get(data_id, {}).get(metadata_type, {})
+        
+        # Merge defaults with overrides (overrides take precedence)
+        resolved_metadata = {**defaults, **dataset_overrides}
+        
+        return resolved_metadata
+
+    def create_inheritance_metadata(self, plugin: Any, plugin_dir_name: str) -> Dict[str, Any]:
+        """
+        Create inheritance-based metadata (data_id/metric_id format) instead of expanded metadata.
+        
+        :param plugin: The benchmark plugin instance.
+        :param plugin_dir_name: str, name of the plugin directory.
+        :return: Dict[str, Any], inheritance metadata dictionary.
+        """
+        try:
+            # Extract data_id and metric_id from the plugin
+            data_id = self._extract_data_id(plugin)
+            metric_id = self._extract_metric_id(plugin)
+            
+            if data_id and metric_id:
+                print(f"Creating inheritance metadata: data_id={data_id}, metric_id={metric_id}", file=sys.stderr)
+                return {
+                    "data_id": data_id,
+                    "metric_id": metric_id
+                }
+            else:
+                print(f"Warning: Could not extract data_id ({data_id}) or metric_id ({metric_id}) for inheritance format", file=sys.stderr)
+                # Fall back to expanded format
+                return {
+                    "stimulus_set": self.create_stimuli_metadata(plugin, plugin_dir_name),
+                    "data": self.create_data_metadata(plugin, plugin_dir_name),
+                    "metric": self.create_metric_metadata(plugin, plugin_dir_name),
+                }
+        except Exception as e:
+            print(f"Error creating inheritance metadata: {e}", file=sys.stderr)
+            # Fall back to expanded format
+            return {
+                "stimulus_set": self.create_stimuli_metadata(plugin, plugin_dir_name),
+                "data": self.create_data_metadata(plugin, plugin_dir_name),
+                "metric": self.create_metric_metadata(plugin, plugin_dir_name),
+            }
+
     def load_benchmark(self, identifier: str) -> Optional[object]:
         """
         Load a benchmark using brainscore_vision and return the benchmark instance.
@@ -73,6 +273,22 @@ class VisionDomainPlugin(DomainPluginInterface):
         :param plugin_dir_name: str, name of the plugin directory.
         :return: Dict[str, Any], stimuli metadata dictionary.
         """
+        # NEW: Try to resolve from data plugin metadata first
+        try:
+            data_id = self._extract_data_id(plugin)
+            data_plugin_name = self._extract_data_plugin_name(data_id)
+            
+            if data_id and data_plugin_name:
+                resolved_metadata = self._resolve_data_metadata(data_id, data_plugin_name, 'stimulus_set')
+                if resolved_metadata:
+                    print(f"Using template metadata for stimulus_set: {data_plugin_name}/{data_id}", file=sys.stderr)
+                    return resolved_metadata
+        except Exception as e:
+            print(f"Warning: Could not resolve stimulus metadata from template: {e}", file=sys.stderr)
+        
+        # FALLBACK: Use existing extraction method
+        print(f"Falling back to extraction for stimulus_set: {plugin_dir_name}", file=sys.stderr)
+        
         def get_num_stimuli(stimulus_set):
             try:
                 num_stimuli = len(stimulus_set)
@@ -113,6 +329,22 @@ class VisionDomainPlugin(DomainPluginInterface):
         :param benchmark_dir_name: str, name of the benchmark directory.
         :return: Dict[str, Any], data metadata dictionary.
         """
+        # NEW: Try to resolve from data plugin metadata first
+        try:
+            data_id = self._extract_data_id(benchmark)
+            data_plugin_name = self._extract_data_plugin_name(data_id)
+            
+            if data_id and data_plugin_name:
+                resolved_metadata = self._resolve_data_metadata(data_id, data_plugin_name, 'data_assembly')
+                if resolved_metadata:
+                    print(f"Using template metadata for data_assembly: {data_plugin_name}/{data_id}", file=sys.stderr)
+                    return resolved_metadata
+        except Exception as e:
+            print(f"Warning: Could not resolve data metadata from template: {e}", file=sys.stderr)
+        
+        # FALLBACK: Use existing extraction method
+        print(f"Falling back to extraction for data_assembly: {benchmark_dir_name}", file=sys.stderr)
+        
         try:
             assembly = benchmark._assembly
         except AttributeError:
@@ -183,6 +415,21 @@ class VisionDomainPlugin(DomainPluginInterface):
         :param plugin_dir_name: str, name of the plugin directory.
         :return: Dict[str, Any], metric metadata dictionary.
         """
+        # NEW: Try to resolve from metric plugin metadata first
+        try:
+            metric_id = self._extract_metric_id(plugin)
+            
+            if metric_id:
+                metric_metadata = self._load_metadata_template('metrics', metric_id)
+                if metric_metadata:
+                    print(f"Using template metadata for metric: {metric_id}", file=sys.stderr)
+                    return metric_metadata
+        except Exception as e:
+            print(f"Warning: Could not resolve metric metadata from template: {e}", file=sys.stderr)
+        
+        # FALLBACK: Use existing extraction method
+        print(f"Falling back to extraction for metric: {plugin_dir_name}", file=sys.stderr)
+        
         new_metadata = {
             "type": None,
             "reference": None,

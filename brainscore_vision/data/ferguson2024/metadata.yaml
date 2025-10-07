@@ -1,0 +1,23 @@
+defaults:
+  stimulus_set:
+    num_stimuli: 48
+    datatype: image
+    stimuli_subtype: null
+    total_size_mb: 0.01
+    brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
+    extra_notes: null
+  data_assembly:
+    benchmark_type: behavioral
+    task: null
+    region: null
+    hemisphere: null
+    num_recording_sites: null
+    duration_ms: null
+    species: null
+    datatype: behavioral
+    num_subjects: null
+    pre_processing: null
+    brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/ferguson2024
+    extra_notes: null
+    data_publicly_available: true
+data: {}

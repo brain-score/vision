@@ -1,0 +1,10 @@
+benchmarks:
+    Baker2022frankenstein-accuracy_delta:
+        data_id: Baker2022_normal_distortion
+        metric_id: accuracy
+    Baker2022fragmented-accuracy_delta:
+        data_id: Baker2022_normal_distortion
+        metric_id: accuracy
+    Baker2022inverted-accuracy_delta:
+        data_id: Baker2022_inverted_distortion
+        metric_id: accuracy

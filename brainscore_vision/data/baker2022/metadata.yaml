@@ -1,0 +1,32 @@
+defaults:
+  stimulus_set:
+    datatype: image
+    stimuli_subtype: null
+    brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/baker2022
+    extra_notes: null
+  data_assembly:
+    benchmark_type: neural
+    task: null
+    region: null
+    hemisphere: null
+    num_recording_sites: null
+    duration_ms: null
+    species: null
+    datatype: null
+    pre_processing: null
+    brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/baker2022
+    extra_notes: null
+    data_publicly_available: true
+data:
+  Baker2022_normal_distortion:
+    stimulus_set:
+      num_stimuli: 716
+      total_size_mb: 0.2663
+    data_assembly:
+      num_subjects: 32
+  Baker2022_inverted_distortion:
+    stimulus_set:
+      num_stimuli: 360
+      total_size_mb: 0.1357
+    data_assembly:
+      num_subjects: 12

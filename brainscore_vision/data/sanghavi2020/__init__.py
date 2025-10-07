@@ -1,6 +1,6 @@
-from brainio.assemblies import NeuronRecordingAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuronRecordingAssembly
 from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set, load_ceiling
-from brainscore_vision.data_helpers.s3 import load_stimulus_set_from_s3, load_assembly_from_s3
+from brainscore_core.supported_data_standards.brainio.s3 import load_stimulus_set_from_s3, load_assembly_from_s3
 from brainscore_vision.metric_helpers.transformations import CrossValidation
 
 BIBTEX_SANGHAVI = """  @misc{Sanghavi2020,

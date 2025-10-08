@@ -1,6 +1,6 @@
-from brainio.assemblies import BehavioralAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
 from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set
-from brainscore_vision.data_helpers.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
+from brainscore_core.supported_data_standards.brainio.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
 
 
 # normal distortion:

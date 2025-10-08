@@ -4,8 +4,8 @@ import numpy as np
 import os
 import pandas as pd
 from pathlib import Path
-from brainio.stimuli import StimulusSet
-from brainio.packaging import package_stimulus_set
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.packaging import package_stimulus_set
 
 #
 # Code to generate the stylized voc 2012:

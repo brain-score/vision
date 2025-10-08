@@ -9,9 +9,9 @@ import xarray as xr
 from pathlib import Path
 from tqdm import tqdm
 
-from brainio_base.assemblies import NeuronRecordingAssembly
-from brainio_collection.knownfile import KnownFile as kf
-from brainio_contrib.packaging import package_stimulus_set, package_data_assembly
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuronRecordingAssembly
+from brainscore_core.supported_data_standards.brainio.s3 import sha1_hash as kf  # KnownFile functionality
+from brainscore_core.supported_data_standards.brainio.packaging import package_stimulus_set, package_data_assembly
 from mkgu_packaging.dicarlo.kar2018 import filter_neuroids
 
 

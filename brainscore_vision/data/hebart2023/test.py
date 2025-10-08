@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 
 from brainscore_vision import load_stimulus_set, load_dataset
 from brainscore_vision.model_interface import BehavioralAssembly

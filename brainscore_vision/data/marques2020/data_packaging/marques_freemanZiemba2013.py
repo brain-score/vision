@@ -1,9 +1,9 @@
 
 import numpy as np
 import xarray
-from brainio_collection.packaging import package_data_assembly
+from brainscore_core.supported_data_standards.brainio.packaging import package_data_assembly
 import h5py
-from brainio_base.assemblies import DataAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import DataAssembly
 
 DATA_DIR = '/braintree/data2/active/users/tmarques/bs_datasets/FreemanZiemba2013_V1V2data.mat'
 ASSEMBLY_NAME = 'movshon.FreemanZiemba2013_V1_properties'

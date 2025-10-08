@@ -1,9 +1,11 @@
 from collections import namedtuple
+from pathlib import Path
 from typing import List, Tuple
 
 import pytest
 from numpy.random import RandomState
 
+import brainscore_vision
 from brainio.assemblies import BehavioralAssembly, NeuroidAssembly
 from brainio.stimuli import StimulusSet
 from brainscore_vision import BrainModel
@@ -308,3 +310,13 @@ class TestLookAtNeuralV1:
         load_mock.return_value = self.ModelMock(assembly_maker)
         with pytest.raises(KeyError):
             generic_plugin_tests.test_look_at_neural_V1('dummy')
+
+
+@pytest.mark.travis_slow
+def test_existing_model_plugin():
+    command = [
+        generic_plugin_tests.__file__,
+        "--plugin_directory", Path(brainscore_vision.__file__).parent / 'models' / 'alexnet'
+    ]
+    retcode = pytest.main(command)
+    assert retcode == 0, "Tests failed"  # https://docs.pytest.org/en/latest/reference/exit-codes.html

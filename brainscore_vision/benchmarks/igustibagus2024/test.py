@@ -3,7 +3,7 @@ import pytest
 from numpy.random import RandomState
 from pytest import approx
 
-from brainio.assemblies import NeuroidAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly
 from brainscore_vision import load_benchmark
 from brainscore_vision.benchmark_helpers import PrecomputedFeatures
 from brainscore_vision.benchmark_helpers.test_helper import StandardizedTests

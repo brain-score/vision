@@ -2,7 +2,7 @@ from typing import Tuple
 import numpy as np
 
 import brainscore_vision
-from brainio.assemblies import PropertyAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import PropertyAssembly
 from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.benchmark_helpers.screen import place_on_screen
 from brainscore_vision import load_metric

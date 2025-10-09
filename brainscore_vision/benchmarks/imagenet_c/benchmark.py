@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from brainio.fetch import StimulusSetLoader
-from brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.fetch import StimulusSetLoader
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from brainscore_core import Score
 from brainscore_vision import load_stimulus_set, load_metric
 from brainscore_vision.benchmarks import BenchmarkBase

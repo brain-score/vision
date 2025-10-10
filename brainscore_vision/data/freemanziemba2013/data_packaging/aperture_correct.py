@@ -13,11 +13,11 @@ from pathlib import Path
 import pandas as pd
 import xarray as xr
 
-from brainio_collection import get_stimulus_set, get_assembly
-from brainio_base.stimuli import StimulusSet
-from brainio_collection.knownfile import KnownFile as kf
-from brainio_contrib.packaging import package_stimulus_set, package_data_assembly
-from brainio_collection import fetch
+from brainscore_core.supported_data_standards.brainio import get_stimulus_set, get_assembly
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.s3 import sha1_hash as kf  # KnownFile functionality
+from brainscore_core.supported_data_standards.brainio.packaging import package_stimulus_set, package_data_assembly
+from brainscore_core.supported_data_standards.brainio import fetch
 
 logging.basicConfig(level=logging.DEBUG, filename=f"{__file__}.log", format='%(asctime)s - %(levelname)s - %(message)s')
 _logger = logging.getLogger(__name__)

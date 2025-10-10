@@ -3,8 +3,8 @@ import os
 import pandas as pd
 from pathlib import Path
 
-from brainio_base.stimuli import StimulusSet
-from brainio_collection.packaging import package_stimulus_set
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.packaging import package_stimulus_set
 
 
 def collect_stimuli(data_dir):

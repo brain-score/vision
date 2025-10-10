@@ -1,6 +1,6 @@
-from brainio.assemblies import DataAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import DataAssembly
 from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set
-from brainscore_vision.data_helpers.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
+from brainscore_core.supported_data_standards.brainio.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
 
 BIBTEX = """@article{CICHY201912,
 title = {The spatiotemporal neural dynamics underlying perceived similarity for real-world objects},

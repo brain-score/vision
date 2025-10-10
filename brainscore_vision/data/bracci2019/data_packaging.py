@@ -13,9 +13,9 @@ from pathlib import Path
 import numpy as np
 from scipy.io import loadmat
 
-from brainio.assemblies import NeuroidAssembly
-from brainio.stimuli import StimulusSet
-from brainio.packaging import package_data_assembly, package_stimulus_set
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.packaging import package_data_assembly, package_stimulus_set
 from natsort import natsorted
 
 # Setup logging

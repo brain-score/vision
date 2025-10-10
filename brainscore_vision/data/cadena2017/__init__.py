@@ -1,8 +1,8 @@
 import logging
 
-from brainio.assemblies import NeuronRecordingAssembly, walk_coords, array_is_element, DataAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuronRecordingAssembly, walk_coords, array_is_element, DataAssembly
 from brainscore_vision import data_registry, load_stimulus_set, stimulus_set_registry
-from brainscore_vision.data_helpers.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
+from brainscore_core.supported_data_standards.brainio.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
 
 _logger = logging.getLogger(__name__)
 

@@ -3,8 +3,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from brainio.assemblies import BehavioralAssembly
-from brainio.packaging import package_data_assembly
+from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
+from brainscore_core.supported_data_standards.brainio.packaging import package_data_assembly
 
 
 '''

@@ -1,6 +1,6 @@
 import logging
 import numpy as np
-from brainio.assemblies import merge_data_arrays, NeuroidAssembly, walk_coords
+from brainscore_core.supported_data_standards.brainio.assemblies import merge_data_arrays, NeuroidAssembly, walk_coords
 from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
 from brainscore_vision.model_helpers.brain_transformation.temporal import fix_timebin_naming
 from tqdm import tqdm

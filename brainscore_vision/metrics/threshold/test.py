@@ -1,6 +1,6 @@
 from pytest import approx
 
-from brainio.assemblies import PropertyAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import PropertyAssembly
 from brainscore_vision import load_metric
 
 

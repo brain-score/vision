@@ -2,8 +2,8 @@ from pathlib import Path
 import numpy as np
 import xarray as xr
 
-from brainio.assemblies import PropertyAssembly
-from brainio.packaging import package_data_assembly
+from brainscore_core.supported_data_standards.brainio.assemblies import PropertyAssembly
+from brainscore_core.supported_data_standards.brainio.packaging import package_data_assembly
 import pandas as pd
 
 

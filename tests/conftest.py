@@ -1,4 +1,4 @@
-import brainio
+import brainscore_core.supported_data_standards.brainio as brainio
 import pytest
 
 from brainscore_vision.benchmark_helpers import screen

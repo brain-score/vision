@@ -9,13 +9,13 @@ import tqdm as tqdm
 
 # brain-score specific
 import brainscore
-import brainio 
+from brainscore_core.supported_data_standards import brainio 
 from brainscore.benchmarks._neural_common import average_repetition
-from brainio.assemblies import NeuroidAssembly
-from brainio.packaging import write_netcdf # use this function to save it locally
-from brainio.packaging import package_data_assembly # use this function to push to S3
-from brainio.stimuli import StimulusSet
-from brainio.packaging import package_stimulus_set
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly
+from brainscore_core.supported_data_standards.brainio.packaging import write_netcdf # use this function to save it locally
+from brainscore_core.supported_data_standards.brainio.packaging import package_data_assembly # use this function to push to S3
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.packaging import package_stimulus_set
 
 imgs_dir_path = '../images'
 dependencies_dir_path = '../dependencies'

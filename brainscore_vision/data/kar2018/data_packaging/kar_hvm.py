@@ -3,9 +3,9 @@ import numpy as np
 import xarray as xr
 from pathlib import Path
 
-import brainio_collection
-from brainio_base.assemblies import NeuronRecordingAssembly
-from brainio_contrib.packaging import package_data_assembly
+from brainscore_core.supported_data_standards.brainio import get_assembly
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuronRecordingAssembly
+from brainscore_core.supported_data_standards.brainio.packaging import package_data_assembly
 from mkgu_packaging.dicarlo.kar2018 import filter_neuroids
 
 

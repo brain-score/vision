@@ -9,7 +9,7 @@ import xarray as xr
 from PIL import Image
 from pixelmatch.contrib.PIL import pixelmatch
 
-from brainio.assemblies import NeuroidAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly
 from pathlib import Path
 
 import copy

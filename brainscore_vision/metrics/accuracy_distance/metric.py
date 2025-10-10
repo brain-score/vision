@@ -2,7 +2,7 @@ import itertools
 
 import numpy as np
 
-from brainio.assemblies import BehavioralAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
 from brainscore_core import Metric
 from brainscore_vision.metrics import Score
 from brainscore_vision.metric_helpers.transformations import apply_aggregate

@@ -4,8 +4,8 @@ from typing import List, Tuple
 import pytest
 from numpy.random import RandomState
 
-from brainio.assemblies import BehavioralAssembly, NeuroidAssembly
-from brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly, NeuroidAssembly
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from brainscore_vision import BrainModel
 # Note that we cannot import `from brainscore_vision.model_helpers.generic_plugin_tests import test_*` directly
 # since this would expose the `test_*` methods during pytest test collection

@@ -1,7 +1,7 @@
 from pathlib import Path
 import pytest
 from pytest import approx
-from brainio.assemblies import BehavioralAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
 from brainscore_vision import benchmark_registry, load_benchmark
 from brainscore_vision.benchmarks.baker2022 import DATASETS
 from brainscore_vision.benchmark_helpers import PrecomputedFeatures

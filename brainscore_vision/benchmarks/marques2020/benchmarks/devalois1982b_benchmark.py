@@ -1,7 +1,7 @@
 import numpy as np
 from result_caching import store
 
-from brainio.assemblies import DataAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import DataAssembly
 from brainscore_vision import load_dataset, load_metric
 from brainscore_vision.benchmark_helpers.properties_common import PropertiesBenchmark, _assert_grating_activations
 from brainscore_vision.benchmark_helpers.properties_common import calc_spatial_frequency_tuning

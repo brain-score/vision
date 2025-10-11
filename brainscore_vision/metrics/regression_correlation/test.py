@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from pytest import approx
 
-from brainio.assemblies import NeuroidAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly
 from brainscore_vision import load_metric
 from .metric import pls_regression, linear_regression, ridge_regression
 

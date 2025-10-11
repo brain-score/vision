@@ -1,7 +1,7 @@
 import numpy as np
 import xarray as xr
 
-from brainio.assemblies import NeuroidAssembly, array_is_element, walk_coords
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly, array_is_element, walk_coords
 from brainscore_vision.metric_helpers import Defaults
 from brainscore_vision.metrics import Score
 

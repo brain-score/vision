@@ -9,10 +9,10 @@ import tables
 from PIL import Image
 
 
-from brainio_collection.lookup import sha1_hash
-from brainio_base.assemblies import NeuronRecordingAssembly
-from brainio_base.stimuli import StimulusSet
-from brainio_collection.packaging import package_data_assembly, package_stimulus_set
+from brainscore_core.supported_data_standards.brainio.s3 import sha1_hash
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuronRecordingAssembly
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.packaging import package_data_assembly, package_stimulus_set
 
 _logger = logging.getLogger(__name__)
 

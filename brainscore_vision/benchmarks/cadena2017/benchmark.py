@@ -1,6 +1,6 @@
 import brainscore_vision
 from brainscore_vision import load_metric, load_ceiling
-from brainio.assemblies import walk_coords, array_is_element
+from brainscore_core.supported_data_standards.brainio.assemblies import walk_coords, array_is_element
 from brainscore_vision.benchmark_helpers.neural_common import NeuralBenchmark
 
 VISUAL_DEGREES = 2

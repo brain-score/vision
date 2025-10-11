@@ -1,6 +1,6 @@
 from pathlib import Path
-from brainio.stimuli import StimulusSet
-from brainio.packaging import package_stimulus_set
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.packaging import package_stimulus_set
 
 import csv
 import pandas as pd

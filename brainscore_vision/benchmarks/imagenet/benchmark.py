@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from brainio.stimuli import StimulusSet, StimulusSetLoader
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet, StimulusSetLoader
 from brainscore_core import Score
 from brainscore_vision import load_metric
 from brainscore_vision.benchmarks import BenchmarkBase

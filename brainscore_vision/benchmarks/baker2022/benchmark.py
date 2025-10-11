@@ -7,7 +7,7 @@ from brainscore_vision.metrics import Score
 from brainscore_vision.model_interface import BrainModel
 from brainscore_vision.utils import LazyLoad
 from typing import List
-from brainio.assemblies import DataAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import DataAssembly
 from brainscore_vision import load_dataset, load_metric
 
 BIBTEX = """@article{BAKER2022104913,

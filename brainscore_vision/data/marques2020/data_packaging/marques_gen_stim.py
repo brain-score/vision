@@ -2,7 +2,7 @@ import os
 import numpy as np
 from marques_stim_common import gen_grating_stim, gen_blank_stim, gen_texture_stim, \
     load_stim_info
-from brainio_collection.packaging import package_stimulus_set
+from brainscore_core.supported_data_standards.brainio.packaging import package_stimulus_set
 
 BLANK_STIM_NAME = 'Marques2020_blank'
 RF_STIM_NAME = 'Marques2020_receptive_field'

@@ -1,6 +1,6 @@
 import numpy as np
 
-from brainio.assemblies import NeuroidAssembly, DataAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly, DataAssembly
 from brainscore_core.metrics import Metric, Score
 from brainscore_vision.metric_helpers.transformations import CartesianProduct, CrossValidation, \
     CrossValidationSingle

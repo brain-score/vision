@@ -1,9 +1,9 @@
-from brainio.packaging import package_data_assembly
+from brainscore_core.supported_data_standards.brainio.packaging import package_data_assembly
 from pathlib import Path
 from shutil import copy
-from brainio.stimuli import StimulusSet
-from brainio.packaging import package_stimulus_set
-from brainio.assemblies import BehavioralAssembly
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.packaging import package_stimulus_set
+from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
 import pandas as pd
 
 DATASETS = ['circle_line', 'color', 'convergence', 'eighth',

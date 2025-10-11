@@ -2,8 +2,8 @@ import numpy as np
 from numpy.random.mtrand import RandomState
 from sklearn.model_selection import StratifiedShuffleSplit
 
-from brainio_collection.fetch import fetch_assembly, get_assembly
-from brainio_contrib.packaging import package_data_assembly, package_stimulus_set
+from brainscore_core.supported_data_standards.brainio.fetch import get_assembly
+from brainscore_core.supported_data_standards.brainio.packaging import package_data_assembly, package_stimulus_set
 
 
 def adapt_stimulus_set(assembly, name_suffix):

@@ -2,7 +2,7 @@ import numpy as np
 from numpy.random import RandomState
 from pytest import approx
 
-from brainio.assemblies import DataAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import DataAssembly
 from brainscore_vision import load_metric
 
 

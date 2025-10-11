@@ -5,7 +5,7 @@ from typing import Dict, Tuple
 import numpy as np
 from tqdm import tqdm
 
-from brainio.assemblies import merge_data_arrays, NeuroidAssembly, walk_coords
+from brainscore_core.supported_data_standards.brainio.assemblies import merge_data_arrays, NeuroidAssembly, walk_coords
 from brainscore_vision.model_helpers.activations.core import ActivationsExtractorHelper
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.brain_transformation.behavior import BehaviorArbiter, LogitsBehavior, \

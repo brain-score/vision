@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from brainio.assemblies import BehavioralAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
 from brainscore_vision.benchmarks.objectnet import Objectnet
 from brainscore_vision.model_interface import BrainModel
 

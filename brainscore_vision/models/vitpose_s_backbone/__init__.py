@@ -1,0 +1,10 @@
+from brainscore_vision import model_registry
+from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
+from .model import get_model, get_layers, get_bibtex
+
+model_registry['vitpose_s_backbone'] = lambda: ModelCommitment(
+    identifier='vitpose_s_backbone',
+    activations_model=get_model(),
+    layers=get_layers(),
+    bibtex=get_bibtex(),
+)

@@ -12,3 +12,4 @@ def get_model():
 
 def get_layers():
     return ['blocks.2', 'blocks.6', 'blocks.10', 'norm']
+

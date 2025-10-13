@@ -2,14 +2,35 @@ from brainscore_vision import metric_registry
 from .metric import CrossRegressedCorrelation, pls_regression, ridge_regression, single_regression, linear_regression,\
     pearsonr_correlation
 
-metric_registry['pls'] = lambda *args, **kwargs: CrossRegressedCorrelation(
+#metrics using cross-validation to generate multiple train-test splits from a monolithic dataset
+
+metric_registry['pls-cv'] = lambda *args, **kwargs: CrossRegressedCorrelation(
     regression=pls_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
-metric_registry['ridge'] = lambda *args, **kwargs: CrossRegressedCorrelation(
+metric_registry['ridge-cv'] = lambda *args, **kwargs: CrossRegressedCorrelation(
     regression=ridge_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
-metric_registry['neuron_to_neuron'] = lambda *args, **kwargs: CrossRegressedCorrelation(
+metric_registry['neuron_to_neuron-cv'] = lambda *args, **kwargs: CrossRegressedCorrelation(
     regression=single_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
-metric_registry['linear_predictivity'] = lambda *args, **kwargs: CrossRegressedCorrelation(
+metric_registry['linear_predictivity-cv'] = lambda *args, **kwargs: CrossRegressedCorrelation(
     regression=linear_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
+
+# metrics using seperate train and test sets
+from .metric import FixedTrainTestSplitCorrelation
+metric_registry['pls-split'] = lambda *args, **kwargs: FixedTrainTestSplitCorrelation(
+    regression=pls_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
+metric_registry['ridge-split'] = lambda *args, **kwargs: FixedTrainTestSplitCorrelation(
+    regression=ridge_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
+metric_registry['neuron_to_neuron-split'] = lambda *args, **kwargs: FixedTrainTestSplitCorrelation(
+    regression=single_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
+metric_registry['linear_predictivity-split'] = lambda *args, **kwargs: FixedTrainTestSplitCorrelation(
+    regression=linear_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
+
+
+#backwards compatibility
+metric_registry['pls'] = metric_registry['pls-cv']
+metric_registry['ridge'] = metric_registry['ridge-cv']
+metric_registry['neuron_to_neuron'] = metric_registry['neuron_to_neuron-cv']
+metric_registry['linear_predictivity'] = metric_registry['linear_predictivity-cv']
+
 
 # temporal metrics
 from .metric import SpanTimeCrossRegressedCorrelation

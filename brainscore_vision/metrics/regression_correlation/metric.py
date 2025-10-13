@@ -6,7 +6,7 @@ from sklearn.preprocessing import scale
 
 from brainscore_core.supported_data_standards.brainio.assemblies import walk_coords, DataAssembly
 from brainscore_core.metrics import Metric, Score
-from brainscore_vision.metric_helpers.transformations import CrossValidation
+from brainscore_vision.metric_helpers.transformations import CrossValidation, apply_aggregate
 from brainscore_vision.metric_helpers.xarray_utils import XarrayRegression, XarrayCorrelation
 from brainscore_vision.metric_helpers.temporal import SpanTimeRegression, PerTime
 
@@ -74,6 +74,36 @@ def SpanTimeCrossRegressedCorrelation(regression, correlation, *args, **kwargs):
                 *args, **kwargs
             )    
 
+#fixed split metric
+class FixedTrainTestSplitCorrelation(Metric):
+    def __init__(self, regression, correlation, bootstrap=False):
+        regression = regression or pls_regression()
+        self.regression = regression
+        self.correlation = correlation
+        self.bootstrap = bootstrap #maybe allow bootstrapping the test set for a variance estimate in the future
+
+    def __call__(self, source_train: DataAssembly, source_test: DataAssembly,
+                target_train: DataAssembly, target_test: DataAssembly) -> Score:
+
+        if self.bootstrap:
+            raise NotImplementedError("Bootstrap not implemented yet")
+            # if it was implemented, it would return: Score score with a variance
+            # put the regression machinery in self.apply so that Bootstrapper could then perform multiple regressions internally
+            # return metric_helpers.bootstrap.Boostrapper(source_train, target_train, source_test, target_test, self.apply, self.aggregate)
+        else:
+            #if no bootstrap, just do one regression on the full data
+            scores = self.apply(source_train, target_train, source_test, target_test)
+            score = apply_aggregate(self.aggregate, scores)    #take median across neuroids
+            return score
+
+    def apply(self, source_train, target_train, source_test, target_test):
+        self.regression.fit(source_train, target_train)
+        prediction = self.regression.predict(source_test)
+        score = self.correlation(prediction, target_test)
+        return score
+
+    def aggregate(self, scores):
+        return scores.median(dim='neuroid')
 
 def pls_regression(regression_kwargs=None, xarray_kwargs=None):
     regression_defaults = dict(n_components=25, scale=False)

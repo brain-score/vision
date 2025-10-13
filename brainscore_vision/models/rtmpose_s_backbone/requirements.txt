@@ -1,0 +1,5 @@
+torch
+torchvision
+mmengine>=0.10
+mmcv==2.1.0
+mmdet>=3.0.0,<3.3.0

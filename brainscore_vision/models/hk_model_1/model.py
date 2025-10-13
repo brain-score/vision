@@ -17,7 +17,12 @@ def get_model(name):
 
 def get_layers(name):
     assert name == 'hk_model_1'
-    return ['conv1', 'layer1', 'layer2', 'layer3', 'layer4', 'fc']
+    # Use more granular layer names to avoid alignment issues
+    return ['maxpool', 'layer1.0', 'layer1.1', 'layer1.2',
+            'layer2.0', 'layer2.1', 'layer2.2', 'layer2.3',
+            'layer3.0', 'layer3.1', 'layer3.2', 'layer3.3',
+            'layer3.4', 'layer3.5', 'layer4.0', 'layer4.1', 'layer4.2',
+            'avgpool', 'fc']
 
 def get_bibtex(model_identifier):
     return """@article{he2016deep,

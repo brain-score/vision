@@ -14,4 +14,5 @@ def test_hk_model_1_layers():
     from brainscore_vision.models.hk_model_1 import get_layers
     layers = get_layers('hk_model_1')
     assert len(layers) > 0
-    assert 'layer4' in layers
+    assert 'layer4.0' in layers
+    assert 'fc' in layers

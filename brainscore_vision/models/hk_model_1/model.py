@@ -17,13 +17,8 @@ def get_model(name):
 
 def get_layers(name):
     assert name == 'hk_model_1'
-    # Use granular layer names following successful resnet50_sup pattern
-    # Exclude 'maxpool' and 'fc' to avoid caching issues
-    return ['conv1', 'layer1.0', 'layer1.1', 'layer1.2',
-            'layer2.0', 'layer2.1', 'layer2.2', 'layer2.3',
-            'layer3.0', 'layer3.1', 'layer3.2', 'layer3.3',
-            'layer3.4', 'layer3.5', 'layer4.0', 'layer4.1', 'layer4.2',
-            'avgpool']
+    # Use simple layer structure like resnet50_tutorial to avoid caching conflicts
+    return ['conv1', 'layer1', 'layer2', 'layer3', 'layer4', 'fc']
 
 def get_bibtex(model_identifier):
     return """@article{he2016deep,

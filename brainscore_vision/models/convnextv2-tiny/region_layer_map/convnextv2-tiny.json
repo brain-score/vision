@@ -1,0 +1,6 @@
+{
+    "V1": "convnextv2.encoder.stages.2.layers.1.dwconv",
+    "V2": "convnextv2.encoder.stages.2.layers.1.dwconv",
+    "V4": "convnextv2.encoder.stages.1.layers.0.dwconv",
+    "IT": "convnextv2.encoder.stages.2.layers.2.dwconv"
+}

@@ -13,6 +13,10 @@ def test_hk_model_2_has_activations_model():
 def test_hk_model_2_layers():
     from brainscore_vision.models.hk_model_2 import get_layers
     layers = get_layers('hk_model_2')
-    assert len(layers) > 0
-    assert 'layer4.0' in layers
+    assert len(layers) == 6
+    assert 'conv1' in layers
+    assert 'layer1' in layers
+    assert 'layer2' in layers
+    assert 'layer3' in layers
+    assert 'layer4' in layers
     assert 'fc' in layers

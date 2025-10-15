@@ -1,0 +1,9 @@
+# PyTorch and related libraries
+torch>=2.0.0
+torchvision>=0.15.0
+
+# Numerical computing
+numpy>=1.20.0,<2.0.0
+
+# Image processing
+pillow>=8.0.0

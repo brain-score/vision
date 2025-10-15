@@ -7,10 +7,10 @@ models:
         total_layers: 177
         trainable_layers: 50
         model_size_mb: 347.98
-        training_dataset: null
-        task_specialization: null
+        training_dataset: unlabeldHybrid-1M
+        task_specialization: video-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_VideoMAEv2
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/OpenGVLab/VideoMAEv2-Base
         extra_notes: null
         runnable: false
     VideoMAE-V2-G:
@@ -21,9 +21,9 @@ models:
         total_layers: 569
         trainable_layers: 162
         model_size_mb: 4052.08
-        training_dataset: null
-        task_specialization: null
+        training_dataset: unlabeldHybrid-1M
+        task_specialization: video-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_VideoMAEv2
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/OpenGVLab/VideoMAEv2-giant
         extra_notes: null
         runnable: false

@@ -7,9 +7,9 @@ models:
         total_layers: 441
         trainable_layers: 156
         model_size_mb: 240.77
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/antialias_resnet152
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/resnet152.a1h_in1k
         extra_notes: null
         runnable: true

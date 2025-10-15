@@ -8,7 +8,7 @@ models:
         trainable_layers: 8
         model_size_mb: 201.22
         training_dataset: null
-        task_specialization: null
+        task_specialization: text-generation
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_training_seed_03
         huggingface_link: null
         extra_notes: null

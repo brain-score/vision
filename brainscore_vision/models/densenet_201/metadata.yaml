@@ -7,9 +7,9 @@ models:
         total_layers: 919
         trainable_layers: 201
         model_size_mb: 80.06
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/densenet_201
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/densenet201.tv_in1k
         extra_notes: null
         runnable: true

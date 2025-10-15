@@ -7,9 +7,9 @@ models:
         total_layers: 151
         trainable_layers: 54
         model_size_mb: 102.23
-        training_dataset: null
-        task_specialization: null
+        training_dataset: imagenet-1k
+        task_specialization: image-classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/eMMCR_Vanilla_1
-        huggingface_link: null
+        huggingface_link: https://huggingface.co/timm/resnet50.a1_in1k
         extra_notes: null
         runnable: true

@@ -26,6 +26,7 @@ class _Papale2025(BenchmarkBase):
 		self._visual_degrees = VISUAL_DEGREES
 		self.train_assembly = LazyLoad(lambda region=region: load_assembly(region=region, split='train'))
 		self.test_assembly = LazyLoad(lambda region=region: load_assembly(region=region, split='test'))
+		self._similarity_metric = similarity_metric
 		super().__init__(
 			identifier=f'Papale2025.{region}-pls', 
 			version=1,

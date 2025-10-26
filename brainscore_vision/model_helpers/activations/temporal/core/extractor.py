@@ -11,6 +11,7 @@ import numpy as np
 from brainio.stimuli import StimulusSet
 from brainio.assemblies import DataAssembly
 from brainscore_vision.model_helpers.utils import fullname
+from brainscore_vision.model_helpers.activations.temporal.utils import data_assembly_mmap
 from result_caching import store_xarray
 from .inferencer import Inferencer
 from ..inputs import Stimulus
@@ -101,30 +102,25 @@ class ActivationsExtractor:
         ):
         if layers is None:
             layers = ['logits']
-        if self.identifier and stimuli_identifier:
-            fnc = functools.partial(self._from_paths_stored,
-                                    identifier=self.identifier, stimuli_identifier=stimuli_identifier)
+
+        mmap_home = os.environ.get("MMAP_HOME", None)
+        if self.identifier and stimuli_identifier and mmap_home:
+            mmap_path = os.path.join(mmap_home, stimuli_identifier, self.identifier)
+            os.makedirs(mmap_path, exist_ok=True)
         else:
-            self._logger.debug(f"self.identifier `{self.identifier}` or stimuli_identifier {stimuli_identifier} "
-                               f"are not set, will not store")
-            fnc = self._from_paths
+            mmap_path = None
+
         # In case stimuli paths are duplicates (e.g. multiple trials), we first reduce them to only the paths that need
         # to be run individually, compute activations for those, and then expand the activations to all paths again.
         # This is done here, before storing, so that we only store the reduced activations.
         reduced_paths = self._reduce_paths(stimuli_paths)
-        activations = fnc(layers=layers, stimuli_paths=reduced_paths)
+        data = data_assembly_mmap.load(mmap_path)
+        if data:
+            activations = data.to_assembly()
+        else:
+            activations = self.inferencer(layers=layers, paths=reduced_paths, mmap_path=mmap_path)
         activations = self._expand_paths(activations, original_paths=stimuli_paths)
         return activations
-
-    @store_xarray(identifier_ignore=['stimuli_paths', 'layers'], combine_fields={'layers': 'layer'})
-    def _from_paths_stored(self, identifier, layers, stimuli_identifier, stimuli_paths):
-        stimuli_paths.sort()
-        return self._from_paths(layers=layers, stimuli_paths=stimuli_paths)
-
-    def _from_paths(self, layers, stimuli_paths):
-        if len(layers) == 0:
-            raise ValueError("No layers passed to retrieve activations from")
-        return self.inferencer(stimuli_paths, layers)
 
     def _reduce_paths(self, stimuli_paths):
         return list(set(stimuli_paths))

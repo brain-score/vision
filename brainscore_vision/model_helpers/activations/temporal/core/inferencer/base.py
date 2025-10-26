@@ -1,3 +1,4 @@
+import os
 import functools
 import logging
 from collections import OrderedDict
@@ -6,14 +7,15 @@ from pathlib import Path
 
 import numpy as np
 from tqdm.auto import tqdm
-import gc
 
 from brainio.assemblies import NeuroidAssembly, walk_coords
 from brainscore_vision.model_helpers.utils import fullname
 
 from brainscore_vision.model_helpers.activations.temporal.core.executor import BatchExecutor
-from brainscore_vision.model_helpers.activations.temporal.utils import stack_with_nan_padding, batch_2d_resize
+from brainscore_vision.model_helpers.activations.temporal.utils import data_assembly_mmap
 from brainscore_vision.model_helpers.activations.temporal.inputs import Stimulus
+
+from . import hooks
 
 
 channel_name_mapping = {
@@ -60,10 +62,11 @@ class Inferencer:
         
     APIs
     ----
-    __call__(paths, layers)
+    __call__(paths, layers, mmap_path=None)
         process the stimuli and return a holistic assembly that compile activations of all specified layers.
         The returned assembly is a NeuroidAssembly with the dimensions [stimulus_path, neuroid].
         All dimensions of the activations will be stacked together to form the "neuroid" dimension.
+        If mmap_path is specified, the activations will be saved to the mmap file.
 
     Examples
     --------
@@ -101,8 +104,9 @@ class Inferencer:
         self._logger = logging.getLogger(fullname(self))
 
         # register hooks
-        self._executor.register_after_hook(self._make_spatial_downsample_hook(max_spatial_size))
-        self._executor.register_after_hook(self._make_dtype_hook(dtype))
+        self._executor.register_after_hook("tensor_to_numpy", hooks._make_tensor_to_numpy_hook())
+        self._executor.register_after_hook("spatial_downsample", hooks._make_spatial_downsample_hook(max_spatial_size, self.layer_activation_format))
+        self._executor.register_after_hook("dtype", hooks._make_dtype_hook(dtype))
 
     @property
     # identifier for the inferencer: including all the features that may affect the activations
@@ -118,18 +122,33 @@ class Inferencer:
     
     def set_visual_degrees(self, visual_degrees: float):
         self.visual_degrees = visual_degrees
+        print("Visual degrees not supported yet. Bypassing...")
 
-    # given the paths of the stimuli and the layers, return the model activations as a NeuroidAssembly
-    def __call__(self, paths: List[Union[str, Path]], layers: List[str]):
+    def __call__(self, paths: List[Union[str, Path]], layers: List[str], mmap_path: str = None) -> NeuroidAssembly:
         stimuli = self.load_stimuli(paths)
-        layer_activations = self.inference(stimuli, layers)
-        layer_assemblies = OrderedDict()
-        for layer in tqdm(layers, desc="Packaging layers"):
-            layer_assemblies[layer] = self.package_layer(layer_activations[layer], self.layer_activation_format[layer], stimuli)
-            del layer_activations[layer]
-            gc.collect()  # reduce memory usage
-        model_assembly = self.package(layer_assemblies, paths)
-        return model_assembly
+        num_stimuli = len(paths)
+        stimulus_paths = paths
+
+        self._executor.add_stimuli(stimuli)
+        data = None
+        
+        for layer_activations, indicies in self._executor.execute_batch(layers):
+            for layer_activation, i in zip(layer_activations, indicies):
+                if data is None:
+                    num_feats, neuroid_coords = self._get_neuroid_coords(layer_activation, self.layer_activation_format)
+                    data = data_assembly_mmap(mmap_path, shape=(num_stimuli, num_feats), dtype=self.dtype, fill_value=np.nan)
+                flatten_activation = self._flatten_activations(layer_activation)
+                data[i, :] = flatten_activation
+
+        data.register_meta( 
+            dims=["stimulus_path", "neuroid"],
+            coords={
+                "stimulus_path": stimulus_paths, 
+                **neuroid_coords
+            }, 
+        )
+
+        return data.to_assembly()
 
     def load_stimuli(self, paths : List[Union[str, Path]]) -> List[Stimulus]:
         ret = []
@@ -139,136 +158,45 @@ class Inferencer:
 
     def load_stimulus(self, path : Union[str, Path]) -> Stimulus:
         return self.stimulus_type.from_path(path)
-    
-    # process the list of stimulus and return the activations (list of np.array, 
-    # whose length is the number of stimuli) of the specified layers
-    def inference(self, stimuli : List[Stimulus], layers : List[str]) -> Dict[str, List[np.array]]:
-        self._executor.add_stimuli(stimuli)
-        return self._executor.execute(layers)
-    
-    # Take the layer_activation (a list of np.array) and the layer specification,
-    # and package them into a NeuroidAssembly with all channels flattened into the "neuroid" dimension
-    def package_layer(
-            self, 
-            layer_activation : List[np.array],
-            layer_spec : str, 
-            stimuli : List[Stimulus]
-        ):
-        assert len(layer_activation) == len(stimuli)
-        layer_activation = stack_with_nan_padding(layer_activation, dtype=self.dtype)
-        channels = self._map_dims(layer_spec)
-        assembly = self._package(layer_activation, ["stimulus_path"] + channels)
-        assembly = self._stack_neuroid(assembly, channels)
-        return assembly
-    
-    # package the assemblies from different layers into a single one by concat along the neuroid dimension
-    def package(self, layer_assemblies : Dict[str, NeuroidAssembly], stimuli_paths : List[str]) -> NeuroidAssembly:
-        # merge manually instead of using merge_data_arrays since `xarray.merge` is very slow with these large arrays
-        # complication: (non)neuroid_coords are taken from the structure of layer_assemblies[0] i.e. the 1st assembly;
-        # using these names/keys for all assemblies results in KeyError if the first layer contains dims
-        # (see _package_layer) not present in later layers, e.g. first layer = conv, later layer = transformer layer
-        self._logger.debug(f"Merging {len(layer_assemblies)} layer assemblies")
-        layers = list(layer_assemblies.keys())
-        layer_assemblies = list(layer_assemblies.values())
-        layer_assemblies = [asm.transpose(*layer_assemblies[0].dims) for asm in layer_assemblies]
-        
-        nonneuroid_coords = {coord: (dims, values) for coord, dims, values in walk_coords(layer_assemblies[0])
-                             if set(dims) != {'neuroid'}}
-        neuroid_coords = [(coord, dims) for layer_assembly in layer_assemblies for coord, dims, values in walk_coords(layer_assembly)
-                             if set(dims) == {'neuroid'} and coord!='neuroid']
-        neuroid_coord_names = set(neuroid_coords)
+  
+    def _flatten_activations(self, layer_activation):
+        arrs = [arr.flatten() for arr in layer_activation.values()]
+        return np.concatenate(arrs)
+
+    def _get_neuroid_coords(self, layer_activation, layer_specs):
+        feat_sizes = [arr.size for arr in layer_activation.values()]
+        feat_shapes = [arr.shape for arr in layer_activation.values()]
+        layers = list(layer_activation.keys())
+        num_feats = sum(feat_sizes)
+        count_neuroids = 0
         neuroid_coords = {}
+        neuroid_coords['neuroid_id'] = []
+        neuroid_coords['neuroid_num'] = []
+        neuroid_coords['layer'] = []
 
-        for layer_assembly in layer_assemblies:
-            for coord, _ in neuroid_coord_names:
-                try:
-                    coord_values = layer_assembly[coord].values
-                except KeyError:
-                    coord_values = np.full(layer_assembly.sizes['neuroid'], -1, dtype=int)
-                neuroid_coords.setdefault(coord, []).append(coord_values)
+        def _grid(*ns):
+            from itertools import product
+            ns = [range(n) for n in ns]
+            return product(*ns)
 
-            assert layer_assemblies[0].dims == layer_assembly.dims
-            for dim in set(layer_assembly.dims) - {'neuroid'}:
-                for coord, _, _ in walk_coords(layer_assembly[dim]):
-                    assert (layer_assembly[coord].values == layer_assemblies[0][coord].values).all()
+        def _expand_spec(spec, shape):
+            assert len(spec) == len(shape)
+            return [".".join([f"{dim}{i}" for dim, i in zip(spec, grid)]) for grid in _grid(*shape)]
 
-        for coord, dims in neuroid_coord_names:
-            neuroid_coords[coord] = (dims, np.concatenate(neuroid_coords[coord]))
+        # neuroid_id, neuroid_num, layer
+        for layer, size, shape in zip(layers, feat_sizes, feat_shapes):
+            layer_spec = layer_specs[layer]
+            layer_spec = [(dim, s) for dim, s in zip(layer_spec, shape)]
+            neuroid_ids = [f"{layer}.{nid}" for nid in _expand_spec(*list(zip(*layer_spec)))]
+            neuroid_nums = list(range(count_neuroids, count_neuroids+size))
+            count_neuroids += size
+            layers = [layer] * size
 
-        # add stimulus_paths
-        nonneuroid_coords["stimulus_path"] = ('stimulus_path', stimuli_paths)
+            neuroid_coords['neuroid_id'].extend(neuroid_ids)
+            neuroid_coords['neuroid_num'].extend(neuroid_nums)
+            neuroid_coords['layer'].extend(layers)
 
-        # add layer, neuroid_num, neuroid_id
-        layer_sizes = [asm.sizes['neuroid'] for asm in layer_assemblies]
-        neuroid_coords['layer'] = (('neuroid',), np.concatenate([[layer] * size for layer, size in zip(layers, layer_sizes)]))
-        neuroid_coords['neuroid_num'] = (('neuroid',), np.concatenate([np.arange(size) for size in layer_sizes]))
-        neuroid_coords['neuroid_id'] = (('neuroid',), np.concatenate([np.array([f"{layer}.{neuroid_num}" for neuroid_num in range(size)]) 
-                                                                   for layer, size in zip(layers, layer_sizes)]))
+        for key, val in neuroid_coords.items():
+            neuroid_coords[key] = ('neuroid', val)
 
-        model_assembly = np.concatenate([a.values for a in layer_assemblies], axis=layer_assemblies[0].dims.index('neuroid'))
-        model_assembly = type(layer_assemblies[0])(model_assembly, coords={**nonneuroid_coords, **neuroid_coords},dims=layer_assemblies[0].dims)
-        return model_assembly
-    
-    # turn the activations into the specified dtype
-    def _make_dtype_hook(self, dtype):
-        return lambda val, layer, stimulus: val.astype(dtype)
-    
-    # downsample the activations with the largest spatial size (among width and height) to the specified size
-    def _make_spatial_downsample_hook(self, max_spatial_size, mode="pool"):
-        def hook(val, layer, stimulus):
-            if max_spatial_size is None:
-                return val
-            
-            dims = self.layer_activation_format[layer]
-
-            # require both H and W dimensions to do spatial downsampling
-            if "H" not in dims or "W" not in dims:
-                return val
-
-            H_dim, W_dim = dims.index("H"), dims.index("W")
-            val = val.swapaxes(H_dim, 0).swapaxes(W_dim, 1)
-            shape = val.shape[2:]
-            h, w = val.shape[:2]
-            val = val.reshape(h, w, -1)
-            new_size = _compute_new_size(w, h, self.max_spatial_size)
-            new_val = batch_2d_resize(val[None,:], new_size, mode=mode)[0]
-            new_val = new_val.reshape(*new_size, *shape)
-            new_val = new_val.swapaxes(0, H_dim).swapaxes(1, W_dim)
-            return new_val.astype(self.dtype)
-        return hook
-
-    # map dims to channel names
-    @staticmethod
-    def _map_dims(dims):
-        return [channel_name_mapping[dim] for dim in dims]
-
-    # stack the channel dimensions to form the "neuroid" dimension
-    @staticmethod
-    def _stack_neuroid(assembly, channels):
-        asm_cls = assembly.__class__
-        assembly = assembly.stack(neuroid=channels)
-        return asm_cls(assembly)
-
-    # package an activation numpy array into a NeuroidAssembly with specified dims
-    @staticmethod
-    def _package(activation: np.array, dims):
-        coords = {dim: range(activation.shape[i]) for i, dim in enumerate(dims)}
-        ret = NeuroidAssembly(activation, coords=coords, dims=dims)
-        return ret
-
-def _compute_new_size(w, h, max_spatial_size):
-    if isinstance(max_spatial_size, int):
-        if h > w:
-            new_h = max_spatial_size
-            new_w = int(w * new_h / h)
-        else:
-            new_w = max_spatial_size
-            new_h = int(h * new_w / w)
-    else:
-        new_h = int(h * max_spatial_size)
-        new_w = int(w * max_spatial_size)
-    
-    new_h = max(1, new_h)
-    new_w = max(1, new_w)
-
-    return new_h, new_w
+        return num_feats, neuroid_coords

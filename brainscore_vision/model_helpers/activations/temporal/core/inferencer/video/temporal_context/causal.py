@@ -3,7 +3,8 @@ from collections import OrderedDict
 
 from .base import TemporalContextInferencerBase
 from brainscore_vision.model_helpers.activations.temporal.inputs.video import Video
-from brainscore_vision.model_helpers.activations.temporal.utils import stack_with_nan_padding
+from brainscore_vision.model_helpers.activations.temporal.utils import stack_with_nan_padding, data_assembly_mmap
+from brainio.assemblies import NeuroidAssembly
 
 
 class CausalInferencer(TemporalContextInferencerBase):
@@ -29,45 +30,6 @@ class CausalInferencer(TemporalContextInferencerBase):
             else:
                 del kwargs["time_alignment"]
         super().__init__(*args, **kwargs, time_alignment="per_frame_aligned")
-
-    def inference(self, stimuli, layers):
-        interval = 1000 / self.fps
-        lower, context = self._compute_temporal_context()
-        num_clips = []
-        latest_time_end = 0
-        for inp in stimuli:
-            duration = inp.duration
-            videos = []
-            # here we ensure that the covered time range at least include the whole duration
-            for time_end in np.arange(interval, duration+interval, interval):
-                # see if the model only receive limited context
-                time_start = self._get_time_start(time_end, context, lower)
-                clip = inp.set_window(time_start, time_end, padding=self.out_of_bound_strategy)
-                latest_time_end = max(time_end, latest_time_end)
-                videos.append(clip)
-
-            self._executor.add_stimuli(videos)
-            num_clips.append(len(videos))
-
-        activations = self._executor.execute(layers)
-        layer_activations = OrderedDict()
-        for layer in layers:
-            activation_dims = self.layer_activation_format[layer]
-            clip_start = 0
-            for num_clip in num_clips:
-                video_activations = activations[layer][clip_start:clip_start+num_clip]  # clips for this video
-                # make T the first dimension, as [T, ...]
-                if 'T' in activation_dims:
-                    time_index = activation_dims.index('T')
-                    video_activations = [a.take(-1, axis=time_index) for a in video_activations]
-                layer_activations.setdefault(layer, []).append(np.stack(video_activations, axis=0))
-                clip_start += num_clip
-
-        return layer_activations
-    
-    def package_layer(self, activations, layer_spec, stimuli):
-        layer_spec = "T" + layer_spec.replace('T', '')  # T has been moved to the first dimension
-        return super().package_layer(activations, layer_spec, stimuli) 
     
     def _get_time_start(self, time_end, context, lower):
         assert context >= lower, f"Temporal context {context} is not within the range {lower}"
@@ -84,3 +46,59 @@ class CausalInferencer(TemporalContextInferencerBase):
                     return 0 
         elif self.temporal_context_strategy == "conservative":
             return time_end - context
+
+    def __call__(self, paths, layers, mmap_path=None):
+        lower, context = self._compute_temporal_context()
+        interval = 1000 / self.fps
+        stimuli = self.load_stimuli(paths)
+        longest_stimulus = stimuli[np.argmax(np.array([stimulus.duration for stimulus in stimuli]))]
+        num_time_bins = longest_stimulus.num_frames
+        num_stimuli = len(paths)
+        time_bin_coords = self._get_time_bin_coords(num_time_bins, self.fps)
+        stimulus_paths = paths
+
+        ts = []
+        stimulus_index = []
+        for s, stimulus in enumerate(stimuli):
+            duration = stimulus.duration
+            videos = []
+            # here we ensure that the covered time range at least include the whole duration
+            for t, time_end in enumerate(np.arange(interval, duration+interval, interval)):
+                # see if the model only receive limited context
+                time_start = self._get_time_start(time_end, context, lower)
+                clip = stimulus.set_window(time_start, time_end, padding=self.out_of_bound_strategy)
+                videos.append(clip)
+                ts.append(t)
+                stimulus_index.append(s)
+            self._executor.add_stimuli(videos)
+
+        data = None
+        for temporal_layer_activations, indicies in self._executor.execute_batch(layers):
+            for temporal_layer_activation, i in zip(temporal_layer_activations, indicies):
+                s = stimulus_index[i]
+                layer_activation = self._get_last_time(temporal_layer_activation)
+                if data is None:
+                    num_feats, neuroid_coords = self._get_neuroid_coords(layer_activation, self._remove_T(self.layer_activation_format))
+                    data = data_assembly_mmap(mmap_path, shape=(num_stimuli, num_time_bins, num_feats), dtype=self.dtype, fill_value=np.nan)
+                flatten_activation = self._flatten_activations(layer_activation)
+                t = ts[i]
+                data[s, t, :] = flatten_activation
+
+        data.register_meta(
+            dims=["stimulus_path", "time_bin", "neuroid"],
+            coords={
+                "stimulus_path": stimulus_paths, 
+                **neuroid_coords,
+                **time_bin_coords,
+            }, 
+        )
+
+        return data.to_assembly()
+
+    def _get_last_time(self, temporal_layer_activation):
+        ret = {}
+        for layer, activation in temporal_layer_activation.items():
+            specs = self.layer_activation_format[layer]
+            t_dim = specs.index("T") if "T" in specs else None
+            ret[layer] = activation.take(-1, axis=t_dim) if t_dim is not None else activation
+        return ret

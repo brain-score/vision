@@ -31,6 +31,49 @@ class NeuralBenchmark(BenchmarkBase):
         ceiled_score = explained_variance(raw_score, self.ceiling)
         return ceiled_score
 
+class TrainTestNeuralBenchmark(BenchmarkBase):
+    def __init__(self, identifier, ceiling_func, version, 
+                 train_assembly, test_assembly, similarity_metric, 
+                 visual_degrees, number_of_trials, parent, **kwargs):
+        super(TrainTestNeuralBenchmark, self).__init__(identifier=identifier, ceiling_func=ceiling_func,
+                                                version=version, parent=parent, **kwargs)
+        self.train_assembly = train_assembly
+        self.test_assembly = test_assembly
+        self._similarity_metric = similarity_metric
+        self._visual_degrees = visual_degrees
+        self._number_of_trials = number_of_trials
+        
+        region = np.unique(self.train_assembly['region'])
+        assert len(region) == 1
+        assert region[0] == np.unique(self.test_assembly['region'])[0]
+        self.region = region[0]
+
+        timebins = timebins_from_assembly(self.train_assembly)
+        self.timebins = timebins
+        
+    def __call__(self, candidate: BrainModel):  
+        
+        # get the activations from the train set
+        train_stimulus_set = self.train_assembly.stimulus_set
+        timebins = timebins_from_assembly(self.train_assembly)
+        candidate.start_recording(self.region, time_bins=timebins)
+        stimulus_set = place_on_screen(train_stimulus_set, target_visual_degrees=candidate.visual_degrees(),
+                                        source_visual_degrees=self._visual_degrees)
+        train_activations = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
+
+        # get the activations from the test set
+        test_stimulus_set = self.test_assembly.stimulus_set
+        timebins = timebins_from_assembly(self.test_assembly)
+        candidate.start_recording(self.region, time_bins=timebins)
+        stimulus_set = place_on_screen(test_stimulus_set, target_visual_degrees=candidate.visual_degrees(),
+									source_visual_degrees=self._visual_degrees)
+        test_activations = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
+
+        raw_score = self._similarity_metric(source_train=train_activations, source_test=test_activations,
+                target_train=self.train_assembly, target_test=self.test_assembly)
+        #TODO ceil score
+        return raw_score
+
 
 def timebins_from_assembly(assembly):
     timebins = assembly['time_bin'].values

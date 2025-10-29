@@ -14,14 +14,14 @@ metric_registry['linear_predictivity-cv'] = lambda *args, **kwargs: CrossRegress
     regression=linear_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
 
 # metrics using seperate train and test sets
-from .metric import FixedTrainTestSplitCorrelation
-metric_registry['pls-split'] = lambda *args, **kwargs: FixedTrainTestSplitCorrelation(
+from .metric import TrainTestSplitCorrelation
+metric_registry['pls-split'] = lambda *args, **kwargs: TrainTestSplitCorrelation(
     regression=pls_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
-metric_registry['ridge-split'] = lambda *args, **kwargs: FixedTrainTestSplitCorrelation(
+metric_registry['ridge-split'] = lambda *args, **kwargs: TrainTestSplitCorrelation(
     regression=ridge_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
-metric_registry['neuron_to_neuron-split'] = lambda *args, **kwargs: FixedTrainTestSplitCorrelation(
+metric_registry['neuron_to_neuron-split'] = lambda *args, **kwargs: TrainTestSplitCorrelation(
     regression=single_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
-metric_registry['linear_predictivity-split'] = lambda *args, **kwargs: FixedTrainTestSplitCorrelation(
+metric_registry['linear_predictivity-split'] = lambda *args, **kwargs: TrainTestSplitCorrelation(
     regression=linear_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
 
 

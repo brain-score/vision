@@ -75,7 +75,7 @@ def SpanTimeCrossRegressedCorrelation(regression, correlation, *args, **kwargs):
             )    
 
 #fixed split metric
-class FixedTrainTestSplitCorrelation(Metric):
+class TrainTestSplitCorrelation(Metric):
     def __init__(self, regression, correlation, bootstrap=False):
         regression = regression or pls_regression()
         self.regression = regression

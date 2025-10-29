@@ -6,6 +6,14 @@ import json
 import numpy as np
 from tqdm.auto import tqdm
 
+#####
+# Package the Gifford et al. (2022) EEG2 dataset from THINGS 
+# neuroids: 10 subjects x 17 channels x 100 timepoints = 1700 neuroids
+# train stimuli: 66160 presentations (1654 categories x 10 images x 4 repetitions)
+# test stimuli: 1600 presentations (20 images x 80 repetitions)
+# time bins: ALL TIME BINS ARE RESHAPED INTO THE NEUROID DIMENSION
+#####
+
 from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from brainscore_core.supported_data_standards.brainio.packaging import package_data_assembly, package_stimulus_set

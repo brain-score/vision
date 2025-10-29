@@ -1,0 +1,9 @@
+torch
+torchvision
+urllib3
+numpy
+pytest
+pyyaml
+huggingface_hub
+safetensors
+requests

@@ -7,8 +7,8 @@ models:
         total_layers: 251
         trainable_layers: 86
         model_size_mb: 102.8
-        training_dataset: null
-        task_specialization: null
+        training_dataset: ImageNet_ILSVRC-2010, ImageNet_ILSVRC-2012
+        task_specialization: Image_Classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/Res2Net50_26w_4s
         huggingface_link: null
         extra_notes: null

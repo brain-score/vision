@@ -76,25 +76,16 @@ def SpanTimeCrossRegressedCorrelation(regression, correlation, *args, **kwargs):
 
 #fixed split metric
 class TrainTestSplitCorrelation(Metric):
-    def __init__(self, regression, correlation, bootstrap=False):
+    def __init__(self, regression, correlation):
         regression = regression or pls_regression()
         self.regression = regression
         self.correlation = correlation
-        self.bootstrap = bootstrap #maybe allow bootstrapping the test set for a variance estimate in the future
 
     def __call__(self, source_train: DataAssembly, source_test: DataAssembly,
                 target_train: DataAssembly, target_test: DataAssembly) -> Score:
-
-        if self.bootstrap:
-            raise NotImplementedError("Bootstrap not implemented yet")
-            # if it was implemented, it would return: Score score with a variance
-            # put the regression machinery in self.apply so that Bootstrapper could then perform multiple regressions internally
-            # return metric_helpers.bootstrap.Boostrapper(source_train, target_train, source_test, target_test, self.apply, self.aggregate)
-        else:
-            #if no bootstrap, just do one regression on the full data
-            scores = self.apply(source_train, target_train, source_test, target_test)
-            score = apply_aggregate(self.aggregate, scores)    #take median across neuroids
-            return score
+        scores = self.apply(source_train, target_train, source_test, target_test)
+        score = apply_aggregate(self.aggregate, scores)    #take median across neuroids
+        return score
 
     def apply(self, source_train, target_train, source_test, target_test):
         self.regression.fit(source_train, target_train)

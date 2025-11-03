@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.stats
 from sklearn.cross_decomposition import PLSRegression
-from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.linear_model import LinearRegression, Ridge, RidgeCV
 from sklearn.preprocessing import scale
 
 from brainscore_core.supported_data_standards.brainio.assemblies import walk_coords, DataAssembly
@@ -121,12 +121,29 @@ def linear_regression(xarray_kwargs=None):
     return regression
 
 
-def ridge_regression(xarray_kwargs=None):
-    regression = Ridge()
+def ridge_regression(regression_kwargs=None, xarray_kwargs=None):
+    regression_defaults = dict(alpha=1)
+    regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
+    regression = Ridge(**regression_kwargs)
     xarray_kwargs = xarray_kwargs or {}
     regression = XarrayRegression(regression, **xarray_kwargs)
     return regression
 
+ALPHA_LIST = [
+    *np.geomspace(1e-4, 1e0, 5),
+    *np.linspace(1e1, 1e2, 3, endpoint=False),
+    *np.linspace(1e2, 1e3, 3, endpoint=False),
+    *np.linspace(1e3, 1e4, 3, endpoint=False),
+    *np.linspace(1e4, 1e5, 4)
+]
+def ridge_cv_regression(regression_kwargs=None, xarray_kwargs=None):
+    regression_defaults = dict(alphas=ALPHA_LIST, store_cv_results=True)
+    regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
+    regression_kwargs.pop('alpha', None)  # RidgeCV does not accept 'alpha' as a parameter
+    regression = RidgeCV(**regression_kwargs)
+    xarray_kwargs = xarray_kwargs or {}
+    regression = XarrayRegression(regression, **xarray_kwargs)
+    return regression
 
 def single_regression(xarray_kwargs=None):
     regression = SingleRegression()

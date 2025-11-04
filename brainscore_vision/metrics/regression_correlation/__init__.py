@@ -1,5 +1,5 @@
 from brainscore_vision import metric_registry
-from .metric import CrossRegressedCorrelation, pls_regression, ridge_regression, single_regression, linear_regression,\
+from .metric import CrossRegressedCorrelation, pls_regression, ridge_cv_regression, ridge_regression, single_regression, linear_regression,\
     pearsonr_correlation
 
 #metrics using cross-validation to generate multiple train-test splits from a monolithic dataset
@@ -23,6 +23,8 @@ metric_registry['neuron_to_neuron-split'] = lambda *args, **kwargs: TrainTestSpl
     regression=single_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
 metric_registry['linear_predictivity-split'] = lambda *args, **kwargs: TrainTestSplitCorrelation(
     regression=linear_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
+metric_registry['ridgecv-split'] = lambda *args, **kwargs: TrainTestSplitCorrelation(
+    regression=ridge_cv_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
 
 
 #backwards compatibility

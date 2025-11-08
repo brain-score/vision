@@ -71,8 +71,8 @@ class TrainTestNeuralBenchmark(BenchmarkBase):
 
         raw_score = self._similarity_metric(source_train=train_activations, source_test=test_activations,
                 target_train=self.train_assembly, target_test=self.test_assembly)
-        #TODO ceil score
-        return raw_score
+        ceiled_score = explained_variance(raw_score, self.ceiling)
+        return ceiled_score
 
 
 def timebins_from_assembly(assembly):

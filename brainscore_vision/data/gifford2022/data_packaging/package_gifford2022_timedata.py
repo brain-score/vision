@@ -12,10 +12,10 @@ from brainscore_core.supported_data_standards.brainio.packaging import package_d
 
 #####
 # Package the Gifford et al. (2022) EEG2 dataset based on THINGS images
-# neuroids: 10 subjects x 17 channels x 100 timepoints = 1700 neuroids
+# neuroids: 10 subjects x 17 channels = 170 neuroids
 # train stimuli: 66160 presentations (1654 categories x 10 images x 4 repetitions)
 # test stimuli: 16000 presentations (200 images x 80 repetitions)
-# time bins: ALL TIME BINS ARE RESHAPED INTO THE NEUROID DIMENSION
+# time bins: 100 time points (NOT flattened into neuroids), from -200ms to 800ms
 #####
 
 
@@ -27,7 +27,8 @@ SUBJECTS = ["sub-{:02d}".format(i) for i in range(1, 11)]
 
 def get_stimulus_set(image_metadata: dict, things_image_dir: Path, split: str) -> StimulusSet:
     """
-    Build the StimulusSet for the given split. THINGS images must be downloaded and unziped with the password
+    Build the StimulusSet for the given split. THINGS images must be downloaded and unzipped with the password
+    
     Args:
         image_metadata: Metadata of the stimuli provided by the neural dataset
         things_image_dir: Path to the stimulus data directory containing images
@@ -48,7 +49,7 @@ def get_stimulus_set(image_metadata: dict, things_image_dir: Path, split: str) -
     file_names = image_metadata[f'{split}_img_files']
     
     stimulus_ids, stimulus_paths, labels = [], {}, {}
-    for file_name in tqdm(file_names, total=len(file_names)):
+    for file_name in tqdm(file_names, total=len(file_names), desc=f"Loading {split} stimuli"):
 
         stimulus_id = file_name.split('.')[0]
         img_class = stimulus_id.rsplit('_', 1)[0]  # Get the class from the stimulus ID
@@ -79,7 +80,7 @@ def get_stimulus_set(image_metadata: dict, things_image_dir: Path, split: str) -
 
 def get_neuroid_assembly(neural_data_dir: Path, stimulus_set: StimulusSet, split: str) -> NeuroidAssembly:
     """
-    Create the NeuroidAssembly for the given split.
+    Create the NeuroidAssembly for the given split with time bins as a separate dimension.
     
     Args:
         neural_data_dir: Path to the neural data directory
@@ -87,7 +88,7 @@ def get_neuroid_assembly(neural_data_dir: Path, stimulus_set: StimulusSet, split
         split: 'train' or 'test'
     
     Returns:
-        NeuroidAssembly for the specified split
+        NeuroidAssembly for the specified split with shape (presentation, neuroid, time_bin)
     """
     
     print(f"Processing {split} split across all subjects...")
@@ -97,9 +98,10 @@ def get_neuroid_assembly(neural_data_dir: Path, stimulus_set: StimulusSet, split
         filename = "preprocessed_eeg_test.npy"
     else:
         raise ValueError(f"Unknown split: {split}")
+    
     data_neural_concat = []
-    subject_names, channel_names, recording_times, neuroid_indices = [], [], [], []
-    for subj in tqdm(SUBJECTS, total=len(SUBJECTS)):
+    subject_names, channel_names, neuroid_indices = [], [], []
+    for subj in tqdm(SUBJECTS, desc=f"Processing {split} subjects"):
         neural_data = np.load(neural_data_dir / subj / filename, allow_pickle=True).item()
 
         subject_responses = neural_data['preprocessed_eeg_data']
@@ -107,18 +109,18 @@ def get_neuroid_assembly(neural_data_dir: Path, stimulus_set: StimulusSet, split
         times = neural_data['times']
         n_stimuli, n_trials, n_channels, n_time_points = subject_responses.shape
 
-        subject_names.extend([subj] * n_channels * n_time_points)
-        channel_names.extend(np.repeat(ch_names, n_time_points))
-        recording_times.extend(np.tile(times, n_channels))
-        neuroid_indices.extend(np.arange(n_channels * n_time_points))
+        subject_names.extend([subj] * n_channels)
+        channel_names.extend(ch_names)
+        neuroid_indices.extend(np.arange(n_channels))
 
         # Z-score normalization across trials and stimuli
-        # subject_responses: # shape: (n_stimuli, n_trials, n_channels, n_time_points)
+        # subject_responses: shape (n_stimuli, n_trials, n_channels, n_time_points)
         mean = np.mean(subject_responses, axis=(0, 1))
         std = np.std(subject_responses, axis=(0, 1))
         subject_responses = (subject_responses - mean) / std 
         
-        subject_responses = subject_responses.reshape(n_stimuli * n_trials, n_channels * n_time_points)
+        # Reshape to (presentations, channels, time_points) - keep time as separate dimension
+        subject_responses = subject_responses.reshape(n_stimuli * n_trials, n_channels, n_time_points)
         if subj == 'sub-01': 
             print(f"Each subject's recordings have data shape {subject_responses.shape} after reshaping")
         data_neural_concat.append(subject_responses)
@@ -128,19 +130,19 @@ def get_neuroid_assembly(neural_data_dir: Path, stimulus_set: StimulusSet, split
     trial_indices = np.tile(np.arange(n_trials), n_stimuli)
     print(f"Concatenated neural data shape for split {split}: {data_neural_concat.shape} "+\
           f"(#presentations = {n_stimuli} Stimuli x {n_trials} Trials, "+\
-          f"#features = {n_channels} Channels x {n_time_points} Timepoints x {len(SUBJECTS)} Subjects)")
+          f"#neuroids = {n_channels} Channels x {len(SUBJECTS)} Subjects, "+\
+          f"#time_bins = {n_time_points} Timepoints)")
 
-    total_features = len(SUBJECTS) * n_channels * n_time_points  # 10 subjects * 17 channels * 100 timepoints
-    total_presentations = n_stimuli * n_trials  # 22248 stimuli * 4 or 80 trials
+    total_neuroids = len(SUBJECTS) * n_channels  # 10 subjects * 17 channels
+    total_presentations = n_stimuli * n_trials  # stimuli * trials
     assert np.all([
-        len(subject_names) == len(channel_names) == len(recording_times) == len(neuroid_indices) == data_neural_concat.shape[1] == total_features,
-        len(trial_indices) == data_neural_concat.shape[0] == total_presentations
+        len(subject_names) == len(channel_names) == len(neuroid_indices) == data_neural_concat.shape[1] == total_neuroids,
+        len(trial_indices) == data_neural_concat.shape[0] == total_presentations,
+        data_neural_concat.shape[2] == n_time_points
     ])
 
-
     assembly = NeuroidAssembly(
-        data_neural_concat.reshape(
-            data_neural_concat.shape[0], data_neural_concat.shape[1], 1),
+        data_neural_concat,
         dims=["presentation", "neuroid", "time_bin"],
         coords={
             "stimulus_id": ("presentation", np.repeat(stimulus_set["stimulus_id"].values, n_trials)),
@@ -151,9 +153,8 @@ def get_neuroid_assembly(neural_data_dir: Path, stimulus_set: StimulusSet, split
             "subject": ("neuroid", subject_names),
             "neuroid_id": ("neuroid", neuroid_indices),
             "channel": ("neuroid", channel_names),
-            "recoding_time": ("neuroid", recording_times),
-            "time_bin_start": ("time_bin", [-20]),
-            "time_bin_end": ("time_bin", [1000])
+            "time_bin_start": ("time_bin", times),
+            "time_bin_end": ("time_bin", times)
         },
     )
 
@@ -165,6 +166,8 @@ def get_neuroid_assembly(neural_data_dir: Path, stimulus_set: StimulusSet, split
 
 def package_data(neural_data_dir: Path, things_image_dir: Path, bucket_name: str, output_path: Path) -> None:
     """
+    Main function to package THINGS EEG2 data with time bins as separate dimension.
+    
     Args:
         neural_data_dir: Path to the neural data directory containing preprocessed EEG .npy files
         things_image_dir: Path to the stimulus data directory containing images
@@ -176,7 +179,6 @@ def package_data(neural_data_dir: Path, things_image_dir: Path, bucket_name: str
 
     print(f"Number of training stimuli: {len(image_metadata['train_img_files'])}, Number of testing stimuli: {len(image_metadata['test_img_files'])}")
     print(f"Example stimulus file: {image_metadata['train_img_files'][0]}, concept: {image_metadata['train_img_concepts'][0]}")
-
 
     # Print properties of the data being packaged, example subject sub-01
     training_subj_data = np.load(neural_data_dir / "sub-01" / "preprocessed_eeg_training.npy", allow_pickle=True).item()
@@ -192,8 +194,8 @@ def package_data(neural_data_dir: Path, things_image_dir: Path, bucket_name: str
     train_assembly = get_neuroid_assembly(neural_data_dir, train_stimulus_set, split='train')
     test_assembly = get_neuroid_assembly(neural_data_dir, test_stimulus_set, split='test')
 
-    # Upload to S3 and save hash info to json (-> insert into registry entries in __init__.py )
-    print("Brainio is now packaging the stimuli for upload. Don't worry, this might take a moment")
+    # Upload to S3 and save hash info to json
+    print("Packaging and uploading data to S3...")
     print("Uploading train stimuli...")
     stim_train_info = package_stimulus_set(
         catalog_name=None,  # catalogs are deprecated
@@ -250,7 +252,7 @@ def package_data(neural_data_dir: Path, things_image_dir: Path, bucket_name: str
 
 
 if __name__ == "__main__":
-    parser = ArgumentParser(description="Package THINGS EEG2 data")
+    parser = ArgumentParser(description="Package THINGS EEG2 data with time bins")
     parser.add_argument(
         '--neural-data-dir', '--neuro-dir',
         dest='neural_data_dir',

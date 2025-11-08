@@ -8,10 +8,18 @@ import numpy as np
 import pandas as pd
 from tqdm.auto import tqdm
 
-
 from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from brainscore_core.supported_data_standards.brainio.packaging import package_data_assembly, package_stimulus_set
+
+#####
+# Package the Hebart et al. (2023) fMRI dataset based on THINGS images
+# neuroids: 3 subjects with varying numbers of reliable voxels in each region
+# train stimuli: 8640 presentations (720 categories x 12 images x 1 repetition)
+# test stimuli: 1200 presentations (100 images x 12 repetitions)
+# time bins: 1
+#####
+
 
 DEFAULT_BUCKET_NAME = "brainscore-storage/brainio-brainscore"
 DEFAULT_OUTPUT_PATH = "./uploaded_data_info/"
@@ -21,16 +29,20 @@ ROIS = {
     'V1': ['V1'],
     'V2': ['V2'],
     'V4': ['hV4'],
-    # 'IT': ['IT']
     'IT': [
-        'glasser-TE1p','glasser-TE2p', 'glasser-FFC', 'glasser-VVC', 'glasser-VMV2', 
+        'glasser-TE1p', 'glasser-TE2p', 'glasser-FFC', 'glasser-VVC', 'glasser-VMV2', 
         'glasser-VMV3', 'glasser-PHA1', 'glasser-PHA2', 'glasser-PHA3'
     ]
 }
+REPS = {'train': 1, 'test': 12}
 SUBJECTS = ["01", "02", "03"]
 NOISE_CEILING_THRESHOLD = 0.3
 
-def load_subject_data(fmri_data_dir: Union[str, Path], sub: str, drop_voxel_id_from_responses=True) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def load_subject_data(
+    fmri_data_dir: Union[str, Path], 
+    subject_id: str, 
+    drop_voxel_id_from_responses: bool = True
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Load the fMRI data and associated metadata for a given subject.
     """
@@ -41,24 +53,29 @@ def load_subject_data(fmri_data_dir: Union[str, Path], sub: str, drop_voxel_id_f
         fmri_data_dir = fmri_data_dir / "betas_csv"
     
     # Load the metadata
-    metadata_file = fmri_data_dir / f"sub-{sub}_StimulusMetadata.csv"
+    metadata_file = fmri_data_dir / f"sub-{subject_id}_StimulusMetadata.csv"
     metadata = pd.read_csv(metadata_file)
 
     # Load the fMRI data
-    responses_file = fmri_data_dir / f"sub-{sub}_ResponseData.h5"
+    responses_file = fmri_data_dir / f"sub-{subject_id}_ResponseData.h5"
     responses = pd.read_hdf(responses_file)
     if drop_voxel_id_from_responses:
         responses = responses.drop(columns=['voxel_id'])
     
     # Load the voxel data
-    voxdata_file = fmri_data_dir / f"sub-{sub}_VoxelMetadata.csv"
-    voxdata = pd.read_csv(voxdata_file)
+    voxel_data_file = fmri_data_dir / f"sub-{subject_id}_VoxelMetadata.csv"
+    voxel_data = pd.read_csv(voxel_data_file)
 
-    return responses, metadata, voxdata
+    return responses, metadata, voxel_data
 
 
-def process_subject_data(responses: pd.DataFrame, metadata: pd.DataFrame, voxdata: pd.DataFrame, ROIs:Dict[str, List[str]], noise_ceiling_theshold:float=None) \
-    -> Tuple[Dict[str, np.ndarray], Dict[str, np.ndarray], np.ndarray, np.ndarray, np.ndarray]:
+def process_subject_data(
+    responses: pd.DataFrame, 
+    metadata: pd.DataFrame, 
+    voxel_data: pd.DataFrame, 
+    rois: Dict[str, List[str]], 
+    noise_ceiling_threshold: float = None
+) -> Tuple[Dict[str, np.ndarray], Dict[str, np.ndarray], np.ndarray, np.ndarray]:
     """
     Process the fMRI data for a given subject.
     """
@@ -67,32 +84,34 @@ def process_subject_data(responses: pd.DataFrame, metadata: pd.DataFrame, voxdat
     # and split the data into train and test sets
     indices = metadata['stimulus'].argsort()
     train_mask = ((metadata['trial_type'] == 'train').values)[indices]
-    train_indices, val_indices = indices[train_mask], indices[~train_mask]
+    train_indices = indices[train_mask]
+    test_indices = indices[~train_mask]
     
     # Get the train and test stimuli
     train_stimuli = metadata['stimulus'][train_indices].values
-    test_stimuli = metadata['stimulus'][val_indices].values
+    test_stimuli = metadata['stimulus'][test_indices].values
     test_stimuli = test_stimuli.reshape(-1, 12)
     
-    assert np.all(test_stimuli == test_stimuli[:, [0]])
+    # Verify test stimuli consistency across repetitions
+    assert np.all(test_stimuli == test_stimuli[:, [0]]), "Test stimuli not consistent across repetitions"
     test_stimuli = test_stimuli[:, 0]
 
     # Get the train and test responses
     train_responses, test_responses = {}, {}
-    for roi_name, roi_list in ROIs.items():
+    for roi_name, roi_list in rois.items():
         # Get the voxel data for the current ROI
-        roimask = voxdata[roi_list].sum(axis=1).values.astype(bool)
-        roidata = responses[roimask].to_numpy().T
-        noise_ceiling = voxdata.loc[roimask, 'nc_testset'].to_numpy()
+        roi_mask = voxel_data[roi_list].sum(axis=1).values.astype(bool)
+        roi_data = responses[roi_mask].to_numpy().T
+        noise_ceiling = voxel_data.loc[roi_mask, 'nc_testset'].to_numpy()
 
         # Get the train and test responses for the current ROI
-        train_responses_roi = roidata[train_indices]
-        test_responses_roi = roidata[val_indices]
+        train_responses_roi = roi_data[train_indices]
+        test_responses_roi = roi_data[test_indices]
         
         # If a noise ceiling threshold is provided, filter out the voxels
         # that do not meet the threshold
-        if noise_ceiling_theshold:
-            voxel_mask = noise_ceiling > noise_ceiling_theshold * 100
+        if noise_ceiling_threshold is not None:
+            voxel_mask = noise_ceiling > noise_ceiling_threshold * 100
             train_responses_roi = train_responses_roi[:, voxel_mask]
             test_responses_roi = test_responses_roi[:, voxel_mask]
             
@@ -102,18 +121,21 @@ def process_subject_data(responses: pd.DataFrame, metadata: pd.DataFrame, voxdat
     return train_responses, test_responses, train_stimuli, test_stimuli
 
 
-def load_stimulus_set(things_image_db_dir:Path, image_paths:List[str], split:str) -> StimulusSet:
+def get_stimulus_set(
+    things_image_dir: Path, 
+    image_paths: List[str], 
+    split: str
+) -> StimulusSet:
     """
     Load and transform the training images
     """
 
     stimulus_ids, stimulus_paths, labels = [], {}, {}
 
-    for img_path in tqdm(image_paths, total=len(image_paths)):
-        
-        stimulus_id =  img_path.split('.')[0]
+    for img_path in tqdm(image_paths, total=len(image_paths), desc=f"Loading {split} stimuli"):
+        stimulus_id = img_path.split('.')[0]
         img_class = stimulus_id.rsplit('_', 1)[0]  # Get the class from the stimulus ID
-        stimulus_path = things_image_db_dir / img_class / img_path
+        stimulus_path = things_image_dir / img_class / img_path
         
         stimulus_ids.append(stimulus_id)
         stimulus_paths[stimulus_id] = stimulus_path
@@ -129,24 +151,24 @@ def load_stimulus_set(things_image_db_dir:Path, image_paths:List[str], split:str
         stimuli.append({
             'stimulus_id': stimulus_id,
             'label': labels[stimulus_id],
-            'object_name':  labels[stimulus_id],
+            'object_name': labels[stimulus_id],
             'label_idx': labels_idx[stimulus_id],
         })
-        
+    
     stimulus_set = StimulusSet(stimuli)
     stimulus_set.stimulus_paths = stimulus_paths
-    stimulus_set.name = f'THINGS_fRMRI_{split}_Stimuli'
-    stimulus_set.identifier = f'things_tfmri_{split}_stimuli'
-    # assert len(stimulus_set) == 22248
+    stimulus_set.name = f'THINGS_fMRI_{split}_Stimuli'
+    stimulus_set.identifier = f'things_fMRI_{split}_stimuli'
 
     return stimulus_set
 
-def load_brain_data(neural_responses:Dict[str, Dict[str, np.ndarray]], stimulus_set:StimulusSet, split:str) -> NeuroidAssembly:
+def get_neuroid_assembly(neural_responses: Dict[str, Dict[str, np.ndarray]], stimulus_set: StimulusSet, split: str) -> NeuroidAssembly:
     data_neural_concat = []
     subject_indices, roi_indices, neuroid_indices = [], [], []
+    
     for subject in SUBJECTS:
         total_neuroid_per_subject = 0
-        for roi_name, roi_responses  in ROIS.items():
+        for roi_name in ROIS.keys():
             neural_responses_roi = neural_responses[subject][roi_name]
             
             mean = neural_responses_roi.mean(axis=0)
@@ -166,7 +188,8 @@ def load_brain_data(neural_responses:Dict[str, Dict[str, np.ndarray]], stimulus_
     data_neural_concat = np.concatenate(data_neural_concat, axis=1)
     data_neural_flatten = data_neural_concat.reshape(data_neural_concat.shape[0], -1)
     
-    REPS = {'train':1, 'test':12}
+    repetition_indices = np.tile(np.arange(REPS[split]), data_neural_concat.shape[0] // REPS[split])
+    
     assembly = NeuroidAssembly(
         data_neural_flatten.reshape(
             data_neural_concat.shape[0], data_neural_concat.shape[1], 1),
@@ -176,6 +199,7 @@ def load_brain_data(neural_responses:Dict[str, Dict[str, np.ndarray]], stimulus_
             "stimulus_label": ("presentation", np.repeat(stimulus_set["label"].values, REPS[split])),
             "object_name": ("presentation", np.repeat(stimulus_set["object_name"].values, REPS[split])),
             "stimulus_label_idx": ("presentation", np.repeat(stimulus_set["label_idx"].values, REPS[split])),
+            "repetition": ("presentation", repetition_indices),
             "roi": ("neuroid", roi_indices),
             "region": ("neuroid", roi_indices),
             "subject": ("neuroid", subject_indices),
@@ -198,111 +222,118 @@ def load_brain_data(neural_responses:Dict[str, Dict[str, np.ndarray]], stimulus_
 
     return assembly
 
-def package_data(neural_data_dir: Path, things_image_db_dir: Path, bucket_name: str, output_path: Path) -> None:
+def package_data(
+    neural_data_dir: Union[str, Path], 
+    things_image_dir: Union[str, Path], 
+    bucket_name: str, 
+    output_path: Union[str, Path]
+) -> None:
     """
+    Main function to package THINGS fMRI data for Brain-Score.
+    
     Args:
-        neural_data_dir: Path to the neural data directory
-        things_image_db_dir: Path to the stimulus data directory containing images
-        bucket_name: S3 bucket name for upload
+        neural_data_dir: Path to the directory containing fMRI data
+        things_image_dir: Path to the THINGS image database directory
+        bucket_name: Name of the S3 bucket for uploading packaged data
         output_path: Directory path where file hashes will be saved
     """
-    if isinstance(neural_data_dir, str):
-        neural_data_dir = Path(neural_data_dir)
-    if isinstance(things_image_db_dir, str):
-        things_image_db_dir = Path(things_image_db_dir)
+    neural_data_dir = Path(neural_data_dir)
+    things_image_dir = Path(things_image_dir)
+    output_path = Path(output_path)
         
         
     responses_subjects, metadata_subjects, voxdata_subjects = {}, {}, {}
-    for sub in tqdm(SUBJECTS):
-        responses, metadata, voxdata = load_subject_data(neural_data_dir, sub)
-        responses_subjects[sub] = responses
-        metadata_subjects[sub] = metadata
-        voxdata_subjects[sub] = voxdata
-        
+    for subject_id in tqdm(SUBJECTS, desc="Loading subject data"):
+        responses, metadata, voxdata = load_subject_data(neural_data_dir, subject_id)
+        responses_subjects[subject_id] = responses
+        metadata_subjects[subject_id] = metadata
+        voxdata_subjects[subject_id] = voxdata
+    
+    # Process all subject data
     train_responses_subjects, test_responses_subjects = {}, {}
     train_stimuli, test_stimuli = None, None
 
-    for sub in tqdm(SUBJECTS):
-        responses, metadata, voxdata = responses_subjects[sub], metadata_subjects[sub], voxdata_subjects[sub]
-        # Check: stimuli filename is of the form `{concept}_id.jpg`
-        stimuli, concepts = metadata['stimulus'].values, metadata['concept'].values
-        assert all([stimulus.rsplit('_', 1)[0] == concept for stimulus, concept in zip(stimuli, concepts)])
+    for subject_id in tqdm(SUBJECTS, desc="Processing subject data"):
+        responses = responses_subjects[subject_id]
+        metadata = metadata_subjects[subject_id]
+        voxel_data = voxdata_subjects[subject_id]
+        
+        # Verify stimulus filename format: {concept}_id.jpg
+        stimuli = metadata['stimulus'].values
+        concepts = metadata['concept'].values
+        assert all(
+            stimulus.rsplit('_', 1)[0] == concept 
+            for stimulus, concept in zip(stimuli, concepts)
+        ), f"Stimulus format mismatch for subject {subject_id}"
         
         # Process the data for the current subject
-        train_responses_, test_responses_, train_stimuli_, test_stimuli_ = \
-            process_subject_data(responses, metadata, voxdata, ROIS, noise_ceiling_theshold=NOISE_CEILING_THRESHOLD)
+        train_responses, test_responses, train_stim, test_stim = process_subject_data(
+            responses, metadata, voxel_data, ROIS, noise_ceiling_threshold=NOISE_CEILING_THRESHOLD
+        )
         
-        train_responses_subjects[sub] = train_responses_
-        test_responses_subjects[sub] = test_responses_
+        train_responses_subjects[subject_id] = train_responses
+        test_responses_subjects[subject_id] = test_responses
 
         if train_stimuli is None:
-            train_stimuli = train_stimuli_
-            test_stimuli = test_stimuli_
+            train_stimuli = train_stim
+            test_stimuli = test_stim
         else:
-            # Check: stimuli are in the same order across subjects
-            assert np.array_equal(train_stimuli, train_stimuli_)
-            assert np.array_equal(test_stimuli, test_stimuli_)
-        globals()[f'train_responses_subjects'] = train_responses_subjects
-        globals()[f'test_responses_subjects'] = test_responses_subjects
-        globals()[f'train_stimuli'] = train_stimuli
-        globals()[f'test_stimuli'] = test_stimuli
-
-    for split in SPLITS:
-        image_paths = globals()[f'{split}_stimuli']
-        neural_responses = globals()[f'{split}_responses_subjects']
-
-        stimulus_set = load_stimulus_set(things_image_db_dir, image_paths, split)
-        globals()[f'assembly_{split}'] = load_brain_data(neural_responses, stimulus_set, split)
-        globals()[f'stimulus_set_{split}'] = stimulus_set
-        del stimulus_set
-        del neural_responses
+            assert np.array_equal(train_stimuli, train_stim), \
+                f"Train stimuli mismatch for subject {subject_id}"
+            assert np.array_equal(test_stimuli, test_stim), \
+                f"Test stimuli mismatch for subject {subject_id}"
     
-    stimulus_set_train = globals()['stimulus_set_train']
-    stimulus_set_test = globals()['stimulus_set_test']
-    assembly_train = globals()['assembly_train']
-    assembly_test = globals()['assembly_test']
+    # Call functions to create the train stimulus set and assembly
+    train_stimulus_set = get_stimulus_set(things_image_dir, train_stimuli, 'train')
+    train_assembly = get_neuroid_assembly(train_responses_subjects, train_stimulus_set, 'train')
+    
+    # Call functions to create the test stimulus set and assembly
+    test_stimulus_set = get_stimulus_set(things_image_dir, test_stimuli, 'test')
+    test_assembly = get_neuroid_assembly(test_responses_subjects, test_stimulus_set, 'test')
     
     print("Brainio is now packaging the stimuli for upload. Don't worry, this might take a moment")
     print("Uploading train stimuli...")
     stim_train_info = package_stimulus_set(
-                            catalog_name=None,  # catalogs are deprecated
-                            proto_stimulus_set=stimulus_set_train,
-                            stimulus_set_identifier=stimulus_set_train.name,
-                            bucket_name=bucket_name)
+        catalog_name=None,  # catalogs are deprecated
+        proto_stimulus_set=train_stimulus_set,
+        stimulus_set_identifier=train_stimulus_set.name,
+        bucket_name=bucket_name
+    )
     print("Uploading test stimuli...")
     stim_test_info = package_stimulus_set(
-                            catalog_name=None,  # catalogs are deprecated
-                            proto_stimulus_set=stimulus_set_test,
-                            stimulus_set_identifier=stimulus_set_test.name,
-                            bucket_name=bucket_name)
+        catalog_name=None,  # catalogs are deprecated
+        proto_stimulus_set=test_stimulus_set,
+        stimulus_set_identifier=test_stimulus_set.name,
+        bucket_name=bucket_name
+    )
     print('Hashes and ids of StimulusSets:')
     print(stim_train_info)
     print(stim_test_info)
     
     print("Uploading train neural data assembly...")
     assy_train_info = package_data_assembly(
-            catalog_identifier=None,  # catalogs are deprecated
-            proto_data_assembly=assembly_train, 
-            assembly_identifier=assembly_train.name,
-            stimulus_set_identifier=stimulus_set_train.name,
-            assembly_class_name="NeuroidAssembly",
-            bucket_name=bucket_name,
-        )
+        catalog_identifier=None,  # catalogs are deprecated
+        proto_data_assembly=train_assembly,
+        assembly_identifier=train_assembly.name,
+        stimulus_set_identifier=train_stimulus_set.name,
+        assembly_class_name="NeuroidAssembly",
+        bucket_name=bucket_name,
+    )
     
     print("Uploading test neural data assembly...")
     assy_test_info = package_data_assembly(
-            catalog_identifier=None,  # catalogs are deprecated
-            proto_data_assembly=assembly_test, 
-            assembly_identifier=assembly_test.name,    
-            stimulus_set_identifier=stimulus_set_test.name,
-            assembly_class_name="NeuroidAssembly",
-            bucket_name=bucket_name,
-        )
+        catalog_identifier=None,  # catalogs are deprecated
+        proto_data_assembly=test_assembly,
+        assembly_identifier=test_assembly.name,
+        stimulus_set_identifier=test_stimulus_set.name,
+        assembly_class_name="NeuroidAssembly",
+        bucket_name=bucket_name,
+    )
     print('Hashes and ids of Assemblies:')
     print(assy_train_info)
     print(assy_test_info)
     
-    # save the info jsons to the file system
+    # Save the info jsons to the file system
     output_path.mkdir(parents=True, exist_ok=True)
     with open(output_path / 'stim_train_info.json', 'w') as f:
         json.dump(stim_train_info, f)
@@ -315,6 +346,7 @@ def package_data(neural_data_dir: Path, things_image_db_dir: Path, bucket_name: 
     print(f"Saved stimulus and assembly info jsons to {output_path}")
     print("Done!")
 
+
 if __name__ == "__main__":
     parser = ArgumentParser(description="Package THINGS fMRI data")
     parser.add_argument(
@@ -325,11 +357,11 @@ if __name__ == "__main__":
         help='Path to the neural data directory containing fMRI .csv and .h5 files.'
     )
     parser.add_argument(
-        '--things-image-db-dir', '--imgs-dir',
-        dest='things_image_db_dir',
+        '--things-image-dir', '--imgs-dir',
+        dest='things_image_dir',
         type=str,
         required=True,
-        help='Path to the stimulus data directory containing images.'
+        help='Path to the THINGS image database directory containing images.'
     )
     parser.add_argument(
         '--bucket-name',
@@ -359,8 +391,8 @@ if __name__ == "__main__":
         os.environ['BRAINIO_HOME'] = args.cache_dir
     
     neural_data_dir = Path(args.neural_data_dir)
-    things_image_db_dir = Path(args.things_image_db_dir)
+    things_image_dir = Path(args.things_image_dir)
     bucket_name = args.bucket_name
     output_path = Path(args.output_path)
     
-    package_data(neural_data_dir, things_image_db_dir, bucket_name, output_path)
+    package_data(neural_data_dir, things_image_dir, bucket_name, output_path)

@@ -1,5 +1,5 @@
 from brainscore_vision import load_dataset, load_metric
-from brainscore_vision.benchmark_helpers.neural_common import TrainTestNeuralBenchmark, average_repetition  
+from brainscore_vision.benchmark_helpers.neural_common import TrainTestNeuralBenchmark, average_repetition, flatten_timebins_into_neuroids
 from brainscore_vision.utils import LazyLoad
 
 
@@ -20,9 +20,11 @@ def _Gifford2022(region, similarity_metric, identifier_metric_suffix):
 	visual_degrees = VISUAL_DEGREES
 	train_assembly = LazyLoad(lambda region=region: load_assembly(region=region, split='train', average_repetitions=True))
 	test_assembly = LazyLoad(lambda region=region: load_assembly(region=region, split='test', average_repetitions=True))
+	test_assembly_repetition = LazyLoad(lambda region=region: load_assembly(region=region, split='test', average_repetitions=False))
+	ceiler = load_metric('internal_consistency')
 	return TrainTestNeuralBenchmark(identifier=f'Gifford2022.{region}-{identifier_metric_suffix}',
 	                          version=1,
-	                          ceiling_func=lambda: None,
+	                          ceiling_func=lambda: ceiler(test_assembly_repetition),
 	                          train_assembly=train_assembly,
 	                          test_assembly=test_assembly,
 	                          similarity_metric=similarity_metric,
@@ -37,12 +39,18 @@ def Gifford2022(region, metric_type):
 
 def load_assembly(region, split, average_repetitions=True):
 	assembly = load_dataset(f'Gifford2022_{split}')
-	#TODO don't need to select by region since all channels are combined
-	# for now, set the region coordinate to match the expected structure
-	assembly['region'] = 'neuroid', [region] * len(assembly['neuroid'])
+	#NOTE: brainscore only supports regions 'V1', 'V2', 'V4', 'IT', so EEG data is mapped to IT for now
 	assembly.load()
-	assembly = assembly.isel(time_bin=0) #TODO: check if intended
+	
+	# predict for each electrode, individual time bins in a window of 0s to 0.6s relative to stimulus onset
+	assembly = assembly.sel(time_bin=slice(0, 0.59))
+	assert assembly.shape[2] == 60, f"selected {assembly.shape[2]} time bins, expected 60"
+	
+	# flatten the time points into the neuroid dimension
+	assembly = flatten_timebins_into_neuroids(assembly)
+	assembly['region'] = 'neuroid', [region] * len(assembly['neuroid'])
+	assembly = assembly.isel(time_bin=0)  # remove time dimension
+
 	if average_repetitions:
 		assembly = average_repetition(assembly)
-	#TODO assert VISUAL_DEGREES == assembly.attrs['image_size_degree']
 	return assembly

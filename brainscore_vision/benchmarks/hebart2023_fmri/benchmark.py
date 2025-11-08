@@ -18,11 +18,13 @@ VISUAL_DEGREES = 8
 def _Hebart2023fmri(region, similarity_metric, identifier_metric_suffix):
 	number_of_trials = 1
 	visual_degrees = VISUAL_DEGREES
-	train_assembly = LazyLoad(lambda region=region: load_assembly(region=region, split='train', average_repetitions=False)) #train has no repetitions
+	train_assembly = LazyLoad(lambda region=region: load_assembly(region=region, split='train', average_repetitions=False))  # train has no repetitions
 	test_assembly = LazyLoad(lambda region=region: load_assembly(region=region, split='test', average_repetitions=True))
+	test_assembly_repetition = LazyLoad(lambda region=region: load_assembly(region=region, split='test', average_repetitions=False))
+	ceiler = load_metric('internal_consistency')
 	return TrainTestNeuralBenchmark(identifier=f'Hebart2023_fmri.{region}-{identifier_metric_suffix}',
 	                          version=1,
-	                          ceiling_func=lambda: 1.0,
+	                          ceiling_func=lambda: ceiler(test_assembly_repetition),
 	                          train_assembly=train_assembly,
 	                          test_assembly=test_assembly,
 	                          similarity_metric=similarity_metric,
@@ -40,8 +42,7 @@ def load_assembly(region, split, average_repetitions):
 	assembly = assembly.sel(region=region)
 	assembly['region'] = 'neuroid', [region] * len(assembly['neuroid'])
 	assembly.load()
-	assembly = assembly.isel(time_bin=0) #TODO: check if intended
+	assembly = assembly.isel(time_bin=0)
 	if average_repetitions:
 		assembly = average_repetition(assembly)
-	#TODO assert VISUAL_DEGREES == assembly.attrs['image_size_degree']
 	return assembly

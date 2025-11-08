@@ -1,4 +1,6 @@
 import numpy as np
+import pandas as pd
+from xarray import DataArray
 
 from brainscore_core.supported_data_standards.brainio.assemblies import array_is_element, walk_coords
 from brainscore_core import Score
@@ -111,3 +113,50 @@ def apply_keep_attrs(assembly, fnc):  # workaround to keeping attrs
     assembly = fnc(assembly)
     assembly.attrs = attrs
     return assembly
+
+def flatten_timebins_into_neuroids(assembly: DataArray) -> DataArray:
+    """
+    For data with multiple time bins, flatten the time bins into the neuroid dimension.
+    Facilitates data handling for benchmarks that predict individual time bins as separate neuroids, without considering their relative position in time.
+    Adds dimension time_bin to neuroid dimension, that contains the start of the time_bin.
+    Workaround cause xarray cannot deal with stacking MultiIndex (pydata/xarray#1554), see also metric_helpers/temporal.py
+
+    :param assembly: DataArray of shape (presentation, neuroid, time_bin)
+    :return flattened_assembly: DataArray of shape (presentation, neuroid * time_bin, 1)
+
+    """
+
+    #flatten the data
+    n_presentations, n_neuroids, n_timebins = assembly.shape
+    attributes = assembly.attrs
+    flattened_data = assembly.data.reshape(
+        n_presentations,
+        n_neuroids * n_timebins,
+        1
+    )
+
+    #expand the presentation dim x n_timebins
+    coords = {k: v for k, v in assembly.coords.items() if k != "time_bin"}
+    old_index = coords['neuroid'].to_index()
+    coords['neuroid'] = pd.MultiIndex.from_tuples(
+    np.repeat(old_index.to_numpy(), n_timebins),
+    names=old_index.names
+    )
+    time_bin_start = assembly.coords['time_bin_start']
+    assert len(time_bin_start) == n_timebins, "time_bin_start length does not match number of time bins"
+    recoding_times = np.tile(time_bin_start, reps=assembly.shape[1])
+    window_start = assembly.coords['time_bin_start'].values[0]
+    window_end = assembly.coords['time_bin_end'].values[-1]
+
+    flattened_assembly = type(assembly)(
+        flattened_data,
+        dims=assembly.dims,
+        coords={
+                "recoding_time": ("neuroid", recoding_times),
+                "time_bin_start": ("time_bin", [window_start]),
+                "time_bin_end": ("time_bin", [window_end]),
+                **coords
+        },
+    )
+    flattened_assembly.attrs = attributes
+    return flattened_assembly

@@ -34,17 +34,23 @@ class TestAssemblyProperties:
         expected_presentation_coords = ['stimulus_id', 'stimulus_label', 'object_name', 'stimulus_label_idx', 'repetition']
         expected_neuroid_coords = ['roi', 'region', 'subject', 'neuroid_id', 'voxels']
         expected_time_bin_coords = ['time_bin_start', 'time_bin_end']
-        
+
+        existing_coords = set()
+        for dim in assembly.dims:
+            index = assembly.coords[dim].to_index()
+            if hasattr(index, "names"):
+                existing_coords.update(index.names)
+
         for coord in expected_presentation_coords:
-            assert coord in assembly.coords, f"Expected coord '{coord}' not found in assembly"
+            assert coord in existing_coords, f"Expected coord '{coord}' not found in assembly"
             assert assembly.coords[coord].dims == ('presentation',), f"Coord '{coord}' has unexpected dims: {assembly.coords[coord].dims}"
         
         for coord in expected_neuroid_coords:
-            assert coord in assembly.coords, f"Expected coord '{coord}' not found in assembly"
+            assert coord in existing_coords, f"Expected coord '{coord}' not found in assembly"
             assert assembly.coords[coord].dims == ('neuroid',), f"Coord '{coord}' has unexpected dims: {assembly.coords[coord].dims}"
         
         for coord in expected_time_bin_coords:
-            assert coord in assembly.coords, f"Expected coord '{coord}' not found in assembly"
+            assert coord in existing_coords, f"Expected coord '{coord}' not found in assembly"
             assert assembly.coords[coord].dims == ('time_bin',), f"Coord '{coord}' has unexpected dims: {assembly.coords[coord].dims}"
 
 @pytest.mark.private_access

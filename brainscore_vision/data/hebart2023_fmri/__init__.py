@@ -14,35 +14,35 @@ BIBTEX = """@article{hebart_things-data_2023,
 }"""
 
 stimulus_set_registry['Hebart2023_fmri_stim_train'] = lambda: load_stimulus_set_from_s3(
-    identifier='THINGS_fRMRI_train_Stimuli',
+    identifier="THINGS_fMRI_train_Stimuli",
     bucket="brainscore-storage/brainio-brainscore",
-    csv_sha1='8007cfd5b5e352d5551fb24616d8cf39acfd87ad',
-    zip_sha1='1c65c28c104e100e6e3fe2128656abe647e41bd9',
-    csv_version_id='h.LqA.NpZR6fxaSVwdii73rmEaVgSE.3',
-    zip_version_id='ARQrplSY1PM5NbvhY9fd.hvoXUomn_CY',
-    filename_prefix='stimulus_')
+    csv_sha1="50d29cdc1e32a745613ce01bc2e62b5bd622778e",
+    zip_sha1="1c65c28c104e100e6e3fe2128656abe647e41bd9",
+    csv_version_id="ufJOv.gfNlmnaA6V.4NEV5nawj4Jengi",
+    zip_version_id="Zuj85ERewjMHsSQu9JyDqm7er2dzSxMb",
+    filename_prefix="stimulus_")
 
 stimulus_set_registry['Hebart2023_fmri_stim_test'] = lambda: load_stimulus_set_from_s3(
-    identifier='THINGS_fRMRI_test_Stimuli',
+    identifier="THINGS_fMRI_test_Stimuli",
     bucket="brainscore-storage/brainio-brainscore",
-    csv_sha1='7b867fbebd24552ec558bd0a340aac7e326a6b24',
-    zip_sha1='41cd5a05fe9d5118b05fc6b35654e36ff021570d',
-    csv_version_id='uofTv9osVVOtrB4bYn4nHAmoZs6YOdw9',
-    zip_version_id='R_FsZlIP2mAD7VPrvEzAvwze17d95ELI',
-    filename_prefix='stimulus_')
+    csv_sha1="10e606dc6ddf00aa556d5450330af13191d74505",
+    zip_sha1="41cd5a05fe9d5118b05fc6b35654e36ff021570d",
+    csv_version_id=".sRmu_hPqnrlEzXA2Isr2hQdQNyWVF8n",
+    zip_version_id="_KbhXIG9nV3cdsUXTwctgU68tA9jfqfW",
+    filename_prefix="stimulus_")
 
 data_registry['Hebart2023_fmri_train'] = lambda: load_assembly_from_s3(
-    identifier='THINGS_fMRI_train_Assembly',
-    version_id='pSyQKjGGeI2n4p5NDK2KMpXwZP2AgaTF',
-    sha1='c8a38e2a3f42889b2469b6d23607bd1e899f6981',
+    identifier="THINGS_fMRI_train_Assembly",
+    version_id="BNw3JgSbJ88YSU6PuMzTbd854jSOZja_",
+    sha1="a9c2d597c0476adf851bcfd73c5f53d069b68742",
     bucket="brainscore-storage/brainio-brainscore",
     cls=NeuroidAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('Hebart2023_fmri_stim_train'))
 
 data_registry['Hebart2023_fmri_test'] = lambda: load_assembly_from_s3(
-    identifier='THINGS_fMRI_test_Assembly',
-    version_id='aWWelb.6p8GRG8RlvV_0uWGMyCswOQ7t',
-    sha1='ed84b471bdf791975f401c3096b5a2274aac9cec',
+    identifier="THINGS_fMRI_test_Assembly",
+    version_id="KJzP6phj01ob5satRFDZ6vWPZOyxWIE0",
+    sha1="290d9bfd822b5775039ff736cf312d3488045198",
     bucket="brainscore-storage/brainio-brainscore",
     cls=NeuroidAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('Hebart2023_fmri_stim_test'))

@@ -141,6 +141,9 @@ def get_neuroid_assembly(neural_data_dir: Path, stimulus_set: StimulusSet, split
         data_neural_concat.shape[2] == n_time_points
     ])
 
+    time_bin_start = np.round(times, decimals=2) # prevent floating point precision problems
+    time_bin_end = np.round(np.append(time_bin_start[1:], [0.8]), decimals=2)
+
     assembly = NeuroidAssembly(
         data_neural_concat,
         dims=["presentation", "neuroid", "time_bin"],
@@ -153,8 +156,8 @@ def get_neuroid_assembly(neural_data_dir: Path, stimulus_set: StimulusSet, split
             "subject": ("neuroid", subject_names),
             "neuroid_id": ("neuroid", neuroid_indices),
             "channel": ("neuroid", channel_names),
-            "time_bin_start": ("time_bin", times),
-            "time_bin_end": ("time_bin", times)
+            "time_bin_start": ("time_bin", time_bin_start),
+            "time_bin_end": ("time_bin", time_bin_end)
         },
     )
 

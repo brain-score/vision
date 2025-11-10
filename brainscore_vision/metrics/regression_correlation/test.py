@@ -37,7 +37,7 @@ class TestRegression:
 
 
 class TestTrainTestSplitCorrelation:
-    @pytest.mark.parametrize('metric_name', ['pls-split', 'ridge-split', 'linear_predictivity-split', 'neuron_to_neuron-split', 'ridgecv-split'])
+    @pytest.mark.parametrize('metric_name', ['pls_split', 'ridge_split', 'linear_predictivity_split', 'neuron_to_neuron_split', 'ridgecv_split'])
     def test_small(self, metric_name):
         train_assembly = NeuroidAssembly(
             (np.arange(100 * 25) + np.random.standard_normal(100 * 25)).reshape((100, 25)),

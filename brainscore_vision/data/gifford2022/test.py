@@ -40,6 +40,10 @@ class TestAssemblyProperties:
             assert coord in existing_coords, f"Expected coord '{coord}' not found in assembly"
             assert assembly.coords[coord].dims == ('time_bin',), f"Coord '{coord}' has unexpected dims: {assembly.coords[coord].dims}"
 
+        #check that time bins are correct (-200ms to 800ms in 10ms steps)
+        assert list(assembly.coords['time_bin'].values) == [(np.round(bin, 2), np.round(bin + 0.01, 2)) for bin in np.arange(-0.2, 0.8, 0.01)],\
+            "Time bins do not match expected values."
+
 @pytest.mark.private_access
 class TestStimulusSetProperties:
     @pytest.mark.parametrize('stim_set', ['Gifford2022_stim_train', 'Gifford2022_stim_test'])

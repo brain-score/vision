@@ -8,7 +8,7 @@ from scipy.optimize import fsolve
 from scipy.stats import spearmanr
 from tqdm import tqdm
 
-from brainio.assemblies import walk_coords, array_is_element, BehavioralAssembly, DataAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import walk_coords, array_is_element, BehavioralAssembly, DataAssembly
 from brainscore_core.metrics import Metric, Score
 from brainscore_vision import load_metric
 from brainscore_vision.metric_helpers.transformations import CrossValidation

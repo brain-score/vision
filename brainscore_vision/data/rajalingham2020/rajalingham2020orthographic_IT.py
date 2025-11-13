@@ -5,9 +5,9 @@ import pickle
 import numpy as np
 import xarray as xr
 
-from brainio_base.stimuli import StimulusSet
-from brainio_base.assemblies import NeuronRecordingAssembly
-from brainio_collection.packaging import package_stimulus_set, package_data_assembly
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuronRecordingAssembly
+from brainscore_core.supported_data_standards.brainio.packaging import package_stimulus_set, package_data_assembly
 
 
 def collect_stimuli(data_dir):

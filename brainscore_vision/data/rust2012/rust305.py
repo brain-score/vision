@@ -4,13 +4,19 @@ import numpy as np
 import xarray as xr
 import pandas as pd
 
-import brainio_collection
-from brainio_base.assemblies import NeuronRecordingAssembly
-from brainio_collection.packaging import package_data_assembly
+from brainscore_core.supported_data_standards.brainio.fetch import get_stimulus_set
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuronRecordingAssembly
+from brainscore_core.supported_data_standards.brainio.packaging import package_data_assembly
 
 
 def main():
-    stimuli = brainio_collection.get_stimulus_set('Rust2012')
+
+    stimuli = load_stimulus_set_from_s3(identifier="Rust2012",bucket="brainscore-storage/brainio-brainscore",
+                                              csv_sha1="482da1f9f4a0ab5433c3b7b57073ad30e45c2bf1",
+                                              zip_sha1="7cbf5dcec235f7705eaad1cfae202eda77e261a2",
+                                              csv_version_id="null",
+                                              zip_version_id="null"
+                                            ).stimulus_set
 
     single_nc_path = Path("/Users/jjpr/dev/dldata/scripts/rust_single.nc")
     da_single = xr.open_dataarray(single_nc_path)

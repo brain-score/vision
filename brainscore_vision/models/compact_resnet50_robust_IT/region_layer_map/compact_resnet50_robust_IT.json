@@ -1,0 +1,6 @@
+{
+    "V1": "layer3_act",
+    "V2": "layer3_act",
+    "V4": "layer4_act",
+    "IT": "spatial_pool_stage"
+}

@@ -1,6 +1,6 @@
 import numpy as np
 
-from brainio.assemblies import array_is_element, walk_coords
+from brainscore_core.supported_data_standards.brainio.assemblies import array_is_element, walk_coords
 from brainscore_core import Score
 from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.model_interface import BrainModel

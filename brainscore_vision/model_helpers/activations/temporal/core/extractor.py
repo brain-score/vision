@@ -8,8 +8,8 @@ from typing import List, Any, Callable
 
 import numpy as np
 
-from brainio.stimuli import StimulusSet
-from brainio.assemblies import DataAssembly
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.assemblies import DataAssembly
 from brainscore_vision.model_helpers.utils import fullname
 from brainscore_vision.model_helpers.activations.temporal.utils import data_assembly_mmap
 from result_caching import store_xarray

@@ -1,5 +1,5 @@
 # import brain-score specific libraries
-from brainio.assemblies import NeuronRecordingAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuronRecordingAssembly
 from brainscore_vision import load_dataset, load_ceiling, load_metric
 from brainscore_vision.benchmark_helpers.neural_common import NeuralBenchmark, average_repetition
 from brainscore_vision.utils import LazyLoad

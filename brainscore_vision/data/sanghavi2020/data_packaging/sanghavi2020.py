@@ -6,9 +6,10 @@ import numpy as np
 import xarray as xr
 import pandas as pd
 
-import brainio_collection
-from brainio_base.assemblies import NeuronRecordingAssembly
-from brainio_collection.packaging import package_data_assembly
+from brainscore_core.supported_data_standards.brainio.fetch import get_stimulus_set
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuronRecordingAssembly
+from brainscore_core.supported_data_standards.brainio.packaging import package_data_assembly
+from brainscore_core.supported_data_standards.brainio.s3 import load_stimulus_set_from_s3
 from mkgu_packaging.dicarlo.sanghavi import filter_neuroids
 
 
@@ -87,7 +88,12 @@ def main():
     data_dir = Path(__file__).parents[6] / 'data2' / 'active' / 'users' / 'sachis' / 'database'
     assert os.path.isdir(data_dir)
 
-    stimuli = brainio_collection.get_stimulus_set('hvm')
+    stimuli = load_stimulus_set_from_s3(identifier="hvm",bucket="brainscore-storage/brainio-brainscore",
+                                              csv_sha1="a56f55205904d5fb5ead4d0dc7bfad5cc4083b94",
+                                              zip_sha1="6fd5080deccfb061699909ffcb86a26209516811",
+                                              csv_version_id="null",
+                                              zip_version_id="null"
+                                            ).stimulus_set
     assembly = load_responses(data_dir, stimuli)
     assembly.name = 'dicarlo.Sanghavi2020'
 

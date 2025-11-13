@@ -3,8 +3,9 @@ from typing import Union, Tuple, Callable, Hashable, List, Dict
 from pathlib import Path
 
 from brainscore_vision.model_helpers.activations.temporal.inputs import Video, Stimulus
-from brainscore_vision.model_helpers.activations.temporal.utils import assembly_align_to_fps, stack_with_nan_padding, data_assembly_mmap
-from brainio.assemblies import NeuroidAssembly
+
+from brainscore_vision.model_helpers.activations.temporal.utils import assembly_align_to_fps, stack_with_nan_padding
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly
 
 from ..base import Inferencer
 

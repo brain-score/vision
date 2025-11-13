@@ -5,9 +5,9 @@ import numpy as np
 import xarray as xr
 import pandas as pd
 
-import brainio_collection
-from brainio_base.assemblies import NeuronRecordingAssembly
-from brainio_collection.packaging import package_data_assembly
+from brainscore_core.supported_data_standards.brainio import get_assembly
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuronRecordingAssembly
+from brainscore_core.supported_data_standards.brainio.packaging import package_data_assembly
 
 
 animals = ['Chabo_IT_A', 'Chabo_IT_M', 'Tito_IT_A','Tito_IT_M','TitoR_IT_A','TitoR_IT_M','Nano_IT_A',

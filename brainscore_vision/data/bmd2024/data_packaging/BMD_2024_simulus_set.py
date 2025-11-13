@@ -1,7 +1,7 @@
 import csv
 
-from brainio.stimuli import StimulusSet
-from brainio.packaging import package_stimulus_set
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.packaging import package_stimulus_set
 
 CONDITIONS = ['texture_1', 'texture_2', 'dotted_1', 'dotted_2']
 

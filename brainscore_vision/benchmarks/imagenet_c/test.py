@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from pytest import approx
 
-from brainio.assemblies import BehavioralAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
 from brainscore_vision.benchmarks.imagenet_c import Imagenet_C_Noise, Imagenet_C_Blur, \
     Imagenet_C_Weather, Imagenet_C_Digital
 from brainscore_vision.model_interface import BrainModel

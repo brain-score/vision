@@ -2,8 +2,8 @@
 import numpy as np
 import xarray
 from marques_utils import gen_sample
-from brainio_collection.packaging import package_data_assembly
-from brainio_base.assemblies import DataAssembly
+from brainscore_core.supported_data_standards.brainio.packaging import package_data_assembly
+from brainscore_core.supported_data_standards.brainio.assemblies import DataAssembly
 
 ASSEMBLY_NAME = 'devalois.DeValois1982b'
 SPATIAL_FREQUENCY_STIM_NAME = 'Marques2020_spatial_frequency'

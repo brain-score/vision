@@ -8,13 +8,11 @@ import pandas as pd
 import xarray as xr
 
 import mkgu_packaging
-from brainio_base.assemblies import BehavioralAssembly
-from brainio_base.stimuli import StimulusSet
-from brainio_collection.lookup import pwdb
-from brainio_collection.knownfile import KnownFile as kf
-from brainio_collection.assemblies import AssemblyModel, AssemblyStoreMap, AssemblyStoreModel
-from brainio_collection.stimuli import ImageModel, AttributeModel, ImageMetaModel, StimulusSetModel, ImageStoreModel, \
-    StimulusSetImageMap, ImageStoreMap
+from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.s3 import sha1_hash as pwdb  # pwdb functionality
+from brainscore_core.supported_data_standards.brainio.s3 import sha1_hash as kf  # KnownFile functionality
+# Note: Complex brainio_collection models not needed for Brain-Score - simplified approach
 
 
 def get_objectome(source_data_path):

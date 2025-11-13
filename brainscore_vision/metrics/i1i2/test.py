@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from pytest import approx
 
-from brainio.assemblies import BehavioralAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
 from brainscore_vision import load_metric
 from brainscore_vision.benchmarks.rajalingham2018.benchmarks.benchmark import load_assembly
 

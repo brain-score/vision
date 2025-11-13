@@ -1,5 +1,5 @@
 from brainscore_vision import stimulus_set_registry
-from brainscore_vision.data_helpers.s3 import load_stimulus_set_from_s3
+from brainscore_core.supported_data_standards.brainio.s3 import load_stimulus_set_from_s3
 
 # stimulus set
 stimulus_set_registry['ImageNetSlim15000'] = lambda: load_stimulus_set_from_s3(

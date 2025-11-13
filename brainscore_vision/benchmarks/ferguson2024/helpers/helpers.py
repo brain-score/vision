@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from brainio.assemblies import BehavioralAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
 import sympy as sp
 from pandas import DataFrame
 from tqdm import tqdm

@@ -1,7 +1,7 @@
 # Created by David Coggan on 2024 06 25
 
 import numpy as np
-from brainio.assemblies import DataAssembly, NeuroidAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import DataAssembly, NeuroidAssembly
 from brainscore_vision import load_dataset
 from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.benchmark_helpers.screen import place_on_screen

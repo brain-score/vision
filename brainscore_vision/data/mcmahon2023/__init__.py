@@ -1,8 +1,8 @@
-from brainio.assemblies import NeuronRecordingAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuronRecordingAssembly
 
 import brainscore_vision
 from brainscore_vision import data_registry, stimulus_set_registry
-from brainscore_vision.data_helpers.s3 import load_stimulus_set_from_s3, load_assembly_from_s3
+from brainscore_core.supported_data_standards.brainio.s3 import load_stimulus_set_from_s3, load_assembly_from_s3
 
 BIBTEX = """@article{mcmahon2023hierarchical,
   title={Hierarchical organization of social action features along the lateral visual pathway},

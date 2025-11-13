@@ -1,8 +1,11 @@
 from brainscore_vision.model_helpers.activations.temporal.utils import batch_2d_resize
 
 def _make_tensor_to_numpy_hook():
+    import torch
     def hook(val, layer, stimulus):
-        return val.cpu().data.numpy()
+        if isinstance(val, torch.Tensor):
+            return val.cpu().data.numpy()
+        return val
     return hook
 
 def _make_dtype_hook(dtype):

@@ -19,34 +19,6 @@ class CausalInferencer(TemporalContextInferencerBase):
 
     If num_frames or duration is given, the model's temporal context will be set to match the two.
     """
-    def __init__(
-            self, 
-            *args,
-            **kwargs
-        ):
-        if "time_alignment" in kwargs:
-            if kwargs["time_alignment"] != "per_frame_aligned":
-                raise ValueError("CausalInferencer enforces time_alignment='per_frame_aligned'.")
-            else:
-                del kwargs["time_alignment"]
-        super().__init__(*args, **kwargs, time_alignment="per_frame_aligned")
-    
-    def _get_time_start(self, time_end, context, lower):
-        assert context >= lower, f"Temporal context {context} is not within the range {lower}"
-        if self.temporal_context_strategy == "fix":
-            return time_end - context
-        elif self.temporal_context_strategy == "greedy":
-            proposed_time_start = time_end - context
-            if proposed_time_start >= 0:
-                return proposed_time_start
-            else:
-                if time_end < lower:
-                    return time_end - lower
-                else:
-                    return 0 
-        elif self.temporal_context_strategy == "conservative":
-            return time_end - context
-
     def __call__(self, paths, layers, mmap_path=None):
         lower, context = self._compute_temporal_context()
         interval = 1000 / self.fps
@@ -94,6 +66,22 @@ class CausalInferencer(TemporalContextInferencerBase):
         )
 
         return data.to_assembly()
+
+    def _get_time_start(self, time_end, context, lower):
+        assert context >= lower, f"Temporal context {context} is not within the range {lower}"
+        if self.temporal_context_strategy == "fix":
+            return time_end - context
+        elif self.temporal_context_strategy == "greedy":
+            proposed_time_start = time_end - context
+            if proposed_time_start >= 0:
+                return proposed_time_start
+            else:
+                if time_end < lower:
+                    return time_end - lower
+                else:
+                    return 0 
+        elif self.temporal_context_strategy == "conservative":
+            return time_end - context
 
     def _get_last_time(self, temporal_layer_activation):
         ret = {}

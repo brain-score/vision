@@ -138,6 +138,8 @@ class Inferencer:
                     num_feats, neuroid_coords = self._get_neuroid_coords(layer_activation, self.layer_activation_format)
                     data = data_assembly_mmap(mmap_path, shape=(num_stimuli, num_feats), dtype=self.dtype, fill_value=np.nan)
                 flatten_activation = self._flatten_activations(layer_activation)
+                if flatten_activation.size != num_feats:
+                    raise ValueError(f"The flattened activation size changed from {num_feats} to {flatten_activation.size}")
                 data[i, :] = flatten_activation
 
         data.register_meta( 

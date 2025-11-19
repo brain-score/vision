@@ -204,6 +204,7 @@ class RidgeGCVTorch:
         device: Optional[Union[str, torch.device]] = None,
         dtype: torch.dtype = torch.float64,
         pbar: bool = False,
+        store_results_gpu: bool = True, #adds ability to not store cv_results_ on GPU to save VRAM (originally on GPU)
     ):
         self.alphas = np.asarray(alphas) if not np.isscalar(alphas) else np.array(alphas)
         self.fit_intercept = fit_intercept
@@ -216,6 +217,7 @@ class RidgeGCVTorch:
         self.device = torch.device(device) if device is not None else torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.dtype = dtype
         self.pbar = pbar
+        self.store_results_gpu = store_results_gpu
 
         # learned attributes
         self.alpha_ = None
@@ -452,7 +454,10 @@ class RidgeGCVTorch:
         n_alphas = int(alphas_vec.numel())
 
         if self.store_cv_results:
-            self.cv_results_ = torch.empty((n_samples * n_y, n_alphas), dtype=Xp.dtype, device=Xp.device)
+            if self.store_results_gpu:
+                self.cv_results_ = torch.empty((n_samples * n_y, n_alphas), dtype=Xp.dtype, device=Xp.device)
+            else:
+                self.cv_results_ = torch.empty((n_samples * n_y, n_alphas), dtype=Xp.dtype, device="cpu")
 
         best_coef = None
         best_score = None
@@ -474,7 +479,10 @@ class RidgeGCVTorch:
                 else:
                     alpha_score = -squared_errors.mean()
                 if self.store_cv_results:
-                    self.cv_results_[:, i] = squared_errors.reshape(-1)
+                    if self.store_results_gpu:
+                        self.cv_results_[:, i] = squared_errors.reshape(-1)
+                    else:
+                        self.cv_results_[:, i] = squared_errors.reshape(-1).cpu()
             else:
                 predictions = yp - (c / Ginv_diag)
                 if sw is not None:
@@ -482,7 +490,10 @@ class RidgeGCVTorch:
                 predictions = predictions + y_offset  # back to original scale
 
                 if self.store_cv_results:
-                    self.cv_results_[:, i] = predictions.reshape(-1)
+                    if self.store_results_gpu:
+                        self.cv_results_[:, i] = predictions.reshape(-1)
+                    else:
+                        self.cv_results_[:, i] = predictions.reshape(-1).cpu()
 
                 score_params = score_params or {}
                 # External scorer may be a sklearn scorer expecting numpy
@@ -560,11 +571,16 @@ class RidgeGCVTorch:
                 shape = (n_samples, n_y, n_alphas)
             self.cv_results_ = self.cv_results_.reshape(shape)
 
+        self.to_cpu()
+
         return self
 
     def predict(self, X: TensorLike) -> np.ndarray:
         if self.coef_ is None:
             raise RuntimeError("Call fit() before predict().")
+
+        self.to_device(self.device, predict_only=True)
+
         X = _as_torch(X, device=self.device, dtype=self.dtype)
         if self.coef_.ndim == 1:
             yhat = X @ self.coef_
@@ -575,4 +591,31 @@ class RidgeGCVTorch:
             if not isinstance(bias, torch.Tensor):
                 bias = _as_torch(bias, device=X.device, dtype=X.dtype)
             yhat = yhat + bias
+        self.to_device("cpu", predict_only=True)
         return _to_numpy(yhat)
+
+    def to_device(self, device, predict_only: bool = False):
+        """
+        Move parameters to specified device.
+        Without this, coef_, dual_coef_, intercept_, cv_results_ remain on the GPU after fitting.
+        If predict_only, move only vars needed for prediction.
+        """
+        if isinstance(self.coef_, torch.Tensor):
+            self.coef_ = self.coef_.to(device)
+        if isinstance(self.intercept_, torch.Tensor):
+            self.intercept_ = self.intercept_.to(device)
+        
+        if not predict_only:
+            if isinstance(self.dual_coef_, torch.Tensor):
+                self.dual_coef_ = self.dual_coef_.to(device)
+            if self.cv_results_ is not None and isinstance(self.cv_results_, torch.Tensor):
+                self.cv_results_ = self.cv_results_.to(device)
+            self.device = torch.device(device)
+        
+        return self
+    
+    def to_cpu(self, predict_only: bool = False):
+        """
+        Move parameters to CPU.
+        """
+        return self.to_device("cpu", predict_only=predict_only)

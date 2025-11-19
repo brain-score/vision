@@ -9,6 +9,9 @@ from brainscore_core.metrics import Metric, Score
 from brainscore_vision.metric_helpers.transformations import CrossValidation, apply_aggregate
 from brainscore_vision.metric_helpers.xarray_utils import XarrayRegression, XarrayCorrelation
 from brainscore_vision.metric_helpers.temporal import SpanTimeRegression, PerTime
+from brainscore_vision.metrics.regression_correlation.ridgecv_gpu import RidgeGCVTorch
+
+from torch import cuda
 
 
 class CrossRegressedCorrelation(Metric):
@@ -91,6 +94,10 @@ class TrainTestSplitCorrelation(Metric):
         self.regression.fit(source_train, target_train)
         prediction = self.regression.predict(source_test)
         score = self.correlation(prediction, target_test)
+        
+        if self.regression._regression.__class__ in [RidgeCV, RidgeGCVTorch]:
+            score.attrs['alpha'] = self.regression._regression.alpha_
+            
         return score
 
     def aggregate(self, scores):
@@ -131,7 +138,10 @@ def ridge_cv_regression(regression_kwargs=None, xarray_kwargs=None):
     regression_defaults = dict(alphas=ALPHA_LIST, store_cv_results=True)
     regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
     regression_kwargs.pop('alpha', None)  # RidgeCV does not accept 'alpha' as a parameter
-    regression = RidgeCV(**regression_kwargs)
+    if cuda.is_available():
+        regression = RidgeGCVTorch(**regression_kwargs, store_results_gpu=False)
+    else:
+        regression = RidgeCV(**regression_kwargs)
     xarray_kwargs = xarray_kwargs or {}
     regression = XarrayRegression(regression, **xarray_kwargs)
     return regression

@@ -1,14 +1,17 @@
 import numpy as np
 import scipy.stats
 from sklearn.cross_decomposition import PLSRegression
-from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.linear_model import LinearRegression, Ridge, RidgeCV
 from sklearn.preprocessing import scale
 
 from brainscore_core.supported_data_standards.brainio.assemblies import walk_coords, DataAssembly
 from brainscore_core.metrics import Metric, Score
-from brainscore_vision.metric_helpers.transformations import CrossValidation
+from brainscore_vision.metric_helpers.transformations import CrossValidation, apply_aggregate
 from brainscore_vision.metric_helpers.xarray_utils import XarrayRegression, XarrayCorrelation
 from brainscore_vision.metric_helpers.temporal import SpanTimeRegression, PerTime
+from brainscore_vision.metrics.regression_correlation.ridgecv_gpu import RidgeGCVTorch
+
+from torch import cuda
 
 
 class CrossRegressedCorrelation(Metric):
@@ -74,6 +77,32 @@ def SpanTimeCrossRegressedCorrelation(regression, correlation, *args, **kwargs):
                 *args, **kwargs
             )    
 
+#fixed split metric
+class TrainTestSplitCorrelation(Metric):
+    def __init__(self, regression, correlation, *args, **kwargs):
+        
+        regression = regression or pls_regression()
+        self.regression = regression
+        self.correlation = correlation
+
+    def __call__(self, source_train: DataAssembly, source_test: DataAssembly,
+                target_train: DataAssembly, target_test: DataAssembly) -> Score:
+        scores = self.apply(source_train, target_train, source_test, target_test)
+        score = apply_aggregate(self.aggregate, scores)    #take median across neuroids
+        return score
+
+    def apply(self, source_train, target_train, source_test, target_test):
+        self.regression.fit(source_train, target_train)
+        prediction = self.regression.predict(source_test)
+        score = self.correlation(prediction, target_test)
+        
+        if self.regression._regression.__class__ in [RidgeCV, RidgeGCVTorch]:
+            score.attrs['alpha'] = self.regression._regression.alpha_
+            
+        return score
+
+    def aggregate(self, scores):
+        return scores.median(dim='neuroid')
 
 def pls_regression(regression_kwargs=None, xarray_kwargs=None):
     regression_defaults = dict(n_components=25, scale=False)
@@ -91,12 +120,32 @@ def linear_regression(xarray_kwargs=None):
     return regression
 
 
-def ridge_regression(xarray_kwargs=None):
-    regression = Ridge()
+def ridge_regression(regression_kwargs=None, xarray_kwargs=None):
+    regression_defaults = dict(alpha=1)
+    regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
+    regression = Ridge(**regression_kwargs)
     xarray_kwargs = xarray_kwargs or {}
     regression = XarrayRegression(regression, **xarray_kwargs)
     return regression
 
+ALPHA_LIST = [
+    *np.geomspace(1e-4, 1e0, 5),
+    *np.linspace(1e1, 1e2, 3, endpoint=False),
+    *np.linspace(1e2, 1e3, 3, endpoint=False),
+    *np.linspace(1e3, 1e4, 3, endpoint=False),
+    *np.linspace(1e4, 1e5, 4)
+]
+def ridge_cv_regression(regression_kwargs=None, xarray_kwargs=None, gpu_enabled=True):
+    regression_defaults = dict(alphas=ALPHA_LIST, store_cv_results=True)
+    regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
+    regression_kwargs.pop('alpha', None)  # RidgeCV does not accept 'alpha' as a parameter
+    if cuda.is_available() and gpu_enabled:
+        regression = RidgeGCVTorch(**regression_kwargs, store_results_gpu=False)
+    else:
+        regression = RidgeCV(**regression_kwargs)
+    xarray_kwargs = xarray_kwargs or {}
+    regression = XarrayRegression(regression, **xarray_kwargs)
+    return regression
 
 def single_regression(xarray_kwargs=None):
     regression = SingleRegression()

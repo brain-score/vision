@@ -43,6 +43,7 @@ class PytorchWrapper:
     def get_activations(self, images, layer_names):
         import torch
         from torch.autograd import Variable
+        self._model = self._model.to(self._device)
         images = [torch.from_numpy(image) if not isinstance(image, torch.Tensor) else image for image in images]
         images = Variable(torch.stack(images))
         images = images.to(self._device)
@@ -60,6 +61,8 @@ class PytorchWrapper:
             self._model(images, **self._forward_kwargs)
         for hook in hooks:
             hook.remove()
+        
+        self._model = self._model.to('cpu')  # free GPU memory after forward pass
         return layer_results
 
     def get_layer(self, layer_name):

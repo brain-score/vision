@@ -79,7 +79,8 @@ def SpanTimeCrossRegressedCorrelation(regression, correlation, *args, **kwargs):
 
 #fixed split metric
 class TrainTestSplitCorrelation(Metric):
-    def __init__(self, regression, correlation):
+    def __init__(self, regression, correlation, *args, **kwargs):
+        
         regression = regression or pls_regression()
         self.regression = regression
         self.correlation = correlation
@@ -134,11 +135,11 @@ ALPHA_LIST = [
     *np.linspace(1e3, 1e4, 3, endpoint=False),
     *np.linspace(1e4, 1e5, 4)
 ]
-def ridge_cv_regression(regression_kwargs=None, xarray_kwargs=None):
+def ridge_cv_regression(regression_kwargs=None, xarray_kwargs=None, gpu_enabled=True):
     regression_defaults = dict(alphas=ALPHA_LIST, store_cv_results=True)
     regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
     regression_kwargs.pop('alpha', None)  # RidgeCV does not accept 'alpha' as a parameter
-    if cuda.is_available():
+    if cuda.is_available() and gpu_enabled:
         regression = RidgeGCVTorch(**regression_kwargs, store_results_gpu=False)
     else:
         regression = RidgeCV(**regression_kwargs)

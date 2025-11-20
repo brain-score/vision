@@ -1,14 +1,17 @@
 import pytest
 import numpy as np
 from brainscore_vision import load_dataset, load_stimulus_set
+from brainscore_vision.benchmark_helpers.neural_common import filter_reliable_neuroids
 
-EXPECTED_VOXEL_COUNTS = {
+TOTAL_VOXELS = 18394
+NOISE_CEILING_THRESHOLD = 0.3 * 100
+EXPECTED_RELIABLE_VOXEL_COUNTS = {
     '01': {'IT': 250, 'V1': 385, 'V2': 257, 'V4': 152},
     '02': {'IT': 389, 'V1': 356, 'V2': 278, 'V4': 225},
     '03': {'IT': 120, 'V1': 174, 'V2': 131, 'V4': 101},
 }
-TOTAL_VOXELS = sum(
-    sum(region_counts.values()) for region_counts in EXPECTED_VOXEL_COUNTS.values()
+TOTAL_RELIABLE_VOXELS = sum(
+    sum(region_counts.values()) for region_counts in EXPECTED_RELIABLE_VOXEL_COUNTS.values()
 )
 
 class TestAssemblyProperties:
@@ -25,14 +28,21 @@ class TestAssemblyProperties:
         # assembly shape:
         # (n_categories * n_examples * n_repetitions, n_voxels, 1)
         assert assembly.shape == (n_categories * n_examples * n_repetitions, TOTAL_VOXELS, 1), f"Got shape {assembly.shape}"
-        for subject in EXPECTED_VOXEL_COUNTS.keys():
-            for roi in EXPECTED_VOXEL_COUNTS[subject].keys():
-                assert len(assembly.sel(subject=subject).sel(roi=roi)['neuroid_id']) == EXPECTED_VOXEL_COUNTS[subject][roi], \
-                    f"Number of neuroids for subject {subject} in region {roi} does not match expected."
+        
+        reliable_assembly = filter_reliable_neuroids(assembly, NOISE_CEILING_THRESHOLD, 'nc_testset')
+        for subject in EXPECTED_RELIABLE_VOXEL_COUNTS.keys():
+            for region in EXPECTED_RELIABLE_VOXEL_COUNTS[subject].keys():
+                assert len(reliable_assembly.sel(subject=subject).sel(region=region)['neuroid_id']) == EXPECTED_RELIABLE_VOXEL_COUNTS[subject][region], \
+                    f"Number of neuroids for subject {subject} in region {region} does not match expected."
         
         # Check all expected coords exist
         expected_presentation_coords = ['stimulus_id', 'stimulus_label', 'object_name', 'stimulus_label_idx', 'repetition']
-        expected_neuroid_coords = ['roi', 'region', 'subject', 'neuroid_id', 'voxels']
+        expected_neuroid_coords = ['region', 'subject', 'neuroid_id',
+                                   'voxel_id', 'voxel_x', 'voxel_y', 'voxel_z',
+                                   'nc_singletrial', 'nc_testset',
+                                   'splithalf_uncorrected', 'splithalf_corrected', 
+                                   'prf-eccentricity', 'prf-polarangle', 'prf-rsquared', 'prf-size', 
+                                   'roi']
         expected_time_bin_coords = ['time_bin_start', 'time_bin_end']
 
         existing_coords = set()

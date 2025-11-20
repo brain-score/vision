@@ -1,14 +1,15 @@
 import pytest
 import numpy as np
 from brainscore_vision import load_dataset, load_stimulus_set
-
-
-EXPECTED_NEUROIDS = {
+from brainscore_vision.benchmark_helpers.neural_common import filter_reliable_neuroids
+TOTAL_NEUROIDS = 2048
+RELIABILITY_THRESHOLD = 0.3
+EXPECTED_RELIAB_NEUROIDS = {
     'monkeyF': {'V1': 332, 'V4': 117, 'IT': 157},
     'monkeyN': {'V1': 410, 'V4': 198, 'IT': 141}
 }
-TOTAL_NEUROIDS = sum(
-    sum(regions.values()) for regions in EXPECTED_NEUROIDS.values()
+TOTAL_RELIAB_NEUROIDS = sum(
+    sum(regions.values()) for regions in EXPECTED_RELIAB_NEUROIDS.values()
 )
 
 class TestAssemblyProperties:
@@ -25,11 +26,13 @@ class TestAssemblyProperties:
         # assembly shape:
         # (n_categories * n_examples * n_repetitions, n_neuroids, 1)
         assert assembly.shape == (n_categories * n_examples * n_repetitions, TOTAL_NEUROIDS, 1), f"Got shape {assembly.shape}"
-        assert set(assembly['subject'].values) == set(EXPECTED_NEUROIDS.keys()), "unexpected subjects in assembly"
-        assert set(assembly['region'].values) == set(EXPECTED_NEUROIDS['monkeyF'].keys()), "unexpected regions in assembly"
-        for subject in EXPECTED_NEUROIDS.keys():
-            for region in EXPECTED_NEUROIDS[subject].keys():
-                assert len(assembly.sel(subject=subject).sel(region=region)['neuroid_id']) == EXPECTED_NEUROIDS[subject][region], \
+        assert set(assembly['subject'].values) == set(EXPECTED_RELIAB_NEUROIDS.keys()), "unexpected subjects in assembly"
+        assert set(assembly['region'].values) == set(EXPECTED_RELIAB_NEUROIDS['monkeyF'].keys()), "unexpected regions in assembly"
+        
+        reliab_assembly = filter_reliable_neuroids(assembly, RELIABILITY_THRESHOLD, 'reliability')
+        for subject in EXPECTED_RELIAB_NEUROIDS.keys():
+            for region in EXPECTED_RELIAB_NEUROIDS[subject].keys():
+                assert len(reliab_assembly.sel(subject=subject).sel(region=region)['neuroid_id']) == EXPECTED_RELIAB_NEUROIDS[subject][region], \
                     f"Number of neuroids for subject {subject} in region {region} does not match expected."
         
         # Check all expected coords exist

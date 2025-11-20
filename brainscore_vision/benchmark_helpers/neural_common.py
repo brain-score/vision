@@ -1,8 +1,9 @@
 import numpy as np
 import pandas as pd
 from xarray import DataArray
+import itertools
 
-from brainscore_core.supported_data_standards.brainio.assemblies import array_is_element, walk_coords
+from brainscore_core.supported_data_standards.brainio.assemblies import DataAssembly, array_is_element, walk_coords
 from brainscore_core import Score
 from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.model_interface import BrainModel
@@ -36,7 +37,11 @@ class NeuralBenchmark(BenchmarkBase):
 class TrainTestNeuralBenchmark(BenchmarkBase):
     def __init__(self, identifier, ceiling_func, version, 
                  train_assembly, test_assembly, similarity_metric, 
-                 visual_degrees, number_of_trials, parent, **kwargs):
+                 visual_degrees, number_of_trials, parent,
+                 alpha_coord: str=None, 
+                 per_voxel_ceilings: bool=False,
+                 **kwargs):
+        
         super(TrainTestNeuralBenchmark, self).__init__(identifier=identifier, ceiling_func=ceiling_func,
                                                 version=version, parent=parent, **kwargs)
         self.train_assembly = train_assembly
@@ -50,31 +55,86 @@ class TrainTestNeuralBenchmark(BenchmarkBase):
         assert region[0] == np.unique(self.test_assembly['region'])[0]
         self.region = region[0]
 
-        timebins = timebins_from_assembly(self.train_assembly)
-        self.timebins = timebins
+        self.timebins = timebins_from_assembly(self.train_assembly)
+        
+        self.alpha_coord = alpha_coord # fit a separate mapping for each unqiue value along this coord
+
+        if per_voxel_ceilings:
+            self.ceiling_mode = neuroid_wise_explained_var
+        else:
+            self.ceiling_mode = explained_variance
         
     def __call__(self, candidate: BrainModel):  
         
         # get the activations from the train set
         train_stimulus_set = self.train_assembly.stimulus_set
-        timebins = timebins_from_assembly(self.train_assembly)
-        candidate.start_recording(self.region, time_bins=timebins)
+        candidate.start_recording(self.region, time_bins=self.timebins)
         stimulus_set = place_on_screen(train_stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                         source_visual_degrees=self._visual_degrees)
-        train_activations = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
+        self.train_activations = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
 
         # get the activations from the test set
         test_stimulus_set = self.test_assembly.stimulus_set
         timebins = timebins_from_assembly(self.test_assembly)
-        candidate.start_recording(self.region, time_bins=timebins)
+        candidate.start_recording(self.region, time_bins=self.timebins)  
         stimulus_set = place_on_screen(test_stimulus_set, target_visual_degrees=candidate.visual_degrees(),
 									source_visual_degrees=self._visual_degrees)
-        test_activations = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
+        self.test_activations = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
 
-        raw_score = self._similarity_metric(source_train=train_activations, source_test=test_activations,
-                target_train=self.train_assembly, target_test=self.test_assembly)
-        ceiled_score = explained_variance(raw_score, self.ceiling)
+        if self.alpha_coord is not None:
+            scores_dict = {}
+            alpha_splits = np.unique(self.train_assembly[self.alpha_coord].values)
+            for coord_value in alpha_splits:
+                coord_dict = {self.alpha_coord: coord_value}
+                train_subset = select_with_preserved_index(self.train_assembly, coord_dict)
+                test_subset = select_with_preserved_index(self.test_assembly, coord_dict)
+                
+                # calculate the ceiling for the subset, based on only those per-neuroid ceilings contained in the slice
+                raw_ceilings_slice = select_with_preserved_index(self.ceiling.raw, coord_dict)
+                subset_ceiling = Score(np.mean(np.median(raw_ceilings_slice, axis=1)))
+                subset_ceiling.attrs['raw'] = raw_ceilings_slice
+                
+                score = self.get_score(train_data=train_subset, 
+                                       test_data=test_subset,
+                                       ceiling_values=subset_ceiling,
+                                       apply_ceiling=self.ceiling_mode)
+                scores_dict[coord_value] = score
+            score = Score(np.mean([s.values for s in scores_dict.values()]))
+            for coord_value in alpha_splits:
+                score.attrs[coord_value] = scores_dict[coord_value]
+            return score
+
+        else:
+            score = self.get_score(train_data=self.train_assembly, 
+                                   test_data=self.test_assembly,
+                                   ceiling_values=self.ceiling, 
+                                   apply_ceiling=self.ceiling_mode)
+            return score
+
+    def get_score(self, train_data, test_data, ceiling_values, apply_ceiling):
+        """
+        train_data : NeuroidAssembly, neural recordings to fit
+        test_data : NeuroidAssembly, neural recordings to predict
+        ceiling_values : DataArray, the ceiling values for each neuroid
+        apply_ceiling : function, method how to apply ceilings (per neuroid or overall)
+        """
+        raw_score = self._similarity_metric(source_train=self.train_activations,
+                                            target_train=train_data,
+                                            source_test=self.test_activations,
+                                            target_test=test_data)
+        ceiled_score = apply_ceiling(raw_score, ceiling_values)
         return ceiled_score
+
+
+def select_with_preserved_index(assembly, coord_dict):
+    new_assembly = assembly.sel(neuroid=coord_dict, drop=False)
+    if new_assembly.sizes['neuroid'] == 1:
+        #reassign dropped coordinates from coord dict (for each key, set coordinate key to value coord_dict[key])
+        new_assembly = new_assembly.assign_coords({key: ('neuroid', [coord_dict[key]]) for key in coord_dict})
+        new_assembly = new_assembly.reset_index('neuroid')
+        new_assembly = new_assembly.set_index(neuroid=assembly.get_index('neuroid').names)
+    new_assembly = new_assembly.transpose(*assembly.dims)
+    return new_assembly
 
 
 def timebins_from_assembly(assembly):
@@ -98,6 +158,48 @@ def explained_variance(score: Score, ceiling: Score) -> Score:
     ceiled_score.attrs['ceiling'] = ceiling
     return ceiled_score
 
+def neuroid_wise_explained_var(score: Score, ceiling: Score, aggregate_func=np.mean) -> Score:
+    """
+    Computes the explained variance for every neuroid individually.
+    Parameters
+    ----------
+    score : Score
+        The raw score containing neuroid-wise correlations.
+    ceiling : Score
+        The ceiling containing neuroid-wise ceilings.
+    Returns
+    -------
+    ceiled_score : Score
+        The neuroid-wise explained variance score.
+    """
+    assert score.raw is not None, "Score must have raw values for neuroid-wise explained variance"
+    raw_scores = score.raw
+    
+    if hasattr(ceiling, 'raw'):
+        raw_ceilings = ceiling.raw
+    else:
+        raw_ceilings = ceiling
+     
+    if 'split' in raw_ceilings.dims:
+        raw_ceilings = raw_ceilings.mean(dim='split')  #averaging ceiling across splits if applicable
+    assert raw_scores.dims == raw_ceilings.dims, "score and ceiling dims don't match"
+    
+    # assert perfect coordinate alignment between raws and ceilings
+    pd.testing.assert_index_equal(raw_ceilings.indexes['neuroid'], raw_scores.indexes['neuroid']) 
+
+    #apply explained variance neuroid-wise
+    r_square_neuroids = np.power(raw_scores / raw_ceilings, 2)
+    ceiled_score = aggregate_func(r_square_neuroids)  #average across neuroids
+    ceiled_score = Score(ceiled_score)
+    ceiled_score.attrs['ceiled_scores'] = r_square_neuroids
+    ceiled_score.attrs['ceiling'] = ceiling
+    
+    #keep all previous attributes
+    for key, value in score.attrs.items():
+        ceiled_score.attrs[key] = value
+    for key, value in score.raw.attrs.items():
+        ceiled_score.attrs[key] = value
+    return ceiled_score
 
 def average_repetition(assembly):
     def avg_repr(assembly):
@@ -160,3 +262,12 @@ def flatten_timebins_into_neuroids(assembly: DataArray) -> DataArray:
     )
     flattened_assembly.attrs = attributes
     return flattened_assembly
+
+def filter_reliable_neuroids(assembly : DataAssembly, reliab_threshold : float, reliab_coord : str) -> DataAssembly:
+    """
+    Filter out neuroids below a reliability threshold.
+    Using DataArray.where returns a DataArray object so we need to reconstruct the original NeuroidAssembly (or related) class.
+    """
+    assembly_type = type(assembly)
+    filtered_assembly = assembly.where(assembly[reliab_coord] > reliab_threshold, drop=True)
+    return assembly_type(filtered_assembly)

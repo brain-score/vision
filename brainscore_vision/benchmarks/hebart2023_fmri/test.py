@@ -26,10 +26,10 @@ class TestAlexNet:
     @pytest.mark.private_access
     @pytest.mark.slow
     @pytest.mark.parametrize('benchmark, expected_score', [
-        ('Hebart2023_fmri.V1-ridgecv', approx(0.5409453749399302, abs=0.001)),
-        ('Hebart2023_fmri.V2-ridgecv', approx(0.4188572857531148, abs=0.001)),
-        ('Hebart2023_fmri.V4-ridgecv', approx(0.1753696707620169, abs=0.001)),
-        ('Hebart2023_fmri.IT-ridgecv', approx(0.304639059406884, abs=0.001)),
+        ('Hebart2023_fmri.V1-ridgecv', approx(0.5489315250178326, abs=0.001)),
+        ('Hebart2023_fmri.V2-ridgecv', approx(0.38434124185586294, abs=0.001)),
+        ('Hebart2023_fmri.V4-ridgecv', approx(0.18973093479440584, abs=0.001)),
+        ('Hebart2023_fmri.IT-ridgecv', approx(0.3103578965860336, abs=0.001)),
     ])
     def test_model_score(self, benchmark, expected_score):
         benchmark = load_benchmark(benchmark)

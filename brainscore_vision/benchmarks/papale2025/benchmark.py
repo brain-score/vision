@@ -26,7 +26,7 @@ def _Papale2025(region,
 	train_assembly = LazyLoad(lambda region=region: load_assembly(region=region, split='train', average_repetitions=False))  # train has no repetitions
 	test_assembly = LazyLoad(lambda region=region: load_assembly(region=region, split='test', average_repetitions=True))
 	test_assembly_repetition = LazyLoad(lambda region=region: load_assembly(region=region, split='test', average_repetitions=False))
-	return TrainTestNeuralBenchmark(identifier=f'Papale2025-{region}-{identifier_metric_suffix}',
+	return TrainTestNeuralBenchmark(identifier=f'Papale2025.{region}-{identifier_metric_suffix}',
 	                          version=1,
 	                          ceiling_func=lambda: ceiler(test_assembly_repetition),
 	                          train_assembly=train_assembly,

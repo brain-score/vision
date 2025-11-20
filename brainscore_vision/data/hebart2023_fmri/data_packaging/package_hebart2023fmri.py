@@ -14,10 +14,13 @@ from brainscore_core.supported_data_standards.brainio.packaging import package_d
 
 #####
 # Package the Hebart et al. (2023) fMRI dataset based on THINGS images
-# neuroids: 3 subjects with varying numbers of reliable voxels in each region
+# neuroids: 3 subjects with varying numbers of voxels in each region
 # train stimuli: 8640 presentations (720 categories x 12 images x 1 repetition)
 # test stimuli: 1200 presentations (100 images x 12 repetitions)
 # time bins: 1
+# 
+# this packaging script provides the option to filter for reliable voxels based on a noise ceiling threshold
+# on brainscore we uploaded all voxels to give reasearchers maximum flixibility
 #####
 
 
@@ -36,7 +39,12 @@ ROIS = {
 }
 REPS = {'train': 1, 'test': 12}
 SUBJECTS = ["01", "02", "03"]
-NOISE_CEILING_THRESHOLD = 0.3
+METADATA_COLUMNS = ['voxel_id', 'voxel_x', 'voxel_y', 'voxel_z',
+                    'nc_singletrial', 'nc_testset', 'splithalf_uncorrected', 'splithalf_corrected',
+                    'prf-eccentricity', 'prf-polarangle', 'prf-rsquared', 'prf-size']
+
+DEFAULT_FILTER = False  # Set to True to filter voxels by noise ceiling threshold
+DEFAULT_NOISE_CEILING_THRESHOLD = 0.3  # Voxels that do not pass this threshold will be excluded (if FILTER_VOXELS=True)
 
 def load_subject_data(
     fmri_data_dir: Union[str, Path], 
@@ -75,7 +83,7 @@ def process_subject_data(
     voxel_data: pd.DataFrame, 
     rois: Dict[str, List[str]], 
     noise_ceiling_threshold: float = None
-) -> Tuple[Dict[str, np.ndarray], Dict[str, np.ndarray], np.ndarray, np.ndarray]:
+) -> Tuple[Dict[str, np.ndarray], Dict[str, np.ndarray], np.ndarray, np.ndarray, Dict[str, pd.DataFrame]]:
     """
     Process the fMRI data for a given subject.
     """
@@ -97,12 +105,20 @@ def process_subject_data(
     test_stimuli = test_stimuli[:, 0]
 
     # Get the train and test responses
-    train_responses, test_responses = {}, {}
+    train_responses, test_responses, neuroid_metadata = {}, {}, {}
     for roi_name, roi_list in rois.items():
         # Get the voxel data for the current ROI
         roi_mask = voxel_data[roi_list].sum(axis=1).values.astype(bool)
+        # check if any voxel is assigned to multiple ROIs
+        assert np.all(voxel_data[roi_list].sum(axis=1).values <= 1), f"Voxel assigned to multiple ROIs in {roi_name}"
+
         roi_data = responses[roi_mask].to_numpy().T
         noise_ceiling = voxel_data.loc[roi_mask, 'nc_testset'].to_numpy()
+
+        neuroid_metadata_roi = voxel_data.loc[roi_mask, METADATA_COLUMNS]
+        precise_rois = voxel_data.loc[roi_mask, roi_list].idxmax(axis=1).values
+        assert len(precise_rois) == len(neuroid_metadata_roi), "Mismatch in precise ROIs and neuroid metadata lengths"
+        neuroid_metadata_roi['roi'] = precise_rois
 
         # Get the train and test responses for the current ROI
         train_responses_roi = roi_data[train_indices]
@@ -114,11 +130,19 @@ def process_subject_data(
             voxel_mask = noise_ceiling > noise_ceiling_threshold * 100
             train_responses_roi = train_responses_roi[:, voxel_mask]
             test_responses_roi = test_responses_roi[:, voxel_mask]
-            
+            neuroid_metadata_roi = neuroid_metadata_roi[voxel_mask]
+            assert len(neuroid_metadata_roi) == train_responses_roi.shape[1], \
+                "Mismatch between meta data and responses after voxel filtering"
+            # print the percentage of voxels kept
+            print(f"ROI {roi_name}: kept {np.sum(voxel_mask)} / {len(voxel_mask)} voxels ({100 * np.sum(voxel_mask) / len(voxel_mask):.2f}%)")
+        else:
+            print(f"ROI {roi_name}: kept all {len(noise_ceiling)} voxels (no filtering applied)")
+        
         train_responses[roi_name] = train_responses_roi
         test_responses[roi_name] = test_responses_roi
+        neuroid_metadata[roi_name] = neuroid_metadata_roi
 
-    return train_responses, test_responses, train_stimuli, test_stimuli
+    return train_responses, test_responses, train_stimuli, test_stimuli, neuroid_metadata
 
 
 def get_stimulus_set(
@@ -162,14 +186,19 @@ def get_stimulus_set(
 
     return stimulus_set
 
-def get_neuroid_assembly(neural_responses: Dict[str, Dict[str, np.ndarray]], stimulus_set: StimulusSet, split: str) -> NeuroidAssembly:
+def get_neuroid_assembly(neural_responses: Dict[str, Dict[str, np.ndarray]],
+                        neuroid_metadata:Dict[str, Dict[str, pd.DataFrame]],
+                        stimulus_set: StimulusSet,
+                        split: str) -> NeuroidAssembly:
     data_neural_concat = []
     subject_indices, roi_indices, neuroid_indices = [], [], []
-    
+    metadata_concat = {col: [] for col in METADATA_COLUMNS + ['roi']} # each entry will be a list for selected metadata based on METADATA_COLUMNS
+
     for subject in SUBJECTS:
         total_neuroid_per_subject = 0
         for roi_name in ROIS.keys():
             neural_responses_roi = neural_responses[subject][roi_name]
+            neuroid_metadata_roi = neuroid_metadata[subject][roi_name]
             
             mean = neural_responses_roi.mean(axis=0)
             std = neural_responses_roi.std(axis=0)
@@ -181,6 +210,12 @@ def get_neuroid_assembly(neural_responses: Dict[str, Dict[str, np.ndarray]], sti
 
             subject_indices.extend([subject] * n_neuroids)
             roi_indices.extend([roi_name] * n_neuroids)
+            for col in METADATA_COLUMNS + ['roi']:
+                assert col in neuroid_metadata_roi.columns, f"Column {col} not found in neuroid metadata"
+                metadata_concat[col].extend(neuroid_metadata_roi[col].tolist())
+                assert len(metadata_concat[col]) == len(neuroid_indices) + total_neuroid_per_subject + n_neuroids, f"Mismatch in metadata length for column {col}"
+
+
             total_neuroid_per_subject += n_neuroids
         
         neuroid_indices.extend(range(total_neuroid_per_subject))
@@ -200,11 +235,10 @@ def get_neuroid_assembly(neural_responses: Dict[str, Dict[str, np.ndarray]], sti
             "object_name": ("presentation", np.repeat(stimulus_set["object_name"].values, REPS[split])),
             "stimulus_label_idx": ("presentation", np.repeat(stimulus_set["label_idx"].values, REPS[split])),
             "repetition": ("presentation", repetition_indices),
-            "roi": ("neuroid", roi_indices),
             "region": ("neuroid", roi_indices),
             "subject": ("neuroid", subject_indices),
             "neuroid_id": ("neuroid", neuroid_indices),
-            "voxels": ("neuroid", neuroid_indices),
+            **{col: ("neuroid", metadata_concat[col]) for col in METADATA_COLUMNS + ['roi']},
             "time_bin_start": ("time_bin", [70]),
             "time_bin_end": ("time_bin", [170])
         },
@@ -226,7 +260,9 @@ def package_data(
     neural_data_dir: Union[str, Path], 
     things_image_dir: Union[str, Path], 
     bucket_name: str, 
-    output_path: Union[str, Path]
+    output_path: Union[str, Path],
+    filter_voxels: bool,
+    noise_ceiling_threshold: float,
 ) -> None:
     """
     Main function to package THINGS fMRI data for Brain-Score.
@@ -236,6 +272,8 @@ def package_data(
         things_image_dir: Path to the THINGS image database directory
         bucket_name: Name of the S3 bucket for uploading packaged data
         output_path: Directory path where file hashes will be saved
+        filter_voxels: Whether to filter voxels based on noise ceiling threshold
+        noise_ceiling_threshold: The noise ceiling threshold to use for filtering
     """
     neural_data_dir = Path(neural_data_dir)
     things_image_dir = Path(things_image_dir)
@@ -252,6 +290,7 @@ def package_data(
     # Process all subject data
     train_responses_subjects, test_responses_subjects = {}, {}
     train_stimuli, test_stimuli = None, None
+    neuroid_metadata_subjects = {} 
 
     for subject_id in tqdm(SUBJECTS, desc="Processing subject data"):
         responses = responses_subjects[subject_id]
@@ -267,12 +306,14 @@ def package_data(
         ), f"Stimulus format mismatch for subject {subject_id}"
         
         # Process the data for the current subject
-        train_responses, test_responses, train_stim, test_stim = process_subject_data(
-            responses, metadata, voxel_data, ROIS, noise_ceiling_threshold=NOISE_CEILING_THRESHOLD
+        train_responses, test_responses, train_stim, test_stim, neuroid_metadata = process_subject_data(
+            responses, metadata, voxel_data, ROIS, 
+            noise_ceiling_threshold=noise_ceiling_threshold if filter_voxels else None
         )
         
         train_responses_subjects[subject_id] = train_responses
         test_responses_subjects[subject_id] = test_responses
+        neuroid_metadata_subjects[subject_id] = neuroid_metadata
 
         if train_stimuli is None:
             train_stimuli = train_stim
@@ -285,11 +326,11 @@ def package_data(
     
     # Call functions to create the train stimulus set and assembly
     train_stimulus_set = get_stimulus_set(things_image_dir, train_stimuli, 'train')
-    train_assembly = get_neuroid_assembly(train_responses_subjects, train_stimulus_set, 'train')
+    train_assembly = get_neuroid_assembly(train_responses_subjects, neuroid_metadata_subjects, train_stimulus_set, 'train')
     
     # Call functions to create the test stimulus set and assembly
     test_stimulus_set = get_stimulus_set(things_image_dir, test_stimuli, 'test')
-    test_assembly = get_neuroid_assembly(test_responses_subjects, test_stimulus_set, 'test')
+    test_assembly = get_neuroid_assembly(test_responses_subjects, neuroid_metadata_subjects, test_stimulus_set, 'test')
     
     print("Brainio is now packaging the stimuli for upload. Don't worry, this might take a moment")
     print("Uploading train stimuli...")
@@ -384,15 +425,34 @@ if __name__ == "__main__":
         default=None,
         help='Optional directory path to use as the Brainio cache location.'
     )
+    parser.add_argument(
+        '--filter-threshold',
+        dest='filter_threshold',
+        type=float,
+        nargs='?',
+        const=DEFAULT_NOISE_CEILING_THRESHOLD,
+        default=None,
+        help=f'Filter voxels by noise ceiling threshold. Use --filter-threshold to apply default threshold ({DEFAULT_NOISE_CEILING_THRESHOLD}), '
+             f'or --filter-threshold 0.4 to specify a custom threshold. Omit to include all voxels.'
+    )
     args = parser.parse_args()
     
     # tells brainio where to put the files the package methods create before uploading
     if args.cache_dir:
         os.environ['BRAINIO_HOME'] = args.cache_dir
     
+    if args.filter_threshold is not None:
+        filter_voxels = True
+        noise_ceiling_threshold = args.filter_threshold
+        print(f"Filtering enabled with noise ceiling threshold: {args.filter_threshold}")
+    else:
+        filter_voxels = DEFAULT_FILTER # use the default if no argument is given
+        noise_ceiling_threshold = DEFAULT_NOISE_CEILING_THRESHOLD
+        print("Filtering disabled - including all voxels")
+    
     neural_data_dir = Path(args.neural_data_dir)
     things_image_dir = Path(args.things_image_dir)
     bucket_name = args.bucket_name
     output_path = Path(args.output_path)
     
-    package_data(neural_data_dir, things_image_dir, bucket_name, output_path)
+    package_data(neural_data_dir, things_image_dir, bucket_name, output_path, filter_voxels, noise_ceiling_threshold)

@@ -57,7 +57,7 @@ class TrainTestNeuralBenchmark(BenchmarkBase):
 
         self.timebins = timebins_from_assembly(self.train_assembly)
         
-        self.alpha_coord = alpha_coord # fit a separate mapping for each unqiue value along this coord
+        self.alpha_coord = alpha_coord # fit a separate mapping for each unique value along this coord
 
         if per_voxel_ceilings:
             self.ceiling_mode = neuroid_wise_explained_var

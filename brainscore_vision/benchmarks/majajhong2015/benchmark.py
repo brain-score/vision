@@ -26,14 +26,17 @@ pls_metric = lambda: load_metric('pls', crossvalidation_kwargs=crossvalidation_k
 spantime_pls_metric = lambda: load_metric('spantime_pls', crossvalidation_kwargs=crossvalidation_kwargs)
 
 def _DicarloMajajHong2015Region(region: str, access: str, identifier_metric_suffix: str,
-                                similarity_metric: Metric, ceiler: Ceiling, time_interval: float = None):
+                                similarity_metric: Metric, intra_subject_ceiler: Ceiling, time_interval: float = None):
     assembly_repetition = load_assembly(average_repetitions=False, region=region, access=access, time_interval=time_interval)
     assembly = load_assembly(average_repetitions=True, region=region, access=access, time_interval=time_interval)
+    inter_subject_ceiler = load_ceiling('inter_subject_consistency',
+                                        metric=similarity_metric, subject_column='animal')
     benchmark_identifier = f'MajajHong2015.{region}' + ('.public' if access == 'public' else '')
     return NeuralBenchmark(identifier=f'{benchmark_identifier}-{identifier_metric_suffix}', version=3,
                            assembly=assembly, similarity_metric=similarity_metric,
                            visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
-                           ceiling_func=lambda: ceiler(assembly_repetition),
+                           ceiling_func=lambda: intra_subject_ceiler(assembly_repetition),
+                           inter_subject_ceiling_func=lambda: inter_subject_ceiler(assembly),
                            parent=region,
                            bibtex=BIBTEX)
 
@@ -41,37 +44,37 @@ def _DicarloMajajHong2015Region(region: str, access: str, identifier_metric_suff
 def DicarloMajajHong2015V4PLS():
     return _DicarloMajajHong2015Region(region='V4', access='private', identifier_metric_suffix='pls',
                                        similarity_metric=pls_metric(),
-                                       ceiler=load_ceiling('internal_consistency'))
+                                       intra_subject_ceiler=load_ceiling('internal_consistency'))
 
 
 def DicarloMajajHong2015ITPLS():
     return _DicarloMajajHong2015Region(region='IT', access='private', identifier_metric_suffix='pls',
                                        similarity_metric=pls_metric(),
-                                       ceiler=load_ceiling('internal_consistency'))
+                                       intra_subject_ceiler=load_ceiling('internal_consistency'))
 
 
 def MajajHongV4PublicBenchmark():
     return _DicarloMajajHong2015Region(region='V4', access='public', identifier_metric_suffix='pls',
                                        similarity_metric=pls_metric(),
-                                       ceiler=load_ceiling('internal_consistency'))
+                                       intra_subject_ceiler=load_ceiling('internal_consistency'))
 
 
 def MajajHongITPublicBenchmark():
     return _DicarloMajajHong2015Region(region='IT', access='public', identifier_metric_suffix='pls',
                                        similarity_metric=pls_metric(),
-                                       ceiler=load_ceiling('internal_consistency'))
+                                       intra_subject_ceiler=load_ceiling('internal_consistency'))
 
 
 def MajajHongV4TemporalPublicBenchmark(time_interval: float = None):
     return _DicarloMajajHong2015Region(region='V4', access='public', identifier_metric_suffix='pls',
                                        similarity_metric=spantime_pls_metric(), time_interval=time_interval,
-                                       ceiler=load_ceiling('internal_consistency_temporal'))
+                                       intra_subject_ceiler=load_ceiling('internal_consistency_temporal'))
 
 
 def MajajHongITTemporalPublicBenchmark(time_interval: float = None):
     return _DicarloMajajHong2015Region(region='IT', access='public', identifier_metric_suffix='pls',
                                        similarity_metric=spantime_pls_metric(), time_interval=time_interval,
-                                       ceiler=load_ceiling('internal_consistency_temporal'))
+                                       intra_subject_ceiler=load_ceiling('internal_consistency_temporal'))
 
 
 def load_assembly(average_repetitions: bool, region: str, access: str = 'private', time_interval: float = None):

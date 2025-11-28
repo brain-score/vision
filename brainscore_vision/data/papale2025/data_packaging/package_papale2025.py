@@ -52,13 +52,13 @@ DEFAULT_FILTER = False  # Set to True to filter electrodes by reliability thresh
 DEFAULT_RELIABILITY_THRESHOLD = 0.3  # Electrodes that do not pass this threshold will be excluded
 
 
-def get_stimulus_set(image_metadata: dict, things_image_db_dir: Path, split: str) -> StimulusSet:
+def get_stimulus_set(image_metadata: dict, things_image_dir: Path, split: str) -> StimulusSet:
     """
     Build the StimulusSet for the given split.
     
     Args:
         image_metadata: Dictionary containing metadata for stimuli
-        things_image_db_dir: Path to the stimulus directory containing images
+        things_image_dir: Path to the stimulus directory containing images
         split: 'train' or 'test'
     
     Returns:
@@ -67,7 +67,7 @@ def get_stimulus_set(image_metadata: dict, things_image_db_dir: Path, split: str
     
     # Check that the images really are at the given path
     check_path_str = image_metadata[f'{split}_imgs']['things_path'][0].replace('\\', '/')
-    check_path = things_image_db_dir / check_path_str
+    check_path = things_image_dir / check_path_str
     assert check_path.exists(), f"No image at: {check_path}, please correct the image path"
 
     # Get the stimuli to populate each StimulusSet
@@ -78,7 +78,7 @@ def get_stimulus_set(image_metadata: dict, things_image_db_dir: Path, split: str
     for img_class, img_path in tqdm(zip(img_classes, img_paths), total=len(img_classes)):
         
         img_path = img_path.replace('\\', '/')
-        stimulus_path = things_image_db_dir / img_path
+        stimulus_path = things_image_dir / img_path
         stimulus_id = stimulus_path.stem.split('/')[-1]
         
         stimulus_ids.append(stimulus_id)

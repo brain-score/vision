@@ -91,6 +91,7 @@ class TrainTestNeuralBenchmark(BenchmarkBase):
                 
                 # calculate the ceiling for the subset, based on only those per-neuroid ceilings contained in the slice
                 raw_ceilings_slice = select_with_preserved_index(self.ceiling.raw, coord_dict)
+                # recalculate median of neuroids, mean of cv-splits as done by CrossValidationSingle
                 subset_ceiling = Score(np.mean(np.median(raw_ceilings_slice, axis=1)))
                 subset_ceiling.attrs['raw'] = raw_ceilings_slice
                 

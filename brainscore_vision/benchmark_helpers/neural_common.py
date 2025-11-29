@@ -229,6 +229,13 @@ def flatten_timebins_into_neuroids(assembly: DataArray) -> DataArray:
 
     """
 
+    assert assembly.dims == ('presentation', 'neuroid', 'time_bin'), \
+        f"Flattening assembly expects dims (presentation, neuroid, time_bin), got {assembly.dims}"
+    assert 'time_bin_start' in assembly.indexes['time_bin'].names, \
+        "Expected 'time_bin_start' coordinate in time_bin dimension"
+    assert 'time_bin_end' in assembly.indexes['time_bin'].names, \
+        "Expected 'time_bin_end' coordinate in time_bin dimension"
+    
     #flatten the data
     n_presentations, n_neuroids, n_timebins = assembly.shape
     attributes = assembly.attrs

@@ -130,7 +130,7 @@ class TrainTestNeuralBenchmark(BenchmarkBase):
 def select_with_preserved_index(assembly, coord_dict):
     new_assembly = assembly.sel(neuroid=coord_dict, drop=False)
     if new_assembly.sizes['neuroid'] == 1:
-        #reassign dropped coordinates from coord dict (for each key, set coordinate key to value coord_dict[key])
+        # reassign dropped coordinates from coord dict (for each key, set coordinate key to value coord_dict[key])
         new_assembly = new_assembly.assign_coords({key: ('neuroid', [coord_dict[key]]) for key in coord_dict})
         new_assembly = new_assembly.reset_index('neuroid')
         new_assembly = new_assembly.set_index(neuroid=assembly.get_index('neuroid').names)
@@ -171,31 +171,32 @@ def neuroid_wise_explained_var(score: Score, ceiling: Score, aggregate_func=np.m
     Returns
     -------
     ceiled_score : Score
-        The neuroid-wise explained variance score.
+        The aggregate neuroid-wise explained variance score.
+        .attrs['ceiled_scores'] contains the individual neuroids' ceiled scores.
     """
     assert score.raw is not None, "Score must have raw values for neuroid-wise explained variance"
     raw_scores = score.raw
     
-    if hasattr(ceiling, 'raw'):
-        raw_ceilings = ceiling.raw
+    if hasattr(ceiling, 'raw'): 
+        raw_ceilings = ceiling.raw  # ceiling provided with aggregate and raw values
     else:
-        raw_ceilings = ceiling
+        raw_ceilings = ceiling      # ceiling was not yet aggregated and can be accessed as is
      
     if 'split' in raw_ceilings.dims:
-        raw_ceilings = raw_ceilings.mean(dim='split')  #averaging ceiling across splits if applicable
+        raw_ceilings = raw_ceilings.mean(dim='split')  # averaging ceiling across splits if applicable
     assert raw_scores.dims == raw_ceilings.dims, "score and ceiling dims don't match"
     
     # assert perfect coordinate alignment between raws and ceilings
     pd.testing.assert_index_equal(raw_ceilings.indexes['neuroid'], raw_scores.indexes['neuroid']) 
 
-    #apply explained variance neuroid-wise
+    # apply explained variance neuroid-wise
     r_square_neuroids = np.power(raw_scores / raw_ceilings, 2)
-    ceiled_score = aggregate_func(r_square_neuroids)  #average across neuroids
+    ceiled_score = aggregate_func(r_square_neuroids)  # aggregate across neuroids
     ceiled_score = Score(ceiled_score)
     ceiled_score.attrs['ceiled_scores'] = r_square_neuroids
     ceiled_score.attrs['ceiling'] = ceiling
     
-    #keep all previous attributes
+    # all previous attributes
     for key, value in score.attrs.items():
         ceiled_score.attrs[key] = value
     for key, value in score.raw.attrs.items():
@@ -236,7 +237,7 @@ def flatten_timebins_into_neuroids(assembly: DataArray) -> DataArray:
     assert 'time_bin_end' in assembly.indexes['time_bin'].names, \
         "Expected 'time_bin_end' coordinate in time_bin dimension"
     
-    #flatten the data
+    # flatten the data
     n_presentations, n_neuroids, n_timebins = assembly.shape
     attributes = assembly.attrs
     flattened_data = assembly.data.reshape(
@@ -245,7 +246,7 @@ def flatten_timebins_into_neuroids(assembly: DataArray) -> DataArray:
         1
     )
 
-    #expand the presentation dim x n_timebins
+    # expand the presentation dim x n_timebins
     coords = {k: v for k, v in assembly.coords.items() if k != "time_bin"}
     old_index = coords['neuroid'].to_index()
     coords['neuroid'] = pd.MultiIndex.from_tuples(

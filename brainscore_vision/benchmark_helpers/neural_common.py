@@ -196,11 +196,16 @@ def neuroid_wise_explained_var(score: Score, ceiling: Score, aggregate_func=np.m
     ceiled_score.attrs['ceiled_scores'] = r_square_neuroids
     ceiled_score.attrs['ceiling'] = ceiling
     
-    # all previous attributes
+    # attach all previous attributes, prevent overwriting
     for key, value in score.attrs.items():
-        ceiled_score.attrs[key] = value
+        # attaches the raw scores and other info of the original score
+        # Note: if score already had a ceiling attribute, it will be dropped
+        if key not in ceiled_score.attrs:
+            ceiled_score.attrs[key] = value
     for key, value in score.raw.attrs.items():
-        ceiled_score.attrs[key] = value
+        # propagate attributes from raw score if not already present (e.g. ridge cv alpha)
+        if key not in ceiled_score.attrs:
+            ceiled_score.attrs[key] = value
     return ceiled_score
 
 def average_repetition(assembly):

@@ -3,7 +3,7 @@
 # Only the neural data can be downloaded from the public S3 bucket.
 # This file packages the stimuli into Brain-Score format and saves them at the BrainIO cache location.
 
-# STEPS FOR RUNNING GIFFORD2022 LOCALLY:
+### STEPS FOR RUNNING GIFFORD2022 LOCALLY:
 # 1) Download the THINGS image database from https://osf.io/jum2f/
 # -> You need images_THINGS.zip (ca. 4.7 GB) and password_images.txt.
 # -> Confirm that you have read the LICENSE and unzip the images with the password provided in password_images.txt.
@@ -12,7 +12,11 @@
 # 2) You also need the image metadata file image_metadata.npy provided in this dir (source: https://osf.io/y63gw/files ).
 # 3) Set the paths correctly.
 # 4) Run this script.
-# 5) Run your benchmark.
+# 5) Update sha1 in the __init__.py if necessary
+#    ATTENTION: sha1 hashes of the csv files will probably change
+#    The script will adapt to this by renaming the cache dirs to the new sha1, 
+#    but you will need to change the parameter "csv_sha1" of the associated stimulus_set_registry entry in __init__.py
+# 6) Run your benchmark.
 
 ### OUTPUT
 # Stimulus sets for train and test splits in Brain-Score format.
@@ -20,19 +24,19 @@
 # load_stimulus_set_from_s3 looks for directories based on the SHA1 hashes.
 # The default location is BRAINIO_HOME = ~/.brainio/
 
-# CONFIRM YOUR CACHE LOCATION LOOKS LIKE THIS:
+### CONFIRM YOUR CACHE LOCATION LOOKS LIKE THIS:
 # train stimuli csv: <csv_sha1>/stimulus_THINGS_EEG2_train_Stimuli.csv
 # train stimuli zip: <zip_sha1>/stimulus_THINGS_EEG2_train_Stimuli.zip and stimulus_THINGS_EEG2_train_Stimuli directory
 # test stimuli csv: <csv_sha1>/stimulus_THINGS_EEG2_test_Stimuli.csv
 # test stimuli zip: <zip_sha1>/stimulus_THINGS_EEG2_test_Stimuli.zip and stimulus_THINGS_EEG2_test_Stimuli directory
 
-# INPUTS:
+### INPUTS:
 # - things_image_dir: Directory containing THINGS images.
 # - metadata_dir: Directory containing the image_metadata.npy file.
 # - output_path: Directory to the output BrainIO cache directory.
 
 
-# SHA1 INFORMATION (go to gifford2022/__init__.py to make sure they have not changed)
+# ORIGINAL SHA1 INFORMATION
 TRAIN_CSV_SHA1 = "1a10e75ef9dc9eed6a4eca8e183b81f0d642dda8"
 TRAIN_ZIP_SHA1 = "7dcc25442ab6737302f96a7b3bd2526afd331637"
 TEST_CSV_SHA1 = "d7325a55602239e67892b8c596d37e2ee609a59a"
@@ -107,9 +111,16 @@ def create_local_cache(metadata_dir: str, things_image_dir: str, output_path: st
 
         assert 'filename' not in stimulus_set.columns, "StimulusSet already has column 'filename'"
         stimulus_set['filename'] = zip_filenames  # keep record of zip (or later local) filenames
-        csv_sha1 = create_stimulus_csv(stimulus_set, str(target_csv_path))
-        print(f"Created stimulus csv at {target_csv_path} with sha1: {csv_sha1}")
+        stimulus_csv_sha1 = create_stimulus_csv(stimulus_set, str(target_csv_path))
         
+        # rename the dir to stimulus_csv_sha1
+        if csv_sha1 != stimulus_csv_sha1:
+            print("CSV sha1 changed, renaming directory...")
+            new_dir = output_path / stimulus_csv_sha1
+            os.rename(target_csv_path.parent, new_dir)
+            target_csv_path = new_dir / csv_file_name
+            print(f"Please update the __init__.py file!")
+        print(f"Created stimulus csv at {target_csv_path} with sha1: {stimulus_csv_sha1}")
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Create local stimulus cache for Gifford2022 benchmark")

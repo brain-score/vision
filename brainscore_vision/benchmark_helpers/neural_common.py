@@ -81,6 +81,13 @@ class TrainTestNeuralBenchmark(BenchmarkBase):
 									source_visual_degrees=self._visual_degrees)
         self.test_activations = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
 
+        # squeeze time_bin dim if it has length one
+        # regression only supports (presentation x neuroids) arrays, but temporal models like CORnet return a time_bin dim
+        if 'time_bin' in self.train_activations.dims and self.train_activations.sizes['time_bin'] == 1:
+            self.train_activations = self.train_activations.squeeze('time_bin')
+        if 'time_bin' in self.test_activations.dims and self.test_activations.sizes['time_bin'] == 1:
+            self.test_activations = self.test_activations.squeeze('time_bin')
+
         if self.alpha_coord is not None:
             scores_dict = {}
             alpha_splits = np.unique(self.train_assembly[self.alpha_coord].values)

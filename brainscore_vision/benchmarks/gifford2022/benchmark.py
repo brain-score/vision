@@ -13,7 +13,11 @@ BIBTEX = """@article{gifford_large_2022,
 	author = {Gifford, Alessandro T. and Dwivedi, Kshitij and Roig, Gemma and Cichy, Radoslaw M.},
 	year = {2022},
 }"""
-VISUAL_DEGREES = 8
+
+### Note on VISUAL_DEGREES
+# the human subjects were shown 500x500 pixel images
+# "each of the 20 images was presented centrally with a visual angle of 7° for 100 ms" (Gifford et al, 2022 p.2)
+VISUAL_DEGREES = 7
 
 def _Gifford2022(region, 
 				similarity_metric, 

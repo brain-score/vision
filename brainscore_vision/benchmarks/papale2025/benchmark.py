@@ -12,7 +12,19 @@ BIBTEX = """@article{papale_extensive_2025,
 	author = {Papale, Paolo and Wang, Feng and Self, Matthew W. and Roelfsema, Pieter R.},
 	year = {2025},
 }"""
+### Note on VISUAL_DEGREES
+# Papale2025 showed 500x500 pixel images on 1024x768 pixel monitors for 200ms
+# They used different monitors and different viewing distances for the two monkeys:
+# monkey N: viewing distance 47cm, 28.9 pixels per degree => 17.3 visual degrees
+# monkey F: viewing distance 58cm, 26.9 pixels per degree => 18.6 visual degrees
+
+# Most models on Brain-Score are simply registered to the default visual degrees of 8.
+# Because using the original visual degrees would result in cropping out >75% of the image content, we use 8 visual degrees here, 
+# meaning both monkeys and models get to see the full image information.
+# Beware that this is a (temporary) compromise.
 VISUAL_DEGREES = 8
+
+
 RELIABILITY_THRESHOLD = 0.3
 
 def _Papale2025(region, 

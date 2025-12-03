@@ -13,7 +13,12 @@ BIBTEX = """@article{hebart_things-data_2023,
 	year = {2023},
 	pmid = {36847339},
 }"""
-VISUAL_DEGREES = 8
+
+### Note on VISUAL_DEGREES
+# all images were shown at 10 visual degrees, with a fixation cross spanning 0.5 visual degrees in the center 
+VISUAL_DEGREES = 10
+
+
 NOISE_CEILING_THRESHOLD = 0.3 * 100
 
 def _Hebart2023fmri(region,

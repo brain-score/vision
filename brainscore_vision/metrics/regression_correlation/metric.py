@@ -133,7 +133,9 @@ ALPHA_LIST = [
     *np.linspace(1e1, 1e2, 3, endpoint=False),
     *np.linspace(1e2, 1e3, 3, endpoint=False),
     *np.linspace(1e3, 1e4, 3, endpoint=False),
-    *np.linspace(1e4, 1e5, 4)
+    *np.linspace(1e4, 1e5, 5, endpoint=False),
+    *np.linspace(1e5, 1e6, 5, endpoint=False),
+    *np.linspace(1e6, 1e7, 6)
 ]
 def ridge_cv_regression(regression_kwargs=None, xarray_kwargs=None, gpu_enabled=True):
     regression_defaults = dict(alphas=ALPHA_LIST, store_cv_results=True)

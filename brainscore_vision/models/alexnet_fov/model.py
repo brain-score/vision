@@ -20,9 +20,9 @@ LAYERS = ['features.2', 'features.5', 'features.7', 'features.9', 'features.12',
           'classifier.2', 'classifier.5']
 
 
-def get_model():
+def get_model(model_id):
     model = torchvision.models.alexnet(pretrained=True)
     preprocessing = functools.partial(load_preprocess_images, image_size=224)
-    wrapper = PytorchWrapper(identifier='alexnet', model=model, preprocessing=preprocessing)
+    wrapper = PytorchWrapper(identifier=model_id, model=model, preprocessing=preprocessing)
     wrapper.image_size = 224
     return wrapper

@@ -9,7 +9,7 @@ models:
         model_size_mb: 244.4
         training_dataset: null
         task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_fov4
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_fov
         huggingface_link: https://huggingface.co/alexnet
         extra_notes: null
         runnable: true
@@ -23,7 +23,7 @@ models:
         model_size_mb: 244.4
         training_dataset: null
         task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_fov12
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_fov
         huggingface_link: https://huggingface.co/alexnet
         extra_notes: null
         runnable: true
@@ -37,7 +37,7 @@ models:
         model_size_mb: 244.4
         training_dataset: null
         task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_fov16
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_fov
         huggingface_link: https://huggingface.co/alexnet
         extra_notes: null
         runnable: true

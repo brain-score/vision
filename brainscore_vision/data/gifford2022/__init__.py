@@ -16,19 +16,19 @@ BIBTEX = """@article{gifford_large_2022,
 stimulus_set_registry['Gifford2022_stim_train'] = lambda: load_stimulus_set_from_s3(
     identifier="THINGS_EEG2_train_Stimuli",
     bucket="brainscore-storage/brainscore-vision/benchmarks/Gifford2022",
-    csv_sha1="1a10e75ef9dc9eed6a4eca8e183b81f0d642dda8",
-    zip_sha1="7dcc25442ab6737302f96a7b3bd2526afd331637",
-    csv_version_id=".6lLxENqxfIICv8uUoG8bqVpk8.SISaW",
-    zip_version_id="EVywR8.jXAoABgiyAOBlXhCikvUYNX_.",
+    csv_sha1="a406afab99abca28b141bd4457daea8f3b001f75",
+    zip_sha1="a46d5476b3caef89b481bdf50c70ecd9cac28fa4",
+    csv_version_id="erlnWZh_o9Mk17tTx3id0Kq_G.2k4CRY",
+    zip_version_id="T70I8pGBqcxt4bpdYfm0KU_iD67_3ryu",
     filename_prefix="stimulus_")
 
 stimulus_set_registry['Gifford2022_stim_test'] = lambda: load_stimulus_set_from_s3(
     identifier="THINGS_EEG2_test_Stimuli",
     bucket="brainscore-storage/brainscore-vision/benchmarks/Gifford2022",
-    csv_sha1="d7325a55602239e67892b8c596d37e2ee609a59a",
-    zip_sha1="bcd0b909df89ff39836ad0bcc9581a79189af2ac",
-    csv_version_id="svrZiuFCrOUwlA13h9D78b7CxLJ5MN7q",
-    zip_version_id="jhWwXJI.WstIO5mImv7igtGozeYbFFqk",
+    csv_sha1="f79dd731e36a9e5c1b62fc6518ff30c8d71df182",
+    zip_sha1="a1cdd468f02309dd805466219c019f1a7a2ffb44",
+    csv_version_id="QCHnkzt7S.8ik.kuMORgxTT24Y4QA3zs",
+    zip_version_id="4rTsFRxCmXcq7hAo.CCQgGoFXMWOQoVB",
     filename_prefix="stimulus_")
 
 data_registry['Gifford2022_train'] = lambda: load_assembly_from_s3(

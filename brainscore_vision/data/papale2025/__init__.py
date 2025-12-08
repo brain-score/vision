@@ -16,19 +16,19 @@ BIBTEX = """@article{papale_extensive_2025,
 stimulus_set_registry['Papale2025_stim_train'] = lambda: load_stimulus_set_from_s3(
     identifier="THINGS_TVSD_train_Stimuli",
     bucket="brainscore-storage/brainscore-vision/benchmarks/Papale2025",
-    csv_sha1="955b18a10b887550b91b7a03eacc3fc413ccb05e",
-    zip_sha1="7d01cdb3c91d81d588a07ea408239f9519072ef8",
-    csv_version_id=".AiRrc3NRAAPoEDAK1zY5LiU_H2p9CQr",
-    zip_version_id="mSEP5DgYmtu_FneAinxPS3gB0cS9bC1M",
+    csv_sha1="4a094a7e4c2408abc333ba610215a7c30277d904",
+    zip_sha1="0a97a7952097800207a23fe73281c256dfc90902",
+    csv_version_id="kCt7PZx9jxXDrRhyow9y8hDUUDFAAp._",
+    zip_version_id="S.DCjiAaGQ6PjCUs4QugwsHaZa9YiEuV",
     filename_prefix="stimulus_")
 
 stimulus_set_registry['Papale2025_stim_test'] = lambda: load_stimulus_set_from_s3(
     identifier="THINGS_TVSD_test_Stimuli",
     bucket="brainscore-storage/brainscore-vision/benchmarks/Papale2025",
-    csv_sha1="3d5fefd685b3b8684f77856da6848be10473d677",
-    zip_sha1="41cd5a05fe9d5118b05fc6b35654e36ff021570d",
-    csv_version_id="c1XCWg79sI2vVevdqp590NbQJxqyKaSb",
-    zip_version_id="4ff5Ire9_Q.3MLXUgBnA7UJoweQHEyDG",
+    csv_sha1="b08c1c560f008cf3fb2982c22c881ea8ffce0410",
+    zip_sha1="dfd6e8769414505afbf51de3ab207cb7a3cf49d6",
+    csv_version_id="gEGUgT7PJB8z3roRkTiJ6zriSuehd2DI",
+    zip_version_id="AGNDfuS5nyIjTuXrM4hWFze.sWM9py2Z",
     filename_prefix="stimulus_")
 
 data_registry['Papale2025_train'] = lambda: load_assembly_from_s3(

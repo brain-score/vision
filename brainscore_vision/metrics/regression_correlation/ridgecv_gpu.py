@@ -9,6 +9,9 @@ from typing import Optional, Tuple, Union, Sequence
 import numpy as np
 import torch
 
+import logging
+_logger = logging.getLogger(__name__)
+
 TensorLike = Union[torch.Tensor, np.ndarray]
 
 def _as_torch(x: TensorLike, device=None, dtype=torch.float64) -> torch.Tensor:
@@ -412,6 +415,8 @@ class RidgeGCVTorch:
         else:
             raise ValueError("y must be shape (n_samples,) or (n_samples, n_targets)")
 
+        _logger.info(f"X has shape {X.shape}, y has shape {y.shape}")
+
         # Handle sample_weight
         sw = None if sample_weight is None else _check_sample_weight(sample_weight, X, X.dtype)
 
@@ -422,10 +427,11 @@ class RidgeGCVTorch:
         Xp, yp, X_offset, y_offset, X_scale = _preprocess_data(
             X, y, fit_intercept=self.fit_intercept, copy=self.copy_X, sample_weight=sw
         )
+        _logger.info("Data preprocessing complete")
 
         # Decide gcv mode (auto/eigen/svd)
         gcv_mode = _check_gcv_mode(Xp, self.gcv_mode)
-
+        _logger.info(f"gcv mode is {gcv_mode}")
         # Choose decomposition/solve routines
         if gcv_mode == "eigen":
             decompose = self._eigen_decompose_gram
@@ -469,6 +475,7 @@ class RidgeGCVTorch:
         else:
             alpha_iter = enumerate(alphas_vec)
 
+        _logger.info("Iterating alphas")
         for i, alpha in alpha_iter:
             Ginv_diag, c = solve(float(alpha.item()), yp, sqrt_sw, X_mean, *decomp)
 
@@ -539,6 +546,8 @@ class RidgeGCVTorch:
                         best_coef, best_score, best_alpha = c, alpha_score, torch.tensor(alpha.item(), dtype=self.dtype, device=self.device)
 
         self.alpha_ = _to_numpy(best_alpha) if isinstance(best_alpha, torch.Tensor) else best_alpha
+        _logger.info(f"Best alpha selected: {self.alpha}")
+
         self.best_score_ = _to_numpy(best_score) if isinstance(best_score, torch.Tensor) else best_score
         self.dual_coef_ = best_coef  # shape [n_samples] or [n_samples, n_targets]
 

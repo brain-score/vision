@@ -1,8 +1,8 @@
 import os
 import numpy as np
 import pandas as pd
-from brainio_base.stimuli import StimulusSet
-from brainio_collection.packaging import package_stimulus_set
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
+from brainscore_core.supported_data_standards.brainio.packaging import package_stimulus_set
 
 
 def collect_stimuli(data_path):

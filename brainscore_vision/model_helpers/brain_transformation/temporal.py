@@ -2,7 +2,7 @@ import logging
 import numpy as np
 from typing import List, Tuple
 
-from brainio.assemblies import merge_data_arrays, walk_coords, DataAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import merge_data_arrays, walk_coords, DataAssembly
 from brainscore_vision.model_helpers.utils import fullname
 from brainscore_vision.model_interface import BrainModel
 

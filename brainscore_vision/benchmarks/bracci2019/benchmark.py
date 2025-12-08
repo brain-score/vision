@@ -14,7 +14,7 @@ from brainscore_vision.benchmark_helpers.screen import place_on_screen
 from brainscore_vision.model_interface import BrainModel
 from brainscore_vision import load_stimulus_set, load_metric, load_dataset
 from brainscore_vision.utils import LazyLoad
-from brainio.assemblies import NeuroidAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly
 from brainscore_core.metrics import Score
 
 

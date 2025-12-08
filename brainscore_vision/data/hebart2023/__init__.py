@@ -1,7 +1,7 @@
-from brainio.assemblies import NeuronRecordingAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuronRecordingAssembly
 from brainscore_vision import load_stimulus_set
 from brainscore_vision import stimulus_set_registry, data_registry
-from brainscore_vision.data_helpers.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
+from brainscore_core.supported_data_standards.brainio.s3 import load_assembly_from_s3, load_stimulus_set_from_s3
 
 stimulus_set_registry['Hebart2023'] = lambda: load_stimulus_set_from_s3(
     identifier="Hebart2023",

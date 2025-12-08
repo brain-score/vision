@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 import numpy as np
 
-from brainio.assemblies import walk_coords
+from brainscore_core.supported_data_standards.brainio.assemblies import walk_coords
 
 
 def collect_coords(assembly, ignore_dims, rename_coords_list, kind):

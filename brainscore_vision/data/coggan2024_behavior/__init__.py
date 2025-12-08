@@ -1,9 +1,9 @@
 # Created by David Coggan on 2024 06 23
 
-from brainio.assemblies import BehavioralAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
 from brainscore_vision import (
     stimulus_set_registry, data_registry, load_stimulus_set)
-from brainscore_vision.data_helpers.s3 import (
+from brainscore_core.supported_data_standards.brainio.s3 import (
     load_assembly_from_s3, load_stimulus_set_from_s3)
 
 # stimulus set

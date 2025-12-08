@@ -4,8 +4,8 @@ import sys
 
 import xarray as xr
 
-from brainio_base.assemblies import NeuroidAssembly
-from brainio_contrib.packaging import package_data_assembly
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly
+from brainscore_core.supported_data_standards.brainio.packaging import package_data_assembly
 
 
 def create_xarray(savepath):

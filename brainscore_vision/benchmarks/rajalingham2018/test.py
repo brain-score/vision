@@ -6,13 +6,13 @@ import pytest
 import xarray as xr
 from pytest import approx
 
-from brainio.assemblies import BehavioralAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
 from brainscore_vision import benchmark_registry, load_benchmark, load_metric, load_model
 from brainscore_vision.benchmark_helpers import PrecomputedFeatures
 from brainscore_vision.benchmark_helpers.test_helper import VisualDegreesTests, NumberOfTrialsTests
 from brainscore_vision.benchmarks.rajalingham2018 import DicarloRajalingham2018I2n
 from brainscore_vision.benchmarks.rajalingham2018.benchmarks.benchmark import _DicarloRajalingham2018
-from brainscore_vision.data_helpers import s3
+from brainscore_core.supported_data_standards.brainio import s3
 from brainscore_vision.model_helpers.brain_transformation import ProbabilitiesMapping
 from brainscore_vision.model_interface import BrainModel
 

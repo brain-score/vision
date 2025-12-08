@@ -4,10 +4,10 @@ import numpy as np
 import pytest
 from pytest import approx
 
-from brainio.assemblies import BehavioralAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
 from brainscore_vision import benchmark_registry, load_benchmark
 from brainscore_vision.benchmark_helpers import PrecomputedFeatures
-from brainscore_vision.data_helpers import s3
+from brainscore_core.supported_data_standards.brainio import s3
 
 
 @pytest.mark.parametrize('benchmark', [

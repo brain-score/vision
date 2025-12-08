@@ -33,11 +33,24 @@ def _Papale2025(region,
 				alpha_coord=None, 
 				per_voxel_ceilings=False,
 				visual_degrees=VISUAL_DEGREES,
-				ceiler = load_metric('internal_consistency')):
+				ceiler = load_metric('internal_consistency'),
+				reliability_threshold=RELIABILITY_THRESHOLD):
 	number_of_trials = 1
-	train_assembly = LazyLoad(lambda region=region: load_assembly(region=region, split='train', average_repetitions=False))  # train has no repetitions
-	test_assembly = LazyLoad(lambda region=region: load_assembly(region=region, split='test', average_repetitions=True))
-	test_assembly_repetition = LazyLoad(lambda region=region: load_assembly(region=region, split='test', average_repetitions=False))
+	train_assembly = LazyLoad(lambda region=region, rt=reliability_threshold: 
+						   		load_assembly(region=region, 
+											split='train', 
+											average_repetitions=False,  # train has no repetitions
+											reliability_threshold=rt))  
+	test_assembly = LazyLoad(lambda region=region, rt=reliability_threshold: 
+						  		load_assembly(region=region, 
+											split='test', 
+											average_repetitions=True, 
+											reliability_threshold=rt))
+	test_assembly_repetition = LazyLoad(lambda region=region, rt=reliability_threshold: 
+								load_assembly(region=region, 
+					  						split='test', 
+											average_repetitions=False, 
+											reliability_threshold=rt))
 	return TrainTestNeuralBenchmark(identifier=f'Papale2025.{region}-{identifier_metric_suffix}',
 	                          version=1,
 	                          ceiling_func=lambda: ceiler(test_assembly_repetition),

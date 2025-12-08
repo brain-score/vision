@@ -27,11 +27,24 @@ def _Hebart2023fmri(region,
 					alpha_coord=None,
 					per_voxel_ceilings=False,
 					visual_degrees=VISUAL_DEGREES,
-					ceiler = load_metric('internal_consistency')):
+					ceiler = load_metric('internal_consistency'),
+					noise_ceiling_threshold=NOISE_CEILING_THRESHOLD):
 	number_of_trials = 1
-	train_assembly = LazyLoad(lambda region=region: load_assembly(region=region, split='train', average_repetitions=False))  # train has no repetitions
-	test_assembly = LazyLoad(lambda region=region: load_assembly(region=region, split='test', average_repetitions=True))
-	test_assembly_repetition = LazyLoad(lambda region=region: load_assembly(region=region, split='test', average_repetitions=False))
+	train_assembly = LazyLoad(lambda region=region, nct=noise_ceiling_threshold: 
+						   		load_assembly(region=region, 
+											split='train', 
+											average_repetitions=False,  # train has no repetitions
+											noise_ceiling_threshold=nct))  
+	test_assembly = LazyLoad(lambda region=region, nct=noise_ceiling_threshold: 
+						  		load_assembly(region=region, 
+											split='test', 
+											average_repetitions=True, 
+											noise_ceiling_threshold=nct))
+	test_assembly_repetition = LazyLoad(lambda region=region, nct=noise_ceiling_threshold: 
+								load_assembly(region=region, 
+											split='test', 
+											average_repetitions=False, 
+											noise_ceiling_threshold=nct))
 	return TrainTestNeuralBenchmark(identifier=f'Hebart2023_fmri.{region}-{identifier_metric_suffix}',
 	                          version=1,
 	                          ceiling_func=lambda: ceiler(test_assembly_repetition),

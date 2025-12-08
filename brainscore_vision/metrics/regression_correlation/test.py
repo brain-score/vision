@@ -6,7 +6,6 @@ from sklearn.datasets import make_regression
 from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly
 from brainscore_vision import load_metric
 from .metric import pls_regression, linear_regression, ridge_regression, ridge_cv_regression
-from .ridgecv_gpu import RidgeGCVTorch
 
 
 class TestCrossRegressedCorrelation:
@@ -36,26 +35,6 @@ class TestRegression:
         prediction = regression.predict(source=assembly)
         assert all(prediction['stimulus_id'] == assembly['stimulus_id'])
         assert all(prediction['neuroid_id'] == assembly['neuroid_id'])
-
-    @pytest.mark.parametrize('n_samples,n_features', [(100, 2), 
-                                                      (100, 1000)])
-    def test_ridgecv_gpu(self, n_samples, n_features):
-        # Generate data
-        X, y = make_regression(n_samples=n_samples, n_features=n_features, noise=0.1, random_state=42)
-        X_test, y_test = make_regression(n_samples=10, n_features=n_features, noise=0.1, random_state=43)
-
-        # X, y as numpy or torch; run on GPU
-        model = RidgeGCVTorch(alphas=[1e-3, 1e-2, 1e-1, 1, 10], fit_intercept=True, gcv_mode=None, store_cv_results=True)
-        model.fit(X, y)  # picks device automatically (CUDA if available)
-        yhat = model.predict(X_test)
-
-        # Compare to sklearn
-        from sklearn.linear_model import RidgeCV
-        model_sk = RidgeCV(alphas=[1e-3, 1e-2, 1e-1, 1, 10], fit_intercept=True).fit(X, y)
-        yhat_sk = model_sk.predict(X_test)
-
-        assert np.abs(yhat - yhat_sk).max() < 1e-5
-
 
 class TestTrainTestSplitCorrelation:
     @pytest.mark.parametrize('metric_name', ['pls_split', 'ridge_split', 'linear_predictivity_split', 'neuron_to_neuron_split', 'ridgecv_split'])

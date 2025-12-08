@@ -58,8 +58,8 @@ def _Hebart2023fmri(region,
 	                          parent=region,
 							  bibtex=BIBTEX)    
 
-def Hebart2023fmri(region, metric_type, gpu_enabled=True):
-    similarity_metric = load_metric(f'{metric_type}_split', gpu_enabled=gpu_enabled)
+def Hebart2023fmri(region, metric_type):
+    similarity_metric = load_metric(f'{metric_type}_split')
     return _Hebart2023fmri(region, similarity_metric=similarity_metric, identifier_metric_suffix=metric_type,
 						   alpha_coord='subject', per_voxel_ceilings=False)
 

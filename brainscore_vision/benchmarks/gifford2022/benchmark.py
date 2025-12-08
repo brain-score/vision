@@ -43,8 +43,8 @@ def _Gifford2022(region,
 	                          parent=region,
 							  bibtex=BIBTEX)    
 
-def Gifford2022(region, metric_type, gpu_enabled=True):
-    similarity_metric = load_metric(f'{metric_type}_split', gpu_enabled=gpu_enabled)
+def Gifford2022(region, metric_type):
+    similarity_metric = load_metric(f'{metric_type}_split')
     return _Gifford2022(region, similarity_metric=similarity_metric, identifier_metric_suffix=metric_type,
 					   alpha_coord='subject', per_voxel_ceilings=False)
 

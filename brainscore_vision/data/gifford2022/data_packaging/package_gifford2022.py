@@ -16,6 +16,11 @@ from brainscore_core.supported_data_standards.brainio.packaging import package_d
 # train stimuli: 66160 presentations (1654 categories x 10 images x 4 repetitions)
 # test stimuli: 16000 presentations (200 images x 80 repetitions)
 # time bins: 100 time points (NOT flattened into neuroids), from -200ms to 800ms
+# 
+# 
+# ATTENTION: The stimuli where packaged at 500x500 pixel resolution as they were shown in the original experiment.
+# Use the create_THINGS_resized.py script to create a copy of the THINGS database with the correct resolution.
+# Set --things-image-dir to the path of the resized THINGS images.
 #####
 
 
@@ -217,28 +222,28 @@ def package_data(neural_data_dir: Path, things_image_dir: Path, bucket_name: str
     print(stim_train_info)
     print(stim_test_info)
 
-    print("Uploading train neural data assembly... (can take over an hour)")
-    assy_train_info = package_data_assembly(
-        catalog_identifier=None,  # catalogs are deprecated
-        proto_data_assembly=train_assembly,
-        assembly_identifier=train_assembly.name,
-        stimulus_set_identifier=train_stimulus_set.name,
-        assembly_class_name="NeuroidAssembly",
-        bucket_name=bucket_name,
-    )
+    # print("Uploading train neural data assembly... (can take over an hour)")
+    # assy_train_info = package_data_assembly(
+    #     catalog_identifier=None,  # catalogs are deprecated
+    #     proto_data_assembly=train_assembly,
+    #     assembly_identifier=train_assembly.name,
+    #     stimulus_set_identifier=train_stimulus_set.name,
+    #     assembly_class_name="NeuroidAssembly",
+    #     bucket_name=bucket_name,
+    # )
 
-    print("Uploading test neural data assembly... (ca. 20 min)")
-    assy_test_info = package_data_assembly(
-        catalog_identifier=None,  # catalogs are deprecated
-        proto_data_assembly=test_assembly,
-        assembly_identifier=test_assembly.name,
-        stimulus_set_identifier=test_stimulus_set.name,
-        assembly_class_name="NeuroidAssembly",
-        bucket_name=bucket_name,
-    )
-    print('Hashes and ids of Assemblies:')
-    print(assy_train_info)
-    print(assy_test_info)
+    # print("Uploading test neural data assembly... (ca. 20 min)")
+    # assy_test_info = package_data_assembly(
+    #     catalog_identifier=None,  # catalogs are deprecated
+    #     proto_data_assembly=test_assembly,
+    #     assembly_identifier=test_assembly.name,
+    #     stimulus_set_identifier=test_stimulus_set.name,
+    #     assembly_class_name="NeuroidAssembly",
+    #     bucket_name=bucket_name,
+    # )
+    # print('Hashes and ids of Assemblies:')
+    # print(assy_train_info)
+    # print(assy_test_info)
 
     # Save the info jsons to the file system
     output_path.mkdir(parents=True, exist_ok=True)
@@ -246,10 +251,10 @@ def package_data(neural_data_dir: Path, things_image_dir: Path, bucket_name: str
         json.dump(stim_train_info, f)
     with open(output_path / 'stim_test_info.json', 'w') as f:
         json.dump(stim_test_info, f)
-    with open(output_path / 'assy_train_info.json', 'w') as f:
-        json.dump(assy_train_info, f)
-    with open(output_path / 'assy_test_info.json', 'w') as f:
-        json.dump(assy_test_info, f)
+    # with open(output_path / 'assy_train_info.json', 'w') as f:
+    #     json.dump(assy_train_info, f)
+    # with open(output_path / 'assy_test_info.json', 'w') as f:
+    #     json.dump(assy_test_info, f)
     print(f"Saved stimulus and assembly info jsons to {output_path}")
     print("Done!")
 

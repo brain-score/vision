@@ -9,14 +9,17 @@
 # -> Confirm that you have read the LICENSE and unzip the images with the password provided in password_images.txt.
 # -> Your file structure should now look something like THINGS_IMAGE_ROOT/object_images/... 
 #    (e.g. 'THINGS_IMAGE_ROOT/object_images/aardvark/aardvark_01b.jpg')
-# 2) You also need the image metadata file image_metadata.npy provided in this dir (source: https://osf.io/y63gw/files ).
-# 3) Set the paths correctly.
-# 4) Run this script.
-# 5) Update sha1 in the __init__.py if necessary
+# 2) If you want to replicate the exact experimental conditions, resize all images to 500x500 pixels
+# -> use the create_THINGS_resized.py script in this directory
+# -> provide the root of the new database to this script.
+# 3) You also need the image metadata file image_metadata.npy provided in this dir (source: https://osf.io/y63gw/files ).
+# 4) Set the paths correctly.
+# 5) Run this script.
+# 6) Update sha1 in the __init__.py if necessary
 #    ATTENTION: sha1 hashes of the csv files will probably change
 #    The script will adapt to this by renaming the cache dirs to the new sha1, 
 #    but you will need to change the parameter "csv_sha1" of the associated stimulus_set_registry entry in __init__.py
-# 6) Run your benchmark.
+# 7) Run your benchmark.
 
 ### OUTPUT
 # Stimulus sets for train and test splits in Brain-Score format.

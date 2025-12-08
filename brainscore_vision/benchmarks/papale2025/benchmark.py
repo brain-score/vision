@@ -18,11 +18,10 @@ BIBTEX = """@article{papale_extensive_2025,
 # monkey N: viewing distance 47cm, 28.9 pixels per degree => 17.3 visual degrees
 # monkey F: viewing distance 58cm, 26.9 pixels per degree => 18.6 visual degrees
 
-# Most models on Brain-Score are simply registered to the default visual degrees of 8.
-# Because using the original visual degrees would result in cropping out >75% of the image content, we use 8 visual degrees here, 
-# meaning both monkeys and models get to see the full image information.
-# Beware that this is a (temporary) compromise.
-VISUAL_DEGREES = 8
+# Es a compromise between the two subjects, we set visual degrees to 18
+# Beware that for models, that have a small field of view (e.g. the default 8 visual degrees),
+# a large part of the image will be cropped away!
+VISUAL_DEGREES = 18
 
 
 RELIABILITY_THRESHOLD = 0.3

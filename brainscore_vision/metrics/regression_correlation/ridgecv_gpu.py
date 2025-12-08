@@ -546,7 +546,7 @@ class RidgeGCVTorch:
                         best_coef, best_score, best_alpha = c, alpha_score, torch.tensor(alpha.item(), dtype=self.dtype, device=self.device)
 
         self.alpha_ = _to_numpy(best_alpha) if isinstance(best_alpha, torch.Tensor) else best_alpha
-        _logger.info(f"Best alpha selected: {self.alpha}")
+        _logger.info(f"Best alpha selected: {self.alpha_}")
 
         self.best_score_ = _to_numpy(best_score) if isinstance(best_score, torch.Tensor) else best_score
         self.dual_coef_ = best_coef  # shape [n_samples] or [n_samples, n_targets]

@@ -44,7 +44,7 @@ def _Gifford2022(region,
 	test_assembly = LazyLoad(lambda region=region: load_assembly(region=region, split='test', average_repetitions=True))
 	test_assembly_repetition = LazyLoad(lambda region=region: load_assembly(region=region, split='test', average_repetitions=False))
 	return TrainTestNeuralBenchmark(identifier=f'Gifford2022.{region}-{identifier_metric_suffix}',
-	                          version=1,
+	                          version=2,
 	                          ceiling_func=lambda: ceiler(test_assembly_repetition),
 	                          train_assembly=train_assembly,
 	                          test_assembly=test_assembly,

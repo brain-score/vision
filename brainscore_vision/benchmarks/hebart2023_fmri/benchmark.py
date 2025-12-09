@@ -47,7 +47,7 @@ def _Hebart2023fmri(region,
 											average_repetitions=False, 
 											noise_ceiling_threshold=nct))
 	return TrainTestNeuralBenchmark(identifier=f'Hebart2023_fmri.{region}-{identifier_metric_suffix}',
-	                          version=1,
+	                          version=2,
 	                          ceiling_func=lambda: ceiler(test_assembly_repetition),
 	                          train_assembly=train_assembly,
 	                          test_assembly=test_assembly,

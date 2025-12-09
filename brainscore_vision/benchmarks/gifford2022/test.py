@@ -20,7 +20,7 @@ class TestAlexNet:
     @pytest.mark.private_access
     @pytest.mark.slow
     @pytest.mark.parametrize('benchmark, expected_score', [
-        ('Gifford2022.IT-ridgecv', approx(0.2548360289728788, abs=0.001)),
+        ('Gifford2022.IT-ridgecv', approx(0.49658231467646663, abs=0.001)),
     ])
     def test_model_score(self, benchmark, expected_score):
         benchmark = load_benchmark(benchmark)

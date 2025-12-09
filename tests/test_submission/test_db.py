@@ -7,6 +7,7 @@ from brainscore_core.submission.database_models import (
     Model,
     User,
     clear_schema,
+    Submission
 )
 
 
@@ -28,9 +29,18 @@ def init_benchmark_parents():
 
 
 def init_models():
-    Model.create(name='dummy_model_1', owner=1, public=True, domain ="vision")
-    Model.create(name='dummy_model_2', owner=2, public=True, domain ="vision")
-    Model.create(name='dummy_model_3', owner=1, public=True, domain ="vision")
+    
+    # Create a test submission
+    submission = Submission.create(
+        jenkins_id=1, 
+        submitter_id=1, 
+        model_type='artificialsubject',
+        status='successful'
+    )
+    
+    Model.create(name='dummy_model_1', owner=1, public=True, domain='vision', submission=submission)
+    Model.create(name='dummy_model_2', owner=2, public=True, domain='vision', submission=submission)
+    Model.create(name='dummy_model_3', owner=1, public=True, domain='vision', submission=submission)
 
 
 @pytest.mark.memory_intense

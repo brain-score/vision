@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import xarray as xr
 from xarray import DataArray
 import itertools
 
@@ -35,6 +36,21 @@ class NeuralBenchmark(BenchmarkBase):
         return ceiled_score
 
 class TrainTestNeuralBenchmark(BenchmarkBase):
+    """
+    Neural benchmark with separate train and test assemblies.
+    
+    similarity_metric must be a metric such as the regression_correlation metrics named 
+    '[regression_type]-split' (e.g. 'ridgecv-split') which take four arguments: 
+    -> source and target assemblies to fit the mapping 
+    -> separate source and tagets assemblies to evaluate.
+    
+    Parameter alpha_coord can be used to specficy an assembly coordinate, where
+    unique values should be fitted separately, e.g. use alpha_coord='subject' to fit an individual
+    ridgecv alpha for each subject.
+
+    If per_voxel_ceilings=True ceilings are applied to neuroids before aggregating, otherwise afterwards (default).
+    """
+    
     def __init__(self, identifier, ceiling_func, version, 
                  train_assembly, test_assembly, similarity_metric, 
                  visual_degrees, number_of_trials, parent,
@@ -65,6 +81,19 @@ class TrainTestNeuralBenchmark(BenchmarkBase):
             self.ceiling_mode = explained_variance
         
     def __call__(self, candidate: BrainModel):  
+        """
+        Score a candidate model on this benchmark.
+        
+        Returns
+        -------
+        Score
+            Score relative to ceiling. 
+            If `alpha_coord` is set, results for each unique coord value are stored as attributes:
+            -> score.values: the final ceiled score
+            -> score.raw: the ceiled scores of each unique alpha coord value
+            -> score.celing: aggregate ceiling value of the benchmark
+            score.attrs[alpha_coord_value] will contain the standard score object with per neuroid raw and ceiling values
+        """
         
         # get the activations from the train set
         train_stimulus_set = self.train_assembly.stimulus_set
@@ -106,8 +135,13 @@ class TrainTestNeuralBenchmark(BenchmarkBase):
                                        test_data=test_subset,
                                        ceiling_values=subset_ceiling,
                                        apply_ceiling=self.ceiling_mode)
+                score = score.expand_dims(self.alpha_coord)
+                score[self.alpha_coord] = [coord_value]
+                print(score)
                 scores_dict[coord_value] = score
             score = Score(np.mean([s.values for s in scores_dict.values()]))
+            score.attrs[Score.RAW_VALUES_KEY] = xr.concat(scores_dict.values(), dim=self.alpha_coord, combine_attrs='drop')
+            score.attrs['ceiling'] = self.ceiling
             for coord_value in alpha_splits:
                 score.attrs[coord_value] = scores_dict[coord_value]
             return score

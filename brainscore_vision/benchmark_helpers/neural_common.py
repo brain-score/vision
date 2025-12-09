@@ -89,9 +89,10 @@ class TrainTestNeuralBenchmark(BenchmarkBase):
         Score
             Score relative to ceiling. 
             If `alpha_coord` is set, results for each unique coord value are stored as attributes:
-            -> score.values: the final ceiled score
-            -> score.raw: the ceiled scores of each unique alpha coord value
-            -> score.celing: aggregate ceiling value of the benchmark
+            -> score.values: the final ceiled score (mean of all individually fitted slices, e.g. subjects)
+            -> score.raw: the mean of all the raw values
+            -> score.celing: aggregate ceiling value of the benchmark 
+            Note: we aggregate neuroids for each slice and then ceil the slice, meaning the overall ceiling is not applied directly
             score.attrs[alpha_coord_value] will contain the standard score object with per neuroid raw and ceiling values
         """
         
@@ -139,9 +140,21 @@ class TrainTestNeuralBenchmark(BenchmarkBase):
                 score[self.alpha_coord] = [coord_value]
                 print(score)
                 scores_dict[coord_value] = score
+            
+            # the score is the mean of all the individual ceiled scores:
             score = Score(np.mean([s.values for s in scores_dict.values()]))
-            score.attrs[Score.RAW_VALUES_KEY] = xr.concat(scores_dict.values(), dim=self.alpha_coord, combine_attrs='drop')
+            
+            # the overall raw value is the mean of raw values (individual values are thus found in .raw.raw)
+            score.attrs[Score.RAW_VALUES_KEY] = Score(np.mean([s.raw.values for s in scores_dict.values()]))
+            score.attrs[Score.RAW_VALUES_KEY].attrs[Score.RAW_VALUES_KEY] = xr.concat(scores_dict.values(), 
+                                                                                      dim=self.alpha_coord, 
+                                                                                      combine_attrs='drop')
+            
+            # the ceiling is the overall ceiling aggregated across all neuroids irrespective of splits
             score.attrs['ceiling'] = self.ceiling
+            
+            # each individual alpha that was fitted is documented as an attribute 
+            # (including raw values and ceiling for that split)
             for coord_value in alpha_splits:
                 score.attrs[coord_value] = scores_dict[coord_value]
             return score

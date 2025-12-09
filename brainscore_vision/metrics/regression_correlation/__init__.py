@@ -24,7 +24,7 @@ metric_registry['neuron_to_neuron_split'] = lambda *args, **kwargs: TrainTestSpl
 metric_registry['linear_predictivity_split'] = lambda *args, **kwargs: TrainTestSplitCorrelation(
     regression=linear_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
 metric_registry['ridgecv_split'] = lambda *args, **kwargs: TrainTestSplitCorrelation(
-    regression=ridge_cv_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
+    regression=ridge_cv_regression(**kwargs), correlation=pearsonr_correlation(), *args, **kwargs)
 
 
 #backwards compatibility

@@ -1,7 +1,7 @@
 from brainscore_vision import load_dataset, load_metric
 from brainscore_vision.benchmark_helpers.neural_common import TrainTestNeuralBenchmark, average_repetition, flatten_timebins_into_neuroids
 from brainscore_vision.utils import LazyLoad
-
+import numpy as np
 
 BIBTEX = """@article{gifford_large_2022,
 	title = {A large and rich {EEG} dataset for modeling human visual object recognition},
@@ -18,6 +18,19 @@ BIBTEX = """@article{gifford_large_2022,
 # the human subjects were shown 500x500 pixel images
 # "each of the 20 images was presented centrally with a visual angle of 7° for 100 ms" (Gifford et al, 2022 p.2)
 VISUAL_DEGREES = 7
+
+### NOTE on ridge regression alphas
+# You can find the default list of alphas at:
+# brainscore_vision.metrics.regression_correlation.metric.ALPHA_LIST
+# Due to having many neuroids (100 time points x 17 electrodes flattened into neuroids),
+# and many subjects (10), we use a reduced list of alphas here to speed up computation:
+REDUCED_ALPHA_LIST = [
+    *[0.01, 0.1, 0.5, 1.0, 10, 50, 100, 500, 1000, 5000],
+    *np.linspace(1e4, 1e5, 4, endpoint=False),
+    *np.linspace(1e5, 1e6, 4, endpoint=False),
+    *np.linspace(1e6, 1e7, 5)
+]
+
 
 def _Gifford2022(region, 
 				similarity_metric, 
@@ -43,8 +56,8 @@ def _Gifford2022(region,
 	                          parent=region,
 							  bibtex=BIBTEX)    
 
-def Gifford2022(region, metric_type):
-    similarity_metric = load_metric(f'{metric_type}_split')
+def Gifford2022(region, metric_type, alphas=REDUCED_ALPHA_LIST):
+    similarity_metric = load_metric(f'{metric_type}_split', alphas=alphas)
     return _Gifford2022(region, similarity_metric=similarity_metric, identifier_metric_suffix=metric_type,
 					   alpha_coord='subject', per_voxel_ceilings=False)
 

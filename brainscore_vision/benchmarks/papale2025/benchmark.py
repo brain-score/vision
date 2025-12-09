@@ -1,5 +1,6 @@
 from brainscore_vision import load_dataset, load_metric
 from brainscore_vision.benchmark_helpers.neural_common import TrainTestNeuralBenchmark, average_repetition, filter_reliable_neuroids
+from brainscore_vision.metrics.regression_correlation.metric import ALPHA_LIST
 from brainscore_vision.utils import LazyLoad
 
 BIBTEX = """@article{papale_extensive_2025,
@@ -63,8 +64,8 @@ def _Papale2025(region,
 	                          parent=region,
 							  bibtex=BIBTEX)    
 
-def Papale2025(region, metric_type):
-    similarity_metric = load_metric(f'{metric_type}_split')
+def Papale2025(region, metric_type, alphas=ALPHA_LIST):
+    similarity_metric = load_metric(f'{metric_type}_split', alphas=alphas)
     return _Papale2025(region, similarity_metric=similarity_metric, identifier_metric_suffix=metric_type,
 					   alpha_coord='subject', per_voxel_ceilings=False)
 

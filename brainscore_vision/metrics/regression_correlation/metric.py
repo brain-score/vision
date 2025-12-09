@@ -134,8 +134,8 @@ ALPHA_LIST = [
     *np.linspace(1e5, 1e6, 18, endpoint=False),
     *np.linspace(1e6, 1e7, 19)
 ]
-def ridge_cv_regression(regression_kwargs=None, xarray_kwargs=None):
-    regression_defaults = dict(alphas=ALPHA_LIST, store_cv_results=True)
+def ridge_cv_regression(regression_kwargs=None, xarray_kwargs=None, alphas=ALPHA_LIST):
+    regression_defaults = dict(alphas=alphas, store_cv_results=True)
     regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
     regression_kwargs.pop('alpha', None)  # RidgeCV does not accept 'alpha' as a parameter
     

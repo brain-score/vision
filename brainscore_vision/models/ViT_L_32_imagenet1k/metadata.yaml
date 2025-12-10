@@ -7,8 +7,8 @@ models:
         total_layers: 319
         trainable_layers: 148
         model_size_mb: 1226.53
-        training_dataset: null
-        task_specialization: null
+        training_dataset: ImageNet, CIFAR-100, VTAB
+        task_specialization: Image_classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ViT_L_32_imagenet1k
         huggingface_link: null
         extra_notes: null

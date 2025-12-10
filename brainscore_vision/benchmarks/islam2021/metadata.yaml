@@ -10,11 +10,11 @@ benchmarks:
         data:
             benchmark_type: neural
             task: null
-            region: IT
+            region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: null
+            species: computer
             datatype: null
             num_subjects: null
             pre_processing: null

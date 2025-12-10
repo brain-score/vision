@@ -7,8 +7,8 @@ models:
         total_layers: 473
         trainable_layers: 116
         model_size_mb: 31.18
-        training_dataset: null
-        task_specialization: null
+        training_dataset: ImageNet
+        task_specialization: Scaling_models
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/effnetb1_cutmix_augmix_sam_e1_5avg_424x377
         huggingface_link: null
         extra_notes: null

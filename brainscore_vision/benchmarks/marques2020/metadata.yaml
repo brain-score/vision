@@ -14,7 +14,7 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: null
+            species: macaque
             datatype: null
             num_subjects: null
             pre_processing: null

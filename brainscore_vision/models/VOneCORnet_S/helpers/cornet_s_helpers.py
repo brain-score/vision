@@ -6,7 +6,7 @@ import re
 import torch
 from torch.nn import Module
 from brainscore_core.supported_data_standards.brainio.assemblies import merge_data_arrays, NeuroidAssembly, walk_coords
-from brainscore_vision.model_helpers.s3 import load_weight_file
+from brainscore_core.supported_data_standards.brainio.s3 import load_weight_file
 from brainscore_vision.model_helpers.activations.core import ActivationsExtractorHelper
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images

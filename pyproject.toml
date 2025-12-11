@@ -16,7 +16,7 @@ dependencies = [
     "brainscore-core",
     "result-caching",
     "importlib-metadata<5", # workaround to https://github.com/brain-score/brainio/issues/28
-    "scikit-learn==1.5.1", # for metric_helpers/transformations.py cross-validation
+    "scikit-learn<1.8", # for metric_helpers/transformations.py cross-validation
     "scipy", # for benchmark_helpers/properties_common.py
     "opencv-python",  # for microsaccades
     "h5py",

@@ -4,7 +4,7 @@
 
 [project]
 name = "brainscore_vision"
-version = "2.3.9"
+version = "2.3.10"
 description = "The Brain-Score library enables model comparisons to behavioral and neural experiments"
 authors = []
 license = { 'file' = 'LICENSE' }
@@ -16,7 +16,7 @@ dependencies = [
     "brainscore-core",
     "result-caching",
     "importlib-metadata<5", # workaround to https://github.com/brain-score/brainio/issues/28
-    "scikit-learn", # for metric_helpers/transformations.py cross-validation
+    "scikit-learn<1.8", # for metric_helpers/transformations.py cross-validation
     "scipy", # for benchmark_helpers/properties_common.py
     "opencv-python",  # for microsaccades
     "h5py",

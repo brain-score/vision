@@ -14,7 +14,7 @@ from pathlib import Path
 ###################################################################################################################################
 
 def get_model(name):
-    assert name == 'convnext_tiny_imagenet1k_GELU'
+    assert name == 'convnext_tiny_imagenet1k_GELU_crop'
     fileName='ConvNeXt-tiny_ImageNet_None_None_None_GELU_Conv_LayerNorm_StridedConv_CELoss_None'
     netType, task, dataOOD, dataAug, preprocFunc, actFunc, intFunc, normFunc, poolFunc, lossFunc, balanceMethod = fileName.split('_')
     imDims=np.array([3, 224, 224]) #
@@ -28,18 +28,18 @@ def get_model(name):
     fileName = wget.download(weightURL, fileName)
     
     model = define_model(netType, preprocFunc, actFunc, intFunc, normFunc, poolFunc, imDims, numClasses, task, device)
-    #model = import_weights('brainscore_vision/models/convnext_tiny_imagenet1k_GELU/'+fileName+'.pt', model, device)
+    #model = import_weights('brainscore_vision/models/convnext_tiny_imagenet1k_GELU_crop/'+fileName+'.pt', model, device)
     model = import_weights(fileName, model, device)
 
     preprocessing = functools.partial(load_preprocess_images, image_size=imDims[-1],
                                       normalize_mean=(0, 0, 0), normalize_std=(1, 1, 1))
-    wrapper = PytorchWrapper(identifier='convnext_tiny_imagenet1k_GELU', model=model, preprocessing=preprocessing)
+    wrapper = PytorchWrapper(identifier='convnext_tiny_imagenet1k_GELU_crop', model=model, preprocessing=preprocessing)
     wrapper.image_size = imDims[-1]
     return wrapper
 
 
 def get_layers(name):
-    assert name == 'convnext_tiny_imagenet1k_GELU'
+    assert name == 'convnext_tiny_imagenet1k_GELU_crop'
     #return ['inputPreproc', 'downsample_layers.0', 'downsample_layers.1', 'downsample_layers.2', 'downsample_layers.3','stages.0.0.act', 'stages.0.1.act', 'stages.0.2.act','stages.1.0.act', 'stages.1.1.act', 'stages.1.2.act','stages.2.0.act', 'stages.2.1.act', 'stages.2.2.act', 'stages.2.3.act', 'stages.2.4.act', 'stages.2.5.act', 'stages.2.6.act', 'stages.2.7.act', 'stages.2.8.act','stages.3.0.act', 'stages.3.1.act', 'stages.3.2.act','head'] #ConvNeXt
     return ['downsample_layers.0', 'downsample_layers.1', 'downsample_layers.2', 'downsample_layers.3', 'stages.0.1.act', 'stages.1.1.act', 'stages.2.1.act', 'stages.2.3.act', 'stages.2.5.act', 'stages.2.7.act', 'stages.3.1.act', 'head'] #ConvNeXt
 

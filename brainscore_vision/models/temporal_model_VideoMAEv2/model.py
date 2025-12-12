@@ -8,7 +8,7 @@ from torchvision import transforms
 from videomae_v2 import *  # noqa: F401
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
-from brainscore_vision.model_helpers.s3 import load_weight_file
+from brainscore_core.supported_data_standards.brainio.s3 import load_weight_file
 
 
 LAYER_SELECT_STEP = 2

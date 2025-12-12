@@ -5,7 +5,7 @@ from importlib import import_module
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 from brainscore_vision.model_helpers.check_submission import check_models
 import ssl
-from brainscore_vision.model_helpers.s3 import load_weight_file
+from brainscore_core.supported_data_standards.brainio.s3 import load_weight_file
 
 ssl._create_default_https_context = ssl._create_unverified_context
 

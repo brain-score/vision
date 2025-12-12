@@ -9,7 +9,7 @@ from albumentations import (
     Compose, Normalize, Resize, CenterCrop
 )
 from albumentations.pytorch import ToTensorV2
-from brainscore_vision.model_helpers import load_weight_file
+from brainscore_core.supported_data_standards.brainio.s3 import load_weight_file
 from brainscore_vision.model_helpers.check_submission import check_models
 
 image_resize = 424

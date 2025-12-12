@@ -9,7 +9,7 @@ import numpy as np
 # from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
 import os
 import ssl
-from brainscore_vision.model_helpers.s3 import load_file
+from brainscore_core.supported_data_standards.brainio.s3 import load_file
 
 
 ssl._create_default_https_context = ssl._create_unverified_context

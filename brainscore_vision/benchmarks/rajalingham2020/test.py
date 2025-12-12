@@ -4,7 +4,7 @@ import pytest
 from pytest import approx
 
 from brainscore_vision.benchmark_helpers.test_helper import StandardizedTests, PrecomputedTests
-from brainscore_vision.data_helpers import s3
+from brainscore_core.supported_data_standards.brainio import s3
 
 standardized_tests = StandardizedTests()
 precomputed_test = PrecomputedTests()

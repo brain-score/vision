@@ -5,7 +5,7 @@ from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_
 import ssl
 from .helpers.hmax import HMAX
 from .helpers.pytorch import PytorchWrapper
-from brainscore_vision.model_helpers.s3 import load_weight_file
+from brainscore_core.supported_data_standards.brainio.s3 import load_weight_file
 
 
 ssl._create_default_https_context = ssl._create_unverified_context

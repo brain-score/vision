@@ -6,7 +6,7 @@ import functools
 import torch
 import os
 from torchvision.models import resnet50
-from brainscore_vision.model_helpers.s3 import load_weight_file
+from brainscore_core.supported_data_standards.brainio.s3 import load_weight_file
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 """

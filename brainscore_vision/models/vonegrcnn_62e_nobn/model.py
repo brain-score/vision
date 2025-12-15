@@ -3,7 +3,7 @@ import torch
 import functools
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
-from brainscore_vision.model_helpers.s3 import load_weight_file
+from brainscore_core.supported_data_standards.brainio.s3 import load_weight_file
 from .helpers.vongrcnn_helpers import VOneNet, grcnn55BackEnd
 import torch.nn as nn
 from collections import OrderedDict

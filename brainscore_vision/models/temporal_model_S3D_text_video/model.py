@@ -4,7 +4,7 @@ from torchvision import transforms
 from s3dg_howto100m import S3D
 
 from brainscore_vision.model_helpers.activations.temporal.model.pytorch import PytorchWrapper
-from brainscore_vision.model_helpers.s3 import load_weight_file
+from brainscore_core.supported_data_standards.brainio.s3 import load_weight_file
 
 
 img_transform = transforms.Compose([

@@ -120,7 +120,8 @@ class ActivationsExtractorHelper:
         return self._package(layer_activations=layer_activations, stimuli_paths=stimuli_paths, require_variance=require_variance)
 
     def _reduce_paths(self, stimuli_paths):
-        return list(set(stimuli_paths))
+        # remove duplicate path entries, preserving order
+        return list(dict.fromkeys(stimuli_paths))
 
     def _expand_paths(self, activations, original_paths):
         activations_paths = activations['stimulus_path'].values

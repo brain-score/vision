@@ -102,7 +102,11 @@ class ActivationsExtractorHelper:
             # store the reduced activations.
             reduced_paths = self._reduce_paths(stimuli_paths)
             activations = fnc(layers=layers, stimuli_paths=reduced_paths, require_variance=require_variance)
-            activations = self._expand_paths(activations, original_paths=stimuli_paths)
+            
+            # only expand paths if necessary
+            if (len(reduced_paths) != len(stimuli_paths)): 
+                self._logger.debug("Expanding stimulus paths")
+                activations = self._expand_paths(activations, original_paths=stimuli_paths)
         return activations
 
     @store_xarray(identifier_ignore=['stimuli_paths', 'layers'], combine_fields={'layers': 'layer'})

@@ -9,12 +9,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: alternative form choice
+            task: alternative_forced_choice
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: null
             pre_processing: null
@@ -37,12 +37,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: alternative form choice
+            task: alternative_forced_choice
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: null
             pre_processing: null

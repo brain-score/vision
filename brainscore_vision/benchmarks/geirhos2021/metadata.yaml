@@ -9,12 +9,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: engineering
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: engineering
             num_subjects: null
             pre_processing: null
@@ -37,12 +37,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: engineering
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: engineering
             num_subjects: null
             pre_processing: null
@@ -65,12 +65,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: engineering
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: engineering
             num_subjects: null
             pre_processing: null
@@ -93,12 +93,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: engineering
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: engineering
             num_subjects: null
             pre_processing: null
@@ -121,12 +121,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: engineering
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: engineering
             num_subjects: null
             pre_processing: null
@@ -149,12 +149,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: engineering
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: engineering
             num_subjects: null
             pre_processing: null
@@ -177,12 +177,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: engineering
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: engineering
             num_subjects: null
             pre_processing: null
@@ -205,12 +205,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: engineering
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: engineering
             num_subjects: null
             pre_processing: null
@@ -233,12 +233,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: engineering
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: engineering
             num_subjects: null
             pre_processing: null
@@ -261,12 +261,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: engineering
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: engineering
             num_subjects: null
             pre_processing: null
@@ -290,11 +290,11 @@ benchmarks:
         data:
             benchmark_type: engineering
             task: null
-            region: passive viewing
+            region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: engineering
             num_subjects: null
             pre_processing: null
@@ -317,12 +317,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: engineering
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: engineering
             num_subjects: null
             pre_processing: null
@@ -345,12 +345,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: engineering
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: engineering
             num_subjects: null
             pre_processing: null
@@ -373,12 +373,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: engineering
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: engineering
             num_subjects: null
             pre_processing: null
@@ -401,12 +401,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: engineering
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: engineering
             num_subjects: null
             pre_processing: null
@@ -429,12 +429,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: engineering
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: engineering
             num_subjects: null
             pre_processing: null
@@ -457,12 +457,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: engineering
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: engineering
             num_subjects: null
             pre_processing: null
@@ -485,12 +485,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 4
             pre_processing: null
@@ -513,12 +513,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 4
             pre_processing: null
@@ -541,12 +541,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 10
             pre_processing: null
@@ -569,12 +569,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 10
             pre_processing: null
@@ -597,12 +597,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 4
             pre_processing: null
@@ -625,12 +625,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 4
             pre_processing: null
@@ -653,12 +653,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 4
             pre_processing: null
@@ -681,12 +681,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 4
             pre_processing: null
@@ -709,12 +709,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 4
             pre_processing: null
@@ -737,12 +737,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 4
             pre_processing: null
@@ -765,12 +765,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 4
             pre_processing: null
@@ -793,12 +793,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 4
             pre_processing: null
@@ -821,12 +821,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 4
             pre_processing: null
@@ -849,12 +849,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 10
             pre_processing: null
@@ -877,12 +877,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 7
             pre_processing: null
@@ -905,12 +905,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 5
             pre_processing: null
@@ -933,12 +933,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: passive viewing
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 4
             pre_processing: null

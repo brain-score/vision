@@ -11,7 +11,7 @@ benchmarks:
             benchmark_type: behavioral
             task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 30
             pre_processing: null
@@ -36,7 +36,7 @@ benchmarks:
             benchmark_type: behavioral
             task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 29
             pre_processing: null
@@ -61,7 +61,7 @@ benchmarks:
             benchmark_type: behavioral
             task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 27
             pre_processing: null
@@ -86,7 +86,7 @@ benchmarks:
             benchmark_type: behavioral
             task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 30
             pre_processing: null
@@ -111,7 +111,7 @@ benchmarks:
             benchmark_type: behavioral
             task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 28
             pre_processing: null
@@ -136,7 +136,7 @@ benchmarks:
             benchmark_type: behavioral
             task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 29
             pre_processing: null
@@ -161,7 +161,7 @@ benchmarks:
             benchmark_type: behavioral
             task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 29
             pre_processing: null
@@ -186,7 +186,7 @@ benchmarks:
             benchmark_type: behavioral
             task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 27
             pre_processing: null
@@ -211,7 +211,7 @@ benchmarks:
             benchmark_type: behavioral
             task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 29
             pre_processing: null
@@ -236,7 +236,7 @@ benchmarks:
             benchmark_type: behavioral
             task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 28
             pre_processing: null
@@ -261,7 +261,7 @@ benchmarks:
             benchmark_type: behavioral
             task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 28
             pre_processing: null
@@ -286,7 +286,7 @@ benchmarks:
             benchmark_type: behavioral
             task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 30
             pre_processing: null
@@ -311,7 +311,7 @@ benchmarks:
             benchmark_type: behavioral
             task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 29
             pre_processing: null
@@ -336,7 +336,7 @@ benchmarks:
             benchmark_type: behavioral
             task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 30
             pre_processing: null

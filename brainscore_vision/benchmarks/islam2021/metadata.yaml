@@ -10,7 +10,7 @@ benchmarks:
         data:
             benchmark_type: neural
             task: alternative_forced_choice
-            region: null
+            region: IT
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
@@ -38,7 +38,7 @@ benchmarks:
         data:
             benchmark_type: neural
             task: alternative_forced_choice
-            region: null
+            region: V1
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
@@ -66,7 +66,7 @@ benchmarks:
         data:
             benchmark_type: neural
             task: alternative_forced_choice
-            region: null
+            region: V2
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
@@ -94,7 +94,7 @@ benchmarks:
         data:
             benchmark_type: neural
             task: alternative_forced_choice
-            region: null
+            region: V4
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
@@ -122,7 +122,7 @@ benchmarks:
         data:
             benchmark_type: neural
             task: alternative_forced_choice
-            region: null
+            region: IT
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
@@ -150,7 +150,7 @@ benchmarks:
         data:
             benchmark_type: neural
             task: alternative_forced_choice
-            region: null
+            region: V1
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
@@ -178,7 +178,7 @@ benchmarks:
         data:
             benchmark_type: neural
             task: alternative_forced_choice
-            region: null
+            region: V2
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
@@ -206,7 +206,7 @@ benchmarks:
         data:
             benchmark_type: neural
             task: alternative_forced_choice
-            region: null
+            region: V4
             hemisphere: null
             num_recording_sites: null
             duration_ms: null

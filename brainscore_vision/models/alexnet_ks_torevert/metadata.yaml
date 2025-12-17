@@ -7,8 +7,8 @@ models:
         total_layers: 24
         trainable_layers: 8
         model_size_mb: 244.4
-        training_dataset: ImageNet-2010, ImageNet2012
-        task_specialization: object_recgonition
+        training_dataset: ImageNet-1k
+        task_specialization: image_classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_ks_torevert
         huggingface_link: null
         extra_notes: null

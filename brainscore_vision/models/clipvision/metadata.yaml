@@ -7,7 +7,7 @@ models:
         total_layers: 153
         trainable_layers: 74
         model_size_mb: 349.82
-        training_dataset: ImageNet, ImageNet-22k
+        training_dataset: ImageNet-1k, ImageNet-22k
         task_specialization: image_classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/clipvision
         huggingface_link: null

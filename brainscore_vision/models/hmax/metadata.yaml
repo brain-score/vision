@@ -8,7 +8,7 @@ models:
         trainable_layers: 0
         model_size_mb: 5.53
         training_dataset: ImageNet-1k
-        task_specialization: Brain_alignment
+        task_specialization: brain_alignment
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/hmax
         huggingface_link: https://huggingface.co/hmax
         extra_notes: null

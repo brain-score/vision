@@ -7,7 +7,7 @@ models:
         total_layers: 151
         trainable_layers: 54
         model_size_mb: 102.23
-        training_dataset: ImageNet_2012
+        training_dataset: ImageNet-1k
         task_specialization: object_detection
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet50_vicregl0p75
         huggingface_link: null

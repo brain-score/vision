@@ -7,7 +7,7 @@ models:
         total_layers: 251
         trainable_layers: 86
         model_size_mb: 102.8
-        training_dataset: ImageNet, CIFAR-100
+        training_dataset: ImageNet-1k, CIFAR-100
         task_specialization: object_detection, class_activation_mapping, salient_object_detection
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/Res2Net50_26w_4s
         huggingface_link: null

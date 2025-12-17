@@ -7,7 +7,7 @@ models:
         total_layers: 318
         trainable_layers: 90
         model_size_mb: 22.31
-        training_dataset: ImageNet-1k, PyTorch
+        training_dataset: ImageNet-1k
         task_specialization: image_classification, object_detection, mobile_vision
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mobilevit_small
         huggingface_link: null

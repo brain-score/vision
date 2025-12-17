@@ -9,7 +9,7 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative form choice
             duration_ms: 200
             species: human
             datatype: behavioral
@@ -34,7 +34,7 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative form choice
             duration_ms: 200
             species: human
             datatype: behavioral
@@ -59,7 +59,7 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative form choice
             duration_ms: 200
             species: human
             datatype: behavioral
@@ -84,7 +84,7 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative form choice
             duration_ms: 200
             species: human
             datatype: behavioral
@@ -109,7 +109,7 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative form choice
             duration_ms: 200
             species: human
             datatype: behavioral
@@ -134,7 +134,7 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative form choice
             duration_ms: 200
             species: human
             datatype: behavioral
@@ -159,7 +159,7 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative form choice
             duration_ms: 200
             species: human
             datatype: behavioral
@@ -184,7 +184,7 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative form choice
             duration_ms: 200
             species: human
             datatype: behavioral
@@ -209,7 +209,7 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative form choice
             duration_ms: 200
             species: human
             datatype: behavioral
@@ -234,7 +234,7 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative form choice
             duration_ms: 200
             species: human
             datatype: behavioral
@@ -259,7 +259,7 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative form choice
             duration_ms: 200
             species: human
             datatype: behavioral
@@ -284,7 +284,7 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative form choice
             duration_ms: 200
             species: human
             datatype: behavioral
@@ -309,7 +309,7 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative form choice
             duration_ms: 200
             species: human
             datatype: behavioral
@@ -334,7 +334,7 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative form choice
             duration_ms: 200
             species: human
             datatype: behavioral

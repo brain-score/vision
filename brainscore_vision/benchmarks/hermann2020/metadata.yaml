@@ -9,7 +9,7 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavior
-            task: null
+            task: passive viewing
             region: null
             hemisphere: null
             num_recording_sites: null
@@ -37,7 +37,7 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavior
-            task: null
+            task: passive viewing
             region: null
             hemisphere: null
             num_recording_sites: null

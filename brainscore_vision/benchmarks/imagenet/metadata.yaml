@@ -9,12 +9,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: engineering
-            task: alternative form choice
+            task: null
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: computer
+            species: null
             datatype: engineering
             num_subjects: null
             pre_processing: null

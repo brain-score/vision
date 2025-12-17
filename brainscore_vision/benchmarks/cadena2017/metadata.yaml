@@ -9,7 +9,7 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: neural
-            task: null
+            task: passive viewing
             region: V1
             hemisphere: null
             num_recording_sites: null
@@ -37,12 +37,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: neural
-            task: null
+            task: passive viewing
             region: V1
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: macaque
             datatype: null
             num_subjects: null
             pre_processing: null

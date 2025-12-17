@@ -9,12 +9,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: neural
-            task: null
+            task: alternative form choice
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: computer
+            species: null
             datatype: null
             num_subjects: null
             pre_processing: null
@@ -37,8 +37,8 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: neural
-            task: null
-            region: V4
+            task: alternative form choice
+            region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
@@ -65,8 +65,8 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: neural
-            task: null
-            region: V2
+            task: alternative form choice
+            region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
@@ -93,8 +93,8 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: neural
-            task: null
-            region: V4
+            task: alternative form choice
+            region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
@@ -121,8 +121,8 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: neural
-            task: null
-            region: IT
+            task: alternative form choice
+            region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
@@ -149,8 +149,8 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: neural
-            task: null
-            region: V1
+            task: alternative form choice
+            region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
@@ -177,8 +177,8 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: neural
-            task: null
-            region: V2
+            task: alternative form choice
+            region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
@@ -205,8 +205,8 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: neural
-            task: null
-            region: V4
+            task: alternative form choice
+            region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null

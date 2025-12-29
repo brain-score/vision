@@ -1,8 +1,210 @@
 import os
 import numpy as np
+import pickle
 
 from brainscore_vision.model_helpers.brain_transformation.temporal import assembly_time_align
+from brainio.assemblies import DataAssembly
 
+
+# allow efficient fill_value for memmap
+class custom_memmap(np.memmap):
+    def __new__(subtype, filename, dtype=np.uint8, mode='r+', offset=0,
+                shape=None, order='C', fill_value=None):
+        # Import here to minimize 'import numpy' overhead
+        import mmap
+        import os.path
+        import struct
+        from numpy import ndarray
+
+        mode_equivalents = {
+            "readonly":"r",
+            "copyonwrite":"c",
+            "readwrite":"r+",
+            "write":"w+"
+        }
+
+        dtypedescr = np.dtype
+        valid_filemodes = ["r", "c", "r+", "w+"]
+        writeable_filemodes = ["r+", "w+"]
+
+        try:
+            mode = mode_equivalents[mode]
+        except KeyError as e:
+            if mode not in valid_filemodes:
+                raise ValueError(
+                    "mode must be one of {!r} (got {!r})"
+                    .format(valid_filemodes + list(mode_equivalents.keys()), mode)
+                ) from None
+
+        if mode == 'w+' and shape is None:
+            raise ValueError("shape must be given if mode == 'w+'")
+
+        def get_ctx(mode):
+            if hasattr(filename, 'read'):
+                f_ctx = nullcontext(filename)
+            else:
+                f_ctx = open(
+                    os.fspath(filename),
+                    ('r' if mode == 'c' else mode)+'b'
+                )
+            return f_ctx
+
+        with get_ctx(mode) as fid:
+            fid.seek(0, 2)
+            flen = fid.tell()
+            descr = dtypedescr(dtype)
+            _dbytes = descr.itemsize
+
+            if shape is None:
+                bytes = flen - offset
+                if bytes % _dbytes:
+                    raise ValueError("Size of available data is not a "
+                            "multiple of the data-type size.")
+                size = bytes // _dbytes
+                shape = (size,)
+            else:
+                if type(shape) not in (tuple, list):
+                    try:
+                        shape = [operator.index(shape)]
+                    except TypeError:
+                        pass
+                shape = tuple(shape)
+                size = np.intp(1)  # avoid default choice of np.int_, which might overflow
+                for k in shape:
+                    size *= k
+
+            bytes = int(offset + size*_dbytes)
+
+            if mode in ('w+', 'r+') and flen < bytes:
+                fid.seek(bytes - 1, 0)
+                fid.write(b'\0')
+                fid.flush()
+
+            if mode == 'w+' and fill_value is not None:
+                val = np.array(fill_value).astype(dtype).tobytes()
+                TARGET_BLOCK_SIZE = 1024 * 1024 * 10
+                # chunk writing
+                for i in range(0, bytes, TARGET_BLOCK_SIZE):
+                    with get_ctx(mode='r+') as _fid:
+                        _fid.seek(i)
+                        _fid.write(val * min(TARGET_BLOCK_SIZE, bytes - i))
+                        _fid.flush()
+
+            if mode == 'c':
+                acc = mmap.ACCESS_COPY
+            elif mode == 'r':
+                acc = mmap.ACCESS_READ
+            else:
+                acc = mmap.ACCESS_WRITE
+
+            start = offset - offset % mmap.ALLOCATIONGRANULARITY
+            bytes -= start
+            array_offset = offset - start
+            mm = mmap.mmap(fid.fileno(), bytes, access=acc, offset=start)
+
+            self = ndarray.__new__(subtype, shape, dtype=descr, buffer=mm,
+                                   offset=array_offset, order=order)
+            self._mmap = mm
+            self.offset = offset
+            self.mode = mode
+
+            if isinstance(filename, os.PathLike):
+                # special case - if we were constructed with a pathlib.path,
+                # then filename is a path object, not a string
+                self.filename = filename.resolve()
+            elif hasattr(fid, "name") and isinstance(fid.name, str):
+                # py3 returns int for TemporaryFile().name
+                self.filename = os.path.abspath(fid.name)
+            # same as memmap copies (e.g. memmap + 1)
+            else:
+                self.filename = None
+
+        return self
+
+
+# a map that write directly to the disk without loading into memory
+class data_assembly_mmap:
+    def __init__(self, filepath=None, **kwargs):
+        self.filepath = filepath
+        self.kwargs = kwargs
+        self._in_memory = filepath is None
+
+        if self._in_memory:
+            self._data = np.full(**kwargs)
+            self._created = True
+        else:
+            self._data = None
+            self._created = False
+            self.data_file = os.path.join(self.filepath, "data.npy")
+            self.meta_file = os.path.join(self.filepath, "meta.pkl")
+
+    def _open(self):
+        if self._in_memory:
+            return
+
+        if self._data is None:
+            kwargs = self.kwargs.copy()
+            fill_value = self.kwargs.get("fill_value", None)
+            if not self._created:
+                self._data = custom_memmap(self.data_file, mode='w+', **kwargs)
+                self._created = True
+            else:
+                self._data = custom_memmap(self.data_file, mode='r+', **kwargs)
+
+    def _close(self):
+        if self._data is not None:
+            self._data.flush()
+            del self._data
+            self._data = None
+
+    def __setitem__(self, key, value):
+        self._open()
+        self._data[key] = value
+        if not self._in_memory:
+            self._close()
+
+    def __getitem__(self, key):
+        self._open()
+        return self._data[key]
+
+    def register_meta(self, dims, coords):
+        self.coords = coords
+        self.dims = dims
+
+        if not self._in_memory:
+            with open(self.meta_file, 'wb') as f:
+                pickle.dump((dims, coords, self.kwargs), f)
+
+    def to_assembly(self):
+        self._open()
+        return DataAssembly(self._data, coords=self.coords, dims=self.dims)
+
+    @staticmethod
+    def is_saved(filepath):
+        data_file = os.path.join(filepath, "data.npy")
+        meta_file = os.path.join(filepath, "meta.pkl")
+        return os.path.exists(data_file) and os.path.exists(meta_file)
+
+    @staticmethod
+    def load(filepath):
+        if filepath is None:
+            return None
+
+        if not data_assembly_mmap.is_saved(filepath):
+            return None
+
+        meta_file = os.path.join(filepath, "meta.pkl")
+        with open(meta_file, 'rb') as f:
+            dims, coords, kwargs = pickle.load(f)
+
+        data = data_assembly_mmap(filepath, **kwargs)
+        data._created = True
+        data._open()
+        data.dims = dims
+        data.coords = coords
+
+        return data
+        
 
 def concat_with_nan_padding(arr_list, axis=0, dtype=np.float16):
     # Get shapes of all arrays

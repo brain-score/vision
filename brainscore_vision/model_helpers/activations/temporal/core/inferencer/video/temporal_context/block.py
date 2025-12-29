@@ -1,9 +1,11 @@
 import numpy as np
+import math
 from collections import OrderedDict
 from tqdm import tqdm
 
 from .base import TemporalContextInferencerBase
-from brainscore_vision.model_helpers.activations.temporal.utils import stack_with_nan_padding
+from brainscore_vision.model_helpers.activations.temporal.utils import stack_with_nan_padding, data_assembly_mmap
+from brainio.assemblies import NeuroidAssembly
 
 
 class BlockInferencer(TemporalContextInferencerBase):
@@ -18,60 +20,65 @@ class BlockInferencer(TemporalContextInferencerBase):
     If num_frames or duration is given, the model's temporal context will be set to match the two.
     """
     
-    def inference(self, stimuli, layers):
+    def __call__(self, paths, layers, mmap_path=None):
         _, context = self._compute_temporal_context()
-        self._time_ends = []
 
         if np.isinf(context):
-            # if the context is inf, pass the whole video directively
-            self._time_ends = [inp.duration for inp in stimuli]
-            layer_activations = super().inference(stimuli, layers)
-            layer_activations = OrderedDict([(layer, [[a] for a in activations]) 
-                                             for layer, activations in layer_activations.items()]) 
-                                             # make one-clip video activations
-        else:
-            num_clips = []
-            for stimulus in stimuli:
-                duration = stimulus.duration
-                videos = []
-                # for each stimulus, divide it into block clips with the specified context
-                for time_start in np.arange(0, duration, context):
-                    time_end = time_start + context
-                    clip = stimulus.set_window(time_start, time_end, padding=self.out_of_bound_strategy)
-                    videos.append(clip)
-                # record the actual time_end (which could be larger than the duration of the original video)
-                # so that we can align the time correctly when packaging the activations
-                self._time_ends.append(time_end)
-                self._executor.add_stimuli(videos)
-                num_clips.append(len(videos))  # record the number of clips for each video
+            return super().__call__(paths, layers, mmap_path)
 
-            activations = self._executor.execute(layers)
-            layer_activations = OrderedDict()
-            for layer in layers:
-                clip_start = 0
-                for num_clip in num_clips:
-                    # retrieve clips from a video by num_clip
-                    clips = activations[layer][clip_start:clip_start+num_clip]  # clips for this video
-                    layer_activations.setdefault(layer, []).append(clips)
-                    clip_start += num_clip
-    
-        # concat the activations from the clips of the same video
-        ret = OrderedDict()
-        for layer in layers:
-            activation_dims = self.layer_activation_format[layer]
-            for clips in layer_activations[layer]:
-                # make T the first dimension, as [T, ...] for easy concatenation
-                # the package_layer will change accordingly
-                if 'T' in activation_dims:
-                    time_index = activation_dims.index('T')
-                    clips = [np.moveaxis(a, time_index, 0) for a in clips]
-                    ret.setdefault(layer, []).append(np.concatenate(clips, axis=0))
+        EPS = 1e-6
+        stimuli = self.load_stimuli(paths)
+        num_stimuli = len(paths)
+        stimulus_paths = paths
+
+        num_blocks = []
+        num_time_bins = []
+        num_frames_per_block = None
+        t_offsets = []
+        stimulus_index = []
+        for s, stimulus in enumerate(stimuli):
+            duration = stimulus.duration
+            video_blocks = []
+            # for each stimulus, divide it into block clips with the specified context
+            # EPS makes sure the last block is not out-of-bound
+            for block_id, time_start in enumerate(np.arange(0, duration+EPS, context)):
+                time_end = time_start + context
+                clip = stimulus.set_window(time_start, time_end, padding=self.out_of_bound_strategy)
+                video_blocks.append(clip)
+                stimulus_index.append(s)
+                clip_num_samples = clip.set_fps(self.fps).num_frames
+                if num_frames_per_block is None:
+                    num_frames_per_block = clip_num_samples
                 else:
-                    ret.setdefault(layer, []).append(np.stack(clips, axis=0))
+                    assert num_frames_per_block == clip_num_samples, "All blocks must have the same number of frames."
+                t_offsets.append(block_id * num_frames_per_block)
+            self._executor.add_stimuli(video_blocks)
+            num_blocks.append(len(video_blocks))
+            num_time_bins.append(len(video_blocks) * num_frames_per_block)
 
-        return ret
-    
-    def package_layer(self, activations, layer_spec, stimuli):
-        layer_spec = "T" + layer_spec.replace('T', '')  # T has been moved to the first dimension
-        stimuli = [stimulus.set_window(0, time_end) for stimulus, time_end in zip(stimuli, self._time_ends)]
-        return super().package_layer(activations, layer_spec, stimuli) 
+        num_time_bins = max(num_time_bins)
+        time_bin_coords = self._get_time_bin_coords(num_time_bins, self.fps)
+
+        data = None
+        for temporal_layer_activations, indicies in self._executor.execute_batch(layers):
+            for temporal_layer_activation, i in zip(temporal_layer_activations, indicies):
+                s = stimulus_index[i]
+                # determine the time bin correspondence for each layer
+                for t, layer_activation in self._disect_time(temporal_layer_activation, num_frames_per_block):
+                    if data is None:
+                        num_feats, neuroid_coords = self._get_neuroid_coords(layer_activation, self._remove_T(self.layer_activation_format))
+                        data = data_assembly_mmap(mmap_path, shape=(num_stimuli, num_time_bins, num_feats), dtype=self.dtype, fill_value=np.nan)
+                    flatten_activation = self._flatten_activations(layer_activation)
+                    t = t_offsets[i] + t
+                    data[s, t, :] = flatten_activation
+
+        data.register_meta(
+            dims=["stimulus_path", "time_bin", "neuroid"],
+            coords={
+                "stimulus_path": stimulus_paths, 
+                **neuroid_coords,
+                **time_bin_coords,
+            }, 
+        )
+
+        return data.to_assembly()

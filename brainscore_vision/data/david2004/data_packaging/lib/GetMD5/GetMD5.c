@@ -142,7 +142,7 @@
 #  define MWSIZE_MAX MAX_int32_T
 #endif
 
-// Directive for endianess:
+// Directive for endianness:
 #if !defined(_LITTLE_ENDIAN) && !defined(_BIG_ENDIAN)
 #  define _LITTLE_ENDIAN
 #endif
@@ -645,7 +645,7 @@ void ArrayCore(MD5_CTX *context, const mxArray *V)
 // Core function to process structs: ===========================================
 void StructCore(MD5_CTX *context, const mxArray *V, mwSize nElem)
 {
-  // Sort field names alphabetically to avoid effects of teh order of fields.
+  // Sort field names alphabetically to avoid effects of the order of fields.
   const char *FieldName;
   int        nField, iField, FieldIndex;
   mwSize     iElem;

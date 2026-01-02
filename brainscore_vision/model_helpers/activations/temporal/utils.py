@@ -118,7 +118,7 @@ def proportional_average_pooling_(arr, size):
     return ret.astype(arr.dtype)
 
 
-# cv2 has the wierd bug of cannot handling too large channel size
+# cv2 has the weird bug of cannot handling too large channel size
 def cv2_resize(arr, size, mode, batch_size=4):
     # arr [H, W, C]
     import cv2
@@ -185,7 +185,7 @@ def get_specified_layers(any_model):
     return list(inferencer.layer_activation_format.keys())
 
 # switch the inferencer at any level
-# specify key='same' to retrive the same parameter from the original inferencer
+# specify key='same' to retrieve the same parameter from the original inferencer
 def switch_inferencer(any_model, new_inferencer_cls, **kwargs):
     inferencer = get_inferencer(any_model)
     base_model = get_base_model(any_model)

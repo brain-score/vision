@@ -11,6 +11,7 @@ from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_
 # Please load your pytorch model for usage in CPU. There won't be GPUs available for scoring your model.
 # If the model requires a GPU, contact the brain-score team directly.
 
+# just a sample change
 
 def get_model(name):
     assert name == 'resnet50_tutorial'

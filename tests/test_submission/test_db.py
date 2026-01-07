@@ -7,6 +7,7 @@ from brainscore_core.submission.database_models import (
     Model,
     User,
     clear_schema,
+    Submission
 )
 
 
@@ -18,21 +19,28 @@ def init_user():
 
 
 def init_benchmark_parents():
-    BenchmarkType.create(identifier='average_vision', order=0, owner_id=2)
-
-    BenchmarkType.create(identifier='behavior', parent='average_vision', order=1, owner_id=2)
-
-    BenchmarkType.create(identifier='neural_vision', parent='average_vision', order=0, owner_id=2)
-    BenchmarkType.create(identifier='V1', parent='neural_vision', order=0, owner_id=2)
-    BenchmarkType.create(identifier='V2', parent='neural_vision', order=1, owner_id=2)
-    BenchmarkType.create(identifier='V4', parent='neural_vision', order=2, owner_id=2)
-    BenchmarkType.create(identifier='IT', parent='neural_vision', order=3, owner_id=2)
+    BenchmarkType.create(identifier='average_vision', order=0, owner_id=2, domain ="vision")
+    BenchmarkType.create(identifier='behavior', parent='average_vision', order=1, owner_id=2, domain ="vision")
+    BenchmarkType.create(identifier='neural_vision', parent='average_vision', order=0, owner_id=2, domain ="vision")
+    BenchmarkType.create(identifier='V1', parent='neural_vision', order=0, owner_id=2, domain ="vision")
+    BenchmarkType.create(identifier='V2', parent='neural_vision', order=1, owner_id=2, domain ="vision")
+    BenchmarkType.create(identifier='V4', parent='neural_vision', order=2, owner_id=2, domain ="vision")
+    BenchmarkType.create(identifier='IT', parent='neural_vision', order=3, owner_id=2, domain ="vision")
 
 
 def init_models():
-    Model.create(name='dummy_model_1', owner=1, public=True)
-    Model.create(name='dummy_model_2', owner=2, public=True)
-    Model.create(name='dummy_model_3', owner=1, public=True)
+    
+    # Create a test submission
+    submission = Submission.create(
+        jenkins_id=1, 
+        submitter_id=1, 
+        model_type='artificialsubject',
+        status='successful'
+    )
+    
+    Model.create(name='dummy_model_1', owner=1, public=True, domain='vision', submission=submission)
+    Model.create(name='dummy_model_2', owner=2, public=True, domain='vision', submission=submission)
+    Model.create(name='dummy_model_3', owner=1, public=True, domain='vision', submission=submission)
 
 
 @pytest.mark.memory_intense

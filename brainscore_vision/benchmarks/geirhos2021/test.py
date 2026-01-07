@@ -8,7 +8,7 @@ from brainscore_core.supported_data_standards.brainio.assemblies import Behavior
 from brainscore_vision import benchmark_registry, load_benchmark
 from brainscore_vision.benchmark_helpers import PrecomputedFeatures
 from brainscore_vision.benchmarks.geirhos2021.benchmark import DATASETS, cast_coordinate_type
-from brainscore_vision.data_helpers import s3
+from brainscore_core.supported_data_standards.brainio import s3
 
 
 @pytest.mark.parametrize('benchmark', [

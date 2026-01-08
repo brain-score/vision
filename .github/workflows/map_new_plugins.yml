@@ -28,7 +28,7 @@ jobs:
       - name: Check if both Jenkins jobs are successful
         id: check_jenkins_jobs
         run: |
-          required_checks=("Brain-Score Plugins Unit tests (AWS Jenkins, AWS Execution)" "Brain-Score Non-Plugin Unit tests (AWS Jenkins, AWS Execution)")
+          required_checks=("Vision Unittests, Plugins" "Vision Unittests, Non-Plugins")
           completed_checks=0
           all_checks_passed=true
 

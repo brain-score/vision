@@ -1,4 +1,3 @@
-import os
 import functools
 import json
 from pathlib import Path
@@ -65,13 +64,7 @@ def get_model(model_id:str):
     model_name = config["model_name"]
     model_id = config["model_id"]
     timm_model_name = config["timm_model_name"]
-    is_vit = config["is_vit"]
     
-    # Temporary fix for vit models
-    # See https://github.com/brain-score/vision/pull/1232
-    if is_vit:
-        os.environ['RESULTCACHING_DISABLE'] = 'brainscore_vision.model_helpers.activations.core.ActivationsExtractorHelper._from_paths_stored'
-
     
     # Initialize model
     model = timm.create_model(timm_model_name, pretrained=True)

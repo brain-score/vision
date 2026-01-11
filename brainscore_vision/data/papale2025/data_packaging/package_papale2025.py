@@ -23,8 +23,8 @@ import mat73
 # test stimuli: 3000 presentations (100 images x 30 repetitions)
 # time bins: 1 (we take the averaged MUA provided by the authors)
 # 
-# this packaging script provides the option to filter for reliable voxels based on electrode reliability
-# on brainscore we uploaded all voxels to give reasearchers maximum flixibility
+# this packaging script provides the option to filter for reliable electrodes based on electrode reliability
+# on brainscore we uploaded all electrodes to give reasearchers maximum flexibility
 # 
 # 
 # ATTENTION: The stimuli where packaged at 500x500 pixel resolution as they were shown in the original experiment.

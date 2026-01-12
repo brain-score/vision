@@ -5,7 +5,7 @@ name: Perform layer mapping
 
 on:
   status:
-  pull_request:
+  pull_request_target:
     types: [labeled, synchronize]
 
 jobs:
@@ -61,11 +61,13 @@ jobs:
     needs: check_jenkins_jobs
     if: ${{ needs.check_jenkins_jobs.outputs.all_checks_passed == 'true' }}
     steps:
-      # Check out PR head
-      - name: Check out repository code
+      # SECURITY: Checkout BASE branch (not PR branch) to ensure we run trusted code.
+      # We use pull_request_target for secrets access with forked PRs, so we must not
+      # execute any code from the PR. The PR's changed files are obtained via GitHub API.
+      - name: Check out base repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ github.base_ref }}
           fetch-depth: 0
 
       # Set up Python 3.11 because we are using some brainscore_core functions

@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import numpy as np
-from brainscore_vision.model_helpers.s3 import load_weight_file, sha1_hash
+from brainscore_core.supported_data_standards.brainio.s3 import load_weight_file, sha1_hash
 from brainscore_vision.model_helpers.check_submission import check_models
 import functools
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper

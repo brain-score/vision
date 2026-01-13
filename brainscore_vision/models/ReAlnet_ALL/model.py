@@ -4,11 +4,11 @@ from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_
 from brainscore_vision.model_helpers.check_submission import check_models
 import torch.hub
 import ssl
-from brainscore_vision.model_helpers.s3 import load_weight_file
+from brainscore_core.supported_data_standards.brainio.s3 import load_weight_file
 from torch.nn import Module
 from .helpers.helpers import TemporalPytorchWrapper
 from pathlib import Path
-from brainscore_vision.model_helpers.s3 import load_file
+from brainscore_core.supported_data_standards.brainio.s3 import load_file
 import json
 import os
 

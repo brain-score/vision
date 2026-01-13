@@ -4,7 +4,7 @@ from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_
 import functools
 import torch
 import os
-from brainscore_vision.model_helpers.s3 import load_weight_file
+from brainscore_core.supported_data_standards.brainio.s3 import load_weight_file
 from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
 from .helpers.resnet import resnet50
 

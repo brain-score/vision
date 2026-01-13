@@ -5,7 +5,7 @@ from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_
 from robustness.model_utils import DummyModel
 from robustness.attacker import AttackerModel
 from robustness.datasets import DATASETS
-from brainscore_vision.model_helpers.s3 import load_weight_file
+from brainscore_core.supported_data_standards.brainio.s3 import load_weight_file
 from brainscore_vision.model_helpers.check_submission import check_models
 import torch as ch
 import os

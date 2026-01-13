@@ -52,7 +52,7 @@ def _Papale2025(region,
 											average_repetitions=False, 
 											reliability_threshold=rt))
 	return TrainTestNeuralBenchmark(identifier=f'Papale2025.{region}-{identifier_metric_suffix}',
-	                          version=2,
+	                          version=3,
 	                          ceiling_func=lambda: ceiler(test_assembly_repetition),
 	                          train_assembly=train_assembly,
 	                          test_assembly=test_assembly,

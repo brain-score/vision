@@ -39,7 +39,7 @@ class Coggan2024_behavior_ConditionWiseAccuracySimilarity(BenchmarkBase):
         self._ceiling_func = lambda assembly: get_noise_ceiling(assembly)
         super(Coggan2024_behavior_ConditionWiseAccuracySimilarity, self).__init__(
             identifier='tong.Coggan2024_behavior-ConditionWiseAccuracySimilarity',
-            version=1,
+            version=2,
             ceiling_func=lambda df: get_noise_ceiling(df),
             parent='behavior',
             bibtex=BIBTEX,

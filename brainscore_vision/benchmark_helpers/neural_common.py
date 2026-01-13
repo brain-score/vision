@@ -200,12 +200,9 @@ def timebins_from_assembly(assembly):
 
 
 def explained_variance(score: Score, ceiling: Score) -> Score:
-    # ro(X, Y)
-    # = (r(X, Y) / sqrt(r(X, X) * r(Y, Y)))^2
-    # = (r(X, Y) / sqrt(r(Y, Y) * r(Y, Y)))^2  # assuming that r(Y, Y) ~ r(X, X) following Yamins 2014
-    # = (r(X, Y) / r(Y, Y))^2
-    r_square = np.power(score.values /
-                        ceiling.values, 2)
+    # Note: ceiling here is the split-half reliability r(Y, Y), which bounds model explained variance.
+    # Thus, model-to-ceiling normalization first requires bringing score (r) into r^2 before dividing it by the ceiling (see https://osf.io/preprints/psyarxiv/gjk45).
+    r_square = np.power(score.values, 2) / ceiling.values
     ceiled_score = Score(r_square)
     if 'error' in score.attrs:
         ceiled_score.attrs['error'] = score.attrs['error']

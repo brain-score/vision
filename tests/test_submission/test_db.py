@@ -35,7 +35,8 @@ def init_models():
         jenkins_id=1, 
         submitter_id=1, 
         model_type='artificialsubject',
-        status='successful'
+        status='successful',
+        timestamp=datetime.now()
     )
     
     Model.create(name='dummy_model_1', owner=1, public=True, domain='vision', submission=submission)
@@ -45,7 +46,7 @@ def init_models():
 
 @pytest.mark.memory_intense
 @pytest.mark.private_access
-@pytest.mark.parametrize('database', ['brainscore-ohio-test'])  # test database
+@pytest.mark.parametrize('database', ['brainscore-ohio-test-migrated'])  # test database
 def test_db(database):
     connect_db(database)
     clear_schema()

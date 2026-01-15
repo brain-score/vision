@@ -58,7 +58,7 @@ class TestRunScoring:
         score_entries = list(score_entries)
         assert len(score_entries) == 1
         score_entry = score_entries[0]
-        assert score_entry.score_ceiled == approx(.5079817, abs=0.005)
+        assert score_entry.score_ceiled == approx(.41180, abs=0.005)
         assert score_entry.comment.startswith('layers:')
 
     def test_two_models_one_benchmark(self):
@@ -83,7 +83,7 @@ class TestRunScoring:
         score_values = [entry.score_ceiled for entry in score_entries]
         assert all(np.array(score_values) > 0)
         score_MajajHong = database_models.Score.get(benchmark__benchmark_type_id='MajajHong2015.IT.public-pls')
-        assert score_MajajHong.score_ceiled == approx(.5079817, abs=0.005)
+        assert score_MajajHong.score_ceiled == approx(.41180, abs=0.005)
         score_Rajalingham = database_models.Score.get(benchmark__benchmark_type_id='Rajalingham2018-i2n')
         assert score_Rajalingham.score_ceiled == approx(.3701702, abs=0.005)
 

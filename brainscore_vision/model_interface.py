@@ -120,28 +120,28 @@ class BrainModel:
 
         odd_one_out = 'odd_one_out'
         """
-        Predict the odd-one-out elements for a list of triplets of stimuli. 
+        Predict the odd-one-out elements for a list of triplets of stimuli.
 
-        The model must be supplied with a list of stimuli where every three consecutive stimuli 
-        are considered to form a triplet. The model is expected to output a one-dimensional 
-        assembly with each value corresponding to the index (`0`, `1`, or `2`) of the triplet 
+        The model must be supplied with a list of stimuli where every three consecutive stimuli
+        are considered to form a triplet. The model is expected to output a one-dimensional
+        assembly with each value corresponding to the index (`0`, `1`, or `2`) of the triplet
         element that is different from the other two.
-        
+
         Output a :class:`~brainio.assemblies.BehavioralAssembly` with the choices as the values.
-        
+
         Example:
 
         Setting up an odd-one-out task for a list of triplets with `start_task(BrainModel.Task.odd_one_out)` and calling
 
         .. code-block:: python
-        
-            look_at(['image1.png', 'image2.png', 'image3.png',    #triplet 1 
-                     'image1.png', 'image2.png', 'image4.png',    #triplet 2 
+
+            look_at(['image1.png', 'image2.png', 'image3.png',    #triplet 1
+                     'image1.png', 'image2.png', 'image4.png',    #triplet 2
                      'image2.png', 'image3.png', 'image4.png',    #triplet 3
                      ...
-                     'image4.png', 'image8.png', 'image10.png'])  #triplet 50 
+                     'image4.png', 'image8.png', 'image10.png'])  #triplet 50
 
-        with 50 triplet trials and 10 unique stimuli could output 
+        with 50 triplet trials and 10 unique stimuli could output
 
         .. code-block:: python
 
@@ -151,6 +151,47 @@ class BrainModel:
                   * presentation  (presentation) MultiIndex
                   - stimulus_id   (presentation) ['image1', 'image2', 'image3'], ..., , ['image4', 'image8', 'image10']
                   - stimulus_path (presentation) object '/home/me/.brainio/demo_stimuli/image1.png' ...
+        """
+
+        match_to_sample = 'match_to_sample'
+        """
+        Select which of N choice stimuli matches a sample stimulus.
+
+        This task is designed for temporal (video/animated) stimuli where the matching criterion
+        may depend on dynamic properties (e.g., motion direction). Static image models are not
+        supported and will raise an error.
+
+        Stimulus Structure:
+            The stimulus set must contain trials where each trial has:
+            - One sample stimulus (the reference to match against)
+            - N choice stimuli (the options to select from)
+
+            Trials are encoded via a `trial_id` column, and stimuli within a trial are
+            distinguished by a `stimulus_role` column with values `sample` or `choice`.
+            Choices are ordered by a `choice_index` column (0-indexed).
+
+        Expected Output:
+            A :class:`~brainio.assemblies.BehavioralAssembly` with one choice index per trial,
+            indicating which choice (0-indexed) the model selected as matching the sample.
+
+        Temporal Requirement:
+            This task requires models that produce temporal representations (i.e., models that
+            process video/animated stimuli and output time-varying activations). The model's
+            final-timestep representation is used for similarity comparison.
+
+        Example:
+
+        Setting up a match-to-sample task with `start_task(BrainModel.Task.match_to_sample)`
+        and calling `look_at(...)` on a stimulus set with 20 trials (each with 1 sample + 3 choices)
+        could output:
+
+        .. code-block:: python
+
+           <xarray.BehavioralAssembly (presentation: 20, choice: 1)>
+                array([[2], [0], [1], ..., [2]])  # index of chosen match per trial (0, 1, or 2 for 3 choices)
+                Coordinates:
+                  * presentation  (presentation) MultiIndex
+                  - trial_id      (presentation) object 'trial_0' 'trial_1' ... 'trial_19'
         """
 
     def start_task(self, task: Task, fitting_stimuli) -> None:

@@ -346,3 +346,163 @@ class OddOneOut(BrainModel):
             idx = triplet[2 - np.argmax(sims)]
             choice_predictions.append(idx)
         return choice_predictions
+
+
+class TemporalMatchToSample(BrainModel):
+    """
+    Match-to-sample task handler for temporal stimuli.
+
+    Processes a sample stimulus and N choice stimuli per trial, selects the choice
+    whose representation is most similar to the sample's representation.
+
+    Uses final-timestep readout: after the model processes the full temporal
+    sequence, the representation at the last timestep is used for comparison.
+
+    This task requires temporal models (models that produce time-varying activations).
+    Static image models are not supported.
+    """
+
+    def __init__(self, identifier: str, activations_model, layer: Union[str, List[str]],
+                 similarity_measure: str = 'cosine'):
+        """
+        :param identifier: a string to identify the model
+        :param activations_model: the model from which to retrieve representations for stimuli.
+            Must be a temporal model that produces activations with a time_bin dimension.
+        :param layer: the single behavioral readout layer or a list of layers to read out of.
+        :param similarity_measure: 'cosine' or 'dot' for comparing representations.
+        """
+        self._identifier = identifier
+        self.activations_model = activations_model
+        self.readout = make_list(layer)
+        self.current_task = BrainModel.Task.match_to_sample
+        self.similarity_measure = similarity_measure
+
+    @property
+    def identifier(self):
+        return self._identifier
+
+    def start_task(self, task: BrainModel.Task):
+        assert task == BrainModel.Task.match_to_sample
+        self.current_task = task
+
+    def look_at(self, stimuli, number_of_trials: int = 1, require_variance: bool = False):
+        """
+        Process stimuli organized into match-to-sample trials and return model choices.
+
+        :param stimuli: A StimulusSet with columns:
+            - trial_id: identifies which trial each stimulus belongs to
+            - stimulus_role: 'sample' or 'choice'
+            - choice_index: 0-indexed ordering for choices within a trial
+            - stimulus_path: path to the stimulus file (video/image)
+        :param number_of_trials: number of repeated trials (for stochastic models)
+        :param require_variance: whether to require variance in activations
+        :return: BehavioralAssembly with chosen indices per trial
+        """
+        # Validate required columns
+        required_columns = ['trial_id', 'stimulus_role', 'choice_index']
+        for col in required_columns:
+            if col not in stimuli.columns:
+                raise ValueError(f"Stimulus set missing required column: '{col}'. "
+                                 f"match_to_sample task requires: {required_columns}")
+
+        # Get unique stimuli and extract features
+        unique_stimuli = stimuli.drop_duplicates(subset=['stimulus_id'])
+        unique_stimuli = unique_stimuli.sort_values(by='stimulus_id')
+
+        features = self.activations_model(unique_stimuli, layers=self.readout,
+                                          require_variance=require_variance)
+
+        # Validate temporal model output
+        if 'time_bin' not in features.dims:
+            raise ValueError(
+                "TemporalMatchToSample requires a temporal model that produces activations "
+                "with a 'time_bin' dimension. The provided model appears to be a static model. "
+                "Use a temporal model or a different task type for static stimuli."
+            )
+
+        # Extract final timestep representation for each stimulus
+        features = self._extract_final_timestep(features)
+        features = features.transpose('presentation', 'neuroid')
+
+        # Build stimulus_id to feature vector mapping
+        stimulus_to_features = self._build_feature_index(features)
+
+        # Process each trial
+        trial_ids = stimuli['trial_id'].unique()
+        choice_predictions = []
+
+        for trial_id in trial_ids:
+            trial_stimuli = stimuli[stimuli['trial_id'] == trial_id]
+
+            # Get sample stimulus
+            sample_rows = trial_stimuli[trial_stimuli['stimulus_role'] == 'sample']
+            if len(sample_rows) != 1:
+                raise ValueError(f"Trial '{trial_id}' must have exactly one sample stimulus, "
+                                 f"found {len(sample_rows)}")
+            sample_id = sample_rows.iloc[0]['stimulus_id']
+            sample_features = stimulus_to_features[sample_id]
+
+            # Get choice stimuli (sorted by choice_index)
+            choice_rows = trial_stimuli[trial_stimuli['stimulus_role'] == 'choice']
+            choice_rows = choice_rows.sort_values(by='choice_index')
+            if len(choice_rows) < 2:
+                raise ValueError(f"Trial '{trial_id}' must have at least 2 choices, "
+                                 f"found {len(choice_rows)}")
+
+            # Compute similarity between sample and each choice
+            similarities = []
+            for _, choice_row in choice_rows.iterrows():
+                choice_id = choice_row['stimulus_id']
+                choice_features = stimulus_to_features[choice_id]
+                sim = self._compute_similarity(sample_features, choice_features)
+                similarities.append(sim)
+
+            # Select the choice with highest similarity
+            chosen_index = int(np.argmax(similarities))
+            choice_predictions.append(chosen_index)
+
+        # Package results
+        choices = BehavioralAssembly(
+            [choice_predictions],
+            coords={'trial_id': ('presentation', list(trial_ids))},
+            dims=['choice', 'presentation']
+        )
+
+        return choices
+
+    def _extract_final_timestep(self, features):
+        """Extract the representation from the final timestep."""
+        # Get the last time bin
+        features = features.isel(time_bin=-1)
+        return features
+
+    def _build_feature_index(self, features):
+        """Build a mapping from stimulus_id to feature vector."""
+        stimulus_to_features = {}
+        # The stimulus_ids are stored in the presentation dimension values
+        stimulus_ids = features.presentation.values
+        for i, stimulus_id in enumerate(stimulus_ids):
+            stimulus_to_features[stimulus_id] = features.isel(presentation=i).values
+        return stimulus_to_features
+
+    def _compute_similarity(self, features_a, features_b):
+        """Compute similarity between two feature vectors."""
+        if self.similarity_measure == 'cosine':
+            norm_a = np.linalg.norm(features_a)
+            norm_b = np.linalg.norm(features_b)
+            if norm_a == 0 or norm_b == 0:
+                return 0.0
+            return np.dot(features_a, features_b) / (norm_a * norm_b)
+        elif self.similarity_measure == 'dot':
+            return np.dot(features_a, features_b)
+        else:
+            raise ValueError(
+                f"Unknown similarity_measure '{self.similarity_measure}' -- "
+                f"expected one of 'cosine' or 'dot'"
+            )
+
+    def set_similarity_measure(self, similarity_measure: str):
+        """Set the similarity measure used for comparing representations."""
+        if similarity_measure not in ['cosine', 'dot']:
+            raise ValueError(f"similarity_measure must be 'cosine' or 'dot', got '{similarity_measure}'")
+        self.similarity_measure = similarity_measure

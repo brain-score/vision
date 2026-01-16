@@ -112,11 +112,10 @@ def get_score(source_rsm: NeuroidAssembly, target_rsm: NeuroidAssembly) -> Score
 
 
 def ceiler(score: Score, ceiling: Score) -> Score:
-    # ro(X, Y)
-    # = (r(X, Y) / sqrt(r(X, X) * r(Y, Y)))^2
-    # = (r(X, Y) / sqrt(r(Y, Y) * r(Y, Y)))^2  # assuming that r(Y, Y) ~ r(X, X) following Yamins 2014
-    # = (r(X, Y) / r(Y, Y))^2
-    r_square = np.power(score.values / ceiling.values, 2)
+    # Note: ceiling here is the split-half reliability r(Y, Y), which bounds model explained variance.
+    # Thus, model-to-ceiling normalization first requires bringing score (r) into r^2 before dividing it by the ceiling (see https://osf.io/preprints/psyarxiv/gjk45).
+    # See vision: #2169
+    r_square = np.power(score.values, 2) / ceiling.values
     ceiled_score = Score(r_square)
     if 'error' in score.attrs:
         ceiled_score.attrs['error'] = score.attrs['error']
@@ -176,7 +175,7 @@ def _Coggan2024_Region(region: str):
     assembly['region'] = ('subject', [region] * len(assembly['subject']))
     benchmark = Coggan2024_fMRI_Benchmark(
         identifier=f'tong.Coggan2024_fMRI.{region}-rdm',
-        version=1,
+        version=2,
         assembly=assembly,
         visual_degrees=9,
         ceiling_func=get_ceiling,

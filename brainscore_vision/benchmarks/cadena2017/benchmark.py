@@ -54,7 +54,7 @@ def ToliasCadena2017Mask():
     similarity_metric = load_metric('mask_regression',
                                     crossvalidation_kwargs={'splits': 4, 'stratification_coord': None})
     ceiler = load_ceiling('internal_consistency', split_coord='repetition_id')
-    return NeuralBenchmark(identifier='tolias.Cadena2017-mask', version=1,
+    return NeuralBenchmark(identifier='tolias.Cadena2017-mask', version=2,
                            assembly=assembly, similarity_metric=similarity_metric,
                            visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
                            parent='V1', bibtex=BIBTEX,

@@ -6,7 +6,7 @@ from mae_st.util import misc
 from mae_st.util.pos_embed import interpolate_pos_embed
 
 from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
-from brainscore_vision.model_helpers.s3 import load_weight_file
+from brainscore_core.supported_data_standards.brainio.s3 import load_weight_file
 
 
 def vit_huge_patch16(**kwargs):

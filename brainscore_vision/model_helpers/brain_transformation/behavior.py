@@ -480,8 +480,12 @@ class TemporalMatchToSample(BrainModel):
         """Build a mapping from stimulus_id to feature vector."""
         stimulus_to_features = {}
         # The stimulus_ids are stored in the presentation dimension values
+        # Models may return tuples like ('stimulus_id',) due to multi-index
         stimulus_ids = features.presentation.values
         for i, stimulus_id in enumerate(stimulus_ids):
+            # Handle both tuple (from real models) and string (from mock models)
+            if isinstance(stimulus_id, tuple):
+                stimulus_id = stimulus_id[0]
             stimulus_to_features[stimulus_id] = features.isel(presentation=i).values
         return stimulus_to_features
 

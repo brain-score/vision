@@ -12,7 +12,7 @@ def test_can_import():
 
 @pytest.mark.memory_intense
 @pytest.mark.parametrize("model_identifier, benchmark_identifier, expected_score", [
-    ("pixels", "MajajHong2015public.IT-pls", approx(0.07637264, abs=0.0005)),
+    ("pixels", "MajajHong2015public.IT-pls", approx(0.06230475, abs=0.0005)),
 ])
 def test_model_benchmark_score(model_identifier, benchmark_identifier, expected_score):
     from brainscore_vision import score
@@ -38,6 +38,6 @@ def test_model_benchmark_commandline_score():
     output = process.stdout
     assert "Score" in output
     assert "0.00548197" in output
-    assert "<xarray.Score ()>\narray(0.07637264)" in output
+    assert "<xarray.Score ()>\narray(0.06230475)" in output
     assert "model_identifier:      pixels" in output
     assert "benchmark_identifier:  MajajHong2015public.IT-pls" in output

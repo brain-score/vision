@@ -3,7 +3,7 @@ import numpy as np
 import pickle
 
 from brainscore_vision.model_helpers.brain_transformation.temporal import assembly_time_align
-from brainio.assemblies import DataAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import DataAssembly
 
 
 # allow efficient fill_value for memmap

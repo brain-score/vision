@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 from .base import TemporalContextInferencerBase
 from brainscore_vision.model_helpers.activations.temporal.utils import stack_with_nan_padding, data_assembly_mmap
-from brainio.assemblies import NeuroidAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly
 
 
 class BlockInferencer(TemporalContextInferencerBase):

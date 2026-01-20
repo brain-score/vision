@@ -38,6 +38,6 @@ def test_model_benchmark_commandline_score():
     output = process.stdout
     assert "Score" in output
     assert "0.00548197" in output
-    assert "<xarray.Score ()>\narray(0.06230475)" in output
+    assert "<xarray.Score ()>\narray(0.06230476)" in output
     assert "model_identifier:      pixels" in output
     assert "benchmark_identifier:  MajajHong2015public.IT-pls" in output

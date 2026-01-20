@@ -7,8 +7,8 @@ models:
         total_layers: 171
         trainable_layers: 54
         model_size_mb: 112.62
-        training_dataset: null
-        task_specialization: null
+        training_dataset: Tiny_ImageNet
+        task_specialization: brain_alignment
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/evresnet_50_4_no_mapping
         huggingface_link: null
         extra_notes: null

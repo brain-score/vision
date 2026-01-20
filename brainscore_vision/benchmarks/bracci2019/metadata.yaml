@@ -14,7 +14,7 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: null
             num_subjects: 12
             pre_processing: null

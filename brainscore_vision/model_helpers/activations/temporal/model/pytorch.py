@@ -78,14 +78,10 @@ class PytorchWrapper(ActivationWrapper):
             module = module._modules[next(reversed(module._modules))]
         return module
 
-    @classmethod
-    def _tensor_to_numpy(cls, output):
-        return output.cpu().data.numpy()
-
     def _register_hook(self, layer, layer_name, target_dict):
         def hook_function(_layer, _input, output, name=layer_name, target_dict=target_dict):
             output = self._process_activation(_layer, name, _input, output)
-            target_dict[name] = PytorchWrapper._tensor_to_numpy(output)
+            target_dict[name] = output
 
         hook = layer.register_forward_hook(hook_function)
         return hook

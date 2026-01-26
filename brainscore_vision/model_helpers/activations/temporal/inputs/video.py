@@ -1,5 +1,5 @@
+import os
 import cv2
-from decord import VideoReader
 import numpy as np
 from PIL import Image as PILImage
 from typing import Tuple, Union
@@ -13,6 +13,7 @@ from brainscore_vision.model_helpers.activations.temporal.utils import batch_2d_
 EPS = 1e-9  
 
 def get_video_stats(video_path):
+    assert os.path.exists(video_path), f"Video file {video_path} does not exist."
     cap = cv2.VideoCapture(video_path)
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -111,12 +112,62 @@ class Video(Stimulus):
         video._start = self._start + start
         video._end = self._start + end
         return video
-    
-    def get_frames(self, indices):
-        reader = VideoReader(self._path)
-        frames = reader.get_batch(indices).asnumpy()
-        del reader
+
+    def _check_indices_ascending(self, indices):
+        if len(indices) == 0:
+            return False
+        if len(indices) == 1:
+            return True
+        for i in range(1, len(indices)):
+            if indices[i] < indices[i-1]:
+                return False
+        return True
+
+    def _sanitize_frames(self, frames, tol=0.01):
+        # check if the read frames are valid
+        # if some last frames are invalid, just copy the last valid frame
+        # default tolerance: 0.01 of the total duration
+        num_invalid = sum([f is None for f in frames])
+        if num_invalid == len(frames): raise ValueError("No valid frames.")
+        for i in range(num_invalid): assert frames[-1-i] is None, "Invalid frames are not at the end."
+        if num_invalid > int(self._original_duration / 1000 * self._fps * tol): raise ValueError("Too many invalid frames.")
+        if num_invalid > 0: 
+            for i in range(num_invalid):
+                frames[-1-i] = frames[-1-num_invalid]
+            print(f"Warning: last {num_invalid} frames are invalid.")
         return frames
+
+    def get_frames(self, indices):
+        cap = cv2.VideoCapture(self._path)
+        if not cap.isOpened():
+            raise ValueError(f"Cannot open video file: {self._path}")
+
+        def _read(cap):
+            ret, frame = cap.read()
+            if not ret:
+                return None
+            return cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        # ascending read optimization
+        frames = []
+        if self._check_indices_ascending(indices):
+            cap.set(cv2.CAP_PROP_POS_FRAMES, indices[0])  # Move to the first frame index
+            frame_index = indices[0] - 1
+            for target_index in indices:
+                to_move = target_index - frame_index
+                for _ in range(to_move): frame = _read(cap)
+                frames.append(frame)
+                frame_index += to_move
+        else:
+            # random access
+            for i, index in enumerate(indices):
+                cap.set(cv2.CAP_PROP_POS_FRAMES, index)  # Move to the frame index
+                frames.append(_read(cap)) 
+
+        cap.release()
+        frames = self._sanitize_frames(frames)
+
+        return np.array(frames)
 
     ### I/O
     def from_path(path):

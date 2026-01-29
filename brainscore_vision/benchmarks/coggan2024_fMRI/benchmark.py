@@ -176,7 +176,7 @@ def _Coggan2024_Region(region: str):
     assembly['region'] = ('subject', [region] * len(assembly['subject']))
     benchmark = Coggan2024_fMRI_Benchmark(
         identifier=f'tong.Coggan2024_fMRI.{region}-rdm',
-        version=2,
+        version=1,
         assembly=assembly,
         visual_degrees=9,
         ceiling_func=get_ceiling,

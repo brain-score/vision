@@ -105,7 +105,6 @@ class TrainTestNeuralBenchmark(BenchmarkBase):
 
         # get the activations from the test set
         test_stimulus_set = self.test_assembly.stimulus_set
-        timebins = timebins_from_assembly(self.test_assembly)
         candidate.start_recording(self.region, time_bins=self.timebins)  
         stimulus_set = place_on_screen(test_stimulus_set, target_visual_degrees=candidate.visual_degrees(),
 									source_visual_degrees=self._visual_degrees)

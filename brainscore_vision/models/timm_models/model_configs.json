@@ -493,7 +493,7 @@
         "IT": "blocks.11.norm2",
         "V1": "blocks.2.attn",
         "V2": "blocks.6.attn",
-        "V4": "bblocks.2.attn"
+        "V4": "blocks.2.attn"
       },
       "layers": [
         "blocks.2.attn",

@@ -363,7 +363,7 @@ def assembly_align_to_fps(output_assembly, fps, mode="portion"):
 # get the inferencer from any model
 def get_inferencer(any_model):
     from brainscore_vision.model_helpers.activations.temporal.core import Inferencer, ActivationsExtractor
-    from brainscore_vision.model_helpers.activations.temporal.model.base import ActivationWrapper
+    from brainscore_vision.model_helpers.activations.temporal.model import ActivationWrapper
     from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
 
     if isinstance(any_model, Inferencer): return any_model
@@ -373,7 +373,7 @@ def get_inferencer(any_model):
     raise ValueError(f"Cannot find inferencer from the model {any_model}")
 
 def get_base_model(any_model):
-    from brainscore_vision.model_helpers.activations.temporal.model.base import ActivationWrapper
+    from brainscore_vision.model_helpers.activations.temporal.model import ActivationWrapper
     from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
 
     if isinstance(any_model, ActivationWrapper): return any_model

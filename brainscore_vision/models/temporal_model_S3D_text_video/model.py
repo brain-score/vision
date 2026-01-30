@@ -3,7 +3,7 @@ import numpy as np
 from torchvision import transforms
 from s3dg_howto100m import S3D
 
-from brainscore_vision.model_helpers.activations.temporal.model.pytorch import PytorchWrapper
+from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
 from brainscore_core.supported_data_standards.brainio.s3 import load_weight_file
 
 

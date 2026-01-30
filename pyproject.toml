@@ -13,6 +13,7 @@ requires-python = ">=3.11"
 
 dependencies = [
     "numpy<2",
+    "pandas<3",
     "brainscore-core",
     "result-caching",
     "importlib-metadata<5", # workaround to https://github.com/brain-score/brainio/issues/28

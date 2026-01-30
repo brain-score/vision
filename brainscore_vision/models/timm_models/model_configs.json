@@ -478,9 +478,9 @@
         "blocks.3.attn",
         "blocks.7.attn",
         "blocks.8.attn",
-        "norm_pre"
+        "head.norm"
       ],
-      "behavioral_readout_layer": "norm_pre"
+      "behavioral_readout_layer": "head.norm"
     }
   },
   "vit_base_patch14_reg4_dinov2:lvd142m": {
@@ -499,9 +499,9 @@
         "blocks.2.attn",
         "blocks.6.attn",
         "blocks.11.norm2",
-        "norm_pre"
+        "head.norm"
       ],
-      "behavioral_readout_layer": "norm_pre"
+      "behavioral_readout_layer": "head.norm"
     }
   },
   "vit_base_patch16_dinov3:lvd1689m": {
@@ -521,9 +521,9 @@
         "blocks.2",
         "blocks.6.attn",
         "blocks.11.norm2",
-        "norm_pre"
+        "head.norm"
       ],
-      "behavioral_readout_layer": "norm_pre"
+      "behavioral_readout_layer": "head.norm"
     }
   }
 }

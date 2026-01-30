@@ -461,9 +461,9 @@
       "behavioral_readout_layer": "fc_norm"
     }
   },
-  "vit_base_patch14_dinov2:lvd142m": {
+  "vit_base_patch14_dinov2-lvd142m": {
     "model_name": "vit_base_patch14_dinov2",
-    "model_id": "vit_base_patch14_dinov2:lvd142m",
+    "model_id": "vit_base_patch14_dinov2-lvd142m",
     "timm_model_name": "vit_base_patch14_dinov2.lvd142m",
     "is_vit": true,
     "model_commitment": {
@@ -483,9 +483,9 @@
       "behavioral_readout_layer": "norm"
     }
   },
-  "vit_base_patch14_reg4_dinov2:lvd142m": {
+  "vit_base_patch14_reg4_dinov2-lvd142m": {
     "model_name": "vit_base_patch14_reg4_dinov2",
-    "model_id": "vit_base_patch14_reg4_dinov2:lvd142m",
+    "model_id": "vit_base_patch14_reg4_dinov2-lvd142m",
     "timm_model_name": "vit_base_patch14_reg4_dinov2.lvd142m",
     "is_vit": true,
     "model_commitment": {
@@ -504,9 +504,9 @@
       "behavioral_readout_layer": "norm"
     }
   },
-  "vit_base_patch16_dinov3:lvd1689m": {
+  "vit_base_patch16_dinov3-lvd1689m": {
     "model_name": "vit_base_patch16_dinov3",
-    "model_id": "vit_base_patch16_dinov3:lvd1689m",
+    "model_id": "vit_base_patch16_dinov3-lvd1689m",
     "timm_model_name": "vit_base_patch16_dinov3.lvd1689m",
     "is_vit": true,
     "model_commitment": {

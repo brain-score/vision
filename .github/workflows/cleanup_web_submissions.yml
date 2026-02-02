@@ -103,12 +103,12 @@ jobs:
   cleanup_branches:
     runs-on: ubuntu-latest
     steps:
-      - name: Delete stale web_submission branches
+      - name: Delete stale automated branches
         uses: actions/github-script@v7
         with:
           script: |
             const MAX_BRANCH_AGE_DAYS = 14;
-            const BRANCH_PREFIX = 'web_submission_';
+            const BRANCH_PREFIXES = ['web_submission_', 'version-bump-'];
 
             // Get all branches with pagination
             const branches = await github.paginate(github.rest.repos.listBranches, {
@@ -117,11 +117,13 @@ jobs:
               per_page: 100
             });
 
-            // Filter to web_submission_* branches
-            const webSubmissionBranches = branches.filter(b => b.name.startsWith(BRANCH_PREFIX));
-            console.log(`Found ${webSubmissionBranches.length} branch(es) with prefix '${BRANCH_PREFIX}'.`);
+            // Filter to branches matching any prefix
+            const targetBranches = branches.filter(b =>
+              BRANCH_PREFIXES.some(prefix => b.name.startsWith(prefix))
+            );
+            console.log(`Found ${targetBranches.length} branch(es) matching prefixes: ${BRANCH_PREFIXES.join(', ')}`);
 
-            if (webSubmissionBranches.length === 0) {
+            if (targetBranches.length === 0) {
               console.log('No branches to process. Exiting.');
               return;
             }
@@ -139,7 +141,7 @@ jobs:
             let deletedCount = 0;
             let skippedCount = 0;
 
-            for (const branch of webSubmissionBranches) {
+            for (const branch of targetBranches) {
               // Skip if branch has an open PR
               if (branchesWithOpenPRs.has(branch.name)) {
                 console.log(`Skipping branch '${branch.name}': has open PR.`);

@@ -4,7 +4,7 @@
 
 [project]
 name = "brainscore_vision"
-version = "2.3.14"
+version = "2.3.16"
 description = "The Brain-Score library enables model comparisons to behavioral and neural experiments"
 authors = []
 license = { 'file' = 'LICENSE' }
@@ -13,6 +13,7 @@ requires-python = ">=3.11"
 
 dependencies = [
     "numpy<2",
+    "pandas<3",
     "brainscore-core",
     "result-caching",
     "importlib-metadata<5", # workaround to https://github.com/brain-score/brainio/issues/28

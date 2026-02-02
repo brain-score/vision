@@ -78,7 +78,7 @@ jobs:
                   issue_number: pr.number,
                   body: `Closing this PR as it has been inactive for more than ${MAX_DAYS_PASSED_CHECKS} days since last update.`
                 });
-              // If PR has failed stastus checks, close more quickly  
+              // If PR has failed status checks, close more quickly  
               } else if (statusState === 'failure' && ageInDays > MAX_DAYS_FAILED_CHECKS) {
                 console.log(`Closing PR #${pr.number} with failed checks, age ${ageInDays.toFixed(1)} days.`);
                 await github.rest.pulls.update({

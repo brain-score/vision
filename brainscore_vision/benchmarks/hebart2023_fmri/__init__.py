@@ -10,3 +10,5 @@ benchmark_registry['Hebart2023_fmri.V1-ridgecv'] = lambda: Hebart2023fmri('V1', 
 benchmark_registry['Hebart2023_fmri.V2-ridgecv'] = lambda: Hebart2023fmri('V2', 'ridgecv')
 benchmark_registry['Hebart2023_fmri.V4-ridgecv'] = lambda: Hebart2023fmri('V4', 'ridgecv')
 benchmark_registry['Hebart2023_fmri.IT-ridgecv'] = lambda: Hebart2023fmri('IT', 'ridgecv')
+
+# trigger test re-run

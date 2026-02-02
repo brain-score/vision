@@ -9,3 +9,4 @@ benchmark_registry['Papale2025.V1-ridgecv'] = lambda: Papale2025('V1', 'ridgecv'
 benchmark_registry['Papale2025.V4-ridgecv'] = lambda: Papale2025('V4', 'ridgecv')
 benchmark_registry['Papale2025.IT-ridgecv'] = lambda: Papale2025('IT', 'ridgecv')
 
+# trigger test re-run

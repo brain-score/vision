@@ -4,10 +4,16 @@ on:
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run mode (log actions without making changes)'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   pull-requests: write
-  contents: read
+  contents: write
 
 jobs:
   fetch_prs:
@@ -99,3 +105,88 @@ jobs:
             }
         env:
           PR_LIST: ${{ needs.fetch_prs.outputs.pr_list }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+
+  cleanup_branches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete stale web_submission branches
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const MAX_BRANCH_AGE_DAYS = 14;
+            const BRANCH_PREFIX = 'web_submission_';
+            const dryRun = process.env.DRY_RUN === 'true';
+
+            if (dryRun) {
+              console.log('=== DRY RUN MODE - No changes will be made ===');
+            }
+
+            // Get all branches with pagination
+            const branches = await github.paginate(github.rest.repos.listBranches, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            });
+
+            // Filter to web_submission_* branches
+            const webSubmissionBranches = branches.filter(b => b.name.startsWith(BRANCH_PREFIX));
+            console.log(`Found ${webSubmissionBranches.length} branch(es) with prefix '${BRANCH_PREFIX}'.`);
+
+            if (webSubmissionBranches.length === 0) {
+              console.log('No branches to process. Exiting.');
+              return;
+            }
+
+            // Get all open PRs to check for associated branches
+            const openPRs = await github.paginate(github.rest.pulls.list, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100
+            });
+            const branchesWithOpenPRs = new Set(openPRs.map(pr => pr.head.ref));
+
+            const now = new Date();
+            let deletedCount = 0;
+            let skippedCount = 0;
+
+            for (const branch of webSubmissionBranches) {
+              // Skip if branch has an open PR
+              if (branchesWithOpenPRs.has(branch.name)) {
+                console.log(`Skipping branch '${branch.name}': has open PR.`);
+                skippedCount++;
+                continue;
+              }
+
+              // Get the commit to check its date
+              const { data: commit } = await github.rest.repos.getCommit({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: branch.commit.sha
+              });
+
+              const commitDate = new Date(commit.commit.committer.date);
+              const ageInDays = (now - commitDate) / (1000 * 60 * 60 * 24);
+
+              if (ageInDays > MAX_BRANCH_AGE_DAYS) {
+                if (dryRun) {
+                  console.log(`[DRY RUN] Would delete branch '${branch.name}', age ${ageInDays.toFixed(1)} days.`);
+                } else {
+                  console.log(`Deleting branch '${branch.name}', age ${ageInDays.toFixed(1)} days.`);
+                  await github.rest.git.deleteRef({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    ref: `heads/${branch.name}`
+                  });
+                }
+                deletedCount++;
+              } else {
+                console.log(`Keeping branch '${branch.name}': age ${ageInDays.toFixed(1)} days (< ${MAX_BRANCH_AGE_DAYS}).`);
+                skippedCount++;
+              }
+            }
+
+            console.log(`\nSummary: ${dryRun ? 'Would delete' : 'Deleted'} ${deletedCount} branch(es), skipped ${skippedCount}.`);
+        env:
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}

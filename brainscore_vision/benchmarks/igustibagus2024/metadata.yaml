@@ -42,7 +42,7 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: engineering
             num_subjects: null
             pre_processing: null

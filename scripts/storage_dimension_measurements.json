@@ -1,0 +1,461 @@
+{
+  "neural_benchmarks": {
+    "Coggan2024_fMRI": {
+      "dims": [
+        "presentation",
+        "presentation",
+        "neuroid"
+      ],
+      "shape": [
+        24,
+        24,
+        36
+      ],
+      "sizes": {
+        "presentation": 24,
+        "neuroid": 36
+      },
+      "dtype": "float64",
+      "bytes_per_element": 8,
+      "total_elements": 20736,
+      "total_bytes": 165888,
+      "total_mb": 0.158,
+      "neuroid_coordinates": {
+        "neuroid": {
+          "n_unique": 36,
+          "examples": [
+            [
+              "sub-0",
+              "IT"
+            ],
+            [
+              "sub-0",
+              "V1"
+            ],
+            [
+              "sub-0",
+              "V2"
+            ],
+            "..."
+          ]
+        }
+      },
+      "data_type": "fMRI",
+      "source": "load_dataset('Coggan2024_fMRI')"
+    },
+    "MajajHong2015.public": {
+      "dims": [
+        "neuroid",
+        "presentation",
+        "time_bin"
+      ],
+      "shape": [
+        256,
+        148480,
+        1
+      ],
+      "sizes": {
+        "neuroid": 256,
+        "presentation": 148480,
+        "time_bin": 1
+      },
+      "dtype": "float32",
+      "bytes_per_element": 4,
+      "total_elements": 38010880,
+      "total_bytes": 152043520,
+      "total_mb": 145.0,
+      "neuroid_coordinates": {
+        "neuroid": {
+          "n_unique": 256,
+          "examples": [
+            [
+              "Chabo_L_A_2_4",
+              "A",
+              4,
+              "L",
+              "cIT",
+              "Chabo",
+              -1.0,
+              -0.2,
+              "IT",
+              2
+            ],
+            [
+              "Chabo_L_A_3_3",
+              "A",
+              3,
+              "L",
+              "cIT",
+              "Chabo",
+              -0.6000000000000001,
+              -0.6000000000000001,
+              "IT",
+              3
+            ],
+            [
+              "Chabo_L_A_3_5",
+              "A",
+              5,
+              "L",
+              "aIT",
+              "Chabo",
+              -0.6000000000000001,
+              0.2,
+              "IT",
+              3
+            ],
+            "..."
+          ]
+        }
+      },
+      "data_type": "electrophysiology",
+      "source": "load_dataset('MajajHong2015.public')"
+    },
+    "MajajHong2015.private": {
+      "dims": [
+        "neuroid",
+        "presentation",
+        "time_bin"
+      ],
+      "shape": [
+        256,
+        120320,
+        1
+      ],
+      "sizes": {
+        "neuroid": 256,
+        "presentation": 120320,
+        "time_bin": 1
+      },
+      "dtype": "float32",
+      "bytes_per_element": 4,
+      "total_elements": 30801920,
+      "total_bytes": 123207680,
+      "total_mb": 117.5,
+      "neuroid_coordinates": {
+        "neuroid": {
+          "n_unique": 256,
+          "examples": [
+            [
+              "Chabo_L_A_2_4",
+              "A",
+              4,
+              "L",
+              "cIT",
+              "Chabo",
+              -1.0,
+              -0.2,
+              "IT",
+              2
+            ],
+            [
+              "Chabo_L_A_3_3",
+              "A",
+              3,
+              "L",
+              "cIT",
+              "Chabo",
+              -0.6000000000000001,
+              -0.6000000000000001,
+              "IT",
+              3
+            ],
+            [
+              "Chabo_L_A_3_5",
+              "A",
+              5,
+              "L",
+              "aIT",
+              "Chabo",
+              -0.6000000000000001,
+              0.2,
+              "IT",
+              3
+            ],
+            "..."
+          ]
+        }
+      },
+      "data_type": "electrophysiology",
+      "source": "load_dataset('MajajHong2015.private')"
+    },
+    "Ringach2002": {
+      "dims": [
+        "neuroid",
+        "neuronal_property"
+      ],
+      "shape": [
+        304,
+        12
+      ],
+      "sizes": {
+        "neuroid": 304,
+        "neuronal_property": 12
+      },
+      "dtype": "float64",
+      "bytes_per_element": 8,
+      "total_elements": 3648,
+      "total_bytes": 29184,
+      "total_mb": 0.028,
+      "neuroid_coordinates": {
+        "neuroid": {
+          "n_unique": 304,
+          "examples": [
+            [
+              0,
+              "V1"
+            ],
+            [
+              1,
+              "V1"
+            ],
+            [
+              2,
+              "V1"
+            ],
+            "..."
+          ]
+        }
+      },
+      "data_type": "electrophysiology_V1",
+      "source": "load_dataset('Ringach2002')"
+    },
+    "DeValois1982a": {
+      "dims": [
+        "neuroid",
+        "neuronal_property"
+      ],
+      "shape": [
+        385,
+        1
+      ],
+      "sizes": {
+        "neuroid": 385,
+        "neuronal_property": 1
+      },
+      "dtype": "float64",
+      "bytes_per_element": 8,
+      "total_elements": 385,
+      "total_bytes": 3080,
+      "total_mb": 0.003,
+      "neuroid_coordinates": {
+        "neuroid": {
+          "n_unique": 385,
+          "examples": [
+            [
+              0,
+              "V1"
+            ],
+            [
+              1,
+              "V1"
+            ],
+            [
+              2,
+              "V1"
+            ],
+            "..."
+          ]
+        }
+      },
+      "data_type": "electrophysiology_V1",
+      "source": "load_dataset('DeValois1982a')"
+    },
+    "DeValois1982b": {
+      "dims": [
+        "neuroid",
+        "neuronal_property"
+      ],
+      "shape": [
+        363,
+        1
+      ],
+      "sizes": {
+        "neuroid": 363,
+        "neuronal_property": 1
+      },
+      "dtype": "float64",
+      "bytes_per_element": 8,
+      "total_elements": 363,
+      "total_bytes": 2904,
+      "total_mb": 0.003,
+      "neuroid_coordinates": {
+        "neuroid": {
+          "n_unique": 363,
+          "examples": [
+            [
+              0,
+              "V1"
+            ],
+            [
+              1,
+              "V1"
+            ],
+            [
+              2,
+              "V1"
+            ],
+            "..."
+          ]
+        }
+      },
+      "data_type": "electrophysiology_V1",
+      "source": "load_dataset('DeValois1982b')"
+    },
+    "FreemanZiemba2013_V1_properties": {
+      "dims": [
+        "neuroid",
+        "neuronal_property"
+      ],
+      "shape": [
+        102,
+        11
+      ],
+      "sizes": {
+        "neuroid": 102,
+        "neuronal_property": 11
+      },
+      "dtype": "float64",
+      "bytes_per_element": 8,
+      "total_elements": 1122,
+      "total_bytes": 8976,
+      "total_mb": 0.009,
+      "neuroid_coordinates": {
+        "neuroid": {
+          "n_unique": 102,
+          "examples": [
+            [
+              0,
+              "V1"
+            ],
+            [
+              1,
+              "V1"
+            ],
+            [
+              2,
+              "V1"
+            ],
+            "..."
+          ]
+        }
+      },
+      "data_type": "electrophysiology_V1",
+      "source": "load_dataset('FreemanZiemba2013_V1_properties')"
+    }
+  },
+  "model_activations": {
+    "alexnet": {
+      "identifier": "alexnet",
+      "layers": {
+        "features.2": {
+          "error": "unhashable type: 'Image'"
+        },
+        "features.5": {
+          "error": "unhashable type: 'Image'"
+        },
+        "features.12": {
+          "error": "unhashable type: 'Image'"
+        },
+        "classifier.2": {
+          "error": "unhashable type: 'Image'"
+        }
+      }
+    }
+  },
+  "known_metadata": {
+    "Coggan2024_fMRI": {
+      "source": "brainscore_vision/data/coggan2024_fMRI/data_packaging.py",
+      "n_stimuli": 24,
+      "regions": [
+        "V1",
+        "V2",
+        "V4",
+        "IT"
+      ],
+      "n_subjects": "variable (loaded from dataset)",
+      "data_type": "fMRI (voxels)"
+    },
+    "MajajHong2015": {
+      "source": "brainscore_vision/benchmarks/majajhong2015/benchmark.py",
+      "n_stimuli_public": 3200,
+      "n_stimuli_private": 2560,
+      "regions": [
+        "V4",
+        "IT"
+      ],
+      "species": "Macaque",
+      "data_type": "electrophysiology (neurons)"
+    },
+    "Marques2020": {
+      "source": "brainscore_vision/benchmarks/marques2020/benchmark.py",
+      "description": "V1 property benchmarks (orientation, spatial frequency, etc.)",
+      "regions": [
+        "V1"
+      ],
+      "species": "Macaque",
+      "data_type": "electrophysiology (neurons)",
+      "variants": [
+        "circular_variance",
+        "pref_or",
+        "pref_sf",
+        "texture_modulation"
+      ]
+    },
+    "Ferguson2024": {
+      "source": "brainscore_vision/benchmarks/ferguson2024/benchmark.py",
+      "n_stimuli": 48,
+      "n_subjects": "27-30 per experiment",
+      "data_type": "behavior"
+    },
+    "Cadena2017": {
+      "source": "brainscore_vision/benchmarks/cadena2017/benchmark.py",
+      "n_stimuli": 7249,
+      "n_splits": 4,
+      "data_type": "electrophysiology"
+    }
+  },
+  "summary": {
+    "neural_data": {
+      "typical_neuroid_counts": {
+        "Coggan2024_fMRI": 36,
+        "MajajHong2015.public": 256,
+        "MajajHong2015.private": 256,
+        "Ringach2002": 304,
+        "DeValois1982a": 385,
+        "DeValois1982b": 363,
+        "FreemanZiemba2013_V1_properties": 102
+      },
+      "typical_stimulus_counts": {
+        "Coggan2024_fMRI": 24,
+        "MajajHong2015.public": 148480,
+        "MajajHong2015.private": 120320,
+        "Ringach2002": 0,
+        "DeValois1982a": 0,
+        "DeValois1982b": 0,
+        "FreemanZiemba2013_V1_properties": 0
+      },
+      "typical_dtypes": {
+        "Coggan2024_fMRI": "float64",
+        "MajajHong2015.public": "float32",
+        "MajajHong2015.private": "float32",
+        "Ringach2002": "float64",
+        "DeValois1982a": "float64",
+        "DeValois1982b": "float64",
+        "FreemanZiemba2013_V1_properties": "float64"
+      }
+    },
+    "model_activations": {
+      "typical_neuroid_counts_by_layer": {},
+      "it_layer_neuroids": {}
+    },
+    "recommendations": {
+      "neural_neuroid_estimate": {
+        "min": 36,
+        "max": 385,
+        "mean": 243,
+        "note": "Use for per-neuroid storage estimates (neural benchmarks)"
+      }
+    }
+  }
+}

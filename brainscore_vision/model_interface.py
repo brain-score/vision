@@ -157,7 +157,7 @@ class BrainModel:
         """
         Instructs the model to begin one of the tasks specified in
         :data:`~brainscore_vision.model_interface.BrainModel.Task`.
-        For all followings call of :meth:`~brainscore_vision.model_interface.BrainModel.look_at`,
+        For all following call of :meth:`~brainscore_vision.model_interface.BrainModel.look_at`,
         the model returns the expected outputs for the specified task.
 
         :param task: The task the model should perform, and thus which outputs it should return
@@ -176,7 +176,7 @@ class BrainModel:
         """
         Instructs the model to begin recording in a specified
         :data:`~brainscore_vision.model_interface.BrainModel.RecordingTarget` and return the specified `time_bins`.
-        For all followings call of :meth:`~brainscore_vision.model_interface.BrainModel.look_at`, the model returns the
+        For all following call of :meth:`~brainscore_vision.model_interface.BrainModel.look_at`, the model returns the
         corresponding recordings. These recordings are a :class:`~brainio.assemblies.NeuroidAssembly` with exactly
         3 dimensions:
 

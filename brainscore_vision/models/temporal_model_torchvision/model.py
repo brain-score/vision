@@ -73,8 +73,8 @@ def get_model(identifier):
 
         def process_output(layer, layer_name, input, output):
             if layer_name.startswith("blocks"):
-                output, thw = output
-                t, h, w = thw
+                output, thw = output  # codespell:ignore
+                t, h, w = thw  # codespell:ignore
                 output = output[:, 1:]  # remove cls 
                 b, n, c = output.shape
                 assert n == t*h*w

@@ -17,7 +17,7 @@ dependencies = [
     "brainscore-core",
     "result-caching",
     "importlib-metadata<5", # workaround to https://github.com/brain-score/brainio/issues/28
-    "scikit-learn<1.8", # for metric_helpers/transformations.py cross-validation
+    "scikit-learn<1.6", # multi_class param removed in 1.6; also for metric_helpers/transformations.py cross-validation
     "scipy", # for benchmark_helpers/properties_common.py
     "opencv-python",  # for microsaccades
     "h5py",
@@ -31,6 +31,8 @@ dependencies = [
     "networkx",
     "eva-decord",
     "psutil",
+    "torch>=2.6",
+    "torchvision>=0.21",
 ]
 
 [project.optional-dependencies]
@@ -39,8 +41,6 @@ test = [
     "pytest_check",
     "pytest-mock",
     "pytest-timeout",
-    "torch>=2.6",
-    "torchvision>=0.21",
     "matplotlib",
 ]
 

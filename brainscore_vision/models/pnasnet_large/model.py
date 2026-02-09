@@ -23,18 +23,8 @@ implementation.
 _cached_model = None
 
 
-def _get_device():
-    """Get the best available device (CUDA > MPS > CPU)."""
-    import torch
-    if torch.cuda.is_available():
-        return torch.device("cuda")
-    elif torch.backends.mps.is_available():
-        return torch.device("mps")
-    return torch.device("cpu")
-
-
 def _load_model(use_half_precision: bool = True):
-    """Load model with optional half precision and torch.compile optimization."""
+    """Load model with optional half precision for reduced memory usage."""
     import torch
     import timm
 
@@ -45,14 +35,9 @@ def _load_model(use_half_precision: bool = True):
     model = timm.create_model('pnasnet5large.tf_in1k', pretrained=True)
     model.eval()
 
-    device = _get_device()
-
-    if use_half_precision and device.type in ("cuda", "mps"):
+    if use_half_precision:
         model = model.half()
-        logger.info(f"Using half precision (FP16) on {device.type}")
-
-    # Note: torch.compile is incompatible with Brain-Score's hook-based activation extraction
-    # The compiled model wraps modules in a way that breaks get_layer() traversal
+        logger.info("Using half precision (FP16) for reduced memory usage")
 
     _cached_model = model
     return model
@@ -80,7 +65,7 @@ def get_bibtex(model_identifier):
     A method returning the bibtex reference of the requested model as a string.
     """
     return """@misc{liu2018progressive,
-              title={Progressive Neural Architecture Search}, 
+              title={Progressive Neural Architecture Search},
               author={Chenxi Liu and Barret Zoph and Maxim Neumann and Jonathon Shlens and Wei Hua and Li-Jia Li and Li Fei-Fei and Alan Yuille and Jonathan Huang and Kevin Murphy},
               year={2018},
               eprint={1712.00559},

@@ -3,29 +3,68 @@ from brainscore_vision.model_helpers.check_submission import check_models
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 import ssl
 import functools
-import timm
+import logging
 
 ssl._create_default_https_context = ssl._create_unverified_context
+
+logger = logging.getLogger(__name__)
 
 '''
 This is a Pytorch implementation of pnasnet_large.
 
 Previously on Brain-Score, this model existed as a Tensorflow model, and was converted via:
     https://huggingface.co/timm/pnasnet5large.tf_in1k
-    
-Disclaimer: This (pytorch) implementation's Brain-Score scores might not align identically with Tensorflow 
-implementation. 
+
+Disclaimer: This (pytorch) implementation's Brain-Score scores might not align identically with Tensorflow
+implementation.
 
 '''
 
-MODEL = timm.create_model('pnasnet5large.tf_in1k', pretrained=True)
+_cached_model = None
+
+
+def _get_device():
+    """Get the best available device (CUDA > MPS > CPU)."""
+    import torch
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    elif torch.backends.mps.is_available():
+        return torch.device("mps")
+    return torch.device("cpu")
+
+
+def _load_model(use_half_precision: bool = True):
+    """Load model with optional half precision and torch.compile optimization."""
+    import torch
+    import timm
+
+    global _cached_model
+    if _cached_model is not None:
+        return _cached_model
+
+    model = timm.create_model('pnasnet5large.tf_in1k', pretrained=True)
+    model.eval()
+
+    device = _get_device()
+
+    if use_half_precision and device.type in ("cuda", "mps"):
+        model = model.half()
+        logger.info(f"Using half precision (FP16) on {device.type}")
+
+    # Note: torch.compile is incompatible with Brain-Score's hook-based activation extraction
+    # The compiled model wraps modules in a way that breaks get_layer() traversal
+
+    _cached_model = model
+    return model
+
 
 def get_model(name):
     assert name == 'pnasnet_large'
+    model = _load_model(use_half_precision=True)
     preprocessing = functools.partial(load_preprocess_images, image_size=331, preprocess_type='inception')
-    wrapper = PytorchWrapper(identifier='pnasnet_large', model=MODEL,
+    wrapper = PytorchWrapper(identifier='pnasnet_large', model=model,
                              preprocessing=preprocessing,
-                             batch_size=4)  # doesn't fit into 12 GB GPU memory otherwise
+                             batch_size=8)  # FP16 allows larger batch size
     wrapper.image_size = 331
     return wrapper
 

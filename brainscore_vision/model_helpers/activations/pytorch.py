@@ -10,11 +10,21 @@ from brainscore_vision.model_helpers.utils import fullname
 SUBMODULE_SEPARATOR = '.'
 
 
+def _get_device():
+    """Get the best available device (CUDA > MPS > CPU)."""
+    import torch
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    elif torch.backends.mps.is_available():
+        return torch.device("mps")
+    return torch.device("cpu")
+
+
 class PytorchWrapper:
     def __init__(self, model, preprocessing, identifier=None, forward_kwargs=None, *args, **kwargs):
         import torch
         logger = logging.getLogger(fullname(self))
-        self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self._device = _get_device()
         logger.debug(f"Using device {self._device}")
         self._model = model
         self._model = self._model.to(self._device)
@@ -46,6 +56,10 @@ class PytorchWrapper:
         images = [torch.from_numpy(image) if not isinstance(image, torch.Tensor) else image for image in images]
         images = Variable(torch.stack(images))
         images = images.to(self._device)
+        # Match input dtype to model dtype (handles FP16 models)
+        model_dtype = next(self._model.parameters()).dtype
+        if images.dtype != model_dtype:
+            images = images.to(model_dtype)
         self._model.eval()
 
         layer_results = OrderedDict()

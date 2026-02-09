@@ -39,10 +39,16 @@ test = [
     "pytest_check",
     "pytest-mock",
     "pytest-timeout",
-    "torch",
-    "torchvision",
-    "matplotlib",  # for examples
-    "pytest-mock",
+    "torch>=2.6",
+    "torchvision>=0.21",
+    "matplotlib",
+]
+
+competition-models = [
+    "transformers>=4.45",
+    "albumentations>=2.0",
+    "timm>=1.0",
+    "cornet @ git+https://github.com/dicarlolab/CORnet.git",
 ]
 
 [build-system]

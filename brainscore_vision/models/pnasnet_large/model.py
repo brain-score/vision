@@ -18,20 +18,13 @@ implementation.
 
 '''
 
-_MODEL = None
-
-
-def _get_model():
-    global _MODEL
-    if _MODEL is None:
-        _MODEL = timm.create_model('pnasnet5large.tf_in1k', pretrained=True).half()
-    return _MODEL
+MODEL = timm.create_model('pnasnet5large.tf_in1k', pretrained=True).half()
 
 
 def get_model(name):
     assert name == 'pnasnet_large'
     preprocessing = functools.partial(load_preprocess_images, image_size=331, preprocess_type='inception')
-    wrapper = PytorchWrapper(identifier='pnasnet_large', model=_get_model(),
+    wrapper = PytorchWrapper(identifier='pnasnet_large', model=MODEL,
                              preprocessing=preprocessing,
                              batch_size=8)  # FP16 allows larger batch size
     wrapper.image_size = 331

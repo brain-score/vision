@@ -8,30 +8,28 @@ import timm
 ssl._create_default_https_context = ssl._create_unverified_context
 
 '''
-This is a Pytorch implementation of pnasnet_large.
+This is a half-precision (FP16) Pytorch implementation of pnasnet_large.
 
-Previously on Brain-Score, this model existed as a Tensorflow model, and was converted via:
-    https://huggingface.co/timm/pnasnet5large.tf_in1k
-
-Disclaimer: This (pytorch) implementation's Brain-Score scores might not align identically with Tensorflow
-implementation.
+Based on the original pnasnet_large implementation, with FP16 for reduced memory usage.
+See: https://huggingface.co/timm/pnasnet5large.tf_in1k
 
 '''
 
-MODEL = timm.create_model('pnasnet5large.tf_in1k', pretrained=True)
+MODEL = timm.create_model('pnasnet5large.tf_in1k', pretrained=True).half()
+
 
 def get_model(name):
-    assert name == 'pnasnet_large'
+    assert name == 'pnasnet_large_half'
     preprocessing = functools.partial(load_preprocess_images, image_size=331, preprocess_type='inception')
-    wrapper = PytorchWrapper(identifier='pnasnet_large', model=MODEL,
+    wrapper = PytorchWrapper(identifier='pnasnet_large_half', model=MODEL,
                              preprocessing=preprocessing,
-                             batch_size=4)  # doesn't fit into 12 GB GPU memory otherwise
+                             batch_size=8)  # FP16 allows larger batch size
     wrapper.image_size = 331
     return wrapper
 
 
 def get_layers(name):
-    assert name == 'pnasnet_large'
+    assert name == 'pnasnet_large_half'
     layer_names = [f'cell_{i + 1}' for i in range(-1, 11)] + ['global_pool']
     return layer_names
 

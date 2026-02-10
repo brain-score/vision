@@ -19,7 +19,7 @@ MODEL = timm.create_model('pnasnet5large.tf_in1k', pretrained=True).half()
 
 
 def get_model(name):
-    assert name == 'pnasnet_large_half'
+    assert name == 'pnasnet_large_halfPrecision'
     preprocessing = functools.partial(load_preprocess_images, image_size=331, preprocess_type='inception')
     wrapper = PytorchWrapper(identifier='pnasnet_large_half', model=MODEL,
                              preprocessing=preprocessing,
@@ -29,7 +29,7 @@ def get_model(name):
 
 
 def get_layers(name):
-    assert name == 'pnasnet_large_half'
+    assert name == 'pnasnet_large_halfPrecision'
     layer_names = [f'cell_{i + 1}' for i in range(-1, 11)] + ['global_pool']
     return layer_names
 

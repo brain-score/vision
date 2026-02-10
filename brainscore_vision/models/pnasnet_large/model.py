@@ -14,7 +14,7 @@ Previously on Brain-Score, this model existed as a Tensorflow model, and was con
     https://huggingface.co/timm/pnasnet5large.tf_in1k
 
 Disclaimer: This (pytorch) implementation's Brain-Score scores might not align identically with Tensorflow
-implementation.
+implementation. 
 
 '''
 
@@ -41,7 +41,7 @@ def get_bibtex(model_identifier):
     A method returning the bibtex reference of the requested model as a string.
     """
     return """@misc{liu2018progressive,
-              title={Progressive Neural Architecture Search},
+              title={Progressive Neural Architecture Search}, 
               author={Chenxi Liu and Barret Zoph and Maxim Neumann and Jonathon Shlens and Wei Hua and Li-Jia Li and Li Fei-Fei and Alan Yuille and Jonathan Huang and Kevin Murphy},
               year={2018},
               eprint={1712.00559},

@@ -12,8 +12,8 @@ This is a Pytorch implementation of pnasnet_large.
 
 Previously on Brain-Score, this model existed as a Tensorflow model, and was converted via:
     https://huggingface.co/timm/pnasnet5large.tf_in1k
-
-Disclaimer: This (pytorch) implementation's Brain-Score scores might not align identically with Tensorflow
+    
+Disclaimer: This (pytorch) implementation's Brain-Score scores might not align identically with Tensorflow 
 implementation. 
 
 '''

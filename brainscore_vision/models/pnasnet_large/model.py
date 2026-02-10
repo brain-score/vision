@@ -3,11 +3,9 @@ from brainscore_vision.model_helpers.check_submission import check_models
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 import ssl
 import functools
-import logging
+import timm
 
 ssl._create_default_https_context = ssl._create_unverified_context
-
-logger = logging.getLogger(__name__)
 
 '''
 This is a Pytorch implementation of pnasnet_large.
@@ -20,34 +18,20 @@ implementation.
 
 '''
 
-_cached_model = None
+_MODEL = None
 
 
-def _load_model(use_half_precision: bool = True):
-    """Load model with optional half precision for reduced memory usage."""
-    import torch
-    import timm
-
-    global _cached_model
-    if _cached_model is not None:
-        return _cached_model
-
-    model = timm.create_model('pnasnet5large.tf_in1k', pretrained=True)
-    model.eval()
-
-    if use_half_precision:
-        model = model.half()
-        logger.info("Using half precision (FP16) for reduced memory usage")
-
-    _cached_model = model
-    return model
+def _get_model():
+    global _MODEL
+    if _MODEL is None:
+        _MODEL = timm.create_model('pnasnet5large.tf_in1k', pretrained=True).half()
+    return _MODEL
 
 
 def get_model(name):
     assert name == 'pnasnet_large'
-    model = _load_model(use_half_precision=True)
     preprocessing = functools.partial(load_preprocess_images, image_size=331, preprocess_type='inception')
-    wrapper = PytorchWrapper(identifier='pnasnet_large', model=model,
+    wrapper = PytorchWrapper(identifier='pnasnet_large', model=_get_model(),
                              preprocessing=preprocessing,
                              batch_size=8)  # FP16 allows larger batch size
     wrapper.image_size = 331

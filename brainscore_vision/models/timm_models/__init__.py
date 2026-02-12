@@ -191,30 +191,31 @@ model_registry["vit_tiny_r_s16_p8_384:augreg_in21k_ft_in1k"] = lambda: ModelComm
 )
 
 
-model_registry["vit_base_patch14_dinov2:lvd142m"] = lambda: ModelCommitment(
-    identifier="vit_base_patch14_dinov2:lvd142m",
-    activations_model=get_model("vit_base_patch14_dinov2:lvd142m"),
-    layers=MODEL_CONFIGS["vit_base_patch14_dinov2:lvd142m"]["model_commitment"]["layers"],
-    behavioral_readout_layer=MODEL_CONFIGS["vit_base_patch14_dinov2:lvd142m"]["model_commitment"]["behavioral_readout_layer"],
-    region_layer_map=MODEL_CONFIGS["vit_base_patch14_dinov2:lvd142m"]["model_commitment"]["region_layer_map"]
+model_registry["vit_base_patch14_dinov2-lvd142m"] = lambda: ModelCommitment(
+    identifier="vit_base_patch14_dinov2-lvd142m",
+    activations_model=get_model("vit_base_patch14_dinov2-lvd142m"),
+    layers=MODEL_CONFIGS["vit_base_patch14_dinov2-lvd142m"]["model_commitment"]["layers"],
+    behavioral_readout_layer=MODEL_CONFIGS["vit_base_patch14_dinov2-lvd142m"]["model_commitment"]["behavioral_readout_layer"],
+    region_layer_map=MODEL_CONFIGS["vit_base_patch14_dinov2-lvd142m"]["model_commitment"]["region_layer_map"]
+
 )
 
 
-model_registry["vit_base_patch14_reg4_dinov2:lvd142m"] = lambda: ModelCommitment(
-    identifier="vit_base_patch14_reg4_dinov2:lvd142m",
-    activations_model=get_model("vit_base_patch14_reg4_dinov2:lvd142m"),
-    layers=MODEL_CONFIGS["vit_base_patch14_reg4_dinov2:lvd142m"]["model_commitment"]["layers"],
-    behavioral_readout_layer=MODEL_CONFIGS["vit_base_patch14_reg4_dinov2:lvd142m"]["model_commitment"]["behavioral_readout_layer"],
-    region_layer_map=MODEL_CONFIGS["vit_base_patch14_reg4_dinov2:lvd142m"]["model_commitment"]["region_layer_map"]
+model_registry["vit_base_patch14_reg4_dinov2-lvd142m"] = lambda: ModelCommitment(
+    identifier="vit_base_patch14_reg4_dinov2-lvd142m",
+    activations_model=get_model("vit_base_patch14_reg4_dinov2-lvd142m"),
+    layers=MODEL_CONFIGS["vit_base_patch14_reg4_dinov2-lvd142m"]["model_commitment"]["layers"],
+    behavioral_readout_layer=MODEL_CONFIGS["vit_base_patch14_reg4_dinov2-lvd142m"]["model_commitment"]["behavioral_readout_layer"],
+    region_layer_map=MODEL_CONFIGS["vit_base_patch14_reg4_dinov2-lvd142m"]["model_commitment"]["region_layer_map"]
 )
 
 
-model_registry["vit_base_patch16_dinov3:lvd1689m"] = lambda: ModelCommitment(
-    identifier="vit_base_patch16_dinov3:lvd1689m",
-    activations_model=get_model("vit_base_patch16_dinov3:lvd1689m"),
-    layers=MODEL_CONFIGS["vit_base_patch16_dinov3:lvd1689m"]["model_commitment"]["layers"],
-    behavioral_readout_layer=MODEL_CONFIGS["vit_base_patch16_dinov3:lvd1689m"]["model_commitment"]["behavioral_readout_layer"],
-    region_layer_map=MODEL_CONFIGS["vit_base_patch16_dinov3:lvd1689m"]["model_commitment"]["region_layer_map"]
+model_registry["vit_base_patch16_dinov3-lvd1689m"] = lambda: ModelCommitment(
+    identifier="vit_base_patch16_dinov3-lvd1689m",
+    activations_model=get_model("vit_base_patch16_dinov3-lvd1689m"),
+    layers=MODEL_CONFIGS["vit_base_patch16_dinov3-lvd1689m"]["model_commitment"]["layers"],
+    behavioral_readout_layer=MODEL_CONFIGS["vit_base_patch16_dinov3-lvd1689m"]["model_commitment"]["behavioral_readout_layer"],
+    region_layer_map=MODEL_CONFIGS["vit_base_patch16_dinov3-lvd1689m"]["model_commitment"]["region_layer_map"]
 )
 
 

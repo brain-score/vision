@@ -27,7 +27,7 @@ function Hash = DataHash(Data, Opt)
 %            'array': The contents, type and size of the input [Data] are
 %                     considered  for the creation of the hash. Nested CELLs
 %                     and STRUCT arrays are parsed recursively. Empty arrays of
-%                     different type reply different hashs.
+%                     different type reply different hashes.
 %            'file':  [Data] is treated as file name and the hash is calculated
 %                     for the files contents.
 %            'bin':   [Data] is a numerical, LOGICAL or CHAR array. Only the
@@ -110,7 +110,7 @@ function Hash = DataHash(Data, Opt)
 %      Jan Achterhold (author 267816) suggested to consider Java objects.
 % 016: 01-Feb-2015 20:53, Java heap space exhausted for large files.
 %      Now files are process in chunks to save memory.
-% 017: 15-Feb-2015 19:40, Collsions: Same hash for different data.
+% 017: 15-Feb-2015 19:40, Collisions: Same hash for different data.
 %      Examples: zeros(1,1) and zeros(1,1,0)
 %                complex(0) and zeros(1,1,0,0)
 %      Now the number of dimensions is included, to avoid this.
@@ -132,7 +132,7 @@ function Hash = DataHash(Data, Opt)
 
 % OPEN BUGS:
 % Nath wrote:
-% function handle refering to struct containing the function will create
+% function handle referring to struct containing the function will create
 % infinite loop. Is there any workaround ?
 % Example:
 %   d= dynamicprops();
@@ -400,7 +400,7 @@ try    % Perhaps a direct conversion is implemented:
    DataBin = uint8(DataObj);
    
    % Matt Raum had this excellent idea - unfortunately this function is
-   % undocumented and might not be supported in te future:
+   % undocumented and might not be supported in the future:
    % DataBin = getByteStreamFromArray(DataObj);
    
 catch  % Or perhaps this is better:

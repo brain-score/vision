@@ -2,10 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set
-from brainscore_core.supported_data_standards.brainio.s3 import (
-    load_stimulus_set_from_s3, load_assembly_from_s3,
-)
+from brainscore_vision import data_registry
 from brainscore_core.supported_data_standards.brainio.assemblies import (
     NeuroidAssembly, StimulusMergeAssemblyLoader,
 )
@@ -30,28 +27,8 @@ BIBTEX = """@article{allen_massive_2022,
 _LOCAL_DIR = Path("/Volumes/Hagibis/nsd/brainscore_surface")
 _VOL_DIR = Path("/Volumes/Hagibis/nsd/brainscore")
 
-# Reuse the same stimulus sets as volumetric (identical COCO images).
-# Stimulus sets are registered by the volumetric data package (allen2022_fmri).
-# If running standalone, they need to be registered here too.
-if 'Allen2022_fmri_stim_train' not in stimulus_set_registry:
-    stimulus_set_registry['Allen2022_fmri_stim_train'] = lambda: load_stimulus_set_from_s3(
-        identifier="Allen2022_fMRI_train_Stimuli",
-        bucket="brainscore-storage/brainscore-vision/benchmarks/Allen2022_fmri",
-        csv_sha1="b30e2ed9730c905b9b8673155230b762571e71d5",
-        zip_sha1="8aba5aefed91ea153451ddcba79c08eece627ed2",
-        csv_version_id="null",
-        zip_version_id="null",
-        filename_prefix="stimulus_")
-
-if 'Allen2022_fmri_stim_test' not in stimulus_set_registry:
-    stimulus_set_registry['Allen2022_fmri_stim_test'] = lambda: load_stimulus_set_from_s3(
-        identifier="Allen2022_fMRI_test_Stimuli",
-        bucket="brainscore-storage/brainscore-vision/benchmarks/Allen2022_fmri",
-        csv_sha1="d5d39fa5fa492c0249b075bdc7e2a514b239accf",
-        zip_sha1="78276b6a4f32261f211ce4d3fa51294e8f14d30b",
-        csv_version_id="null",
-        zip_version_id="null",
-        filename_prefix="stimulus_")
+# Stimulus sets are the same COCO images as the volumetric pipeline.
+# They are registered by the volumetric data package (allen2022_fmri).
 
 
 def _load_local_assembly(split: str, variant: str = '_8subj') -> NeuroidAssembly:

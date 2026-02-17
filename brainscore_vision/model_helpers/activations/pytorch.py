@@ -46,6 +46,10 @@ class PytorchWrapper:
         images = [torch.from_numpy(image) if not isinstance(image, torch.Tensor) else image for image in images]
         images = Variable(torch.stack(images))
         images = images.to(self._device)
+        # Match input dtype to model dtype (handles FP16 models)
+        model_dtype = next(self._model.parameters()).dtype
+        if images.dtype != model_dtype:
+            images = images.to(model_dtype)
         self._model.eval()
 
         layer_results = OrderedDict()

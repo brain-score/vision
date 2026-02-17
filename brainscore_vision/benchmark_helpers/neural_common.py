@@ -240,7 +240,7 @@ def neuroid_wise_explained_var(score: Score, ceiling: Score, aggregate_func=np.m
     pd.testing.assert_index_equal(raw_ceilings.indexes['neuroid'], raw_scores.indexes['neuroid']) 
 
     # apply explained variance neuroid-wise
-    r_square_neuroids = np.power(raw_scores / raw_ceilings, 2)
+    r_square_neuroids = np.power(raw_scores, 2) / raw_ceilings
     ceiled_score = aggregate_func(r_square_neuroids)  # aggregate across neuroids
     ceiled_score = Score(ceiled_score)
     ceiled_score.attrs['ceiled_scores'] = r_square_neuroids

@@ -7,7 +7,7 @@ on:
 
 permissions:
   pull-requests: write
-  contents: read
+  contents: write
 
 jobs:
   fetch_prs:
@@ -78,7 +78,7 @@ jobs:
                   issue_number: pr.number,
                   body: `Closing this PR as it has been inactive for more than ${MAX_DAYS_PASSED_CHECKS} days since last update.`
                 });
-              // If PR has failed stastus checks, close more quickly  
+              // If PR has failed status checks, close more quickly  
               } else if (statusState === 'failure' && ageInDays > MAX_DAYS_FAILED_CHECKS) {
                 console.log(`Closing PR #${pr.number} with failed checks, age ${ageInDays.toFixed(1)} days.`);
                 await github.rest.pulls.update({
@@ -99,3 +99,78 @@ jobs:
             }
         env:
           PR_LIST: ${{ needs.fetch_prs.outputs.pr_list }}
+
+  cleanup_branches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete stale automated branches
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const MAX_BRANCH_AGE_DAYS = 14;
+            const BRANCH_PREFIXES = ['web_submission_', 'version-bump-'];
+
+            // Get all branches with pagination
+            const branches = await github.paginate(github.rest.repos.listBranches, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            });
+
+            // Filter to branches matching any prefix
+            const targetBranches = branches.filter(b =>
+              BRANCH_PREFIXES.some(prefix => b.name.startsWith(prefix))
+            );
+            console.log(`Found ${targetBranches.length} branch(es) matching prefixes: ${BRANCH_PREFIXES.join(', ')}`);
+
+            if (targetBranches.length === 0) {
+              console.log('No branches to process. Exiting.');
+              return;
+            }
+
+            // Get all open PRs to check for associated branches
+            const openPRs = await github.paginate(github.rest.pulls.list, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100
+            });
+            const branchesWithOpenPRs = new Set(openPRs.map(pr => pr.head.ref));
+
+            const now = new Date();
+            let deletedCount = 0;
+            let skippedCount = 0;
+
+            for (const branch of targetBranches) {
+              // Skip if branch has an open PR
+              if (branchesWithOpenPRs.has(branch.name)) {
+                console.log(`Skipping branch '${branch.name}': has open PR.`);
+                skippedCount++;
+                continue;
+              }
+
+              // Get the commit to check its date
+              const { data: commit } = await github.rest.repos.getCommit({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: branch.commit.sha
+              });
+
+              const commitDate = new Date(commit.commit.committer.date);
+              const ageInDays = (now - commitDate) / (1000 * 60 * 60 * 24);
+
+              if (ageInDays > MAX_BRANCH_AGE_DAYS) {
+                console.log(`Deleting branch '${branch.name}', age ${ageInDays.toFixed(1)} days.`);
+                await github.rest.git.deleteRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: `heads/${branch.name}`
+                });
+                deletedCount++;
+              } else {
+                console.log(`Keeping branch '${branch.name}': age ${ageInDays.toFixed(1)} days (< ${MAX_BRANCH_AGE_DAYS}).`);
+                skippedCount++;
+              }
+            }
+
+            console.log(`\nSummary: Deleted ${deletedCount} branch(es), skipped ${skippedCount}.`);

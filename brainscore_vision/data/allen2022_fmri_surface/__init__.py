@@ -1,12 +1,6 @@
-from pathlib import Path
-
-import pandas as pd
-
-from brainscore_vision import data_registry
-from brainscore_core.supported_data_standards.brainio.assemblies import (
-    NeuroidAssembly, StimulusMergeAssemblyLoader,
-)
-from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
+from brainscore_vision import data_registry, load_stimulus_set
+from brainscore_core.supported_data_standards.brainio.s3 import load_assembly_from_s3
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly
 
 BIBTEX = """@article{allen_massive_2022,
     title = {A massive 7T fMRI dataset to bridge cognitive neuroscience and artificial intelligence},
@@ -22,58 +16,43 @@ BIBTEX = """@article{allen_massive_2022,
     pages = {116--126},
 }"""
 
-# Local paths for pre-S3-upload development.
-# Replace with load_assembly_from_s3 + proper SHA1 hashes after upload.
-_LOCAL_DIR = Path("/Volumes/Hagibis/nsd/brainscore_surface")
-_VOL_DIR = Path("/Volumes/Hagibis/nsd/brainscore")
+_BUCKET = "brainscore-storage/brainscore-vision/benchmarks/Allen2022/Allen2022_fmri_surface"
 
-# Stimulus sets are the same COCO images as the volumetric pipeline.
-# They are registered by the volumetric data package (allen2022_fmri).
+# Surface assemblies reuse the volumetric stimulus sets (identical COCO images).
+# Stimulus set registry keys are defined in brainscore_vision.data.allen2022_fmri.
 
+# -- Assemblies: 8-subject (default, 515 images) -------------------------------
 
-def _load_local_assembly(split: str, variant: str = '_8subj') -> NeuroidAssembly:
-    """Load surface assembly from local netCDF + stimulus metadata.
+data_registry['Allen2022_fmri_surface_train'] = lambda: load_assembly_from_s3(
+    identifier="Allen2022_fMRI_surface_train_Assembly",
+    version_id="Ug1qir_TigXWwBuoamnDHj1r1Ca5FlEM",
+    sha1="67241ed5a84d8e7ae77f8c8d72e7219508fb9d7e",
+    bucket=_BUCKET,
+    cls=NeuroidAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('Allen2022_fmri_stim_train'))
 
-    Used during development before S3 upload. After upload, replace the
-    data_registry entries below with load_assembly_from_s3 calls.
+data_registry['Allen2022_fmri_surface_test'] = lambda: load_assembly_from_s3(
+    identifier="Allen2022_fMRI_surface_test_Assembly",
+    version_id="XwzoT6lBFvUnn9l6WnD9GPPw_PafqAQ9",
+    sha1="8b4fcc132b5c1e81bb61e38ca51875a98619066b",
+    bucket=_BUCKET,
+    cls=NeuroidAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('Allen2022_fmri_stim_test'))
 
-    :param split: 'train' or 'test'
-    :param variant: '_8subj' (8 subjects, 515 images) or '_4subj' (4 subjects, ~1000 images)
-    """
-    nc_path = _LOCAL_DIR / f"Allen2022_fmri_surface_{split}{variant}.nc"
-    stim_csv = _LOCAL_DIR / f"stimulus_metadata_{split}{variant}.csv"
+# -- Assemblies: 4-subject (subjects 1,2,5,7; ~1000 images) --------------------
 
-    meta = pd.read_csv(stim_csv)
-    stimuli = StimulusSet(meta)
+data_registry['Allen2022_fmri_surface_4subj_train'] = lambda: load_assembly_from_s3(
+    identifier="Allen2022_fMRI_surface_4subj_train_Assembly",
+    version_id="SiHRp_P1RPH6BB4XJbRz4GPiYD4jxIJJ",
+    sha1="5c1e7ab2d1444c140028599f8a30aeae34297c87",
+    bucket=_BUCKET,
+    cls=NeuroidAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('Allen2022_fmri_4subj_stim_train'))
 
-    # Images may reside in either stimuli_train or stimuli_test depending
-    # on which variant's train/test split they belong to.
-    stim_paths = {}
-    for _, row in meta.iterrows():
-        for d in [_VOL_DIR / "stimuli_train", _VOL_DIR / "stimuli_test"]:
-            p = d / row["image_file_name"]
-            if p.exists():
-                stim_paths[row["stimulus_id"]] = str(p)
-                break
-    stimuli.stimulus_paths = stim_paths
-    stimuli.identifier = f"Allen2022_fMRI_surface_{split}{variant}_Stimuli"
-    stimuli.name = stimuli.identifier
-
-    loader = StimulusMergeAssemblyLoader(
-        cls=NeuroidAssembly,
-        file_path=str(nc_path),
-        stimulus_set_identifier=stimuli.identifier,
-        stimulus_set=stimuli,
-    )
-    assembly = loader.load()
-    assembly.attrs["identifier"] = f"Allen2022_fMRI_surface_{split}{variant}_Assembly"
-    return assembly
-
-
-# Default (8-subject, 515 images)
-data_registry['Allen2022_fmri_surface_train'] = lambda: _load_local_assembly('train', '_8subj')
-data_registry['Allen2022_fmri_surface_test'] = lambda: _load_local_assembly('test', '_8subj')
-
-# 4-subject variant (subjects 1,2,5,7; ~1000 images)
-data_registry['Allen2022_fmri_surface_4subj_train'] = lambda: _load_local_assembly('train', '_4subj')
-data_registry['Allen2022_fmri_surface_4subj_test'] = lambda: _load_local_assembly('test', '_4subj')
+data_registry['Allen2022_fmri_surface_4subj_test'] = lambda: load_assembly_from_s3(
+    identifier="Allen2022_fMRI_surface_4subj_test_Assembly",
+    version_id="kzuIe9w5y7AfuajgzUD1SYosbBs0tC69",
+    sha1="1f8524de28ad6cd3a89feddcfb82d9ab67dd9656",
+    bucket=_BUCKET,
+    cls=NeuroidAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('Allen2022_fmri_4subj_stim_test'))

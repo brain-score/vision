@@ -1,8 +1,15 @@
+from pathlib import Path
+
+import pandas as pd
+
 from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set
 from brainscore_core.supported_data_standards.brainio.s3 import (
     load_stimulus_set_from_s3, load_assembly_from_s3,
 )
-from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import (
+    NeuroidAssembly, StimulusMergeAssemblyLoader,
+)
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 
 BIBTEX = """@article{allen_massive_2022,
     title = {A massive 7T fMRI dataset to bridge cognitive neuroscience and artificial intelligence},
@@ -37,19 +44,49 @@ stimulus_set_registry['Allen2022_fmri_stim_test'] = lambda: load_stimulus_set_fr
     zip_version_id="null",
     filename_prefix="stimulus_")
 
-# Neural assemblies
-data_registry['Allen2022_fmri_train'] = lambda: load_assembly_from_s3(
-    identifier="Allen2022_fMRI_train_Assembly",
-    version_id="null",
-    sha1="5fd6b9383ace89842c17f413d00591730a0e0216",
-    bucket="brainscore-storage/brainscore-vision/benchmarks/Allen2022_fmri",
-    cls=NeuroidAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('Allen2022_fmri_stim_train'))
+# Local path for pre-S3-upload development (streams-ventral IT ROI, dual variants).
+# Replace with load_assembly_from_s3 + proper SHA1 hashes after upload.
+_LOCAL_DIR = Path("/Volumes/Hagibis/nsd/brainscore")
 
-data_registry['Allen2022_fmri_test'] = lambda: load_assembly_from_s3(
-    identifier="Allen2022_fMRI_test_Assembly",
-    version_id="null",
-    sha1="3e4b0c056d05caab4b9146ec3262cd6a2361b6b1",
-    bucket="brainscore-storage/brainscore-vision/benchmarks/Allen2022_fmri",
-    cls=NeuroidAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('Allen2022_fmri_stim_test'))
+
+def _load_local_assembly(split: str, variant: str = '_8subj') -> NeuroidAssembly:
+    """Load volumetric assembly from local netCDF + stimulus metadata.
+
+    :param split: 'train' or 'test'
+    :param variant: '_8subj' (8 subjects, 515 images) or '_4subj' (4 subjects, ~1000 images)
+    """
+    nc_path = _LOCAL_DIR / f"Allen2022_fmri_{split}{variant}.nc"
+    stim_csv = _LOCAL_DIR / f"stimulus_metadata_{split}{variant}.csv"
+
+    meta = pd.read_csv(stim_csv)
+    stimuli = StimulusSet(meta)
+
+    stim_paths = {}
+    for _, row in meta.iterrows():
+        for d in [_LOCAL_DIR / "stimuli_train", _LOCAL_DIR / "stimuli_test"]:
+            p = d / row["image_file_name"]
+            if p.exists():
+                stim_paths[row["stimulus_id"]] = str(p)
+                break
+    stimuli.stimulus_paths = stim_paths
+    stimuli.identifier = f"Allen2022_fMRI_{split}{variant}_Stimuli"
+    stimuli.name = stimuli.identifier
+
+    loader = StimulusMergeAssemblyLoader(
+        cls=NeuroidAssembly,
+        file_path=str(nc_path),
+        stimulus_set_identifier=stimuli.identifier,
+        stimulus_set=stimuli,
+    )
+    assembly = loader.load()
+    assembly.attrs["identifier"] = f"Allen2022_fMRI_{split}{variant}_Assembly"
+    return assembly
+
+
+# Default (8-subject, 515 images)
+data_registry['Allen2022_fmri_train'] = lambda: _load_local_assembly('train', '_8subj')
+data_registry['Allen2022_fmri_test'] = lambda: _load_local_assembly('test', '_8subj')
+
+# 4-subject variant (subjects 1,2,5,7; ~1000 images)
+data_registry['Allen2022_fmri_4subj_train'] = lambda: _load_local_assembly('train', '_4subj')
+data_registry['Allen2022_fmri_4subj_test'] = lambda: _load_local_assembly('test', '_4subj')

@@ -42,29 +42,33 @@ NOISE_CEILING_THRESHOLD = 0.3 * 100
 def _Allen2022fmriSurface(region,
                           similarity_metric,
                           identifier_metric_suffix,
+                          dataset_prefix='Allen2022_fmri_surface',
                           alpha_coord=None,
                           per_voxel_ceilings=False,
                           visual_degrees=VISUAL_DEGREES,
                           ceiler=load_metric('internal_consistency'),
                           noise_ceiling_threshold=NOISE_CEILING_THRESHOLD):
     number_of_trials = 1
-    train_assembly = LazyLoad(lambda region=region, nct=noise_ceiling_threshold:
+    train_assembly = LazyLoad(lambda region=region, nct=noise_ceiling_threshold, dp=dataset_prefix:
                               load_assembly(region=region,
                                             split='train',
                                             average_repetitions=False,
+                                            dataset_prefix=dp,
                                             noise_ceiling_threshold=nct))
-    test_assembly = LazyLoad(lambda region=region, nct=noise_ceiling_threshold:
+    test_assembly = LazyLoad(lambda region=region, nct=noise_ceiling_threshold, dp=dataset_prefix:
                              load_assembly(region=region,
                                            split='test',
                                            average_repetitions=True,
+                                           dataset_prefix=dp,
                                            noise_ceiling_threshold=nct))
-    test_assembly_repetition = LazyLoad(lambda region=region, nct=noise_ceiling_threshold:
+    test_assembly_repetition = LazyLoad(lambda region=region, nct=noise_ceiling_threshold, dp=dataset_prefix:
                                         load_assembly(region=region,
                                                       split='test',
                                                       average_repetitions=False,
+                                                      dataset_prefix=dp,
                                                       noise_ceiling_threshold=nct))
     return TrainTestNeuralBenchmark(
-        identifier=f'Allen2022_fmri_surface.{region}-{identifier_metric_suffix}',
+        identifier=f'{dataset_prefix}.{region}-{identifier_metric_suffix}',
         version=1,
         ceiling_func=lambda: ceiler(test_assembly_repetition),
         train_assembly=train_assembly,
@@ -78,10 +82,13 @@ def _Allen2022fmriSurface(region,
         bibtex=BIBTEX)
 
 
-def Allen2022fmriSurface(region: str, metric_type: str, alphas: list = ALPHA_LIST):
+def Allen2022fmriSurface(region: str, metric_type: str,
+                          dataset_prefix: str = 'Allen2022_fmri_surface',
+                          alphas: list = ALPHA_LIST):
     similarity_metric = load_metric(f'{metric_type}_split', alphas=alphas)
     return _Allen2022fmriSurface(region, similarity_metric=similarity_metric,
                                  identifier_metric_suffix=metric_type,
+                                 dataset_prefix=dataset_prefix,
                                  alpha_coord='subject', per_voxel_ceilings=False)
 
 
@@ -94,17 +101,17 @@ class _Allen2022fmriSurfaceRSA(BenchmarkBase):
     Ceiling is leave-one-out inter-subject RDM correlation (Spearman on upper triangle).
     """
 
-    def __init__(self, region: str):
+    def __init__(self, region: str, dataset_prefix: str = 'Allen2022_fmri_surface'):
         self.region = region
-        self._assembly = LazyLoad(lambda region=region:
-                                  load_full_assembly(region=region))
+        self._assembly = LazyLoad(lambda region=region, dp=dataset_prefix:
+                                  load_full_assembly(region=region, dataset_prefix=dp))
         self._rdm = RDM()
         self._similarity = RDMSimilarity()
         self._visual_degrees = VISUAL_DEGREES
         self._number_of_trials = 1
 
         super().__init__(
-            identifier=f'Allen2022_fmri_surface.{region}-rdm',
+            identifier=f'{dataset_prefix}.{region}-rdm',
             ceiling_func=lambda: self._compute_ceiling(),
             version=1,
             parent=region,
@@ -171,12 +178,15 @@ class _Allen2022fmriSurfaceRSA(BenchmarkBase):
         return Score(np.mean(correlations))
 
 
-def Allen2022fmriSurfaceRSA(region: str) -> _Allen2022fmriSurfaceRSA:
-    return _Allen2022fmriSurfaceRSA(region)
+def Allen2022fmriSurfaceRSA(region: str,
+                             dataset_prefix: str = 'Allen2022_fmri_surface') -> _Allen2022fmriSurfaceRSA:
+    return _Allen2022fmriSurfaceRSA(region, dataset_prefix=dataset_prefix)
 
 
-def load_assembly(region, split, average_repetitions, noise_ceiling_threshold=NOISE_CEILING_THRESHOLD):
-    assembly = load_dataset(f'Allen2022_fmri_surface_{split}')
+def load_assembly(region, split, average_repetitions,
+                  dataset_prefix='Allen2022_fmri_surface',
+                  noise_ceiling_threshold=NOISE_CEILING_THRESHOLD):
+    assembly = load_dataset(f'{dataset_prefix}_{split}')
     assembly = filter_reliable_neuroids(assembly, noise_ceiling_threshold, 'nc_testset')
     assembly = assembly.sel(region=region)
     assembly['region'] = 'neuroid', [region] * len(assembly['neuroid'])
@@ -187,11 +197,15 @@ def load_assembly(region, split, average_repetitions, noise_ceiling_threshold=NO
     return assembly
 
 
-def load_full_assembly(region: str, noise_ceiling_threshold: float = NOISE_CEILING_THRESHOLD):
-    """Load all 515 images (train + test), repetitions averaged. For RSA benchmarks."""
+def load_full_assembly(region: str,
+                       dataset_prefix: str = 'Allen2022_fmri_surface',
+                       noise_ceiling_threshold: float = NOISE_CEILING_THRESHOLD):
+    """Load all images (train + test), repetitions averaged. For RSA benchmarks."""
     train = load_assembly(region, split='train', average_repetitions=True,
+                          dataset_prefix=dataset_prefix,
                           noise_ceiling_threshold=noise_ceiling_threshold)
     test = load_assembly(region, split='test', average_repetitions=True,
+                         dataset_prefix=dataset_prefix,
                          noise_ceiling_threshold=noise_ceiling_threshold)
 
     combined = type(train)(xr.concat([train, test], dim='presentation'))
@@ -200,7 +214,7 @@ def load_full_assembly(region: str, noise_ceiling_threshold: float = NOISE_CEILI
     test_stimuli = test.stimulus_set
     combined_stimuli = StimulusSet(pd.concat([train_stimuli, test_stimuli], ignore_index=True))
     combined_stimuli.stimulus_paths = {**train_stimuli.stimulus_paths, **test_stimuli.stimulus_paths}
-    combined_stimuli.identifier = 'Allen2022_fMRI_surface_full'
+    combined_stimuli.identifier = f'{dataset_prefix}_full'
     combined.attrs['stimulus_set'] = combined_stimuli
 
     return combined

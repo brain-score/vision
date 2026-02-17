@@ -43,8 +43,8 @@ NOISE_CEILING_THRESHOLD = 0.3 * 100
 # IT: NSD "streams" ventral parcellation (lh/rh.streams.nii.gz, label=5).
 #   This broad ventral-stream definition follows the Algonauts 2023 challenge
 #   (Gifford et al., arXiv:2301.03198) which used the same NSD streams ROI.
-#   See Sensitivity analysis (06_scientific_validation.ipynb) for comparison 
-#   ventral stream parcellation and Glasser HCP-MMP1 9-parcel IT definition (Herbart2023)
+#   See data/allen2022_fmri/data_packaging/notebooks/06_scientific_validation.ipynb
+#   for comparison with the Glasser HCP-MMP1 9-parcel IT definition (Hebart2023).
 
 def _Allen2022fmriSurface(region,
                           similarity_metric,

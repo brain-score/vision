@@ -43,7 +43,7 @@ STIM_ID_TEMPLATE = "Allen2022_fMRI{infix}_{split}_Stimuli"
 
 
 def load_assembly(brainscore_dir: Path, split: str, variant: str) -> NeuroidAssembly:
-    """Load a pre-built surface assembly from notebook 03 output."""
+    """Load a pre-built surface assembly from notebooks/surface/03_surface_packaging_prep.ipynb output."""
     path = brainscore_dir / f"Allen2022_fmri_surface_{split}{variant}.nc"
     da = xr.open_dataarray(str(path))
     da.load()

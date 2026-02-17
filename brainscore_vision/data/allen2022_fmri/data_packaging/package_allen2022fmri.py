@@ -42,7 +42,7 @@ VARIANTS = {
 
 
 def load_assembly(brainscore_dir: Path, split: str, variant: str) -> NeuroidAssembly:
-    """Load a pre-built assembly from notebook 03 output."""
+    """Load a pre-built assembly from notebooks/volumetric/03a_nsd_packaging_prep.ipynb output."""
     path = brainscore_dir / f"Allen2022_fmri_{split}{variant}.nc"
     da = xr.open_dataarray(str(path))
     da.load()

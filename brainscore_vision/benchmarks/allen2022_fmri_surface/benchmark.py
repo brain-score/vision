@@ -38,6 +38,13 @@ VISUAL_DEGREES = 8.4
 # Voxels with nc_testset <= this value are dropped by filter_reliable_neuroids.
 NOISE_CEILING_THRESHOLD = 0.3 * 100
 
+# ROI definitions:
+# V1, V2, V4: pRF-based ROIs from NSD (lh/rh.visualrois.nii.gz).
+# IT: NSD "streams" ventral parcellation (lh/rh.streams.nii.gz, label=5).
+#   This broad ventral-stream definition follows the Algonauts 2023 challenge
+#   (Gifford et al., arXiv:2301.03198) which used the same NSD streams ROI.
+#   See Sensitivity analysis (06_scientific_validation.ipynb) for comparison 
+#   ventral stream parcellation and Glasser HCP-MMP1 9-parcel IT definition (Herbart2023)
 
 def _Allen2022fmriSurface(region,
                           similarity_metric,
@@ -154,7 +161,14 @@ class _Allen2022fmriSurfaceRSA(BenchmarkBase):
         return ceiled_score
 
     def _compute_ceiling(self) -> Score:
-        """Leave-one-out inter-subject RDM consistency (Spearman)."""
+        """Leave-one-out inter-subject RDM consistency (Spearman).
+
+        Note: RDM ceilings are not comparable to ridge ceilings. IT-rdm
+        ceilings are high (~0.8) because categorical/semantic structure is
+        consistent across subjects; ridge ceilings reflect per-voxel signal
+        reliability and are typically lower (~0.4). Ceilings also increase
+        with subject count (mean-of-N-1 RDM is more stable in LOO).
+        """
         assembly = self._assembly
         subjects = np.unique(assembly['subject'].values)
 

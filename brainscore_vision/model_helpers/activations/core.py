@@ -241,6 +241,10 @@ class ActivationsExtractorHelper:
         # complication: (non)neuroid_coords are taken from the structure of layer_assemblies[0] i.e. the 1st assembly;
         # using these names/keys for all assemblies results in KeyError if the first layer contains flatten_coord_names
         # (see _package_layer) not present in later layers, e.g. first layer = conv, later layer = transformer layer
+        if len(layer_assemblies) == 1:
+            self._logger.debug("Skipping layer concatenation since only one layer was extracted")
+            return layer_assemblies[0]
+
         self._logger.debug(f"Merging {len(layer_assemblies)} layer assemblies")
         model_assembly = np.concatenate([a.values for a in layer_assemblies],
                                         axis=layer_assemblies[0].dims.index('neuroid'))
@@ -299,10 +303,12 @@ class ActivationsExtractorHelper:
                                                        for sample_index in flatten_indices]
                               for i in range(len(flatten_coord_names))}
             coords = {**coords, **{coord: ('neuroid', values) for coord, values in flatten_coords.items()}}
-        layer_assembly = NeuroidAssembly(activations, coords=coords, dims=['presentation', 'neuroid'])
+
         neuroid_id = [".".join([f"{value}" for value in values]) for values in zip(*[
-            layer_assembly[coord].values for coord in ['model', 'layer', 'neuroid_num']])]
-        layer_assembly['neuroid_id'] = 'neuroid', neuroid_id
+            coords[coord][1] for coord in ['model', 'layer', 'neuroid_num']])]
+        coords['neuroid_id'] = ('neuroid', neuroid_id)
+
+        layer_assembly = NeuroidAssembly(activations, coords=coords, dims=['presentation', 'neuroid'])
         return layer_assembly
 
     def insert_attrs(self, wrapper):

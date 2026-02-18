@@ -28,7 +28,7 @@ def _MajajHong2015PublicRegion(
 ):
     assembly_repetition = load_assembly(average_repetitions=False, region=region, access="public")
     assembly = load_assembly(average_repetitions=True, region=region, access="public")
-
+    # print(assembly_repetition)
     benchmark_identifier = f"MajajHong2015public.{region}"
 
     predictor_ceiler = SplitHalfPredictorConsistency()

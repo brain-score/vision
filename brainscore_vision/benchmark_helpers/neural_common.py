@@ -105,7 +105,6 @@ class TrainTestNeuralBenchmark(BenchmarkBase):
 
         # get the activations from the test set
         test_stimulus_set = self.test_assembly.stimulus_set
-        timebins = timebins_from_assembly(self.test_assembly)
         candidate.start_recording(self.region, time_bins=self.timebins)  
         stimulus_set = place_on_screen(test_stimulus_set, target_visual_degrees=candidate.visual_degrees(),
 									source_visual_degrees=self._visual_degrees)
@@ -311,7 +310,7 @@ def flatten_timebins_into_neuroids(assembly: DataArray) -> DataArray:
     )
     time_bin_start = assembly.coords['time_bin_start']
     assert len(time_bin_start) == n_timebins, "time_bin_start length does not match number of time bins"
-    recoding_times = np.tile(time_bin_start, reps=assembly.shape[1])
+    recording_times = np.tile(time_bin_start, reps=assembly.shape[1])
     window_start = assembly.coords['time_bin_start'].values[0]
     window_end = assembly.coords['time_bin_end'].values[-1]
 
@@ -319,7 +318,7 @@ def flatten_timebins_into_neuroids(assembly: DataArray) -> DataArray:
         flattened_data,
         dims=assembly.dims,
         coords={
-                "recoding_time": ("neuroid", recoding_times),
+                "recording_time": ("neuroid", recording_times),
                 "time_bin_start": ("time_bin", [window_start]),
                 "time_bin_end": ("time_bin", [window_end]),
                 **coords

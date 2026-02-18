@@ -159,7 +159,12 @@ class ActivationsExtractorHelper:
         return handle
 
     def _get_activations_batched(self, paths, layers, batch_size: int, require_variance: bool):
-        layer_activations = OrderedDict()
+        
+        # Preallocate arrays to collect activations efficiently
+        # each layer is allocated on the first batch, when we know its feature dimension
+        layer_activations = None
+        total_presentations = len(paths) * self._microsaccade_helper.number_of_trials
+        
         for batch_start in tqdm(range(0, len(paths), batch_size), unit_scale=batch_size, desc="activations"):
             batch_end = min(batch_start + batch_size, len(paths))
             batch_inputs = paths[batch_start:batch_end]
@@ -184,15 +189,22 @@ class ActivationsExtractorHelper:
             for hook in self._batch_activations_hooks.copy().values():
                 batch_activations = hook(batch_activations)
 
-            # add this batch to layer_activations
+            if layer_activations is None:
+                layer_activations = OrderedDict()
+                for layer_name, layer_output in batch_activations.items():
+                    final_shape = (total_presentations,) + layer_output.shape[1:]
+                    layer_activations[layer_name] = np.empty(final_shape, dtype=layer_output.dtype)
+
+            # Write batch results directly into preallocated arrays avoiding concatenation
+            batch_presentations = batch_activations[layers[0]].shape[0]
+            presentation_start = batch_start * self._microsaccade_helper.number_of_trials
+            presentation_end = presentation_start + batch_presentations
+            
             for layer_name, layer_output in batch_activations.items():
-                layer_activations.setdefault(layer_name, []).append(layer_output)
+                layer_activations[layer_name][presentation_start:presentation_end] = layer_output
 
-        # concat all batches
-        for layer_name, layer_outputs in layer_activations.items():
-            layer_activations[layer_name] = np.concatenate(layer_outputs)
-
-        return layer_activations  # this is all batches
+        self._logger.debug("All batches written to preallocated arrays")
+        return layer_activations
 
     def _get_batch_activations(self, inputs, layer_names, batch_size: int, require_variance: bool = False,
                                trial_number: int = 1):

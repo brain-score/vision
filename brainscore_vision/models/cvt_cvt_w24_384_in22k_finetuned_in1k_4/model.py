@@ -1,6 +1,6 @@
 from brainscore_vision.model_helpers.check_submission import check_models
 import functools
-from transformers import AutoFeatureExtractor, CvtForImageClassification
+from transformers import CvtForImageClassification
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from PIL import Image
 import numpy as np
@@ -15,9 +15,9 @@ def get_model(name):
     assert name == 'cvt_cvt-w24-384-in22k_finetuned-in1k_4'
     # https://huggingface.co/models?sort=downloads&search=cvt
     image_size = 384
-    processor = AutoFeatureExtractor.from_pretrained('microsoft/cvt-w24-384-22k')
     model = CvtForImageClassification.from_pretrained('microsoft/cvt-w24-384-22k')
-    preprocessing = functools.partial(load_preprocess_images, processor=processor, image_size=image_size)
+    # Use torchvision preprocessing (standard ImageNet normalization) instead of HuggingFace processor
+    preprocessing = functools.partial(load_preprocess_images, processor=None, image_size=image_size)
     wrapper = PytorchWrapper(identifier=name, model=model, preprocessing=preprocessing)
     wrapper.image_size = image_size
 

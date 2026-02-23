@@ -15,7 +15,7 @@ from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_
 # Please load your pytorch model for usage in CPU. There won't be GPUs available for scoring your model.
 # If the model requires a GPU, contact the brain-score team directly.
 
-from brainscore_vision.model_helpers.s3 import load_file
+from brainscore_core.supported_data_standards.brainio.s3 import load_file
 device = torch.device("cpu")
 
 def get_model_list():
@@ -24,7 +24,7 @@ def get_model_list():
 def get_model(name):
     assert name == 'resnet50_st_wzc_seed2_2'
 
-    from brainscore_vision.model_helpers.s3 import load_file
+    from brainscore_core.supported_data_standards.brainio.s3 import load_file
     file_path = load_file(bucket="brainscore-storage", folder_name="brainscore-vision/models/user_672/",
                           relative_path="resnet50_st_wzc_seed2_checkpoint_89.pth",
                           version_id="EQobKQ699nXKME_5qUExwRWUGVqmY_DX",

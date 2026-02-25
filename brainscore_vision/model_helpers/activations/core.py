@@ -102,7 +102,11 @@ class ActivationsExtractorHelper:
             # store the reduced activations.
             reduced_paths = self._reduce_paths(stimuli_paths)
             activations = fnc(layers=layers, stimuli_paths=reduced_paths, require_variance=require_variance)
-            activations = self._expand_paths(activations, original_paths=stimuli_paths)
+            
+            # only expand paths if necessary
+            if (len(reduced_paths) != len(stimuli_paths)): 
+                self._logger.debug("Expanding stimulus paths")
+                activations = self._expand_paths(activations, original_paths=stimuli_paths)
         return activations
 
     @store_xarray(identifier_ignore=['stimuli_paths', 'layers'], combine_fields={'layers': 'layer'})
@@ -120,7 +124,8 @@ class ActivationsExtractorHelper:
         return self._package(layer_activations=layer_activations, stimuli_paths=stimuli_paths, require_variance=require_variance)
 
     def _reduce_paths(self, stimuli_paths):
-        return list(set(stimuli_paths))
+        # remove duplicate path entries, preserving order
+        return list(dict.fromkeys(stimuli_paths))
 
     def _expand_paths(self, activations, original_paths):
         activations_paths = activations['stimulus_path'].values
@@ -159,7 +164,12 @@ class ActivationsExtractorHelper:
         return handle
 
     def _get_activations_batched(self, paths, layers, batch_size: int, require_variance: bool):
-        layer_activations = OrderedDict()
+        
+        # Preallocate arrays to collect activations efficiently
+        # each layer is allocated on the first batch, when we know its feature dimension
+        layer_activations = None
+        total_presentations = len(paths) * self._microsaccade_helper.number_of_trials
+        
         for batch_start in tqdm(range(0, len(paths), batch_size), unit_scale=batch_size, desc="activations"):
             batch_end = min(batch_start + batch_size, len(paths))
             batch_inputs = paths[batch_start:batch_end]
@@ -184,15 +194,22 @@ class ActivationsExtractorHelper:
             for hook in self._batch_activations_hooks.copy().values():
                 batch_activations = hook(batch_activations)
 
-            # add this batch to layer_activations
+            if layer_activations is None:
+                layer_activations = OrderedDict()
+                for layer_name, layer_output in batch_activations.items():
+                    final_shape = (total_presentations,) + layer_output.shape[1:]
+                    layer_activations[layer_name] = np.empty(final_shape, dtype=layer_output.dtype)
+
+            # Write batch results directly into preallocated arrays avoiding concatenation
+            batch_presentations = batch_activations[layers[0]].shape[0]
+            presentation_start = batch_start * self._microsaccade_helper.number_of_trials
+            presentation_end = presentation_start + batch_presentations
+            
             for layer_name, layer_output in batch_activations.items():
-                layer_activations.setdefault(layer_name, []).append(layer_output)
+                layer_activations[layer_name][presentation_start:presentation_end] = layer_output
 
-        # concat all batches
-        for layer_name, layer_outputs in layer_activations.items():
-            layer_activations[layer_name] = np.concatenate(layer_outputs)
-
-        return layer_activations  # this is all batches
+        self._logger.debug("All batches written to preallocated arrays")
+        return layer_activations
 
     def _get_batch_activations(self, inputs, layer_names, batch_size: int, require_variance: bool = False,
                                trial_number: int = 1):
@@ -241,6 +258,10 @@ class ActivationsExtractorHelper:
         # complication: (non)neuroid_coords are taken from the structure of layer_assemblies[0] i.e. the 1st assembly;
         # using these names/keys for all assemblies results in KeyError if the first layer contains flatten_coord_names
         # (see _package_layer) not present in later layers, e.g. first layer = conv, later layer = transformer layer
+        if len(layer_assemblies) == 1:
+            self._logger.debug("Skipping layer concatenation since only one layer was extracted")
+            return layer_assemblies[0]
+
         self._logger.debug(f"Merging {len(layer_assemblies)} layer assemblies")
         model_assembly = np.concatenate([a.values for a in layer_assemblies],
                                         axis=layer_assemblies[0].dims.index('neuroid'))
@@ -299,10 +320,12 @@ class ActivationsExtractorHelper:
                                                        for sample_index in flatten_indices]
                               for i in range(len(flatten_coord_names))}
             coords = {**coords, **{coord: ('neuroid', values) for coord, values in flatten_coords.items()}}
-        layer_assembly = NeuroidAssembly(activations, coords=coords, dims=['presentation', 'neuroid'])
+
         neuroid_id = [".".join([f"{value}" for value in values]) for values in zip(*[
-            layer_assembly[coord].values for coord in ['model', 'layer', 'neuroid_num']])]
-        layer_assembly['neuroid_id'] = 'neuroid', neuroid_id
+            coords[coord][1] for coord in ['model', 'layer', 'neuroid_num']])]
+        coords['neuroid_id'] = ('neuroid', neuroid_id)
+
+        layer_assembly = NeuroidAssembly(activations, coords=coords, dims=['presentation', 'neuroid'])
         return layer_assembly
 
     def insert_attrs(self, wrapper):

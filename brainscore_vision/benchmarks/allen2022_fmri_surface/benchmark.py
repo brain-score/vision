@@ -1,20 +1,13 @@
-import numpy as np
 import pandas as pd
 import xarray as xr
-from scipy.stats import spearmanr
 
-from brainscore_core.metrics import Score
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from brainscore_vision import load_dataset, load_metric
-from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.benchmark_helpers.neural_common import (
-    TrainTestNeuralBenchmark, average_repetition, filter_reliable_neuroids,
-    timebins_from_assembly,
+    TrainTestNeuralBenchmark, RSABenchmark, average_repetition,
+    filter_reliable_neuroids,
 )
-from brainscore_vision.benchmark_helpers.screen import place_on_screen
-from brainscore_vision.metrics.rdm.metric import RDM, RDMSimilarity
 from brainscore_vision.metrics.regression_correlation.metric import ALPHA_LIST
-from brainscore_vision.model_interface import BrainModel
 from brainscore_vision.utils import LazyLoad
 
 BIBTEX = """@article{allen_massive_2022,
@@ -99,102 +92,19 @@ def Allen2022fmriSurface(region: str, metric_type: str,
                                  alpha_coord='subject', per_voxel_ceilings=False)
 
 
-class _Allen2022fmriSurfaceRSA(BenchmarkBase):
-    """RSA benchmark on fsaverage surface data.
-
-    Uses all 515 images (train + test combined) since RSA has no fitting step
-    and benefits from the larger RDM (132k unique pairs vs 5k with test-only).
-    Scores per subject individually, then averages across subjects.
-    Ceiling is leave-one-out inter-subject RDM correlation (Spearman on upper triangle).
-    """
-
-    def __init__(self, region: str, dataset_prefix: str = 'Allen2022_fmri_surface'):
-        self.region = region
-        self._assembly = LazyLoad(lambda region=region, dp=dataset_prefix:
-                                  load_full_assembly(region=region, dataset_prefix=dp))
-        self._rdm = RDM()
-        self._similarity = RDMSimilarity()
-        self._visual_degrees = VISUAL_DEGREES
-        self._number_of_trials = 1
-
-        super().__init__(
-            identifier=f'{dataset_prefix}.{region}-rdm',
-            ceiling_func=lambda: self._compute_ceiling(),
-            version=1,
-            parent=region,
-            bibtex=BIBTEX,
-        )
-
-    def __call__(self, candidate: BrainModel) -> Score:
-        assembly = self._assembly
-        timebins = timebins_from_assembly(assembly)
-
-        candidate.start_recording(self.region, time_bins=timebins)
-        stimulus_set = place_on_screen(
-            assembly.stimulus_set,
-            target_visual_degrees=candidate.visual_degrees(),
-            source_visual_degrees=self._visual_degrees,
-        )
-        model_assembly = candidate.look_at(
-            stimulus_set, number_of_trials=self._number_of_trials,
-        )
-        if 'time_bin' in model_assembly.dims and model_assembly.sizes['time_bin'] == 1:
-            model_assembly = model_assembly.squeeze('time_bin')
-
-        model_rdm = self._rdm(model_assembly)
-
-        subjects = np.unique(assembly['subject'].values)
-        subject_scores = []
-        for subject in subjects:
-            neural_subj = assembly.sel(neuroid=assembly['subject'] == subject)
-            neural_rdm = self._rdm(neural_subj)
-            similarity = self._similarity(model_rdm, neural_rdm)
-            subject_scores.append(float(similarity))
-
-        raw_score = Score(np.mean(subject_scores))
-        raw_score.attrs['subject_scores'] = subject_scores
-
-        ceiling = self.ceiling
-        ceiled_score = Score(raw_score.values / ceiling.values)
-        ceiled_score.attrs[Score.RAW_VALUES_KEY] = raw_score
-        ceiled_score.attrs['ceiling'] = ceiling
-        return ceiled_score
-
-    def _compute_ceiling(self) -> Score:
-        """Leave-one-out inter-subject RDM consistency (Spearman).
-
-        Note: RDM ceilings are not comparable to ridge ceilings. IT-rdm
-        ceilings are high (~0.8) because categorical/semantic structure is
-        consistent across subjects; ridge ceilings reflect per-voxel signal
-        reliability and are typically lower (~0.4). Ceilings also increase
-        with subject count (mean-of-N-1 RDM is more stable in LOO).
-        """
-        assembly = self._assembly
-        subjects = np.unique(assembly['subject'].values)
-
-        subject_rdms = {}
-        for subject in subjects:
-            neural_subj = assembly.sel(neuroid=assembly['subject'] == subject)
-            subject_rdms[subject] = self._rdm(neural_subj).values
-
-        correlations = []
-        for subject in subjects:
-            other_rdms = [subject_rdms[s] for s in subjects if s != subject]
-            mean_other_rdm = np.mean(other_rdms, axis=0)
-
-            mask = np.triu(np.ones_like(subject_rdms[subject], dtype=bool), k=1)
-            subj_triu = subject_rdms[subject][mask]
-            other_triu = mean_other_rdm[mask]
-
-            corr, _ = spearmanr(subj_triu, other_triu)
-            correlations.append(corr)
-
-        return Score(np.mean(correlations))
-
-
 def Allen2022fmriSurfaceRSA(region: str,
-                             dataset_prefix: str = 'Allen2022_fmri_surface') -> _Allen2022fmriSurfaceRSA:
-    return _Allen2022fmriSurfaceRSA(region, dataset_prefix=dataset_prefix)
+                             dataset_prefix: str = 'Allen2022_fmri_surface') -> RSABenchmark:
+    assembly = LazyLoad(lambda region=region, dp=dataset_prefix:
+                        load_full_assembly(region=region, dataset_prefix=dp))
+    return RSABenchmark(
+        identifier=f'{dataset_prefix}.{region}-rdm',
+        version=1,
+        assembly=assembly,
+        region=region,
+        visual_degrees=VISUAL_DEGREES,
+        number_of_trials=1,
+        bibtex=BIBTEX,
+    )
 
 
 def load_assembly(region, split, average_repetitions,

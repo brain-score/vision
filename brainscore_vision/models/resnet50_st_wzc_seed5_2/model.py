@@ -15,7 +15,7 @@ from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_
 # Please load your pytorch model for usage in CPU. There won't be GPUs available for scoring your model.
 # If the model requires a GPU, contact the brain-score team directly.
 
-from brainscore_vision.model_helpers.s3 import load_file
+from brainscore_core.supported_data_standards.brainio.s3 import load_file
 device = torch.device("cpu")
 
 def get_model_list():

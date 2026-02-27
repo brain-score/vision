@@ -8,13 +8,13 @@ benchmarks:
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/hermann2020
             extra_notes: null
         data:
-            benchmark_type: behavior
-            task: null
+            benchmark_type: behavioral
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: null
             pre_processing: null
@@ -36,13 +36,13 @@ benchmarks:
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/hermann2020
             extra_notes: null
         data:
-            benchmark_type: behavior
-            task: null
+            benchmark_type: behavioral
+            task: passive_viewing
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: null
             pre_processing: null

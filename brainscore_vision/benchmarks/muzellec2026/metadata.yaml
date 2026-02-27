@@ -1,0 +1,64 @@
+benchmarks:
+
+  MajajHong2015public.IT-reverse_pls:
+    stimulus_set:
+      num_stimuli: 2560
+      datatype: image
+      stimuli_subtype: null
+      total_size_mb: 2.1
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/majajhong2015
+      extra_notes: null
+
+    data:
+      benchmark_type: neural
+      task: null
+      region: IT
+      hemisphere: L
+      num_recording_sites: null
+      duration_ms: null
+      species: macaque
+      datatype: spike_rate
+      num_subjects: null
+      pre_processing: trial-averaged responses (per benchmark definition)
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/majajhong2015
+      extra_notes: Reverse benchmark implemented in brainscore_vision/benchmarks/muzellec2026
+      data_publicly_available: true
+
+    metric:
+      type: reverse_pls
+      reference: null
+      public: true
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
+      extra_notes: Neural-to-model reverse predictivity using PLS regression
+
+
+  MajajHong2015public.V4-reverse_pls:
+    stimulus_set:
+      num_stimuli: 2560
+      datatype: image
+      stimuli_subtype: null
+      total_size_mb: 2.1
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/majajhong2015
+      extra_notes: null
+
+    data:
+      benchmark_type: neural
+      task: null
+      region: V4
+      hemisphere: L
+      num_recording_sites: null
+      duration_ms: null
+      species: macaque
+      datatype: spike_rate
+      num_subjects: null
+      pre_processing: trial-averaged responses (per benchmark definition)
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/majajhong2015
+      extra_notes: Reverse benchmark implemented in brainscore_vision/benchmarks/muzellec2026
+      data_publicly_available: true
+
+    metric:
+      type: reverse_pls
+      reference: null
+      public: true
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
+      extra_notes: Neural-to-model reverse predictivity using PLS regression

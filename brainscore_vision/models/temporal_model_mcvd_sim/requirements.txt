@@ -1,0 +1,6 @@
+PyYAML
+chardet
+progressbar
+psutil
+ninja
+phys_readouts@ git+https://github.com/thekej/phys_readouts.git#egg=phys_readouts

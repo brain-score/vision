@@ -1,0 +1,5 @@
+numpy
+netCDF4
+torch
+torchvision
+transformers

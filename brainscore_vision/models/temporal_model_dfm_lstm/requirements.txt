@@ -1,0 +1,19 @@
+numpy
+netCDF4
+torch
+torchvision
+torchaudio
+transformers
+phys_readouts@ git+https://github.com/thekej/phys_readouts.git#egg=phys_readouts
+einops
+accelerate
+scipy  
+lpips
+omegaconf
+torch-efficient-distloss
+torchtyping
+typeguard
+hydra-core 
+jaxtyping
+scikit-learn 
+timm

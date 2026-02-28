@@ -642,7 +642,7 @@ def resnet_pvc(**kwargs):
     return ResNetPVC(Bottleneck, [3, 4, 6, 3], **kwargs)
 
 
-# The model names to consider. If you are making a custom model, then you most likley want to change
+# The model names to consider. If you are making a custom model, then you most likely want to change
 # the return value of this function.
 def get_model_list():
     """
@@ -706,7 +706,7 @@ def get_model(name):
 
 
 # get_layers method to tell the code what layers to consider. If you are submitting a custom
-# model, then you will most likley need to change this method's return values.
+# model, then you will most likely need to change this method's return values.
 def get_layers(name):
     """
     This method returns a list of string layer names to consider per model. The benchmarks maps brain regions to

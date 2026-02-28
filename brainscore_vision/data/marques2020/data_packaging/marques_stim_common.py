@@ -205,11 +205,11 @@ def gen_grating_stim(degrees, size_px, stim_name, grat_params, save_dir):
     for i in np.arange(nStim):
         stim_id = np.uint64(grat_params[i, 0] * 10e9 + grat_params[i, 1] * 10e7 + grat_params[i, 3] * 10e5 +
                             grat_params[i, 4] * 10e3 + grat_params[i, 5] * 10e1 + grat_params[i, 6])
-        grat = Grating(width=width, pos=[grat_params[i, 0], grat_params[i, 1]], contrast=grat_params[i, 2],
+        great = Grating(width=width, pos=[grat_params[i, 0], grat_params[i, 1]], contrast=grat_params[i, 2],
                        rad=grat_params[i, 3], sf=grat_params[i, 4], orientation=grat_params[i, 5],
                        phase=grat_params[i, 6], stim_id= stim_id, format_id='{0:012d}', save_dir=save_dir,
                        size_px=[size_px, size_px], type_name=stim_name)
-        image_names[i] = (grat.save_stimulus())
+        image_names[i] = (great.save_stimulus())
         image_local_file_path[i] = save_dir + os.sep + image_names[i]
         all_y[i] = grat_params[i, 0]
         all_x[i] = grat_params[i, 1]
@@ -264,7 +264,7 @@ def gen_grating_stim_old(degrees, size_px, stim_name, grat_contrast, grat_pos, g
                     for s in np.arange(len(grat_sf)):
                         for o in np.arange(len(grat_orientation)):
                             for p in np.arange(len(grat_phase)):
-                                grat = Grating(width=width, pos=[grat_pos[y], grat_pos[x]],
+                                great = Grating(width=width, pos=[grat_pos[y], grat_pos[x]],
                                                contrast=grat_contrast[c], rad=grat_rad[r],
                                                sf=grat_sf[s], orientation=grat_orientation[o],
                                                phase=grat_phase[p],
@@ -272,7 +272,7 @@ def gen_grating_stim_old(degrees, size_px, stim_name, grat_contrast, grat_pos, g
                                                    y * 10e9 + x * 10e7 + r * 10e5 + s * 10e3 + o * 10e1 + p),
                                                format_id='{0:012d}', save_dir=save_dir, size_px=[size_px, size_px],
                                                type_name=stim_name)
-                                image_names[i] = (grat.save_stimulus())
+                                image_names[i] = (great.save_stimulus())
                                 image_local_file_path[i] = save_dir + os.sep + image_names[i]
                                 all_y[i] = grat_pos[y]
                                 all_x[i] = grat_pos[x]

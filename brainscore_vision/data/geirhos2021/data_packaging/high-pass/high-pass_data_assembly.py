@@ -15,7 +15,7 @@ https://arxiv.org/pdf/1706.06969.pdf
  - 16 image categories
  - for the this benchmark (high-pass) subjects saw the EXACT image indicated with the variable/column name
    image_lookup_id, and not a variation of it (no distortions, editing, etc). Condition is unclear based on 
-   documentation fromm source repo, needs follow up. 
+   documentation from source repo, needs follow up. 
 '''
 
 # initial csv to dataframe processing:

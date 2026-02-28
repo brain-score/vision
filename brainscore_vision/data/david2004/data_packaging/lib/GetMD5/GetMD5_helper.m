@@ -9,7 +9,7 @@ function S = GetMD5_helper(V)
 %   V: Array of any type, which is not handled in the C-Mex.
 % OUTPUT:
 %   S: Array or struct containing elementary types only.
-%      The implementation migth be changed by the user!
+%      The implementation might be changed by the user!
 %      Default:
 %      - Sparse arrays:   Struct containing the indices and values.
 %      - Function handle: The reply of FUNCTIONS and the size and date of the
@@ -76,7 +76,7 @@ else  % Most likely this is a user-defined object: =============================
       S = uint8(V);
       
       % Matt Raum had this excellent idea - unfortunately this function is
-      % undocumented and might not be supported in te future:
+      % undocumented and might not be supported in the future:
       % S = getByteStreamFromArray(DataObj);
 
    catch ME  % Or perhaps this is better:

@@ -38,7 +38,7 @@ class GFB(nn.Module):
         self.stride = (stride, stride)
         self.padding = (kernel_size // 2, kernel_size // 2)
 
-        # Param instatiations
+        # Param instantiations
         self.weight = torch.zeros((out_channels, in_channels, kernel_size, kernel_size))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

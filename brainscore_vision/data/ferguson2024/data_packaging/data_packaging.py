@@ -68,7 +68,7 @@ def create_assembly_and_upload(name: str, experiment: str, upload_to_s3=True) ->
     :param name: the name of the experiment, usually Ferguson2024
     :param experiment: the dataset, i.e. color
     :param upload_to_s3: True if you want to upload this to BrainIO on S3
-    :return: the assmebly
+    :return: the assembly
     """
     all_subjects = pd.read_csv(f'csvs/{experiment}_sanity_processed.csv')
 

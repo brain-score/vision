@@ -193,7 +193,7 @@ else
    Flags = cat(2, Flags, {'-compatibleArrayDims'});
 end
 
-% Define endianess directive:
+% Define endianness directive:
 if isLittleEndian
    Flags = cat(2, Flags, {'-D_LITTLE_ENDIAN'});
 else  % Does Matlab run on a big endian machine currently?!
@@ -270,7 +270,7 @@ end
 % Run the unit-test: -----------------------------------------------------------
 if ~isempty(UnitTestFcn) && compiled
    fprintf('\n\n== Post processing:\n');
-   [dum, UnitTestName] = fileparts(UnitTestFcn);  %#ok<ASGLU> % Remove extension
+   [dummy, UnitTestName] = fileparts(UnitTestFcn);  %#ok<ASGLU> % Remove extension
    if ~isempty(which(UnitTestName))
       fprintf('  Call: %s\n\n', UnitTestName);
       feval(UnitTestName);

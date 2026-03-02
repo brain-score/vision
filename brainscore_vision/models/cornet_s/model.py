@@ -37,7 +37,7 @@ def get_model(name):
                                     relative_path="cornet_s/cornet_s_epoch43.pth.tar",
                                     version_id="null",
                                     sha1="a4bfd8eda33b45fd945da1b972ab0b7cad38d60f")
-    checkpoint = torch.load(weights_path, map_location=lambda storage, loc: storage)  # map onto cpu
+    checkpoint = torch.load(weights_path, map_location=lambda storage, loc: storage, weights_only=False)  # map onto cpu
     model.load_state_dict(checkpoint['state_dict'])
     model = model.module  # unwrap
     preprocessing = functools.partial(load_preprocess_images, image_size=224)

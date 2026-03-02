@@ -1,6 +1,7 @@
 from brainscore_vision import metric_registry
 from .metric import CrossRegressedCorrelation, pls_regression, ridge_cv_regression, ridge_regression, single_regression, linear_regression,\
-    pearsonr_correlation
+    pearsonr_correlation, ReverseCrossRegressedCorrelation, ReverseTrainTestSplitCorrelation
+    
 
 #metrics using cross-validation to generate multiple train-test splits from a monolithic dataset
 
@@ -26,12 +27,20 @@ metric_registry['linear_predictivity_split'] = lambda *args, **kwargs: TrainTest
 metric_registry['ridgecv_split'] = lambda *args, **kwargs: TrainTestSplitCorrelation(
     regression=ridge_cv_regression(**kwargs), correlation=pearsonr_correlation(), *args, **kwargs)
 
+metric_registry["reverse_pls_cv"] = lambda *args, **kwargs: ReverseCrossRegressedCorrelation(
+    regression=pls_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
+
+metric_registry['reverse_pls_split'] = lambda *args, **kwargs: ReverseTrainTestSplitCorrelation(
+    regression=pls_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
+
 
 #backwards compatibility
 metric_registry['pls'] = metric_registry['pls_cv']
 metric_registry['ridge'] = metric_registry['ridge_cv']
 metric_registry['neuron_to_neuron'] = metric_registry['neuron_to_neuron_cv']
 metric_registry['linear_predictivity'] = metric_registry['linear_predictivity_cv']
+
+metric_registry['reverse_pls'] = metric_registry['reverse_pls_cv']
 
 
 # temporal metrics
@@ -68,4 +77,13 @@ BIBTEX_NEURONTONEURON = """@techreport{arend2018single,
   author={Arend, Luke and Han, Yena and Schrimpf, Martin and Bashivan, Pouya and Kar, Kohitij and Poggio, Tomaso and DiCarlo, James J and Boix, Xavier},
   year={2018},
   institution={Center for Brains, Minds and Machines (CBMM)}
+}"""
+
+BIBTEX_REVERSE_PLS = """@article{muzellec2025reverse,
+  title={Reverse Predictivity: Going Beyond One-Way Mapping to Compare Artificial Neural Network Models and Brains},
+  author={Muzellec, Sabine and Kar, Kohitij},
+  journal={bioRxiv},
+  pages={2025--08},
+  year={2025},
+  publisher={Cold Spring Harbor Laboratory}
 }"""

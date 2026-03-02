@@ -12,10 +12,22 @@ from brainscore_vision.benchmark_helpers.test_helper import VisualDegreesTests, 
 from brainscore_vision.benchmarks.kar2019 import DicarloKar2019OST
 from brainscore_core.supported_data_standards.brainio import s3
 
+
+def _cuda_available() -> bool:
+    try:
+        import torch
+        return torch.cuda.is_available()
+    except ImportError:
+        return False
+
+
+requires_cuda = pytest.mark.skipif(not _cuda_available(), reason="CUDA not available")
+
 visual_degrees = VisualDegreesTests()
 number_trials = NumberOfTrialsTests()
 
 
+@requires_cuda
 @pytest.mark.memory_intense
 @pytest.mark.private_access
 @pytest.mark.slow
@@ -35,6 +47,7 @@ def test_Kar2019ost_cornet_s():
     assert score == approx(.316, abs=.005)
 
 
+@requires_cuda
 @pytest.mark.private_access
 @pytest.mark.parametrize('benchmark, candidate_degrees, image_id, expected', [
     pytest.param('Kar2019-ost', 14, '6d19b24c29832dfb28360e7731e3261c13a4287f',
@@ -46,11 +59,13 @@ def test_amount_gray(benchmark: str, candidate_degrees: int, image_id: str, expe
     visual_degrees.amount_gray_test(benchmark, candidate_degrees, image_id, expected)
 
 
+@requires_cuda
 @pytest.mark.private_access
 def test_repetitions():
     number_trials.repetitions_test('Kar2019-ost')
 
 
+@requires_cuda
 @pytest.mark.memory_intense
 @pytest.mark.private_access
 def test_no_time():
@@ -73,6 +88,7 @@ def test_no_time():
     assert score.attrs['ceiling'] == approx(.79)
 
 
+@requires_cuda
 @pytest.mark.memory_intense
 @pytest.mark.private_access
 def test_random_time():

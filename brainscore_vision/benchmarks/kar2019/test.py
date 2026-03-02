@@ -47,7 +47,6 @@ def test_Kar2019ost_cornet_s():
     assert score == approx(.316, abs=.005)
 
 
-@requires_cuda
 @pytest.mark.private_access
 @pytest.mark.parametrize('benchmark, candidate_degrees, image_id, expected', [
     pytest.param('Kar2019-ost', 14, '6d19b24c29832dfb28360e7731e3261c13a4287f',
@@ -59,7 +58,6 @@ def test_amount_gray(benchmark: str, candidate_degrees: int, image_id: str, expe
     visual_degrees.amount_gray_test(benchmark, candidate_degrees, image_id, expected)
 
 
-@requires_cuda
 @pytest.mark.private_access
 def test_repetitions():
     number_trials.repetitions_test('Kar2019-ost')

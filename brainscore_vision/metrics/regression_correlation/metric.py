@@ -33,6 +33,20 @@ class CrossRegressedCorrelation(Metric):
     def aggregate(self, scores):
         return scores.median(dim='neuroid')
 
+class ReverseCrossRegressedCorrelation(CrossRegressedCorrelation):
+    """
+    Reverse predictivity version of CrossRegressedCorrelation.
+    Computes neural -> model instead of model -> neural.
+    """
+
+    def __call__(self, source, target):
+        # forward convention is:
+        #   source = model
+        #   target = neural
+        # reverse predictivity swaps them
+        return super().__call__(target, source)
+
+
 
 class ScaledCrossRegressedCorrelation(Metric):
     def __init__(self, *args, **kwargs):
@@ -100,6 +114,19 @@ class TrainTestSplitCorrelation(Metric):
 
     def aggregate(self, scores):
         return scores.median(dim='neuroid')
+
+class ReverseTrainTestSplitCorrelation(TrainTestSplitCorrelation):
+    """
+    Reverse predictivity version of TrainTestSplitCorrelation.
+    """
+
+    def __call__(self, *, source_train, target_train, source_test, target_test):
+        return super().__call__(
+            source_train=target_train,
+            target_train=source_train,
+            source_test=target_test,
+            target_test=source_test,
+        )
 
 def pls_regression(regression_kwargs=None, xarray_kwargs=None):
     regression_defaults = dict(n_components=25, scale=False)

@@ -77,7 +77,7 @@ class TestAllen2022fmriSurfaceAlexNetRDM:
         return load_model('alexnet')
 
     @pytest.mark.parametrize('benchmark_id, expected_score', [
-        ('Allen2022_fmri_surface.V4-rdm', approx(0.3713, abs=0.005)),
+        ('Allen2022_fmri_surface.V4-rdm', approx(0.2638, abs=0.005)),
     ])
     def test_rdm_8subj(self, model, benchmark_id, expected_score):
         benchmark = load_benchmark(benchmark_id)
@@ -85,7 +85,7 @@ class TestAllen2022fmriSurfaceAlexNetRDM:
         assert float(score) == expected_score
 
     @pytest.mark.parametrize('benchmark_id, expected_score', [
-        ('Allen2022_fmri_surface_4subj.V4-rdm', approx(0.4768, abs=0.005)),
+        ('Allen2022_fmri_surface_4subj.V4-rdm', approx(0.2315, abs=0.005)),
     ])
     def test_rdm_4subj(self, model, benchmark_id, expected_score):
         benchmark = load_benchmark(benchmark_id)

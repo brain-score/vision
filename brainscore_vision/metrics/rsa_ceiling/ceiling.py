@@ -8,11 +8,19 @@ from brainscore_vision.metrics.rdm.metric import RDM
 
 
 class RSACeiling(Ceiling):
-    """Leave-one-out inter-subject RDM consistency (Spearman).
+    """Inter-subject RDM consistency ceiling (Spearman).
 
-    For each held-out subject, computes the Spearman rank correlation between
-    that subject's RDM upper triangle and the mean of all other subjects'
-    RDM upper triangles.  Returns the mean correlation across subjects.
+    Computes two ceiling estimates and returns the upper bound (Nili et al.,
+    2014) for ceiling-normalization, with the LOO lower bound stored in
+    ``score.attrs['lower_bound_loo']``.
+
+    Upper bound: each subject's RDM vs. the mean RDM across *all* subjects
+    (including itself).  This is a hard upper limit that structurally matches
+    model evaluation and guarantees ceiled scores <= 1.
+
+    Lower bound (LOO): each subject's RDM vs. the mean of the remaining N-1
+    subjects.  Biased low for finite subject counts because the mean-of-(N-1)
+    is a noisier estimate of the shared signal.
 
     Unlike InternalConsistency,no Spearman-Brown correction is applied.  
     InternalConsistency splits a single subject's repetitions into halves, so
@@ -20,15 +28,6 @@ class RSACeiling(Ceiling):
     compensates for that.  Here, each subject's RDM is already computed 
     from all their data (all voxels, all stimuli, repetitions already 
     averaged), so there is no split-induced underestimation to correct for.
-
-    The ceiling value increases with subject count because the mean-of-(N-1)
-    RDM becomes more stable with more subjects.  This reflects genuinely better
-    estimation of the shared representational structure.
-
-    RSA ceilings are not comparable to ridge ceilings.  RSA ceilings tend to
-    be high (e.g. ~0.8 for IT) because categorical structure is consistent
-    across subjects; ridge ceilings reflect per-voxel signal reliability and
-    are typically lower (e.g. ~0.4).
 
     Requires the assembly to have a ``subject`` coordinate on the neuroid
     dimension.
@@ -51,16 +50,28 @@ class RSACeiling(Ceiling):
             neural_subj = assembly.sel(neuroid=assembly['subject'] == subject)
             subject_rdms[subject] = self._rdm(neural_subj).values
 
-        correlations = []
-        for subject in subjects:
-            other_rdms = [subject_rdms[s] for s in subjects if s != subject]
-            mean_other_rdm = np.mean(other_rdms, axis=0)
+        rdm_stack = np.array([subject_rdms[s] for s in subjects])
+        mean_all_rdm = np.mean(rdm_stack, axis=0)
+        mask = np.triu(np.ones_like(mean_all_rdm, dtype=bool), k=1)
 
-            mask = np.triu(np.ones_like(subject_rdms[subject], dtype=bool), k=1)
+        loo_correlations = []
+        upper_correlations = []
+        for i, subject in enumerate(subjects):
             subj_triu = subject_rdms[subject][mask]
-            other_triu = mean_other_rdm[mask]
 
-            corr, _ = self._similarity_func(subj_triu, other_triu)
-            correlations.append(corr)
+            # LOO: mean of N-1 others (lower bound)
+            other_rdms = np.delete(rdm_stack, i, axis=0)
+            mean_other_rdm = np.mean(other_rdms, axis=0)
+            loo_corr, _ = self._similarity_func(subj_triu, mean_other_rdm[mask])
+            loo_correlations.append(loo_corr)
 
-        return Score(np.mean(correlations))
+            # Upper: mean of all N subjects (Nili et al., 2014)
+            upper_corr, _ = self._similarity_func(subj_triu, mean_all_rdm[mask])
+            upper_correlations.append(upper_corr)
+
+        upper = Score(np.mean(upper_correlations))
+        lower = Score(np.mean(loo_correlations))
+
+        upper.attrs['upper'] = upper
+        upper.attrs['lower_bound_loo'] = lower
+        return upper

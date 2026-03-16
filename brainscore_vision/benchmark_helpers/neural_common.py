@@ -187,6 +187,15 @@ class RSABenchmark(BenchmarkBase):
     RDM), then averages across subjects.  Ceiling-normalizes by simple division
     (raw_score / ceiling), not by explained variance (r^2 / ceiling). 
 
+    The ceiling is computed by :class:`RSACeiling`, which returns two estimates:
+
+    - **Upper bound** (Nili et al., 2014): each subject vs. mean of *all*
+      subjects.  This is the hard upper limit used for ceiled_score normalization
+      (guarantees ceiled scores <= 1).
+    - **Lower bound** (LOO): each subject vs. mean of *N-1* others.  Stored
+      in ``ceiling.attrs['lower_bound_loo']`` for reference.  This estimate is
+      biased low for finite subject counts.
+
     :param identifier: unique benchmark identifier, e.g. ``'Allen2022_fmri.IT-rdm'``.
     :param version: benchmark version number.
     :param assembly: neural assembly (or :class:`LazyLoad`) with ``subject``

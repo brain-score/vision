@@ -41,7 +41,7 @@ Submission System Components
     Jenkins is a continuous integration tool, which we use to automatically run 
     project unittests and the scoring process for models of the brain. `Jenkins is running on Braintree <http://braintree.mit.edu:8080/>`_ 
     - DiCarlo lab's internal server. Jenkins defines different jobs and executes different tasks. The task for a new submission is
-    triggered via the website and the unittest tasks are triggerd by GitHub web hooks. Once the jobs are triggered,
+    triggered via the website and the unittest tasks are triggered by GitHub web hooks. Once the jobs are triggered,
     Jenkins runs a procedure to execute the tests or scoring and communicate the results back to the user (via email)
     or back to GitHub.
 
@@ -69,7 +69,7 @@ Submission System Components
     - Test (brainscore-ohio-test): The database used for executing tests. Jenkins also executes unittests of all
       Brain-Score projects and should use this database for testing.
 
-    The names in parantheses are used in brain-score to load database credentials for the different databases.
+    The names in parentheses are used in brain-score to load database credentials for the different databases.
     Just change the name and another database is used. Databases are automatically snapshotted every 7 days, and
     devs can restore snapshots at any time.
 

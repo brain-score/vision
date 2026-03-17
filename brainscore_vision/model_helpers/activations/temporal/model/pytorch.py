@@ -63,7 +63,7 @@ class PytorchWrapper(ActivationWrapper):
     
     def get_layer(self, layer_name : str):
         # the layer_name is a string that represents the module hierarchy up to the target layer,
-        # seperated by ".", e.g., "module1.submodule2.relu".
+        # separated by ".", e.g., "module1.submodule2.relu".
         if layer_name == 'logits':
             return self._output_layer()
         module = self._model

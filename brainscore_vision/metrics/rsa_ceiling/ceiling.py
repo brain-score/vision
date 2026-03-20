@@ -72,6 +72,5 @@ class RSACeiling(Ceiling):
         upper = Score(np.mean(upper_correlations))
         lower = Score(np.mean(loo_correlations))
 
-        upper.attrs['upper'] = upper
-        upper.attrs['lower_bound_loo'] = lower
+        upper.attrs['lower_bound_loo'] = float(lower)
         return upper

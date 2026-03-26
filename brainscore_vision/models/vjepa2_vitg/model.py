@@ -10,8 +10,10 @@ from transformers import VJEPA2Model, AutoVideoProcessor
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 
 logger = logging.getLogger(__name__)
+logging.getLogger("httpx").setLevel(logging.WARNING)
 
 MODEL_ID = "facebook/vjepa2-vitg-fpc64-256"
+MODEL_REVISION = "875c192b7b704b87d1e1d99345769632dd5f739a"
 NUM_ENCODER_LAYERS = 40
 LAYERS = [f"model.encoder.layer.{i}" for i in range(NUM_ENCODER_LAYERS)]
 
@@ -83,8 +85,8 @@ def _load_preprocess_images(
 
 
 def get_model() -> VJEPA2PytorchWrapper:
-    processor = AutoVideoProcessor.from_pretrained(MODEL_ID)
-    vjepa2 = VJEPA2Model.from_pretrained(MODEL_ID, torch_dtype=torch.float16)
+    processor = AutoVideoProcessor.from_pretrained(MODEL_ID, revision=MODEL_REVISION)
+    vjepa2 = VJEPA2Model.from_pretrained(MODEL_ID, revision=MODEL_REVISION, torch_dtype=torch.float16)
     vjepa2.eval()
 
     image_model = VJEPA2ImageModel(vjepa2)

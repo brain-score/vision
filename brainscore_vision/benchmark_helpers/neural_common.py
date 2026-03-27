@@ -105,7 +105,6 @@ class TrainTestNeuralBenchmark(BenchmarkBase):
 
         # get the activations from the test set
         test_stimulus_set = self.test_assembly.stimulus_set
-        timebins = timebins_from_assembly(self.test_assembly)
         candidate.start_recording(self.region, time_bins=self.timebins)  
         stimulus_set = place_on_screen(test_stimulus_set, target_visual_degrees=candidate.visual_degrees(),
 									source_visual_degrees=self._visual_degrees)
@@ -180,6 +179,108 @@ class TrainTestNeuralBenchmark(BenchmarkBase):
         ceiled_score = apply_ceiling(raw_score, ceiling_values)
         return ceiled_score
 
+class RSABenchmark(BenchmarkBase):
+    """RSA benchmark: compare model and neural RDMs via Spearman correlation.
+
+    Uses a single assembly (no train/test split) since RSA has no fitting step.
+    Scores per subject individually (each subject's neuroids form an independent
+    RDM), then averages across subjects.  Ceiling-normalizes by simple division
+    (raw_score / ceiling), not by explained variance (r^2 / ceiling). 
+
+    The ceiling is computed by :class:`RSACeiling`, which returns two estimates:
+
+    - **Upper bound** (Nili et al., 2014): each subject vs. mean of *all*
+      subjects.  This is the hard upper limit used for ceiled_score normalization
+      (guarantees ceiled scores <= 1).
+    - **Lower bound** (LOO): each subject vs. mean of *N-1* others.  Stored
+      in ``ceiling.attrs['lower_bound_loo']`` for reference.  This estimate is
+      biased low for finite subject counts.
+
+    :param identifier: unique benchmark identifier, e.g. ``'Allen2022_fmri.IT-rdm'``.
+    :param version: benchmark version number.
+    :param assembly: neural assembly (or :class:`LazyLoad`) with ``subject``
+        coordinate on the neuroid dimension.  Should contain all images
+        (train + test combined) to maximise the number of RDM pairs.
+    :param region: brain region identifier passed to ``candidate.start_recording``.
+    :param visual_degrees: visual angle of stimuli in degrees.
+    :param number_of_trials: number of trials for ``candidate.look_at()``.
+    :param bibtex: citation string.
+    :param ceiler: ceiling metric.  Defaults to ``load_metric('rsa_ceiling')``.
+    :param parent: parent region for the benchmark hierarchy.
+        Defaults to *region*.
+    :param rdm: RDM computation callable.  Defaults to ``RDM()``.
+    :param similarity: RDM similarity callable.  Defaults to ``RDMSimilarity()``.
+    """
+
+    def __init__(
+        self,
+        identifier: str,
+        version: int,
+        assembly,
+        region: str,
+        visual_degrees: float,
+        number_of_trials: int,
+        bibtex: str,
+        ceiler=None,
+        parent: str = None,
+        rdm=None,
+        similarity=None,
+    ):
+        from brainscore_vision.metrics.rdm.metric import RDM, RDMSimilarity
+
+        self._assembly = assembly
+        self.region = region
+        self._visual_degrees = visual_degrees
+        self._number_of_trials = number_of_trials
+        self._rdm = rdm or RDM()
+        self._similarity = similarity or RDMSimilarity()
+
+        if ceiler is None:
+            from brainscore_vision import load_metric
+            ceiler = load_metric('rsa_ceiling')
+
+        super().__init__(
+            identifier=identifier,
+            ceiling_func=lambda: ceiler(self._assembly),
+            version=version,
+            parent=parent or region,
+            bibtex=bibtex,
+        )
+
+    def __call__(self, candidate: BrainModel) -> Score:
+        assembly = self._assembly
+        timebins = timebins_from_assembly(assembly)
+
+        candidate.start_recording(self.region, time_bins=timebins)
+        stimulus_set = place_on_screen(
+            assembly.stimulus_set,
+            target_visual_degrees=candidate.visual_degrees(),
+            source_visual_degrees=self._visual_degrees,
+        )
+        model_assembly = candidate.look_at(
+            stimulus_set, number_of_trials=self._number_of_trials,
+        )
+        if 'time_bin' in model_assembly.dims and model_assembly.sizes['time_bin'] == 1:
+            model_assembly = model_assembly.squeeze('time_bin')
+
+        model_rdm = self._rdm(model_assembly)
+
+        subjects = np.unique(assembly['subject'].values)
+        subject_scores = []
+        for subject in subjects:
+            neural_subj = assembly.sel(neuroid=assembly['subject'] == subject)
+            neural_rdm = self._rdm(neural_subj)
+            similarity = self._similarity(model_rdm, neural_rdm)
+            subject_scores.append(float(similarity))
+
+        raw_score = Score(np.mean(subject_scores))
+        raw_score.attrs['subject_scores'] = subject_scores
+
+        ceiling = self.ceiling
+        ceiled_score = Score(raw_score.values / ceiling.values)
+        ceiled_score.attrs[Score.RAW_VALUES_KEY] = raw_score
+        ceiled_score.attrs['ceiling'] = ceiling
+        return ceiled_score
 
 def select_with_preserved_index(assembly, coord_dict):
     new_assembly = assembly.sel(neuroid=coord_dict, drop=False)
@@ -241,7 +342,7 @@ def neuroid_wise_explained_var(score: Score, ceiling: Score, aggregate_func=np.m
     pd.testing.assert_index_equal(raw_ceilings.indexes['neuroid'], raw_scores.indexes['neuroid']) 
 
     # apply explained variance neuroid-wise
-    r_square_neuroids = np.power(raw_scores / raw_ceilings, 2)
+    r_square_neuroids = np.power(raw_scores, 2) / raw_ceilings
     ceiled_score = aggregate_func(r_square_neuroids)  # aggregate across neuroids
     ceiled_score = Score(ceiled_score)
     ceiled_score.attrs['ceiled_scores'] = r_square_neuroids
@@ -311,7 +412,7 @@ def flatten_timebins_into_neuroids(assembly: DataArray) -> DataArray:
     )
     time_bin_start = assembly.coords['time_bin_start']
     assert len(time_bin_start) == n_timebins, "time_bin_start length does not match number of time bins"
-    recoding_times = np.tile(time_bin_start, reps=assembly.shape[1])
+    recording_times = np.tile(time_bin_start, reps=assembly.shape[1])
     window_start = assembly.coords['time_bin_start'].values[0]
     window_end = assembly.coords['time_bin_end'].values[-1]
 
@@ -319,7 +420,7 @@ def flatten_timebins_into_neuroids(assembly: DataArray) -> DataArray:
         flattened_data,
         dims=assembly.dims,
         coords={
-                "recoding_time": ("neuroid", recoding_times),
+                "recording_time": ("neuroid", recording_times),
                 "time_bin_start": ("time_bin", [window_start]),
                 "time_bin_end": ("time_bin", [window_end]),
                 **coords

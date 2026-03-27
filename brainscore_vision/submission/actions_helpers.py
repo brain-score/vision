@@ -134,8 +134,8 @@ if __name__ == "__main__":
     # Check test results and ensure PR is automergeable
     statuses_json = get_data(f"{BASE_URL}/statuses/{pr_head}")
 
-    results_dict = {'jenkins_plugintests_result': get_statuses_result('Brain-Score Plugins Unit tests (AWS Jenkins, AWS Execution)', statuses_json),
-                    'jenkins_unittests_result': get_statuses_result('Brain-Score Non-Plugin Unit tests (AWS Jenkins, AWS Execution)', statuses_json)}
+    results_dict = {'jenkins_plugintests_result': get_statuses_result('Vision Unittests, Plugins', statuses_json),
+                    'jenkins_unittests_result': get_statuses_result('Vision Unittests, Non-Plugins', statuses_json)}
 
     tests_pass = are_all_tests_passing(results_dict)
     tests_fail = any_tests_failing(results_dict)

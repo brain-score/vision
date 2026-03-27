@@ -460,5 +460,70 @@
       ],
       "behavioral_readout_layer": "fc_norm"
     }
+  },
+  "vit_base_patch14_dinov2-lvd142m": {
+    "model_name": "vit_base_patch14_dinov2",
+    "model_id": "vit_base_patch14_dinov2-lvd142m",
+    "timm_model_name": "vit_base_patch14_dinov2.lvd142m",
+    "is_vit": true,
+    "model_commitment": {
+      "region_layer_map": {
+        "IT": "blocks.8.attn",
+        "V1": "blocks.1.attn",
+        "V2": "blocks.7.attn",
+        "V4": "blocks.3.attn"
+      },
+      "layers": [
+        "blocks.1.attn",
+        "blocks.3.attn",
+        "blocks.7.attn",
+        "blocks.8.attn",
+        "norm"
+      ],
+      "behavioral_readout_layer": "norm"
+    }
+  },
+  "vit_base_patch14_reg4_dinov2-lvd142m": {
+    "model_name": "vit_base_patch14_reg4_dinov2",
+    "model_id": "vit_base_patch14_reg4_dinov2-lvd142m",
+    "timm_model_name": "vit_base_patch14_reg4_dinov2.lvd142m",
+    "is_vit": true,
+    "model_commitment": {
+      "region_layer_map": {
+        "IT": "blocks.11.norm2",
+        "V1": "blocks.2.attn",
+        "V2": "blocks.6.attn",
+        "V4": "blocks.2.attn"
+      },
+      "layers": [
+        "blocks.2.attn",
+        "blocks.6.attn",
+        "blocks.11.norm2",
+        "norm"
+      ],
+      "behavioral_readout_layer": "norm"
+    }
+  },
+  "vit_base_patch16_dinov3-lvd1689m": {
+    "model_name": "vit_base_patch16_dinov3",
+    "model_id": "vit_base_patch16_dinov3-lvd1689m",
+    "timm_model_name": "vit_base_patch16_dinov3.lvd1689m",
+    "is_vit": true,
+    "model_commitment": {
+      "region_layer_map": {
+        "IT": "blocks.11.norm2",
+        "V1": "blocks.1",
+        "V2": "blocks.6.attn",
+        "V4": "blocks.2"
+      },
+      "layers": [
+        "blocks.1",
+        "blocks.2",
+        "blocks.6.attn",
+        "blocks.11.norm2",
+        "norm"
+      ],
+      "behavioral_readout_layer": "norm"
+    }
   }
 }

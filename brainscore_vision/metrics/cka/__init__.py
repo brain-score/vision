@@ -3,6 +3,7 @@ from .metric import CKA, CKACrossValidated
 
 metric_registry['cka'] = CKA
 metric_registry['cka_cv'] = CKACrossValidated
+metric_registry['cka_biased'] = lambda *args, **kwargs: CKA(*args, unbiased=False, **kwargs)
 
 BIBTEX = """@inproceedings{kornblith2019similarity,
   title={Similarity of neural network representations revisited},

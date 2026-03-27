@@ -24,9 +24,9 @@ class TestAlexNet:
     @pytest.mark.private_access
     @pytest.mark.slow
     @pytest.mark.parametrize('benchmark, expected_score', [
-        ('Papale2025.V1-ridgecv', approx(0.7734869857127751, abs=0.001)),
-        ('Papale2025.V4-ridgecv', approx(0.5851808793056532, abs=0.001)),
-        ('Papale2025.IT-ridgecv', approx(0.4707093374133797, abs=0.001)),
+        ('Papale2025.V1-ridgecv', approx(0.75668312, abs=0.001)),
+        ('Papale2025.V4-ridgecv', approx(0.57444855, abs=0.001)),
+        ('Papale2025.IT-ridgecv', approx(0.46021319, abs=0.001)),
     ])
     def test_model_score(self, benchmark, expected_score):
         benchmark = load_benchmark(benchmark)

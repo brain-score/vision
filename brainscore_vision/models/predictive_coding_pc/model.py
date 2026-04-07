@@ -13,11 +13,11 @@ Reference:
     https://github.com/nilsleut/Predictive-Coding-and-the-Visual-Cortex
 """
 
+import functools
 import torch
 import torch.nn as nn
 import torchvision.models as models
-from torchvision import transforms
-from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
+from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper, load_preprocess_images
 from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
 from brainscore_vision.model_helpers.check_submission import check_models
 
@@ -115,15 +115,7 @@ def get_model(identifier):
     model = PCWrapper()
     model.eval()
 
-    preprocessing = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        transforms.Normalize(
-            mean=[0.485, 0.456, 0.406],
-            std=[0.229, 0.224, 0.225],
-        ),
-    ])
+    preprocessing = functools.partial(load_preprocess_images, image_size=224)
 
     return PytorchWrapper(
         identifier=identifier,

@@ -222,14 +222,14 @@ def create_background_ids(hvm_data, rest_data, non_silhouette_data):
 def find_matching_background(oods_category, hvm_category):
     '''
     hvm and hvm-like images share the same background. To identify similar backgrounds images are compared pixel-wise to each over.
-    Images that share the most overlapp are then labeled with the same background id as the respective hvm-image.
+    Images that share the most overlap are then labeled with the same background id as the respective hvm-image.
 
     Arguments:
         oods_category (NeuronRecordingAssembly): all images from one single hvm-like domain without background id,
         hvm_category (NeuronRecordingAssembly): hvm images with background id
 
     Returns:
-        background_ids: list of matching background ids for the single hvm-like domian
+        background_ids: list of matching background ids for the single hvm-like domain
     '''
     background_ids = []
     # Find the respective background id from hvm images for each OOD image
@@ -262,7 +262,7 @@ def load_silhouette_data(data):
     Separating domain-transfer data into hvm, hvm-like (silhouette) and rest (non-silhouette) data. This separation is needed to give each hvm-like
     image the same background number as its respective hvm version (images are sharing the same background).
 
-    Arguements:
+    Arguments:
         data: full data that is going to be split into hvm, hvm-like (silhouette) and rest (non-silhouette) data
 
     Returns:
@@ -409,7 +409,7 @@ def reduce_data_num_images(data_complete, number_images):
 
 def get_final_traning_data(complete_training_data, num_images_training, num_neurons):
     '''
-    Draws final traning images and neurons for one split.
+    Draws final training images and neurons for one split.
 
     Arguments:
         complete_training_data (dict with NeuronRecordingAssembly): keys: domain names, values: complete training data pool for one split,
@@ -503,7 +503,7 @@ def add_accuracies_to_split_df(final_test_data_dictionary, decoder, split_datafr
         num_neurons: number of training neurons,
         num_training_images: number of training images
 
-    Retruns:
+    Returns:
         split_dataframe (dict): keys: domain names, values: dataframe with columns: #Neurons, #Images training, Accuracy test data
         '''
     # Get and store the test accuracy for each crossdomain
@@ -568,7 +568,7 @@ def get_classifier_score_2AFC(classifier, data):
 #################################################
 #################################################
 #################################################
-# Brain model speficic functions
+# Brain model specific functions
 #################################################
 
 
@@ -678,7 +678,7 @@ def save_split_dataframes(split_crossdomain_dataframes, crossdomain_dataframes, 
 
 def save_split_averaged_dataframes(crossdomain_dataframes, neurons_array, images_array, brain_model_name):
     '''
-    Saves dataframe with perfromance averaged over multiple splits for each domain.
+    Saves dataframe with performance averaged over multiple splits for each domain.
 
     Arguments:
         crossdomain_dataframes (dict): keys: domain name, values: dataframes with performance for each #Neurons x #Images combination stored over multiple splits

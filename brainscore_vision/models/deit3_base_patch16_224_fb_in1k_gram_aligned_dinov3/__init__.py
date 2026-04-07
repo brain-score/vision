@@ -1,0 +1,5 @@
+from brainscore_vision import model_registry
+from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
+from .model import get_model, get_layers
+
+model_registry['deit3_base_patch16_224_fb_in1k_gram_aligned_dinov3'] = lambda: ModelCommitment(identifier='deit3_base_patch16_224_fb_in1k_gram_aligned_dinov3', activations_model=get_model('deit3_base_patch16_224_fb_in1k_gram_aligned_dinov3'), layers=get_layers('deit3_base_patch16_224_fb_in1k_gram_aligned_dinov3'))

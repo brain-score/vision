@@ -1,7 +1,7 @@
 import pytest
-from unittest.mock import MagicMock, PropertyMock
+from unittest.mock import MagicMock, PropertyMock, patch
 
-from brainscore_core.model_interface import TaskContext, UnifiedModel
+from brainscore_core.model_interface import TaskContext, UnifiedModel, BrainScoreModel
 from brainscore_vision.compat.unified_adapter import VisionModelAdapter
 
 
@@ -138,3 +138,45 @@ class TestVisionAdapterStartRecording:
         adapter.start_recording('V1')
 
         legacy.start_recording.assert_called_once_with('V1', [(70, 170)])
+
+
+class TestVisionAutoWrapping:
+
+    def test_load_model_wraps_legacy(self):
+        """load_model() should wrap a legacy BrainModel in VisionModelAdapter."""
+        import brainscore_vision
+        legacy = _make_legacy_model(identifier='test-legacy')
+
+        with patch.object(brainscore_vision, 'model_registry',
+                          {'test-legacy': lambda: legacy}):
+            with patch('brainscore_vision.import_plugin'):
+                model = brainscore_vision.load_model('test-legacy')
+
+        assert isinstance(model, UnifiedModel)
+        assert isinstance(model, VisionModelAdapter)
+        assert model.identifier == 'test-legacy'
+
+    def test_load_model_does_not_double_wrap_unified(self):
+        """If the model is already a UnifiedModel, don't wrap it."""
+        import brainscore_vision
+        from brainscore_core.model_interface import ModalityProcessor
+
+        class StubProc(ModalityProcessor):
+            @property
+            def modality(self): return 'vision'
+            def __call__(self, *a, **kw): return None
+
+        native = BrainScoreModel(
+            identifier='native-model',
+            model=None,
+            region_layer_map={},
+            processors=[StubProc()],
+        )
+
+        with patch.object(brainscore_vision, 'model_registry',
+                          {'native-model': lambda: native}):
+            with patch('brainscore_vision.import_plugin'):
+                model = brainscore_vision.load_model('native-model')
+
+        assert model is native
+        assert not isinstance(model, VisionModelAdapter)

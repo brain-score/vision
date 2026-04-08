@@ -62,10 +62,16 @@ def load_benchmark(identifier: str) -> Benchmark:
     return benchmark_registry[identifier]()
 
 
-def load_model(identifier: str) -> BrainModel:
+def load_model(identifier: str) -> 'UnifiedModel':
+    from brainscore_core.model_interface import UnifiedModel
+    from brainscore_vision.compat.unified_adapter import VisionModelAdapter
+
     import_plugin('brainscore_vision', 'models', identifier)
 
-    return model_registry[identifier]()
+    model = model_registry[identifier]()
+    if not isinstance(model, UnifiedModel):
+        model = VisionModelAdapter(model)
+    return model
 
 
 def _run_score(model_identifier: str, benchmark_identifier: str) -> Score:

@@ -67,7 +67,9 @@ class PredictiveCodingNet(nn.Module):
 class PCWrapper(nn.Module):
     """
     Wraps PC network for Brain-Score.
-    Exposes r0-r3 as named Identity submodules for layer hooking.
+    Exposes r0-r3 as named Identity submodules for neural layer hooking.
+    fc exposes ResNet-50 classification logits (1000-dim) for
+    behavior benchmarks (ImageNet-C, etc.).
     """
     def __init__(self):
         super().__init__()
@@ -89,11 +91,16 @@ class PCWrapper(nn.Module):
         torch.manual_seed(42)
         self.pc = PredictiveCodingNet(cfg)
 
-        # Named hook targets for Brain-Score
+        # Named hook targets for Brain-Score (neural benchmarks)
         self.r0 = nn.Identity()
         self.r1 = nn.Identity()
         self.r2 = nn.Identity()
         self.r3 = nn.Identity()
+
+        # Classification head for behavior benchmarks (1000-dim logits)
+        # Reuses pretrained ResNet-50 avgpool + fc weights
+        self.avgpool = resnet.avgpool
+        self.fc = resnet.fc  # Linear(2048, 1000)
 
     def forward(self, x):
         self._cache.clear()
@@ -101,11 +108,23 @@ class PCWrapper(nn.Module):
             self.resnet(x)
         feats = {k: self._cache[k] for k in
                  ['layer1', 'layer2', 'layer3', 'layer4']}
+
+        # PC inference — updates representations hierarchically
         r0, r1, r2, r3 = self.pc.infer(feats)
+
+        # Expose PC layers for neural benchmark hooks
         self.r0(r0)
         self.r1(r1)
         self.r2(r2)
-        return self.r3(r3)
+        self.r3(r3)
+
+        # Classification logits for behavior benchmarks
+        # layer4 cache is [B, 2048] after spatial mean — restore to [B, 2048, 1, 1] for avgpool
+        pooled = self.avgpool(
+            self._cache['layer4'].unsqueeze(-1).unsqueeze(-1)
+        ).flatten(1)
+        logits = self.fc(pooled)
+        return logits
 
 
 # ── Brain-Score API ───────────────────────────────────────────
@@ -126,7 +145,7 @@ def get_model(identifier):
 
 
 def get_layers(identifier):
-    return ['r0', 'r1', 'r2', 'r3']
+    return ['r0', 'r1', 'r2', 'r3', 'fc']
 
 
 def get_bibtex(identifier):

@@ -93,10 +93,25 @@ class TestVisionAdapterProcess:
         assert result is sentinel
 
 
+class TestVisionAdapterLegacyMethods:
+
+    def test_look_at_delegates(self):
+        """Existing benchmarks call look_at() directly on the adapter."""
+        legacy = _make_legacy_model()
+        legacy.look_at.return_value = 'assembly'
+        adapter = VisionModelAdapter(legacy)
+        stimuli = MagicMock()
+
+        result = adapter.look_at(stimuli, number_of_trials=5)
+
+        assert result == 'assembly'
+        legacy.look_at.assert_called_once_with(stimuli, 5)
+
+
 class TestVisionAdapterStartTask:
 
     def test_start_task_unwraps_context(self):
-        """Legacy start_task(task, fitting_stimuli) takes TWO args."""
+        """New API: start_task(TaskContext(...))."""
         legacy = _make_legacy_model()
         adapter = VisionModelAdapter(legacy)
         fitting = MagicMock()
@@ -118,6 +133,27 @@ class TestVisionAdapterStartTask:
         adapter.start_task(ctx)
 
         legacy.start_task.assert_called_once_with('label', None)
+
+    def test_start_task_legacy_two_arg_call(self):
+        """Existing benchmarks call start_task(task, fitting_stimuli) directly."""
+        legacy = _make_legacy_model()
+        adapter = VisionModelAdapter(legacy)
+        fitting = MagicMock()
+
+        adapter.start_task('probabilities', fitting)
+
+        legacy.start_task.assert_called_once_with('probabilities', fitting)
+
+    def test_start_task_legacy_with_kwargs(self):
+        """Some benchmarks pass number_of_trials as kwarg."""
+        legacy = _make_legacy_model()
+        adapter = VisionModelAdapter(legacy)
+
+        adapter.start_task('probabilities', 'fitting_data', number_of_trials=1)
+
+        legacy.start_task.assert_called_once_with(
+            'probabilities', 'fitting_data', number_of_trials=1
+        )
 
 
 class TestVisionAdapterStartRecording:

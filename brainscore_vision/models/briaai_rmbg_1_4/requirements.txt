@@ -1,5 +1,0 @@
-torchvision
-torch
-transformers
-numpy
-

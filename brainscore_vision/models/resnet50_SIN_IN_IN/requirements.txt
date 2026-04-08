@@ -1,2 +1,0 @@
-texture-vs-shape @ git+https://github.com/KartikP/texture-vs-shape.git
-

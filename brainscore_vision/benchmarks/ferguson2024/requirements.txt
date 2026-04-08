@@ -1,5 +1,0 @@
-pandas
-sympy
-tqdm
-statistics
-xarray

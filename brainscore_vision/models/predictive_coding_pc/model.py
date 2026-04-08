@@ -75,13 +75,14 @@ class PCWrapper(nn.Module):
         super().__init__()
         cfg = PCConfig()
 
-        # ResNet-50 feature extractor
+        # ResNet-50 feature extractor — pretrained weights
         resnet = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V1)
         resnet.eval()
         self._cache = {}
         for name in ['layer1', 'layer2', 'layer3', 'layer4']:
             def make_hook(n):
                 def hook(m, i, o):
+                    # spatial mean → [B, C]
                     self._cache[n] = o.mean(dim=[2, 3])
                 return hook
             getattr(resnet, name).register_forward_hook(make_hook(name))
@@ -98,9 +99,8 @@ class PCWrapper(nn.Module):
         self.r3 = nn.Identity()
 
         # Classification head for behavior benchmarks (1000-dim logits)
-        # Reuses pretrained ResNet-50 avgpool + fc weights
-        self.avgpool = resnet.avgpool
-        self.fc = resnet.fc  # Linear(2048, 1000)
+        # Direct reference to pretrained ResNet-50 fc — Linear(2048, 1000)
+        self.fc = resnet.fc
 
     def forward(self, x):
         self._cache.clear()
@@ -119,11 +119,8 @@ class PCWrapper(nn.Module):
         self.r3(r3)
 
         # Classification logits for behavior benchmarks
-        # layer4 cache is [B, 2048] after spatial mean — restore to [B, 2048, 1, 1] for avgpool
-        pooled = self.avgpool(
-            self._cache['layer4'].unsqueeze(-1).unsqueeze(-1)
-        ).flatten(1)
-        logits = self.fc(pooled)
+        # _cache['layer4'] is already [B, 2048] after spatial mean
+        logits = self.fc(self._cache['layer4'])
         return logits
 
 

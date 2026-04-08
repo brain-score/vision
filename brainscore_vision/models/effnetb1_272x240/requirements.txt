@@ -1,3 +1,0 @@
-albumentations
-opencv-python-headless
-timm

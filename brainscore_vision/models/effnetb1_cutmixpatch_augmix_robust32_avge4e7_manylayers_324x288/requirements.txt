@@ -1,5 +1,0 @@
-numpy<2.0
-torch
-timm
-albumentations
-pillow

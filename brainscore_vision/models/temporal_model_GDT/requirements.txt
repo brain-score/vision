@@ -1,3 +1,0 @@
-gdt_model @ git+https://github.com/YingtianDt/GDT.git
-torch
-torchvision

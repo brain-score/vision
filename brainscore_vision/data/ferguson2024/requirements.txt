@@ -1,2 +1,0 @@
-pathlib
-pandas

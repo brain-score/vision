@@ -1,4 +1,0 @@
-numpy
-torch
-transformers==4.30.2
-pillow

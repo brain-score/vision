@@ -1,6 +1,0 @@
-{
-    "V1": "mobilenet_v2.layer.3",
-    "V2": "mobilenet_v2.layer.6",
-    "V4": "mobilenet_v2.layer.6",
-    "IT": "mobilenet_v2.layer.12"
-}

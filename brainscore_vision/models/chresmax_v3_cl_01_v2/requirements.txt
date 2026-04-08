@@ -1,5 +1,0 @@
-torch
-torchvision
-urllib3
-numpy
-pytest

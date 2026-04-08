@@ -1,7 +1,0 @@
-
-torch
-torchvision
-pandas
-numpy
-h5py
-gdown

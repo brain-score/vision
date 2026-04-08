@@ -1,4 +1,0 @@
-torchvision
-torch
-timm
-numpy

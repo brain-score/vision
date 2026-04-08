@@ -1,3 +1,0 @@
-mae_st @ git+https://github.com/YingtianDt/mae_st.git
-torch
-torchvision

@@ -37,7 +37,7 @@ def explore_layer_mapping(
     """
     Run LayerScores for each region and return scores.
 
-    Returns {region: {layer: score, ...}, ...} sorted by score descending.
+    Returns {region: {layer: score, ...}, ...} preserving input layer order.
     """
     if regions is None:
         regions = list(DEFAULT_REGIONS)
@@ -83,9 +83,7 @@ def explore_layer_mapping(
             for layer in layers:
                 score_val = float(scores.sel(layer=layer).item())
                 region_scores[layer] = round(score_val, 6)
-            results[region] = dict(
-                sorted(region_scores.items(), key=lambda x: x[1], reverse=True)
-            )
+            results[region] = region_scores
     finally:
         if pca_handle is not None:
             pca_handle.remove()
@@ -200,10 +198,8 @@ def _print_results(
 ) -> None:
     """Print formatted results table to stdout."""
     regions = list(scores.keys())
-    all_layers = set()
-    for region_scores in scores.values():
-        all_layers.update(region_scores.keys())
-    all_layers = sorted(all_layers)
+    # Preserve input layer order (shallow-to-deep) from the first region
+    all_layers = list(next(iter(scores.values())).keys())
 
     col_width = max(len(layer) for layer in all_layers) + 2
     region_width = 10

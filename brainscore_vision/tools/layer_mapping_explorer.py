@@ -44,7 +44,7 @@ def explore_layer_mapping(
 
     # Load model to get activations_model and visual_degrees
     from brainscore_vision import model_registry
-    from brainscore_core.plugin_management import import_plugin
+    from brainscore_core.plugin_management.import_plugin import import_plugin
     import_plugin('brainscore_vision', 'models', model_identifier)
     model = model_registry[model_identifier]()
 
@@ -167,7 +167,7 @@ def batch_generate_mappings(
         output_dir: root output directory.
     """
     from brainscore_vision import model_registry
-    from brainscore_core.plugin_management import import_plugin
+    from brainscore_core.plugin_management.import_plugin import import_plugin
 
     for model_id in model_identifiers:
         print(f"\n{'=' * 60}")

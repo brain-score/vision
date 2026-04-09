@@ -1,4 +1,5 @@
 import logging
+from functools import partial
 from typing import Dict, Any, Union, Callable
 
 from brainscore_core.supported_data_standards.brainio.assemblies import DataAssembly
@@ -74,12 +75,22 @@ def load_model(identifier: str) -> 'UnifiedModel':
     return model
 
 
-def _run_score(model_identifier: str, benchmark_identifier: str) -> Score:
+def _run_score(model_identifier: str, benchmark_identifier: str,
+               check_mem: bool = True) -> Score:
     """
     Score the model referenced by the `model_identifier` on the benchmark referenced by the `benchmark_identifier`.
     """
+    from brainscore_core.compatibility import check_compatibility
+    from brainscore_core.memory import check_memory
+
     model: BrainModel = load_model(model_identifier)
     benchmark: Benchmark = load_benchmark(benchmark_identifier)
+
+    # Pre-flight checks
+    check_compatibility(model, benchmark)
+    if check_mem:
+        check_memory(model, benchmark)
+
     score: Score = benchmark(model)
     score.attrs['model_identifier'] = model_identifier
     score.attrs['benchmark_identifier'] = benchmark_identifier
@@ -90,7 +101,8 @@ def _run_score(model_identifier: str, benchmark_identifier: str) -> Score:
     return score
 
 
-def score(model_identifier: str, benchmark_identifier: str, conda_active: bool = False) -> Score:
+def score(model_identifier: str, benchmark_identifier: str,
+          conda_active: bool = False, check_mem: bool = True) -> Score:
     """
     Score the model referenced by the `model_identifier` on the benchmark referenced by the `benchmark_identifier`.
     The model needs to implement the :class:`~brainscore_vision.model_interface.BrainModel` interface
@@ -107,6 +119,7 @@ def score(model_identifier: str, benchmark_identifier: str, conda_active: bool =
     :return: a Score of how brain-like the candidate model is under this benchmark. The score is normalized by
         this benchmark's ceiling such that 1 means the model matches the data to ceiling level.
     """
+    score_fn = partial(_run_score, check_mem=check_mem)
     return wrap_score(__file__,
                       model_identifier=model_identifier, benchmark_identifier=benchmark_identifier,
-                      score_function=_run_score, conda_active=conda_active)
+                      score_function=score_fn, conda_active=conda_active)

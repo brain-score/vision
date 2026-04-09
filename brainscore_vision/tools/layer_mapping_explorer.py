@@ -33,14 +33,26 @@ def explore_layer_mapping(
     model_identifier: str,
     layers: List[str],
     regions: List[str] = None,
+    region_benchmarks: Optional[Dict[str, 'Benchmark']] = None,
 ) -> Dict[str, Dict[str, float]]:
     """
     Run LayerScores for each region and return scores.
 
+    Args:
+        model_identifier: registered model name (e.g. 'alexnet').
+        layers: layer names to evaluate.
+        regions: brain regions to score against. Defaults to V1, V2, V4, IT.
+        region_benchmarks: optional {region: benchmark} mapping. Overrides
+            STANDARD_REGION_BENCHMARKS for the specified regions. Useful for
+            scoring against non-default or domain-specific benchmarks.
+
     Returns {region: {layer: score, ...}, ...} preserving input layer order.
     """
+    if region_benchmarks is None:
+        region_benchmarks = STANDARD_REGION_BENCHMARKS
     if regions is None:
-        regions = list(DEFAULT_REGIONS)
+        regions = list(region_benchmarks.keys()) if region_benchmarks is not STANDARD_REGION_BENCHMARKS \
+            else list(DEFAULT_REGIONS)
 
     # Load model to get activations_model and visual_degrees
     from brainscore_vision import model_registry
@@ -72,7 +84,7 @@ def explore_layer_mapping(
     try:
         results = {}
         for region in regions:
-            benchmark = STANDARD_REGION_BENCHMARKS[region]
+            benchmark = region_benchmarks[region]
             scores = layer_scoring(
                 benchmark=benchmark,
                 benchmark_identifier=region,
@@ -144,6 +156,7 @@ def batch_generate_mappings(
     model_identifiers: List[str],
     layers_per_model: Optional[Dict[str, List[str]]] = None,
     regions: List[str] = None,
+    region_benchmarks: Optional[Dict[str, 'Benchmark']] = None,
     output_dir: str = './mappings',
 ) -> None:
     """
@@ -162,6 +175,7 @@ def batch_generate_mappings(
             is not in this dict (or the dict is None), uses the model's own
             layer list from ModelCommitment.
         regions: brain regions to score against.
+        region_benchmarks: optional {region: benchmark} override.
         output_dir: root output directory.
     """
     from brainscore_vision import model_registry
@@ -181,7 +195,7 @@ def batch_generate_mappings(
             layers = model.layers
 
         try:
-            scores = explore_layer_mapping(model_id, layers, regions)
+            scores = explore_layer_mapping(model_id, layers, regions, region_benchmarks)
             mapping = suggest_mapping(scores)
             model_output_dir = str(Path(output_dir) / model_id)
             save_outputs(scores, mapping, model_output_dir, model_id)
@@ -250,6 +264,11 @@ def main():
         help='Directory to save outputs (default: ./mappings)',
     )
     parser.add_argument(
+        '--benchmarks',
+        help='Comma-separated region=benchmark_id pairs to override defaults '
+             '(e.g. "V4=MajajHong2015public.V4-pls,IT=MajajHong2015public.IT-pls")',
+    )
+    parser.add_argument(
         '--batch',
         nargs='*',
         help='Batch mode: space-separated model identifiers. '
@@ -259,13 +278,25 @@ def main():
     args = parser.parse_args()
     regions = [r.strip() for r in args.regions.split(',')]
 
+    # Parse custom benchmarks if provided
+    region_benchmarks = None
+    if args.benchmarks:
+        from brainscore_vision import load_benchmark
+        region_benchmarks = {}
+        for pair in args.benchmarks.split(','):
+            region, bench_id = pair.strip().split('=')
+            region_benchmarks[region.strip()] = load_benchmark(bench_id.strip())
+        regions = list(region_benchmarks.keys())
+
     if args.batch is not None:
         model_ids = args.batch if args.batch else []
         if not model_ids and args.model:
             model_ids = [args.model]
         if not model_ids:
             parser.error('--batch requires model identifiers')
-        batch_generate_mappings(model_ids, regions=regions, output_dir=args.output_dir)
+        batch_generate_mappings(model_ids, regions=regions,
+                               region_benchmarks=region_benchmarks,
+                               output_dir=args.output_dir)
     else:
         if not args.model:
             parser.error('--model is required in single-model mode')
@@ -277,7 +308,7 @@ def main():
         print(f"Layers: {layers}")
         print(f"Regions: {regions}")
 
-        scores = explore_layer_mapping(args.model, layers, regions)
+        scores = explore_layer_mapping(args.model, layers, regions, region_benchmarks)
         mapping = suggest_mapping(scores)
         save_outputs(scores, mapping, args.output_dir, args.model)
         _print_results(args.model, scores, mapping)

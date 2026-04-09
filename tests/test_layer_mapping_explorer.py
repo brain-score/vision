@@ -17,6 +17,14 @@ from brainscore_vision.tools.layer_mapping_explorer import (
 
 # ---------- Unit tests (no model loading) ----------
 
+class TestImports:
+    """Verify that internal imports resolve correctly (catches module vs function errors)."""
+
+    def test_import_plugin_is_callable(self):
+        from brainscore_core.plugin_management.import_plugin import import_plugin
+        assert callable(import_plugin)
+
+
 class TestSuggestMapping:
 
     def test_picks_highest_scoring_layer_per_region(self):

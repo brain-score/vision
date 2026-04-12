@@ -128,10 +128,75 @@ class ReverseTrainTestSplitCorrelation(TrainTestSplitCorrelation):
             target_test=source_test,
         )
 
+class KernelPLSRegression:
+    """PLS regression via eigendecomposition of the linear kernel.
+
+    When n_samples < n_features, projects X into an equivalent
+    (n_samples, n_samples) representation via the eigendecomposition of
+    K = X_c @ X_c.T, then runs standard sklearn PLS on the reduced X.
+    Mathematically identical to sklearn PLSRegression (scale=False).
+
+    Falls back to sklearn PLSRegression when n_samples >= n_features
+    or scale=True.
+    """
+
+    def __init__(self, n_components: int = 25, scale: bool = False,
+                 max_iter: int = 500, tol: float = 1e-6):
+        self.n_components = n_components
+        self.scale = scale
+        self.max_iter = max_iter
+        self.tol = tol
+
+    def fit(self, X, Y) -> None:
+        X = np.asarray(X, dtype=np.float64)
+        Y = np.asarray(Y, dtype=np.float64)
+        n_samples, n_features = X.shape
+
+        if n_samples >= n_features or self.scale:
+            self._use_kernel = False
+            self._pls = PLSRegression(n_components=self.n_components, scale=self.scale,
+                                      max_iter=self.max_iter, tol=self.tol)
+            self._pls.fit(X, Y)
+            return
+
+        self._use_kernel = True
+        self._X_mean = X.mean(axis=0)
+        X_c = X - self._X_mean
+        self._X_train_centered = X_c
+
+        K = X_c @ X_c.T
+        eigenvalues, eigenvectors = np.linalg.eigh(K)
+
+        mask = eigenvalues > 1e-10 * eigenvalues.max()
+        eigenvalues = eigenvalues[mask]
+        eigenvectors = eigenvectors[:, mask]
+
+        self._sqrt_eig = np.sqrt(eigenvalues)
+        self._eigenvectors = eigenvectors
+        self._inv_sqrt_eig = 1.0 / self._sqrt_eig
+
+        X_reduced = eigenvectors * self._sqrt_eig
+
+        n_components = min(self.n_components, X_reduced.shape[1], Y.shape[1])
+        self._pls = PLSRegression(n_components=n_components, scale=False,
+                                  max_iter=self.max_iter, tol=self.tol)
+        self._pls.fit(X_reduced, Y)
+
+    def predict(self, X) -> np.ndarray:
+        if not self._use_kernel:
+            return self._pls.predict(X)
+
+        X = np.asarray(X, dtype=np.float64)
+        X_test_c = X - self._X_mean
+        K_test = X_test_c @ self._X_train_centered.T
+        X_test_reduced = K_test @ (self._eigenvectors * self._inv_sqrt_eig)
+        return self._pls.predict(X_test_reduced)
+
+
 def pls_regression(regression_kwargs=None, xarray_kwargs=None):
     regression_defaults = dict(n_components=25, scale=False)
     regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
-    regression = PLSRegression(**regression_kwargs)
+    regression = KernelPLSRegression(**regression_kwargs)
     xarray_kwargs = xarray_kwargs or {}
     regression = XarrayRegression(regression, **xarray_kwargs)
     return regression

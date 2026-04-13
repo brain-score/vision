@@ -278,11 +278,14 @@ class DualRidgeCVRegression:
         X_c = X - self._X_mean
         Y_c = Y - self._Y_mean
 
-        # Kernel with intercept in float64 for eigendecomposition precision
+        # Compute kernel once in float64, reuse for both LOO and prediction
         K = np.float64(X_c @ X_c.T)
-        K += 1.0  # equivalent to np.ones((n,n)) but avoids allocation
 
-        eigenvalues, Q = np.linalg.eigh(K)
+        # --- LOO alpha selection ---
+        K_loo = K + 1.0  # add intercept (copy, doesn't modify K)
+
+        eigenvalues, Q = np.linalg.eigh(K_loo)
+        del K_loo
         QT_y = Q.T @ np.float64(Y)  # project UN-centered Y in float64
 
         # Find the intercept eigenvector (most aligned with ones vector)
@@ -313,10 +316,13 @@ class DualRidgeCVRegression:
 
         self.alpha_ = best_alpha
 
-        # Compute K_inv in float64, store as float32
-        K_pred = np.float64(X_c @ X_c.T)
-        K_pred[np.diag_indices_from(K_pred)] += self.alpha_
-        K_inv = np.float32(np.linalg.solve(K_pred, np.eye(n_samples)))
+        # Free LOO intermediates before prediction solve
+        del eigenvalues, Q, QT_y, Q_sq
+
+        # --- Prediction solve (reuse K) ---
+        K[np.diag_indices_from(K)] += self.alpha_
+        K_inv = np.float32(np.linalg.solve(K, np.eye(n_samples)))
+        del K
 
         # Adaptive storage: keep whichever is smaller after fit
         n_targets = Y_c.shape[1]

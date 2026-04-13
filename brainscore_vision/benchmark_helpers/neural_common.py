@@ -25,6 +25,12 @@ class NeuralBenchmark(BenchmarkBase):
         self._number_of_trials = number_of_trials
 
     def __call__(self, candidate: BrainModel):
+        import gc
+
+        # Compute ceiling before extraction so it doesn't overlap with
+        # model weights or activations in memory.
+        ceiling = self.ceiling
+
         candidate.start_recording(self.region, time_bins=self.timebins)
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                        source_visual_degrees=self._visual_degrees)
@@ -34,7 +40,6 @@ class NeuralBenchmark(BenchmarkBase):
         # Free model weights — activations are extracted, model not used again.
         # Can't `del candidate` because _run_score holds a reference via `model`.
         # Instead clear PyTorch parameters directly.
-        import gc
         try:
             torch_model = candidate.activations_model._model
             for param in torch_model.parameters():
@@ -44,7 +49,7 @@ class NeuralBenchmark(BenchmarkBase):
             pass
         gc.collect()
         raw_score = self._similarity_metric(source_assembly, self._assembly)
-        ceiled_score = explained_variance(raw_score, self.ceiling)
+        ceiled_score = explained_variance(raw_score, ceiling)
         return ceiled_score
 
 class TrainTestNeuralBenchmark(BenchmarkBase):
@@ -108,6 +113,13 @@ class TrainTestNeuralBenchmark(BenchmarkBase):
             score.attrs[alpha_coord_value] will contain the standard score object with per neuroid raw and ceiling values
         """
         
+        # Compute ceiling before extraction so it doesn't overlap with
+        # model weights or activations in memory. Ceiling only uses neural
+        # data (not model activations). It is lazy (@store-cached) — this
+        # triggers computation on first access, subsequent accesses are free.
+        import gc
+        ceiling = self.ceiling
+
         # get the activations from the train set
         train_stimulus_set = self.train_assembly.stimulus_set
         candidate.start_recording(self.region, time_bins=self.timebins)
@@ -117,7 +129,7 @@ class TrainTestNeuralBenchmark(BenchmarkBase):
 
         # get the activations from the test set
         test_stimulus_set = self.test_assembly.stimulus_set
-        candidate.start_recording(self.region, time_bins=self.timebins)  
+        candidate.start_recording(self.region, time_bins=self.timebins)
         stimulus_set = place_on_screen(test_stimulus_set, target_visual_degrees=candidate.visual_degrees(),
 									source_visual_degrees=self._visual_degrees)
         self.test_activations = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
@@ -133,7 +145,6 @@ class TrainTestNeuralBenchmark(BenchmarkBase):
         # is not needed for the metric. The caller (_run_score) still holds a
         # reference to the model object, so `del candidate` won't free it.
         # Instead, clear the PyTorch parameters directly.
-        import gc
         try:
             # PytorchWrapper holds the torch model in ._model
             torch_model = candidate.activations_model._model
@@ -152,14 +163,14 @@ class TrainTestNeuralBenchmark(BenchmarkBase):
                 coord_dict = {self.alpha_coord: coord_value}
                 train_subset = select_with_preserved_index(self.train_assembly, coord_dict)
                 test_subset = select_with_preserved_index(self.test_assembly, coord_dict)
-                
+
                 # calculate the ceiling for the subset, based on only those per-neuroid ceilings contained in the slice
-                raw_ceilings_slice = select_with_preserved_index(self.ceiling.raw, coord_dict)
+                raw_ceilings_slice = select_with_preserved_index(ceiling.raw, coord_dict)
                 # recalculate median of neuroids, mean of cv-splits as done by CrossValidationSingle
                 subset_ceiling = Score(np.mean(np.median(raw_ceilings_slice, axis=1)))
                 subset_ceiling.attrs['raw'] = raw_ceilings_slice
-                
-                score = self.get_score(train_data=train_subset, 
+
+                score = self.get_score(train_data=train_subset,
                                        test_data=test_subset,
                                        ceiling_values=subset_ceiling,
                                        apply_ceiling=self.ceiling_mode)
@@ -167,30 +178,37 @@ class TrainTestNeuralBenchmark(BenchmarkBase):
                 score[self.alpha_coord] = [coord_value]
                 print(score)
                 scores_dict[coord_value] = score
-            
+
+            # Free activations — no longer needed after scoring
+            del self.train_activations, self.test_activations
+            gc.collect()
+
             # the score is the mean of all the individual ceiled scores:
             score = Score(np.mean([s.values for s in scores_dict.values()]))
-            
+
             # the overall raw value is the mean of raw values (individual values are thus found in .raw.raw)
             score.attrs[Score.RAW_VALUES_KEY] = Score(np.mean([s.raw.values for s in scores_dict.values()]))
-            score.attrs[Score.RAW_VALUES_KEY].attrs[Score.RAW_VALUES_KEY] = xr.concat(scores_dict.values(), 
-                                                                                      dim=self.alpha_coord, 
+            score.attrs[Score.RAW_VALUES_KEY].attrs[Score.RAW_VALUES_KEY] = xr.concat(scores_dict.values(),
+                                                                                      dim=self.alpha_coord,
                                                                                       combine_attrs='drop')
-            
+
             # the ceiling is the overall ceiling aggregated across all neuroids irrespective of splits
-            score.attrs['ceiling'] = self.ceiling
-            
-            # each individual alpha that was fitted is documented as an attribute 
+            score.attrs['ceiling'] = ceiling
+
+            # each individual alpha that was fitted is documented as an attribute
             # (including raw values and ceiling for that split)
             for coord_value in alpha_splits:
                 score.attrs[coord_value] = scores_dict[coord_value]
             return score
 
         else:
-            score = self.get_score(train_data=self.train_assembly, 
+            score = self.get_score(train_data=self.train_assembly,
                                    test_data=self.test_assembly,
-                                   ceiling_values=self.ceiling, 
+                                   ceiling_values=ceiling,
                                    apply_ceiling=self.ceiling_mode)
+            # Free activations
+            del self.train_activations, self.test_activations
+            gc.collect()
             return score
 
     def get_score(self, train_data, test_data, ceiling_values, apply_ceiling):

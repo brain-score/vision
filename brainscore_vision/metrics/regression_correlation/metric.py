@@ -143,8 +143,8 @@ class DualRidgeRegression:
         self.chunk_size = chunk_size
 
     def fit(self, X, Y) -> None:
-        X = np.asarray(X, dtype=np.float64)
-        Y = np.asarray(Y, dtype=np.float64)
+        X = np.asarray(X, dtype=np.float32)
+        Y = np.asarray(Y, dtype=np.float32)
         n_samples, n_features = X.shape
 
         if n_samples >= n_features:
@@ -160,21 +160,22 @@ class DualRidgeRegression:
         self._X_train_centered = X_c
         self._Y_train_centered = Y - self._Y_mean
 
-        K = X_c @ X_c.T
+        # Compute kernel and solve in float64 for numerical stability
+        K = np.float64(X_c @ X_c.T)
         K[np.diag_indices_from(K)] += self.alpha
-        self._K_inv = np.linalg.solve(K, np.eye(K.shape[0]))
+        self._K_inv = np.float32(np.linalg.solve(K, np.eye(K.shape[0])))
 
     def predict(self, X) -> np.ndarray:
         if not self._use_dual:
             return self._primal.predict(X)
 
-        X = np.asarray(X, dtype=np.float64)
+        X = np.asarray(X, dtype=np.float32)
         X_test_c = X - self._X_mean
         proj = X_test_c @ self._X_train_centered.T @ self._K_inv
 
         n_test = X.shape[0]
         n_targets = self._Y_train_centered.shape[1]
-        predictions = np.empty((n_test, n_targets), dtype=np.float64)
+        predictions = np.empty((n_test, n_targets), dtype=np.float32)
         for i in range(0, n_targets, self.chunk_size):
             end = min(i + self.chunk_size, n_targets)
             predictions[:, i:end] = proj @ self._Y_train_centered[:, i:end] + self._Y_mean[i:end]
@@ -219,8 +220,8 @@ class DualRidgeCVRegression:
         return True
 
     def fit(self, X, Y) -> None:
-        X = np.asarray(X, dtype=np.float64)
-        Y = np.asarray(Y, dtype=np.float64)
+        X = np.asarray(X, dtype=np.float32)
+        Y = np.asarray(Y, dtype=np.float32)
         n_samples, n_features = X.shape
 
         if n_samples >= n_features:
@@ -247,6 +248,9 @@ class DualRidgeCVRegression:
         center X, add intercept to kernel via outer product, eigendecompose,
         zero regularization on the intercept eigenvector, then evaluate LOO
         for each alpha candidate.
+
+        Data stored in float32 to halve memory. Kernel eigendecomposition and
+        LOO scoring done in float64 for numerical precision.
         """
         # Center X (sklearn centers X in preprocessing, not Y)
         self._X_mean = X.mean(axis=0)
@@ -255,19 +259,18 @@ class DualRidgeCVRegression:
         self._X_train_centered = X_c
         self._Y_train_centered = Y - self._Y_mean
 
-        # Kernel with intercept: K = X_c @ X_c.T + 1*1.T
-        # The outer product accounts for the unregularized intercept
-        K = X_c @ X_c.T
-        K += np.ones((n_samples, n_samples))
+        # Kernel with intercept in float64 for eigendecomposition precision
+        K = np.float64(X_c @ X_c.T)
+        K += 1.0  # equivalent to np.ones((n,n)) but avoids allocation
 
         eigenvalues, Q = np.linalg.eigh(K)
-        QT_y = Q.T @ Y  # project UN-centered Y
+        QT_y = Q.T @ np.float64(Y)  # project UN-centered Y in float64
 
         # Find the intercept eigenvector (most aligned with ones vector)
         normalized_sw = np.ones(n_samples) / np.sqrt(n_samples)
         intercept_dim = np.argmax(np.abs(Q.T @ normalized_sw))
 
-        # Evaluate LOO for each alpha
+        # Evaluate LOO for each alpha (all float64 — small matrices)
         alphas = self.alphas if self.alphas is not None else [0.1, 1.0, 10.0]
         best_alpha = alphas[0]
         best_score = -np.inf
@@ -292,9 +295,10 @@ class DualRidgeCVRegression:
         self.alpha_ = best_alpha
 
         # Compute K_inv for prediction (on original centered K, no intercept)
-        K_pred = X_c @ X_c.T
+        # Solve in float64, store as float32
+        K_pred = np.float64(X_c @ X_c.T)
         K_pred[np.diag_indices_from(K_pred)] += self.alpha_
-        self._K_inv = np.linalg.solve(K_pred, np.eye(n_samples))
+        self._K_inv = np.float32(np.linalg.solve(K_pred, np.eye(n_samples)))
 
     def _fit_sklearn_then_dual(self, X, Y) -> None:
         """Fallback: sklearn RidgeCV for alpha, DualRidge for prediction.
@@ -321,13 +325,13 @@ class DualRidgeCVRegression:
         if hasattr(self, '_dual'):
             return self._dual.predict(X)
 
-        X = np.asarray(X, dtype=np.float64)
+        X = np.asarray(X, dtype=np.float32)
         X_test_c = X - self._X_mean
         proj = X_test_c @ self._X_train_centered.T @ self._K_inv
 
         n_test = X.shape[0]
         n_targets = self._Y_train_centered.shape[1]
-        predictions = np.empty((n_test, n_targets), dtype=np.float64)
+        predictions = np.empty((n_test, n_targets), dtype=np.float32)
         for i in range(0, n_targets, self.chunk_size):
             end = min(i + self.chunk_size, n_targets)
             predictions[:, i:end] = (

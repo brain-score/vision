@@ -131,10 +131,14 @@ class ReverseTrainTestSplitCorrelation(TrainTestSplitCorrelation):
 class DualRidgeRegression:
     """Ridge regression using dual (kernel) form for memory efficiency.
 
-    When n_samples < n_features, avoids materializing the (n_features, n_targets)
-    coefficient matrix. Computes predictions via a (n_test, n_train) projection
-    matrix instead. Falls back to sklearn Ridge when n_samples >= n_features.
+    When n_samples < n_features, uses adaptive storage to minimize memory
+    after fit:
+    - If n_targets < n_samples: computes coef_ and frees X_train (primal-style
+      predict, but without sklearn's float64 copy)
+    - If n_targets >= n_samples: keeps X_train and predicts via kernel projection
+      (avoids materializing the large coef_ matrix)
 
+    Falls back to sklearn Ridge when n_samples >= n_features.
     Mathematically identical to sklearn Ridge with fit_intercept=True.
     """
 
@@ -146,6 +150,7 @@ class DualRidgeRegression:
         X = np.asarray(X, dtype=np.float32)
         Y = np.asarray(Y, dtype=np.float32)
         n_samples, n_features = X.shape
+        n_targets = Y.shape[1]
 
         if n_samples >= n_features:
             self._use_dual = False
@@ -157,13 +162,24 @@ class DualRidgeRegression:
         self._X_mean = X.mean(axis=0)
         self._Y_mean = Y.mean(axis=0)
         X_c = X - self._X_mean
-        self._X_train_centered = X_c
-        self._Y_train_centered = Y - self._Y_mean
+        Y_c = Y - self._Y_mean
 
         # Compute kernel and solve in float64 for numerical stability
         K = np.float64(X_c @ X_c.T)
         K[np.diag_indices_from(K)] += self.alpha
-        self._K_inv = np.float32(np.linalg.solve(K, np.eye(K.shape[0])))
+        K_inv = np.float32(np.linalg.solve(K, np.eye(n_samples)))
+
+        if n_targets < n_samples:
+            # coef_ is smaller than X_train — compute it, free X
+            dual_coef = K_inv @ Y_c
+            self._coef = X_c.T @ dual_coef
+            self._use_coef = True
+        else:
+            # X_train is smaller than coef_ — keep it for projection
+            self._X_train_centered = X_c
+            self._Y_train_centered = Y_c
+            self._K_inv = K_inv
+            self._use_coef = False
 
     def predict(self, X) -> np.ndarray:
         if not self._use_dual:
@@ -171,6 +187,10 @@ class DualRidgeRegression:
 
         X = np.asarray(X, dtype=np.float32)
         X_test_c = X - self._X_mean
+
+        if self._use_coef:
+            return X_test_c @ self._coef + self._Y_mean
+
         proj = X_test_c @ self._X_train_centered.T @ self._K_inv
 
         n_test = X.shape[0]
@@ -252,12 +272,11 @@ class DualRidgeCVRegression:
         Data stored in float32 to halve memory. Kernel eigendecomposition and
         LOO scoring done in float64 for numerical precision.
         """
-        # Center X (sklearn centers X in preprocessing, not Y)
+        # Center
         self._X_mean = X.mean(axis=0)
         self._Y_mean = Y.mean(axis=0)
         X_c = X - self._X_mean
-        self._X_train_centered = X_c
-        self._Y_train_centered = Y - self._Y_mean
+        Y_c = Y - self._Y_mean
 
         # Kernel with intercept in float64 for eigendecomposition precision
         K = np.float64(X_c @ X_c.T)
@@ -294,11 +313,24 @@ class DualRidgeCVRegression:
 
         self.alpha_ = best_alpha
 
-        # Compute K_inv for prediction (on original centered K, no intercept)
-        # Solve in float64, store as float32
+        # Compute K_inv in float64, store as float32
         K_pred = np.float64(X_c @ X_c.T)
         K_pred[np.diag_indices_from(K_pred)] += self.alpha_
-        self._K_inv = np.float32(np.linalg.solve(K_pred, np.eye(n_samples)))
+        K_inv = np.float32(np.linalg.solve(K_pred, np.eye(n_samples)))
+
+        # Adaptive storage: keep whichever is smaller after fit
+        n_targets = Y_c.shape[1]
+        if n_targets < n_samples:
+            # coef_ is smaller than X_train — compute it, free X
+            dual_coef = K_inv @ Y_c
+            self._coef = X_c.T @ dual_coef
+            self._use_coef = True
+        else:
+            # X_train is smaller than coef_ — keep it for projection
+            self._X_train_centered = X_c
+            self._Y_train_centered = Y_c
+            self._K_inv = K_inv
+            self._use_coef = False
 
     def _fit_sklearn_then_dual(self, X, Y) -> None:
         """Fallback: sklearn RidgeCV for alpha, DualRidge for prediction.
@@ -327,6 +359,10 @@ class DualRidgeCVRegression:
 
         X = np.asarray(X, dtype=np.float32)
         X_test_c = X - self._X_mean
+
+        if self._use_coef:
+            return X_test_c @ self._coef + self._Y_mean
+
         proj = X_test_c @ self._X_train_centered.T @ self._K_inv
 
         n_test = X.shape[0]

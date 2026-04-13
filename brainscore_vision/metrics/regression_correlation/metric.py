@@ -182,11 +182,18 @@ class DualRidgeRegression:
 
 
 class DualRidgeCVRegression:
-    """RidgeCV with dual form prediction for memory efficiency.
+    """RidgeCV with dual form for memory efficiency.
 
-    Uses sklearn RidgeCV for alpha selection (LOO/GCV), then the dual kernel
-    form for prediction to avoid storing the (n_features, n_targets) coef_ matrix.
-    Falls back to sklearn RidgeCV when n_samples >= n_features.
+    When n_samples < n_features and no custom scoring/cv is requested,
+    selects alpha via LOO cross-validation in kernel space using the
+    eigendecomposition of K = X @ X.T, then predicts via dual-form
+    projection. Never materializes the (n_features, n_targets) coef_ matrix.
+
+    When custom scoring or cv is requested, falls back to sklearn RidgeCV
+    for alpha selection (preserving all sklearn behavior), then uses
+    DualRidgeRegression for prediction.
+
+    Falls back to sklearn RidgeCV entirely when n_samples >= n_features.
 
     Exposes ``alpha_`` after fit (selected regularization strength).
     """
@@ -197,6 +204,20 @@ class DualRidgeCVRegression:
         self._ridgecv_kwargs = ridgecv_kwargs
         self.alpha_ = None
 
+    def _can_use_dual_loo(self) -> bool:
+        """Check if we can do alpha selection in kernel space.
+
+        Dual LOO is only valid when sklearn would use its efficient LOO path:
+        no custom scoring function, no explicit cv folds, no per-target alpha.
+        """
+        if self._ridgecv_kwargs.get('scoring') is not None:
+            return False
+        if self._ridgecv_kwargs.get('cv') is not None:
+            return False
+        if self._ridgecv_kwargs.get('alpha_per_target', False):
+            return False
+        return True
+
     def fit(self, X, Y) -> None:
         X = np.asarray(X, dtype=np.float64)
         Y = np.asarray(Y, dtype=np.float64)
@@ -204,24 +225,115 @@ class DualRidgeCVRegression:
 
         if n_samples >= n_features:
             self._use_dual = False
-            self._primal = RidgeCV(alphas=self.alphas, **self._ridgecv_kwargs)
+            kwargs = dict(self._ridgecv_kwargs)
+            if self.alphas is not None:
+                kwargs['alphas'] = self.alphas
+            self._primal = RidgeCV(**kwargs)
             self._primal.fit(X, Y)
             self.alpha_ = self._primal.alpha_
             return
 
         self._use_dual = True
-        rcv = RidgeCV(alphas=self.alphas, **self._ridgecv_kwargs)
+
+        if self._can_use_dual_loo():
+            self._fit_dual_loo(X, Y, n_samples)
+        else:
+            self._fit_sklearn_then_dual(X, Y)
+
+    def _fit_dual_loo(self, X, Y, n_samples) -> None:
+        """Select alpha via LOO in kernel space. No coef_ materialized.
+
+        Replicates sklearn's _RidgeGCV eigen decomposition approach:
+        center X, add intercept to kernel via outer product, eigendecompose,
+        zero regularization on the intercept eigenvector, then evaluate LOO
+        for each alpha candidate.
+        """
+        # Center X (sklearn centers X in preprocessing, not Y)
+        self._X_mean = X.mean(axis=0)
+        self._Y_mean = Y.mean(axis=0)
+        X_c = X - self._X_mean
+        self._X_train_centered = X_c
+        self._Y_train_centered = Y - self._Y_mean
+
+        # Kernel with intercept: K = X_c @ X_c.T + 1*1.T
+        # The outer product accounts for the unregularized intercept
+        K = X_c @ X_c.T
+        K += np.ones((n_samples, n_samples))
+
+        eigenvalues, Q = np.linalg.eigh(K)
+        QT_y = Q.T @ Y  # project UN-centered Y
+
+        # Find the intercept eigenvector (most aligned with ones vector)
+        normalized_sw = np.ones(n_samples) / np.sqrt(n_samples)
+        intercept_dim = np.argmax(np.abs(Q.T @ normalized_sw))
+
+        # Evaluate LOO for each alpha
+        alphas = self.alphas if self.alphas is not None else [0.1, 1.0, 10.0]
+        best_alpha = alphas[0]
+        best_score = -np.inf
+
+        Q_sq = Q ** 2
+
+        for alpha in alphas:
+            w = 1.0 / (eigenvalues + alpha)
+            w[intercept_dim] = 0  # no regularization on intercept
+
+            c = Q @ (w[:, None] * QT_y)
+            G_inv_diag = Q_sq @ w
+            G_inv_diag = np.maximum(G_inv_diag, 1e-12)
+
+            loo_errors = c / G_inv_diag[:, None]
+            score = -np.mean(loo_errors ** 2)  # negative MSE (higher is better)
+
+            if score > best_score:
+                best_score = score
+                best_alpha = alpha
+
+        self.alpha_ = best_alpha
+
+        # Compute K_inv for prediction (on original centered K, no intercept)
+        K_pred = X_c @ X_c.T
+        K_pred[np.diag_indices_from(K_pred)] += self.alpha_
+        self._K_inv = np.linalg.solve(K_pred, np.eye(n_samples))
+
+    def _fit_sklearn_then_dual(self, X, Y) -> None:
+        """Fallback: sklearn RidgeCV for alpha, DualRidge for prediction.
+
+        Used when custom scoring/cv/alpha_per_target prevents dual LOO.
+        """
+        kwargs = dict(self._ridgecv_kwargs)
+        if self.alphas is not None:
+            kwargs['alphas'] = self.alphas
+        rcv = RidgeCV(**kwargs)
         rcv.fit(X, Y)
         self.alpha_ = rcv.alpha_
         del rcv
 
-        self._dual = DualRidgeRegression(alpha=float(self.alpha_), chunk_size=self.chunk_size)
+        self._dual = DualRidgeRegression(
+            alpha=float(self.alpha_), chunk_size=self.chunk_size
+        )
         self._dual.fit(X, Y)
 
     def predict(self, X) -> np.ndarray:
         if not self._use_dual:
             return self._primal.predict(X)
-        return self._dual.predict(X)
+
+        if hasattr(self, '_dual'):
+            return self._dual.predict(X)
+
+        X = np.asarray(X, dtype=np.float64)
+        X_test_c = X - self._X_mean
+        proj = X_test_c @ self._X_train_centered.T @ self._K_inv
+
+        n_test = X.shape[0]
+        n_targets = self._Y_train_centered.shape[1]
+        predictions = np.empty((n_test, n_targets), dtype=np.float64)
+        for i in range(0, n_targets, self.chunk_size):
+            end = min(i + self.chunk_size, n_targets)
+            predictions[:, i:end] = (
+                proj @ self._Y_train_centered[:, i:end] + self._Y_mean[i:end]
+            )
+        return predictions
 
 
 def pls_regression(regression_kwargs=None, xarray_kwargs=None):

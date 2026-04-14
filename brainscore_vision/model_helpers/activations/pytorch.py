@@ -88,6 +88,8 @@ class PytorchWrapper:
 
     @classmethod
     def _tensor_to_numpy(cls, output):
+        if isinstance(output, (tuple, list)):
+            output = output[0]
         return output.cpu().data.numpy()
 
     def register_hook(self, layer, layer_name, target_dict):

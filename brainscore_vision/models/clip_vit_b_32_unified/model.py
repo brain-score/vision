@@ -115,12 +115,13 @@ def _make_encoder_text_extractor(tokenizer, text_model_attr='text_model',
         n_stimuli, n_features = raw.shape
         neuroid_ids = [f'{recording_layer}.{i}' for i in range(n_features)]
 
-        presentation_idx = pd.MultiIndex.from_arrays(
-            [stimulus_ids], names=['stimulus_id'])
+        # Use simple range index for presentation — language benchmarks
+        # need to set stimulus_id as a coordinate after construction.
+        # Vision benchmarks use MultiIndex but language does not.
         return NeuroidAssembly(
             raw,
             coords={
-                'presentation': presentation_idx,
+                'stimulus_id': ('presentation', stimulus_ids),
                 'neuroid_id': ('neuroid', neuroid_ids),
                 'layer': ('neuroid', [recording_layer] * n_features),
             },

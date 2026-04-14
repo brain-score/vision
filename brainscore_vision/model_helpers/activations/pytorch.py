@@ -11,7 +11,8 @@ SUBMODULE_SEPARATOR = '.'
 
 
 class PytorchWrapper:
-    def __init__(self, model, preprocessing, identifier=None, forward_kwargs=None, *args, **kwargs):
+    def __init__(self, model, preprocessing, identifier=None, forward_kwargs=None,
+                 input_key=None, *args, **kwargs):
         import torch
         logger = logging.getLogger(fullname(self))
         self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -23,6 +24,7 @@ class PytorchWrapper:
             identifier=identifier, preprocessing=preprocessing, get_activations=self.get_activations, *args, **kwargs)
         self._extractor.insert_attrs(self)
         self._forward_kwargs = forward_kwargs or {}
+        self._input_key = input_key
 
     def _build_extractor(self, identifier, preprocessing, get_activations, *args, **kwargs):
         return ActivationsExtractorHelper(
@@ -61,7 +63,10 @@ class PytorchWrapper:
             hooks.append(hook)
 
         with torch.no_grad():
-            self._model(images, **self._forward_kwargs)
+            if self._input_key:
+                self._model(**{self._input_key: images, **self._forward_kwargs})
+            else:
+                self._model(images, **self._forward_kwargs)
         for hook in hooks:
             hook.remove()
         return layer_results

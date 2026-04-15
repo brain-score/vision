@@ -46,26 +46,69 @@ class LayerPCA:
         self.handle.disable()
 
         self._logger.debug('Computing ImageNet principal components')
-        progress = tqdm(total=len(layers), desc="layer principal components")
         layer_pcas = {}
-        for layer in layers:
-            activations = self._extractor(imagenet_paths, layers=[layer])
-            activations = activations.values
-            activations = flatten(activations)
-            if activations.shape[1] <= n_components:
-                self._logger.debug(f"Not computing principal components for {layer} "
-                                   f"activations {activations.shape} as shape is small enough already")
-                pca = None
-            else:
-                pca = PCA(n_components=n_components, random_state=0)
-                pca.fit(activations)
-            layer_pcas[layer] = pca
-            progress.update(1)
+        chunks = self._chunk_layers(layers, imagenet_paths, n_components)
+        progress = tqdm(total=len(layers), desc="layer principal components")
+        for chunk in chunks:
+            activations = self._extractor(imagenet_paths, layers=chunk)
+            for layer in chunk:
+                layer_activations = activations.sel(layer=layer).values
+                layer_activations = flatten(layer_activations)
+                if layer_activations.shape[1] <= n_components:
+                    self._logger.debug(f"Not computing principal components for {layer} "
+                                       f"activations {layer_activations.shape} "
+                                       f"as shape is small enough already")
+                    pca = None
+                else:
+                    pca = PCA(n_components=n_components, random_state=0)
+                    pca.fit(layer_activations)
+                layer_pcas[layer] = pca
+                progress.update(1)
             del activations
         progress.close()
 
         self.handle.enable()
         return layer_pcas
+
+    def _chunk_layers(self, layers, imagenet_paths, n_components):
+        """Determine how many layers to extract per batch based on available memory.
+
+        Extracts the first layer alone to measure per-layer memory cost, then
+        calculates how many layers can safely fit in ~50% of remaining memory.
+        Falls back to one-at-a-time if measurement fails.
+        """
+        if len(layers) <= 1:
+            return [layers]
+
+        try:
+            import psutil
+        except ImportError:
+            return [[layer] for layer in layers]
+
+        # Extract one layer to measure cost
+        mem_before = psutil.Process().memory_info().rss
+        probe = self._extractor(imagenet_paths, layers=[layers[0]])
+        probe_activations = flatten(probe.sel(layer=layers[0]).values)
+        activation_bytes = probe_activations.nbytes
+        mem_after = psutil.Process().memory_info().rss
+        del probe, probe_activations
+
+        # Use RSS delta if meaningful, otherwise estimate from array size.
+        # PCA workspace is roughly 3x the activation array (float64 copy + SVD).
+        rss_delta = mem_after - mem_before
+        per_layer_cost = max(rss_delta, activation_bytes * 3)
+
+        available = psutil.virtual_memory().available
+        # Use at most 50% of available memory, minimum 1 layer
+        chunk_size = max(1, int(available * 0.5 / per_layer_cost)) if per_layer_cost > 0 else 1
+        chunk_size = min(chunk_size, len(layers))
+        self._logger.debug(f"PCA chunking: {per_layer_cost / 1e9:.1f} GB/layer, "
+                           f"{available / 1e9:.1f} GB available, "
+                           f"chunk_size={chunk_size} (of {len(layers)} layers)")
+
+        # First layer was already extracted as probe — include it in first chunk
+        # but it will be re-extracted (simpler than caching the probe result)
+        return [layers[i:i + chunk_size] for i in range(0, len(layers), chunk_size)]
 
     @classmethod
     def hook(cls, activations_extractor, n_components):

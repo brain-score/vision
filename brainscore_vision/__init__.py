@@ -104,3 +104,7 @@ def score(model_identifier: str, benchmark_identifier: str, conda_active: bool =
     return wrap_score(__file__,
                       model_identifier=model_identifier, benchmark_identifier=benchmark_identifier,
                       score_function=_run_score, conda_active=conda_active)
+
+
+# Public re-export so callers can do: from brainscore_vision import preallocate_memory
+from brainscore_vision.benchmark_helpers.memory import preallocate_memory  # noqa: E402

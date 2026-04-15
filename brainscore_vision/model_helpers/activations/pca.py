@@ -44,16 +44,13 @@ class LayerPCA:
         self._logger.debug('Retrieving ImageNet activations')
         imagenet_paths = _get_imagenet_val(num_images=n_components)
         self.handle.disable()
-        imagenet_activations = self._extractor(imagenet_paths, layers=layers)
-        imagenet_activations = {layer: imagenet_activations.sel(layer=layer).values
-                                for layer in np.unique(imagenet_activations['layer'])}
-        assert len(set(activations.shape[0] for activations in imagenet_activations.values())) == 1, "stimuli differ"
-        self.handle.enable()
 
         self._logger.debug('Computing ImageNet principal components')
-        progress = tqdm(total=len(imagenet_activations), desc="layer principal components")
-
-        def init_and_progress(layer, activations):
+        progress = tqdm(total=len(layers), desc="layer principal components")
+        layer_pcas = {}
+        for layer in layers:
+            activations = self._extractor(imagenet_paths, layers=[layer])
+            activations = activations.values
             activations = flatten(activations)
             if activations.shape[1] <= n_components:
                 self._logger.debug(f"Not computing principal components for {layer} "
@@ -62,12 +59,12 @@ class LayerPCA:
             else:
                 pca = PCA(n_components=n_components, random_state=0)
                 pca.fit(activations)
+            layer_pcas[layer] = pca
             progress.update(1)
-            return pca
-
-        layer_pcas = change_dict(imagenet_activations, init_and_progress, keep_name=True,
-                                 multithread=os.getenv('MT_MULTITHREAD', '1') == '1')
+            del activations
         progress.close()
+
+        self.handle.enable()
         return layer_pcas
 
     @classmethod

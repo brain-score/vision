@@ -146,7 +146,7 @@ package_stimulus_set(catalog_name='brainio_brainscore', proto_stimulus_set=stimu
 import pdb; pdb.set_trace()
 
 
-# upload assmebly to S3                      
+# upload assembly to S3                      
 package_data_assembly('brainio_brainscore', merged_assembly, assembly_identifier=merged_assembly.name,
                       stimulus_set_identifier=stimuli.name,assembly_class_name="NeuronRecordingAssembly", 
                       bucket_name="brainio-brainscore")

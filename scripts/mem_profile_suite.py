@@ -12,7 +12,6 @@ Usage
 
 --skip-score  runs only the pre-flight probes (no actual scoring).
 """
-
 import os
 import sys
 import time
@@ -299,6 +298,30 @@ def _load_benchmark(bid):
     return brainscore_vision.load_benchmark(bid)
 
 
+def _timed_load(fn, arg, t0, interval=15):
+    """Run fn(arg) in a thread, printing elapsed time every `interval` seconds."""
+    result = [None]
+    exc    = [None]
+
+    def _worker():
+        try:
+            result[0] = fn(arg)
+        except Exception as e:
+            exc[0] = e
+
+    t = threading.Thread(target=_worker, daemon=True)
+    t.start()
+    while t.is_alive():
+        t.join(timeout=interval)
+        if t.is_alive():
+            print(f"         {_c('…', _DIM)} still loading  {time.time()-t0:.0f}s elapsed",
+                  flush=True)
+
+    if exc[0] is not None:
+        raise exc[0]
+    return result[0]
+
+
 # ---------------------------------------------------------------------------
 # Summary table  (est GB / actual Δ GB per cell)
 # ---------------------------------------------------------------------------
@@ -566,13 +589,13 @@ def main():
     print(f"{'═' * 66}")
 
     # ── Load all benchmarks first ────────────────────────────────────────
-    print(f"\n{_c(f'Loading {n_bm} benchmarks', _CYAN)}\n")
+    print(f"\n{_c(f'Loading {n_bm} benchmarks  (may download from S3)', _CYAN)}\n")
     benchmarks = {}
     for i, bid in enumerate(BENCHMARKS, 1):
         print(f"  [{i}/{n_bm}] {bid}")
         t0 = time.time()
         try:
-            benchmarks[bid] = _load_benchmark(bid)
+            benchmarks[bid] = _timed_load(_load_benchmark, bid, t0)
             print(f"         {_c('OK', _GREEN)} ({time.time() - t0:.1f}s)")
         except Exception as e:
             benchmarks[bid] = None
@@ -598,7 +621,7 @@ def main():
             _step("loading model...", indent=2)
             t0 = time.time()
             try:
-                model = _load_model(mid_id)
+                model = _timed_load(_load_model, mid_id, t0)
                 print(f"       {_c('OK', _GREEN)} ({time.time() - t0:.1f}s)", flush=True)
             except Exception as e:
                 print(f"       {_c('FAILED', _RED)}: {str(e)[:80]}")

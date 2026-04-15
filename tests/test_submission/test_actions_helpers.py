@@ -3,19 +3,19 @@ from subprocess import call
 
 from brainscore_vision.submission.actions_helpers import BASE_URL, get_pr_num_from_head, get_data, get_statuses_result, are_all_tests_passing, is_labeled_automerge, get_pr_head_from_github_event
 
-PR_HEAD_SHA = '6ff4c26e35f67ad13bd075dbb73bd5166c854b7d'
-PR_BRANCH_NAME = 'web_submission_741/add_plugins'
+PR_HEAD_SHA = '47c6ee9089799a97d23e1aa813c49d8f12447fc0'
+PR_BRANCH_NAME = 'patch-reduce-pnaslarge-mem'
 
 
 def test_get_pr_num_from_head_pull_request(monkeypatch):
     monkeypatch.setenv('GITHUB_EVENT_NAME', 'pull_request')
     pr_num = get_pr_num_from_head(PR_BRANCH_NAME)
-    assert pr_num == 1803
+    assert pr_num == 2300
 
 def test_get_pr_num_from_head_non_pull_request(monkeypatch):
     monkeypatch.setenv('GITHUB_EVENT_NAME', 'status')
     pr_num = get_pr_num_from_head(PR_HEAD_SHA)
-    assert pr_num == 1803
+    assert pr_num == 2300
 
 def test_get_pr_head_status_event(monkeypatch, mocker):
     monkeypatch.setenv('GITHUB_EVENT_NAME', 'status')
@@ -40,7 +40,7 @@ def test_get_statuses_result_len():
 
 def test_get_statuses_result():
     data = get_data(f"{BASE_URL}/statuses/{PR_HEAD_SHA}")
-    jenkins_plugintests_result = get_statuses_result('Brain-Score Plugins Unit tests (AWS Jenkins, AWS Execution)', data)
+    jenkins_plugintests_result = get_statuses_result('Vision Unittests, Plugins', data)
     assert jenkins_plugintests_result == 'success'
 
 def test_are_all_tests_passing():

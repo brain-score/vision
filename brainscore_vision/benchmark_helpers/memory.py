@@ -15,6 +15,7 @@ Example usage::
     score = benchmark(model)
 """
 
+import json
 import logging
 import os
 from dataclasses import dataclass
@@ -27,6 +28,9 @@ from brainscore_vision.benchmark_helpers.screen import place_on_screen
 from brainscore_vision.model_interface import BrainModel
 
 _logger = logging.getLogger(__name__)
+
+# Default path for the persistent calibration table
+_DEFAULT_CALIBRATION_PATH = os.path.expanduser('~/.brainscore/benchmark_costs.json')
 
 # float32 = 4 bytes per element
 _BYTES_PER_ELEMENT = 4
@@ -47,8 +51,9 @@ class MemoryEstimate:
     num_features: int
     num_timebins: int
     activation_gb: float        # activation array only
-    total_estimated_gb: float   # activation × overhead factor
+    total_estimated_gb: float   # activation_gb + fixed_benchmark_cost_gb, or activation_gb × overhead
     available_gb: float
+    fixed_benchmark_cost_gb: Optional[float] = None  # None → overhead-factor fallback was used
 
     @property
     def will_oom(self) -> bool:
@@ -56,14 +61,58 @@ class MemoryEstimate:
 
     def __str__(self) -> str:
         status = "OOM LIKELY" if self.will_oom else "OK"
+        if self.fixed_benchmark_cost_gb is not None:
+            formula = (
+                f"{self.activation_gb:.2f} GB activations "
+                f"+ {self.fixed_benchmark_cost_gb:.2f} GB fixed benchmark cost"
+            )
+        else:
+            formula = (
+                f"{self.activation_gb:.2f} GB  "
+                f"(×{_OVERHEAD_FACTOR} overhead → {self.total_estimated_gb:.1f} GB total)"
+            )
         return (
             f"[{status}] Memory estimate: {self.total_estimated_gb:.1f} GB needed, "
             f"{self.available_gb:.1f} GB available\n"
             f"  Activations: {self.num_stimuli} stimuli × {self.num_features:,} features "
-            f"× {self.num_timebins} timebins "
-            f"= {self.activation_gb:.2f} GB  (×{_OVERHEAD_FACTOR} overhead "
-            f"→ {self.total_estimated_gb:.1f} GB total)"
+            f"× {self.num_timebins} timebins = {formula}"
         )
+
+
+def load_calibration(path: Optional[str] = None) -> dict:
+    """Load the benchmark fixed-cost table from disk.
+
+    Returns an empty dict if the file does not exist yet.
+    The file is written by :func:`save_calibration` (or by the
+    ``--calibrate`` mode of ``mem_profile_suite.py``).
+    """
+    path = path or _DEFAULT_CALIBRATION_PATH
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
+    except Exception as e:
+        _logger.warning(f"Could not load calibration from {path}: {e}")
+        return {}
+
+
+def save_calibration(costs: dict, path: Optional[str] = None) -> None:
+    """Persist benchmark fixed costs to disk.
+
+    Parameters
+    ----------
+    costs : dict
+        ``{benchmark_identifier: fixed_cost_gb}`` mapping produced by a
+        calibration run.
+    path : str, optional
+        Destination file.  Defaults to ``~/.brainscore/benchmark_costs.json``.
+    """
+    path = path or _DEFAULT_CALIBRATION_PATH
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w') as f:
+        json.dump(costs, f, indent=2, sort_keys=True)
+    _logger.info(f"Calibration saved → {path}  ({len(costs)} benchmarks)")
 
 
 def _get_probe_layer(model):
@@ -106,6 +155,7 @@ def preallocate_memory(
     model: BrainModel,
     benchmark,
     raise_if_oom: bool = True,
+    fixed_benchmark_cost_gb: Optional[float] = None,
 ) -> Optional[MemoryEstimate]:
     """
     Estimate memory requirements before running a full benchmark.
@@ -228,7 +278,21 @@ def preallocate_memory(
     # ------------------------------------------------------------------ #
     activation_bytes = num_stimuli * num_features * num_timebins * _BYTES_PER_ELEMENT
     activation_gb = activation_bytes / (1024 ** 3)
-    total_estimated_gb = activation_gb * _OVERHEAD_FACTOR
+
+    # Auto-load from the calibration table if no explicit value was given
+    if fixed_benchmark_cost_gb is None:
+        _cal = load_calibration()
+        fixed_benchmark_cost_gb = _cal.get(benchmark.identifier)
+        if fixed_benchmark_cost_gb is not None:
+            _logger.debug(
+                f"Using calibrated fixed cost for {benchmark.identifier}: "
+                f"{fixed_benchmark_cost_gb:.3f} GB"
+            )
+
+    if fixed_benchmark_cost_gb is not None:
+        total_estimated_gb = activation_gb + fixed_benchmark_cost_gb
+    else:
+        total_estimated_gb = activation_gb * _OVERHEAD_FACTOR
     available_gb = psutil.virtual_memory().available / (1024 ** 3)
 
     estimate = MemoryEstimate(
@@ -239,6 +303,7 @@ def preallocate_memory(
         activation_gb=activation_gb,
         total_estimated_gb=total_estimated_gb,
         available_gb=available_gb,
+        fixed_benchmark_cost_gb=fixed_benchmark_cost_gb,
     )
 
     _logger.info(str(estimate))

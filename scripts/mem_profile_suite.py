@@ -65,6 +65,191 @@ _BM_SHORT = {
     'Allen2022_fmri.IT-ridge':     'Allen22.IT',
 }
 
+# All registered leaf benchmarks — used by --calibrate mode.
+ALL_BENCHMARKS = [
+    # Allen2022 fMRI (volumetric)
+    'Allen2022_fmri.V1-ridge', 'Allen2022_fmri.V2-ridge',
+    'Allen2022_fmri.V4-ridge', 'Allen2022_fmri.IT-ridge',
+    'Allen2022_fmri.V1-rdm',   'Allen2022_fmri.V2-rdm',
+    'Allen2022_fmri.V4-rdm',   'Allen2022_fmri.IT-rdm',
+    'Allen2022_fmri_4subj.V1-ridge', 'Allen2022_fmri_4subj.V2-ridge',
+    'Allen2022_fmri_4subj.V4-ridge', 'Allen2022_fmri_4subj.IT-ridge',
+    'Allen2022_fmri_4subj.V1-rdm',   'Allen2022_fmri_4subj.V2-rdm',
+    'Allen2022_fmri_4subj.V4-rdm',   'Allen2022_fmri_4subj.IT-rdm',
+    # Allen2022 fMRI (surface)
+    'Allen2022_fmri_surface.V1-ridge', 'Allen2022_fmri_surface.V2-ridge',
+    'Allen2022_fmri_surface.V4-ridge', 'Allen2022_fmri_surface.IT-ridge',
+    'Allen2022_fmri_surface.V1-rdm',   'Allen2022_fmri_surface.V2-rdm',
+    'Allen2022_fmri_surface.V4-rdm',   'Allen2022_fmri_surface.IT-rdm',
+    'Allen2022_fmri_surface_4subj.V1-ridge', 'Allen2022_fmri_surface_4subj.V2-ridge',
+    'Allen2022_fmri_surface_4subj.V4-ridge', 'Allen2022_fmri_surface_4subj.IT-ridge',
+    'Allen2022_fmri_surface_4subj.V1-rdm',   'Allen2022_fmri_surface_4subj.V2-rdm',
+    'Allen2022_fmri_surface_4subj.V4-rdm',   'Allen2022_fmri_surface_4subj.IT-rdm',
+    # Baker2022
+    'Baker2022frankenstein-accuracy_delta',
+    'Baker2022fragmented-accuracy_delta',
+    'Baker2022inverted-accuracy_delta',
+    # BMD2024
+    'BMD2024.texture_1Behavioral-accuracy_distance',
+    'BMD2024.texture_2Behavioral-accuracy_distance',
+    'BMD2024.dotted_1Behavioral-accuracy_distance',
+    'BMD2024.dotted_2Behavioral-accuracy_distance',
+    # Bracci2019
+    'Bracci2019.anteriorVTC-rdm',
+    # Cadena2017
+    'Cadena2017-pls', 'Cadena2017-mask',
+    # Coggan2024
+    'tong.Coggan2024_fMRI.V1-rdm', 'tong.Coggan2024_fMRI.V2-rdm',
+    'tong.Coggan2024_fMRI.V4-rdm', 'tong.Coggan2024_fMRI.IT-rdm',
+    'tong.Coggan2024_behavior-ConditionWiseAccuracySimilarity',
+    # Ferguson2024
+    'Ferguson2024circle_line-value_delta', 'Ferguson2024color-value_delta',
+    'Ferguson2024convergence-value_delta',  'Ferguson2024eighth-value_delta',
+    'Ferguson2024gray_easy-value_delta',    'Ferguson2024gray_hard-value_delta',
+    'Ferguson2024half-value_delta',         'Ferguson2024juncture-value_delta',
+    'Ferguson2024lle-value_delta',          'Ferguson2024llh-value_delta',
+    'Ferguson2024quarter-value_delta',      'Ferguson2024round_f-value_delta',
+    'Ferguson2024round_v-value_delta',      'Ferguson2024tilted_line-value_delta',
+    # FreemanZiemba2013
+    'FreemanZiemba2013.V1-pls',       'FreemanZiemba2013.V2-pls',
+    'FreemanZiemba2013public.V1-pls', 'FreemanZiemba2013public.V2-pls',
+    # Geirhos2021
+    'Geirhos2021colour-top1',              'Geirhos2021colour-error_consistency',
+    'Geirhos2021contrast-top1',            'Geirhos2021contrast-error_consistency',
+    'Geirhos2021cueconflict-top1',         'Geirhos2021cueconflict-error_consistency',
+    'Geirhos2021edge-top1',                'Geirhos2021edge-error_consistency',
+    'Geirhos2021eidolonI-top1',            'Geirhos2021eidolonI-error_consistency',
+    'Geirhos2021eidolonII-top1',           'Geirhos2021eidolonII-error_consistency',
+    'Geirhos2021eidolonIII-top1',          'Geirhos2021eidolonIII-error_consistency',
+    'Geirhos2021falsecolour-top1',         'Geirhos2021falsecolour-error_consistency',
+    'Geirhos2021highpass-top1',            'Geirhos2021highpass-error_consistency',
+    'Geirhos2021lowpass-top1',             'Geirhos2021lowpass-error_consistency',
+    'Geirhos2021phasescrambling-top1',     'Geirhos2021phasescrambling-error_consistency',
+    'Geirhos2021powerequalisation-top1',   'Geirhos2021powerequalisation-error_consistency',
+    'Geirhos2021rotation-top1',            'Geirhos2021rotation-error_consistency',
+    'Geirhos2021silhouette-top1',          'Geirhos2021silhouette-error_consistency',
+    'Geirhos2021sketch-top1',              'Geirhos2021sketch-error_consistency',
+    'Geirhos2021stylized-top1',            'Geirhos2021stylized-error_consistency',
+    'Geirhos2021uniformnoise-top1',        'Geirhos2021uniformnoise-error_consistency',
+    # Gifford2022
+    'Gifford2022.IT-ridge', 'Gifford2022.IT-ridgecv',
+    # Hebart2023
+    'Hebart2023-match',
+    'Hebart2023_fmri.V1-ridge',   'Hebart2023_fmri.V2-ridge',
+    'Hebart2023_fmri.V4-ridge',   'Hebart2023_fmri.IT-ridge',
+    'Hebart2023_fmri.V1-ridgecv', 'Hebart2023_fmri.V2-ridgecv',
+    'Hebart2023_fmri.V4-ridgecv', 'Hebart2023_fmri.IT-ridgecv',
+    # Hermann2020
+    'Hermann2020cueconflict-shape_bias', 'Hermann2020cueconflict-shape_match',
+    # Igustibagus2024
+    'Igustibagus2024-ridge', 'Igustibagus2024.IT_readout-accuracy',
+    # ImageNet
+    'ImageNet-top1',
+    'ImageNet-C-noise-top1', 'ImageNet-C-blur-top1',
+    'ImageNet-C-weather-top1', 'ImageNet-C-digital-top1',
+    # Islam2021
+    'Islam2021-shape_v1_dimensionality',  'Islam2021-texture_v1_dimensionality',
+    'Islam2021-shape_v2_dimensionality',  'Islam2021-texture_v2_dimensionality',
+    'Islam2021-shape_v4_dimensionality',  'Islam2021-texture_v4_dimensionality',
+    'Islam2021-shape_it_dimensionality',  'Islam2021-texture_it_dimensionality',
+    # Kar2019
+    'Kar2019-ost',
+    # Lonnqvist2024
+    'Lonnqvist2024_InlabInstructionsBehavioralAccuracyDistance',
+    'Lonnqvist2024_InlabNoInstructionsBehavioralAccuracyDistance',
+    'Lonnqvist2024_OnlineNoInstructionsBehavioralAccuracyDistance',
+    'Lonnqvist2024_EngineeringAccuracy',
+    # MajajHong2015
+    'MajajHong2015.V4-pls',              'MajajHong2015.IT-pls',
+    'MajajHong2015public.V4-pls',        'MajajHong2015public.IT-pls',
+    'MajajHong2015public.V4-temporal-pls', 'MajajHong2015public.IT-temporal-pls',
+    'MajajHong2015public.V4-reverse_pls', 'MajajHong2015public.IT-reverse_pls',
+    # Malania2007
+    'Malania2007.short2-threshold_elevation',  'Malania2007.short4-threshold_elevation',
+    'Malania2007.short6-threshold_elevation',  'Malania2007.short8-threshold_elevation',
+    'Malania2007.short16-threshold_elevation', 'Malania2007.equal2-threshold_elevation',
+    'Malania2007.long2-threshold_elevation',   'Malania2007.equal16-threshold_elevation',
+    'Malania2007.long16-threshold_elevation',  'Malania2007.vernieracuity-threshold',
+    # Maniquet2024
+    'Maniquet2024-confusion_similarity', 'Maniquet2024-tasks_consistency',
+    # Marques2020
+    'Marques2020_Cavanaugh2002-grating_summation_field',
+    'Marques2020_Cavanaugh2002-surround_diameter',
+    'Marques2020_Cavanaugh2002-surround_suppression_index',
+    'Marques2020_DeValois1982-pref_or',
+    'Marques2020_DeValois1982-peak_sf',
+    'Marques2020_FreemanZiemba2013-texture_modulation_index',
+    'Marques2020_FreemanZiemba2013-abs_texture_modulation_index',
+    'Marques2020_FreemanZiemba2013-texture_selectivity',
+    'Marques2020_FreemanZiemba2013-texture_sparseness',
+    'Marques2020_FreemanZiemba2013-texture_variance_ratio',
+    'Marques2020_FreemanZiemba2013-max_texture',
+    'Marques2020_FreemanZiemba2013-max_noise',
+    'Marques2020_Ringach2002-circular_variance',  'Marques2020_Ringach2002-or_bandwidth',
+    'Marques2020_Ringach2002-orth_pref_ratio',    'Marques2020_Ringach2002-or_selective',
+    'Marques2020_Ringach2002-cv_bandwidth_ratio', 'Marques2020_Ringach2002-opr_cv_diff',
+    'Marques2020_Ringach2002-max_dc',             'Marques2020_Ringach2002-modulation_ratio',
+    'Marques2020_Schiller1976-sf_selective',      'Marques2020_Schiller1976-sf_bandwidth',
+    # ObjectNet
+    'ObjectNet-top1',
+    # Papale2025
+    'Papale2025.V1-ridge',   'Papale2025.V4-ridge',   'Papale2025.IT-ridge',
+    'Papale2025.V1-ridgecv', 'Papale2025.V4-ridgecv', 'Papale2025.IT-ridgecv',
+    # Rajalingham2018
+    'Rajalingham2018-i2n', 'Rajalingham2018public-i2n',
+    # Rajalingham2020
+    'Rajalingham2020.IT-pls',
+    # Sanghavi2020
+    'Sanghavi2020.V4-pls',     'Sanghavi2020.IT-pls',
+    'SanghaviJozwik2020.V4-pls', 'SanghaviJozwik2020.IT-pls',
+    'SanghaviMurty2020.V4-pls',  'SanghaviMurty2020.IT-pls',
+    # Scialom2024
+    'Scialom2024_rgbBehavioralAccuracyDistance',
+    'Scialom2024_contoursBehavioralAccuracyDistance',
+    'Scialom2024_phosphenes-12BehavioralAccuracyDistance',
+    'Scialom2024_phosphenes-16BehavioralAccuracyDistance',
+    'Scialom2024_phosphenes-21BehavioralAccuracyDistance',
+    'Scialom2024_phosphenes-27BehavioralAccuracyDistance',
+    'Scialom2024_phosphenes-35BehavioralAccuracyDistance',
+    'Scialom2024_phosphenes-46BehavioralAccuracyDistance',
+    'Scialom2024_phosphenes-59BehavioralAccuracyDistance',
+    'Scialom2024_phosphenes-77BehavioralAccuracyDistance',
+    'Scialom2024_phosphenes-100BehavioralAccuracyDistance',
+    'Scialom2024_segments-12BehavioralAccuracyDistance',
+    'Scialom2024_segments-16BehavioralAccuracyDistance',
+    'Scialom2024_segments-21BehavioralAccuracyDistance',
+    'Scialom2024_segments-27BehavioralAccuracyDistance',
+    'Scialom2024_segments-35BehavioralAccuracyDistance',
+    'Scialom2024_segments-46BehavioralAccuracyDistance',
+    'Scialom2024_segments-59BehavioralAccuracyDistance',
+    'Scialom2024_segments-77BehavioralAccuracyDistance',
+    'Scialom2024_segments-100BehavioralAccuracyDistance',
+    'Scialom2024_phosphenes-allBehavioralErrorConsistency',
+    'Scialom2024_segments-allBehavioralErrorConsistency',
+    'Scialom2024_phosphenes-allBehavioralAccuracyDistance',
+    'Scialom2024_segments-allBehavioralAccuracyDistance',
+    'Scialom2024_rgbEngineeringAccuracy',
+    'Scialom2024_contoursEngineeringAccuracy',
+    'Scialom2024_phosphenes-12EngineeringAccuracy',
+    'Scialom2024_phosphenes-16EngineeringAccuracy',
+    'Scialom2024_phosphenes-21EngineeringAccuracy',
+    'Scialom2024_phosphenes-27EngineeringAccuracy',
+    'Scialom2024_phosphenes-35EngineeringAccuracy',
+    'Scialom2024_phosphenes-46EngineeringAccuracy',
+    'Scialom2024_phosphenes-59EngineeringAccuracy',
+    'Scialom2024_phosphenes-77EngineeringAccuracy',
+    'Scialom2024_phosphenes-100EngineeringAccuracy',
+    'Scialom2024_segments-12EngineeringAccuracy',
+    'Scialom2024_segments-16EngineeringAccuracy',
+    'Scialom2024_segments-21EngineeringAccuracy',
+    'Scialom2024_segments-27EngineeringAccuracy',
+    'Scialom2024_segments-35EngineeringAccuracy',
+    'Scialom2024_segments-46EngineeringAccuracy',
+    'Scialom2024_segments-59EngineeringAccuracy',
+    'Scialom2024_segments-77EngineeringAccuracy',
+    'Scialom2024_segments-100EngineeringAccuracy',
+]
+
 # ---------------------------------------------------------------------------
 # ANSI colours
 # ---------------------------------------------------------------------------
@@ -566,17 +751,256 @@ def append_csv_row(writer, file_handle, r):
 
 
 # ---------------------------------------------------------------------------
+# Calibration mode  (alexnet × all benchmarks → fixed_benchmark_cost per bm)
+# ---------------------------------------------------------------------------
+
+def run_calibration_pair(model, benchmark, benchmark_id, bm_idx, n_bm):
+    """Run one benchmark and return fixed_benchmark_cost = actual_delta - activation_gb."""
+    from brainscore_vision.benchmark_helpers.memory import preallocate_memory
+
+    proc = psutil.Process(os.getpid())
+
+    print(f"\n  [{bm_idx}/{n_bm}] {benchmark_id}")
+    print(f"  {'─' * 62}")
+
+    # Probe
+    _step("probe  (1-stimulus forward pass)")
+    try:
+        est = preallocate_memory(model, benchmark, raise_if_oom=False)
+    except TypeError:
+        _substep(_c("skipped — not a NeuralBenchmark (behavioral/non-neural)", _DIM))
+        print(f"  {_c(benchmark_id[:55], _DIM)}: N/A (non-neural)", flush=True)
+        return dict(benchmark_id=benchmark_id, status='skip',
+                    activation_gb=None, actual_delta_gb=None, fixed_cost_gb=None)
+    except Exception as e:
+        _substep(_c(f"probe ERROR: {str(e)[:80]}", _RED))
+        return dict(benchmark_id=benchmark_id, status='error',
+                    activation_gb=None, actual_delta_gb=None, fixed_cost_gb=None,
+                    note=str(e)[:100])
+
+    if est is None:
+        return dict(benchmark_id=benchmark_id, status='skip',
+                    activation_gb=None, actual_delta_gb=None, fixed_cost_gb=None)
+
+    _substep(
+        f"activation = {est.activation_gb:.3f} GB  "
+        f"({est.num_features:,} feat × {est.num_stimuli:,} stim × {est.num_timebins} tbin)"
+    )
+
+    # Score
+    baseline_rss = proc.memory_info().rss
+    _step(f"scoring  (baseline RSS: {_gb(baseline_rss)})")
+
+    _ticker_stop = threading.Event()
+    def _ticker():
+        t_start = time.time()
+        while not _ticker_stop.wait(30):
+            elapsed = time.time() - t_start
+            rss = proc.memory_info().rss
+            print(f"      {_c('…', _DIM)} still scoring  "
+                  f"{elapsed/60:.1f} min  RSS {_gb(rss)}", flush=True)
+    ticker_thread = threading.Thread(target=_ticker, daemon=True)
+    ticker_thread.start()
+
+    monitor = _PeakMonitor().start()
+    t_score = time.time()
+    score_status = 'ok'
+    score_note = ''
+    try:
+        benchmark(model)
+    except MemoryError as e:
+        score_status = 'oom'
+        score_note = str(e)[:120]
+        _substep(_c(f"MemoryError: {score_note}", _RED))
+    except Exception as e:
+        score_status = 'error'
+        score_note = str(e)[:120]
+        _substep(_c(f"ERROR: {score_note}", _RED))
+    finally:
+        _ticker_stop.set()
+        ticker_thread.join()
+
+    score_elapsed = time.time() - t_score
+    peak_rss = monitor.stop()
+    actual_delta_gb = (peak_rss - baseline_rss) / (1024 ** 3)
+
+    fixed_cost_gb = None
+    if score_status == 'ok':
+        fixed_cost_gb = max(0.0, actual_delta_gb - est.activation_gb)
+        _step("result")
+        _substep(
+            f"actual Δ = {_c(f'{actual_delta_gb:.3f} GB', _CYAN)}  "
+            f"elapsed {score_elapsed:.0f}s"
+        )
+        _substep(
+            f"fixed_benchmark_cost = {actual_delta_gb:.3f} − {est.activation_gb:.3f} "
+            f"= {_c(f'{fixed_cost_gb:.3f} GB', _GREEN)}"
+        )
+        # One-liner summary line
+        print(
+            f"\n  {_c(benchmark_id[:55], _BOLD)}: "
+            f"fixed_cost = {_c(f'{fixed_cost_gb:.2f} GB', _GREEN)}",
+            flush=True,
+        )
+    else:
+        _substep(f"actual Δ = {_gb(peak_rss - baseline_rss)}  (run failed — no fixed_cost)")
+
+    return dict(
+        benchmark_id=benchmark_id,
+        status=score_status,
+        activation_gb=est.activation_gb,
+        actual_delta_gb=actual_delta_gb,
+        fixed_cost_gb=fixed_cost_gb,
+        score_elapsed=score_elapsed,
+        note=score_note,
+    )
+
+
+def print_calibration_table(results):
+    neural = [r for r in results if r.get('fixed_cost_gb') is not None]
+    skipped = sum(1 for r in results if r['status'] == 'skip')
+    errors  = sum(1 for r in results if r['status'] in ('error', 'oom'))
+
+    print(f"\n\n{'═' * 72}")
+    print(f"  {_c('BENCHMARK FIXED COSTS  (model-independent overhead)', _BOLD)}")
+    print(f"  Calibrated with alexnet on {len(neural)} neural benchmarks  "
+          f"|  {skipped} non-neural skipped  |  {errors} errors")
+    print(f"{'═' * 72}\n")
+
+    if not neural:
+        print(f"  {_c('No neural benchmarks scored.', _DIM)}")
+        return
+
+    neural_sorted = sorted(neural, key=lambda r: r['fixed_cost_gb'], reverse=True)
+    col_w = min(max(len(r['benchmark_id']) for r in neural_sorted), 56)
+
+    print(f"  {'Benchmark':<{col_w}}  {'Fixed cost':>12}  {'Act. Δ':>9}  {'Activation':>10}")
+    print(f"  {'─' * col_w}  {'─' * 12}  {'─' * 9}  {'─' * 10}")
+
+    for r in neural_sorted:
+        bid  = r['benchmark_id'][:col_w]
+        fc   = r['fixed_cost_gb']
+        act  = r['actual_delta_gb']
+        actl = r['activation_gb']
+        col  = _GREEN if fc < 5 else (_YELLOW if fc < 15 else _RED)
+        print(
+            f"  {bid:<{col_w}}  "
+            f"{_c(f'{fc:>8.2f} GB', col)}  "
+            f"{act:>7.2f} GB  "
+            f"{actl:>8.3f} GB"
+        )
+
+    print()
+    print(f"  {_c('Formula:', _BOLD)} total_needed = activation_gb + fixed_benchmark_cost")
+    print(f"  {_c('Usage:', _DIM)}   preallocate_memory(model, bm, "
+          f"fixed_benchmark_cost_gb=<value>)")
+    print()
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
+def _run_calibrate(args):
+    """--calibrate mode: load alexnet, run every benchmark, output fixed_benchmark_cost."""
+    from brainscore_vision.benchmark_helpers.memory import save_calibration, _DEFAULT_CALIBRATION_PATH
+    cal_path = getattr(args, 'calibration_json', None) or _DEFAULT_CALIBRATION_PATH
+
+    n_bm = len(ALL_BENCHMARKS)
+    print(f"\n{'═' * 72}")
+    print(f"  {_c('CALIBRATION MODE', _BOLD)}  —  alexnet × {n_bm} benchmarks")
+    print(f"  Goal: measure fixed_benchmark_cost = actual_Δ − activation_gb per benchmark")
+    print(f"  Calibration table will be saved → {_c(cal_path, _CYAN)}")
+    print(f"{'═' * 72}\n")
+
+    # Load alexnet
+    _step("loading alexnet...", indent=2)
+    t0 = time.time()
+    try:
+        model = _timed_load(_load_model, 'alexnet', t0)
+        print(f"       {_c('OK', _GREEN)} ({time.time() - t0:.1f}s)", flush=True)
+    except Exception as e:
+        print(f"       {_c('FAILED', _RED)}: {e}")
+        return
+
+    # Open CSV
+    csv_file, csv_writer = None, None
+    if args.csv:
+        csv_file = open(args.csv, 'w', newline='')
+        csv_writer = csv.writer(csv_file)
+        csv_writer.writerow(['benchmark', 'status', 'activation_gb',
+                             'actual_delta_gb', 'fixed_cost_gb', 'score_elapsed_s', 'note'])
+        csv_file.flush()
+        print(f"\n  {_c('CSV →', _CYAN)} {args.csv}\n")
+
+    results = []
+    costs = {}  # live-updated so JSON is always current
+    try:
+        for i, bid in enumerate(ALL_BENCHMARKS, 1):
+            # Load benchmark with ticker
+            t0 = time.time()
+            try:
+                bm = _timed_load(_load_benchmark, bid, t0)
+            except Exception as e:
+                print(f"\n  [{i}/{n_bm}] {bid}")
+                _substep(_c(f"load FAILED: {str(e)[:80]}", _RED))
+                r = dict(benchmark_id=bid, status='error', activation_gb=None,
+                         actual_delta_gb=None, fixed_cost_gb=None, note=str(e)[:100])
+                results.append(r)
+                if csv_writer:
+                    csv_writer.writerow([bid, 'error', '', '', '', '', r.get('note', '')])
+                    csv_file.flush()
+                continue
+
+            r = run_calibration_pair(model, bm, bid, i, n_bm)
+            results.append(r)
+
+            if csv_writer:
+                csv_writer.writerow([
+                    bid, r['status'],
+                    f"{r['activation_gb']:.4f}"  if r['activation_gb']  is not None else '',
+                    f"{r['actual_delta_gb']:.4f}" if r['actual_delta_gb'] is not None else '',
+                    f"{r['fixed_cost_gb']:.4f}"  if r['fixed_cost_gb']   is not None else '',
+                    f"{r.get('score_elapsed', ''):.1f}" if r.get('score_elapsed') else '',
+                    r.get('note', ''),
+                ])
+                csv_file.flush()
+
+            # Incrementally save JSON after every benchmark that yielded a cost
+            if r.get('fixed_cost_gb') is not None:
+                costs[bid] = r['fixed_cost_gb']
+                save_calibration(costs, cal_path)
+                print(f"  {_c('↳ JSON updated', _DIM)} ({len(costs)} benchmarks so far)",
+                      flush=True)
+
+    finally:
+        if csv_file:
+            csv_file.close()
+            print(f"\n{_c('CSV finalised →', _CYAN)} {args.csv}")
+
+    save_calibration(costs, cal_path)
+    print(f"\n{_c('Calibration saved →', _CYAN)} {cal_path}  ({len(costs)} benchmarks)\n")
+
+    print_calibration_table(results)
+
+
 def main():
     parser = argparse.ArgumentParser(
-        description="5×5 memory estimate vs. actual benchmark run.")
+        description="Memory profile suite — 5×5 estimate vs actual, or benchmark calibration.")
     parser.add_argument('--csv', metavar='PATH', default=None,
                         help='write results to CSV')
     parser.add_argument('--skip-score', action='store_true',
                         help='probe only — do not run actual scoring')
+    parser.add_argument('--calibrate', action='store_true',
+                        help='run alexnet on ALL benchmarks and output fixed_benchmark_cost per benchmark')
+    parser.add_argument('--calibration-json', metavar='PATH', default=None,
+                        help='path to save/load calibration JSON '
+                             '(default: ~/.brainscore/benchmark_costs.json)')
     args = parser.parse_args()
+
+    if args.calibrate:
+        _run_calibrate(args)
+        return
 
     n_bm = len(BENCHMARKS)
     n_m  = len(MODELS)

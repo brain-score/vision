@@ -9,7 +9,9 @@ DataArray with a 'neuroid' dim so the probe can read sizes['neuroid'].
 place_on_screen short-circuits when source == target visual degrees (no I/O).
 """
 
+import json
 import os
+import tempfile
 import unittest
 from unittest.mock import MagicMock, patch
 
@@ -23,7 +25,10 @@ from brainscore_vision.benchmark_helpers.memory import (
     MemoryEstimate,
     _OVERHEAD_FACTOR,
     _BYTES_PER_ELEMENT,
+    _DEFAULT_CALIBRATION_PATH,
     preallocate_memory,
+    load_calibration,
+    save_calibration,
 )
 from brainscore_vision.benchmark_helpers.neural_common import (
     NeuralBenchmark,
@@ -317,6 +322,237 @@ class TestTrainTestNeuralBenchmark(unittest.TestCase):
 
         expected_bytes = 12 * 256 * 1 * _BYTES_PER_ELEMENT
         self.assertAlmostEqual(est.activation_gb, expected_bytes / (1024 ** 3), places=6)
+
+
+# ---------------------------------------------------------------------------
+# TestCalibrationIO  —  load_calibration / save_calibration
+# ---------------------------------------------------------------------------
+
+class TestCalibrationIO(unittest.TestCase):
+
+    def setUp(self):
+        self._tmpdir = tempfile.mkdtemp()
+        self._cal_path = os.path.join(self._tmpdir, 'benchmark_costs.json')
+
+    def test_load_returns_empty_dict_when_file_missing(self):
+        result = load_calibration('/nonexistent/path/benchmark_costs.json')
+        self.assertEqual(result, {})
+
+    def test_save_and_load_roundtrip(self):
+        costs = {'MajajHong2015.IT-pls': 2.8336, 'Allen2022_fmri.V1-ridge': 0.5544}
+        save_calibration(costs, self._cal_path)
+        loaded = load_calibration(self._cal_path)
+        self.assertEqual(loaded, costs)
+
+    def test_save_creates_intermediate_directories(self):
+        deep_path = os.path.join(self._tmpdir, 'a', 'b', 'c', 'costs.json')
+        save_calibration({'bm': 1.0}, deep_path)
+        self.assertTrue(os.path.exists(deep_path))
+
+    def test_load_handles_corrupt_file_gracefully(self):
+        with open(self._cal_path, 'w') as f:
+            f.write('not valid json {{{')
+        result = load_calibration(self._cal_path)
+        self.assertEqual(result, {})
+
+    def test_save_writes_valid_json(self):
+        costs = {'foo-bar': 3.14}
+        save_calibration(costs, self._cal_path)
+        with open(self._cal_path) as f:
+            data = json.load(f)
+        self.assertAlmostEqual(data['foo-bar'], 3.14)
+
+    def test_save_overwrites_existing_file(self):
+        save_calibration({'old': 1.0}, self._cal_path)
+        save_calibration({'new': 2.0}, self._cal_path)
+        loaded = load_calibration(self._cal_path)
+        self.assertNotIn('old', loaded)
+        self.assertAlmostEqual(loaded['new'], 2.0)
+
+
+# ---------------------------------------------------------------------------
+# TestCalibratedFormula  —  two-component formula vs ×6 fallback
+# ---------------------------------------------------------------------------
+
+class TestCalibratedFormula(unittest.TestCase):
+
+    def setUp(self):
+        self._tmpdir = tempfile.mkdtemp()
+        self._cal_path = os.path.join(self._tmpdir, 'costs.json')
+
+    def _estimate(self, bm, model, fixed_cost=None, cal_path=None):
+        with patch('psutil.virtual_memory') as mock_vm:
+            mock_vm.return_value.available = 64 * (1024 ** 3)
+            with patch('brainscore_vision.benchmark_helpers.memory._DEFAULT_CALIBRATION_PATH',
+                       cal_path or '/nonexistent'):
+                return preallocate_memory(model, bm, raise_if_oom=False,
+                                          fixed_benchmark_cost_gb=fixed_cost)
+
+    def test_explicit_fixed_cost_overrides_fallback(self):
+        bm = _make_neural_benchmark(n_stimuli=10)
+        model = _make_model(num_features=512)
+        est = self._estimate(bm, model, fixed_cost=5.0)
+        self.assertAlmostEqual(est.total_estimated_gb, est.activation_gb + 5.0, places=5)
+
+    def test_fixed_cost_stored_in_estimate(self):
+        bm = _make_neural_benchmark(n_stimuli=10)
+        model = _make_model(num_features=512)
+        est = self._estimate(bm, model, fixed_cost=3.5)
+        self.assertAlmostEqual(est.fixed_benchmark_cost_gb, 3.5)
+
+    def test_falls_back_to_overhead_when_no_calibration(self):
+        bm = _make_neural_benchmark(n_stimuli=10)
+        model = _make_model(num_features=512)
+        est = self._estimate(bm, model, fixed_cost=None, cal_path='/nonexistent')
+        self.assertIsNone(est.fixed_benchmark_cost_gb)
+        self.assertAlmostEqual(est.total_estimated_gb,
+                               est.activation_gb * _OVERHEAD_FACTOR, places=5)
+
+    def test_auto_loads_fixed_cost_from_calibration_json(self):
+        bm = _make_neural_benchmark(n_stimuli=10)
+        bm._identifier = 'MajajHong2015.IT-pls'
+        model = _make_model(num_features=512)
+        save_calibration({'MajajHong2015.IT-pls': 2.8336}, self._cal_path)
+
+        with patch('psutil.virtual_memory') as mock_vm:
+            mock_vm.return_value.available = 64 * (1024 ** 3)
+            with patch('brainscore_vision.benchmark_helpers.memory._DEFAULT_CALIBRATION_PATH',
+                       self._cal_path):
+                est = preallocate_memory(model, bm, raise_if_oom=False)
+
+        self.assertAlmostEqual(est.fixed_benchmark_cost_gb, 2.8336, places=4)
+        self.assertAlmostEqual(est.total_estimated_gb, est.activation_gb + 2.8336, places=4)
+
+    def test_benchmark_not_in_table_uses_fallback(self):
+        bm = _make_neural_benchmark(n_stimuli=10)
+        bm._identifier = 'unknown-benchmark'
+        model = _make_model(num_features=512)
+        save_calibration({'MajajHong2015.IT-pls': 2.8336}, self._cal_path)
+
+        with patch('psutil.virtual_memory') as mock_vm:
+            mock_vm.return_value.available = 64 * (1024 ** 3)
+            with patch('brainscore_vision.benchmark_helpers.memory._DEFAULT_CALIBRATION_PATH',
+                       self._cal_path):
+                est = preallocate_memory(model, bm, raise_if_oom=False)
+
+        self.assertIsNone(est.fixed_benchmark_cost_gb)
+        self.assertAlmostEqual(est.total_estimated_gb,
+                               est.activation_gb * _OVERHEAD_FACTOR, places=5)
+
+    def test_oom_detected_with_calibrated_formula(self):
+        bm = _make_neural_benchmark(n_stimuli=10)
+        model = _make_model(num_features=512)
+        # fixed cost alone exceeds available RAM
+        with patch('psutil.virtual_memory') as mock_vm:
+            mock_vm.return_value.available = int(0.001 * (1024 ** 3))
+            with self.assertRaises(MemoryError):
+                preallocate_memory(model, bm, raise_if_oom=True, fixed_benchmark_cost_gb=100.0)
+
+
+# ---------------------------------------------------------------------------
+# TestMemoryEstimateStr  —  __str__ output
+# ---------------------------------------------------------------------------
+
+class TestMemoryEstimateStr(unittest.TestCase):
+
+    def _make_estimate(self, fixed_cost=None, will_oom=False):
+        available = 1.0 if will_oom else 100.0
+        total = 200.0 if will_oom else 1.5
+        return MemoryEstimate(
+            num_stimuli=100,
+            num_trials=1,
+            num_features=512,
+            num_timebins=1,
+            activation_gb=0.5,
+            total_estimated_gb=total,
+            available_gb=available,
+            fixed_benchmark_cost_gb=fixed_cost,
+        )
+
+    def test_str_shows_ok_when_not_oom(self):
+        est = self._make_estimate()
+        self.assertIn('[OK]', str(est))
+
+    def test_str_shows_oom_likely_when_oom(self):
+        est = self._make_estimate(will_oom=True)
+        self.assertIn('[OOM LIKELY]', str(est))
+
+    def test_str_shows_calibrated_formula_when_fixed_cost_set(self):
+        est = self._make_estimate(fixed_cost=3.5)
+        s = str(est)
+        self.assertIn('fixed benchmark cost', s)
+        self.assertNotIn(f'×{_OVERHEAD_FACTOR}', s)
+
+    def test_str_shows_overhead_formula_when_no_fixed_cost(self):
+        est = self._make_estimate(fixed_cost=None)
+        s = str(est)
+        self.assertIn(f'×{_OVERHEAD_FACTOR}', s)
+        self.assertNotIn('fixed benchmark cost', s)
+
+    def test_str_contains_stimuli_and_features(self):
+        est = self._make_estimate()
+        s = str(est)
+        self.assertIn('100', s)   # num_stimuli
+        self.assertIn('512', s)   # num_features
+
+
+# ---------------------------------------------------------------------------
+# TestCalibratedIntegration  —  full pipeline with a real JSON file
+# ---------------------------------------------------------------------------
+
+class TestCalibratedIntegration(unittest.TestCase):
+    """
+    End-to-end test: save a calibration JSON, then verify preallocate_memory
+    picks it up automatically and produces the correct two-component estimate.
+    """
+
+    def setUp(self):
+        self._tmpdir = tempfile.mkdtemp()
+        self._cal_path = os.path.join(self._tmpdir, 'costs.json')
+
+    def test_full_roundtrip_calibrated_estimate(self):
+        n_stimuli = 20
+        n_features = 256
+        fixed_cost = 4.35
+
+        bm = _make_neural_benchmark(n_stimuli=n_stimuli)
+        bm._identifier = 'integration-test-benchmark'
+        model = _make_model(num_features=n_features)
+
+        save_calibration({'integration-test-benchmark': fixed_cost}, self._cal_path)
+
+        with patch('psutil.virtual_memory') as mock_vm:
+            mock_vm.return_value.available = 64 * (1024 ** 3)
+            with patch('brainscore_vision.benchmark_helpers.memory._DEFAULT_CALIBRATION_PATH',
+                       self._cal_path):
+                est = preallocate_memory(model, bm, raise_if_oom=False)
+
+        expected_activation = n_stimuli * n_features * 1 * _BYTES_PER_ELEMENT / (1024 ** 3)
+        self.assertAlmostEqual(est.activation_gb, expected_activation, places=6)
+        self.assertAlmostEqual(est.fixed_benchmark_cost_gb, fixed_cost, places=4)
+        self.assertAlmostEqual(est.total_estimated_gb, expected_activation + fixed_cost, places=4)
+        self.assertFalse(est.will_oom)
+
+    def test_score_benchmark_uses_preallocate_memory(self):
+        """score_benchmark must call preallocate_memory before __call__."""
+        bm = _make_neural_benchmark(n_stimuli=5)
+        model = _make_model(num_features=10)
+        score_val = MagicMock()
+
+        call_order = []
+
+        def _fake_preallocate(self, candidate):
+            call_order.append('preallocate')
+
+        def _fake_call(self, candidate):
+            call_order.append('score')
+            return score_val
+
+        with patch.object(NeuralBenchmark, 'preallocate_memory', _fake_preallocate):
+            with patch.object(NeuralBenchmark, '__call__', _fake_call):
+                score_benchmark(bm, model)
+
+        self.assertEqual(call_order, ['preallocate', 'score'])
 
 
 if __name__ == '__main__':

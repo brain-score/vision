@@ -1,16 +1,50 @@
 """
-Memory Profile Suite  —  5 × 5 estimate vs. actual
-====================================================
-For every (model, benchmark) pair:
-  1. Run the pre-flight probe  →  estimated peak GB
-  2. Run the full benchmark    →  actual peak RSS delta
-  3. Compare estimate to actual and report accuracy
+Memory Profile Suite
+====================
+Two modes: a 5×5 accuracy grid and a full benchmark calibration run.
 
-Usage
------
+BACKGROUND
+----------
+Before scoring a model on a benchmark, we want to estimate whether there is
+enough RAM to complete the run without OOM-killing the process.  The estimate
+has two components:
+
+  total_memory_needed = activation_gb + fixed_benchmark_cost_gb
+
+  • activation_gb          — the raw model output array
+                             (stimuli × features × timebins × 4 bytes)
+                             measured by a cheap 1-stimulus forward pass (the "probe")
+  • fixed_benchmark_cost   — the benchmark's model-independent overhead
+                             (regression matrices, xarray bookkeeping, CV buffers)
+                             calibrated once per benchmark via --calibrate and
+                             stored in ~/.brainscore/benchmark_costs.json
+
+The fixed cost is environment-specific (calibrate on the same machine you score on).
+
+MODE 1 — 5×5 accuracy grid (default)
+--------------------------------------
+Runs 5 models × 5 benchmarks, compares the pre-flight estimate to the actual
+peak RSS delta for each pair.  Good for validating the estimation system.
+
     python scripts/mem_profile_suite.py [--csv out.csv] [--skip-score]
 
---skip-score  runs only the pre-flight probes (no actual scoring).
+    --skip-score   probe only, skip actual scoring
+    --csv PATH     write per-pair results to CSV (flushed after each pair)
+
+MODE 2 — Benchmark calibration (--calibrate)
+---------------------------------------------
+Runs alexnet on every known benchmark to measure fixed_benchmark_cost per
+benchmark.  Results are saved incrementally to ~/.brainscore/benchmark_costs.json
+so a crash mid-run does not lose completed work.  Non-neural benchmarks
+(behavioral, engineering) are skipped automatically.
+
+    python scripts/mem_profile_suite.py --calibrate [--csv out.csv]
+                                        [--calibration-json PATH]
+                                        [--resume-from BENCHMARK_ID]
+
+    --resume-from BID   skip all benchmarks up to and including BID,
+                        then continue — use this after a crash to pick up
+                        where you left off
 """
 import os
 import sys

@@ -6,6 +6,7 @@ from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 
 from brainscore_core.benchmarks import Benchmark
 from brainscore_core.metrics import Metric, Score
+from brainscore_core.benchmarks import score_benchmark
 from brainscore_core.plugin_management.conda_score import wrap_score
 from brainscore_core.plugin_management.import_plugin import import_plugin
 from brainscore_vision.metrics import Ceiling
@@ -74,7 +75,7 @@ def _run_score(model_identifier: str, benchmark_identifier: str) -> Score:
     """
     model: BrainModel = load_model(model_identifier)
     benchmark: Benchmark = load_benchmark(benchmark_identifier)
-    score: Score = benchmark(model)
+    score: Score = score_benchmark(benchmark, model)
     score.attrs['model_identifier'] = model_identifier
     score.attrs['benchmark_identifier'] = benchmark_identifier
     try:  # attempt to look up the layer commitment if model uses a standard layer model

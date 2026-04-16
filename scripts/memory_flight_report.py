@@ -1,12 +1,20 @@
 """
 Memory Flight Report
 ====================
-Runs a pre-flight memory check then scores the model, tracking actual RSS
-throughout so you can compare the estimate against what really happened.
+Runs a pre-flight memory estimate for one (model, benchmark) pair, then
+optionally executes the full benchmark while tracking peak RSS, so you can
+see how close the estimate was to reality.
+
+NOTE: prefer preflight_check.py for day-to-day use — it is simpler and uses
+the calibrated fixed_benchmark_cost table automatically.  This script is
+useful for one-off investigations or when you want the box-formatted output.
 
 Usage
 -----
     python scripts/memory_flight_report.py <model_id> <benchmark_id>
+    python scripts/memory_flight_report.py <model_id> <benchmark_id> --skip-score
+
+    --skip-score   only run the pre-flight estimate, skip the actual benchmark
 
 Example
 -------

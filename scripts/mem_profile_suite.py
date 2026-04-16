@@ -903,7 +903,7 @@ def print_calibration_table(results):
 
 def _run_calibrate(args):
     """--calibrate mode: load alexnet, run every benchmark, output fixed_benchmark_cost."""
-    from brainscore_vision.benchmark_helpers.memory import save_calibration, _DEFAULT_CALIBRATION_PATH
+    from brainscore_vision.benchmark_helpers.memory import save_calibration, load_calibration, _DEFAULT_CALIBRATION_PATH
     cal_path = getattr(args, 'calibration_json', None) or _DEFAULT_CALIBRATION_PATH
 
     n_bm = len(ALL_BENCHMARKS)
@@ -933,10 +933,30 @@ def _run_calibrate(args):
         csv_file.flush()
         print(f"\n  {_c('CSV →', _CYAN)} {args.csv}\n")
 
+    # Load any costs already written in a previous run
+    costs = load_calibration(cal_path)
+    if costs:
+        print(f"  {_c('Resuming:', _CYAN)} loaded {len(costs)} existing costs from {cal_path}")
+
+    # Find the resume offset
+    resume_from = getattr(args, 'resume_from', None)
+    start_idx = 0
+    if resume_from:
+        if resume_from in ALL_BENCHMARKS:
+            start_idx = ALL_BENCHMARKS.index(resume_from) + 1
+            print(f"  {_c('Skipping', _DIM)} benchmarks 1–{start_idx} "
+                  f"(up to and including {resume_from})")
+        else:
+            print(f"  {_c('WARNING', _YELLOW)}: --resume-from '{resume_from}' "
+                  f"not found in ALL_BENCHMARKS — starting from the beginning")
+    print()
+
     results = []
-    costs = {}  # live-updated so JSON is always current
+    costs = costs  # carry forward existing costs
     try:
         for i, bid in enumerate(ALL_BENCHMARKS, 1):
+            if i <= start_idx:
+                continue  # skip already-completed benchmarks
             # Load benchmark with ticker
             t0 = time.time()
             try:
@@ -996,6 +1016,9 @@ def main():
     parser.add_argument('--calibration-json', metavar='PATH', default=None,
                         help='path to save/load calibration JSON '
                              '(default: ~/.brainscore/benchmark_costs.json)')
+    parser.add_argument('--resume-from', metavar='BENCHMARK_ID', default=None,
+                        help='skip all benchmarks up to and including this one, '
+                             'then continue from the next')
     args = parser.parse_args()
 
     if args.calibrate:

@@ -29,8 +29,16 @@ from brainscore_vision.model_interface import BrainModel
 
 _logger = logging.getLogger(__name__)
 
-# Default path for the persistent calibration table
-_DEFAULT_CALIBRATION_PATH = os.path.expanduser('~/.brainscore/benchmark_costs.json')
+# Default path for the persistent calibration table.
+# Prefer the file bundled with the package; fall back to the user-local path
+# so that a local calibration run (mem_profile_suite.py --calibrate) can
+# extend or override the shipped table without touching the source tree.
+_BUNDLED_CALIBRATION_PATH = os.path.join(os.path.dirname(__file__), 'benchmark_costs.json')
+_DEFAULT_CALIBRATION_PATH = (
+    _BUNDLED_CALIBRATION_PATH
+    if os.path.exists(_BUNDLED_CALIBRATION_PATH)
+    else os.path.expanduser('~/.brainscore/benchmark_costs.json')
+)
 
 # float32 = 4 bytes per element
 _BYTES_PER_ELEMENT = 4

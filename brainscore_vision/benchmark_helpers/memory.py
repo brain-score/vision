@@ -307,6 +307,22 @@ def preallocate_memory(
     )
 
     _logger.info(str(estimate))
+    verdict = "OOM LIKELY" if estimate.will_oom else "OK"
+    formula_used = "calibrated" if estimate.fixed_benchmark_cost_gb is not None else f"×{_OVERHEAD_FACTOR} fallback"
+    print(
+        f"[pre-flight] [{verdict}]  "
+        f"{estimate.total_estimated_gb:.2f} GB needed  /  {estimate.available_gb:.1f} GB available  "
+        f"[{formula_used}]\n"
+        f"  {estimate.num_stimuli:,} stimuli  ×  {estimate.num_features:,} features  ×  "
+        f"{estimate.num_timebins} timebins  =  {estimate.activation_gb:.3f} GB activation",
+        end='',
+        flush=True,
+    )
+    if estimate.fixed_benchmark_cost_gb is not None:
+        print(f"  +  {estimate.fixed_benchmark_cost_gb:.3f} GB benchmark overhead  "
+              f"=  {estimate.total_estimated_gb:.3f} GB total", flush=True)
+    else:
+        print(f"  ×{_OVERHEAD_FACTOR}  =  {estimate.total_estimated_gb:.3f} GB total", flush=True)
 
     if estimate.will_oom:
         msg = (

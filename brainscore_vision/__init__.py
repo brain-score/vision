@@ -1,4 +1,5 @@
 import logging
+import os
 from typing import Dict, Any, Union, Callable
 
 from brainscore_core.supported_data_standards.brainio.assemblies import DataAssembly
@@ -75,7 +76,21 @@ def _run_score(model_identifier: str, benchmark_identifier: str) -> Score:
     """
     model: BrainModel = load_model(model_identifier)
     benchmark: Benchmark = load_benchmark(benchmark_identifier)
-    score: Score = score_benchmark(benchmark, model)
+    try:
+        score: Score = score_benchmark(benchmark, model)
+    except AssertionError:
+        cache_dir = os.path.expanduser(
+            '~/.result_caching/brainscore_vision.model_helpers.activations.core'
+            '.ActivationsExtractorHelper._from_paths_stored'
+        )
+        raise AssertionError(
+            f"Activations cache has stale paths — the cached stimulus paths no longer match "
+            f"the current stimulus locations (e.g. temp directory changed between runs).\n\n"
+            f"Fix: delete the stale cache entry and re-run:\n"
+            f"  rm {cache_dir}/identifier={model_identifier},stimuli_identifier=*.pkl\n\n"
+            f"Or to clear the entire activations cache:\n"
+            f"  rm {cache_dir}/*.pkl"
+        )
     score.attrs['model_identifier'] = model_identifier
     score.attrs['benchmark_identifier'] = benchmark_identifier
     try:  # attempt to look up the layer commitment if model uses a standard layer model

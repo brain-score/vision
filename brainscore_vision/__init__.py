@@ -1,4 +1,5 @@
 import logging
+import os
 from typing import Dict, Any, Union, Callable
 
 from brainscore_core.supported_data_standards.brainio.assemblies import DataAssembly
@@ -6,6 +7,7 @@ from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 
 from brainscore_core.benchmarks import Benchmark
 from brainscore_core.metrics import Metric, Score
+from brainscore_core.benchmarks import score_benchmark
 from brainscore_core.plugin_management.conda_score import wrap_score
 from brainscore_core.plugin_management.import_plugin import import_plugin
 from brainscore_vision.metrics import Ceiling
@@ -74,7 +76,21 @@ def _run_score(model_identifier: str, benchmark_identifier: str) -> Score:
     """
     model: BrainModel = load_model(model_identifier)
     benchmark: Benchmark = load_benchmark(benchmark_identifier)
-    score: Score = benchmark(model)
+    try:
+        score: Score = score_benchmark(benchmark, model)
+    except AssertionError:
+        cache_dir = os.path.expanduser(
+            '~/.result_caching/brainscore_vision.model_helpers.activations.core'
+            '.ActivationsExtractorHelper._from_paths_stored'
+        )
+        raise AssertionError(
+            f"Activations cache has stale paths — the cached stimulus paths no longer match "
+            f"the current stimulus locations (e.g. temp directory changed between runs).\n\n"
+            f"Fix: delete the stale cache entry and re-run:\n"
+            f"  rm {cache_dir}/identifier={model_identifier},stimuli_identifier=*.pkl\n\n"
+            f"Or to clear the entire activations cache:\n"
+            f"  rm {cache_dir}/*.pkl"
+        )
     score.attrs['model_identifier'] = model_identifier
     score.attrs['benchmark_identifier'] = benchmark_identifier
     try:  # attempt to look up the layer commitment if model uses a standard layer model
@@ -104,3 +120,7 @@ def score(model_identifier: str, benchmark_identifier: str, conda_active: bool =
     return wrap_score(__file__,
                       model_identifier=model_identifier, benchmark_identifier=benchmark_identifier,
                       score_function=_run_score, conda_active=conda_active)
+
+
+# Public re-export so callers can do: from brainscore_vision import preallocate_memory
+from brainscore_vision.benchmark_helpers.memory import preallocate_memory  # noqa: E402

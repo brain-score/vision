@@ -35,5 +35,17 @@
   "MajajHong2015.IT-pls": 2.8336,
   "MajajHong2015.V4-pls": 4.0503,
   "MajajHong2015public.IT-pls": 3.5527,
-  "MajajHong2015public.V4-pls": 4.9696
+  "MajajHong2015public.V4-pls": 4.9696,
+  "Papale2025.IT-ridge": 43.45,
+  "Papale2025.IT-ridgecv": 7.22,
+  "Papale2025.V1-ridge": 15.07,
+  "Papale2025.V1-ridgecv": 26.58,
+  "Papale2025.V4-ridge": 40.54,
+  "Rajalingham2020.IT-pls": 0.45,
+  "Sanghavi2020.IT-pls": 6.71,
+  "Sanghavi2020.V4-pls": 8.97,
+  "SanghaviJozwik2020.IT-pls": 5.41,
+  "SanghaviJozwik2020.V4-pls": 7.65,
+  "SanghaviMurty2020.IT-pls": 0.22,
+  "SanghaviMurty2020.V4-pls": 0.56
 }

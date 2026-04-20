@@ -9,12 +9,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: neural
-            task: null
-            region: IT
-            hemisphere: L
+            task: alternative_forced_choice
+            region: V4, IT
+            hemisphere: R
             num_recording_sites: null
             duration_ms: null
-            species: null
+            species: homo_sapiens, macaca_mulatta
             datatype: null
             num_subjects: null
             pre_processing: null
@@ -37,12 +37,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: neural
-            task: null
-            region: V4
-            hemisphere: L
+            task: alternative_forced_choice
+            region: V4, IT
+            hemisphere: R
             num_recording_sites: null
             duration_ms: null
-            species: null
+            species: homo_sapiens, macaca_mulatta
             datatype: null
             num_subjects: null
             pre_processing: null
@@ -65,12 +65,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: neural
-            task: null
-            region: IT
-            hemisphere: L
+            task: alternative_forced_choice
+            region: V4, IT
+            hemisphere: R
             num_recording_sites: null
             duration_ms: null
-            species: null
+            species: homo_sapiens, macaca_mulatta
             datatype: null
             num_subjects: null
             pre_processing: null
@@ -93,12 +93,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: neural
-            task: null
-            region: IT
-            hemisphere: L
+            task: alternative_forced_choice
+            region: V4, IT
+            hemisphere: R
             num_recording_sites: null
             duration_ms: null
-            species: null
+            species: homo_sapiens, macaca_mulatta
             datatype: null
             num_subjects: null
             pre_processing: null
@@ -121,12 +121,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: neural
-            task: null
-            region: V4
-            hemisphere: L
+            task: alternative_forced_choice
+            region: V4, IT
+            hemisphere: R
             num_recording_sites: null
             duration_ms: null
-            species: null
+            species: homo_sapiens, macaca_mulatta
             datatype: null
             num_subjects: null
             pre_processing: null
@@ -149,12 +149,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: neural
-            task: null
-            region: V4
-            hemisphere: L
+            task: alternative_forced_choice
+            region: V4, IT
+            hemisphere: R
             num_recording_sites: null
             duration_ms: null
-            species: null
+            species: homo_sapiens, macaca_mulatta
             datatype: null
             num_subjects: null
             pre_processing: null

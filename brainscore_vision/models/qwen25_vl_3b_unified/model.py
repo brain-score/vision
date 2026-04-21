@@ -22,11 +22,15 @@ from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidA
 
 
 REGION_LAYER_MAP = {
+    # Vision regions -- relative to the full Qwen2_5_VLForConditionalGeneration
+    # (the vision extractor still wraps it until per-batch forward_kwargs lands
+    # in PytorchWrapper to handle Qwen's per-image image_grid_thw)
     'V1': 'model.visual.blocks.2',
     'V2': 'model.visual.blocks.6',
     'V4': 'model.visual.blocks.14',
     'IT': 'model.visual.blocks.28',
-    'language_system': 'model.language_model.layers.28',
+    # Language region -- relative to model.language_model (TextWrapper root)
+    'language_system': 'layers.28',
 }
 
 
@@ -117,85 +121,11 @@ def _make_qwen_vision_extractor(processor, visual_degrees=8):
     return extract
 
 
-def _make_qwen_text_extractor(processor):
-    """Create a text extraction callable for Qwen2.5-VL's decoder.
-
-    Tokenizes text, runs through the language model (without images),
-    and extracts decoder layer activations.
-    """
-    def extract(model, stimuli, *, recording_layer=None, **kwargs):
-        if not recording_layer:
-            raise ValueError("recording_layer must be specified")
-
-        if hasattr(stimuli, 'columns'):
-            if 'sentence' in stimuli.columns:
-                texts = list(stimuli['sentence'].values)
-            elif 'text' in stimuli.columns:
-                texts = list(stimuli['text'].values)
-            else:
-                raise ValueError(f"No text column in stimuli. Columns: {list(stimuli.columns)}")
-            stimulus_ids = list(stimuli['stimulus_id'].values)
-        elif isinstance(stimuli, (list, np.ndarray)):
-            texts = list(stimuli)
-            stimulus_ids = list(range(len(texts)))
-        else:
-            raise ValueError(f"Unsupported stimuli type: {type(stimuli)}")
-
-        device = next(model.parameters()).device
-        layer = _get_layer(model, recording_layer)
-        model.eval()
-
-        all_activations = []
-        for text in texts:
-            tokens = processor.tokenizer(
-                text, return_tensors='pt', padding=True, truncation=True,
-            )
-            tokens = {k: v.to(device) for k, v in tokens.items()}
-
-            activations = {}
-            def hook_fn(_module, _input, output, name=recording_layer):
-                if isinstance(output, (tuple, list)):
-                    output = output[0]
-                activations[name] = output.detach().cpu().float().numpy()
-
-            hook = layer.register_forward_hook(hook_fn)
-
-            with torch.no_grad():
-                model.model.language_model(
-                    input_ids=tokens['input_ids'],
-                    attention_mask=tokens.get('attention_mask'),
-                )
-
-            hook.remove()
-
-            act = activations[recording_layer]
-            if act.ndim == 3:
-                act = act.mean(axis=1)
-            all_activations.append(act)
-
-        raw = np.concatenate(all_activations, axis=0)
-        n_stimuli, n_features = raw.shape
-        neuroid_ids = [f'{recording_layer}.{i}' for i in range(n_features)]
-
-        presentation_idx = pd.MultiIndex.from_arrays(
-            [stimulus_ids], names=['stimulus_id'])
-        return NeuroidAssembly(
-            raw,
-            coords={
-                'presentation': presentation_idx,
-                'neuroid_id': ('neuroid', neuroid_ids),
-                'layer': ('neuroid', [recording_layer] * n_features),
-            },
-            dims=['presentation', 'neuroid'],
-        )
-
-    return extract
-
-
 def get_model(identifier: str) -> BrainScoreModel:
     assert identifier == 'qwen2.5-vl-3b'
 
     from transformers import Qwen2_5_VLForConditionalGeneration, AutoProcessor
+    from brainscore.model_helpers.text_wrapper import TextWrapper
 
     qwen_model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
         'Qwen/Qwen2.5-VL-3B-Instruct',
@@ -207,7 +137,16 @@ def get_model(identifier: str) -> BrainScoreModel:
         processor=qwen_processor,
         visual_degrees=8,
     )
-    text_extractor = _make_qwen_text_extractor(processor=qwen_processor)
+
+    # Text: TextWrapper wraps model.language_model (causal decoder).
+    # last_token aggregation with attention_mask handles padded batches.
+    text_wrapper = TextWrapper(
+        model=qwen_model.model.language_model,
+        tokenizer=qwen_processor.tokenizer,
+        identifier=f'{identifier}-text',
+        layer_aggregation='last_token',
+        max_length=512,
+    )
 
     return BrainScoreModel(
         identifier=identifier,
@@ -215,7 +154,7 @@ def get_model(identifier: str) -> BrainScoreModel:
         region_layer_map=REGION_LAYER_MAP,
         preprocessors={
             'vision': vision_extractor,
-            'text': text_extractor,
+            'text': text_wrapper,
         },
         visual_degrees=8,
     )

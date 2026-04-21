@@ -85,4 +85,8 @@ def get_model(identifier: str) -> BrainScoreModel:
         },
         activations_model=activations_model,
         visual_degrees=8,
+        # Behavioral readout uses the final vision encoder block (matches
+        # the 'IT' layer convention). Behavioral benchmarks like Ferguson2024
+        # will fit a logistic readout on top of this layer's features.
+        behavioral_readout_layer='encoder.layers.10',
     )

@@ -15,7 +15,12 @@ class PytorchWrapper:
                  input_key=None, *args, **kwargs):
         import torch
         logger = logging.getLogger(fullname(self))
-        self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        if torch.cuda.is_available():
+            self._device = torch.device("cuda")
+        elif torch.backends.mps.is_available():
+            self._device = torch.device("mps")
+        else:
+            self._device = torch.device("cpu")
         logger.debug(f"Using device {self._device}")
         self._model = model
         self._model = self._model.to(self._device)

@@ -141,4 +141,7 @@ def get_model(identifier: str) -> BrainScoreModel:
         },
         visual_degrees=8,
         generation_fn=generation_fn,
+        # Also enable the readout path so Qwen can be compared on the same
+        # behavioral benchmark both ways. Uses the same vision layer as 'IT'.
+        behavioral_readout_layer='blocks.28',
     )

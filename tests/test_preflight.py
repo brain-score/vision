@@ -14,7 +14,13 @@ class TestPreflightInRunScore:
         """Create mock model and benchmark for pre-flight testing."""
         model = MagicMock()
         model.identifier = 'test-model'
+        # Two-tier model-side modality declaration. Legacy tests set only
+        # supported_modalities; mirror that into available_modalities + an
+        # empty required_modalities so the pre-flight checker reads a
+        # coherent pair of sets rather than MagicMock auto-attrs.
         model.supported_modalities = model_modalities
+        model.available_modalities = model_modalities
+        model.required_modalities = set()
         model.region_layer_map = {}
 
         benchmark = MagicMock(spec=['identifier', 'required_modalities', '__call__'])

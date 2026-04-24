@@ -32,6 +32,13 @@ class VisionModelAdapter(UnifiedModel):
     def supported_modalities(self) -> Set[str]:
         return {'vision'}
 
+    @property
+    def required_modalities(self) -> Set[str]:
+        # Legacy vision models are unimodal — they can only process images.
+        # Hard-require vision so pre-flight rejects pairings against a
+        # benchmark that does not provide vision stimuli.
+        return {'vision'}
+
     def process(self, stimuli, number_of_trials=1) -> Any:
         return self._legacy.look_at(stimuli, number_of_trials)
 

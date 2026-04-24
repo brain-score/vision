@@ -24,19 +24,37 @@ class Defaults:
 
 
 class ActivationsExtractorHelper:
-    def __init__(self, get_activations, preprocessing, identifier=False, batch_size=Defaults.batch_size):
+    def __init__(self, get_activations, preprocessing, identifier=False,
+                 batch_size=Defaults.batch_size, backbone_id=None):
         """
         :param identifier: an activations identifier for the stored results file. False to disable saving.
+        :param backbone_id: optional cache-key override. When two models share the same
+            underlying backbone weights (e.g., a CLIP ViT-B/32 and a Qwen-VL ViT
+            derived from the same checkpoint) set the same ``backbone_id`` so
+            ``@store_xarray`` reuses cached activations. Defaults to ``identifier``
+            for backwards compatibility.
         """
         self._logger = logging.getLogger(fullname(self))
 
         self._batch_size = batch_size
         self.identifier = identifier
+        # Cache key: prefer explicit backbone_id, fall back to identifier.
+        # Keeping these as separate attrs lets user-facing identifier remain
+        # stable while two registrations share a cache entry.
+        self._backbone_id = backbone_id or identifier
         self.get_activations = get_activations
         self.preprocess = preprocessing or (lambda x: x)
         self._stimulus_set_hooks = {}
         self._batch_activations_hooks = {}
         self._microsaccade_helper = MicrosaccadeHelper()
+
+    @property
+    def backbone_id(self):
+        return self._backbone_id
+
+    @backbone_id.setter
+    def backbone_id(self, value):
+        self._backbone_id = value
 
     def __call__(self, stimuli, layers, stimuli_identifier=None, number_of_trials: int = 1,
                  require_variance: bool = False):
@@ -85,8 +103,9 @@ class ActivationsExtractorHelper:
         if layers is None:
             layers = ['logits']
         if self.identifier and stimuli_identifier:
+            # Cache-key is backbone_id (set explicitly or defaulted to identifier).
             fnc = functools.partial(self._from_paths_stored,
-                                    identifier=self.identifier,
+                                    identifier=self._backbone_id or self.identifier,
                                     stimuli_identifier=stimuli_identifier,
                                     require_variance=require_variance)
         else:

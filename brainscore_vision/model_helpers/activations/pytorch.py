@@ -12,7 +12,15 @@ SUBMODULE_SEPARATOR = '.'
 
 class PytorchWrapper:
     def __init__(self, model, preprocessing, identifier=None, forward_kwargs=None,
-                 input_key=None, *args, **kwargs):
+                 input_key=None, backbone_id=None, *args, **kwargs):
+        """
+        :param backbone_id: Optional cache-key identifier, passed through to the
+            underlying :class:`ActivationsExtractorHelper`. When two PytorchWrapper
+            registrations share the same backbone weights (e.g. ViT-G powering
+            BLIP-2 and a future InstructBLIP registration), set the same
+            ``backbone_id`` so ``@store_xarray`` reuses cached activations.
+            Defaults to ``identifier`` for backwards compatibility.
+        """
         import torch
         logger = logging.getLogger(fullname(self))
         if torch.cuda.is_available():
@@ -26,14 +34,18 @@ class PytorchWrapper:
         self._model = self._model.to(self._device)
         identifier = identifier or model.__class__.__name__
         self._extractor = self._build_extractor(
-            identifier=identifier, preprocessing=preprocessing, get_activations=self.get_activations, *args, **kwargs)
+            identifier=identifier, preprocessing=preprocessing,
+            get_activations=self.get_activations,
+            backbone_id=backbone_id, *args, **kwargs)
         self._extractor.insert_attrs(self)
         self._forward_kwargs = forward_kwargs or {}
         self._input_key = input_key
 
-    def _build_extractor(self, identifier, preprocessing, get_activations, *args, **kwargs):
+    def _build_extractor(self, identifier, preprocessing, get_activations,
+                         backbone_id=None, *args, **kwargs):
         return ActivationsExtractorHelper(
-            identifier=identifier, get_activations=get_activations, preprocessing=preprocessing,
+            identifier=identifier, get_activations=get_activations,
+            preprocessing=preprocessing, backbone_id=backbone_id,
             *args, **kwargs)
 
     @property

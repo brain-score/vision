@@ -31,6 +31,18 @@ class NeuralBenchmark(BenchmarkBase):
         source_assembly = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
         if 'time_bin' in source_assembly.dims and source_assembly.sizes['time_bin'] == 1:
             source_assembly = source_assembly.squeeze('time_bin')  # static case for these benchmarks
+        # Free model weights — activations are extracted, model not used again.
+        # Can't `del candidate` because _run_score holds a reference via `model`.
+        # Instead clear PyTorch parameters directly.
+        import gc
+        try:
+            torch_model = candidate.activations_model._model
+            for param in torch_model.parameters():
+                param.data = param.data.new_empty(0)
+            del torch_model
+        except (AttributeError, Exception):
+            pass
+        gc.collect()
         raw_score = self._similarity_metric(source_assembly, self._assembly)
         ceiled_score = explained_variance(raw_score, self.ceiling)
         return ceiled_score
@@ -116,6 +128,22 @@ class TrainTestNeuralBenchmark(BenchmarkBase):
             self.train_activations = self.train_activations.squeeze('time_bin')
         if 'time_bin' in self.test_activations.dims and self.test_activations.sizes['time_bin'] == 1:
             self.test_activations = self.test_activations.squeeze('time_bin')
+
+        # Free model weights — activations are extracted and cached, the model
+        # is not needed for the metric. The caller (_run_score) still holds a
+        # reference to the model object, so `del candidate` won't free it.
+        # Instead, clear the PyTorch parameters directly.
+        import gc
+        try:
+            # PytorchWrapper holds the torch model in ._model
+            torch_model = candidate.activations_model._model
+            # Delete all parameters and buffers to free weight memory
+            for param in torch_model.parameters():
+                param.data = param.data.new_empty(0)
+            del torch_model
+        except (AttributeError, Exception):
+            pass  # not a PytorchWrapper or structure differs
+        gc.collect()
 
         if self.alpha_coord is not None:
             scores_dict = {}

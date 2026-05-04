@@ -1,11 +1,19 @@
 """
 Pre-flight Estimator Validation
 ================================
-Runs a 3-model × 3-benchmark grid to measure how accurately the pre-flight
-memory estimator predicts actual peak RAM usage.
+Runs a 3-model × 4-benchmark grid to validate the pre-flight memory estimator
+across all formula types: PLS, Ridge (calibrated), RidgeCV (calibrated), and RDM.
+
+One benchmark is selected per formula class so that every code path in
+preallocate_memory is exercised:
+
+  FreemanZiemba2013.V1-pls   → PLS  (activation × 7 + fixed_cost, warning printed)
+  Papale2025.IT-ridge        → Ridge calibrated  (activation + calibrated cost)
+  Gifford2022.IT-ridgecv     → RidgeCV calibrated  (activation + calibrated cost)
+  Allen2022_fmri.IT-rdm      → RDM  (activation + 2×n_stimuli²×4B, model-independent)
 
 For each (model, benchmark) pair it:
-  1. Runs the pre-flight probe  → activation_gb + fixed_benchmark_cost_gb = estimated total
+  1. Runs the pre-flight probe  → estimates total GB via the appropriate formula
   2. Runs the full benchmark    → measures actual peak RSS delta
   3. Compares estimate to actual and reports over/under by how much
 
@@ -55,9 +63,10 @@ MODELS = [
 ]
 
 BENCHMARKS = [
-    'FreemanZiemba2013.V1-pls',
-    'Cadena2017-pls',
-    'Papale2025.IT-ridge',
+    'FreemanZiemba2013.V1-pls',    # PLS         — activation × 7 + fixed_cost (approximate, warning)
+    'Papale2025.IT-ridge',          # Ridge        — activation + calibrated cost
+    'Gifford2022.IT-ridgecv',       # RidgeCV      — activation + calibrated cost
+    'Allen2022_fmri.IT-rdm',        # RDM          — activation + 2×n_stimuli²×4B (model-independent)
 ]
 
 # ---------------------------------------------------------------------------
@@ -372,3 +381,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+

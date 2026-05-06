@@ -395,7 +395,7 @@ def linear_regression(xarray_kwargs=None):
 def ridge_regression(regression_kwargs=None, xarray_kwargs=None):
     regression_defaults = dict(alpha=1)
     regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
-    regression = DualRidgeRegression(**regression_kwargs)
+    regression = Ridge(**regression_kwargs)
     xarray_kwargs = xarray_kwargs or {}
     regression = XarrayRegression(regression, **xarray_kwargs)
     return regression
@@ -413,7 +413,27 @@ def ridge_cv_regression(regression_kwargs=None, xarray_kwargs=None, alphas=ALPHA
     regression_defaults = dict(alphas=alphas, store_cv_results=False)
     regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
     regression_kwargs.pop('alpha', None)  # RidgeCV does not accept 'alpha' as a parameter
-    
+
+    regression = RidgeCV(**regression_kwargs)
+    xarray_kwargs = xarray_kwargs or {}
+    regression = XarrayRegression(regression, **xarray_kwargs)
+    return regression
+
+
+def dual_ridge_regression(regression_kwargs=None, xarray_kwargs=None):
+    regression_defaults = dict(alpha=1)
+    regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
+    regression = DualRidgeRegression(**regression_kwargs)
+    xarray_kwargs = xarray_kwargs or {}
+    regression = XarrayRegression(regression, **xarray_kwargs)
+    return regression
+
+
+def dual_ridge_cv_regression(regression_kwargs=None, xarray_kwargs=None, alphas=ALPHA_LIST):
+    regression_defaults = dict(alphas=alphas)
+    regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
+    regression_kwargs.pop('alpha', None)
+
     regression = DualRidgeCVRegression(**regression_kwargs)
     xarray_kwargs = xarray_kwargs or {}
     regression = XarrayRegression(regression, **xarray_kwargs)

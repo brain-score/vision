@@ -94,7 +94,7 @@ class MemoryEstimate:
                        f"×{_PLS_OVERHEAD_FACTOR} (PLS){fixed_str}")
         elif self.formula_type == 'rdm':
             formula = (f"{self.activation_gb:.2f} GB activations "
-                       f"+ {self.rdm_overhead_gb:.2f} GB RDM matrices (2×{self.num_stimuli}²×4B)")
+                       f"×3 (RDM pairwise distance overhead → {self.total_estimated_gb:.1f} GB total)")
         elif self.formula_type == 'ridge_formula':
             formula = (f"{self.activation_gb:.2f} GB activations "
                        f"+ {self.rdm_overhead_gb:.2f} GB gram matrix ({self.num_stimuli}²×4B)")
@@ -387,9 +387,12 @@ def preallocate_memory(
         total_estimated_gb = activation_gb * _PLS_OVERHEAD_FACTOR + (fixed_benchmark_cost_gb or 0.0)
         formula_type = 'pls'
     elif is_rdm:
-        # Two RDM matrices in memory at peak: model RDM + one subject RDM
-        rdm_overhead_gb = 2 * (num_stimuli ** 2) * _BYTES_PER_ELEMENT / (1024 ** 3)
-        total_estimated_gb = activation_gb + rdm_overhead_gb
+        # RDM pairwise distance computation passes through the full activation
+        # matrix multiple times — overhead scales with num_features, not n_stimuli².
+        # Validated: overhead ≈ 2× activation_gb across alexnet/resnet50/ViT on
+        # Allen2022_fmri.IT-rdm (515 stimuli).  Use 3× total to stay conservative.
+        rdm_overhead_gb = 2 * activation_gb
+        total_estimated_gb = activation_gb + rdm_overhead_gb  # = 3 × activation_gb
         formula_type = 'rdm'
     elif is_ridge and fixed_benchmark_cost_gb is not None:
         total_estimated_gb = activation_gb + fixed_benchmark_cost_gb

@@ -1,5 +1,6 @@
 from brainscore_vision import metric_registry
-from .metric import CrossRegressedCorrelation, pls_regression, ridge_cv_regression, ridge_regression, single_regression, linear_regression,\
+from .metric import CrossRegressedCorrelation, pls_regression, ridge_cv_regression, ridge_regression, \
+    dual_ridge_regression, dual_ridge_cv_regression, single_regression, linear_regression,\
     pearsonr_correlation, ReverseCrossRegressedCorrelation, ReverseTrainTestSplitCorrelation
     
 
@@ -26,6 +27,10 @@ metric_registry['linear_predictivity_split'] = lambda *args, **kwargs: TrainTest
     regression=linear_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
 metric_registry['ridgecv_split'] = lambda *args, **kwargs: TrainTestSplitCorrelation(
     regression=ridge_cv_regression(**kwargs), correlation=pearsonr_correlation(), *args, **kwargs)
+metric_registry['dual_ridge_split'] = lambda *args, **kwargs: TrainTestSplitCorrelation(
+    regression=dual_ridge_regression(), correlation=pearsonr_correlation(), *args, **kwargs)
+metric_registry['dual_ridgecv_split'] = lambda *args, **kwargs: TrainTestSplitCorrelation(
+    regression=dual_ridge_cv_regression(**kwargs), correlation=pearsonr_correlation(), *args, **kwargs)
 
 metric_registry["reverse_pls_cv"] = lambda *args, **kwargs: ReverseCrossRegressedCorrelation(
     regression=pls_regression(), correlation=pearsonr_correlation(), *args, **kwargs)

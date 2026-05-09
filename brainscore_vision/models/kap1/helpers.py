@@ -61,7 +61,7 @@ def _get_mexican_hat_kernel2d(
     pdf = torch.zeros([kernel_size[0], kernel_size[1]])
     for i_y, y in enumerate(ys):
         for i_x, x in enumerate(xs):
-            w = evaluate(xs[i_x], ys[i_y], sigma)  # sigma too big too many negative correlation noooo too small??? 1.5 for 7 negtive up no// 1.2 for 7 great
+            w = evaluate(xs[i_x], ys[i_y], sigma)  # sigma too big too many negative correlation noooo too small??? 1.5 for 7 negative up no// 1.2 for 7 great
             pdf[i_x, i_y] = w #+ np.random.normal(0,1)
         
     kernel2d = pdf / abs(pdf).sum()

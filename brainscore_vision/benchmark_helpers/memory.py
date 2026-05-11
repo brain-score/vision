@@ -95,6 +95,9 @@ class MemoryEstimate:
         elif self.formula_type == 'rdm':
             formula = (f"{self.activation_gb:.2f} GB activations "
                        f"×3 (RDM pairwise distance overhead → {self.total_estimated_gb:.1f} GB total)")
+        elif self.formula_type == 'ridge_large_feature':
+            formula = (f"{self.activation_gb:.2f} GB activations "
+                       f"×{_OVERHEAD_FACTOR} (ridge SVD path: n_features > n_stimuli → {self.total_estimated_gb:.1f} GB total)")
         elif self.formula_type == 'ridge_formula':
             formula = (f"{self.activation_gb:.2f} GB activations "
                        f"+ {self.rdm_overhead_gb:.2f} GB gram matrix ({self.num_stimuli}²×4B)")
@@ -371,34 +374,51 @@ def preallocate_memory(
     #  activation × _PLS_OVERHEAD_FACTOR.  This is approximate; a       #
     #  warning is printed.                                               #
     #                                                                     #
-    #  RDM/RSA: overhead is 2× the dissimilarity matrix, which is        #
-    #  n_stimuli² × 4B — fully model-independent.                       #
+    #  RDM/RSA: pairwise distance computation passes through the full    #
+    #  activation matrix — overhead ≈ 2× activation_gb.  Use 3× total.  #
     #                                                                     #
-    #  Ridge/RidgeCV: gram matrix is n_stimuli × n_stimuli — also        #
-    #  model-independent.  If a calibration entry exists, use it;        #
-    #  otherwise fall back to activation_gb + gram_gb.                   #
+    #  Ridge/RidgeCV — two regimes depending on feature count:           #
+    #                                                                     #
+    #    n_features ≤ n_stimuli (primal solver): calibrated fixed cost   #
+    #    is accurate — gram matrix is n_stimuli×n_stimuli and is model-  #
+    #    independent.                                                     #
+    #                                                                     #
+    #    n_features > n_stimuli (sklearn switches to SVD of X): overhead #
+    #    ≈ 5× activation_gb — SVD creates V^T (same shape as X) and     #
+    #    U (n_stimuli×n_stimuli), so total ≈ 6× activation_gb.  The     #
+    #    calibrated fixed cost was measured on a small model (alexnet,   #
+    #    n_features < n_stimuli for most benchmarks) and severely        #
+    #    underestimates in this regime.  Use the ×6 fallback instead so  #
+    #    the pre-flight raises MemoryError cleanly before the OS kills   #
+    #    the container with no Python traceback.                          #
     # ------------------------------------------------------------------ #
     is_pls = _is_pls_benchmark(benchmark)
     is_rdm = _is_rdm_benchmark(benchmark)
     is_ridge = _is_ridge_benchmark(benchmark)
+    ridge_large_feature = is_ridge and num_features > num_stimuli
 
     rdm_overhead_gb = None
     if is_pls:
         total_estimated_gb = activation_gb * _PLS_OVERHEAD_FACTOR + (fixed_benchmark_cost_gb or 0.0)
         formula_type = 'pls'
     elif is_rdm:
-        # RDM pairwise distance computation passes through the full activation
-        # matrix multiple times — overhead scales with num_features, not n_stimuli².
-        # Validated: overhead ≈ 2× activation_gb across alexnet/resnet50/ViT on
-        # Allen2022_fmri.IT-rdm (515 stimuli).  Use 3× total to stay conservative.
+        # Overhead ≈ 2× activation_gb (scales with features, not n_stimuli²).
+        # Validated across alexnet/resnet50/ViT on Allen2022_fmri.IT-rdm.
         rdm_overhead_gb = 2 * activation_gb
         total_estimated_gb = activation_gb + rdm_overhead_gb  # = 3 × activation_gb
         formula_type = 'rdm'
+    elif ridge_large_feature:
+        # n_features > n_stimuli: sklearn SVD path — overhead ≈ 5× activation_gb.
+        # Validated: resnet50/ViT × Gifford2022.IT-ridgecv both gave exactly 5.1×.
+        # Use ×6 total (activation + 5× overhead) to stay conservative and ensure
+        # the pre-flight MemoryError fires before the OS kills the container.
+        total_estimated_gb = activation_gb * _OVERHEAD_FACTOR
+        formula_type = 'ridge_large_feature'
     elif is_ridge and fixed_benchmark_cost_gb is not None:
         total_estimated_gb = activation_gb + fixed_benchmark_cost_gb
         formula_type = 'calibrated'
     elif is_ridge:
-        # No calibration entry: gram matrix is n_stimuli × n_stimuli (model-independent)
+        # No calibration entry, primal regime: gram matrix is n_stimuli×n_stimuli
         rdm_overhead_gb = (num_stimuli ** 2) * _BYTES_PER_ELEMENT / (1024 ** 3)
         total_estimated_gb = activation_gb + rdm_overhead_gb
         formula_type = 'ridge_formula'
@@ -446,8 +466,11 @@ def preallocate_memory(
             f"Actual usage can vary significantly depending on model feature count and convergence.",
             flush=True,
         )
+    elif formula_type == 'ridge_large_feature':
+        print(f"  ×{_OVERHEAD_FACTOR} (ridge SVD: n_features={num_features:,} > n_stimuli={num_stimuli:,})"
+              f"  =  {estimate.total_estimated_gb:.3f} GB total", flush=True)
     elif formula_type == 'rdm':
-        print(f"  +  {estimate.rdm_overhead_gb:.3f} GB RDM matrices (2×{num_stimuli:,}²×4B)"
+        print(f"  ×3 (RDM pairwise overhead)"
               f"  =  {estimate.total_estimated_gb:.3f} GB total", flush=True)
     elif formula_type == 'ridge_formula':
         print(f"  +  {estimate.rdm_overhead_gb:.3f} GB gram matrix ({num_stimuli:,}²×4B)  "

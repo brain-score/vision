@@ -107,7 +107,7 @@ class TrainTestSplitCorrelation(Metric):
         prediction = self.regression.predict(source_test)
         score = self.correlation(prediction, target_test)
         
-        if self.regression._regression.__class__ in [RidgeCV]:
+        if hasattr(self.regression._regression, 'alpha_'):
             score.attrs['alpha'] = self.regression._regression.alpha_
             
         return score
@@ -127,6 +127,102 @@ class ReverseTrainTestSplitCorrelation(TrainTestSplitCorrelation):
             source_test=target_test,
             target_test=source_test,
         )
+
+class DualRidgeRegression:
+    """Ridge regression using dual (kernel) form for memory efficiency.
+
+    When n_samples < n_features, avoids materializing the (n_features, n_targets)
+    coefficient matrix. Computes predictions via a (n_test, n_train) projection
+    matrix instead. Falls back to sklearn Ridge when n_samples >= n_features.
+
+    Mathematically identical to sklearn Ridge with fit_intercept=True.
+    """
+
+    def __init__(self, alpha: float = 1.0, chunk_size: int = 5000):
+        self.alpha = alpha
+        self.chunk_size = chunk_size
+
+    def fit(self, X, Y) -> None:
+        X = np.asarray(X, dtype=np.float64)
+        Y = np.asarray(Y, dtype=np.float64)
+        n_samples, n_features = X.shape
+
+        if n_samples >= n_features:
+            self._use_dual = False
+            self._primal = Ridge(alpha=self.alpha)
+            self._primal.fit(X, Y)
+            return
+
+        self._use_dual = True
+        self._X_mean = X.mean(axis=0)
+        self._Y_mean = Y.mean(axis=0)
+        X_c = X - self._X_mean
+        self._X_train_centered = X_c
+        self._Y_train_centered = Y - self._Y_mean
+
+        K = X_c @ X_c.T
+        K[np.diag_indices_from(K)] += self.alpha
+        self._K_inv = np.linalg.solve(K, np.eye(K.shape[0]))
+
+    def predict(self, X) -> np.ndarray:
+        if not self._use_dual:
+            return self._primal.predict(X)
+
+        X = np.asarray(X, dtype=np.float64)
+        X_test_c = X - self._X_mean
+        proj = X_test_c @ self._X_train_centered.T @ self._K_inv
+
+        n_test = X.shape[0]
+        n_targets = self._Y_train_centered.shape[1]
+        predictions = np.empty((n_test, n_targets), dtype=np.float64)
+        for i in range(0, n_targets, self.chunk_size):
+            end = min(i + self.chunk_size, n_targets)
+            predictions[:, i:end] = proj @ self._Y_train_centered[:, i:end] + self._Y_mean[i:end]
+        return predictions
+
+
+class DualRidgeCVRegression:
+    """RidgeCV with dual form prediction for memory efficiency.
+
+    Uses sklearn RidgeCV for alpha selection (LOO/GCV), then the dual kernel
+    form for prediction to avoid storing the (n_features, n_targets) coef_ matrix.
+    Falls back to sklearn RidgeCV when n_samples >= n_features.
+
+    Exposes ``alpha_`` after fit (selected regularization strength).
+    """
+
+    def __init__(self, alphas=None, chunk_size: int = 5000, **ridgecv_kwargs):
+        self.alphas = alphas
+        self.chunk_size = chunk_size
+        self._ridgecv_kwargs = ridgecv_kwargs
+        self.alpha_ = None
+
+    def fit(self, X, Y) -> None:
+        X = np.asarray(X, dtype=np.float64)
+        Y = np.asarray(Y, dtype=np.float64)
+        n_samples, n_features = X.shape
+
+        if n_samples >= n_features:
+            self._use_dual = False
+            self._primal = RidgeCV(alphas=self.alphas, **self._ridgecv_kwargs)
+            self._primal.fit(X, Y)
+            self.alpha_ = self._primal.alpha_
+            return
+
+        self._use_dual = True
+        rcv = RidgeCV(alphas=self.alphas, **self._ridgecv_kwargs)
+        rcv.fit(X, Y)
+        self.alpha_ = rcv.alpha_
+        del rcv
+
+        self._dual = DualRidgeRegression(alpha=float(self.alpha_), chunk_size=self.chunk_size)
+        self._dual.fit(X, Y)
+
+    def predict(self, X) -> np.ndarray:
+        if not self._use_dual:
+            return self._primal.predict(X)
+        return self._dual.predict(X)
+
 
 def pls_regression(regression_kwargs=None, xarray_kwargs=None):
     regression_defaults = dict(n_components=25, scale=False)
@@ -165,8 +261,28 @@ def ridge_cv_regression(regression_kwargs=None, xarray_kwargs=None, alphas=ALPHA
     regression_defaults = dict(alphas=alphas, store_cv_results=False)
     regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
     regression_kwargs.pop('alpha', None)  # RidgeCV does not accept 'alpha' as a parameter
-    
+
     regression = RidgeCV(**regression_kwargs)
+    xarray_kwargs = xarray_kwargs or {}
+    regression = XarrayRegression(regression, **xarray_kwargs)
+    return regression
+
+
+def dual_ridge_regression(regression_kwargs=None, xarray_kwargs=None):
+    regression_defaults = dict(alpha=1)
+    regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
+    regression = DualRidgeRegression(**regression_kwargs)
+    xarray_kwargs = xarray_kwargs or {}
+    regression = XarrayRegression(regression, **xarray_kwargs)
+    return regression
+
+
+def dual_ridge_cv_regression(regression_kwargs=None, xarray_kwargs=None, alphas=ALPHA_LIST):
+    regression_defaults = dict(alphas=alphas)
+    regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
+    regression_kwargs.pop('alpha', None)
+
+    regression = DualRidgeCVRegression(**regression_kwargs)
     xarray_kwargs = xarray_kwargs or {}
     regression = XarrayRegression(regression, **xarray_kwargs)
     return regression

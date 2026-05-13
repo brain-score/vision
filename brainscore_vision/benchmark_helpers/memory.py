@@ -167,8 +167,8 @@ def _is_pls_benchmark(benchmark) -> bool:
 def _is_rdm_benchmark(benchmark) -> bool:
     """Return True if the benchmark uses RDM/RSA.
 
-    RDM overhead is n_stimuli^2 × 4B — completely model-independent.
-    Detected via the ``-rdm`` suffix or RSABenchmark instance type.
+    RDM overhead scales with activation size (≈ 2× activation_gb), not purely
+    with n_stimuli². Detected via the ``-rdm`` suffix or RSABenchmark instance type.
     """
     if isinstance(benchmark, RSABenchmark):
         return True
@@ -180,7 +180,10 @@ def _is_ridge_benchmark(benchmark) -> bool:
 
     The gram matrix for ridge is n_stimuli × n_stimuli — model-independent —
     so we can compute a formula-based estimate when no calibration entry exists.
+    RSABenchmark instances are explicitly excluded: they are always RDM, never ridge.
     """
+    if isinstance(benchmark, RSABenchmark):
+        return False
     ident = str(getattr(benchmark, 'identifier', ''))
     return ident.endswith('-ridge') or ident.endswith('-ridgecv')
 
@@ -298,15 +301,19 @@ def preallocate_memory(
         visual_degrees = benchmark._visual_degrees
 
     else:
-        raise TypeError(
-            f"preallocate_memory supports NeuralBenchmark, TrainTestNeuralBenchmark, and RSABenchmark; "
-            f"got {type(benchmark).__name__}"
+        # Unsupported benchmark type (e.g. behavioral/engineering called directly).
+        # Return None rather than crashing — the no-op on brainscore_vision.benchmarks.Benchmark
+        # means score_benchmark never reaches here for non-neural benchmarks, but direct
+        # calls from scripts should not raise unexpectedly.
+        _logger.debug(
+            f"preallocate_memory: unsupported benchmark type {type(benchmark).__name__}, skipping."
         )
+        return None
 
     # ------------------------------------------------------------------ #
     #  2. Prepare probe stimulus (1 image, visual-degree corrected)       #
     # ------------------------------------------------------------------ #
-    probe_set = stimulus_set.iloc[:1]
+    probe_set = stimulus_set.iloc[:1].copy()
     probe_set.identifier = None
     probe_set = place_on_screen(
         probe_set,

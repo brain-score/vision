@@ -445,7 +445,6 @@ def preallocate_memory(
         rdm_overhead_gb=rdm_overhead_gb,
     )
 
-    _logger.info(str(estimate))
     verdict = "OOM LIKELY" if estimate.will_oom else "OK"
     print(
         f"[pre-flight] [{verdict}]  "

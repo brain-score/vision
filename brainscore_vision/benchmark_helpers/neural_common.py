@@ -24,6 +24,10 @@ class NeuralBenchmark(BenchmarkBase):
         self._visual_degrees = visual_degrees
         self._number_of_trials = number_of_trials
 
+    def preallocate_memory(self, candidate: BrainModel) -> None:
+        from brainscore_vision.benchmark_helpers.memory import preallocate_memory as _probe
+        _probe(candidate, self)
+
     def __call__(self, candidate: BrainModel):
         candidate.start_recording(self.region, time_bins=self.timebins)
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
@@ -79,8 +83,12 @@ class TrainTestNeuralBenchmark(BenchmarkBase):
             self.ceiling_mode = neuroid_wise_explained_var
         else:
             self.ceiling_mode = explained_variance
-        
-    def __call__(self, candidate: BrainModel):  
+
+    def preallocate_memory(self, candidate: BrainModel) -> None:
+        from brainscore_vision.benchmark_helpers.memory import preallocate_memory as _probe
+        _probe(candidate, self)
+
+    def __call__(self, candidate: BrainModel):
         """
         Score a candidate model on this benchmark.
         
@@ -246,6 +254,10 @@ class RSABenchmark(BenchmarkBase):
             parent=parent or region,
             bibtex=bibtex,
         )
+
+    def preallocate_memory(self, candidate: BrainModel) -> None:
+        from brainscore_vision.benchmark_helpers.memory import preallocate_memory as _probe
+        _probe(candidate, self)
 
     def __call__(self, candidate: BrainModel) -> Score:
         assembly = self._assembly

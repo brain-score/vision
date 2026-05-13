@@ -255,6 +255,10 @@ class RSABenchmark(BenchmarkBase):
             bibtex=bibtex,
         )
 
+    def preallocate_memory(self, candidate: BrainModel) -> None:
+        from brainscore_vision.benchmark_helpers.memory import preallocate_memory as _probe
+        _probe(candidate, self)
+
     def __call__(self, candidate: BrainModel) -> Score:
         assembly = self._assembly
         timebins = timebins_from_assembly(assembly)

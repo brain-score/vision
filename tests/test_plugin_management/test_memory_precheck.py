@@ -24,6 +24,7 @@ from brainscore_core.benchmarks import score_benchmark
 from brainscore_vision.benchmark_helpers.memory import (
     MemoryEstimate,
     _OVERHEAD_FACTOR,
+    _PLS_OVERHEAD_FACTOR,
     _BYTES_PER_ELEMENT,
     _DEFAULT_CALIBRATION_PATH,
     preallocate_memory,
@@ -421,7 +422,8 @@ class TestCalibratedFormula(unittest.TestCase):
                 est = preallocate_memory(model, bm, raise_if_oom=False)
 
         self.assertAlmostEqual(est.fixed_benchmark_cost_gb, 2.8336, places=4)
-        self.assertAlmostEqual(est.total_estimated_gb, est.activation_gb + 2.8336, places=4)
+        self.assertAlmostEqual(est.total_estimated_gb,
+                               est.activation_gb * _PLS_OVERHEAD_FACTOR + 2.8336, places=4)
 
     def test_benchmark_not_in_table_uses_fallback(self):
         bm = _make_neural_benchmark(n_stimuli=10)

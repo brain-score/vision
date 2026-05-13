@@ -482,6 +482,16 @@ def preallocate_memory(
     else:
         print(f"  ×{_OVERHEAD_FACTOR}  =  {estimate.total_estimated_gb:.3f} GB total", flush=True)
 
+    # Structured sentinel for CloudWatch Insights calibration queries and reliable
+    # OOM signal parsing by the scoring orchestrator. Every pre-flight run emits
+    # this line regardless of outcome — filter on will_oom=true for OOM cases.
+    # Query example: filter @message like "BRAINSCORE_PREFLIGHT"
+    #                | stats avg(estimate_gb) by benchmark_id, formula_type
+    print(
+        f"BRAINSCORE_PREFLIGHT {json.dumps({'estimate_gb': round(total_estimated_gb, 3), 'available_gb': round(available_gb, 1), 'formula_type': formula_type, 'will_oom': estimate.will_oom, 'num_features': num_features, 'num_stimuli': num_stimuli})}",
+        flush=True,
+    )
+
     if estimate.will_oom:
         msg = (
             f"preallocate_memory: {str(estimate)}. "

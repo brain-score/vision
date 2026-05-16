@@ -1,3 +1,4 @@
-albumentations
+numpy<2.0
+albumentations<2.0
 opencv-python-headless
 timm

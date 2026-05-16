@@ -1,4 +1,5 @@
+numpy<2.0
 torch
 torchvision
-albumentations
+albumentations<2.0
 timm

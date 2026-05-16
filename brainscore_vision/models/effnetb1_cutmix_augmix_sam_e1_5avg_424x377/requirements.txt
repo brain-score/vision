@@ -3,4 +3,4 @@ torchvision
 numpy
 timm
 pillow
-albumentations
+albumentations<2.0

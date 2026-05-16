@@ -1,4 +1,4 @@
-albumentations
+albumentations<2.0
 timm
 torch
 PIL

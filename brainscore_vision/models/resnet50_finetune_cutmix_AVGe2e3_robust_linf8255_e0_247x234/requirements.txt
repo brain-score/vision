@@ -2,5 +2,4 @@ numpy<2.0
 albumentations<2.0
 timm
 torch
-PIL
-collections
+pillow

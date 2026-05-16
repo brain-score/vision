@@ -1,6 +1,6 @@
 torch
 torchvision
-numpy
+numpy<2.0
 timm
 pillow
 albumentations<2.0

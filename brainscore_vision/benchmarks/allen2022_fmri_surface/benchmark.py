@@ -85,7 +85,7 @@ def _Allen2022fmriSurface(region,
 def Allen2022fmriSurface(region: str, metric_type: str,
                           dataset_prefix: str = 'Allen2022_fmri_surface',
                           alphas: list = ALPHA_LIST):
-    similarity_metric = load_metric(f'{metric_type}_split', alphas=alphas)
+    similarity_metric = load_metric(f'dual_{metric_type}_split', alphas=alphas)
     return _Allen2022fmriSurface(region, similarity_metric=similarity_metric,
                                  identifier_metric_suffix=metric_type,
                                  dataset_prefix=dataset_prefix,

@@ -1,0 +1,5 @@
+laion-fmri @ git+https://github.com/ViCCo-Group/LAION-fMRI.git@main
+xarray>=2024.1
+netcdf4>=1.6
+h5py>=3.10
+nibabel>=5.0

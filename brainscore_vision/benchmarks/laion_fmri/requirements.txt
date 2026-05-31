@@ -1,5 +1,6 @@
+# Upstream LAION-fMRI client: provides `laion_fmri.subject` (raw GLMsingle
+# loader used by data_packaging/build_assembly.py) and `laion_fmri.splits`
+# (re:vision split definitions used at benchmark-load time).
 laion-fmri @ git+https://github.com/ViCCo-Group/LAION-fMRI.git@main
-xarray>=2024.1
-netcdf4>=1.6
-h5py>=3.10
-nibabel>=5.0
+numpy<2.0
+pandas<3.0

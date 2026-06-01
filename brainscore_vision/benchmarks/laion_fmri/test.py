@@ -155,3 +155,62 @@ class TestAlexNetSmoke:
         value = float(score.values)
         assert value == value, f"non-finite score: {value}"  # NaN check
         assert -1.0 <= value <= 1.5, f"score out of expected range: {value}"
+
+
+class TestUncertaintyContract:
+    """Each benchmark wrapper must return a Score satisfying the REPORTING_UNCERTAINTY
+    spec: finite ``error`` on the ceiled scale (or nan with a declared reason),
+    plus disaggregated ``raw`` at the finest resampleable grain.
+    """
+
+    @pytest.mark.private_access
+    @pytest.mark.slow
+    @pytest.mark.parametrize(
+        "identifier",
+        [
+            "LAION_fMRI.V1-tau-ridge",       # MultiSubjectNeuralBenchmark wrapper
+            "LAION_fMRI.V1-rdm-pearson",     # _MultiSubjectRSABenchmark wrapper
+        ],
+    )
+    def test_multisubject_wrapper_uncertainty(self, identifier):
+        from brainscore_vision import load_model
+        from brainscore_vision.benchmark_helpers.validate_error import (
+            assert_valid_uncertainty,
+        )
+
+        benchmark = load_benchmark(identifier)
+        score = benchmark(load_model("alexnet"))
+        assert_valid_uncertainty(score)
+        assert score.attrs["error_over"] == ["subject"]
+        assert score.attrs["n_bootstrap"] == 200
+
+    @pytest.mark.private_access
+    @pytest.mark.slow
+    def test_kfold_wrapper_uncertainty(self):
+        from brainscore_vision import load_model
+        from brainscore_vision.benchmark_helpers.validate_error import (
+            assert_valid_uncertainty,
+        )
+        from brainscore_vision.benchmarks.laion_fmri.benchmark import LAIONfMRIClusterCV
+
+        benchmark = LAIONfMRIClusterCV("V1")
+        score = benchmark(load_model("alexnet"))
+        assert_valid_uncertainty(score)
+        assert score.attrs["error_over"] == ["fold"]
+        assert score.attrs["n_bootstrap"] == 200
+
+    @pytest.mark.private_access
+    @pytest.mark.slow
+    def test_single_subject_declares_no_error(self):
+        from brainscore_vision import load_model
+        from brainscore_vision.benchmark_helpers.validate_error import (
+            assert_valid_uncertainty,
+        )
+        from brainscore_vision.benchmarks.laion_fmri.benchmark import LAIONfMRI
+
+        benchmark = LAIONfMRI("V1", "tau", subjects=("sub-01",))
+        score = benchmark(load_model("alexnet"))
+        assert_valid_uncertainty(score)
+        import math
+        assert math.isnan(float(score.attrs["error"]))
+        assert score.attrs.get("error_nan_reason")

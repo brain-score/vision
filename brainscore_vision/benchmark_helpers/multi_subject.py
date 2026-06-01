@@ -33,6 +33,12 @@ import xarray as xr
 
 from brainscore_core import Score
 from brainscore_vision.benchmark_helpers.neural_common import TrainTestNeuralBenchmark
+from brainscore_vision.metric_helpers.bootstrap_error import (
+    attach_error,
+    declare_no_error,
+)
+
+WRAPPER_N_BOOTSTRAP = 200
 
 
 def block_diagonal_concat(
@@ -136,15 +142,20 @@ class KFoldNeuralBenchmark:
         fold_scores = [b(candidate) for b in self._folds]
         values = np.array([float(s.values) for s in fold_scores])
         score = Score(values.mean())
-        score.attrs["raw_folds"] = xr.DataArray(
+        raw_folds = xr.DataArray(
             values, dims=("fold",), coords={"fold": np.arange(len(values))},
             name=f"{self.identifier}_per_fold",
         )
+        score.attrs["raw_folds"] = raw_folds
         score.attrs["sem_folds"] = (
             float(values.std(ddof=1) / np.sqrt(len(values))) if len(values) > 1 else 0.0
         )
         score.attrs["ceiling"] = self.ceiling
         score.attrs["folds"] = fold_scores
+        if len(values) > 1:
+            score = attach_error(score, raw_folds, over=["fold"], n_bootstrap=WRAPPER_N_BOOTSTRAP)
+        else:
+            score = declare_no_error(score, reason="single fold; no resampleable axis at this layer")
         return score
 
 
@@ -205,14 +216,19 @@ class MultiSubjectNeuralBenchmark:
         per_subject_scores = [child(candidate) for child in self._per_subject]
         values = np.array([float(s.values) for s in per_subject_scores])
         score = Score(values.mean())
-        score.attrs["raw_subjects"] = xr.DataArray(
+        raw_subjects = xr.DataArray(
             values, dims=("subject",), coords={"subject": self._subjects},
             name=f"{self.identifier}_per_subject",
         )
+        score.attrs["raw_subjects"] = raw_subjects
         score.attrs["sem_subjects"] = (
             float(values.std(ddof=1) / np.sqrt(len(values))) if len(values) > 1 else 0.0
         )
         score.attrs["ceiling"] = self.ceiling
         for sub_id, s in zip(self._subjects, per_subject_scores):
             score.attrs[sub_id] = s
+        if len(values) > 1:
+            score = attach_error(score, raw_subjects, over=["subject"], n_bootstrap=WRAPPER_N_BOOTSTRAP)
+        else:
+            score = declare_no_error(score, reason="single-subject wrapper; nothing to resample at this layer")
         return score

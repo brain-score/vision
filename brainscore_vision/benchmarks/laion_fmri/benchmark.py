@@ -29,6 +29,7 @@ from brainscore_vision import load_dataset, load_metric, load_stimulus_set
 from brainscore_vision.benchmark_helpers.multi_subject import (
     KFoldNeuralBenchmark,
     MultiSubjectNeuralBenchmark,
+    WRAPPER_N_BOOTSTRAP,
     block_diagonal_concat,
 )
 from brainscore_vision.benchmark_helpers.neural_common import (
@@ -38,6 +39,10 @@ from brainscore_vision.benchmark_helpers.neural_common import (
     filter_reliable_neuroids,
     place_on_screen,
     timebins_from_assembly,
+)
+from brainscore_vision.metric_helpers.bootstrap_error import (
+    attach_error,
+    declare_no_error,
 )
 from brainscore_vision.metrics.regression_correlation.metric import ALPHA_LIST
 from brainscore_vision.utils import LazyLoad
@@ -416,13 +421,14 @@ def LAIONfMRI(
         )
     similarity_metric = load_metric(f"{metric_type}_split", alphas=alphas)
     if len(subjects) == 1:
-        return _LAIONfMRI(
+        bench = _LAIONfMRI(
             region=region, split=split, similarity_metric=similarity_metric,
             identifier_metric_suffix=metric_type, dataset_prefix=dataset_prefix,
             subjects=subjects, alpha_coord=None, per_voxel_ceilings=False,
             noise_ceiling_threshold=noise_ceiling_threshold,
             noise_ceiling_coord=noise_ceiling_coord,
         )
+        return _SingleSubjectErrorShim(bench)
 
     per_subject_benchmarks = [
         _LAIONfMRI(
@@ -443,6 +449,19 @@ def LAIONfMRI(
 
 # KFoldNeuralBenchmark and MultiSubjectNeuralBenchmark were extracted to
 # brainscore_vision.benchmark_helpers.multi_subject.
+
+
+class _SingleSubjectErrorShim:
+    _REASON = "single-subject TrainTest; regression metric exposes no per-stimulus axis"
+
+    def __init__(self, child):
+        self._child = child
+
+    def __getattr__(self, name):
+        return getattr(self._child, name)
+
+    def __call__(self, candidate) -> Score:
+        return declare_no_error(self._child(candidate), reason=self._REASON)
 
 
 def LAIONfMRIClusterCV(
@@ -646,16 +665,25 @@ class _MultiSubjectRSABenchmark:
         per_subject_scores = [child(candidate) for child in self._per_subject]
         values = np.array([float(s.values) for s in per_subject_scores])
         score = Score(values.mean())
-        score.attrs["raw_subjects"] = xr.DataArray(
+        raw_subjects = xr.DataArray(
             values, dims=("subject",), coords={"subject": self._subjects},
             name=f"{self.identifier}_per_subject",
         )
+        score.attrs["raw_subjects"] = raw_subjects
         score.attrs["sem_subjects"] = (
             float(values.std(ddof=1) / np.sqrt(len(values))) if len(values) > 1 else 0.0
         )
         score.attrs["ceiling"] = self.ceiling
         for sub_id, s in zip(self._subjects, per_subject_scores):
             score.attrs[sub_id] = s
+        if len(values) > 1:
+            score = attach_error(
+                score, raw_subjects, over=["subject"], n_bootstrap=WRAPPER_N_BOOTSTRAP,
+            )
+        else:
+            score = declare_no_error(
+                score, reason="single-subject RSA wrapper; nothing to resample at this layer",
+            )
         return score
 
 

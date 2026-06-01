@@ -1,5 +1,3 @@
 laion-fmri @ git+https://github.com/ViCCo-Group/LAION-fMRI.git@main
-# Workaround until brain-score/core test_plugin.sh fails loud on install errors.
-brainscore-core @ git+https://github.com/brain-score/core.git@main
 numpy<2.0
 pandas<3.0

@@ -1,5 +1,6 @@
 """
-Adapter wrapping legacy vision BrainModel to conform to UnifiedModel.
+Adapter wrapping legacy vision BrainModel to conform to the Subject interface
+(formerly UnifiedModel).
 
 process() delegates to the legacy model's look_at(). The adapter is
 the abstraction boundary: benchmarks above it call process(), legacy
@@ -8,10 +9,10 @@ code below it sees the same look_at() calls it always did.
 
 from typing import Any, Dict, Optional, Set
 
-from brainscore_core.model_interface import UnifiedModel, TaskContext
+from brainscore_core.model_interface import Subject, TaskContext
 
 
-class VisionModelAdapter(UnifiedModel):
+class VisionModelAdapter(Subject):
 
     def __init__(self, legacy_model):
         self._legacy = legacy_model

@@ -26,27 +26,29 @@ from brainscore_vision import load_benchmark
 _RIDGE_REGIONS = ("V1", "V2", "V4", "IT")
 _RIDGE_SPLITS = ("tau", "ood")
 _RIDGE_FAMILIES = ("LAION_fMRI", "LAION_fMRI_persubject")
+_RIDGE_METRICS = ("ridge", "ridgecv")
 
 _RIDGE_VARIANTS = [
-    f"{fam}.{region}-{split}-ridge"
+    f"{fam}.{region}-{split}-{metric}"
     for fam in _RIDGE_FAMILIES
     for region in _RIDGE_REGIONS
     for split in _RIDGE_SPLITS
-]  # 2 * 4 * 2 = 16
+    for metric in _RIDGE_METRICS
+]  # 2 * 4 * 2 * 2 = 32
 
 _RSA_VARIANTS = [
     f"LAION_fMRI.{region}-rdm-pearson" for region in _RIDGE_REGIONS
 ]  # 4 (shared pool only — Nili ceiling requires shared stim across subjects)
 
-_ALL_HEADLINE_VARIANTS = _RIDGE_VARIANTS + _RSA_VARIANTS  # 20
+_ALL_HEADLINE_VARIANTS = _RIDGE_VARIANTS + _RSA_VARIANTS  # 36
 
 
 class TestRegistry:
     """The lean registry exposes exactly the 20 headline variants and nothing else."""
 
     def test_variant_count(self):
-        assert len(_ALL_HEADLINE_VARIANTS) == 20, (
-            f"Expected 20 headline variants, got {len(_ALL_HEADLINE_VARIANTS)}. "
+        assert len(_ALL_HEADLINE_VARIANTS) == 36, (
+            f"Expected 36 headline variants, got {len(_ALL_HEADLINE_VARIANTS)}. "
             f"If you added/removed variants in __init__.py, update the lists at "
             f"the top of this file too."
         )

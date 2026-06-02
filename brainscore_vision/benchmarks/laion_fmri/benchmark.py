@@ -44,8 +44,13 @@ from brainscore_vision.metric_helpers.bootstrap_error import (
     attach_error,
     declare_no_error,
 )
-from brainscore_vision.metrics.regression_correlation.metric import ALPHA_LIST
 from brainscore_vision.utils import LazyLoad
+
+
+# 21 log-spaced alphas covering 1e-10 to 1e10. Wider range than the brain-score
+# default ALPHA_LIST so RidgeCV catches extreme regularization needs for very
+# wide-feature models without disrupting other benchmarks' alpha conventions.
+LAION_ALPHA_LIST = [10.0 ** i for i in range(-10, 11)]
 
 
 BIBTEX = """@inproceedings{zerbe_laion-fmri_2026,
@@ -392,7 +397,7 @@ def LAIONfMRI(
     split: str,
     metric_type: str = "ridge",
     dataset_prefix: str = "LAION_fMRI",
-    alphas: Sequence[float] = ALPHA_LIST,
+    alphas: Sequence[float] = LAION_ALPHA_LIST,
     subjects: tuple[str, ...] = DEFAULT_SUBJECTS,
     noise_ceiling_threshold: float = NOISE_CEILING_THRESHOLD,
     noise_ceiling_coord: str = "nc_12rep",
@@ -419,7 +424,7 @@ def LAIONfMRI(
             f"split={split!r} is not a single-split variant. "
             f"Use LAIONfMRIClusterCV for cluster_k5. Available: {SIMPLE_SPLITS}"
         )
-    similarity_metric = load_metric(f"{metric_type}_split", alphas=alphas)
+    similarity_metric = load_metric(f"dual_{metric_type}_split", alphas=alphas)
     if len(subjects) == 1:
         bench = _LAIONfMRI(
             region=region, split=split, similarity_metric=similarity_metric,
@@ -468,7 +473,7 @@ def LAIONfMRIClusterCV(
     region: str,
     metric_type: str = "ridge",
     dataset_prefix: str = "LAION_fMRI",
-    alphas: Sequence[float] = ALPHA_LIST,
+    alphas: Sequence[float] = LAION_ALPHA_LIST,
     n_folds: int = 5,
     subjects: tuple[str, ...] = DEFAULT_SUBJECTS,
     noise_ceiling_threshold: float = NOISE_CEILING_THRESHOLD,
@@ -487,7 +492,7 @@ def LAIONfMRIClusterCV(
     :param noise_ceiling_coord: which published noise-ceiling estimate to filter
         by. Defaults to ``nc_12rep`` (12-repetition estimate, highest SNR).
     """
-    similarity_metric = load_metric(f"{metric_type}_split", alphas=alphas)
+    similarity_metric = load_metric(f"dual_{metric_type}_split", alphas=alphas)
 
     def _make_fold(k: int):
         if len(subjects) == 1:

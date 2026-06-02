@@ -62,16 +62,11 @@ The benchmark uses a Brain-Score `TrainTestNeuralBenchmark` per subject, wrapped
 - `score.attrs['error']`, `error_over`, `n_bootstrap` — bootstrap SE on the ceiled scale
 - `score.attrs['sub-XX']` — per-subject scores
 
-### Regression flavours
+### Regression
 
-Two ridge variants per cell:
+Headline ridge cells use `dual_ridgecv_split` — kernel/dual ridge with per-fit CV alpha selection over a 21-value log-spaced sweep (`1e-10` to `1e10`, defined locally as `LAION_ALPHA_LIST`). The dual form keeps the `(n_features, n_targets)` coefficient matrix from being materialized — important for wide-feature models on the persubject pool.
 
-| Identifier suffix | Regression | Alpha selection |
-|---|---|---|
-| `-ridge` | `dual_ridge_split` (kernel/dual ridge) | Fixed α = 1 |
-| `-ridgecv` | `dual_ridgecv_split` (kernel/dual ridge with internal CV) | CV over 21 log-spaced alphas, 1e-10 to 1e10 |
-
-Both use the dual/kernel form so the `(n_features, n_targets)` coefficient matrix is never materialized — important for wide-feature models on the persubject pool.
+Fixed-alpha ridge (`dual_ridge_split`, α=1) is accessible via the factory by passing `metric_type='ridge'`, but is not on the leaderboard.
 
 ### RSA flavour
 
@@ -79,13 +74,13 @@ Both use the dual/kernel form so the `(n_features, n_targets)` coefficient matri
 
 ## Registered variants
 
-36 headline cells:
+20 headline cells:
 
-- `LAION_fMRI_persubject.{V1,V2,V4,IT}-{tau,ood}-{ridge,ridgecv}` (16) — most discriminative
-- `LAION_fMRI.{V1,V2,V4,IT}-{tau,ood}-{ridge,ridgecv}` (16) — cross-subject comparable to Allen2022 / Hebart2023
+- `LAION_fMRI_persubject.{V1,V2,V4,IT}-{tau,ood}-ridgecv` (8) — most discriminative
+- `LAION_fMRI.{V1,V2,V4,IT}-{tau,ood}-ridgecv` (8) — cross-subject comparable to Allen2022 / Hebart2023
 - `LAION_fMRI.{V1,V2,V4,IT}-rdm-pearson` (4) — RSA on shared pool
 
-Non-headline (factory-only): `cluster_k5` CV, per-OOD-category sub-splits, `IT_full` ablation.
+Non-headline (factory-only): fixed-alpha ridge (`metric_type='ridge'`), `cluster_k5` CV, per-OOD-category sub-splits, `IT_full` ablation.
 
 ## Data distribution
 

@@ -395,7 +395,7 @@ def _LAIONfMRI(
 def LAIONfMRI(
     region: str,
     split: str,
-    metric_type: str = "ridge",
+    metric_type: str = "ridgecv",
     dataset_prefix: str = "LAION_fMRI",
     alphas: Sequence[float] = LAION_ALPHA_LIST,
     subjects: tuple[str, ...] = DEFAULT_SUBJECTS,
@@ -471,7 +471,7 @@ class _SingleSubjectErrorShim:
 
 def LAIONfMRIClusterCV(
     region: str,
-    metric_type: str = "ridge",
+    metric_type: str = "ridgecv",
     dataset_prefix: str = "LAION_fMRI",
     alphas: Sequence[float] = LAION_ALPHA_LIST,
     n_folds: int = 5,

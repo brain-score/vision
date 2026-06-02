@@ -26,29 +26,27 @@ from brainscore_vision import load_benchmark
 _RIDGE_REGIONS = ("V1", "V2", "V4", "IT")
 _RIDGE_SPLITS = ("tau", "ood")
 _RIDGE_FAMILIES = ("LAION_fMRI", "LAION_fMRI_persubject")
-_RIDGE_METRICS = ("ridge", "ridgecv")
 
 _RIDGE_VARIANTS = [
-    f"{fam}.{region}-{split}-{metric}"
+    f"{fam}.{region}-{split}-ridgecv"
     for fam in _RIDGE_FAMILIES
     for region in _RIDGE_REGIONS
     for split in _RIDGE_SPLITS
-    for metric in _RIDGE_METRICS
-]  # 2 * 4 * 2 * 2 = 32
+]  # 2 * 4 * 2 = 16
 
 _RSA_VARIANTS = [
     f"LAION_fMRI.{region}-rdm-pearson" for region in _RIDGE_REGIONS
 ]  # 4 (shared pool only — Nili ceiling requires shared stim across subjects)
 
-_ALL_HEADLINE_VARIANTS = _RIDGE_VARIANTS + _RSA_VARIANTS  # 36
+_ALL_HEADLINE_VARIANTS = _RIDGE_VARIANTS + _RSA_VARIANTS  # 20
 
 
 class TestRegistry:
     """The lean registry exposes exactly the 20 headline variants and nothing else."""
 
     def test_variant_count(self):
-        assert len(_ALL_HEADLINE_VARIANTS) == 36, (
-            f"Expected 36 headline variants, got {len(_ALL_HEADLINE_VARIANTS)}. "
+        assert len(_ALL_HEADLINE_VARIANTS) == 20, (
+            f"Expected 20 headline variants, got {len(_ALL_HEADLINE_VARIANTS)}. "
             f"If you added/removed variants in __init__.py, update the lists at "
             f"the top of this file too."
         )
@@ -105,7 +103,7 @@ class TestNonHeadlineFactoriesConstruct:
         from brainscore_vision.benchmarks.laion_fmri.benchmark import LAIONfMRIClusterCV
 
         b = LAIONfMRIClusterCV("V4")
-        assert b.identifier == "LAION_fMRI.V4-cluster_k5-ridge"
+        assert b.identifier == "LAION_fMRI.V4-cluster_k5-ridgecv"
 
     @pytest.mark.private_access
     def test_per_ood_category_constructs(self):
@@ -142,8 +140,8 @@ class TestAlexNetSmoke:
     @pytest.mark.parametrize(
         "identifier",
         [
-            "LAION_fMRI.V1-tau-ridge",                     # shared ridge
-            "LAION_fMRI_persubject.IT-tau-ridge",          # persubject ridge
+            "LAION_fMRI.V1-tau-ridgecv",                   # shared ridgecv
+            "LAION_fMRI_persubject.IT-tau-ridgecv",        # persubject ridgecv
             "LAION_fMRI.IT-rdm-pearson",                   # shared RSA
         ],
     )
@@ -170,7 +168,7 @@ class TestUncertaintyContract:
     @pytest.mark.parametrize(
         "identifier",
         [
-            "LAION_fMRI.V1-tau-ridge",       # MultiSubjectNeuralBenchmark wrapper
+            "LAION_fMRI.V1-tau-ridgecv",     # MultiSubjectNeuralBenchmark wrapper
             "LAION_fMRI.V1-rdm-pearson",     # _MultiSubjectRSABenchmark wrapper
         ],
     )

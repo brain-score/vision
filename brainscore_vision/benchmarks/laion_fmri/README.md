@@ -8,7 +8,7 @@ For dataset, ROIs, splits, ceilings, and scoring see [METHODS.md](METHODS.md). F
 
 ```python
 from brainscore_vision import _run_score
-score = _run_score("alexnet", "LAION_fMRI_persubject.IT-tau-ridge")
+score = _run_score("alexnet", "LAION_fMRI_persubject.IT-tau-ridgecv")
 print(float(score.values))   # ceiled per-voxel correlation, averaged across 5 subjects
 ```
 
@@ -33,27 +33,28 @@ python -m brainscore_vision.data.laion_fmri.data_packaging.get_local_stimuli \
 
 Override location with `LAION_FMRI_STIMULI_DIR=/custom/path`. Neural assemblies fetch themselves from S3 on first call (~400-800 MB per subject, cached at `~/.brainio/`).
 
-## Registered benchmarks (36 headline variants)
+## Registered benchmarks (20 headline variants)
 
 Identifier pattern: `{family}.{region}-{split}-{metric}`.
 
 | Family | Regions | Splits | Metric | Count |
 |---|---|---|---|---|
-| `LAION_fMRI` (shared 1,492-stim pool) | V1, V2, V4, IT | tau, ood | ridge, ridgecv | 16 |
-| `LAION_fMRI_persubject` (5,833 stim/subj) | V1, V2, V4, IT | tau, ood | ridge, ridgecv | 16 |
+| `LAION_fMRI` (shared 1,492-stim pool) | V1, V2, V4, IT | tau, ood | ridgecv | 8 |
+| `LAION_fMRI_persubject` (5,833 stim/subj) | V1, V2, V4, IT | tau, ood | ridgecv | 8 |
 | `LAION_fMRI` (shared) | V1, V2, V4, IT | — | rdm-pearson | 4 |
 
-`-ridge` uses fixed alpha=1 dual ridge (fastest). `-ridgecv` selects alpha via internal CV over a 21-value log-spaced sweep (1e-10 to 1e10). Both use the dual/kernel form to keep memory bounded on wide-feature models.
+`ridgecv` is kernel/dual ridge with per-fit CV alpha selection over a 21-value log-spaced sweep (1e-10 to 1e10). The dual form keeps the `(n_features, n_targets)` coefficient matrix from being materialized — important for wide-feature models on the persubject pool.
 
-Non-headline variants — `cluster_k5` CV, per-OOD-category sub-splits, and the `IT_full` (V4 ∪ IT) alias — are constructible via the factory API:
+Non-headline variants — fixed-alpha ridge, `cluster_k5` CV, per-OOD-category sub-splits, and the `IT_full` (V4 ∪ IT) alias — are constructible via the factory API:
 
 ```python
 from brainscore_vision.benchmarks.laion_fmri.benchmark import (
     LAIONfMRI, LAIONfMRIRSA, LAIONfMRIClusterCV,
 )
-LAIONfMRIClusterCV("V4")            # 5-fold CLIP-cluster CV, shared pool
-LAIONfMRI("IT", "ood_gabor")        # one OOD category
-LAIONfMRI("IT_full", "tau")         # V4 ∪ IT region alias
+LAIONfMRI("IT", "tau", metric_type="ridge")  # fixed alpha=1, faster
+LAIONfMRIClusterCV("V4")                      # 5-fold CLIP-cluster CV, shared pool
+LAIONfMRI("IT", "ood_gabor")                  # one OOD category
+LAIONfMRI("IT_full", "tau")                   # V4 ∪ IT region alias
 ```
 
 ## Score interpretation

@@ -58,6 +58,15 @@ BIBTEX = """@inproceedings{zerbe_laion-fmri_2026,
     author = {Zerbe, Josefine and Roth, Johannes and Mell, Maggie Mae and Herholz, Peer and Knapen, Tomas and Hebart, Martin N.},
     year = {2026},
     booktitle = {Vision Sciences Society Annual Meeting},
+}
+@article{prince2022glmsingle,
+    title = {Improving the accuracy of single-trial f{MRI} response estimates using {GLM}single},
+    author = {Prince, Jacob S. and Charest, Ian and Kurzawski, Jan W. and Pyles, John A. and Tarr, Michael J. and Kay, Kendrick N.},
+    journal = {eLife},
+    volume = {11},
+    pages = {e77599},
+    year = {2022},
+    doi = {10.7554/eLife.77599},
 }"""
 
 # Stimuli rendered 1000x1000 px on a BenQ-mirrored PROpixx projection at ~165 cm viewing distance

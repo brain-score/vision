@@ -91,7 +91,10 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
     if check_mem:
         check_memory(model, benchmark)
 
+    import time as _time
+    _t0 = _time.time()
     score: Score = benchmark(model)
+    score.attrs['runtime_sec'] = round(_time.time() - _t0, 2)
     score.attrs['model_identifier'] = model_identifier
     score.attrs['benchmark_identifier'] = benchmark_identifier
     try:  # attempt to look up the layer commitment if model uses a standard layer model

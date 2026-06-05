@@ -273,18 +273,16 @@ def load_assembly(
     full_stim = load_stimulus_set(f"{dataset_prefix}_stim_full")
     side_image_ids = set(combined["stimulus_id"].values.tolist())
     stim = StimulusSet(full_stim[full_stim["stimulus_id"].isin(side_image_ids)].reset_index(drop=True))
-    # Include the subject set in the identifier so per-subject benchmarks don't
-    # collide in the model's activations cache. Shared-pool stim_ids are identical
-    # across subjects (same cache hit = correct), but persubject stim_ids are
-    # subject-specific — without this, sub-04 would replay sub-01's cached activations.
-    # subject_id_pres is a MultiIndex level on `presentation`, so `in coords` returns
-    # False — fetch via try/except instead.
-    try:
-        subs_in_assembly = sorted(set(combined["subject_id_pres"].values.tolist()))
-    except (KeyError, AttributeError):
-        subs_in_assembly = []
-    sub_tag = "+".join(subs_in_assembly) if subs_in_assembly else "all"
-    stim.identifier = f"{dataset_prefix}_{split}_{side}_{sub_tag}"
+    # Persubject pool has subject-specific stim; tag identifier to avoid cache collisions. Shared pool keeps a flat key so the 5 child benchmarks hit one cached activation set.
+    if "persubject" in dataset_prefix:
+        try:
+            subs_in_assembly = sorted(set(combined["subject_id_pres"].values.tolist()))
+        except (KeyError, AttributeError):
+            subs_in_assembly = []
+        sub_tag = "+".join(subs_in_assembly) if subs_in_assembly else "all"
+        stim.identifier = f"{dataset_prefix}_{split}_{side}_{sub_tag}"
+    else:
+        stim.identifier = f"{dataset_prefix}_{split}_{side}"
     stim.stimulus_paths = {
         sid: full_stim.stimulus_paths[sid]
         for sid in stim["stimulus_id"]

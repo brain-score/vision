@@ -34,6 +34,10 @@ Three split methods from the re:vision generalization initiative:
 
 Splits are computed at benchmark-load time via `laion_fmri.splits.get_split_masks` and applied to one registered full assembly per subject.
 
+### Note on persubject `ood` direction
+
+In the persubject pool, ceiled scores for `ood` test trials in V1-V4 are typically *higher* than the same model's `tau` test. The persubject `ood` test is the 371 categorically-distinct images (Gabors, illusions, isolated shapes) — early/mid cortex predicts these unusually well from clean low-level features. At IT, where object identity dominates, the expected `ood ≤ tau` direction returns. The shared-pool `ood` split shows the conventional `ood < tau` across all regions because the shared 1,492 stimuli contain no true OOD categories.
+
 ## Beta preprocessing
 
 Single-trial volumetric betas are loaded per subject for the combined region mask, then **z-scored within each session per voxel**. The train assembly preserves individual trials; the test assembly is averaged across repetitions per stimulus for scoring (with a rep-preserved copy retained for the internal-consistency ceiling).
@@ -71,6 +75,10 @@ Fixed-alpha ridge (`dual_ridge_split`, α=1) is accessible via the factory by pa
 ### RSA flavour
 
 `-rdm-pearson` variants run `RSABenchmark` per subject: per-subject neural RDM × model RDM Spearman r, averaged across 5 subjects. Per-subject ncsnr-derived RDM-reliability ceiling. Shared-pool only (cross-subject RDMs require shared stimuli).
+
+### Memory footprint
+
+Persubject ridgecv variants use ~4× the memory of shared-pool variants — each subject's 5,833-stim activation set is non-overlapping so there are no cross-subject activation cache hits. Per-cell peak scales with model layer width: resnet50-class peaks ~128 GB on persubject cells, resnext101-class ~256 GB. Production scoring of persubject variants for medium/large vision models should provision worker pools with ≥256 GB RAM.
 
 ## Registered variants
 

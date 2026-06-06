@@ -26,7 +26,8 @@ once a second caller appears that needs the extra metadata.
 
 from __future__ import annotations
 
-from typing import Sequence
+import gc
+from typing import Callable, Sequence
 
 import numpy as np
 import xarray as xr
@@ -37,6 +38,22 @@ from brainscore_vision.metric_helpers.bootstrap_error import (
     attach_error,
     declare_no_error,
 )
+
+
+def _release(child) -> None:
+    """Best-effort release of a benchmark child's heavy state before GC.
+
+    Children hold a several-hundred-MB neuroid assembly via ``_assembly`` and
+    cached BenchmarkBase ceiling closures that capture it. Nulling explicitly
+    breaks the closure cycle so refcount drops to zero without waiting for the
+    cycle collector.
+    """
+    for attr in ("_assembly", "_similarity_metric", "_ceiling_func", "_ceiling"):
+        if hasattr(child, attr):
+            try:
+                setattr(child, attr, None)
+            except AttributeError:
+                pass
 
 WRAPPER_N_BOOTSTRAP = 200
 
@@ -104,34 +121,47 @@ def block_diagonal_concat(
 
 
 class KFoldNeuralBenchmark:
-    """Aggregate a sequence of :class:`TrainTestNeuralBenchmark` instances across folds.
+    """Aggregate fold benchmarks built on demand from a per-fold factory.
 
-    Each child benchmark runs its own train/test cycle on its fold; this wrapper
-    averages the per-fold ceiled scores and surfaces per-fold detail in
-    ``score.attrs["raw_folds"]`` (an xr.DataArray indexed by fold).
+    Each fold's benchmark is built fresh, scored, then released before the next
+    fold starts — peak memory stays at one fold's working set instead of N. The
+    factory takes a 0-based fold index and returns a ready-to-call benchmark.
 
     Mirrors the public interface Brain-Score's ``load_benchmark`` + ``benchmark(model)``
     expects: ``identifier``, ``region``, ``parent``, ``bibtex``, ``ceiling``, and
     ``__call__(candidate) -> Score``.
     """
 
-    def __init__(self, identifier: str, fold_benchmarks: Sequence[TrainTestNeuralBenchmark]):
-        if not fold_benchmarks:
-            raise ValueError("KFoldNeuralBenchmark requires at least one fold benchmark.")
+    def __init__(
+        self,
+        identifier: str,
+        n_folds: int,
+        fold_factory: Callable[[int], TrainTestNeuralBenchmark],
+    ):
+        if n_folds < 1:
+            raise ValueError("KFoldNeuralBenchmark requires at least one fold.")
         self.identifier = identifier
-        self._folds = list(fold_benchmarks)
+        self._n_folds = int(n_folds)
+        self._factory = fold_factory
 
-        regions = {b.region for b in self._folds}
-        if len(regions) != 1:
-            raise ValueError(f"KFold folds disagree on region: {regions}")
-        self.region = regions.pop()
+        # Materialize one fold to extract region/bibtex metadata, then release.
+        sample = self._factory(0)
+        self.region = sample.region
         self.parent = self.region
-        self.bibtex = getattr(self._folds[0], "bibtex", None)
+        self.bibtex = getattr(sample, "bibtex", None)
+        _release(sample)
+        del sample
+        gc.collect()
 
     @property
     def ceiling(self):
-        per_fold = [b.ceiling for b in self._folds]
-        values = np.array([float(c.values) for c in per_fold])
+        values = np.empty(self._n_folds, dtype=np.float64)
+        for k in range(self._n_folds):
+            child = self._factory(k)
+            values[k] = float(child.ceiling.values)
+            _release(child)
+            del child
+            gc.collect()
         score = Score(values.mean())
         score.attrs["raw_folds"] = xr.DataArray(
             values, dims=("fold",), coords={"fold": np.arange(len(values))},
@@ -139,7 +169,15 @@ class KFoldNeuralBenchmark:
         return score
 
     def __call__(self, candidate) -> Score:
-        fold_scores = [b(candidate) for b in self._folds]
+        fold_scores = []
+        fold_ceilings = np.empty(self._n_folds, dtype=np.float64)
+        for k in range(self._n_folds):
+            child = self._factory(k)
+            fold_scores.append(child(candidate))
+            fold_ceilings[k] = float(child.ceiling.values)
+            _release(child)
+            del child
+            gc.collect()
         values = np.array([float(s.values) for s in fold_scores])
         score = Score(values.mean())
         raw_folds = xr.DataArray(
@@ -150,7 +188,11 @@ class KFoldNeuralBenchmark:
         score.attrs["sem_folds"] = (
             float(values.std(ddof=1) / np.sqrt(len(values))) if len(values) > 1 else 0.0
         )
-        score.attrs["ceiling"] = self.ceiling
+        ceiling = Score(fold_ceilings.mean())
+        ceiling.attrs["raw_folds"] = xr.DataArray(
+            fold_ceilings, dims=("fold",), coords={"fold": np.arange(len(fold_ceilings))},
+        )
+        score.attrs["ceiling"] = ceiling
         score.attrs["folds"] = fold_scores
         if len(values) > 1:
             score = attach_error(score, raw_folds, over=["fold"], n_bootstrap=WRAPPER_N_BOOTSTRAP)
@@ -180,29 +222,34 @@ class MultiSubjectNeuralBenchmark:
         self,
         identifier: str,
         subjects: Sequence[str],
-        per_subject_benchmarks: Sequence[TrainTestNeuralBenchmark],
+        per_subject_factory: Callable[[str], TrainTestNeuralBenchmark],
     ):
-        if len(per_subject_benchmarks) != len(subjects):
-            raise ValueError(
-                f"subjects={list(subjects)} length disagrees with "
-                f"per_subject_benchmarks length {len(per_subject_benchmarks)}"
-            )
+        if not subjects:
+            raise ValueError("MultiSubjectNeuralBenchmark requires at least one subject.")
         self.identifier = identifier
         self._subjects = list(subjects)
-        self._per_subject = list(per_subject_benchmarks)
+        self._factory = per_subject_factory
 
-        regions = {b.region for b in self._per_subject}
-        if len(regions) != 1:
-            raise ValueError(f"Subjects disagree on region: {regions}")
-        self.region = regions.pop()
+        # Build one child to extract metadata, then release. Subsequent children
+        # are instantiated on demand inside ceiling/__call__ and dropped after use.
+        sample = self._factory(self._subjects[0])
+        self.region = sample.region
         self.parent = self.region
-        self.bibtex = getattr(self._per_subject[0], "bibtex", None)
-        self.timebins = self._per_subject[0].timebins
+        self.bibtex = getattr(sample, "bibtex", None)
+        self.timebins = sample.timebins
+        _release(sample)
+        del sample
+        gc.collect()
 
     @property
     def ceiling(self):
-        per_subject = [b.ceiling for b in self._per_subject]
-        values = np.array([float(c.values) for c in per_subject])
+        values = np.empty(len(self._subjects), dtype=np.float64)
+        for i, sub_id in enumerate(self._subjects):
+            child = self._factory(sub_id)
+            values[i] = float(child.ceiling.values)
+            _release(child)
+            del child
+            gc.collect()
         score = Score(values.mean())
         score.attrs["raw_subjects"] = xr.DataArray(
             values, dims=("subject",), coords={"subject": self._subjects},
@@ -213,7 +260,15 @@ class MultiSubjectNeuralBenchmark:
         return score
 
     def __call__(self, candidate) -> Score:
-        per_subject_scores = [child(candidate) for child in self._per_subject]
+        per_subject_scores = []
+        ceil_values = np.empty(len(self._subjects), dtype=np.float64)
+        for i, sub_id in enumerate(self._subjects):
+            child = self._factory(sub_id)
+            per_subject_scores.append(child(candidate))
+            ceil_values[i] = float(child.ceiling.values)
+            _release(child)
+            del child
+            gc.collect()
         values = np.array([float(s.values) for s in per_subject_scores])
         score = Score(values.mean())
         raw_subjects = xr.DataArray(
@@ -224,7 +279,14 @@ class MultiSubjectNeuralBenchmark:
         score.attrs["sem_subjects"] = (
             float(values.std(ddof=1) / np.sqrt(len(values))) if len(values) > 1 else 0.0
         )
-        score.attrs["ceiling"] = self.ceiling
+        ceiling = Score(ceil_values.mean())
+        ceiling.attrs["raw_subjects"] = xr.DataArray(
+            ceil_values, dims=("subject",), coords={"subject": self._subjects},
+        )
+        ceiling.attrs["sem"] = (
+            float(ceil_values.std(ddof=1) / np.sqrt(len(ceil_values))) if len(ceil_values) > 1 else 0.0
+        )
+        score.attrs["ceiling"] = ceiling
         for sub_id, s in zip(self._subjects, per_subject_scores):
             score.attrs[sub_id] = s
         if len(values) > 1:

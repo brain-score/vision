@@ -17,7 +17,8 @@ child `TrainTestNeuralBenchmark` and aggregates with mean + per-fold detail in a
 
 from __future__ import annotations
 
-from typing import Sequence
+import gc
+from typing import Callable, Sequence
 
 import numpy as np
 import pandas as pd
@@ -27,6 +28,7 @@ from brainscore_core.metrics import Score
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from brainscore_vision import load_dataset, load_metric, load_stimulus_set
 from brainscore_vision.benchmark_helpers.multi_subject import (
+    _release,
     KFoldNeuralBenchmark,
     MultiSubjectNeuralBenchmark,
     WRAPPER_N_BOOTSTRAP,
@@ -442,20 +444,18 @@ def LAIONfMRI(
         )
         return _SingleSubjectErrorShim(bench)
 
-    per_subject_benchmarks = [
-        _LAIONfMRI(
+    def _build_subject(sub_id):
+        return _LAIONfMRI(
             region=region, split=split, similarity_metric=similarity_metric,
             identifier_metric_suffix=metric_type, dataset_prefix=dataset_prefix,
             subjects=(sub_id,), alpha_coord=None, per_voxel_ceilings=False,
             noise_ceiling_threshold=noise_ceiling_threshold,
             noise_ceiling_coord=noise_ceiling_coord,
         )
-        for sub_id in subjects
-    ]
     identifier = f"{dataset_prefix}.{region}-{split}-{metric_type}"
     return MultiSubjectNeuralBenchmark(
         identifier=identifier, subjects=subjects,
-        per_subject_benchmarks=per_subject_benchmarks,
+        per_subject_factory=_build_subject,
     )
 
 
@@ -512,26 +512,23 @@ def LAIONfMRIClusterCV(
                 noise_ceiling_threshold=noise_ceiling_threshold,
                 noise_ceiling_coord=noise_ceiling_coord,
             )
-        children = [
-            _LAIONfMRI(
-                region=region, split=f"cluster_k5_{k}",
+        def _build_subject(sub_id, _k=k):
+            return _LAIONfMRI(
+                region=region, split=f"cluster_k5_{_k}",
                 similarity_metric=similarity_metric,
                 identifier_metric_suffix=metric_type,
-                dataset_prefix=dataset_prefix, subjects=(s,),
+                dataset_prefix=dataset_prefix, subjects=(sub_id,),
                 alpha_coord=None, per_voxel_ceilings=False,
                 noise_ceiling_threshold=noise_ceiling_threshold,
                 noise_ceiling_coord=noise_ceiling_coord,
             )
-            for s in subjects
-        ]
         return MultiSubjectNeuralBenchmark(
             identifier=f"{dataset_prefix}.{region}-cluster_k5_{k}-{metric_type}",
-            subjects=subjects, per_subject_benchmarks=children,
+            subjects=subjects, per_subject_factory=_build_subject,
         )
 
-    fold_benchmarks = [_make_fold(k) for k in range(n_folds)]
     identifier = f"{dataset_prefix}.{region}-cluster_k{n_folds}-{metric_type}"
-    return KFoldNeuralBenchmark(identifier=identifier, fold_benchmarks=fold_benchmarks)
+    return KFoldNeuralBenchmark(identifier=identifier, n_folds=n_folds, fold_factory=_make_fold)
 
 
 # ──────────────────────────────────────────────────────────────────────────
@@ -643,27 +640,33 @@ class _MultiSubjectRSABenchmark:
         self,
         identifier: str,
         subjects: Sequence[str],
-        per_subject_benchmarks: Sequence[RSABenchmark],
+        per_subject_factory: Callable[[str], RSABenchmark],
         region: str,
         bibtex: str = BIBTEX,
     ):
-        if len(per_subject_benchmarks) != len(subjects):
-            raise ValueError(
-                f"subjects={list(subjects)} length disagrees with "
-                f"per_subject_benchmarks length {len(per_subject_benchmarks)}"
-            )
+        if not subjects:
+            raise ValueError("_MultiSubjectRSABenchmark requires at least one subject.")
         self.identifier = identifier
         self.region = _MODEL_REGION_CANONICAL.get(region, region)
         self.parent = region
         self.bibtex = bibtex
         self._subjects = list(subjects)
-        self._per_subject = list(per_subject_benchmarks)
-        self.timebins = getattr(self._per_subject[0], "timebins", [(0, 0)])
+        self._factory = per_subject_factory
+        sample = self._factory(self._subjects[0])
+        self.timebins = getattr(sample, "timebins", [(0, 0)])
+        _release(sample)
+        del sample
+        gc.collect()
 
     @property
     def ceiling(self):
-        per_subject = [b.ceiling for b in self._per_subject]
-        values = np.array([float(c.values) for c in per_subject])
+        values = np.empty(len(self._subjects), dtype=np.float64)
+        for i, sub_id in enumerate(self._subjects):
+            child = self._factory(sub_id)
+            values[i] = float(child.ceiling.values)
+            _release(child)
+            del child
+            gc.collect()
         score = Score(values.mean())
         score.attrs["raw_subjects"] = xr.DataArray(
             values, dims=("subject",), coords={"subject": self._subjects},
@@ -674,7 +677,15 @@ class _MultiSubjectRSABenchmark:
         return score
 
     def __call__(self, candidate) -> Score:
-        per_subject_scores = [child(candidate) for child in self._per_subject]
+        per_subject_scores = []
+        ceil_values = np.empty(len(self._subjects), dtype=np.float64)
+        for i, sub_id in enumerate(self._subjects):
+            child = self._factory(sub_id)
+            per_subject_scores.append(child(candidate))
+            ceil_values[i] = float(child.ceiling.values)
+            _release(child)
+            del child
+            gc.collect()
         values = np.array([float(s.values) for s in per_subject_scores])
         score = Score(values.mean())
         raw_subjects = xr.DataArray(
@@ -685,7 +696,14 @@ class _MultiSubjectRSABenchmark:
         score.attrs["sem_subjects"] = (
             float(values.std(ddof=1) / np.sqrt(len(values))) if len(values) > 1 else 0.0
         )
-        score.attrs["ceiling"] = self.ceiling
+        ceiling = Score(ceil_values.mean())
+        ceiling.attrs["raw_subjects"] = xr.DataArray(
+            ceil_values, dims=("subject",), coords={"subject": self._subjects},
+        )
+        ceiling.attrs["sem"] = (
+            float(ceil_values.std(ddof=1) / np.sqrt(len(ceil_values))) if len(ceil_values) > 1 else 0.0
+        )
+        score.attrs["ceiling"] = ceiling
         for sub_id, s in zip(self._subjects, per_subject_scores):
             score.attrs[sub_id] = s
         if len(values) > 1:
@@ -724,8 +742,8 @@ def LAIONfMRIRSA(
             "stimuli differ across subjects → no Nili ceiling."
         )
 
-    per_subject_benchmarks = []
-    for sub_id in subjects:
+    model_region = _MODEL_REGION_CANONICAL.get(region, region)
+    def _build_subject(sub_id):
         assembly = LazyLoad(
             lambda sid=sub_id, r=region, dp=dataset_prefix,
             nct=noise_ceiling_threshold, ncc=noise_ceiling_coord:
@@ -734,8 +752,7 @@ def LAIONfMRIRSA(
                 noise_ceiling_threshold=nct, noise_ceiling_coord=ncc,
             )
         )
-        model_region = _MODEL_REGION_CANONICAL.get(region, region)
-        bench = RSABenchmark(
+        return RSABenchmark(
             identifier=f"{dataset_prefix}.{region}-rdm-pearson-{sub_id}",
             version=1,
             assembly=assembly,
@@ -746,11 +763,10 @@ def LAIONfMRIRSA(
             ceiler=_ncsnr_rsa_ceiler,
             parent=region,
         )
-        per_subject_benchmarks.append(bench)
 
     return _MultiSubjectRSABenchmark(
         identifier=f"{dataset_prefix}.{region}-rdm-pearson",
         subjects=subjects,
-        per_subject_benchmarks=per_subject_benchmarks,
+        per_subject_factory=_build_subject,
         region=region,
     )

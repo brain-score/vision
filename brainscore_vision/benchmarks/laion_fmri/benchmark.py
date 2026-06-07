@@ -27,6 +27,7 @@ import xarray as xr
 from brainscore_core.metrics import Score
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from brainscore_vision import load_dataset, load_metric, load_stimulus_set
+from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.benchmark_helpers.multi_subject import (
     _release,
     KFoldNeuralBenchmark,
@@ -617,7 +618,7 @@ def _ncsnr_rsa_ceiler(assembly) -> Score:
     return ceiling
 
 
-class _MultiSubjectRSABenchmark:
+class _MultiSubjectRSABenchmark(BenchmarkBase):
     """Run a per-subject :class:`RSABenchmark`, aggregate ceiled scores across subjects.
 
     Mirrors :class:`MultiSubjectNeuralBenchmark`'s aggregation contract but for
@@ -625,8 +626,8 @@ class _MultiSubjectRSABenchmark:
     assembly where ``subject`` is a neuroid MultiIndex level — so the upstream
     RDM metric sees a clean coords iterator and no workaround is needed.
 
-    Could be promoted to ``benchmark_helpers/multi_subject.py`` once a second
-    benchmark needs it.
+    Subclasses :class:`BenchmarkBase` so the standard benchmark contract
+    (identifier/version/parent/bibtex) is satisfied for the DB recorder.
     """
 
     def __init__(
@@ -639,21 +640,25 @@ class _MultiSubjectRSABenchmark:
     ):
         if not subjects:
             raise ValueError("_MultiSubjectRSABenchmark requires at least one subject.")
-        self.identifier = identifier
-        self.region = _MODEL_REGION_CANONICAL.get(region, region)
-        self.parent = region
-        self.bibtex = bibtex
         self._subjects = list(subjects)
         self._factory = per_subject_factory
         sample = self._factory(self._subjects[0])
         self.timebins = getattr(sample, "timebins", [(0, 0)])
-        self.version = getattr(sample, "version", 1)
+        version = getattr(sample, "version", 1)
         _release(sample)
         del sample
         gc.collect()
 
-    @property
-    def ceiling(self):
+        super().__init__(
+            identifier=identifier,
+            ceiling_func=lambda: self._compute_ceiling(),
+            version=version,
+            parent=region,
+            bibtex=bibtex,
+        )
+        self.region = _MODEL_REGION_CANONICAL.get(region, region)
+
+    def _compute_ceiling(self) -> Score:
         values = np.empty(len(self._subjects), dtype=np.float64)
         for i, sub_id in enumerate(self._subjects):
             child = self._factory(sub_id)

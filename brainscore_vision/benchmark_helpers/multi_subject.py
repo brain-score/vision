@@ -144,11 +144,12 @@ class KFoldNeuralBenchmark:
         self._n_folds = int(n_folds)
         self._factory = fold_factory
 
-        # Materialize one fold to extract region/bibtex metadata, then release.
+        # Materialize one fold to extract region/bibtex/version metadata, then release.
         sample = self._factory(0)
         self.region = sample.region
         self.parent = self.region
         self.bibtex = getattr(sample, "bibtex", None)
+        self.version = getattr(sample, "version", 1)
         _release(sample)
         del sample
         gc.collect()
@@ -236,6 +237,7 @@ class MultiSubjectNeuralBenchmark:
         self.region = sample.region
         self.parent = self.region
         self.bibtex = getattr(sample, "bibtex", None)
+        self.version = getattr(sample, "version", 1)
         self.timebins = sample.timebins
         _release(sample)
         del sample

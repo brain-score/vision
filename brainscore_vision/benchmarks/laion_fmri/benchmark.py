@@ -692,7 +692,7 @@ class _MultiSubjectRSABenchmark:
         )
         # Pre-set 'raw' as a scalar so attach_error won't overwrite it with the
         # disaggregated array; brainscore_core's DB recorder requires scalar.
-        score.attrs["raw"] = float(np.nanmean(raw_values))
+        score.attrs["raw"] = Score(float(np.nanmean(raw_values)))
         score.attrs["raw_subjects"] = raw_subjects
         score.attrs["sem_subjects"] = (
             float(values.std(ddof=1) / np.sqrt(len(values))) if len(values) > 1 else 0.0

@@ -55,20 +55,13 @@ from brainscore_vision.utils import LazyLoad
 LAION_ALPHA_LIST = [10.0 ** i for i in range(-10, 11)]
 
 
+# brainscore_core.submission.database.parse_bib accepts a single BibTeX entry.
+# Prince et al. 2022 (GLMsingle) preprocessing citation is kept in METHODS.md.
 BIBTEX = """@inproceedings{zerbe_laion-fmri_2026,
     title = {{LAION}-{fMRI}: A densely sampled 7T-fMRI dataset providing broad coverage of natural image diversity},
     author = {Zerbe, Josefine and Roth, Johannes and Mell, Maggie Mae and Herholz, Peer and Knapen, Tomas and Hebart, Martin N.},
     year = {2026},
     booktitle = {Vision Sciences Society Annual Meeting},
-}
-@article{prince2022glmsingle,
-    title = {Improving the accuracy of single-trial f{MRI} response estimates using {GLM}single},
-    author = {Prince, Jacob S. and Charest, Ian and Kurzawski, Jan W. and Pyles, John A. and Tarr, Michael J. and Kay, Kendrick N.},
-    journal = {eLife},
-    volume = {11},
-    pages = {e77599},
-    year = {2022},
-    doi = {10.7554/eLife.77599},
 }"""
 
 # Stimuli rendered 1000x1000 px on a BenQ-mirrored PROpixx projection at ~165 cm viewing distance
@@ -654,6 +647,7 @@ class _MultiSubjectRSABenchmark:
         self._factory = per_subject_factory
         sample = self._factory(self._subjects[0])
         self.timebins = getattr(sample, "timebins", [(0, 0)])
+        self.version = getattr(sample, "version", 1)
         _release(sample)
         del sample
         gc.collect()

@@ -55,6 +55,24 @@ def _release(child) -> None:
             except AttributeError:
                 pass
 
+
+def _child_raw_scalar(child_score) -> float:
+    """Extract a scalar ``raw`` correlation from a child Score.
+
+    brainscore_core's submission DB calls ``_retrieve_score_center(score.raw)``
+    which assumes ``raw`` is reducible to a Python scalar. Children typically
+    expose their uncieled raw correlation under ``attrs['raw']`` as a 0-d or
+    1-d array; this helper coerces it to a float.
+    """
+    raw = child_score.attrs.get("raw")
+    if raw is None:
+        return float("nan")
+    try:
+        vals = raw.values if hasattr(raw, "values") else np.asarray(raw)
+        return float(np.asarray(vals).mean())
+    except Exception:
+        return float("nan")
+
 WRAPPER_N_BOOTSTRAP = 200
 
 
@@ -172,10 +190,13 @@ class KFoldNeuralBenchmark:
     def __call__(self, candidate) -> Score:
         fold_scores = []
         fold_ceilings = np.empty(self._n_folds, dtype=np.float64)
+        fold_raws = np.empty(self._n_folds, dtype=np.float64)
         for k in range(self._n_folds):
             child = self._factory(k)
-            fold_scores.append(child(candidate))
+            child_score = child(candidate)
+            fold_scores.append(child_score)
             fold_ceilings[k] = float(child.ceiling.values)
+            fold_raws[k] = _child_raw_scalar(child_score)
             _release(child)
             del child
             gc.collect()
@@ -185,6 +206,9 @@ class KFoldNeuralBenchmark:
             values, dims=("fold",), coords={"fold": np.arange(len(values))},
             name=f"{self.identifier}_per_fold",
         )
+        # Pre-set 'raw' as a scalar so attach_error won't overwrite it with the
+        # disaggregated array; brainscore_core's DB recorder requires scalar.
+        score.attrs["raw"] = float(np.nanmean(fold_raws))
         score.attrs["raw_folds"] = raw_folds
         score.attrs["sem_folds"] = (
             float(values.std(ddof=1) / np.sqrt(len(values))) if len(values) > 1 else 0.0
@@ -264,10 +288,13 @@ class MultiSubjectNeuralBenchmark:
     def __call__(self, candidate) -> Score:
         per_subject_scores = []
         ceil_values = np.empty(len(self._subjects), dtype=np.float64)
+        raw_values = np.empty(len(self._subjects), dtype=np.float64)
         for i, sub_id in enumerate(self._subjects):
             child = self._factory(sub_id)
-            per_subject_scores.append(child(candidate))
+            child_score = child(candidate)
+            per_subject_scores.append(child_score)
             ceil_values[i] = float(child.ceiling.values)
+            raw_values[i] = _child_raw_scalar(child_score)
             _release(child)
             del child
             gc.collect()
@@ -277,6 +304,9 @@ class MultiSubjectNeuralBenchmark:
             values, dims=("subject",), coords={"subject": self._subjects},
             name=f"{self.identifier}_per_subject",
         )
+        # Pre-set 'raw' as a scalar so attach_error won't overwrite it with the
+        # disaggregated array; brainscore_core's DB recorder requires scalar.
+        score.attrs["raw"] = float(np.nanmean(raw_values))
         score.attrs["raw_subjects"] = raw_subjects
         score.attrs["sem_subjects"] = (
             float(values.std(ddof=1) / np.sqrt(len(values))) if len(values) > 1 else 0.0

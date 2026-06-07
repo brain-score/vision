@@ -671,12 +671,16 @@ class _MultiSubjectRSABenchmark:
         return score
 
     def __call__(self, candidate) -> Score:
+        from brainscore_vision.benchmark_helpers.multi_subject import _child_raw_scalar
         per_subject_scores = []
         ceil_values = np.empty(len(self._subjects), dtype=np.float64)
+        raw_values = np.empty(len(self._subjects), dtype=np.float64)
         for i, sub_id in enumerate(self._subjects):
             child = self._factory(sub_id)
-            per_subject_scores.append(child(candidate))
+            child_score = child(candidate)
+            per_subject_scores.append(child_score)
             ceil_values[i] = float(child.ceiling.values)
+            raw_values[i] = _child_raw_scalar(child_score)
             _release(child)
             del child
             gc.collect()
@@ -686,6 +690,9 @@ class _MultiSubjectRSABenchmark:
             values, dims=("subject",), coords={"subject": self._subjects},
             name=f"{self.identifier}_per_subject",
         )
+        # Pre-set 'raw' as a scalar so attach_error won't overwrite it with the
+        # disaggregated array; brainscore_core's DB recorder requires scalar.
+        score.attrs["raw"] = float(np.nanmean(raw_values))
         score.attrs["raw_subjects"] = raw_subjects
         score.attrs["sem_subjects"] = (
             float(values.std(ddof=1) / np.sqrt(len(values))) if len(values) > 1 else 0.0

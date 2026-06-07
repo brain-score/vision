@@ -8,7 +8,7 @@ For dataset, ROIs, splits, ceilings, and scoring see [METHODS.md](METHODS.md). F
 
 ```python
 from brainscore_vision import _run_score
-score = _run_score("alexnet", "LAION_fMRI_persubject.IT-tau-ridgecv")
+score = _run_score("alexnet", "Zerbe2026_fmri_persubject.IT-tau-ridgecv")
 print(float(score.values))   # ceiled per-voxel correlation, averaged across 5 subjects
 ```
 
@@ -39,9 +39,9 @@ Identifier pattern: `{family}.{region}-{split}-{metric}`.
 
 | Family | Regions | Splits | Metric | Count |
 |---|---|---|---|---|
-| `LAION_fMRI` (shared 1,492-stim pool) | V1, V2, V4, IT | tau, ood | ridgecv | 8 |
-| `LAION_fMRI_persubject` (5,833 stim/subj) | V1, V2, V4, IT | tau, ood | ridgecv | 8 |
-| `LAION_fMRI` (shared) | V1, V2, V4, IT | — | rdm-pearson | 4 |
+| `Zerbe2026_fmri` (shared 1,492-stim pool) | V1, V2, V4, IT | tau, ood | ridgecv | 8 |
+| `Zerbe2026_fmri_persubject` (5,833 stim/subj) | V1, V2, V4, IT | tau, ood | ridgecv | 8 |
+| `Zerbe2026_fmri` (shared) | V1, V2, V4, IT | — | rdm-pearson | 4 |
 
 `ridgecv` is kernel/dual ridge with per-fit CV alpha selection over a 21-value log-spaced sweep (1e-10 to 1e10). The dual form keeps the `(n_features, n_targets)` coefficient matrix from being materialized — important for wide-feature models on the persubject pool.
 

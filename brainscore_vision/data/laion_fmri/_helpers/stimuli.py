@@ -85,6 +85,6 @@ def load_stimulus_set() -> StimulusSet:
     manifest = pd.read_csv(stim_dir / "manifest.csv")
     manifest["path"] = manifest["filename"].apply(lambda f: str(stim_dir / f))
     stim = StimulusSet(manifest.drop(columns=["path"]))
-    stim.identifier = "LAION_fMRI_stim_full"
+    stim.identifier = "Zerbe2026_fmri_stim_full"
     stim.stimulus_paths = dict(zip(manifest["stimulus_id"], manifest["path"]))
     return stim

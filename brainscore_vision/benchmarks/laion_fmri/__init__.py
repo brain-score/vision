@@ -6,13 +6,13 @@ Headline ridge encoding variants — predict per-voxel responses from model feat
 using kernel/dual ridge with per-fit CV alpha selection over a 21-value log-spaced
 sweep (1e-10 to 1e10).
   - Per-subject pool (5,833 stim/subject, drives the leaderboard rank):
-      LAION_fMRI_persubject.{V1,V2,V4,IT}-{tau,ood}-ridgecv  (8 variants)
+      Zerbe2026_fmri_persubject.{V1,V2,V4,IT}-{tau,ood}-ridgecv  (8 variants)
   - Shared pool (1,492 stim, cross-subject comparison):
-      LAION_fMRI.{V1,V2,V4,IT}-{tau,ood}-ridgecv             (8 variants)
+      Zerbe2026_fmri.{V1,V2,V4,IT}-{tau,ood}-ridgecv             (8 variants)
 
 Headline RSA variants — representational alignment via RDM Spearman:
   - Shared pool only (Nili ceiling requires shared stim across subjects):
-      LAION_fMRI.{V1,V2,V4,IT}-rdm-pearson                   (4 variants)
+      Zerbe2026_fmri.{V1,V2,V4,IT}-rdm-pearson                   (4 variants)
 
 Total registered: 20.
 
@@ -39,30 +39,30 @@ from .benchmark import LAIONfMRI, LAIONfMRIRSA
 # Each subject's 5,833-image pool (1,121 shared + 4,712 subject-unique).
 # Exposes generalization to subject-specific stimulus distributions —
 # where weak models collapse and only strong models hold their score.
-benchmark_registry['LAION_fMRI_persubject.V1-tau-ridgecv'] = lambda: LAIONfMRI('V1', 'tau', dataset_prefix='LAION_fMRI_persubject')
-benchmark_registry['LAION_fMRI_persubject.V1-ood-ridgecv'] = lambda: LAIONfMRI('V1', 'ood', dataset_prefix='LAION_fMRI_persubject')
-benchmark_registry['LAION_fMRI_persubject.V2-tau-ridgecv'] = lambda: LAIONfMRI('V2', 'tau', dataset_prefix='LAION_fMRI_persubject')
-benchmark_registry['LAION_fMRI_persubject.V2-ood-ridgecv'] = lambda: LAIONfMRI('V2', 'ood', dataset_prefix='LAION_fMRI_persubject')
-benchmark_registry['LAION_fMRI_persubject.V4-tau-ridgecv'] = lambda: LAIONfMRI('V4', 'tau', dataset_prefix='LAION_fMRI_persubject')
-benchmark_registry['LAION_fMRI_persubject.V4-ood-ridgecv'] = lambda: LAIONfMRI('V4', 'ood', dataset_prefix='LAION_fMRI_persubject')
-benchmark_registry['LAION_fMRI_persubject.IT-tau-ridgecv'] = lambda: LAIONfMRI('IT', 'tau', dataset_prefix='LAION_fMRI_persubject')
-benchmark_registry['LAION_fMRI_persubject.IT-ood-ridgecv'] = lambda: LAIONfMRI('IT', 'ood', dataset_prefix='LAION_fMRI_persubject')
+benchmark_registry['Zerbe2026_fmri_persubject.V1-tau-ridgecv'] = lambda: LAIONfMRI('V1', 'tau', dataset_prefix='Zerbe2026_fmri_persubject')
+benchmark_registry['Zerbe2026_fmri_persubject.V1-ood-ridgecv'] = lambda: LAIONfMRI('V1', 'ood', dataset_prefix='Zerbe2026_fmri_persubject')
+benchmark_registry['Zerbe2026_fmri_persubject.V2-tau-ridgecv'] = lambda: LAIONfMRI('V2', 'tau', dataset_prefix='Zerbe2026_fmri_persubject')
+benchmark_registry['Zerbe2026_fmri_persubject.V2-ood-ridgecv'] = lambda: LAIONfMRI('V2', 'ood', dataset_prefix='Zerbe2026_fmri_persubject')
+benchmark_registry['Zerbe2026_fmri_persubject.V4-tau-ridgecv'] = lambda: LAIONfMRI('V4', 'tau', dataset_prefix='Zerbe2026_fmri_persubject')
+benchmark_registry['Zerbe2026_fmri_persubject.V4-ood-ridgecv'] = lambda: LAIONfMRI('V4', 'ood', dataset_prefix='Zerbe2026_fmri_persubject')
+benchmark_registry['Zerbe2026_fmri_persubject.IT-tau-ridgecv'] = lambda: LAIONfMRI('IT', 'tau', dataset_prefix='Zerbe2026_fmri_persubject')
+benchmark_registry['Zerbe2026_fmri_persubject.IT-ood-ridgecv'] = lambda: LAIONfMRI('IT', 'ood', dataset_prefix='Zerbe2026_fmri_persubject')
 
 # ── Shared pool ridgecv variants (cross-subject comparison) ───────────────
 # Same 1,492 images across every subject — comparable to Allen2022 / Hebart2023.
-benchmark_registry['LAION_fMRI.V1-tau-ridgecv'] = lambda: LAIONfMRI('V1', 'tau')
-benchmark_registry['LAION_fMRI.V1-ood-ridgecv'] = lambda: LAIONfMRI('V1', 'ood')
-benchmark_registry['LAION_fMRI.V2-tau-ridgecv'] = lambda: LAIONfMRI('V2', 'tau')
-benchmark_registry['LAION_fMRI.V2-ood-ridgecv'] = lambda: LAIONfMRI('V2', 'ood')
-benchmark_registry['LAION_fMRI.V4-tau-ridgecv'] = lambda: LAIONfMRI('V4', 'tau')
-benchmark_registry['LAION_fMRI.V4-ood-ridgecv'] = lambda: LAIONfMRI('V4', 'ood')
-benchmark_registry['LAION_fMRI.IT-tau-ridgecv'] = lambda: LAIONfMRI('IT', 'tau')
-benchmark_registry['LAION_fMRI.IT-ood-ridgecv'] = lambda: LAIONfMRI('IT', 'ood')
+benchmark_registry['Zerbe2026_fmri.V1-tau-ridgecv'] = lambda: LAIONfMRI('V1', 'tau')
+benchmark_registry['Zerbe2026_fmri.V1-ood-ridgecv'] = lambda: LAIONfMRI('V1', 'ood')
+benchmark_registry['Zerbe2026_fmri.V2-tau-ridgecv'] = lambda: LAIONfMRI('V2', 'tau')
+benchmark_registry['Zerbe2026_fmri.V2-ood-ridgecv'] = lambda: LAIONfMRI('V2', 'ood')
+benchmark_registry['Zerbe2026_fmri.V4-tau-ridgecv'] = lambda: LAIONfMRI('V4', 'tau')
+benchmark_registry['Zerbe2026_fmri.V4-ood-ridgecv'] = lambda: LAIONfMRI('V4', 'ood')
+benchmark_registry['Zerbe2026_fmri.IT-tau-ridgecv'] = lambda: LAIONfMRI('IT', 'tau')
+benchmark_registry['Zerbe2026_fmri.IT-ood-ridgecv'] = lambda: LAIONfMRI('IT', 'ood')
 
 # ── Shared pool RSA variants (representational alignment) ─────────────────
 # Per-subject RDM × model-RDM Spearman r, averaged across 5 subjects.
 # Only registered for the shared pool — Nili ceiling needs shared stimuli.
-benchmark_registry['LAION_fMRI.V1-rdm-pearson'] = lambda: LAIONfMRIRSA('V1')
-benchmark_registry['LAION_fMRI.V2-rdm-pearson'] = lambda: LAIONfMRIRSA('V2')
-benchmark_registry['LAION_fMRI.V4-rdm-pearson'] = lambda: LAIONfMRIRSA('V4')
-benchmark_registry['LAION_fMRI.IT-rdm-pearson'] = lambda: LAIONfMRIRSA('IT')
+benchmark_registry['Zerbe2026_fmri.V1-rdm-pearson'] = lambda: LAIONfMRIRSA('V1')
+benchmark_registry['Zerbe2026_fmri.V2-rdm-pearson'] = lambda: LAIONfMRIRSA('V2')
+benchmark_registry['Zerbe2026_fmri.V4-rdm-pearson'] = lambda: LAIONfMRIRSA('V4')
+benchmark_registry['Zerbe2026_fmri.IT-rdm-pearson'] = lambda: LAIONfMRIRSA('IT')

@@ -84,15 +84,15 @@ Persubject ridgecv variants use ~4× the memory of shared-pool variants — each
 
 20 headline cells:
 
-- `LAION_fMRI_persubject.{V1,V2,V4,IT}-{tau,ood}-ridgecv` (8) — most discriminative
-- `LAION_fMRI.{V1,V2,V4,IT}-{tau,ood}-ridgecv` (8) — cross-subject comparable to Allen2022 / Hebart2023
-- `LAION_fMRI.{V1,V2,V4,IT}-rdm-pearson` (4) — RSA on shared pool
+- `Zerbe2026_fmri_persubject.{V1,V2,V4,IT}-{tau,ood}-ridgecv` (8) — most discriminative
+- `Zerbe2026_fmri.{V1,V2,V4,IT}-{tau,ood}-ridgecv` (8) — cross-subject comparable to Allen2022 / Hebart2023
+- `Zerbe2026_fmri.{V1,V2,V4,IT}-rdm-pearson` (4) — RSA on shared pool
 
 Non-headline (factory-only): fixed-alpha ridge (`metric_type='ridge'`), `cluster_k5` CV, per-OOD-category sub-splits, `IT_full` ablation.
 
 ## Data distribution
 
-- **Neural assemblies** (`LAION_fMRI_full_sub-XX`): CC0 1.0, served from Brain-Score S3.
+- **Neural assemblies** (`Zerbe2026_fmri_full_sub-XX`): CC0 1.0, served from Brain-Score S3.
 - **Stimulus images**: gated by the LAION-fMRI DUA (prohibits redistribution, commercial use, training general-purpose AI). Brain-Score does not mirror them; users obtain them via `laion-fmri request-access` + `laion-fmri download-stimuli`. The local stimulus loader extracts JPEGs and bundles them into Brain-Score format.
 
 All tests gated with `@pytest.mark.private_access`.

@@ -87,7 +87,7 @@ def make_shared_loader(sub_id: str):
             sha1=cfg["sha1"],
             bucket=_BUCKET,
             cls=NeuroidAssembly,
-            stimulus_set_loader=lambda: load_stimulus_set("LAION_fMRI_stim_full"),
+            stimulus_set_loader=lambda: load_stimulus_set("Zerbe2026_fmri_stim_full"),
             # Presentation dim already carries `stimulus_id`; merging stim_set
             # metadata (image dimensions, etc.) into the assembly isn't needed.
             merge_stimulus_set_meta=False,
@@ -107,7 +107,7 @@ def make_persubject_loader(sub_id: str):
         da = load_assembly_from_s3(
             identifier=cfg["identifier"], version_id=cfg["version_id"],
             sha1=cfg["sha1"], bucket=_BUCKET, cls=NeuroidAssembly,
-            stimulus_set_loader=lambda: load_stimulus_set("LAION_fMRI_stim_full"),
+            stimulus_set_loader=lambda: load_stimulus_set("Zerbe2026_fmri_stim_full"),
             merge_stimulus_set_meta=False,
         )
         # 1. Strip session/run/beta_index so `average_repetition` actually averages.

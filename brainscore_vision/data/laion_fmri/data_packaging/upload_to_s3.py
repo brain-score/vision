@@ -6,8 +6,8 @@ out of the box.
 
 Walks both pool families produced by the rebuild pipeline:
 
-  - ``shared_sub-XX_brainscore.nc``      ->  ``LAION_fMRI_full_sub-XX_Assembly``
-  - ``persubject_sub-XX_brainscore.nc``  ->  ``LAION_fMRI_persubject_sub-XX_Assembly``
+  - ``shared_sub-XX_brainscore.nc``      ->  ``Zerbe2026_fmri_full_sub-XX_Assembly``
+  - ``persubject_sub-XX_brainscore.nc``  ->  ``Zerbe2026_fmri_persubject_sub-XX_Assembly``
 
 Does NOT upload stimuli (gated by the LAION-fMRI Data Use Agreement -- stays
 local via the manifest in ``stimuli/images_extracted/``).
@@ -31,7 +31,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 log = logging.getLogger("upload_to_s3")
 
 DEFAULT_BUCKET = "brainscore-storage"
-DEFAULT_PREFIX = "brainscore-vision/benchmarks/LAION_fMRI"
+DEFAULT_PREFIX = "brainscore-vision/benchmarks/Zerbe2026_fmri"
 SUBJECTS = ("sub-01", "sub-03", "sub-05", "sub-06", "sub-07")
 
 
@@ -46,10 +46,10 @@ class Family:
 
 FAMILIES = (
     Family(name="shared", file_prefix="shared_",
-           identifier_tmpl="LAION_fMRI_full_{sub}_Assembly",
+           identifier_tmpl="Zerbe2026_fmri_full_{sub}_Assembly",
            registry_var="_S3_ASSEMBLIES_SHARED"),
     Family(name="persubject", file_prefix="persubject_",
-           identifier_tmpl="LAION_fMRI_persubject_{sub}_Assembly",
+           identifier_tmpl="Zerbe2026_fmri_persubject_{sub}_Assembly",
            registry_var="_S3_ASSEMBLIES_PERSUBJECT"),
 )
 

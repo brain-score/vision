@@ -25,7 +25,7 @@ from brainscore_vision import load_benchmark
 
 _RIDGE_REGIONS = ("V1", "V2", "V4", "IT")
 _RIDGE_SPLITS = ("tau", "ood")
-_RIDGE_FAMILIES = ("LAION_fMRI", "LAION_fMRI_persubject")
+_RIDGE_FAMILIES = ("Zerbe2026_fmri", "Zerbe2026_fmri_persubject")
 
 _RIDGE_VARIANTS = [
     f"{fam}.{region}-{split}-ridgecv"
@@ -35,7 +35,7 @@ _RIDGE_VARIANTS = [
 ]  # 2 * 4 * 2 = 16
 
 _RSA_VARIANTS = [
-    f"LAION_fMRI.{region}-rdm-pearson" for region in _RIDGE_REGIONS
+    f"Zerbe2026_fmri.{region}-rdm-pearson" for region in _RIDGE_REGIONS
 ]  # 4 (shared pool only — Nili ceiling requires shared stim across subjects)
 
 _ALL_HEADLINE_VARIANTS = _RIDGE_VARIANTS + _RSA_VARIANTS  # 20
@@ -52,11 +52,11 @@ class TestRegistry:
         )
 
     def test_registry_matches_expected(self):
-        """The registry's LAION_fMRI* entries exactly equal the headline set."""
+        """The registry's Zerbe2026_fmri* entries exactly equal the headline set."""
         from brainscore_vision import benchmark_registry
         import brainscore_vision.benchmarks.laion_fmri  # populate
 
-        registered = {k for k in benchmark_registry if k.startswith("LAION_fMRI")}
+        registered = {k for k in benchmark_registry if k.startswith("Zerbe2026_fmri")}
         expected = set(_ALL_HEADLINE_VARIANTS)
         missing = expected - registered
         extra = registered - expected
@@ -103,7 +103,7 @@ class TestNonHeadlineFactoriesConstruct:
         from brainscore_vision.benchmarks.laion_fmri.benchmark import LAIONfMRIClusterCV
 
         b = LAIONfMRIClusterCV("V4")
-        assert b.identifier == "LAION_fMRI.V4-cluster_k5-ridgecv"
+        assert b.identifier == "Zerbe2026_fmri.V4-cluster_k5-ridgecv"
 
     @pytest.mark.private_access
     def test_per_ood_category_constructs(self):
@@ -124,7 +124,7 @@ class TestNonHeadlineFactoriesConstruct:
         from brainscore_vision.benchmarks.laion_fmri.benchmark import LAIONfMRIRSA
 
         with pytest.raises(ValueError, match="shared pool"):
-            LAIONfMRIRSA("IT", dataset_prefix="LAION_fMRI_persubject")
+            LAIONfMRIRSA("IT", dataset_prefix="Zerbe2026_fmri_persubject")
 
 
 class TestAlexNetSmoke:
@@ -140,9 +140,9 @@ class TestAlexNetSmoke:
     @pytest.mark.parametrize(
         "identifier",
         [
-            "LAION_fMRI.V1-tau-ridgecv",                   # shared ridgecv
-            "LAION_fMRI_persubject.IT-tau-ridgecv",        # persubject ridgecv
-            "LAION_fMRI.IT-rdm-pearson",                   # shared RSA
+            "Zerbe2026_fmri.V1-tau-ridgecv",                   # shared ridgecv
+            "Zerbe2026_fmri_persubject.IT-tau-ridgecv",        # persubject ridgecv
+            "Zerbe2026_fmri.IT-rdm-pearson",                   # shared RSA
         ],
     )
     def test_model_runs(self, identifier):
@@ -168,8 +168,8 @@ class TestUncertaintyContract:
     @pytest.mark.parametrize(
         "identifier",
         [
-            "LAION_fMRI.V1-tau-ridgecv",     # MultiSubjectNeuralBenchmark wrapper
-            "LAION_fMRI.V1-rdm-pearson",     # _MultiSubjectRSABenchmark wrapper
+            "Zerbe2026_fmri.V1-tau-ridgecv",     # MultiSubjectNeuralBenchmark wrapper
+            "Zerbe2026_fmri.V1-rdm-pearson",     # _MultiSubjectRSABenchmark wrapper
         ],
     )
     def test_multisubject_wrapper_uncertainty(self, identifier):

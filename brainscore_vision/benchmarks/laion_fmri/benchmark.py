@@ -6,7 +6,7 @@ sub-variants) on the Allen2022-style **shared pool** (1,492 stimuli seen by ever
 subject). Mirrors `Hebart2023_fmri` and `Allen2022_fmri` in benchmark structure.
 
 Data design: ONE assembly per subject is registered in the data registry (e.g.
-`LAION_fMRI_full_sub-01`); the benchmark loader iterates subjects, applies split +
+`Zerbe2026_fmri_full_sub-01`); the benchmark loader iterates subjects, applies split +
 region + NC filters per subject, then concatenates the small filtered slices on the
 presentation dim only. Avoids materializing a 5+ GB NaN-padded cross-subject matrix
 in RAM (which OOMed during development).
@@ -209,8 +209,8 @@ def _load_one_subject(
         }
     )
     # Pool depends on dataset_prefix:
-    #   "LAION_fMRI"           → "shared" pool (1,492 stimuli)
-    #   "LAION_fMRI_persubject" → that subject's pool (5,833 stimuli)
+    #   "Zerbe2026_fmri"           → "shared" pool (1,492 stimuli)
+    #   "Zerbe2026_fmri_persubject" → that subject's pool (5,833 stimuli)
     pool = sub_id if "persubject" in dataset_prefix else "shared"
     train_mask, test_mask = _split_mask_for_subject(trials, split, pool=pool)
     mask = train_mask if side == "train" else test_mask
@@ -226,7 +226,7 @@ def load_assembly(
     split: str,
     side: str,
     average_repetitions: bool,
-    dataset_prefix: str = "LAION_fMRI",
+    dataset_prefix: str = "Zerbe2026_fmri",
     subjects: tuple[str, ...] = DEFAULT_SUBJECTS,
     noise_ceiling_threshold: float = NOISE_CEILING_THRESHOLD,
     noise_ceiling_coord: str = "nc_12rep",
@@ -340,7 +340,7 @@ def _LAIONfMRI(
     split: str,
     similarity_metric,
     identifier_metric_suffix: str,
-    dataset_prefix: str = "LAION_fMRI",
+    dataset_prefix: str = "Zerbe2026_fmri",
     subjects: tuple[str, ...] = DEFAULT_SUBJECTS,
     alpha_coord: str | None = None,
     per_voxel_ceilings: bool = False,
@@ -405,7 +405,7 @@ def LAIONfMRI(
     region: str,
     split: str,
     metric_type: str = "ridgecv",
-    dataset_prefix: str = "LAION_fMRI",
+    dataset_prefix: str = "Zerbe2026_fmri",
     alphas: Sequence[float] = LAION_ALPHA_LIST,
     subjects: tuple[str, ...] = DEFAULT_SUBJECTS,
     noise_ceiling_threshold: float = NOISE_CEILING_THRESHOLD,
@@ -479,7 +479,7 @@ class _SingleSubjectErrorShim:
 def LAIONfMRIClusterCV(
     region: str,
     metric_type: str = "ridgecv",
-    dataset_prefix: str = "LAION_fMRI",
+    dataset_prefix: str = "Zerbe2026_fmri",
     alphas: Sequence[float] = LAION_ALPHA_LIST,
     n_folds: int = 5,
     subjects: tuple[str, ...] = DEFAULT_SUBJECTS,
@@ -539,7 +539,7 @@ def LAIONfMRIClusterCV(
 def load_full_assembly_one_subject(
     sub_id: str,
     region: str,
-    dataset_prefix: str = "LAION_fMRI",
+    dataset_prefix: str = "Zerbe2026_fmri",
     noise_ceiling_threshold: float = NOISE_CEILING_THRESHOLD,
     noise_ceiling_coord: str = "nc_12rep",
 ) -> xr.DataArray:
@@ -719,14 +719,14 @@ class _MultiSubjectRSABenchmark:
 
 def LAIONfMRIRSA(
     region: str,
-    dataset_prefix: str = "LAION_fMRI",
+    dataset_prefix: str = "Zerbe2026_fmri",
     subjects: tuple[str, ...] = DEFAULT_SUBJECTS,
     noise_ceiling_threshold: float = NOISE_CEILING_THRESHOLD,
     noise_ceiling_coord: str = "nc_12rep",
 ) -> _MultiSubjectRSABenchmark:
     """Construct an RSA benchmark for one region across all subjects.
 
-    RSA is only registered for the shared pool (``LAION_fMRI``). The persubject
+    RSA is only registered for the shared pool (``Zerbe2026_fmri``). The persubject
     pool has subject-specific stimuli, which breaks cross-subject RDM
     comparison.
 

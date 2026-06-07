@@ -1,0 +1,258 @@
+model,benchmark,family,region,split,score,raw_r,ceiling,error,seconds
+alexnet,LAION_fMRI.V1-tau-ridge,LAION_fMRI,V1,tau,0.3335497907762679,,0.8063281774520874,,20.8
+alexnet,LAION_fMRI.V1-ood-ridge,LAION_fMRI,V1,ood,0.2307917856816926,,0.8638187646865845,,19.2
+alexnet,LAION_fMRI.V1-cluster_k5-ridge,LAION_fMRI,V1,cluster_k5,0.2943543454103066,,0.8638187646865845,,81.0
+alexnet,LAION_fMRI.V2-tau-ridge,LAION_fMRI,V2,tau,0.3354564748588811,,0.8292754888534546,,20.0
+alexnet,LAION_fMRI.V2-ood-ridge,LAION_fMRI,V2,ood,0.2900587357385968,,0.8292754888534546,,22.1
+alexnet,LAION_fMRI.V2-cluster_k5-ridge,LAION_fMRI,V2,cluster_k5,0.30466678709136,,0.8292754888534546,,158.2
+alexnet,LAION_fMRI.V4-tau-ridge,LAION_fMRI,V4,tau,0.2767860320333776,,0.7992849349975586,,18.2
+alexnet,LAION_fMRI.V4-ood-ridge,LAION_fMRI,V4,ood,0.2935896586259713,,0.7992849349975586,,20.4
+alexnet,LAION_fMRI.V4-cluster_k5-ridge,LAION_fMRI,V4,cluster_k5,0.2388946575412562,,0.7992849349975586,,89.8
+alexnet,LAION_fMRI.IT-tau-ridge,LAION_fMRI,IT,tau,0.136092961247764,,0.748260498046875,,20.3
+alexnet,LAION_fMRI.IT-ood-ridge,LAION_fMRI,IT,ood,0.0794749903645041,,0.748260498046875,,20.8
+alexnet,LAION_fMRI.IT-cluster_k5-ridge,LAION_fMRI,IT,cluster_k5,0.0764988572570455,,0.748260498046875,,153.5
+alexnet,LAION_fMRI_persubject.V1-ood-ridge,LAION_fMRI_persubject,V1,ood,0.1556684811536924,,0.8638187646865845,,611.7
+alexnet,LAION_fMRI_persubject.V1-tau-ridge,LAION_fMRI_persubject,V1,tau,0.1472866872923538,,0.8638187646865845,,73.3
+alexnet,LAION_fMRI_persubject.V1-cluster_k5-ridge,LAION_fMRI_persubject,V1,cluster_k5,0.1445609103790399,,0.8638187646865845,,1902.5
+alexnet,LAION_fMRI_persubject.V2-tau-ridge,LAION_fMRI_persubject,V2,tau,0.1899648774033055,,0.8292754888534546,,458.7
+alexnet,LAION_fMRI_persubject.V2-ood-ridge,LAION_fMRI_persubject,V2,ood,0.2298549147110523,,0.8292754888534546,,470.5
+alexnet,LAION_fMRI_persubject.V2-cluster_k5-ridge,LAION_fMRI_persubject,V2,cluster_k5,0.1651959180419613,,0.8292754888534546,,1957.6
+alexnet,LAION_fMRI_persubject.V4-tau-ridge,LAION_fMRI_persubject,V4,tau,0.139236525091104,,0.7992849349975586,,89.7
+alexnet,LAION_fMRI_persubject.V4-ood-ridge,LAION_fMRI_persubject,V4,ood,0.2229292406538132,,0.7992849349975586,,109.2
+alexnet,LAION_fMRI_persubject.V4-cluster_k5-ridge,LAION_fMRI_persubject,V4,cluster_k5,0.1174584119830171,,0.7992849349975586,,432.8
+alexnet,LAION_fMRI_persubject.IT-tau-ridge,LAION_fMRI_persubject,IT,tau,0.0306374040775988,,0.748260498046875,,361.6
+alexnet,LAION_fMRI_persubject.IT-ood-ridge,LAION_fMRI_persubject,IT,ood,0.0190037269796068,,0.748260498046875,,393.5
+alexnet,LAION_fMRI_persubject.IT-cluster_k5-ridge,LAION_fMRI_persubject,IT,cluster_k5,0.0166417323590251,,0.748260498046875,,1831.6
+alexnet_random,LAION_fMRI.V1-tau-ridge,LAION_fMRI,V1,tau,0.241581332704684,,0.8063281774520874,,198.8
+alexnet_random,LAION_fMRI.V1-ood-ridge,LAION_fMRI,V1,ood,0.16388698131382,,0.8638187646865845,,211.9
+alexnet_random,LAION_fMRI.V1-cluster_k5-ridge,LAION_fMRI,V1,cluster_k5,0.2145755447432097,,0.8638187646865845,,529.4
+alexnet_random,LAION_fMRI.V2-tau-ridge,LAION_fMRI,V2,tau,0.2163974417277478,,0.8292754888534546,,116.4
+alexnet_random,LAION_fMRI.V2-ood-ridge,LAION_fMRI,V2,ood,0.1816536109273213,,0.8292754888534546,,116.5
+alexnet_random,LAION_fMRI.V2-cluster_k5-ridge,LAION_fMRI,V2,cluster_k5,0.1934788391283149,,0.8292754888534546,,421.9
+alexnet_random,LAION_fMRI.V4-tau-ridge,LAION_fMRI,V4,tau,0.096984599440137,,0.7992849349975586,,26.9
+alexnet_random,LAION_fMRI.V4-ood-ridge,LAION_fMRI,V4,ood,0.0891155555920451,,0.7992849349975586,,32.4
+alexnet_random,LAION_fMRI.V4-cluster_k5-ridge,LAION_fMRI,V4,cluster_k5,0.0801729230722937,,0.7992849349975586,,131.1
+alexnet_random,LAION_fMRI.IT-tau-ridge,LAION_fMRI,IT,tau,0.0479917158413952,,0.748260498046875,,337.5
+alexnet_random,LAION_fMRI.IT-ood-ridge,LAION_fMRI,IT,ood,0.0147855062333625,,0.748260498046875,,120.9
+alexnet_random,LAION_fMRI.IT-cluster_k5-ridge,LAION_fMRI,IT,cluster_k5,0.0214647975883787,,0.748260498046875,,432.3
+alexnet_random,LAION_fMRI_persubject.V1-tau-ridge,LAION_fMRI_persubject,V1,tau,0.1572045022637584,,0.8638187646865845,,399.2
+alexnet_random,LAION_fMRI_persubject.V1-ood-ridge,LAION_fMRI_persubject,V1,ood,0.1834016729874598,,0.8638187646865845,,456.9
+alexnet_random,LAION_fMRI_persubject.V2-tau-ridge,LAION_fMRI_persubject,V2,tau,0.1572647543112831,,0.8292754888534546,,410.8
+alexnet_random,LAION_fMRI_persubject.V2-ood-ridge,LAION_fMRI_persubject,V2,ood,0.2241952621644018,,0.8292754888534546,,469.3
+alexnet_random,LAION_fMRI_persubject.V2-cluster_k5-ridge,LAION_fMRI_persubject,V2,cluster_k5,0.15189520632863,,0.8292754888534546,,1939.8
+alexnet_random,LAION_fMRI_persubject.V4-tau-ridge,LAION_fMRI_persubject,V4,tau,0.0553180704699048,,0.7992849349975586,,137.6
+alexnet_random,LAION_fMRI_persubject.V4-ood-ridge,LAION_fMRI_persubject,V4,ood,0.0973745677421155,,0.7992849349975586,,164.0
+alexnet_random,LAION_fMRI_persubject.IT-tau-ridge,LAION_fMRI_persubject,IT,tau,0.0533822526704591,,0.748260498046875,,408.0
+alexnet_random,LAION_fMRI_persubject.IT-ood-ridge,LAION_fMRI_persubject,IT,ood,0.0342586123694803,,0.748260498046875,,438.0
+alexnet_random,LAION_fMRI_persubject.IT-cluster_k5-ridge,LAION_fMRI_persubject,IT,cluster_k5,0.0232897663910262,,0.748260498046875,,1912.3
+resnet50_tutorial,LAION_fMRI.V1-tau-ridge,LAION_fMRI,V1,tau,0.4617828517997147,,0.8063281774520874,,449.4
+resnet50_tutorial,LAION_fMRI.V1-ood-ridge,LAION_fMRI,V1,ood,0.36745230511958,,0.8638187646865845,,583.1
+resnet50_tutorial,LAION_fMRI.V1-cluster_k5-ridge,LAION_fMRI,V1,cluster_k5,0.3994037896371357,,0.8638187646865845,,2178.5
+resnet50_tutorial,LAION_fMRI.V2-tau-ridge,LAION_fMRI,V2,tau,0.3812791747545215,,0.8292754888534546,,73.2
+resnet50_tutorial,LAION_fMRI.V2-ood-ridge,LAION_fMRI,V2,ood,0.3461193227855647,,0.8292754888534546,,94.8
+resnet50_tutorial,LAION_fMRI.V2-cluster_k5-ridge,LAION_fMRI,V2,cluster_k5,0.3501732723966362,,0.8292754888534546,,382.1
+resnet50_tutorial,LAION_fMRI.V4-tau-ridge,LAION_fMRI,V4,tau,0.299942280744725,,0.7992849349975586,,61.9
+resnet50_tutorial,LAION_fMRI.V4-ood-ridge,LAION_fMRI,V4,ood,0.3527905987958465,,0.7992849349975586,,81.2
+resnet50_tutorial,LAION_fMRI.V4-cluster_k5-ridge,LAION_fMRI,V4,cluster_k5,0.2760845697441229,,0.7992849349975586,,321.6
+resnet50_tutorial,LAION_fMRI.IT-tau-ridge,LAION_fMRI,IT,tau,0.283824193901507,,0.748260498046875,,507.6
+resnet50_tutorial,LAION_fMRI.IT-ood-ridge,LAION_fMRI,IT,ood,0.20625965705499,,0.748260498046875,,649.4
+resnet50_tutorial,LAION_fMRI.IT-cluster_k5-ridge,LAION_fMRI,IT,cluster_k5,0.1795343958402185,,0.748260498046875,,2454.2
+resnet50_tutorial,LAION_fMRI_persubject.V1-tau-ridge,LAION_fMRI_persubject,V1,tau,0.2961655614556572,,0.8638187646865845,,2306.8
+resnet50_tutorial,LAION_fMRI_persubject.V2-tau-ridge,LAION_fMRI_persubject,V2,tau,0.2429524102570056,,0.8292754888534546,,513.3
+resnet50_tutorial,LAION_fMRI_persubject.V2-ood-ridge,LAION_fMRI_persubject,V2,ood,0.3239896882855608,,0.8292754888534546,,625.3
+resnet50_tutorial,LAION_fMRI_persubject.V4-tau-ridge,LAION_fMRI_persubject,V4,tau,0.1719144692121753,,0.7992849349975586,,461.9
+resnet50_tutorial,LAION_fMRI_persubject.V4-ood-ridge,LAION_fMRI_persubject,V4,ood,0.3093396592123342,,0.7992849349975586,,577.0
+resnet50_tutorial,LAION_fMRI_persubject.IT-tau-ridge,LAION_fMRI_persubject,IT,tau,0.188190602305019,,0.748260498046875,,2654.2
+resnet50_tutorial,LAION_fMRI_persubject.IT-ood-ridge,LAION_fMRI_persubject,IT,ood,0.1676124921869352,,0.748260498046875,,3067.9
+alexnet,LAION_fMRI.V1-rdm-pearson,LAION_fMRI,V1,rdm,0.3031780236830444,0.2380444043088367,0.7851637840270996,,55.6
+alexnet,LAION_fMRI.V2-rdm-pearson,LAION_fMRI,V2,rdm,0.2851338421275572,0.2195141473558185,0.7698635339736939,,50.4
+alexnet,LAION_fMRI.V4-rdm-pearson,LAION_fMRI,V4,rdm,0.2078765325000211,0.1599200004270108,0.7693028092384339,,39.3
+alexnet,LAION_fMRI.IT-rdm-pearson,LAION_fMRI,IT,rdm,0.3744947972583914,0.28153320657822,0.7517680048942565,,56.1
+resnet50_tutorial,LAION_fMRI_persubject.V1-ood-ridge,LAION_fMRI_persubject,V1,ood,0.3399871290713461,,0.8638187646865845,,1720.2
+resnet50_tutorial,LAION_fMRI.V1-rdm-pearson,LAION_fMRI,V1,rdm,0.1717841005309244,0.1348786544085523,0.7851637840270996,,87.6
+resnet50_tutorial,LAION_fMRI.V2-rdm-pearson,LAION_fMRI,V2,rdm,0.1432865550774456,0.1103110936628386,0.7698635339736939,,54.8
+resnet50_tutorial,LAION_fMRI.V4-rdm-pearson,LAION_fMRI,V4,rdm,0.1107675052993062,0.0852137529990894,0.7693028092384339,,54.0
+resnet50_tutorial,LAION_fMRI.IT-rdm-pearson,LAION_fMRI,IT,rdm,0.2934943271714628,0.2206396447854728,0.7517680048942565,,129.0
+convnext_tiny_imagenet1K_torchvisionV1,LAION_fMRI.V1-tau-ridge,LAION_fMRI,V1,tau,0.392588552718975,,0.8638187646865845,,48.7
+convnext_tiny_imagenet1K_torchvisionV1,LAION_fMRI.V1-ood-ridge,LAION_fMRI,V1,ood,0.3213539520822466,,0.8638187646865845,,322.4
+convnext_tiny_imagenet1K_torchvisionV1,LAION_fMRI.V2-tau-ridge,LAION_fMRI,V2,tau,0.3716319036005167,,0.8292754888534546,,225.8
+convnext_tiny_imagenet1K_torchvisionV1,LAION_fMRI.V2-ood-ridge,LAION_fMRI,V2,ood,0.3159247892205293,,0.8292754888534546,,287.1
+convnext_tiny_imagenet1K_torchvisionV1,LAION_fMRI.V4-tau-ridge,LAION_fMRI,V4,tau,0.2710243523785872,,0.7992849349975586,,259.2
+convnext_tiny_imagenet1K_torchvisionV1,LAION_fMRI.V4-ood-ridge,LAION_fMRI,V4,ood,0.3107040801927463,,0.7992849349975586,,319.6
+convnext_tiny_imagenet1K_torchvisionV1,LAION_fMRI.IT-tau-ridge,LAION_fMRI,IT,tau,0.236886102408197,,0.748260498046875,,269.7
+alexnet_random,LAION_fMRI.V1-rdm-pearson,LAION_fMRI,V1,rdm,,,,"AlignmentError: cannot align objects on coordinate 'neuroid' because of conflicting indexes
+first index: PandasIndex(MultiIndex([(  'features.0',),
+            (  'features.3',),
+            (  'features.6',),
+            (  'features.8',),
+            ( 'features.10',),
+            ('classifier.1',),
+            ('classifier.4',),
+            ('classifier.6',)],
+           name='neuroid'))
+second index: PandasIndex(MultiIndex([(  0, 'alexnet_random-pca_1000',   'features.0',   0, nan, ...),
+            (  1, 'alexnet_random-pca_1000',   'features.0',   1, nan, ...),
+            (  2, 'alexnet_random-pca_1000',   'features.0',   2, nan, ...),
+            (  3, 'alexnet_random-pca_1000',   'features.0',   3, nan, ...),
+            (  4, 'alexnet_random-pca_1000',   'features.0',   4, nan, ...),
+            (  5, 'alexnet_random-pca_1000',   'features.0',   5, nan, ...),
+            (  6, 'alexnet_random-pca_1000',   'features.0',   6, nan, ...),
+            (  7, 'alexnet_random-pca_1000',   'features.0',   7, nan, ...),
+            (  8, 'alexnet_random-pca_1000',   'features.0',   8, nan, ...),
+            (  9, 'alexnet_random-pca_1000',   'features.0',   9, nan, ...),
+            ...
+            (990, 'alexnet_random-pca_1000', 'classifier.6', 990, nan, ...),
+            (991, 'alexnet_random-pca_1000', 'classifier.6', 991, nan, ...),
+            (992, 'alexnet_random-pca_1000', 'classifier.6', 992, nan, ...),
+            (993, 'alexnet_random-pca_1000', 'classifier.6', 993, nan, ...),
+            (994, 'alexnet_random-pca_1000', 'classifier.6', 994, nan, ...),
+            (995, 'alexnet_random-pca_1000', 'classifier.6', 995, nan, ...),
+            (996, 'alexnet_random-pca_1000', 'classifier.6', 996, nan, ...),
+            (997, 'alexnet_random-pca_1000', 'classifier.6', 997, nan, ...),
+            (998, 'alexnet_random-pca_1000', 'classifier.6', 998, nan, ...),
+            (999, 'alexnet_random-pca_1000', 'classifier.6', 999, nan, ...)],
+           name='neuroid', length=8000))
+first variable: <xarray.IndexVariable 'neuroid' (neuroid: 8)> Size: 64B
+[8 values with dtype=object]
+second variable: <xarray.IndexVariable 'neuroid' (neuroid: 8000)> Size: 64kB
+[8000 values with dtype=object]
+",11.8
+alexnet_random,LAION_fMRI.V2-rdm-pearson,LAION_fMRI,V2,rdm,,,,"AlignmentError: cannot align objects on coordinate 'neuroid' because of conflicting indexes
+first index: PandasIndex(MultiIndex([(  'features.0',),
+            (  'features.3',),
+            (  'features.6',),
+            (  'features.8',),
+            ( 'features.10',),
+            ('classifier.1',),
+            ('classifier.4',),
+            ('classifier.6',)],
+           name='neuroid'))
+second index: PandasIndex(MultiIndex([(  0, 'alexnet_random-pca_1000',   'features.0',   0, nan, ...),
+            (  1, 'alexnet_random-pca_1000',   'features.0',   1, nan, ...),
+            (  2, 'alexnet_random-pca_1000',   'features.0',   2, nan, ...),
+            (  3, 'alexnet_random-pca_1000',   'features.0',   3, nan, ...),
+            (  4, 'alexnet_random-pca_1000',   'features.0',   4, nan, ...),
+            (  5, 'alexnet_random-pca_1000',   'features.0',   5, nan, ...),
+            (  6, 'alexnet_random-pca_1000',   'features.0',   6, nan, ...),
+            (  7, 'alexnet_random-pca_1000',   'features.0',   7, nan, ...),
+            (  8, 'alexnet_random-pca_1000',   'features.0',   8, nan, ...),
+            (  9, 'alexnet_random-pca_1000',   'features.0',   9, nan, ...),
+            ...
+            (990, 'alexnet_random-pca_1000', 'classifier.6', 990, nan, ...),
+            (991, 'alexnet_random-pca_1000', 'classifier.6', 991, nan, ...),
+            (992, 'alexnet_random-pca_1000', 'classifier.6', 992, nan, ...),
+            (993, 'alexnet_random-pca_1000', 'classifier.6', 993, nan, ...),
+            (994, 'alexnet_random-pca_1000', 'classifier.6', 994, nan, ...),
+            (995, 'alexnet_random-pca_1000', 'classifier.6', 995, nan, ...),
+            (996, 'alexnet_random-pca_1000', 'classifier.6', 996, nan, ...),
+            (997, 'alexnet_random-pca_1000', 'classifier.6', 997, nan, ...),
+            (998, 'alexnet_random-pca_1000', 'classifier.6', 998, nan, ...),
+            (999, 'alexnet_random-pca_1000', 'classifier.6', 999, nan, ...)],
+           name='neuroid', length=8000))
+first variable: <xarray.IndexVariable 'neuroid' (neuroid: 8)> Size: 64B
+[8 values with dtype=object]
+second variable: <xarray.IndexVariable 'neuroid' (neuroid: 8000)> Size: 64kB
+[8000 values with dtype=object]
+",12.3
+alexnet_random,LAION_fMRI.V4-rdm-pearson,LAION_fMRI,V4,rdm,,,,"AlignmentError: cannot align objects on coordinate 'neuroid' because of conflicting indexes
+first index: PandasIndex(MultiIndex([(  'features.0',),
+            (  'features.3',),
+            (  'features.6',),
+            (  'features.8',),
+            ( 'features.10',),
+            ('classifier.1',),
+            ('classifier.4',),
+            ('classifier.6',)],
+           name='neuroid'))
+second index: PandasIndex(MultiIndex([(  0, 'alexnet_random-pca_1000',   'features.0',   0, nan, ...),
+            (  1, 'alexnet_random-pca_1000',   'features.0',   1, nan, ...),
+            (  2, 'alexnet_random-pca_1000',   'features.0',   2, nan, ...),
+            (  3, 'alexnet_random-pca_1000',   'features.0',   3, nan, ...),
+            (  4, 'alexnet_random-pca_1000',   'features.0',   4, nan, ...),
+            (  5, 'alexnet_random-pca_1000',   'features.0',   5, nan, ...),
+            (  6, 'alexnet_random-pca_1000',   'features.0',   6, nan, ...),
+            (  7, 'alexnet_random-pca_1000',   'features.0',   7, nan, ...),
+            (  8, 'alexnet_random-pca_1000',   'features.0',   8, nan, ...),
+            (  9, 'alexnet_random-pca_1000',   'features.0',   9, nan, ...),
+            ...
+            (990, 'alexnet_random-pca_1000', 'classifier.6', 990, nan, ...),
+            (991, 'alexnet_random-pca_1000', 'classifier.6', 991, nan, ...),
+            (992, 'alexnet_random-pca_1000', 'classifier.6', 992, nan, ...),
+            (993, 'alexnet_random-pca_1000', 'classifier.6', 993, nan, ...),
+            (994, 'alexnet_random-pca_1000', 'classifier.6', 994, nan, ...),
+            (995, 'alexnet_random-pca_1000', 'classifier.6', 995, nan, ...),
+            (996, 'alexnet_random-pca_1000', 'classifier.6', 996, nan, ...),
+            (997, 'alexnet_random-pca_1000', 'classifier.6', 997, nan, ...),
+            (998, 'alexnet_random-pca_1000', 'classifier.6', 998, nan, ...),
+            (999, 'alexnet_random-pca_1000', 'classifier.6', 999, nan, ...)],
+           name='neuroid', length=8000))
+first variable: <xarray.IndexVariable 'neuroid' (neuroid: 8)> Size: 64B
+[8 values with dtype=object]
+second variable: <xarray.IndexVariable 'neuroid' (neuroid: 8000)> Size: 64kB
+[8000 values with dtype=object]
+",17.3
+alexnet_random,LAION_fMRI.IT-rdm-pearson,LAION_fMRI,IT,rdm,,,,"AlignmentError: cannot align objects on coordinate 'neuroid' because of conflicting indexes
+first index: PandasIndex(MultiIndex([(  'features.0',),
+            (  'features.3',),
+            (  'features.6',),
+            (  'features.8',),
+            ( 'features.10',),
+            ('classifier.1',),
+            ('classifier.4',),
+            ('classifier.6',)],
+           name='neuroid'))
+second index: PandasIndex(MultiIndex([(  0, 'alexnet_random-pca_1000',   'features.0',   0, nan, ...),
+            (  1, 'alexnet_random-pca_1000',   'features.0',   1, nan, ...),
+            (  2, 'alexnet_random-pca_1000',   'features.0',   2, nan, ...),
+            (  3, 'alexnet_random-pca_1000',   'features.0',   3, nan, ...),
+            (  4, 'alexnet_random-pca_1000',   'features.0',   4, nan, ...),
+            (  5, 'alexnet_random-pca_1000',   'features.0',   5, nan, ...),
+            (  6, 'alexnet_random-pca_1000',   'features.0',   6, nan, ...),
+            (  7, 'alexnet_random-pca_1000',   'features.0',   7, nan, ...),
+            (  8, 'alexnet_random-pca_1000',   'features.0',   8, nan, ...),
+            (  9, 'alexnet_random-pca_1000',   'features.0',   9, nan, ...),
+            ...
+            (990, 'alexnet_random-pca_1000', 'classifier.6', 990, nan, ...),
+            (991, 'alexnet_random-pca_1000', 'classifier.6', 991, nan, ...),
+            (992, 'alexnet_random-pca_1000', 'classifier.6', 992, nan, ...),
+            (993, 'alexnet_random-pca_1000', 'classifier.6', 993, nan, ...),
+            (994, 'alexnet_random-pca_1000', 'classifier.6', 994, nan, ...),
+            (995, 'alexnet_random-pca_1000', 'classifier.6', 995, nan, ...),
+            (996, 'alexnet_random-pca_1000', 'classifier.6', 996, nan, ...),
+            (997, 'alexnet_random-pca_1000', 'classifier.6', 997, nan, ...),
+            (998, 'alexnet_random-pca_1000', 'classifier.6', 998, nan, ...),
+            (999, 'alexnet_random-pca_1000', 'classifier.6', 999, nan, ...)],
+           name='neuroid', length=8000))
+first variable: <xarray.IndexVariable 'neuroid' (neuroid: 8)> Size: 64B
+[8 values with dtype=object]
+second variable: <xarray.IndexVariable 'neuroid' (neuroid: 8000)> Size: 64kB
+[8000 values with dtype=object]
+",18.6
+convnext_tiny_imagenet1K_torchvisionV1,LAION_fMRI.IT-ood-ridge,LAION_fMRI,IT,ood,0.16794323855595467,,0.748260498046875,,347.3
+convnext_tiny_imagenet1K_torchvisionV1,LAION_fMRI_persubject.V1-tau-ridge,LAION_fMRI_persubject,V1,tau,0.2320835830656597,,0.8638187646865845,,905.6
+convnext_tiny_imagenet1K_torchvisionV1,LAION_fMRI_persubject.V1-ood-ridge,LAION_fMRI_persubject,V1,ood,0.2630080822345055,,0.8638187646865845,,780.0
+convnext_tiny_imagenet1K_torchvisionV1,LAION_fMRI_persubject.V2-tau-ridge,LAION_fMRI_persubject,V2,tau,0.20212396345894298,,0.8292754888534546,,986.2
+convnext_tiny_imagenet1K_torchvisionV1,LAION_fMRI_persubject.V2-ood-ridge,LAION_fMRI_persubject,V2,ood,0.2624274024102854,,0.8292754888534546,,1060.4
+convnext_tiny_imagenet1K_torchvisionV1,LAION_fMRI_persubject.V4-tau-ridge,LAION_fMRI_persubject,V4,tau,0.11392726351853237,,0.7992849349975586,,1149.9
+convnext_tiny_imagenet1K_torchvisionV1,LAION_fMRI_persubject.V4-ood-ridge,LAION_fMRI_persubject,V4,ood,0.22500520558904952,,0.7992849349975586,,1230.3
+convnext_tiny_imagenet1K_torchvisionV1,LAION_fMRI_persubject.IT-tau-ridge,LAION_fMRI_persubject,IT,tau,0.09094342293851879,,0.748260498046875,,1185.5
+convnext_tiny_imagenet1K_torchvisionV1,LAION_fMRI_persubject.IT-ood-ridge,LAION_fMRI_persubject,IT,ood,0.08425195936024646,,0.748260498046875,,1334.4
+convnext_tiny_imagenet1K_torchvisionV1,LAION_fMRI.V1-rdm-pearson,LAION_fMRI,V1,rdm,0.20352157852530478,0.1597977727260968,0.7851637840270996,,69.6
+convnext_tiny_imagenet1K_torchvisionV1,LAION_fMRI.V2-rdm-pearson,LAION_fMRI,V2,rdm,0.20439816448949732,0.1573586932516208,0.7698635339736939,,76.4
+convnext_tiny_imagenet1K_torchvisionV1,LAION_fMRI.V4-rdm-pearson,LAION_fMRI,V4,rdm,0.1242141615423264,0.09555830342170833,0.7693028092384339,,82.0
+convnext_tiny_imagenet1K_torchvisionV1,LAION_fMRI.IT-rdm-pearson,LAION_fMRI,IT,rdm,0.16680104348950978,0.12539568767838888,0.7517680048942565,,86.0
+resnext101_32x8d_wsl,LAION_fMRI.V1-tau-ridge,LAION_fMRI,V1,tau,0.38848937631046043,,0.8638187646865845,,587.7
+resnext101_32x8d_wsl,LAION_fMRI.V1-ood-ridge,LAION_fMRI,V1,ood,0.31125039492770723,,0.8638187646865845,,769.1
+resnext101_32x8d_wsl,LAION_fMRI.V2-tau-ridge,LAION_fMRI,V2,tau,0.38611602671014983,,0.8292754888534546,,838.6
+resnext101_32x8d_wsl,LAION_fMRI.V2-ood-ridge,LAION_fMRI,V2,ood,0.3501457435649684,,0.8292754888534546,,1064.6
+resnext101_32x8d_wsl,LAION_fMRI.V4-tau-ridge,LAION_fMRI,V4,tau,0.29382440310625263,,0.7992849349975586,,1052.3
+resnext101_32x8d_wsl,LAION_fMRI.V4-ood-ridge,LAION_fMRI,V4,ood,0.3603104556499309,,0.7992849349975586,,1387.8
+resnext101_32x8d_wsl,LAION_fMRI.IT-tau-ridge,LAION_fMRI,IT,tau,0.22185483564897118,,0.748260498046875,,1159.7
+resnext101_32x8d_wsl,LAION_fMRI.IT-ood-ridge,LAION_fMRI,IT,ood,0.17168299314143282,,0.748260498046875,,1403.0
+resnext101_32x8d_wsl,LAION_fMRI_persubject.V1-tau-ridge,LAION_fMRI_persubject,V1,tau,0.23342861119936537,,0.8638187646865845,,2883.1
+resnext101_32x8d_wsl,LAION_fMRI_persubject.V1-ood-ridge,LAION_fMRI_persubject,V1,ood,0.2807758792697231,,0.8638187646865845,,3055.7
+resnext101_32x8d_wsl,LAION_fMRI_persubject.V2-tau-ridge,LAION_fMRI_persubject,V2,tau,0.24513892519211572,,0.8292754888534546,,4578.2
+resnext101_32x8d_wsl,LAION_fMRI_persubject.V2-ood-ridge,LAION_fMRI_persubject,V2,ood,0.3097342907627008,,0.8292754888534546,,5031.0
+resnext101_32x8d_wsl,LAION_fMRI_persubject.V4-tau-ridge,LAION_fMRI_persubject,V4,tau,0.16698514132883596,,0.7992849349975586,,6204.7
+resnext101_32x8d_wsl,LAION_fMRI_persubject.V4-ood-ridge,LAION_fMRI_persubject,V4,ood,0.3097543272749314,,0.7992849349975586,,6721.1
+resnext101_32x8d_wsl,LAION_fMRI_persubject.IT-tau-ridge,LAION_fMRI_persubject,IT,tau,0.13930845178823384,,0.748260498046875,,6304.3

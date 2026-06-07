@@ -28,7 +28,7 @@ from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 
 
 _STIMULI_S3_BUCKET = "brainscore-storage"
-_STIMULI_S3_KEY = "brainscore-vision/benchmarks/Zerbe2026_fmri/stimuli/images_extracted.zip"
+_STIMULI_S3_KEY = "brainscore-vision/benchmarks/LAION_fMRI/stimuli/images_extracted.zip"
 
 
 def _stimuli_dir_candidates() -> list[Path]:

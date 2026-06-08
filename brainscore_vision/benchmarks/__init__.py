@@ -38,6 +38,18 @@ class Benchmark(ABC):
         """
         raise NotImplementedError()
 
+    def preallocate_memory(self, candidate: BrainModel) -> None:
+        """
+        Optional pre-flight memory check before scoring. Neural benchmarks override
+        this to raise :exc:`MemoryError` early if the model is estimated to exceed
+        available RAM. Behavioral and engineering benchmarks use this no-op default
+        since they do not run activation extraction and rarely require pre-flight
+        checks. Note: if a behavioral benchmark does OOM (OS kill, exit 137), the
+        gated scoring orchestrator will not detect it as an OOM and will not
+        automatically escalate the tier.
+        """
+        pass
+
     @property
     def bibtex(self) -> str:
         """

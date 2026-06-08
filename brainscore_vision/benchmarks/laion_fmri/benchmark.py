@@ -115,6 +115,17 @@ ALL_SPLITS = SIMPLE_SPLITS + KFOLD_SPLITS
 DEFAULT_SUBJECTS = ("sub-01", "sub-03", "sub-05", "sub-06", "sub-07")
 
 
+def _peak_aggregation_for_pool(dataset_prefix: str, subjects) -> float:
+    """Per-subject memory aggregation factor for the multi-subject wrappers.
+
+    Persubject pool: each subject has disjoint stimuli → activation caches do
+    not hit across subjects → peak ≈ N × per-subject peak. METHODS.md reports
+    ~4× empirically; ``len(subjects)`` is a conservative upper bound.
+    Shared pool: stimuli are common → caches hit → peak ≈ one subject.
+    """
+    return float(len(subjects)) if "persubject" in dataset_prefix else 1.0
+
+
 # ──────────────────────────────────────────────────────────────────────────
 # Assembly loader (per-subject load + concat-on-presentation)
 # ──────────────────────────────────────────────────────────────────────────
@@ -450,6 +461,7 @@ def LAIONfMRI(
     return MultiSubjectNeuralBenchmark(
         identifier=identifier, subjects=subjects,
         per_subject_factory=_build_subject,
+        peak_aggregation=_peak_aggregation_for_pool(dataset_prefix, subjects),
     )
 
 
@@ -519,6 +531,7 @@ def LAIONfMRIClusterCV(
         return MultiSubjectNeuralBenchmark(
             identifier=f"{dataset_prefix}.{region}-cluster_k5_{k}-{metric_type}",
             subjects=subjects, per_subject_factory=_build_subject,
+            peak_aggregation=_peak_aggregation_for_pool(dataset_prefix, subjects),
         )
 
     identifier = f"{dataset_prefix}.{region}-cluster_k{n_folds}-{metric_type}"
@@ -637,11 +650,15 @@ class _MultiSubjectRSABenchmark(BenchmarkBase):
         per_subject_factory: Callable[[str], RSABenchmark],
         region: str,
         bibtex: str = BIBTEX,
+        peak_aggregation: float = 1.0,
     ):
         if not subjects:
             raise ValueError("_MultiSubjectRSABenchmark requires at least one subject.")
         self._subjects = list(subjects)
         self._factory = per_subject_factory
+        # RSA shared-pool: stimuli are common across subjects → caches hit →
+        # peak ≈ one child. Override if a future RSA variant has disjoint per-subject caches.
+        self._peak_aggregation = float(peak_aggregation)
         sample = self._factory(self._subjects[0])
         self.timebins = getattr(sample, "timebins", [(0, 0)])
         version = getattr(sample, "version", 1)
@@ -657,6 +674,14 @@ class _MultiSubjectRSABenchmark(BenchmarkBase):
             bibtex=bibtex,
         )
         self.region = _MODEL_REGION_CANONICAL.get(region, region)
+
+    def preallocate_memory(self, candidate, raise_if_oom: bool = True):
+        from brainscore_vision.benchmark_helpers.multi_subject import _scaled_preallocate_memory
+        return _scaled_preallocate_memory(
+            wrapper=self, candidate=candidate,
+            child_factory=lambda: self._factory(self._subjects[0]),
+            raise_if_oom=raise_if_oom,
+        )
 
     def _compute_ceiling(self) -> Score:
         values = np.empty(len(self._subjects), dtype=np.float64)

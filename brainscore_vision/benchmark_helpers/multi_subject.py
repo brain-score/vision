@@ -77,6 +77,35 @@ def _child_raw_scalar(child_score) -> float:
 WRAPPER_N_BOOTSTRAP = 200
 
 
+def _scaled_preallocate_memory(wrapper, candidate, child_factory, raise_if_oom: bool):
+    """Probe one representative child and scale by ``wrapper._peak_aggregation``.
+
+    Returns the child's unscaled :class:`MemoryEstimate` so callers can read
+    formula details; raises :exc:`MemoryError` when the *scaled* estimate
+    exceeds available RAM. Returns ``None`` when the probe itself is skipped
+    (e.g. ``BRAINSCORE_SKIP_MEMORY_CHECK=1``).
+    """
+    from brainscore_vision.benchmark_helpers.memory import preallocate_memory as _probe
+    child = child_factory()
+    try:
+        estimate = _probe(candidate, child, raise_if_oom=False)
+    finally:
+        _release(child)
+        del child
+        gc.collect()
+    if estimate is None:
+        return None
+    scaled_gb = estimate.total_estimated_gb * wrapper._peak_aggregation
+    if scaled_gb > estimate.available_gb and raise_if_oom:
+        raise MemoryError(
+            f"preallocate_memory ({type(wrapper).__name__} '{wrapper.identifier}'): "
+            f"aggregated estimate {scaled_gb:.1f} GB (per-child "
+            f"{estimate.total_estimated_gb:.1f} × {wrapper._peak_aggregation}) "
+            f"> {estimate.available_gb:.1f} GB available"
+        )
+    return estimate
+
+
 def block_diagonal_concat(
     slices: list[xr.DataArray],
     presentation_coords: tuple[str, ...] = ("stimulus_id", "subject_id_pres", "repetition"),
@@ -156,11 +185,15 @@ class KFoldNeuralBenchmark(BenchmarkBase):
         identifier: str,
         n_folds: int,
         fold_factory: Callable[[int], TrainTestNeuralBenchmark],
+        peak_aggregation: float = 1.0,
     ):
         if n_folds < 1:
             raise ValueError("KFoldNeuralBenchmark requires at least one fold.")
         self._n_folds = int(n_folds)
         self._factory = fold_factory
+        # Folds run sequentially; default peak ≈ one fold. Override when the
+        # activation cache or any cross-fold state accumulates in memory.
+        self._peak_aggregation = float(peak_aggregation)
 
         # Materialize one fold to extract region/bibtex/version metadata, then release.
         sample = self._factory(0)
@@ -179,6 +212,13 @@ class KFoldNeuralBenchmark(BenchmarkBase):
             bibtex=bibtex,
         )
         self.region = region
+
+    def preallocate_memory(self, candidate, raise_if_oom: bool = True):
+        return _scaled_preallocate_memory(
+            wrapper=self, candidate=candidate,
+            child_factory=lambda: self._factory(0),
+            raise_if_oom=raise_if_oom,
+        )
 
     def _compute_ceiling(self) -> Score:
         values = np.empty(self._n_folds, dtype=np.float64)
@@ -256,11 +296,16 @@ class MultiSubjectNeuralBenchmark(BenchmarkBase):
         identifier: str,
         subjects: Sequence[str],
         per_subject_factory: Callable[[str], TrainTestNeuralBenchmark],
+        peak_aggregation: float = 1.0,
     ):
         if not subjects:
             raise ValueError("MultiSubjectNeuralBenchmark requires at least one subject.")
         self._subjects = list(subjects)
         self._factory = per_subject_factory
+        # Per-subject children run sequentially. Default peak ≈ one child;
+        # raise when subjects have disjoint activation caches that accumulate
+        # (e.g. LAION persubject pool: ~N× per-subject peak).
+        self._peak_aggregation = float(peak_aggregation)
 
         # Build one child to extract metadata, then release. Subsequent children
         # are instantiated on demand inside ceiling/__call__ and dropped after use.
@@ -281,6 +326,13 @@ class MultiSubjectNeuralBenchmark(BenchmarkBase):
             bibtex=bibtex,
         )
         self.region = region
+
+    def preallocate_memory(self, candidate, raise_if_oom: bool = True):
+        return _scaled_preallocate_memory(
+            wrapper=self, candidate=candidate,
+            child_factory=lambda: self._factory(self._subjects[0]),
+            raise_if_oom=raise_if_oom,
+        )
 
     def _compute_ceiling(self) -> Score:
         values = np.empty(len(self._subjects), dtype=np.float64)

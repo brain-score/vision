@@ -5,7 +5,6 @@ Call :func:`preallocate_memory` before scoring to detect OOM errors early,
 rather than discovering them 6+ hours into a benchmark run.
 
 Example usage::
-
     from brainscore_vision import load_model, load_benchmark
     from brainscore_vision.benchmark_helpers.memory import preallocate_memory
 

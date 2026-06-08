@@ -14,7 +14,7 @@ print(float(score.values))   # ceiled per-voxel correlation, averaged across 5 s
 
 If this fails with `FileNotFoundError` on `~/laion-fmri/stimuli/...`, do the stimulus setup below — stimuli are gated by the dataset's Data Use Agreement.
 
-## Prerequisites
+## Prerequisites 
 
 1. Brain-Score Vision installed.
 2. AWS credentials (`aws configure`) for the S3-served neural assemblies.

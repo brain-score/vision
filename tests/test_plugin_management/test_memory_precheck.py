@@ -290,13 +290,14 @@ class TestSkipEnvVar(unittest.TestCase):
 
 class TestUnsupportedBenchmarkType(unittest.TestCase):
 
-    def test_raises_type_error_for_unknown_benchmark(self):
+    def test_returns_none_for_unknown_benchmark(self):
+        # Unsupported benchmark types (e.g. behavioral/engineering called
+        # directly) skip preflight and return None rather than crashing.
         class WeirdBenchmark:
             pass
 
         model = _make_model()
-        with self.assertRaises(TypeError):
-            preallocate_memory(model, WeirdBenchmark())
+        self.assertIsNone(preallocate_memory(model, WeirdBenchmark()))
 
 
 # ---------------------------------------------------------------------------
@@ -460,6 +461,10 @@ class TestMemoryEstimateStr(unittest.TestCase):
     def _make_estimate(self, fixed_cost=None, will_oom=False):
         available = 1.0 if will_oom else 100.0
         total = 200.0 if will_oom else 1.5
+        # MemoryEstimate.__str__ picks the formula label off formula_type, not
+        # off fixed_benchmark_cost_gb. Mirror what preallocate_memory does:
+        # calibrated when a fixed cost is supplied, fallback otherwise.
+        formula_type = 'calibrated' if fixed_cost is not None else 'fallback'
         return MemoryEstimate(
             num_stimuli=100,
             num_trials=1,
@@ -469,6 +474,7 @@ class TestMemoryEstimateStr(unittest.TestCase):
             total_estimated_gb=total,
             available_gb=available,
             fixed_benchmark_cost_gb=fixed_cost,
+            formula_type=formula_type,
         )
 
     def test_str_shows_ok_when_not_oom(self):

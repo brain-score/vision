@@ -7,7 +7,17 @@ from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 
 from brainscore_core.benchmarks import Benchmark
 from brainscore_core.metrics import Metric, Score
-from brainscore_core.benchmarks import score_benchmark
+try:
+    from brainscore_core.benchmarks import score_benchmark
+except ImportError:
+    # Compat shim for brainscore_core < 2.3.8 (CI images still on older core).
+    # Mirrors the new wrapper's behavior: call preallocate_memory if present,
+    # then score. Remove once core 2.3.8 is universally deployed.
+    def score_benchmark(benchmark, candidate):
+        preflight = getattr(benchmark, "preallocate_memory", None)
+        if callable(preflight):
+            preflight(candidate)
+        return benchmark(candidate)
 from brainscore_core.plugin_management.conda_score import wrap_score
 from brainscore_core.plugin_management.import_plugin import import_plugin
 from brainscore_vision.metrics import Ceiling

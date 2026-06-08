@@ -34,9 +34,13 @@ Three split methods from the re:vision generalization initiative:
 
 Splits are computed at benchmark-load time via `laion_fmri.splits.get_split_masks` and applied to one registered full assembly per subject.
 
-### Note on persubject `ood` direction
+### Note on `ood` direction at V4
 
-In the persubject pool, ceiled scores for `ood` test trials in V1-V4 are typically *higher* than the same model's `tau` test. The persubject `ood` test is the 371 categorically-distinct images (Gabors, illusions, isolated shapes) — early/mid cortex predicts these unusually well from clean low-level features. At IT, where object identity dominates, the expected `ood ≤ tau` direction returns. The shared-pool `ood` split shows the conventional `ood < tau` across all regions because the shared 1,492 stimuli contain no true OOD categories.
+In the persubject pool, ceiled scores for `ood` test trials in V1-V4 are typically *higher* than the same model's `tau` test. The persubject `ood` test is the 371 categorically-distinct images (Gabors, illusions, isolated shapes) — early/mid cortex predicts these unusually well from clean low-level features. At IT, where object identity dominates, the expected `ood ≤ tau` direction returns.
+
+In the shared pool, the same effect attenuates with region: V1 and V2 show the conventional `ood < tau` (1-2 of 100 scored models invert), IT is also `ood < tau` (1 of 100 inverts), but **V4 shows `ood > tau` in 89 of 100 scored models** (median Δceiled +0.061, median Δraw +0.046). This is a real signature of the dataset design, not a benchmark error — the inversion has been audited end-to-end: train/test splits are fully disjoint (no OOD image appears in any train mask, all 5 subjects); the inversion holds independently across 4/5 subjects in alexnet's per-subject breakdown; alexnet's 9 per-OOD-category sub-cells all score *lower* than V4-tau when scored in isolation, so the inflation is not "OOD is V4-friendly"; and inflation magnitude is **flat across model-quality quartiles** (median Δraw +0.034 / +0.051 / +0.047 / +0.040 from weakest to strongest V4-tau-raw quartile of 100 production models), ruling out a model-capacity story.
+
+The likely mechanism is between-image response variance: V4 is the smallest ROI by voxel count (`hV4` from retinotopy, ~1,485 voxels across 5 subjects post NC≥30 filter), and the heterogeneous 371-image OOD test set spans a broader V4 response range than the smaller, more homogeneous natural-image tau test holdout. Two outliers consistent with this story: `hmax` (handcrafted V4-like features) inflates dramatically (+0.174 Δraw) and `pixels` (random baseline) is the only model whose V4 goes the expected `ood < tau` direction substantially (−0.087 Δraw). Reviewers and downstream consumers should treat V4-ood as a complementary signal to V4-tau rather than as a "harder" test.
 
 ## Beta preprocessing
 

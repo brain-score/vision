@@ -33,6 +33,7 @@ import numpy as np
 import xarray as xr
 
 from brainscore_core import Score
+from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.benchmark_helpers.neural_common import TrainTestNeuralBenchmark
 from brainscore_vision.metric_helpers.bootstrap_error import (
     attach_error,
@@ -167,16 +168,16 @@ def block_diagonal_concat(
     return NeuroidAssembly(da)
 
 
-class KFoldNeuralBenchmark:
+class KFoldNeuralBenchmark(BenchmarkBase):
     """Aggregate fold benchmarks built on demand from a per-fold factory.
 
     Each fold's benchmark is built fresh, scored, then released before the next
     fold starts — peak memory stays at one fold's working set instead of N. The
     factory takes a 0-based fold index and returns a ready-to-call benchmark.
 
-    Mirrors the public interface Brain-Score's ``load_benchmark`` + ``benchmark(model)``
-    expects: ``identifier``, ``region``, ``parent``, ``bibtex``, ``ceiling``, and
-    ``__call__(candidate) -> Score``.
+    Subclasses :class:`BenchmarkBase` so ``identifier`` / ``version`` / ``parent``
+    / ``bibtex`` come from the standard contract (read by brainscore_core's DB
+    recorder) instead of being maintained by hand.
     """
 
     def __init__(
@@ -188,7 +189,6 @@ class KFoldNeuralBenchmark:
     ):
         if n_folds < 1:
             raise ValueError("KFoldNeuralBenchmark requires at least one fold.")
-        self.identifier = identifier
         self._n_folds = int(n_folds)
         self._factory = fold_factory
         # Folds run sequentially; default peak ≈ one fold. Override when the
@@ -197,13 +197,21 @@ class KFoldNeuralBenchmark:
 
         # Materialize one fold to extract region/bibtex/version metadata, then release.
         sample = self._factory(0)
-        self.region = sample.region
-        self.parent = self.region
-        self.bibtex = getattr(sample, "bibtex", None)
-        self.version = getattr(sample, "version", 1)
+        region = sample.region
+        bibtex = getattr(sample, "bibtex", None)
+        version = getattr(sample, "version", 1)
         _release(sample)
         del sample
         gc.collect()
+
+        super().__init__(
+            identifier=identifier,
+            ceiling_func=lambda: self._compute_ceiling(),
+            version=version,
+            parent=region,
+            bibtex=bibtex,
+        )
+        self.region = region
 
     def preallocate_memory(self, candidate, raise_if_oom: bool = True):
         return _scaled_preallocate_memory(
@@ -212,8 +220,7 @@ class KFoldNeuralBenchmark:
             raise_if_oom=raise_if_oom,
         )
 
-    @property
-    def ceiling(self):
+    def _compute_ceiling(self) -> Score:
         values = np.empty(self._n_folds, dtype=np.float64)
         for k in range(self._n_folds):
             child = self._factory(k)
@@ -248,7 +255,8 @@ class KFoldNeuralBenchmark:
         )
         # Pre-set 'raw' as a scalar so attach_error won't overwrite it with the
         # disaggregated array; brainscore_core's DB recorder requires scalar.
-        score.attrs["raw"] = float(np.nanmean(fold_raws))
+        # Score wrap so brainscore_core._retrieve_score_center can call .item()
+        score.attrs["raw"] = Score(float(np.nanmean(fold_raws)))
         score.attrs["raw_folds"] = raw_folds
         score.attrs["sem_folds"] = (
             float(values.std(ddof=1) / np.sqrt(len(values))) if len(values) > 1 else 0.0
@@ -266,7 +274,7 @@ class KFoldNeuralBenchmark:
         return score
 
 
-class MultiSubjectNeuralBenchmark:
+class MultiSubjectNeuralBenchmark(BenchmarkBase):
     """Run a per-subject ``TrainTestNeuralBenchmark``, aggregate across subjects.
 
     Brain-Score's built-in ``TrainTestNeuralBenchmark(alpha_coord='subject')``
@@ -278,9 +286,9 @@ class MultiSubjectNeuralBenchmark:
     single-subject slice, runs them, and aggregates with mean + per-subject
     detail in ``score.attrs``.
 
-    Mirrors the public interface Brain-Score's ``load_benchmark`` +
-    ``benchmark(model)`` expects: ``identifier``, ``region``, ``parent``,
-    ``bibtex``, ``timebins``, ``ceiling``, and ``__call__(candidate) -> Score``.
+    Subclasses :class:`BenchmarkBase` so ``identifier`` / ``version`` / ``parent``
+    / ``bibtex`` come from the standard contract (read by brainscore_core's DB
+    recorder) instead of being maintained by hand.
     """
 
     def __init__(
@@ -292,7 +300,6 @@ class MultiSubjectNeuralBenchmark:
     ):
         if not subjects:
             raise ValueError("MultiSubjectNeuralBenchmark requires at least one subject.")
-        self.identifier = identifier
         self._subjects = list(subjects)
         self._factory = per_subject_factory
         # Per-subject children run sequentially. Default peak ≈ one child;
@@ -303,14 +310,22 @@ class MultiSubjectNeuralBenchmark:
         # Build one child to extract metadata, then release. Subsequent children
         # are instantiated on demand inside ceiling/__call__ and dropped after use.
         sample = self._factory(self._subjects[0])
-        self.region = sample.region
-        self.parent = self.region
-        self.bibtex = getattr(sample, "bibtex", None)
-        self.version = getattr(sample, "version", 1)
+        region = sample.region
+        bibtex = getattr(sample, "bibtex", None)
+        version = getattr(sample, "version", 1)
         self.timebins = sample.timebins
         _release(sample)
         del sample
         gc.collect()
+
+        super().__init__(
+            identifier=identifier,
+            ceiling_func=lambda: self._compute_ceiling(),
+            version=version,
+            parent=region,
+            bibtex=bibtex,
+        )
+        self.region = region
 
     def preallocate_memory(self, candidate, raise_if_oom: bool = True):
         return _scaled_preallocate_memory(
@@ -319,8 +334,7 @@ class MultiSubjectNeuralBenchmark:
             raise_if_oom=raise_if_oom,
         )
 
-    @property
-    def ceiling(self):
+    def _compute_ceiling(self) -> Score:
         values = np.empty(len(self._subjects), dtype=np.float64)
         for i, sub_id in enumerate(self._subjects):
             child = self._factory(sub_id)
@@ -358,7 +372,7 @@ class MultiSubjectNeuralBenchmark:
         )
         # Pre-set 'raw' as a scalar so attach_error won't overwrite it with the
         # disaggregated array; brainscore_core's DB recorder requires scalar.
-        score.attrs["raw"] = float(np.nanmean(raw_values))
+        score.attrs["raw"] = Score(float(np.nanmean(raw_values)))
         score.attrs["raw_subjects"] = raw_subjects
         score.attrs["sem_subjects"] = (
             float(values.std(ddof=1) / np.sqrt(len(values))) if len(values) > 1 else 0.0

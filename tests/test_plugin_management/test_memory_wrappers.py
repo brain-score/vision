@@ -64,16 +64,20 @@ class TestScaledPreallocateMemory:
         child.bibtex = "@x{x}"
         child.version = 1
         child.timebins = [(0, 0)]
+        # Bypass __init__ and the BenchmarkBase property setters so the test
+        # isn't coupled to the wrapper's instantiation cost.
         wrapper = object.__new__(WrapperCls)
-        wrapper.identifier = "Test.IT-tau-ridgecv"
+        wrapper._identifier = "Test.IT-tau-ridgecv"
+        wrapper._ceiling_func = lambda: None
+        wrapper._ceiling = None
+        wrapper._version = child.version
+        wrapper._bibtex = child.bibtex
+        wrapper.parent = child.region
+        wrapper.region = child.region
+        wrapper.timebins = child.timebins
         wrapper._subjects = ["sub-01", "sub-02", "sub-03", "sub-04", "sub-05"]
         wrapper._factory = lambda sub_id: child
         wrapper._peak_aggregation = float(peak_aggregation)
-        wrapper.region = child.region
-        wrapper.parent = child.region
-        wrapper.bibtex = child.bibtex
-        wrapper.version = child.version
-        wrapper.timebins = child.timebins
         return wrapper
 
     def test_aggregation_scales_estimate(self):
@@ -152,14 +156,16 @@ class TestKFoldPreallocateMemory(TestScaledPreallocateMemory):
         child.bibtex = "@x{x}"
         child.version = 1
         wrapper = object.__new__(WrapperCls)
-        wrapper.identifier = "Test.IT-cluster_k5-ridgecv"
+        wrapper._identifier = "Test.IT-cluster_k5-ridgecv"
+        wrapper._ceiling_func = lambda: None
+        wrapper._ceiling = None
+        wrapper._version = child.version
+        wrapper._bibtex = child.bibtex
+        wrapper.parent = child.region
+        wrapper.region = child.region
         wrapper._n_folds = 5
         wrapper._factory = lambda k: child
         wrapper._peak_aggregation = float(peak_aggregation)
-        wrapper.region = child.region
-        wrapper.parent = child.region
-        wrapper.bibtex = child.bibtex
-        wrapper.version = child.version
         return wrapper
 
 

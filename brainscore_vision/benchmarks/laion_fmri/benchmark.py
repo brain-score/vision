@@ -27,6 +27,7 @@ import xarray as xr
 from brainscore_core.metrics import Score
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from brainscore_vision import load_dataset, load_metric, load_stimulus_set
+from brainscore_vision.benchmarks import BenchmarkBase
 from brainscore_vision.benchmark_helpers.multi_subject import (
     _release,
     KFoldNeuralBenchmark,
@@ -630,7 +631,7 @@ def _ncsnr_rsa_ceiler(assembly) -> Score:
     return ceiling
 
 
-class _MultiSubjectRSABenchmark:
+class _MultiSubjectRSABenchmark(BenchmarkBase):
     """Run a per-subject :class:`RSABenchmark`, aggregate ceiled scores across subjects.
 
     Mirrors :class:`MultiSubjectNeuralBenchmark`'s aggregation contract but for
@@ -638,8 +639,8 @@ class _MultiSubjectRSABenchmark:
     assembly where ``subject`` is a neuroid MultiIndex level — so the upstream
     RDM metric sees a clean coords iterator and no workaround is needed.
 
-    Could be promoted to ``benchmark_helpers/multi_subject.py`` once a second
-    benchmark needs it.
+    Subclasses :class:`BenchmarkBase` so the standard benchmark contract
+    (identifier/version/parent/bibtex) is satisfied for the DB recorder.
     """
 
     def __init__(
@@ -653,10 +654,6 @@ class _MultiSubjectRSABenchmark:
     ):
         if not subjects:
             raise ValueError("_MultiSubjectRSABenchmark requires at least one subject.")
-        self.identifier = identifier
-        self.region = _MODEL_REGION_CANONICAL.get(region, region)
-        self.parent = region
-        self.bibtex = bibtex
         self._subjects = list(subjects)
         self._factory = per_subject_factory
         # RSA shared-pool: stimuli are common across subjects → caches hit →
@@ -664,10 +661,19 @@ class _MultiSubjectRSABenchmark:
         self._peak_aggregation = float(peak_aggregation)
         sample = self._factory(self._subjects[0])
         self.timebins = getattr(sample, "timebins", [(0, 0)])
-        self.version = getattr(sample, "version", 1)
+        version = getattr(sample, "version", 1)
         _release(sample)
         del sample
         gc.collect()
+
+        super().__init__(
+            identifier=identifier,
+            ceiling_func=lambda: self._compute_ceiling(),
+            version=version,
+            parent=region,
+            bibtex=bibtex,
+        )
+        self.region = _MODEL_REGION_CANONICAL.get(region, region)
 
     def preallocate_memory(self, candidate, raise_if_oom: bool = True):
         from brainscore_vision.benchmark_helpers.multi_subject import _scaled_preallocate_memory
@@ -677,8 +683,7 @@ class _MultiSubjectRSABenchmark:
             raise_if_oom=raise_if_oom,
         )
 
-    @property
-    def ceiling(self):
+    def _compute_ceiling(self) -> Score:
         values = np.empty(len(self._subjects), dtype=np.float64)
         for i, sub_id in enumerate(self._subjects):
             child = self._factory(sub_id)
@@ -717,7 +722,7 @@ class _MultiSubjectRSABenchmark:
         )
         # Pre-set 'raw' as a scalar so attach_error won't overwrite it with the
         # disaggregated array; brainscore_core's DB recorder requires scalar.
-        score.attrs["raw"] = float(np.nanmean(raw_values))
+        score.attrs["raw"] = Score(float(np.nanmean(raw_values)))
         score.attrs["raw_subjects"] = raw_subjects
         score.attrs["sem_subjects"] = (
             float(values.std(ddof=1) / np.sqrt(len(values))) if len(values) > 1 else 0.0

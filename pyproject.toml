@@ -48,7 +48,9 @@ competition-models = [
     "transformers>=4.45",
     "albumentations>=2.0",
     "timm>=1.0",
-    "cornet @ git+https://github.com/dicarlolab/CORnet.git",
+    # cornet is only on GitHub; PyPI policy forbids direct URL deps in
+    # published metadata. Install separately when needed for VOneCORnet-S:
+    #   pip install git+https://github.com/dicarlolab/CORnet.git
 ]
 
 [build-system]

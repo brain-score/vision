@@ -167,12 +167,12 @@ def _is_pls_benchmark(benchmark) -> bool:
 def _is_rdm_benchmark(benchmark) -> bool:
     """Return True if the benchmark uses RDM/RSA.
 
-    RDM overhead scales with activation size (≈ 2× activation_gb), not purely
-    with n_stimuli². Detected via the ``-rdm`` suffix or RSABenchmark instance type.
+    Matches ``-rdm`` anywhere in the identifier (``-rdm``, ``-rdm-pearson``,
+    ``-rdm-spearman``) or an ``RSABenchmark`` instance.
     """
     if isinstance(benchmark, RSABenchmark):
         return True
-    return str(getattr(benchmark, 'identifier', '')).endswith('-rdm')
+    return '-rdm' in str(getattr(benchmark, 'identifier', ''))
 
 
 def _is_ridge_benchmark(benchmark) -> bool:

@@ -9,7 +9,7 @@ Data design: ONE assembly per subject is registered in the data registry (e.g.
 `Zerbe2026_fmri_full_sub-01`); the benchmark loader iterates subjects, applies split +
 region + NC filters per subject, then concatenates the small filtered slices on the
 presentation dim only. Avoids materializing a 5+ GB NaN-padded cross-subject matrix
-in RAM (which OOMed during development).
+in RAM (which OOMed during development). 
 
 For cluster CV the `KFoldNeuralBenchmark` wrapper runs each of the 5 cluster folds as a
 child `TrainTestNeuralBenchmark` and aggregates with mean + per-fold detail in attrs.

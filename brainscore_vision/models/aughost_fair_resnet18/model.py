@@ -1,9 +1,9 @@
 from brainscore_vision.model_helpers.check_submission import check_models
 import functools
-import os
 import torch
 import torch.nn as nn
 from torchvision.models import resnet18
+from brainscore_core.supported_data_standards.brainio.s3 import load_weight_file
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 
@@ -23,43 +23,30 @@ Training details:
 - Normalization: mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]
 """
 
-WEIGHTS_URL = None  # TODO: Host weights and add URL here for website submission
-
-
 def get_model(name):
     assert name == 'aughost_fair_resnet18'
-    
+
     # Create ResNet18 with TinyImageNet-200 classes
     model = resnet18(weights=None)
     model.fc = nn.Linear(model.fc.in_features, 200)
-    
+
     # ========================================
     # CRITICAL: FAIR RESNET18 MODIFICATION
     # Change stride from 2 to 1 to preserve spatial resolution
     # This matches VOneNet's 32x32 output after stem (vs standard 16x16)
     # ========================================
     model.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=1, padding=3, bias=False)
-    
-    # Load weights
-    weights_path = os.path.join(os.path.dirname(__file__), 'model_weights.pth')
-    
-    if os.path.exists(weights_path):
-        state_dict = torch.load(weights_path, map_location='cpu', weights_only=False)
-        model.load_state_dict(state_dict)
-        print(f"Loaded weights from: {weights_path}")
-    elif WEIGHTS_URL is not None:
-        import urllib.request
-        import tempfile
-        print(f"Downloading weights from {WEIGHTS_URL}...")
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.pth') as tmp:
-            urllib.request.urlretrieve(WEIGHTS_URL, tmp.name)
-            state_dict = torch.load(tmp.name, map_location='cpu', weights_only=False)
-            model.load_state_dict(state_dict)
-            os.unlink(tmp.name)
-        print("Weights loaded successfully")
-    else:
-        print("WARNING: No weights found - using random initialization")
-    
+
+    weights_path = load_weight_file(
+        bucket="brainscore-storage",
+        folder_name="brainscore-vision/models",
+        relative_path="aughost_fair_resnet18/model_weights.pth",
+        version_id="null",
+        sha1="a185f4ba89ed8dda847588c5ddab0e909bebe2e6",
+    )
+    state_dict = torch.load(weights_path, map_location='cpu', weights_only=False)
+    model.load_state_dict(state_dict)
+
     model.eval()
     
     # Use 64x64 input size (native TinyImageNet resolution)

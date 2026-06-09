@@ -8,12 +8,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import models
 
+from brainscore_core.supported_data_standards.brainio.s3 import load_weight_file
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper, load_preprocess_images
 from brainscore_vision.model_helpers.check_submission import check_models
 
 
 MODEL_IDENTIFIER = '20260408_2033_stl10_combined_alpha04'
-WEIGHTS_PATH = Path(__file__).resolve().parent / "weights.pth"
 IMAGE_SIZE = 96
 NORMALIZE_MEAN = (0.44671062, 0.43980984, 0.40664646)
 NORMALIZE_STD = (0.26034098, 0.25657727, 0.27126738)
@@ -84,7 +84,14 @@ def get_model_list():
 def get_model(name):
     assert name == MODEL_IDENTIFIER
     model = SubmissionBackbone()
-    state_dict = load_checkpoint_state(WEIGHTS_PATH)
+    weights_path = load_weight_file(
+        bucket="brainscore-storage",
+        folder_name="brainscore-vision/models",
+        relative_path="20260408_2033_stl10_combined_alpha04/weights.pth",
+        version_id="null",
+        sha1="4d3c9af0d1a1b179edd2518fe8f7e5f56e5d1b1f",
+    )
+    state_dict = load_checkpoint_state(weights_path)
     encoder_state = extract_encoder_state(state_dict)
     missing, unexpected = model.encoder.load_state_dict(encoder_state, strict=False)
     if missing or unexpected:

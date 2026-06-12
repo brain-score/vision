@@ -1,3 +1,3 @@
-laion-fmri @ git+https://github.com/KartikP/LAION-fMRI.git@fix/duplicate-force-include
+laion-fmri @ git+https://github.com/ViCCo-Group/LAION-fMRI.git@main
 numpy<2.0
 pandas<3.0

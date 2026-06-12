@@ -42,6 +42,15 @@ def send_email_to_submitter(uid: int, domain: str, pr_number: str,
 
 
 if __name__ == '__main__':
+    # Wire up resource-usage tracking ONLY in the scoring-container entrypoint.
+    # Keeping this out of brainscore_vision/__init__.py so regular imports
+    # (tests, notebooks, REPL) don't register an atexit stdout-emitter hook.
+    try:
+        from brainscore_resource_tracking import enable_tracking as _enable_resource_tracking
+        _enable_resource_tracking()
+    except ImportError:
+        pass
+
     parser = make_argparser()
     args, remaining_args = parser.parse_known_args()
     args_dict = vars(args)

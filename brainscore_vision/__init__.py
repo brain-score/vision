@@ -15,6 +15,12 @@ from brainscore_vision.model_interface import BrainModel
 
 _logger = logging.getLogger(__name__)
 
+try:
+    from brainscore_resource_tracking import enable_tracking as _enable_resource_tracking
+    _enable_resource_tracking()
+except ImportError:
+    pass
+
 data_registry: Dict[str, Callable[[], Union[DataAssembly, Any]]] = {}
 """ Pool of available data """
 

@@ -379,15 +379,17 @@ def _make_result(model_id, benchmark_id, **kw):
 # ---------------------------------------------------------------------------
 
 def run_pair(model, model_id, benchmark, benchmark_id, skip_score=False):
-    from brainscore_vision.benchmark_helpers.memory import preallocate_memory
-
     proc = psutil.Process(os.getpid())
 
     # ── Pre-flight probe ─────────────────────────────────────────────────
     _step("pre-flight probe  (1-stimulus forward pass)")
     t_probe = time.time()
     try:
-        est = preallocate_memory(model, benchmark, raise_if_oom=False)
+        # Use the benchmark's own duck-typed preallocate_memory so wrappers
+        # (MultiSubjectNeuralBenchmark, KFoldNeuralBenchmark) route through
+        # their own implementation instead of falling out of the top-level
+        # isinstance dispatch.
+        est = benchmark.preallocate_memory(model, raise_if_oom=False)
     except TypeError as e:
         _substep(_c(f"skipped — unsupported benchmark type: {e}", _DIM))
         return _make_result(model_id, benchmark_id, status='skip',
@@ -790,17 +792,17 @@ def append_csv_row(writer, file_handle, r):
 
 def run_calibration_pair(model, benchmark, benchmark_id, bm_idx, n_bm):
     """Run one benchmark and return fixed_benchmark_cost = actual_delta - activation_gb."""
-    from brainscore_vision.benchmark_helpers.memory import preallocate_memory
-
     proc = psutil.Process(os.getpid())
 
     print(f"\n  [{bm_idx}/{n_bm}] {benchmark_id}")
     print(f"  {'─' * 62}")
 
-    # Probe
+    # Probe — use the benchmark's own duck-typed preallocate_memory so wrappers
+    # (MultiSubjectNeuralBenchmark, KFoldNeuralBenchmark) route through their
+    # own implementation; the top-level falls back to None for unknown isinstances.
     _step("probe  (1-stimulus forward pass)")
     try:
-        est = preallocate_memory(model, benchmark, raise_if_oom=False)
+        est = benchmark.preallocate_memory(model, raise_if_oom=False)
     except TypeError:
         _substep(_c("skipped — not a NeuralBenchmark (behavioral/non-neural)", _DIM))
         print(f"  {_c(benchmark_id[:55], _DIM)}: N/A (non-neural)", flush=True)

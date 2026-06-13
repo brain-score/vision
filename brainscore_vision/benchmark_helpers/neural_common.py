@@ -24,9 +24,9 @@ class NeuralBenchmark(BenchmarkBase):
         self._visual_degrees = visual_degrees
         self._number_of_trials = number_of_trials
 
-    def preallocate_memory(self, candidate: BrainModel) -> None:
+    def preallocate_memory(self, candidate: BrainModel, raise_if_oom: bool = True):
         from brainscore_vision.benchmark_helpers.memory import preallocate_memory as _probe
-        _probe(candidate, self)
+        return _probe(candidate, self, raise_if_oom=raise_if_oom)
 
     def __call__(self, candidate: BrainModel):
         candidate.start_recording(self.region, time_bins=self.timebins)
@@ -84,9 +84,9 @@ class TrainTestNeuralBenchmark(BenchmarkBase):
         else:
             self.ceiling_mode = explained_variance
 
-    def preallocate_memory(self, candidate: BrainModel) -> None:
+    def preallocate_memory(self, candidate: BrainModel, raise_if_oom: bool = True):
         from brainscore_vision.benchmark_helpers.memory import preallocate_memory as _probe
-        _probe(candidate, self)
+        return _probe(candidate, self, raise_if_oom=raise_if_oom)
 
     def __call__(self, candidate: BrainModel):
         """
@@ -255,9 +255,9 @@ class RSABenchmark(BenchmarkBase):
             bibtex=bibtex,
         )
 
-    def preallocate_memory(self, candidate: BrainModel) -> None:
+    def preallocate_memory(self, candidate: BrainModel, raise_if_oom: bool = True):
         from brainscore_vision.benchmark_helpers.memory import preallocate_memory as _probe
-        _probe(candidate, self)
+        return _probe(candidate, self, raise_if_oom=raise_if_oom)
 
     def __call__(self, candidate: BrainModel) -> Score:
         assembly = self._assembly

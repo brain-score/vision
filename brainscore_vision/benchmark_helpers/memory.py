@@ -413,6 +413,15 @@ def preallocate_memory(
         rdm_overhead_gb = 2 * activation_gb
         total_estimated_gb = activation_gb + rdm_overhead_gb  # = 3 × activation_gb
         formula_type = 'rdm'
+    elif fixed_benchmark_cost_gb is not None:
+        # Calibrated value present — trust it over the ridge_large_feature
+        # heuristic. The calibration script measured actual peak RSS on the
+        # benchmark end-to-end, so the value reflects the real working set
+        # better than the ×6 fallback can predict. Wrapper benchmarks
+        # (MultiSubjectNeuralBenchmark, KFoldNeuralBenchmark) pass their own
+        # wrapper-level fixed_cost here to short-circuit the per-child scale.
+        total_estimated_gb = activation_gb + fixed_benchmark_cost_gb
+        formula_type = 'calibrated'
     elif ridge_large_feature:
         # n_features > n_stimuli: sklearn SVD path — overhead ≈ 5× activation_gb.
         # Validated: resnet50/ViT × Gifford2022.IT-ridgecv both gave exactly 5.1×.
@@ -420,17 +429,11 @@ def preallocate_memory(
         # the pre-flight MemoryError fires before the OS kills the container.
         total_estimated_gb = activation_gb * _OVERHEAD_FACTOR
         formula_type = 'ridge_large_feature'
-    elif is_ridge and fixed_benchmark_cost_gb is not None:
-        total_estimated_gb = activation_gb + fixed_benchmark_cost_gb
-        formula_type = 'calibrated'
     elif is_ridge:
         # No calibration entry, primal regime: gram matrix is n_stimuli×n_stimuli
         rdm_overhead_gb = (num_stimuli ** 2) * _BYTES_PER_ELEMENT / (1024 ** 3)
         total_estimated_gb = activation_gb + rdm_overhead_gb
         formula_type = 'ridge_formula'
-    elif fixed_benchmark_cost_gb is not None:
-        total_estimated_gb = activation_gb + fixed_benchmark_cost_gb
-        formula_type = 'calibrated'
     else:
         total_estimated_gb = activation_gb * _OVERHEAD_FACTOR
         formula_type = 'fallback'

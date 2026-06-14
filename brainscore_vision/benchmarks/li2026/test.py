@@ -14,14 +14,14 @@ def test_registered(identifier):
     assert identifier in benchmark_registry
 
 
-@pytest.mark.parametrize('region', REGIONS)
-def test_temporal_benchmark(region):
+@pytest.mark.parametrize('region,min_neuroids', [('V1', 2500), ('V2', 2500), ('V4', 3000), ('IT', 26000)])
+def test_temporal_benchmark(region, min_neuroids):
     benchmark = load_benchmark(f'Li2026.{region}-temporal-pls')
     assembly = benchmark._assembly
     assert set(np.unique(assembly['region'].values)) == {region}
     assert assembly.sizes['presentation'] == 1000
     assert assembly.sizes['time_bin'] == 30          # 0-300ms @ 10ms bins
-    assert assembly.sizes['neuroid'] > 0
+    assert assembly.sizes['neuroid'] >= min_neuroids  # all 90 sessions (V4 restored)
     assert (assembly['reliability'].values > 0.4).all()
     assert 0 < float(benchmark.ceiling) <= 1
 

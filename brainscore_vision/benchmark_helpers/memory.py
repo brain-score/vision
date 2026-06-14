@@ -413,6 +413,23 @@ def preallocate_memory(
         rdm_overhead_gb = 2 * activation_gb
         total_estimated_gb = activation_gb + rdm_overhead_gb  # = 3 × activation_gb
         formula_type = 'rdm'
+    elif fixed_benchmark_cost_gb is not None and ridge_large_feature:
+        # Both predictors apply. Take the max — they measure complementary
+        # things and either one alone under-predicts in the regime the other
+        # was designed for. Calibrated captures benchmark/cache overhead
+        # (alexnet-measured); ×6 captures model-side SVD intermediates that
+        # scale with n_features. Without the max, deit_large × Zerbe2026
+        # OOM'd at 29 GB on a small tier even though calibrated predicted
+        # 19 GB, because the SVD V matrix is activation-sized and isn't in
+        # the alexnet-measured fixed_cost.
+        calibrated_total = activation_gb + fixed_benchmark_cost_gb
+        formula_total = activation_gb * _OVERHEAD_FACTOR
+        if calibrated_total >= formula_total:
+            total_estimated_gb = calibrated_total
+            formula_type = 'calibrated'
+        else:
+            total_estimated_gb = formula_total
+            formula_type = 'ridge_large_feature'
     elif fixed_benchmark_cost_gb is not None:
         # Calibrated value present — trust it over the ridge_large_feature
         # heuristic. The calibration script measured actual peak RSS on the

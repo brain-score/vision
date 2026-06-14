@@ -6,11 +6,24 @@ from brainscore_vision import benchmark_registry, load_benchmark
 REGIONS = ['V1', 'V2', 'V4', 'IT']
 METRICS = ['pls', 'ridge']
 IDENTIFIERS = [f'Li2026.{r}-{m}' for r in REGIONS for m in METRICS]
+TEMPORAL_IDS = [f'Li2026.{r}-temporal-pls' for r in REGIONS]
 
 
-@pytest.mark.parametrize('identifier', IDENTIFIERS)
+@pytest.mark.parametrize('identifier', IDENTIFIERS + TEMPORAL_IDS)
 def test_registered(identifier):
     assert identifier in benchmark_registry
+
+
+@pytest.mark.parametrize('region', REGIONS)
+def test_temporal_benchmark(region):
+    benchmark = load_benchmark(f'Li2026.{region}-temporal-pls')
+    assembly = benchmark._assembly
+    assert set(np.unique(assembly['region'].values)) == {region}
+    assert assembly.sizes['presentation'] == 1000
+    assert assembly.sizes['time_bin'] == 30          # 0-300ms @ 10ms bins
+    assert assembly.sizes['neuroid'] > 0
+    assert (assembly['reliability'].values > 0.4).all()
+    assert 0 < float(benchmark.ceiling) <= 1
 
 
 @pytest.mark.parametrize('region', REGIONS)

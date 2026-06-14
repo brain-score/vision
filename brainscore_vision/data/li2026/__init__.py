@@ -35,3 +35,12 @@ data_registry['Li2026'] = lambda: load_assembly_from_s3(
     bucket=_BUCKET,
     cls=NeuronRecordingAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('Li2026'))
+
+# Temporal variant: per-image PSTHs rebinned to 10ms bins (0-300ms), 85 sessions.
+data_registry['Li2026.temporal'] = lambda: load_assembly_from_s3(
+    identifier="Li2026.temporal_Assembly",
+    version_id="cwQ4Cew9R8Zg4neuNHWNfnECx6hLVA6r",
+    sha1="985b69d7860726aeba7c94b6e64ee1498f2ecf86",
+    bucket=_BUCKET,
+    cls=NeuronRecordingAssembly,
+    stimulus_set_loader=lambda: load_stimulus_set('Li2026'))

@@ -17,6 +17,7 @@ BIBTEX = """@article{li2026triplen,
     journal = {Nature Neuroscience},
     year = {2026},
     doi = {10.1038/s41593-026-02322-z},
+    url = {https://doi.org/10.1038/s41593-026-02322-z},
 }"""
 
 # Natural scenes have no single object category, so cross-validate without stratification.
@@ -27,14 +28,31 @@ def _metric(metric_type: str):
     return load_metric(metric_type, crossvalidation_kwargs=_CV_KWARGS)
 
 
-def _reliability_ceiling(assembly) -> Score:
-    """Population split-half reliability = median of per-neuroid reliability_best
-    (the dataset's split-half Spearman-Brown values). This matches what
-    InternalConsistency computes from repetitions (median across neuroids), since
-    reliability_best is exactly the per-neuroid split-half SB reliability.
-    Replaced by the canonical repetition-based ceiling once trial data is packaged."""
+def _reliability_ceiling(assembly, n_bootstraps: int = 1000) -> Score:
+    """Noise ceiling: median across neuroids of the per-neuroid split-half reliability,
+    with a bootstrap error term.
+
+    The per-neuroid reliability is the Spearman-Brown-corrected split-half correlation
+    reported by Li et al. (2026): a unit's 1000-image response profile is split in half,
+    the halves correlated, averaged over five random splits, and corrected via
+    ``reliability = 2r / (1 + r)`` -- the full-data reliability expected if all trials
+    were included (paper Methods). This is exactly the quantity ``InternalConsistency``
+    estimates from repetitions, precomputed by the authors with held-out window-selection
+    cross-validation (selection inflation over the held-out estimate is ~0.007), so it is
+    used directly rather than re-deriving a noisier single-split estimate from raw trials.
+
+    :param assembly: reliability-filtered neural assembly with a ``reliability`` coord.
+    :param n_bootstraps: number of neuroid resamples for the error term.
+    :return: scalar ceiling Score; ``attrs['error']`` is the bootstrap SE of the median
+        (persisted as ``BenchmarkInstance.ceiling_error``) and ``attrs['raw']`` holds the
+        per-neuroid reliabilities.
+    """
     rel = assembly['reliability'].values
-    ceiling = Score(float(np.median(rel)))
+    finite = rel[np.isfinite(rel)]
+    rng = np.random.RandomState(0)
+    boot = [np.median(rng.choice(finite, size=finite.size, replace=True)) for _ in range(n_bootstraps)]
+    ceiling = Score(float(np.nanmedian(rel)))
+    ceiling.attrs['error'] = float(np.std(boot))
     ceiling.attrs['raw'] = Score(rel, coords={'neuroid_id': ('neuroid', assembly['neuroid_id'].values)},
                                  dims=['neuroid'])
     return ceiling

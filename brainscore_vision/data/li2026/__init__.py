@@ -13,6 +13,7 @@ BIBTEX = """@article{li2026triplen,
     journal = {Nature Neuroscience},
     year = {2026},
     doi = {10.1038/s41593-026-02322-z},
+    url = {https://doi.org/10.1038/s41593-026-02322-z},
 }"""
 
 # Macaque Neuropixels responses (5 monkeys, 90 sessions) to the 1000 NSD Shared1000

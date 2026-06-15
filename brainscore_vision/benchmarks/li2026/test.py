@@ -51,3 +51,7 @@ def test_ceiling(identifier):
     benchmark = load_benchmark(identifier)
     ceiling = benchmark.ceiling
     assert 0 < float(ceiling) <= 1
+    # DB-write contract: scalar center + error (-> BenchmarkInstance.ceiling_error) + per-neuroid raw
+    assert ceiling.size == 1
+    assert 'error' in ceiling.attrs and np.isfinite(ceiling.attrs['error']) and ceiling.attrs['error'] > 0
+    assert ceiling.raw.dims == ('neuroid',)

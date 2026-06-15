@@ -1,9 +1,10 @@
 {
+  "source": "brainscore packaged data (load_dataset / load_stimulus_set)",
   "1f_reliability_median": {
-    "V1": NaN,
+    "V1": 0.7,
     "V2": 0.802,
-    "V4": NaN,
-    "IT": NaN
+    "V4": 0.796,
+    "IT": 0.604
   },
   "1f_n_reliable": {
     "V1": 2556,
@@ -15,7 +16,7 @@
     0.377,
     0.024
   ],
-  "2g_noise_signal_corr": 0.547,
+  "2f_n_patches": 22,
   "3d_cluster_fraction_by_region": {
     "V1": [
       0.89,

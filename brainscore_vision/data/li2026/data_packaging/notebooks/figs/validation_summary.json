@@ -1,0 +1,58 @@
+{
+  "1f_reliability_median": {
+    "V1": NaN,
+    "V2": 0.802,
+    "V4": NaN,
+    "IT": NaN
+  },
+  "1f_n_reliable": {
+    "V1": 2556,
+    "V2": 2625,
+    "V4": 3559,
+    "IT": 26700
+  },
+  "2f_within_vs_cross_r": [
+    0.377,
+    0.024
+  ],
+  "2g_noise_signal_corr": 0.547,
+  "3d_cluster_fraction_by_region": {
+    "V1": [
+      0.89,
+      0.05,
+      0.05
+    ],
+    "V2": [
+      0.95,
+      0.04,
+      0.02
+    ],
+    "V4": [
+      0.82,
+      0.12,
+      0.06
+    ],
+    "IT": [
+      0.17,
+      0.53,
+      0.3
+    ]
+  },
+  "3e_rsa_diag_offdiag": [
+    0.889,
+    0.258
+  ],
+  "5_alexnet_encoding_median_r": {
+    "V1": 0.299,
+    "V2": 0.248,
+    "V4": 0.31,
+    "IT": 0.331
+  },
+  "5_mpnet_encoding_median_r": {
+    "V1": 0.145,
+    "V2": 0.106,
+    "V4": 0.168,
+    "IT": 0.236
+  },
+  "5_LVR_IT": 0.93
+}

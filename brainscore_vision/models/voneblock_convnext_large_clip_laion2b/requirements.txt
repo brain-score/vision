@@ -1,0 +1,4 @@
+timm>=1.0
+numpy
+scipy
+torch

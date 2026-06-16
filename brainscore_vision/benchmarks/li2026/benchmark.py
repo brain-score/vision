@@ -28,26 +28,27 @@ def _metric(metric_type: str):
     return load_metric(metric_type, crossvalidation_kwargs=_CV_KWARGS)
 
 
-def _reliability_ceiling(assembly, n_bootstraps: int = 1000) -> Score:
+def _reliability_ceiling(assembly, coord: str = 'reliability', n_bootstraps: int = 1000) -> Score:
     """Noise ceiling: median across neuroids of the per-neuroid split-half reliability,
     with a bootstrap error term.
 
-    The per-neuroid reliability is the Spearman-Brown-corrected split-half correlation
-    reported by Li et al. (2026): a unit's 1000-image response profile is split in half,
-    the halves correlated, averaged over five random splits, and corrected via
-    ``reliability = 2r / (1 + r)`` -- the full-data reliability expected if all trials
-    were included (paper Methods). This is exactly the quantity ``InternalConsistency``
-    estimates from repetitions, precomputed by the authors with held-out window-selection
-    cross-validation (selection inflation over the held-out estimate is ~0.007), so it is
-    used directly rather than re-deriving a noisier single-split estimate from raw trials.
+    Reliability is a Spearman-Brown-corrected split-half correlation (``2r / (1 + r)``):
+    a unit's 1000-image response profile is split in half, the halves correlated, and the
+    result SB-corrected -- the full-data reliability expected if all trials were included.
 
-    :param assembly: reliability-filtered neural assembly with a ``reliability`` coord.
+    The ceiling must be measured on the SAME response the metric scores. The static
+    benchmark scores the fixed 70-170 ms window, so it ceils on ``reliability_window``
+    (split-half SB recomputed at 70-170 ms; see build_li2026_reliability_70_170ms.py).
+    The temporal benchmark ceils on the paper-canonical best-window ``reliability``.
+
+    :param assembly: reliability-filtered neural assembly.
+    :param coord: which reliability coord to use (``reliability`` or ``reliability_window``).
     :param n_bootstraps: number of neuroid resamples for the error term.
     :return: scalar ceiling Score; ``attrs['error']`` is the bootstrap SE of the median
         (persisted as ``BenchmarkInstance.ceiling_error``) and ``attrs['raw']`` holds the
         per-neuroid reliabilities.
     """
-    rel = assembly['reliability'].values
+    rel = assembly[coord].values
     finite = rel[np.isfinite(rel)]
     rng = np.random.RandomState(0)
     boot = [np.median(rng.choice(finite, size=finite.size, replace=True)) for _ in range(n_bootstraps)]
@@ -62,7 +63,8 @@ def load_assembly(region: str):
     assembly = load_dataset('Li2026')
     stimulus_set = assembly.attrs['stimulus_set']
     assembly = assembly.squeeze('time_bin')
-    mask = (assembly['region'].values == region) & (assembly['reliability'].values > RELIABILITY_THRESHOLD)
+    # Select on the window-matched reliability (70-170 ms), since that is the response scored.
+    mask = (assembly['region'].values == region) & (assembly['reliability_window'].values > RELIABILITY_THRESHOLD)
     assembly = assembly.isel(neuroid=np.where(mask)[0])  # region already uniform after this filter
     assembly.load()
     assembly = assembly.transpose('presentation', 'neuroid', ...)
@@ -73,10 +75,10 @@ def load_assembly(region: str):
 def _Li2026Region(region: str, metric_type: str) -> NeuralBenchmark:
     assembly = load_assembly(region)
     return NeuralBenchmark(
-        identifier=f'Li2026.{region}-{metric_type}', version=1,
+        identifier=f'Li2026.{region}-{metric_type}', version=2,  # v2: fixed 70-170ms window + window-matched ceiling
         assembly=assembly, similarity_metric=_metric(metric_type),
         visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
-        ceiling_func=lambda: _reliability_ceiling(assembly),
+        ceiling_func=lambda: _reliability_ceiling(assembly, coord='reliability_window'),
         parent=region, bibtex=BIBTEX)
 
 

@@ -66,8 +66,10 @@ with hashes pinned in `__init__.py`.
 | `region`              | `V1`, `V2`, `V4`, or `IT`. IT is session-level; V1/V2/V4 are pos-level (resolved from `exclude_area.xls`). |
 | `animal`              | `M1`–`M5`. |
 | `unittype`            | `1`=single unit, `2`=multi-unit activity, `3`=non-somatic. |
-| `reliability`         | Per-neuroid split-half Spearman-Brown reliability (Triple-N's `reliability_best`). Mathematically identical to Brain-Score's `internal_consistency` metric, so this column is the v1 ceiling source — no rep-aware recompute needed for an initial release. |
-| `pos`, `F_SI`, `B_SI`, `O_SI`, `snr` | Carried through from the upstream Processed files for downstream slicing / diagnostics. |
+| `reliability`         | Paper-canonical per-neuroid split-half Spearman-Brown reliability at each unit's **best** window (Triple-N's `reliability_best`). Kept for provenance and to reproduce the paper's reliable-unit counts (IT ~26.7k); **not** the benchmark ceiling. |
+| `reliability_window`  | Split-half Spearman-Brown reliability recomputed at the **fixed 70–170 ms window** (the response actually scored). The static benchmark **selects and ceils on this** so the noise ceiling matches the scored response. Built by `data_packaging/build_li2026_reliability_70_170ms.py`. |
+| `arealabel`           | Category-region patch label (e.g. `MBody`, `MFace`, `AObject`) or `IT-other`/`V1`/… |
+| `pos`, `F_SI`, `B_SI`, `O_SI`, `snr`, `best_time_start/end`, `tn_index` | Carried through from the upstream Processed files for downstream slicing / diagnostics. |
 
 ### Temporal assembly extras
 
@@ -157,15 +159,22 @@ population PSTH peaks at ~130–140 ms with the >50%-of-peak band spanning
 100–220 ms, so 70–170 ms covers the leading edge through peak and avoids
 the post-peak decay tail. This matches MajajHong2015's static window.
 
-**Build pipeline.** `data_packaging/build_li2026_static_70_170ms.py` loads
-the temporal assembly, averages the 10 ten-ms bins covering 70–170 ms per
-(stimulus, unit) cell, and writes a `(presentation × neuroid × time_bin=1)`
-NetCDF whose `time_bin_start=70` and `time_bin_end=170` coords carry the
-window provenance. `data_packaging/package_li2026_static_70_170ms.py`
-uploads it and prints the version_id + sha1 used in `__init__.py`.
-`data_packaging/build_li2026_static.py` and `package_li2026.py` are
-retained for reference (they document the upstream best-window
-methodology) but are not part of the deployed pipeline.
+**Window-matched ceiling.** Because the response is now the 70–170 ms window, the
+noise ceiling must be the reliability *of that window* — not the best-window
+`reliability_best` (which is ~0.08 higher and would make the ceiling optimistic and
+scores systematically low). `data_packaging/build_li2026_reliability_70_170ms.py`
+recomputes per-unit split-half Spearman-Brown reliability from the raw GoodUnit
+rasters using the 70–170 ms per-trial rate, and stores it as `reliability_window`.
+The benchmark **selects and ceils on `reliability_window`** (mirroring how
+MajajHong2015/Allen2022 threshold and ceil on the scored-response reliability).
+
+**Build pipeline.** `build_li2026_static_70_170ms.py` averages the ten 10-ms bins
+covering 70–170 ms from the temporal assembly, merges the metadata coords
+(`arealabel`, `snr`, …) back from the original static and the `reliability_window`
+column, and writes a `(presentation × neuroid × time_bin=1)` NetCDF.
+`package_li2026_static_70_170ms.py` uploads it and prints the version_id + sha1 used
+in `__init__.py`. `build_li2026_static.py` / `package_li2026.py` are retained for
+reference (the upstream best-window methodology) but are not the deployed pipeline.
 
 ## Sequencing
 
@@ -178,8 +187,11 @@ section for the full plan):
    through the registry.
 2. **v2 — static, fixed 70–170 ms window** *(shipped — this is what
    `Li2026` resolves to)*. Derived from the temporal assembly, see
-   "Methodology" above. Ceiling from the `reliability` coord, which is
-   the paper-canonical per-neuroid split-half SB and is unchanged from v1.
+   "Methodology" above. Selection and ceiling use `reliability_window`
+   (split-half SB recomputed at 70–170 ms); best-window `reliability` is
+   retained as a provenance coord. Window-matched reliable counts:
+   IT ≈ 21.1k, V1 ≈ 2.3k, V2 ≈ 2.5k, V4 ≈ 3.4k (vs the paper's best-window
+   IT 26.7k). Benchmark `version=2`.
 3. **v3 — temporal** *(shipped as `Li2026.temporal`)*. 10 ms PSTH bins.
    Useful for recurrent / temporal models (CORnet-S, etc.). Ceiling is
    per-bin and is most informative in the 0–200 ms range.

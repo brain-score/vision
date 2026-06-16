@@ -30,14 +30,16 @@ stimulus_set_registry['Li2026'] = lambda: load_stimulus_set_from_s3(
     filename_prefix="stimulus_")
 
 data_registry['Li2026'] = lambda: load_assembly_from_s3(
-    # Static response matrix: mean firing rate within a fixed 70-170 ms post-onset
-    # window applied uniformly to every unit. Derived from the temporal assembly
-    # (see data_packaging/build_li2026_static_70_170ms.py); replaces the upstream
-    # per-unit best-window `response_best` so this assembly matches MajajHong's
-    # static convention and is comparable to other Brain-Score primate-IT benchmarks.
+    # Static response matrix: mean firing rate in a fixed 70-170 ms post-onset window
+    # applied uniformly to every unit (MajajHong convention), derived from the temporal
+    # assembly. Carries two reliability coords: `reliability` (paper-canonical best-window
+    # split-half SB, kept for provenance) and `reliability_window` (split-half SB at
+    # 70-170 ms) -- the benchmark selects and ceils on `reliability_window` so the noise
+    # ceiling matches the scored response. See data_packaging/build_li2026_static_70_170ms.py
+    # and build_li2026_reliability_70_170ms.py.
     identifier="Li2026_Assembly",
-    version_id="WdRIMwSbq2xxU2zSPpO5Fz4q4hYWMmTR",
-    sha1="8c2f6ddc1e94ae1e037e10c8897103a8d60596ed",
+    version_id="jJWOONfWTN3pbp6clmE3Ea8eQ9ZZb_D6",
+    sha1="bb59217628132183a57ef10bb9017d857816ed53",
     bucket=_BUCKET,
     cls=NeuronRecordingAssembly,
     stimulus_set_loader=lambda: load_stimulus_set('Li2026'))

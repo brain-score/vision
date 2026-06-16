@@ -25,6 +25,7 @@ from brainscore_vision.benchmark_helpers.memory import (
     MemoryEstimate,
     _OVERHEAD_FACTOR,
     _PLS_OVERHEAD_FACTOR,
+    _TEMPORAL_PLS_MULTIPLIER,
     _BYTES_PER_ELEMENT,
     _DEFAULT_CALIBRATION_PATH,
     preallocate_memory,
@@ -441,6 +442,35 @@ class TestCalibratedFormula(unittest.TestCase):
         self.assertIsNone(est.fixed_benchmark_cost_gb)
         self.assertAlmostEqual(est.total_estimated_gb,
                                est.activation_gb * _OVERHEAD_FACTOR, places=5)
+
+    def test_temporal_pls_inflates_estimate_by_fixed_multiplier(self):
+        """MajajHong2015public.{V4,IT}-temporal-pls under-predicted the OOM
+        threshold by ~5× on production canaries (task #48) because temporal
+        PLS retains per-timebin intermediates that the regular PLS overhead
+        formula doesn't account for. Multiply the PLS estimate by a fixed
+        constant (_TEMPORAL_PLS_MULTIPLIER) and tag formula_type so the
+        sentinel parser can surface the correction in the email."""
+        bm = _make_neural_benchmark(n_stimuli=10)
+        bm._identifier = 'MajajHong2015public.IT-temporal-pls'
+        model = _make_model(num_features=512)
+        # Calibrated cost present (would normally feed into the PLS formula).
+        save_calibration({'MajajHong2015public.IT-temporal-pls': 1.5}, self._cal_path)
+        est = self._estimate(bm, model, cal_path=self._cal_path)
+
+        expected_pls = est.activation_gb * _PLS_OVERHEAD_FACTOR + 1.5
+        expected_total = expected_pls * _TEMPORAL_PLS_MULTIPLIER
+        self.assertAlmostEqual(est.total_estimated_gb, expected_total, places=5)
+        self.assertEqual(est.formula_type, 'temporal_pls')
+        # Regular PLS path stays unchanged — same shape benchmark but with
+        # a non-temporal identifier should NOT have the multiplier applied.
+        bm._identifier = 'MajajHong2015.IT-pls'
+        est_reg = self._estimate(bm, model, fixed_cost=1.5)
+        self.assertAlmostEqual(
+            est_reg.total_estimated_gb,
+            est_reg.activation_gb * _PLS_OVERHEAD_FACTOR + 1.5,
+            places=5,
+        )
+        self.assertEqual(est_reg.formula_type, 'pls')
 
     def test_oom_detected_with_calibrated_formula(self):
         bm = _make_neural_benchmark(n_stimuli=10)

@@ -17,7 +17,7 @@ recordings of nonhuman primate neural responses to natural scenes*,
 | Identifier            | Type                       | Shape                                        | Notes |
 |-----------------------|----------------------------|----------------------------------------------|-------|
 | `Li2026`              | StimulusSet (PNG + CSV)    | 1000 images                                  | Full-resolution PNGs sourced from `nsd_stimuli.hdf5`. |
-| `Li2026`              | NeuronRecordingAssembly    | `presentation=1000 × neuroid=47,503 × time_bin=1` | Static response — per-unit mean rate in that unit's best window. |
+| `Li2026`              | NeuronRecordingAssembly    | `presentation=1000 × neuroid=47,503 × time_bin=1` | Static response — mean firing rate in a **fixed 70–170 ms post-onset window** applied uniformly to every unit. Derived from `Li2026.temporal`; matches the MajajHong2015 static convention so this assembly is directly comparable to other Brain-Score primate-IT benchmarks. |
 | `Li2026.temporal`     | NeuronRecordingAssembly    | `presentation=1000 × neuroid × time_bin=30`  | 10 ms PSTH bins covering 0–300 ms post stimulus onset. |
 
 All three are loaded from `s3://brainscore-storage/brainscore-vision/benchmarks/Li2026/`
@@ -131,18 +131,55 @@ artifacts on S3 are the deployable surface.
 
 ---
 
+## Methodology — fixed-window static, why and how
+
+The shipping `Li2026` static is **not** the upstream `response_best` matrix.
+Triple-N's per-unit best-window method is appropriate for the paper's
+unit-characterization analyses (reliability, SNR, selectivity) and is
+cross-validated for those uses, but it is the **wrong convention** for
+Brain-Score's model-vs-brain population scoring:
+
+* Other primate-IT static benchmarks (MajajHong2015, Sanghavi2020) use a
+  single fixed window applied uniformly to every unit, so scoring against
+  Li2026 needs to use the same convention to make leaderboard numbers
+  comparable across the suite.
+* Per-unit windowing means different units are measured in different
+  temporal slices — a population code reconstructed from those slices is
+  not a coherent snapshot for comparison against a model's
+  single-forward-pass representation.
+* The paper itself falls back to fixed/binned windows for its
+  cross-population analyses (Fig 4 RSA uses 20 ms peak-aligned bins; Fig 5
+  encoding models use a fixed peak time lag), so the methodology used
+  here is consistent with how the paper handles the same question.
+
+**Window choice — 70–170 ms post-onset.** Empirically the reliable-IT
+population PSTH peaks at ~130–140 ms with the >50%-of-peak band spanning
+100–220 ms, so 70–170 ms covers the leading edge through peak and avoids
+the post-peak decay tail. This matches MajajHong2015's static window.
+
+**Build pipeline.** `data_packaging/build_li2026_static_70_170ms.py` loads
+the temporal assembly, averages the 10 ten-ms bins covering 70–170 ms per
+(stimulus, unit) cell, and writes a `(presentation × neuroid × time_bin=1)`
+NetCDF whose `time_bin_start=70` and `time_bin_end=170` coords carry the
+window provenance. `data_packaging/package_li2026_static_70_170ms.py`
+uploads it and prints the version_id + sha1 used in `__init__.py`.
+`data_packaging/build_li2026_static.py` and `package_li2026.py` are
+retained for reference (they document the upstream best-window
+methodology) but are not part of the deployed pipeline.
+
 ## Sequencing
 
 The data plugin is delivered in three tiers (see `tasks/todo.md` Triple-N
 section for the full plan):
 
-1. **v1 — static, light tier** *(shipped)*. Per-unit best-window means
-   from the `Processed_ses*.mat` files. Ceiling from the `reliability`
-   coord (= internal-consistency split-half SB by construction).
-2. **v2 — repetition-aware static**. Re-derive the assembly from per-rep
-   rasters in `ses*.h5` so the canonical `internal_consistency` ceiler
-   can recompute against held-out reps. Hashes will replace the v1
-   entries in `__init__.py`.
+1. **v1 — static, light tier, upstream best-window** *(superseded by v2)*.
+   Per-unit best-window means from the `Processed_ses*.mat` files. Kept
+   in `build_li2026_static.py` for documentation; not currently exposed
+   through the registry.
+2. **v2 — static, fixed 70–170 ms window** *(shipped — this is what
+   `Li2026` resolves to)*. Derived from the temporal assembly, see
+   "Methodology" above. Ceiling from the `reliability` coord, which is
+   the paper-canonical per-neuroid split-half SB and is unchanged from v1.
 3. **v3 — temporal** *(shipped as `Li2026.temporal`)*. 10 ms PSTH bins.
    Useful for recurrent / temporal models (CORnet-S, etc.). Ceiling is
    per-bin and is most informative in the 0–200 ms range.

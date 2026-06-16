@@ -1,7 +1,7 @@
 {
   "identifier": "Li2026_Assembly",
-  "version_id": "bdLlHwPAmkVr4aptJTI.CECHRghlOS_k",
-  "sha1": "830eae557ad8ed59ca0fd57b9ae243f72aa09ccf",
+  "version_id": "WdRIMwSbq2xxU2zSPpO5Fz4q4hYWMmTR",
+  "sha1": "8c2f6ddc1e94ae1e037e10c8897103a8d60596ed",
   "bucket": "brainscore-storage/brainscore-vision/benchmarks/Li2026",
   "cls": "NeuroidAssembly"
 }

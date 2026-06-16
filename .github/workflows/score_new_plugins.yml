@@ -275,7 +275,7 @@ jobs:
 
       - name: Run scoring
         run: |
-          python -c 'from brainscore_core.submission.endpoints import call_jenkins; call_jenkins('\''${{ env.PLUGIN_INFO }}'\'')'
+          python -c 'from brainscore_vision.submission.endpoints import call_jenkins_vision_gated; call_jenkins_vision_gated('\''${{ env.PLUGIN_INFO }}'\'')'
 
   process_metadata:
     name: Process metadata changes

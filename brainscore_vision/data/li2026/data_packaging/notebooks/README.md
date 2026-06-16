@@ -27,14 +27,18 @@ deadlock on the large IT regression.
 | Figure | Reproduced (from packaged data) | Paper | Verdict |
 | --- | --- | --- | --- |
 | **1f** reliability by region | IT median 0.60, V1/V2/V4 0.70/0.80/0.80; reliable counts V1 2556 / V2 2625 / V4 3559 / IT 26,700 | matches Fig 1 (IT median ~0.6) | exact counts |
-| **2f** cross-area similarity | within-category r 0.38 vs cross-category 0.02 (22 patches) | strong within-category blocks | match |
+| **2f** cross-area similarity | within-category r 0.38 vs cross-category 0.03 (22 patches) | strong within-category blocks | match |
 | **3d** response-type clusters | V1/V2/V4 ~0.82-0.95 fast-transient; IT later/sustained (0.17/0.53/0.30) | region-differentiated types | match |
 | **3e** population RSA over time | near-diagonal 0.89 to early-vs-late 0.26 | structured temporal evolution | match |
-| **5** AlexNet vs MPNet encoding | AlexNet IT 0.33 > MPNet IT 0.24; LVR 0.93 | LVR 0.74 (visual > semantic) | directional match |
+| **5** AlexNet vs MPNet encoding | AlexNet IT 0.32 > MPNet IT 0.22; LVR 0.91 | LVR 0.74 (visual > semantic) | directional match |
 
-The Fig 5 LVR magnitude differs (0.93 vs 0.74) because this notebook uses a single AlexNet
-FC6 layer with a fixed PLS dimensionality, whereas the paper selects the optimal PCA/PLS
-components; the direction (visual > semantic) is what reproduces.
+Fig 1f uses the `reliability` coord (paper-canonical best-window split-half SB), so it
+reproduces the paper's reliable-unit counts. The benchmark itself **selects and ceils on
+`reliability_window`** (split-half SB at the scored 70-170 ms window), giving window-matched
+reliable counts IT 21,059 / V1 2,305 / V2 2,523 / V4 3,414. Fig 5 encoding runs on the shipped
+70-170 ms static response; the LVR magnitude differs from the paper's 0.74 because this
+notebook uses a single AlexNet FC6 layer with fixed PLS dimensionality vs the paper's optimal
+PCA/PLS selection -- the direction (visual > semantic) is what reproduces.
 
 Fig 2g (trial-noise vs signal covariance) is intentionally not reproduced: it requires
 trial-resolved data, which this package does not carry (responses are trial-averaged). That is

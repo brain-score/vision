@@ -55,8 +55,10 @@ with hashes pinned in `__init__.py`.
 * **Presentation**: 150 ms on / 150 ms off, 4–8 repetitions per image, free
   viewing with central fixation.
 * **Unit count after packaging**: 47,503 across all four regions and all five
-  animals; ~26,700 IT units cross the canonical `reliability_best > 0.4`
-  threshold (applied at benchmark time, not in the assembly).
+  animals. ~26,700 IT units cross the paper's best-window `reliability_best > 0.4`
+  (the `reliability` coord); the benchmark instead selects on the 70-170 ms
+  `reliability_window > 0.4`, giving ~21,059 IT (thresholding is applied at benchmark
+  time, not baked into the assembly).
 
 ### Neuroid coords (both static and temporal)
 
@@ -191,7 +193,7 @@ section for the full plan):
    (split-half SB recomputed at 70–170 ms); best-window `reliability` is
    retained as a provenance coord. Window-matched reliable counts:
    IT ≈ 21.1k, V1 ≈ 2.3k, V2 ≈ 2.5k, V4 ≈ 3.4k (vs the paper's best-window
-   IT 26.7k). Benchmark `version=2`.
+   IT 26.7k).
 3. **v3 — temporal** *(shipped as `Li2026.temporal`)*. 10 ms PSTH bins.
    Useful for recurrent / temporal models (CORnet-S, etc.). Ceiling is
    per-bin and is most informative in the 0–200 ms range.

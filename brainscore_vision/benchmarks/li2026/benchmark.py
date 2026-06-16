@@ -75,7 +75,7 @@ def load_assembly(region: str):
 def _Li2026Region(region: str, metric_type: str) -> NeuralBenchmark:
     assembly = load_assembly(region)
     return NeuralBenchmark(
-        identifier=f'Li2026.{region}-{metric_type}', version=2,  # v2: fixed 70-170ms window + window-matched ceiling
+        identifier=f'Li2026.{region}-{metric_type}', version=1,
         assembly=assembly, similarity_metric=_metric(metric_type),
         visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
         ceiling_func=lambda: _reliability_ceiling(assembly, coord='reliability_window'),

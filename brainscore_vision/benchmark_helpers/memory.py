@@ -63,15 +63,14 @@ _OVERHEAD_FACTOR = 6
 #   worst miss after fix: resnet50 × Cadena2017-pls  →  -12.7%  (within 15%)
 _PLS_OVERHEAD_FACTOR = 7
 
-# Extra multiplier applied to the PLS estimate for *temporal-pls* benchmarks
-# (e.g. MajajHong2015public.{V4,IT}-temporal-pls). Temporal PLS fits the
-# regression once per time-bin and retains the per-timebin intermediate
-# matrices, so peak memory grows roughly by an additional ~5× on top of the
-# standard PLS overhead factor (observed on canary runs of MajajHong2015public
-# .{V4,IT}-temporal-pls — task #48). Applied multiplicatively to the PLS
-# formula (activation × _PLS_OVERHEAD_FACTOR + fixed_cost), then OOM-checked
-# against the tier ceiling like every other benchmark.
-_TEMPORAL_PLS_MULTIPLIER = 5
+# For temporal-PLS benchmarks (e.g. MajajHong2015public.{V4,IT}-temporal-pls)
+# the PLS regression is fit once per time-bin and the per-timebin intermediate
+# matrices are retained simultaneously, so peak memory grows by an additional
+# factor of ``num_timebins`` on top of the standard PLS overhead. A fixed
+# constant is wrong because benchmarks may have anywhere from 2 to dozens of
+# timebins; scale by the actual count probed at preflight time. Detection
+# uses ``num_timebins > 1`` rather than the ``-temporal-pls`` substring so
+# any PLS benchmark with multi-timebin output gets the correct estimate.
 
 
 @dataclass
@@ -105,7 +104,7 @@ class MemoryEstimate:
             fixed_str = (f" + {self.fixed_benchmark_cost_gb:.2f} GB fixed cost"
                          if self.fixed_benchmark_cost_gb else "")
             formula = (f"{self.activation_gb:.2f} GB activations "
-                       f"×{_PLS_OVERHEAD_FACTOR} (PLS) ×{_TEMPORAL_PLS_MULTIPLIER} "
+                       f"×{_PLS_OVERHEAD_FACTOR} (PLS) ×{self.num_timebins} "
                        f"(temporal-pls per-timebin retention){fixed_str}")
         elif self.formula_type == 'rdm':
             formula = (f"{self.activation_gb:.2f} GB activations "
@@ -423,12 +422,12 @@ def preallocate_memory(
     if is_pls:
         total_estimated_gb = activation_gb * _PLS_OVERHEAD_FACTOR + (fixed_benchmark_cost_gb or 0.0)
         formula_type = 'pls'
-        # temporal-pls benchmarks fit PLS per timebin and retain per-timebin
-        # intermediates → ~5× the regular PLS peak. Apply the multiplier here
-        # so the same OOM-check + tier-escalation path handles it. See
-        # _TEMPORAL_PLS_MULTIPLIER comment for the empirical basis.
-        if '-temporal-pls' in str(getattr(benchmark, 'identifier', '')):
-            total_estimated_gb *= _TEMPORAL_PLS_MULTIPLIER
+        # PLS fit once per timebin and intermediates retained → peak memory
+        # scales linearly with num_timebins on top of the standard PLS
+        # overhead. ``num_timebins == 1`` is a no-op multiplier so single-
+        # window PLS benchmarks (MajajHong2015.IT-pls etc.) are unchanged.
+        if num_timebins > 1:
+            total_estimated_gb *= num_timebins
             formula_type = 'temporal_pls'
     elif is_rdm:
         # Overhead ≈ 2× activation_gb (scales with features, not n_stimuli²).
@@ -517,7 +516,7 @@ def preallocate_memory(
     elif formula_type == 'temporal_pls':
         fixed_str = (f"  +  {estimate.fixed_benchmark_cost_gb:.3f} GB fixed cost"
                      if estimate.fixed_benchmark_cost_gb is not None else "")
-        print(f"  ×{_PLS_OVERHEAD_FACTOR} (PLS){fixed_str}  ×{_TEMPORAL_PLS_MULTIPLIER} (temporal)  "
+        print(f"  ×{_PLS_OVERHEAD_FACTOR} (PLS){fixed_str}  ×{num_timebins} (timebins)  "
               f"=  {estimate.total_estimated_gb:.3f} GB total", flush=True)
     elif formula_type == 'ridge_large_feature':
         print(f"  ×{_OVERHEAD_FACTOR} (ridge SVD: n_features={num_features:,} > n_stimuli={num_stimuli:,})"

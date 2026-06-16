@@ -25,7 +25,6 @@ from brainscore_vision.benchmark_helpers.memory import (
     MemoryEstimate,
     _OVERHEAD_FACTOR,
     _PLS_OVERHEAD_FACTOR,
-    _TEMPORAL_PLS_MULTIPLIER,
     _BYTES_PER_ELEMENT,
     _DEFAULT_CALIBRATION_PATH,
     preallocate_memory,
@@ -96,13 +95,27 @@ def _make_train_test_benchmark(n_train: int = 8, n_test: int = 4) -> TrainTestNe
     return bm
 
 
-def _make_model(num_features: int = 512) -> BrainModel:
-    """Mock BrainModel whose look_at returns a DataArray with neuroid dim."""
+def _make_model(num_features: int = 512, num_timebins: int = 1) -> BrainModel:
+    """Mock BrainModel whose look_at returns a DataArray with neuroid (and
+    optionally time_bin) dim. ``num_timebins > 1`` mimics a temporal model so
+    the preflight's ``probe_output.sizes.get('time_bin', 1)`` path picks up
+    the right count."""
     model = MagicMock(spec=BrainModel)
     model.visual_degrees.return_value = _VISUAL_DEGREES
 
     def _look_at(stimuli, number_of_trials=1):
         n = len(stimuli)
+        if num_timebins > 1:
+            data = np.zeros((n, num_features, num_timebins))
+            return xr.DataArray(
+                data,
+                dims=['presentation', 'neuroid', 'time_bin'],
+                coords={
+                    'stimulus_id': ('presentation', stimuli['stimulus_id'].values),
+                    'neuroid_id': ('neuroid', np.arange(num_features)),
+                    'time_bin': np.arange(num_timebins),
+                },
+            )
         data = np.zeros((n, num_features))
         return xr.DataArray(
             data,
@@ -443,34 +456,57 @@ class TestCalibratedFormula(unittest.TestCase):
         self.assertAlmostEqual(est.total_estimated_gb,
                                est.activation_gb * _OVERHEAD_FACTOR, places=5)
 
-    def test_temporal_pls_inflates_estimate_by_fixed_multiplier(self):
-        """MajajHong2015public.{V4,IT}-temporal-pls under-predicted the OOM
-        threshold by ~5× on production canaries (task #48) because temporal
-        PLS retains per-timebin intermediates that the regular PLS overhead
-        formula doesn't account for. Multiply the PLS estimate by a fixed
-        constant (_TEMPORAL_PLS_MULTIPLIER) and tag formula_type so the
-        sentinel parser can surface the correction in the email."""
+    def test_temporal_pls_scales_estimate_by_num_timebins(self):
+        """Temporal PLS retains per-timebin intermediates that the regular
+        PLS overhead formula doesn't account for, so peak memory grows
+        linearly with the actual number of timebins probed. A fixed constant
+        is wrong because temporal benchmarks may have anywhere from 2 to
+        dozens of timebins — scale by what we measure at preflight time.
+
+        Driven by infrastructure #48 (MajajHong2015public.{V4,IT}-temporal-pls
+        OOMing on small tier despite the preflight saying it would fit)."""
         bm = _make_neural_benchmark(n_stimuli=10)
         bm._identifier = 'MajajHong2015public.IT-temporal-pls'
-        model = _make_model(num_features=512)
-        # Calibrated cost present (would normally feed into the PLS formula).
+        # Mock model returns a probe output with 10 timebins so the preflight
+        # picks ``num_timebins=10`` via probe_output.sizes['time_bin'].
+        model = _make_model(num_features=512, num_timebins=10)
         save_calibration({'MajajHong2015public.IT-temporal-pls': 1.5}, self._cal_path)
         est = self._estimate(bm, model, cal_path=self._cal_path)
 
+        # activation_gb already accounts for the 10 timebins via the bytes
+        # formula. The temporal-pls correction multiplies the *full* PLS
+        # estimate by num_timebins on top of that.
         expected_pls = est.activation_gb * _PLS_OVERHEAD_FACTOR + 1.5
-        expected_total = expected_pls * _TEMPORAL_PLS_MULTIPLIER
-        self.assertAlmostEqual(est.total_estimated_gb, expected_total, places=5)
+        expected_total = expected_pls * 10
+        self.assertAlmostEqual(est.total_estimated_gb, expected_total, places=4)
         self.assertEqual(est.formula_type, 'temporal_pls')
-        # Regular PLS path stays unchanged — same shape benchmark but with
-        # a non-temporal identifier should NOT have the multiplier applied.
+        self.assertEqual(est.num_timebins, 10)
+
+        # Different timebin count → different multiplier. A 3-timebin probe
+        # produces a 3× multiplier, not 10×.
+        bm3 = _make_neural_benchmark(n_stimuli=10)
+        bm3._identifier = 'MajajHong2015public.V4-temporal-pls'
+        model3 = _make_model(num_features=512, num_timebins=3)
+        save_calibration({'MajajHong2015public.V4-temporal-pls': 1.5}, self._cal_path)
+        est3 = self._estimate(bm3, model3, cal_path=self._cal_path)
+        expected3 = (est3.activation_gb * _PLS_OVERHEAD_FACTOR + 1.5) * 3
+        self.assertAlmostEqual(est3.total_estimated_gb, expected3, places=4)
+        self.assertEqual(est3.num_timebins, 3)
+
+    def test_pls_single_timebin_skips_temporal_multiplier(self):
+        """Single-window PLS benchmarks (MajajHong2015.IT-pls etc.) must
+        stay on the regular PLS formula. The temporal multiplier only fires
+        when ``num_timebins > 1`` so single-timebin PLS is unchanged."""
+        bm = _make_neural_benchmark(n_stimuli=10)
         bm._identifier = 'MajajHong2015.IT-pls'
-        est_reg = self._estimate(bm, model, fixed_cost=1.5)
+        model = _make_model(num_features=512, num_timebins=1)
+        est = self._estimate(bm, model, fixed_cost=1.5)
+        self.assertEqual(est.formula_type, 'pls')
         self.assertAlmostEqual(
-            est_reg.total_estimated_gb,
-            est_reg.activation_gb * _PLS_OVERHEAD_FACTOR + 1.5,
+            est.total_estimated_gb,
+            est.activation_gb * _PLS_OVERHEAD_FACTOR + 1.5,
             places=5,
         )
-        self.assertEqual(est_reg.formula_type, 'pls')
 
     def test_oom_detected_with_calibrated_formula(self):
         bm = _make_neural_benchmark(n_stimuli=10)

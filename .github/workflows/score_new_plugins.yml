@@ -215,16 +215,26 @@ jobs:
         run: |
           PLUGIN_JSON=$(echo "$PLUGIN_INFO" | jq -c '. + {domain: "vision", competition: "None", model_type: "Brain_Model"}')
           echo "PLUGIN_INFO=$PLUGIN_JSON" >> $GITHUB_ENV
-          
+
           PLUGIN_JSON=$(echo "$PLUGIN_JSON" | jq -c --arg email "$USER_EMAIL" '. + {email: $email}')
           echo "PLUGIN_INFO=$PLUGIN_JSON" >> $GITHUB_ENV
           echo "Updated PLUGIN_INFO: $PLUGIN_JSON"
-          
+
           PLUGIN_JSON=$(echo "$PLUGIN_JSON" | jq -c \
             --arg plugin_dirs "${{ needs.process_submission.outputs.PLUGIN_DIRS }}" \
             --arg plugin_type "${{ needs.process_submission.outputs.PLUGIN_TYPE }}" \
             --arg run_metadata "${{ needs.process_submission.outputs.RUN_METADATA }}" \
             '. + {plugin_dirs: $plugin_dirs, plugin_type: $plugin_type, run_metadata: $run_metadata}')
+
+          # commit_sha: vision master at the time this run was triggered.
+          # The orchestrator stamps this on every ResourceUsage row's
+          # model_plugin_sha + benchmark_plugin_sha columns so DB analysts
+          # can reproduce the exact code that produced each score by
+          # checking out this SHA.
+          PLUGIN_JSON=$(echo "$PLUGIN_JSON" | jq -c \
+            --arg commit_sha "${{ github.sha }}" \
+            '. + {commit_sha: $commit_sha}')
+          echo "PLUGIN_INFO=$PLUGIN_JSON" >> $GITHUB_ENV
 
       - name: Write PLUGIN_INFO to a json file
         run: |

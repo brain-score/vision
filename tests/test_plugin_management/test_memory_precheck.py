@@ -313,6 +313,59 @@ class TestUnsupportedBenchmarkType(unittest.TestCase):
         model = _make_model()
         self.assertIsNone(preallocate_memory(model, WeirdBenchmark()))
 
+    def test_unsupported_benchmark_emits_skipped_sentinel(self):
+        """Behavioral / engineering / wrapper benchmarks return None from
+        preallocate_memory because they don't have an activation-based
+        formula. They must still emit a BRAINSCORE_PREFLIGHT sentinel with
+        ``formula_type='skipped'`` so the downstream ResourceUsage row
+        records that preflight WAS attempted on this run -- distinguishing
+        it from older container images where preflight was never wired up
+        (which leaves the column NULL). Surfaced in infrastructure #48
+        diagnosis where 17/26 production rows had a NULL
+        preflight_formula_type for exactly this reason."""
+        class BehavioralBenchmark:
+            identifier = 'Geirhos2021edge-error_consistency'
+
+        model = _make_model()
+        with patch('builtins.print') as mock_print:
+            result = preallocate_memory(model, BehavioralBenchmark())
+
+        self.assertIsNone(result)
+        # The sentinel goes to stdout via print() -- inspect the captured calls.
+        sentinel_lines = [
+            args[0] for (args, kwargs) in mock_print.call_args_list
+            if args and isinstance(args[0], str)
+            and args[0].startswith('BRAINSCORE_PREFLIGHT')
+        ]
+        self.assertEqual(len(sentinel_lines), 1,
+                         f"expected one preflight sentinel, got {sentinel_lines}")
+        payload = json.loads(sentinel_lines[0].split(' ', 1)[1])
+        self.assertEqual(payload['formula_type'], 'skipped')
+        self.assertEqual(payload['reason'], 'unsupported_benchmark_type')
+        self.assertEqual(payload['benchmark_type'], 'BehavioralBenchmark')
+        self.assertIsNone(payload['estimate_gb'])
+        self.assertFalse(payload['will_oom'])
+
+    def test_env_skip_also_emits_skipped_sentinel(self):
+        """BRAINSCORE_SKIP_MEMORY_CHECK=1 short-circuits preflight, but the
+        sentinel still goes out so the row records that the path was
+        traversed and intentionally bypassed."""
+        bm = _make_neural_benchmark()
+        model = _make_model()
+        with patch.dict(os.environ, {'BRAINSCORE_SKIP_MEMORY_CHECK': '1'}):
+            with patch('builtins.print') as mock_print:
+                result = preallocate_memory(model, bm, raise_if_oom=False)
+        self.assertIsNone(result)
+        sentinel_lines = [
+            args[0] for (args, kwargs) in mock_print.call_args_list
+            if args and isinstance(args[0], str)
+            and args[0].startswith('BRAINSCORE_PREFLIGHT')
+        ]
+        self.assertEqual(len(sentinel_lines), 1)
+        payload = json.loads(sentinel_lines[0].split(' ', 1)[1])
+        self.assertEqual(payload['formula_type'], 'skipped')
+        self.assertEqual(payload['reason'], 'env_skip')
+
 
 # ---------------------------------------------------------------------------
 # TestTrainTestNeuralBenchmark

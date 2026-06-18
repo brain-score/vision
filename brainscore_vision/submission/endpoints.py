@@ -41,6 +41,39 @@ def send_email_to_submitter(uid: int, domain: str, pr_number: str,
                                  mail_username=mail_username, mail_password=mail_password)
 
 
+def call_jenkins_vision_gated(plugin_info: Union[str, Dict[str, Union[List[str], str]]]):
+    """Trigger the ``core/job/gated_score_plugins`` Jenkins job for vision submissions.
+
+    Mirrors :func:`brainscore_core.submission.endpoints.call_jenkins` but routes
+    to the gated orchestrator (`brainscore-scoring` CLI) instead of the legacy
+    ``dev_score_plugins`` bash pipeline. Owning the trigger here lets vision
+    cut over independently of language, which keeps its own
+    :func:`call_jenkins_language` override in brain-score/language.
+    """
+    import json
+    import os
+    import requests
+    from requests.auth import HTTPBasicAuth
+
+    jenkins_base = "http://www.brain-score-jenkins.com:8080"
+    jenkins_user = os.environ['JENKINS_USER']
+    jenkins_token = os.environ['JENKINS_TOKEN']
+    jenkins_trigger = os.environ['JENKINS_TRIGGER']
+    jenkins_job = "core/job/gated_score_plugins"
+
+    url = f'{jenkins_base}/job/{jenkins_job}/buildWithParameters?token={jenkins_trigger}'
+
+    if isinstance(plugin_info, str):
+        plugin_info = json.loads(plugin_info)
+
+    payload = {k: v for k, v in plugin_info.items() if plugin_info[k]}
+    try:
+        auth_basic = HTTPBasicAuth(username=jenkins_user, password=jenkins_token)
+        requests.get(url, params=payload, auth=auth_basic)
+    except Exception as e:
+        print(f'Could not initiate Jenkins job because of {e}')
+
+
 if __name__ == '__main__':
     # Wire up resource-usage tracking ONLY in the scoring-container entrypoint.
     # Keeping this out of brainscore_vision/__init__.py so regular imports

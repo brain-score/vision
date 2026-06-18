@@ -165,6 +165,30 @@ def save_calibration(costs: dict, path: Optional[str] = None) -> None:
     _logger.info(f"Calibration saved → {path}  ({len(costs)} benchmarks)")
 
 
+def _emit_skipped_preflight(benchmark, reason: str) -> None:
+    """Emit a ``BRAINSCORE_PREFLIGHT`` sentinel for paths that don't compute
+    an estimate (env-skip, unsupported benchmark type).
+
+    Keeps the parser-side schema consistent — the orchestrator now sees a
+    sentinel for every preallocate_memory call, with ``estimate_gb=null`` and
+    ``formula_type='skipped'`` distinguishing "tried, no estimate" from
+    "container was too old to even attempt" (which leaves preflight_*
+    columns NULL in the DB).
+    """
+    payload = {
+        'estimate_gb': None,
+        'available_gb': None,
+        'formula_type': 'skipped',
+        'will_oom': False,
+        'num_features': None,
+        'num_stimuli': None,
+        'reason': reason,
+        'benchmark_identifier': str(getattr(benchmark, 'identifier', '')) or None,
+        'benchmark_type': type(benchmark).__name__,
+    }
+    print(f"BRAINSCORE_PREFLIGHT {json.dumps(payload)}", flush=True)
+
+
 def _is_pls_benchmark(benchmark) -> bool:
     """Return True if the benchmark uses PLS regression.
 
@@ -283,6 +307,7 @@ def preallocate_memory(
     """
     if os.environ.get('BRAINSCORE_SKIP_MEMORY_CHECK', '0') == '1':
         _logger.debug("BRAINSCORE_SKIP_MEMORY_CHECK is set — skipping memory pre-check.")
+        _emit_skipped_preflight(benchmark, reason='env_skip')
         return None
 
     # ------------------------------------------------------------------ #
@@ -322,6 +347,12 @@ def preallocate_memory(
         _logger.debug(
             f"preallocate_memory: unsupported benchmark type {type(benchmark).__name__}, skipping."
         )
+        # Still emit a sentinel so the resource-usage row records that
+        # preflight WAS attempted (formula_type=skipped, estimate=null).
+        # Without this, behavioral / engineering / wrapper benchmarks land
+        # in the DB with preflight_formula_type=NULL — indistinguishable
+        # from older container images where preflight wasn't wired up.
+        _emit_skipped_preflight(benchmark, reason='unsupported_benchmark_type')
         return None
 
     # ------------------------------------------------------------------ #

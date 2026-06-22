@@ -1,0 +1,11 @@
+from brainscore_vision import model_registry
+from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
+from .model import get_model, get_layers
+
+model_registry['dinov2_vitg14_reg_lc'] = lambda: ModelCommitment(
+    identifier='dinov2_vitg14_reg_lc',
+    activations_model=get_model('dinov2_vitg14_reg_lc'),
+    layers=get_layers('dinov2_vitg14_reg_lc'),
+    behavioral_readout_layer='linear_head',
+    visual_degrees=8,
+)

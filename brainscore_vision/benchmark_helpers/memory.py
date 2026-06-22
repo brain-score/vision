@@ -63,25 +63,9 @@ _OVERHEAD_FACTOR = 6
 #   worst miss after fix: resnet50 × Cadena2017-pls  →  -12.7%  (within 15%)
 _PLS_OVERHEAD_FACTOR = 7
 
-# Per-benchmark scaffolding overhead the formula misses. Generated from the
-# brainscore_resource_usage table (production) on 2026-06-21 over ~1500 rows:
-#
-#   overhead_gb = median(actual_peak_when_successful) - median(formula_estimate)
-#
-# Only benchmarks where the delta exceeds 2 GB are listed (a smaller
-# correction wouldn't change tier selection). Most entries are recent
-# neural benchmarks the formula was never calibrated for (Zerbe2026,
-# Papale2025, parts of Allen2022). Regenerate via:
-#
-#   SELECT benchmark_id_str,
-#          round((p50_peak - p50_estimate)::numeric, 1)
-#   FROM (...)  -- see scoring fix PR for full query
-#
-# When the formula itself is restructured (e.g. to include brain-assembly
-# residency directly), most entries here become 0 and can be removed.
+# Empirical p50(real_peak) - p50(formula_estimate) per benchmark, GB.
+# Papale2025.V4-ridgecv omitted: dinov2-only data would over-allocate small models.
 _BENCHMARK_SCAFFOLDING_OVERHEAD_GB: dict[str, float] = {
-    # very-large under-estimators (Zerbe2026 ridgecv variants; brain-assembly
-    # tensors are large and held throughout)
     'Zerbe2026_fmri.V1-tau-ridgecv': 42.0,
     'Gifford2022.IT-ridgecv': 20.0,
     'Zerbe2026_fmri.V1-rdm-pearson': 19.0,
@@ -95,7 +79,6 @@ _BENCHMARK_SCAFFOLDING_OVERHEAD_GB: dict[str, float] = {
     'Zerbe2026_fmri.V2-rdm-pearson': 11.8,
     'Zerbe2026_fmri.V4-rdm-pearson': 11.8,
     'Zerbe2026_fmri.IT-rdm-pearson': 10.5,
-    # medium under-estimators
     'MajajHong2015public.IT-reverse_pls': 8.7,
     'FreemanZiemba2013.V1-pls': 7.6,
     'Papale2025.IT-ridgecv': 7.6,
@@ -104,19 +87,12 @@ _BENCHMARK_SCAFFOLDING_OVERHEAD_GB: dict[str, float] = {
     'Hebart2023_fmri.IT-ridgecv': 6.2,
     'FreemanZiemba2013.V2-pls': 5.6,
     'Allen2022_fmri_surface.V2-ridge': 4.7,
-    # small under-estimators (still meaningful for small-tier sizing)
     'MajajHong2015.V4-pls': 3.9,
     'Allen2022_fmri_surface.V4-ridge': 3.8,
     'Allen2022_fmri_surface.IT-ridge': 3.6,
     'Allen2022_fmri_surface.V4-rdm': 3.0,
     'Allen2022_fmri_surface.V2-rdm': 2.9,
     'Allen2022_fmri_surface.IT-rdm': 2.7,
-    # Papale2025.V4-ridgecv intentionally OMITTED: production data only
-    # has successful peaks from dinov2-at-large (126 GB). Adding a 57 GB
-    # scaffolding offset would force every model (including ~5 GB activation
-    # alexnet runs) directly to xlarge tier. Wait for more model-class
-    # coverage before correcting this entry; Fix 4's retry escalation
-    # handles the current over-estimation issue cheaply.
 }
 
 # For temporal-PLS benchmarks (e.g. MajajHong2015public.{V4,IT}-temporal-pls)
@@ -564,20 +540,7 @@ def preallocate_memory(
         total_estimated_gb = activation_gb * _OVERHEAD_FACTOR
         formula_type = 'fallback'
 
-    # Per-benchmark scaffolding overhead correction. Production data from
-    # ~1500 brainscore_resource_usage rows showed the formula systematically
-    # UNDER-estimates for neural benchmarks by 3-18x — driving the OS to
-    # kill containers (numpy ArrayMemoryError, ~217 cases on 2026-06-21
-    # snapshot) before the preflight check ever fired. The pattern is
-    # that the formula captures activation + algorithm overhead but
-    # misses brain-assembly residency, scoring scaffolding, and dataset
-    # caching that scale per-benchmark, not per-model.
-    #
-    # Correction = observed_p50(real_peak) - observed_p50(formula_estimate)
-    # clamped at 0. Added (not multiplied) so it captures the missing
-    # CONSTANT scaffolding without amplifying the formula's model-size
-    # scaling. Regenerate with the SQL in the PR description after another
-    # ~50 submissions land.
+    # Empirical per-benchmark scaffolding the formula misses (see table above).
     bench_id = str(getattr(benchmark, 'identifier', '') or '')
     overhead_gb = _BENCHMARK_SCAFFOLDING_OVERHEAD_GB.get(bench_id, 0.0)
     if overhead_gb > 0:

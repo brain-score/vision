@@ -63,6 +63,38 @@ _OVERHEAD_FACTOR = 6
 #   worst miss after fix: resnet50 × Cadena2017-pls  →  -12.7%  (within 15%)
 _PLS_OVERHEAD_FACTOR = 7
 
+# Empirical p50(real_peak) - p50(formula_estimate) per benchmark, GB.
+# Papale2025.V4-ridgecv omitted: dinov2-only data would over-allocate small models.
+_BENCHMARK_SCAFFOLDING_OVERHEAD_GB: dict[str, float] = {
+    'Zerbe2026_fmri.V1-tau-ridgecv': 42.0,
+    'Gifford2022.IT-ridgecv': 20.0,
+    'Zerbe2026_fmri.V1-rdm-pearson': 19.0,
+    'Zerbe2026_fmri.V2-ood-ridgecv': 16.5,
+    'Zerbe2026_fmri.V2-tau-ridgecv': 15.8,
+    'Zerbe2026_fmri.V4-ood-ridgecv': 14.4,
+    'Zerbe2026_fmri.V4-tau-ridgecv': 13.7,
+    'Zerbe2026_fmri.IT-tau-ridgecv': 13.7,
+    'Zerbe2026_fmri.IT-ood-ridgecv': 13.7,
+    'Allen2022_fmri_surface.V1-ridge': 12.4,
+    'Zerbe2026_fmri.V2-rdm-pearson': 11.8,
+    'Zerbe2026_fmri.V4-rdm-pearson': 11.8,
+    'Zerbe2026_fmri.IT-rdm-pearson': 10.5,
+    'MajajHong2015public.IT-reverse_pls': 8.7,
+    'FreemanZiemba2013.V1-pls': 7.6,
+    'Papale2025.IT-ridgecv': 7.6,
+    'Sanghavi2020.V4-pls': 7.4,
+    'Allen2022_fmri_surface.V1-rdm': 6.4,
+    'Hebart2023_fmri.IT-ridgecv': 6.2,
+    'FreemanZiemba2013.V2-pls': 5.6,
+    'Allen2022_fmri_surface.V2-ridge': 4.7,
+    'MajajHong2015.V4-pls': 3.9,
+    'Allen2022_fmri_surface.V4-ridge': 3.8,
+    'Allen2022_fmri_surface.IT-ridge': 3.6,
+    'Allen2022_fmri_surface.V4-rdm': 3.0,
+    'Allen2022_fmri_surface.V2-rdm': 2.9,
+    'Allen2022_fmri_surface.IT-rdm': 2.7,
+}
+
 # For temporal-PLS benchmarks (e.g. MajajHong2015public.{V4,IT}-temporal-pls)
 # the PLS regression is fit once per time-bin and the per-timebin intermediate
 # matrices are retained simultaneously, so peak memory grows by an additional
@@ -507,6 +539,12 @@ def preallocate_memory(
     else:
         total_estimated_gb = activation_gb * _OVERHEAD_FACTOR
         formula_type = 'fallback'
+
+    # Empirical per-benchmark scaffolding the formula misses (see table above).
+    bench_id = str(getattr(benchmark, 'identifier', '') or '')
+    overhead_gb = _BENCHMARK_SCAFFOLDING_OVERHEAD_GB.get(bench_id, 0.0)
+    if overhead_gb > 0:
+        total_estimated_gb += overhead_gb
 
     available_gb = psutil.virtual_memory().available / (1024 ** 3)
 

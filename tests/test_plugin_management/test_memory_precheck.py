@@ -684,3 +684,55 @@ class TestCalibratedIntegration(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class TestBenchmarkScaffoldingOverhead(unittest.TestCase):
+
+    def _estimate(self, bm, model):
+        from brainscore_vision.benchmark_helpers.memory import preallocate_memory
+        with patch('psutil.virtual_memory') as mock_vm:
+            mock_vm.return_value.available = 256 * (1024 ** 3)
+            with patch('brainscore_vision.benchmark_helpers.memory._DEFAULT_CALIBRATION_PATH',
+                       '/nonexistent'):
+                return preallocate_memory(model, bm, raise_if_oom=False)
+
+    def test_overhead_added_when_benchmark_in_table(self):
+        bm = _make_neural_benchmark(n_stimuli=100)
+        bm._identifier = 'Zerbe2026_fmri.V1-tau-ridgecv'
+        model = _make_model(num_features=1024)
+        with patch.dict(
+                'brainscore_vision.benchmark_helpers.memory._BENCHMARK_SCAFFOLDING_OVERHEAD_GB',
+                {'Zerbe2026_fmri.V1-tau-ridgecv': 42.0}, clear=False):
+            est = self._estimate(bm, model)
+        baseline = est.activation_gb * _OVERHEAD_FACTOR
+        self.assertGreaterEqual(est.total_estimated_gb, baseline + 42.0 - 0.5)
+
+    def test_overhead_not_applied_when_benchmark_missing(self):
+        bm = _make_neural_benchmark(n_stimuli=10)
+        bm._identifier = 'BenchmarkNotInTable-pls'
+        model = _make_model(num_features=512)
+        with patch.dict(
+                'brainscore_vision.benchmark_helpers.memory._BENCHMARK_SCAFFOLDING_OVERHEAD_GB',
+                {'Zerbe2026_fmri.V1-tau-ridgecv': 42.0}, clear=True):
+            est = self._estimate(bm, model)
+        self.assertAlmostEqual(est.total_estimated_gb,
+                               est.activation_gb * _OVERHEAD_FACTOR, places=4)
+
+    def test_zero_overhead_entry_is_no_op(self):
+        bm = _make_neural_benchmark(n_stimuli=10)
+        bm._identifier = 'BenchmarkWithZero-pls'
+        model = _make_model(num_features=512)
+        with patch.dict(
+                'brainscore_vision.benchmark_helpers.memory._BENCHMARK_SCAFFOLDING_OVERHEAD_GB',
+                {'BenchmarkWithZero-pls': 0.0}, clear=False):
+            est = self._estimate(bm, model)
+        self.assertAlmostEqual(est.total_estimated_gb,
+                               est.activation_gb * _OVERHEAD_FACTOR, places=4)
+
+    def test_production_table_has_only_positive_corrections(self):
+        from brainscore_vision.benchmark_helpers.memory import _BENCHMARK_SCAFFOLDING_OVERHEAD_GB
+        self.assertTrue(all(v > 0 for v in _BENCHMARK_SCAFFOLDING_OVERHEAD_GB.values()))
+
+    def test_production_table_does_not_include_papale_v4_ridgecv(self):
+        from brainscore_vision.benchmark_helpers.memory import _BENCHMARK_SCAFFOLDING_OVERHEAD_GB
+        self.assertNotIn('Papale2025.V4-ridgecv', _BENCHMARK_SCAFFOLDING_OVERHEAD_GB)

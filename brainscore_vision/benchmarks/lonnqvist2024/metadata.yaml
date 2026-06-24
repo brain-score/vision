@@ -15,7 +15,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: behavioral_data
+            datatype: behavioral
             num_subjects: 10
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/lonnqvist2024
@@ -43,7 +43,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: behavioral_data
+            datatype: behavioral
             num_subjects: 10
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/lonnqvist2024
@@ -71,7 +71,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: behavioral_data
+            datatype: behavioral
             num_subjects: 10
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/lonnqvist2024
@@ -99,7 +99,7 @@ benchmarks:
             num_recording_sites: null
             duration_ms: null
             species: null
-            datatype: behavioral_data
+            datatype: behavioral
             num_subjects: 92
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/lonnqvist2024

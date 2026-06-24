@@ -63,11 +63,12 @@ jobs:
 
       - name: Find PR author email for non-web submissions
         if: ${{ !inputs.is_automerge_web }}
-        uses: evvanErb/get-github-email-by-username-action@v2.0
         id: getemail
-        with:
-          github-username: ${{inputs.pr_username}}
-          token: ${{ secrets.GITHUB_TOKEN }}  # Including token enables most reliable way to get a user's email
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          EMAIL=$(gh api users/${{ inputs.pr_username }} --jq '.email // empty')
+          echo "email=$EMAIL" >> $GITHUB_OUTPUT
           
       - name: Update email for non-web submissions
         if: ${{ !inputs.is_automerge_web }}

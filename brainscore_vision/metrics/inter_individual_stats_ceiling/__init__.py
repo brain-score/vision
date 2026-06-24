@@ -1,0 +1,4 @@
+from brainscore_vision import metric_registry
+from .ceiling import InterIndividualStatisticsCeiling
+
+metric_registry['inter_individual_helper'] = InterIndividualStatisticsCeiling

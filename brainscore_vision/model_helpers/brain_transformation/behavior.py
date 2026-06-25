@@ -51,7 +51,14 @@ class LabelBehavior(BrainModel):
         return choices
 
     def logits_to_choice(self, logits):
-        assert len(logits['neuroid']) == 1000
+        n = len(logits['neuroid'])
+        if n != 1000:
+            raise ValueError(
+                f"Behavioral benchmarks require a 1000-dim ImageNet classification head, "
+                f"got {n}-dim logits. The model's `logits` layer must output ImageNet "
+                f"1000-class predictions (feature-extractor-only models cannot run behavioral "
+                f"benchmarks)."
+            )
         logits = logits.transpose(..., 'neuroid')  # move neuroid dimension last
         extra_coords = {}
         if self.choice_labels == 'imagenet':

@@ -45,12 +45,30 @@ class LabelBehavior(BrainModel):
 
     def look_at(self, stimuli, number_of_trials: int = 1, require_variance: bool = False):
         assert self.current_task == BrainModel.Task.label
+        # Probe one stimulus first to catch missing 1000-dim classification
+        # heads before paying full inference (otherwise ~40 min wasted per
+        # attempt on feature-reader submissions). Uses _from_paths directly
+        # to skip the result cache; full run is unaffected.
+        self._probe_logits_dim(stimuli)
         logits = self.activations_model(stimuli, layers=['logits'], number_of_trials=number_of_trials,
                                         require_variance=require_variance)
         choices = self.logits_to_choice(logits)
         return choices
 
-    def logits_to_choice(self, logits):
+    def _probe_logits_dim(self, stimuli):
+        extractor = getattr(self.activations_model, '_extractor', None)
+        if extractor is None or not hasattr(stimuli, 'get_stimulus'):
+            return  # graceful skip — defensive check still fires post-inference
+        try:
+            probe_id = stimuli['stimulus_id'].values[0]
+            probe_path = str(stimuli.get_stimulus(probe_id))
+            probe_output = extractor._from_paths(layers=['logits'], stimuli_paths=[probe_path])
+        except Exception:
+            return  # don't let probe failure break a run; let main path raise
+        self._check_logits_dim(probe_output)
+
+    @staticmethod
+    def _check_logits_dim(logits):
         n = len(logits['neuroid'])
         if n != 1000:
             raise ValueError(
@@ -59,6 +77,9 @@ class LabelBehavior(BrainModel):
                 f"1000-class predictions (feature-extractor-only models cannot run behavioral "
                 f"benchmarks)."
             )
+
+    def logits_to_choice(self, logits):
+        self._check_logits_dim(logits)
         logits = logits.transpose(..., 'neuroid')  # move neuroid dimension last
         extra_coords = {}
         if self.choice_labels == 'imagenet':

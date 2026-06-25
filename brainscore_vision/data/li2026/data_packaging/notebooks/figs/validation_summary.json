@@ -1,0 +1,59 @@
+{
+  "source": "brainscore packaged data (load_dataset / load_stimulus_set)",
+  "1f_reliability_median": {
+    "V1": 0.7,
+    "V2": 0.802,
+    "V4": 0.796,
+    "IT": 0.604
+  },
+  "1f_n_reliable": {
+    "V1": 2556,
+    "V2": 2625,
+    "V4": 3559,
+    "IT": 26700
+  },
+  "2f_within_vs_cross_r": [
+    0.38,
+    0.025
+  ],
+  "2f_n_patches": 22,
+  "3d_cluster_fraction_by_region": {
+    "V1": [
+      0.89,
+      0.05,
+      0.05
+    ],
+    "V2": [
+      0.95,
+      0.04,
+      0.02
+    ],
+    "V4": [
+      0.82,
+      0.12,
+      0.06
+    ],
+    "IT": [
+      0.17,
+      0.53,
+      0.3
+    ]
+  },
+  "3e_rsa_diag_offdiag": [
+    0.889,
+    0.258
+  ],
+  "5_alexnet_encoding_median_r": {
+    "V1": 0.28,
+    "V2": 0.228,
+    "V4": 0.276,
+    "IT": 0.318
+  },
+  "5_mpnet_encoding_median_r": {
+    "V1": 0.135,
+    "V2": 0.093,
+    "V4": 0.155,
+    "IT": 0.222
+  },
+  "5_LVR_IT": 0.908
+}

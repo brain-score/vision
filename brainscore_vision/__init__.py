@@ -79,18 +79,25 @@ def _run_score(model_identifier: str, benchmark_identifier: str) -> Score:
     try:
         score: Score = score_benchmark(benchmark, model)
     except AssertionError as e:
-        cache_dir = os.path.expanduser(
-            '~/.result_caching/brainscore_vision.model_helpers.activations.core'
-            '.ActivationsExtractorHelper._from_paths_stored'
-        )
-        raise AssertionError(
-            f"{e}\n\n"
-            f"If this is a stale activations cache (cached stimulus paths no longer match "
-            f"current locations, e.g. temp directory changed between runs), fix with:\n"
-            f"  rm {cache_dir}/identifier={model_identifier},stimuli_identifier=*.pkl\n\n"
-            f"Or to clear the entire activations cache:\n"
-            f"  rm {cache_dir}/*.pkl"
-        ) from e
+        # Only append the cache-clearing hint when the AssertionError actually
+        # looks like a stimulus-path mismatch from a stale activations cache.
+        # Other AssertionErrors (e.g. logits-dim mismatch) have nothing to do
+        # with caching and the hint misleads users into deleting good data.
+        msg = str(e)
+        if 'stimulus' in msg.lower() or 'path' in msg.lower():
+            cache_dir = os.path.expanduser(
+                '~/.result_caching/brainscore_vision.model_helpers.activations.core'
+                '.ActivationsExtractorHelper._from_paths_stored'
+            )
+            raise AssertionError(
+                f"{e}\n\n"
+                f"If this is a stale activations cache (cached stimulus paths no longer match "
+                f"current locations, e.g. temp directory changed between runs), fix with:\n"
+                f"  rm {cache_dir}/identifier={model_identifier},stimuli_identifier=*.pkl\n\n"
+                f"Or to clear the entire activations cache:\n"
+                f"  rm {cache_dir}/*.pkl"
+            ) from e
+        raise
     score.attrs['model_identifier'] = model_identifier
     score.attrs['benchmark_identifier'] = benchmark_identifier
     try:  # attempt to look up the layer commitment if model uses a standard layer model

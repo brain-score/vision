@@ -95,13 +95,27 @@ def _make_train_test_benchmark(n_train: int = 8, n_test: int = 4) -> TrainTestNe
     return bm
 
 
-def _make_model(num_features: int = 512) -> BrainModel:
-    """Mock BrainModel whose look_at returns a DataArray with neuroid dim."""
+def _make_model(num_features: int = 512, num_timebins: int = 1) -> BrainModel:
+    """Mock BrainModel whose look_at returns a DataArray with neuroid (and
+    optionally time_bin) dim. ``num_timebins > 1`` mimics a temporal model so
+    the preflight's ``probe_output.sizes.get('time_bin', 1)`` path picks up
+    the right count."""
     model = MagicMock(spec=BrainModel)
     model.visual_degrees.return_value = _VISUAL_DEGREES
 
     def _look_at(stimuli, number_of_trials=1):
         n = len(stimuli)
+        if num_timebins > 1:
+            data = np.zeros((n, num_features, num_timebins))
+            return xr.DataArray(
+                data,
+                dims=['presentation', 'neuroid', 'time_bin'],
+                coords={
+                    'stimulus_id': ('presentation', stimuli['stimulus_id'].values),
+                    'neuroid_id': ('neuroid', np.arange(num_features)),
+                    'time_bin': np.arange(num_timebins),
+                },
+            )
         data = np.zeros((n, num_features))
         return xr.DataArray(
             data,
@@ -299,6 +313,59 @@ class TestUnsupportedBenchmarkType(unittest.TestCase):
         model = _make_model()
         self.assertIsNone(preallocate_memory(model, WeirdBenchmark()))
 
+    def test_unsupported_benchmark_emits_skipped_sentinel(self):
+        """Behavioral / engineering / wrapper benchmarks return None from
+        preallocate_memory because they don't have an activation-based
+        formula. They must still emit a BRAINSCORE_PREFLIGHT sentinel with
+        ``formula_type='skipped'`` so the downstream ResourceUsage row
+        records that preflight WAS attempted on this run -- distinguishing
+        it from older container images where preflight was never wired up
+        (which leaves the column NULL). Surfaced in infrastructure #48
+        diagnosis where 17/26 production rows had a NULL
+        preflight_formula_type for exactly this reason."""
+        class BehavioralBenchmark:
+            identifier = 'Geirhos2021edge-error_consistency'
+
+        model = _make_model()
+        with patch('builtins.print') as mock_print:
+            result = preallocate_memory(model, BehavioralBenchmark())
+
+        self.assertIsNone(result)
+        # The sentinel goes to stdout via print() -- inspect the captured calls.
+        sentinel_lines = [
+            args[0] for (args, kwargs) in mock_print.call_args_list
+            if args and isinstance(args[0], str)
+            and args[0].startswith('BRAINSCORE_PREFLIGHT')
+        ]
+        self.assertEqual(len(sentinel_lines), 1,
+                         f"expected one preflight sentinel, got {sentinel_lines}")
+        payload = json.loads(sentinel_lines[0].split(' ', 1)[1])
+        self.assertEqual(payload['formula_type'], 'skipped')
+        self.assertEqual(payload['reason'], 'unsupported_benchmark_type')
+        self.assertEqual(payload['benchmark_type'], 'BehavioralBenchmark')
+        self.assertIsNone(payload['estimate_gb'])
+        self.assertFalse(payload['will_oom'])
+
+    def test_env_skip_also_emits_skipped_sentinel(self):
+        """BRAINSCORE_SKIP_MEMORY_CHECK=1 short-circuits preflight, but the
+        sentinel still goes out so the row records that the path was
+        traversed and intentionally bypassed."""
+        bm = _make_neural_benchmark()
+        model = _make_model()
+        with patch.dict(os.environ, {'BRAINSCORE_SKIP_MEMORY_CHECK': '1'}):
+            with patch('builtins.print') as mock_print:
+                result = preallocate_memory(model, bm, raise_if_oom=False)
+        self.assertIsNone(result)
+        sentinel_lines = [
+            args[0] for (args, kwargs) in mock_print.call_args_list
+            if args and isinstance(args[0], str)
+            and args[0].startswith('BRAINSCORE_PREFLIGHT')
+        ]
+        self.assertEqual(len(sentinel_lines), 1)
+        payload = json.loads(sentinel_lines[0].split(' ', 1)[1])
+        self.assertEqual(payload['formula_type'], 'skipped')
+        self.assertEqual(payload['reason'], 'env_skip')
+
 
 # ---------------------------------------------------------------------------
 # TestTrainTestNeuralBenchmark
@@ -442,6 +509,58 @@ class TestCalibratedFormula(unittest.TestCase):
         self.assertAlmostEqual(est.total_estimated_gb,
                                est.activation_gb * _OVERHEAD_FACTOR, places=5)
 
+    def test_temporal_pls_scales_estimate_by_num_timebins(self):
+        """Temporal PLS retains per-timebin intermediates that the regular
+        PLS overhead formula doesn't account for, so peak memory grows
+        linearly with the actual number of timebins probed. A fixed constant
+        is wrong because temporal benchmarks may have anywhere from 2 to
+        dozens of timebins — scale by what we measure at preflight time.
+
+        Driven by infrastructure #48 (MajajHong2015public.{V4,IT}-temporal-pls
+        OOMing on small tier despite the preflight saying it would fit)."""
+        bm = _make_neural_benchmark(n_stimuli=10)
+        bm._identifier = 'MajajHong2015public.IT-temporal-pls'
+        # Mock model returns a probe output with 10 timebins so the preflight
+        # picks ``num_timebins=10`` via probe_output.sizes['time_bin'].
+        model = _make_model(num_features=512, num_timebins=10)
+        save_calibration({'MajajHong2015public.IT-temporal-pls': 1.5}, self._cal_path)
+        est = self._estimate(bm, model, cal_path=self._cal_path)
+
+        # activation_gb already accounts for the 10 timebins via the bytes
+        # formula. The temporal-pls correction multiplies the *full* PLS
+        # estimate by num_timebins on top of that.
+        expected_pls = est.activation_gb * _PLS_OVERHEAD_FACTOR + 1.5
+        expected_total = expected_pls * 10
+        self.assertAlmostEqual(est.total_estimated_gb, expected_total, places=4)
+        self.assertEqual(est.formula_type, 'temporal_pls')
+        self.assertEqual(est.num_timebins, 10)
+
+        # Different timebin count → different multiplier. A 3-timebin probe
+        # produces a 3× multiplier, not 10×.
+        bm3 = _make_neural_benchmark(n_stimuli=10)
+        bm3._identifier = 'MajajHong2015public.V4-temporal-pls'
+        model3 = _make_model(num_features=512, num_timebins=3)
+        save_calibration({'MajajHong2015public.V4-temporal-pls': 1.5}, self._cal_path)
+        est3 = self._estimate(bm3, model3, cal_path=self._cal_path)
+        expected3 = (est3.activation_gb * _PLS_OVERHEAD_FACTOR + 1.5) * 3
+        self.assertAlmostEqual(est3.total_estimated_gb, expected3, places=4)
+        self.assertEqual(est3.num_timebins, 3)
+
+    def test_pls_single_timebin_skips_temporal_multiplier(self):
+        """Single-window PLS benchmarks (MajajHong2015.IT-pls etc.) must
+        stay on the regular PLS formula. The temporal multiplier only fires
+        when ``num_timebins > 1`` so single-timebin PLS is unchanged."""
+        bm = _make_neural_benchmark(n_stimuli=10)
+        bm._identifier = 'MajajHong2015.IT-pls'
+        model = _make_model(num_features=512, num_timebins=1)
+        est = self._estimate(bm, model, fixed_cost=1.5)
+        self.assertEqual(est.formula_type, 'pls')
+        self.assertAlmostEqual(
+            est.total_estimated_gb,
+            est.activation_gb * _PLS_OVERHEAD_FACTOR + 1.5,
+            places=5,
+        )
+
     def test_oom_detected_with_calibrated_formula(self):
         bm = _make_neural_benchmark(n_stimuli=10)
         model = _make_model(num_features=512)
@@ -565,3 +684,55 @@ class TestCalibratedIntegration(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class TestBenchmarkScaffoldingOverhead(unittest.TestCase):
+
+    def _estimate(self, bm, model):
+        from brainscore_vision.benchmark_helpers.memory import preallocate_memory
+        with patch('psutil.virtual_memory') as mock_vm:
+            mock_vm.return_value.available = 256 * (1024 ** 3)
+            with patch('brainscore_vision.benchmark_helpers.memory._DEFAULT_CALIBRATION_PATH',
+                       '/nonexistent'):
+                return preallocate_memory(model, bm, raise_if_oom=False)
+
+    def test_overhead_added_when_benchmark_in_table(self):
+        bm = _make_neural_benchmark(n_stimuli=100)
+        bm._identifier = 'Zerbe2026_fmri.V1-tau-ridgecv'
+        model = _make_model(num_features=1024)
+        with patch.dict(
+                'brainscore_vision.benchmark_helpers.memory._BENCHMARK_SCAFFOLDING_OVERHEAD_GB',
+                {'Zerbe2026_fmri.V1-tau-ridgecv': 42.0}, clear=False):
+            est = self._estimate(bm, model)
+        baseline = est.activation_gb * _OVERHEAD_FACTOR
+        self.assertGreaterEqual(est.total_estimated_gb, baseline + 42.0 - 0.5)
+
+    def test_overhead_not_applied_when_benchmark_missing(self):
+        bm = _make_neural_benchmark(n_stimuli=10)
+        bm._identifier = 'BenchmarkNotInTable-pls'
+        model = _make_model(num_features=512)
+        with patch.dict(
+                'brainscore_vision.benchmark_helpers.memory._BENCHMARK_SCAFFOLDING_OVERHEAD_GB',
+                {'Zerbe2026_fmri.V1-tau-ridgecv': 42.0}, clear=True):
+            est = self._estimate(bm, model)
+        self.assertAlmostEqual(est.total_estimated_gb,
+                               est.activation_gb * _OVERHEAD_FACTOR, places=4)
+
+    def test_zero_overhead_entry_is_no_op(self):
+        bm = _make_neural_benchmark(n_stimuli=10)
+        bm._identifier = 'BenchmarkWithZero-pls'
+        model = _make_model(num_features=512)
+        with patch.dict(
+                'brainscore_vision.benchmark_helpers.memory._BENCHMARK_SCAFFOLDING_OVERHEAD_GB',
+                {'BenchmarkWithZero-pls': 0.0}, clear=False):
+            est = self._estimate(bm, model)
+        self.assertAlmostEqual(est.total_estimated_gb,
+                               est.activation_gb * _OVERHEAD_FACTOR, places=4)
+
+    def test_production_table_has_only_positive_corrections(self):
+        from brainscore_vision.benchmark_helpers.memory import _BENCHMARK_SCAFFOLDING_OVERHEAD_GB
+        self.assertTrue(all(v > 0 for v in _BENCHMARK_SCAFFOLDING_OVERHEAD_GB.values()))
+
+    def test_production_table_does_not_include_papale_v4_ridgecv(self):
+        from brainscore_vision.benchmark_helpers.memory import _BENCHMARK_SCAFFOLDING_OVERHEAD_GB
+        self.assertNotIn('Papale2025.V4-ridgecv', _BENCHMARK_SCAFFOLDING_OVERHEAD_GB)

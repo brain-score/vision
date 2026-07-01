@@ -4,7 +4,11 @@ name: Perform layer mapping
 # THIS WORKFLOW ONLY WORKS WHEN NEW_MODEL CHANGES ARE MADE. BENCHMARKS ARE NOT SUPPORTED
 
 on:
-  status:
+  check_run:
+    types: [completed]
+    check_name:
+      - "Brain-Score Non-Plugin Unit tests (AWS Jenkins, AWS Execution)"
+      - "Brain-Score Plugins Unit tests (AWS Jenkins, AWS Execution)"
   pull_request:
     types: [labeled, synchronize]
 

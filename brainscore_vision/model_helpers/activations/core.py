@@ -11,8 +11,12 @@ from multiprocessing.pool import ThreadPool
 
 import numpy as np
 from tqdm.auto import tqdm
-import xarray as xr
 
+from brainscore_core.assembly_builder import (
+    concat_neuroid_assemblies,
+    make_assembly,
+    make_layer_neuroid_coords,
+)
 from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly, walk_coords
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from brainscore_vision.model_helpers.utils import fullname
@@ -282,26 +286,11 @@ class ActivationsExtractorHelper:
             return layer_assemblies[0]
 
         self._logger.debug(f"Merging {len(layer_assemblies)} layer assemblies")
-        model_assembly = np.concatenate([a.values for a in layer_assemblies],
-                                        axis=layer_assemblies[0].dims.index('neuroid'))
-        nonneuroid_coords = {coord: (dims, values) for coord, dims, values in walk_coords(layer_assemblies[0])
-                             if set(dims) != {'neuroid'}}
-        neuroid_coords = {coord: [dims, values] for coord, dims, values in walk_coords(layer_assemblies[0])
-                          if set(dims) == {'neuroid'}}
-        for layer_assembly in layer_assemblies[1:]:
-            for coord in neuroid_coords:
-                neuroid_coords[coord][1] = np.concatenate((neuroid_coords[coord][1], layer_assembly[coord].values))
-            assert layer_assemblies[0].dims == layer_assembly.dims
-            for coord, dims, values in walk_coords(layer_assembly):
-                if set(dims) == {'neuroid'}:
-                    continue
-                assert (values == nonneuroid_coords[coord][1]).all()
-
-        neuroid_coords = {coord: (dims_values[0], dims_values[1])  # re-package as tuple instead of list for xarray
-                          for coord, dims_values in neuroid_coords.items()}
-        model_assembly = type(layer_assemblies[0])(model_assembly, coords={**nonneuroid_coords, **neuroid_coords},
-                                                   dims=layer_assemblies[0].dims)
-        return model_assembly
+        return concat_neuroid_assemblies(
+            layer_assemblies,
+            strategy='manual',
+            validate_non_neuroid=True,
+        )
 
     def _package_layer(self, layer_activations: np.ndarray, layer: str, stimuli_paths: List[str], require_variance: bool = False):
         # activation shape is larger if variance in responses is required from the model by a factor of number_of_trials
@@ -329,9 +318,9 @@ class ActivationsExtractorHelper:
         # build assembly
         coords = {'stimulus_path': ('presentation', stimuli_paths),
                   **self._microsaccade_helper.build_microsaccade_coords(stimuli_paths),
-                  'neuroid_num': ('neuroid', list(range(activations.shape[1]))),
-                  'model': ('neuroid', [self.identifier] * activations.shape[1]),
-                  'layer': ('neuroid', [layer] * activations.shape[1]),
+                  **make_layer_neuroid_coords(
+                      self.identifier, layer, activations.shape[1],
+                      include=('neuroid_num', 'model', 'layer')),
                   }
 
         if flatten_coord_names:
@@ -344,7 +333,8 @@ class ActivationsExtractorHelper:
             coords[coord][1] for coord in ['model', 'layer', 'neuroid_num']])]
         coords['neuroid_id'] = ('neuroid', neuroid_id)
 
-        layer_assembly = NeuroidAssembly(activations, coords=coords, dims=['presentation', 'neuroid'])
+        layer_assembly = make_assembly(
+            activations, coords=coords, dims=['presentation', 'neuroid'])
         return layer_assembly
 
     def insert_attrs(self, wrapper):

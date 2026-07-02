@@ -1,4 +1,4 @@
 numpy
 torch
-transformers==4.30.2
+transformers==5.3.0
 pillow

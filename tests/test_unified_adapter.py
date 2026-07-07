@@ -1,7 +1,13 @@
 import pytest
+import numpy as np
+import pandas as pd
+import xarray as xr
 from unittest.mock import MagicMock, PropertyMock, patch
 
 from brainscore_core.model_interface import TaskContext, UnifiedModel, BrainScoreModel
+from brainscore_core.streaming_helpers import score_stimuli
+from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from brainscore_vision.compat.unified_adapter import VisionModelAdapter
 
 
@@ -23,6 +29,29 @@ def _make_legacy_model(identifier='mock-resnet', visual_degrees=8,
         del legacy.layer_model
 
     return legacy
+
+
+def _vision_stimulus_set():
+    stimuli = StimulusSet(pd.DataFrame({
+        'stimulus_id': ['s0', 's1'],
+        'image_path': ['s0.png', 's1.png'],
+        'object_name': ['cat', 'dog'],
+    }))
+    stimuli.identifier = 'synthetic-vision'
+    return stimuli
+
+
+def _vision_neural_assembly():
+    return NeuroidAssembly(
+        np.array([[1.0, 2.0], [3.0, 4.0]]),
+        coords={
+            'stimulus_id': ('presentation', ['s0', 's1']),
+            'object_name': ('presentation', ['cat', 'dog']),
+            'neuroid_id': ('neuroid', ['layer4.0', 'layer4.1']),
+            'layer': ('neuroid', ['layer4', 'layer4']),
+        },
+        dims=['presentation', 'neuroid'],
+    )
 
 
 class TestVisionAdapterIsUnifiedModel:
@@ -92,6 +121,25 @@ class TestVisionAdapterProcess:
         result = adapter.process(stimuli)
         assert result is sentinel
 
+    def test_score_stimuli_interact_matches_legacy_look_at_exactly(self):
+        stimuli = _vision_stimulus_set()
+        expected = _vision_neural_assembly()
+
+        legacy_expected = _make_legacy_model(region_layer_map={'IT': 'layer4'})
+        legacy_expected.look_at.return_value = expected
+        expected_adapter = VisionModelAdapter(legacy_expected)
+        expected_adapter.start_recording('IT')
+        legacy_output = expected_adapter.process(stimuli)
+
+        legacy_stream = _make_legacy_model(region_layer_map={'IT': 'layer4'})
+        legacy_stream.look_at.return_value = expected
+        stream_adapter = VisionModelAdapter(legacy_stream)
+        scored = score_stimuli(stream_adapter, stimuli, record='IT')
+
+        xr.testing.assert_identical(scored, legacy_output)
+        legacy_stream.start_recording.assert_called_once_with(
+            'IT', [(70, 170)]
+        )
 
 class TestVisionAdapterLegacyMethods:
 
@@ -191,6 +239,25 @@ class TestVisionAutoWrapping:
         assert isinstance(model, UnifiedModel)
         assert isinstance(model, VisionModelAdapter)
         assert model.identifier == 'test-legacy'
+
+    def test_load_model_wrapped_legacy_interact_scores(self):
+        import brainscore_vision
+        expected = _vision_neural_assembly()
+        legacy = _make_legacy_model(
+            identifier='test-legacy',
+            region_layer_map={'IT': 'layer4'},
+        )
+        legacy.look_at.return_value = expected
+
+        with patch.object(brainscore_vision, 'model_registry',
+                          {'test-legacy': lambda: legacy}):
+            with patch('brainscore_vision.import_plugin'):
+                model = brainscore_vision.load_model('test-legacy')
+
+        scored = score_stimuli(model, _vision_stimulus_set(), record='IT')
+
+        assert isinstance(model, VisionModelAdapter)
+        xr.testing.assert_identical(scored, expected)
 
     def test_load_model_does_not_double_wrap_unified(self):
         """If the model is already a UnifiedModel, don't wrap it."""

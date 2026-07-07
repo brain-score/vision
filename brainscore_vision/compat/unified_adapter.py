@@ -10,6 +10,7 @@ code below it sees the same look_at() calls it always did.
 from typing import Any, Dict, Optional, Set
 
 from brainscore_core.model_interface import Subject, TaskContext
+from brainscore_core.streaming_helpers import _drive_neural_session_via_process
 
 
 class VisionModelAdapter(Subject):
@@ -42,6 +43,9 @@ class VisionModelAdapter(Subject):
 
     def process(self, stimuli, number_of_trials=1) -> Any:
         return self._legacy.look_at(stimuli, number_of_trials)
+
+    def interact(self, session) -> None:
+        _drive_neural_session_via_process(self, session)
 
     # Backwards-compatible: existing benchmarks call look_at() directly
     def look_at(self, stimuli, number_of_trials=1):

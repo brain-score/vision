@@ -125,3 +125,17 @@ class TestPreflightInRunScore:
 
         with pytest.raises(MemoryError, match="not enough memory"):
             _run_score('test-model', 'test-bench', check_mem=True)
+
+    def test_load_benchmark_sets_legacy_vision_required_modalities(self):
+        import brainscore_vision
+
+        benchmark = MagicMock()
+        del benchmark.required_modalities
+        del benchmark.accepted_modalities
+
+        with patch.object(brainscore_vision, 'benchmark_registry',
+                          {'legacy-bench': lambda: benchmark}):
+            with patch('brainscore_vision.import_plugin'):
+                loaded = brainscore_vision.load_benchmark('legacy-bench')
+
+        assert loaded.required_modalities == {'vision'}

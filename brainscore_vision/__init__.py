@@ -60,7 +60,11 @@ def load_ceiling(identifier: str, *args, **kwargs) -> Ceiling:
 def load_benchmark(identifier: str) -> Benchmark:
     import_plugin('brainscore_vision', 'benchmarks', identifier)
 
-    return benchmark_registry[identifier]()
+    benchmark = benchmark_registry[identifier]()
+    if not getattr(benchmark, 'required_modalities', None) and not getattr(
+            benchmark, 'accepted_modalities', None):
+        benchmark.required_modalities = {'vision'}
+    return benchmark
 
 
 def load_model(identifier: str) -> 'Subject':

@@ -3,7 +3,12 @@
 import pytest
 from unittest.mock import patch, MagicMock
 
-from brainscore_core.compatibility import CompatibilityError
+from brainscore_core.compatibility import (
+    CompatibilityError,
+    check_channel_compatibility,
+    check_compatibility,
+)
+from brainscore_core.io_catalog import modalities_to_input_channels
 from brainscore_core.memory import MemoryError
 
 
@@ -22,6 +27,9 @@ class TestPreflightInRunScore:
         model.available_modalities = model_modalities
         model.required_modalities = set()
         model.region_layer_map = {}
+        model.in_channels = modalities_to_input_channels(model_modalities)
+        model.out_channels = set()
+        model.required_channels = set()
 
         benchmark = MagicMock(spec=['identifier', 'required_modalities', '__call__'])
         benchmark.identifier = 'test-bench'
@@ -64,6 +72,85 @@ class TestPreflightInRunScore:
 
         result = _run_score('test-model', 'test-bench', check_mem=False)
         benchmark.assert_called_once_with(model)
+
+    @patch('brainscore_core.compatibility.check_channel_compatibility')
+    @patch('brainscore_vision.load_benchmark')
+    @patch('brainscore_vision.load_model')
+    def test_channel_check_runs_for_compatible_pair(
+        self, mock_load_model, mock_load_benchmark, mock_check_channel
+    ):
+        from brainscore_vision import _run_score
+
+        model, benchmark = self._make_model_and_benchmark(
+            model_modalities={'vision'},
+            bench_required={'vision'},
+        )
+        score = MagicMock()
+        score.attrs = {}
+        benchmark.return_value = score
+        mock_load_model.return_value = model
+        mock_load_benchmark.return_value = benchmark
+
+        _run_score('test-model', 'test-bench', check_mem=False)
+
+        mock_check_channel.assert_called_once_with(model, benchmark)
+        benchmark.assert_called_once_with(model)
+
+    @patch('brainscore_vision.load_benchmark')
+    @patch('brainscore_vision.load_model')
+    def test_channel_mismatch_raises_channel_named_error(
+        self, mock_load_model, mock_load_benchmark
+    ):
+        from brainscore_vision import _run_score
+
+        model, benchmark = self._make_model_and_benchmark(
+            model_modalities={'vision'},
+            bench_required={'vision'},
+        )
+        benchmark.required_input_channels = {'text'}
+        mock_load_model.return_value = model
+        mock_load_benchmark.return_value = benchmark
+
+        with pytest.raises(CompatibilityError, match="text"):
+            _run_score('test-model', 'test-bench', check_mem=False)
+
+        benchmark.assert_not_called()
+
+    @pytest.mark.parametrize(
+        "model_id,benchmark_id,region",
+        [
+            ('alexnet', 'MajajHong2015.IT-pls', 'IT'),
+            ('alexnet', 'MajajHong2015.V4-pls', 'V4'),
+            ('alexnet', 'Allen2022_fmri_surface.IT-rdm', 'IT'),
+            ('alexnet', 'Rajalingham2018-i2n', None),
+            ('alexnet', 'Ferguson2024color-value_delta', None),
+            ('hmax', 'MajajHong2015.IT-pls', 'IT'),
+            ('hmax', 'MajajHong2015.V4-pls', 'V4'),
+            ('hmax', 'Rajalingham2018-i2n', None),
+            ('pixels', 'MajajHong2015.IT-pls', 'IT'),
+            ('pixels', 'MajajHong2015.V4-pls', 'V4'),
+            ('compact_vgg19_V4', 'MajajHong2015.IT-pls', 'IT'),
+            ('compact_vgg19_V4', 'MajajHong2015.V4-pls', 'V4'),
+            ('compact_vgg19_V4', 'Rajalingham2018-i2n', None),
+            ('compact_vgg19_V4', 'Ferguson2024color-value_delta', None),
+        ],
+    )
+    def test_m3_pairs_pass_modality_and_channel_preflight(
+        self, model_id, benchmark_id, region
+    ):
+        model, benchmark = self._make_model_and_benchmark(
+            model_modalities={'vision'},
+            bench_required={'vision'},
+        )
+        model.identifier = model_id
+        model.region_layer_map = {'IT': 'it-layer', 'V4': 'v4-layer'}
+        model.out_channels = {'neural:IT', 'neural:V4'}
+        benchmark.identifier = benchmark_id
+        if region is not None:
+            benchmark.region = region
+
+        check_compatibility(model, benchmark)
+        check_channel_compatibility(model, benchmark)
 
     @patch('brainscore_core.memory.check_memory')
     @patch('brainscore_vision.load_benchmark')

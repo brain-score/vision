@@ -84,7 +84,10 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
     """
     Score the model referenced by the `model_identifier` on the benchmark referenced by the `benchmark_identifier`.
     """
-    from brainscore_core.compatibility import check_compatibility
+    from brainscore_core.compatibility import (
+        check_channel_compatibility,
+        check_compatibility,
+    )
     from brainscore_core.memory import check_memory
 
     model: BrainModel = load_model(model_identifier)
@@ -92,6 +95,7 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
 
     # Pre-flight checks
     check_compatibility(model, benchmark)
+    check_channel_compatibility(model, benchmark)
     if check_mem:
         check_memory(model, benchmark)
 

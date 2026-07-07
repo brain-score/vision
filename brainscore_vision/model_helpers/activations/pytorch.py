@@ -12,7 +12,7 @@ SUBMODULE_SEPARATOR = '.'
 
 class PytorchWrapper:
     def __init__(self, model, preprocessing, identifier=None, forward_kwargs=None,
-                 input_key=None, backbone_id=None, *args, **kwargs):
+                 input_key=None, backbone_id=None, *args, channel=None, **kwargs):
         """
         :param backbone_id: Optional cache-key identifier, passed through to the
             underlying :class:`ActivationsExtractorHelper`. When two PytorchWrapper
@@ -20,6 +20,9 @@ class PytorchWrapper:
             BLIP-2 and a future InstructBLIP registration), set the same
             ``backbone_id`` so ``@store_xarray`` reuses cached activations.
             Defaults to ``identifier`` for backwards compatibility.
+        :param channel: optional input channel to disambiguate cache keys when
+            wrappers share a ``backbone_id`` across channels. Leave unset to
+            preserve existing single-channel cache reuse.
         """
         import torch
         logger = logging.getLogger(fullname(self))
@@ -36,17 +39,17 @@ class PytorchWrapper:
         self._extractor = self._build_extractor(
             identifier=identifier, preprocessing=preprocessing,
             get_activations=self.get_activations,
-            backbone_id=backbone_id, *args, **kwargs)
+            backbone_id=backbone_id, *args, channel=channel, **kwargs)
         self._extractor.insert_attrs(self)
         self._forward_kwargs = forward_kwargs or {}
         self._input_key = input_key
 
     def _build_extractor(self, identifier, preprocessing, get_activations,
-                         backbone_id=None, *args, **kwargs):
+                         backbone_id=None, *args, channel=None, **kwargs):
         return ActivationsExtractorHelper(
             identifier=identifier, get_activations=get_activations,
             preprocessing=preprocessing, backbone_id=backbone_id,
-            *args, **kwargs)
+            *args, channel=channel, **kwargs)
 
     @property
     def identifier(self):

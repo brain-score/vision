@@ -29,7 +29,8 @@ class Defaults:
 
 class ActivationsExtractorHelper:
     def __init__(self, get_activations, preprocessing, identifier=False,
-                 batch_size=Defaults.batch_size, backbone_id=None):
+                 batch_size=Defaults.batch_size, backbone_id=None,
+                 channel=None):
         """
         :param identifier: an activations identifier for the stored results file. False to disable saving.
         :param backbone_id: optional cache-key override. When two models share the same
@@ -37,6 +38,10 @@ class ActivationsExtractorHelper:
             derived from the same checkpoint) set the same ``backbone_id`` so
             ``@store_xarray`` reuses cached activations. Defaults to ``identifier``
             for backwards compatibility.
+        :param channel: optional input channel for shared-backbone caches. Leave
+            unset for the legacy single-channel key; set it only when two channel
+            wrappers share a ``backbone_id`` and must not reuse each other's
+            activations.
         """
         self._logger = logging.getLogger(fullname(self))
 
@@ -46,6 +51,7 @@ class ActivationsExtractorHelper:
         # Keeping these as separate attrs lets user-facing identifier remain
         # stable while two registrations share a cache entry.
         self._backbone_id = backbone_id or identifier
+        self._cache_channel = channel
         self.get_activations = get_activations
         self.preprocess = preprocessing or (lambda x: x)
         self._stimulus_set_hooks = {}
@@ -60,14 +66,24 @@ class ActivationsExtractorHelper:
     def backbone_id(self, value):
         self._backbone_id = value
 
+    @property
+    def channel(self):
+        return self._cache_channel
+
+    @channel.setter
+    def channel(self, value):
+        self._cache_channel = value
+
     def __call__(self, stimuli, layers, stimuli_identifier=None, number_of_trials: int = 1,
-                 require_variance: bool = False):
+                 require_variance: bool = False, channel=None):
         """
         :param stimuli_identifier: a stimuli identifier for the stored results file. False to disable saving.
         :param number_of_trials: An integer that determines how many repetitions of the same model performs.
         :param require_variance: A bool that asks models to output different responses to the same stimuli (i.e.,
             allows stochastic responses to identical stimuli, even in otherwise deterministic base models). 
             We here implement this using microsaccades. For more, see ...
+        :param channel: optional one-call cache-key channel override for
+            shared-backbone, multi-channel wrappers.
 
         """
         if require_variance:
@@ -83,9 +99,11 @@ class ActivationsExtractorHelper:
         return function_call(
             layers=layers,
             stimuli_identifier=stimuli_identifier,
-            require_variance=require_variance)
+            require_variance=require_variance,
+            channel=channel)
 
-    def from_stimulus_set(self, stimulus_set, layers, stimuli_identifier=None, require_variance: bool = False):
+    def from_stimulus_set(self, stimulus_set, layers, stimuli_identifier=None,
+                          require_variance: bool = False, channel=None):
         """
         :param stimuli_identifier: a stimuli identifier for the stored results file.
             False to disable saving. None to use `stimulus_set.identifier`
@@ -96,22 +114,33 @@ class ActivationsExtractorHelper:
             stimulus_set = hook(stimulus_set)
         stimuli_paths = [str(stimulus_set.get_stimulus(stimulus_id)) for stimulus_id in stimulus_set['stimulus_id']]
         activations = self.from_paths(stimuli_paths=stimuli_paths, layers=layers, stimuli_identifier=stimuli_identifier,
-                                      require_variance=require_variance)
+                                      require_variance=require_variance, channel=channel)
         activations = attach_stimulus_set_meta(activations,
                                                stimulus_set,
                                                number_of_trials=self._microsaccade_helper.number_of_trials,
                                                require_variance=require_variance)
         return activations
 
-    def from_paths(self, stimuli_paths, layers, stimuli_identifier=None, require_variance=None):
+    def from_paths(self, stimuli_paths, layers, stimuli_identifier=None,
+                   require_variance=None, channel=None):
         if layers is None:
             layers = ['logits']
         if self.identifier and stimuli_identifier:
             # Cache-key is backbone_id (set explicitly or defaulted to identifier).
-            fnc = functools.partial(self._from_paths_stored,
-                                    identifier=self._backbone_id or self.identifier,
-                                    stimuli_identifier=stimuli_identifier,
-                                    require_variance=require_variance)
+            cache_channel = self._cache_channel if channel is None else channel
+            stored_kwargs = dict(
+                identifier=self._backbone_id or self.identifier,
+                stimuli_identifier=stimuli_identifier,
+                require_variance=require_variance,
+            )
+            if cache_channel is None:
+                fnc = functools.partial(self._from_paths_stored, **stored_kwargs)
+            else:
+                fnc = functools.partial(
+                    self._from_paths_stored_by_channel,
+                    channel=cache_channel,
+                    **stored_kwargs,
+                )
         else:
             self._logger.debug(f"self.identifier `{self.identifier}` or stimuli_identifier {stimuli_identifier} "
                                f"are not set, will not store")
@@ -135,6 +164,12 @@ class ActivationsExtractorHelper:
     @store_xarray(identifier_ignore=['stimuli_paths', 'layers'], combine_fields={'layers': 'layer'})
     def _from_paths_stored(self, identifier, layers, stimuli_identifier,
                            stimuli_paths, number_of_trials: int = 1, require_variance: bool = False):
+        return self._from_paths(layers=layers, stimuli_paths=stimuli_paths, require_variance=require_variance)
+
+    @store_xarray(identifier_ignore=['stimuli_paths', 'layers'], combine_fields={'layers': 'layer'})
+    def _from_paths_stored_by_channel(self, identifier, channel, layers, stimuli_identifier,
+                                      stimuli_paths, number_of_trials: int = 1,
+                                      require_variance: bool = False):
         return self._from_paths(layers=layers, stimuli_paths=stimuli_paths, require_variance=require_variance)
 
     def _from_paths(self, layers, stimuli_paths, require_variance: bool = False):

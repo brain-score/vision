@@ -89,9 +89,15 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
         check_compatibility,
     )
     from brainscore_core.memory import check_memory
+    from brainscore_core.score_metadata import (
+        infer_score_protocol,
+        requested_output_channels_for_score,
+        stamp_score_metadata,
+    )
 
     model: BrainModel = load_model(model_identifier)
     benchmark: Benchmark = load_benchmark(benchmark_identifier)
+    requested_channels = requested_output_channels_for_score(benchmark)
 
     # Pre-flight checks
     check_compatibility(model, benchmark)
@@ -105,6 +111,13 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
     score.attrs['runtime_sec'] = round(_time.time() - _t0, 2)
     score.attrs['model_identifier'] = model_identifier
     score.attrs['benchmark_identifier'] = benchmark_identifier
+    stamp_score_metadata(
+        score,
+        model,
+        requested_channels=requested_channels,
+        protocol=infer_score_protocol(model, benchmark, requested_channels),
+        harness_id='brainscore_vision',
+    )
     try:  # attempt to look up the layer commitment if model uses a standard layer model
         score.attrs['comment'] = f"layers: {model.layer_model.region_layer_map}"
     except Exception:

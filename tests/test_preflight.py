@@ -73,6 +73,36 @@ class TestPreflightInRunScore:
         result = _run_score('test-model', 'test-bench', check_mem=False)
         benchmark.assert_called_once_with(model)
 
+    @patch('brainscore_vision.load_benchmark')
+    @patch('brainscore_vision.load_model')
+    def test_score_metadata_attrs_are_stamped(
+        self, mock_load_model, mock_load_benchmark
+    ):
+        from brainscore_vision import _run_score
+
+        model, benchmark = self._make_model_and_benchmark(
+            model_modalities={'vision'},
+            bench_required={'vision'},
+        )
+        model.out_channels = {'neural:IT'}
+        model.region_layer_map = {'IT': 'it-layer'}
+        benchmark.region = 'IT'
+        score = MagicMock()
+        score.attrs = {'existing': 'preserved'}
+        benchmark.return_value = score
+        mock_load_model.return_value = model
+        mock_load_benchmark.return_value = benchmark
+
+        result = _run_score('test-model', 'test-bench', check_mem=False)
+
+        assert result is score
+        assert score.attrs['existing'] == 'preserved'
+        assert score.attrs['in_channels'] == ('vision',)
+        assert score.attrs['out_channels'] == ('neural:IT',)
+        assert score.attrs['protocol'] == 'neural'
+        assert score.attrs['subject_id'] == 'test-model'
+        assert score.attrs['harness_id'] == 'brainscore_vision'
+
     @patch('brainscore_core.compatibility.check_channel_compatibility')
     @patch('brainscore_vision.load_benchmark')
     @patch('brainscore_vision.load_model')

@@ -9,6 +9,11 @@ for the purpose of model testing, falsification, and comparison.
 To that end, Brain-Score operationalizes experimental data into quantitative benchmarks 
 that any model candidate following the [`BrainModel`](brainscore_vision/model_interface.py) interface can be scored on.
 
+> **UMI migration:** BrainModel and look_at are the pre-UMI vision interface.
+> Existing plugins remain supported, but new cross-domain integrations should
+> use Subject or BrainScoreModel with process(). See
+> [docs/UMI_MIGRATION.md](docs/UMI_MIGRATION.md).
+
 Note that you can only access a limited set of public benchmarks when running locally. To score a model on all benchmarks, submit it via the [brain-score.org website](http://www.brain-score.org).
 
 See the [documentation](https://brain-score.readthedocs.io) for more details, e.g. for submitting a [model](https://brain-score.readthedocs.io/en/latest/modules/model_tutorial.html) or [benchmark](https://brain-score.readthedocs.io/en/latest/modules/benchmark_tutorial.html) to Brain-Score. For a step-by-step walkthrough on submitting models to the Brain-Score website, see these [web tutorials](https://www.brain-score.org/tutorial/).

@@ -19,7 +19,7 @@ dependencies = [
     "importlib-metadata<5", # workaround to https://github.com/brain-score/brainio/issues/28
     "scikit-learn>=1.5,<1.6", # tested unified range; multi_class was removed in 1.6
     "scipy", # for benchmark_helpers/properties_common.py
-    "opencv-python",  # for microsaccades
+    "opencv-python-headless<5",  # for microsaccades; headless avoids libGL.so.1 on servers, <5 keeps numpy<2
     "h5py",
     "tqdm",
     "gitpython",

@@ -5,7 +5,7 @@ import xarray as xr
 from unittest.mock import MagicMock, PropertyMock, patch
 
 from brainscore_core.model_interface import TaskContext, UnifiedModel, BrainScoreModel
-from brainscore_core.streaming_helpers import score_stimuli
+from brainscore_core.streaming_helpers import neural_response
 from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from brainscore_vision.compat.unified_adapter import VisionModelAdapter
@@ -121,7 +121,7 @@ class TestVisionAdapterProcess:
         result = adapter.process(stimuli)
         assert result is sentinel
 
-    def test_score_stimuli_interact_matches_legacy_look_at_exactly(self):
+    def test_neural_response_interact_matches_legacy_look_at_exactly(self):
         stimuli = _vision_stimulus_set()
         expected = _vision_neural_assembly()
 
@@ -134,7 +134,7 @@ class TestVisionAdapterProcess:
         legacy_stream = _make_legacy_model(region_layer_map={'IT': 'layer4'})
         legacy_stream.look_at.return_value = expected
         stream_adapter = VisionModelAdapter(legacy_stream)
-        scored = score_stimuli(stream_adapter, stimuli, record='IT')
+        scored = neural_response(stream_adapter, stimuli, record='IT')
 
         xr.testing.assert_identical(scored, legacy_output)
         legacy_stream.start_recording.assert_called_once_with(
@@ -254,7 +254,7 @@ class TestVisionAutoWrapping:
             with patch('brainscore_vision.import_plugin'):
                 model = brainscore_vision.load_model('test-legacy')
 
-        scored = score_stimuli(model, _vision_stimulus_set(), record='IT')
+        scored = neural_response(model, _vision_stimulus_set(), record='IT')
 
         assert isinstance(model, VisionModelAdapter)
         xr.testing.assert_identical(scored, expected)

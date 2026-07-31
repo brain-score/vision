@@ -17,7 +17,9 @@ architecture:
 lineage:
   base_models:
     -
-      name: "OpenAI CLIP ViT-B/16 image encoder"
+      identifier: "openai-clip-vit-b16"
+      name: "OpenAI CLIP ViT-B/16"
+      relationship: "fine_tuned_from"
 interface:
   inputs:
     -

@@ -17,7 +17,9 @@ architecture:
 lineage:
   base_models:
     -
+      identifier: "hybrid-resnet-vit-tiny"
       name: "Hybrid ResNet-stem + ViT-Tiny"
+      relationship: "derived_from"
 interface:
   inputs:
     -

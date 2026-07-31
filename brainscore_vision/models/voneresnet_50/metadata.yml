@@ -17,7 +17,9 @@ architecture:
 lineage:
   base_models:
     -
+      identifier: "resnet-50"
       name: "ResNet-50"
+      relationship: "derived_from"
 interface:
   inputs:
     -

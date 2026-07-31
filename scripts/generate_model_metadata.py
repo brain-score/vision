@@ -96,6 +96,98 @@ DATASETS = OrderedDict(
     ]
 )
 
+BASE_MODEL_MAPPINGS = {
+    "AdvProp EfficientNet": (
+        "advprop-efficientnet",
+        "AdvProp EfficientNet",
+        "variant_of",
+    ),
+    "AlexNet": ("alexnet", "AlexNet", "variant_of"),
+    "AlexNet, AlexNet-SIN": ("AlexNet_SIN", "AlexNet SIN", "variant_of"),
+    "Standard torchvision ResNet-50": (
+        "torchvision-resnet50",
+        "Torchvision ResNet-50",
+        "variant_of",
+    ),
+    "CLIP-ConvNeXt-Base image tower": (
+        "clip-convnext-base",
+        "CLIP ConvNeXt-Base",
+        "fine_tuned_from",
+    ),
+    "ConvNeXt-Base (trained from scratch, not fine-tuned from another checkpoint)": (
+        "convnext-base",
+        "ConvNeXt-Base",
+        "variant_of",
+    ),
+    "ConvNeXt-Tiny (trained from scratch, not fine-tuned)": (
+        "convnext-tiny",
+        "ConvNeXt-Tiny",
+        "variant_of",
+    ),
+    "ConvNeXt-Tiny pretrained on ImageNet-12k, then fine-tuned": (
+        "convnext-tiny",
+        "ConvNeXt-Tiny",
+        "fine_tuned_from",
+    ),
+    "ConvNeXt-Tiny (standard supervised baseline)": (
+        "convnext-tiny",
+        "ConvNeXt-Tiny",
+        "variant_of",
+    ),
+    "ConvNeXt-XLarge pretrained on ImageNet-22k by the original ConvNeXt paper authors, fine-tuned on ImageNet-1k": (
+        "convnext-xlarge",
+        "ConvNeXt-XLarge",
+        "fine_tuned_from",
+    ),
+    "CLIP-ConvNeXt-XXLarge image tower from OpenCLIP, pretrained on LAION-2B, model-souped, fine-tuned on ImageNet-1k": (
+        "clip-convnext-xxlarge",
+        "CLIP ConvNeXt-XXLarge",
+        "fine_tuned_from",
+    ),
+    "ResNet-50": ("resnet-50", "ResNet-50", "derived_from"),
+    "CORnet-S": ("CORnet-S", "CORnet-S", "derived_from"),
+    "Hybrid ResNet-stem + ViT-Tiny": (
+        "hybrid-resnet-vit-tiny",
+        "Hybrid ResNet-stem + ViT-Tiny",
+        "derived_from",
+    ),
+    "Vision Transformer, relative-position variant": (
+        "relative-position-vit",
+        "Relative-position Vision Transformer",
+        "variant_of",
+    ),
+    "CLIP ViT-L/14 (OpenAI, WIT-400M pretraining)": (
+        "openai-clip-vit-l14",
+        "OpenAI CLIP ViT-L/14",
+        "fine_tuned_from",
+    ),
+    "CLIP ViT-L/14 (OpenAI, WIT-400M)": (
+        "openai-clip-vit-l14",
+        "OpenAI CLIP ViT-L/14",
+        "fine_tuned_from",
+    ),
+    "CLIP ViT-L/14 via OpenCLIP, pretrained on LAION-2B": (
+        "openclip-vit-l14-laion2b",
+        "OpenCLIP ViT-L/14 (LAION-2B)",
+        "fine_tuned_from",
+    ),
+    "Vision Transformer architecture (Dosovitskiy et al. 2020); trained from scratch, no separate base checkpoint": (
+        "vit-l32",
+        "Vision Transformer L/32",
+        "variant_of",
+    ),
+    "OpenCLIP ViT-H/14 image encoder (laion/CLIP-ViT-H-14-laion2B-s32B-b79K)": (
+        "openclip-vit-h14-laion2b",
+        "OpenCLIP ViT-H/14 (LAION-2B)",
+        "fine_tuned_from",
+    ),
+    "OpenAI CLIP ViT-B/16 image encoder": (
+        "openai-clip-vit-b16",
+        "OpenAI CLIP ViT-B/16",
+        "fine_tuned_from",
+    ),
+}
+
 
 def column_index(cell_ref: str) -> int:
     match = re.match(r"([A-Z]+)", cell_ref)
@@ -257,6 +349,21 @@ def parse_curation_confidence(value: Any) -> str | None:
     if normalized not in {"low", "medium", "medium_high", "high"}:
         raise ValueError(f"Unsupported curation confidence: {text}")
     return normalized
+
+
+def parse_base_model(value: Any) -> dict[str, str] | None:
+    description = string_value(value)
+    if not description or description.lower().startswith("none ("):
+        return None
+    mapping = BASE_MODEL_MAPPINGS.get(description)
+    if not mapping:
+        return {"name": description}
+    identifier, name, relationship = mapping
+    return {
+        "identifier": identifier,
+        "name": name,
+        "relationship": relationship,
+    }
 
 
 def architecture_family(value: str) -> str:
@@ -519,9 +626,9 @@ def build_metadata(
     if architecture:
         metadata["architecture"] = architecture
 
-    base_model = string_value(fields["base model"])
-    if base_model and not base_model.lower().startswith("none ("):
-        metadata["lineage"] = {"base_models": [{"name": base_model}]}
+    base_model = parse_base_model(fields["base model"])
+    if base_model:
+        metadata["lineage"] = {"base_models": [base_model]}
 
     input_record: dict[str, Any] = {"modality": "image"}
     resolution = parse_resolution(fields["input_resolution"])

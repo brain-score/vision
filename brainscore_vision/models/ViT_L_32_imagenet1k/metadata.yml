@@ -17,7 +17,9 @@ architecture:
 lineage:
   base_models:
     -
-      name: "Vision Transformer architecture (Dosovitskiy et al. 2020); trained from scratch, no separate base checkpoint"
+      identifier: "vit-l32"
+      name: "Vision Transformer L/32"
+      relationship: "variant_of"
 interface:
   inputs:
     -

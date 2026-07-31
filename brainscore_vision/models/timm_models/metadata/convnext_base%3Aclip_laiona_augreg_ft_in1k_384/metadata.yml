@@ -15,7 +15,9 @@ architecture:
 lineage:
   base_models:
     -
-      name: "CLIP-ConvNeXt-Base image tower"
+      identifier: "clip-convnext-base"
+      name: "CLIP ConvNeXt-Base"
+      relationship: "fine_tuned_from"
 interface:
   inputs:
     -

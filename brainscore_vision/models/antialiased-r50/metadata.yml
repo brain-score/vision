@@ -15,7 +15,9 @@ architecture:
 lineage:
   base_models:
     -
-      name: "Standard torchvision ResNet-50"
+      identifier: "torchvision-resnet50"
+      name: "Torchvision ResNet-50"
+      relationship: "variant_of"
 interface:
   inputs:
     -

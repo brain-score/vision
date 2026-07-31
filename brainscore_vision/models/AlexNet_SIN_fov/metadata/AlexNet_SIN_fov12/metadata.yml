@@ -8,7 +8,9 @@ model:
 lineage:
   base_models:
     -
-      name: "AlexNet, AlexNet-SIN"
+      identifier: "AlexNet_SIN"
+      name: "AlexNet SIN"
+      relationship: "variant_of"
 interface:
   inputs:
     -

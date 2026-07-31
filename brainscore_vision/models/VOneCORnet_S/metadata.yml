@@ -16,7 +16,9 @@ architecture:
 lineage:
   base_models:
     -
+      identifier: "CORnet-S"
       name: "CORnet-S"
+      relationship: "derived_from"
 interface:
   inputs:
     -

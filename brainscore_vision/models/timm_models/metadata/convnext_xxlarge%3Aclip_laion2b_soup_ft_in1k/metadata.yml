@@ -19,7 +19,9 @@ architecture:
 lineage:
   base_models:
     -
-      name: "CLIP-ConvNeXt-XXLarge image tower from OpenCLIP, pretrained on LAION-2B, model-souped, fine-tuned on ImageNet-1k"
+      identifier: "clip-convnext-xxlarge"
+      name: "CLIP ConvNeXt-XXLarge"
+      relationship: "fine_tuned_from"
 interface:
   inputs:
     -

@@ -17,7 +17,9 @@ architecture:
 lineage:
   base_models:
     -
-      name: "CLIP ViT-L/14 (OpenAI, WIT-400M)"
+      identifier: "openai-clip-vit-l14"
+      name: "OpenAI CLIP ViT-L/14"
+      relationship: "fine_tuned_from"
 interface:
   inputs:
     -

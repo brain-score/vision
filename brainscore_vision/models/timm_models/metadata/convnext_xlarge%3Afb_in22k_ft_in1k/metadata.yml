@@ -19,7 +19,9 @@ architecture:
 lineage:
   base_models:
     -
-      name: "ConvNeXt-XLarge pretrained on ImageNet-22k by the original ConvNeXt paper authors, fine-tuned on ImageNet-1k"
+      identifier: "convnext-xlarge"
+      name: "ConvNeXt-XLarge"
+      relationship: "fine_tuned_from"
 interface:
   inputs:
     -

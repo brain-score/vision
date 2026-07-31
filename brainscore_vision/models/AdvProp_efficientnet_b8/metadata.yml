@@ -15,7 +15,9 @@ architecture:
 lineage:
   base_models:
     -
+      identifier: "advprop-efficientnet"
       name: "AdvProp EfficientNet"
+      relationship: "variant_of"
 interface:
   inputs:
     -

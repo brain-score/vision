@@ -17,7 +17,9 @@ architecture:
 lineage:
   base_models:
     -
-      name: "CLIP ViT-L/14 via OpenCLIP, pretrained on LAION-2B"
+      identifier: "openclip-vit-l14-laion2b"
+      name: "OpenCLIP ViT-L/14 (LAION-2B)"
+      relationship: "fine_tuned_from"
 interface:
   inputs:
     -

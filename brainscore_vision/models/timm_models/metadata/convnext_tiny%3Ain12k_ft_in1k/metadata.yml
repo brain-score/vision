@@ -19,7 +19,9 @@ architecture:
 lineage:
   base_models:
     -
-      name: "ConvNeXt-Tiny pretrained on ImageNet-12k, then fine-tuned"
+      identifier: "convnext-tiny"
+      name: "ConvNeXt-Tiny"
+      relationship: "fine_tuned_from"
 interface:
   inputs:
     -

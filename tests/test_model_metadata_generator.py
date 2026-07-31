@@ -11,6 +11,7 @@ merge_model_columns = GENERATOR["merge_model_columns"]
 parse_datasets = GENERATOR["parse_datasets"]
 parse_curation_confidence = GENERATOR["parse_curation_confidence"]
 parse_visual_degrees = GENERATOR["parse_visual_degrees"]
+parse_base_model = GENERATOR["parse_base_model"]
 
 
 def workbook_rows():
@@ -66,3 +67,27 @@ class TestAdditionalWorkbookFields(TestCase):
 
     def test_normalizes_curation_confidence(self):
         self.assertEqual(parse_curation_confidence("Medium/High"), "medium_high")
+
+
+class TestBaseModels(TestCase):
+    def test_maps_registry_base_model(self):
+        self.assertEqual(
+            parse_base_model("AlexNet"),
+            {
+                "identifier": "alexnet",
+                "name": "AlexNet",
+                "relationship": "variant_of",
+            },
+        )
+
+    def test_maps_direct_parent_from_lineage_description(self):
+        self.assertEqual(
+            parse_base_model("AlexNet, AlexNet-SIN")["identifier"],
+            "AlexNet_SIN",
+        )
+
+    def test_preserves_unmapped_base_without_inferring_relationship(self):
+        self.assertEqual(
+            parse_base_model("Custom research model"),
+            {"name": "Custom research model"},
+        )

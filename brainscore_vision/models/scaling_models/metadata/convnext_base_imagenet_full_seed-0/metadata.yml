@@ -15,7 +15,9 @@ architecture:
 lineage:
   base_models:
     -
-      name: "ConvNeXt-Base (trained from scratch, not fine-tuned from another checkpoint)"
+      identifier: "convnext-base"
+      name: "ConvNeXt-Base"
+      relationship: "variant_of"
 interface:
   inputs:
     -

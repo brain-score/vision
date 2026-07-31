@@ -14,7 +14,9 @@ architecture:
 lineage:
   base_models:
     -
-      name: "ConvNeXt-Tiny (trained from scratch, not fine-tuned)"
+      identifier: "convnext-tiny"
+      name: "ConvNeXt-Tiny"
+      relationship: "variant_of"
 interface:
   inputs:
     -

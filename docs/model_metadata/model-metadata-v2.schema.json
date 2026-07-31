@@ -1,0 +1,820 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/brain-score/vision/master/docs/model_metadata/model-metadata-v2.schema.json",
+  "title": "Brain-Score Model Metadata",
+  "description": "Canonical metadata document for one Brain-Score model registry identifier.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "schema_url",
+    "model",
+    "interface",
+    "training",
+    "artifacts",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0.0"
+    },
+    "schema_url": {
+      "const": "https://raw.githubusercontent.com/brain-score/vision/master/docs/model_metadata/model-metadata-v2.schema.json"
+    },
+    "model": {
+      "$ref": "#/$defs/model"
+    },
+    "architecture": {
+      "$ref": "#/$defs/architecture"
+    },
+    "lineage": {
+      "$ref": "#/$defs/lineage"
+    },
+    "interface": {
+      "$ref": "#/$defs/interface"
+    },
+    "preprocessing": {
+      "$ref": "#/$defs/preprocessing"
+    },
+    "training": {
+      "$ref": "#/$defs/training"
+    },
+    "evaluation": {
+      "$ref": "#/$defs/evaluation"
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/artifact"
+      }
+    },
+    "intended_use": {
+      "$ref": "#/$defs/intendedUse"
+    },
+    "authorship": {
+      "$ref": "#/$defs/authorship"
+    },
+    "licenses": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/license"
+      }
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/reference"
+      }
+    },
+    "provenance": {
+      "$ref": "#/$defs/provenance"
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "stringList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      }
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identifier",
+        "display_name",
+        "domain"
+      ],
+      "properties": {
+        "identifier": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "display_name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "domain": {
+          "enum": [
+            "vision",
+            "language"
+          ]
+        },
+        "version": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "aliases": {
+          "$ref": "#/$defs/stringList"
+        },
+        "description": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "valueEstimate": {
+      "type": "object",
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "value"
+          ]
+        },
+        {
+          "required": [
+            "description"
+          ]
+        }
+      ],
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "exact": {
+          "type": "boolean"
+        },
+        "description": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "architecture": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "family": {
+          "enum": [
+            "convolutional_neural_network",
+            "vision_transformer",
+            "recurrent_convolutional_neural_network",
+            "hybrid_convolutional_transformer",
+            "hybrid_biological_convolutional",
+            "raw_pixels",
+            "other"
+          ]
+        },
+        "description": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "parameter_count": {
+          "$ref": "#/$defs/valueEstimate"
+        },
+        "trainable_layers": {
+          "type": "object",
+          "additionalProperties": false,
+          "anyOf": [
+            {
+              "required": [
+                "count"
+              ]
+            },
+            {
+              "required": [
+                "description"
+              ]
+            }
+          ],
+          "properties": {
+            "count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": {
+              "$ref": "#/$defs/nonEmptyString"
+            }
+          }
+        },
+        "recurrent": {
+          "type": "boolean"
+        }
+      }
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "base_models": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name"
+            ],
+            "properties": {
+              "identifier": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "name": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "relationship": {
+                "enum": [
+                  "derived_from",
+                  "fine_tuned_from",
+                  "variant_of"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "shape": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "height",
+        "width"
+      ],
+      "properties": {
+        "channels": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "interface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "inputs"
+      ],
+      "properties": {
+        "inputs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "modality"
+            ],
+            "properties": {
+              "name": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "modality": {
+                "enum": [
+                  "image",
+                  "video",
+                  "text",
+                  "audio",
+                  "tensor",
+                  "other"
+                ]
+              },
+              "shape": {
+                "$ref": "#/$defs/shape"
+              },
+              "format": {
+                "$ref": "#/$defs/nonEmptyString"
+              }
+            }
+          }
+        },
+        "outputs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "type": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "description": {
+                "$ref": "#/$defs/nonEmptyString"
+              }
+            }
+          }
+        },
+        "description": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "tokenizer": {
+          "type": "boolean"
+        },
+        "visual_degrees": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "preprocessing": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "resize": {
+          "$ref": "#/$defs/shape"
+        },
+        "crop": {
+          "$ref": "#/$defs/shape"
+        },
+        "interpolation": {
+          "enum": [
+            "nearest",
+            "bilinear",
+            "bicubic",
+            "lanczos",
+            "area",
+            "other"
+          ]
+        },
+        "normalization": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mean",
+            "standard_deviation"
+          ],
+          "properties": {
+            "mean": {
+              "$ref": "#/$defs/numberVector"
+            },
+            "standard_deviation": {
+              "$ref": "#/$defs/numberVector"
+            }
+          }
+        },
+        "implementation": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "numberVector": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "number"
+      }
+    },
+    "datasetUsage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "role"
+      ],
+      "properties": {
+        "identifier": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "role": {
+          "enum": [
+            "training",
+            "pretraining",
+            "fine_tuning",
+            "validation",
+            "testing"
+          ]
+        },
+        "sample_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sample_unit": {
+          "enum": [
+            "images",
+            "image_text_pairs",
+            "videos",
+            "tokens",
+            "examples",
+            "other"
+          ]
+        },
+        "description": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "objective": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "description"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "classification",
+            "contrastive",
+            "reconstruction",
+            "distillation",
+            "next_token_prediction",
+            "other"
+          ]
+        },
+        "description": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "hyperparameterValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "value"
+          ]
+        },
+        {
+          "required": [
+            "description"
+          ]
+        }
+      ],
+      "properties": {
+        "value": {
+          "type": "number"
+        },
+        "description": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "training": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "process": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "datasets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/datasetUsage"
+          }
+        },
+        "dataset_summary": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "supervision": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "description"
+          ],
+          "properties": {
+            "type": {
+              "enum": [
+                "supervised",
+                "self_supervised",
+                "weakly_supervised",
+                "unsupervised",
+                "mixed",
+                "other"
+              ]
+            },
+            "description": {
+              "$ref": "#/$defs/nonEmptyString"
+            }
+          }
+        },
+        "objectives": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/objective"
+          }
+        },
+        "hyperparameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "learning_rate": {
+              "$ref": "#/$defs/hyperparameterValue"
+            },
+            "batch_size": {
+              "$ref": "#/$defs/hyperparameterValue"
+            }
+          }
+        },
+        "loss": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "description"
+          ],
+          "properties": {
+            "type": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "description": {
+              "$ref": "#/$defs/nonEmptyString"
+            }
+          }
+        },
+        "stages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/trainingStage"
+          }
+        }
+      }
+    },
+    "trainingStage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "order",
+        "type"
+      ],
+      "properties": {
+        "order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "type": {
+          "enum": [
+            "pretraining",
+            "fine_tuning",
+            "distillation",
+            "adaptation",
+            "other"
+          ]
+        },
+        "description": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "datasets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/datasetUsage"
+          }
+        },
+        "objectives": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/objective"
+          }
+        }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "test_datasets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/evaluationDataset"
+          }
+        },
+        "validation_datasets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/evaluationDataset"
+          }
+        }
+      }
+    },
+    "evaluationDataset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "description"
+      ],
+      "properties": {
+        "identifier": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "description": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role"
+      ],
+      "properties": {
+        "role": {
+          "enum": [
+            "weights",
+            "source_code",
+            "configuration",
+            "tokenizer",
+            "other"
+          ]
+        },
+        "provider": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "identifier": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[A-Fa-f0-9]{64}$"
+        },
+        "license": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "intendedUse": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "applications": {
+          "$ref": "#/$defs/stringList"
+        },
+        "users": {
+          "$ref": "#/$defs/stringList"
+        },
+        "limitations": {
+          "$ref": "#/$defs/stringList"
+        },
+        "biases": {
+          "$ref": "#/$defs/stringList"
+        }
+      }
+    },
+    "authorship": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "creators": {
+          "$ref": "#/$defs/stringList"
+        },
+        "organizations": {
+          "$ref": "#/$defs/stringList"
+        }
+      }
+    },
+    "license": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope",
+        "name"
+      ],
+      "properties": {
+        "scope": {
+          "enum": [
+            "source_code",
+            "model_weights",
+            "training_data",
+            "unspecified"
+          ]
+        },
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "spdx": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role",
+        "url"
+      ],
+      "properties": {
+        "role": {
+          "enum": [
+            "primary",
+            "architecture",
+            "training",
+            "weights",
+            "dataset",
+            "other"
+          ]
+        },
+        "title": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "doi": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sources",
+        "assertions"
+      ],
+      "properties": {
+        "sources": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/provenanceSource"
+          }
+        },
+        "assertions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/assertion"
+          }
+        }
+      }
+    },
+    "provenanceSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "curation",
+            "source_code",
+            "checkpoint",
+            "paper",
+            "dataset",
+            "model_card",
+            "other"
+          ]
+        },
+        "title": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "revision": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "assertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "status",
+        "source"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^/"
+        },
+        "status": {
+          "enum": [
+            "verified",
+            "inferred",
+            "undocumented"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "note": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    }
+  }
+}

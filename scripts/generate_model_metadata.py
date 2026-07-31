@@ -23,7 +23,7 @@ from xml.etree import ElementTree as ET
 
 MAIN_NS = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
 NS = {"x": MAIN_NS}
-CURATED_FIELD_ROWS = range(1, 32)
+CURATED_FIELD_ROWS = range(1, 34)
 REGISTRY_PATTERN = re.compile(r"model_registry\[\s*(['\"])(.*?)\1\s*\]")
 UNKNOWN_VALUES = {
     "",
@@ -67,6 +67,8 @@ FIELD_PATHS = {
     "Creator": "/authorship/creators",
     "Organization": "/authorship/organizations",
     "License": "/licenses",
+    "Confidence": "/provenance/curation_confidence",
+    "Visual Degrees": "/interface/visual_degrees",
 }
 
 DATASETS = OrderedDict(
@@ -236,6 +238,25 @@ def parse_bool(value: Any) -> bool | None:
     if normalized in {"no", "false"}:
         return False
     return None
+
+
+def parse_visual_degrees(value: Any) -> float | None:
+    if is_unknown(value):
+        return None
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return float(value)
+    match = re.search(r"\d+(?:\.\d+)?", str(value))
+    return float(match.group()) if match else None
+
+
+def parse_curation_confidence(value: Any) -> str | None:
+    text = string_value(value)
+    if not text:
+        return None
+    normalized = re.sub(r"[^a-z]+", "_", text.lower()).strip("_")
+    if normalized not in {"low", "medium", "medium_high", "high"}:
+        raise ValueError(f"Unsupported curation confidence: {text}")
+    return normalized
 
 
 def architecture_family(value: str) -> str:
@@ -513,6 +534,10 @@ def build_metadata(
     tokenizer = parse_bool(fields["Tokenizer?"])
     if tokenizer is not None:
         interface["tokenizer"] = tokenizer
+    visual_degrees = parse_visual_degrees(fields["Visual Degrees"])
+    if visual_degrees is not None:
+        interface["visual_degrees"] = visual_degrees
+        interface["visual_degrees_description"] = str(fields["Visual Degrees"]).strip()
     metadata["interface"] = interface
 
     preprocessing_description = string_value(
@@ -627,7 +652,7 @@ def build_metadata(
                 "source": "curation_workbook",
             }
         )
-    metadata["provenance"] = {
+    provenance = {
         "sources": {
             "curation_workbook": {
                 "type": "curation",
@@ -641,6 +666,10 @@ def build_metadata(
         },
         "assertions": assertions,
     }
+    curation_confidence = parse_curation_confidence(fields["Confidence"])
+    if curation_confidence:
+        provenance["curation_confidence"] = curation_confidence
+    metadata["provenance"] = provenance
     return metadata
 
 

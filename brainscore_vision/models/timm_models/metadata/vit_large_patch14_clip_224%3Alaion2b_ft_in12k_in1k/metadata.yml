@@ -231,3 +231,11 @@ provenance:
       path: "/licenses"
       status: "inferred"
       source: "curation_workbook"
+    -
+      path: "/provenance/curation_confidence"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/visual_degrees"
+      status: "undocumented"
+      source: "curation_workbook"

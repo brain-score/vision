@@ -113,14 +113,14 @@ formerly visual-only convention machine-readable.
 
 Every workbook column that supplies a model name or model ID is processed. The
 generator matches the column to the model registry, which supplies the
-canonical identifier when the workbook ID is blank. All curated fields,
-including architecture, can be empty. Empty or unknown values are omitted from
-typed YAML and receive an undocumented provenance assertion. This avoids
-fabricated placeholder values while allowing every current workbook model to
-use the metadata system. When multiple workbook columns match one registry
-model, the later column is primary and blank or unknown values are filled from
-earlier columns. Conflicting documented values remain resolved in favor of the
-later curation.
+canonical identifier when the workbook ID is blank. All 33 workbook fields,
+including confidence and visual degrees, are represented. Curated fields can
+be empty; empty or unknown values are omitted from typed YAML and receive an
+undocumented provenance assertion. This avoids fabricated placeholder values
+while allowing every current workbook model to use the metadata system. When
+multiple workbook columns match one registry model, the later column is
+primary and blank or unknown values are filled from earlier columns.
+Conflicting documented values remain resolved in favor of the later curation.
 
 Completeness percentages should be computed from the schema and assertions,
 not authored into YAML. Otherwise they become stale when the schema changes.

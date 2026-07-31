@@ -74,7 +74,9 @@ CREATE TABLE model_metadata_v2.model_profile (
     input_height integer,
     input_width integer,
     visual_degrees numeric(7, 3),
+    visual_degrees_description text,
     supervision_type text,
+    curation_confidence text,
     tokenizer_present boolean,
     updated_at timestamptz NOT NULL DEFAULT now(),
     CHECK (architecture_family IN (
@@ -93,6 +95,9 @@ CREATE TABLE model_metadata_v2.model_profile (
     CHECK (input_height IS NULL OR input_height > 0),
     CHECK (input_width IS NULL OR input_width > 0),
     CHECK (visual_degrees IS NULL OR visual_degrees > 0),
+    CHECK (curation_confidence IS NULL OR curation_confidence IN (
+        'low', 'medium', 'medium_high', 'high'
+    )),
     CHECK (supervision_type IS NULL OR supervision_type IN (
         'supervised',
         'self_supervised',

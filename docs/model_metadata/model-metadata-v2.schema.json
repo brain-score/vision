@@ -312,6 +312,9 @@
         "visual_degrees": {
           "type": "number",
           "exclusiveMinimum": 0
+        },
+        "visual_degrees_description": {
+          "$ref": "#/$defs/nonEmptyString"
         }
       }
     },
@@ -752,6 +755,14 @@
           "items": {
             "$ref": "#/$defs/assertion"
           }
+        },
+        "curation_confidence": {
+          "enum": [
+            "low",
+            "medium",
+            "medium_high",
+            "high"
+          ]
         }
       }
     },

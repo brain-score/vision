@@ -1,0 +1,205 @@
+schema_version: "2.0.0"
+schema_url: "https://raw.githubusercontent.com/brain-score/vision/master/docs/model_metadata/model-metadata-v2.schema.json"
+model:
+  identifier: "convnext_base_imagenet_full_seed-0"
+  display_name: "convnext_base_imagenet_full_seed-0"
+  domain: "vision"
+  version: "EPFL NeuroAI Scaling Variant"
+architecture:
+  family: "convolutional_neural_network"
+  description: "ConvNeXt (pure CNN, 'ConvNet for the 2020s')"
+  parameter_count:
+    value: 88600000
+    exact: true
+  recurrent: false
+lineage:
+  base_models:
+    -
+      name: "ConvNeXt-Base (trained from scratch, not fine-tuned from another checkpoint)"
+interface:
+  inputs:
+    -
+      modality: "image"
+      shape:
+        channels: 3
+        height: 224
+        width: 224
+  description: "Input: RGB image tensor (assumed 224x224x3); Output: 1000-class ImageNet logits"
+training:
+  process: "Standard ConvNeXt-Base trained on 100% ('full') of ImageNet-1k, with a fixed random seed (seed-0) as one run in a seeded multi-run comparison set"
+  datasets:
+    -
+      identifier: "imagenet-1k"
+      name: "ImageNet-1k"
+      role: "training"
+      sample_count: 1281167
+      sample_unit: "images"
+  supervision:
+    type: "supervised"
+    description: "Fully Supervised"
+  objectives:
+    -
+      type: "classification"
+      description: "Image classification (1000-way)"
+  loss:
+    description: "Not published (cross-entropy presumed for standard ImageNet classification)"
+evaluation:
+  test_datasets:
+    -
+      description: "ImageNet validation set (used for robustness/alignment evaluation in the source paper)"
+  validation_datasets:
+    -
+      description: "ImageNet-1k validation set (presumed, standard practice)"
+artifacts:
+  -
+    role: "weights"
+    provider: "Brain-Score model registry (loaded via BrainScore library v2.2.4)"
+  -
+    role: "source_code"
+    provider: "Brain-Score"
+    url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models"
+    path: "brainscore_vision/models/scaling_models"
+intended_use:
+  applications:
+    - "Used in this context as a candidate model for measuring representational alignment to biological vision and adversarial robustness"
+  users:
+    - "Vision neuroscience / alignment researchers (via Brain-Score)"
+    - "ML robustness researchers"
+references:
+  -
+    role: "primary"
+    url: "https://arxiv.org/pdf/2411.05712"
+provenance:
+  sources:
+    curation_workbook:
+      type: "curation"
+      title: "Brainscore Model Metadata.xlsx"
+    implementation:
+      type: "source_code"
+      url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models"
+      path: "brainscore_vision/models/scaling_models"
+  assertions:
+    -
+      path: "/model/display_name"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/lineage/base_models"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/model/version"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/model/identifier"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/family"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/process"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/architecture/parameter_count"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/trainable_layers"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/inputs/0/shape"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/architecture/recurrent"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/datasets"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/training/dataset_summary"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/supervision"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/training/objectives"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/provider"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/identifier"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/preprocessing"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/learning_rate"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/batch_size"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/test_datasets"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/validation_datasets"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/loss"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/applications"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/users"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/limitations"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/biases"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/description"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/interface/tokenizer"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/authorship/creators"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/authorship/organizations"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/licenses"
+      status: "undocumented"
+      source: "curation_workbook"

@@ -1,0 +1,225 @@
+schema_version: "2.0.0"
+schema_url: "https://raw.githubusercontent.com/brain-score/vision/master/docs/model_metadata/model-metadata-v2.schema.json"
+model:
+  identifier: "resnext101_32x8d_wsl"
+  display_name: "resnext101_32x8d_wsl"
+  domain: "vision"
+  aliases:
+    - "Resnext101_32x8d"
+architecture:
+  family: "convolutional_neural_network"
+  description: "Convolutional Neural Network"
+  parameter_count:
+    value: 88791336
+    exact: true
+  trainable_layers:
+    count: 101
+  recurrent: false
+interface:
+  inputs:
+    -
+      modality: "image"
+      shape:
+        channels: 3
+        height: 224
+        width: 224
+  description: "RGB tensor 224x224, 1000-class logits."
+preprocessing:
+  description: "Resize, center-crop, rescale, normalize mean, std"
+training:
+  process: "resnext101_32x8d_wsl (weakly-supervised), not plain torchvision resnext101_32x8d."
+  datasets:
+    -
+      name: "ImageNet(actual Brain-Score resnext101_32x8d_wsl plugin is pretrained on ~1B Instagram images then fine-tuned on ImageNet.)"
+      role: "training"
+      sample_count: 1281167
+      sample_unit: "images"
+  supervision:
+    type: "weakly_supervised"
+    description: "Fully supervised (NOTE: Brain-Score's actual resnext101_32x8d_wsl plugin is weakly-supervised – Instagram hashtags + ImageNet fine-tune)"
+  objectives:
+    -
+      type: "classification"
+      description: "1,000-class image classification"
+  hyperparameters:
+    learning_rate:
+      description: "V1 (as actually trained by torchvision): lr=0.4. V2: exact resnext-specific LR not published."
+    batch_size:
+      description: "V1: 1024 total (16/GPU × 64 GPUs). V2: not specifically published for this model."
+  loss:
+    description: "Cross-Entropy loss"
+evaluation:
+  test_datasets:
+    -
+      description: "ImageNet/ILSVRC validation set"
+  validation_datasets:
+    -
+      description: "ImageNet/ILSVRC"
+artifacts:
+  -
+    role: "weights"
+    provider: "torchvision"
+    identifier: "ResNeXt101_32X8D_Weights.IMAGENET1K_V1 / IMAGENET1K_V2"
+  -
+    role: "source_code"
+    provider: "Brain-Score"
+    url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnext101_32x8d_wsl"
+    path: "brainscore_vision/models/resnext101_32x8d_wsl"
+intended_use:
+  applications:
+    - "General image-classification / transfer-learning backbone"
+    - "grouped-convolution (\"cardinality\") efficiency vs. plain ResNet at similar FLOPs"
+  users:
+    - "ML researchers/engineers"
+    - "also used as a candidate model of the primate ventral visual stream in Brain-Score"
+  limitations:
+    - "Diminishing accuracy gains from cardinality at narrow bottleneck widths"
+    - "grouped convolutions less GPU-parallelization-friendly (slower per-minibatch than ResNet-101 despite similar nominal FLOPs)"
+    - "cardinality benefit shrinks with depth"
+  biases:
+    - "Inherits general ImageNet-1K dataset biases (geographic/cultural skew, label noise, category imbalance)"
+authorship:
+  creators:
+    - "Saining Xie, Ross Girshick, Piotr Dollár, Zhuowen Tu, Kaiming He"
+  organizations:
+    - "Facebook AI Research (FAIR) / UC San Diego (paper)"
+    - "PyTorch/Meta, now PyTorch Foundation (checkpoint)"
+licenses:
+  -
+    scope: "unspecified"
+    name: "BSD-3-Clause (torchvision code and weights)"
+    spdx: "BSD-3-Clause"
+provenance:
+  sources:
+    curation_workbook:
+      type: "curation"
+      title: "Brainscore Model Metadata.xlsx"
+    implementation:
+      type: "source_code"
+      url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnext101_32x8d_wsl"
+      path: "brainscore_vision/models/resnext101_32x8d_wsl"
+  assertions:
+    -
+      path: "/model/display_name"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/lineage/base_models"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/model/version"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/model/identifier"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/architecture/family"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/process"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/architecture/parameter_count"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/architecture/trainable_layers"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/inputs/0/shape"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/architecture/recurrent"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/datasets"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/dataset_summary"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/supervision"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/objectives"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/provider"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/identifier"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/preprocessing"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/learning_rate"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/batch_size"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/test_datasets"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/validation_datasets"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/loss"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/applications"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/users"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/limitations"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/biases"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/description"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/tokenizer"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/authorship/creators"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/authorship/organizations"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/licenses"
+      status: "undocumented"
+      source: "curation_workbook"

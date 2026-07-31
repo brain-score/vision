@@ -1,0 +1,208 @@
+schema_version: "2.0.0"
+schema_url: "https://raw.githubusercontent.com/brain-score/vision/master/docs/model_metadata/model-metadata-v2.schema.json"
+model:
+  identifier: "pixels"
+  display_name: "pixels"
+  domain: "vision"
+  aliases:
+    - "Pixels"
+architecture:
+  family: "raw_pixels"
+  description: "No architecture; raw pixel array used directly as the feature representation"
+  parameter_count:
+    value: 0
+    exact: true
+  trainable_layers:
+    count: 0
+  recurrent: false
+interface:
+  inputs:
+    -
+      modality: "image"
+      shape:
+        channels: 3
+        height: 256
+        width: 256
+  description: "image, single 'pixels' pseudo-layer – raw RGB array resized to 256x256x3 (196,608 values)"
+preprocessing:
+  description: "Convert image to RGB, resize to 256x256; no normalization applied"
+training:
+  datasets:
+    -
+      name: "N/A – untrained, no training data"
+      role: "training"
+  supervision:
+    type: "other"
+    description: "N/A – no training occurs"
+  loss:
+    description: "N/A – no training"
+evaluation:
+  test_datasets:
+    -
+      description: "Brain-Score benchmark stimuli sets (FreemanZiemba2013 V1/V2, MajajHong2015 V4/IT, Sanghavi2020/SanghaviJozwik2020/SanghaviMurty2020, Rajalingham2018-i2n behavioral, etc.) – not a classification test set"
+  validation_datasets:
+    -
+      description: "N/A – no separate held-out split; zero-parameter model uses same stimuli as test"
+artifacts:
+  -
+    role: "weights"
+    provider: "N/A – no weights"
+  -
+    role: "source_code"
+    provider: "Brain-Score"
+    url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/pixels"
+    path: "brainscore_vision/models/pixels"
+intended_use:
+  applications:
+    - "Baseline/floor (\"null model\") for interpreting Brain-Score results – isolates how much of a real model's score reflects learned representation vs. trivial pixel similarity"
+  users:
+    - "Brain-Score benchmark developers/researchers needing a reference floor score"
+  limitations:
+    - "Captures no learned/semantic features"
+    - "scores near the bottom of the public leaderboard on nearly all neural (V1, V2, V4, IT) and behavioral benchmarks (~490-510th of ~511 models)"
+  biases:
+    - "N/A – untrained"
+    - "any \"bias\" comes only from whichever benchmark stimuli it's tested on, not training data"
+authorship:
+  creators:
+    - "Martin Schrimpf"
+  organizations:
+    - "DiCarlo Lab, MIT"
+licenses:
+  -
+    scope: "unspecified"
+    name: "MIT License (Brain-Score repo)"
+provenance:
+  sources:
+    curation_workbook:
+      type: "curation"
+      title: "Brainscore Model Metadata.xlsx"
+    implementation:
+      type: "source_code"
+      url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/pixels"
+      path: "brainscore_vision/models/pixels"
+  assertions:
+    -
+      path: "/model/display_name"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/lineage/base_models"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/model/version"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/model/identifier"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/architecture/family"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/process"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/architecture/parameter_count"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/architecture/trainable_layers"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/inputs/0/shape"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/architecture/recurrent"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/datasets"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/dataset_summary"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/supervision"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/objectives"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/provider"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/identifier"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/preprocessing"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/learning_rate"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/batch_size"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/test_datasets"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/validation_datasets"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/loss"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/applications"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/users"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/limitations"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/biases"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/description"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/tokenizer"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/authorship/creators"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/authorship/organizations"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/licenses"
+      status: "undocumented"
+      source: "curation_workbook"

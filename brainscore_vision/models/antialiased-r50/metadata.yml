@@ -1,0 +1,220 @@
+schema_version: "2.0.0"
+schema_url: "https://raw.githubusercontent.com/brain-score/vision/master/docs/model_metadata/model-metadata-v2.schema.json"
+model:
+  identifier: "antialiased-r50"
+  display_name: "antialiased-r50"
+  domain: "vision"
+  version: "V0.3"
+architecture:
+  family: "convolutional_neural_network"
+  description: "Convolutional Neural Network"
+  parameter_count:
+    value: 25600000
+    exact: true
+  recurrent: false
+lineage:
+  base_models:
+    -
+      name: "Standard torchvision ResNet-50"
+interface:
+  inputs:
+    -
+      modality: "image"
+      shape:
+        channels: 3
+        height: 224
+        width: 224
+  description: "RGB 224x224x3, 1000-class softmax logits"
+preprocessing:
+  description: "Standard PyTorch ImageNet pipeline (resize/crop to 224×224, normalization); evaluation of shift-consistency uses two random 224×224 crops of the same image"
+training:
+  process: "Baseline ResNet-50 modified by replacing stride-2 downsampling (max-pool, avg-pool, or strided conv) with a \"MaxBlurPool\"-style approach: evaluate at stride 1, then apply a low-pass blur filter before subsampling. As of Oct 2020, the released weights are produced by fine-tuning from baseline ResNet-50 weights rather than training from scratch, using the last 2/3 of a full training schedule with learning rate lowered 10x and 60 epochs"
+  datasets:
+    -
+      identifier: "imagenet-1k"
+      name: "ImageNet-1k"
+      role: "training"
+      sample_count: 1281167
+      sample_unit: "images"
+  supervision:
+    type: "supervised"
+    description: "Fully supervised"
+  objectives:
+    -
+      type: "classification"
+      description: "1,000-class image classification"
+  hyperparameters:
+    learning_rate:
+      description: "Fine-tuning run: lr = 0..01 for 60 epochs"
+    batch_size:
+      value: 256
+  loss:
+    description: "Standard cross-entropy loss"
+evaluation:
+  test_datasets:
+    -
+      description: "ImageNet ILSVRC 2012 validation set"
+  validation_datasets:
+    -
+      description: "ImageNet ILSVRC 2012 validation set"
+artifacts:
+  -
+    role: "weights"
+    provider: "Adobe Inc./Richard Zhang"
+    identifier: "resnet50_lpf4"
+  -
+    role: "source_code"
+    provider: "Brain-Score"
+    url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/antialiased-r50"
+    path: "brainscore_vision/models/antialiased-r50"
+intended_use:
+  applications:
+    - "Backbone for downstream vision applications needing improved shift-invariance/robustness to small translations"
+  users:
+    - "Computer vision researchers/engineers needing a more robust drop-in ResNet-50 backbone"
+  limitations:
+    - "Antialiasing adds extra compute/runtime overhead versus baseline (no extra parameters, but slower forward pass)"
+authorship:
+  creators:
+    - "Richard Zhang"
+  organizations:
+    - "Adobe Inc."
+licenses:
+  -
+    scope: "unspecified"
+    name: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0); code builds on BSD-licensed PyTorch/torchvision repos"
+    spdx: "CC-BY-NC-SA-4.0"
+provenance:
+  sources:
+    curation_workbook:
+      type: "curation"
+      title: "Brainscore Model Metadata.xlsx"
+    implementation:
+      type: "source_code"
+      url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/antialiased-r50"
+      path: "brainscore_vision/models/antialiased-r50"
+  assertions:
+    -
+      path: "/model/display_name"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/lineage/base_models"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/model/version"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/model/identifier"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/family"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/process"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/architecture/parameter_count"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/trainable_layers"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/inputs/0/shape"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/recurrent"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/datasets"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/dataset_summary"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/supervision"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/objectives"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/provider"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/identifier"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/preprocessing"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/learning_rate"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/batch_size"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/test_datasets"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/validation_datasets"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/training/loss"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/applications"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/users"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/limitations"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/biases"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/description"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/interface/tokenizer"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/authorship/creators"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/authorship/organizations"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/licenses"
+      status: "verified"
+      source: "curation_workbook"

@@ -1,0 +1,219 @@
+schema_version: "2.0.0"
+schema_url: "https://raw.githubusercontent.com/brain-score/vision/master/docs/model_metadata/model-metadata-v2.schema.json"
+model:
+  identifier: "convnext_base:clip_laiona_augreg_ft_in1k_384"
+  display_name: "convnext_base:clip_laiona_augreg_ft_in1k_384"
+  domain: "vision"
+  version: "timm library weights"
+architecture:
+  family: "convolutional_neural_network"
+  description: "ConvNeXt, pure convolutional neural network"
+  parameter_count:
+    value: 88600000
+    exact: true
+  recurrent: false
+lineage:
+  base_models:
+    -
+      name: "CLIP-ConvNeXt-Base image tower"
+interface:
+  inputs:
+    -
+      modality: "image"
+      shape:
+        channels: 3
+        height: 384
+        width: 384
+  description: "RGB 384x384x3, 1000-class logits"
+preprocessing:
+  description: "Model-specific transforms resolved via timm.data.resolve_model_data_config() — standard resize/crop to 384×384 + normalization; exact mean/std not shown on this card"
+training:
+  process: "CLIP image-tower weights pretrained in OpenCLIP on LAION, then fine-tuned on ImageNet-1k in timm; naming convention: clip = CLIP-pretrained tower, laiona = LAION-Aesthetic pretrain subset, augreg = AugReg fine-tuning recipe (strong augmentation + regularization), ft_in1k = fine-tuned on ImageNet-1k, 384 = fine-tuned/eval at 384px"
+  datasets:
+    -
+      identifier: "laion-aesthetic"
+      name: "LAION-Aesthetic"
+      role: "pretraining"
+    -
+      identifier: "imagenet-1k"
+      name: "ImageNet-1k"
+      role: "fine_tuning"
+      sample_count: 1281167
+      sample_unit: "images"
+  supervision:
+    type: "mixed"
+    description: "Contrastive pretraining + supervised fine tuning"
+  objectives:
+    -
+      type: "contrastive"
+      description: "Image-text contrastive pretraining, then classification fine-tuning"
+    -
+      type: "classification"
+      description: "Image-text contrastive pretraining, then classification fine-tuning"
+evaluation:
+  test_datasets:
+    -
+      description: "ImageNet-1k validation set"
+  validation_datasets:
+    -
+      description: "ImageNet-1k validation set"
+artifacts:
+  -
+    role: "weights"
+    provider: "timms"
+    identifier: "timm/convnext_base.clip_laiona_augreg_ft_in1k_384"
+  -
+    role: "source_code"
+    provider: "Brain-Score"
+    url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models"
+    path: "brainscore_vision/models/timm_models"
+intended_use:
+  applications:
+    - "Image classification, feature/embedding extraction, backbone for downstream vision tasks (classification head, feature maps, or pooled embeddings all supported)"
+  users:
+    - "ML engineers/researchers needing a strong ImageNet classifier or general-purpose visual feature extractor"
+authorship:
+  creators:
+    - "Ross Wightman (timm fine-tune)"
+    - "base CLIP-ConvNeXt weights via OpenCLIP team (Ilharco, Wortsman, Wightman, Gordon, Carlini, Taori, Dave, Shankar, Namkoong, Miller, Hajishirzi, Farhadi, Schmidt)"
+  organizations:
+    - "OpenCLIP"
+licenses:
+  -
+    scope: "unspecified"
+    name: "Apache-2.0"
+    spdx: "Apache-2.0"
+provenance:
+  sources:
+    curation_workbook:
+      type: "curation"
+      title: "Brainscore Model Metadata.xlsx"
+    implementation:
+      type: "source_code"
+      url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models"
+      path: "brainscore_vision/models/timm_models"
+  assertions:
+    -
+      path: "/model/display_name"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/lineage/base_models"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/model/version"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/model/identifier"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/family"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/process"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/parameter_count"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/trainable_layers"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/inputs/0/shape"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/recurrent"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/datasets"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/dataset_summary"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/supervision"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/objectives"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/provider"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/identifier"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/preprocessing"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/learning_rate"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/batch_size"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/test_datasets"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/validation_datasets"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/training/loss"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/applications"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/users"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/limitations"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/biases"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/description"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/interface/tokenizer"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/authorship/creators"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/authorship/organizations"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/licenses"
+      status: "verified"
+      source: "curation_workbook"

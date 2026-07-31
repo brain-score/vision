@@ -1,0 +1,225 @@
+schema_version: "2.0.0"
+schema_url: "https://raw.githubusercontent.com/brain-score/vision/master/docs/model_metadata/model-metadata-v2.schema.json"
+model:
+  identifier: "ViT_L_32_imagenet1k"
+  display_name: "ViT_L_32_imagenet1k"
+  domain: "vision"
+  version: "IMAGENET1K_V1 (only weight version for vit_l_32 in torchvision)"
+architecture:
+  family: "vision_transformer"
+  description: "Vision Transformer (image classification)"
+  parameter_count:
+    value: 306535400
+    exact: true
+  trainable_layers:
+    description: "24 encoder layers, 16 attention heads, hidden_dim 1024, MLP dim 4096"
+  recurrent: false
+lineage:
+  base_models:
+    -
+      name: "Vision Transformer architecture (Dosovitskiy et al. 2020); trained from scratch, no separate base checkpoint"
+interface:
+  inputs:
+    -
+      modality: "image"
+      shape:
+        channels: 3
+        height: 224
+        width: 224
+  description: "Input: RGB tensor 3x224x224 normalized; Output: 1000-class logits"
+preprocessing:
+  description: "Resize 256 (bilinear) -> center crop 224 -> scale [0,1] -> normalize mean=[0.485,0.456,0.406], std=[0.229,0.224,0.225]"
+training:
+  process: "Trained from scratch on ImageNet-1k: AdamW, 300 epochs, cosine LR w/ linear warmup, RandAugment, Mixup+CutMix, label smoothing, EMA (modified DeiT recipe)"
+  datasets:
+    -
+      identifier: "imagenet-1k"
+      name: "ImageNet-1k"
+      role: "training"
+  dataset_summary: "~1.28M training images / 50K validation images"
+  supervision:
+    type: "supervised"
+    description: "Fully supervised, single-label 1000-way classification"
+  objectives:
+    -
+      type: "classification"
+      description: "Cross-entropy classification with label smoothing (0.11) + Mixup(a=0.2)/CutMix(a=1.0)"
+  hyperparameters:
+    learning_rate:
+      description: "0.003 (AdamW), cosine annealing, 30-epoch linear warmup, warmup-decay 0.033"
+    batch_size:
+      description: "512 global (8 nodes x 8 GPUs x 64/GPU)"
+  loss:
+    description: "Cross-entropy w/ label smoothing 0.11, combined with mixup/cutmix"
+evaluation:
+  test_datasets:
+    -
+      description: "ImageNet-1k validation set (50K images)"
+  validation_datasets:
+    -
+      description: "ImageNet-1k validation set (same split used for val/test)"
+artifacts:
+  -
+    role: "weights"
+    provider: "PyTorch/torchvision (PyTorch Foundation, originally Meta AI)"
+    identifier: "vit_l_32-c7638314.pth, hosted at download.pytorch.org/models/"
+  -
+    role: "source_code"
+    provider: "Brain-Score"
+    url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ViT_L_32_imagenet1k"
+    path: "brainscore_vision/models/ViT_L_32_imagenet1k"
+intended_use:
+  applications:
+    - "General image classification"
+    - "transfer-learning backbone for downstream CV tasks"
+  users:
+    - "ML researchers/engineers in the PyTorch ecosystem needing an off-the-shelf ViT classifier"
+  limitations:
+    - "Lower accuracy (76.97% top-1) vs same-size ViT pretrained on ImageNet-21k or SWAG"
+    - "data-hungry/overfitting-prone when trained from scratch on IN-1k alone"
+  biases:
+    - "Inherits generic ImageNet-1k dataset biases (geographic/demographic skew, label noise), not specifically documented per-checkpoint"
+authorship:
+  creators:
+    - "PyTorch Vision team (Meta AI / PyTorch Foundation contributors)"
+  organizations:
+    - "PyTorch (Linux Foundation), formerly Meta AI"
+licenses:
+  -
+    scope: "unspecified"
+    name: "BSD-3-Clause (torchvision repository license)"
+    spdx: "BSD-3-Clause"
+provenance:
+  sources:
+    curation_workbook:
+      type: "curation"
+      title: "Brainscore Model Metadata.xlsx"
+    implementation:
+      type: "source_code"
+      url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ViT_L_32_imagenet1k"
+      path: "brainscore_vision/models/ViT_L_32_imagenet1k"
+  assertions:
+    -
+      path: "/model/display_name"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/lineage/base_models"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/model/version"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/model/identifier"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/family"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/process"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/parameter_count"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/trainable_layers"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/interface/inputs/0/shape"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/recurrent"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/datasets"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/dataset_summary"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/supervision"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/objectives"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/provider"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/identifier"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/preprocessing"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/learning_rate"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/batch_size"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/test_datasets"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/validation_datasets"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/training/loss"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/applications"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/users"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/limitations"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/biases"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/interface/description"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/interface/tokenizer"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/authorship/creators"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/authorship/organizations"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/licenses"
+      status: "inferred"
+      source: "curation_workbook"

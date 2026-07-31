@@ -1,0 +1,223 @@
+schema_version: "2.0.0"
+schema_url: "https://raw.githubusercontent.com/brain-score/vision/master/docs/model_metadata/model-metadata-v2.schema.json"
+model:
+  identifier: "AdvProp_efficientnet-b7"
+  display_name: "AdvProp_efficientnet-b7"
+  domain: "vision"
+  version: "B7 Scale Variant"
+architecture:
+  family: "convolutional_neural_network"
+  description: "Convolutional Neural Network"
+  parameter_count:
+    value: 66000000
+    exact: true
+  trainable_layers:
+    count: 48
+  recurrent: false
+lineage:
+  base_models:
+    -
+      name: "AdvProp EfficientNet"
+interface:
+  inputs:
+    -
+      modality: "image"
+      shape:
+        channels: 3
+        height: 600
+        width: 600
+  description: "RGB 600x600x3 NCHW, 1000-class logits"
+preprocessing:
+  description: "Resize to 600x600, normalize mean, std"
+training:
+  datasets:
+    -
+      identifier: "imagenet-1k"
+      name: "ImageNet-1k"
+      role: "training"
+      sample_count: 1281167
+      sample_unit: "images"
+  supervision:
+    type: "supervised"
+    description: "Fully Supervised"
+  objectives:
+    -
+      type: "classification"
+      description: "1,000-class image classification"
+  loss:
+    description: "Cross-entropy loss"
+evaluation:
+  test_datasets:
+    -
+      description: "ImageNet-1K, ImageNet-C, ImageNet-A, Stylized-ImageNet"
+  validation_datasets:
+    -
+      description: "ImageNet-1K validatioon set"
+artifacts:
+  -
+    role: "weights"
+    provider: "Google, PyTorch"
+    identifier: "tf_efficientnet_b7.ap_in1K"
+  -
+    role: "source_code"
+    provider: "Brain-Score"
+    url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AdvProp_efficientnet_b7"
+    path: "brainscore_vision/models/AdvProp_efficientnet_b7"
+intended_use:
+  applications:
+    - "High-accuracy image classification where compute budget allows a large backbone"
+    - "robustness-sensitive deployment (corruption/distribution shift)"
+    - "strong transfer-learning backbone"
+  users:
+    - "CV researchers/practitioners needing top-tier accuracy + robustness"
+    - "benchmark/robustness research"
+  limitations:
+    - "Very high compute cost (largest standard AdvProp scale short of B8)"
+    - "600×600 input drives high inference latency/memory"
+    - "robustness gains target common corruptions, not adaptive/white-box attacks"
+  biases:
+    - "Inherits ImageNet dataset biases (geographic/cultural skew, label noise, legacy category issues)"
+authorship:
+  creators:
+    - "Cihang Xie, Mingxing Tan, Boqing Gong, Jiang Wang, Alan Yuille, Quoc V. Le"
+  organizations:
+    - "Google, Johns Hopkins University"
+licenses:
+  -
+    scope: "unspecified"
+    name: "Apache 2.0"
+    spdx: "Apache-2.0"
+provenance:
+  sources:
+    curation_workbook:
+      type: "curation"
+      title: "Brainscore Model Metadata.xlsx"
+    implementation:
+      type: "source_code"
+      url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AdvProp_efficientnet_b7"
+      path: "brainscore_vision/models/AdvProp_efficientnet_b7"
+  assertions:
+    -
+      path: "/model/display_name"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/lineage/base_models"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/model/version"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/model/identifier"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/architecture/family"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/process"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/architecture/parameter_count"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/architecture/trainable_layers"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/inputs/0/shape"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/architecture/recurrent"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/datasets"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/dataset_summary"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/supervision"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/objectives"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/provider"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/identifier"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/preprocessing"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/learning_rate"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/batch_size"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/test_datasets"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/validation_datasets"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/loss"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/applications"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/users"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/limitations"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/biases"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/description"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/tokenizer"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/authorship/creators"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/authorship/organizations"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/licenses"
+      status: "undocumented"
+      source: "curation_workbook"

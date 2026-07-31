@@ -1,0 +1,230 @@
+schema_version: "2.0.0"
+schema_url: "https://raw.githubusercontent.com/brain-score/vision/master/docs/model_metadata/model-metadata-v2.schema.json"
+model:
+  identifier: "vit_large_patch14_clip_224:laion2b_ft_in1k"
+  display_name: "vit_large_patch14_clip_224:laion2b_ft_in1k"
+  domain: "vision"
+  version: "OpenCLIP LAION-2B ViT-L/14 checkpoint, timm fine-tune at 224px"
+architecture:
+  family: "vision_transformer"
+  description: "Vision Transformer (ViT-L/14), CLIP image encoder"
+  parameter_count:
+    value: 304200000
+    exact: false
+  trainable_layers:
+    description: "24 transformer blocks; full fine-tune assumed"
+  recurrent: false
+lineage:
+  base_models:
+    -
+      name: "CLIP ViT-L/14 via OpenCLIP, pretrained on LAION-2B"
+interface:
+  inputs:
+    -
+      modality: "image"
+      shape:
+        channels: 3
+        height: 224
+        width: 224
+  description: "Input: RGB (B,3,224,224); Output: 1000-way logits or (B,257,1024) unpooled tokens / pooled embedding"
+preprocessing:
+  description: "224x224, crop_pct 1.0, bicubic; OpenCLIP LAION normalization stats"
+training:
+  process: "OpenCLIP contrastive pretrain on LAION-2B -> direct supervised fine-tune on ImageNet-1k at 224px (no IN-12k stage)"
+  datasets:
+    -
+      identifier: "laion-2b"
+      name: "LAION-2B"
+      role: "pretraining"
+    -
+      identifier: "imagenet-1k"
+      name: "ImageNet-1k"
+      role: "fine_tuning"
+  dataset_summary: "LAION-2B-en = 2.3B pairs; ImageNet-1k = 1.28M/50K"
+  supervision:
+    type: "mixed"
+    description: "Contrastive pretrain + supervised fine-tune"
+  objectives:
+    -
+      type: "contrastive"
+      description: "Contrastive InfoNCE (pretrain) + classification loss (fine-tune)"
+    -
+      type: "classification"
+      description: "Contrastive InfoNCE (pretrain) + classification loss (fine-tune)"
+  loss:
+    description: "Contrastive (pretrain) + cross-entropy (fine-tune, inferred)"
+evaluation:
+  test_datasets:
+    -
+      description: "ImageNet-1k val - top-1 87.29%, top-5 98.24% (lowest of the 6 CLIP-L variants per results-imagenet.csv)"
+  validation_datasets:
+    -
+      description: "ImageNet-1k val"
+artifacts:
+  -
+    role: "weights"
+    provider: "Hugging Face Hub, timm org"
+    identifier: "timm/vit_large_patch14_clip_224.laion2b_ft_in1k"
+  -
+    role: "source_code"
+    provider: "Brain-Score"
+    url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models"
+    path: "brainscore_vision/models/timm_models"
+intended_use:
+  applications:
+    - "ImageNet classification"
+    - "general embeddings/backbone where open pretraining provenance matters more than peak accuracy"
+  users:
+    - "Researchers preferring open-data provenance"
+    - "those needing 224px compute budget"
+  limitations:
+    - "Lowest top-1 accuracy among the 6 catalogued CLIP-L variants"
+    - "LAION-2B uncurated-data caveats apply"
+  biases:
+    - "LAION-5B documented ~2.9-3.3% unsafe-content estimate and demographic/content skew of web-crawled images"
+authorship:
+  creators:
+    - "LAION/mlfoundations OpenCLIP team (base)"
+    - "Ross Wightman (fine-tune)"
+  organizations:
+    - "LAION (dataset/training collaboration)"
+    - "Ross Wightman/timm (fine-tune/hosting)"
+licenses:
+  -
+    scope: "unspecified"
+    name: "Apache-2.0 (HF tag); LAION-2B metadata CC-BY 4.0"
+    spdx: "Apache-2.0"
+provenance:
+  sources:
+    curation_workbook:
+      type: "curation"
+      title: "Brainscore Model Metadata.xlsx"
+    implementation:
+      type: "source_code"
+      url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models"
+      path: "brainscore_vision/models/timm_models"
+  assertions:
+    -
+      path: "/model/display_name"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/lineage/base_models"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/model/version"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/model/identifier"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/family"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/process"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/parameter_count"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/trainable_layers"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/inputs/0/shape"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/recurrent"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/datasets"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/dataset_summary"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/supervision"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/objectives"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/provider"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/identifier"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/preprocessing"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/learning_rate"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/batch_size"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/test_datasets"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/validation_datasets"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/training/loss"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/applications"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/users"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/limitations"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/biases"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/interface/description"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/interface/tokenizer"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/authorship/creators"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/authorship/organizations"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/licenses"
+      status: "inferred"
+      source: "curation_workbook"

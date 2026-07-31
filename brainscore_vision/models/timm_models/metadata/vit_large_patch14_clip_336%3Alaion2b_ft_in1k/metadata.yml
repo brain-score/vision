@@ -1,0 +1,240 @@
+schema_version: "2.0.0"
+schema_url: "https://raw.githubusercontent.com/brain-score/vision/master/docs/model_metadata/model-metadata-v2.schema.json"
+model:
+  identifier: "vit_large_patch14_clip_336:laion2b_ft_in1k"
+  display_name: "vit_large_patch14_clip_336:laion2b_ft_in1k"
+  domain: "vision"
+  version: "OpenAI CLIP ViT-L/14@336px, released April 2022"
+architecture:
+  family: "vision_transformer"
+  description: "Vision Transformer (ViT-L/14), CLIP image encoder"
+  parameter_count:
+    value: 304500000
+    exact: false
+  trainable_layers:
+    description: "24 transformer blocks (ViT-L std depth); full-model fine-tune assumed, exact schedule undocumented"
+  recurrent: false
+lineage:
+  base_models:
+    -
+      name: "CLIP ViT-L/14 (OpenAI, WIT-400M pretraining)"
+interface:
+  inputs:
+    -
+      modality: "image"
+      shape:
+        channels: 3
+        height: 336
+        width: 336
+  description: "Input: RGB (B,3,336,336), CLIP-normalized; Output: 1000-way logits or (B,577,1024) unpooled tokens / pooled embedding"
+preprocessing:
+  description: "336x336, crop_pct 1.0, bicubic; CLIP normalization (mean~[0.4815,0.4578,0.4082], std~[0.2686,0.2613,0.2758])"
+training:
+  process: "CLIP contrastive image-text pretrain on WIT-400M (OpenAI) -> supervised fine-tune on ImageNet-12k -> supervised fine-tune on ImageNet-1k (timm)"
+  datasets:
+    -
+      identifier: "wit-400m"
+      name: "WIT-400M"
+      role: "pretraining"
+    -
+      identifier: "imagenet-12k"
+      name: "ImageNet-12k"
+      role: "fine_tuning"
+    -
+      identifier: "imagenet-1k"
+      name: "ImageNet-1k"
+      role: "fine_tuning"
+  dataset_summary: "WIT-400M ~400M pairs; ImageNet-12k 11,821 classes (>=400 img/class min); ImageNet-1k 1.28M/50K"
+  supervision:
+    type: "mixed"
+    description: "Contrastive pretrain + supervised fine-tune"
+  objectives:
+    -
+      type: "contrastive"
+      description: "CLIP stage: symmetric InfoNCE contrastive loss; fine-tune stage: supervised classification loss"
+    -
+      type: "classification"
+      description: "CLIP stage: symmetric InfoNCE contrastive loss; fine-tune stage: supervised classification loss"
+  hyperparameters:
+    learning_rate:
+      description: "Not publicly documented for this checkpoint"
+    batch_size:
+      description: "Not publicly documented for this checkpoint"
+  loss:
+    description: "Contrastive (CLIP stage) + cross-entropy classification (fine-tune stage)"
+evaluation:
+  test_datasets:
+    -
+      description: "ImageNet-1k val - top-1 88.26%, top-5 98.52% (timm results-imagenet.csv)"
+  validation_datasets:
+    -
+      description: "ImageNet-12k held-out val (40/class) mid-training; ImageNet-1k val for final metric"
+artifacts:
+  -
+    role: "weights"
+    provider: "Hugging Face Hub, timm (Ross Wightman)"
+    identifier: "timm/vit_large_patch14_clip_336.openai_ft_in12k_in1k (HF Hub, safetensors)"
+  -
+    role: "source_code"
+    provider: "Brain-Score"
+    url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models"
+    path: "brainscore_vision/models/timm_models"
+intended_use:
+  applications:
+    - "ImageNet-1k classification"
+    - "general visual feature extraction/embeddings for transfer learning, retrieval"
+  users:
+    - "ML researchers/engineers building/benchmarking classifiers"
+    - "practitioners needing strong ViT-L backbone"
+  limitations:
+    - "CLIP struggles with fine-grained classification/counting (OpenAI model card)"
+    - "IN fine-tuning reduces zero-shot robustness vs base CLIP"
+  biases:
+    - "OpenAI CLIP card documents racial/gender disparities (FairFace tests)"
+    - "WIT-400M skews to internet-connected, developed-nation, younger, male demographics"
+authorship:
+  creators:
+    - "CLIP pretraining: Alec Radford et al. (OpenAI)"
+    - "ImageNet fine-tune: Ross Wightman (timm)"
+  organizations:
+    - "OpenAI (base CLIP pretrain)"
+    - "Ross Wightman/timm (fine-tune, hosting)"
+licenses:
+  -
+    scope: "unspecified"
+    name: "Apache-2.0 (HF tag); underlying OpenAI CLIP code MIT-licensed; ImageNet data has own non-commercial research terms"
+    spdx: "Apache-2.0"
+provenance:
+  sources:
+    curation_workbook:
+      type: "curation"
+      title: "Brainscore Model Metadata.xlsx"
+    implementation:
+      type: "source_code"
+      url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models"
+      path: "brainscore_vision/models/timm_models"
+  assertions:
+    -
+      path: "/model/display_name"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/lineage/base_models"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/model/version"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/model/identifier"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/family"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/process"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/parameter_count"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/trainable_layers"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/inputs/0/shape"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/recurrent"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/datasets"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/dataset_summary"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/training/supervision"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/objectives"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/provider"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/identifier"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/preprocessing"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/learning_rate"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/batch_size"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/test_datasets"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/validation_datasets"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/training/loss"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/applications"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/users"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/limitations"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/biases"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/interface/description"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/interface/tokenizer"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/authorship/creators"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/authorship/organizations"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/licenses"
+      status: "inferred"
+      source: "curation_workbook"

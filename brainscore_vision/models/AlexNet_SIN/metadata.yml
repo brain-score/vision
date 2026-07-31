@@ -1,0 +1,218 @@
+schema_version: "2.0.0"
+schema_url: "https://raw.githubusercontent.com/brain-score/vision/master/docs/model_metadata/model-metadata-v2.schema.json"
+model:
+  identifier: "AlexNet_SIN"
+  display_name: "AlexNet_SIN"
+  domain: "vision"
+  version: "SIN-trained variant"
+architecture:
+  family: "convolutional_neural_network"
+  description: "Convolutional Neural Network"
+  parameter_count:
+    value: 60000000
+    exact: true
+  trainable_layers:
+    count: 8
+  recurrent: false
+lineage:
+  base_models:
+    -
+      name: "AlexNet"
+interface:
+  inputs:
+    -
+      modality: "image"
+      shape:
+        channels: 3
+        height: 224
+        width: 224
+  description: "RGB 224x224x3, 1000-class logits"
+preprocessing:
+  description: "Standard AlexNet/Caffe-style preprocessing (224×224, mean subtraction) — training used the Caffe implementation for AlexNet specifically (per repo notes: \"For AlexNet, VGG-16 and GoogLeNet we used the caffe implementation\")"
+training:
+  datasets:
+    -
+      name: "Stylized-ImageNet"
+      role: "training"
+      sample_count: 1281167
+      sample_unit: "images"
+  supervision:
+    type: "supervised"
+    description: "Fully Supervised"
+  objectives:
+    -
+      type: "classification"
+      description: "1,000-class image classification"
+  loss:
+    description: "Cross-entropy loss"
+evaluation:
+  test_datasets:
+    -
+      description: "ImageNet validation set and stylized ImageNet validation set. Also evaluated on cue-conflict stimuli"
+  validation_datasets:
+    -
+      description: "ImageNet validation set, stylized ImageNet validation set"
+artifacts:
+  -
+    role: "weights"
+    provider: "Robert Geirhos et al./Bethge Lab"
+  -
+    role: "source_code"
+    provider: "Brain-Score"
+    url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AlexNet_SIN"
+    path: "brainscore_vision/models/AlexNet_SIN"
+intended_use:
+  applications:
+    - "Studying/reducing texture bias in CNNs"
+    - "shape-bias research"
+    - "robustness-to-corruption research"
+    - "not recommended as a general-purpose high-accuracy classifier, given the authors' own accuracy caveat"
+  users:
+    - "Vision science / cognitive science researchers studying human-vs-CNN perception"
+    - "robustness researchers"
+    - "NOT recommended for production classification use"
+  limitations:
+    - "Explicitly authors-stated: suboptimal hyperparameters led to below-standard accuracy"
+    - "AlexNet's measured shape bias after SIN training was notably lower than ResNet-50-SIN's (42.9% texture / lower shape bias for AlexNet on cue-conflict stimuli, and a follow-up torchvision-based re-evaluation found AlexNet's shape bias at 25.3%, lower than originally reported figures) — indicating AlexNet benefits less from SIN training than deeper architectures like ResNet-50"
+  biases:
+    - "This model exists specifically to study/reduce texture bias — but even after SIN training, AlexNet's shape bias improvement was modest compared to ResNet-50-SIN (81% shape bias), suggesting AlexNet's shallow/simple architecture may limit how much shape bias can be induced via data alone. Also inherits standard ImageNet dataset biases (geographic/cultural skew, label noise)"
+authorship:
+  creators:
+    - "Robert Geirhos, Patricia Rubisch, Claudio Michaelis, Matthias Bethge, Felix A. Wichmann, Wieland Brendel"
+  organizations:
+    - "University of Tübingen (Bethge Lab)"
+    - "collaborators from University of Freiburg"
+provenance:
+  sources:
+    curation_workbook:
+      type: "curation"
+      title: "Brainscore Model Metadata.xlsx"
+    implementation:
+      type: "source_code"
+      url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AlexNet_SIN"
+      path: "brainscore_vision/models/AlexNet_SIN"
+  assertions:
+    -
+      path: "/model/display_name"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/lineage/base_models"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/model/version"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/model/identifier"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/architecture/family"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/process"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/architecture/parameter_count"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/architecture/trainable_layers"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/inputs/0/shape"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/architecture/recurrent"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/datasets"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/dataset_summary"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/supervision"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/objectives"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/provider"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/identifier"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/preprocessing"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/learning_rate"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/batch_size"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/test_datasets"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/validation_datasets"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/loss"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/applications"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/users"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/limitations"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/biases"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/description"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/tokenizer"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/authorship/creators"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/authorship/organizations"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/licenses"
+      status: "undocumented"
+      source: "curation_workbook"

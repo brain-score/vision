@@ -1,0 +1,229 @@
+schema_version: "2.0.0"
+schema_url: "https://raw.githubusercontent.com/brain-score/vision/master/docs/model_metadata/model-metadata-v2.schema.json"
+model:
+  identifier: "vit_tiny_r_s16_p8_384:augreg_in21k_ft_in1k"
+  display_name: "vit_tiny_r_s16_p8_384:augreg_in21k_ft_in1k"
+  domain: "vision"
+  version: "augreg_in21k_ft_in1k tag, 384px fine-tune"
+architecture:
+  family: "hybrid_convolutional_transformer"
+  description: "ResNet-ViT hybrid (conv stem + transformer)"
+  parameter_count:
+    value: 6300000
+    exact: false
+  trainable_layers:
+    description: "All layers trainable in original pretrain/fine-tune; none frozen in release"
+  recurrent: false
+lineage:
+  base_models:
+    -
+      name: "Hybrid ResNet-stem + ViT-Tiny"
+interface:
+  inputs:
+    -
+      modality: "image"
+      shape:
+        channels: 3
+        height: 384
+        width: 384
+  description: "RGB tensor 3x384x384 -> 1000-class logits or pooled feature embedding"
+preprocessing:
+  description: "timm auto-resolved transform (resize/crop 384, ImageNet mean/std)"
+training:
+  process: "ResNet-style stem -> patchify (effective patch 8) -> ViT-Tiny transformer encoder -> classification head"
+  datasets:
+    -
+      identifier: "imagenet-21k"
+      name: "ImageNet-21k"
+      role: "pretraining"
+    -
+      identifier: "imagenet-1k"
+      name: "ImageNet-1k"
+      role: "pretraining"
+  dataset_summary: "ImageNet-21k: ~14M images/21,843 classes; ImageNet-1k: ~1.28M/1,000 classes"
+  supervision:
+    type: "supervised"
+    description: "Supervised (both pretrain and fine-tune stages)"
+  objectives:
+    -
+      type: "classification"
+      description: "Softmax cross-entropy classification loss"
+  hyperparameters:
+    learning_rate:
+      description: "Not on model card; see AugReg paper appendix for sweep values"
+    batch_size:
+      description: "Not publicly specified on model card"
+  loss:
+    description: "Softmax cross-entropy"
+evaluation:
+  test_datasets:
+    -
+      description: "ImageNet-1k validation set (50K images)"
+  validation_datasets:
+    -
+      description: "ImageNet-1K standard validation split"
+artifacts:
+  -
+    role: "weights"
+    provider: "Google Research (orig. JAX) -> ported to PyTorch/timm by Ross Wightman"
+    identifier: "augreg_in21k_ft_in1k safetensors checkpoint on HF repo"
+  -
+    role: "source_code"
+    provider: "Brain-Score"
+    url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models"
+    path: "brainscore_vision/models/timm_models"
+intended_use:
+  applications:
+    - "General image classification"
+    - "lightweight transfer-learning backbone"
+  users:
+    - "ML practitioners, researchers benchmarking ViT variants"
+  limitations:
+    - "Tiny capacity limits accuracy vs larger ViT/hybrid variants"
+  biases:
+    - "Inherits ImageNet-21k/1k dataset biases"
+authorship:
+  creators:
+    - "Google Research (Steiner, Kolesnikov, et al.)"
+    - "PyTorch port by Ross Wightman"
+  organizations:
+    - "Google Research / timm (Hugging Face)"
+licenses:
+  -
+    scope: "unspecified"
+    name: "Apache 2.0"
+    spdx: "Apache-2.0"
+provenance:
+  sources:
+    curation_workbook:
+      type: "curation"
+      title: "Brainscore Model Metadata.xlsx"
+    implementation:
+      type: "source_code"
+      url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models"
+      path: "brainscore_vision/models/timm_models"
+  assertions:
+    -
+      path: "/model/display_name"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/lineage/base_models"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/model/version"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/model/identifier"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/family"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/process"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/parameter_count"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/architecture/trainable_layers"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/interface/inputs/0/shape"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/recurrent"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/datasets"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/dataset_summary"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/supervision"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/objectives"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/provider"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/identifier"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/preprocessing"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/learning_rate"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/batch_size"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/test_datasets"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/validation_datasets"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/training/loss"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/applications"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/users"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/limitations"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/biases"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/interface/description"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/interface/tokenizer"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/authorship/creators"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/authorship/organizations"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/licenses"
+      status: "verified"
+      source: "curation_workbook"

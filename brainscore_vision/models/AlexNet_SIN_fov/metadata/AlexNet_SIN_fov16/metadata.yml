@@ -1,0 +1,156 @@
+schema_version: "2.0.0"
+schema_url: "https://raw.githubusercontent.com/brain-score/vision/master/docs/model_metadata/model-metadata-v2.schema.json"
+model:
+  identifier: "AlexNet_SIN_fov16"
+  display_name: "AlexNet_SIN_fov16"
+  domain: "vision"
+  version: "16 visual degree variant"
+lineage:
+  base_models:
+    -
+      name: "AlexNet, AlexNet-SIN"
+interface:
+  inputs:
+    -
+      modality: "image"
+training: {}
+artifacts:
+  -
+    role: "source_code"
+    provider: "Brain-Score"
+    url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AlexNet_SIN_fov"
+    path: "brainscore_vision/models/AlexNet_SIN_fov"
+provenance:
+  sources:
+    curation_workbook:
+      type: "curation"
+      title: "Brainscore Model Metadata.xlsx"
+    implementation:
+      type: "source_code"
+      url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AlexNet_SIN_fov"
+      path: "brainscore_vision/models/AlexNet_SIN_fov"
+  assertions:
+    -
+      path: "/model/display_name"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/lineage/base_models"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/model/version"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/model/identifier"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/architecture/family"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/process"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/architecture/parameter_count"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/architecture/trainable_layers"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/inputs/0/shape"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/architecture/recurrent"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/datasets"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/dataset_summary"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/supervision"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/objectives"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/provider"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/identifier"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/preprocessing"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/learning_rate"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/batch_size"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/test_datasets"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/validation_datasets"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/loss"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/applications"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/users"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/limitations"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/biases"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/description"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/tokenizer"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/authorship/creators"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/authorship/organizations"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/licenses"
+      status: "undocumented"
+      source: "curation_workbook"

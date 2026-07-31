@@ -1,0 +1,211 @@
+schema_version: "2.0.0"
+schema_url: "https://raw.githubusercontent.com/brain-score/vision/master/docs/model_metadata/model-metadata-v2.schema.json"
+model:
+  identifier: "alexnet_training_seed_09"
+  display_name: "alexnet_training_seed_09"
+  domain: "vision"
+  version: "training seed 09 variant"
+architecture:
+  family: "convolutional_neural_network"
+  description: "Convolutional Neural Network"
+  parameter_count:
+    value: 61100840
+    exact: true
+  recurrent: false
+lineage:
+  base_models:
+    -
+      name: "AlexNet"
+interface:
+  inputs:
+    -
+      modality: "image"
+      shape:
+        channels: 3
+        height: 224
+        width: 224
+  description: "image, classification_logits"
+preprocessing:
+  description: "Resizing, random cropping, horizontal reflection, mean subtraction, PCA color augmentation, normalization for 2012 || RandomResizedCrop + RandomHorizontalFlip + normalization only for Torchvision"
+training:
+  process: "torchvision single-tower AlexNet; differs from the 2012 dual-GPU two-tower design"
+  supervision:
+    type: "supervised"
+    description: "Fully supervised"
+  hyperparameters:
+    learning_rate:
+      description: "0.01"
+    batch_size:
+      description: "2012 PAPER's batch size: 128. Torchvision's batch size: 32."
+  loss:
+    description: "Softmax Cross-Entropy (Multinomial Logistic Regression)"
+evaluation:
+  test_datasets:
+    -
+      description: "ImageNet Large Scale Visual Recognition Challenge (ILSVRC)"
+  validation_datasets:
+    -
+      description: "ImageNet Large Scale Visual Recognition Challenge (ILSVRC)"
+artifacts:
+  -
+    role: "weights"
+    provider: "PyTorch's Torchvision library"
+    identifier: "alexnet(pretrained=True) (AlexNet_Weights.IMAGENET1K_V1 replaced this)"
+  -
+    role: "source_code"
+    provider: "Brain-Score"
+    url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_training_seed_09"
+    path: "brainscore_vision/models/alexnet_training_seed_09"
+intended_use:
+  applications:
+    - "Image Classification"
+  users:
+    - "ML researchers and Students"
+  limitations:
+    - "parameter-inefficient fully-connected layers, no residual/skip connections, limiting depth scalability, local response normalization provides negligible benefit, high error rate vs. modern architectures, fixed input resolution, prone to overfitting without heavy regularization, susceptible to adversarial pertrubation, inherits ImageNet dataset biases"
+  biases:
+    - "geographical and cultural bias, label noise and category ambiguity, demographic bias, representation bias in object categories, class imbalance, co-occurence/contextual bias"
+authorship:
+  creators:
+    - "Alex Krizhevsky, Ilya Sutskever, Geoffrey Hinton"
+  organizations:
+    - "University of Toronto"
+licenses:
+  -
+    scope: "unspecified"
+    name: "BSD-3-Clause (torchvision code + weights, \"Copyright (c) Soumith Chintala 2016\"). Distinct from the original 2012 research code (cuda-convnet), separately released under BSD-2-Clause via the Computer History Museum."
+    spdx: "BSD-3-Clause"
+provenance:
+  sources:
+    curation_workbook:
+      type: "curation"
+      title: "Brainscore Model Metadata.xlsx"
+    implementation:
+      type: "source_code"
+      url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_training_seed_09"
+      path: "brainscore_vision/models/alexnet_training_seed_09"
+  assertions:
+    -
+      path: "/model/display_name"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/lineage/base_models"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/model/version"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/model/identifier"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/family"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/process"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/parameter_count"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/trainable_layers"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/inputs/0/shape"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/recurrent"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/datasets"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/dataset_summary"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/supervision"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/objectives"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/provider"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/identifier"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/preprocessing"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/learning_rate"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/batch_size"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/test_datasets"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/validation_datasets"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/loss"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/applications"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/users"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/limitations"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/biases"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/interface/description"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/interface/tokenizer"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/authorship/creators"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/authorship/organizations"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/licenses"
+      status: "verified"
+      source: "curation_workbook"

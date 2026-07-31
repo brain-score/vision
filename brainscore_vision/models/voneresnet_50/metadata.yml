@@ -1,0 +1,222 @@
+schema_version: "2.0.0"
+schema_url: "https://raw.githubusercontent.com/brain-score/vision/master/docs/model_metadata/model-metadata-v2.schema.json"
+model:
+  identifier: "voneresnet-50"
+  display_name: "voneresnet-50"
+  domain: "vision"
+  version: "v0.1 weights release"
+architecture:
+  family: "hybrid_biological_convolutional"
+  description: "Biologically-fixed V1 front-end + CNN (ResNet) back-end, stochastic"
+  parameter_count:
+    value: 25600000
+    exact: false
+  trainable_layers:
+    description: "Same as non-stochastic; stochasticity params fixed, not learned"
+  recurrent: false
+lineage:
+  base_models:
+    -
+      name: "ResNet-50"
+interface:
+  inputs:
+    -
+      modality: "image"
+      shape:
+        channels: 3
+        height: 224
+        width: 224
+  description: "RGB tensor 3x224x224 -> 1000-class logits or intermediate activations"
+preprocessing:
+  description: "Normalize mean=[0.5,0.5,0.5], std=[0.5,0.5,0.5]"
+training:
+  process: "Gabor filter bank (fixed) -> simple/complex-cell nonlinearity -> Poisson-like stochastic layer -> bottleneck -> ResNet-50 stages 1-4 -> classifier"
+  datasets:
+    -
+      identifier: "imagenet-1k"
+      name: "ImageNet-1k"
+      role: "training"
+  dataset_summary: "~1.28M train / 50K val images (ImageNet-1K)"
+  supervision:
+    type: "supervised"
+    description: "Fully supervised (1000-way classification)"
+  objectives:
+    -
+      type: "classification"
+      description: "Cross-entropy classification loss on ImageNet labels"
+  hyperparameters:
+    learning_rate:
+      description: "Not publicly specified"
+    batch_size:
+      description: "Not publicly specified"
+  loss:
+    description: "Cross-entropy"
+evaluation:
+  test_datasets:
+    -
+      description: "ImageNet val (50K) + Brain-Score benchmark stimulus sets"
+  validation_datasets:
+    -
+      description: "ImageNet-1K standard validation split"
+artifacts:
+  -
+    role: "weights"
+    provider: "DiCarlo Lab; file voneresnet50_e70.pth.tar"
+    identifier: "voneresnet50_e70.pth.tar"
+  -
+    role: "source_code"
+    provider: "Brain-Score"
+    url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/voneresnet_50"
+    path: "brainscore_vision/models/voneresnet_50"
+intended_use:
+  applications:
+    - "Same, plus studying stochasticity's role in robustness"
+  users:
+    - "Vision neuroscientists, ML robustness researchers"
+  limitations:
+    - "Stochastic noise adds inference-time variability, complicates comparisons"
+  biases:
+    - "Inherits ImageNet dataset biases"
+authorship:
+  creators:
+    - "Dapello, Marques, Schrimpf, Geiger, Cox, DiCarlo"
+  organizations:
+    - "MIT DiCarlo Lab"
+licenses:
+  -
+    scope: "unspecified"
+    name: "GNU GPL v3+"
+provenance:
+  sources:
+    curation_workbook:
+      type: "curation"
+      title: "Brainscore Model Metadata.xlsx"
+    implementation:
+      type: "source_code"
+      url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/voneresnet_50"
+      path: "brainscore_vision/models/voneresnet_50"
+  assertions:
+    -
+      path: "/model/display_name"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/lineage/base_models"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/model/version"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/model/identifier"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/family"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/process"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/parameter_count"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/architecture/trainable_layers"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/interface/inputs/0/shape"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/recurrent"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/datasets"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/dataset_summary"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/supervision"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/objectives"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/provider"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/identifier"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/preprocessing"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/learning_rate"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/batch_size"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/test_datasets"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/validation_datasets"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/training/loss"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/applications"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/users"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/limitations"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/biases"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/interface/description"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/interface/tokenizer"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/authorship/creators"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/authorship/organizations"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/licenses"
+      status: "verified"
+      source: "curation_workbook"

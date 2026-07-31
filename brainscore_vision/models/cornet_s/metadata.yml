@@ -1,0 +1,215 @@
+schema_version: "2.0.0"
+schema_url: "https://raw.githubusercontent.com/brain-score/vision/master/docs/model_metadata/model-metadata-v2.schema.json"
+model:
+  identifier: "CORnet-S"
+  display_name: "CORnet-S"
+  domain: "vision"
+  version: "CORnet family v1 (as released in the NeurIPS 2019 dicarlolab/CORnet repo)"
+architecture:
+  family: "recurrent_convolutional_neural_network"
+  description: "Recurrent CNN (shallow, brain-inspired, ResNet-like blocks with recurrence)"
+  trainable_layers:
+    description: "4 anatomically-mapped computational areas (V1, V2, V4, IT) plus a linear category decoder"
+  recurrent: true
+interface:
+  inputs:
+    -
+      modality: "image"
+      shape:
+        channels: 3
+        height: 224
+        width: 224
+  description: "Input: RGB image (ImageNet-standard preprocessing); Output: 1000-class ImageNet logits, plus optional intermediate area activations (V1/V2/V4/IT) for neuroscience analysis"
+preprocessing:
+  description: "Standard ImageNet training/eval preprocessing via run.py (train/test split handled per standard PyTorch ImageNet pipeline)"
+training:
+  process: "Purpose-built four-area architecture (V1, V2, V4, IT analogues) with recurrent connectivity, developed by iteratively adding recurrence/skip connections to a base CORnet-Z model while optimizing both ImageNet performance and Brain-Score neural/behavioral alignment"
+  datasets:
+    -
+      name: "ImageNet (ILSVRC), full training set"
+      role: "training"
+  dataset_summary: "Standard ImageNet-1k (~1.28M training images, 1000 classes)"
+  supervision:
+    type: "supervised"
+    description: "Supervised (labeled image classification)"
+  objectives:
+    -
+      type: "classification"
+      description: "Image classification (1000-way), optimized jointly for ImageNet performance and Brain-Score alignment"
+  hyperparameters:
+    learning_rate:
+      description: "0.1 (per README training command: --lr .1)"
+    batch_size:
+      value: 256
+  loss:
+    description: "Cross-Entropy loss"
+evaluation:
+  test_datasets:
+    -
+      description: "ImageNet validation set (standard object recognition evaluation) and Brain-Score benchmark suite (neural/behavioral)"
+  validation_datasets:
+    -
+      description: "ImageNet-1k validation set"
+artifacts:
+  -
+    role: "weights"
+    provider: "DiCarlo Lab, MIT (github.com/dicarlolab/CORnet)"
+    identifier: "cornet_s-1d3f7974.pth (auto-downloaded via PyTorch Model Zoo from s3.amazonaws.com/cornet-models/)"
+  -
+    role: "source_code"
+    provider: "Brain-Score"
+    url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/cornet_s"
+    path: "brainscore_vision/models/cornet_s"
+intended_use:
+  applications:
+    - "Computational neuroscience research (modeling primate ventral visual stream), core object recognition benchmarking, brain-alignment research via Brain-Score"
+  users:
+    - "Visual neuroscience researchers, computational neuroscientists, ML researchers studying brain-model alignment"
+  limitations:
+    - "Slower to train than shallower CORnet variants (CORnet-Z, CORnet-RT) due to recurrence"
+    - "described as 'Best overall but slow to train'"
+  biases:
+    - "Inherits ImageNet dataset biases"
+authorship:
+  creators:
+    - "Jonas Kubilius, Martin Schrimpf, Kohitij Kar, Rishi Rajalingham, Ha Hong, Najib Majaj, Elias Issa, Pouya Bashivan, Jonathan Prescott-Roy, Kailyn Schmidt, Aran Nayebi, Daniel Bear, Daniel L.K. Yamins, James J. DiCarlo"
+  organizations:
+    - "DiCarlo Lab, McGovern Institute for Brain Research, MIT (with Stanford collaborators)"
+licenses:
+  -
+    scope: "unspecified"
+    name: "GNU GPL 3.0+"
+provenance:
+  sources:
+    curation_workbook:
+      type: "curation"
+      title: "Brainscore Model Metadata.xlsx"
+    implementation:
+      type: "source_code"
+      url: "https://github.com/brain-score/vision/tree/master/brainscore_vision/models/cornet_s"
+      path: "brainscore_vision/models/cornet_s"
+  assertions:
+    -
+      path: "/model/display_name"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/lineage/base_models"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/model/version"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/model/identifier"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/family"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/process"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/architecture/parameter_count"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/architecture/trainable_layers"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/interface/inputs/0/shape"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/architecture/recurrent"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/datasets"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/dataset_summary"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/training/supervision"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/objectives"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/provider"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/artifacts/0/identifier"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/preprocessing"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/learning_rate"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/training/hyperparameters/batch_size"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/test_datasets"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/evaluation/validation_datasets"
+      status: "inferred"
+      source: "curation_workbook"
+    -
+      path: "/training/loss"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/applications"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/users"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/limitations"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/intended_use/biases"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/interface/description"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/interface/tokenizer"
+      status: "undocumented"
+      source: "curation_workbook"
+    -
+      path: "/authorship/creators"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/authorship/organizations"
+      status: "verified"
+      source: "curation_workbook"
+    -
+      path: "/licenses"
+      status: "verified"
+      source: "curation_workbook"

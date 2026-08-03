@@ -194,9 +194,23 @@ section for the full plan):
    retained as a provenance coord. Window-matched reliable counts:
    IT ≈ 21.1k, V1 ≈ 2.3k, V2 ≈ 2.5k, V4 ≈ 3.4k (vs the paper's best-window
    IT 26.7k).
-3. **v3 — temporal** *(shipped as `Li2026.temporal`)*. 10 ms PSTH bins.
-   Useful for recurrent / temporal models (CORnet-S, etc.). Ceiling is
-   per-bin and is most informative in the 0–200 ms range.
+3. **v3 — temporal** *(shipped as data only, `Li2026.temporal`)*. 10 ms PSTH
+   bins. Useful for recurrent / temporal models (CORnet-S, etc.). Ceiling is
+   per-bin and is most informative in the 0–200 ms range. No benchmark is
+   registered on it yet: `spantime_pls` stacks time into the sample dimension
+   (1000 × 30 = 30k rows per fit), and `TemporalIgnore` repeats a feedforward
+   model's single response across all 30 bins, so non-recurrent models would pay
+   ~38× the static cost to be scored on 30 copies of the same activations.
 
-Benchmarks built on top of this plugin live in
-`brainscore_vision/benchmarks/li2026/`.
+## Benchmarks
+
+Built on this plugin in `brainscore_vision/benchmarks/li2026/`:
+
+* `Li2026.{V1,V2,V4,IT}-ridgecv` — scored leaves, one per region. RidgeCV over
+  `ALPHA_LIST`, matching the other high-neuroid-count datasets in the suite
+  (Allen2022, Hebart2023, Papale2025). Alpha selection is leave-one-out GCV off a
+  single gram decomposition, so it costs about the same as a fixed-alpha ridge fit.
+* `Li2026.{V1,V2,V4,IT}-pls` — unparented (runnable, not in the scored tree).
+  Kept for comparability against MajajHong2015, which is PLS. PLS is not the
+  headline here because its cross-covariance is (n_features × n_neuroids) and no
+  PLS benchmark in the suite runs above ~1k neuroids; Li2026 IT has ~21k.

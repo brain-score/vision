@@ -58,9 +58,10 @@ def test_ceiling(identifier):
     assert ceiling.raw.dims == ('neuroid',)
 
 
-def test_ridgecv_selects_alpha():
-    # the point of the ridgecv switch: alpha is fitted, not pinned at 1
-    from sklearn.linear_model import RidgeCV
+def test_ridgecv_selects_alpha_via_dual_form():
+    # alpha is fitted rather than pinned at 1, and the dual form keeps the
+    # (n_targets, n_features) coefficient matrix off the peak at IT's ~21k units
+    from brainscore_vision.metrics.regression_correlation.metric import DualRidgeCVRegression
     regression = load_benchmark('Li2026.V1-ridgecv')._similarity_metric.regression._regression
-    assert isinstance(regression, RidgeCV)
+    assert isinstance(regression, DualRidgeCVRegression)
     assert len(regression.alphas) > 1

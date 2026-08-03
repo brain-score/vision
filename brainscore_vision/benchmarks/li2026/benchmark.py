@@ -4,7 +4,7 @@ from brainscore_core import Score
 from brainscore_vision import load_metric, load_dataset
 from brainscore_vision.benchmark_helpers.neural_common import NeuralBenchmark
 from brainscore_vision.metrics.regression_correlation.metric import (
-    CrossRegressedCorrelation, pearsonr_correlation, ridge_cv_regression,
+    CrossRegressedCorrelation, dual_ridge_cv_regression, pearsonr_correlation,
 )
 
 VISUAL_DEGREES = 11
@@ -29,7 +29,9 @@ _CV_KWARGS = dict(stratification_coord=None)
 
 def _metric(metric_type: str):
     if metric_type == 'ridgecv':  # only registered for the train/test-split path, so build it here
-        return CrossRegressedCorrelation(regression=ridge_cv_regression(),
+        # dual form: predicts through an (n_test, n_train) projection rather than a
+        # (n_targets, n_features) coefficient matrix, which at IT's ~21k units dominates peak memory
+        return CrossRegressedCorrelation(regression=dual_ridge_cv_regression(),
                                          correlation=pearsonr_correlation(),
                                          crossvalidation_kwargs=_CV_KWARGS)
     return load_metric(metric_type, crossvalidation_kwargs=_CV_KWARGS)

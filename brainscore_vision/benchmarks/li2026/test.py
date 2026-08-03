@@ -65,3 +65,37 @@ def test_ridgecv_selects_alpha_via_dual_form():
     regression = load_benchmark('Li2026.V1-ridgecv')._similarity_metric.regression._regression
     assert isinstance(regression, DualRidgeCVRegression)
     assert len(regression.alphas) > 1
+
+
+class TestITRDM:
+    """RSA leaf. IT only: RSACeiling compares each subject against the mean of all,
+    which needs several. V1/V2/V4 have 2 animals, where the leave-one-out bound
+    collapses to a single A-vs-B correlation."""
+
+    def test_registered_and_parented(self):
+        assert 'Li2026.IT-rdm' in benchmark_registry
+        assert load_benchmark('Li2026.IT-rdm').parent == 'IT'
+
+    def test_only_it_has_an_rdm_leaf(self):
+        for region in ['V1', 'V2', 'V4']:
+            assert f'Li2026.{region}-rdm' not in benchmark_registry
+
+    def test_subject_coord_exposed_for_rsa(self):
+        # RSABenchmark groups by `subject`; Li2026 records the animal as `animal`
+        assembly = load_benchmark('Li2026.IT-rdm')._assembly
+        assert 'subject' in assembly.indexes['neuroid'].names
+        assert (assembly['subject'].values == assembly['animal'].values).all()
+        assert len(np.unique(assembly['subject'].values)) == 5
+
+    def test_rdm_scores_the_same_units_as_the_encoding_leaf(self):
+        rdm = load_benchmark('Li2026.IT-rdm')._assembly
+        ridgecv = load_benchmark('Li2026.IT-ridgecv')._assembly
+        assert rdm.sizes['neuroid'] == ridgecv.sizes['neuroid']
+        assert rdm.sizes['presentation'] == 1000
+
+    def test_ceiling_bounds(self):
+        ceiling = load_benchmark('Li2026.IT-rdm').ceiling
+        # Nili upper bound normalises the score; LOO lower bound is reported alongside
+        assert 0 < float(ceiling) <= 1
+        lower = ceiling.attrs['lower_bound_loo']
+        assert 0 < lower < float(ceiling), 'LOO bound should sit below the upper bound'

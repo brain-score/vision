@@ -210,6 +210,18 @@ Built on this plugin in `brainscore_vision/benchmarks/li2026/`:
   `ALPHA_LIST`, matching the other high-neuroid-count datasets in the suite
   (Allen2022, Hebart2023, Papale2025). Alpha selection is leave-one-out GCV off a
   single gram decomposition, so it costs about the same as a fixed-alpha ridge fit.
+* `Li2026.IT-rdm` — scored leaf. Representational geometry over the same units,
+  scored per animal and averaged. Near-orthogonal to the encoding leaves rather
+  than a restatement of them, and it is the measure that compares directly with
+  `Allen2022_fmri.IT-rdm` on the same 1000 NSD images: same stimuli, same metric,
+  human fMRI against macaque electrophysiology. An encoding model cannot support
+  that comparison because the fitted mapping absorbs the species and modality
+  difference. Ceiling on the shipped units is 0.601 (Nili upper bound), with the
+  leave-one-out lower bound at 0.337.
+
+  IT only. `RSACeiling` compares each subject against the mean of all subjects,
+  so it needs several; IT has 5 animals, while V1/V2/V4 have 2, where the
+  leave-one-out bound degenerates to a single A-vs-B correlation.
 * `Li2026.{V1,V2,V4,IT}-pls` — unparented (runnable, not in the scored tree).
   Kept for comparability against MajajHong2015, which is PLS. PLS is not the
   headline here because its cross-covariance is (n_features × n_neuroids) and no

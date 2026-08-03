@@ -2,7 +2,7 @@ import numpy as np
 
 from brainscore_core import Score
 from brainscore_vision import load_metric, load_dataset
-from brainscore_vision.benchmark_helpers.neural_common import NeuralBenchmark
+from brainscore_vision.benchmark_helpers.neural_common import NeuralBenchmark, RSABenchmark
 from brainscore_vision.metrics.regression_correlation.metric import (
     CrossRegressedCorrelation, dual_ridge_cv_regression, pearsonr_correlation,
 )
@@ -105,5 +105,39 @@ def Li2026V1PLS(): return _Li2026Region('V1', 'pls')
 def Li2026V2PLS(): return _Li2026Region('V2', 'pls')
 def Li2026V4PLS(): return _Li2026Region('V4', 'pls')
 def Li2026ITPLS(): return _Li2026Region('IT', 'pls')
+
+
+def load_rsa_assembly(region: str):
+    """Same units as :func:`load_assembly`, with ``animal`` exposed as ``subject``.
+
+    :class:`RSABenchmark` builds one RDM per subject and averages, so it reads a
+    ``subject`` coord. Li2026 records the animal as ``animal``. It is added as a
+    MultiIndex level rather than a plain coord, matching the Allen2022 and
+    laion_fmri convention: levels are invisible to ``assembly.coords.items()``,
+    which keeps the RDM metric's coord filtering out of the picture.
+
+    :param region: brain region to load.
+    :return: assembly whose neuroid index carries a ``subject`` level.
+    """
+    assembly = load_assembly(region)
+    stimulus_set = assembly.attrs['stimulus_set']
+    animals = assembly['animal'].values
+    levels = [level for level in assembly.indexes['neuroid'].names if level != 'neuroid']
+    assembly = assembly.reset_index('neuroid')
+    assembly = assembly.assign_coords(subject=('neuroid', animals))
+    assembly = assembly.set_index(neuroid=levels + ['subject'])
+    assembly.attrs['stimulus_set'] = stimulus_set
+    return assembly
+
+
+# IT only: RSACeiling compares each subject against the mean of all, so it needs
+# several. IT has 5 animals; V1/V2/V4 have 2, where the leave-one-out bound
+# degenerates to a single A-vs-B correlation and the ceiling is not estimable.
+def Li2026ITRDM() -> RSABenchmark:
+    return RSABenchmark(
+        identifier='Li2026.IT-rdm', version=1,
+        assembly=load_rsa_assembly('IT'), region='IT',
+        visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
+        parent='IT', bibtex=BIBTEX)
 
 

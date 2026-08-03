@@ -14,9 +14,12 @@ def test_registered(identifier):
 
 
 @pytest.mark.parametrize('region', REGIONS)
-def test_scored_leaf_is_ridgecv(region):
-    # one scored leaf per region; pls stays runnable but out of the tree
-    assert load_benchmark(f'Li2026.{region}-ridgecv').parent == region
+def test_scored_leaves_hang_off_the_dataset_node(region):
+    # scored leaves sit under Li2026.{region}, not the region itself, so Li2026
+    # contributes one child per region however many metrics it carries
+    for metric in ['ridgecv', 'rdm']:
+        assert load_benchmark(f'Li2026.{region}-{metric}').parent == f'Li2026.{region}'
+    # pls stays runnable but out of the tree
     assert load_benchmark(f'Li2026.{region}-pls').parent is None
 
 
@@ -67,35 +70,39 @@ def test_ridgecv_selects_alpha_via_dual_form():
     assert len(regression.alphas) > 1
 
 
-class TestITRDM:
-    """RSA leaf. IT only: RSACeiling compares each subject against the mean of all,
-    which needs several. V1/V2/V4 have 2 animals, where the leave-one-out bound
-    collapses to a single A-vs-B correlation."""
+class TestRDM:
+    """Representational-geometry leaves, one per region."""
 
-    def test_registered_and_parented(self):
-        assert 'Li2026.IT-rdm' in benchmark_registry
-        assert load_benchmark('Li2026.IT-rdm').parent == 'IT'
+    @pytest.mark.parametrize('region', REGIONS)
+    def test_registered(self, region):
+        assert f'Li2026.{region}-rdm' in benchmark_registry
 
-    def test_only_it_has_an_rdm_leaf(self):
-        for region in ['V1', 'V2', 'V4']:
-            assert f'Li2026.{region}-rdm' not in benchmark_registry
-
-    def test_subject_coord_exposed_for_rsa(self):
+    @pytest.mark.parametrize('region,n_animals', [('V1', 2), ('V2', 2), ('V4', 2), ('IT', 5)])
+    def test_subject_coord_exposed_for_rsa(self, region, n_animals):
         # RSABenchmark groups by `subject`; Li2026 records the animal as `animal`
-        assembly = load_benchmark('Li2026.IT-rdm')._assembly
+        assembly = load_benchmark(f'Li2026.{region}-rdm')._assembly
         assert 'subject' in assembly.indexes['neuroid'].names
         assert (assembly['subject'].values == assembly['animal'].values).all()
-        assert len(np.unique(assembly['subject'].values)) == 5
+        assert len(np.unique(assembly['subject'].values)) == n_animals
 
-    def test_rdm_scores_the_same_units_as_the_encoding_leaf(self):
-        rdm = load_benchmark('Li2026.IT-rdm')._assembly
-        ridgecv = load_benchmark('Li2026.IT-ridgecv')._assembly
+    @pytest.mark.parametrize('region', REGIONS)
+    def test_rdm_scores_the_same_units_as_the_encoding_leaf(self, region):
+        rdm = load_benchmark(f'Li2026.{region}-rdm')._assembly
+        ridgecv = load_benchmark(f'Li2026.{region}-ridgecv')._assembly
         assert rdm.sizes['neuroid'] == ridgecv.sizes['neuroid']
         assert rdm.sizes['presentation'] == 1000
 
-    def test_ceiling_bounds(self):
-        ceiling = load_benchmark('Li2026.IT-rdm').ceiling
+    @pytest.mark.parametrize('region', REGIONS)
+    def test_ceiling_bounds(self, region):
+        ceiling = load_benchmark(f'Li2026.{region}-rdm').ceiling
         # Nili upper bound normalises the score; LOO lower bound is reported alongside
         assert 0 < float(ceiling) <= 1
         lower = ceiling.attrs['lower_bound_loo']
         assert 0 < lower < float(ceiling), 'LOO bound should sit below the upper bound'
+
+    def test_it_ceiling_is_least_subject_count_inflated(self):
+        # the Nili bound does not converge in subject count (IT subsampling: 0.767
+        # at N=2 down to 0.601 at N=5), so the 2-animal regions sit measurably higher
+        it = float(load_benchmark('Li2026.IT-rdm').ceiling)
+        for region in ['V1', 'V2', 'V4']:
+            assert float(load_benchmark(f'Li2026.{region}-rdm').ceiling) > it

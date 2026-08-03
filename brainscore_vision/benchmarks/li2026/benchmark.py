@@ -81,6 +81,18 @@ def load_assembly(region: str):
     return assembly
 
 
+def _dataset_node(region: str) -> str:
+    """Dataset-level aggregate node under the region.
+
+    Scored leaves hang off ``Li2026.{region}`` rather than the region directly, so
+    Li2026 contributes one child per region however many metrics it carries. This
+    is the convention the multi-variant datasets already follow (Geirhos2021,
+    Scialom2024, Baker2022). These nodes must exist as ``BenchmarkType`` rows: the
+    submission path logs a warning and leaves the parent NULL if one is missing.
+    """
+    return f'Li2026.{region}'
+
+
 def _Li2026Region(region: str, metric_type: str, parent: str = None) -> NeuralBenchmark:
     assembly = load_assembly(region)
     return NeuralBenchmark(
@@ -91,13 +103,12 @@ def _Li2026Region(region: str, metric_type: str, parent: str = None) -> NeuralBe
         parent=parent, bibtex=BIBTEX)
 
 
-# Scored leaves: one per region, so Li2026 contributes each unit population to the
-# tree once. RidgeCV matches the other high-neuroid-count datasets (Allen2022,
+# Encoding leaves. RidgeCV matches the other high-neuroid-count datasets (Allen2022,
 # Hebart2023, Papale2025); no PLS benchmark in the suite runs above ~1k neuroids.
-def Li2026V1RidgeCV(): return _Li2026Region('V1', 'ridgecv', parent='V1')
-def Li2026V2RidgeCV(): return _Li2026Region('V2', 'ridgecv', parent='V2')
-def Li2026V4RidgeCV(): return _Li2026Region('V4', 'ridgecv', parent='V4')
-def Li2026ITRidgeCV(): return _Li2026Region('IT', 'ridgecv', parent='IT')
+def Li2026V1RidgeCV(): return _Li2026Region('V1', 'ridgecv', parent=_dataset_node('V1'))
+def Li2026V2RidgeCV(): return _Li2026Region('V2', 'ridgecv', parent=_dataset_node('V2'))
+def Li2026V4RidgeCV(): return _Li2026Region('V4', 'ridgecv', parent=_dataset_node('V4'))
+def Li2026ITRidgeCV(): return _Li2026Region('IT', 'ridgecv', parent=_dataset_node('IT'))
 
 
 # Unparented: runnable for MajajHong comparability, but out of the scored tree.
@@ -130,14 +141,33 @@ def load_rsa_assembly(region: str):
     return assembly
 
 
-# IT only: RSACeiling compares each subject against the mean of all, so it needs
-# several. IT has 5 animals; V1/V2/V4 have 2, where the leave-one-out bound
-# degenerates to a single A-vs-B correlation and the ceiling is not estimable.
-def Li2026ITRDM() -> RSABenchmark:
+def _Li2026RegionRDM(region: str) -> RSABenchmark:
+    """Representational-geometry leaf: one RDM per animal, averaged.
+
+    Near-orthogonal to the encoding leaf rather than a restatement of it, and the
+    measure that compares directly with ``Allen2022_fmri.{region}-rdm`` on the same
+    1000 NSD images -- human fMRI against macaque electrophysiology, same stimuli
+    and same metric.
+
+    Ceiling caveat: :class:`RSACeiling` returns the Nili upper bound, which
+    correlates each subject against the mean of *all* subjects including itself and
+    so does not converge in subject count. Measured on IT by subsampling: 0.767 at
+    N=2, 0.678 at N=3, 0.631 at N=4, 0.601 at N=5. V1/V2/V4 have 2 animals and IT
+    has 5, so the lower areas carry roughly +0.17 of inflation, which deflates their
+    ceiled scores by about 20%. Cross-study comparison should therefore use the raw
+    score, which carries no normalisation and is directly comparable; the
+    leave-one-out lower bound is kept in ``ceiling.attrs['lower_bound_loo']``.
+    """
     return RSABenchmark(
-        identifier='Li2026.IT-rdm', version=1,
-        assembly=load_rsa_assembly('IT'), region='IT',
+        identifier=f'Li2026.{region}-rdm', version=1,
+        assembly=load_rsa_assembly(region), region=region,
         visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
-        parent='IT', bibtex=BIBTEX)
+        parent=_dataset_node(region), bibtex=BIBTEX)
+
+
+def Li2026V1RDM(): return _Li2026RegionRDM('V1')
+def Li2026V2RDM(): return _Li2026RegionRDM('V2')
+def Li2026V4RDM(): return _Li2026RegionRDM('V4')
+def Li2026ITRDM(): return _Li2026RegionRDM('IT')
 
 

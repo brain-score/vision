@@ -204,24 +204,57 @@ section for the full plan):
 
 ## Benchmarks
 
-Built on this plugin in `brainscore_vision/benchmarks/li2026/`:
+Built on this plugin in `brainscore_vision/benchmarks/li2026/`. Scored leaves hang
+off a dataset-level node rather than the region directly, so Li2026 contributes one
+child per region however many metrics it carries — the convention Geirhos2021,
+Scialom2024 and Baker2022 already follow:
+
+```text
+V1 → Li2026.V1 → {Li2026.V1-ridgecv, Li2026.V1-rdm}
+V2 → Li2026.V2 → {Li2026.V2-ridgecv, Li2026.V2-rdm}
+V4 → Li2026.V4 → {Li2026.V4-ridgecv, Li2026.V4-rdm}
+IT → Li2026.IT → {Li2026.IT-ridgecv, Li2026.IT-rdm}
+```
+
+The four `Li2026.{region}` nodes must exist as `BenchmarkType` rows before the first
+submission. `benchmarkinstance_from_benchmark` looks the parent up and, if it is
+missing, logs a warning and leaves the parent NULL — the leaf is still scored but
+hangs off nothing.
+
 
 * `Li2026.{V1,V2,V4,IT}-ridgecv` — scored leaves, one per region. RidgeCV over
   `ALPHA_LIST`, matching the other high-neuroid-count datasets in the suite
   (Allen2022, Hebart2023, Papale2025). Alpha selection is leave-one-out GCV off a
   single gram decomposition, so it costs about the same as a fixed-alpha ridge fit.
-* `Li2026.IT-rdm` — scored leaf. Representational geometry over the same units,
-  scored per animal and averaged. Near-orthogonal to the encoding leaves rather
-  than a restatement of them, and it is the measure that compares directly with
-  `Allen2022_fmri.IT-rdm` on the same 1000 NSD images: same stimuli, same metric,
-  human fMRI against macaque electrophysiology. An encoding model cannot support
-  that comparison because the fitted mapping absorbs the species and modality
-  difference. Ceiling on the shipped units is 0.601 (Nili upper bound), with the
-  leave-one-out lower bound at 0.337.
+* `Li2026.{V1,V2,V4,IT}-rdm` — scored leaves. Representational geometry over the
+  same units, one RDM per animal, averaged. Near-orthogonal to the encoding leaves
+  rather than a restatement of them, and the measure that compares directly with
+  `Allen2022_fmri.{region}-rdm` on the same 1000 NSD images: same stimuli, same
+  metric, human fMRI against macaque electrophysiology. An encoding model cannot
+  support that comparison because the fitted mapping absorbs the species and
+  modality difference.
 
-  IT only. `RSACeiling` compares each subject against the mean of all subjects,
-  so it needs several; IT has 5 animals, while V1/V2/V4 have 2, where the
-  leave-one-out bound degenerates to a single A-vs-B correlation.
+  **Use the raw score for cross-study comparison, not the ceiled score.**
+  `RSACeiling` returns the Nili upper bound, which correlates each subject against
+  the mean of *all* subjects including itself, so it does not converge in subject
+  count. Measured on IT by subsampling animals: 0.767 (N=2), 0.678 (N=3), 0.631
+  (N=4), 0.601 (N=5) — still falling at N=5. Ceiled scores are therefore only
+  comparable between datasets with matched subject counts, which is rarely the
+  case: Allen2022 has 8 subjects, so even `Li2026.IT-rdm` sits above it. The raw
+  model-to-neural RDM correlation carries no normalisation and is directly
+  comparable. The leave-one-out lower bound is kept in
+  `ceiling.attrs['lower_bound_loo']`.
+
+  | leaf | animals | ceiling (Nili) | LOO lower |
+  | --- | --- | --- | --- |
+  | `Li2026.V1-rdm` | 2 | 0.822 | 0.396 |
+  | `Li2026.V2-rdm` | 2 | 0.912 | 0.673 |
+  | `Li2026.V4-rdm` | 2 | 0.780 | 0.264 |
+  | `Li2026.IT-rdm` | 5 | 0.601 | 0.337 |
+
+  Mean pairwise inter-animal RDM agreement in IT is 0.223 (range 0.101-0.449), so
+  the reliably shared geometry across animals is modest; small differences between
+  models on these leaves should not be over-read.
 * `Li2026.{V1,V2,V4,IT}-pls` — unparented (runnable, not in the scored tree).
   Kept for comparability against MajajHong2015, which is PLS. PLS is not the
   headline here because its cross-covariance is (n_features × n_neuroids) and no

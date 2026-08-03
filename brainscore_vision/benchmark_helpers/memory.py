@@ -42,6 +42,9 @@ _DEFAULT_CALIBRATION_PATH = (
 # float32 = 4 bytes per element
 _BYTES_PER_ELEMENT = 4
 
+# sklearn upcasts to float64 when solving, so the coefficient matrix is 8 bytes per element.
+_COEFFICIENT_BYTES_PER_ELEMENT = 8
+
 # Overhead multiplier on top of the activation assembly size.
 # Accounts for xarray coordinate arrays, regression/CV matrices, and
 # temporary buffers.  Calibrated against MajajHong2015.IT-pls (resnet50,
@@ -120,10 +123,19 @@ class MemoryEstimate:
     # formula_type: 'pls' | 'rdm' | 'ridge_formula' | 'calibrated' | 'fallback'
     formula_type: str = 'fallback'
     rdm_overhead_gb: Optional[float] = None  # n_stimuli^2 term used in RDM and ridge-formula paths
+    num_targets: Optional[int] = None        # neuroids being predicted
+    coefficient_gb: float = 0.0              # (n_targets x n_features) regression coefficients
 
     @property
     def will_oom(self) -> bool:
         return self.total_estimated_gb > self.available_gb
+
+    @property
+    def _coefficient_str(self) -> str:
+        if self.coefficient_gb <= 0:
+            return ""
+        return (f" + {self.coefficient_gb:.2f} GB coefficients "
+                f"({self.num_targets:,} targets × {self.num_features:,} features)")
 
     def __str__(self) -> str:
         status = "OOM LIKELY" if self.will_oom else "OK"
@@ -143,10 +155,12 @@ class MemoryEstimate:
                        f"×3 (RDM pairwise distance overhead → {self.total_estimated_gb:.1f} GB total)")
         elif self.formula_type == 'ridge_large_feature':
             formula = (f"{self.activation_gb:.2f} GB activations "
-                       f"×{_OVERHEAD_FACTOR} (ridge SVD path: n_features > n_stimuli → {self.total_estimated_gb:.1f} GB total)")
+                       f"×{_OVERHEAD_FACTOR} (ridge SVD path: n_features > n_stimuli)"
+                       f"{self._coefficient_str} → {self.total_estimated_gb:.1f} GB total")
         elif self.formula_type == 'ridge_formula':
             formula = (f"{self.activation_gb:.2f} GB activations "
-                       f"+ {self.rdm_overhead_gb:.2f} GB gram matrix ({self.num_stimuli}²×4B)")
+                       f"+ {self.rdm_overhead_gb:.2f} GB gram matrix ({self.num_stimuli}²×4B)"
+                       f"{self._coefficient_str}")
         elif self.formula_type == 'calibrated':
             formula = (f"{self.activation_gb:.2f} GB activations "
                        f"+ {self.fixed_benchmark_cost_gb:.2f} GB fixed benchmark cost (calibrated)")
@@ -256,6 +270,54 @@ def _is_ridge_benchmark(benchmark) -> bool:
         return False
     ident = str(getattr(benchmark, 'identifier', ''))
     return ident.endswith('-ridge') or ident.endswith('-ridgecv')
+
+
+def _builds_coefficient_matrix(benchmark) -> bool:
+    """Return True if the benchmark's regression materialises an explicit
+    (n_targets, n_features) coefficient matrix.
+
+    sklearn ``Ridge``/``RidgeCV`` always do. The dual forms predict through an
+    (n_test, n_train) projection instead and never build one. When the regression
+    cannot be identified we assume it does, so the estimate stays conservative.
+    """
+    from brainscore_vision.metrics.regression_correlation.metric import (
+        DualRidgeCVRegression, DualRidgeRegression,
+    )
+    metric = getattr(benchmark, '_similarity_metric', None)
+    regression = getattr(getattr(metric, 'regression', None), '_regression', None)
+    if regression is None:
+        return True
+    return not isinstance(regression, (DualRidgeRegression, DualRidgeCVRegression))
+
+
+def _num_targets(benchmark) -> Optional[int]:
+    """Neuroid count of the assembly being predicted, or None if unavailable."""
+    for attribute in ('_assembly', 'train_assembly'):
+        assembly = getattr(benchmark, attribute, None)
+        if assembly is None:
+            continue
+        try:
+            return int(assembly.sizes['neuroid'])
+        except (AttributeError, KeyError, TypeError):
+            return None
+    return None
+
+
+def _coefficient_matrix_gb(benchmark, num_features: int) -> float:
+    """Size of the regression's (n_targets, n_features) coefficient matrix.
+
+    This term scales with the neuroid count, so it fits neither the
+    activation-sized formulas (n_stimuli x n_features) nor a calibrated fixed
+    cost, which is model-independent by construction. Benchmarks with many
+    neuroids and a large-feature model are dominated by it. Returns 0.0 when no
+    such matrix is built.
+    """
+    if not _builds_coefficient_matrix(benchmark):
+        return 0.0
+    num_targets = _num_targets(benchmark)
+    if not num_targets:
+        return 0.0
+    return num_targets * num_features * _COEFFICIENT_BYTES_PER_ELEMENT / (1024 ** 3)
 
 
 def _get_probe_layer(model):
@@ -480,6 +542,8 @@ def preallocate_memory(
     is_rdm = _is_rdm_benchmark(benchmark)
     is_ridge = _is_ridge_benchmark(benchmark)
     ridge_large_feature = is_ridge and num_features > num_stimuli
+    num_targets = _num_targets(benchmark)
+    coefficient_gb = _coefficient_matrix_gb(benchmark, num_features) if is_ridge else 0.0
 
     rdm_overhead_gb = None
     if is_pls:
@@ -498,44 +562,46 @@ def preallocate_memory(
         rdm_overhead_gb = 2 * activation_gb
         total_estimated_gb = activation_gb + rdm_overhead_gb  # = 3 × activation_gb
         formula_type = 'rdm'
-    elif fixed_benchmark_cost_gb is not None and ridge_large_feature:
-        # Both predictors apply. Take the max — they measure complementary
-        # things and either one alone under-predicts in the regime the other
-        # was designed for. Calibrated captures benchmark/cache overhead
-        # (alexnet-measured); ×6 captures model-side SVD intermediates that
-        # scale with n_features. Without the max, deit_large × Zerbe2026
-        # OOM'd at 29 GB on a small tier even though calibrated predicted
-        # 19 GB, because the SVD V matrix is activation-sized and isn't in
-        # the alexnet-measured fixed_cost.
-        calibrated_total = activation_gb + fixed_benchmark_cost_gb
-        formula_total = activation_gb * _OVERHEAD_FACTOR
+    elif is_ridge:
+        # Formula side, by regime:
+        #   n_features > n_stimuli — sklearn SVD path, overhead ≈ 5× activation_gb.
+        #     Validated: resnet50/ViT × Gifford2022.IT-ridgecv both gave exactly 5.1×.
+        #     Use ×6 total to stay conservative so the pre-flight MemoryError fires
+        #     before the OS kills the container.
+        #   n_features ≤ n_stimuli — primal solver, gram matrix is n_stimuli×n_stimuli.
+        # Both then carry the coefficient matrix, which scales with n_targets and so
+        # is absent from either term above (see _coefficient_matrix_gb).
+        if ridge_large_feature:
+            formula_total = activation_gb * _OVERHEAD_FACTOR
+        else:
+            rdm_overhead_gb = (num_stimuli ** 2) * _BYTES_PER_ELEMENT / (1024 ** 3)
+            formula_total = activation_gb + rdm_overhead_gb
+        formula_total += coefficient_gb
+
+        # Take the max against any calibrated value rather than summing. Calibration
+        # measured real peak RSS end-to-end, so its fixed cost already contains the
+        # coefficient matrix at the calibrating model's feature count (alexnet, ~9K)
+        # and adding both would double-count that part. The max still lets the formula
+        # win for large-feature or high-neuroid benchmarks, where the coefficient
+        # matrix is far bigger than calibration ever saw. Without this, deit_large ×
+        # Zerbe2026 OOM'd at 29 GB on a small tier while calibrated predicted 19 GB.
+        calibrated_total = (activation_gb + fixed_benchmark_cost_gb
+                            if fixed_benchmark_cost_gb is not None else 0.0)
         if calibrated_total >= formula_total:
             total_estimated_gb = calibrated_total
             formula_type = 'calibrated'
+            rdm_overhead_gb = None
         else:
             total_estimated_gb = formula_total
-            formula_type = 'ridge_large_feature'
+            formula_type = 'ridge_large_feature' if ridge_large_feature else 'ridge_formula'
     elif fixed_benchmark_cost_gb is not None:
-        # Calibrated value present — trust it over the ridge_large_feature
-        # heuristic. The calibration script measured actual peak RSS on the
-        # benchmark end-to-end, so the value reflects the real working set
-        # better than the ×6 fallback can predict. Wrapper benchmarks
-        # (MultiSubjectNeuralBenchmark, KFoldNeuralBenchmark) pass their own
+        # Calibrated value present for a non-ridge benchmark. The calibration script
+        # measured actual peak RSS on the benchmark end-to-end, so the value reflects
+        # the real working set better than the ×6 fallback can predict. Wrapper
+        # benchmarks (MultiSubjectNeuralBenchmark, KFoldNeuralBenchmark) pass their own
         # wrapper-level fixed_cost here to short-circuit the per-child scale.
         total_estimated_gb = activation_gb + fixed_benchmark_cost_gb
         formula_type = 'calibrated'
-    elif ridge_large_feature:
-        # n_features > n_stimuli: sklearn SVD path — overhead ≈ 5× activation_gb.
-        # Validated: resnet50/ViT × Gifford2022.IT-ridgecv both gave exactly 5.1×.
-        # Use ×6 total (activation + 5× overhead) to stay conservative and ensure
-        # the pre-flight MemoryError fires before the OS kills the container.
-        total_estimated_gb = activation_gb * _OVERHEAD_FACTOR
-        formula_type = 'ridge_large_feature'
-    elif is_ridge:
-        # No calibration entry, primal regime: gram matrix is n_stimuli×n_stimuli
-        rdm_overhead_gb = (num_stimuli ** 2) * _BYTES_PER_ELEMENT / (1024 ** 3)
-        total_estimated_gb = activation_gb + rdm_overhead_gb
-        formula_type = 'ridge_formula'
     else:
         total_estimated_gb = activation_gb * _OVERHEAD_FACTOR
         formula_type = 'fallback'
@@ -560,6 +626,8 @@ def preallocate_memory(
         is_pls=is_pls,
         formula_type=formula_type,
         rdm_overhead_gb=rdm_overhead_gb,
+        num_targets=num_targets,
+        coefficient_gb=coefficient_gb,
     )
 
     verdict = "OOM LIKELY" if estimate.will_oom else "OK"
@@ -588,13 +656,21 @@ def preallocate_memory(
         print(f"  ×{_PLS_OVERHEAD_FACTOR} (PLS){fixed_str}  ×{num_timebins} (timebins)  "
               f"=  {estimate.total_estimated_gb:.3f} GB total", flush=True)
     elif formula_type == 'ridge_large_feature':
+        coefficient_str = (f"  +  {estimate.coefficient_gb:.3f} GB coefficients "
+                           f"({num_targets:,} targets × {num_features:,} features)"
+                           if estimate.coefficient_gb > 0 else "")
         print(f"  ×{_OVERHEAD_FACTOR} (ridge SVD: n_features={num_features:,} > n_stimuli={num_stimuli:,})"
+              f"{coefficient_str}"
               f"  =  {estimate.total_estimated_gb:.3f} GB total", flush=True)
     elif formula_type == 'rdm':
         print(f"  ×3 (RDM pairwise overhead)"
               f"  =  {estimate.total_estimated_gb:.3f} GB total", flush=True)
     elif formula_type == 'ridge_formula':
-        print(f"  +  {estimate.rdm_overhead_gb:.3f} GB gram matrix ({num_stimuli:,}²×4B)  "
+        coefficient_str = (f"  +  {estimate.coefficient_gb:.3f} GB coefficients "
+                           f"({num_targets:,} targets × {num_features:,} features)"
+                           if estimate.coefficient_gb > 0 else "")
+        print(f"  +  {estimate.rdm_overhead_gb:.3f} GB gram matrix ({num_stimuli:,}²×4B)"
+              f"{coefficient_str}  "
               f"[no calibration entry — formula estimate]"
               f"  =  {estimate.total_estimated_gb:.3f} GB total", flush=True)
     elif formula_type == 'calibrated':

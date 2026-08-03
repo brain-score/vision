@@ -78,23 +78,54 @@ WRAPPER_N_BOOTSTRAP = 200
 
 
 def _scaled_preallocate_memory(wrapper, candidate, child_factory, raise_if_oom: bool):
-    """Probe one representative child and scale by ``wrapper._peak_aggregation``.
+    """Estimate memory for a multi-child wrapper.
 
-    Returns the child's unscaled :class:`MemoryEstimate` so callers can read
-    formula details; raises :exc:`MemoryError` when the *scaled* estimate
-    exceeds available RAM. Returns ``None`` when the probe itself is skipped
-    (e.g. ``BRAINSCORE_SKIP_MEMORY_CHECK=1``).
+    Precedence:
+
+    1. If the wrapper has a calibrated ``fixed_benchmark_cost_gb`` entry
+       (i.e. ``benchmark_costs.json[wrapper.identifier]``), pass it directly
+       to the per-child probe — the calibrated value was measured
+       end-to-end on the wrapper, so it already captures peak_aggregation
+       and any cross-child cache accumulation. The returned estimate uses
+       ``formula_type='calibrated'`` and is NOT multiplied by
+       ``peak_aggregation`` (would double-count).
+    2. Otherwise, fall back to probing one representative child with the
+       formula path and scaling by ``wrapper._peak_aggregation``.
+
+    Returns the per-child :class:`MemoryEstimate` (with the wrapper's
+    fixed_cost baked in if calibrated), or ``None`` when probing is
+    skipped (``BRAINSCORE_SKIP_MEMORY_CHECK=1``).
     """
-    from brainscore_vision.benchmark_helpers.memory import preallocate_memory as _probe
+    from brainscore_vision.benchmark_helpers.memory import (
+        load_calibration,
+        preallocate_memory as _probe,
+    )
+    wrapper_fixed_cost = load_calibration().get(wrapper.identifier)
     child = child_factory()
     try:
-        estimate = _probe(candidate, child, raise_if_oom=False)
+        estimate = _probe(
+            candidate, child, raise_if_oom=False,
+            fixed_benchmark_cost_gb=wrapper_fixed_cost,
+        )
     finally:
         _release(child)
         del child
         gc.collect()
     if estimate is None:
         return None
+
+    if wrapper_fixed_cost is not None:
+        # Calibrated path — the value already reflects peak_aggregation.
+        if estimate.total_estimated_gb > estimate.available_gb and raise_if_oom:
+            raise MemoryError(
+                f"preallocate_memory ({type(wrapper).__name__} '{wrapper.identifier}'): "
+                f"calibrated estimate {estimate.total_estimated_gb:.1f} GB "
+                f"(activation {estimate.activation_gb:.2f} + fixed_cost "
+                f"{wrapper_fixed_cost:.2f}) > {estimate.available_gb:.1f} GB available"
+            )
+        return estimate
+
+    # Formula path — scale per-child by peak_aggregation.
     scaled_gb = estimate.total_estimated_gb * wrapper._peak_aggregation
     if scaled_gb > estimate.available_gb and raise_if_oom:
         raise MemoryError(

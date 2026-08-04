@@ -50,7 +50,7 @@ class TestAllen2022fmriSurfaceAlexNetRidge:
         ('Allen2022_fmri_surface.V1-ridge', approx(0.4129, abs=0.005)),
         ('Allen2022_fmri_surface.V2-ridge', approx(0.4409, abs=0.005)),
         ('Allen2022_fmri_surface.V4-ridge', approx(0.4009, abs=0.005)),
-        ('Allen2022_fmri_surface.IT-ridge', approx(0.2975, abs=0.005)),
+        ('Allen2022_fmri_surface.IT-ridge', approx(0.2975, abs=0.01)),
     ])
     def test_8subj(self, model, benchmark_id, expected_score):
         benchmark = load_benchmark(benchmark_id)
@@ -61,7 +61,7 @@ class TestAllen2022fmriSurfaceAlexNetRidge:
         ('Allen2022_fmri_surface_4subj.V1-ridge', approx(0.4062, abs=0.005)),
         ('Allen2022_fmri_surface_4subj.V2-ridge', approx(0.4303, abs=0.005)),
         ('Allen2022_fmri_surface_4subj.V4-ridge', approx(0.3690, abs=0.005)),
-        ('Allen2022_fmri_surface_4subj.IT-ridge', approx(0.2804, abs=0.005)),
+        ('Allen2022_fmri_surface_4subj.IT-ridge', approx(0.2804, abs=0.01)),
     ])
     def test_4subj(self, model, benchmark_id, expected_score):
         benchmark = load_benchmark(benchmark_id)

@@ -1,4 +1,5 @@
 import logging
+import os
 from functools import partial
 from typing import Dict, Any, Union, Callable
 
@@ -7,6 +8,7 @@ from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 
 from brainscore_core.benchmarks import Benchmark
 from brainscore_core.metrics import Metric, Score
+from brainscore_core.benchmarks import score_benchmark
 from brainscore_core.plugin_management.conda_score import wrap_score
 from brainscore_core.plugin_management.import_plugin import import_plugin
 from brainscore_vision.metrics import Ceiling
@@ -107,7 +109,30 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
 
     import time as _time
     _t0 = _time.time()
-    score: Score = benchmark(model)
+    try:
+        # score_benchmark runs the benchmark's own preallocate_memory hook first;
+        # our check_memory above is the probe-based estimate and they compose.
+        score: Score = score_benchmark(benchmark, model)
+    except AssertionError as e:
+        # Only append the cache-clearing hint when the AssertionError actually
+        # looks like a stimulus-path mismatch from a stale activations cache.
+        # Other AssertionErrors (e.g. logits-dim mismatch) have nothing to do
+        # with caching and the hint misleads users into deleting good data.
+        msg = str(e)
+        if 'stimulus' in msg.lower() or 'path' in msg.lower():
+            cache_dir = os.path.expanduser(
+                '~/.result_caching/brainscore_vision.model_helpers.activations.core'
+                '.ActivationsExtractorHelper._from_paths_stored'
+            )
+            raise AssertionError(
+                f"{e}\n\n"
+                f"If this is a stale activations cache (cached stimulus paths no longer match "
+                f"current locations, e.g. temp directory changed between runs), fix with:\n"
+                f"  rm {cache_dir}/identifier={model_identifier},stimuli_identifier=*.pkl\n\n"
+                f"Or to clear the entire activations cache:\n"
+                f"  rm {cache_dir}/*.pkl"
+            ) from e
+        raise
     score.attrs['runtime_sec'] = round(_time.time() - _t0, 2)
     score.attrs['model_identifier'] = model_identifier
     score.attrs['benchmark_identifier'] = benchmark_identifier
@@ -147,3 +172,7 @@ def score(model_identifier: str, benchmark_identifier: str,
     return wrap_score(__file__,
                       model_identifier=model_identifier, benchmark_identifier=benchmark_identifier,
                       score_function=score_fn, conda_active=conda_active)
+
+
+# Public re-export so callers can do: from brainscore_vision import preallocate_memory
+from brainscore_vision.benchmark_helpers.memory import preallocate_memory  # noqa: E402

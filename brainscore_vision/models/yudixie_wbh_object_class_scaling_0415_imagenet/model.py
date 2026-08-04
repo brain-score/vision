@@ -1,0 +1,44 @@
+import os
+from pathlib import Path
+import functools
+from urllib.request import urlretrieve
+
+import numpy as np
+import torch
+import torch.nn as nn
+import torchvision.models as tvm
+
+from brainscore_vision.model_helpers.check_submission import check_models
+from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
+from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper, load_preprocess_images
+
+
+# Please load your pytorch model for usage in CPU. There won't be GPUs available for scoring your model.
+# If the model requires a GPU, contact the brain-score team directly.
+
+
+def get_model(name):
+    pytorch_device = torch.device('cpu')
+    
+    pytorch_model = tvm.resnet18(weights=tvm.ResNet18_Weights.IMAGENET1K_V1)
+    pytorch_model.fc = nn.Linear(pytorch_model.fc.in_features, 10)
+    pytorch_model = pytorch_model.to(pytorch_device)
+
+    preprocessing = functools.partial(load_preprocess_images, image_size=224)
+    wrapper = PytorchWrapper(identifier=name,
+                             model=pytorch_model,
+                             preprocessing=preprocessing)
+    wrapper.image_size = 224
+    return wrapper
+
+
+def get_layers(name):
+    return ['conv1','layer1', 'layer2', 'layer3', 'layer4', ]
+
+
+def get_bibtex(model_identifier):
+    return """xx"""
+
+
+if __name__ == '__main__':
+    check_models.check_base_models(__name__)

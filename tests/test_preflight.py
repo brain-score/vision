@@ -31,7 +31,7 @@ class TestPreflightInRunScore:
         model.out_channels = set()
         model.required_channels = set()
 
-        benchmark = MagicMock(spec=['identifier', 'required_modalities', '__call__'])
+        benchmark = MagicMock(spec=['identifier', 'required_modalities', '__call__', 'preallocate_memory'])
         benchmark.identifier = 'test-bench'
         benchmark.required_modalities = bench_required
         return model, benchmark

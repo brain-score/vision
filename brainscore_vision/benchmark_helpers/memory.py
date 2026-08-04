@@ -63,6 +63,47 @@ _OVERHEAD_FACTOR = 6
 #   worst miss after fix: resnet50 × Cadena2017-pls  →  -12.7%  (within 15%)
 _PLS_OVERHEAD_FACTOR = 7
 
+# Empirical p50(real_peak) - p50(formula_estimate) per benchmark, GB.
+# Papale2025.V4-ridgecv omitted: dinov2-only data would over-allocate small models.
+_BENCHMARK_SCAFFOLDING_OVERHEAD_GB: dict[str, float] = {
+    'Zerbe2026_fmri.V1-tau-ridgecv': 42.0,
+    'Gifford2022.IT-ridgecv': 20.0,
+    'Zerbe2026_fmri.V1-rdm-pearson': 19.0,
+    'Zerbe2026_fmri.V2-ood-ridgecv': 16.5,
+    'Zerbe2026_fmri.V2-tau-ridgecv': 15.8,
+    'Zerbe2026_fmri.V4-ood-ridgecv': 14.4,
+    'Zerbe2026_fmri.V4-tau-ridgecv': 13.7,
+    'Zerbe2026_fmri.IT-tau-ridgecv': 13.7,
+    'Zerbe2026_fmri.IT-ood-ridgecv': 13.7,
+    'Allen2022_fmri_surface.V1-ridge': 12.4,
+    'Zerbe2026_fmri.V2-rdm-pearson': 11.8,
+    'Zerbe2026_fmri.V4-rdm-pearson': 11.8,
+    'Zerbe2026_fmri.IT-rdm-pearson': 10.5,
+    'MajajHong2015public.IT-reverse_pls': 8.7,
+    'FreemanZiemba2013.V1-pls': 7.6,
+    'Papale2025.IT-ridgecv': 7.6,
+    'Sanghavi2020.V4-pls': 7.4,
+    'Allen2022_fmri_surface.V1-rdm': 6.4,
+    'Hebart2023_fmri.IT-ridgecv': 6.2,
+    'FreemanZiemba2013.V2-pls': 5.6,
+    'Allen2022_fmri_surface.V2-ridge': 4.7,
+    'MajajHong2015.V4-pls': 3.9,
+    'Allen2022_fmri_surface.V4-ridge': 3.8,
+    'Allen2022_fmri_surface.IT-ridge': 3.6,
+    'Allen2022_fmri_surface.V4-rdm': 3.0,
+    'Allen2022_fmri_surface.V2-rdm': 2.9,
+    'Allen2022_fmri_surface.IT-rdm': 2.7,
+}
+
+# For temporal-PLS benchmarks (e.g. MajajHong2015public.{V4,IT}-temporal-pls)
+# the PLS regression is fit once per time-bin and the per-timebin intermediate
+# matrices are retained simultaneously, so peak memory grows by an additional
+# factor of ``num_timebins`` on top of the standard PLS overhead. A fixed
+# constant is wrong because benchmarks may have anywhere from 2 to dozens of
+# timebins; scale by the actual count probed at preflight time. Detection
+# uses ``num_timebins > 1`` rather than the ``-temporal-pls`` substring so
+# any PLS benchmark with multi-timebin output gets the correct estimate.
+
 
 @dataclass
 class MemoryEstimate:
@@ -91,6 +132,12 @@ class MemoryEstimate:
                          if self.fixed_benchmark_cost_gb else "")
             formula = (f"{self.activation_gb:.2f} GB activations "
                        f"×{_PLS_OVERHEAD_FACTOR} (PLS){fixed_str}")
+        elif self.formula_type == 'temporal_pls':
+            fixed_str = (f" + {self.fixed_benchmark_cost_gb:.2f} GB fixed cost"
+                         if self.fixed_benchmark_cost_gb else "")
+            formula = (f"{self.activation_gb:.2f} GB activations "
+                       f"×{_PLS_OVERHEAD_FACTOR} (PLS) ×{self.num_timebins} "
+                       f"(temporal-pls per-timebin retention){fixed_str}")
         elif self.formula_type == 'rdm':
             formula = (f"{self.activation_gb:.2f} GB activations "
                        f"×3 (RDM pairwise distance overhead → {self.total_estimated_gb:.1f} GB total)")
@@ -148,6 +195,30 @@ def save_calibration(costs: dict, path: Optional[str] = None) -> None:
     with open(path, 'w') as f:
         json.dump(costs, f, indent=2, sort_keys=True)
     _logger.info(f"Calibration saved → {path}  ({len(costs)} benchmarks)")
+
+
+def _emit_skipped_preflight(benchmark, reason: str) -> None:
+    """Emit a ``BRAINSCORE_PREFLIGHT`` sentinel for paths that don't compute
+    an estimate (env-skip, unsupported benchmark type).
+
+    Keeps the parser-side schema consistent — the orchestrator now sees a
+    sentinel for every preallocate_memory call, with ``estimate_gb=null`` and
+    ``formula_type='skipped'`` distinguishing "tried, no estimate" from
+    "container was too old to even attempt" (which leaves preflight_*
+    columns NULL in the DB).
+    """
+    payload = {
+        'estimate_gb': None,
+        'available_gb': None,
+        'formula_type': 'skipped',
+        'will_oom': False,
+        'num_features': None,
+        'num_stimuli': None,
+        'reason': reason,
+        'benchmark_identifier': str(getattr(benchmark, 'identifier', '')) or None,
+        'benchmark_type': type(benchmark).__name__,
+    }
+    print(f"BRAINSCORE_PREFLIGHT {json.dumps(payload)}", flush=True)
 
 
 def _is_pls_benchmark(benchmark) -> bool:
@@ -268,6 +339,7 @@ def preallocate_memory(
     """
     if os.environ.get('BRAINSCORE_SKIP_MEMORY_CHECK', '0') == '1':
         _logger.debug("BRAINSCORE_SKIP_MEMORY_CHECK is set — skipping memory pre-check.")
+        _emit_skipped_preflight(benchmark, reason='env_skip')
         return None
 
     # ------------------------------------------------------------------ #
@@ -307,6 +379,12 @@ def preallocate_memory(
         _logger.debug(
             f"preallocate_memory: unsupported benchmark type {type(benchmark).__name__}, skipping."
         )
+        # Still emit a sentinel so the resource-usage row records that
+        # preflight WAS attempted (formula_type=skipped, estimate=null).
+        # Without this, behavioral / engineering / wrapper benchmarks land
+        # in the DB with preflight_formula_type=NULL — indistinguishable
+        # from older container images where preflight wasn't wired up.
+        _emit_skipped_preflight(benchmark, reason='unsupported_benchmark_type')
         return None
 
     # ------------------------------------------------------------------ #
@@ -407,12 +485,36 @@ def preallocate_memory(
     if is_pls:
         total_estimated_gb = activation_gb * _PLS_OVERHEAD_FACTOR + (fixed_benchmark_cost_gb or 0.0)
         formula_type = 'pls'
+        # PLS fit once per timebin and intermediates retained → peak memory
+        # scales linearly with num_timebins on top of the standard PLS
+        # overhead. ``num_timebins == 1`` is a no-op multiplier so single-
+        # window PLS benchmarks (MajajHong2015.IT-pls etc.) are unchanged.
+        if num_timebins > 1:
+            total_estimated_gb *= num_timebins
+            formula_type = 'temporal_pls'
     elif is_rdm:
         # Overhead ≈ 2× activation_gb (scales with features, not n_stimuli²).
         # Validated across alexnet/resnet50/ViT on Allen2022_fmri.IT-rdm.
         rdm_overhead_gb = 2 * activation_gb
         total_estimated_gb = activation_gb + rdm_overhead_gb  # = 3 × activation_gb
         formula_type = 'rdm'
+    elif fixed_benchmark_cost_gb is not None and ridge_large_feature:
+        # Both predictors apply. Take the max — they measure complementary
+        # things and either one alone under-predicts in the regime the other
+        # was designed for. Calibrated captures benchmark/cache overhead
+        # (alexnet-measured); ×6 captures model-side SVD intermediates that
+        # scale with n_features. Without the max, deit_large × Zerbe2026
+        # OOM'd at 29 GB on a small tier even though calibrated predicted
+        # 19 GB, because the SVD V matrix is activation-sized and isn't in
+        # the alexnet-measured fixed_cost.
+        calibrated_total = activation_gb + fixed_benchmark_cost_gb
+        formula_total = activation_gb * _OVERHEAD_FACTOR
+        if calibrated_total >= formula_total:
+            total_estimated_gb = calibrated_total
+            formula_type = 'calibrated'
+        else:
+            total_estimated_gb = formula_total
+            formula_type = 'ridge_large_feature'
     elif fixed_benchmark_cost_gb is not None:
         # Calibrated value present — trust it over the ridge_large_feature
         # heuristic. The calibration script measured actual peak RSS on the
@@ -437,6 +539,12 @@ def preallocate_memory(
     else:
         total_estimated_gb = activation_gb * _OVERHEAD_FACTOR
         formula_type = 'fallback'
+
+    # Empirical per-benchmark scaffolding the formula misses (see table above).
+    bench_id = str(getattr(benchmark, 'identifier', '') or '')
+    overhead_gb = _BENCHMARK_SCAFFOLDING_OVERHEAD_GB.get(bench_id, 0.0)
+    if overhead_gb > 0:
+        total_estimated_gb += overhead_gb
 
     available_gb = psutil.virtual_memory().available / (1024 ** 3)
 
@@ -474,6 +582,11 @@ def preallocate_memory(
             f"Actual usage can vary significantly depending on model feature count and convergence.",
             flush=True,
         )
+    elif formula_type == 'temporal_pls':
+        fixed_str = (f"  +  {estimate.fixed_benchmark_cost_gb:.3f} GB fixed cost"
+                     if estimate.fixed_benchmark_cost_gb is not None else "")
+        print(f"  ×{_PLS_OVERHEAD_FACTOR} (PLS){fixed_str}  ×{num_timebins} (timebins)  "
+              f"=  {estimate.total_estimated_gb:.3f} GB total", flush=True)
     elif formula_type == 'ridge_large_feature':
         print(f"  ×{_OVERHEAD_FACTOR} (ridge SVD: n_features={num_features:,} > n_stimuli={num_stimuli:,})"
               f"  =  {estimate.total_estimated_gb:.3f} GB total", flush=True)

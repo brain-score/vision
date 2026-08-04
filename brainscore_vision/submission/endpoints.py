@@ -41,6 +41,16 @@ def send_email_to_submitter(uid: int, domain: str, pr_number: str,
                                  mail_username=mail_username, mail_password=mail_password)
 
 
+# NOTE: ``call_jenkins_vision_gated`` used to live here, but importing this
+# module instantiates ``RunScoringEndpoint`` at line 23, which connects to
+# the production DB and therefore requires AWS credentials. The GitHub
+# Actions runner that triggers the post-merge Jenkins build has no AWS
+# access (by design), so the trigger function was moved to
+# ``brainscore_vision.submission.jenkins`` where it can be imported by
+# CI without dragging in any DB side effects. Update workflow imports
+# to ``from brainscore_vision.submission.jenkins import call_jenkins_vision_gated``.
+
+
 if __name__ == '__main__':
     # Wire up resource-usage tracking ONLY in the scoring-container entrypoint.
     # Keeping this out of brainscore_vision/__init__.py so regular imports

@@ -736,3 +736,82 @@ class TestBenchmarkScaffoldingOverhead(unittest.TestCase):
     def test_production_table_does_not_include_papale_v4_ridgecv(self):
         from brainscore_vision.benchmark_helpers.memory import _BENCHMARK_SCAFFOLDING_OVERHEAD_GB
         self.assertNotIn('Papale2025.V4-ridgecv', _BENCHMARK_SCAFFOLDING_OVERHEAD_GB)
+
+
+class TestAvailableMemoryIsContainerAware(unittest.TestCase):
+    """``available_gb`` must reflect this container's cgroup headroom, not the
+    host's free memory.
+
+    Regression: the Li2026 backfill (2026-08-04) had jobs report "2.2 GB
+    needed / 29.0 GB available" and then get OOM-killed at a 29.3 GB ceiling
+    the container had already nearly filled. psutil reads the host, so the
+    "available" half of the comparison never saw the container at all.
+    _BENCHMARK_SCAFFOLDING_OVERHEAD_GB corrects the estimate half; this
+    corrects the available half.
+    """
+
+    def _patch_cgroup(self, values):
+        """Patch _read_int to serve a fake cgroup filesystem."""
+        from brainscore_vision.benchmark_helpers import memory as mem
+        return patch.object(mem, '_read_int', side_effect=lambda p: values.get(p))
+
+    def test_prefers_cgroup_headroom_over_host_free_memory(self):
+        from brainscore_vision.benchmark_helpers import memory as mem
+        gib = 1024 ** 3
+        values = {
+            mem._CGROUP_V2_LIMIT: int(29.297 * gib),
+            mem._CGROUP_V2_CURRENT: int(27.0 * gib),   # container nearly full
+        }
+        host = MagicMock(available=int(28.8 * gib))    # host says plenty free
+        with self._patch_cgroup(values), \
+             patch.object(mem.psutil, 'virtual_memory', return_value=host):
+            available = mem.available_memory_gb()
+        self.assertAlmostEqual(available, 2.297, places=2)
+
+    def test_falls_back_to_host_when_not_in_a_cgroup(self):
+        from brainscore_vision.benchmark_helpers import memory as mem
+        gib = 1024 ** 3
+        host = MagicMock(available=int(12.0 * gib))
+        with self._patch_cgroup({}), \
+             patch.object(mem.psutil, 'virtual_memory', return_value=host):
+            self.assertAlmostEqual(mem.available_memory_gb(), 12.0, places=2)
+
+    def test_ignores_the_unlimited_cgroup_sentinel(self):
+        """cgroup v1 reports 'no limit' as a near-2^63 value; using it would
+        claim billions of GB are available."""
+        from brainscore_vision.benchmark_helpers import memory as mem
+        gib = 1024 ** 3
+        values = {
+            mem._CGROUP_V1_LIMIT: 2 ** 63 - 4096,
+            mem._CGROUP_V1_CURRENT: int(1.0 * gib),
+        }
+        host = MagicMock(available=int(7.0 * gib))
+        with self._patch_cgroup(values), \
+             patch.object(mem.psutil, 'virtual_memory', return_value=host):
+            self.assertAlmostEqual(mem.available_memory_gb(), 7.0, places=2)
+
+    def test_never_promises_more_than_the_host_has(self):
+        from brainscore_vision.benchmark_helpers import memory as mem
+        gib = 1024 ** 3
+        values = {
+            mem._CGROUP_V2_LIMIT: int(64.0 * gib),   # generous cgroup limit
+            mem._CGROUP_V2_CURRENT: int(1.0 * gib),
+        }
+        host = MagicMock(available=int(3.0 * gib))   # but the host is full
+        with self._patch_cgroup(values), \
+             patch.object(mem.psutil, 'virtual_memory', return_value=host):
+            self.assertAlmostEqual(mem.available_memory_gb(), 3.0, places=2)
+
+    def test_preallocate_memory_uses_the_container_view(self):
+        """End to end: a container with almost no headroom left must refuse a
+        job that psutil's host-level view would have waved through."""
+        from brainscore_vision.benchmark_helpers import memory as mem
+        gib = 1024 ** 3
+        values = {
+            mem._CGROUP_V2_LIMIT: int(29.297 * gib),
+            mem._CGROUP_V2_CURRENT: int(28.0 * gib),
+        }
+        host = MagicMock(available=int(28.8 * gib))
+        with self._patch_cgroup(values), \
+             patch.object(mem.psutil, 'virtual_memory', return_value=host):
+            self.assertLess(mem.available_memory_gb(), 1.5)

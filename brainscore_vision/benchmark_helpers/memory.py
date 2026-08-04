@@ -104,6 +104,60 @@ _BENCHMARK_SCAFFOLDING_OVERHEAD_GB: dict[str, float] = {
 # uses ``num_timebins > 1`` rather than the ``-temporal-pls`` substring so
 # any PLS benchmark with multi-timebin output gets the correct estimate.
 
+# cgroup memory accounting. v2 exposes a limit that may be the literal string
+# "max" (unlimited); v1 uses a huge sentinel value for the same thing.
+_CGROUP_V2_LIMIT = '/sys/fs/cgroup/memory.max'
+_CGROUP_V2_CURRENT = '/sys/fs/cgroup/memory.current'
+_CGROUP_V1_LIMIT = '/sys/fs/cgroup/memory/memory.limit_in_bytes'
+_CGROUP_V1_CURRENT = '/sys/fs/cgroup/memory/memory.usage_in_bytes'
+
+
+def _read_int(path: str) -> Optional[int]:
+    try:
+        with open(path) as f:
+            return int(f.read().strip())
+    except (FileNotFoundError, PermissionError, ValueError, IsADirectoryError):
+        return None
+
+
+def _cgroup_available_gb() -> Optional[float]:
+    """Headroom left inside this container's memory cgroup, in GB.
+
+    Returns None when not running under a memory-limited cgroup.
+    """
+    for limit_path, current_path in ((_CGROUP_V2_LIMIT, _CGROUP_V2_CURRENT),
+                                     (_CGROUP_V1_LIMIT, _CGROUP_V1_CURRENT)):
+        limit = _read_int(limit_path)          # "max" fails the int() → None
+        current = _read_int(current_path)
+        if limit is None or current is None:
+            continue
+        # v1 reports an unlimited cgroup as a near-2^63 sentinel.
+        if limit >= 2 ** 62:
+            continue
+        return max(0.0, (limit - current) / (1024 ** 3))
+    return None
+
+
+def available_memory_gb() -> float:
+    """Memory this process can still allocate before it gets killed, in GB.
+
+    ``psutil.virtual_memory().available`` reads the host's ``/proc/meminfo``.
+    Inside a memory-limited container that reports the whole machine and
+    ignores both the cgroup ceiling and everything this container already
+    holds — which is how a job can be told it has 29 GB free moments before
+    the kernel kills it at a 29 GB ceiling it had nearly exhausted. Prefer the
+    cgroup's own limit-minus-current, and take the smaller of the two so we
+    never promise more than either source allows.
+
+    This is the "available" half of the pre-flight comparison; the estimate
+    half is corrected per benchmark by _BENCHMARK_SCAFFOLDING_OVERHEAD_GB.
+    """
+    host_available_gb = psutil.virtual_memory().available / (1024 ** 3)
+    cgroup_available_gb = _cgroup_available_gb()
+    if cgroup_available_gb is None:
+        return host_available_gb
+    return min(host_available_gb, cgroup_available_gb)
+
 
 @dataclass
 class MemoryEstimate:
@@ -546,7 +600,7 @@ def preallocate_memory(
     if overhead_gb > 0:
         total_estimated_gb += overhead_gb
 
-    available_gb = psutil.virtual_memory().available / (1024 ** 3)
+    available_gb = available_memory_gb()
 
     estimate = MemoryEstimate(
         num_stimuli=num_stimuli,

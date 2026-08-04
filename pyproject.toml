@@ -45,7 +45,7 @@ test = [
 ]
 
 competition-models = [
-    "transformers>=4.57,<4.58",
+    "transformers>=4.57,<6",
     "albumentations>=2.0",
     "timm>=1.0",
     # cornet is only on GitHub; PyPI policy forbids direct URL deps in

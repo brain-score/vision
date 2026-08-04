@@ -188,6 +188,14 @@ class DualRidgeCVRegression:
     form for prediction to avoid storing the (n_features, n_targets) coef_ matrix.
     Falls back to sklearn RidgeCV when n_samples >= n_features.
 
+    Alpha is selected on a gram-equivalent surrogate design rather than on ``X``
+    itself. Ridge depends on ``X`` only through ``X_c X_c^T``, so fitting RidgeCV on
+    any ``Z`` with the same gram matrix yields the identical alpha; taking ``Z`` as
+    ``(n_samples, n_samples)`` keeps RidgeCV's ``coef_`` at ``(n_targets, n_samples)``
+    instead of the ``(n_features, n_targets)`` matrix this class exists to avoid.
+    Fitting RidgeCV on ``X`` directly would materialise that matrix and leave peak
+    memory unchanged, defeating the point of the dual form.
+
     Exposes ``alpha_`` after fit (selected regularization strength).
     """
 
@@ -196,6 +204,14 @@ class DualRidgeCVRegression:
         self.chunk_size = chunk_size
         self._ridgecv_kwargs = ridgecv_kwargs
         self.alpha_ = None
+
+    def _select_alpha(self, X, Y) -> float:
+        X_centered = X - X.mean(axis=0)
+        eigenvalues, eigenvectors = np.linalg.eigh(X_centered @ X_centered.T)
+        gram_basis = eigenvectors * np.sqrt(np.maximum(eigenvalues, 0))  # gram_basis @ gram_basis.T == X_c @ X_c.T
+        regression = RidgeCV(alphas=self.alphas, **self._ridgecv_kwargs)
+        regression.fit(gram_basis, Y)
+        return float(regression.alpha_)
 
     def fit(self, X, Y) -> None:
         X = np.asarray(X, dtype=np.float64)
@@ -210,12 +226,8 @@ class DualRidgeCVRegression:
             return
 
         self._use_dual = True
-        rcv = RidgeCV(alphas=self.alphas, **self._ridgecv_kwargs)
-        rcv.fit(X, Y)
-        self.alpha_ = rcv.alpha_
-        del rcv
-
-        self._dual = DualRidgeRegression(alpha=float(self.alpha_), chunk_size=self.chunk_size)
+        self.alpha_ = self._select_alpha(X, Y)
+        self._dual = DualRidgeRegression(alpha=self.alpha_, chunk_size=self.chunk_size)
         self._dual.fit(X, Y)
 
     def predict(self, X) -> np.ndarray:

@@ -1,6 +1,6 @@
 {
   "Allen2022_fmri.IT-rdm": 0.8179,
-  "Allen2022_fmri.IT-ridge": 0.5137,
+  "Allen2022_fmri.IT-ridge": 3.25,
   "Allen2022_fmri.V1-rdm": 0.2364,
   "Allen2022_fmri.V1-ridge": 0.5421,
   "Allen2022_fmri.V2-rdm": 0.6598,
@@ -46,8 +46,9 @@
   "Hebart2023_fmri.V2-ridge": 15.5489,
   "Hebart2023_fmri.V2-ridgecv": 12.3806,
   "Hebart2023_fmri.V4-ridge": 6.91,
-  "Hebart2023_fmri.V4-ridgecv": 12.411,
+  "Hebart2023_fmri.V4-ridgecv": 70.1,
   "Igustibagus2024-ridge": 3.7631,
+  "Li2026.IT-ridgecv": 9.7,
   "MajajHong2015.IT-pls": 2.8108,
   "MajajHong2015.V4-pls": 3.9745,
   "MajajHong2015public.IT-pls": 3.3053,

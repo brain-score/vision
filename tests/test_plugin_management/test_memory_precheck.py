@@ -27,9 +27,6 @@ from brainscore_vision.benchmark_helpers.memory import (
     _PLS_OVERHEAD_FACTOR,
     _BYTES_PER_ELEMENT,
     _DEFAULT_CALIBRATION_PATH,
-    _COEFFICIENT_BYTES_PER_ELEMENT,
-    _builds_coefficient_matrix,
-    _coefficient_matrix_gb,
     preallocate_memory,
     load_calibration,
     save_calibration,
@@ -739,84 +736,3 @@ class TestBenchmarkScaffoldingOverhead(unittest.TestCase):
     def test_production_table_does_not_include_papale_v4_ridgecv(self):
         from brainscore_vision.benchmark_helpers.memory import _BENCHMARK_SCAFFOLDING_OVERHEAD_GB
         self.assertNotIn('Papale2025.V4-ridgecv', _BENCHMARK_SCAFFOLDING_OVERHEAD_GB)
-
-
-# ---------------------------------------------------------------------------
-# TestCoefficientMatrixTerm
-# ---------------------------------------------------------------------------
-
-class _SizedAssembly:
-    """Assembly stub exposing both a stimulus_set and a real neuroid count."""
-
-    def __init__(self, n_neuroids, stimulus_set):
-        self.sizes = {'neuroid': n_neuroids}
-        self.stimulus_set = stimulus_set
-
-
-class TestCoefficientMatrixTerm(unittest.TestCase):
-    """sklearn ridge keeps an (n_targets, n_features) coefficient matrix. It scales
-    with neuroid count, so neither the activation-sized formulas nor a
-    model-independent calibrated cost can represent it."""
-
-    N_STIMULI = 10
-    N_TARGETS = 4000
-
-    def _benchmark(self, regression, identifier='test-benchmark-ridgecv'):
-        from brainscore_vision.metrics.regression_correlation.metric import (
-            CrossRegressedCorrelation, pearsonr_correlation,
-        )
-        bm = _make_neural_benchmark(n_stimuli=self.N_STIMULI)
-        bm._identifier = identifier
-        bm._assembly = _SizedAssembly(self.N_TARGETS, _make_stimulus_set(self.N_STIMULI))
-        bm._similarity_metric = CrossRegressedCorrelation(
-            regression=regression, correlation=pearsonr_correlation())
-        return bm
-
-    def test_matches_sklearn_coefficient_nbytes(self):
-        """The formula must match what sklearn actually allocates, dtype included."""
-        from sklearn.linear_model import RidgeCV
-        from brainscore_vision.metrics.regression_correlation.metric import ridge_cv_regression
-        n_samples, n_features, n_targets = 30, 60, 25
-        rng = np.random.RandomState(0)
-        X = rng.randn(n_samples, n_features)
-        fitted = RidgeCV(alphas=[0.1, 1.0])
-        fitted.fit(X, X @ rng.randn(n_features, n_targets))
-        self.assertEqual(fitted.coef_.shape, (n_targets, n_features))
-
-        bm = self._benchmark(ridge_cv_regression())
-        bm._assembly = _SizedAssembly(n_targets, _make_stimulus_set(self.N_STIMULI))
-        self.assertAlmostEqual(_coefficient_matrix_gb(bm, n_features),
-                               fitted.coef_.nbytes / (1024 ** 3), places=12)
-
-    def test_dual_form_has_no_coefficient_matrix(self):
-        from brainscore_vision.metrics.regression_correlation.metric import dual_ridge_cv_regression
-        bm = self._benchmark(dual_ridge_cv_regression())
-        self.assertFalse(_builds_coefficient_matrix(bm))
-        self.assertEqual(_coefficient_matrix_gb(bm, 100_000), 0.0)
-
-    def test_unidentifiable_regression_stays_conservative(self):
-        bm = _make_neural_benchmark(n_stimuli=self.N_STIMULI)
-        self.assertTrue(_builds_coefficient_matrix(bm))
-
-    def test_estimate_includes_coefficient_term(self):
-        """Plain ridge: the estimate must account for the coefficient matrix."""
-        from brainscore_vision.metrics.regression_correlation.metric import ridge_cv_regression
-        n_features = 2048
-        bm = self._benchmark(ridge_cv_regression())
-        estimate = preallocate_memory(_make_model(num_features=n_features), bm,
-                                      raise_if_oom=False)
-        expected = self.N_TARGETS * n_features * _COEFFICIENT_BYTES_PER_ELEMENT / (1024 ** 3)
-        self.assertEqual(estimate.num_targets, self.N_TARGETS)
-        self.assertAlmostEqual(estimate.coefficient_gb, expected, places=12)
-        self.assertAlmostEqual(
-            estimate.total_estimated_gb,
-            estimate.activation_gb * _OVERHEAD_FACTOR + expected, places=12)
-
-    def test_dual_estimate_omits_coefficient_term(self):
-        """Dual form: term absent, so the estimate is the pre-existing formula."""
-        from brainscore_vision.metrics.regression_correlation.metric import dual_ridge_cv_regression
-        bm = self._benchmark(dual_ridge_cv_regression())
-        estimate = preallocate_memory(_make_model(num_features=2048), bm, raise_if_oom=False)
-        self.assertEqual(estimate.coefficient_gb, 0.0)
-        self.assertAlmostEqual(estimate.total_estimated_gb,
-                               estimate.activation_gb * _OVERHEAD_FACTOR, places=12)

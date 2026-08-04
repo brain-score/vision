@@ -19,6 +19,7 @@ from transformers import CLIPModel, CLIPProcessor
 from brainscore.model_helpers.text_wrapper import TextWrapper
 from brainscore_core.model_interface import BrainScoreModel
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
+from brainscore_core.hf_compat import pin_image_processor
 
 
 REGION_LAYER_MAP = {
@@ -48,7 +49,10 @@ def _load_preprocess_images(image_filepaths, processor, image_size=224):
 def get_model(identifier: str) -> BrainScoreModel:
     assert identifier == 'clip-vit-b-32'
 
+# Pin the image-processor implementation: transformers 5 rebinds the class
+    # names, moving the default from PIL to torchvision and shifting pixels.
     clip_processor = CLIPProcessor.from_pretrained('openai/clip-vit-base-patch32')
+    clip_processor = pin_image_processor(clip_processor, 'openai/clip-vit-base-patch32')
     clip_model = CLIPModel.from_pretrained('openai/clip-vit-base-patch32')
 
     preprocessing = functools.partial(

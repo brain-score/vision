@@ -5,6 +5,7 @@ import torch
 from transformers import AutoFeatureExtractor, CvtForImageClassification, CLIPVisionModel, CLIPProcessor, CLIPModel
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from PIL import Image
+from brainscore_core.hf_compat import pin_image_processor
 
 
 """
@@ -34,7 +35,10 @@ def get_model(name):
     assert name == 'model-lecs-v1.0.1'
     # https://huggingface.co/models?sort=downloads&search=cvt
     image_size = 224
+# Pin the image-processor implementation: transformers 5 rebinds the class
+    # names, moving the default from PIL to torchvision and shifting pixels.
     processor = CLIPProcessor.from_pretrained('openai/clip-vit-base-patch32')
+    processor = pin_image_processor(processor, 'openai/clip-vit-base-patch32')
     model = CLIPVisionModel.from_pretrained('openai/clip-vit-base-patch32')
     preprocessing = functools.partial(load_preprocess_images, processor=processor, image_size=image_size)
     wrapper = PytorchWrapperFixed(identifier=name, model=model, preprocessing=preprocessing)

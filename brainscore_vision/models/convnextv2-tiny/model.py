@@ -16,7 +16,7 @@ def get_model(name):
     assert name == 'convnextv2-tiny'
     # https://huggingface.co/models?sort=downloads&search=cvt
     image_size = 224
-    processor = AutoImageProcessor.from_pretrained("facebook/convnextv2-tiny-22k-224")
+    processor = AutoImageProcessor.from_pretrained("facebook/convnextv2-tiny-22k-224", use_fast=False)
     model = ConvNextV2ForImageClassification.from_pretrained("facebook/convnextv2-tiny-22k-224")
     print(model)
     preprocessing = functools.partial(load_preprocess_images, processor=processor, image_size=image_size)

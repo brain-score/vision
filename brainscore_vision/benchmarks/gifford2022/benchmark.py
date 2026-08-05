@@ -57,7 +57,7 @@ def _Gifford2022(region,
 							  bibtex=BIBTEX)    
 
 def Gifford2022(region, metric_type, alphas=REDUCED_ALPHA_LIST):
-    similarity_metric = load_metric(f'{metric_type}_split', alphas=alphas)
+    similarity_metric = load_metric(f'dual_{metric_type}_split', alphas=alphas)
     return _Gifford2022(region, similarity_metric=similarity_metric, identifier_metric_suffix=metric_type,
 					   alpha_coord='subject', per_voxel_ceilings=False)
 

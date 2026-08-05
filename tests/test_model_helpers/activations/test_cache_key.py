@@ -24,18 +24,51 @@ def _clear_revision_cache():
     cache_key._plugin_revision.cache_clear()
 
 
+@pytest.fixture
+def revisioning_on(monkeypatch):
+    """Revisioning is opt-in; most tests here are about what it does when on."""
+    monkeypatch.setenv('BRAINSCORE_CACHE_PLUGIN_REVISION', '1')
+
+
+class TestDisabledByDefault:
+    """result_caching is enabled by default (RESULTCACHING_DISABLE defaults to
+    '0'), so developers have warm local caches keyed on bare identifiers.
+    Revisioning must not silently invalidate them."""
+
+    def test_off_by_default(self, monkeypatch):
+        monkeypatch.delenv('BRAINSCORE_CACHE_PLUGIN_REVISION', raising=False)
+        monkeypatch.setenv('BRAINSCORE_MODEL_PLUGIN_SHA', 'a' * 40)
+        assert model_cache_identifier('alexnet') == 'alexnet', \
+            "keys must be byte-for-byte unchanged unless revisioning is opted into"
+        assert stimulus_set_cache_identifier('Papale2025') == 'Papale2025'
+
+    def test_off_does_not_even_look_up_the_plugin(self, monkeypatch):
+        monkeypatch.delenv('BRAINSCORE_CACHE_PLUGIN_REVISION', raising=False)
+        with mock.patch.object(cache_key, '_locate_plugin_dir') as locate:
+            model_cache_identifier('alexnet')
+            locate.assert_not_called()
+
+    @pytest.mark.parametrize('value,expected_on', [
+        ('1', True), ('true', True), ('TRUE', True), ('yes', True),
+        ('0', False), ('false', False), ('', False), ('no', False),
+    ])
+    def test_flag_parsing(self, monkeypatch, value, expected_on):
+        monkeypatch.setenv('BRAINSCORE_CACHE_PLUGIN_REVISION', value)
+        assert cache_key.revision_enabled() is expected_on
+
+
 class TestEnvironmentOverride:
-    def test_env_var_wins_without_touching_git(self, monkeypatch):
+    def test_env_var_wins_without_touching_git(self, revisioning_on, monkeypatch):
         monkeypatch.setenv('BRAINSCORE_MODEL_PLUGIN_SHA', 'a' * 40)
         with mock.patch.object(cache_key, '_locate_plugin_dir') as locate:
             assert model_cache_identifier('alexnet') == 'alexnet@' + 'a' * 12
             locate.assert_not_called(), "env var should short-circuit plugin lookup"
 
-    def test_data_plugin_uses_its_own_env_var(self, monkeypatch):
+    def test_data_plugin_uses_its_own_env_var(self, revisioning_on, monkeypatch):
         monkeypatch.setenv('BRAINSCORE_DATA_PLUGIN_SHA', 'b' * 40)
         assert stimulus_set_cache_identifier('Papale2025') == 'Papale2025@' + 'b' * 12
 
-    def test_model_env_var_does_not_leak_into_stimuli(self, monkeypatch):
+    def test_model_env_var_does_not_leak_into_stimuli(self, revisioning_on, monkeypatch):
         """A shared env var would make every stimulus set key on the model."""
         monkeypatch.setenv('BRAINSCORE_MODEL_PLUGIN_SHA', 'a' * 40)
         monkeypatch.delenv('BRAINSCORE_DATA_PLUGIN_SHA', raising=False)
@@ -46,19 +79,19 @@ class TestEnvironmentOverride:
 class TestDegradesInsteadOfFailing:
     """None of these may raise, and none may invent a revision."""
 
-    def test_unresolvable_plugin_returns_bare_identifier(self, monkeypatch):
+    def test_unresolvable_plugin_returns_bare_identifier(self, revisioning_on, monkeypatch):
         monkeypatch.delenv('BRAINSCORE_MODEL_PLUGIN_SHA', raising=False)
         with mock.patch.object(cache_key, '_locate_plugin_dir', return_value=None):
             assert model_cache_identifier('nonexistent_model') == 'nonexistent_model'
 
-    def test_locate_plugin_raising_is_swallowed(self, monkeypatch):
+    def test_locate_plugin_raising_is_swallowed(self, revisioning_on, monkeypatch):
         monkeypatch.delenv('BRAINSCORE_MODEL_PLUGIN_SHA', raising=False)
         from brainscore_core.plugin_management import import_plugin
         with mock.patch.object(import_plugin.ImportPlugin, 'locate_plugin',
                                side_effect=AssertionError("No registrations found")):
             assert model_cache_identifier('alexnet') == 'alexnet'
 
-    def test_git_failure_falls_through_to_content_hash(self, tmp_path, monkeypatch):
+    def test_git_failure_falls_through_to_content_hash(self, revisioning_on, tmp_path, monkeypatch):
         monkeypatch.delenv('BRAINSCORE_MODEL_PLUGIN_SHA', raising=False)
         (tmp_path / 'model.py').write_text('weights = "v1"')
         with mock.patch.object(cache_key, '_locate_plugin_dir', return_value=tmp_path), \
@@ -66,14 +99,14 @@ class TestDegradesInsteadOfFailing:
             result = model_cache_identifier('alexnet')
         assert result.startswith('alexnet@') and len(result) == len('alexnet@') + 12
 
-    def test_everything_failing_still_returns_identifier(self, tmp_path, monkeypatch):
+    def test_everything_failing_still_returns_identifier(self, revisioning_on, tmp_path, monkeypatch):
         monkeypatch.delenv('BRAINSCORE_MODEL_PLUGIN_SHA', raising=False)
         with mock.patch.object(cache_key, '_locate_plugin_dir', return_value=tmp_path), \
              mock.patch.object(cache_key, '_git_revision', return_value=None), \
              mock.patch.object(cache_key, '_content_revision', return_value=None):
             assert model_cache_identifier('alexnet') == 'alexnet'
 
-    def test_falsy_identifier_passes_through(self):
+    def test_falsy_identifier_passes_through(self, revisioning_on):
         """`stimuli_identifier=False` is how callers disable storing."""
         assert stimulus_set_cache_identifier(False) is False
         assert stimulus_set_cache_identifier(None) is None
@@ -142,7 +175,7 @@ class TestContentRevisionTracksContent:
 class TestKeyActuallyChangesTheStoredIdentifier:
     """The point of the change: two revisions must not share a cache key."""
 
-    def test_two_revisions_produce_different_keys(self, tmp_path, monkeypatch):
+    def test_two_revisions_produce_different_keys(self, revisioning_on, tmp_path, monkeypatch):
         monkeypatch.delenv('BRAINSCORE_MODEL_PLUGIN_SHA', raising=False)
         (tmp_path / 'model.py').write_text('weights = "v1"')
         with mock.patch.object(cache_key, '_locate_plugin_dir', return_value=tmp_path), \
@@ -160,7 +193,7 @@ class TestLogNoise:
     must not emit a line per call, and the routine stimulus-set case must not
     emit a warning at all."""
 
-    def test_unresolved_model_warns_once_not_per_call(self, monkeypatch, caplog):
+    def test_unresolved_model_warns_once_not_per_call(self, revisioning_on, monkeypatch, caplog):
         monkeypatch.delenv('BRAINSCORE_MODEL_PLUGIN_SHA', raising=False)
         with mock.patch.object(cache_key, '_locate_plugin_dir', return_value=None):
             with caplog.at_level('WARNING'):
@@ -169,7 +202,7 @@ class TestLogNoise:
         warnings = [r for r in caplog.records if r.levelname == 'WARNING']
         assert len(warnings) == 1, f"expected one warning, got {len(warnings)}"
 
-    def test_unresolved_stimulus_set_does_not_warn(self, monkeypatch, caplog):
+    def test_unresolved_stimulus_set_does_not_warn(self, revisioning_on, monkeypatch, caplog):
         monkeypatch.delenv('BRAINSCORE_DATA_PLUGIN_SHA', raising=False)
         with mock.patch.object(cache_key, '_locate_plugin_dir', return_value=None):
             with caplog.at_level('WARNING'):
@@ -199,7 +232,7 @@ class TestExtractorIntegration:
         extractor._expand_paths = lambda a, original_paths: a
         return extractor
 
-    def test_enriched_identifiers_are_passed_to_the_stored_call(self, monkeypatch):
+    def test_enriched_identifiers_are_passed_to_the_stored_call(self, revisioning_on, monkeypatch):
         monkeypatch.setenv('BRAINSCORE_MODEL_PLUGIN_SHA', 'a' * 40)
         monkeypatch.setenv('BRAINSCORE_DATA_PLUGIN_SHA', 'b' * 40)
         extractor = self._stub_extractor()
@@ -210,7 +243,7 @@ class TestExtractorIntegration:
         assert kwargs['identifier'] == 'alexnet@' + 'a' * 12
         assert kwargs['stimuli_identifier'] == 'Papale2025@' + 'b' * 12
 
-    def test_model_identifier_attribute_is_not_mutated(self, monkeypatch):
+    def test_model_identifier_attribute_is_not_mutated(self, revisioning_on, monkeypatch):
         """Only the cache key carries the revision; self.identifier is used
         elsewhere (assembly metadata, logging) and must stay clean."""
         monkeypatch.setenv('BRAINSCORE_MODEL_PLUGIN_SHA', 'a' * 40)
@@ -219,7 +252,7 @@ class TestExtractorIntegration:
                              stimuli_identifier='Papale2025')
         assert extractor.identifier == 'alexnet'
 
-    def test_unstored_path_is_untouched(self):
+    def test_unstored_path_is_untouched(self, revisioning_on):
         """No stimuli_identifier -> no storing -> cache_key never involved."""
         extractor = self._stub_extractor()
         result = extractor.from_paths(stimuli_paths=['x.png'], layers=['fc'],

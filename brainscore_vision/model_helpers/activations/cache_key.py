@@ -14,6 +14,24 @@ entirely normal. Appending a short revision string means a plugin revision
 lands under a *different* key rather than silently overwriting the meaning of
 the old one.
 
+Off by default — see :func:`revision_enabled`
+-----------------------------------------------
+``result_caching`` is enabled by default (``RESULTCACHING_DISABLE`` defaults to
+``'0'``), so developers already have warm local caches keyed on the bare
+identifiers. Revisioning unconditionally would turn every one of those cold,
+and would keep re-invalidating them on each commit that touches the plugin.
+
+Worse for local use, ``git log -1 -- <dir>`` reports the last *commit* touching
+the directory, so uncommitted working-tree edits resolve to the same revision:
+locally the revision is simultaneously too eager (churns on commit) and not
+eager enough (blind to the edit you are actually testing).
+
+So this is opt-in via ``BRAINSCORE_CACHE_PLUGIN_REVISION=1``. Production enables
+it together with the shared S3 backend, where the checkout is clean and the
+cache is long-lived and shared — the setting in which a stale hit actually
+matters. With it unset, keys are byte-for-byte what they were before this
+module existed.
+
 Resolution order, per plugin:
 
 1. ``BRAINSCORE_<TYPE>_PLUGIN_SHA`` environment variable. The scoring
@@ -45,8 +63,21 @@ _logger = logging.getLogger(__name__)
 _REVISION_CHARS = 12
 
 # Files whose contents cannot change what a model computes.
-_IGNORED_SUFFIXES = ('.pyc', '.pyo', '.md', '.txt.orig')
+_IGNORED_SUFFIXES = ('.pyc', '.pyo', '.md')
 _IGNORED_DIRS = ('__pycache__', '.git', '.pytest_cache')
+
+# Opt-in switch. Unset => keys are exactly what they were before this module.
+_ENABLE_VAR = 'BRAINSCORE_CACHE_PLUGIN_REVISION'
+
+
+def revision_enabled() -> bool:
+    """True if cache keys should carry plugin revisions.
+
+    Deliberately opt-in; see the module docstring. Any consumer that shares a
+    cache across machines or across plugin revisions (i.e. the production S3
+    backend) must enable this, and should refuse to start without it.
+    """
+    return os.environ.get(_ENABLE_VAR, '0').strip().lower() in ('1', 'true', 'yes')
 
 
 def model_cache_identifier(identifier: str) -> str:
@@ -68,6 +99,8 @@ def stimulus_set_cache_identifier(stimuli_identifier: str) -> str:
 
 
 def _with_revision(identifier, plugin_type: str, env_var: str, unresolved_is_notable: bool):
+    if not revision_enabled():
+        return identifier
     if not identifier or not isinstance(identifier, str):
         # `stimuli_identifier` is False when the caller disables storing.
         return identifier
@@ -108,10 +141,21 @@ def _plugin_revision(plugin_type: str, identifier: str, env_var: str,
 
 def _locate_plugin_dir(plugin_type: str, identifier: str) -> Optional[Path]:
     try:
+        from brainscore_core.plugin_management import import_plugin as _import_plugin
         from brainscore_core.plugin_management.import_plugin import ImportPlugin
         importer = ImportPlugin(library_root='brainscore_vision', plugin_type=plugin_type,
                                 identifier=identifier)
-        dirname = importer.locate_plugin()
+        # locate_plugin scans every plugin directory and warns about each one
+        # missing an __init__.py. Those are pre-existing repo issues, not
+        # anything this lookup can act on, and they would appear in every
+        # container log. Silence them for the duration of the scan only.
+        resolver_logger = logging.getLogger(_import_plugin.__name__)
+        previous_level = resolver_logger.level
+        resolver_logger.setLevel(logging.ERROR)
+        try:
+            dirname = importer.locate_plugin()
+        finally:
+            resolver_logger.setLevel(previous_level)
         plugin_dir = Path(importer.plugins_dir) / dirname
         return plugin_dir if plugin_dir.is_dir() else None
     except Exception:

@@ -879,3 +879,73 @@ class TestProbeLayerUsesBenchmarkRegion(unittest.TestCase):
         del inner._layer_model
         model.layer_model = inner
         self.assertEqual(_get_probe_layer(model, 'V1'), 'features.2')
+
+
+class TestFixedCostReachesEveryFormula(unittest.TestCase):
+    """A measured fixed cost must survive whichever formula branch is chosen.
+
+    The rdm branch used to compute ``activation + 2*activation`` and return,
+    silently discarding ``fixed_benchmark_cost_gb``. It is the only branch that
+    can be reached with a non-None fixed cost without adding it, so every
+    ``*-rdm*`` key in benchmark_costs.json -- 19 of the 88 entries, 0.4-2.0 GB
+    each -- was measured, shipped, loaded, and then dropped on the floor.
+
+    Written as a property over identifier shapes rather than a single rdm
+    assertion: the branch order is subtle enough that the next formula added
+    could reintroduce this, and only the shapes below select a branch that is
+    reachable with a non-None fixed cost.
+    """
+
+    # identifier -> the formula branch it selects
+    SHAPES = {
+        'test.IT-pls': 'pls',
+        'test.IT-reverse_pls': 'pls',
+        'test.IT-rdm': 'rdm',
+        'test.IT-rdm-pearson': 'rdm',
+        'test.IT-ridgecv': 'calibrated',
+        'test.IT-ridge': 'calibrated',
+    }
+    FIXED_GB = 5.0
+
+    def _estimate(self, identifier, fixed_cost):
+        bm = _make_neural_benchmark(n_stimuli=10)
+        bm._identifier = identifier
+        model = _make_model(num_features=512)
+        with patch('psutil.virtual_memory') as mock_vm:
+            mock_vm.return_value.available = 512 * (1024 ** 3)
+            return preallocate_memory(model, bm, raise_if_oom=False,
+                                      fixed_benchmark_cost_gb=fixed_cost)
+
+    def test_a_supplied_fixed_cost_is_never_discarded(self):
+        """The measured cost is a floor on the estimate.
+
+        Stated as a floor rather than "is added" because the ridge branch
+        takes ``max(activation + fixed, activation * factor)`` -- the two
+        predictors measure complementary things. A floor is the invariant both
+        semantics satisfy, and it is what the rdm branch violated: 3x a 20 KB
+        activation array is nowhere near a measured 5 GB.
+        """
+        for identifier, expected_formula in self.SHAPES.items():
+            with self.subTest(identifier=identifier):
+                with_cost = self._estimate(identifier, self.FIXED_GB)
+                self.assertEqual(with_cost.formula_type, expected_formula)
+                self.assertGreaterEqual(
+                    with_cost.total_estimated_gb, self.FIXED_GB,
+                    msg=f"{identifier} ({expected_formula}) discarded the fixed cost")
+
+    def test_the_estimate_is_monotonic_in_the_fixed_cost(self):
+        """A larger measured cost can never produce a smaller estimate."""
+        for identifier in self.SHAPES:
+            with self.subTest(identifier=identifier):
+                totals = [self._estimate(identifier, c).total_estimated_gb
+                          for c in (0.0, 1.0, 5.0, 20.0)]
+                self.assertEqual(totals, sorted(totals), msg=f"{identifier}: {totals}")
+
+    def test_it_is_reported_on_the_estimate(self):
+        """Whatever a branch does with it, the value must be visible for
+        telemetry -- this is what gets written as preflight_estimate_gb's
+        provenance."""
+        for identifier in self.SHAPES:
+            with self.subTest(identifier=identifier):
+                est = self._estimate(identifier, self.FIXED_GB)
+                self.assertEqual(est.fixed_benchmark_cost_gb, self.FIXED_GB)

@@ -561,7 +561,12 @@ def preallocate_memory(
         # Overhead ≈ 2× activation_gb (scales with features, not n_stimuli²).
         # Validated across alexnet/resnet50/ViT on Allen2022_fmri.IT-rdm.
         rdm_overhead_gb = 2 * activation_gb
-        total_estimated_gb = activation_gb + rdm_overhead_gb  # = 3 × activation_gb
+        # + the calibrated fixed cost, which this branch used to drop on the
+        # floor: it is the only branch that can be reached with a non-None
+        # fixed_benchmark_cost_gb and not add it, so 19 of the 88 measured
+        # entries (0.4-2.0 GB each, all the *-rdm* keys) were never applied.
+        total_estimated_gb = (activation_gb + rdm_overhead_gb          # = 3 x activation_gb
+                              + (fixed_benchmark_cost_gb or 0.0))
         formula_type = 'rdm'
     elif fixed_benchmark_cost_gb is not None and ridge_large_feature:
         # Both predictors apply. Take the max — they measure complementary

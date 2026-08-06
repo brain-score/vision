@@ -260,3 +260,70 @@ class TestExtractorIntegration:
         assert result == 'ASSEMBLY'
         extractor._from_paths_stored.assert_not_called()
         extractor._from_paths.assert_called_once()
+
+
+class TestStimulusSetResolution:
+    """Both of these resolved to nothing before, so a stimulus set revised in
+    place kept its old cache entry -- the exact failure this module exists to
+    prevent, silently, on the stimulus half of the key."""
+
+    def test_registry_prefix_is_required_to_find_a_stimulus_set(self):
+        """The bug, pinned. ImportPlugin infers the registry name from the
+        directory: 'data'.strip('s') -> data_registry. Stimulus sets register
+        under stimulus_set_registry, so the inferred name matches none of them.
+        """
+        inferred = cache_key._locate_plugin_dir(plugin_type='data', identifier='hvm-public')
+        explicit = cache_key._locate_plugin_dir(plugin_type='data', identifier='hvm-public',
+                                                registry_prefix='stimulus_set')
+        assert inferred is None, "if this resolves, the fallback below is no longer needed"
+        assert explicit is not None and explicit.name == 'majajhong2015'
+
+    def test_a_registered_stimulus_set_gets_a_revision(self, revisioning_on, monkeypatch):
+        monkeypatch.delenv('BRAINSCORE_DATA_PLUGIN_SHA', raising=False)
+        assert stimulus_set_cache_identifier('hvm-public').startswith('hvm-public@')
+
+    def test_an_assembly_named_identifier_still_resolves(self, revisioning_on, monkeypatch):
+        """Some benchmarks pass an identifier that only exists in the
+        data_registry (MajajHong2015's stimulus sets are named 'hvm*'), so the
+        stimulus_set prefix alone is not enough."""
+        monkeypatch.delenv('BRAINSCORE_DATA_PLUGIN_SHA', raising=False)
+        assert stimulus_set_cache_identifier('MajajHong2015').startswith('MajajHong2015@')
+
+    def test_unregistered_identifier_is_still_returned_bare(self, revisioning_on, monkeypatch):
+        monkeypatch.delenv('BRAINSCORE_DATA_PLUGIN_SHA', raising=False)
+        assert stimulus_set_cache_identifier('NotARegisteredStimulusSet') == 'NotARegisteredStimulusSet'
+
+
+class TestScreenConvertedIdentifiers:
+    """`place_on_screen` renames its output to
+    `<id>--target<deg>--source<deg>`, which is not a registered plugin."""
+
+    def test_suffix_is_stripped_for_the_lookup(self):
+        assert cache_key.base_stimulus_identifier('hvm-public--target8.00--source11.00') == 'hvm-public'
+
+    def test_converted_set_resolves_to_its_source_revision(self, revisioning_on, monkeypatch):
+        monkeypatch.delenv('BRAINSCORE_DATA_PLUGIN_SHA', raising=False)
+        plain = stimulus_set_cache_identifier('hvm-public')
+        converted = stimulus_set_cache_identifier('hvm-public--target8.00--source11.00')
+        assert '@' in converted, "the observed bug: no revision on a screen-converted set"
+        assert converted.split('@')[1] == plain.split('@')[1]
+
+    def test_the_degree_conversion_stays_in_the_key(self, revisioning_on, monkeypatch):
+        """Rescaling changes the activations, so the suffix must survive into
+        the key -- the revision is appended to the full identifier, not the
+        stripped one."""
+        monkeypatch.delenv('BRAINSCORE_DATA_PLUGIN_SHA', raising=False)
+        eight = stimulus_set_cache_identifier('hvm-public--target8.00--source11.00')
+        ten = stimulus_set_cache_identifier('hvm-public--target10.00--source11.00')
+        assert eight != ten
+        assert eight.startswith('hvm-public--target8.00--source11.00@')
+
+    def test_suffix_constant_matches_screen_py(self):
+        """_SCREEN_SUFFIX duplicates a literal from screen.py's f-string."""
+        from brainscore_vision.benchmark_helpers import screen
+        source = Path(screen.__file__).read_text()
+        assert f'{cache_key._SCREEN_SUFFIX}{{target_visual_degrees:.2f}}' in source, \
+            "place_on_screen's suffix changed; update _SCREEN_SUFFIX"
+
+    def test_non_string_identifier_passes_through(self):
+        assert cache_key.base_stimulus_identifier(False) is False

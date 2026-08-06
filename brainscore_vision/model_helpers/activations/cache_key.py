@@ -69,6 +69,10 @@ _IGNORED_DIRS = ('__pycache__', '.git', '.pytest_cache')
 # Opt-in switch. Unset => keys are exactly what they were before this module.
 _ENABLE_VAR = 'BRAINSCORE_CACHE_PLUGIN_REVISION'
 
+# Marks the start of the suffix `benchmark_helpers.screen.place_on_screen`
+# appends: `--target<deg>--source<deg>`. Kept in sync with that f-string.
+_SCREEN_SUFFIX = '--target'
+
 
 def revision_enabled() -> bool:
     """True if cache keys should carry plugin revisions.
@@ -91,27 +95,55 @@ def stimulus_set_cache_identifier(stimuli_identifier: str) -> str:
 
     Stimulus sets reach the extractor through several routes (a registered
     data plugin, a benchmark-local assembly, a screen-converted derivative),
-    so a revision is often unavailable. That is expected rather than notable —
-    an unresolved stimulus set simply keys as it does today.
+    so a revision is sometimes unavailable. That is expected rather than
+    notable — an unresolved stimulus set simply keys as it does today.
+
+    Two of those routes need translating before the plugin resolver can find
+    anything, and both were silently unresolvable until they were fixed:
+    stimulus sets register under ``stimulus_set_registry`` rather than the
+    ``data_registry`` inferred from the directory name, and a screen-converted
+    set carries a suffix that is not registered at all.
     """
     return _with_revision(stimuli_identifier, plugin_type='data',
-                          env_var='BRAINSCORE_DATA_PLUGIN_SHA', unresolved_is_notable=False)
+                          env_var='BRAINSCORE_DATA_PLUGIN_SHA', unresolved_is_notable=False,
+                          registry_prefixes=('stimulus_set', 'data'),
+                          lookup_identifier=base_stimulus_identifier(stimuli_identifier))
 
 
-def _with_revision(identifier, plugin_type: str, env_var: str, unresolved_is_notable: bool):
+def base_stimulus_identifier(stimuli_identifier: str) -> str:
+    """The registered stimulus set a screen-converted identifier derives from.
+
+    ``place_on_screen`` renames its output to
+    ``<identifier>--target<deg>--source<deg>``, which is not a registered
+    plugin, so resolving the suffixed name finds nothing. Rescaling is a pure
+    function of the source images plus the two degree values already in the
+    key, so the revision of the set they came from is what needs tracking.
+    """
+    if not isinstance(stimuli_identifier, str):
+        return stimuli_identifier
+    return stimuli_identifier.split(_SCREEN_SUFFIX)[0]
+
+
+def _with_revision(identifier, plugin_type: str, env_var: str, unresolved_is_notable: bool,
+                   registry_prefixes: tuple = (None,), lookup_identifier: Optional[str] = None):
     if not revision_enabled():
         return identifier
     if not identifier or not isinstance(identifier, str):
         # `stimuli_identifier` is False when the caller disables storing.
         return identifier
-    revision = _plugin_revision(plugin_type=plugin_type, identifier=identifier, env_var=env_var,
-                               unresolved_is_notable=unresolved_is_notable)
+    revision = _plugin_revision(plugin_type=plugin_type,
+                                identifier=lookup_identifier or identifier, env_var=env_var,
+                                unresolved_is_notable=unresolved_is_notable,
+                                registry_prefixes=registry_prefixes)
+    # The revision is appended to the *full* identifier: the screen suffix
+    # carries the degree conversion, which changes the activations.
     return f"{identifier}@{revision}" if revision else identifier
 
 
 @lru_cache(maxsize=None)
 def _plugin_revision(plugin_type: str, identifier: str, env_var: str,
-                     unresolved_is_notable: bool = True) -> Optional[str]:
+                     unresolved_is_notable: bool = True,
+                     registry_prefixes: tuple = (None,)) -> Optional[str]:
     """Short revision string for a plugin, or None if it cannot be determined.
 
     Cached per process, which also means the "unresolved" log line is emitted
@@ -123,7 +155,12 @@ def _plugin_revision(plugin_type: str, identifier: str, env_var: str,
     if from_env:
         return from_env.strip()[:_REVISION_CHARS]
 
-    plugin_dir = _locate_plugin_dir(plugin_type=plugin_type, identifier=identifier)
+    plugin_dir = None
+    for registry_prefix in registry_prefixes:
+        plugin_dir = _locate_plugin_dir(plugin_type=plugin_type, identifier=identifier,
+                                        registry_prefix=registry_prefix)
+        if plugin_dir is not None:
+            break
     revision = None
     if plugin_dir is not None:
         revision = _git_revision(plugin_dir) or _content_revision(plugin_dir)
@@ -131,32 +168,42 @@ def _plugin_revision(plugin_type: str, identifier: str, env_var: str,
         # An unresolved *model* revision means the cache cannot tell two
         # revisions of the same plugin apart, which is the failure this module
         # exists to prevent -- worth surfacing. An unresolved stimulus set is
-        # routine.
-        log = _logger.warning if unresolved_is_notable else _logger.debug
+        # routine, but logging it at debug is how two resolver bugs went
+        # unnoticed until a cache key was read by hand.
+        log = _logger.warning if unresolved_is_notable else _logger.info
         log(f"Could not resolve a {plugin_type} revision for '{identifier}'; the activation "
             f"cache key cannot distinguish revisions of this plugin. "
             f"Set {env_var} to make it explicit.")
     return revision
 
 
-def _locate_plugin_dir(plugin_type: str, identifier: str) -> Optional[Path]:
+def _locate_plugin_dir(plugin_type: str, identifier: str,
+                       registry_prefix: Optional[str] = None) -> Optional[Path]:
+    """Directory of the plugin registering ``identifier``, or None.
+
+    ``registry_prefix`` overrides the registry name ``ImportPlugin`` would
+    infer from ``plugin_type``. It has to be given for stimulus sets: they
+    live in ``data/`` alongside assemblies but register under
+    ``stimulus_set_registry``, and the inferred ``data_registry`` matches none
+    of the 154 registered sets.
+    """
     try:
         from brainscore_core.plugin_management import import_plugin as _import_plugin
         from brainscore_core.plugin_management.import_plugin import ImportPlugin
-        importer = ImportPlugin(library_root='brainscore_vision', plugin_type=plugin_type,
-                                identifier=identifier)
         # locate_plugin scans every plugin directory and warns about each one
         # missing an __init__.py. Those are pre-existing repo issues, not
         # anything this lookup can act on, and they would appear in every
-        # container log. Silence them for the duration of the scan only.
+        # container log. Silence them for the duration of the scan only --
+        # which means covering the constructor, since that is what scans.
         resolver_logger = logging.getLogger(_import_plugin.__name__)
         previous_level = resolver_logger.level
         resolver_logger.setLevel(logging.ERROR)
         try:
-            dirname = importer.locate_plugin()
+            importer = ImportPlugin(library_root='brainscore_vision', plugin_type=plugin_type,
+                                    identifier=identifier, registry_prefix=registry_prefix)
         finally:
             resolver_logger.setLevel(previous_level)
-        plugin_dir = Path(importer.plugins_dir) / dirname
+        plugin_dir = Path(importer.plugins_dir) / importer.plugin_dirname
         return plugin_dir if plugin_dir.is_dir() else None
     except Exception:
         # Unregistered identifier, ambiguous registration, or a layout this

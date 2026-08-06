@@ -815,3 +815,67 @@ class TestAvailableMemoryIsContainerAware(unittest.TestCase):
         with self._patch_cgroup(values), \
              patch.object(mem.psutil, 'virtual_memory', return_value=host):
             self.assertLess(mem.available_memory_gb(), 1.5)
+
+
+class TestProbeLayerUsesBenchmarkRegion(unittest.TestCase):
+    """The preflight must size the layer the benchmark actually records from.
+
+    Regression from build 92: the cache was written with shape [1000, 46656]
+    (AlexNet ``features.2``, the V1 layer) while the preflight for the same
+    Li2026.V1-ridgecv benchmark reported ``features=9216`` (``features.12``,
+    the IT layer) -- a 5.1x underestimate of the activation array, because
+    _get_probe_layer preferred IT regardless of the benchmark's region.
+
+    The region was already available at the call site and already used by the
+    look_at fallback; only the fast path ignored it.
+    """
+
+    # the real map recorded on both build-92 scores
+    LAYER_MAP = {'V1': 'features.2', 'V2': 'features.7',
+                 'V4': 'features.7', 'IT': 'features.12'}
+
+    def _model(self):
+        from brainscore_vision.benchmark_helpers import memory as mem
+        model = MagicMock()
+        inner = MagicMock()
+        inner.region_layer_map = dict(self.LAYER_MAP)
+        del inner._layer_model            # stop MagicMock auto-creating it
+        model.layer_model = inner
+        return model
+
+    def test_each_region_probes_its_own_layer(self):
+        from brainscore_vision.benchmark_helpers.memory import _get_probe_layer
+        model = self._model()
+        for region, expected in self.LAYER_MAP.items():
+            self.assertEqual(_get_probe_layer(model, region), expected,
+                             f"region {region} must probe {expected}")
+
+    def test_v1_no_longer_probes_the_it_layer(self):
+        """The specific defect: V1 was sized with features.12."""
+        from brainscore_vision.benchmark_helpers.memory import _get_probe_layer
+        self.assertEqual(_get_probe_layer(self._model(), 'V1'), 'features.2')
+        self.assertNotEqual(_get_probe_layer(self._model(), 'V1'), 'features.12')
+
+    def test_unknown_region_keeps_the_it_first_fallback(self):
+        """Callers that cannot supply a region must behave as before."""
+        from brainscore_vision.benchmark_helpers.memory import _get_probe_layer
+        self.assertEqual(_get_probe_layer(self._model(), None), 'features.12')
+        self.assertEqual(_get_probe_layer(self._model()), 'features.12')
+
+    def test_region_absent_from_the_map_falls_back(self):
+        from brainscore_vision.benchmark_helpers.memory import _get_probe_layer
+        model = MagicMock()
+        inner = MagicMock()
+        inner.region_layer_map = {'IT': 'features.12'}
+        del inner._layer_model
+        model.layer_model = inner
+        self.assertEqual(_get_probe_layer(model, 'V1'), 'features.12')
+
+    def test_list_valued_layer_map_takes_the_first(self):
+        from brainscore_vision.benchmark_helpers.memory import _get_probe_layer
+        model = MagicMock()
+        inner = MagicMock()
+        inner.region_layer_map = {'V1': ['features.2', 'features.5']}
+        del inner._layer_model
+        model.layer_model = inner
+        self.assertEqual(_get_probe_layer(model, 'V1'), 'features.2')

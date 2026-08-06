@@ -327,3 +327,58 @@ class TestScreenConvertedIdentifiers:
 
     def test_non_string_identifier_passes_through(self):
         assert cache_key.base_stimulus_identifier(False) is False
+
+
+class TestIdentifierLiteralResolution:
+    """A registry key and the stimulus set's own identifier often differ, and
+    the extractor only ever sees the latter -- 36 of the 154 registered sets.
+
+    This is the gap the first pass at stimulus revisioning left: it resolved
+    `hvm-public` and `MajajHong2015`, where key and identifier coincide, but not
+    `Li2026_Stimuli` (registered under the key `Li2026`), which is the
+    identifier that actually appeared in the cache key that prompted the work.
+    """
+
+    # one per transformation style, none recoverable by a string rule
+    STYLES = {
+        'Li2026_Stimuli': 'li2026',                       # key is 'Li2026'
+        'Allen2022_fMRI_train_Stimuli': 'allen2022_fmri',  # case change + reorder
+        'tong.Coggan2024_fMRI': 'coggan2024_fMRI',         # vendor prefix
+        'BMD_2024_texture_1': 'bmd2024',                   # punctuation moved
+    }
+
+    @pytest.mark.parametrize('identifier,expected_dir', sorted(STYLES.items()))
+    def test_each_style_resolves_to_its_plugin_dir(self, identifier, expected_dir):
+        found = cache_key._locate_plugin_dir_by_stimulus_identifier('data', identifier)
+        assert found is not None, f"{identifier} unresolvable"
+        assert found.name == expected_dir
+
+    @pytest.mark.parametrize('identifier', sorted(STYLES))
+    def test_the_revision_reaches_the_key(self, revisioning_on, monkeypatch, identifier):
+        monkeypatch.delenv('BRAINSCORE_DATA_PLUGIN_SHA', raising=False)
+        assert stimulus_set_cache_identifier(identifier).startswith(f'{identifier}@')
+
+    def test_screen_converted_form_also_resolves(self, revisioning_on, monkeypatch):
+        """The build-92 key verbatim."""
+        monkeypatch.delenv('BRAINSCORE_DATA_PLUGIN_SHA', raising=False)
+        observed = 'Li2026_Stimuli--target8.00--source11.00'
+        assert stimulus_set_cache_identifier(observed).startswith(f'{observed}@')
+
+    def test_every_registered_identifier_is_uniquely_attributable(self):
+        """One pass over data/, rather than resolving 229 identifiers one at a
+        time. Two plugins naming the same identifier would make the revision
+        ambiguous, and the resolver refuses those -- so this doubles as the
+        assertion that the ambiguous branch is currently unreachable."""
+        import collections, re as _re
+        owners = collections.defaultdict(set)
+        plugins_dir = Path(cache_key.__file__).parents[2] / 'data'
+        for init in sorted(plugins_dir.glob('*/__init__.py')):
+            text = init.read_text(encoding='utf-8', errors='replace')
+            for ident in _re.findall(r"identifier\s*=\s*['\"]([^'\"]+)['\"]", text):
+                owners[ident].add(init.parent.name)
+        ambiguous = {i: sorted(d) for i, d in owners.items() if len(d) > 1}
+        assert owners, "found no identifier literals at all -- the scan is broken"
+        assert ambiguous == {}, f"ambiguous identifiers would key without a revision: {ambiguous}"
+
+    def test_unknown_identifier_still_degrades(self):
+        assert cache_key._locate_plugin_dir_by_stimulus_identifier('data', 'NotAnIdentifier') is None

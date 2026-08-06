@@ -15,6 +15,8 @@ import xarray as xr
 
 from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly, walk_coords
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
+from brainscore_vision.model_helpers.activations.cache_key import (
+    model_cache_identifier, stimulus_set_cache_identifier)
 from brainscore_vision.model_helpers.utils import fullname
 from result_caching import store_xarray
 
@@ -85,9 +87,14 @@ class ActivationsExtractorHelper:
         if layers is None:
             layers = ['logits']
         if self.identifier and stimuli_identifier:
+            # Identifiers alone do not distinguish plugin revisions, so a cache
+            # keyed on them would serve activations from code that no longer
+            # exists. Append a content revision to each. These values are used
+            # *only* to build the cache key -- _from_paths_stored ignores them
+            # otherwise -- so the returned assembly is unaffected.
             fnc = functools.partial(self._from_paths_stored,
-                                    identifier=self.identifier,
-                                    stimuli_identifier=stimuli_identifier,
+                                    identifier=model_cache_identifier(self.identifier),
+                                    stimuli_identifier=stimulus_set_cache_identifier(stimuli_identifier),
                                     require_variance=require_variance)
         else:
             self._logger.debug(f"self.identifier `{self.identifier}` or stimuli_identifier {stimuli_identifier} "

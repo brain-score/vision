@@ -260,3 +260,36 @@ class TestExtractorIntegration:
         assert result == 'ASSEMBLY'
         extractor._from_paths_stored.assert_not_called()
         extractor._from_paths.assert_called_once()
+
+
+class TestStimulusSetRevisionResolution:
+    """Papale2025-style stimulus sets: registered under stimulus_set_registry
+    (not data_registry), and reaching the extractor as a screen-converted
+    derivative. Both had to be handled for the pilot benchmark's stimuli to
+    carry a revision at all."""
+
+    def test_base_stimulus_set_resolves(self, revisioning_on, monkeypatch):
+        monkeypatch.delenv('BRAINSCORE_DATA_PLUGIN_SHA', raising=False)
+        result = stimulus_set_cache_identifier('Papale2025_stim_test')
+        assert result.startswith('Papale2025_stim_test@'), result
+
+    def test_screen_converted_identifier_resolves(self, revisioning_on, monkeypatch):
+        """place_on_screen rewrites to `<base>--target<deg>--source<deg>`."""
+        monkeypatch.delenv('BRAINSCORE_DATA_PLUGIN_SHA', raising=False)
+        result = stimulus_set_cache_identifier('Papale2025_stim_test--target8.00--source8.00')
+        assert result.startswith('Papale2025_stim_test--target8.00--source8.00@'), result
+
+    def test_visual_degrees_stay_in_the_key(self, revisioning_on, monkeypatch):
+        """Different degrees mean different activations -- they must not
+        collapse onto one cache entry, even though the revision is shared."""
+        monkeypatch.delenv('BRAINSCORE_DATA_PLUGIN_SHA', raising=False)
+        eight = stimulus_set_cache_identifier('Papale2025_stim_test--target8.00--source8.00')
+        four = stimulus_set_cache_identifier('Papale2025_stim_test--target4.00--source8.00')
+        assert eight != four
+        assert eight.rsplit('@', 1)[1] == four.rsplit('@', 1)[1], \
+            "same underlying stimulus set => same revision"
+
+    def test_strip_screen_suffix(self):
+        from brainscore_vision.model_helpers.activations.cache_key import _strip_screen_suffix
+        assert _strip_screen_suffix('X--target8.00--source8.00') == 'X'
+        assert _strip_screen_suffix('X') == 'X'

@@ -89,29 +89,51 @@ def model_cache_identifier(identifier: str) -> str:
 def stimulus_set_cache_identifier(stimuli_identifier: str) -> str:
     """Stimulus-set identifier with its data-plugin revision appended.
 
-    Stimulus sets reach the extractor through several routes (a registered
-    data plugin, a benchmark-local assembly, a screen-converted derivative),
-    so a revision is often unavailable. That is expected rather than notable —
-    an unresolved stimulus set simply keys as it does today.
+    The identifier arriving here is usually a screen-converted derivative:
+    ``place_on_screen`` rewrites it to
+    ``<base>--target<degrees>--source<degrees>``. Those visual-degree
+    parameters genuinely change the activations, so they stay in the key; only
+    the *revision* is resolved from the base stimulus set.
+
+    Stimulus sets register under ``stimulus_set_registry``, not the
+    ``data_registry`` that ``ImportPlugin`` would infer from the ``data``
+    plugin directory, hence the explicit prefix.
     """
     return _with_revision(stimuli_identifier, plugin_type='data',
-                          env_var='BRAINSCORE_DATA_PLUGIN_SHA', unresolved_is_notable=False)
+                          env_var='BRAINSCORE_DATA_PLUGIN_SHA', unresolved_is_notable=False,
+                          registry_prefix='stimulus_set', base_of=_strip_screen_suffix)
 
 
-def _with_revision(identifier, plugin_type: str, env_var: str, unresolved_is_notable: bool):
+# place_on_screen builds `f"{identifier}--target{...:.2f}--source{...}"`.
+_SCREEN_SUFFIX = '--target'
+
+
+def _strip_screen_suffix(stimuli_identifier: str) -> str:
+    """Base stimulus-set identifier, with any screen conversion suffix removed."""
+    return stimuli_identifier.split(_SCREEN_SUFFIX, 1)[0]
+
+
+def _with_revision(identifier, plugin_type: str, env_var: str, unresolved_is_notable: bool,
+                   registry_prefix: Optional[str] = None, base_of=None):
     if not revision_enabled():
         return identifier
     if not identifier or not isinstance(identifier, str):
         # `stimuli_identifier` is False when the caller disables storing.
         return identifier
-    revision = _plugin_revision(plugin_type=plugin_type, identifier=identifier, env_var=env_var,
-                               unresolved_is_notable=unresolved_is_notable)
+    # The revision is resolved from the base plugin, but the *full* identifier
+    # stays in the key: derived parameters (e.g. visual degrees) change the
+    # activations and must not collapse onto the same entry.
+    lookup_identifier = base_of(identifier) if base_of else identifier
+    revision = _plugin_revision(plugin_type=plugin_type, identifier=lookup_identifier,
+                               env_var=env_var, unresolved_is_notable=unresolved_is_notable,
+                               registry_prefix=registry_prefix)
     return f"{identifier}@{revision}" if revision else identifier
 
 
 @lru_cache(maxsize=None)
 def _plugin_revision(plugin_type: str, identifier: str, env_var: str,
-                     unresolved_is_notable: bool = True) -> Optional[str]:
+                     unresolved_is_notable: bool = True,
+                     registry_prefix: Optional[str] = None) -> Optional[str]:
     """Short revision string for a plugin, or None if it cannot be determined.
 
     Cached per process, which also means the "unresolved" log line is emitted
@@ -123,7 +145,8 @@ def _plugin_revision(plugin_type: str, identifier: str, env_var: str,
     if from_env:
         return from_env.strip()[:_REVISION_CHARS]
 
-    plugin_dir = _locate_plugin_dir(plugin_type=plugin_type, identifier=identifier)
+    plugin_dir = _locate_plugin_dir(plugin_type=plugin_type, identifier=identifier,
+                                    registry_prefix=registry_prefix)
     revision = None
     if plugin_dir is not None:
         revision = _git_revision(plugin_dir) or _content_revision(plugin_dir)
@@ -139,12 +162,13 @@ def _plugin_revision(plugin_type: str, identifier: str, env_var: str,
     return revision
 
 
-def _locate_plugin_dir(plugin_type: str, identifier: str) -> Optional[Path]:
+def _locate_plugin_dir(plugin_type: str, identifier: str,
+                       registry_prefix: Optional[str] = None) -> Optional[Path]:
     try:
         from brainscore_core.plugin_management import import_plugin as _import_plugin
         from brainscore_core.plugin_management.import_plugin import ImportPlugin
         importer = ImportPlugin(library_root='brainscore_vision', plugin_type=plugin_type,
-                                identifier=identifier)
+                                identifier=identifier, registry_prefix=registry_prefix)
         # locate_plugin scans every plugin directory and warns about each one
         # missing an __init__.py. Those are pre-existing repo issues, not
         # anything this lookup can act on, and they would appear in every

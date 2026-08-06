@@ -312,10 +312,19 @@ def _is_ridge_benchmark(benchmark) -> bool:
     return ident.endswith('-ridge') or ident.endswith('-ridgecv')
 
 
-def _get_probe_layer(model):
+def _get_probe_layer(model, region: Optional[str] = None):
     """
-    Return the committed layer string for the model's primary recording region,
-    or None if it cannot be determined without triggering expensive layer selection.
+    Return the committed layer string to probe for memory estimation.
+
+    ``region`` is the region the benchmark actually records from, and it is
+    tried first. Without it this fell back to an IT-first preference, so a V1
+    benchmark was sized using IT's layer -- on AlexNet that is ``features.12``
+    (256x6x6 = 9,216) instead of ``features.2`` (64x27x27 = 46,656), a 5.1x
+    underestimate of the activation array. Build 92 cached [1000, 46656] while
+    its preflight reported 9,216 features for the same V1 benchmark.
+
+    The region was already known at the call site and used by the ``look_at``
+    fallback path below; only the fast path ignored it.
     """
     try:
         # Navigate ModelCommitment → TemporalAligned → LayerMappedModel
@@ -329,9 +338,11 @@ def _get_probe_layer(model):
         if rmap is None:
             return None
 
-        # Prefer IT, then any committed region.
+        # The benchmark's own region first; the descending fallback only
+        # applies when the caller could not tell us which region is recorded.
+        candidates = ([region] if region else []) + ['IT', 'V4', 'V2', 'V1']
         # Use dict.__contains__ to avoid triggering lazy RegionLayerMap.__getitem__
-        for candidate_region in ['IT', 'V4', 'V2', 'V1']:
+        for candidate_region in candidates:
             if dict.__contains__(rmap, candidate_region):
                 layers = dict.__getitem__(rmap, candidate_region)
                 if layers is not None:
@@ -467,7 +478,7 @@ def preallocate_memory(
     # ------------------------------------------------------------------ #
     _am = getattr(model, 'activations_model', None)
     _extractor = getattr(_am, '_extractor', None) if _am else None
-    probe_layer = _get_probe_layer(model) if _extractor is not None else None
+    probe_layer = _get_probe_layer(model, region) if _extractor is not None else None
 
     if _extractor is not None and probe_layer is not None:
         # Fast path: call _from_paths directly — no attach_stimulus_set_meta

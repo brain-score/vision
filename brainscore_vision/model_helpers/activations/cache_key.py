@@ -50,6 +50,7 @@ scoring run. It degrades to exactly the behaviour that shipped before it.
 """
 import hashlib
 import logging
+import re
 import os
 import subprocess
 from functools import lru_cache
@@ -161,6 +162,10 @@ def _plugin_revision(plugin_type: str, identifier: str, env_var: str,
                                         registry_prefix=registry_prefix)
         if plugin_dir is not None:
             break
+    if plugin_dir is None and 'stimulus_set' in registry_prefixes:
+        # The registry key and the set's own identifier often differ; the
+        # extractor only sees the latter. See the function's docstring.
+        plugin_dir = _locate_plugin_dir_by_stimulus_identifier(plugin_type, identifier)
     revision = None
     if plugin_dir is not None:
         revision = _git_revision(plugin_dir) or _content_revision(plugin_dir)
@@ -209,6 +214,41 @@ def _locate_plugin_dir(plugin_type: str, identifier: str,
         # Unregistered identifier, ambiguous registration, or a layout this
         # resolver does not understand. Not fatal — the caller degrades.
         _logger.debug(f"Could not locate {plugin_type} plugin dir for '{identifier}'", exc_info=True)
+        return None
+
+
+def _locate_plugin_dir_by_stimulus_identifier(plugin_type: str, identifier: str) -> Optional[Path]:
+    """Plugin dir whose loader builds a stimulus set carrying ``identifier``.
+
+    A registry *key* and the stimulus set's own ``identifier`` are frequently
+    different, and the extractor only ever sees the latter. 36 of the 154
+    registered sets differ, and none by a rule a string transformation could
+    recover:
+
+        registry['Li2026']                    -> identifier='Li2026_Stimuli'
+        registry['Allen2022_fmri_stim_train'] -> identifier='Allen2022_fMRI_train_Stimuli'
+        registry['Coggan2024_fMRI']           -> identifier='tong.Coggan2024_fMRI'
+        registry['BMD2024.texture_1']         -> identifier='BMD_2024_texture_1'
+
+    So this searches for the identifier as a literal in the loader call rather
+    than as a registry key. Requires a unique match: two plugins naming the same
+    identifier means we cannot say which revision applies, and a wrong revision
+    is worse than none.
+    """
+    try:
+        import brainscore_vision
+        plugins_dir = Path(brainscore_vision.__file__).parent / plugin_type
+        needle = re.compile(r"identifier\s*=\s*['\"]" + re.escape(identifier) + r"['\"]")
+        matches = [init.parent for init in sorted(plugins_dir.glob('*/__init__.py'))
+                   if needle.search(init.read_text(encoding='utf-8', errors='replace'))]
+        if len(matches) == 1:
+            return matches[0]
+        if len(matches) > 1:
+            _logger.debug(f"{identifier!r} is named by {len(matches)} {plugin_type} plugins; "
+                          f"cannot attribute a revision")
+        return None
+    except Exception:
+        _logger.debug(f"identifier-literal lookup failed for {identifier!r}", exc_info=True)
         return None
 
 

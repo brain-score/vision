@@ -331,7 +331,7 @@ class TestScreenConvertedIdentifiers:
 
 class TestIdentifierLiteralResolution:
     """A registry key and the stimulus set's own identifier often differ, and
-    the extractor only ever sees the latter -- 36 of the 154 registered sets.
+    the extractor only ever sees the latter -- roughly a quarter of registered sets.
 
     This is the gap the first pass at stimulus revisioning left: it resolved
     `hvm-public` and `MajajHong2015`, where key and identifier coincide, but not

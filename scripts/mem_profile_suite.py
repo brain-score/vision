@@ -101,6 +101,23 @@ _BM_SHORT = {
 
 # All registered leaf benchmarks — used by --calibrate mode.
 ALL_BENCHMARKS = [
+    # Zerbe2026 + Li2026. Absent until now, which is why the 2026-08 refit could
+    # not re-measure 20 benchmarks that already had constants (0.64-13.76 GB) --
+    # overwriting benchmark_costs.json from that run would have stripped them.
+    'Zerbe2026_fmri.V1-tau-ridgecv', 'Zerbe2026_fmri.V2-tau-ridgecv',
+    'Zerbe2026_fmri.V4-tau-ridgecv', 'Zerbe2026_fmri.IT-tau-ridgecv',
+    'Zerbe2026_fmri.V1-ood-ridgecv', 'Zerbe2026_fmri.V2-ood-ridgecv',
+    'Zerbe2026_fmri.V4-ood-ridgecv', 'Zerbe2026_fmri.IT-ood-ridgecv',
+    'Zerbe2026_fmri.IT-ood_gabor-ridge',
+    'Zerbe2026_fmri.V1-rdm-pearson', 'Zerbe2026_fmri.V2-rdm-pearson',
+    'Zerbe2026_fmri.V4-rdm-pearson', 'Zerbe2026_fmri.IT-rdm-pearson',
+    'Zerbe2026_fmri_persubject.V1-tau-ridgecv', 'Zerbe2026_fmri_persubject.V2-tau-ridgecv',
+    'Zerbe2026_fmri_persubject.V4-tau-ridgecv', 'Zerbe2026_fmri_persubject.IT-tau-ridgecv',
+    'Zerbe2026_fmri_persubject.V1-ood-ridgecv', 'Zerbe2026_fmri_persubject.V2-ood-ridgecv',
+    'Zerbe2026_fmri_persubject.V4-ood-ridgecv', 'Zerbe2026_fmri_persubject.IT-ood-ridgecv',
+    'Li2026.V1-ridgecv', 'Li2026.V2-ridgecv', 'Li2026.V4-ridgecv', 'Li2026.IT-ridgecv',
+    'Li2026.V1-rdm', 'Li2026.V2-rdm', 'Li2026.V4-rdm', 'Li2026.IT-rdm',
+    'Li2026.V1-pls', 'Li2026.V2-pls', 'Li2026.V4-pls', 'Li2026.IT-pls',
     # Allen2022 fMRI (volumetric)
     'Allen2022_fmri.V1-ridge', 'Allen2022_fmri.V2-ridge',
     'Allen2022_fmri.V4-ridge', 'Allen2022_fmri.IT-ridge',

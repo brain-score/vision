@@ -190,7 +190,7 @@ def _locate_plugin_dir(plugin_type: str, identifier: str,
     infer from ``plugin_type``. It has to be given for stimulus sets: they
     live in ``data/`` alongside assemblies but register under
     ``stimulus_set_registry``, and the inferred ``data_registry`` matches none
-    of the 154 registered sets.
+    of the registered sets.
     """
     try:
         from brainscore_core.plugin_management import import_plugin as _import_plugin
@@ -221,9 +221,9 @@ def _locate_plugin_dir_by_stimulus_identifier(plugin_type: str, identifier: str)
     """Plugin dir whose loader builds a stimulus set carrying ``identifier``.
 
     A registry *key* and the stimulus set's own ``identifier`` are frequently
-    different, and the extractor only ever sees the latter. 36 of the 154
-    registered sets differ, and none by a rule a string transformation could
-    recover:
+    different, and the extractor only ever sees the latter -- roughly a quarter
+    of registered sets differ, and a string transformation recovers almost none
+    of them (only ``Li2026`` happens to be a prefix of its identifier):
 
         registry['Li2026']                    -> identifier='Li2026_Stimuli'
         registry['Allen2022_fmri_stim_train'] -> identifier='Allen2022_fMRI_train_Stimuli'

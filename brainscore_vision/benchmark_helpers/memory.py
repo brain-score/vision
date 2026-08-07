@@ -65,6 +65,15 @@ _PLS_OVERHEAD_FACTOR = 7
 
 # Empirical p50(real_peak) - p50(formula_estimate) per benchmark, GB.
 # Papale2025.V4-ridgecv omitted: dinov2-only data would over-allocate small models.
+#
+# This is a SECOND-ORDER residual and is NOT redundant with benchmark_costs.json,
+# even though 26 of these 27 keys also appear there. The two measure different
+# things and are meant to stack: the json holds a marginal alexnet delta consumed
+# inside the formula branch, while these were fitted from ~1500 production
+# resource-usage rows across the real model mix, against the estimate that already
+# included the json value. Do not fold them together. Regenerate from production
+# telemetry (see #2444), not from mem_profile_suite --calibrate, which cannot
+# produce this quantity.
 _BENCHMARK_SCAFFOLDING_OVERHEAD_GB: dict[str, float] = {
     'Zerbe2026_fmri.V1-tau-ridgecv': 42.0,
     'Gifford2022.IT-ridgecv': 20.0,
@@ -506,7 +515,9 @@ def preallocate_memory(
     activation_bytes = num_stimuli * num_features * num_timebins * _BYTES_PER_ELEMENT
     activation_gb = activation_bytes / (1024 ** 3)
 
-    # Auto-load from the calibration table if no explicit value was given
+    # Auto-load from the calibration table if no explicit value was given.
+    # Marginal, alexnet-measured; _BENCHMARK_SCAFFOLDING_OVERHEAD_GB stacks on top
+    # of the result of this formula as a production-fitted residual.
     if fixed_benchmark_cost_gb is None:
         _cal = load_calibration()
         fixed_benchmark_cost_gb = _cal.get(benchmark.identifier)

@@ -949,3 +949,30 @@ class TestFixedCostReachesEveryFormula(unittest.TestCase):
             with self.subTest(identifier=identifier):
                 est = self._estimate(identifier, self.FIXED_GB)
                 self.assertEqual(est.fixed_benchmark_cost_gb, self.FIXED_GB)
+
+
+class TestCalibrationFileIsWellFormed(unittest.TestCase):
+    """benchmark_costs.json is data, so the risk is a bad merge rather than bad
+    logic. The 2026-08 refit re-measured 67 of 88 entries; 20 more were absent
+    from mem_profile_suite's ALL_BENCHMARKS and so could not be re-measured at
+    all, which is exactly how a naive overwrite would have silently dropped
+    constants worth up to 13.76 GB.
+    """
+
+    def test_every_value_is_a_usable_non_negative_number(self):
+        import math
+        from brainscore_vision.benchmark_helpers.memory import load_calibration
+        costs = load_calibration()
+        self.assertGreater(len(costs), 0, "calibration table is empty")
+        bad = {k: v for k, v in costs.items()
+               if not isinstance(v, (int, float)) or math.isnan(v) or v < 0}
+        self.assertEqual(bad, {}, f"unusable calibration values: {bad}")
+
+    def test_the_expensive_entries_survive(self):
+        """Spot-check the entries a bad merge would most plausibly drop."""
+        from brainscore_vision.benchmark_helpers.memory import load_calibration
+        costs = load_calibration()
+        for identifier in ('Hebart2023_fmri.V4-ridgecv', 'Papale2025.IT-ridge',
+                           'Zerbe2026_fmri_persubject.V2-ood-ridgecv', 'Li2026.IT-ridgecv'):
+            self.assertIn(identifier, costs)
+            self.assertGreater(costs[identifier], 0)

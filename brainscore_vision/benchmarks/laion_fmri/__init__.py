@@ -33,7 +33,7 @@ explicitly here.
 """
 
 from brainscore_vision import benchmark_registry
-from .benchmark import LAIONfMRI, LAIONfMRIRSA
+from .benchmark import LAIONfMRI, LAIONfMRICKA, LAIONfMRIRSA
 
 # ── Per-subject pool ridgecv variants (HEADLINE) ──────────────────────────
 # Each subject's 5,833-image pool (1,121 shared + 4,712 subject-unique).
@@ -66,3 +66,10 @@ benchmark_registry['Zerbe2026_fmri.V1-rdm-pearson'] = lambda: LAIONfMRIRSA('V1')
 benchmark_registry['Zerbe2026_fmri.V2-rdm-pearson'] = lambda: LAIONfMRIRSA('V2')
 benchmark_registry['Zerbe2026_fmri.V4-rdm-pearson'] = lambda: LAIONfMRIRSA('V4')
 benchmark_registry['Zerbe2026_fmri.IT-rdm-pearson'] = lambda: LAIONfMRIRSA('IT')
+
+# Linear CKA -- rides the same activation cache entry as the ridge/RSA variants
+# above, so these cost no additional forward pass once any Zerbe variant has run.
+benchmark_registry['Zerbe2026_fmri.V1-cka'] = lambda: LAIONfMRICKA('V1')
+benchmark_registry['Zerbe2026_fmri.V2-cka'] = lambda: LAIONfMRICKA('V2')
+benchmark_registry['Zerbe2026_fmri.V4-cka'] = lambda: LAIONfMRICKA('V4')
+benchmark_registry['Zerbe2026_fmri.IT-cka'] = lambda: LAIONfMRICKA('IT')

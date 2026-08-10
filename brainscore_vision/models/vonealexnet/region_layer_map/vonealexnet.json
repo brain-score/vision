@@ -1,0 +1,6 @@
+{
+    "V1": "bottleneck",
+    "V2": "model.features.2",
+    "V4": "model.features.2",
+    "IT": "model.avgpool"
+}

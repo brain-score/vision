@@ -698,6 +698,8 @@ class _MultiSubjectRSABenchmark(BenchmarkBase):
         score.attrs["sem"] = (
             float(values.std(ddof=1) / np.sqrt(len(values))) if len(values) > 1 else 0.0
         )
+        # the recorder reads attrs['error'], not 'sem'; absent means a NULL column
+        score.attrs["error"] = score.attrs["sem"]
         return score
 
     def __call__(self, candidate) -> Score:
@@ -734,6 +736,8 @@ class _MultiSubjectRSABenchmark(BenchmarkBase):
         ceiling.attrs["sem"] = (
             float(ceil_values.std(ddof=1) / np.sqrt(len(ceil_values))) if len(ceil_values) > 1 else 0.0
         )
+        # the recorder reads attrs['error'], not 'sem'; absent means a NULL column
+        ceiling.attrs["error"] = ceiling.attrs["sem"]
         score.attrs["ceiling"] = ceiling
         for sub_id, s in zip(self._subjects, per_subject_scores):
             score.attrs[sub_id] = s

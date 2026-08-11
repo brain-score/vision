@@ -243,6 +243,18 @@ class TestCKAWiring:
         assert benchmark.identifier == identifier
 
     @pytest.mark.parametrize("identifier", _CKA_VARIANTS)
+    def test_parent_is_the_dataset_node(self, identifier):
+        """Parent is written once, at row creation -- a wrong value needs a manual DB fix.
+
+        Must be a sibling of the other Zerbe variants (``Zerbe2026_fmri.IT``), not of
+        the whole Zerbe node (``IT``), which would double Zerbe's weight in the region.
+        """
+        from brainscore_vision import benchmark_registry
+        import brainscore_vision.benchmarks.laion_fmri  # noqa: F401
+        benchmark = benchmark_registry[identifier]()
+        assert benchmark.parent == identifier.rsplit("-cka", 1)[0]
+
+    @pytest.mark.parametrize("identifier", _CKA_VARIANTS)
     def test_rdm_stage_is_bypassed(self, identifier):
         """CKA compares representations directly; forming an RDM first would be wrong."""
         from brainscore_vision import benchmark_registry

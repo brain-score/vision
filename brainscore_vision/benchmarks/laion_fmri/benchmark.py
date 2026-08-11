@@ -18,7 +18,7 @@ child `TrainTestNeuralBenchmark` and aggregates with mean + per-fold detail in a
 from __future__ import annotations
 
 import gc
-from typing import Callable, Sequence
+from typing import Callable, Optional, Sequence
 
 import numpy as np
 import pandas as pd
@@ -728,6 +728,7 @@ class _MultiSubjectRSABenchmark(BenchmarkBase):
         region: str,
         bibtex: str = BIBTEX,
         peak_aggregation: float = 1.0,
+        parent: Optional[str] = None,
     ):
         if not subjects:
             raise ValueError("_MultiSubjectRSABenchmark requires at least one subject.")
@@ -747,7 +748,7 @@ class _MultiSubjectRSABenchmark(BenchmarkBase):
             identifier=identifier,
             ceiling_func=lambda: self._compute_ceiling(),
             version=version,
-            parent=region,
+            parent=parent or region,
             bibtex=bibtex,
         )
         self.region = _MODEL_REGION_CANONICAL.get(region, region)
@@ -957,6 +958,8 @@ def LAIONfMRICKA(
         # The ceiling holds two assemblies at once (pairwise), against one for
         # scoring -- so the peak is above the shared-pool default of 1.0.
         peak_aggregation=2.0,
+        # sibling of the other Zerbe variants, not of the whole Zerbe node
+        parent=f"{dataset_prefix}.{region}",
     )
     benchmark._unbiased = unbiased
     return benchmark

@@ -18,7 +18,7 @@ child `TrainTestNeuralBenchmark` and aggregates with mean + per-fold detail in a
 from __future__ import annotations
 
 import gc
-from typing import Callable, Sequence
+from typing import Callable, Optional, Sequence
 
 import numpy as np
 import pandas as pd
@@ -631,6 +631,83 @@ def _ncsnr_rsa_ceiler(assembly) -> Score:
     return ceiling
 
 
+def _neutral_ceiler(assembly) -> Score:
+    """Ceiling of 1.0, so a child's ceiled score equals its raw score.
+
+    CKA is ceiled at the wrapper level against an inter-subject estimate that
+    needs more than one subject, so the per-subject children must not apply a
+    ceiling of their own. See :class:`_MultiSubjectCKABenchmark`.
+    """
+    return Score(1.0)
+
+
+def _intersubject_cka_ceiling(subject_ids, load_subject, unbiased: bool = True) -> Score:
+    """Pairwise inter-subject CKA: the empirical upper bound under *this* metric.
+
+    Nili's RSA ceiling compares each subject's RDM against the **mean RDM** across
+    subjects. That has no CKA analogue: CKA compares representations, and
+    representations cannot be averaged across subjects because their voxels have
+    no correspondence. The direct analogue is therefore pairwise --
+    ``mean_{i<j} CKA(subject_i, subject_j)``.
+
+    Holds at most **two** assemblies at once, matching the one-at-a-time discipline
+    :class:`_MultiSubjectRSABenchmark` uses for scoring.
+
+    :param load_subject: ``sub_id -> assembly``. Injected so this is testable
+        without the DUA-gated data.
+    :returns: scalar Score = pairwise mean. ``attrs['error']`` is the SEM over
+        pairs -- set explicitly because ``brainscore_core``'s recorder writes
+        ``BenchmarkInstance.ceiling_error`` from it, only on version creation, so
+        a missing error is a permanent NULL.
+    """
+    metric = load_metric("cka" if unbiased else "cka_biased")
+    ids = list(subject_ids)
+    pair_values, pair_labels = [], []
+    for outer in range(len(ids)):
+        a = load_subject(ids[outer])
+        for inner in range(outer + 1, len(ids)):
+            b = load_subject(ids[inner])
+            pair_values.append(float(metric(a, b)))
+            pair_labels.append(f"{ids[outer]}|{ids[inner]}")
+            del b
+            gc.collect()
+        del a
+        gc.collect()
+
+    if not pair_values:
+        raise ValueError("inter-subject CKA ceiling needs at least two subjects")
+    pairs = np.asarray(pair_values, dtype=np.float64)
+    ceiling = Score(float(pairs.mean()))
+    # 'error' is REQUIRED by the DB recorder; everything below it is extra
+    # metadata the recorder ignores, kept so a future re-normalisation can pick a
+    # different estimate from the stored score object without re-scoring.
+    ceiling.attrs["error"] = (
+        float(pairs.std(ddof=1) / np.sqrt(pairs.size)) if pairs.size > 1 else 0.0
+    )
+    ceiling.attrs["ceiling_method"] = "pairwise_intersubject_cka"
+    ceiling.attrs["ceiling_pairs"] = xr.DataArray(
+        pairs, dims=("pair",), coords={"pair": pair_labels},
+    )
+    # Per-subject leave-one-out: mean CKA of each subject against every other.
+    # NOT a Nili-style lower bound -- Nili's downward bias comes from averaging
+    # N-1 RDMs, which pairwise CKA never does. Stored for reference only.
+    loo = np.array([
+        np.mean([v for lbl, v in zip(pair_labels, pairs) if sid in lbl.split("|")])
+        for sid in ids
+    ], dtype=np.float64)
+    ceiling.attrs["ceiling_variants"] = {
+        "pairwise_intersubject_cka": float(pairs.mean()),
+        "loo_per_subject_mean": float(loo.mean()),
+        # split_half_within_subject: deferred -- needs the unaveraged repetition
+        # assembly, not the averaged scoring assembly.
+        "split_half_within_subject": None,
+    }
+    ceiling.attrs["ceiling_loo_per_subject"] = xr.DataArray(
+        loo, dims=("subject",), coords={"subject": ids},
+    )
+    return ceiling
+
+
 class _MultiSubjectRSABenchmark(BenchmarkBase):
     """Run a per-subject :class:`RSABenchmark`, aggregate ceiled scores across subjects.
 
@@ -651,6 +728,7 @@ class _MultiSubjectRSABenchmark(BenchmarkBase):
         region: str,
         bibtex: str = BIBTEX,
         peak_aggregation: float = 1.0,
+        parent: Optional[str] = None,
     ):
         if not subjects:
             raise ValueError("_MultiSubjectRSABenchmark requires at least one subject.")
@@ -670,7 +748,7 @@ class _MultiSubjectRSABenchmark(BenchmarkBase):
             identifier=identifier,
             ceiling_func=lambda: self._compute_ceiling(),
             version=version,
-            parent=region,
+            parent=parent or region,
             bibtex=bibtex,
         )
         self.region = _MODEL_REGION_CANONICAL.get(region, region)
@@ -750,6 +828,141 @@ class _MultiSubjectRSABenchmark(BenchmarkBase):
                 score, reason="single-subject RSA wrapper; nothing to resample at this layer",
             )
         return score
+
+
+class _MultiSubjectCKABenchmark(_MultiSubjectRSABenchmark):
+    """RSA wrapper, re-ceiled against inter-subject CKA.
+
+    The children score with :func:`_neutral_ceiler`, so the aggregate returned by
+    the parent is on the **raw** scale. This class then divides by the pairwise
+    inter-subject ceiling, which requires more than one subject and therefore
+    cannot live in a per-subject child.
+
+    DB contract preserved exactly (``brainscore_core.submission.database``):
+
+    - ``attrs['raw']`` -- scalar, unchanged from the parent  -> ``score_raw``
+    - ``attrs['ceiling']`` -- scalar, ``.item()``-able       -> ``BenchmarkInstance.ceiling``
+    - ``ceiling.attrs['error']`` -- float                    -> ``ceiling_error``
+    - ``attrs['error']`` -- rescaled by 1/ceiling            -> ``Score.error``
+    - ``comment`` -- never written here (CharField max 1000; the variant metadata
+      would overflow it and fail the write, not truncate)
+
+    Everything else the recorder ignores and carries along in the stored object.
+    """
+
+    def _load_subject_assembly(self, sub_id):
+        child = self._factory(sub_id)
+        assembly = child._assembly          # LazyLoad materialises here
+        _release(child)
+        return assembly
+
+    def _compute_ceiling(self) -> Score:
+        return _intersubject_cka_ceiling(
+            self._subjects, self._load_subject_assembly, unbiased=self._unbiased,
+        )
+
+    def __call__(self, candidate) -> Score:
+        raw_scale = super().__call__(candidate)     # children are neutrally ceiled
+        ceiling = self._compute_ceiling()
+        ceiling_value = float(ceiling.values)
+        if not np.isfinite(ceiling_value) or ceiling_value <= 0:
+            raise ValueError(f"inter-subject CKA ceiling is not usable: {ceiling_value}")
+
+        score = Score(float(raw_scale.values) / ceiling_value)
+        for key, value in raw_scale.attrs.items():
+            score.attrs[key] = value
+        # 'raw' stays the unceiled aggregate the parent computed.
+        score.attrs["ceiling"] = ceiling
+        # First-order propagation: dividing by a constant scales the error.
+        if raw_scale.attrs.get("error") is not None:
+            score.attrs["error"] = float(raw_scale.attrs["error"]) / ceiling_value
+        return score
+
+
+def _passthrough(assembly):
+    """Identity, so RSABenchmark's two-stage pipeline applies a *direct* metric.
+
+    RSABenchmark computes ``similarity(rdm(model), rdm(neural))``. CKA compares
+    representation matrices directly and never forms an RDM, so the transform
+    stage is skipped rather than replaced. Nothing else about the benchmark
+    changes -- same assembly, same per-subject loop, same ceiling.
+    """
+    return assembly
+
+
+def LAIONfMRICKA(
+    region: str,
+    dataset_prefix: str = "Zerbe2026_fmri",
+    subjects: tuple[str, ...] = DEFAULT_SUBJECTS,
+    noise_ceiling_threshold: float = NOISE_CEILING_THRESHOLD,
+    noise_ceiling_coord: str = "nc_12rep",
+    unbiased: bool = True,
+) -> _MultiSubjectRSABenchmark:
+    """Linear-CKA benchmark for one region across all subjects.
+
+    Requested by Yamins (SAB 2026-07-29): does linear CKA predict behavioural
+    metrics better than ridge? Zerbe already carries ridge and RSA variants on
+    the same stimuli, so CKA makes the comparison within-dataset.
+
+    Shares everything with :func:`LAIONfMRIRSA` except the comparison: same
+    assemblies, same shared-pool restriction, same ncsnr ceiling.
+
+    Says nothing about caching, deliberately. Activation reuse is handled entirely
+    upstream by ``@store_xarray`` on ``ActivationsExtractorHelper._from_paths_stored``
+    and is invisible here; this benchmark produces identical scores with the cache
+    on or off (verified at fp32). Any benchmark that had to know about the cache
+    would be a design error.
+
+    ``unbiased=True`` uses the Song et al. estimator. The biased estimator is
+    inflated by high feature dimensionality (0.16 vs -0.005 on independent data
+    at 10k features), which matters here because model layers are far wider than
+    the voxel count.
+    """
+    if "persubject" in dataset_prefix:
+        raise ValueError(
+            "LAIONfMRICKA is only defined for the shared pool, matching "
+            "LAIONfMRIRSA: persubject stimuli differ across subjects."
+        )
+
+    model_region = _MODEL_REGION_CANONICAL.get(region, region)
+    similarity_metric = load_metric("cka" if unbiased else "cka_biased")
+
+    def _build_subject(sub_id):
+        assembly = LazyLoad(
+            lambda sid=sub_id, r=region, dp=dataset_prefix,
+            nct=noise_ceiling_threshold, ncc=noise_ceiling_coord:
+            load_full_assembly_one_subject(
+                sub_id=sid, region=r, dataset_prefix=dp,
+                noise_ceiling_threshold=nct, noise_ceiling_coord=ncc,
+            )
+        )
+        return RSABenchmark(
+            identifier=f"{dataset_prefix}.{region}-cka-{sub_id}",
+            version=1,
+            assembly=assembly,
+            region=model_region,
+            visual_degrees=VISUAL_DEGREES,
+            number_of_trials=1,
+            bibtex=BIBTEX,
+            ceiler=_neutral_ceiler,
+            parent=region,
+            rdm=_passthrough,
+            similarity=similarity_metric,
+        )
+
+    benchmark = _MultiSubjectCKABenchmark(
+        identifier=f"{dataset_prefix}.{region}-cka",
+        subjects=subjects,
+        per_subject_factory=_build_subject,
+        region=region,
+        # The ceiling holds two assemblies at once (pairwise), against one for
+        # scoring -- so the peak is above the shared-pool default of 1.0.
+        peak_aggregation=2.0,
+        # sibling of the other Zerbe variants, not of the whole Zerbe node
+        parent=f"{dataset_prefix}.{region}",
+    )
+    benchmark._unbiased = unbiased
+    return benchmark
 
 
 def LAIONfMRIRSA(

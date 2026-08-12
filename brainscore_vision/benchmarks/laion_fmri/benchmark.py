@@ -287,9 +287,9 @@ def load_assembly(
         except (KeyError, AttributeError):
             subs_in_assembly = []
         sub_tag = "+".join(subs_in_assembly) if subs_in_assembly else "all"
-        stim.identifier = f"{dataset_prefix}_{split}_{side}_{sub_tag}"
+        stim.identifier = f"{dataset_prefix}_stim_full--{split}-{side}-{sub_tag}"
     else:
-        stim.identifier = f"{dataset_prefix}_{split}_{side}"
+        stim.identifier = f"{dataset_prefix}_stim_full--{split}-{side}"
     stim.stimulus_paths = {
         sid: full_stim.stimulus_paths[sid]
         for sid in stim["stimulus_id"]
@@ -585,7 +585,13 @@ def load_full_assembly_one_subject(
         subset="stimulus_id"
     ).reset_index(drop=True)
     stim = StimulusSet(merged)
-    stim.identifier = f"{dataset_prefix}_rdm_full_{sub_id}"
+    # `<registered set>--<marker>`: the marker keeps this distinct from the
+    # split-specific sets in the cache key, while `{dataset_prefix}_stim_full`
+    # stays resolvable so the key can carry a data-plugin revision. A bare
+    # synthesised name resolves to nothing, and caching is refused for anything
+    # unrevisioned -- which silently disabled the cache for every rdm/cka
+    # variant in run 99.
+    stim.identifier = f"{dataset_prefix}_stim_full--rdm-{sub_id}"
     stim.stimulus_paths = {
         **train_stim.stimulus_paths,
         **test_stim.stimulus_paths,

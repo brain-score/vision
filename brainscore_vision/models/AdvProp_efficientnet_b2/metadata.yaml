@@ -7,8 +7,8 @@ models:
         total_layers: 351
         trainable_layers: 116
         model_size_mb: 36.44
-        training_dataset: null
-        task_specialization: null
+        training_dataset: ImageNet-1k
+        task_specialization: scaling_models
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AdvProp_efficientnet_b2
         huggingface_link: null
         extra_notes: null

@@ -76,9 +76,12 @@ _IGNORED_DIRS = ('__pycache__', '.git', '.pytest_cache')
 # Opt-in switch. Unset => keys are exactly what they were before this module.
 _ENABLE_VAR = 'BRAINSCORE_CACHE_PLUGIN_REVISION'
 
-# Marks the start of the suffix `benchmark_helpers.screen.place_on_screen`
-# appends: `--target<deg>--source<deg>`. Kept in sync with that f-string.
-_SCREEN_SUFFIX = '--target'
+# Separates a registered stimulus set from any derivative marker appended to it.
+# `benchmark_helpers.screen.place_on_screen` appends `--target<deg>--source<deg>`;
+# benchmarks that synthesise a stimulus set (a merged train+test pool, a
+# per-subject slice) use the same convention so the registered set they came
+# from stays recoverable for revisioning.
+_DERIVED_SEPARATOR = '--'
 
 
 def revision_enabled() -> bool:
@@ -125,15 +128,23 @@ def stimulus_set_cache_identifier(stimuli_identifier: str) -> str:
 def base_stimulus_identifier(stimuli_identifier: str) -> str:
     """The registered stimulus set a screen-converted identifier derives from.
 
-    ``place_on_screen`` renames its output to
-    ``<identifier>--target<deg>--source<deg>``, which is not a registered
-    plugin, so resolving the suffixed name finds nothing. Rescaling is a pure
-    function of the source images plus the two degree values already in the
-    key, so the revision of the set they came from is what needs tracking.
+    Two things produce derivative names, and neither is a registered plugin, so
+    resolving them directly finds nothing:
+
+    * ``place_on_screen`` renames its output to
+      ``<identifier>--target<deg>--source<deg>``. Rescaling is a pure function of
+      the source images plus the two degree values already in the key.
+    * a benchmark that synthesises a stimulus set -- a merged train+test pool, a
+      per-subject slice -- names it ``<registered set>--<marker>``.
+
+    In both cases the content is derived from the registered set, so that set's
+    plugin revision is what needs tracking. Everything from the first ``--``
+    onwards stays in the *key* (it distinguishes the derivatives from each
+    other); it is stripped only for the revision lookup.
     """
     if not isinstance(stimuli_identifier, str):
         return stimuli_identifier
-    return stimuli_identifier.split(_SCREEN_SUFFIX)[0]
+    return stimuli_identifier.split(_DERIVED_SEPARATOR)[0]
 
 
 def _with_revision(identifier, plugin_type: str, env_var: str,

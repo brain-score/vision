@@ -333,6 +333,43 @@ class TestStimulusSetResolution:
         assert stimulus_set_cache_identifier('NotARegisteredStimulusSet') is None
 
 
+class TestDerivedStimulusIdentifiers:
+    """A synthesised stimulus set names itself `<registered set>--<marker>` so the
+    registered set stays resolvable.
+
+    Run 99 regression: the laion_fmri benchmarks used bare synthesised names
+    (`Zerbe2026_fmri_rdm_full_sub-01`), which resolve to nothing. Once an
+    unresolved revision refuses to cache, that silently disabled the cache for
+    every rdm and cka variant -- the exact family the shared cache exists for.
+    """
+
+    def test_marker_is_stripped_for_the_revision_lookup(self, revisioning_on, monkeypatch):
+        monkeypatch.delenv('BRAINSCORE_DATA_PLUGIN_SHA', raising=False)
+        result = stimulus_set_cache_identifier('Zerbe2026_fmri_stim_full--rdm-sub-01')
+        assert result is not None, "a derivative of a registered set must be cacheable"
+        assert result.startswith('Zerbe2026_fmri_stim_full--rdm-sub-01@')
+
+    def test_marker_stays_in_the_key(self, revisioning_on, monkeypatch):
+        """Stripping it from the key would collide rdm with the ridge splits."""
+        monkeypatch.delenv('BRAINSCORE_DATA_PLUGIN_SHA', raising=False)
+        rdm = stimulus_set_cache_identifier('Zerbe2026_fmri_stim_full--rdm-sub-01')
+        ridge = stimulus_set_cache_identifier('Zerbe2026_fmri_stim_full--tau-train-sub-01')
+        assert rdm != ridge
+        assert 'rdm-sub-01' in rdm and 'tau-train-sub-01' in ridge
+
+    def test_a_screen_suffix_layered_on_top_still_resolves(self, revisioning_on, monkeypatch):
+        """place_on_screen appends to whatever it is given, so both markers stack."""
+        monkeypatch.delenv('BRAINSCORE_DATA_PLUGIN_SHA', raising=False)
+        result = stimulus_set_cache_identifier(
+            'Zerbe2026_fmri_stim_full--rdm-sub-01--target8.00--source9.20')
+        assert result is not None and '@' in result
+
+    def test_an_unregistered_base_is_still_refused(self, revisioning_on, monkeypatch):
+        """Generalising the split must not invent revisions for unknown sets."""
+        monkeypatch.delenv('BRAINSCORE_DATA_PLUGIN_SHA', raising=False)
+        assert stimulus_set_cache_identifier('NotRegisteredAtAll--marker') is None
+
+
 class TestScreenConvertedIdentifiers:
     """`place_on_screen` renames its output to
     `<id>--target<deg>--source<deg>`, which is not a registered plugin."""
@@ -357,12 +394,14 @@ class TestScreenConvertedIdentifiers:
         assert eight != ten
         assert eight.startswith('hvm-public--target8.00--source11.00@')
 
-    def test_suffix_constant_matches_screen_py(self):
-        """_SCREEN_SUFFIX duplicates a literal from screen.py's f-string."""
+    def test_separator_still_prefixes_the_screen_suffix(self):
+        """Base resolution splits on _DERIVED_SEPARATOR, so place_on_screen's
+        appended suffix has to keep starting with it -- otherwise a screened
+        stimulus set stops resolving and silently loses its cache."""
         from brainscore_vision.benchmark_helpers import screen
         source = Path(screen.__file__).read_text()
-        assert f'{cache_key._SCREEN_SUFFIX}{{target_visual_degrees:.2f}}' in source, \
-            "place_on_screen's suffix changed; update _SCREEN_SUFFIX"
+        assert f'{cache_key._DERIVED_SEPARATOR}target{{target_visual_degrees:.2f}}' in source, \
+            "place_on_screen's suffix no longer starts with _DERIVED_SEPARATOR"
 
     def test_non_string_identifier_passes_through(self):
         assert cache_key.base_stimulus_identifier(False) is False

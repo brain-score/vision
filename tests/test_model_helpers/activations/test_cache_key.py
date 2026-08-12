@@ -73,23 +73,25 @@ class TestEnvironmentOverride:
         monkeypatch.setenv('BRAINSCORE_MODEL_PLUGIN_SHA', 'a' * 40)
         monkeypatch.delenv('BRAINSCORE_DATA_PLUGIN_SHA', raising=False)
         with mock.patch.object(cache_key, '_locate_plugin_dir', return_value=None):
-            assert stimulus_set_cache_identifier('Papale2025') == 'Papale2025'
+            # None (refuse to cache), and above all never the model's sha
+            assert stimulus_set_cache_identifier('Papale2025') is None
 
 
-class TestDegradesInsteadOfFailing:
-    """None of these may raise, and none may invent a revision."""
+class TestRefusesInsteadOfFailing:
+    """None of these may raise, none may invent a revision, and an unresolved
+    revision must refuse to key rather than degrade to a revision-blind one."""
 
-    def test_unresolvable_plugin_returns_bare_identifier(self, revisioning_on, monkeypatch):
+    def test_unresolvable_plugin_refuses_to_key(self, revisioning_on, monkeypatch):
         monkeypatch.delenv('BRAINSCORE_MODEL_PLUGIN_SHA', raising=False)
         with mock.patch.object(cache_key, '_locate_plugin_dir', return_value=None):
-            assert model_cache_identifier('nonexistent_model') == 'nonexistent_model'
+            assert model_cache_identifier('nonexistent_model') is None
 
     def test_locate_plugin_raising_is_swallowed(self, revisioning_on, monkeypatch):
         monkeypatch.delenv('BRAINSCORE_MODEL_PLUGIN_SHA', raising=False)
         from brainscore_core.plugin_management import import_plugin
         with mock.patch.object(import_plugin.ImportPlugin, 'locate_plugin',
                                side_effect=AssertionError("No registrations found")):
-            assert model_cache_identifier('alexnet') == 'alexnet'
+            assert model_cache_identifier('alexnet') is None  # refused, not raised
 
     def test_git_failure_falls_through_to_content_hash(self, revisioning_on, tmp_path, monkeypatch):
         monkeypatch.delenv('BRAINSCORE_MODEL_PLUGIN_SHA', raising=False)
@@ -99,12 +101,12 @@ class TestDegradesInsteadOfFailing:
             result = model_cache_identifier('alexnet')
         assert result.startswith('alexnet@') and len(result) == len('alexnet@') + 12
 
-    def test_everything_failing_still_returns_identifier(self, revisioning_on, tmp_path, monkeypatch):
+    def test_everything_failing_refuses_without_raising(self, revisioning_on, tmp_path, monkeypatch):
         monkeypatch.delenv('BRAINSCORE_MODEL_PLUGIN_SHA', raising=False)
         with mock.patch.object(cache_key, '_locate_plugin_dir', return_value=tmp_path), \
              mock.patch.object(cache_key, '_git_revision', return_value=None), \
              mock.patch.object(cache_key, '_content_revision', return_value=None):
-            assert model_cache_identifier('alexnet') == 'alexnet'
+            assert model_cache_identifier('alexnet') is None
 
     def test_falsy_identifier_passes_through(self, revisioning_on):
         """`stimuli_identifier=False` is how callers disable storing."""
@@ -202,13 +204,19 @@ class TestLogNoise:
         warnings = [r for r in caplog.records if r.levelname == 'WARNING']
         assert len(warnings) == 1, f"expected one warning, got {len(warnings)}"
 
-    def test_unresolved_stimulus_set_does_not_warn(self, revisioning_on, monkeypatch, caplog):
+    def test_unresolved_stimulus_set_warns_because_it_disables_caching(
+            self, revisioning_on, monkeypatch, caplog):
+        """This used to be deliberate silence -- unresolvable stimulus sets were
+        routine and keyed bare. Now they refuse to cache, so silence would hide a
+        recomputation nobody asked for."""
         monkeypatch.delenv('BRAINSCORE_DATA_PLUGIN_SHA', raising=False)
         with mock.patch.object(cache_key, '_locate_plugin_dir', return_value=None):
             with caplog.at_level('WARNING'):
-                stimulus_set_cache_identifier('SomeBenchmarkLocalStimuli')
-        assert [r for r in caplog.records if r.levelname == 'WARNING'] == [], \
-            "unresolvable stimulus sets are routine; warning on them is log noise"
+                for _ in range(25):
+                    stimulus_set_cache_identifier('SomeBenchmarkLocalStimuli')
+        warnings = [r for r in caplog.records if r.levelname == 'WARNING']
+        assert len(warnings) == 1, f"expected one warning per plugin, got {len(warnings)}"
+        assert 'Refusing to cache' in warnings[0].message
 
 
 class TestExtractorIntegration:
@@ -242,6 +250,37 @@ class TestExtractorIntegration:
         kwargs = extractor._from_paths_stored.call_args[1]
         assert kwargs['identifier'] == 'alexnet@' + 'a' * 12
         assert kwargs['stimuli_identifier'] == 'Papale2025@' + 'b' * 12
+
+    def test_unresolvable_revision_bypasses_the_cache_entirely(self, revisioning_on, monkeypatch):
+        """The whole point of refusing: no stored call, so nothing is written
+        under a key that cannot distinguish plugin revisions.
+
+        Regression guard for build 98, which wrote a 369 MB unrevisioned entry
+        for Allen2022_fmri_surface_full to the shared S3 cache.
+        """
+        monkeypatch.delenv('BRAINSCORE_MODEL_PLUGIN_SHA', raising=False)
+        monkeypatch.delenv('BRAINSCORE_DATA_PLUGIN_SHA', raising=False)
+        extractor = self._stub_extractor()
+        with mock.patch.object(cache_key, '_locate_plugin_dir', return_value=None), \
+             mock.patch.object(cache_key, '_locate_plugin_dir_by_stimulus_identifier',
+                               return_value=None):
+            result = extractor.from_paths(stimuli_paths=['x.png'], layers=['fc'],
+                                          stimuli_identifier='Allen2022_fmri_surface_full')
+        extractor._from_paths_stored.assert_not_called()
+        extractor._from_paths.assert_called_once()
+        assert result == 'ASSEMBLY', "refusing to cache must still return the assembly"
+
+    def test_revisioning_off_still_caches_on_bare_identifiers(self, monkeypatch):
+        """Local developers keep their warm caches: with revisioning unset an
+        unresolvable plugin must NOT disable caching."""
+        monkeypatch.delenv('BRAINSCORE_CACHE_PLUGIN_REVISION', raising=False)
+        extractor = self._stub_extractor()
+        with mock.patch.object(cache_key, '_locate_plugin_dir', return_value=None):
+            extractor.from_paths(stimuli_paths=['x.png'], layers=['fc'],
+                                 stimuli_identifier='SomethingUnresolvable')
+        kwargs = extractor._from_paths_stored.call_args[1]
+        assert kwargs['identifier'] == 'alexnet'
+        assert kwargs['stimuli_identifier'] == 'SomethingUnresolvable'
 
     def test_model_identifier_attribute_is_not_mutated(self, revisioning_on, monkeypatch):
         """Only the cache key carries the revision; self.identifier is used
@@ -289,9 +328,9 @@ class TestStimulusSetResolution:
         monkeypatch.delenv('BRAINSCORE_DATA_PLUGIN_SHA', raising=False)
         assert stimulus_set_cache_identifier('MajajHong2015').startswith('MajajHong2015@')
 
-    def test_unregistered_identifier_is_still_returned_bare(self, revisioning_on, monkeypatch):
+    def test_unregistered_identifier_refuses_to_key(self, revisioning_on, monkeypatch):
         monkeypatch.delenv('BRAINSCORE_DATA_PLUGIN_SHA', raising=False)
-        assert stimulus_set_cache_identifier('NotARegisteredStimulusSet') == 'NotARegisteredStimulusSet'
+        assert stimulus_set_cache_identifier('NotARegisteredStimulusSet') is None
 
 
 class TestScreenConvertedIdentifiers:

@@ -42,11 +42,17 @@ Resolution order, per plugin:
    cache on every unrelated commit.
 3. A content hash of the plugin directory, for installs that are not a git
    checkout.
-4. Nothing. The identifier is returned unchanged, which reproduces the
-   pre-existing (revision-blind) key, and a warning is logged.
+4. Nothing. Caching is then refused for that request: the public helpers
+   return ``None`` and a warning is logged.
 
-Step 4 is deliberately not an error: this module must never be able to fail a
-scoring run. It degrades to exactly the behaviour that shipped before it.
+Step 4 used to return the bare identifier, reproducing the revision-blind key.
+That was safe while the cache was per-container and discarded, but on the shared
+S3 backend it writes one entry that is served across every revision of the
+plugin -- the exact failure this module exists to prevent. Refusing to cache
+costs one recomputation; a stale hit costs a wrong score that looks normal.
+
+Refusing is still not an error: this module must never fail a scoring run, so
+the caller computes uncached rather than raising.
 """
 import hashlib
 import logging
@@ -88,16 +94,21 @@ def revision_enabled() -> bool:
 def model_cache_identifier(identifier: str) -> str:
     """Model identifier with its plugin revision appended, for cache keying."""
     return _with_revision(identifier, plugin_type='models',
-                          env_var='BRAINSCORE_MODEL_PLUGIN_SHA', unresolved_is_notable=True)
+                          env_var='BRAINSCORE_MODEL_PLUGIN_SHA')
 
 
 def stimulus_set_cache_identifier(stimuli_identifier: str) -> str:
     """Stimulus-set identifier with its data-plugin revision appended.
 
+    Returns None when revisioning is enabled but no revision can be resolved,
+    which the caller must treat as "do not cache this request".
+
     Stimulus sets reach the extractor through several routes (a registered
     data plugin, a benchmark-local assembly, a screen-converted derivative),
-    so a revision is sometimes unavailable. That is expected rather than
-    notable — an unresolved stimulus set simply keys as it does today.
+    so a revision is sometimes unavailable. Degrading to an unrevisioned key
+    was safe while the cache was per-container and thrown away; on the shared
+    S3 cache it means one stimulus set is served across plugin revisions, so
+    the unresolved case now disables caching instead.
 
     Two of those routes need translating before the plugin resolver can find
     anything, and both were silently unresolvable until they were fixed:
@@ -106,7 +117,7 @@ def stimulus_set_cache_identifier(stimuli_identifier: str) -> str:
     set carries a suffix that is not registered at all.
     """
     return _with_revision(stimuli_identifier, plugin_type='data',
-                          env_var='BRAINSCORE_DATA_PLUGIN_SHA', unresolved_is_notable=False,
+                          env_var='BRAINSCORE_DATA_PLUGIN_SHA',
                           registry_prefixes=('stimulus_set', 'data'),
                           lookup_identifier=base_stimulus_identifier(stimuli_identifier))
 
@@ -125,7 +136,7 @@ def base_stimulus_identifier(stimuli_identifier: str) -> str:
     return stimuli_identifier.split(_SCREEN_SUFFIX)[0]
 
 
-def _with_revision(identifier, plugin_type: str, env_var: str, unresolved_is_notable: bool,
+def _with_revision(identifier, plugin_type: str, env_var: str,
                    registry_prefixes: tuple = (None,), lookup_identifier: Optional[str] = None):
     if not revision_enabled():
         return identifier
@@ -134,16 +145,21 @@ def _with_revision(identifier, plugin_type: str, env_var: str, unresolved_is_not
         return identifier
     revision = _plugin_revision(plugin_type=plugin_type,
                                 identifier=lookup_identifier or identifier, env_var=env_var,
-                                unresolved_is_notable=unresolved_is_notable,
                                 registry_prefixes=registry_prefixes)
+    # Revisioning is only ever enabled alongside the shared S3 cache (the
+    # orchestrator sets both together), and there an unrevisioned key is served
+    # across plugin revisions -- exactly the failure this module exists to
+    # prevent. Refuse to key rather than write one; the caller computes
+    # uncached. `_plugin_revision` logs the refusal, once per plugin.
+    if not revision:
+        return None
     # The revision is appended to the *full* identifier: the screen suffix
     # carries the degree conversion, which changes the activations.
-    return f"{identifier}@{revision}" if revision else identifier
+    return f"{identifier}@{revision}"
 
 
 @lru_cache(maxsize=None)
 def _plugin_revision(plugin_type: str, identifier: str, env_var: str,
-                     unresolved_is_notable: bool = True,
                      registry_prefixes: tuple = (None,)) -> Optional[str]:
     """Short revision string for a plugin, or None if it cannot be determined.
 
@@ -170,15 +186,15 @@ def _plugin_revision(plugin_type: str, identifier: str, env_var: str,
     if plugin_dir is not None:
         revision = _git_revision(plugin_dir) or _content_revision(plugin_dir)
     if not revision:
-        # An unresolved *model* revision means the cache cannot tell two
-        # revisions of the same plugin apart, which is the failure this module
-        # exists to prevent -- worth surfacing. An unresolved stimulus set is
-        # routine, but logging it at debug is how two resolver bugs went
-        # unnoticed until a cache key was read by hand.
-        log = _logger.warning if unresolved_is_notable else _logger.info
-        log(f"Could not resolve a {plugin_type} revision for '{identifier}'; the activation "
-            f"cache key cannot distinguish revisions of this plugin. "
-            f"Set {env_var} to make it explicit.")
+        # Always a warning now: an unresolved revision of either kind disables
+        # caching for the request, so it is never routine. Logged here rather
+        # than at the call site because this function is lru_cached, which is
+        # what keeps it to one line per plugin instead of one per extraction.
+        _logger.warning(
+            f"Refusing to cache: could not resolve a {plugin_type} revision for "
+            f"'{identifier}', so a shared cache key could not distinguish revisions of this "
+            f"plugin. Affected requests are computed without the cache. "
+            f"Set {env_var} to make the revision explicit.")
     return revision
 
 

@@ -1,0 +1,20 @@
+numpy
+netCDF4
+torch
+torchvision
+torchaudio
+transformers
+phys_readouts@ git+https://github.com/thekej/phys_readouts.git#egg=phys_readouts
+pretrainedmodels
+pyhocon
+imageio
+opencv-python
+imageio-ffmpeg
+tensorboard
+dotmap
+scipy
+scikit-image
+ipdb
+matplotlib
+tqdm
+lpips

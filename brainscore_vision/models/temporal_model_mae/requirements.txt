@@ -1,0 +1,6 @@
+numpy
+netCDF4
+torch
+torchvision
+torchaudio
+transformers

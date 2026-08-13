@@ -220,6 +220,49 @@ class TestUncertaintyContract:
         assert score.attrs.get("error_nan_reason")
 
 
+class TestStimulusIdentifierConvention:
+    """Every synthesised stimulus identifier must derive from a registered set.
+
+    A bare synthesised name resolves to no plugin, so the shared activation
+    cache refuses it and every extraction is recomputed at full cost. That
+    silently disabled caching for the whole rdm/cka family once before.
+
+    This reads the assignments out of benchmark.py rather than restating them,
+    so a new or edited identifier cannot drift past the check.
+    """
+
+    def _identifier_templates(self):
+        import re
+        from pathlib import Path
+        from brainscore_vision.benchmarks.laion_fmri import benchmark as bm
+        source = Path(bm.__file__).read_text()
+        templates = re.findall(r'stim\.identifier\s*=\s*f"([^"]+)"', source)
+        assert templates, "no stim.identifier assignments found -- has benchmark.py moved?"
+        return templates
+
+    def test_every_synthesised_identifier_derives_from_a_registered_set(self):
+        for template in self._identifier_templates():
+            assert '--' in template, (
+                f"synthesised stimulus identifier {template!r} has no '--<marker>'. "
+                f"It will not resolve a data-plugin revision, so caching is refused "
+                f"and every extraction recomputes. Name it "
+                f"'<registered identifier>--<marker>'.")
+            base = template.split('--')[0]
+            assert base == '{dataset_prefix}_stim_full', (
+                f"identifier {template!r} resolves against {base!r}, which is not the "
+                f"registered stimulus set this benchmark loads "
+                f"(load_stimulus_set(f'{{dataset_prefix}}_stim_full'))")
+
+    def test_the_resolved_identifiers_are_actually_cacheable(self):
+        from brainscore_vision.benchmark_helpers.cache_contract import (
+            assert_stimulus_identifier_is_cacheable)
+        for template in self._identifier_templates():
+            concrete = (template.replace('{dataset_prefix}', 'Zerbe2026_fmri')
+                                .replace('{split}', 'tau').replace('{side}', 'train')
+                                .replace('{sub_tag}', 'sub-01').replace('{sub_id}', 'sub-01'))
+            assert_stimulus_identifier_is_cacheable(concrete)
+
+
 class TestCKAWiring:
     """The CKA variants reuse RSABenchmark with the RDM stage bypassed.
 

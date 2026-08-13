@@ -159,6 +159,7 @@ class Imagenet_C_Individual(BenchmarkBase):
         self.stimulus_set = stimulus_set[stimulus_set['noise_level'] == noise_level]
         self.noise_level = noise_level
         self.noise_type = noise_type
+        self.noise_category = noise_category
         self.benchmark_name = f'Hendrycks2019-{noise_category}-{noise_type}-{noise_level}-top1'
         self._similarity_metric = load_metric('accuracy')
         ceiling = Score(1)
@@ -171,7 +172,13 @@ class Imagenet_C_Individual(BenchmarkBase):
         candidate.start_task(BrainModel.Task.label, 'imagenet')
         stimulus_set = self.stimulus_set[
             list(set(self.stimulus_set.columns) - {'synset'})].copy().reset_index()  # do not show label
-        stimulus_set.identifier = f'{self.benchmark_name}-{len(stimulus_set)}samples'
+        # `<registered set>--<marker>`: this subset is synthesised, so it must be
+        # named after `imagenet_c.<category>` (the set it is filtered from) or no
+        # data-plugin revision resolves and caching is refused for every
+        # ImageNet-C benchmark -- the slowest jobs in the suite.
+        stimulus_set.identifier = (f'imagenet_c.{self.noise_category}'
+                                   f'--{self.noise_type}-{self.noise_level}'
+                                   f'-{len(stimulus_set)}samples')
         predictions = candidate.look_at(stimulus_set, number_of_trials=NUMBER_OF_TRIALS)
         score = self._similarity_metric(
             predictions.sortby('filename'),

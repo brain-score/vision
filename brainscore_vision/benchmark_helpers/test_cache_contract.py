@@ -6,7 +6,9 @@ matched. See :mod:`brainscore_vision.benchmark_helpers.cache_contract`.
 """
 from __future__ import annotations
 
+import ast
 import os
+from pathlib import Path
 
 import pytest
 
@@ -88,3 +90,69 @@ class TestLaionFmriIdentifiers:
     ])
     def test_synthesised_identifiers_are_cacheable(self, identifier):
         assert_stimulus_identifier_is_cacheable(identifier)
+
+
+class TestNoBenchmarkSynthesisesAnUncacheableIdentifier:
+    """Repo-wide sweep: every synthesised stimulus identifier must derive from a
+    registered set.
+
+    A per-plugin check would only cover the plugin someone thought to write it
+    for. This sweep is what surfaced imagenet_c -- the slowest jobs in the suite
+    -- silently recomputing activations on every run.
+
+    Uses ``ast`` rather than a regex: Python merges adjacent string literals into
+    a single node, so an identifier split across lines for width is read whole. A
+    regex sees only the first fragment and reports a false offender.
+    """
+
+    def _assignments(self):
+        root = Path(__file__).resolve().parent.parent / 'benchmarks'
+        found = []
+        for path in root.rglob('*.py'):
+            if 'data_packaging' in str(path):
+                continue
+            try:
+                tree = ast.parse(path.read_text(errors='replace'))
+            except SyntaxError:  # pragma: no cover - not our contract to enforce
+                continue
+            for node in ast.walk(tree):
+                if not isinstance(node, ast.Assign):
+                    continue
+                for target in node.targets:
+                    if not (isinstance(target, ast.Attribute) and target.attr == 'identifier'):
+                        continue
+                    owner = getattr(target.value, 'id', '') or getattr(target.value, 'attr', '')
+                    if 'stim' not in owner.lower():
+                        continue
+                    if isinstance(node.value, ast.JoinedStr):
+                        # keep placeholder POSITIONS: joining only the constant
+                        # fragments lets separators either side of a placeholder
+                        # merge, so 'a-{x}-{y}' reads as containing '--'
+                        literal = ''.join(
+                            v.value if isinstance(v, ast.Constant) else '{}'
+                            for v in node.value.values)
+                        synthesised = any(isinstance(v, ast.FormattedValue)
+                                          for v in node.value.values)
+                        found.append((path.relative_to(root), owner, literal, synthesised))
+        assert found, "no stimulus identifier assignments found -- has the layout changed?"
+        return found
+
+    def test_every_synthesised_identifier_carries_a_marker(self):
+        offenders = [(str(path), owner, literal)
+                     for path, owner, literal, synthesised in self._assignments()
+                     # a placeholder-free name is a registered set used directly
+                     if synthesised and '--' not in literal]
+        assert not offenders, (
+            "these benchmarks synthesise a stimulus identifier with no "
+            "'--<marker>', so no data-plugin revision resolves, the shared "
+            "activation cache refuses them, and every extraction recomputes at "
+            "full cost:\n"
+            + "\n".join(f"    {p}: {o}.identifier -> {lit!r}" for p, o, lit in offenders)
+            + "\n  Name them '<registered identifier>--<marker>'.")
+
+    def test_the_sweep_actually_finds_the_known_assignments(self):
+        """A sweep that silently matches nothing would pass forever."""
+        paths = {str(p) for p, _o, _l, _s in self._assignments()}
+        for expected in ('laion_fmri/benchmark.py', 'allen2022_fmri/benchmark.py',
+                         'imagenet_c/benchmark.py'):
+            assert expected in paths, f"sweep no longer sees {expected}"

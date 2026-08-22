@@ -3,7 +3,7 @@ import numpy as np
 from torchvision import transforms
 from torchvision.models import video as vid
 
-from brainscore_vision.model_helpers.activations.temporal.model.pytorch import PytorchWrapper
+from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
 
 
 LARGE_MODEL_LAYER_STEP = 2

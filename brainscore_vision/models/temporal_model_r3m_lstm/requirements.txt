@@ -1,0 +1,6 @@
+numpy
+netCDF4
+torch
+torchvision
+torchaudio
+r3m @ git+https://github.com/facebookresearch/r3m.git#egg=r3m

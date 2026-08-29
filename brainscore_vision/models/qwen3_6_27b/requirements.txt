@@ -1,0 +1,3 @@
+huggingface_hub>=1.5,<2
+safetensors>=0.8,<1
+transformers==5.14.1

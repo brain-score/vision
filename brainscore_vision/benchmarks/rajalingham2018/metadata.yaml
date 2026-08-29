@@ -9,12 +9,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: null
+            task: alternative_forced_choice
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: null
+            species: homo_sapiens, macaca_mulatta
             datatype: behavioral
             num_subjects: null
             pre_processing: null
@@ -37,12 +37,12 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: null
+            task: alternative_forced_choice
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: null
+            species: homo_sapiens, macaca_mulatta
             datatype: behavioral
             num_subjects: null
             pre_processing: null

@@ -8,13 +8,13 @@ benchmarks:
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/hebart2023
             extra_notes: null
         data:
-            benchmark_type: behavior
+            benchmark_type: behavioral
             task: null
             region: null
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: null
             pre_processing: null

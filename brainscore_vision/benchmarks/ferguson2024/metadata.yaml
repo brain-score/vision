@@ -9,9 +9,9 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 30
             pre_processing: null
@@ -34,9 +34,9 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 29
             pre_processing: null
@@ -59,9 +59,9 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 27
             pre_processing: null
@@ -84,9 +84,9 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 30
             pre_processing: null
@@ -109,9 +109,9 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 28
             pre_processing: null
@@ -134,9 +134,9 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 29
             pre_processing: null
@@ -159,9 +159,9 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 29
             pre_processing: null
@@ -184,9 +184,9 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 27
             pre_processing: null
@@ -209,9 +209,9 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 29
             pre_processing: null
@@ -234,9 +234,9 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 28
             pre_processing: null
@@ -259,9 +259,9 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 28
             pre_processing: null
@@ -284,9 +284,9 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 30
             pre_processing: null
@@ -309,9 +309,9 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 29
             pre_processing: null
@@ -334,9 +334,9 @@ benchmarks:
             extra_notes: null
         data:
             benchmark_type: behavioral
-            task: 2_way_afc
+            task: alternative_forced_choice
             duration_ms: 200
-            species: human
+            species: homo_sapiens
             datatype: behavioral
             num_subjects: 30
             pre_processing: null

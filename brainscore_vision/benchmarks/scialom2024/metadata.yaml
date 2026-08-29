@@ -14,8 +14,8 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
-            datatype: behavioral_data
+            species: homo_sapiens
+            datatype: behavioral
             num_subjects: 50
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -42,8 +42,8 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
-            datatype: behavioral_data
+            species: homo_sapiens
+            datatype: behavioral
             num_subjects: 25
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -70,8 +70,8 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
-            datatype: behavioral_data
+            species: homo_sapiens
+            datatype: behavioral
             num_subjects: 25
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -98,8 +98,8 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
-            datatype: behavioral_data
+            species: homo_sapiens
+            datatype: behavioral
             num_subjects: 25
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -126,8 +126,8 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
-            datatype: behavioral_data
+            species: homo_sapiens
+            datatype: behavioral
             num_subjects: 25
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -154,8 +154,8 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
-            datatype: behavioral_data
+            species: homo_sapiens
+            datatype: behavioral
             num_subjects: 25
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -182,8 +182,8 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
-            datatype: behavioral_data
+            species: homo_sapiens
+            datatype: behavioral
             num_subjects: 25
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -210,8 +210,8 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
-            datatype: behavioral_data
+            species: homo_sapiens
+            datatype: behavioral
             num_subjects: 25
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -238,8 +238,8 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
-            datatype: behavioral_data
+            species: homo_sapiens
+            datatype: behavioral
             num_subjects: 25
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -266,8 +266,8 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
-            datatype: behavioral_data
+            species: homo_sapiens
+            datatype: behavioral
             num_subjects: 25
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -294,8 +294,8 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
-            datatype: behavioral_data
+            species: homo_sapiens
+            datatype: behavioral
             num_subjects: 25
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -322,8 +322,8 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
-            datatype: behavioral_data
+            species: homo_sapiens
+            datatype: behavioral
             num_subjects: 25
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -350,8 +350,8 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
-            datatype: behavioral_data
+            species: homo_sapiens
+            datatype: behavioral
             num_subjects: 50
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -378,8 +378,8 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
-            datatype: behavioral_data
+            species: homo_sapiens
+            datatype: behavioral
             num_subjects: 25
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -406,8 +406,8 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
-            datatype: behavioral_data
+            species: homo_sapiens
+            datatype: behavioral
             num_subjects: 25
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -434,8 +434,8 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
-            datatype: behavioral_data
+            species: homo_sapiens
+            datatype: behavioral
             num_subjects: 25
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -462,8 +462,8 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
-            datatype: behavioral_data
+            species: homo_sapiens
+            datatype: behavioral
             num_subjects: 25
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -490,8 +490,8 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
-            datatype: behavioral_data
+            species: homo_sapiens
+            datatype: behavioral
             num_subjects: 25
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -518,8 +518,8 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
-            datatype: behavioral_data
+            species: homo_sapiens
+            datatype: behavioral
             num_subjects: 25
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -546,8 +546,8 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
-            datatype: behavioral_data
+            species: homo_sapiens
+            datatype: behavioral
             num_subjects: 25
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -574,8 +574,8 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
-            datatype: behavioral_data
+            species: homo_sapiens
+            datatype: behavioral
             num_subjects: 25
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -602,8 +602,8 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
-            datatype: behavioral_data
+            species: homo_sapiens
+            datatype: behavioral
             num_subjects: 25
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -630,8 +630,8 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
-            datatype: behavioral_data
+            species: homo_sapiens
+            datatype: behavioral
             num_subjects: 25
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024
@@ -658,8 +658,8 @@ benchmarks:
             hemisphere: null
             num_recording_sites: null
             duration_ms: null
-            species: human
-            datatype: behavioral_data
+            species: homo_sapiens
+            datatype: behavioral
             num_subjects: 25
             pre_processing: null
             brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/scialom2024

@@ -56,6 +56,9 @@ class LayerMappedModel(BrainModel):
     def start_recording(self, recording_target: BrainModel.RecordingTarget):
         self.recorded_regions = [recording_target]
 
+    def reset(self):
+        self.recorded_regions = []
+
     def visual_degrees(self) -> int:
         return self._visual_degrees
 

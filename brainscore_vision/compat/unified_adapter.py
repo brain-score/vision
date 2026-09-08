@@ -74,6 +74,12 @@ class VisionModelAdapter(Subject):
     def visual_degrees(self):
         return self._legacy.visual_degrees()
 
+    def reset(self) -> None:
+        reset = getattr(self._legacy, 'reset', None)
+        if callable(reset):
+            reset()
+        self._task_context = None
+
     def __getattr__(self, name):
         # Delegate attribute access to the legacy model for backwards compatibility
         # (e.g., layer_model, visual_degrees, etc.)

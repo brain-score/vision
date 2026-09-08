@@ -152,6 +152,12 @@ class TemporalAligned(BrainModel):
         self._layer_model.start_recording(recording_target)
         self._time_bins = time_bins
 
+    def reset(self):
+        self._time_bins = None
+        reset = getattr(self._layer_model, 'reset', None)
+        if callable(reset):
+            reset()
+
     def visual_degrees(self) -> int:
         return self._layer_model.visual_degrees()
 

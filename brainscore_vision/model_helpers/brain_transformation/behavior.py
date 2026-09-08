@@ -26,6 +26,13 @@ class BehaviorArbiter(BrainModel):
     def look_at(self, stimuli, *args, **kwargs):
         return self.current_executor.look_at(stimuli, *args, **kwargs)
 
+    def reset(self):
+        self.current_executor = None
+        for executor in self.mapping.values():
+            reset = getattr(executor, 'reset', None)
+            if callable(reset):
+                reset()
+
 
 class LabelBehavior(BrainModel):
     def __init__(self, identifier, activations_model):
@@ -42,6 +49,10 @@ class LabelBehavior(BrainModel):
         assert task == BrainModel.Task.label
         self.current_task = task
         self.choice_labels = choice_labels
+
+    def reset(self):
+        self.current_task = None
+        self.choice_labels = None
 
     def look_at(self, stimuli, number_of_trials: int = 1, require_variance: bool = False):
         assert self.current_task == BrainModel.Task.label
@@ -212,6 +223,10 @@ class ProbabilitiesMapping(BrainModel):
     def identifier(self):
         return self._identifier
 
+    def reset(self):
+        self.current_task = None
+        self.classifier = self.ProbabilitiesClassifier()
+
     def start_task(self, task: BrainModel.Task, fitting_stimuli, number_of_trials=1, require_variance=False):
         assert task in [BrainModel.Task.passive, BrainModel.Task.probabilities]
         self.current_task = task
@@ -296,6 +311,10 @@ class OddOneOut(BrainModel):
     @property
     def identifier(self):
         return self._identifier
+
+    def reset(self):
+        self.current_task = None
+        self.similarity_measure = 'dot'
 
     def start_task(self, task: BrainModel.Task):
         assert task == BrainModel.Task.odd_one_out

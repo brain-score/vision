@@ -104,6 +104,12 @@ class ModelCommitment(BrainModel):
     def start_recording(self, recording_target, time_bins):
         return self.layer_model.start_recording(recording_target, time_bins)
 
+    def reset(self):
+        """Clear measurement configuration without changing weights or mappings."""
+        self.do_behavior = False
+        self.layer_model.reset()
+        self.behavior_model.reset()
+
     @property
     def identifier(self):
         return self.layer_model.identifier

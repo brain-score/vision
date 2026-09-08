@@ -34,6 +34,7 @@ class _CombinedNeuralBenchmark(BenchmarkBase):
     def __call__(self, candidate):
         scores = [benchmark(candidate) for benchmark in self._sessions]
         combined = Score(np.mean([score.values for score in scores]))
+        combined.attrs[Score.RAW_VALUES_KEY] = Score(np.mean([score.raw.values for score in scores]))
         combined.attrs['ceiling'] = self.ceiling
         combined.attrs['session_scores'] = {b.identifier: float(s.values)
                                              for b, s in zip(self._sessions, scores)}

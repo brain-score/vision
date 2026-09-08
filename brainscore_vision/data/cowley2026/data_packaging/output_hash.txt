@@ -1,0 +1,5 @@
+---STIMULUS SET---
+{'identifier': 'Cowley2026.190923', 'csv_path': '/Users/cowley/Downloads/brainscore_packages/stimulus_Cowley2026_190923.csv', 'zip_path': '/Users/cowley/Downloads/brainscore_packages/stimulus_Cowley2026_190923.zip', 'csv_sha1': '7752f43fc809c193334dd97171867e733291b8fd', 'zip_sha1': 'a14f9d4cfc98cb253f23d4eaa159c60666903668'}
+
+---NEURAL DATA---
+{'identifier': 'Cowley2026.190923', 'path': '/Users/cowley/Downloads/brainscore_packages/assy_Cowley2026_190923.nc', 'sha1': '2ac7f60f21ccc5137074633c0614f52566acff6a', 'cls': 'NeuroidAssembly'}

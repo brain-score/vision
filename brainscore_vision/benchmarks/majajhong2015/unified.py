@@ -1,8 +1,9 @@
 """Unified-interface variants of MajajHong2015 benchmarks.
 
 These call `model.process()` directly instead of legacy `model.look_at()`.
-Scores must match the legacy variants bit-for-bit (modulo non-determinism in
-layer search) — this is a regression test for the unified interface.
+Adapter-route parity does not establish native-route parity. Both routes must
+be checked against the legacy variant with matched weights and fixed layers;
+see brainscore.validation.benchmark_parity and its opt-in real-data tests.
 """
 
 import numpy as np

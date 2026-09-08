@@ -11,7 +11,7 @@ def _helper(identifier="model", backbone_id=None, channel=None):
     )
 
 
-def test_single_channel_cache_uses_legacy_stored_key(monkeypatch):
+def test_single_channel_cache_preserves_backbone_and_adds_fingerprint(monkeypatch):
     helper = _helper(identifier="single-channel", backbone_id="shared-backbone")
     calls = []
 
@@ -34,6 +34,9 @@ def test_single_channel_cache_uses_legacy_stored_key(monkeypatch):
     )
 
     assert result == "old-cache"
+    for call in calls:
+        kwargs = call[1] if isinstance(call, tuple) else call
+        assert kwargs.pop('extraction_fingerprint').startswith('v1-')
     assert calls == [
         (
             "old",
@@ -89,6 +92,9 @@ def test_shared_backbone_channels_use_separate_cache_keys(monkeypatch):
 
     assert vision.from_paths(**common_kwargs) == "vision-cache"
     assert text.from_paths(**common_kwargs) == "text-cache"
+    for call in calls:
+        kwargs = call[1] if isinstance(call, tuple) else call
+        assert kwargs.pop('extraction_fingerprint').startswith('v1-')
     assert calls == [
         {
             "channel": "vision",

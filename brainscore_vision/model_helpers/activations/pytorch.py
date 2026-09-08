@@ -59,6 +59,10 @@ class PytorchWrapper:
     def identifier(self, value):
         self._extractor.identifier = value
 
+    def cache_config(self):
+        from brainscore_core.extraction_cache import wrapper_config
+        return wrapper_config(self, ('_forward_kwargs', '_input_key'))
+
     def __call__(self, *args, **kwargs):  # cannot assign __call__ as attribute due to Python convention
         return self._extractor(*args, **kwargs)
 

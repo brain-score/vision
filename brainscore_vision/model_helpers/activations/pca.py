@@ -18,6 +18,14 @@ class LayerPCA:
         self._n_components = n_components
         self._layer_pcas = {}
 
+    def cache_config(self):
+        from brainscore_core.extraction_cache import implementation_config
+        helper = getattr(self._extractor, '_extractor', self._extractor)
+        return {'n_components': self._n_components,
+                'implementation': implementation_config(type(self)),
+                'input': helper.cache_config(exclude_hooks=(self,)),
+                'corpus': os.getenv('MT_IMAGENET_PATH', 'imagenet2012-val.hdf5')}
+
     def __call__(self, batch_activations):
         self._ensure_initialized(batch_activations.keys())
 
@@ -32,15 +40,24 @@ class LayerPCA:
                            multithread=os.getenv('MT_MULTITHREAD', '1') == '1')
 
     def _ensure_initialized(self, layers):
+        from brainscore_core.extraction_cache import extraction_fingerprint
+        signature = extraction_fingerprint(self.cache_config())
+        if signature is None or signature != getattr(self, '_configuration_fingerprint', None):
+            self._layer_pcas = {}
+        self._configuration_fingerprint = signature
         missing_layers = [layer for layer in layers if layer not in self._layer_pcas]
         if len(missing_layers) == 0:
             return
-        layer_pcas = self._pcas(identifier=self._extractor.identifier, layers=missing_layers,
-                                n_components=self._n_components)
+        fn = self._pcas if signature is not None else self._compute_pcas
+        layer_pcas = fn(identifier=self._extractor.identifier, layers=missing_layers,
+                       n_components=self._n_components, extraction_fingerprint=signature)
         self._layer_pcas = {**self._layer_pcas, **layer_pcas}
 
     @store_dict(dict_key='layers', identifier_ignore=['layers'])
-    def _pcas(self, identifier, layers, n_components):
+    def _pcas(self, identifier, layers, n_components, extraction_fingerprint):
+        return self._compute_pcas(identifier, layers, n_components, extraction_fingerprint)
+
+    def _compute_pcas(self, identifier, layers, n_components, extraction_fingerprint):
         self._logger.debug('Retrieving ImageNet activations')
         imagenet_paths = _get_imagenet_val(num_images=n_components)
         self.handle.disable()

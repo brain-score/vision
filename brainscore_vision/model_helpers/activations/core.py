@@ -20,7 +20,7 @@ from brainscore_core.assembly_builder import (
 from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly, walk_coords
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from brainscore_vision.model_helpers.utils import fullname
-from result_caching import store_xarray
+from brainscore_core.extraction_cache import store_xarray, extraction_fingerprint, implementation_config
 
 
 class Defaults:
@@ -74,6 +74,23 @@ class ActivationsExtractorHelper:
     def channel(self, value):
         self._cache_channel = value
 
+    def cache_config(self, exclude_hooks=()):
+        owner = getattr(self.get_activations, '__self__', None)
+        provider = owner.cache_config() if hasattr(owner, 'cache_config') else self.get_activations
+        return {
+            'implementation': implementation_config(type(self)),
+            'batch_size': self._batch_size,
+            'provider': provider,
+            'preprocessing': self.preprocess,
+            'batch_hooks': [hook for hook in self._batch_activations_hooks.values()
+                            if all(hook is not excluded for excluded in exclude_hooks)],
+            'stimulus_hooks': list(self._stimulus_set_hooks.values()),
+            'microsaccades': {
+                key: getattr(self._microsaccade_helper, key) for key in
+                ('number_of_trials', 'visual_degrees', 'microsaccade_extent_degrees')
+            },
+        }
+
     def __call__(self, stimuli, layers, stimuli_identifier=None, number_of_trials: int = 1,
                  require_variance: bool = False, channel=None):
         """
@@ -125,13 +142,17 @@ class ActivationsExtractorHelper:
                    require_variance=None, channel=None):
         if layers is None:
             layers = ['logits']
-        if self.identifier and stimuli_identifier:
+        signature = (extraction_fingerprint({'configuration': self.cache_config(),
+                     'inputs': self._reduce_paths(stimuli_paths) if not require_variance else stimuli_paths})
+                     if self.identifier and stimuli_identifier else None)
+        if self.identifier and stimuli_identifier and signature is not None:
             # Cache-key is backbone_id (set explicitly or defaulted to identifier).
             cache_channel = self._cache_channel if channel is None else channel
             stored_kwargs = dict(
                 identifier=self._backbone_id or self.identifier,
                 stimuli_identifier=stimuli_identifier,
                 require_variance=require_variance,
+                extraction_fingerprint=signature,
             )
             if cache_channel is None:
                 fnc = functools.partial(self._from_paths_stored, **stored_kwargs)
@@ -163,12 +184,13 @@ class ActivationsExtractorHelper:
 
     @store_xarray(identifier_ignore=['stimuli_paths', 'layers'], combine_fields={'layers': 'layer'})
     def _from_paths_stored(self, identifier, layers, stimuli_identifier,
-                           stimuli_paths, number_of_trials: int = 1, require_variance: bool = False):
+                           stimuli_paths, extraction_fingerprint,
+                           number_of_trials: int = 1, require_variance: bool = False):
         return self._from_paths(layers=layers, stimuli_paths=stimuli_paths, require_variance=require_variance)
 
     @store_xarray(identifier_ignore=['stimuli_paths', 'layers'], combine_fields={'layers': 'layer'})
     def _from_paths_stored_by_channel(self, identifier, channel, layers, stimuli_identifier,
-                                      stimuli_paths, number_of_trials: int = 1,
+                                      stimuli_paths, extraction_fingerprint, number_of_trials: int = 1,
                                       require_variance: bool = False):
         return self._from_paths(layers=layers, stimuli_paths=stimuli_paths, require_variance=require_variance)
 

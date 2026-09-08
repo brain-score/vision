@@ -1,6 +1,7 @@
 import copy
 import os
 import cv2
+import re
 import tempfile
 from typing import Dict, Tuple, List, Union
 
@@ -10,6 +11,7 @@ from collections import OrderedDict
 from multiprocessing.pool import ThreadPool
 
 import numpy as np
+from PIL import Image
 from tqdm.auto import tqdm
 import xarray as xr
 
@@ -25,6 +27,97 @@ class Defaults:
     batch_size = 64
 
 
+# Preprocessing resolution, for the stored-activations cache key
+# ---------------------------------------------------------------
+# `_from_paths_stored` keys on the model identifier, which says nothing about
+# the resolution the model is fed. Two commitments that share an identifier but
+# bind a different `image_size` into their preprocessing therefore collide: the
+# second is served the first one's activations, no preprocessing runs, and the
+# benchmark returns a plausible score for a resolution the model never saw.
+#
+# The resolution is measured by *calling* the preprocessing once, rather than by
+# reading `wrapper.image_size`. That attribute is informative only -- nothing in
+# the framework consults it -- and plugins exist whose preprocessing produces
+# something other than what the attribute claims. Only the shape and dtype go
+# into the key: the shared cache is served by a fleet whose image changes, and a
+# fingerprint sensitive to torch or platform differences would orphan it.
+
+# Key component used when no resolution could be measured. Keeping such a
+# request cacheable under a marked key is no worse than the behaviour before
+# this existed, and it stays visible in the filename.
+NO_RESOLUTION = 'unprobed'
+
+# Neither square nor a common model input size, so a preprocessing that hands
+# its input back unchanged cannot be mistaken for one that resizes.
+_PROBE_IMAGE_SHAPE = (137, 211, 3)  # height, width, RGB
+
+# The component goes into a filename and into a `,`-joined parameter list, so
+# anything that is not digits, `x`, `-` and the dtype name is refused.
+_RESOLUTION_FORMAT = re.compile(r'^\d+(x\d+)*-\w+$')
+
+_logger = logging.getLogger(__name__)
+_probe_image_path = None
+
+
+def _probe_image():
+    """Path to the synthetic probe image, written once per process."""
+    global _probe_image_path
+    if _probe_image_path is None or not os.path.isfile(_probe_image_path):
+        pixels = np.random.RandomState(0).randint(0, 256, _PROBE_IMAGE_SHAPE, dtype=np.uint8)
+        directory = tempfile.mkdtemp(prefix='brainscore-resolution-probe-')
+        path = os.path.join(directory, 'probe.png')
+        Image.fromarray(pixels).save(path)
+        _probe_image_path = path
+    return _probe_image_path
+
+
+def probe_preprocessing_resolution(preprocess, probe_paths=None):
+    """Measure what `preprocess` feeds the model, as a cache-key component.
+
+    Calls `preprocess` the way `_get_batch_activations` does -- with a list of
+    image file paths -- and reports the shape and dtype of what comes back, e.g.
+    ``'3x224x224-float32'``. The batch dimension is left out: it is the number of
+    probe images, not a property of the model.
+
+    :param preprocess: the extractor's preprocessing callable.
+    :param probe_paths: image paths to probe with; defaults to a single
+        synthetic image. Only useful for asserting that the batch dimension
+        stays out of the result.
+    :return: the key component, or `NO_RESOLUTION` if nothing could be measured.
+
+    Never raises. This runs while an extractor is being constructed, for every
+    model in the registry; a preprocessing that cannot be probed must cost a
+    coarser cache key, never a model that cannot be instantiated.
+    """
+    try:
+        paths = list(probe_paths) if probe_paths is not None else [_probe_image()]
+        preprocessed = preprocess(paths)
+        # Two containers occur in the wild: a stacked array whose first axis is
+        # the batch, and a list of per-image tensors (omnivore_*). An element of
+        # the latter carries the non-batch shape already.
+        if isinstance(preprocessed, (list, tuple)):
+            if len(preprocessed) == 0:
+                return NO_RESOLUTION
+            sample, leading_axis_is_batch = preprocessed[0], False
+        else:
+            sample, leading_axis_is_batch = preprocessed, True
+        shape = getattr(sample, 'shape', None)
+        dtype = getattr(sample, 'dtype', None)
+        # A preprocessing that is the identity (`preprocessing=None`, see
+        # `__init__`) hands back the paths it was given, so `sample` is a str
+        # and there is no resolution to speak of.
+        if shape is None or dtype is None:
+            return NO_RESOLUTION
+        dimensions = tuple(shape)[1:] if leading_axis_is_batch else tuple(shape)
+        # `torch.float32` and numpy's `float32` must not key differently.
+        component = 'x'.join(str(int(d)) for d in dimensions) + '-' + str(dtype).replace('torch.', '')
+        return component if _RESOLUTION_FORMAT.match(component) else NO_RESOLUTION
+    except Exception as e:  # noqa: BLE001 - a failed probe must not fail a run
+        _logger.debug(f"Could not probe the preprocessing resolution ({type(e).__name__}: {e}), "
+                      f"caching under `{NO_RESOLUTION}`")
+        return NO_RESOLUTION
+
+
 class ActivationsExtractorHelper:
     def __init__(self, get_activations, preprocessing, identifier=False, batch_size=Defaults.batch_size):
         """
@@ -36,6 +129,9 @@ class ActivationsExtractorHelper:
         self.identifier = identifier
         self.get_activations = get_activations
         self.preprocess = preprocessing or (lambda x: x)
+        # Probed once here rather than per request: it costs a few milliseconds
+        # and cannot change for the life of the extractor.
+        self._resolution = probe_preprocessing_resolution(self.preprocess)
         self._stimulus_set_hooks = {}
         self._batch_activations_hooks = {}
         self._microsaccade_helper = MicrosaccadeHelper()
@@ -100,6 +196,9 @@ class ActivationsExtractorHelper:
             fnc = functools.partial(self._from_paths_stored,
                                     identifier=cache_identifier,
                                     stimuli_identifier=cache_stimuli_identifier,
+                                    # getattr: extractors built with `__new__`
+                                    # never ran `__init__` and have no probe.
+                                    resolution=getattr(self, '_resolution', None) or NO_RESOLUTION,
                                     require_variance=require_variance)
         else:
             self._logger.debug(f"self.identifier `{self.identifier}` or stimuli_identifier {stimuli_identifier} "
@@ -122,8 +221,15 @@ class ActivationsExtractorHelper:
         return activations
 
     @store_xarray(identifier_ignore=['stimuli_paths', 'layers'], combine_fields={'layers': 'layer'})
-    def _from_paths_stored(self, identifier, layers, stimuli_identifier,
+    def _from_paths_stored(self, identifier, layers, stimuli_identifier, resolution,
                            stimuli_paths, number_of_trials: int = 1, require_variance: bool = False):
+        """`resolution` is used *only* to build the cache key -- like `identifier`
+        and `stimuli_identifier`, it is not forwarded into `_from_paths`. It sits
+        behind `stimuli_identifier` on purpose: `brainscore_vision.score_model`
+        prints a cache-cleanup hint globbing
+        `identifier=...,stimuli_identifier=*.pkl`, which a component inserted
+        ahead of `stimuli_identifier` would silently stop matching.
+        """
         return self._from_paths(layers=layers, stimuli_paths=stimuli_paths, require_variance=require_variance)
 
     def _from_paths(self, layers, stimuli_paths, require_variance: bool = False):

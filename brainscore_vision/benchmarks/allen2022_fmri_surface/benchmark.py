@@ -138,7 +138,11 @@ def load_full_assembly(region: str,
     test_stimuli = test.stimulus_set
     combined_stimuli = StimulusSet(pd.concat([train_stimuli, test_stimuli], ignore_index=True))
     combined_stimuli.stimulus_paths = {**train_stimuli.stimulus_paths, **test_stimuli.stimulus_paths}
-    combined_stimuli.identifier = f'{dataset_prefix}_full'
+    # `<registered set>--<marker>`: `{dataset_prefix}_train` is a registered
+    # dataset, so the revision resolves; the marker keeps this merged pool
+    # distinct from the train/test sets in the cache key. A bare synthesised
+    # name resolves to nothing and caching is refused for the whole family.
+    combined_stimuli.identifier = f'{dataset_prefix}_train--full'
     combined.attrs['stimulus_set'] = combined_stimuli
 
     return combined

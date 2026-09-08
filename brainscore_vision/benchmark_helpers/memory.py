@@ -65,6 +65,15 @@ _PLS_OVERHEAD_FACTOR = 7
 
 # Empirical p50(real_peak) - p50(formula_estimate) per benchmark, GB.
 # Papale2025.V4-ridgecv omitted: dinov2-only data would over-allocate small models.
+#
+# This is a SECOND-ORDER residual and is NOT redundant with benchmark_costs.json,
+# even though 26 of these 27 keys also appear there. The two measure different
+# things and are meant to stack: the json holds a marginal alexnet delta consumed
+# inside the formula branch, while these were fitted from ~1500 production
+# resource-usage rows across the real model mix, against the estimate that already
+# included the json value. Do not fold them together. Regenerate from production
+# telemetry (see #2444), not from mem_profile_suite --calibrate, which cannot
+# produce this quantity.
 _BENCHMARK_SCAFFOLDING_OVERHEAD_GB: dict[str, float] = {
     'Zerbe2026_fmri.V1-tau-ridgecv': 42.0,
     'Gifford2022.IT-ridgecv': 20.0,
@@ -103,6 +112,60 @@ _BENCHMARK_SCAFFOLDING_OVERHEAD_GB: dict[str, float] = {
 # timebins; scale by the actual count probed at preflight time. Detection
 # uses ``num_timebins > 1`` rather than the ``-temporal-pls`` substring so
 # any PLS benchmark with multi-timebin output gets the correct estimate.
+
+# cgroup memory accounting. v2 exposes a limit that may be the literal string
+# "max" (unlimited); v1 uses a huge sentinel value for the same thing.
+_CGROUP_V2_LIMIT = '/sys/fs/cgroup/memory.max'
+_CGROUP_V2_CURRENT = '/sys/fs/cgroup/memory.current'
+_CGROUP_V1_LIMIT = '/sys/fs/cgroup/memory/memory.limit_in_bytes'
+_CGROUP_V1_CURRENT = '/sys/fs/cgroup/memory/memory.usage_in_bytes'
+
+
+def _read_int(path: str) -> Optional[int]:
+    try:
+        with open(path) as f:
+            return int(f.read().strip())
+    except (FileNotFoundError, PermissionError, ValueError, IsADirectoryError):
+        return None
+
+
+def _cgroup_available_gb() -> Optional[float]:
+    """Headroom left inside this container's memory cgroup, in GB.
+
+    Returns None when not running under a memory-limited cgroup.
+    """
+    for limit_path, current_path in ((_CGROUP_V2_LIMIT, _CGROUP_V2_CURRENT),
+                                     (_CGROUP_V1_LIMIT, _CGROUP_V1_CURRENT)):
+        limit = _read_int(limit_path)          # "max" fails the int() → None
+        current = _read_int(current_path)
+        if limit is None or current is None:
+            continue
+        # v1 reports an unlimited cgroup as a near-2^63 sentinel.
+        if limit >= 2 ** 62:
+            continue
+        return max(0.0, (limit - current) / (1024 ** 3))
+    return None
+
+
+def available_memory_gb() -> float:
+    """Memory this process can still allocate before it gets killed, in GB.
+
+    ``psutil.virtual_memory().available`` reads the host's ``/proc/meminfo``.
+    Inside a memory-limited container that reports the whole machine and
+    ignores both the cgroup ceiling and everything this container already
+    holds — which is how a job can be told it has 29 GB free moments before
+    the kernel kills it at a 29 GB ceiling it had nearly exhausted. Prefer the
+    cgroup's own limit-minus-current, and take the smaller of the two so we
+    never promise more than either source allows.
+
+    This is the "available" half of the pre-flight comparison; the estimate
+    half is corrected per benchmark by _BENCHMARK_SCAFFOLDING_OVERHEAD_GB.
+    """
+    host_available_gb = psutil.virtual_memory().available / (1024 ** 3)
+    cgroup_available_gb = _cgroup_available_gb()
+    if cgroup_available_gb is None:
+        return host_available_gb
+    return min(host_available_gb, cgroup_available_gb)
 
 
 @dataclass
@@ -258,10 +321,19 @@ def _is_ridge_benchmark(benchmark) -> bool:
     return ident.endswith('-ridge') or ident.endswith('-ridgecv')
 
 
-def _get_probe_layer(model):
+def _get_probe_layer(model, region: Optional[str] = None):
     """
-    Return the committed layer string for the model's primary recording region,
-    or None if it cannot be determined without triggering expensive layer selection.
+    Return the committed layer string to probe for memory estimation.
+
+    ``region`` is the region the benchmark actually records from, and it is
+    tried first. Without it this fell back to an IT-first preference, so a V1
+    benchmark was sized using IT's layer -- on AlexNet that is ``features.12``
+    (256x6x6 = 9,216) instead of ``features.2`` (64x27x27 = 46,656), a 5.1x
+    underestimate of the activation array. Build 92 cached [1000, 46656] while
+    its preflight reported 9,216 features for the same V1 benchmark.
+
+    The region was already known at the call site and used by the ``look_at``
+    fallback path below; only the fast path ignored it.
     """
     try:
         # Navigate ModelCommitment → TemporalAligned → LayerMappedModel
@@ -275,9 +347,11 @@ def _get_probe_layer(model):
         if rmap is None:
             return None
 
-        # Prefer IT, then any committed region.
+        # The benchmark's own region first; the descending fallback only
+        # applies when the caller could not tell us which region is recorded.
+        candidates = ([region] if region else []) + ['IT', 'V4', 'V2', 'V1']
         # Use dict.__contains__ to avoid triggering lazy RegionLayerMap.__getitem__
-        for candidate_region in ['IT', 'V4', 'V2', 'V1']:
+        for candidate_region in candidates:
             if dict.__contains__(rmap, candidate_region):
                 layers = dict.__getitem__(rmap, candidate_region)
                 if layers is not None:
@@ -413,7 +487,7 @@ def preallocate_memory(
     # ------------------------------------------------------------------ #
     _am = getattr(model, 'activations_model', None)
     _extractor = getattr(_am, '_extractor', None) if _am else None
-    probe_layer = _get_probe_layer(model) if _extractor is not None else None
+    probe_layer = _get_probe_layer(model, region) if _extractor is not None else None
 
     if _extractor is not None and probe_layer is not None:
         # Fast path: call _from_paths directly — no attach_stimulus_set_meta
@@ -441,7 +515,9 @@ def preallocate_memory(
     activation_bytes = num_stimuli * num_features * num_timebins * _BYTES_PER_ELEMENT
     activation_gb = activation_bytes / (1024 ** 3)
 
-    # Auto-load from the calibration table if no explicit value was given
+    # Auto-load from the calibration table if no explicit value was given.
+    # Marginal, alexnet-measured; _BENCHMARK_SCAFFOLDING_OVERHEAD_GB stacks on top
+    # of the result of this formula as a production-fitted residual.
     if fixed_benchmark_cost_gb is None:
         _cal = load_calibration()
         fixed_benchmark_cost_gb = _cal.get(benchmark.identifier)
@@ -496,7 +572,12 @@ def preallocate_memory(
         # Overhead ≈ 2× activation_gb (scales with features, not n_stimuli²).
         # Validated across alexnet/resnet50/ViT on Allen2022_fmri.IT-rdm.
         rdm_overhead_gb = 2 * activation_gb
-        total_estimated_gb = activation_gb + rdm_overhead_gb  # = 3 × activation_gb
+        # + the calibrated fixed cost, which this branch used to drop on the
+        # floor: it is the only branch that can be reached with a non-None
+        # fixed_benchmark_cost_gb and not add it, so 19 of the 88 measured
+        # entries (0.4-2.0 GB each, all the *-rdm* keys) were never applied.
+        total_estimated_gb = (activation_gb + rdm_overhead_gb          # = 3 x activation_gb
+                              + (fixed_benchmark_cost_gb or 0.0))
         formula_type = 'rdm'
     elif fixed_benchmark_cost_gb is not None and ridge_large_feature:
         # Both predictors apply. Take the max — they measure complementary
@@ -546,7 +627,7 @@ def preallocate_memory(
     if overhead_gb > 0:
         total_estimated_gb += overhead_gb
 
-    available_gb = psutil.virtual_memory().available / (1024 ** 3)
+    available_gb = available_memory_gb()
 
     estimate = MemoryEstimate(
         num_stimuli=num_stimuli,

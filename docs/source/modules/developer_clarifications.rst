@@ -26,6 +26,49 @@ anyone interested in contributing to Brain-Score's codebase or scientific workin
     `result_caching` by simply setting the environment flag `RESULTCACHING_DISABLE` to `1`. Please see the link above
     for more detailed documentation.
 
+    Note that `RESULTCACHING_DISABLE=1` disables *every* cached function, not just activations -- including
+    `place_on_screen`. To disable only the activation cache (for example, to check that a score is unaffected by
+    caching), name the module instead::
+
+        RESULTCACHING_DISABLE=brainscore_vision.model_helpers.activations
+
+    In production scoring, activations are additionally cached to a *shared* S3 bucket so a second metric on the same
+    model and stimuli reuses the forward pass instead of repeating it. Because that cache is long-lived and shared,
+    its keys carry a content revision of the model plugin and of the stimulus-set plugin: a plugin can be revised
+    while keeping the same identifier, and without a revision the cache would serve activations produced by code that
+    no longer exists. If a revision cannot be resolved, brain-score **refuses to cache** that request rather than
+    write an ambiguous key -- correct, but it means the work is recomputed every time. See item 4.
+
+4. **Naming a stimulus set so it can be cached**
+
+    Benchmarks often build a stimulus set at runtime rather than using a registered one directly -- a merged
+    train+test pool, a per-subject slice, a filtered subset. Such a name is not a registered plugin, so no revision
+    can be resolved for it, so the shared activation cache refuses it and every extraction is recomputed at full
+    cost. The only symptom is one warning line in a scoring log.
+
+    Name a synthesised stimulus set after the registered set it derives from::
+
+        stim.identifier = f"{registered_identifier}--{marker}"
+
+    Everything from the first ``--`` onward stays in the cache key, so derivatives remain distinct from one another;
+    only the part before it is used to look up the revision. `place_on_screen` already follows this convention
+    (appending ``--target<deg>--source<deg>``), and its suffix composes with a benchmark's own marker.
+
+    For example, a benchmark that loads `Zerbe2026_fmri_stim_full` and builds a per-subject merged pool from it
+    should name that pool ``Zerbe2026_fmri_stim_full--rdm-sub-01``, not ``Zerbe2026_fmri_rdm_full_sub-01``. The
+    second form resolves to nothing and disabled caching for an entire benchmark family until it was caught.
+
+    Assert this in your plugin's tests so it is caught at PR time rather than in a production scoring log::
+
+        from brainscore_vision.benchmark_helpers.cache_contract import (
+            assert_stimulus_identifier_is_cacheable)
+
+        def test_stimulus_identifier_is_cacheable():
+            assert_stimulus_identifier_is_cacheable("MyData_stim_full--my-variant")
+
+    This only matters for stimulus sets a benchmark *synthesises*. A benchmark that uses a registered stimulus set
+    directly already resolves.
+
 3. **Model Mapping Procedure**
 
     In general, there are different methods that are used in the Brain-Score code to instruct the model to "begin recording",

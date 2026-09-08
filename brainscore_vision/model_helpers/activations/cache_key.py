@@ -1,0 +1,316 @@
+"""Content revisions for the stored-activation cache key.
+
+``ActivationsExtractorHelper._from_paths_stored`` is decorated with
+``@store_xarray``, which builds its cache key from the call arguments —
+principally ``identifier`` (the model) and ``stimuli_identifier``. Neither of
+those changes when the *contents* behind them change: a model plugin can be
+revised to load different weights or apply different preprocessing while still
+registering as ``alexnet``, and a stimulus set can be re-uploaded under the
+same name.
+
+A cache keyed on the bare identifiers would then hand back activations
+produced by code that no longer exists, and the resulting score would look
+entirely normal. Appending a short revision string means a plugin revision
+lands under a *different* key rather than silently overwriting the meaning of
+the old one.
+
+Off by default — see :func:`revision_enabled`
+-----------------------------------------------
+``result_caching`` is enabled by default (``RESULTCACHING_DISABLE`` defaults to
+``'0'``), so developers already have warm local caches keyed on the bare
+identifiers. Revisioning unconditionally would turn every one of those cold,
+and would keep re-invalidating them on each commit that touches the plugin.
+
+Worse for local use, ``git log -1 -- <dir>`` reports the last *commit* touching
+the directory, so uncommitted working-tree edits resolve to the same revision:
+locally the revision is simultaneously too eager (churns on commit) and not
+eager enough (blind to the edit you are actually testing).
+
+So this is opt-in via ``BRAINSCORE_CACHE_PLUGIN_REVISION=1``. Production enables
+it together with the shared S3 backend, where the checkout is clean and the
+cache is long-lived and shared — the setting in which a stale hit actually
+matters. With it unset, keys are byte-for-byte what they were before this
+module existed.
+
+Resolution order, per plugin:
+
+1. ``BRAINSCORE_<TYPE>_PLUGIN_SHA`` environment variable. The scoring
+   orchestrator knows the revision already and can inject it, which avoids a
+   ``git`` call inside every container.
+2. The git commit that last touched the plugin directory. Only that plugin's
+   history counts — using the repository HEAD would invalidate every model's
+   cache on every unrelated commit.
+3. A content hash of the plugin directory, for installs that are not a git
+   checkout.
+4. Nothing. Caching is then refused for that request: the public helpers
+   return ``None`` and a warning is logged.
+
+Step 4 used to return the bare identifier, reproducing the revision-blind key.
+That was safe while the cache was per-container and discarded, but on the shared
+S3 backend it writes one entry that is served across every revision of the
+plugin -- the exact failure this module exists to prevent. Refusing to cache
+costs one recomputation; a stale hit costs a wrong score that looks normal.
+
+Refusing is still not an error: this module must never fail a scoring run, so
+the caller computes uncached rather than raising.
+"""
+import hashlib
+import logging
+import re
+import os
+import subprocess
+from functools import lru_cache
+from pathlib import Path
+from typing import Optional
+
+_logger = logging.getLogger(__name__)
+
+# Length of the revision appended to an identifier. 12 hex chars is the git
+# short-sha convention and is far beyond collision risk for this population.
+_REVISION_CHARS = 12
+
+# Files whose contents cannot change what a model computes.
+_IGNORED_SUFFIXES = ('.pyc', '.pyo', '.md')
+_IGNORED_DIRS = ('__pycache__', '.git', '.pytest_cache')
+
+# Opt-in switch. Unset => keys are exactly what they were before this module.
+_ENABLE_VAR = 'BRAINSCORE_CACHE_PLUGIN_REVISION'
+
+# Separates a registered stimulus set from any derivative marker appended to it.
+# `benchmark_helpers.screen.place_on_screen` appends `--target<deg>--source<deg>`;
+# benchmarks that synthesise a stimulus set (a merged train+test pool, a
+# per-subject slice) use the same convention so the registered set they came
+# from stays recoverable for revisioning.
+_DERIVED_SEPARATOR = '--'
+
+
+def revision_enabled() -> bool:
+    """True if cache keys should carry plugin revisions.
+
+    Deliberately opt-in; see the module docstring. Any consumer that shares a
+    cache across machines or across plugin revisions (i.e. the production S3
+    backend) must enable this, and should refuse to start without it.
+    """
+    return os.environ.get(_ENABLE_VAR, '0').strip().lower() in ('1', 'true', 'yes')
+
+
+def model_cache_identifier(identifier: str) -> str:
+    """Model identifier with its plugin revision appended, for cache keying."""
+    return _with_revision(identifier, plugin_type='models',
+                          env_var='BRAINSCORE_MODEL_PLUGIN_SHA')
+
+
+def stimulus_set_cache_identifier(stimuli_identifier: str) -> str:
+    """Stimulus-set identifier with its data-plugin revision appended.
+
+    Returns None when revisioning is enabled but no revision can be resolved,
+    which the caller must treat as "do not cache this request".
+
+    Stimulus sets reach the extractor through several routes (a registered
+    data plugin, a benchmark-local assembly, a screen-converted derivative),
+    so a revision is sometimes unavailable. Degrading to an unrevisioned key
+    was safe while the cache was per-container and thrown away; on the shared
+    S3 cache it means one stimulus set is served across plugin revisions, so
+    the unresolved case now disables caching instead.
+
+    Two of those routes need translating before the plugin resolver can find
+    anything, and both were silently unresolvable until they were fixed:
+    stimulus sets register under ``stimulus_set_registry`` rather than the
+    ``data_registry`` inferred from the directory name, and a screen-converted
+    set carries a suffix that is not registered at all.
+    """
+    return _with_revision(stimuli_identifier, plugin_type='data',
+                          env_var='BRAINSCORE_DATA_PLUGIN_SHA',
+                          registry_prefixes=('stimulus_set', 'data'),
+                          lookup_identifier=base_stimulus_identifier(stimuli_identifier))
+
+
+def base_stimulus_identifier(stimuli_identifier: str) -> str:
+    """The registered stimulus set a screen-converted identifier derives from.
+
+    Two things produce derivative names, and neither is a registered plugin, so
+    resolving them directly finds nothing:
+
+    * ``place_on_screen`` renames its output to
+      ``<identifier>--target<deg>--source<deg>``. Rescaling is a pure function of
+      the source images plus the two degree values already in the key.
+    * a benchmark that synthesises a stimulus set -- a merged train+test pool, a
+      per-subject slice -- names it ``<registered set>--<marker>``.
+
+    In both cases the content is derived from the registered set, so that set's
+    plugin revision is what needs tracking. Everything from the first ``--``
+    onwards stays in the *key* (it distinguishes the derivatives from each
+    other); it is stripped only for the revision lookup.
+    """
+    if not isinstance(stimuli_identifier, str):
+        return stimuli_identifier
+    return stimuli_identifier.split(_DERIVED_SEPARATOR)[0]
+
+
+def _with_revision(identifier, plugin_type: str, env_var: str,
+                   registry_prefixes: tuple = (None,), lookup_identifier: Optional[str] = None):
+    if not revision_enabled():
+        return identifier
+    if not identifier or not isinstance(identifier, str):
+        # `stimuli_identifier` is False when the caller disables storing.
+        return identifier
+    revision = _plugin_revision(plugin_type=plugin_type,
+                                identifier=lookup_identifier or identifier, env_var=env_var,
+                                registry_prefixes=registry_prefixes)
+    # Revisioning is only ever enabled alongside the shared S3 cache (the
+    # orchestrator sets both together), and there an unrevisioned key is served
+    # across plugin revisions -- exactly the failure this module exists to
+    # prevent. Refuse to key rather than write one; the caller computes
+    # uncached. `_plugin_revision` logs the refusal, once per plugin.
+    if not revision:
+        return None
+    # The revision is appended to the *full* identifier: the screen suffix
+    # carries the degree conversion, which changes the activations.
+    return f"{identifier}@{revision}"
+
+
+@lru_cache(maxsize=None)
+def _plugin_revision(plugin_type: str, identifier: str, env_var: str,
+                     registry_prefixes: tuple = (None,)) -> Optional[str]:
+    """Short revision string for a plugin, or None if it cannot be determined.
+
+    Cached per process, which also means the "unresolved" log line is emitted
+    once per plugin rather than on every ``from_paths`` call — layer
+    commitment calls into here repeatedly and a per-call warning would be
+    hundreds of lines in the container log.
+    """
+    from_env = os.environ.get(env_var)
+    if from_env:
+        return from_env.strip()[:_REVISION_CHARS]
+
+    plugin_dir = None
+    for registry_prefix in registry_prefixes:
+        plugin_dir = _locate_plugin_dir(plugin_type=plugin_type, identifier=identifier,
+                                        registry_prefix=registry_prefix)
+        if plugin_dir is not None:
+            break
+    if plugin_dir is None and 'stimulus_set' in registry_prefixes:
+        # The registry key and the set's own identifier often differ; the
+        # extractor only sees the latter. See the function's docstring.
+        plugin_dir = _locate_plugin_dir_by_stimulus_identifier(plugin_type, identifier)
+    revision = None
+    if plugin_dir is not None:
+        revision = _git_revision(plugin_dir) or _content_revision(plugin_dir)
+    if not revision:
+        # Always a warning now: an unresolved revision of either kind disables
+        # caching for the request, so it is never routine. Logged here rather
+        # than at the call site because this function is lru_cached, which is
+        # what keeps it to one line per plugin instead of one per extraction.
+        _logger.warning(
+            f"Refusing to cache: could not resolve a {plugin_type} revision for "
+            f"'{identifier}', so a shared cache key could not distinguish revisions of this "
+            f"plugin. Affected requests are computed without the cache. "
+            f"Set {env_var} to make the revision explicit.")
+    return revision
+
+
+def _locate_plugin_dir(plugin_type: str, identifier: str,
+                       registry_prefix: Optional[str] = None) -> Optional[Path]:
+    """Directory of the plugin registering ``identifier``, or None.
+
+    ``registry_prefix`` overrides the registry name ``ImportPlugin`` would
+    infer from ``plugin_type``. It has to be given for stimulus sets: they
+    live in ``data/`` alongside assemblies but register under
+    ``stimulus_set_registry``, and the inferred ``data_registry`` matches none
+    of the registered sets.
+    """
+    try:
+        from brainscore_core.plugin_management import import_plugin as _import_plugin
+        from brainscore_core.plugin_management.import_plugin import ImportPlugin
+        # locate_plugin scans every plugin directory and warns about each one
+        # missing an __init__.py. Those are pre-existing repo issues, not
+        # anything this lookup can act on, and they would appear in every
+        # container log. Silence them for the duration of the scan only --
+        # which means covering the constructor, since that is what scans.
+        resolver_logger = logging.getLogger(_import_plugin.__name__)
+        previous_level = resolver_logger.level
+        resolver_logger.setLevel(logging.ERROR)
+        try:
+            importer = ImportPlugin(library_root='brainscore_vision', plugin_type=plugin_type,
+                                    identifier=identifier, registry_prefix=registry_prefix)
+        finally:
+            resolver_logger.setLevel(previous_level)
+        plugin_dir = Path(importer.plugins_dir) / importer.plugin_dirname
+        return plugin_dir if plugin_dir.is_dir() else None
+    except Exception:
+        # Unregistered identifier, ambiguous registration, or a layout this
+        # resolver does not understand. Not fatal — the caller degrades.
+        _logger.debug(f"Could not locate {plugin_type} plugin dir for '{identifier}'", exc_info=True)
+        return None
+
+
+def _locate_plugin_dir_by_stimulus_identifier(plugin_type: str, identifier: str) -> Optional[Path]:
+    """Plugin dir whose loader builds a stimulus set carrying ``identifier``.
+
+    A registry *key* and the stimulus set's own ``identifier`` are frequently
+    different, and the extractor only ever sees the latter -- roughly a quarter
+    of registered sets differ, and a string transformation recovers almost none
+    of them (only ``Li2026`` happens to be a prefix of its identifier):
+
+        registry['Li2026']                    -> identifier='Li2026_Stimuli'
+        registry['Allen2022_fmri_stim_train'] -> identifier='Allen2022_fMRI_train_Stimuli'
+        registry['Coggan2024_fMRI']           -> identifier='tong.Coggan2024_fMRI'
+        registry['BMD2024.texture_1']         -> identifier='BMD_2024_texture_1'
+
+    So this searches for the identifier as a literal in the loader call rather
+    than as a registry key. Requires a unique match: two plugins naming the same
+    identifier means we cannot say which revision applies, and a wrong revision
+    is worse than none.
+    """
+    try:
+        import brainscore_vision
+        plugins_dir = Path(brainscore_vision.__file__).parent / plugin_type
+        needle = re.compile(r"identifier\s*=\s*['\"]" + re.escape(identifier) + r"['\"]")
+        matches = [init.parent for init in sorted(plugins_dir.glob('*/__init__.py'))
+                   if needle.search(init.read_text(encoding='utf-8', errors='replace'))]
+        if len(matches) == 1:
+            return matches[0]
+        if len(matches) > 1:
+            _logger.debug(f"{identifier!r} is named by {len(matches)} {plugin_type} plugins; "
+                          f"cannot attribute a revision")
+        return None
+    except Exception:
+        _logger.debug(f"identifier-literal lookup failed for {identifier!r}", exc_info=True)
+        return None
+
+
+def _git_revision(plugin_dir: Path) -> Optional[str]:
+    """Commit that last touched ``plugin_dir``, or None outside a git checkout.
+
+    Scoped to the directory on purpose. The repository HEAD would change on
+    every unrelated commit and invalidate the whole cache each time.
+    """
+    try:
+        result = subprocess.run(
+            ['git', 'log', '-1', '--format=%H', '--', str(plugin_dir)],
+            cwd=str(plugin_dir), capture_output=True, text=True, timeout=30, check=True,
+        )
+    except Exception:
+        _logger.debug(f"git revision unavailable for {plugin_dir}", exc_info=True)
+        return None
+    sha = result.stdout.strip()
+    # An empty result means the path is untracked — fall through to the
+    # content hash rather than returning a revision that means "unknown".
+    return sha[:_REVISION_CHARS] if len(sha) == 40 else None
+
+
+def _content_revision(plugin_dir: Path) -> Optional[str]:
+    """sha256 over the plugin's source files, for non-git installs."""
+    digest = hashlib.sha256()
+    try:
+        for path in sorted(p for p in plugin_dir.rglob('*') if p.is_file()):
+            if any(part in _IGNORED_DIRS for part in path.parts):
+                continue
+            if path.suffix in _IGNORED_SUFFIXES:
+                continue
+            digest.update(str(path.relative_to(plugin_dir)).encode())
+            digest.update(path.read_bytes())
+    except Exception:
+        _logger.debug(f"content revision failed for {plugin_dir}", exc_info=True)
+        return None
+    return digest.hexdigest()[:_REVISION_CHARS]

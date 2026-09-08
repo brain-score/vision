@@ -1,7 +1,7 @@
 """Tests for the LAION-fMRI benchmark registry and basic load paths.
 
-The headline registry is 20 variants — 8 shared-pool ridge, 8 persubject-pool
-ridge, and 4 shared-pool RSA. Non-headline variants (cluster_k5, per-OOD-category,
+The headline registry is 24 variants — 8 shared-pool ridge, 8 persubject-pool
+ridge, 4 shared-pool RSA, and 4 shared-pool linear CKA. Non-headline variants (cluster_k5, per-OOD-category,
 IT_full) live as factory functions and are exercised separately in
 `usage_examples.ipynb`; they're not registered for the leaderboard so the
 registry tests don't cover them.
@@ -38,15 +38,19 @@ _RSA_VARIANTS = [
     f"Zerbe2026_fmri.{region}-rdm-pearson" for region in _RIDGE_REGIONS
 ]  # 4 (shared pool only — Nili ceiling requires shared stim across subjects)
 
-_ALL_HEADLINE_VARIANTS = _RIDGE_VARIANTS + _RSA_VARIANTS  # 20
+_CKA_VARIANTS = [
+    f"Zerbe2026_fmri.{region}-cka" for region in _RIDGE_REGIONS
+]  # 4 (shared pool only, same restriction as RSA)
+
+_ALL_HEADLINE_VARIANTS = _RIDGE_VARIANTS + _RSA_VARIANTS + _CKA_VARIANTS  # 24
 
 
 class TestRegistry:
-    """The lean registry exposes exactly the 20 headline variants and nothing else."""
+    """The lean registry exposes exactly the 24 headline variants and nothing else."""
 
     def test_variant_count(self):
-        assert len(_ALL_HEADLINE_VARIANTS) == 20, (
-            f"Expected 20 headline variants, got {len(_ALL_HEADLINE_VARIANTS)}. "
+        assert len(_ALL_HEADLINE_VARIANTS) == 24, (
+            f"Expected 24 headline variants, got {len(_ALL_HEADLINE_VARIANTS)}. "
             f"If you added/removed variants in __init__.py, update the lists at "
             f"the top of this file too."
         )
@@ -214,3 +218,108 @@ class TestUncertaintyContract:
         import math
         assert math.isnan(float(score.attrs["error"]))
         assert score.attrs.get("error_nan_reason")
+
+
+class TestStimulusIdentifierConvention:
+    """Every synthesised stimulus identifier must derive from a registered set.
+
+    A bare synthesised name resolves to no plugin, so the shared activation
+    cache refuses it and every extraction is recomputed at full cost. That
+    silently disabled caching for the whole rdm/cka family once before.
+
+    This reads the assignments out of benchmark.py rather than restating them,
+    so a new or edited identifier cannot drift past the check.
+    """
+
+    def _identifier_templates(self):
+        import re
+        from pathlib import Path
+        from brainscore_vision.benchmarks.laion_fmri import benchmark as bm
+        source = Path(bm.__file__).read_text()
+        templates = re.findall(r'stim\.identifier\s*=\s*f"([^"]+)"', source)
+        assert templates, "no stim.identifier assignments found -- has benchmark.py moved?"
+        return templates
+
+    def test_every_synthesised_identifier_derives_from_a_registered_set(self):
+        for template in self._identifier_templates():
+            assert '--' in template, (
+                f"synthesised stimulus identifier {template!r} has no '--<marker>'. "
+                f"It will not resolve a data-plugin revision, so caching is refused "
+                f"and every extraction recomputes. Name it "
+                f"'<registered identifier>--<marker>'.")
+            base = template.split('--')[0]
+            assert base == '{dataset_prefix}_stim_full', (
+                f"identifier {template!r} resolves against {base!r}, which is not the "
+                f"registered stimulus set this benchmark loads "
+                f"(load_stimulus_set(f'{{dataset_prefix}}_stim_full'))")
+
+    def test_the_resolved_identifiers_are_actually_cacheable(self):
+        from brainscore_vision.benchmark_helpers.cache_contract import (
+            assert_stimulus_identifier_is_cacheable)
+        for template in self._identifier_templates():
+            concrete = (template.replace('{dataset_prefix}', 'Zerbe2026_fmri')
+                                .replace('{split}', 'tau').replace('{side}', 'train')
+                                .replace('{sub_tag}', 'sub-01').replace('{sub_id}', 'sub-01'))
+            assert_stimulus_identifier_is_cacheable(concrete)
+
+
+class TestCKAWiring:
+    """The CKA variants reuse RSABenchmark with the RDM stage bypassed.
+
+    That is easy to get wrong in a way that still imports, registers and
+    constructs -- so these assert the *wiring*, not just that the identifier
+    resolves. Scoring is covered by the private_access tests above.
+    """
+
+    @pytest.mark.parametrize("identifier", _CKA_VARIANTS)
+    def test_registered(self, identifier):
+        from brainscore_vision import benchmark_registry
+        import brainscore_vision.benchmarks.laion_fmri  # noqa: F401  (populates registry)
+        assert identifier in benchmark_registry
+
+    @pytest.mark.parametrize("identifier", _CKA_VARIANTS)
+    def test_constructs_without_data(self, identifier):
+        """Must not touch the assemblies -- they are LazyLoad."""
+        from brainscore_vision import benchmark_registry
+        import brainscore_vision.benchmarks.laion_fmri  # noqa: F401
+        benchmark = benchmark_registry[identifier]()
+        assert benchmark.identifier == identifier
+
+    @pytest.mark.parametrize("identifier", _CKA_VARIANTS)
+    def test_parent_is_the_dataset_node(self, identifier):
+        """Parent is written once, at row creation -- a wrong value needs a manual DB fix.
+
+        Must be a sibling of the other Zerbe variants (``Zerbe2026_fmri.IT``), not of
+        the whole Zerbe node (``IT``), which would double Zerbe's weight in the region.
+        """
+        from brainscore_vision import benchmark_registry
+        import brainscore_vision.benchmarks.laion_fmri  # noqa: F401
+        benchmark = benchmark_registry[identifier]()
+        assert benchmark.parent == identifier.rsplit("-cka", 1)[0]
+
+    @pytest.mark.parametrize("identifier", _CKA_VARIANTS)
+    def test_rdm_stage_is_bypassed(self, identifier):
+        """CKA compares representations directly; forming an RDM first would be wrong."""
+        from brainscore_vision import benchmark_registry
+        import brainscore_vision.benchmarks.laion_fmri  # noqa: F401
+        from brainscore_vision.benchmarks.laion_fmri.benchmark import _passthrough
+        child = benchmark_registry[identifier]()._factory("sub-01")
+        assert child._rdm is _passthrough, "RDM stage must be a pass-through for CKA"
+
+    @pytest.mark.parametrize("identifier", _CKA_VARIANTS)
+    def test_uses_the_unbiased_estimator(self, identifier):
+        """The biased estimator inflates with feature dimensionality (~0.16 vs
+        ~-0.005 on independent data at 10k features), and model layers are far
+        wider than the voxel count -- so registered variants must be unbiased."""
+        from brainscore_vision import benchmark_registry
+        import brainscore_vision.benchmarks.laion_fmri  # noqa: F401
+        child = benchmark_registry[identifier]()._factory("sub-01")
+        assert type(child._similarity).__name__ == "CKA"
+        assert child._similarity._unbiased is True
+
+    def test_persubject_pool_is_refused(self):
+        """Persubject stimuli differ across subjects, so cross-subject
+        comparison is undefined -- same restriction RSA has."""
+        from brainscore_vision.benchmarks.laion_fmri.benchmark import LAIONfMRICKA
+        with pytest.raises(ValueError, match="shared pool"):
+            LAIONfMRICKA("IT", dataset_prefix="Zerbe2026_fmri_persubject")

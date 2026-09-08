@@ -736,3 +736,243 @@ class TestBenchmarkScaffoldingOverhead(unittest.TestCase):
     def test_production_table_does_not_include_papale_v4_ridgecv(self):
         from brainscore_vision.benchmark_helpers.memory import _BENCHMARK_SCAFFOLDING_OVERHEAD_GB
         self.assertNotIn('Papale2025.V4-ridgecv', _BENCHMARK_SCAFFOLDING_OVERHEAD_GB)
+
+
+class TestAvailableMemoryIsContainerAware(unittest.TestCase):
+    """``available_gb`` must reflect this container's cgroup headroom, not the
+    host's free memory.
+
+    Regression: the Li2026 backfill (2026-08-04) had jobs report "2.2 GB
+    needed / 29.0 GB available" and then get OOM-killed at a 29.3 GB ceiling
+    the container had already nearly filled. psutil reads the host, so the
+    "available" half of the comparison never saw the container at all.
+    _BENCHMARK_SCAFFOLDING_OVERHEAD_GB corrects the estimate half; this
+    corrects the available half.
+    """
+
+    def _patch_cgroup(self, values):
+        """Patch _read_int to serve a fake cgroup filesystem."""
+        from brainscore_vision.benchmark_helpers import memory as mem
+        return patch.object(mem, '_read_int', side_effect=lambda p: values.get(p))
+
+    def test_prefers_cgroup_headroom_over_host_free_memory(self):
+        from brainscore_vision.benchmark_helpers import memory as mem
+        gib = 1024 ** 3
+        values = {
+            mem._CGROUP_V2_LIMIT: int(29.297 * gib),
+            mem._CGROUP_V2_CURRENT: int(27.0 * gib),   # container nearly full
+        }
+        host = MagicMock(available=int(28.8 * gib))    # host says plenty free
+        with self._patch_cgroup(values), \
+             patch.object(mem.psutil, 'virtual_memory', return_value=host):
+            available = mem.available_memory_gb()
+        self.assertAlmostEqual(available, 2.297, places=2)
+
+    def test_falls_back_to_host_when_not_in_a_cgroup(self):
+        from brainscore_vision.benchmark_helpers import memory as mem
+        gib = 1024 ** 3
+        host = MagicMock(available=int(12.0 * gib))
+        with self._patch_cgroup({}), \
+             patch.object(mem.psutil, 'virtual_memory', return_value=host):
+            self.assertAlmostEqual(mem.available_memory_gb(), 12.0, places=2)
+
+    def test_ignores_the_unlimited_cgroup_sentinel(self):
+        """cgroup v1 reports 'no limit' as a near-2^63 value; using it would
+        claim billions of GB are available."""
+        from brainscore_vision.benchmark_helpers import memory as mem
+        gib = 1024 ** 3
+        values = {
+            mem._CGROUP_V1_LIMIT: 2 ** 63 - 4096,
+            mem._CGROUP_V1_CURRENT: int(1.0 * gib),
+        }
+        host = MagicMock(available=int(7.0 * gib))
+        with self._patch_cgroup(values), \
+             patch.object(mem.psutil, 'virtual_memory', return_value=host):
+            self.assertAlmostEqual(mem.available_memory_gb(), 7.0, places=2)
+
+    def test_never_promises_more_than_the_host_has(self):
+        from brainscore_vision.benchmark_helpers import memory as mem
+        gib = 1024 ** 3
+        values = {
+            mem._CGROUP_V2_LIMIT: int(64.0 * gib),   # generous cgroup limit
+            mem._CGROUP_V2_CURRENT: int(1.0 * gib),
+        }
+        host = MagicMock(available=int(3.0 * gib))   # but the host is full
+        with self._patch_cgroup(values), \
+             patch.object(mem.psutil, 'virtual_memory', return_value=host):
+            self.assertAlmostEqual(mem.available_memory_gb(), 3.0, places=2)
+
+    def test_preallocate_memory_uses_the_container_view(self):
+        """End to end: a container with almost no headroom left must refuse a
+        job that psutil's host-level view would have waved through."""
+        from brainscore_vision.benchmark_helpers import memory as mem
+        gib = 1024 ** 3
+        values = {
+            mem._CGROUP_V2_LIMIT: int(29.297 * gib),
+            mem._CGROUP_V2_CURRENT: int(28.0 * gib),
+        }
+        host = MagicMock(available=int(28.8 * gib))
+        with self._patch_cgroup(values), \
+             patch.object(mem.psutil, 'virtual_memory', return_value=host):
+            self.assertLess(mem.available_memory_gb(), 1.5)
+
+
+class TestProbeLayerUsesBenchmarkRegion(unittest.TestCase):
+    """The preflight must size the layer the benchmark actually records from.
+
+    Regression from build 92: the cache was written with shape [1000, 46656]
+    (AlexNet ``features.2``, the V1 layer) while the preflight for the same
+    Li2026.V1-ridgecv benchmark reported ``features=9216`` (``features.12``,
+    the IT layer) -- a 5.1x underestimate of the activation array, because
+    _get_probe_layer preferred IT regardless of the benchmark's region.
+
+    The region was already available at the call site and already used by the
+    look_at fallback; only the fast path ignored it.
+    """
+
+    # the real map recorded on both build-92 scores
+    LAYER_MAP = {'V1': 'features.2', 'V2': 'features.7',
+                 'V4': 'features.7', 'IT': 'features.12'}
+
+    def _model(self):
+        from brainscore_vision.benchmark_helpers import memory as mem
+        model = MagicMock()
+        inner = MagicMock()
+        inner.region_layer_map = dict(self.LAYER_MAP)
+        del inner._layer_model            # stop MagicMock auto-creating it
+        model.layer_model = inner
+        return model
+
+    def test_each_region_probes_its_own_layer(self):
+        from brainscore_vision.benchmark_helpers.memory import _get_probe_layer
+        model = self._model()
+        for region, expected in self.LAYER_MAP.items():
+            self.assertEqual(_get_probe_layer(model, region), expected,
+                             f"region {region} must probe {expected}")
+
+    def test_v1_no_longer_probes_the_it_layer(self):
+        """The specific defect: V1 was sized with features.12."""
+        from brainscore_vision.benchmark_helpers.memory import _get_probe_layer
+        self.assertEqual(_get_probe_layer(self._model(), 'V1'), 'features.2')
+        self.assertNotEqual(_get_probe_layer(self._model(), 'V1'), 'features.12')
+
+    def test_unknown_region_keeps_the_it_first_fallback(self):
+        """Callers that cannot supply a region must behave as before."""
+        from brainscore_vision.benchmark_helpers.memory import _get_probe_layer
+        self.assertEqual(_get_probe_layer(self._model(), None), 'features.12')
+        self.assertEqual(_get_probe_layer(self._model()), 'features.12')
+
+    def test_region_absent_from_the_map_falls_back(self):
+        from brainscore_vision.benchmark_helpers.memory import _get_probe_layer
+        model = MagicMock()
+        inner = MagicMock()
+        inner.region_layer_map = {'IT': 'features.12'}
+        del inner._layer_model
+        model.layer_model = inner
+        self.assertEqual(_get_probe_layer(model, 'V1'), 'features.12')
+
+    def test_list_valued_layer_map_takes_the_first(self):
+        from brainscore_vision.benchmark_helpers.memory import _get_probe_layer
+        model = MagicMock()
+        inner = MagicMock()
+        inner.region_layer_map = {'V1': ['features.2', 'features.5']}
+        del inner._layer_model
+        model.layer_model = inner
+        self.assertEqual(_get_probe_layer(model, 'V1'), 'features.2')
+
+
+class TestFixedCostReachesEveryFormula(unittest.TestCase):
+    """A measured fixed cost must survive whichever formula branch is chosen.
+
+    The rdm branch used to compute ``activation + 2*activation`` and return,
+    silently discarding ``fixed_benchmark_cost_gb``. It is the only branch that
+    can be reached with a non-None fixed cost without adding it, so every
+    ``*-rdm*`` key in benchmark_costs.json -- 19 of the 88 entries, 0.4-2.0 GB
+    each -- was measured, shipped, loaded, and then dropped on the floor.
+
+    Written as a property over identifier shapes rather than a single rdm
+    assertion: the branch order is subtle enough that the next formula added
+    could reintroduce this, and only the shapes below select a branch that is
+    reachable with a non-None fixed cost.
+    """
+
+    # identifier -> the formula branch it selects
+    SHAPES = {
+        'test.IT-pls': 'pls',
+        'test.IT-reverse_pls': 'pls',
+        'test.IT-rdm': 'rdm',
+        'test.IT-rdm-pearson': 'rdm',
+        'test.IT-ridgecv': 'calibrated',
+        'test.IT-ridge': 'calibrated',
+    }
+    FIXED_GB = 5.0
+
+    def _estimate(self, identifier, fixed_cost):
+        bm = _make_neural_benchmark(n_stimuli=10)
+        bm._identifier = identifier
+        model = _make_model(num_features=512)
+        with patch('psutil.virtual_memory') as mock_vm:
+            mock_vm.return_value.available = 512 * (1024 ** 3)
+            return preallocate_memory(model, bm, raise_if_oom=False,
+                                      fixed_benchmark_cost_gb=fixed_cost)
+
+    def test_a_supplied_fixed_cost_is_never_discarded(self):
+        """The measured cost is a floor on the estimate.
+
+        Stated as a floor rather than "is added" because the ridge branch
+        takes ``max(activation + fixed, activation * factor)`` -- the two
+        predictors measure complementary things. A floor is the invariant both
+        semantics satisfy, and it is what the rdm branch violated: 3x a 20 KB
+        activation array is nowhere near a measured 5 GB.
+        """
+        for identifier, expected_formula in self.SHAPES.items():
+            with self.subTest(identifier=identifier):
+                with_cost = self._estimate(identifier, self.FIXED_GB)
+                self.assertEqual(with_cost.formula_type, expected_formula)
+                self.assertGreaterEqual(
+                    with_cost.total_estimated_gb, self.FIXED_GB,
+                    msg=f"{identifier} ({expected_formula}) discarded the fixed cost")
+
+    def test_the_estimate_is_monotonic_in_the_fixed_cost(self):
+        """A larger measured cost can never produce a smaller estimate."""
+        for identifier in self.SHAPES:
+            with self.subTest(identifier=identifier):
+                totals = [self._estimate(identifier, c).total_estimated_gb
+                          for c in (0.0, 1.0, 5.0, 20.0)]
+                self.assertEqual(totals, sorted(totals), msg=f"{identifier}: {totals}")
+
+    def test_it_is_reported_on_the_estimate(self):
+        """Whatever a branch does with it, the value must be visible for
+        telemetry -- this is what gets written as preflight_estimate_gb's
+        provenance."""
+        for identifier in self.SHAPES:
+            with self.subTest(identifier=identifier):
+                est = self._estimate(identifier, self.FIXED_GB)
+                self.assertEqual(est.fixed_benchmark_cost_gb, self.FIXED_GB)
+
+
+class TestCalibrationFileIsWellFormed(unittest.TestCase):
+    """benchmark_costs.json is data, so the risk is a bad merge rather than bad
+    logic. The 2026-08 refit re-measured 67 of 88 entries; 20 more were absent
+    from mem_profile_suite's ALL_BENCHMARKS and so could not be re-measured at
+    all, which is exactly how a naive overwrite would have silently dropped
+    constants worth up to 13.76 GB.
+    """
+
+    def test_every_value_is_a_usable_non_negative_number(self):
+        import math
+        from brainscore_vision.benchmark_helpers.memory import load_calibration
+        costs = load_calibration()
+        self.assertGreater(len(costs), 0, "calibration table is empty")
+        bad = {k: v for k, v in costs.items()
+               if not isinstance(v, (int, float)) or math.isnan(v) or v < 0}
+        self.assertEqual(bad, {}, f"unusable calibration values: {bad}")
+
+    def test_the_expensive_entries_survive(self):
+        """Spot-check the entries a bad merge would most plausibly drop."""
+        from brainscore_vision.benchmark_helpers.memory import load_calibration
+        costs = load_calibration()
+        for identifier in ('Hebart2023_fmri.V4-ridgecv', 'Papale2025.IT-ridge',
+                           'Zerbe2026_fmri_persubject.V2-ood-ridgecv', 'Li2026.IT-ridgecv'):
+            self.assertIn(identifier, costs)
+            self.assertGreater(costs[identifier], 0)

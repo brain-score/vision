@@ -1,0 +1,337 @@
+benchmarks:
+    Li2026.V1-ridgecv:
+        stimulus_set:
+            num_stimuli: 1000
+            datatype: image
+            stimuli_subtype: natural_scenes
+            total_size_mb: 327.7651
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/li2026
+            extra_notes: NSD Shared1000 images; stimulus_id aligned to Allen2022 as nsd_<0-indexed 73k id>
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: 2305
+            duration_ms: 100
+            species: macaque
+            datatype: spikes
+            num_subjects: 2
+            pre_processing: mean firing rate in a fixed 70-170 ms post-onset window (MajajHong2015 convention); units filtered at split-half Spearman-Brown reliability > 0.4 measured in that same window
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/li2026
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: ridgecv
+            reference: null
+            public: true
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
+            extra_notes: RidgeCV over ALPHA_LIST, scored through the dual form
+    Li2026.V2-ridgecv:
+        stimulus_set:
+            num_stimuli: 1000
+            datatype: image
+            stimuli_subtype: natural_scenes
+            total_size_mb: 327.7651
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/li2026
+            extra_notes: NSD Shared1000 images; stimulus_id aligned to Allen2022 as nsd_<0-indexed 73k id>
+        data:
+            benchmark_type: neural
+            task: null
+            region: V2
+            hemisphere: null
+            num_recording_sites: 2523
+            duration_ms: 100
+            species: macaque
+            datatype: spikes
+            num_subjects: 2
+            pre_processing: mean firing rate in a fixed 70-170 ms post-onset window (MajajHong2015 convention); units filtered at split-half Spearman-Brown reliability > 0.4 measured in that same window
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/li2026
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: ridgecv
+            reference: null
+            public: true
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
+            extra_notes: RidgeCV over ALPHA_LIST, scored through the dual form
+    Li2026.V4-ridgecv:
+        stimulus_set:
+            num_stimuli: 1000
+            datatype: image
+            stimuli_subtype: natural_scenes
+            total_size_mb: 327.7651
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/li2026
+            extra_notes: NSD Shared1000 images; stimulus_id aligned to Allen2022 as nsd_<0-indexed 73k id>
+        data:
+            benchmark_type: neural
+            task: null
+            region: V4
+            hemisphere: null
+            num_recording_sites: 3414
+            duration_ms: 100
+            species: macaque
+            datatype: spikes
+            num_subjects: 2
+            pre_processing: mean firing rate in a fixed 70-170 ms post-onset window (MajajHong2015 convention); units filtered at split-half Spearman-Brown reliability > 0.4 measured in that same window
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/li2026
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: ridgecv
+            reference: null
+            public: true
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
+            extra_notes: RidgeCV over ALPHA_LIST, scored through the dual form
+    Li2026.IT-ridgecv:
+        stimulus_set:
+            num_stimuli: 1000
+            datatype: image
+            stimuli_subtype: natural_scenes
+            total_size_mb: 327.7651
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/li2026
+            extra_notes: NSD Shared1000 images; stimulus_id aligned to Allen2022 as nsd_<0-indexed 73k id>
+        data:
+            benchmark_type: neural
+            task: null
+            region: IT
+            hemisphere: null
+            num_recording_sites: 21059
+            duration_ms: 100
+            species: macaque
+            datatype: spikes
+            num_subjects: 5
+            pre_processing: mean firing rate in a fixed 70-170 ms post-onset window (MajajHong2015 convention); units filtered at split-half Spearman-Brown reliability > 0.4 measured in that same window
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/li2026
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: ridgecv
+            reference: null
+            public: true
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
+            extra_notes: RidgeCV over ALPHA_LIST, scored through the dual form
+    Li2026.V1-rdm:
+        stimulus_set:
+            num_stimuli: 1000
+            datatype: image
+            stimuli_subtype: natural_scenes
+            total_size_mb: 327.7651
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/li2026
+            extra_notes: NSD Shared1000 images; stimulus_id aligned to Allen2022 as nsd_<0-indexed 73k id>
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: 2305
+            duration_ms: 100
+            species: macaque
+            datatype: spikes
+            num_subjects: 2
+            pre_processing: mean firing rate in a fixed 70-170 ms post-onset window (MajajHong2015 convention); units filtered at split-half Spearman-Brown reliability > 0.4 measured in that same window
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/li2026
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: rdm
+            reference: null
+            public: true
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/rdm
+            extra_notes: Nili ceiling from 2 animals is inflated relative to IT (5); compare raw scores across studies, not ceiled
+    Li2026.V2-rdm:
+        stimulus_set:
+            num_stimuli: 1000
+            datatype: image
+            stimuli_subtype: natural_scenes
+            total_size_mb: 327.7651
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/li2026
+            extra_notes: NSD Shared1000 images; stimulus_id aligned to Allen2022 as nsd_<0-indexed 73k id>
+        data:
+            benchmark_type: neural
+            task: null
+            region: V2
+            hemisphere: null
+            num_recording_sites: 2523
+            duration_ms: 100
+            species: macaque
+            datatype: spikes
+            num_subjects: 2
+            pre_processing: mean firing rate in a fixed 70-170 ms post-onset window (MajajHong2015 convention); units filtered at split-half Spearman-Brown reliability > 0.4 measured in that same window
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/li2026
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: rdm
+            reference: null
+            public: true
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/rdm
+            extra_notes: Nili ceiling from 2 animals is inflated relative to IT (5); compare raw scores across studies, not ceiled
+    Li2026.V4-rdm:
+        stimulus_set:
+            num_stimuli: 1000
+            datatype: image
+            stimuli_subtype: natural_scenes
+            total_size_mb: 327.7651
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/li2026
+            extra_notes: NSD Shared1000 images; stimulus_id aligned to Allen2022 as nsd_<0-indexed 73k id>
+        data:
+            benchmark_type: neural
+            task: null
+            region: V4
+            hemisphere: null
+            num_recording_sites: 3414
+            duration_ms: 100
+            species: macaque
+            datatype: spikes
+            num_subjects: 2
+            pre_processing: mean firing rate in a fixed 70-170 ms post-onset window (MajajHong2015 convention); units filtered at split-half Spearman-Brown reliability > 0.4 measured in that same window
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/li2026
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: rdm
+            reference: null
+            public: true
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/rdm
+            extra_notes: Nili ceiling from 2 animals is inflated relative to IT (5); compare raw scores across studies, not ceiled
+    Li2026.IT-rdm:
+        stimulus_set:
+            num_stimuli: 1000
+            datatype: image
+            stimuli_subtype: natural_scenes
+            total_size_mb: 327.7651
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/li2026
+            extra_notes: NSD Shared1000 images; stimulus_id aligned to Allen2022 as nsd_<0-indexed 73k id>
+        data:
+            benchmark_type: neural
+            task: null
+            region: IT
+            hemisphere: null
+            num_recording_sites: 21059
+            duration_ms: 100
+            species: macaque
+            datatype: spikes
+            num_subjects: 5
+            pre_processing: mean firing rate in a fixed 70-170 ms post-onset window (MajajHong2015 convention); units filtered at split-half Spearman-Brown reliability > 0.4 measured in that same window
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/li2026
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: rdm
+            reference: null
+            public: true
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/rdm
+            extra_notes: best-sampled region at 5 animals; Allen2022 has 8, so ceiled scores are still not directly comparable
+    Li2026.V1-pls:
+        stimulus_set:
+            num_stimuli: 1000
+            datatype: image
+            stimuli_subtype: natural_scenes
+            total_size_mb: 327.7651
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/li2026
+            extra_notes: NSD Shared1000 images; stimulus_id aligned to Allen2022 as nsd_<0-indexed 73k id>
+        data:
+            benchmark_type: neural
+            task: null
+            region: V1
+            hemisphere: null
+            num_recording_sites: 2305
+            duration_ms: 100
+            species: macaque
+            datatype: spikes
+            num_subjects: 2
+            pre_processing: mean firing rate in a fixed 70-170 ms post-onset window (MajajHong2015 convention); units filtered at split-half Spearman-Brown reliability > 0.4 measured in that same window
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/li2026
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: pls
+            reference: null
+            public: true
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
+            extra_notes: unparented; retained for comparability against MajajHong2015
+    Li2026.V2-pls:
+        stimulus_set:
+            num_stimuli: 1000
+            datatype: image
+            stimuli_subtype: natural_scenes
+            total_size_mb: 327.7651
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/li2026
+            extra_notes: NSD Shared1000 images; stimulus_id aligned to Allen2022 as nsd_<0-indexed 73k id>
+        data:
+            benchmark_type: neural
+            task: null
+            region: V2
+            hemisphere: null
+            num_recording_sites: 2523
+            duration_ms: 100
+            species: macaque
+            datatype: spikes
+            num_subjects: 2
+            pre_processing: mean firing rate in a fixed 70-170 ms post-onset window (MajajHong2015 convention); units filtered at split-half Spearman-Brown reliability > 0.4 measured in that same window
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/li2026
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: pls
+            reference: null
+            public: true
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
+            extra_notes: unparented; retained for comparability against MajajHong2015
+    Li2026.V4-pls:
+        stimulus_set:
+            num_stimuli: 1000
+            datatype: image
+            stimuli_subtype: natural_scenes
+            total_size_mb: 327.7651
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/li2026
+            extra_notes: NSD Shared1000 images; stimulus_id aligned to Allen2022 as nsd_<0-indexed 73k id>
+        data:
+            benchmark_type: neural
+            task: null
+            region: V4
+            hemisphere: null
+            num_recording_sites: 3414
+            duration_ms: 100
+            species: macaque
+            datatype: spikes
+            num_subjects: 2
+            pre_processing: mean firing rate in a fixed 70-170 ms post-onset window (MajajHong2015 convention); units filtered at split-half Spearman-Brown reliability > 0.4 measured in that same window
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/li2026
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: pls
+            reference: null
+            public: true
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
+            extra_notes: unparented; retained for comparability against MajajHong2015
+    Li2026.IT-pls:
+        stimulus_set:
+            num_stimuli: 1000
+            datatype: image
+            stimuli_subtype: natural_scenes
+            total_size_mb: 327.7651
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/li2026
+            extra_notes: NSD Shared1000 images; stimulus_id aligned to Allen2022 as nsd_<0-indexed 73k id>
+        data:
+            benchmark_type: neural
+            task: null
+            region: IT
+            hemisphere: null
+            num_recording_sites: 21059
+            duration_ms: 100
+            species: macaque
+            datatype: spikes
+            num_subjects: 5
+            pre_processing: mean firing rate in a fixed 70-170 ms post-onset window (MajajHong2015 convention); units filtered at split-half Spearman-Brown reliability > 0.4 measured in that same window
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/data/li2026
+            extra_notes: null
+            data_publicly_available: true
+        metric:
+            type: pls
+            reference: null
+            public: true
+            brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/metrics/regression_correlation
+            extra_notes: unparented; retained for comparability against MajajHong2015

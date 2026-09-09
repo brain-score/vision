@@ -16,7 +16,9 @@ BIBTEX = """@article{cowley2026compact,
   number={8111},
   pages={947--954},
   year={2026},
-  publisher={Nature Publishing Group}}"""
+  publisher={Nature Publishing Group},
+  doi={10.1038/s41586-026-10150-1},
+  url={https://doi.org/10.1038/s41586-026-10150-1}}"""
 
 # no object categories -> plain random CV splits, not object_name stratification
 pls_metric = lambda: load_metric('pls', crossvalidation_kwargs=dict(stratification_coord=None))

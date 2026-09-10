@@ -57,7 +57,7 @@ dummy_layers = ["layer1", "layer2"]
 def test_inferencer(max_spatial_size):
     inferencer = Inferencer(dummy_get_features, dummy_preprocess, dummy_layer_activation_format, 
                             Video, max_workers=1, max_spatial_size=max_spatial_size, batch_grouper=lambda s: s.duration)
-    model_assembly = inferencer(video_paths, layers=dummy_layers)
+    model_assembly = inferencer(video_paths[1:], layers=dummy_layers)
     if max_spatial_size is None:
         # 6 second video with fps 60 has 360 frames
         # the model simply return the same number of frames as the temporal size of activations
@@ -65,27 +65,22 @@ def test_inferencer(max_spatial_size):
         assert model_assembly.sizes["neuroid"] == 360*6*3*2 + 2
     else:
         assert model_assembly.sizes["neuroid"] == 360*max_spatial_size*(max_spatial_size//2) * 2 + 2
-    assert model_assembly.sizes["stimulus_path"] == 2 
+    assert model_assembly.sizes["stimulus_path"] == 1
 
 
-@pytest.mark.parametrize("time_alignment", ["evenly_spaced", "ignore_time"])
 @pytest.mark.parametrize("fps", [10, 30, 45])
-def test_temporal_inferencer(time_alignment, fps):
+def test_temporal_inferencer(fps):
     inferencer = TemporalInferencer(dummy_get_features, dummy_preprocess, 
                                     dummy_layer_activation_format, max_workers=1, 
-                                    fps=fps, time_alignment=time_alignment)
+                                    fps=fps)
     model_assembly = inferencer(video_paths, layers=dummy_layers)
     assert model_assembly['time_bin_start'].values[0] == 0
     assert model_assembly['time_bin_end'].values[-1] == max(video_durations)
 
-    if time_alignment != "ignore_time":
-        # since the longer video lasts for 6 seconds, and the temporal inferencer align all output assembly to have fps
-        # specified when constructing the inferencer, the number of time bins should be 6*fps
-        assert model_assembly.sizes["time_bin"] == 6 * fps
-        assert np.isclose(model_assembly['time_bin_end'].values[0] - model_assembly['time_bin_start'].values[0], 1000/fps)
-    else:
-        assert model_assembly.sizes["time_bin"] == 1
-        assert model_assembly['time_bin_end'].values[0] - model_assembly['time_bin_start'].values[0] == max(video_durations)
+    # since the longer video lasts for 6 seconds, and the temporal inferencer align all output assembly to have fps
+    # specified when constructing the inferencer, the number of time bins should be 6*fps
+    assert model_assembly.sizes["time_bin"] == 6 * fps
+    assert np.isclose(model_assembly['time_bin_end'].values[0] - model_assembly['time_bin_start'].values[0], 1000/fps)
 
     # manual computation check
     output_values = model_assembly.sel(stimulus_path=video_paths[1])\

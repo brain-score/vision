@@ -1,6 +1,7 @@
 from collections import OrderedDict
 
 import logging
+import os
 import numpy as np
 from PIL import Image
 
@@ -176,3 +177,49 @@ def torchvision_preprocess(preprocess_type="imagenet", **kwargs):
         ])
     else:
         raise ValueError(f"Unknown preprocess_type '{preprocess_type}'")
+
+
+class _CacheDisabledExtractorCall:
+    """Wraps an extractor so activation caching is off only for *its* calls.
+
+    Some models cannot use the stored-activation cache: `combine_fields`
+    accumulates layers into one entry, and merging a rank-2 transformer block
+    (``channel``, ``embedding``) with a rank-1 classifier (``channel``,
+    ``channel_x``, ``channel_y``) raises, because the neuroid coordinate schemes
+    differ. See brain-score/vision#1232 and the follow-up issue.
+
+    The workaround those plugins used was to set ``RESULTCACHING_DISABLE`` at
+    model-construction time and never restore it. That is process-global: in a
+    session scoring several models, every model loaded afterwards also ran
+    uncached, silently. Scoping it to the call restores the variable afterwards,
+    including when the extraction raises.
+    """
+
+    def __init__(self, wrapper, disable_value):
+        self._wrapper = wrapper
+        self._disable_value = disable_value
+
+    def __call__(self, *args, **kwargs):
+        previous = os.environ.get('RESULTCACHING_DISABLE')
+        os.environ['RESULTCACHING_DISABLE'] = self._disable_value
+        try:
+            return self._wrapper(*args, **kwargs)
+        finally:
+            # restore, including the "was unset" case -- assigning '' would
+            # leave a value that `_match_identifier` treats as "disable nothing",
+            # which is right, but the variable should simply not be there.
+            if previous is None:
+                os.environ.pop('RESULTCACHING_DISABLE', None)
+            else:
+                os.environ['RESULTCACHING_DISABLE'] = previous
+
+    def __getattr__(self, item):
+        # everything else -- identifier, image_size, layers -- passes through
+        return getattr(self._wrapper, item)
+
+
+def disable_activation_caching(wrapper):
+    """Return `wrapper` with activation caching disabled for its own calls only."""
+    return _CacheDisabledExtractorCall(
+        wrapper, 'brainscore_vision.model_helpers.activations.core.'
+                 'ActivationsExtractorHelper._from_paths_stored')

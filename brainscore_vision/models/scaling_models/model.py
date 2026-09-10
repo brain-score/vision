@@ -7,7 +7,8 @@ import ssl
 import torchvision.models
 import torch
 
-from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
+from brainscore_vision.model_helpers.activations.pytorch import (
+    PytorchWrapper, disable_activation_caching)
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
 
 import timm
@@ -100,10 +101,6 @@ def get_model(model_id:str):
     output_head = config["output_head"]
     is_vit = config["is_vit"]
     
-    # Temporary fix for vit models
-    # See https://github.com/brain-score/vision/pull/1232
-    if is_vit:
-        os.environ['RESULTCACHING_DISABLE'] = 'brainscore_vision.model_helpers.activations.core.ActivationsExtractorHelper._from_paths_stored'
 
     
     # Initialize model
@@ -145,4 +142,9 @@ def get_model(model_id:str):
     wrapper = PytorchWrapper(
         identifier=model_id, model=model, preprocessing=preprocessing
     )
+    # ViT layer sets cannot share a cache entry: merging a rank-2 block with
+    # a rank-1 classifier raises on mismatched neuroid coords (#1232). Scope the
+    # disable to this model's own calls rather than leaking it process-wide.
+    if is_vit:
+        wrapper = disable_activation_caching(wrapper)
     return wrapper

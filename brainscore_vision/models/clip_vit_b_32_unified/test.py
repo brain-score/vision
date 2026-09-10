@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 from PIL import Image
 
-from brainscore_core.model_interface import BrainScoreModel, UnifiedModel
+from brainscore_core.model_interface import BrainScoreModel, Subject
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 
 
@@ -59,7 +59,7 @@ def text_stimuli():
 
 class TestModelIdentity:
     def test_is_unified_model(self, model):
-        assert isinstance(model, UnifiedModel)
+        assert isinstance(model, Subject)
 
     def test_is_brainscore_model(self, model):
         assert isinstance(model, BrainScoreModel)

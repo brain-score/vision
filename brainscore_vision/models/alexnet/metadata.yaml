@@ -7,8 +7,8 @@ models:
         total_layers: 24
         trainable_layers: 8
         model_size_mb: 244.4
-        training_dataset: null
-        task_specialization: null
+        training_dataset: ImageNet-1k
+        task_specialization: image_classification
         brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet
         huggingface_link: https://huggingface.co/alexnet
         extra_notes: null

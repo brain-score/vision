@@ -39,11 +39,19 @@ class PytorchWrapper:
         self._extractor.identifier = value
 
     def __call__(self, *args, **kwargs):
-        previous_value = os.getenv('RESULTCACHING_DISABLE', '')
-        os.environ['RESULTCACHING_DISABLE'] = 'model_tools.activations'
-        result = self._extractor(*args, **kwargs)
-        os.environ['RESULTCACHING_DISABLE'] = previous_value
-        return result
+        previous_value = os.environ.get('RESULTCACHING_DISABLE')
+        if previous_value != '1':
+            disabled = [previous_value] if previous_value else []
+            disabled.extend(('model_tools.activations',
+                             'brainscore_vision.model_helpers.activations'))
+            os.environ['RESULTCACHING_DISABLE'] = ','.join(disabled)
+        try:
+            return self._extractor(*args, **kwargs)
+        finally:
+            if previous_value is None:
+                os.environ.pop('RESULTCACHING_DISABLE', None)
+            else:
+                os.environ['RESULTCACHING_DISABLE'] = previous_value
 
     def get_activations(self, images, layer_names):
         import torch
@@ -56,14 +64,15 @@ class PytorchWrapper:
         layer_results = OrderedDict()
         hooks = []
 
-        for layer_name in layer_names:
-            layer = self.get_layer(layer_name)
-            hook = self.register_hook(layer, layer_name, target_dict=layer_results)
-            hooks.append(hook)
-
-        self._model(images)
-        for hook in hooks:
-            hook.remove()
+        try:
+            for layer_name in layer_names:
+                layer = self.get_layer(layer_name)
+                hook = self.register_hook(layer, layer_name, target_dict=layer_results)
+                hooks.append(hook)
+            self._model(images)
+        finally:
+            for hook in hooks:
+                hook.remove()
         return layer_results
 
     def get_layer(self, layer_name):
@@ -213,4 +222,3 @@ def torchvision_preprocess(normalize_mean=(0.485, 0.456, 0.406), normalize_std=(
         transforms.Normalize(mean=normalize_mean, std=normalize_std),
         lambda img: img.unsqueeze(0)
     ])
-

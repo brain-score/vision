@@ -3,7 +3,7 @@ import numpy as np
 from torchvision import transforms
 from s3dg_howto100m import S3D
 
-from brainscore_vision.model_helpers.activations.temporal.model.pytorch import PytorchWrapper
+from brainscore_vision.model_helpers.activations.temporal.model import PytorchWrapper
 from brainscore_core.supported_data_standards.brainio.s3 import load_weight_file
 
 
@@ -41,14 +41,14 @@ def get_model(identifier="s3d-HowTo100M"):
     model_pth = load_weight_file(
         bucket="brainscore-vision",
         relative_path="temporal_model_S3D_text_video/s3d_howto100m.pth",
-        version_id="hRp6I8bpwreIMUVL0H.zCdK0hqRggL7n",
+        version_id="3k_iwjSqYUwMRdri9IH2JZn5yMGCnayc",
         sha1="31e99d2a1cd48f2259ca75e719ac82c8b751ea75"
     )
 
     dict_pth = load_weight_file(
         bucket="brainscore-vision",
         relative_path="temporal_model_S3D_text_video/s3d_dict.npy",
-        version_id="4NxVLe8DSL6Uue0F7e2rz8HZuOk.tkBI",
+        version_id="FWHuvz5CDjNJyG1IuzEqkHU9zzmPv62p",
         sha1="d368ff7d397ec8240f1f963b5efe8ff245bac35f"
     )
 

@@ -1,0 +1,9 @@
+numpy
+netCDF4
+torch
+torchvision
+chardet
+omegaconf
+hydra-core
+pillow
+r3m @ git+https://github.com/facebookresearch/r3m.git#egg=r3m

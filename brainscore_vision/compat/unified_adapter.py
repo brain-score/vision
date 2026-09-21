@@ -9,11 +9,11 @@ code below it sees the same look_at() calls it always did.
 
 from typing import Any, Dict, Optional, Set
 
-from brainscore_core.model_interface import Subject, TaskContext
+from brainscore_core.model_interface import UnifiedModel, TaskContext
 from brainscore_core.streaming_helpers import _drive_neural_session_via_process
 
 
-class VisionModelAdapter(Subject):
+class VisionModelAdapter(UnifiedModel):
 
     def __init__(self, legacy_model):
         self._legacy = legacy_model

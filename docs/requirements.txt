@@ -1,3 +1,4 @@
+-r ../requirements-v2.txt
 -e .
 
 Sphinx>=4

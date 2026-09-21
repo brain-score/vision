@@ -1,14 +1,13 @@
-from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 from brainscore_vision.model_helpers.check_submission import check_models
 import functools
 from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
-import ssl
 from .helpers.hmax import HMAX
 from .helpers.pytorch import PytorchWrapper
 from brainscore_core.supported_data_standards.brainio.s3 import load_weight_file
+from brainscore_core.supported_data_standards.brainio.fetch import verify_sha1
 
 
-ssl._create_default_https_context = ssl._create_unverified_context
+_PATCH_SET_SHA1 = 'acc7316fcb0d1797486bb62753b71e158216a92a'
 model = None
 
 
@@ -21,7 +20,8 @@ def get_hmax(identifier, image_size):
     weights_path = load_weight_file(bucket="brainscore-storage", folder_name="brainscore-vision/models",
                                     relative_path="hmax/universal_patch_set.mat",
                                     version_id="null",
-                                    sha1="acc7316fcb0d1797486bb62753b71e158216a92a")
+                                    sha1=_PATCH_SET_SHA1)
+    verify_sha1(weights_path, _PATCH_SET_SHA1)
     global model 
     model = HMAX(str(weights_path))
     

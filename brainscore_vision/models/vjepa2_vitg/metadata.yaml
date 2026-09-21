@@ -1,0 +1,18 @@
+models:
+    vjepa2-vitg:
+        architecture: Transformer (ViT-G)
+        model_family: vjepa2
+        total_parameter_count: 1136000000
+        trainable_parameter_count: 0
+        total_layers: 40
+        trainable_layers: 0
+        model_size_mb: 2272
+        training_dataset: video (self-supervised)
+        task_specialization: self-supervised video representation learning
+        brainscore_link: null
+        huggingface_link: https://huggingface.co/facebook/vjepa2-vitg-fpc64-256
+        extra_notes: >
+            V-JEPA2 ViT-G backbone extracted as standalone vision model.
+            Trained with joint-embedding predictive architecture on video.
+            Accepts single images (treated as 1-frame video).
+        runnable: true

@@ -1,0 +1,6 @@
+{
+    "V1": "features.maxpool",
+    "V2": "features.layer3.0",
+    "V4": "features.layer2.0",
+    "IT": "features.layer4.0"
+}

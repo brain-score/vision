@@ -3,6 +3,8 @@ on:
   pull_request_target:
     branches: [master]
     types: [opened, synchronize, reopened, labeled, unlabeled, closed]
+  pull_request_review:
+    types: [submitted, dismissed]
   workflow_dispatch:
     inputs:
       pr:
@@ -15,7 +17,8 @@ permissions:
   checks: write
 jobs:
   validate:
-    if: vars.METADATA_V2_ENABLED == 'true' && github.event.action != 'closed'
+    # Fork review events have read-only tokens; use workflow_dispatch for those.
+    if: vars.METADATA_V2_ENABLED == 'true' && github.event.action != 'closed' && (github.event_name != 'pull_request_review' || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     steps:
       # No PR checkout or plugin imports. Only the released validator runs.
@@ -69,6 +72,7 @@ jobs:
           private-key: ${{ secrets.METADATA_APP_PRIVATE_KEY }}
           owner: brain-score
           repositories: brain-score.web
+          permission-actions: write
       - uses: actions/github-script@v7
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}

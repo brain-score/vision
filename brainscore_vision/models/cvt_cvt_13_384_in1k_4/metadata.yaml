@@ -1,0 +1,85 @@
+schema_version: '2.0'
+domain: vision
+models:
+  cvt_cvt-13-384-in1k_4_LucyV4:
+    model:
+      architecture:
+        family: CvT
+        description: Three-stage vision transformer using convolutional token embeddings
+          and convolutional projections for attention; a classification token is introduced
+          in the final stage.
+      input_resolution:
+        channels: 3
+        height: 384
+        width: 384
+    data:
+      training_datasets:
+      - name: ImageNet-1k
+        role: training
+        description: The card identifies ImageNet-1k and 384 x 384 resolution; the
+          exact pretraining versus resolution fine-tuning sequence needs checkpoint-specific
+          confirmation.
+    provenance:
+      checkpoint: microsoft/cvt-13-384-1k
+    io:
+      interface: The submitted loader uses Transformers CvtForImageClassification
+        through the Brain-Score PytorchWrapper.
+      output_format: The underlying classifier produces logits for 1,000 ImageNet
+        classes; Brain-Score separately selects internal activations.
+    sources:
+      submitted_loader:
+        kind: other
+        url: https://github.com/brain-score/vision/blob/ece4881b3f6f810079ee349367ea5f96e474349d/brainscore_vision/models/cvt_cvt_13_384_in1k_4/model.py
+        citation: get_model and load_preprocess_images; loader does not pin a Hub
+          revision.
+      hf_card:
+        kind: huggingface
+        url: https://huggingface.co/microsoft/cvt-13-384-1k/blob/a14331452cabd82f5ba2f8efa77011b78b093f21/README.md
+        citation: Model card introduction and Usage; authored by the Hugging Face
+          team.
+      hf_config:
+        kind: huggingface
+        url: https://huggingface.co/microsoft/cvt-13-384-1k/blob/a14331452cabd82f5ba2f8efa77011b78b093f21/config.json
+        citation: num_channels, image_size, depth, model_type, architectures and id2label.
+      cvt_paper:
+        kind: paper
+        url: https://arxiv.org/pdf/2103.15808v1
+        citation: 'Wu et al. (2021), CvT: Introducing Convolutions to Vision Transformers;
+          Section 3, page 4.'
+    assertions:
+    - path: /model/architecture
+      status: probable
+      sources:
+      - cvt_paper
+      - hf_config
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - hf_card
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - submitted_loader
+      - hf_card
+    - path: /io/interface
+      status: probable
+      sources:
+      - submitted_loader
+    - path: /io/output_format
+      status: probable
+      sources:
+      - hf_card
+      - hf_config
+      - submitted_loader
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - hf_config
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - submitted_loader
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - submitted_loader

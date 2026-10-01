@@ -7,35 +7,35 @@ from brainscore_vision import load_metric
 
 def test_score():
     assembly = _make_data()
-    metric = load_metric('accuracy_distance')
+    metric = load_metric('kato_accuracy_distance')
     score = metric(assembly.sel(subject='A'), assembly)
     assert score == approx(0.74074074)
 
 
 def test_score_single_variable():
     assembly = _make_data()
-    metric = load_metric('accuracy_distance')
+    metric = load_metric('kato_accuracy_distance')
     score = metric(assembly.sel(subject='C'), assembly, ('condition',))
     assert score == approx(0.55555556)
 
 
 def test_score_multi_variable():
     assembly = _make_data()
-    metric = load_metric('accuracy_distance')
+    metric = load_metric('kato_accuracy_distance')
     score = metric(assembly.sel(subject='C'), assembly, ('condition','animacy'))
     assert score == approx(0.55555556)
 
 
 def test_has_error():
     assembly = _make_data()
-    metric = load_metric('accuracy_distance')
+    metric = load_metric('kato_accuracy_distance')
     score = metric(assembly.sel(subject='A'), assembly)
     assert hasattr(score, 'error')
 
 
 def test_raw_subjects():
     assembly = _make_data()
-    metric = load_metric('accuracy_distance')
+    metric = load_metric('kato_accuracy_distance')
     score = metric(assembly.sel(subject='A'), assembly)
     subject_scores = score.raw
     assert subject_scores.sel(subject='A') == 1.

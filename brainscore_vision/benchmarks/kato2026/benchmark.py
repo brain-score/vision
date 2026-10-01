@@ -52,14 +52,14 @@ class _Kato2026ErrorConsistency(BenchmarkBase):
         choice_labels = list(sorted(choice_labels))
         # add one elements to choice_labels "others"
         choice_labels.append("kato2026_others")
-        candidate.start_task(BrainModel.Task.label, choice_labels)
+        candidate.start_task(BrainModel.Task.label, choice_labels, aggregation='max')
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                     source_visual_degrees=self._visual_degrees)
         labels = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
         
         # only consider images for which the model is correct in the base condition
         if hasattr(self, '_assembly_base'):
-            candidate.start_task(BrainModel.Task.label, choice_labels)
+            candidate.start_task(BrainModel.Task.label, choice_labels, aggregation='max')
             stimulus_set_base = place_on_screen(self._assembly_base.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                         source_visual_degrees=self._visual_degrees)
             labels_base = candidate.look_at(stimulus_set_base, number_of_trials=self._number_of_trials)
@@ -105,14 +105,14 @@ class _Kato2026AccuracyDistance(BenchmarkBase):
         choice_labels = list(sorted(choice_labels))
         # add one elements to choice_labels "others"
         choice_labels.append("kato2026_others")
-        candidate.start_task(BrainModel.Task.label, choice_labels)
+        candidate.start_task(BrainModel.Task.label, choice_labels, aggregation='max')
         stimulus_set = place_on_screen(self._assembly.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                     source_visual_degrees=self._visual_degrees)
         labels = candidate.look_at(stimulus_set, number_of_trials=self._number_of_trials)
         
         # only consider images for which the model is correct in the base condition
         if hasattr(self, '_assembly_base'):
-            candidate.start_task(BrainModel.Task.label, choice_labels)
+            candidate.start_task(BrainModel.Task.label, choice_labels, aggregation='max')
             stimulus_set_base = place_on_screen(self._assembly_base.stimulus_set, target_visual_degrees=candidate.visual_degrees(),
                                         source_visual_degrees=self._visual_degrees)
             labels_base = candidate.look_at(stimulus_set_base, number_of_trials=self._number_of_trials)

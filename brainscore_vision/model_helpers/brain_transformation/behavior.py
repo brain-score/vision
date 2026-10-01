@@ -33,15 +33,20 @@ class LabelBehavior(BrainModel):
         self.activations_model = activations_model
         self.current_task = None
         self.choice_labels = None
+        self.aggregation = np.mean
 
     @property
     def identifier(self):
         return self._identifier
 
-    def start_task(self, task: BrainModel.Task, choice_labels):
+    def start_task(self, task: BrainModel.Task, choice_labels, aggregation: str = 'mean'):
+        """
+        :param aggregation: how to pool ImageNet class probabilities within a choice label, 'mean' or 'max'
+        """
         assert task == BrainModel.Task.label
         self.current_task = task
         self.choice_labels = choice_labels
+        self.aggregation = {'mean': np.mean, 'max': np.max}[aggregation]
 
     def look_at(self, stimuli, number_of_trials: int = 1, require_variance: bool = False):
         assert self.current_task == BrainModel.Task.label
@@ -99,10 +104,7 @@ class LabelBehavior(BrainModel):
             for label in self.choice_labels:
                 indices = LabelToImagenetIndices.label_to_indices(label)
                 values = np.take(probabilities.values, indices, axis=-1)
-                if 'kato2026_' in label:
-                    aggregated_value = np.max(values, axis=-1)
-                else:
-                    aggregated_value = np.mean(values, axis=-1)
+                aggregated_value = self.aggregation(values, axis=-1)
                 aggregated_class_probabilities.append(aggregated_value)
             aggregated_class_probabilities = np.transpose(aggregated_class_probabilities)  # now presentation x p(label)
             top_indices = np.argmax(aggregated_class_probabilities, axis=1)

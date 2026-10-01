@@ -13,6 +13,7 @@ def test_existence(assembly_identifier):
     assert load_dataset(assembly_identifier) is not None
 
 
+@pytest.mark.private_access
 class TestAssemblies:
     # test stimulus_set data alignment with assembly:
     @pytest.mark.parametrize('identifier', [
@@ -112,6 +113,7 @@ class TestAssemblies:
 
 
 # testing stimulus sets
+@pytest.mark.private_access
 @pytest.mark.slow
 class TestStimulusSets:
     # test stimulus_set data:

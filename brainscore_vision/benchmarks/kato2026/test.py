@@ -35,6 +35,7 @@ class TestErrorConsistency:
         identifier = f"Kato2026{dataset.replace('-', '')}-error_consistency"
         assert identifier in benchmark_registry
 
+    @pytest.mark.private_access
     @pytest.mark.parametrize('dataset, expected_ceiling', [
         ('Ori', approx(0.21271, abs=0.0001)),
         ('Fil', approx(0.34131, abs=0.0001)),
@@ -52,6 +53,7 @@ class TestErrorConsistency:
         ceiling = benchmark.ceiling
         assert ceiling == expected_ceiling
 
+    @pytest.mark.private_access
     @pytest.mark.parametrize('dataset, expected_raw_score', [
         ('Ori', approx(0.04396, abs=0.0001)),
         ('Fil', approx(0.15168, abs=0.0001)),
@@ -81,6 +83,7 @@ class TestAccuracyDistance:
         identifier = f"Kato2026{dataset.replace('-', '')}-accuracy_distance"
         assert identifier in benchmark_registry
 
+    @pytest.mark.private_access
     @pytest.mark.parametrize('dataset, expected_ceiling', [
         ('Ori', approx(0.88677, abs=0.0001)),
         ('Fil', approx(0.90117, abs=0.0001)),
@@ -98,6 +101,7 @@ class TestAccuracyDistance:
         ceiling = benchmark.ceiling
         assert ceiling == expected_ceiling
 
+    @pytest.mark.private_access
     @pytest.mark.parametrize('dataset, expected_raw_score', [
         ('Ori', approx(0.77458, abs=0.0001)), 
         ('Fil', approx(0.75369, abs=0.0001)),

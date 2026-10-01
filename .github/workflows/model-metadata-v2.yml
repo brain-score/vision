@@ -21,11 +21,18 @@ jobs:
     if: vars.METADATA_V2_ENABLED == 'true' && github.event.action != 'closed' && (github.event_name != 'pull_request_review' || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     steps:
-      # No PR checkout or plugin imports. Only the released validator runs.
+      # No PR checkout or plugin imports. Only the pinned core validator runs.
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install brainscore-metadata==0.1.0
+      - name: Install the approved core metadata contract
+        env:
+          METADATA_CORE_REF: ${{ vars.METADATA_CORE_REF }}
+        run: |
+          [[ "$METADATA_CORE_REF" =~ ^[0-9a-f]{40}$ ]] || { echo 'Set METADATA_CORE_REF to a full approved core commit SHA'; exit 1; }
+          pip install "brainscore_core @ git+https://github.com/brain-score/core.git@${METADATA_CORE_REF}"
+          python -c "import brainscore_core.metadata"
+          pip check
       - uses: actions/github-script@v7
         id: check
         env:
@@ -46,7 +53,7 @@ jobs:
           METADATA_PR: ${{ github.event.pull_request.number || inputs.pr }}
           METADATA_REPOSITORY: ${{ github.repository }}
           METADATA_HEAD: ${{ steps.check.outputs.head }}
-        run: python -m brainscore_metadata.review --repository "$METADATA_REPOSITORY" --pr "$METADATA_PR" --head-sha "$METADATA_HEAD" --domain vision --model-root brainscore_vision/models
+        run: python -m brainscore_core.metadata.review --repository "$METADATA_REPOSITORY" --pr "$METADATA_PR" --head-sha "$METADATA_HEAD" --domain vision --model-root brainscore_vision/models
       - uses: actions/github-script@v7
         if: always() && steps.check.outputs.id
         env:

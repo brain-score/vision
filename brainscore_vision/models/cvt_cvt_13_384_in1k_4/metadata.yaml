@@ -122,6 +122,11 @@ models:
         kind: other
         url: https://github.com/microsoft/CvT/blob/f851e681966390779b71380d2600b52360ff4fe1/lib/core/loss.py
         citation: build_criterion
+      preprocessing_reproduction:
+        kind: other
+        url: https://github.com/brain-score/infrastructure/blob/ae3c82ebe046abeb76ae161afefa2719f800e9b3/web/metadata/reviews/2026-10-02-cvt-preprocessing/reproduce.py
+        citation: Offline RGB preprocessing reproduction; output 3 × 384 × 384. Historical scoring inputs
+          unconfirmed; versions and configs recorded alongside the script.
     assertions:
     - path: /model/display_name
       status: probable
@@ -159,6 +164,7 @@ models:
       sources:
       - submitted_loader
       - hf_config
+      - preprocessing_reproduction
     - path: /model/visual_degrees
       status: probable
       sources:
@@ -224,6 +230,7 @@ models:
       sources:
       - submitted_loader
       - hf_preprocessor
+      - preprocessing_reproduction
     - path: /io/output_format
       status: probable
       sources:

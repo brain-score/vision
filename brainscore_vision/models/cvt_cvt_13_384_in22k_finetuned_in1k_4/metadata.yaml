@@ -1,0 +1,299 @@
+schema_version: '2.0'
+domain: vision
+models:
+  cvt_cvt-13-384-in22k_finetuned-in1k_4_LucyV4:
+    model:
+      display_name: CvT-13 / 384px / ImageNet-22k to 1k
+      version: CvT-13 / 384px / ImageNet-22k to 1k
+      architecture:
+        family: hybrid_convolutional_transformer
+        description: 'CvT-13: three-stage convolutional vision transformer; block depths [1, 2,
+          10]. Final-stage class token. Brain-Score records the blocks and final layernorm.'
+      parameter_count: 20000000
+      parameter_count_exact: false
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      visual_degrees: 8.0
+      visual_degrees_description: 8° inherited from ModelCommitment; historical scoring configuration
+        unconfirmed.
+      supervision:
+        type: supervised
+        description: Labeled image classification.
+    training:
+      process: ImageNet-22k pretraining, then ImageNet-1k fine-tuning. No additional training
+        in the submission.
+      objective: 1,000-class image classification. Pretrained with ImageNet-22k labels.
+      loss: Soft-target cross-entropy; smoothing 0.1 (reference recipe; checkpoint unconfirmed).
+      learning_rate: 0.00025 × GPU count; cosine decay (reference recipe; checkpoint unconfirmed).
+      batch_size: 256 images/GPU (reference recipe; checkpoint unconfirmed).
+      preprocessing: Mixup, CutMix, RandAugment, flips, color jitter and random erasing (reference
+        recipe; checkpoint unconfirmed).
+    data:
+      training_datasets:
+      - name: ImageNet-22k
+        role: pretraining
+        description: ≈14M images; ≈22K classes.
+      - name: ImageNet-1k
+        role: fine_tuning
+        description: ≈1.3M images; 1,000 classes.
+    io:
+      modality: image
+      interface: Transformers CvtForImageClassification via Brain-Score PytorchWrapper.
+      input_format: RGB; wrapper resize 384px, then inspected processor produces 3 × 224 × 224
+        with ImageNet normalization (Transformers 4.30.2). Historical processor revision unpinned.
+      output_format: 1,000 ImageNet class logits; internal activations available through Brain-Score.
+      tokenizer: Convolutional image patches; no text tokenizer.
+    eval:
+      test_datasets:
+      - name: ImageNet-1k validation
+        description: Used for published classifier evaluation; not an independent ImageNet test
+          split and not a list of Brain-Score benchmarks.
+      validation_datasets:
+      - name: ImageNet-1k validation
+        description: The official training recipe selects the ImageNet val split. Use in the exact
+          Hub training run is not confirmed.
+    people:
+      creators:
+      - Haiping Wu
+      - Bin Xiao
+      - Noel Codella
+      - Mengchen Liu
+      - Xiyang Dai
+      - Lu Yuan
+      - Lei Zhang
+      organizations:
+      - Microsoft
+    use:
+      applications:
+      - Image classification
+      - Internal feature extraction for Brain-Score neural and behavioral comparisons
+      users:
+      - Computer-vision and computational-neuroscience researchers (inferred audience).
+      limitations:
+      - Classifier restricted to 1,000 ImageNet labels.
+      - Unpinned Hub revisions; historical weights and preprocessing unconfirmed.
+    provenance:
+      weights_provider: Microsoft (Hugging Face microsoft organization)
+      checkpoint: microsoft/cvt-13-384-22k
+      source_url: https://huggingface.co/microsoft/cvt-13-384-22k
+    legal:
+      license: Apache-2.0
+    sources:
+      submitted_loader:
+        kind: other
+        url: https://github.com/brain-score/vision/blob/ece4881b3f6f810079ee349367ea5f96e474349d/brainscore_vision/models/cvt_cvt_13_384_in22k_finetuned_in1k_4/model.py
+        citation: get_model, get_layers and load_preprocess_images
+      registration:
+        kind: other
+        url: https://github.com/brain-score/vision/blob/ece4881b3f6f810079ee349367ea5f96e474349d/brainscore_vision/models/cvt_cvt_13_384_in22k_finetuned_in1k_4/__init__.py
+        citation: model_registry entry and ModelCommitment arguments
+      model_commitment:
+        kind: other
+        url: https://github.com/brain-score/vision/blob/ece4881b3f6f810079ee349367ea5f96e474349d/brainscore_vision/model_helpers/brain_transformation/__init__.py
+        citation: 'ModelCommitment.__init__: visual_degrees default'
+      hf_card:
+        kind: huggingface
+        url: https://huggingface.co/microsoft/cvt-13-384-22k/blob/dffbc91c364d4bc4c5f353f9c2cd1244b2fdf388/README.md
+        citation: YAML license; introduction; authorship disclaimer; Usage
+      hf_config:
+        kind: huggingface
+        url: https://huggingface.co/microsoft/cvt-13-384-22k/blob/dffbc91c364d4bc4c5f353f9c2cd1244b2fdf388/config.json
+        citation: depth, num_channels, architecture and id2label
+      hf_preprocessor:
+        kind: huggingface
+        url: https://huggingface.co/microsoft/cvt-13-384-22k/blob/dffbc91c364d4bc4c5f353f9c2cd1244b2fdf388/preprocessor_config.json
+        citation: size, crop_pct, do_resize, do_normalize, image_mean and image_std
+      cvt_paper:
+        kind: paper
+        url: https://arxiv.org/pdf/2103.15808v1
+        citation: Author list; Section 3; Tables 2-3; Section 4.1
+      official_results:
+        kind: other
+        url: https://github.com/microsoft/CvT/blob/f851e681966390779b71380d2600b52360ff4fe1/README.md
+        citation: Main results tables; Introduction; Citation
+      official_recipe:
+        kind: other
+        url: https://github.com/microsoft/CvT/blob/f851e681966390779b71380d2600b52360ff4fe1/experiments/imagenet/cvt/cvt-13-384x384.yaml
+        citation: MODEL, AUG, LOSS, DATASET, TRAIN and TEST
+      official_defaults:
+        kind: other
+        url: https://github.com/microsoft/CvT/blob/f851e681966390779b71380d2600b52360ff4fe1/lib/config/default.py
+        citation: LOSS.LOSS; TRAIN.SCALE_LR; update_config
+      official_loss:
+        kind: other
+        url: https://github.com/microsoft/CvT/blob/f851e681966390779b71380d2600b52360ff4fe1/lib/core/loss.py
+        citation: build_criterion
+      processor_implementation:
+        kind: other
+        url: https://github.com/huggingface/transformers/blob/v4.30.2/src/transformers/models/convnext/image_processing_convnext.py
+        citation: 'ConvNextImageProcessor.resize: size below 384 is resized by crop_pct then center-cropped
+          to the configured size. Offline reproduction with the inspected processor config produced
+          [2, 3, 224, 224].'
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - hf_card
+      - submitted_loader
+    - path: /model/version
+      status: probable
+      sources:
+      - hf_card
+      - submitted_loader
+    - path: /model/architecture
+      status: probable
+      sources:
+      - cvt_paper
+      - hf_config
+      - submitted_loader
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - official_results
+      - hf_card
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - official_results
+      - hf_card
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - cvt_paper
+      - hf_config
+    - path: /model/input_resolution
+      status: uncertain
+      sources:
+      - submitted_loader
+      - hf_config
+      - hf_preprocessor
+      - processor_implementation
+    - path: /model/visual_degrees
+      status: probable
+      sources:
+      - registration
+      - model_commitment
+    - path: /model/visual_degrees_description
+      status: probable
+      sources:
+      - registration
+      - model_commitment
+    - path: /model/supervision
+      status: probable
+      sources:
+      - hf_card
+      - cvt_paper
+    - path: /training/process
+      status: probable
+      sources:
+      - submitted_loader
+      - hf_card
+    - path: /training/objective
+      status: probable
+      sources:
+      - hf_card
+      - hf_config
+    - path: /training/loss
+      status: uncertain
+      sources:
+      - official_recipe
+      - official_defaults
+      - official_loss
+    - path: /training/learning_rate
+      status: uncertain
+      sources:
+      - official_recipe
+      - official_defaults
+      - cvt_paper
+    - path: /training/batch_size
+      status: uncertain
+      sources:
+      - official_recipe
+      - official_defaults
+      - cvt_paper
+    - path: /training/preprocessing
+      status: uncertain
+      sources:
+      - official_recipe
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - hf_card
+      - cvt_paper
+    - path: /io/modality
+      status: probable
+      sources:
+      - hf_card
+    - path: /io/interface
+      status: probable
+      sources:
+      - submitted_loader
+    - path: /io/input_format
+      status: uncertain
+      sources:
+      - submitted_loader
+      - hf_preprocessor
+      - processor_implementation
+    - path: /io/output_format
+      status: probable
+      sources:
+      - hf_config
+      - submitted_loader
+    - path: /io/tokenizer
+      status: probable
+      sources:
+      - cvt_paper
+    - path: /eval/test_datasets
+      status: probable
+      sources:
+      - official_results
+      - official_recipe
+    - path: /eval/validation_datasets
+      status: uncertain
+      sources:
+      - official_recipe
+    - path: /people/creators
+      status: probable
+      sources:
+      - cvt_paper
+    - path: /people/organizations
+      status: probable
+      sources:
+      - hf_card
+      - official_results
+    - path: /use/applications
+      status: probable
+      sources:
+      - hf_card
+      - submitted_loader
+      - model_commitment
+    - path: /use/users
+      status: uncertain
+      sources:
+      - hf_card
+      - model_commitment
+    - path: /use/limitations
+      status: probable
+      sources:
+      - submitted_loader
+      - hf_config
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - hf_card
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - hf_card
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - hf_card
+      - submitted_loader
+    - path: /legal/license
+      status: probable
+      sources:
+      - hf_card

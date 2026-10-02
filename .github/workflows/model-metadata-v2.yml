@@ -1,0 +1,96 @@
+name: Model metadata v2
+on:
+  pull_request_target:
+    branches: [master]
+    types: [opened, synchronize, reopened, labeled, unlabeled, closed]
+  pull_request_review:
+    types: [submitted, dismissed]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: PR number to recheck after review
+        required: true
+        type: string
+permissions:
+  contents: read
+  pull-requests: read
+  checks: write
+jobs:
+  validate:
+    # Fork review events have read-only tokens; use workflow_dispatch for those.
+    if: vars.METADATA_V2_ENABLED == 'true' && github.event.action != 'closed' && (github.event_name != 'pull_request_review' || github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    steps:
+      # No PR checkout or plugin imports. Only the pinned core validator runs.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install the approved core metadata contract
+        env:
+          METADATA_CORE_REF: ${{ vars.METADATA_CORE_REF }}
+        run: |
+          [[ "$METADATA_CORE_REF" =~ ^[0-9a-f]{40}$ ]] || { echo 'Set METADATA_CORE_REF to a full approved core commit SHA'; exit 1; }
+          pip install "brainscore_core @ git+https://github.com/brain-score/core.git@${METADATA_CORE_REF}"
+          python -c "import brainscore_core.metadata"
+          pip check
+      - uses: actions/github-script@v7
+        id: check
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr }}
+        with:
+          script: |
+            const pull_number = Number(process.env.PR_NUMBER);
+            const {data: pr} = await github.rest.pulls.get({...context.repo, pull_number});
+            const {data: check} = await github.rest.checks.create({...context.repo,
+              name: 'Metadata v2 source policy', head_sha: pr.head.sha, status: 'in_progress'});
+            core.setOutput('id', check.id);
+            core.setOutput('head', pr.head.sha);
+      - name: Validate schema and source policy
+        id: validate
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          METADATA_PR: ${{ github.event.pull_request.number || inputs.pr }}
+          METADATA_REPOSITORY: ${{ github.repository }}
+          METADATA_HEAD: ${{ steps.check.outputs.head }}
+        run: python -m brainscore_core.metadata.review --repository "$METADATA_REPOSITORY" --pr "$METADATA_PR" --head-sha "$METADATA_HEAD" --domain vision --model-root brainscore_vision/models
+      - uses: actions/github-script@v7
+        if: always() && steps.check.outputs.id
+        env:
+          CHECK_ID: ${{ steps.check.outputs.id }}
+          CHECK_RESULT: ${{ steps.validate.outcome }}
+        with:
+          script: |
+            const success = process.env.CHECK_RESULT === 'success';
+            await github.rest.checks.update({...context.repo, check_run_id: Number(process.env.CHECK_ID),
+              status: 'completed', conclusion: success ? 'success' : 'failure',
+              output: {title: 'Metadata v2 validation', summary: success ?
+                'Schema and source policy passed. Live metadata is unchanged until merge and publication.' :
+                'Validation failed. See the workflow log; protected changes require a maintainer override.'}});
+            if (!success) core.setFailed('Metadata validation failed');
+  publish:
+    if: vars.METADATA_V2_ENABLED == 'true' && github.event.action == 'closed' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-github-app-token@v2
+        id: app
+        with:
+          app-id: ${{ vars.METADATA_APP_ID }}
+          private-key: ${{ secrets.METADATA_APP_PRIVATE_KEY }}
+          owner: brain-score
+          repositories: brain-score.web
+          permission-actions: write
+      - uses: actions/github-script@v7
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PUBLISH_REF: ${{ vars.METADATA_WEB_PUBLISH_REF }}
+          PUBLISH_ENVIRONMENT: ${{ vars.METADATA_PUBLISH_ENVIRONMENT }}
+        with:
+          github-token: ${{ steps.app.outputs.token }}
+          script: |
+            if (!process.env.PUBLISH_REF || !process.env.PUBLISH_ENVIRONMENT) {
+              core.setFailed('Configure the trusted publisher ref and environment first'); return;
+            }
+            await github.rest.actions.createWorkflowDispatch({owner: 'brain-score', repo: 'brain-score.web',
+              workflow_id: 'publish-model-metadata.yml', ref: process.env.PUBLISH_REF,
+              inputs: {domain: 'vision', pr: process.env.PR_NUMBER, environment: process.env.PUBLISH_ENVIRONMENT}});

@@ -2,13 +2,11 @@ name: Model metadata v2
 on:
   pull_request_target:
     branches: [master]
-    types: [opened, synchronize, reopened, labeled, unlabeled, closed]
-  pull_request_review:
-    types: [submitted, dismissed]
+    types: [opened, synchronize, reopened, closed]
   workflow_dispatch:
     inputs:
       pr:
-        description: PR number to recheck after review
+        description: PR number to validate
         required: true
         type: string
 permissions:
@@ -17,8 +15,7 @@ permissions:
   checks: write
 jobs:
   validate:
-    # Fork review events have read-only tokens; use workflow_dispatch for those.
-    if: vars.METADATA_V2_ENABLED == 'true' && github.event.action != 'closed' && (github.event_name != 'pull_request_review' || github.event.pull_request.head.repo.full_name == github.repository)
+    if: vars.METADATA_V2_ENABLED == 'true' && github.event.action != 'closed'
     runs-on: ubuntu-latest
     steps:
       # No PR checkout or plugin imports. Only the pinned core validator runs.
@@ -66,7 +63,7 @@ jobs:
               status: 'completed', conclusion: success ? 'success' : 'failure',
               output: {title: 'Metadata v2 validation', summary: success ?
                 'Schema and source policy passed. Live metadata is unchanged until merge and publication.' :
-                'Validation failed. See the workflow log; protected changes require a maintainer override.'}});
+                'Metadata validation failed. See the workflow log for schema or migration errors.'}});
             if (!success) core.setFailed('Metadata validation failed');
   publish:
     if: vars.METADATA_V2_ENABLED == 'true' && github.event.action == 'closed' && github.event.pull_request.merged == true

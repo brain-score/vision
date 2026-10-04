@@ -1,15 +1,240 @@
+schema_version: '2.0'
+domain: vision
 models:
-    resnet_SIN_IN_FT_IN:
-        architecture: DCNN
-        model_family: resnet
-        total_parameter_count: 25557032
-        trainable_parameter_count: 25557032
-        total_layers: 151
-        trainable_layers: 54
-        model_size_mb: 102.23
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet_SIN_IN_FT_IN
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  resnet_SIN_IN_FT_IN:
+    sources:
+      curation_workbook:
+        kind: unreviewed
+        citation: curation_workbook
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /data/summary
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/test_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/validation_datasets
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /io/interface
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /io/tokenizer
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /legal/license
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /lineage/base_models
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/architecture
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/display_name
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/supervision
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/version
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/visual_degrees
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /people/creators
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /people/organizations
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/checkpoint
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/weights_provider
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/batch_size
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/learning_rate
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/loss
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/objective
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/preprocessing
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /training/process
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/applications
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/biases
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/limitations
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/users
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    model:
+      display_name: resnet_SIN_IN_FT_IN
+      version: Geirhos et al. 2019 model C weights
+      architecture:
+        family: convolutional_neural_network
+        description: CNN (ResNet), texture/shape-bias supervised training
+      parameter_count: 25600000
+      parameter_count_exact: false
+      trainable_layers: All ResNet-50 layers trainable across both training stages
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      visual_degrees: null
+      visual_degrees_description: Commonly 8 degrees for Brain-Score ResNet-50 baselines
+        (unconfirmed for this exact entry)
+      supervision:
+        type: supervised
+        description: Fully supervised (1000-way classification)
+    training:
+      process: Standard ResNet-50 architecture trained on combined Stylized-ImageNet
+        (SIN) + ImageNet (IN) for 45 epochs, then fine-tuned on ImageNet alone for
+        60 epochs with LR decay after 30 epochs (Geirhos et al. 2019, model C)
+      objective: Cross-entropy classification loss
+      loss: Cross-entropy
+      learning_rate: 0.1, multiplied by 0.1 after 20 and 40 epochs (SIN stage); fine-tune
+        stage LR decay after 30 epochs
+      batch_size: '256'
+      preprocessing: Standard torchvision ImageNet preprocessing (resize/crop 224,
+        ImageNet mean/std)
+    data:
+      summary: Stylized-ImageNet (SIN) + ImageNet (IN), then ImageNet fine-tune
+      training_datasets:
+      - identifier: stylized-imagenet-sin-imagenet-in
+        name: Stylized-ImageNet (SIN) + ImageNet (IN), then ImageNet fine-tune
+        description: null
+        role: training
+    io:
+      modality: image
+      interface: RGB tensor 3x224x224 -> 1000-class logits or intermediate activations
+        (Brain-Score API)
+      input_format: RGB tensor 3x224x224
+      output_format: 1000-class logits or intermediate activations (Brain-Score API)
+      tokenizer: null
+    provenance:
+      weights_provider: Robert Geirhos / Bethge Lab (rgeirhos/texture-vs-shape)
+      checkpoint: resnet50_finetune_60_epochs_lr_decay_after_30_start_resnet50_train_45_epochs_combined_IN_SF-ca06340c.pth.tar
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet_SIN_IN_FT_IN
+      curation_confidence: null
+    legal:
+      license: null
+    eval:
+      test_datasets:
+      - identifier: imagenet-val-geirhos-cue-conflict-shap
+        name: ImageNet val + Geirhos cue-conflict shape/texture stimuli; also scored
+          on Brain-Score benchmarks
+        description: null
+      validation_datasets:
+      - identifier: imagenet-1k-standard-validation-split
+        name: ImageNet-1K standard validation split
+        description: null
+    use:
+      applications:
+      - Computational neuroscience - shape/texture bias research
+      - robustness studies
+      - Brain-Score benchmarking
+      biases:
+      - Explicitly designed to reduce texture bias relative to standard ImageNet training
+      - texture bias returns after IN fine-tuning
+      limitations:
+      - Fine-tuning on IN after SIN+IN training reduces shape bias back toward texture
+        bias (per Hermann et al. 2020, arXiv:2006.09373)
+      users:
+      - Vision neuroscientists and robustness researchers
+    people:
+      creators:
+      - Robert Geirhos, Patricia Rubisch, Claudio Michaelis, Matthias Bethge, Felix
+        Wichmann (Bethge Lab)
+      organizations:
+      - University of Tuebingen / Bethge Lab
+    lineage:
+      base_models:
+      - identifier: resnet-50
+        name: ResNet-50
+        relationship: fine_tuned_from
+    legacy:
+      architecture: DCNN
+      model_family: resnet
+      total_parameter_count: 25557032
+      trainable_parameter_count: 25557032
+      total_layers: 151
+      trainable_layers: 54
+      model_size_mb: 102.23
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet_SIN_IN_FT_IN
+      huggingface_link: null
+      extra_notes: null
+      runnable: true

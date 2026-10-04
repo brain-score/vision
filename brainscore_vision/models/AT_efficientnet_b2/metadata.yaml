@@ -1,14 +1,11 @@
 schema_version: '2.0'
 domain: vision
 models:
-  compact_resnet50_robust_V4:
+  AT_efficientnet-b2:
     sources:
       curation_workbook:
         kind: unreviewed
         citation: curation_workbook
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
     assertions:
     - path: /data/summary
       status: undocumented
@@ -42,6 +39,10 @@ models:
       status: undocumented
       sources:
       - curation_workbook
+    - path: /model/architecture
+      status: undocumented
+      sources:
+      - curation_workbook
     - path: /model/display_name
       status: verified
       sources:
@@ -59,6 +60,10 @@ models:
       sources:
       - curation_workbook
     - path: /model/supervision
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /model/trainable_layers
       status: undocumented
       sources:
       - curation_workbook
@@ -126,27 +131,15 @@ models:
       status: undocumented
       sources:
       - curation_workbook
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
     model:
-      display_name: compact_resnet50_robust_V4
+      display_name: AT_efficientnet-b2
       version: null
       architecture:
-        family: convolutional_neural_network
+        family: null
         description: null
       parameter_count: null
       parameter_count_exact: null
-      trainable_layers: '5'
+      trainable_layers: null
       recurrent: null
       input_resolution:
         channels: null
@@ -175,21 +168,7 @@ models:
     provenance:
       weights_provider: null
       checkpoint: null
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/compact_resnet50_robust_V4
+      source_url: null
       curation_confidence: null
     legal:
       license: null
-    legacy:
-      architecture: DCNN
-      model_family: compact
-      total_parameter_count: null
-      trainable_parameter_count: 109018
-      total_layers: 5
-      trainable_layers: 5
-      model_size_mb: 0.891
-      training_dataset: null
-      task_specialization: null
-      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/compact_resnet50_robust_V4
-      huggingface_link: null
-      extra_notes: null
-      runnable: true

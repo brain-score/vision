@@ -1,15 +1,238 @@
+schema_version: '2.0'
+domain: vision
 models:
-    resnext101_32x48d_wsl:
-        architecture: DCNN
-        model_family: resnext
-        total_parameter_count: 828411176
-        trainable_parameter_count: 828411176
-        total_layers: 287
-        trainable_layers: 105
-        model_size_mb: 3313.64
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnext101_32x48d_wsl
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  resnext101_32x48d_wsl:
+    sources:
+      curation_workbook:
+        kind: unreviewed
+        citation: curation_workbook
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /data/summary
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/test_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/validation_datasets
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /io/interface
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /io/tokenizer
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /legal/license
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /lineage/base_models
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/architecture
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/display_name
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/supervision
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/version
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/creators
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /people/organizations
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/checkpoint
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/weights_provider
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/loss
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/objective
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/preprocessing
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/process
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/applications
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/biases
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/limitations
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/users
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    model:
+      display_name: resnext101_32x48d_wsl
+      version: WSL weights, ECCV 2018 release
+      architecture:
+        family: convolutional_neural_network
+        description: CNN - grouped/aggregated residual transformations (ResNeXt)
+      parameter_count: 829000000
+      parameter_count_exact: false
+      trainable_layers: All ResNeXt-101 layers trainable (both pretrain and fine-tune
+        stages)
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      visual_degrees: null
+      visual_degrees_description: null
+      supervision:
+        type: weakly_supervised
+        description: Weakly-supervised pretrain (hashtags) -> supervised fine-tune
+    training:
+      process: Pretrained via weakly-supervised learning on 940M Instagram images
+        matched to 1.5K hashtags aligned with ImageNet-1K synsets -> fine-tuned end-to-end
+        on ImageNet-1K
+      objective: Cross-entropy classification loss (hashtag prediction pretrain, label
+        classification fine-tune)
+      loss: Cross-entropy
+      learning_rate: null
+      batch_size: null
+      preprocessing: Resize/crop 224, normalize mean=[0.485,0.456,0.406] std=[0.229,0.224,0.225]
+    data:
+      summary: 940M Instagram images w/ 1.5K hashtags (weak supervision) -> ImageNet-1K
+        (fine-tune)
+      training_datasets:
+      - identifier: 940m-instagram-images-w-1-5k-hashtags
+        name: 940M Instagram images w/ 1.5K hashtags (weak supervision) -> ImageNet-1K
+          (fine-tune)
+        description: null
+        role: training
+    io:
+      modality: image
+      interface: RGB tensor 3x224x224 -> 1000-class logits
+      input_format: RGB tensor 3x224x224
+      output_format: 1000-class logits
+      tokenizer: null
+    provenance:
+      weights_provider: Facebook AI Research (facebookresearch/WSL-Images)
+      checkpoint: ig_resnext101_32x48-3e41cc8a.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnext101_32x48d_wsl
+      curation_confidence: null
+    legal:
+      license: CC-BY-NC 4.0
+    eval:
+      test_datasets:
+      - identifier: imagenet-1k-validation-set-50k-images
+        name: ImageNet-1k validation set (50K images)
+        description: null
+      validation_datasets:
+      - identifier: imagenet-1k-standard-validation-split
+        name: ImageNet-1K standard validation split
+        description: null
+    use:
+      applications:
+      - High-accuracy image classification
+      - robustness research (large-scale weak supervision)
+      biases:
+      - Inherits Instagram hashtag sampling biases plus ImageNet dataset biases
+      limitations:
+      - Very large (829M params, 153B FLOPs)
+      - not adversarially robust despite better corruption robustness (per Orhan 2019
+        arXiv:1907.07640)
+      users:
+      - Researchers studying scale/weak-supervision effects on robustness and accuracy
+    people:
+      creators:
+      - Dhruv Mahajan, Ross Girshick, Vignesh Ramanathan, Kaiming He, et al. (Facebook
+        AI)
+      organizations:
+      - Facebook AI Research (FAIR)
+    lineage:
+      base_models:
+      - identifier: resnext-101
+        name: ResNeXt-101
+        relationship: fine_tuned_from
+    legacy:
+      architecture: DCNN
+      model_family: resnext
+      total_parameter_count: 828411176
+      trainable_parameter_count: 828411176
+      total_layers: 287
+      trainable_layers: 105
+      model_size_mb: 3313.64
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnext101_32x48d_wsl
+      huggingface_link: null
+      extra_notes: null
+      runnable: true

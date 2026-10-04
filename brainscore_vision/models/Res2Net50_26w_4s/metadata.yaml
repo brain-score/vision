@@ -1,15 +1,235 @@
+schema_version: '2.0'
+domain: vision
 models:
-    Res2Net50_26w_4s:
-        architecture: DCNN
-        model_family: null
-        total_parameter_count: 25699120
-        trainable_parameter_count: 25699120
-        total_layers: 251
-        trainable_layers: 86
-        model_size_mb: 102.8
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/Res2Net50_26w_4s
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  Res2Net50_26w_4s:
+    sources:
+      curation_workbook:
+        kind: unreviewed
+        citation: curation_workbook
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /data/summary
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /data/training_datasets
+      status: uncertain
+      sources:
+      - curation_workbook
+    - path: /eval/test_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/validation_datasets
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /io/interface
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /io/tokenizer
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /legal/license
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /lineage/base_models
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/architecture
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/display_name
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/supervision
+      status: uncertain
+      sources:
+      - curation_workbook
+    - path: /model/version
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/creators
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /people/organizations
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/checkpoint
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /provenance/weights_provider
+      status: uncertain
+      sources:
+      - curation_workbook
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/loss
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/objective
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/preprocessing
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/process
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/applications
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/biases
+      status: uncertain
+      sources:
+      - curation_workbook
+    - path: /use/limitations
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /use/users
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    model:
+      display_name: Res2Net50_26w_4s
+      version: pretrained=False at instantiation - no separate weight-loading step
+        visible in this file
+      architecture:
+        family: convolutional_neural_network
+        description: CNN (Res2Net), multi-scale hierarchical residual connections
+          within each block
+      parameter_count: 25700000
+      parameter_count_exact: false
+      trainable_layers: '86'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      visual_degrees: null
+      visual_degrees_description: null
+      supervision:
+        type: supervised
+        description: Fully supervised (assumed)
+    training:
+      process: Custom Res2Net-50 (26w-4s) instantiated with pretrained=False; no separate
+        weight-loading step visible - may be running with random init unless helpers
+        file loads weights internally
+      objective: null
+      loss: null
+      learning_rate: null
+      batch_size: null
+      preprocessing: load_preprocess_images, image_size=224 (standard)
+    data:
+      summary: ImageNet-1k (assumed, standard classification setting); not confirmed
+        if pretrained weights actually loaded
+      training_datasets:
+      - identifier: imagenet-1k-assumed-standard-classific
+        name: ImageNet-1k (assumed, standard classification setting)
+        description: null
+        role: training
+      - identifier: not-confirmed-if-pretrained-weights-actu
+        name: not confirmed if pretrained weights actually loaded
+        description: null
+        role: training
+    io:
+      modality: image
+      interface: RGB tensor 3x224x224 -> intermediate activations incl. fc
+      input_format: RGB tensor 3x224x224
+      output_format: intermediate activations incl. fc
+      tokenizer: null
+    provenance:
+      weights_provider: Brain-Score S3 storage (checkpoint download not shown in this
+        file); weights source unconfirmed
+      checkpoint: null
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/Res2Net50_26w_4s
+      curation_confidence: medium
+    legal:
+      license: 'Submission code: MIT; original Res2Net repo: Apache 2.0'
+    eval:
+      test_datasets:
+      - identifier: brain-score-neural-behavioral-benchmark
+        name: Brain-Score neural/behavioral benchmark stimulus sets (confirmed via
+          ModelCommitment/metadata registration)
+        description: null
+    use:
+      applications:
+      - Multi-scale feature research
+      - Brain-Score benchmarking
+      biases:
+      - Inherits ImageNet dataset biases (if pretrained)
+      users:
+      - Multi-scale CNN researchers
+      - vision neuroscientists
+    people:
+      creators:
+      - Gao, Cheng, Zhao, Zhang, Yang, Torr (Res2Net, correctly cited in file)
+      organizations:
+      - Multimedia Computing Group, Nankai University (Res2Net)
+    lineage:
+      base_models:
+      - identifier: res2net-50
+        name: Res2Net-50
+        relationship: variant_of
+    legacy:
+      architecture: DCNN
+      model_family: null
+      total_parameter_count: 25699120
+      trainable_parameter_count: 25699120
+      total_layers: 251
+      trainable_layers: 86
+      model_size_mb: 102.8
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/Res2Net50_26w_4s
+      huggingface_link: null
+      extra_notes: null
+      runnable: true

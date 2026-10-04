@@ -1,15 +1,233 @@
+schema_version: '2.0'
+domain: vision
 models:
-    AdvProp_efficientnet-b6:
-        architecture: DCNN
-        model_family: efficientnet
-        total_parameter_count: 43040704
-        trainable_parameter_count: 43040704
-        total_layers: 678
-        trainable_layers: 225
-        model_size_mb: 172.16
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AdvProp_efficientnet_b6
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  AdvProp_efficientnet-b6:
+    sources:
+      curation_workbook:
+        kind: unreviewed
+        citation: curation_workbook
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /data/summary
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/test_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/validation_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /io/interface
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /io/tokenizer
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /legal/license
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /lineage/base_models
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/architecture
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/display_name
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/supervision
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/version
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/creators
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /people/organizations
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/checkpoint
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/weights_provider
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/loss
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/objective
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/preprocessing
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/process
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /use/applications
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/biases
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/limitations
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/users
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    model:
+      display_name: AdvProp_efficientnet-b6
+      version: B6 Scale Variant
+      architecture:
+        family: convolutional_neural_network
+        description: Convolutional Neural Network
+      parameter_count: 43000000
+      parameter_count_exact: true
+      trainable_layers: '42'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 528
+        width: 528
+      visual_degrees: null
+      visual_degrees_description: null
+      supervision:
+        type: supervised
+        description: Fully Supervised
+    training:
+      process: null
+      objective: 1,000-class image classification
+      loss: Cross-entropy loss
+      learning_rate: null
+      batch_size: null
+      preprocessing: Resize to 528x528, normalize mean, std
+    data:
+      summary: ImageNet ILSVRC-2012
+      training_datasets:
+      - identifier: imagenet-ilsvrc-2012
+        name: ImageNet ILSVRC-2012
+        description: 1,281,167
+        role: training
+    io:
+      modality: image
+      interface: RGC image 528x528x3 NCHW, 1000-class logits
+      input_format: RGC image 528x528x3 NCHW, 1000-class logits
+      output_format: null
+      tokenizer: Nonw (o)
+    provenance:
+      weights_provider: Google, PyTorch
+      checkpoint: tf_efficientnet_b6.ap_in1k
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AdvProp_efficientnet_b6
+      curation_confidence: medium
+    legal:
+      license: Apache 2.0
+    eval:
+      test_datasets:
+      - identifier: imagenet-1k-imagenet-c-imagenet-a-sty
+        name: ImageNet-1K, ImageNet-C, ImageNet-A, Stylized-ImageNet
+        description: null
+      validation_datasets:
+      - identifier: imagenet-1k-validatioon-set
+        name: ImageNet-1K validatioon set
+        description: null
+    use:
+      applications:
+      - High-accuracy image classification
+      - robustness to common corruptions/distribution shift
+      biases:
+      - Inherits ImageNet dataset biases (geographic/cultural skew
+      - label noise
+      - legacy category issues)
+      limitations:
+      - High compute/training cost
+      - large-resolution inference cost
+      - robustness gains don't cover adaptive/white-box attacks
+      users:
+      - CV researchers/practitioners needing large, robust pretrained backbones
+    people:
+      creators:
+      - Cihang Xie, Mingxing Tan, Boqing Gong, Jiang Wang, Alan Yuille, Quoc V. Le
+      organizations:
+      - Google, Johns Hopkins University
+    lineage:
+      base_models:
+      - identifier: advprop-efficientnet
+        name: AdvProp EfficientNet
+        relationship: variant_of
+    legacy:
+      architecture: DCNN
+      model_family: efficientnet
+      total_parameter_count: 43040704
+      trainable_parameter_count: 43040704
+      total_layers: 678
+      trainable_layers: 225
+      model_size_mb: 172.16
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AdvProp_efficientnet_b6
+      huggingface_link: null
+      extra_notes: null
+      runnable: true

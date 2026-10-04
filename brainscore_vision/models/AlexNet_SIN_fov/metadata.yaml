@@ -1,43 +1,440 @@
+schema_version: '2.0'
+domain: vision
 models:
-    AlexNet_SIN_fov4:
-        architecture: DCNN
-        model_family: alexnet
-        total_parameter_count: 61100840
-        trainable_parameter_count: 61100840
-        total_layers: 25
-        trainable_layers: 8
-        model_size_mb: 244.4
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AlexNet_SIN_fov
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    AlexNet_SIN_fov12:
-        architecture: DCNN
-        model_family: alexnet
-        total_parameter_count: 61100840
-        trainable_parameter_count: 61100840
-        total_layers: 25
-        trainable_layers: 8
-        model_size_mb: 244.4
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AlexNet_SIN_fov
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    AlexNet_SIN_fov16:
-        architecture: DCNN
-        model_family: alexnet
-        total_parameter_count: 61100840
-        trainable_parameter_count: 61100840
-        total_layers: 25
-        trainable_layers: 8
-        model_size_mb: 244.4
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AlexNet_SIN_fov
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  AlexNet_SIN_fov4:
+    legacy:
+      architecture: DCNN
+      model_family: alexnet
+      total_parameter_count: 61100840
+      trainable_parameter_count: 61100840
+      total_layers: 25
+      trainable_layers: 8
+      model_size_mb: 244.4
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AlexNet_SIN_fov
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 61100840
+      trainable_layers: '8'
+      architecture:
+        family: convolutional_neural_network
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AlexNet_SIN_fov
+  AlexNet_SIN_fov12:
+    sources:
+      curation_workbook:
+        kind: unreviewed
+        citation: curation_workbook
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /data/summary
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /data/training_datasets
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /eval/test_datasets
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /eval/validation_datasets
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /io/interface
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /io/tokenizer
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /legal/license
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /lineage/base_models
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/display_name
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/input_resolution
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /model/recurrent
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /model/supervision
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /model/version
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/creators
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/organizations
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /provenance/checkpoint
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /provenance/weights_provider
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/loss
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/objective
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/preprocessing
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/process
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /use/applications
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /use/biases
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /use/limitations
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /use/users
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    model:
+      display_name: AlexNet_SIN_fov12
+      version: 12 visual degree variant
+      architecture:
+        family: convolutional_neural_network
+        description: null
+      parameter_count: 61100840
+      parameter_count_exact: null
+      trainable_layers: '8'
+      recurrent: null
+      input_resolution:
+        channels: null
+        height: null
+        width: null
+      visual_degrees: null
+      visual_degrees_description: null
+      supervision:
+        type: null
+        description: null
+    training:
+      process: null
+      objective: null
+      loss: null
+      learning_rate: null
+      batch_size: null
+      preprocessing: null
+    data:
+      summary: null
+    io:
+      modality: image
+      interface: null
+      input_format: null
+      output_format: null
+      tokenizer: null
+    provenance:
+      weights_provider: null
+      checkpoint: null
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AlexNet_SIN_fov
+      curation_confidence: low
+    legal:
+      license: null
+    lineage:
+      base_models:
+      - identifier: alexnet
+        name: AlexNet
+        relationship: variant_of
+    legacy:
+      architecture: DCNN
+      model_family: alexnet
+      total_parameter_count: 61100840
+      trainable_parameter_count: 61100840
+      total_layers: 25
+      trainable_layers: 8
+      model_size_mb: 244.4
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AlexNet_SIN_fov
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+  AlexNet_SIN_fov16:
+    sources:
+      curation_workbook:
+        kind: unreviewed
+        citation: curation_workbook
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /data/summary
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /data/training_datasets
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /eval/test_datasets
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /eval/validation_datasets
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /io/interface
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /io/tokenizer
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /legal/license
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /lineage/base_models
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/display_name
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/input_resolution
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /model/recurrent
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /model/supervision
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /model/version
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/creators
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/organizations
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /provenance/checkpoint
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /provenance/weights_provider
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/loss
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/objective
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/preprocessing
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/process
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /use/applications
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /use/biases
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /use/limitations
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /use/users
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    model:
+      display_name: AlexNet_SIN_fov16
+      version: 16 visual degree variant
+      architecture:
+        family: convolutional_neural_network
+        description: null
+      parameter_count: 61100840
+      parameter_count_exact: null
+      trainable_layers: '8'
+      recurrent: null
+      input_resolution:
+        channels: null
+        height: null
+        width: null
+      visual_degrees: null
+      visual_degrees_description: null
+      supervision:
+        type: null
+        description: null
+    training:
+      process: null
+      objective: null
+      loss: null
+      learning_rate: null
+      batch_size: null
+      preprocessing: null
+    data:
+      summary: null
+    io:
+      modality: image
+      interface: null
+      input_format: null
+      output_format: null
+      tokenizer: null
+    provenance:
+      weights_provider: null
+      checkpoint: null
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AlexNet_SIN_fov
+      curation_confidence: low
+    legal:
+      license: null
+    lineage:
+      base_models:
+      - identifier: alexnet
+        name: AlexNet
+        relationship: variant_of
+    legacy:
+      architecture: DCNN
+      model_family: alexnet
+      total_parameter_count: 61100840
+      trainable_parameter_count: 61100840
+      total_layers: 25
+      trainable_layers: 8
+      model_size_mb: 244.4
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AlexNet_SIN_fov
+      huggingface_link: null
+      extra_notes: null
+      runnable: true

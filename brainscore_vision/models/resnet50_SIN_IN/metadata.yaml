@@ -1,14 +1,11 @@
 schema_version: '2.0'
 domain: vision
 models:
-  voneresnet-50-non_stochastic:
+  resnet50-SIN_IN:
     sources:
       curation_workbook:
         kind: unreviewed
         citation: curation_workbook
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
     assertions:
     - path: /data/summary
       status: verified
@@ -35,7 +32,7 @@ models:
       sources:
       - curation_workbook
     - path: /legal/license
-      status: verified
+      status: undocumented
       sources:
       - curation_workbook
     - path: /lineage/base_models
@@ -55,7 +52,7 @@ models:
       sources:
       - curation_workbook
     - path: /model/parameter_count
-      status: probable
+      status: verified
       sources:
       - curation_workbook
     - path: /model/recurrent
@@ -71,11 +68,11 @@ models:
       sources:
       - curation_workbook
     - path: /model/version
-      status: probable
+      status: verified
       sources:
       - curation_workbook
     - path: /model/visual_degrees
-      status: verified
+      status: probable
       sources:
       - curation_workbook
     - path: /people/creators
@@ -87,7 +84,7 @@ models:
       sources:
       - curation_workbook
     - path: /provenance/checkpoint
-      status: probable
+      status: verified
       sources:
       - curation_workbook
     - path: /provenance/weights_provider
@@ -95,7 +92,7 @@ models:
       sources:
       - curation_workbook
     - path: /training/batch_size
-      status: undocumented
+      status: probable
       sources:
       - curation_workbook
     - path: /training/learning_rate
@@ -111,7 +108,7 @@ models:
       sources:
       - curation_workbook
     - path: /training/preprocessing
-      status: verified
+      status: probable
       sources:
       - curation_workbook
     - path: /training/process
@@ -134,63 +131,59 @@ models:
       status: probable
       sources:
       - curation_workbook
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
     model:
-      display_name: voneresnet-50-non_stochastic
-      version: v0.1 weights release (Jun 30, 2020)
+      display_name: resnet50-SIN_IN
+      version: Geirhos et al. 2019 model B weights
       architecture:
-        family: hybrid_biological_convolutional
-        description: Biologically-fixed V1 front-end + CNN (ResNet) back-end
+        family: convolutional_neural_network
+        description: CNN (ResNet), texture/shape-bias supervised training
       parameter_count: 25600000
       parameter_count_exact: false
-      trainable_layers: All ResNet-50 conv/BN/FC layers trainable; VOneBlock Gabor
-        filters fixed
+      trainable_layers: All ResNet-50 layers trainable (45 epochs on combined SIN+IN)
       recurrent: false
       input_resolution:
         channels: 3
         height: 224
         width: 224
-      visual_degrees: 8.0
-      visual_degrees_description: 8 degrees
+      visual_degrees: null
+      visual_degrees_description: Commonly 8 degrees for Brain-Score ResNet-50 baselines
+        (unconfirmed for this exact entry)
       supervision:
         type: supervised
-        description: Fully supervised (1000-way classification)
+        description: Fully supervised (1000-way classification, on SIN+IN labels)
     training:
-      process: Gabor filter bank (fixed) -> simple/complex-cell nonlinearity -> noise
-        generator disabled -> bottleneck -> ResNet-50 stages 1-4 -> classifier
-      objective: Cross-entropy classification loss on ImageNet labels
+      process: Standard ResNet-50 trained jointly on combined SIN+IN for 45 epochs
+        (~90 epochs-equivalent since the combined dataset is 2x size), same SGD recipe
+        (Geirhos et al. 2019, model B)
+      objective: Cross-entropy classification loss
       loss: Cross-entropy
       learning_rate: null
-      batch_size: null
-      preprocessing: Normalize mean=[0.5,0.5,0.5], std=[0.5,0.5,0.5]
+      batch_size: 256 (same PyTorch ImageNet training script)
+      preprocessing: Standard torchvision ImageNet preprocessing
     data:
-      summary: ImageNet (ILSVRC2012)
+      summary: Stylized-ImageNet (SIN) + ImageNet (IN) combined
       training_datasets:
-      - identifier: imagenet-ilsvrc2012
-        name: ImageNet (ILSVRC2012)
-        description: 1K
+      - identifier: stylized-imagenet-sin-imagenet-in
+        name: Stylized-ImageNet (SIN) + ImageNet (IN) combined
+        description: null
         role: training
     io:
       modality: image
       interface: RGB tensor 3x224x224 -> 1000-class logits or intermediate activations
-        (Brain-Score API)
       input_format: RGB tensor 3x224x224
-      output_format: 1000-class logits or intermediate activations (Brain-Score API)
+      output_format: 1000-class logits or intermediate activations
       tokenizer: null
     provenance:
-      weights_provider: DiCarlo Lab (github.com/dicarlolab/vonenet); S3-hosted
-      checkpoint: Epoch-70 checkpoint, noise generator disabled at inference
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/voneresnet_50_non_stochastic
+      weights_provider: Robert Geirhos / Bethge Lab
+      checkpoint: resnet50_train_45_epochs_combined_IN_SF-2a0d100e.pth.tar
+      source_url: null
       curation_confidence: null
     legal:
-      license: GNU GPL v3+
+      license: null
     eval:
       test_datasets:
-      - identifier: imagenet-val-50k-brain-score-benchma
-        name: ImageNet val (50K) + Brain-Score benchmark stimulus sets
+      - identifier: imagenet-val-geirhos-cue-conflict-shap
+        name: ImageNet val + Geirhos cue-conflict shape/texture stimuli
         description: null
       validation_datasets:
       - identifier: imagenet-1k-standard-validation-split
@@ -198,37 +191,21 @@ models:
         description: null
     use:
       applications:
-      - Computational neuroscience (V1 modeling)
-      - adversarial robustness research
-      - Brain-Score benchmarking
+      - Shape-bias / texture-bias robustness research
       biases:
-      - Inherits ImageNet dataset biases (object-centric, Western-centric sourcing)
+      - Intermediate shape/texture bias between SIN-only and IN-only training
       limitations:
-      - Clean accuracy/robustness trade off with V1 channel count
-      - lacks noise-driven robustness gains
+      - Still texture-biased despite SIN exposure, per Rajalingham/DFR-related follow-up
+        analyses (arXiv:2204.02937)
       users:
-      - Vision neuroscientists, ML robustness researchers
+      - Vision neuroscientists and robustness researchers
     people:
       creators:
-      - Dapello, Marques, Schrimpf, Geiger, Cox, DiCarlo
+      - Robert Geirhos et al. (Bethge Lab)
       organizations:
-      - MIT DiCarlo Lab
+      - University of Tuebingen / Bethge Lab
     lineage:
       base_models:
       - identifier: resnet-50
         name: ResNet-50
         relationship: variant_of
-    legacy:
-      architecture: DCNN
-      model_family: resnet, vone
-      total_parameter_count: 27500264
-      trainable_parameter_count: 25580264
-      total_layers: 157
-      trainable_layers: 54
-      model_size_mb: 110.0
-      training_dataset: null
-      task_specialization: null
-      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/voneresnet_50_non_stochastic
-      huggingface_link: null
-      extra_notes: null
-      runnable: true

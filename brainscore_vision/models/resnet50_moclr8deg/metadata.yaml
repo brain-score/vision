@@ -1,21 +1,18 @@
 schema_version: '2.0'
 domain: vision
 models:
-  voneresnet-50-non_stochastic:
+  resnet50-moclr8deg:
     sources:
       curation_workbook:
         kind: unreviewed
         citation: curation_workbook
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
     assertions:
     - path: /data/summary
-      status: verified
+      status: undocumented
       sources:
       - curation_workbook
     - path: /data/training_datasets
-      status: verified
+      status: uncertain
       sources:
       - curation_workbook
     - path: /eval/test_datasets
@@ -23,7 +20,7 @@ models:
       sources:
       - curation_workbook
     - path: /eval/validation_datasets
-      status: probable
+      status: undocumented
       sources:
       - curation_workbook
     - path: /io/interface
@@ -35,7 +32,7 @@ models:
       sources:
       - curation_workbook
     - path: /legal/license
-      status: verified
+      status: probable
       sources:
       - curation_workbook
     - path: /lineage/base_models
@@ -43,7 +40,7 @@ models:
       sources:
       - curation_workbook
     - path: /model/architecture
-      status: verified
+      status: probable
       sources:
       - curation_workbook
     - path: /model/display_name
@@ -55,7 +52,7 @@ models:
       sources:
       - curation_workbook
     - path: /model/parameter_count
-      status: probable
+      status: verified
       sources:
       - curation_workbook
     - path: /model/recurrent
@@ -63,7 +60,7 @@ models:
       sources:
       - curation_workbook
     - path: /model/supervision
-      status: verified
+      status: probable
       sources:
       - curation_workbook
     - path: /model/trainable_layers
@@ -71,27 +68,27 @@ models:
       sources:
       - curation_workbook
     - path: /model/version
-      status: probable
+      status: verified
       sources:
       - curation_workbook
     - path: /model/visual_degrees
-      status: verified
+      status: undocumented
       sources:
       - curation_workbook
     - path: /people/creators
-      status: verified
-      sources:
-      - curation_workbook
-    - path: /people/organizations
-      status: verified
-      sources:
-      - curation_workbook
-    - path: /provenance/checkpoint
       status: probable
       sources:
       - curation_workbook
-    - path: /provenance/weights_provider
+    - path: /people/organizations
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /provenance/checkpoint
       status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/weights_provider
+      status: probable
       sources:
       - curation_workbook
     - path: /training/batch_size
@@ -103,11 +100,11 @@ models:
       sources:
       - curation_workbook
     - path: /training/loss
-      status: verified
+      status: probable
       sources:
       - curation_workbook
     - path: /training/objective
-      status: verified
+      status: probable
       sources:
       - curation_workbook
     - path: /training/preprocessing
@@ -134,101 +131,85 @@ models:
       status: probable
       sources:
       - curation_workbook
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
     model:
-      display_name: voneresnet-50-non_stochastic
-      version: v0.1 weights release (Jun 30, 2020)
+      display_name: resnet50-moclr8deg
+      version: Checkpoint resnet50_moclr_linear_sdnoattn.pth
       architecture:
-        family: hybrid_biological_convolutional
-        description: Biologically-fixed V1 front-end + CNN (ResNet) back-end
+        family: convolutional_neural_network
+        description: CNN (ResNet-50) with custom head; self-supervised MoCLR-pretrained
+          features (inferred)
       parameter_count: 25600000
       parameter_count_exact: false
-      trainable_layers: All ResNet-50 conv/BN/FC layers trainable; VOneBlock Gabor
-        filters fixed
+      trainable_layers: All layers trained during external MoCLR self-supervised pretraining;
+        loaded frozen (strict=False) for inference
       recurrent: false
       input_resolution:
         channels: 3
         height: 224
         width: 224
-      visual_degrees: 8.0
-      visual_degrees_description: 8 degrees
+      visual_degrees: null
+      visual_degrees_description: null
       supervision:
-        type: supervised
-        description: Fully supervised (1000-way classification)
+        type: self_supervised
+        description: Self-supervised pretrain (MoCLR) + linear probe
     training:
-      process: Gabor filter bank (fixed) -> simple/complex-cell nonlinearity -> noise
-        generator disabled -> bottleneck -> ResNet-50 stages 1-4 -> classifier
-      objective: Cross-entropy classification loss on ImageNet labels
-      loss: Cross-entropy
+      process: Custom ResNet-50 (attn_pool=False) loaded with MoCLR self-supervised
+        linear-probe weights from Brain-Score S3; strict=False load; 224x224
+      objective: MoCLR contrastive self-supervised objective (external, not in this
+        file)
+      loss: Contrastive (MoCLR, external)
       learning_rate: null
       batch_size: null
-      preprocessing: Normalize mean=[0.5,0.5,0.5], std=[0.5,0.5,0.5]
+      preprocessing: load_preprocess_images, image_size=224 (standard)
     data:
-      summary: ImageNet (ILSVRC2012)
+      summary: Self-supervised MoCLR pretraining dataset (likely ImageNet, per Tomasev
+        et al. 2022 DeepMind paper - inferred, not stated in file)
       training_datasets:
-      - identifier: imagenet-ilsvrc2012
-        name: ImageNet (ILSVRC2012)
-        description: 1K
+      - identifier: self-supervised-moclr-pretraining-datase
+        name: Self-supervised MoCLR pretraining dataset (likely ImageNet, per Tomasev
+          et al. 2022 DeepMind paper - inferred, not stated in file)
+        description: null
         role: training
     io:
       modality: image
-      interface: RGB tensor 3x224x224 -> 1000-class logits or intermediate activations
-        (Brain-Score API)
+      interface: RGB tensor 3x224x224 -> intermediate activations at named layers
+        incl. fc
       input_format: RGB tensor 3x224x224
-      output_format: 1000-class logits or intermediate activations (Brain-Score API)
+      output_format: intermediate activations at named layers incl. fc
       tokenizer: null
     provenance:
-      weights_provider: DiCarlo Lab (github.com/dicarlolab/vonenet); S3-hosted
-      checkpoint: Epoch-70 checkpoint, noise generator disabled at inference
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/voneresnet_50_non_stochastic
-      curation_confidence: null
+      weights_provider: Brain-Score S3 storage; underlying MoCLR pretraining likely
+        Google DeepMind (Tomasev et al.) by naming convention
+      checkpoint: resnet50_moclr_linear_sdnoattn.pth, SHA1 e09f117c...
+      source_url: null
+      curation_confidence: medium
     legal:
-      license: GNU GPL v3+
+      license: 'Submission code: MIT; underlying weights license unconfirmed'
     eval:
       test_datasets:
-      - identifier: imagenet-val-50k-brain-score-benchma
-        name: ImageNet val (50K) + Brain-Score benchmark stimulus sets
-        description: null
-      validation_datasets:
-      - identifier: imagenet-1k-standard-validation-split
-        name: ImageNet-1K standard validation split
+      - identifier: brain-score-neural-behavioral-benchmark
+        name: Brain-Score neural/behavioral benchmark stimulus sets (confirmed via
+          ModelCommitment/metadata registration)
         description: null
     use:
       applications:
-      - Computational neuroscience (V1 modeling)
-      - adversarial robustness research
+      - Self-supervised-representation / human-alignment research
       - Brain-Score benchmarking
       biases:
-      - Inherits ImageNet dataset biases (object-centric, Western-centric sourcing)
+      - Inherits biases of underlying self-supervised pretraining corpus
       limitations:
-      - Clean accuracy/robustness trade off with V1 channel count
-      - lacks noise-driven robustness gains
+      - Self-supervised features may transfer less directly to some Brain-Score benchmarks
+        than supervised training
       users:
-      - Vision neuroscientists, ML robustness researchers
+      - Self-supervised-learning and human-alignment researchers
     people:
       creators:
-      - Dapello, Marques, Schrimpf, Geiger, Cox, DiCarlo
+      - Likely Tomasev et al. (Google DeepMind, MoCLR paper) by naming convention
+        - unconfirmed in file
       organizations:
-      - MIT DiCarlo Lab
+      - Likely Google DeepMind by naming convention; unconfirmed
     lineage:
       base_models:
       - identifier: resnet-50
         name: ResNet-50
         relationship: variant_of
-    legacy:
-      architecture: DCNN
-      model_family: resnet, vone
-      total_parameter_count: 27500264
-      trainable_parameter_count: 25580264
-      total_layers: 157
-      trainable_layers: 54
-      model_size_mb: 110.0
-      training_dataset: null
-      task_specialization: null
-      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/voneresnet_50_non_stochastic
-      huggingface_link: null
-      extra_notes: null
-      runnable: true

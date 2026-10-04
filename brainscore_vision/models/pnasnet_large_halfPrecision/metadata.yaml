@@ -1,14 +1,11 @@
 schema_version: '2.0'
 domain: vision
 models:
-  voneresnet-50-non_stochastic:
+  pnasnet_large_halfPrecision:
     sources:
       curation_workbook:
         kind: unreviewed
         citation: curation_workbook
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
     assertions:
     - path: /data/summary
       status: verified
@@ -35,7 +32,7 @@ models:
       sources:
       - curation_workbook
     - path: /legal/license
-      status: verified
+      status: probable
       sources:
       - curation_workbook
     - path: /lineage/base_models
@@ -71,11 +68,11 @@ models:
       sources:
       - curation_workbook
     - path: /model/version
-      status: probable
+      status: verified
       sources:
       - curation_workbook
     - path: /model/visual_degrees
-      status: verified
+      status: undocumented
       sources:
       - curation_workbook
     - path: /people/creators
@@ -87,7 +84,7 @@ models:
       sources:
       - curation_workbook
     - path: /provenance/checkpoint
-      status: probable
+      status: verified
       sources:
       - curation_workbook
     - path: /provenance/weights_provider
@@ -95,7 +92,7 @@ models:
       sources:
       - curation_workbook
     - path: /training/batch_size
-      status: undocumented
+      status: probable
       sources:
       - curation_workbook
     - path: /training/learning_rate
@@ -134,63 +131,62 @@ models:
       status: probable
       sources:
       - curation_workbook
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
     model:
-      display_name: voneresnet-50-non_stochastic
-      version: v0.1 weights release (Jun 30, 2020)
+      display_name: pnasnet_large_halfPrecision
+      version: pnasnet5large.tf_in1k timm tag, cast to FP16
       architecture:
-        family: hybrid_biological_convolutional
-        description: Biologically-fixed V1 front-end + CNN (ResNet) back-end
-      parameter_count: 25600000
+        family: convolutional_neural_network
+        description: CNN, NAS-derived cell-based architecture (Progressive NAS), FP16
+      parameter_count: 86100000
       parameter_count_exact: false
-      trainable_layers: All ResNet-50 conv/BN/FC layers trainable; VOneBlock Gabor
-        filters fixed
+      trainable_layers: All PNASNet layers trained during original TF training; loaded
+        frozen for inference (FP16 cast, not retrained)
       recurrent: false
       input_resolution:
         channels: 3
-        height: 224
-        width: 224
-      visual_degrees: 8.0
-      visual_degrees_description: 8 degrees
+        height: 331
+        width: 331
+      visual_degrees: null
+      visual_degrees_description: null
       supervision:
         type: supervised
-        description: Fully supervised (1000-way classification)
+        description: Fully supervised
     training:
-      process: Gabor filter bank (fixed) -> simple/complex-cell nonlinearity -> noise
-        generator disabled -> bottleneck -> ResNet-50 stages 1-4 -> classifier
-      objective: Cross-entropy classification loss on ImageNet labels
+      process: timm pnasnet5large.tf_in1k loaded pretrained then cast to FP16 (.half())
+        for reduced memory/larger batch size; Inception-style preprocessing at 331x331
+      objective: Cross-entropy classification
       loss: Cross-entropy
       learning_rate: null
-      batch_size: null
-      preprocessing: Normalize mean=[0.5,0.5,0.5], std=[0.5,0.5,0.5]
+      batch_size: Inference batch_size=8 explicitly set (FP16 allows larger batch);
+        training batch size unconfirmed
+      preprocessing: load_preprocess_images, image_size=331, preprocess_type='inception'
     data:
-      summary: ImageNet (ILSVRC2012)
+      summary: ImageNet-1k (original TF PNASNet training)
       training_datasets:
-      - identifier: imagenet-ilsvrc2012
-        name: ImageNet (ILSVRC2012)
-        description: 1K
+      - identifier: imagenet-1k-original-tf-pnasnet-trainin
+        name: ImageNet-1k (original TF PNASNet training)
+        description: null
         role: training
     io:
       modality: image
-      interface: RGB tensor 3x224x224 -> 1000-class logits or intermediate activations
-        (Brain-Score API)
-      input_format: RGB tensor 3x224x224
-      output_format: 1000-class logits or intermediate activations (Brain-Score API)
+      interface: RGB tensor 3x331x331 (FP16) -> intermediate activations at cell_0-10
+        + global_pool
+      input_format: RGB tensor 3x331x331 (FP16)
+      output_format: intermediate activations at cell_0-10 + global_pool
       tokenizer: null
     provenance:
-      weights_provider: DiCarlo Lab (github.com/dicarlolab/vonenet); S3-hosted
-      checkpoint: Epoch-70 checkpoint, noise generator disabled at inference
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/voneresnet_50_non_stochastic
-      curation_confidence: null
+      weights_provider: timm / Ross Wightman (PyTorch port of original TF PNASNet
+        weights)
+      checkpoint: pnasnet5large.tf_in1k (timm hub identifier)
+      source_url: null
+      curation_confidence: high
     legal:
-      license: GNU GPL v3+
+      license: 'Submission code: MIT; timm weights: Apache 2.0'
     eval:
       test_datasets:
-      - identifier: imagenet-val-50k-brain-score-benchma
-        name: ImageNet val (50K) + Brain-Score benchmark stimulus sets
+      - identifier: brain-score-neural-behavioral-benchmark
+        name: Brain-Score neural/behavioral benchmark stimulus sets (confirmed via
+          ModelCommitment/metadata registration)
         description: null
       validation_datasets:
       - identifier: imagenet-1k-standard-validation-split
@@ -198,37 +194,22 @@ models:
         description: null
     use:
       applications:
-      - Computational neuroscience (V1 modeling)
-      - adversarial robustness research
-      - Brain-Score benchmarking
+      - General image classification
+      - efficient-inference (FP16) research
       biases:
-      - Inherits ImageNet dataset biases (object-centric, Western-centric sourcing)
+      - Inherits ImageNet dataset biases
       limitations:
-      - Clean accuracy/robustness trade off with V1 channel count
-      - lacks noise-driven robustness gains
+      - FP16 may introduce minor numerical precision differences vs FP32 baseline
       users:
-      - Vision neuroscientists, ML robustness researchers
+      - ML practitioners needing efficient NAS-derived backbones
     people:
       creators:
-      - Dapello, Marques, Schrimpf, Geiger, Cox, DiCarlo
+      - Liu, Zoph, Neumann, Shlens, Hua, Li, Fei-Fei, Yuille, Huang, Murphy (PNASNet,
+        correctly cited)
       organizations:
-      - MIT DiCarlo Lab
+      - Google (original PNASNet); timm/Hugging Face (port)
     lineage:
       base_models:
-      - identifier: resnet-50
-        name: ResNet-50
+      - identifier: pnasnet-5-large
+        name: PNASNet-5-Large
         relationship: variant_of
-    legacy:
-      architecture: DCNN
-      model_family: resnet, vone
-      total_parameter_count: 27500264
-      trainable_parameter_count: 25580264
-      total_layers: 157
-      trainable_layers: 54
-      model_size_mb: 110.0
-      training_dataset: null
-      task_specialization: null
-      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/voneresnet_50_non_stochastic
-      huggingface_link: null
-      extra_notes: null
-      runnable: true

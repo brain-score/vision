@@ -1,21 +1,18 @@
 schema_version: '2.0'
 domain: vision
 models:
-  resnet50-sup:
+  resnet50-vitoimagevidnet8:
     sources:
       curation_workbook:
         kind: unreviewed
         citation: curation_workbook
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
     assertions:
     - path: /data/summary
-      status: uncertain
+      status: undocumented
       sources:
       - curation_workbook
     - path: /data/training_datasets
-      status: verified
+      status: probable
       sources:
       - curation_workbook
     - path: /eval/test_datasets
@@ -63,7 +60,7 @@ models:
       sources:
       - curation_workbook
     - path: /model/supervision
-      status: verified
+      status: probable
       sources:
       - curation_workbook
     - path: /model/trainable_layers
@@ -79,11 +76,11 @@ models:
       sources:
       - curation_workbook
     - path: /people/creators
-      status: verified
+      status: probable
       sources:
       - curation_workbook
     - path: /people/organizations
-      status: verified
+      status: probable
       sources:
       - curation_workbook
     - path: /provenance/checkpoint
@@ -103,11 +100,11 @@ models:
       sources:
       - curation_workbook
     - path: /training/loss
-      status: verified
+      status: undocumented
       sources:
       - curation_workbook
     - path: /training/objective
-      status: verified
+      status: undocumented
       sources:
       - curation_workbook
     - path: /training/preprocessing
@@ -119,11 +116,11 @@ models:
       sources:
       - curation_workbook
     - path: /use/applications
-      status: uncertain
+      status: probable
       sources:
       - curation_workbook
     - path: /use/biases
-      status: verified
+      status: probable
       sources:
       - curation_workbook
     - path: /use/limitations
@@ -131,25 +128,23 @@ models:
       sources:
       - curation_workbook
     - path: /use/users
-      status: uncertain
-      sources:
-      - curation_workbook
-    - path: /provenance/source_url
       status: probable
       sources:
-      - legacy
+      - curation_workbook
     model:
-      display_name: resnet50-sup
-      version: torchvision default pretrained ResNet-50 (pretrained=True API), used
-        as supervised comparison baseline
+      display_name: resnet50-vitoimagevidnet8
+      version: 'Same checkpoint file+hash as resnet50-VITO-8deg-cc: resnet50_vito_linear_sdattn.pth
+        (SHA1 2103a19...) - i.e. identical trained weights registered under a second
+        identifier'
       architecture:
         family: convolutional_neural_network
-        description: CNN (ResNet-50), standard torchvision architecture, supervised
-          baseline
+        description: CNN (ResNet-50) with custom attention-pooling head; self-supervised
+          VITO-pretrained features
       parameter_count: 25600000
       parameter_count_exact: false
-      trainable_layers: Backbone trained during original torchvision ImageNet training
-        (external); loaded frozen for Brain-Score inference
+      trainable_layers: Backbone trained during original VITO pretraining (external);
+        loaded frozen (strict=False) for Brain-Score inference - no training occurs
+        in this submission
       recurrent: false
       input_resolution:
         channels: 3
@@ -158,41 +153,55 @@ models:
       visual_degrees: null
       visual_degrees_description: null
       supervision:
-        type: supervised
-        description: Fully supervised (torchvision ImageNet-1k pretrained backbone)
-          - explicitly the 'sup' (supervised) comparison baseline
+        type: self_supervised
+        description: Self-supervised pretrain (VITO); linear/attention-pool readout
+          on top of frozen features
     training:
-      process: Standard torchvision ResNet-50 (pretrained=True), used unmodified as
-        a supervised comparison baseline (contrasted against the self-supervised VITO
-        entries in the same model set)
-      objective: Cross-entropy (inherited from original torchvision ImageNet training)
-      loss: Cross-entropy (inherited from original torchvision training)
+      process: Custom ResNet-50 (attn_pool=True) loaded with VITO-pretrained weights
+        (resnet50_vito_linear_sdattn.pth) fetched from Brain-Score's S3 storage; loaded
+        with strict=False; evaluated at 224x224. Identical checkpoint to resnet50-VITO-8deg-cc,
+        registered as a separate model identifier.
+      objective: null
+      loss: null
       learning_rate: null
       batch_size: null
-      preprocessing: load_preprocess_images, image_size=224 (standard preprocessing)
+      preprocessing: load_preprocess_images, image_size=224 (standard preprocessing,
+        not Inception-style)
     data:
-      summary: ImageNet-1k (via torchvision pretrained=True weights)
+      summary: VITO self-supervised pretraining on image+video data (per arXiv:2210.06433);
+        confirmed only via checkpoint filename convention, not stated in the submission
+        code itself
       training_datasets:
-      - identifier: imagenet-1k-via-torchvision-pretrained
-        name: ImageNet-1k (via torchvision pretrained=True weights)
+      - identifier: vito-self-supervised-pretraining-on-imag
+        name: VITO self-supervised pretraining on image+video data (per arXiv:2210.06433)
+        description: null
+        role: training
+      - identifier: confirmed-only-via-checkpoint-filename-c
+        name: confirmed only via checkpoint filename convention, not stated in the
+          submission code itself
         description: null
         role: training
     io:
       modality: image
-      interface: RGB tensor 3x224x224 -> 1000-class logits or intermediate activations
-        for Brain-Score API
+      interface: RGB tensor 3x224x224 -> intermediate activations at named layers
+        (conv1/layer1-4/avgpool/avgpool2/fc) for Brain-Score API; classifier head
+        not necessarily a trained ImageNet classifier given attn_pool architecture
       input_format: RGB tensor 3x224x224
-      output_format: 1000-class logits or intermediate activations for Brain-Score
-        API
+      output_format: intermediate activations at named layers (conv1/layer1-4/avgpool/avgpool2/fc)
+        for Brain-Score API; classifier head not necessarily a trained ImageNet classifier
+        given attn_pool architecture
       tokenizer: null
     provenance:
-      weights_provider: torchvision / PyTorch team
-      checkpoint: torchvision default pretrained checkpoint (pretrained=True)
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet50_sup
+      weights_provider: Hosted on Brain-Score's own S3 storage (brainscore-storage
+        bucket); underlying VITO pretraining attributed to Parthasarathy et al. /
+        Google DeepMind by naming convention, not stated in code
+      checkpoint: resnet50_vito_linear_sdattn.pth, SHA1 2103a1941017fdb5f58ac77e5587e7a73cd96bd8
+        (identical file to resnet50-VITO-8deg-cc)
+      source_url: null
       curation_confidence: null
     legal:
-      license: 'Submission code: MIT (brain-score/vision repo license); torchvision
-        weights: BSD-3-Clause'
+      license: 'Submission code: MIT (brain-score/vision repo license); underlying
+        VITO weights license unconfirmed'
     eval:
       test_datasets:
       - identifier: brain-score-neural-behavioral-benchmark
@@ -201,37 +210,27 @@ models:
         description: null
     use:
       applications:
-      - Computational neuroscience baseline (supervised comparison)
+      - Computational neuroscience - human-alignment / video-pretraining research
       - Brain-Score benchmarking
       biases:
-      - Inherits standard torchvision ImageNet-trained ResNet-50 biases
+      - Inherits biases of underlying VITO video/image pretraining corpus (external,
+        unconfirmed exact source in this code)
       limitations:
-      - Standard supervised ResNet-50 texture bias, limited out-of-distribution robustness
-        relative to VITO/self-supervised alternatives it's compared against
+      - Self-supervised video-pretraining objective may transfer less directly to
+        static-image Brain-Score benchmarks than supervised training
+      - identical checkpoint duplicated under two separate identifiers may cause confusion
       users:
-      - Vision neuroscientists using Brain-Score baselines
+      - Vision neuroscientists studying human-alignment of self-supervised models
     people:
       creators:
-      - torchvision/PyTorch team (weights); Brain-Score submitter (registration code,
-        no bibtex provided)
+      - Brain-Score submitter, using a checkpoint attributed by naming convention
+        to Parthasarathy et al. (Google DeepMind, VITO paper) - not stated explicitly
+        in code (empty bibtex)
       organizations:
-      - Brain-Score model zoo (registration); PyTorch/torchvision (weights)
+      - Brain-Score (hosting/registration, brainscore-storage S3 bucket); underlying
+        pretraining likely Google DeepMind per naming convention
     lineage:
       base_models:
       - identifier: resnet-50
         name: ResNet-50
         relationship: variant_of
-    legacy:
-      architecture: DCNN
-      model_family: resnet
-      total_parameter_count: 25557032
-      trainable_parameter_count: 25557032
-      total_layers: 151
-      trainable_layers: 54
-      model_size_mb: 102.23
-      training_dataset: null
-      task_specialization: null
-      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet50_sup
-      huggingface_link: null
-      extra_notes: null
-      runnable: true

@@ -1,14 +1,11 @@
 schema_version: '2.0'
 domain: vision
 models:
-  voneresnet-50-non_stochastic:
+  antialiased-r50:
     sources:
       curation_workbook:
         kind: unreviewed
         citation: curation_workbook
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
     assertions:
     - path: /data/summary
       status: verified
@@ -19,7 +16,7 @@ models:
       sources:
       - curation_workbook
     - path: /eval/test_datasets
-      status: verified
+      status: probable
       sources:
       - curation_workbook
     - path: /eval/validation_datasets
@@ -55,7 +52,7 @@ models:
       sources:
       - curation_workbook
     - path: /model/parameter_count
-      status: probable
+      status: verified
       sources:
       - curation_workbook
     - path: /model/recurrent
@@ -67,15 +64,15 @@ models:
       sources:
       - curation_workbook
     - path: /model/trainable_layers
-      status: verified
+      status: undocumented
       sources:
       - curation_workbook
     - path: /model/version
-      status: probable
+      status: verified
       sources:
       - curation_workbook
     - path: /model/visual_degrees
-      status: verified
+      status: undocumented
       sources:
       - curation_workbook
     - path: /people/creators
@@ -87,7 +84,7 @@ models:
       sources:
       - curation_workbook
     - path: /provenance/checkpoint
-      status: probable
+      status: verified
       sources:
       - curation_workbook
     - path: /provenance/weights_provider
@@ -95,15 +92,15 @@ models:
       sources:
       - curation_workbook
     - path: /training/batch_size
-      status: undocumented
+      status: probable
       sources:
       - curation_workbook
     - path: /training/learning_rate
-      status: undocumented
+      status: probable
       sources:
       - curation_workbook
     - path: /training/loss
-      status: verified
+      status: uncertain
       sources:
       - curation_workbook
     - path: /training/objective
@@ -111,11 +108,11 @@ models:
       sources:
       - curation_workbook
     - path: /training/preprocessing
-      status: verified
+      status: probable
       sources:
       - curation_workbook
     - path: /training/process
-      status: verified
+      status: probable
       sources:
       - curation_workbook
     - path: /use/applications
@@ -123,7 +120,7 @@ models:
       sources:
       - curation_workbook
     - path: /use/biases
-      status: probable
+      status: undocumented
       sources:
       - curation_workbook
     - path: /use/limitations
@@ -134,101 +131,86 @@ models:
       status: probable
       sources:
       - curation_workbook
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
     model:
-      display_name: voneresnet-50-non_stochastic
-      version: v0.1 weights release (Jun 30, 2020)
+      display_name: antialiased-r50
+      version: V0.3
       architecture:
-        family: hybrid_biological_convolutional
-        description: Biologically-fixed V1 front-end + CNN (ResNet) back-end
+        family: convolutional_neural_network
+        description: Convolutional Neural Network
       parameter_count: 25600000
-      parameter_count_exact: false
-      trainable_layers: All ResNet-50 conv/BN/FC layers trainable; VOneBlock Gabor
-        filters fixed
+      parameter_count_exact: true
+      trainable_layers: null
       recurrent: false
       input_resolution:
         channels: 3
         height: 224
         width: 224
-      visual_degrees: 8.0
-      visual_degrees_description: 8 degrees
+      visual_degrees: null
+      visual_degrees_description: null
       supervision:
         type: supervised
-        description: Fully supervised (1000-way classification)
+        description: Fully supervised
     training:
-      process: Gabor filter bank (fixed) -> simple/complex-cell nonlinearity -> noise
-        generator disabled -> bottleneck -> ResNet-50 stages 1-4 -> classifier
-      objective: Cross-entropy classification loss on ImageNet labels
-      loss: Cross-entropy
-      learning_rate: null
-      batch_size: null
-      preprocessing: Normalize mean=[0.5,0.5,0.5], std=[0.5,0.5,0.5]
+      process: 'Baseline ResNet-50 modified by replacing stride-2 downsampling (max-pool,
+        avg-pool, or strided conv) with a "MaxBlurPool"-style approach: evaluate at
+        stride 1, then apply a low-pass blur filter before subsampling. As of Oct
+        2020, the released weights are produced by fine-tuning from baseline ResNet-50
+        weights rather than training from scratch, using the last 2/3 of a full training
+        schedule with learning rate lowered 10x and 60 epochs'
+      objective: 1,000-class image classification
+      loss: Standard cross-entropy loss
+      learning_rate: 'Fine-tuning run: lr = 0..01 for 60 epochs'
+      batch_size: '256'
+      preprocessing: Standard PyTorch ImageNet pipeline (resize/crop to 224×224, normalization);
+        evaluation of shift-consistency uses two random 224×224 crops of the same
+        image
     data:
-      summary: ImageNet (ILSVRC2012)
+      summary: ImageNet (ILSVRC 2012)
       training_datasets:
-      - identifier: imagenet-ilsvrc2012
-        name: ImageNet (ILSVRC2012)
-        description: 1K
+      - identifier: imagenet-ilsvrc-2012
+        name: ImageNet (ILSVRC 2012)
+        description: 1,281,167
         role: training
     io:
       modality: image
-      interface: RGB tensor 3x224x224 -> 1000-class logits or intermediate activations
-        (Brain-Score API)
-      input_format: RGB tensor 3x224x224
-      output_format: 1000-class logits or intermediate activations (Brain-Score API)
+      interface: RGB 224x224x3, 1000-class softmax logits
+      input_format: RGB 224x224x3, 1000-class softmax logits
+      output_format: null
       tokenizer: null
     provenance:
-      weights_provider: DiCarlo Lab (github.com/dicarlolab/vonenet); S3-hosted
-      checkpoint: Epoch-70 checkpoint, noise generator disabled at inference
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/voneresnet_50_non_stochastic
+      weights_provider: Adobe Inc./Richard Zhang
+      checkpoint: resnet50_lpf4
+      source_url: null
       curation_confidence: null
     legal:
-      license: GNU GPL v3+
+      license: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+        (CC BY-NC-SA 4.0); code builds on BSD-licensed PyTorch/torchvision repos
     eval:
       test_datasets:
-      - identifier: imagenet-val-50k-brain-score-benchma
-        name: ImageNet val (50K) + Brain-Score benchmark stimulus sets
+      - identifier: imagenet-ilsvrc-2012-validation-set
+        name: ImageNet ILSVRC 2012 validation set
         description: null
       validation_datasets:
-      - identifier: imagenet-1k-standard-validation-split
-        name: ImageNet-1K standard validation split
+      - identifier: imagenet-ilsvrc-2012-validation-set
+        name: ImageNet ILSVRC 2012 validation set
         description: null
     use:
       applications:
-      - Computational neuroscience (V1 modeling)
-      - adversarial robustness research
-      - Brain-Score benchmarking
-      biases:
-      - Inherits ImageNet dataset biases (object-centric, Western-centric sourcing)
+      - Backbone for downstream vision applications needing improved shift-invariance/robustness
+        to small translations
       limitations:
-      - Clean accuracy/robustness trade off with V1 channel count
-      - lacks noise-driven robustness gains
+      - Antialiasing adds extra compute/runtime overhead versus baseline (no extra
+        parameters, but slower forward pass)
       users:
-      - Vision neuroscientists, ML robustness researchers
+      - Computer vision researchers/engineers needing a more robust drop-in ResNet-50
+        backbone
     people:
       creators:
-      - Dapello, Marques, Schrimpf, Geiger, Cox, DiCarlo
+      - Richard Zhang
       organizations:
-      - MIT DiCarlo Lab
+      - Adobe Inc.
     lineage:
       base_models:
-      - identifier: resnet-50
-        name: ResNet-50
-        relationship: variant_of
-    legacy:
-      architecture: DCNN
-      model_family: resnet, vone
-      total_parameter_count: 27500264
-      trainable_parameter_count: 25580264
-      total_layers: 157
-      trainable_layers: 54
-      model_size_mb: 110.0
-      training_dataset: null
-      task_specialization: null
-      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/voneresnet_50_non_stochastic
-      huggingface_link: null
-      extra_notes: null
-      runnable: true
+      - identifier: standard-torchvision-resnet-50
+        name: Standard torchvision ResNet-50
+        relationship: fine_tuned_from

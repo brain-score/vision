@@ -1,14 +1,11 @@
 schema_version: '2.0'
 domain: vision
 models:
-  voneresnet-50-non_stochastic:
+  voneresnet-50:
     sources:
       curation_workbook:
         kind: unreviewed
         citation: curation_workbook
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
     assertions:
     - path: /data/summary
       status: verified
@@ -75,7 +72,7 @@ models:
       sources:
       - curation_workbook
     - path: /model/visual_degrees
-      status: verified
+      status: probable
       sources:
       - curation_workbook
     - path: /people/creators
@@ -87,7 +84,7 @@ models:
       sources:
       - curation_workbook
     - path: /provenance/checkpoint
-      status: probable
+      status: verified
       sources:
       - curation_workbook
     - path: /provenance/weights_provider
@@ -134,33 +131,28 @@ models:
       status: probable
       sources:
       - curation_workbook
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
     model:
-      display_name: voneresnet-50-non_stochastic
-      version: v0.1 weights release (Jun 30, 2020)
+      display_name: voneresnet-50
+      version: v0.1 weights release
       architecture:
         family: hybrid_biological_convolutional
-        description: Biologically-fixed V1 front-end + CNN (ResNet) back-end
+        description: Biologically-fixed V1 front-end + CNN (ResNet) back-end, stochastic
       parameter_count: 25600000
       parameter_count_exact: false
-      trainable_layers: All ResNet-50 conv/BN/FC layers trainable; VOneBlock Gabor
-        filters fixed
+      trainable_layers: Same as non-stochastic; stochasticity params fixed, not learned
       recurrent: false
       input_resolution:
         channels: 3
         height: 224
         width: 224
       visual_degrees: 8.0
-      visual_degrees_description: 8 degrees
+      visual_degrees_description: 8 degrees (VOneNet family default convention)
       supervision:
         type: supervised
         description: Fully supervised (1000-way classification)
     training:
-      process: Gabor filter bank (fixed) -> simple/complex-cell nonlinearity -> noise
-        generator disabled -> bottleneck -> ResNet-50 stages 1-4 -> classifier
+      process: Gabor filter bank (fixed) -> simple/complex-cell nonlinearity -> Poisson-like
+        stochastic layer -> bottleneck -> ResNet-50 stages 1-4 -> classifier
       objective: Cross-entropy classification loss on ImageNet labels
       loss: Cross-entropy
       learning_rate: null
@@ -176,14 +168,13 @@ models:
     io:
       modality: image
       interface: RGB tensor 3x224x224 -> 1000-class logits or intermediate activations
-        (Brain-Score API)
       input_format: RGB tensor 3x224x224
-      output_format: 1000-class logits or intermediate activations (Brain-Score API)
+      output_format: 1000-class logits or intermediate activations
       tokenizer: null
     provenance:
-      weights_provider: DiCarlo Lab (github.com/dicarlolab/vonenet); S3-hosted
-      checkpoint: Epoch-70 checkpoint, noise generator disabled at inference
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/voneresnet_50_non_stochastic
+      weights_provider: DiCarlo Lab; file voneresnet50_e70.pth.tar
+      checkpoint: voneresnet50_e70.pth.tar
+      source_url: null
       curation_confidence: null
     legal:
       license: GNU GPL v3+
@@ -198,14 +189,11 @@ models:
         description: null
     use:
       applications:
-      - Computational neuroscience (V1 modeling)
-      - adversarial robustness research
-      - Brain-Score benchmarking
+      - Same, plus studying stochasticity's role in robustness
       biases:
-      - Inherits ImageNet dataset biases (object-centric, Western-centric sourcing)
+      - Inherits ImageNet dataset biases
       limitations:
-      - Clean accuracy/robustness trade off with V1 channel count
-      - lacks noise-driven robustness gains
+      - Stochastic noise adds inference-time variability, complicates comparisons
       users:
       - Vision neuroscientists, ML robustness researchers
     people:
@@ -218,17 +206,3 @@ models:
       - identifier: resnet-50
         name: ResNet-50
         relationship: variant_of
-    legacy:
-      architecture: DCNN
-      model_family: resnet, vone
-      total_parameter_count: 27500264
-      trainable_parameter_count: 25580264
-      total_layers: 157
-      trainable_layers: 54
-      model_size_mb: 110.0
-      training_dataset: null
-      task_specialization: null
-      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/voneresnet_50_non_stochastic
-      huggingface_link: null
-      extra_notes: null
-      runnable: true

@@ -1,14 +1,11 @@
 schema_version: '2.0'
 domain: vision
 models:
-  compact_resnet50_robust_V4:
+  grcnn:
     sources:
       curation_workbook:
         kind: unreviewed
         citation: curation_workbook
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
     assertions:
     - path: /data/summary
       status: undocumented
@@ -19,7 +16,7 @@ models:
       sources:
       - curation_workbook
     - path: /eval/test_datasets
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /eval/validation_datasets
@@ -27,19 +24,23 @@ models:
       sources:
       - curation_workbook
     - path: /io/interface
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /io/tokenizer
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /legal/license
-      status: undocumented
+      status: probable
       sources:
       - curation_workbook
     - path: /lineage/base_models
-      status: undocumented
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/architecture
+      status: probable
       sources:
       - curation_workbook
     - path: /model/display_name
@@ -47,7 +48,7 @@ models:
       sources:
       - curation_workbook
     - path: /model/input_resolution
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /model/parameter_count
@@ -55,15 +56,19 @@ models:
       sources:
       - curation_workbook
     - path: /model/recurrent
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /model/supervision
-      status: undocumented
+      status: uncertain
+      sources:
+      - curation_workbook
+    - path: /model/trainable_layers
+      status: probable
       sources:
       - curation_workbook
     - path: /model/version
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /model/visual_degrees
@@ -71,7 +76,7 @@ models:
       sources:
       - curation_workbook
     - path: /people/creators
-      status: undocumented
+      status: probable
       sources:
       - curation_workbook
     - path: /people/organizations
@@ -79,11 +84,11 @@ models:
       sources:
       - curation_workbook
     - path: /provenance/checkpoint
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /provenance/weights_provider
-      status: undocumented
+      status: uncertain
       sources:
       - curation_workbook
     - path: /training/batch_size
@@ -103,93 +108,98 @@ models:
       sources:
       - curation_workbook
     - path: /training/preprocessing
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /training/process
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /use/applications
-      status: undocumented
+      status: uncertain
       sources:
       - curation_workbook
     - path: /use/biases
-      status: undocumented
+      status: uncertain
       sources:
       - curation_workbook
     - path: /use/limitations
-      status: undocumented
+      status: probable
       sources:
       - curation_workbook
     - path: /use/users
-      status: undocumented
+      status: uncertain
       sources:
       - curation_workbook
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
     model:
-      display_name: compact_resnet50_robust_V4
-      version: null
+      display_name: grcnn
+      version: checkpoint_params_grcnn55.pt
       architecture:
-        family: convolutional_neural_network
-        description: null
+        family: recurrent_convolutional_neural_network
+        description: CNN with explicit recurrent gating at each stage (Gated Recurrent
+          CNN family, inferred)
       parameter_count: null
       parameter_count_exact: null
-      trainable_layers: '5'
-      recurrent: null
+      trainable_layers: All GRCNN-55 layers trained during external training; loaded
+        frozen for inference
+      recurrent: true
       input_resolution:
-        channels: null
-        height: null
-        width: null
+        channels: 3
+        height: 224
+        width: 224
       visual_degrees: null
       visual_degrees_description: null
       supervision:
-        type: null
-        description: null
+        type: supervised
+        description: Fully supervised (assumed)
     training:
-      process: null
+      process: Custom GRCNN-55 with gated recurrent iterations (iter_1/2/3/4, iter_g_*)
+        at each of 4 stages, loaded from Brain-Score S3 checkpoint
       objective: null
       loss: null
       learning_rate: null
       batch_size: null
-      preprocessing: null
+      preprocessing: load_preprocess_images, image_size=224 (standard)
     data:
       summary: null
     io:
       modality: image
-      interface: null
-      input_format: null
-      output_format: null
+      interface: RGB tensor 3x224x224 -> intermediate activations at gated recurrent
+        stage sublayers
+      input_format: RGB tensor 3x224x224
+      output_format: intermediate activations at gated recurrent stage sublayers
       tokenizer: null
     provenance:
-      weights_provider: null
-      checkpoint: null
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/compact_resnet50_robust_V4
-      curation_confidence: null
+      weights_provider: Brain-Score S3 storage; original GRCNN-55 training source
+        unconfirmed
+      checkpoint: checkpoint_params_grcnn55.pt, SHA1 20fb844e...
+      source_url: null
+      curation_confidence: medium
     legal:
-      license: null
-    legacy:
-      architecture: DCNN
-      model_family: compact
-      total_parameter_count: null
-      trainable_parameter_count: 109018
-      total_layers: 5
-      trainable_layers: 5
-      model_size_mb: 0.891
-      training_dataset: null
-      task_specialization: null
-      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/compact_resnet50_robust_V4
-      huggingface_link: null
-      extra_notes: null
-      runnable: true
+      license: 'Submission code: MIT; underlying weights license unconfirmed'
+    eval:
+      test_datasets:
+      - identifier: brain-score-neural-behavioral-benchmark
+        name: Brain-Score neural/behavioral benchmark stimulus sets (confirmed via
+          ModelCommitment/metadata registration)
+        description: null
+    use:
+      applications:
+      - Recurrent-architecture / gated-CNN research
+      - Brain-Score benchmarking
+      biases:
+      - Inherits ImageNet dataset biases (assumed)
+      limitations:
+      - Custom architecture makes performance/behavior harder to compare directly
+        against standard published results
+      users:
+      - Recurrent-architecture researchers
+    people:
+      creators:
+      - Likely Wang/Liang-derived gated recurrent CNN lineage (bibtex in file is INCORRECT
+        - cites an unrelated flowchart-to-code paper)
+    lineage:
+      base_models:
+      - identifier: grcnn-55
+        name: GRCNN-55
+        relationship: variant_of

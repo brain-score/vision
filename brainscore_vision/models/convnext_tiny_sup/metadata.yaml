@@ -1,37 +1,34 @@
 schema_version: '2.0'
 domain: vision
 models:
-  compact_resnet50_robust_V4:
+  convnext_tiny_sup:
     sources:
       curation_workbook:
         kind: unreviewed
         citation: curation_workbook
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
     assertions:
     - path: /data/summary
       status: undocumented
       sources:
       - curation_workbook
     - path: /data/training_datasets
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /eval/test_datasets
-      status: undocumented
+      status: probable
       sources:
       - curation_workbook
     - path: /eval/validation_datasets
-      status: undocumented
+      status: probable
       sources:
       - curation_workbook
     - path: /io/interface
-      status: undocumented
+      status: uncertain
       sources:
       - curation_workbook
     - path: /io/tokenizer
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /legal/license
@@ -39,7 +36,11 @@ models:
       sources:
       - curation_workbook
     - path: /lineage/base_models
-      status: undocumented
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/architecture
+      status: verified
       sources:
       - curation_workbook
     - path: /model/display_name
@@ -47,18 +48,22 @@ models:
       sources:
       - curation_workbook
     - path: /model/input_resolution
-      status: undocumented
+      status: uncertain
       sources:
       - curation_workbook
     - path: /model/parameter_count
-      status: undocumented
+      status: uncertain
       sources:
       - curation_workbook
     - path: /model/recurrent
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /model/supervision
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/trainable_layers
       status: undocumented
       sources:
       - curation_workbook
@@ -83,7 +88,7 @@ models:
       sources:
       - curation_workbook
     - path: /provenance/weights_provider
-      status: undocumented
+      status: probable
       sources:
       - curation_workbook
     - path: /training/batch_size
@@ -99,7 +104,7 @@ models:
       sources:
       - curation_workbook
     - path: /training/objective
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /training/preprocessing
@@ -107,11 +112,11 @@ models:
       sources:
       - curation_workbook
     - path: /training/process
-      status: undocumented
+      status: uncertain
       sources:
       - curation_workbook
     - path: /use/applications
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /use/biases
@@ -123,73 +128,79 @@ models:
       sources:
       - curation_workbook
     - path: /use/users
-      status: undocumented
+      status: probable
       sources:
       - curation_workbook
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
     model:
-      display_name: compact_resnet50_robust_V4
+      display_name: convnext_tiny_sup
       version: null
       architecture:
         family: convolutional_neural_network
-        description: null
-      parameter_count: null
-      parameter_count_exact: null
-      trainable_layers: '5'
-      recurrent: null
+        description: ConvNeXt (pure CNN)
+      parameter_count: 28600000
+      parameter_count_exact: true
+      trainable_layers: null
+      recurrent: false
       input_resolution:
-        channels: null
-        height: null
-        width: null
+        channels: 3
+        height: 224
+        width: 224
       visual_degrees: null
       visual_degrees_description: null
       supervision:
-        type: null
-        description: null
+        type: supervised
+        description: Supervised
     training:
-      process: null
-      objective: null
+      process: Presumed standard supervised ImageNet-1k training of ConvNeXt-Tiny
+        (no CLIP/self-supervised pretraining)
+      objective: Image classification
       loss: null
       learning_rate: null
       batch_size: null
       preprocessing: null
     data:
-      summary: null
+      summary: 'Pretrain: ImageNet-22k; Fine-tune: ImageNet-1k'
+      training_datasets:
+      - identifier: imagenet-22k
+        name: ImageNet-22k
+        description: null
+        role: pretraining
+      - identifier: imagenet-1k
+        name: ImageNet-1k
+        description: null
+        role: fine_tuning
     io:
       modality: image
-      interface: null
-      input_format: null
-      output_format: null
+      interface: 'Input: RGB image tensor (assumed 224x224x3); Output: 1000-class
+        logits (assumed)'
+      input_format: RGB image tensor (assumed 224x224x3)
+      output_format: 1000-class logits (assumed)
       tokenizer: null
     provenance:
-      weights_provider: null
+      weights_provider: Brain-Score model registry (loaded via BrainScore library
+        v2.2.4)
       checkpoint: null
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/compact_resnet50_robust_V4
+      source_url: null
       curation_confidence: null
     legal:
       license: null
-    legacy:
-      architecture: DCNN
-      model_family: compact
-      total_parameter_count: null
-      trainable_parameter_count: 109018
-      total_layers: 5
-      trainable_layers: 5
-      model_size_mb: 0.891
-      training_dataset: null
-      task_specialization: null
-      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/compact_resnet50_robust_V4
-      huggingface_link: null
-      extra_notes: null
-      runnable: true
+    eval:
+      test_datasets:
+      - identifier: imagenet-validation-set-used-in-the-sou
+        name: ImageNet validation set (used in the source paper's evaluation)
+        description: null
+      validation_datasets:
+      - identifier: imagenet-1k-validation-set
+        name: ImageNet-1k validation set
+        description: null
+    use:
+      applications:
+      - Candidate model for measuring representational alignment to biological vision
+        and adversarial robustness
+      users:
+      - Vision neuroscience / alignment researchers (via Brain-Score)
+    lineage:
+      base_models:
+      - identifier: convnext-tiny
+        name: ConvNeXt-Tiny
+        relationship: variant_of

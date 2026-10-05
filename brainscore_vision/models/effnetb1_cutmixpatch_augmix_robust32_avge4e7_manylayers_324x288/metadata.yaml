@@ -1,21 +1,18 @@
 schema_version: '2.0'
 domain: vision
 models:
-  resnet50-sup:
+  effnetb1_cutmixpatch_augmix_robust32_avge4e7_manylayers_324x288:
     sources:
       curation_workbook:
         kind: unreviewed
         citation: curation_workbook
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
     assertions:
     - path: /data/summary
-      status: uncertain
+      status: probable
       sources:
       - curation_workbook
     - path: /data/training_datasets
-      status: verified
+      status: probable
       sources:
       - curation_workbook
     - path: /eval/test_datasets
@@ -23,7 +20,7 @@ models:
       sources:
       - curation_workbook
     - path: /eval/validation_datasets
-      status: undocumented
+      status: probable
       sources:
       - curation_workbook
     - path: /io/interface
@@ -55,7 +52,7 @@ models:
       sources:
       - curation_workbook
     - path: /model/parameter_count
-      status: verified
+      status: probable
       sources:
       - curation_workbook
     - path: /model/recurrent
@@ -63,7 +60,7 @@ models:
       sources:
       - curation_workbook
     - path: /model/supervision
-      status: verified
+      status: probable
       sources:
       - curation_workbook
     - path: /model/trainable_layers
@@ -95,7 +92,7 @@ models:
       sources:
       - curation_workbook
     - path: /training/batch_size
-      status: undocumented
+      status: probable
       sources:
       - curation_workbook
     - path: /training/learning_rate
@@ -119,11 +116,11 @@ models:
       sources:
       - curation_workbook
     - path: /use/applications
-      status: uncertain
+      status: probable
       sources:
       - curation_workbook
     - path: /use/biases
-      status: verified
+      status: probable
       sources:
       - curation_workbook
     - path: /use/limitations
@@ -131,107 +128,100 @@ models:
       sources:
       - curation_workbook
     - path: /use/users
-      status: uncertain
-      sources:
-      - curation_workbook
-    - path: /provenance/source_url
       status: probable
       sources:
-      - legacy
+      - curation_workbook
     model:
-      display_name: resnet50-sup
-      version: torchvision default pretrained ResNet-50 (pretrained=True API), used
-        as supervised comparison baseline
+      display_name: effnetb1_cutmixpatch_augmix_robust32_avge4e7_manylayers_324x288
+      version: tf_efficientnet_b1_ns_robust_cutmixpatchresize_augmix_e4toe7.pth -
+        CutMix-patch + AugMix, epoch-avg 4-7
       architecture:
         family: convolutional_neural_network
-        description: CNN (ResNet-50), standard torchvision architecture, supervised
-          baseline
-      parameter_count: 25600000
+        description: CNN (EfficientNet compound-scaled), adversarially/corruption-robust
+          fine-tune with AugMix + checkpoint averaging
+      parameter_count: 7800000
       parameter_count_exact: false
-      trainable_layers: Backbone trained during original torchvision ImageNet training
-        (external); loaded frozen for Brain-Score inference
+      trainable_layers: All EfficientNet-B1 layers trained/fine-tuned; BatchNorm explicitly
+        frozen (m.eval()) in stem + blocks 0-3 (freeze list one block shorter than
+        SAM variant) at inference time
       recurrent: false
       input_resolution:
         channels: 3
-        height: 224
-        width: 224
+        height: 288
+        width: 324
       visual_degrees: null
       visual_degrees_description: null
       supervision:
-        type: supervised
-        description: Fully supervised (torchvision ImageNet-1k pretrained backbone)
-          - explicitly the 'sup' (supervised) comparison baseline
+        type: self_supervised
+        description: Fully supervised, with self-training (Noisy Student) component
+          in base weights
     training:
-      process: Standard torchvision ResNet-50 (pretrained=True), used unmodified as
-        a supervised comparison baseline (contrasted against the self-supervised VITO
-        entries in the same model set)
-      objective: Cross-entropy (inherited from original torchvision ImageNet training)
-      loss: Cross-entropy (inherited from original torchvision training)
+      process: EfficientNet-B1 Noisy Student base -> further fine-tuned with CutMix-patch-resize
+        + AugMix augmentation -> weight-averaged across epochs 4-7; same preprocessing/BN-freezing
+        pattern as SAM variant, freeze list one block shorter
+      objective: Cross-entropy + robustness objective under AugMix augmentation +
+        CutMix-patch augmentation
+      loss: Cross-entropy (AugMix-augmented)
       learning_rate: null
-      batch_size: null
-      preprocessing: load_preprocess_images, image_size=224 (standard preprocessing)
+      batch_size: Inference batch_size=8 explicitly set; training batch size unconfirmed
+      preprocessing: 'Custom Albumentations: Resize(324) -> CenterCrop(288) -> Normalize(ImageNet
+        mean/std) -> ToTensorV2 (identical to SAM variant)'
     data:
-      summary: ImageNet-1k (via torchvision pretrained=True weights)
+      summary: ImageNet-1k (base Noisy Student pretrain uses unlabeled JFT-300M too)
+        + fine-tune with CutMix-patch/AugMix augmentation on ImageNet-1k
       training_datasets:
-      - identifier: imagenet-1k-via-torchvision-pretrained
-        name: ImageNet-1k (via torchvision pretrained=True weights)
+      - identifier: imagenet-1k-base-noisy-student-pretrain
+        name: ImageNet-1k (base Noisy Student pretrain uses unlabeled JFT-300M too)
+          + fine-tune with CutMix-patch/AugMix augmentation on ImageNet-1k
         description: null
         role: training
     io:
       modality: image
-      interface: RGB tensor 3x224x224 -> 1000-class logits or intermediate activations
-        for Brain-Score API
-      input_format: RGB tensor 3x224x224
-      output_format: 1000-class logits or intermediate activations for Brain-Score
-        API
+      interface: RGB tensor, resize 324/crop 288 -> intermediate activations at fine-grained
+        block sublayers
+      input_format: RGB tensor, resize 324/crop 288
+      output_format: intermediate activations at fine-grained block sublayers
       tokenizer: null
     provenance:
-      weights_provider: torchvision / PyTorch team
-      checkpoint: torchvision default pretrained checkpoint (pretrained=True)
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet50_sup
-      curation_confidence: null
+      weights_provider: Brain-Score S3 storage; base weights from Google (Noisy Student),
+        fine-tuned by Brain-Score submitter
+      checkpoint: tf_efficientnet_b1_ns_robust_cutmixpatchresize_augmix_e4toe7.pth,
+        SHA1 37f3ac1b...
+      source_url: null
+      curation_confidence: high
     legal:
-      license: 'Submission code: MIT (brain-score/vision repo license); torchvision
-        weights: BSD-3-Clause'
+      license: 'Submission code: MIT; underlying EfficientNet weights license unconfirmed'
     eval:
       test_datasets:
       - identifier: brain-score-neural-behavioral-benchmark
         name: Brain-Score neural/behavioral benchmark stimulus sets (confirmed via
-          ModelCommitment registration and layer list)
+          ModelCommitment/metadata registration)
+        description: null
+      validation_datasets:
+      - identifier: imagenet-1k-standard-validation-split
+        name: ImageNet-1K standard validation split
         description: null
     use:
       applications:
-      - Computational neuroscience baseline (supervised comparison)
-      - Brain-Score benchmarking
+      - Adversarial/corruption robustness research
+      - Brain-Score benchmarking of robust models
       biases:
-      - Inherits standard torchvision ImageNet-trained ResNet-50 biases
+      - Inherits ImageNet dataset biases
+      - robustness fine-tuning may shift texture/shape bias further
       limitations:
-      - Standard supervised ResNet-50 texture bias, limited out-of-distribution robustness
-        relative to VITO/self-supervised alternatives it's compared against
+      - Same trade-offs as SAM variant
+      - AugMix vs SAM may show different robustness/accuracy balance
       users:
-      - Vision neuroscientists using Brain-Score baselines
+      - Robustness researchers
+      - ML practitioners needing corruption-robust classifiers
     people:
       creators:
-      - torchvision/PyTorch team (weights); Brain-Score submitter (registration code,
-        no bibtex provided)
+      - Tan & Le (EfficientNet, correctly cited); robustness fine-tuning by Brain-Score
+        submitter
       organizations:
-      - Brain-Score model zoo (registration); PyTorch/torchvision (weights)
+      - Google (EfficientNet/Noisy Student base); Brain-Score submitter (fine-tune)
     lineage:
       base_models:
-      - identifier: resnet-50
-        name: ResNet-50
-        relationship: variant_of
-    legacy:
-      architecture: DCNN
-      model_family: resnet
-      total_parameter_count: 25557032
-      trainable_parameter_count: 25557032
-      total_layers: 151
-      trainable_layers: 54
-      model_size_mb: 102.23
-      training_dataset: null
-      task_specialization: null
-      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet50_sup
-      huggingface_link: null
-      extra_notes: null
-      runnable: true
+      - identifier: efficientnet-b1-noisy-student
+        name: EfficientNet-B1 Noisy Student
+        relationship: fine_tuned_from

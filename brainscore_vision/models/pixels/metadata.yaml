@@ -1,14 +1,11 @@
 schema_version: '2.0'
 domain: vision
 models:
-  compact_resnet50_robust_V4:
+  pixels:
     sources:
       curation_workbook:
         kind: unreviewed
         citation: curation_workbook
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
     assertions:
     - path: /data/summary
       status: undocumented
@@ -19,7 +16,7 @@ models:
       sources:
       - curation_workbook
     - path: /eval/test_datasets
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /eval/validation_datasets
@@ -27,18 +24,22 @@ models:
       sources:
       - curation_workbook
     - path: /io/interface
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /io/tokenizer
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /legal/license
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /lineage/base_models
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /model/architecture
       status: undocumented
       sources:
       - curation_workbook
@@ -47,19 +48,23 @@ models:
       sources:
       - curation_workbook
     - path: /model/input_resolution
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /model/parameter_count
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /model/recurrent
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /model/supervision
       status: undocumented
+      sources:
+      - curation_workbook
+    - path: /model/trainable_layers
+      status: verified
       sources:
       - curation_workbook
     - path: /model/version
@@ -71,11 +76,11 @@ models:
       sources:
       - curation_workbook
     - path: /people/creators
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /people/organizations
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /provenance/checkpoint
@@ -103,7 +108,7 @@ models:
       sources:
       - curation_workbook
     - path: /training/preprocessing
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /training/process
@@ -111,7 +116,7 @@ models:
       sources:
       - curation_workbook
     - path: /use/applications
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /use/biases
@@ -119,39 +124,27 @@ models:
       sources:
       - curation_workbook
     - path: /use/limitations
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
     - path: /use/users
-      status: undocumented
+      status: verified
       sources:
       - curation_workbook
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
     model:
-      display_name: compact_resnet50_robust_V4
+      display_name: pixels
       version: null
       architecture:
-        family: convolutional_neural_network
+        family: raw_pixels
         description: null
-      parameter_count: null
-      parameter_count_exact: null
-      trainable_layers: '5'
-      recurrent: null
+      parameter_count: 0
+      parameter_count_exact: true
+      trainable_layers: '0'
+      recurrent: false
       input_resolution:
-        channels: null
-        height: null
-        width: null
+        channels: 3
+        height: 256
+        width: 256
       visual_degrees: null
       visual_degrees_description: null
       supervision:
@@ -163,33 +156,44 @@ models:
       loss: null
       learning_rate: null
       batch_size: null
-      preprocessing: null
+      preprocessing: Convert image to RGB, resize to 256x256; no normalization applied
     data:
       summary: null
     io:
       modality: image
-      interface: null
-      input_format: null
+      interface: image, single 'pixels' pseudo-layer – raw RGB array resized to 256x256x3
+        (196,608 values)
+      input_format: image, single 'pixels' pseudo-layer – raw RGB array resized to
+        256x256x3 (196,608 values)
       output_format: null
       tokenizer: null
     provenance:
       weights_provider: null
       checkpoint: null
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/compact_resnet50_robust_V4
+      source_url: null
       curation_confidence: null
     legal:
-      license: null
-    legacy:
-      architecture: DCNN
-      model_family: compact
-      total_parameter_count: null
-      trainable_parameter_count: 109018
-      total_layers: 5
-      trainable_layers: 5
-      model_size_mb: 0.891
-      training_dataset: null
-      task_specialization: null
-      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/compact_resnet50_robust_V4
-      huggingface_link: null
-      extra_notes: null
-      runnable: true
+      license: MIT License (Brain-Score repo)
+    eval:
+      test_datasets:
+      - identifier: brain-score-benchmark-stimuli-sets-free
+        name: Brain-Score benchmark stimuli sets (FreemanZiemba2013 V1/V2, MajajHong2015
+          V4/IT, Sanghavi2020/SanghaviJozwik2020/SanghaviMurty2020, Rajalingham2018-i2n
+          behavioral, etc.) – not a classification test set
+        description: null
+    use:
+      applications:
+      - Baseline/floor ("null model") for interpreting Brain-Score results – isolates
+        how much of a real model's score reflects learned representation vs. trivial
+        pixel similarity
+      limitations:
+      - Captures no learned/semantic features
+      - scores near the bottom of the public leaderboard on nearly all neural (V1,
+        V2, V4, IT) and behavioral benchmarks (~490-510th of ~511 models)
+      users:
+      - Brain-Score benchmark developers/researchers needing a reference floor score
+    people:
+      creators:
+      - Martin Schrimpf
+      organizations:
+      - DiCarlo Lab, MIT

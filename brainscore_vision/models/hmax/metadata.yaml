@@ -1,15 +1,224 @@
+schema_version: '2.0'
+domain: vision
 models:
-    hmax:
-        architecture: DCNN
-        model_family: null
-        total_parameter_count: 1382448
-        trainable_parameter_count: 0
-        total_layers: 101
-        trainable_layers: 0
-        model_size_mb: 5.53
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/hmax
-        huggingface_link: https://huggingface.co/hmax
-        extra_notes: null
-        runnable: true
+  hmax:
+    sources:
+      curation_workbook:
+        kind: unreviewed
+        citation: curation_workbook
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /data/summary
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /data/training_datasets
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /eval/test_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/validation_datasets
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /io/interface
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /io/tokenizer
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /legal/license
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /lineage/base_models
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/architecture
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/display_name
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/input_resolution
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/supervision
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/version
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/creators
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /people/organizations
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/checkpoint
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/weights_provider
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/loss
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/objective
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/preprocessing
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/process
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/applications
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/biases
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /use/limitations
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/users
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    model:
+      display_name: hmax
+      version: universal_patch_set.mat - hand-crafted C2 prototype patches
+      architecture:
+        family: other
+        description: Hand-crafted biologically-inspired hierarchical model (S1/C1/S2/C2),
+          not gradient-trained
+      parameter_count: 1382448
+      parameter_count_exact: null
+      trainable_layers: Zero - no trainable/learned parameters; S1 filters and S2
+        prototypes are fixed by construction
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      visual_degrees: null
+      visual_degrees_description: null
+      supervision:
+        type: null
+        description: null
+    training:
+      process: Hand-crafted Gabor-filter S1 layer -> C1 max-pooling -> S2 template
+        matching against universal_patch_set.mat prototypes -> C2 max-pooling; no
+        gradient-based training
+      objective: null
+      loss: null
+      learning_rate: null
+      batch_size: null
+      preprocessing: load_preprocess_images, image_size=224 (standard)
+    data:
+      summary: null
+    io:
+      modality: image
+      interface: RGB tensor 3x224x224 -> S1/C1/S2/C2 activations (last 8 discovered
+        submodules)
+      input_format: RGB tensor 3x224x224
+      output_format: S1/C1/S2/C2 activations (last 8 discovered submodules)
+      tokenizer: null
+    provenance:
+      weights_provider: Brain-Score S3 storage; universal_patch_set.mat from the classic
+        HMAX/Serre-lab lineage
+      checkpoint: universal_patch_set.mat, SHA1 acc7316f...
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/hmax
+      curation_confidence: high
+    legal:
+      license: 'Submission code: MIT; original HMAX/Serre-lab code license unconfirmed'
+    eval:
+      test_datasets:
+      - identifier: brain-score-neural-behavioral-benchmark
+        name: Brain-Score neural/behavioral benchmark stimulus sets (confirmed via
+          ModelCommitment/metadata registration)
+        description: null
+    use:
+      applications:
+      - Classic computational-neuroscience baseline
+      - comparison point for deep-learning models
+      limitations:
+      - Substantially lower accuracy and representational richness than deep-learning
+        models
+      - long known to underperform on complex natural-image tasks
+      users:
+      - Computational/vision neuroscientists studying classic hierarchical models
+    people:
+      creators:
+      - Riesenhuber & Poggio 1999 / Serre et al. 2007 (bibtex in file is INCORRECT
+        - cites an unrelated 1993 signal-processing paper)
+      organizations:
+      - MIT/Brown (Riesenhuber & Poggio); original attribution, not what's in file's
+        bibtex
+    legacy:
+      architecture: DCNN
+      model_family: null
+      total_parameter_count: 1382448
+      trainable_parameter_count: 0
+      total_layers: 101
+      trainable_layers: 0
+      model_size_mb: 5.53
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/hmax
+      huggingface_link: https://huggingface.co/hmax
+      extra_notes: null
+      runnable: true

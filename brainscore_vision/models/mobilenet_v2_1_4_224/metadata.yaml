@@ -1,15 +1,237 @@
+schema_version: '2.0'
+domain: vision
 models:
-    mobilenet_v2_1_4_224:
-        architecture: DCNN
-        model_family: mobilenet
-        total_parameter_count: 6110569
-        trainable_parameter_count: 6110569
-        total_layers: 214
-        trainable_layers: 53
-        model_size_mb: 24.44
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mobilenet_v2_1_4_224
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  mobilenet_v2_1_4_224:
+    sources:
+      curation_workbook:
+        kind: unreviewed
+        citation: curation_workbook
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /data/summary
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/test_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/validation_datasets
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /io/interface
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /io/tokenizer
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /legal/license
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /lineage/base_models
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/architecture
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/display_name
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/supervision
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/version
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/creators
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /people/organizations
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/checkpoint
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/weights_provider
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/batch_size
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/loss
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/objective
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/preprocessing
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/process
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/applications
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/biases
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/limitations
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/users
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    model:
+      display_name: mobilenet_v2_1_4_224
+      version: Matthijs/mobilenet_v2_1.4_224 HF port (docstring incorrectly says 1.0_224)
+      architecture:
+        family: convolutional_neural_network
+        description: CNN, inverted-residual/depthwise-separable (MobileNetV2), width
+          x1.4
+      parameter_count: 6100000
+      parameter_count_exact: false
+      trainable_layers: All MobileNetV2 layers trained during original TF training;
+        loaded frozen for inference
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      visual_degrees: null
+      visual_degrees_description: null
+      supervision:
+        type: supervised
+        description: Fully supervised (1001-class)
+    training:
+      process: HF MobileNetV2ForImageClassification loaded from Matthijs/mobilenet_v2_1.4_224
+        (originally TF, ported); forward hook strips background class (logits[:,1:])
+        to align 1001-class output to 1000 classes
+      objective: Cross-entropy classification (1001-class)
+      loss: Cross-entropy (1001-class)
+      learning_rate: null
+      batch_size: Inference batch_size=4 explicitly set ('doesn't fit into 12GB GPU
+        otherwise'); training batch size unconfirmed
+      preprocessing: load_preprocess_images, image_size=224 (standard)
+    data:
+      summary: ImageNet-1k, 1001-class TF-Slim-style training (background class included)
+      training_datasets:
+      - identifier: imagenet-1k-1001-class-tf-slim-style-tr
+        name: ImageNet-1k, 1001-class TF-Slim-style training (background class included)
+        description: null
+        role: training
+    io:
+      modality: image
+      interface: RGB tensor 3x224x224 -> 1000-class logits (background class stripped
+        from 1001) or intermediate activations
+      input_format: RGB tensor 3x224x224
+      output_format: 1000-class logits (background class stripped from 1001) or intermediate
+        activations
+      tokenizer: null
+    provenance:
+      weights_provider: Hugging Face (Matthijs/mobilenet_v2_1.4_224, ported from original
+        TF MobileNetV2 weights)
+      checkpoint: Matthijs/mobilenet_v2_1.4_224 (HF hub identifier)
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mobilenet_v2_1_4_224
+      curation_confidence: high
+    legal:
+      license: 'Submission code: MIT; HF weights license per Matthijs repo, unconfirmed'
+    eval:
+      test_datasets:
+      - identifier: brain-score-neural-behavioral-benchmark
+        name: Brain-Score neural/behavioral benchmark stimulus sets (confirmed via
+          ModelCommitment/metadata registration)
+        description: null
+      validation_datasets:
+      - identifier: imagenet-1k-standard-validation-split
+        name: ImageNet-1K standard validation split
+        description: null
+    use:
+      applications:
+      - Mobile/edge image classification
+      biases:
+      - Inherits ImageNet dataset biases
+      limitations:
+      - Standard MobileNetV2 accuracy/efficiency trade-offs vs larger backbones
+      users:
+      - Mobile/embedded ML developers
+    people:
+      creators:
+      - Sandler, Howard, Zhu, Zhmoginov, Chen (MobileNetV2, correctly cited)
+      organizations:
+      - Google (original MobileNetV2); Hugging Face (port)
+    lineage:
+      base_models:
+      - identifier: mobilenetv2
+        name: MobileNetV2
+        relationship: variant_of
+    legacy:
+      architecture: DCNN
+      model_family: mobilenet
+      total_parameter_count: 6110569
+      trainable_parameter_count: 6110569
+      total_layers: 214
+      trainable_layers: 53
+      model_size_mb: 24.44
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mobilenet_v2_1_4_224
+      huggingface_link: null
+      extra_notes: null
+      runnable: true

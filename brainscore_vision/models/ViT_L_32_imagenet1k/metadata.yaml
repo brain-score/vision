@@ -1,15 +1,244 @@
+schema_version: '2.0'
+domain: vision
 models:
-    ViT_L_32_imagenet1k:
-        architecture: DCNN, Transformer
-        model_family: vit
-        total_parameter_count: 306632680
-        trainable_parameter_count: 306632680
-        total_layers: 319
-        trainable_layers: 148
-        model_size_mb: 1226.53
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ViT_L_32_imagenet1k
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  ViT_L_32_imagenet1k:
+    sources:
+      curation_workbook:
+        kind: unreviewed
+        citation: curation_workbook
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /data/summary
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/test_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/validation_datasets
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /io/interface
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /io/tokenizer
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /legal/license
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /lineage/base_models
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/architecture
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/display_name
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/supervision
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/version
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/creators
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /people/organizations
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/checkpoint
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/weights_provider
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/batch_size
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/learning_rate
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/loss
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/objective
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/preprocessing
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/process
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/applications
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/biases
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/limitations
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/users
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    model:
+      display_name: ViT_L_32_imagenet1k
+      version: IMAGENET1K_V1 (only weight version for vit_l_32 in torchvision)
+      architecture:
+        family: vision_transformer
+        description: Vision Transformer (image classification)
+      parameter_count: 306535400
+      parameter_count_exact: true
+      trainable_layers: 24 encoder layers, 16 attention heads, hidden_dim 1024, MLP
+        dim 4096
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      visual_degrees: null
+      visual_degrees_description: null
+      supervision:
+        type: supervised
+        description: Fully supervised, single-label 1000-way classification
+    training:
+      process: 'Trained from scratch on ImageNet-1k: AdamW, 300 epochs, cosine LR
+        w/ linear warmup, RandAugment, Mixup+CutMix, label smoothing, EMA (modified
+        DeiT recipe)'
+      objective: Cross-entropy classification with label smoothing (0.11) + Mixup(a=0.2)/CutMix(a=1.0)
+      loss: Cross-entropy w/ label smoothing 0.11, combined with mixup/cutmix
+      learning_rate: 0.003 (AdamW), cosine annealing, 30-epoch linear warmup, warmup-decay
+        0.033
+      batch_size: 512 global (8 nodes x 8 GPUs x 64/GPU)
+      preprocessing: Resize 256 (bilinear) -> center crop 224 -> scale [0,1] -> normalize
+        mean=[0.485,0.456,0.406], std=[0.229,0.224,0.225]
+    data:
+      summary: ImageNet-1k only (ILSVRC-2012, 1000 classes); single-stage training,
+        no separate pretraining corpus
+      training_datasets:
+      - identifier: imagenet-1k-only-ilsvrc-2012-1000-clas
+        name: ImageNet-1k only (ILSVRC-2012, 1000 classes)
+        description: null
+        role: training
+      - identifier: single-stage-training-no-separate-pretr
+        name: single-stage training, no separate pretraining corpus
+        description: null
+        role: training
+    io:
+      modality: image
+      interface: 'Input: RGB tensor 3x224x224 normalized; Output: 1000-class logits'
+      input_format: RGB tensor 3x224x224 normalized
+      output_format: 1000-class logits
+      tokenizer: null
+    provenance:
+      weights_provider: PyTorch/torchvision (PyTorch Foundation, originally Meta AI)
+      checkpoint: vit_l_32-c7638314.pth, hosted at download.pytorch.org/models/
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ViT_L_32_imagenet1k
+      curation_confidence: null
+    legal:
+      license: BSD-3-Clause (torchvision repository license)
+    eval:
+      test_datasets:
+      - identifier: imagenet-1k-validation-set-50k-images
+        name: ImageNet-1k validation set (50K images)
+        description: null
+      validation_datasets:
+      - identifier: imagenet-1k-validation-set-same-split-u
+        name: ImageNet-1k validation set (same split used for val/test)
+        description: null
+    use:
+      applications:
+      - General image classification
+      - transfer-learning backbone for downstream CV tasks
+      biases:
+      - Inherits generic ImageNet-1k dataset biases (geographic/demographic skew
+      - label noise)
+      - not specifically documented per-checkpoint
+      limitations:
+      - Lower accuracy (76.97% top-1) vs same-size ViT pretrained on ImageNet-21k
+        or SWAG
+      - data-hungry/overfitting-prone when trained from scratch on IN-1k alone
+      users:
+      - ML researchers/engineers in the PyTorch ecosystem needing an off-the-shelf
+        ViT classifier
+    people:
+      creators:
+      - PyTorch Vision team (Meta AI / PyTorch Foundation contributors)
+      organizations:
+      - PyTorch (Linux Foundation), formerly Meta AI
+    lineage:
+      base_models:
+      - identifier: vision-transformer-architecture
+        name: Vision Transformer architecture
+        relationship: variant_of
+    legacy:
+      architecture: DCNN, Transformer
+      model_family: vit
+      total_parameter_count: 306632680
+      trainable_parameter_count: 306632680
+      total_layers: 319
+      trainable_layers: 148
+      model_size_mb: 1226.53
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ViT_L_32_imagenet1k
+      huggingface_link: null
+      extra_notes: null
+      runnable: true

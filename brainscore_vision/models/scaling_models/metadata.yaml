@@ -1,407 +1,1982 @@
+schema_version: '2.0'
+domain: vision
 models:
-    resnet101_ecoset_full:
-        architecture: DCNN
-        model_family: resnet
-        total_parameter_count: 43657845
-        trainable_parameter_count: 43657845
-        total_layers: 287
-        trainable_layers: 105
-        model_size_mb: 174.63
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    resnet101_imagenet_full:
-        architecture: DCNN
-        model_family: resnet
-        total_parameter_count: 44549160
-        trainable_parameter_count: 44549160
-        total_layers: 287
-        trainable_layers: 105
-        model_size_mb: 178.2
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    resnet152_ecoset_full:
-        architecture: DCNN
-        model_family: resnet
-        total_parameter_count: 59301493
-        trainable_parameter_count: 59301493
-        total_layers: 423
-        trainable_layers: 156
-        model_size_mb: 237.21
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    resnet152_imagenet_full:
-        architecture: DCNN
-        model_family: resnet
-        total_parameter_count: 60192808
-        trainable_parameter_count: 60192808
-        total_layers: 423
-        trainable_layers: 156
-        model_size_mb: 240.77
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    resnet18_ecoset_full:
-        architecture: DCNN
-        model_family: resnet
-        total_parameter_count: 11466357
-        trainable_parameter_count: 11466357
-        total_layers: 68
-        trainable_layers: 21
-        model_size_mb: 45.87
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    resnet18_imagenet_full:
-        architecture: DCNN
-        model_family: resnet
-        total_parameter_count: 11689512
-        trainable_parameter_count: 11689512
-        total_layers: 68
-        trainable_layers: 21
-        model_size_mb: 46.76
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    resnet34_ecoset_full:
-        architecture: DCNN
-        model_family: resnet
-        total_parameter_count: 21574517
-        trainable_parameter_count: 21574517
-        total_layers: 116
-        trainable_layers: 37
-        model_size_mb: 86.3
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    resnet34_imagenet_full:
-        architecture: DCNN
-        model_family: resnet
-        total_parameter_count: 21797672
-        trainable_parameter_count: 21797672
-        total_layers: 116
-        trainable_layers: 37
-        model_size_mb: 87.19
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    resnet50_ecoset_full:
-        architecture: DCNN
-        model_family: resnet
-        total_parameter_count: 24665717
-        trainable_parameter_count: 24665717
-        total_layers: 151
-        trainable_layers: 54
-        model_size_mb: 98.66
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    resnet50_imagenet_100_seed-0:
-        architecture: DCNN
-        model_family: resnet
-        total_parameter_count: 25557032
-        trainable_parameter_count: 25557032
-        total_layers: 151
-        trainable_layers: 54
-        model_size_mb: 102.23
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    resnet50_imagenet_10_seed-0:
-        architecture: DCNN
-        model_family: resnet
-        total_parameter_count: 25557032
-        trainable_parameter_count: 25557032
-        total_layers: 151
-        trainable_layers: 54
-        model_size_mb: 102.23
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    resnet50_imagenet_1_seed-0:
-        architecture: DCNN
-        model_family: resnet
-        total_parameter_count: 25557032
-        trainable_parameter_count: 25557032
-        total_layers: 151
-        trainable_layers: 54
-        model_size_mb: 102.23
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    resnet50_imagenet_full:
-        architecture: DCNN
-        model_family: resnet
-        total_parameter_count: 25557032
-        trainable_parameter_count: 25557032
-        total_layers: 151
-        trainable_layers: 54
-        model_size_mb: 102.23
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    convnext_base_imagenet_full_seed-0:
-        architecture: DCNN, Transformer
-        model_family: convnext
-        total_parameter_count: 88591464
-        trainable_parameter_count: 88591464
-        total_layers: 383
-        trainable_layers: 149
-        model_size_mb: 354.37
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    convnext_large_imagenet_full_seed-0:
-        architecture: DCNN, Transformer
-        model_family: convnext
-        total_parameter_count: 197767336
-        trainable_parameter_count: 197767336
-        total_layers: 383
-        trainable_layers: 149
-        model_size_mb: 791.07
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    convnext_small_imagenet_100_seed-0:
-        architecture: DCNN, Transformer
-        model_family: convnext
-        total_parameter_count: 50223688
-        trainable_parameter_count: 50223688
-        total_layers: 383
-        trainable_layers: 149
-        model_size_mb: 200.89
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    convnext_small_imagenet_10_seed-0:
-        architecture: DCNN, Transformer
-        model_family: convnext
-        total_parameter_count: 50223688
-        trainable_parameter_count: 50223688
-        total_layers: 383
-        trainable_layers: 149
-        model_size_mb: 200.89
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    convnext_small_imagenet_1_seed-0:
-        architecture: DCNN, Transformer
-        model_family: convnext
-        total_parameter_count: 50223688
-        trainable_parameter_count: 50223688
-        total_layers: 383
-        trainable_layers: 149
-        model_size_mb: 200.89
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    convnext_small_imagenet_full_seed-0:
-        architecture: DCNN, Transformer
-        model_family: convnext
-        total_parameter_count: 50223688
-        trainable_parameter_count: 50223688
-        total_layers: 383
-        trainable_layers: 149
-        model_size_mb: 200.89
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    convnext_tiny_imagenet_full_seed-0:
-        architecture: DCNN, Transformer
-        model_family: convnext
-        total_parameter_count: 28589128
-        trainable_parameter_count: 28589128
-        total_layers: 203
-        trainable_layers: 77
-        model_size_mb: 114.36
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    deit_base_imagenet_full_seed-0:
-        architecture: DCNN, Transformer
-        model_family: deit
-        total_parameter_count: 86585320
-        trainable_parameter_count: 86585320
-        total_layers: 264
-        trainable_layers: 52
-        model_size_mb: 346.34
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    deit_large_imagenet_full_seed-0:
-        architecture: DCNN, Transformer
-        model_family: deit
-        total_parameter_count: 304374760
-        trainable_parameter_count: 304374760
-        total_layers: 516
-        trainable_layers: 100
-        model_size_mb: 1217.5
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    deit_small_imagenet_100_seed-0:
-        architecture: DCNN, Transformer
-        model_family: deit
-        total_parameter_count: 22059496
-        trainable_parameter_count: 22059496
-        total_layers: 264
-        trainable_layers: 52
-        model_size_mb: 88.24
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    deit_small_imagenet_10_seed-0:
-        architecture: DCNN, Transformer
-        model_family: deit
-        total_parameter_count: 22059496
-        trainable_parameter_count: 22059496
-        total_layers: 264
-        trainable_layers: 52
-        model_size_mb: 88.24
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    deit_small_imagenet_1_seed-0:
-        architecture: DCNN, Transformer
-        model_family: deit
-        total_parameter_count: 22059496
-        trainable_parameter_count: 22059496
-        total_layers: 264
-        trainable_layers: 52
-        model_size_mb: 88.24
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    deit_small_imagenet_full_seed-0:
-        architecture: DCNN, Transformer
-        model_family: deit
-        total_parameter_count: 22059496
-        trainable_parameter_count: 22059496
-        total_layers: 264
-        trainable_layers: 52
-        model_size_mb: 88.24
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    efficientnet_b0_imagenet_full:
-        architecture: DCNN
-        model_family: efficientnet
-        total_parameter_count: 5288548
-        trainable_parameter_count: 5288548
-        total_layers: 337
-        trainable_layers: 82
-        model_size_mb: 21.15
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    efficientnet_b1_imagenet_full:
-        architecture: DCNN
-        model_family: efficientnet
-        total_parameter_count: 7794184
-        trainable_parameter_count: 7794184
-        total_layers: 473
-        trainable_layers: 116
-        model_size_mb: 31.18
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    efficientnet_b2_imagenet_full:
-        architecture: DCNN
-        model_family: efficientnet
-        total_parameter_count: 9109994
-        trainable_parameter_count: 9109994
-        total_layers: 473
-        trainable_layers: 116
-        model_size_mb: 36.44
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  resnet101_ecoset_full:
+    legacy:
+      architecture: DCNN
+      model_family: resnet
+      total_parameter_count: 43657845
+      trainable_parameter_count: 43657845
+      total_layers: 287
+      trainable_layers: 105
+      model_size_mb: 174.63
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 43657845
+      trainable_layers: '105'
+      architecture:
+        family: convolutional_neural_network
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+  resnet101_imagenet_full:
+    legacy:
+      architecture: DCNN
+      model_family: resnet
+      total_parameter_count: 44549160
+      trainable_parameter_count: 44549160
+      total_layers: 287
+      trainable_layers: 105
+      model_size_mb: 178.2
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 44549160
+      trainable_layers: '105'
+      architecture:
+        family: convolutional_neural_network
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+  resnet152_ecoset_full:
+    legacy:
+      architecture: DCNN
+      model_family: resnet
+      total_parameter_count: 59301493
+      trainable_parameter_count: 59301493
+      total_layers: 423
+      trainable_layers: 156
+      model_size_mb: 237.21
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 59301493
+      trainable_layers: '156'
+      architecture:
+        family: convolutional_neural_network
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+  resnet152_imagenet_full:
+    sources:
+      curation_workbook:
+        kind: unreviewed
+        citation: curation_workbook
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /data/summary
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /eval/test_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/validation_datasets
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /io/interface
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /io/tokenizer
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /legal/license
+      status: uncertain
+      sources:
+      - curation_workbook
+    - path: /lineage/base_models
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/architecture
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/display_name
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/input_resolution
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/supervision
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/version
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/creators
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/organizations
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /provenance/checkpoint
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /provenance/weights_provider
+      status: uncertain
+      sources:
+      - curation_workbook
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/loss
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /training/objective
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /training/preprocessing
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/process
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/applications
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/biases
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/limitations
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/users
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    model:
+      display_name: resnet152_imagenet_full
+      version: Entry in shared 'scaling_models' folder - full (100%) ImageNet-1k variant,
+        per metadata only
+      architecture:
+        family: convolutional_neural_network
+        description: CNN (ResNet-152), standard supervised baseline (scaling-law study)
+      parameter_count: 60192808
+      parameter_count_exact: true
+      trainable_layers: All layers presumably trainable during original training;
+        loaded frozen for inference
+      recurrent: false
+      input_resolution:
+        channels: null
+        height: null
+        width: null
+      visual_degrees: null
+      visual_degrees_description: null
+      supervision:
+        type: supervised
+        description: Fully supervised
+    training:
+      process: Standard ResNet-152 (60,192,808 params) trained on presumably full
+        ImageNet-1k as part of the same scaling-law study; exact training code not
+        seen
+      objective: Cross-entropy classification (assumed)
+      loss: Cross-entropy (assumed)
+      learning_rate: null
+      batch_size: null
+      preprocessing: null
+    data:
+      summary: ImageNet-1k (full, per scaling-law study naming convention; not explicit
+        in metadata)
+      training_datasets:
+      - identifier: imagenet-1k-full-per-scaling-law-study
+        name: ImageNet-1k (full, per scaling-law study naming convention
+        description: null
+        role: training
+      - identifier: not-explicit-in-metadata
+        name: not explicit in metadata)
+        description: null
+        role: training
+    io:
+      modality: image
+      interface: null
+      input_format: null
+      output_format: null
+      tokenizer: null
+    provenance:
+      weights_provider: Brain-Score model zoo (scaling_models); original trainer unconfirmed
+      checkpoint: null
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      curation_confidence: medium
+    legal:
+      license: 'Submission code: MIT (assumed)'
+    eval:
+      test_datasets:
+      - identifier: brain-score-neural-behavioral-benchmark
+        name: Brain-Score neural/behavioral benchmark stimulus sets (confirmed via
+          ModelCommitment/metadata registration)
+        description: null
+      validation_datasets:
+      - identifier: imagenet-1k-standard-validation-split
+        name: ImageNet-1K standard validation split
+        description: null
+    use:
+      applications:
+      - Scaling-law research
+      - Brain-Score benchmarking
+      biases:
+      - Inherits ImageNet dataset biases
+      limitations:
+      - Standard ResNet-152 limitations
+      - scaling-study role
+      users:
+      - Vision neuroscientists studying data-scaling effects
+    people:
+      organizations:
+      - Brain-Score model zoo
+    lineage:
+      base_models:
+      - identifier: resnet-152
+        name: ResNet-152
+        relationship: variant_of
+    legacy:
+      architecture: DCNN
+      model_family: resnet
+      total_parameter_count: 60192808
+      trainable_parameter_count: 60192808
+      total_layers: 423
+      trainable_layers: 156
+      model_size_mb: 240.77
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+  resnet18_ecoset_full:
+    legacy:
+      architecture: DCNN
+      model_family: resnet
+      total_parameter_count: 11466357
+      trainable_parameter_count: 11466357
+      total_layers: 68
+      trainable_layers: 21
+      model_size_mb: 45.87
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 11466357
+      trainable_layers: '21'
+      architecture:
+        family: convolutional_neural_network
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+  resnet18_imagenet_full:
+    legacy:
+      architecture: DCNN
+      model_family: resnet
+      total_parameter_count: 11689512
+      trainable_parameter_count: 11689512
+      total_layers: 68
+      trainable_layers: 21
+      model_size_mb: 46.76
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 11689512
+      trainable_layers: '21'
+      architecture:
+        family: convolutional_neural_network
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+  resnet34_ecoset_full:
+    legacy:
+      architecture: DCNN
+      model_family: resnet
+      total_parameter_count: 21574517
+      trainable_parameter_count: 21574517
+      total_layers: 116
+      trainable_layers: 37
+      model_size_mb: 86.3
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 21574517
+      trainable_layers: '37'
+      architecture:
+        family: convolutional_neural_network
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+  resnet34_imagenet_full:
+    legacy:
+      architecture: DCNN
+      model_family: resnet
+      total_parameter_count: 21797672
+      trainable_parameter_count: 21797672
+      total_layers: 116
+      trainable_layers: 37
+      model_size_mb: 87.19
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 21797672
+      trainable_layers: '37'
+      architecture:
+        family: convolutional_neural_network
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+  resnet50_ecoset_full:
+    legacy:
+      architecture: DCNN
+      model_family: resnet
+      total_parameter_count: 24665717
+      trainable_parameter_count: 24665717
+      total_layers: 151
+      trainable_layers: 54
+      model_size_mb: 98.66
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 24665717
+      trainable_layers: '54'
+      architecture:
+        family: convolutional_neural_network
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+  resnet50_imagenet_100_seed-0:
+    legacy:
+      architecture: DCNN
+      model_family: resnet
+      total_parameter_count: 25557032
+      trainable_parameter_count: 25557032
+      total_layers: 151
+      trainable_layers: 54
+      model_size_mb: 102.23
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 25557032
+      trainable_layers: '54'
+      architecture:
+        family: convolutional_neural_network
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+  resnet50_imagenet_10_seed-0:
+    legacy:
+      architecture: DCNN
+      model_family: resnet
+      total_parameter_count: 25557032
+      trainable_parameter_count: 25557032
+      total_layers: 151
+      trainable_layers: 54
+      model_size_mb: 102.23
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 25557032
+      trainable_layers: '54'
+      architecture:
+        family: convolutional_neural_network
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+  resnet50_imagenet_1_seed-0:
+    legacy:
+      architecture: DCNN
+      model_family: resnet
+      total_parameter_count: 25557032
+      trainable_parameter_count: 25557032
+      total_layers: 151
+      trainable_layers: 54
+      model_size_mb: 102.23
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 25557032
+      trainable_layers: '54'
+      architecture:
+        family: convolutional_neural_network
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+  resnet50_imagenet_full:
+    sources:
+      curation_workbook:
+        kind: unreviewed
+        citation: curation_workbook
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /data/summary
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /eval/test_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/validation_datasets
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /io/interface
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /io/tokenizer
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /legal/license
+      status: uncertain
+      sources:
+      - curation_workbook
+    - path: /lineage/base_models
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/architecture
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/display_name
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/input_resolution
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/supervision
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/version
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/creators
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/organizations
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /provenance/checkpoint
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /provenance/weights_provider
+      status: uncertain
+      sources:
+      - curation_workbook
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/loss
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /training/objective
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /training/preprocessing
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/process
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/applications
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/biases
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/limitations
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/users
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    model:
+      display_name: resnet50_imagenet_full
+      version: Entry in shared 'scaling_models' folder - full (100%) ImageNet-1k variant,
+        per metadata only
+      architecture:
+        family: convolutional_neural_network
+        description: CNN (ResNet-50), standard supervised baseline (scaling-law study)
+      parameter_count: 25557032
+      parameter_count_exact: true
+      trainable_layers: All layers presumably trainable during original training;
+        loaded frozen for inference
+      recurrent: false
+      input_resolution:
+        channels: null
+        height: null
+        width: null
+      visual_degrees: null
+      visual_degrees_description: null
+      supervision:
+        type: supervised
+        description: Fully supervised
+    training:
+      process: Standard ResNet-50 (25,557,032 params) trained on presumably full ImageNet-1k
+        as part of a scaling-law study; exact training code not seen
+      objective: Cross-entropy classification (assumed)
+      loss: Cross-entropy (assumed)
+      learning_rate: null
+      batch_size: null
+      preprocessing: null
+    data:
+      summary: ImageNet-1k (full, per scaling-law study naming convention; not explicit
+        in metadata)
+      training_datasets:
+      - identifier: imagenet-1k-full-per-scaling-law-study
+        name: ImageNet-1k (full, per scaling-law study naming convention
+        description: null
+        role: training
+      - identifier: not-explicit-in-metadata
+        name: not explicit in metadata)
+        description: null
+        role: training
+    io:
+      modality: image
+      interface: null
+      input_format: null
+      output_format: null
+      tokenizer: null
+    provenance:
+      weights_provider: Brain-Score model zoo (scaling_models); original trainer unconfirmed
+      checkpoint: null
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      curation_confidence: medium
+    legal:
+      license: 'Submission code: MIT (assumed)'
+    eval:
+      test_datasets:
+      - identifier: brain-score-neural-behavioral-benchmark
+        name: Brain-Score neural/behavioral benchmark stimulus sets (confirmed via
+          ModelCommitment/metadata registration)
+        description: null
+      validation_datasets:
+      - identifier: imagenet-1k-standard-validation-split
+        name: ImageNet-1K standard validation split
+        description: null
+    use:
+      applications:
+      - Scaling-law research (data quantity vs brain alignment)
+      - Brain-Score benchmarking
+      biases:
+      - Inherits ImageNet dataset biases
+      limitations:
+      - Standard ResNet-50 limitations (texture bias etc.)
+      - scaling-study role means comparisons matter more than absolute performance
+      users:
+      - Vision neuroscientists studying data-scaling effects
+    people:
+      organizations:
+      - Brain-Score model zoo
+    lineage:
+      base_models:
+      - identifier: resnet-50
+        name: ResNet-50
+        relationship: variant_of
+    legacy:
+      architecture: DCNN
+      model_family: resnet
+      total_parameter_count: 25557032
+      trainable_parameter_count: 25557032
+      total_layers: 151
+      trainable_layers: 54
+      model_size_mb: 102.23
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+  convnext_base_imagenet_full_seed-0:
+    sources:
+      curation_workbook:
+        kind: unreviewed
+        citation: curation_workbook
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /data/summary
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /eval/test_datasets
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /eval/validation_datasets
+      status: uncertain
+      sources:
+      - curation_workbook
+    - path: /io/interface
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /io/tokenizer
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /legal/license
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /lineage/base_models
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/architecture
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/display_name
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/input_resolution
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/supervision
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/version
+      status: uncertain
+      sources:
+      - curation_workbook
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/creators
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/organizations
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /provenance/checkpoint
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/loss
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/objective
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /training/preprocessing
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/process
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/applications
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/biases
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /use/limitations
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /use/users
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    model:
+      display_name: convnext_base_imagenet_full_seed-0
+      version: EPFL NeuroAI Scaling Variant
+      architecture:
+        family: convolutional_neural_network
+        description: ConvNeXt (pure CNN, 'ConvNet for the 2020s')
+      parameter_count: 88600000
+      parameter_count_exact: true
+      trainable_layers: '149'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      visual_degrees: null
+      visual_degrees_description: null
+      supervision:
+        type: supervised
+        description: Fully Supervised
+    training:
+      process: Standard ConvNeXt-Base trained on 100% ('full') of ImageNet-1k, with
+        a fixed random seed (seed-0) as one run in a seeded multi-run comparison set
+      objective: Image classification (1000-way)
+      loss: null
+      learning_rate: null
+      batch_size: null
+      preprocessing: null
+    data:
+      summary: ImageNet-1k (ILSVRC2012), full training set
+      training_datasets:
+      - identifier: imagenet-1k-ilsvrc2012-full-training
+        name: ImageNet-1k (ILSVRC2012), full training set
+        description: 1,281,167
+        role: training
+    io:
+      modality: image
+      interface: 'Input: RGB image tensor (assumed 224x224x3); Output: 1000-class
+        ImageNet logits'
+      input_format: RGB image tensor (assumed 224x224x3)
+      output_format: 1000-class ImageNet logits
+      tokenizer: null
+    provenance:
+      weights_provider: Brain-Score model registry (loaded via BrainScore library
+        v2.2.4)
+      checkpoint: null
+      source_url: https://arxiv.org/pdf/2411.05712
+      curation_confidence: null
+    legal:
+      license: null
+    eval:
+      test_datasets:
+      - identifier: imagenet-validation-set-used-for-robust
+        name: ImageNet validation set (used for robustness/alignment evaluation in
+          the source paper)
+        description: null
+      validation_datasets:
+      - identifier: imagenet-1k-validation-set-presumed-st
+        name: ImageNet-1k validation set (presumed, standard practice)
+        description: null
+    use:
+      applications:
+      - Used in this context as a candidate model for measuring representational alignment
+        to biological vision and adversarial robustness
+      users:
+      - Vision neuroscience / alignment researchers (via Brain-Score)
+      - ML robustness researchers
+    lineage:
+      base_models:
+      - identifier: convnext-base
+        name: ConvNeXt-Base
+        relationship: fine_tuned_from
+    legacy:
+      architecture: DCNN, Transformer
+      model_family: convnext
+      total_parameter_count: 88591464
+      trainable_parameter_count: 88591464
+      total_layers: 383
+      trainable_layers: 149
+      model_size_mb: 354.37
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+  convnext_large_imagenet_full_seed-0:
+    legacy:
+      architecture: DCNN, Transformer
+      model_family: convnext
+      total_parameter_count: 197767336
+      trainable_parameter_count: 197767336
+      total_layers: 383
+      trainable_layers: 149
+      model_size_mb: 791.07
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 197767336
+      trainable_layers: '149'
+      architecture:
+        family: DCNN, Transformer
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+  convnext_small_imagenet_100_seed-0:
+    legacy:
+      architecture: DCNN, Transformer
+      model_family: convnext
+      total_parameter_count: 50223688
+      trainable_parameter_count: 50223688
+      total_layers: 383
+      trainable_layers: 149
+      model_size_mb: 200.89
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 50223688
+      trainable_layers: '149'
+      architecture:
+        family: DCNN, Transformer
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+  convnext_small_imagenet_10_seed-0:
+    legacy:
+      architecture: DCNN, Transformer
+      model_family: convnext
+      total_parameter_count: 50223688
+      trainable_parameter_count: 50223688
+      total_layers: 383
+      trainable_layers: 149
+      model_size_mb: 200.89
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 50223688
+      trainable_layers: '149'
+      architecture:
+        family: DCNN, Transformer
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+  convnext_small_imagenet_1_seed-0:
+    legacy:
+      architecture: DCNN, Transformer
+      model_family: convnext
+      total_parameter_count: 50223688
+      trainable_parameter_count: 50223688
+      total_layers: 383
+      trainable_layers: 149
+      model_size_mb: 200.89
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 50223688
+      trainable_layers: '149'
+      architecture:
+        family: DCNN, Transformer
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+  convnext_small_imagenet_full_seed-0:
+    legacy:
+      architecture: DCNN, Transformer
+      model_family: convnext
+      total_parameter_count: 50223688
+      trainable_parameter_count: 50223688
+      total_layers: 383
+      trainable_layers: 149
+      model_size_mb: 200.89
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 50223688
+      trainable_layers: '149'
+      architecture:
+        family: DCNN, Transformer
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+  convnext_tiny_imagenet_full_seed-0:
+    sources:
+      curation_workbook:
+        kind: unreviewed
+        citation: curation_workbook
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /data/summary
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /eval/test_datasets
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /eval/validation_datasets
+      status: uncertain
+      sources:
+      - curation_workbook
+    - path: /io/interface
+      status: uncertain
+      sources:
+      - curation_workbook
+    - path: /io/tokenizer
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /legal/license
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/architecture
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/display_name
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/input_resolution
+      status: uncertain
+      sources:
+      - curation_workbook
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/supervision
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/version
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/creators
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/organizations
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /provenance/checkpoint
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/loss
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/objective
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /training/preprocessing
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/process
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/applications
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/biases
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /use/limitations
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /use/users
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    model:
+      display_name: convnext_tiny_imagenet_full_seed-0
+      version: null
+      architecture:
+        family: convolutional_neural_network
+        description: ConvNeXt (pure CNN)
+      parameter_count: 28600000
+      parameter_count_exact: true
+      trainable_layers: '77'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      visual_degrees: null
+      visual_degrees_description: null
+      supervision:
+        type: supervised
+        description: Supervised (labeled image classification)
+    training:
+      process: Standard ConvNeXt-Tiny trained on 100% of ImageNet-1k with a fixed
+        random seed (seed-0), part of a seeded multi-run comparison set
+      objective: Image classification (1000-way)
+      loss: null
+      learning_rate: null
+      batch_size: null
+      preprocessing: null
+    data:
+      summary: ImageNet-1k (ILSVRC2012), full training set
+      training_datasets:
+      - identifier: imagenet-1k-ilsvrc2012-full-training
+        name: ImageNet-1k (ILSVRC2012), full training set
+        description: null
+        role: training
+    io:
+      modality: image
+      interface: 'Input: 224x224x3 RGB tensor (assumed); Output: 1000-class ImageNet
+        logits'
+      input_format: 224x224x3 RGB tensor (assumed)
+      output_format: 1000-class ImageNet logits
+      tokenizer: null
+    provenance:
+      weights_provider: Brain-Score model registry (loaded via BrainScore library
+        v2.2.4)
+      checkpoint: null
+      source_url: https://arxiv.org/pdf/2411.05712
+      curation_confidence: null
+    legal:
+      license: null
+    eval:
+      test_datasets:
+      - identifier: imagenet-validation-set
+        name: ImageNet validation set
+        description: null
+      validation_datasets:
+      - identifier: imagenet-1k-validation-set-presumed
+        name: ImageNet-1k validation set (presumed)
+        description: null
+    use:
+      applications:
+      - Candidate model for measuring representational alignment to biological vision
+        and adversarial robustness
+      users:
+      - Vision neuroscience / alignment researchers (via Brain-Score)
+      - ML robustness researchers
+    lineage:
+      base_models:
+      - identifier: convnext-tiny
+        name: ConvNeXt-Tiny
+        relationship: fine_tuned_from
+    legacy:
+      architecture: DCNN, Transformer
+      model_family: convnext
+      total_parameter_count: 28589128
+      trainable_parameter_count: 28589128
+      total_layers: 203
+      trainable_layers: 77
+      model_size_mb: 114.36
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+  deit_base_imagenet_full_seed-0:
+    legacy:
+      architecture: DCNN, Transformer
+      model_family: deit
+      total_parameter_count: 86585320
+      trainable_parameter_count: 86585320
+      total_layers: 264
+      trainable_layers: 52
+      model_size_mb: 346.34
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 86585320
+      trainable_layers: '52'
+      architecture:
+        family: DCNN, Transformer
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+  deit_large_imagenet_full_seed-0:
+    legacy:
+      architecture: DCNN, Transformer
+      model_family: deit
+      total_parameter_count: 304374760
+      trainable_parameter_count: 304374760
+      total_layers: 516
+      trainable_layers: 100
+      model_size_mb: 1217.5
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 304374760
+      trainable_layers: '100'
+      architecture:
+        family: DCNN, Transformer
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+  deit_small_imagenet_100_seed-0:
+    legacy:
+      architecture: DCNN, Transformer
+      model_family: deit
+      total_parameter_count: 22059496
+      trainable_parameter_count: 22059496
+      total_layers: 264
+      trainable_layers: 52
+      model_size_mb: 88.24
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 22059496
+      trainable_layers: '52'
+      architecture:
+        family: DCNN, Transformer
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+  deit_small_imagenet_10_seed-0:
+    legacy:
+      architecture: DCNN, Transformer
+      model_family: deit
+      total_parameter_count: 22059496
+      trainable_parameter_count: 22059496
+      total_layers: 264
+      trainable_layers: 52
+      model_size_mb: 88.24
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 22059496
+      trainable_layers: '52'
+      architecture:
+        family: DCNN, Transformer
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+  deit_small_imagenet_1_seed-0:
+    legacy:
+      architecture: DCNN, Transformer
+      model_family: deit
+      total_parameter_count: 22059496
+      trainable_parameter_count: 22059496
+      total_layers: 264
+      trainable_layers: 52
+      model_size_mb: 88.24
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 22059496
+      trainable_layers: '52'
+      architecture:
+        family: DCNN, Transformer
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+  deit_small_imagenet_full_seed-0:
+    legacy:
+      architecture: DCNN, Transformer
+      model_family: deit
+      total_parameter_count: 22059496
+      trainable_parameter_count: 22059496
+      total_layers: 264
+      trainable_layers: 52
+      model_size_mb: 88.24
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 22059496
+      trainable_layers: '52'
+      architecture:
+        family: DCNN, Transformer
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+  efficientnet_b0_imagenet_full:
+    legacy:
+      architecture: DCNN
+      model_family: efficientnet
+      total_parameter_count: 5288548
+      trainable_parameter_count: 5288548
+      total_layers: 337
+      trainable_layers: 82
+      model_size_mb: 21.15
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 5288548
+      trainable_layers: '82'
+      architecture:
+        family: convolutional_neural_network
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+  efficientnet_b1_imagenet_full:
+    legacy:
+      architecture: DCNN
+      model_family: efficientnet
+      total_parameter_count: 7794184
+      trainable_parameter_count: 7794184
+      total_layers: 473
+      trainable_layers: 116
+      model_size_mb: 31.18
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 7794184
+      trainable_layers: '116'
+      architecture:
+        family: convolutional_neural_network
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+  efficientnet_b2_imagenet_full:
+    legacy:
+      architecture: DCNN
+      model_family: efficientnet
+      total_parameter_count: 9109994
+      trainable_parameter_count: 9109994
+      total_layers: 473
+      trainable_layers: 116
+      model_size_mb: 36.44
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 9109994
+      trainable_layers: '116'
+      architecture:
+        family: convolutional_neural_network
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models

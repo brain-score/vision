@@ -1,15 +1,245 @@
+schema_version: '2.0'
+domain: vision
 models:
-    resnet-50-robust:
-        architecture: DCNN
-        model_family: resnet
-        total_parameter_count: 25557032
-        trainable_parameter_count: 25557032
-        total_layers: 151
-        trainable_layers: 54
-        model_size_mb: 102.23
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet_50_robust
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  resnet-50-robust:
+    sources:
+      curation_workbook:
+        kind: unreviewed
+        citation: curation_workbook
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /data/summary
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /eval/test_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/validation_datasets
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /io/interface
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /io/tokenizer
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /legal/license
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /lineage/base_models
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/architecture
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/display_name
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/supervision
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/version
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/creators
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /people/organizations
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /provenance/checkpoint
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/loss
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /training/objective
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /training/preprocessing
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /training/process
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/applications
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/biases
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/limitations
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/users
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    model:
+      display_name: resnet-50-robust
+      version: Checkpoint ImageNet.pt, MadryLab robustness-library pattern (exact
+        eps/norm not stated in file)
+      architecture:
+        family: convolutional_neural_network
+        description: CNN (ResNet-50), adversarially robust (norm/eps unconfirmed)
+      parameter_count: 25600000
+      parameter_count_exact: false
+      trainable_layers: All ResNet-50 layers trained during external adversarial training;
+        loaded frozen for inference
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      visual_degrees: null
+      visual_degrees_description: null
+      supervision:
+        type: supervised
+        description: Supervised (adversarial training is still label-supervised)
+    training:
+      process: torchvision resnet50() with randomly-init weights, loaded from a DataParallel-saved
+        MadryLab-style checkpoint (module.model. prefix stripped, first 2 keys dropped)
+        - robust training setting unconfirmed
+      objective: Adversarial + cross-entropy classification loss (exact norm/eps unconfirmed)
+      loss: Cross-entropy (adversarial, exact variant unconfirmed)
+      learning_rate: null
+      batch_size: null
+      preprocessing: Standard torchvision-style preprocessing implied; not explicit
+        in this file (uses load_preprocess_images via functools import but preprocessing
+        partial not shown)
+    data:
+      summary: ImageNet-1k (MadryLab-style adversarial training; exact variant unconfirmed)
+      training_datasets:
+      - identifier: imagenet-1k-madrylab-style-adversarial
+        name: ImageNet-1k (MadryLab-style adversarial training
+        description: null
+        role: training
+      - identifier: exact-variant-unconfirmed
+        name: exact variant unconfirmed)
+        description: null
+        role: training
+    io:
+      modality: image
+      interface: RGB tensor 3x224x224 -> intermediate activations (avgpool is final
+        scored layer, no fc)
+      input_format: RGB tensor 3x224x224
+      output_format: intermediate activations (avgpool is final scored layer, no fc)
+      tokenizer: null
+    provenance:
+      weights_provider: Brain-Score S3 storage; original training pattern matches
+        MadryLab robustness library (exact authors unconfirmed for this specific checkpoint)
+      checkpoint: ImageNet.pt, SHA1 cc6e4441...
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet_50_robust
+      curation_confidence: medium
+    legal:
+      license: 'Submission code: MIT; underlying weights license unconfirmed'
+    eval:
+      test_datasets:
+      - identifier: brain-score-neural-behavioral-benchmark
+        name: Brain-Score neural/behavioral benchmark stimulus sets (confirmed via
+          ModelCommitment/metadata registration)
+        description: null
+      validation_datasets:
+      - identifier: imagenet-1k-standard-validation-split
+        name: ImageNet-1K standard validation split
+        description: null
+    use:
+      applications:
+      - Adversarial-robustness research
+      - Brain-Score benchmarking
+      biases:
+      - Same as above
+      limitations:
+      - Same trade-off as above
+      - exact severity depends on unconfirmed eps/norm setting
+      users:
+      - Robustness researchers
+      - vision neuroscientists
+    people:
+      creators:
+      - Likely MadryLab robustness-library lineage (exact authors/paper for this checkpoint
+        unconfirmed)
+      organizations:
+      - Likely MIT (MadryLab) by pattern; unconfirmed
+    lineage:
+      base_models:
+      - identifier: resnet-50
+        name: ResNet-50
+        relationship: variant_of
+    legacy:
+      architecture: DCNN
+      model_family: resnet
+      total_parameter_count: 25557032
+      trainable_parameter_count: 25557032
+      total_layers: 151
+      trainable_layers: 54
+      model_size_mb: 102.23
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet_50_robust
+      huggingface_link: null
+      extra_notes: null
+      runnable: true

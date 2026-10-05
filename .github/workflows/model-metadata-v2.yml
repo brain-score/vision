@@ -2,7 +2,7 @@ name: Model metadata v2
 on:
   pull_request_target:
     branches: [master]
-    types: [opened, synchronize, reopened, closed]
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
     inputs:
       pr:
@@ -15,21 +15,8 @@ permissions:
   checks: write
 jobs:
   validate:
-    if: vars.METADATA_V2_ENABLED == 'true' && github.event.action != 'closed'
     runs-on: ubuntu-latest
     steps:
-      # No PR checkout or plugin imports. Only the pinned core validator runs.
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Install the approved core metadata contract
-        env:
-          METADATA_CORE_REF: ${{ vars.METADATA_CORE_REF }}
-        run: |
-          [[ "$METADATA_CORE_REF" =~ ^[0-9a-f]{40}$ ]] || { echo 'Set METADATA_CORE_REF to a full approved core commit SHA'; exit 1; }
-          pip install "brainscore_core @ git+https://github.com/brain-score/core.git@${METADATA_CORE_REF}"
-          python -c "import brainscore_core.metadata"
-          pip check
       - uses: actions/github-script@v7
         id: check
         env:
@@ -42,6 +29,18 @@ jobs:
               name: 'Metadata v2 source policy', head_sha: pr.head.sha, status: 'in_progress'});
             core.setOutput('id', check.id);
             core.setOutput('head', pr.head.sha);
+      # No PR checkout or plugin imports. Only the pinned core validator runs.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install the approved core metadata contract
+        env:
+          METADATA_CORE_REF: ${{ vars.METADATA_CORE_REF }}
+        run: |
+          [[ "$METADATA_CORE_REF" =~ ^[0-9a-f]{40}$ ]] || { echo 'Set METADATA_CORE_REF to a full approved core commit SHA'; exit 1; }
+          pip install "brainscore_core @ git+https://github.com/brain-score/core.git@${METADATA_CORE_REF}"
+          python -c "import brainscore_core.metadata"
+          pip check
       - name: Validate schema and source policy
         id: validate
         continue-on-error: true
@@ -65,29 +64,3 @@ jobs:
                 'Schema and source policy passed. Live metadata is unchanged until merge and publication.' :
                 'Metadata validation failed. See the workflow log for schema or migration errors.'}});
             if (!success) core.setFailed('Metadata validation failed');
-  publish:
-    if: vars.METADATA_V2_ENABLED == 'true' && github.event.action == 'closed' && github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/create-github-app-token@v2
-        id: app
-        with:
-          app-id: ${{ vars.METADATA_APP_ID }}
-          private-key: ${{ secrets.METADATA_APP_PRIVATE_KEY }}
-          owner: brain-score
-          repositories: brain-score.web
-          permission-actions: write
-      - uses: actions/github-script@v7
-        env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          PUBLISH_REF: ${{ vars.METADATA_WEB_PUBLISH_REF }}
-          PUBLISH_ENVIRONMENT: ${{ vars.METADATA_PUBLISH_ENVIRONMENT }}
-        with:
-          github-token: ${{ steps.app.outputs.token }}
-          script: |
-            if (!process.env.PUBLISH_REF || !process.env.PUBLISH_ENVIRONMENT) {
-              core.setFailed('Configure the trusted publisher ref and environment first'); return;
-            }
-            await github.rest.actions.createWorkflowDispatch({owner: 'brain-score', repo: 'brain-score.web',
-              workflow_id: 'publish-model-metadata.yml', ref: process.env.PUBLISH_REF,
-              inputs: {domain: 'vision', pr: process.env.PR_NUMBER, environment: process.env.PUBLISH_ENVIRONMENT}});

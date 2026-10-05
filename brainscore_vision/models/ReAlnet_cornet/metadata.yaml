@@ -1,141 +1,1008 @@
+schema_version: '2.0'
+domain: vision
 models:
-    ReAlnet01_cornet:
-        architecture: DCNN, RNN, SKIP_CONNECTIONS
-        model_family: cornet
-        total_parameter_count: 53416616
-        trainable_parameter_count: 53416616
-        total_layers: 72
-        trainable_layers: 18
-        model_size_mb: 213.67
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    ReAlnet02_cornet:
-        architecture: DCNN, RNN, SKIP_CONNECTIONS
-        model_family: cornet
-        total_parameter_count: 53416616
-        trainable_parameter_count: 53416616
-        total_layers: 72
-        trainable_layers: 18
-        model_size_mb: 213.67
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    ReAlnet03_cornet:
-        architecture: DCNN, RNN, SKIP_CONNECTIONS
-        model_family: cornet
-        total_parameter_count: 53416616
-        trainable_parameter_count: 53416616
-        total_layers: 72
-        trainable_layers: 18
-        model_size_mb: 213.67
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    ReAlnet04_cornet:
-        architecture: DCNN, RNN, SKIP_CONNECTIONS
-        model_family: cornet
-        total_parameter_count: 53416616
-        trainable_parameter_count: 53416616
-        total_layers: 72
-        trainable_layers: 18
-        model_size_mb: 213.67
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    ReAlnet05_cornet:
-        architecture: DCNN, RNN, SKIP_CONNECTIONS
-        model_family: cornet
-        total_parameter_count: 53416616
-        trainable_parameter_count: 53416616
-        total_layers: 72
-        trainable_layers: 18
-        model_size_mb: 213.67
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    ReAlnet06_cornet:
-        architecture: DCNN, RNN, SKIP_CONNECTIONS
-        model_family: cornet
-        total_parameter_count: 53416616
-        trainable_parameter_count: 53416616
-        total_layers: 72
-        trainable_layers: 18
-        model_size_mb: 213.67
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    ReAlnet07_cornet:
-        architecture: DCNN, RNN, SKIP_CONNECTIONS
-        model_family: cornet
-        total_parameter_count: 53416616
-        trainable_parameter_count: 53416616
-        total_layers: 72
-        trainable_layers: 18
-        model_size_mb: 213.67
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    ReAlnet08_cornet:
-        architecture: DCNN, RNN, SKIP_CONNECTIONS
-        model_family: cornet
-        total_parameter_count: 53416616
-        trainable_parameter_count: 53416616
-        total_layers: 72
-        trainable_layers: 18
-        model_size_mb: 213.67
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    ReAlnet09_cornet:
-        architecture: DCNN, RNN, SKIP_CONNECTIONS
-        model_family: cornet
-        total_parameter_count: 53416616
-        trainable_parameter_count: 53416616
-        total_layers: 72
-        trainable_layers: 18
-        model_size_mb: 213.67
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    ReAlnet10_cornet:
-        architecture: DCNN, RNN, SKIP_CONNECTIONS
-        model_family: cornet
-        total_parameter_count: 53416616
-        trainable_parameter_count: 53416616
-        total_layers: 72
-        trainable_layers: 18
-        model_size_mb: 213.67
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  ReAlnet01_cornet:
+    sources:
+      curation_workbook:
+        kind: unreviewed
+        citation: curation_workbook
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /data/summary
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/test_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/validation_datasets
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /io/interface
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /io/tokenizer
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /legal/license
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /lineage/base_models
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/architecture
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/display_name
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/supervision
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/version
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/visual_degrees
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /people/creators
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /people/organizations
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/checkpoint
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /provenance/weights_provider
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/loss
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/objective
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/preprocessing
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/process
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/applications
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/biases
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/limitations
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/users
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    model:
+      display_name: ReAlnet01_cornet
+      version: Base subject-1 EEG-aligned model, default visual_degrees=8 (per sibling
+        fov4/12/16 registration code)
+      architecture:
+        family: recurrent_convolutional_neural_network
+        description: CNN+RNN hybrid (CORnet-S), recurrent with skip connections, EEG-aligned,
+          default field of view
+      parameter_count: 53416616
+      parameter_count_exact: true
+      trainable_layers: 18 trainable layers (per metadata) out of 72 total - CORnet-S
+        reuses weights across recurrent time steps
+      recurrent: true
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      visual_degrees: 8.0
+      visual_degrees_description: visual_degrees=8 (default; explicit sibling entries
+        confirm base uses 8 while fov4/12/16 override it)
+      supervision:
+        type: supervised_neural_alignment
+        description: Supervised + neural-alignment supervision
+    training:
+      process: CORnet-S fine-tuned via joint classification + EEG-encoding loss for
+        subject 1, default visual_degrees=8, using CORnetCommitment with time_mapping
+        for recurrent-timestep alignment
+      objective: Joint classification + EEG-encoding loss
+      loss: Cross-entropy + EEG-encoding alignment loss
+      learning_rate: null
+      batch_size: null
+      preprocessing: null
+    data:
+      summary: ImageNet-1k (CORnet-S base) + THINGS EEG2 human EEG data (subject 1)
+      training_datasets:
+      - identifier: imagenet-1k-cornet-s-base-things-eeg
+        name: ImageNet-1k (CORnet-S base) + THINGS EEG2 human EEG data (subject 1)
+        description: null
+        role: training
+    io:
+      modality: image
+      interface: Activations at multiple CORnet-S recurrent time steps, mapped via
+        time_mapping
+      input_format: Activations at multiple CORnet-S recurrent time steps, mapped
+        via time_mapping
+      output_format: null
+      tokenizer: null
+    provenance:
+      weights_provider: Brain-Score model zoo; Lu et al. 2024
+      checkpoint: null
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+      curation_confidence: high
+    legal:
+      license: Same as ReAlnet04
+    eval:
+      test_datasets:
+      - identifier: brain-score-neural-behavioral-benchmark
+        name: Brain-Score neural/behavioral benchmark stimulus sets (confirmed via
+          ModelCommitment/metadata registration)
+        description: null
+      validation_datasets:
+      - identifier: things-eeg2-held-out-test-set
+        name: THINGS EEG2 held-out test set
+        description: null
+    use:
+      applications:
+      - Neuro-alignment research (base/default field-of-view case)
+      biases:
+      - Same individual-subject bias caveat
+      limitations:
+      - Same individual-specificity caveat
+      users:
+      - Vision/computational neuroscientists
+    people:
+      creators:
+      - Lu et al. 2024
+      organizations:
+      - Same paper's research team
+    lineage:
+      base_models:
+      - identifier: CORnet-S
+        name: CORnet-S
+        relationship: fine_tuned_from
+    legacy:
+      architecture: DCNN, RNN, SKIP_CONNECTIONS
+      model_family: cornet
+      total_parameter_count: 53416616
+      trainable_parameter_count: 53416616
+      total_layers: 72
+      trainable_layers: 18
+      model_size_mb: 213.67
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+  ReAlnet02_cornet:
+    legacy:
+      architecture: DCNN, RNN, SKIP_CONNECTIONS
+      model_family: cornet
+      total_parameter_count: 53416616
+      trainable_parameter_count: 53416616
+      total_layers: 72
+      trainable_layers: 18
+      model_size_mb: 213.67
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 53416616
+      trainable_layers: '18'
+      architecture:
+        family: DCNN, RNN, SKIP_CONNECTIONS
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+  ReAlnet03_cornet:
+    sources:
+      curation_workbook:
+        kind: unreviewed
+        citation: curation_workbook
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /data/summary
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/test_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/validation_datasets
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /io/interface
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /io/tokenizer
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /legal/license
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /lineage/base_models
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/architecture
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/display_name
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/input_resolution
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/supervision
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/version
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/creators
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /people/organizations
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/checkpoint
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /provenance/weights_provider
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/loss
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/objective
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/preprocessing
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/process
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/applications
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/biases
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/limitations
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/users
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    model:
+      display_name: ReAlnet03_cornet
+      version: Entry in ReAlnet_cornet folder - EEG-aligned to one of 10 subjects,
+        per Lu et al. 2024
+      architecture:
+        family: recurrent_convolutional_neural_network
+        description: CNN+RNN hybrid (CORnet-S), recurrent with skip connections, EEG-aligned
+      parameter_count: 53416616
+      parameter_count_exact: true
+      trainable_layers: All CORnet-S layers (18 trainable per metadata) updated during
+        EEG-alignment fine-tuning
+      recurrent: true
+      input_resolution:
+        channels: null
+        height: null
+        width: null
+      visual_degrees: null
+      visual_degrees_description: null
+      supervision:
+        type: supervised_neural_alignment
+        description: Supervised + neural-alignment supervision
+    training:
+      process: CORnet-S fine-tuned via joint classification + EEG-encoding loss, different
+        subject than 04/01
+      objective: Joint classification + EEG-encoding loss
+      loss: Cross-entropy + EEG-encoding alignment loss
+      learning_rate: null
+      batch_size: null
+      preprocessing: null
+    data:
+      summary: ImageNet-1k + THINGS EEG2 human EEG data (Lu et al. 2024)
+      training_datasets:
+      - identifier: imagenet-1k-things-eeg2-human-eeg-data
+        name: ImageNet-1k + THINGS EEG2 human EEG data (Lu et al. 2024)
+        description: null
+        role: training
+    io:
+      modality: image
+      interface: Same as ReAlnet04
+      input_format: Same as ReAlnet04
+      output_format: null
+      tokenizer: null
+    provenance:
+      weights_provider: Same as ReAlnet04/01
+      checkpoint: null
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+      curation_confidence: medium
+    legal:
+      license: Same as ReAlnet04
+    eval:
+      test_datasets:
+      - identifier: brain-score-neural-behavioral-benchmark
+        name: Brain-Score neural/behavioral benchmark stimulus sets (confirmed via
+          ModelCommitment/metadata registration)
+        description: null
+      validation_datasets:
+      - identifier: things-eeg2-held-out-test-set
+        name: THINGS EEG2 held-out test set
+        description: null
+    use:
+      applications:
+      - Same as ReAlnet04
+      biases:
+      - Same as ReAlnet04, different subject
+      limitations:
+      - Same individual-specificity caveat as ReAlnet04
+      users:
+      - Same as ReAlnet04
+    people:
+      creators:
+      - Lu et al. 2024
+      organizations:
+      - Same as ReAlnet04
+    lineage:
+      base_models:
+      - identifier: CORnet-S
+        name: CORnet-S
+        relationship: fine_tuned_from
+    legacy:
+      architecture: DCNN, RNN, SKIP_CONNECTIONS
+      model_family: cornet
+      total_parameter_count: 53416616
+      trainable_parameter_count: 53416616
+      total_layers: 72
+      trainable_layers: 18
+      model_size_mb: 213.67
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+  ReAlnet04_cornet:
+    sources:
+      curation_workbook:
+        kind: unreviewed
+        citation: curation_workbook
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /data/summary
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/test_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/validation_datasets
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /io/interface
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /io/tokenizer
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /legal/license
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /lineage/base_models
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/architecture
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/display_name
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/input_resolution
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/supervision
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/version
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/creators
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /people/organizations
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/checkpoint
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /provenance/weights_provider
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/loss
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/objective
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/preprocessing
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/process
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/applications
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/biases
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/limitations
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/users
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    model:
+      display_name: ReAlnet04_cornet
+      version: Entry in ReAlnet_cornet folder - EEG-aligned to one of 10 subjects,
+        per Lu et al. 2024
+      architecture:
+        family: recurrent_convolutional_neural_network
+        description: CNN+RNN hybrid (CORnet-S), recurrent with skip connections, EEG-aligned
+      parameter_count: 53416616
+      parameter_count_exact: true
+      trainable_layers: All CORnet-S layers (18 trainable per metadata) updated during
+        EEG-alignment fine-tuning
+      recurrent: true
+      input_resolution:
+        channels: null
+        height: null
+        width: null
+      visual_degrees: null
+      visual_degrees_description: null
+      supervision:
+        type: supervised_neural_alignment
+        description: Supervised (ImageNet) + neural-alignment supervision (EEG-encoding
+          loss)
+    training:
+      process: CORnet-S fine-tuned via joint classification + EEG-encoding ('generation')
+        loss to align internal representations with one subject's THINGS EEG2 data
+        (Lu et al. 2024)
+      objective: Joint classification cross-entropy + EEG-encoding ('generation')
+        loss to align representations
+      loss: Cross-entropy + EEG-encoding alignment loss
+      learning_rate: null
+      batch_size: null
+      preprocessing: null
+    data:
+      summary: ImageNet-1k (CORnet-S base pretraining) + THINGS EEG2 human EEG data
+        (10 subjects) for alignment fine-tuning
+      training_datasets:
+      - identifier: imagenet-1k-cornet-s-base-pretraining
+        name: ImageNet-1k (CORnet-S base pretraining) + THINGS EEG2 human EEG data
+          (10 subjects) for alignment fine-tuning
+        description: null
+        role: training
+    io:
+      modality: image
+      interface: Activations at multiple CORnet-S recurrent time steps, mapped via
+        time_mapping to neural recording timepoints
+      input_format: Activations at multiple CORnet-S recurrent time steps, mapped
+        via time_mapping to neural recording timepoints
+      output_format: null
+      tokenizer: null
+    provenance:
+      weights_provider: Brain-Score model zoo; original CORnet-S + EEG-alignment training
+        by Lu et al. 2024
+      checkpoint: null
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+      curation_confidence: medium
+    legal:
+      license: 'Submission code: MIT; underlying research license unconfirmed'
+    eval:
+      test_datasets:
+      - identifier: brain-score-neural-behavioral-benchmark
+        name: Brain-Score neural/behavioral benchmark stimulus sets (confirmed via
+          ModelCommitment/metadata registration)
+        description: null
+      validation_datasets:
+      - identifier: things-eeg2-held-out-test-set-novel-obj
+        name: THINGS EEG2 held-out test set (novel object categories) per Lu et al.
+          2024
+        description: null
+    use:
+      applications:
+      - Neuro-alignment research - testing whether EEG-guided fine-tuning improves
+        brain/behavior similarity
+      biases:
+      - Inherits both ImageNet biases and the specific EEG-donor subject's individual
+        neural response patterns
+      limitations:
+      - Personalized to one individual's EEG - may not generalize as a general-purpose
+        brain model across subjects
+      users:
+      - Vision/computational neuroscientists studying neural-data-guided model alignment
+    people:
+      creators:
+      - Lu et al. 2024 (ReAlnet paper, Communications Biology / arXiv:2401.17231)
+      organizations:
+      - Human research team, Lu et al. 2024 (Communications Biology)
+    lineage:
+      base_models:
+      - identifier: CORnet-S
+        name: CORnet-S
+        relationship: fine_tuned_from
+    legacy:
+      architecture: DCNN, RNN, SKIP_CONNECTIONS
+      model_family: cornet
+      total_parameter_count: 53416616
+      trainable_parameter_count: 53416616
+      total_layers: 72
+      trainable_layers: 18
+      model_size_mb: 213.67
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+  ReAlnet05_cornet:
+    legacy:
+      architecture: DCNN, RNN, SKIP_CONNECTIONS
+      model_family: cornet
+      total_parameter_count: 53416616
+      trainable_parameter_count: 53416616
+      total_layers: 72
+      trainable_layers: 18
+      model_size_mb: 213.67
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 53416616
+      trainable_layers: '18'
+      architecture:
+        family: DCNN, RNN, SKIP_CONNECTIONS
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+  ReAlnet06_cornet:
+    legacy:
+      architecture: DCNN, RNN, SKIP_CONNECTIONS
+      model_family: cornet
+      total_parameter_count: 53416616
+      trainable_parameter_count: 53416616
+      total_layers: 72
+      trainable_layers: 18
+      model_size_mb: 213.67
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 53416616
+      trainable_layers: '18'
+      architecture:
+        family: DCNN, RNN, SKIP_CONNECTIONS
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+  ReAlnet07_cornet:
+    legacy:
+      architecture: DCNN, RNN, SKIP_CONNECTIONS
+      model_family: cornet
+      total_parameter_count: 53416616
+      trainable_parameter_count: 53416616
+      total_layers: 72
+      trainable_layers: 18
+      model_size_mb: 213.67
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 53416616
+      trainable_layers: '18'
+      architecture:
+        family: DCNN, RNN, SKIP_CONNECTIONS
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+  ReAlnet08_cornet:
+    legacy:
+      architecture: DCNN, RNN, SKIP_CONNECTIONS
+      model_family: cornet
+      total_parameter_count: 53416616
+      trainable_parameter_count: 53416616
+      total_layers: 72
+      trainable_layers: 18
+      model_size_mb: 213.67
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 53416616
+      trainable_layers: '18'
+      architecture:
+        family: DCNN, RNN, SKIP_CONNECTIONS
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+  ReAlnet09_cornet:
+    legacy:
+      architecture: DCNN, RNN, SKIP_CONNECTIONS
+      model_family: cornet
+      total_parameter_count: 53416616
+      trainable_parameter_count: 53416616
+      total_layers: 72
+      trainable_layers: 18
+      model_size_mb: 213.67
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 53416616
+      trainable_layers: '18'
+      architecture:
+        family: DCNN, RNN, SKIP_CONNECTIONS
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+  ReAlnet10_cornet:
+    legacy:
+      architecture: DCNN, RNN, SKIP_CONNECTIONS
+      model_family: cornet
+      total_parameter_count: 53416616
+      trainable_parameter_count: 53416616
+      total_layers: 72
+      trainable_layers: 18
+      model_size_mb: 213.67
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 53416616
+      trainable_layers: '18'
+      architecture:
+        family: DCNN, RNN, SKIP_CONNECTIONS
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet

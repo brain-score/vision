@@ -1,15 +1,248 @@
+schema_version: '2.0'
+domain: vision
 models:
-    effnetb1_cutmixpatch_SAM_robust32_avge6e8e9e10_manylayers_324x288:
-        architecture: DCNN
-        model_family: efficientnet
-        total_parameter_count: 7794184
-        trainable_parameter_count: 7794184
-        total_layers: 473
-        trainable_layers: 116
-        model_size_mb: 31.18
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/effnetb1_cutmixpatch_SAM_robust32_avge6e8e9e10_manylayers_324x288
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  effnetb1_cutmixpatch_SAM_robust32_avge6e8e9e10_manylayers_324x288:
+    sources:
+      curation_workbook:
+        kind: unreviewed
+        citation: curation_workbook
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /data/summary
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /eval/test_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/validation_datasets
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /io/interface
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /io/tokenizer
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /legal/license
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /lineage/base_models
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/architecture
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/display_name
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/supervision
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/version
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/creators
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /people/organizations
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/checkpoint
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/weights_provider
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/batch_size
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/loss
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/objective
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/preprocessing
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/process
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/applications
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/biases
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/limitations
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/users
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    model:
+      display_name: effnetb1_cutmixpatch_SAM_robust32_avge6e8e9e10_manylayers_324x288
+      version: tf_efficientnet_b1_ns_robust_cutmixpatchresize_SAM_e6e8e9e10.pth -
+        CutMix-patch + SAM, epoch-avg 6/8/9/10
+      architecture:
+        family: convolutional_neural_network
+        description: CNN (EfficientNet compound-scaled), adversarially/corruption-robust
+          fine-tune with SAM + checkpoint averaging
+      parameter_count: 7800000
+      parameter_count_exact: false
+      trainable_layers: All EfficientNet-B1 layers trained/fine-tuned; BatchNorm explicitly
+        frozen (m.eval()) in stem + blocks 0-3 at inference time
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 288
+        width: 324
+      visual_degrees: null
+      visual_degrees_description: null
+      supervision:
+        type: self_supervised
+        description: Fully supervised, with self-training (Noisy Student) component
+          in base weights
+    training:
+      process: EfficientNet-B1 Noisy Student base -> further fine-tuned with CutMix-patch-resize
+        augmentation + SAM optimizer -> weight-averaged across epochs 6,8,9,10; custom
+        Albumentations preprocessing (324 resize -> 288 center crop); BN frozen in
+        stem + blocks 0-3
+      objective: Cross-entropy + robustness objective under SAM optimization (flat-minima
+        seeking) + CutMix-patch augmentation
+      loss: Cross-entropy (SAM-optimized)
+      learning_rate: null
+      batch_size: Inference batch_size=8 explicitly set; training batch size unconfirmed
+      preprocessing: 'Custom Albumentations: Resize(324) -> CenterCrop(288) -> Normalize(ImageNet
+        mean/std) -> ToTensorV2'
+    data:
+      summary: ImageNet-1k (base Noisy Student pretrain uses unlabeled JFT-300M too)
+        + fine-tune with CutMix-patch/SAM augmentation on ImageNet-1k
+      training_datasets:
+      - identifier: imagenet-1k-base-noisy-student-pretrain
+        name: ImageNet-1k (base Noisy Student pretrain uses unlabeled JFT-300M too)
+          + fine-tune with CutMix-patch/SAM augmentation on ImageNet-1k
+        description: null
+        role: training
+    io:
+      modality: image
+      interface: RGB tensor, resize 324/crop 288 -> intermediate activations at fine-grained
+        block sublayers
+      input_format: RGB tensor, resize 324/crop 288
+      output_format: intermediate activations at fine-grained block sublayers
+      tokenizer: null
+    provenance:
+      weights_provider: Brain-Score S3 storage; base weights from Google (Noisy Student),
+        fine-tuned by Brain-Score submitter
+      checkpoint: tf_efficientnet_b1_ns_robust_cutmixpatchresize_SAM_e6e8e9e10.pth,
+        SHA1 9d60e490...
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/effnetb1_cutmixpatch_SAM_robust32_avge6e8e9e10_manylayers_324x288
+      curation_confidence: high
+    legal:
+      license: 'Submission code: MIT; underlying EfficientNet weights license unconfirmed'
+    eval:
+      test_datasets:
+      - identifier: brain-score-neural-behavioral-benchmark
+        name: Brain-Score neural/behavioral benchmark stimulus sets (confirmed via
+          ModelCommitment/metadata registration)
+        description: null
+      validation_datasets:
+      - identifier: imagenet-1k-standard-validation-split
+        name: ImageNet-1K standard validation split
+        description: null
+    use:
+      applications:
+      - Adversarial/corruption robustness research
+      - Brain-Score benchmarking of robust models
+      biases:
+      - Inherits ImageNet dataset biases
+      - robustness fine-tuning may shift texture/shape bias further
+      limitations:
+      - Robustness fine-tuning trade-offs vs clean accuracy
+      - heavy customization makes reproducibility harder without the helper code
+      users:
+      - Robustness researchers
+      - ML practitioners needing corruption-robust classifiers
+    people:
+      creators:
+      - Tan & Le (EfficientNet, correctly cited); robustness fine-tuning by Brain-Score
+        submitter
+      organizations:
+      - Google (EfficientNet/Noisy Student base); Brain-Score submitter (fine-tune)
+    lineage:
+      base_models:
+      - identifier: efficientnet-b1-noisy-student
+        name: EfficientNet-B1 Noisy Student
+        relationship: fine_tuned_from
+    legacy:
+      architecture: DCNN
+      model_family: efficientnet
+      total_parameter_count: 7794184
+      trainable_parameter_count: 7794184
+      total_layers: 473
+      trainable_layers: 116
+      model_size_mb: 31.18
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/effnetb1_cutmixpatch_SAM_robust32_avge6e8e9e10_manylayers_324x288
+      huggingface_link: null
+      extra_notes: null
+      runnable: true

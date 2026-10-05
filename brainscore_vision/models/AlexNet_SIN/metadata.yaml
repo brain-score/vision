@@ -1,15 +1,248 @@
+schema_version: '2.0'
+domain: vision
 models:
-    AlexNet_SIN:
-        architecture: DCNN
-        model_family: alexnet
-        total_parameter_count: 61100840
-        trainable_parameter_count: 61100840
-        total_layers: 25
-        trainable_layers: 8
-        model_size_mb: 244.4
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AlexNet_SIN
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  AlexNet_SIN:
+    sources:
+      curation_workbook:
+        kind: unreviewed
+        citation: curation_workbook
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /data/summary
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/test_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/validation_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /io/interface
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /io/tokenizer
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /legal/license
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /lineage/base_models
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/architecture
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/display_name
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/supervision
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/version
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/creators
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /people/organizations
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/checkpoint
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /provenance/weights_provider
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/loss
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/objective
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/preprocessing
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/process
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /use/applications
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/biases
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/limitations
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/users
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    model:
+      display_name: AlexNet_SIN
+      version: SIN-trained variant
+      architecture:
+        family: convolutional_neural_network
+        description: Convolutional Neural Network
+      parameter_count: 60000000
+      parameter_count_exact: true
+      trainable_layers: '8'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      visual_degrees: null
+      visual_degrees_description: null
+      supervision:
+        type: supervised
+        description: Fully Supervised
+    training:
+      process: null
+      objective: 1,000-class image classification
+      loss: Cross-entropy loss
+      learning_rate: null
+      batch_size: null
+      preprocessing: 'Standard AlexNet/Caffe-style preprocessing (224×224, mean subtraction)
+        — training used the Caffe implementation for AlexNet specifically (per repo
+        notes: "For AlexNet, VGG-16 and GoogLeNet we used the caffe implementation")'
+    data:
+      summary: Stylized-ImageNet
+      training_datasets:
+      - identifier: stylized-imagenet
+        name: Stylized-ImageNet
+        description: 1,281,167
+        role: training
+    io:
+      modality: image
+      interface: RGB 224x224x3, 1000-class logits
+      input_format: RGB 224x224x3, 1000-class logits
+      output_format: null
+      tokenizer: null
+    provenance:
+      weights_provider: Robert Geirhos et al./Bethge Lab
+      checkpoint: null
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AlexNet_SIN
+      curation_confidence: medium
+    legal:
+      license: null
+    eval:
+      test_datasets:
+      - identifier: imagenet-validation-set-and-stylized-ima
+        name: ImageNet validation set and stylized ImageNet validation set. Also evaluated
+          on cue-conflict stimuli
+        description: null
+      validation_datasets:
+      - identifier: imagenet-validation-set-stylized-imagen
+        name: ImageNet validation set, stylized ImageNet validation set
+        description: null
+    use:
+      applications:
+      - Studying/reducing texture bias in CNNs
+      - shape-bias research
+      - robustness-to-corruption research
+      - not recommended as a general-purpose high-accuracy classifier, given the authors'
+        own accuracy caveat
+      biases:
+      - This model exists specifically to study/reduce texture bias — but even after
+        SIN training, AlexNet's shape bias improvement was modest compared to ResNet-50-SIN
+        (81% shape bias), suggesting AlexNet's shallow/simple architecture may limit
+        how much shape bias can be induced via data alone. Also inherits standard
+        ImageNet dataset biases (geographic/cultural skew, label noise)
+      limitations:
+      - 'Explicitly authors-stated: suboptimal hyperparameters led to below-standard
+        accuracy'
+      - AlexNet's measured shape bias after SIN training was notably lower than ResNet-50-SIN's
+        (42.9% texture / lower shape bias for AlexNet on cue-conflict stimuli, and
+        a follow-up torchvision-based re-evaluation found AlexNet's shape bias at
+        25.3%, lower than originally reported figures) — indicating AlexNet benefits
+        less from SIN training than deeper architectures like ResNet-50
+      users:
+      - Vision science / cognitive science researchers studying human-vs-CNN perception
+      - robustness researchers
+      - NOT recommended for production classification use
+    people:
+      creators:
+      - Robert Geirhos, Patricia Rubisch, Claudio Michaelis, Matthias Bethge, Felix
+        A. Wichmann, Wieland Brendel
+      organizations:
+      - University of Tübingen (Bethge Lab); collaborators from University of Freiburg
+    lineage:
+      base_models:
+      - identifier: alexnet
+        name: AlexNet
+        relationship: variant_of
+    legacy:
+      architecture: DCNN
+      model_family: alexnet
+      total_parameter_count: 61100840
+      trainable_parameter_count: 61100840
+      total_layers: 25
+      trainable_layers: 8
+      model_size_mb: 244.4
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/AlexNet_SIN
+      huggingface_link: null
+      extra_notes: null
+      runnable: true

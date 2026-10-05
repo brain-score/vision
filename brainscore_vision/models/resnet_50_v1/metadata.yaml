@@ -1,15 +1,239 @@
+schema_version: '2.0'
+domain: vision
 models:
-    resnet_50_v1:
-        architecture: DCNN
-        model_family: resnet
-        total_parameter_count: 25557032
-        trainable_parameter_count: 25557032
-        total_layers: 151
-        trainable_layers: 54
-        model_size_mb: 102.23
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet_50_v1
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  resnet_50_v1:
+    sources:
+      curation_workbook:
+        kind: unreviewed
+        citation: curation_workbook
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /data/summary
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/test_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/validation_datasets
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /io/interface
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /io/tokenizer
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /legal/license
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /lineage/base_models
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/architecture
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/display_name
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/supervision
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/version
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/creators
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /people/organizations
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/checkpoint
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/weights_provider
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/loss
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/objective
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/preprocessing
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/process
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/applications
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/biases
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/limitations
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/users
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    model:
+      display_name: resnet_50_v1
+      version: torchvision ResNet50_Weights.IMAGENET1K_V1, used as the non-spiking
+        control paired with resnet_50_v1_spiking
+      architecture:
+        family: convolutional_neural_network
+        description: CNN (ResNet-50), standard torchvision architecture
+      parameter_count: 25600000
+      parameter_count_exact: false
+      trainable_layers: Backbone trained during original torchvision ImageNet training
+        (external); loaded frozen for Brain-Score inference
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      visual_degrees: null
+      visual_degrees_description: null
+      supervision:
+        type: supervised
+        description: Fully supervised (torchvision ImageNet-1k pretrained backbone)
+    training:
+      process: Standard torchvision ResNet-50 (IMAGENET1K_V1), used unmodified; paired
+        with resnet_50_v1_spiking as the non-spiking control for a direct before/after
+        comparison
+      objective: Cross-entropy (inherited from original torchvision ImageNet training)
+      loss: Cross-entropy (inherited from original torchvision training)
+      learning_rate: null
+      batch_size: null
+      preprocessing: load_preprocess_images, image_size=224 (standard preprocessing)
+    data:
+      summary: ImageNet-1k (via torchvision IMAGENET1K_V1 weights)
+      training_datasets:
+      - identifier: imagenet-1k-via-torchvision-imagenet1k
+        name: ImageNet-1k (via torchvision IMAGENET1K_V1 weights)
+        description: null
+        role: training
+    io:
+      modality: image
+      interface: RGB tensor 3x224x224 -> intermediate activations for Brain-Score
+        API (fc layer not included in scored layer list)
+      input_format: RGB tensor 3x224x224
+      output_format: intermediate activations for Brain-Score API (fc layer not included
+        in scored layer list)
+      tokenizer: null
+    provenance:
+      weights_provider: torchvision / PyTorch team (IMAGENET1K_V1 checkpoint)
+      checkpoint: torchvision IMAGENET1K_V1 checkpoint
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet_50_v1
+      curation_confidence: null
+    legal:
+      license: 'Submission code: MIT (brain-score/vision repo license); torchvision
+        weights: BSD-3-Clause'
+    eval:
+      test_datasets:
+      - identifier: brain-score-neural-behavioral-benchmark
+        name: Brain-Score neural/behavioral benchmark stimulus sets (confirmed via
+          ModelCommitment registration and layer list)
+        description: null
+      validation_datasets:
+      - identifier: imagenet-1k-standard-validation-split
+        name: ImageNet-1K standard validation split
+        description: null
+    use:
+      applications:
+      - Computational neuroscience baseline
+      - Brain-Score benchmarking
+      biases:
+      - Inherits standard torchvision ImageNet-trained ResNet-50 biases
+      limitations:
+      - Standard ResNet-50 texture bias, limited out-of-distribution robustness
+      - serves mainly as the non-spiking control for resnet_50_v1_spiking
+      users:
+      - Vision neuroscientists using Brain-Score baselines
+    people:
+      creators:
+      - torchvision/PyTorch team (weights); Brain-Score submitter (registration code,
+        He et al. 2016 cited in bibtex)
+      organizations:
+      - Brain-Score model zoo (registration); PyTorch/torchvision (weights)
+    lineage:
+      base_models:
+      - identifier: resnet-50
+        name: ResNet-50
+        relationship: variant_of
+    legacy:
+      architecture: DCNN
+      model_family: resnet
+      total_parameter_count: 25557032
+      trainable_parameter_count: 25557032
+      total_layers: 151
+      trainable_layers: 54
+      model_size_mb: 102.23
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet_50_v1
+      huggingface_link: null
+      extra_notes: null
+      runnable: true

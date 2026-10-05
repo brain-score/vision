@@ -1,15 +1,242 @@
+schema_version: '2.0'
+domain: vision
 models:
-    CORnet-S:
-        architecture: DCNN, RNN, SKIP_CONNECTIONS
-        model_family: cornet
-        total_parameter_count: 53416616
-        trainable_parameter_count: 53416616
-        total_layers: 72
-        trainable_layers: 18
-        model_size_mb: 213.67
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/cornet_s
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  CORnet-S:
+    sources:
+      curation_workbook:
+        kind: unreviewed
+        citation: curation_workbook
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /data/summary
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/test_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/validation_datasets
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /io/interface
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /io/tokenizer
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /legal/license
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /lineage/base_models
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /model/architecture
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/display_name
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/input_resolution
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/supervision
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/version
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/creators
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /people/organizations
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/checkpoint
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/weights_provider
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/learning_rate
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/loss
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/objective
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/preprocessing
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /training/process
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/applications
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/biases
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /use/limitations
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/users
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    model:
+      display_name: CORnet-S
+      version: CORnet family v1 (as released in the NeurIPS 2019 dicarlolab/CORnet
+        repo)
+      architecture:
+        family: recurrent_convolutional_neural_network
+        description: Recurrent CNN (shallow, brain-inspired, ResNet-like blocks with
+          recurrence)
+      parameter_count: 53416616
+      parameter_count_exact: null
+      trainable_layers: 4 anatomically-mapped computational areas (V1, V2, V4, IT)
+        plus a linear category decoder
+      recurrent: true
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      visual_degrees: null
+      visual_degrees_description: null
+      supervision:
+        type: supervised
+        description: Supervised (labeled image classification)
+    training:
+      process: Purpose-built four-area architecture (V1, V2, V4, IT analogues) with
+        recurrent connectivity, developed by iteratively adding recurrence/skip connections
+        to a base CORnet-Z model while optimizing both ImageNet performance and Brain-Score
+        neural/behavioral alignment
+      objective: Image classification (1000-way), optimized jointly for ImageNet performance
+        and Brain-Score alignment
+      loss: null
+      learning_rate: '0.1 (per README training command: --lr .1)'
+      batch_size: null
+      preprocessing: Standard ImageNet training/eval preprocessing via run.py (train/test
+        split handled per standard PyTorch ImageNet pipeline)
+    data:
+      summary: ImageNet (ILSVRC), full training set
+      training_datasets:
+      - identifier: imagenet-ilsvrc-full-training-set
+        name: ImageNet (ILSVRC), full training set
+        description: ~1.28M training images, 1000 classes
+        role: training
+    io:
+      modality: image
+      interface: 'Input: RGB image (ImageNet-standard preprocessing); Output: 1000-class
+        ImageNet logits, plus optional intermediate area activations (V1/V2/V4/IT)
+        for neuroscience analysis'
+      input_format: RGB image (ImageNet-standard preprocessing)
+      output_format: 1000-class ImageNet logits, plus optional intermediate area activations
+        (V1/V2/V4/IT) for neuroscience analysis
+      tokenizer: null
+    provenance:
+      weights_provider: DiCarlo Lab, MIT (github.com/dicarlolab/CORnet)
+      checkpoint: cornet_s-1d3f7974.pth (auto-downloaded via PyTorch Model Zoo from
+        s3.amazonaws.com/cornet-models/)
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/cornet_s
+      curation_confidence: null
+    legal:
+      license: GNU GPL 3.0+
+    eval:
+      test_datasets:
+      - identifier: imagenet-validation-set-standard-object
+        name: ImageNet validation set (standard object recognition evaluation) and
+          Brain-Score benchmark suite (neural/behavioral)
+        description: null
+      validation_datasets:
+      - identifier: imagenet-1k-validation-set
+        name: ImageNet-1k validation set
+        description: null
+    use:
+      applications:
+      - Computational neuroscience research (modeling primate ventral visual stream)
+      - core object recognition benchmarking
+      - brain-alignment research via Brain-Score
+      limitations:
+      - Slower to train than shallower CORnet variants (CORnet-Z, CORnet-RT) due to
+        recurrence
+      - described as 'Best overall but slow to train'
+      users:
+      - Visual neuroscience researchers
+      - computational neuroscientists
+      - ML researchers studying brain-model alignment
+    people:
+      creators:
+      - Jonas Kubilius, Martin Schrimpf, Kohitij Kar, Rishi Rajalingham, Ha Hong,
+        Najib Majaj, Elias Issa, Pouya Bashivan, Jonathan Prescott-Roy, Kailyn Schmidt,
+        Aran Nayebi, Daniel Bear, Daniel L.K. Yamins, James J. DiCarlo
+      organizations:
+      - DiCarlo Lab, McGovern Institute for Brain Research, MIT (with Stanford collaborators)
+    legacy:
+      architecture: DCNN, RNN, SKIP_CONNECTIONS
+      model_family: cornet
+      total_parameter_count: 53416616
+      trainable_parameter_count: 53416616
+      total_layers: 72
+      trainable_layers: 18
+      model_size_mb: 213.67
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/cornet_s
+      huggingface_link: null
+      extra_notes: null
+      runnable: true

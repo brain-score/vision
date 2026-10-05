@@ -344,6 +344,9 @@ models:
       legacy:
         kind: unreviewed
         citation: Existing plugin metadata; primary sources need review.
+      proposal_81bff22bfe518b24_other:
+        kind: other
+        url: https://brain-score.org
     assertions:
     - path: /model/parameter_count
       status: probable
@@ -361,11 +364,16 @@ models:
       status: probable
       sources:
       - legacy
+    - path: /model/visual_degrees
+      status: probable
+      sources:
+      - proposal_81bff22bfe518b24_other
     model:
       parameter_count: 200128168
       trainable_layers: '114'
       architecture:
         family: DCNN, Transformer
+      visual_degrees: 8.0
     provenance:
       source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
   convnext_tiny:in12k_ft_in1k:

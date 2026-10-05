@@ -71,6 +71,9 @@ class _Kato2026ErrorConsistency(BenchmarkBase):
             labels_base = labels_base.isel(presentation=mask)
             base_correct = np.asarray(labels_base.values) == np.asarray(labels_base['truth'].values)
             valid  = base_correct.ravel()
+            if not valid.any():
+                raise ValueError("Model classified no base-condition images correctly; "
+                                 "no images remain to compare against humans.")
             labels = labels.where(valid, other='NaN')
         
         raw_score = self._metric(labels, self._assembly)
@@ -124,6 +127,9 @@ class _Kato2026AccuracyDistance(BenchmarkBase):
             labels_base = labels_base.isel(presentation=mask)
             base_correct = np.asarray(labels_base.values) == np.asarray(labels_base['truth'].values)
             valid  = base_correct.ravel()
+            if not valid.any():
+                raise ValueError("Model classified no base-condition images correctly; "
+                                 "no images remain to compare against humans.")
             labels = labels.where(valid, other='NaN')
             
         raw_score = self._metric(labels, self._assembly)

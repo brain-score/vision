@@ -1,5 +1,6 @@
 import pytest
 from pytest import approx
+from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
 from brainscore_vision import benchmark_registry, load_benchmark, load_model
 from brainscore_vision.benchmarks.kato2026.benchmark import DATASETS
 
@@ -121,3 +122,23 @@ class TestAccuracyDistance:
         # division by ceiling <= 1 should result in higher score
         assert score >= raw_score
         assert raw_score == expected_raw_score
+
+class _AlwaysWrongModel:
+    def visual_degrees(self):
+        return 8
+
+    def start_task(self, task, choice_labels, aggregation='mean'):
+        pass
+
+    def look_at(self, stimuli, number_of_trials=1):
+        labels = ['kato2026_others'] * len(stimuli)
+        return BehavioralAssembly([labels], coords={
+            'stimulus_id': ('presentation', stimuli['stimulus_id'].values),
+            'truth': ('presentation', stimuli['truth'].values)}, dims=['choice', 'presentation'])
+
+
+@pytest.mark.private_access
+@pytest.mark.parametrize('benchmark', ['Kato2026Fil-error_consistency', 'Kato2026Fil-accuracy_distance'])
+def test_no_correct_base_images_raises(benchmark):
+    with pytest.raises(ValueError, match='no base-condition images'):
+        load_benchmark(benchmark)(_AlwaysWrongModel())

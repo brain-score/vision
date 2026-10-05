@@ -65,6 +65,7 @@ jobs:
         if: ${{ !inputs.is_automerge_web }}
         uses: evvanErb/get-github-email-by-username-action@v2.0
         id: getemail
+        continue-on-error: true  # private GitHub emails fall back below
         with:
           github-username: ${{inputs.pr_username}}
           token: ${{ secrets.GITHUB_TOKEN }}  # Including token enables most reliable way to get a user's email
@@ -73,7 +74,8 @@ jobs:
         if: ${{ !inputs.is_automerge_web }}
         id: non_automerge_web
         run: |
-          EMAIL=${{ steps.getemail.outputs.email }}
+          EMAIL="${{ steps.getemail.outputs.email }}"
+          EMAIL="${EMAIL:-kpradeep@mit.edu}"
           echo "::add-mask::$EMAIL" # Mask the EMAIL
           echo "EMAIL=$EMAIL" >> $GITHUB_ENV
 

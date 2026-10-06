@@ -81,18 +81,20 @@ class PytorchWrapper:
         layer_results = OrderedDict()
         hooks = []
 
-        for layer_name in layer_names:
-            layer = self.get_layer(layer_name)
-            hook = self.register_hook(layer, layer_name, target_dict=layer_results)
-            hooks.append(hook)
+        try:
+            for layer_name in layer_names:
+                layer = self.get_layer(layer_name)
+                hook = self.register_hook(layer, layer_name, target_dict=layer_results)
+                hooks.append(hook)
 
-        with torch.no_grad():
-            if self._input_key:
-                self._model(**{self._input_key: images, **self._forward_kwargs})
-            else:
-                self._model(images, **self._forward_kwargs)
-        for hook in hooks:
-            hook.remove()
+            with torch.no_grad():
+                if self._input_key:
+                    self._model(**{self._input_key: images, **self._forward_kwargs})
+                else:
+                    self._model(images, **self._forward_kwargs)
+        finally:
+            for hook in hooks:
+                hook.remove()
         return layer_results
 
     def get_layer(self, layer_name):

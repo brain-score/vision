@@ -2152,6 +2152,9 @@ models:
       legacy:
         kind: unreviewed
         citation: Existing plugin metadata; primary sources need review.
+      proposal_81bff22bfe518b24_other:
+        kind: other
+        url: https://brain-score.org
     assertions:
     - path: /data/summary
       status: probable
@@ -2217,10 +2220,6 @@ models:
       status: probable
       sources:
       - curation_workbook
-    - path: /model/visual_degrees
-      status: undocumented
-      sources:
-      - curation_workbook
     - path: /people/creators
       status: verified
       sources:
@@ -2281,6 +2280,10 @@ models:
       status: probable
       sources:
       - legacy
+    - path: /model/visual_degrees
+      status: probable
+      sources:
+      - proposal_81bff22bfe518b24_other
     model:
       display_name: vit_large_patch14_clip_224:openai_ft_in12k_in1k
       version: OpenAI CLIP ViT-L/14 (224px), released January 2022
@@ -2295,7 +2298,7 @@ models:
         channels: 3
         height: 224
         width: 224
-      visual_degrees: null
+      visual_degrees: 8.0
       visual_degrees_description: null
       supervision:
         type: contrastive_pretrain_supervised_finetune

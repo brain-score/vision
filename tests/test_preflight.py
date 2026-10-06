@@ -249,6 +249,7 @@ class TestPreflightInRunScore:
         benchmark = MagicMock()
         del benchmark.required_modalities
         del benchmark.accepted_modalities
+        del benchmark.required_input_channels
 
         with patch.object(brainscore_vision, 'benchmark_registry',
                           {'legacy-bench': lambda: benchmark}):

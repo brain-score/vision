@@ -79,8 +79,14 @@ Use conda: `conda install netcdf4`
 
 <details>
 <summary>repeated runs of a benchmark / model do not change the outcome even though code was changed</summary>
-results (scores, activations) are cached on disk using https://github.com/mschrimpf/result_caching.
-Delete the corresponding file or directory to clear the cache.
+The standard `PytorchWrapper` activation cache checks model weights, extraction
+settings, and input contents before reusing results. The separate temporal
+extractor still uses name-based caching. Score caching is separate: activation
+checks do not invalidate every saved score after a code change.
+
+Set `RESULTCACHING_DISABLE=1` to rerun without result caching, or delete the
+specific cached result. See the [activation caching guide](https://github.com/KartikP/brainscore-unified/blob/unified-model-interface-v2/docs/caching.md)
+for supported paths, storage configuration, and weight-editing limits.
 </details>
 
 

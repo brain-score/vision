@@ -1,4 +1,13 @@
 from brainscore_vision.model_helpers.activations.core import ActivationsExtractorHelper
+import pytest
+
+
+@pytest.fixture(autouse=True)
+def real_input_files(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv('RESULTCACHING_DISABLE', '0')
+    for name in ('stimulus-a.png', 'same-stimulus'):
+        (tmp_path / name).write_bytes(b'input content')
 
 
 def _helper(identifier="model", backbone_id=None, channel=None):
@@ -36,7 +45,7 @@ def test_single_channel_cache_preserves_backbone_and_adds_fingerprint(monkeypatc
     assert result == "old-cache"
     for call in calls:
         kwargs = call[1] if isinstance(call, tuple) else call
-        assert kwargs.pop('extraction_fingerprint').startswith('v1-')
+        assert kwargs.pop('extraction_fingerprint').startswith('v2-')
     assert calls == [
         (
             "old",
@@ -94,7 +103,7 @@ def test_shared_backbone_channels_use_separate_cache_keys(monkeypatch):
     assert text.from_paths(**common_kwargs) == "text-cache"
     for call in calls:
         kwargs = call[1] if isinstance(call, tuple) else call
-        assert kwargs.pop('extraction_fingerprint').startswith('v1-')
+        assert kwargs.pop('extraction_fingerprint').startswith('v2-')
     assert calls == [
         {
             "channel": "vision",

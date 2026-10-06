@@ -20,7 +20,9 @@ from brainscore_core.assembly_builder import (
 from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly, walk_coords
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from brainscore_vision.model_helpers.utils import fullname
-from brainscore_core.extraction_cache import store_xarray, extraction_fingerprint, implementation_config
+from brainscore_core.extraction_cache import (
+    store_xarray, extraction_fingerprint, implementation_config, file_inputs,
+)
 
 
 class Defaults:
@@ -143,7 +145,8 @@ class ActivationsExtractorHelper:
         if layers is None:
             layers = ['logits']
         signature = (extraction_fingerprint({'configuration': self.cache_config(),
-                     'inputs': self._reduce_paths(stimuli_paths) if not require_variance else stimuli_paths})
+                     'inputs': file_inputs(self._reduce_paths(stimuli_paths) if not require_variance else stimuli_paths)},
+                     cache_identifier=f'{fullname(self)}._from_paths_stored/identifier={self._backbone_id or self.identifier}')
                      if self.identifier and stimuli_identifier else None)
         if self.identifier and stimuli_identifier and signature is not None:
             # Cache-key is backbone_id (set explicitly or defaulted to identifier).

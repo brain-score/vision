@@ -1,4 +1,4 @@
-> **UMI v2 candidate:** install this checkout with its pinned core using
+> **UMI v2 source candidate:** install this checkout with its pinned core using
 > `python -m pip install -r requirements-v2.txt -e .`, or install all four UMI
 > checkouts together. Candidate peer versions are not published on PyPI.
 
@@ -13,9 +13,10 @@ for the purpose of model testing, falsification, and comparison.
 To that end, Brain-Score operationalizes experimental data into quantitative benchmarks 
 that any model candidate following the [`BrainModel`](brainscore_vision/model_interface.py) interface can be scored on.
 
-> **UMI migration:** BrainModel and look_at are the pre-UMI vision interface.
-> Existing plugins remain supported, but new cross-domain integrations should
-> use Subject or BrainScoreModel with process(). See
+> **UMI integration:** Existing domain plugins remain supported. Use
+> `BrainScoreModel` for extraction and task helpers, or implement
+> `Subject.interact(session)` for a custom session integration. A native
+> `Subject` does not require `process()`. See
 > [docs/UMI_MIGRATION.md](docs/UMI_MIGRATION.md).
 
 Note that you can only access a limited set of public benchmarks when running locally. To score a model on all benchmarks, submit it via the [brain-score.org website](http://www.brain-score.org).

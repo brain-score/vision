@@ -1,18 +1,14 @@
-# Vision interface migration to UMI
+# Use vision models with UMI
 
-BrainModel and look_at are the legacy vision API. They remain valid for
-existing vision plugins and are adapted when loaded through the unified
-registry.
+`BrainModel` and `look_at` remain supported for existing vision plugins. Loading these plugins through `brainscore.load_model` supplies the appropriate UMI adapter.
 
-For new cross-domain work:
-
-| Legacy vision API | Unified Model Interface |
+| Goal | Interface |
 | --- | --- |
-| BrainModel | Subject or BrainScoreModel |
-| candidate.look_at(stimuli) | candidate.process(stimuli) |
-| vision-only load_model | brainscore.load_model |
-| benchmark(candidate) | brainscore.score(model_id, benchmark_id) |
+| Score an existing model | `brainscore.score(model_identifier, benchmark_identifier)` |
+| Reuse extraction and task helpers | `BrainScoreModel`, with `process`, task setup and recording methods |
+| Define custom session behavior | `Subject.interact(session)`, with declared input/output channels |
+| Combine recording and interventions | `Experiment` with a compatible protocol and tools |
 
-Continue in the distribution's unified/docs/getting_started.md and
-unified/docs/umi_api_reference.md. The legacy Read the Docs pages are still
-useful for vision-specific benchmark and submission details.
+`BrainScoreModel` is a `Subject` implementation. A native `Subject` does not need `process()` or a region mapping; a benchmark using those methods requires an implementation that provides them.
+
+See the [UMI getting-started guide](https://github.com/KartikP/brainscore-unified/blob/unified-model-interface-v2/docs/getting_started.md). The domain documentation remains useful for existing benchmark and submission workflows.

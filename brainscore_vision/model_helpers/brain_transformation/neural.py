@@ -96,9 +96,9 @@ class LayerSelection:
         layer_scores = self._layer_scoring(benchmark=benchmark, benchmark_identifier=selection_identifier,
                                            layers=self.layers, prerun=True)
 
-        self._logger.debug("Layer scores (unceiled): " + ", ".join([
-            f"{layer} -> {layer_scores.raw.sel(layer=layer).item():.3f}"
-            f"+-{layer_scores.raw.sel(layer=layer).attrs['error'].item():.3f}"
+        # attrs (e.g. raw) do not survive the netCDF cache, so log values only
+        self._logger.debug("Layer scores: " + ", ".join([
+            f"{layer} -> {layer_scores.sel(layer=layer).item():.3f}"
             for layer in layer_scores['layer'].values]))
         best_layer = layer_scores['layer'].values[layer_scores.argmax()]
         return best_layer

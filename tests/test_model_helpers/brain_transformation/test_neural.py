@@ -1,13 +1,16 @@
 import functools
+import logging
 import os
 from pathlib import Path
 
 import numpy as np
 import pytest
 
+from brainscore_core.metrics import Score
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from brainscore_vision.model_helpers.activations import PytorchWrapper
 from brainscore_vision.model_helpers.brain_transformation import ModelCommitment, LayerMappedModel
+from brainscore_vision.model_helpers.brain_transformation.neural import LayerSelection
 
 
 def pytorch_custom():
@@ -49,6 +52,18 @@ class TestLayerSelection:
         predictions = brain_model.look_at([Path(__file__).parent / 'rgb1.jpg'])
         assert set(predictions['region'].values) == {region}
         assert set(predictions['layer'].values) == {expected_layer}
+
+    def test_selects_from_cached_scores_without_attrs(self):
+        # a netCDF cache hit returns LayerScores with no attrs (no `raw`)
+        scores = Score([0.1, 0.3], coords={'layer': ['a', 'b']}, dims=['layer'])
+        assert 'raw' not in scores.attrs
+        selection = LayerSelection.__new__(LayerSelection)
+        selection._layer_scoring = lambda **kwargs: scores
+        selection.layers = ['a', 'b']
+        selection._logger = logging.getLogger(__name__)
+        best_layer = LayerSelection._call.__wrapped__(selection, model_identifier='m', selection_identifier='IT',
+                                                      benchmark=None)
+        assert best_layer == 'b'
 
 
 class TestLayerMappedModel:

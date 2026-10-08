@@ -63,23 +63,14 @@ requires = [
 #### version management config ####
 ################################################################
 
-[tool.bumpversion]
-parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
-serialize = ["{major}.{minor}.{patch}"]
-search = "version = \"{current_version}\""
-replace = "version = \"{new_version}\""
-regex = false
-ignore_missing_version = false
-tag = true
-sign_tags = false
-tag_name = "v{new_version}"
-tag_message = "Bump version: {current_version} → {new_version}"
-allow_dirty = false
-commit = true
-message = "Bump version: {current_version} → {new_version}"
+[tool.semantic_release]
+version_toml = ["pyproject.toml:project.version"]
+tag_format = "v{version}"
+commit_message = "chore(release): {version} [skip ci]"
+build_command = "python -m pip install build && python -m build"
 
-[[tool.bumpversion.files]]
-filename = "pyproject.toml"
+[tool.semantic_release.branches.master]
+match = "master"
 
 ################################################################
 #### mypy type-checking config ####

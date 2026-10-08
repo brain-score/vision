@@ -51,9 +51,13 @@ jobs:
           python-version: '3.11'
 
       - name: Install Dependencies
+        env:
+          METADATA_CORE_REF: ${{ vars.METADATA_CORE_REF || 'a95e2a7fa30a7e99d845858d669b10373f2317ea' }}
         run: |
           python -m pip install --upgrade pip setuptools
           python -m pip install ".[test]"
+          [[ "$METADATA_CORE_REF" =~ ^[0-9a-f]{40}$ ]] || { echo 'Set METADATA_CORE_REF to a full approved core commit SHA'; exit 1; }
+          python -m pip install "brainscore_core @ git+https://github.com/brain-score/core.git@${METADATA_CORE_REF}"
           pip install pyyaml
           
       - name: Configure Git

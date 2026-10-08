@@ -1,15 +1,42 @@
+schema_version: '2.0'
+domain: vision
 models:
-    tv_efficientnet-b1:
-        architecture: DCNN
-        model_family: efficientnet
-        total_parameter_count: 7794184
-        trainable_parameter_count: 7794184
-        total_layers: 473
-        trainable_layers: 116
-        model_size_mb: 31.18
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/tv_efficientnet_b1
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  tv_efficientnet-b1:
+    legacy:
+      architecture: DCNN
+      model_family: efficientnet
+      total_parameter_count: 7794184
+      trainable_parameter_count: 7794184
+      total_layers: 473
+      trainable_layers: 116
+      model_size_mb: 31.18
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/tv_efficientnet_b1
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 7794184
+      trainable_layers: '116'
+      architecture:
+        family: convolutional_neural_network
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/tv_efficientnet_b1

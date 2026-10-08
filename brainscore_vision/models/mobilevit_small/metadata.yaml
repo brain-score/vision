@@ -1,15 +1,36 @@
+schema_version: '2.0'
+domain: vision
 models:
-    mobilevit_small:
-        architecture: DCNN, Transformer
-        model_family: mobilenet, vit
-        total_parameter_count: 5578632
-        trainable_parameter_count: 5578632
-        total_layers: 318
-        trainable_layers: 90
-        model_size_mb: 22.31
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mobilevit_small
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  mobilevit_small:
+    legacy:
+      architecture: DCNN, Transformer
+      model_family: mobilenet, vit
+      total_parameter_count: 5578632
+      trainable_parameter_count: 5578632
+      total_layers: 318
+      trainable_layers: 90
+      model_size_mb: 22.31
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mobilevit_small
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 5578632
+      trainable_layers: '90'
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mobilevit_small

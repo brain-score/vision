@@ -213,3 +213,7 @@ models:
       - identifier: pnasnet-5-large
         name: PNASNet-5-Large
         relationship: variant_of
+    legacy:
+      architecture: DCNN
+      total_parameter_count: 86100000
+      runnable: true

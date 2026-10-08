@@ -7,8 +7,9 @@ models:
       version: CvT-21 / 384px / ImageNet-22k to 1k
       architecture:
         family: hybrid_convolutional_transformer
-        description: 'CvT-21: three-stage convolutional vision transformer; block depths [1, 4,
-          16]. Final-stage class token. Brain-Score records the blocks and final layernorm.'
+        description: 'CvT-21: three-stage convolutional vision transformer; block
+          depths [1, 4, 16]. Final-stage class token. Brain-Score records the blocks
+          and final layernorm.'
       parameter_count: 32000000
       parameter_count_exact: false
       recurrent: false
@@ -17,20 +18,22 @@ models:
         height: 384
         width: 384
       visual_degrees: 8.0
-      visual_degrees_description: 8° inherited from ModelCommitment; historical scoring configuration
-        unconfirmed.
+      visual_degrees_description: 8° inherited from ModelCommitment; historical scoring
+        configuration unconfirmed.
       supervision:
         type: supervised
         description: Labeled image classification.
     training:
-      process: ImageNet-22k pretraining, then ImageNet-1k fine-tuning. No additional training
-        in the submission.
+      process: ImageNet-22k pretraining, then ImageNet-1k fine-tuning. No additional
+        training in the submission.
       objective: 1,000-class image classification. Pretrained with ImageNet-22k labels.
-      loss: Soft-target cross-entropy; smoothing 0.1 (reference recipe; checkpoint unconfirmed).
-      learning_rate: 0.000125 × GPU count; cosine decay (reference recipe; checkpoint unconfirmed).
+      loss: Soft-target cross-entropy; smoothing 0.1 (reference recipe; checkpoint
+        unconfirmed).
+      learning_rate: 0.000125 × GPU count; cosine decay (reference recipe; checkpoint
+        unconfirmed).
       batch_size: 128 images/GPU (reference recipe; checkpoint unconfirmed).
-      preprocessing: Mixup, CutMix, RandAugment, flips, color jitter and random erasing (reference
-        recipe; checkpoint unconfirmed).
+      preprocessing: Mixup, CutMix, RandAugment, flips, color jitter and random erasing
+        (reference recipe; checkpoint unconfirmed).
     data:
       training_datasets:
       - name: ImageNet-22k
@@ -42,19 +45,20 @@ models:
     io:
       modality: image
       interface: Transformers CvtForImageClassification via Brain-Score PytorchWrapper.
-      input_format: RGB images; resize to 384 × 384; checkpoint AutoFeatureExtractor with ImageNet
-        normalization.
-      output_format: 1,000 ImageNet class logits; internal activations available through Brain-Score.
+      input_format: RGB images; resize to 384 × 384; checkpoint AutoFeatureExtractor
+        with ImageNet normalization.
+      output_format: 1,000 ImageNet class logits; internal activations available through
+        Brain-Score.
       tokenizer: Convolutional image patches; no text tokenizer.
     eval:
       test_datasets:
       - name: ImageNet-1k validation
-        description: Used for published classifier evaluation; not an independent ImageNet test
-          split and not a list of Brain-Score benchmarks.
+        description: Used for published classifier evaluation; not an independent
+          ImageNet test split and not a list of Brain-Score benchmarks.
       validation_datasets:
       - name: ImageNet-1k validation
-        description: The official training recipe selects the ImageNet val split. Use in the exact
-          Hub training run is not confirmed.
+        description: The official training recipe selects the ImageNet val split.
+          Use in the exact Hub training run is not confirmed.
     people:
       creators:
       - Haiping Wu
@@ -288,3 +292,7 @@ models:
       status: probable
       sources:
       - hf_card
+    legacy:
+      architecture: Hybrid
+      total_parameter_count: 32000000
+      runnable: true

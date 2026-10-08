@@ -208,3 +208,7 @@ models:
       - identifier: shufflenet-v2
         name: ShuffleNet V2
         relationship: variant_of
+    legacy:
+      architecture: DCNN
+      total_parameter_count: 2300000
+      runnable: true

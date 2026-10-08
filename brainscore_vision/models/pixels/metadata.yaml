@@ -197,3 +197,8 @@ models:
       - Martin Schrimpf
       organizations:
       - DiCarlo Lab, MIT
+    legacy:
+      architecture: Pixels
+      total_parameter_count: 0
+      trainable_layers: 0
+      runnable: true

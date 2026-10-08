@@ -210,3 +210,7 @@ models:
       - identifier: resnet-50
         name: ResNet-50
         relationship: fine_tuned_from
+    legacy:
+      architecture: DCNN
+      total_parameter_count: 25600000
+      runnable: true

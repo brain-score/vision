@@ -1,15 +1,41 @@
+schema_version: '2.0'
+domain: vision
 models:
-    grcnn_109:
-        architecture: DCNN
-        model_family: null
-        total_parameter_count: 45075880
-        trainable_parameter_count: 45075880
-        total_layers: 483
-        trainable_layers: 120
-        model_size_mb: 180.3
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/grcnn_109
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  grcnn_109:
+    legacy:
+      architecture: DCNN
+      total_parameter_count: 45075880
+      trainable_parameter_count: 45075880
+      total_layers: 483
+      trainable_layers: 120
+      model_size_mb: 180.3
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/grcnn_109
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 45075880
+      trainable_layers: '120'
+      architecture:
+        family: convolutional_neural_network
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/grcnn_109

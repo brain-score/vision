@@ -204,3 +204,7 @@ models:
       - identifier: convnext-tiny
         name: ConvNeXt-Tiny
         relationship: variant_of
+    legacy:
+      architecture: DCNN
+      total_parameter_count: 28600000
+      runnable: true

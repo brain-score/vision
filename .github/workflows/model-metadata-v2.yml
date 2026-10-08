@@ -9,6 +9,8 @@ on:
         description: PR number to validate
         required: true
         type: string
+env:
+  CORE_REF: a95e2a7fa30a7e99d845858d669b10373f2317ea  # bump by PR
 permissions:
   contents: read
   pull-requests: read
@@ -34,11 +36,9 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install the approved core metadata contract
-        env:
-          METADATA_CORE_REF: ${{ vars.METADATA_CORE_REF }}
         run: |
-          [[ "$METADATA_CORE_REF" =~ ^[0-9a-f]{40}$ ]] || { echo 'Set METADATA_CORE_REF to a full approved core commit SHA'; exit 1; }
-          pip install "brainscore_core @ git+https://github.com/brain-score/core.git@${METADATA_CORE_REF}"
+          [[ "$CORE_REF" =~ ^[0-9a-f]{40}$ ]] || { echo 'CORE_REF must be a full core commit SHA'; exit 1; }
+          pip install "brainscore_core @ git+https://github.com/brain-score/core.git@${CORE_REF}"
           python -c "import brainscore_core.metadata"
           pip check
       - name: Validate schema and source policy

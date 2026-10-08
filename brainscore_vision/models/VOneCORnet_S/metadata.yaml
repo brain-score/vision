@@ -207,3 +207,6 @@ models:
       - identifier: CORnet-S
         name: CORnet-S
         relationship: variant_of
+    legacy:
+      total_parameter_count: 53000000
+      runnable: true

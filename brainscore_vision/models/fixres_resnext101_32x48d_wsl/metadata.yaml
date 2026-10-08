@@ -1,15 +1,42 @@
+schema_version: '2.0'
+domain: vision
 models:
-    fixres_resnext101_32x48d_wsl:
-        architecture: DCNN
-        model_family: resnext
-        total_parameter_count: 828411176
-        trainable_parameter_count: 828411176
-        total_layers: 287
-        trainable_layers: 105
-        model_size_mb: 3313.64
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/fixres_resnext101_32x48d_wsl
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  fixres_resnext101_32x48d_wsl:
+    legacy:
+      architecture: DCNN
+      model_family: resnext
+      total_parameter_count: 828411176
+      trainable_parameter_count: 828411176
+      total_layers: 287
+      trainable_layers: 105
+      model_size_mb: 3313.64
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/fixres_resnext101_32x48d_wsl
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 828411176
+      trainable_layers: '105'
+      architecture:
+        family: convolutional_neural_network
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/fixres_resnext101_32x48d_wsl

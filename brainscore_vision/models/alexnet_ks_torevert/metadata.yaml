@@ -1,15 +1,42 @@
+schema_version: '2.0'
+domain: vision
 models:
-    alexnet_ks_torevert:
-        architecture: DCNN
-        model_family: alexnet
-        total_parameter_count: 61100840
-        trainable_parameter_count: 61100840
-        total_layers: 24
-        trainable_layers: 8
-        model_size_mb: 244.4
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_ks_torevert
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  alexnet_ks_torevert:
+    legacy:
+      architecture: DCNN
+      model_family: alexnet
+      total_parameter_count: 61100840
+      trainable_parameter_count: 61100840
+      total_layers: 24
+      trainable_layers: 8
+      model_size_mb: 244.4
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_ks_torevert
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 61100840
+      trainable_layers: '8'
+      architecture:
+        family: convolutional_neural_network
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_ks_torevert

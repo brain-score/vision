@@ -225,3 +225,7 @@ models:
       - identifier: efficientnet-b1-noisy-student
         name: EfficientNet-B1 Noisy Student
         relationship: fine_tuned_from
+    legacy:
+      architecture: DCNN
+      total_parameter_count: 7800000
+      runnable: true

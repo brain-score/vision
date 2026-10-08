@@ -172,3 +172,5 @@ models:
       curation_confidence: null
     legal:
       license: null
+    legacy:
+      runnable: true

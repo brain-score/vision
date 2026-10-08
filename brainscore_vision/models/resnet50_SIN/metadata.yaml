@@ -211,3 +211,7 @@ models:
       - identifier: resnet-50
         name: ResNet-50
         relationship: variant_of
+    legacy:
+      architecture: DCNN
+      total_parameter_count: 25600000
+      runnable: true

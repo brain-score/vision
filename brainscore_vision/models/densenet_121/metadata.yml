@@ -1,15 +1,42 @@
+schema_version: '2.0'
+domain: vision
 models:
-    densenet-121:
-        architecture: DCNN
-        model_family: densenet
-        total_parameter_count: 7978856
-        trainable_parameter_count: 7978856
-        total_layers: 433
-        trainable_layers: 121
-        model_size_mb: 31.92
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/densenet_121
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  densenet-121:
+    legacy:
+      architecture: DCNN
+      model_family: densenet
+      total_parameter_count: 7978856
+      trainable_parameter_count: 7978856
+      total_layers: 433
+      trainable_layers: 121
+      model_size_mb: 31.92
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/densenet_121
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 7978856
+      trainable_layers: '121'
+      architecture:
+        family: convolutional_neural_network
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/densenet_121

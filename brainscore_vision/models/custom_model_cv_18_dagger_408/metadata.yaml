@@ -1,15 +1,35 @@
+schema_version: '2.0'
+domain: vision
 models:
-    custom_model_cv_18_dagger_408:
-        architecture: DCNN, Transformer
-        model_family: null
-        total_parameter_count: 44606560
-        trainable_parameter_count: 44606560
-        total_layers: 595
-        trainable_layers: 132
-        model_size_mb: 178.43
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/custom_model_cv_18_dagger_408
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  custom_model_cv_18_dagger_408:
+    legacy:
+      architecture: DCNN, Transformer
+      total_parameter_count: 44606560
+      trainable_parameter_count: 44606560
+      total_layers: 595
+      trainable_layers: 132
+      model_size_mb: 178.43
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/custom_model_cv_18_dagger_408
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 44606560
+      trainable_layers: '132'
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/custom_model_cv_18_dagger_408

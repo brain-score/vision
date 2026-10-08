@@ -1,15 +1,42 @@
+schema_version: '2.0'
+domain: vision
 models:
-    yudixie_resnet18_distance_translation_0_240719:
-        architecture: DCNN
-        model_family: resnet
-        total_parameter_count: 11522274
-        trainable_parameter_count: 11522274
-        total_layers: 68
-        trainable_layers: 21
-        model_size_mb: 46.09
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/yudixie_resnet18_240719_3
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  yudixie_resnet18_distance_translation_0_240719:
+    legacy:
+      architecture: DCNN
+      model_family: resnet
+      total_parameter_count: 11522274
+      trainable_parameter_count: 11522274
+      total_layers: 68
+      trainable_layers: 21
+      model_size_mb: 46.09
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/yudixie_resnet18_240719_3
+      runnable: true
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture
+      status: probable
+      sources:
+      - legacy
+    model:
+      parameter_count: 11522274
+      trainable_layers: '21'
+      architecture:
+        family: convolutional_neural_network
+    provenance:
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/yudixie_resnet18_240719_3

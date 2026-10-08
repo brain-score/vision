@@ -214,3 +214,7 @@ models:
       - identifier: standard-torchvision-resnet-50
         name: Standard torchvision ResNet-50
         relationship: fine_tuned_from
+    legacy:
+      architecture: DCNN
+      total_parameter_count: 25600000
+      runnable: true

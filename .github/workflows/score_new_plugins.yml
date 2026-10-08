@@ -54,7 +54,9 @@ jobs:
           python -m pip install --upgrade pip setuptools
           python -m pip install ".[test]"
           [[ "$CORE_REF" =~ ^[0-9a-f]{40}$ ]] || { echo 'CORE_REF must be a full core commit SHA'; exit 1; }
+          python -m pip uninstall -y brainscore-core
           python -m pip install "brainscore_core @ git+https://github.com/brain-score/core.git@${CORE_REF}"
+          python -c "import brainscore_core.metadata"
 
       - name: Save changed files to env var
         run: |
@@ -286,7 +288,9 @@ jobs:
           python -m pip install --upgrade pip setuptools
           python -m pip install "."
           [[ "$CORE_REF" =~ ^[0-9a-f]{40}$ ]] || { echo 'CORE_REF must be a full core commit SHA'; exit 1; }
+          python -m pip uninstall -y brainscore-core
           python -m pip install "brainscore_core @ git+https://github.com/brain-score/core.git@${CORE_REF}"
+          python -c "import brainscore_core.metadata"
 
       - name: Run scoring
         # Import the trigger from the lightweight ``submission.jenkins`` module

@@ -29,6 +29,8 @@ models:
       sources:
       - legacy
     model:
+      architecture:
+        family: vision_transformer
       parameter_count: 44606560
       trainable_layers: '132'
     provenance:

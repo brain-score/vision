@@ -30,6 +30,8 @@ models:
       sources:
       - legacy
     model:
+      architecture:
+        family: hybrid_convolutional_transformer
       parameter_count: 5578632
       trainable_layers: '90'
     provenance:

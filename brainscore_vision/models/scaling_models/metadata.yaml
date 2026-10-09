@@ -1201,7 +1201,7 @@ models:
       parameter_count: 197767336
       trainable_layers: '149'
       architecture:
-        family: DCNN, Transformer
+        family: convolutional_neural_network
     provenance:
       source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
   convnext_small_imagenet_100_seed-0:
@@ -1244,7 +1244,7 @@ models:
       parameter_count: 50223688
       trainable_layers: '149'
       architecture:
-        family: DCNN, Transformer
+        family: convolutional_neural_network
     provenance:
       source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
   convnext_small_imagenet_10_seed-0:
@@ -1287,7 +1287,7 @@ models:
       parameter_count: 50223688
       trainable_layers: '149'
       architecture:
-        family: DCNN, Transformer
+        family: convolutional_neural_network
     provenance:
       source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
   convnext_small_imagenet_1_seed-0:
@@ -1330,7 +1330,7 @@ models:
       parameter_count: 50223688
       trainable_layers: '149'
       architecture:
-        family: DCNN, Transformer
+        family: convolutional_neural_network
     provenance:
       source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
   convnext_small_imagenet_full_seed-0:
@@ -1373,7 +1373,7 @@ models:
       parameter_count: 50223688
       trainable_layers: '149'
       architecture:
-        family: DCNN, Transformer
+        family: convolutional_neural_network
     provenance:
       source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
   convnext_tiny_imagenet_full_seed-0:
@@ -1633,7 +1633,7 @@ models:
       parameter_count: 86585320
       trainable_layers: '52'
       architecture:
-        family: DCNN, Transformer
+        family: vision_transformer
     provenance:
       source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
   deit_large_imagenet_full_seed-0:
@@ -1676,7 +1676,7 @@ models:
       parameter_count: 304374760
       trainable_layers: '100'
       architecture:
-        family: DCNN, Transformer
+        family: vision_transformer
     provenance:
       source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
   deit_small_imagenet_100_seed-0:
@@ -1719,7 +1719,7 @@ models:
       parameter_count: 22059496
       trainable_layers: '52'
       architecture:
-        family: DCNN, Transformer
+        family: vision_transformer
     provenance:
       source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
   deit_small_imagenet_10_seed-0:
@@ -1762,7 +1762,7 @@ models:
       parameter_count: 22059496
       trainable_layers: '52'
       architecture:
-        family: DCNN, Transformer
+        family: vision_transformer
     provenance:
       source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
   deit_small_imagenet_1_seed-0:
@@ -1805,7 +1805,7 @@ models:
       parameter_count: 22059496
       trainable_layers: '52'
       architecture:
-        family: DCNN, Transformer
+        family: vision_transformer
     provenance:
       source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
   deit_small_imagenet_full_seed-0:
@@ -1848,7 +1848,7 @@ models:
       parameter_count: 22059496
       trainable_layers: '52'
       architecture:
-        family: DCNN, Transformer
+        family: vision_transformer
     provenance:
       source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scaling_models
   efficientnet_b0_imagenet_full:

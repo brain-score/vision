@@ -13,30 +13,239 @@ models:
       brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_training_seed_04
       runnable: true
     sources:
+      plugin:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_training_seed_04
+        citation: Plugin code (model.py, __init__.py)
+      weights_check:
+        kind: other
+        citation: Per-layer check of every shipped training_seed checkpoint against
+          PyTorch default initialization bounds (2026-10-09); method and results are
+          in the vision PR that added this source
+      issue_2459:
+        kind: other
+        url: https://github.com/brain-score/vision/issues/2459
+        citation: 'Issue #2459: the shipped training_seed_01 weights are an untrained
+          random initialization (chance ImageNet accuracy), confirmed by a maintainer'
+      pr_1761:
+        kind: other
+        url: https://github.com/brain-score/vision/pull/1761
+        citation: 'PR #1761 that added the training seed models (no description)'
+      mehrer_2020:
+        kind: other
+        url: https://osf.io/3xupm
+        citation: Mehrer, J. (2020). Individual differences among deep neural network
+          models. OSF. Cited by the plugin as the source model.
       legacy:
         kind: unreviewed
         citation: Existing plugin metadata; primary sources need review.
     assertions:
-    - path: /model/parameter_count
-      status: probable
+    - path: /model/display_name
+      status: verified
       sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
+      - plugin
+    - path: /model/version
+      status: verified
       sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
+      - plugin
+      - weights_check
     - path: /model/architecture
+      status: verified
+      sources:
+      - plugin
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - plugin
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - plugin
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - plugin
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - plugin
+    - path: /model/supervision
+      status: uncertain
+      sources:
+      - mehrer_2020
+      - weights_check
+    - path: /training/process
+      status: verified
+      sources:
+      - weights_check
+      - issue_2459
+      - mehrer_2020
+    - path: /training/objective
+      status: undocumented
+      sources:
+      - weights_check
+    - path: /training/loss
+      status: undocumented
+      sources:
+      - weights_check
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - weights_check
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - weights_check
+    - path: /training/preprocessing
+      status: verified
+      sources:
+      - plugin
+      - issue_2459
+    - path: /data/summary
+      status: undocumented
+      sources:
+      - weights_check
+    - path: /data/training_datasets
+      status: undocumented
+      sources:
+      - weights_check
+    - path: /io
+      status: verified
+      sources:
+      - plugin
+    - path: /provenance/weights_provider
+      status: verified
+      sources:
+      - plugin
+      - pr_1761
+    - path: /provenance/checkpoint
+      status: verified
+      sources:
+      - plugin
+      - weights_check
+    - path: /provenance/source_url
+      status: verified
+      sources:
+      - plugin
+    - path: /legal/license
+      status: undocumented
+      sources:
+      - pr_1761
+    - path: /eval/test_datasets
+      status: undocumented
+      sources:
+      - pr_1761
+    - path: /eval/validation_datasets
+      status: undocumented
+      sources:
+      - pr_1761
+    - path: /use/applications
+      status: undocumented
+      sources:
+      - pr_1761
+    - path: /use/users
+      status: undocumented
+      sources:
+      - pr_1761
+    - path: /use/biases
+      status: undocumented
+      sources:
+      - weights_check
+    - path: /use/limitations
+      status: verified
+      sources:
+      - weights_check
+      - issue_2459
+      - plugin
+    - path: /people/creators
+      status: undocumented
+      sources:
+      - pr_1761
+    - path: /people/organizations
+      status: undocumented
+      sources:
+      - pr_1761
+    - path: /lineage/base_models
       status: probable
       sources:
-      - legacy
+      - plugin
     model:
-      parameter_count: 50303912
-      trainable_layers: '8'
+      display_name: alexnet_training_seed_04
+      version: training seed 04 checkpoint as shipped (untrained random initialization)
       architecture:
         family: convolutional_neural_network
+        description: 'AlexNetV2 (TF-slim alexnet_v2 layout) in PyTorch, not torchvision
+          AlexNet: conv1 11x11 stride 4 (64), conv2 5x5 (192), conv3-conv5 3x3 (384,
+          384, 256), ReLU, three 3x3 stride-2 max-pools, no local response normalization;
+          fc6-fc8 are convolutions (5x5 to 4096, 1x1 to 4096, 1x1 to 1000) with dropout
+          0.5.'
+      parameter_count: 50303912
+      parameter_count_exact: true
+      trainable_layers: '8'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: null
+        description: 'Intended: supervised ImageNet classification, per the plugin
+          citation (Mehrer 2020). The shipped weights received no training.'
+    training:
+      process: 'Not trained. The checkpoint the plugin loads (S3 brainscorevariability,
+        models/model_weights/training_seed_04.pth, sha1 1659290229b7712ee450e6805f4a8a880ecb2a97)
+        matches PyTorch default initialization in every layer: all weights and biases
+        lie within +/-1/sqrt(fan_in) and each weight std is within 1% of the uniform-init
+        value (trained torchvision AlexNet exceeds the bound 7-89x). Issue #2459 found
+        the same for seed 01 (chance ImageNet top-1). The identifier and the plugin
+        citation (Mehrer 2020, Individual differences among deep neural network models)
+        indicate the intended models are TF-slim alexnet_v2 networks trained from
+        different random seeds; trained checkpoints are on OSF (osf.io/3xupm), and
+        the plugin does not load them. Which OSF checkpoint corresponds to each seed
+        number is undocumented.'
+      objective: null
+      loss: null
+      learning_rate: null
+      batch_size: null
+      preprocessing: 'Brain-Score wrapper: resize to 224x224, then ImageNet mean/std
+        normalization (load_preprocess_images). The original TF-slim networks expect
+        inputs scaled to [-1, 1] (issue #2459).'
+    data:
+      summary: null
+      training_datasets: []
+    io:
+      modality: image
+      interface: image, classification_logits
+      input_format: image
+      output_format: classification_logits
+      tokenizer: null
     provenance:
+      weights_provider: 'Brain-Score S3 bucket brainscorevariability (added in vision
+        PR #1761)'
+      checkpoint: models/model_weights/training_seed_04.pth, sha1 1659290229b7712ee450e6805f4a8a880ecb2a97
+        (untrained random initialization)
       source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_training_seed_04
+      curation_confidence: null
+    legal:
+      license: null
+    eval:
+      test_datasets: []
+      validation_datasets: []
+    use:
+      applications: []
+      biases: []
+      users: []
+      limitations:
+      - Weights are an untrained random initialization, so scores reflect the architecture,
+        not a trained network
+      - Not the trained Mehrer (2020) network that the identifier and citation imply
+      - Preprocessing (ImageNet mean/std) differs from the original networks' [-1,
+        1] inputs
+    people:
+      creators: []
+      organizations: []
+    lineage:
+      base_models:
+      - identifier: alexnet
+        name: AlexNet
+        relationship: variant_of

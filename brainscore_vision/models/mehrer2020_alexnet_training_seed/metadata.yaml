@@ -1,0 +1,3349 @@
+schema_version: '2.0'
+domain: vision
+models:
+  mehrer2020_alexnet_training_seed_01:
+    legacy:
+      architecture: DCNN
+      model_family: alexnet
+      total_parameter_count: 50303912
+      trainable_parameter_count: 50303912
+      total_layers: 23
+      trainable_layers: 8
+      model_size_mb: 201.22
+      training_dataset: ImageNet
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      paper:
+        kind: paper
+        url: https://doi.org/10.1038/s41467-020-19632-w
+        citation: Mehrer, Spoerer, Kriegeskorte, Kietzmann (2020). Individual differences
+          among deep neural network models. Nature Communications 11.
+      osf:
+        kind: other
+        url: https://osf.io/3xupm
+        citation: 'Mehrer et al. (2020) OSF project: AlexNet/training_seed_XX/model.ckpt_epoch89
+          checkpoints and the TF-slim alexnet_v2 model code'
+      plugin:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+        citation: Plugin code (model.py, __init__.py)
+      conversion:
+        kind: other
+        citation: Conversion and evaluation of the OSF checkpoints (2026-10-09); method
+          and results are in the vision PR that added this source
+      issue_2459:
+        kind: other
+        url: https://github.com/brain-score/vision/issues/2459
+        citation: 'Issue #2459: the previous training_seed checkpoints were an untrained
+          random initialization; the trained networks are on OSF'
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/display_name
+      status: verified
+      sources:
+      - plugin
+    - path: /model/version
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /model/architecture
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - plugin
+      - conversion
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - plugin
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - plugin
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/supervision
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /training/process
+      status: verified
+      sources:
+      - osf
+      - paper
+      - conversion
+      - issue_2459
+    - path: /training/objective
+      status: probable
+      sources:
+      - osf
+      - conversion
+    - path: /training/loss
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/preprocessing
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /data/summary
+      status: undocumented
+      sources:
+      - osf
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /io
+      status: verified
+      sources:
+      - plugin
+    - path: /provenance
+      status: verified
+      sources:
+      - osf
+      - conversion
+      - plugin
+    - path: /legal/license
+      status: undocumented
+      sources:
+      - osf
+    - path: /eval/test_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /eval/validation_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/applications
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/users
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/biases
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/limitations
+      status: verified
+      sources:
+      - conversion
+      - plugin
+    - path: /people/creators
+      status: verified
+      sources:
+      - paper
+    - path: /people/organizations
+      status: undocumented
+      sources:
+      - paper
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - osf
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - plugin
+    model:
+      display_name: mehrer2020_alexnet_training_seed_01
+      version: Mehrer et al. (2020) AlexNet, ImageNet-trained, OSF training_seed_01
+      architecture:
+        family: convolutional_neural_network
+        description: 'AlexNetV2 (TF-slim alexnet_v2 layout) in PyTorch, not torchvision
+          AlexNet: conv1 11x11 stride 4 (64), conv2 5x5 (192), conv3-conv5 3x3 (384,
+          384, 256), ReLU, three 3x3 stride-2 max-pools, no local response normalization;
+          fc6-fc8 are convolutions (5x5 to 4096, 1x1 to 4096, 1x1 to the class count)
+          with dropout 0.5.'
+      parameter_count: 50303912
+      parameter_count_exact: true
+      trainable_layers: '8'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: Supervised image classification on ImageNet (ILSVRC-2012, 1000
+          classes)
+      visual_degrees: null
+      visual_degrees_description: null
+    training:
+      process: 'Trained by Mehrer et al. (2020) in TensorFlow (TF-slim alexnet_v2)
+        on ImageNet (ILSVRC-2012, 1000 classes); OSF checkpoint AlexNet/training_seed_01/model.ckpt_epoch89,
+        which also holds momentum-optimizer slots. The networks in the paper differ
+        in random seed. Converted to PyTorch by transposing each kernel from HWIO
+        to OIHW (8 layers, 16 tensors, exact key match). Measured after conversion:
+        ImageNet top-1 55.0%, top-5 77.4% on a 1,980-image ILSVRC-2012 validation
+        sample with the plugin preprocessing. The untrained alexnet_training_seed_*
+        plugins (issue #2459) remain as separate baselines.'
+      objective: image classification (1000 classes)
+      loss: null
+      learning_rate: null
+      batch_size: null
+      preprocessing: 'Mehrer et al.: central square crop, bilinear resize to 224x224,
+        pixels scaled to [-1, 1]. Brain-Score wrapper: resize to 224x224, normalize
+        with mean 0.5 and std 0.5 (the same [-1, 1] range).'
+    data:
+      summary: null
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        description: null
+        role: training
+    io:
+      modality: image
+      interface: image, classification_logits
+      input_format: image
+      output_format: classification_logits (1000 ImageNet classes)
+      tokenizer: null
+    provenance:
+      weights_provider: Mehrer et al. (2020), OSF osf.io/3xupm; converted weights
+        on Brain-Score S3 (brainscore-storage)
+      checkpoint: brainscore-vision/models/mehrer2020_alexnet/training_seed_01.pth,
+        sha1 8d506ddba28237340b0d3c163a3de4cca7ca9747, converted from OSF AlexNet/training_seed_01/model.ckpt_epoch89
+      source_url: https://osf.io/3xupm
+      curation_confidence: null
+    legal:
+      license: null
+    eval:
+      test_datasets: []
+      validation_datasets: []
+    use:
+      applications: []
+      biases: []
+      users: []
+      limitations:
+      - Converted from TensorFlow; activations match the TF-slim layout, not torchvision
+        AlexNet
+    people:
+      creators:
+      - Johannes Mehrer
+      - Courtney J. Spoerer
+      - Nikolaus Kriegeskorte
+      - Tim C. Kietzmann
+      organizations: []
+    lineage:
+      base_models:
+      - identifier: alexnet
+        name: AlexNet
+        relationship: variant_of
+  mehrer2020_alexnet_training_seed_02:
+    legacy:
+      architecture: DCNN
+      model_family: alexnet
+      total_parameter_count: 50303912
+      trainable_parameter_count: 50303912
+      total_layers: 23
+      trainable_layers: 8
+      model_size_mb: 201.22
+      training_dataset: ImageNet
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      paper:
+        kind: paper
+        url: https://doi.org/10.1038/s41467-020-19632-w
+        citation: Mehrer, Spoerer, Kriegeskorte, Kietzmann (2020). Individual differences
+          among deep neural network models. Nature Communications 11.
+      osf:
+        kind: other
+        url: https://osf.io/3xupm
+        citation: 'Mehrer et al. (2020) OSF project: AlexNet/training_seed_XX/model.ckpt_epoch89
+          checkpoints and the TF-slim alexnet_v2 model code'
+      plugin:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+        citation: Plugin code (model.py, __init__.py)
+      conversion:
+        kind: other
+        citation: Conversion and evaluation of the OSF checkpoints (2026-10-09); method
+          and results are in the vision PR that added this source
+      issue_2459:
+        kind: other
+        url: https://github.com/brain-score/vision/issues/2459
+        citation: 'Issue #2459: the previous training_seed checkpoints were an untrained
+          random initialization; the trained networks are on OSF'
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/display_name
+      status: verified
+      sources:
+      - plugin
+    - path: /model/version
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /model/architecture
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - plugin
+      - conversion
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - plugin
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - plugin
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/supervision
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /training/process
+      status: verified
+      sources:
+      - osf
+      - paper
+      - conversion
+      - issue_2459
+    - path: /training/objective
+      status: probable
+      sources:
+      - osf
+      - conversion
+    - path: /training/loss
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/preprocessing
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /data/summary
+      status: undocumented
+      sources:
+      - osf
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /io
+      status: verified
+      sources:
+      - plugin
+    - path: /provenance
+      status: verified
+      sources:
+      - osf
+      - conversion
+      - plugin
+    - path: /legal/license
+      status: undocumented
+      sources:
+      - osf
+    - path: /eval/test_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /eval/validation_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/applications
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/users
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/biases
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/limitations
+      status: verified
+      sources:
+      - conversion
+      - plugin
+    - path: /people/creators
+      status: verified
+      sources:
+      - paper
+    - path: /people/organizations
+      status: undocumented
+      sources:
+      - paper
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - osf
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - plugin
+    model:
+      display_name: mehrer2020_alexnet_training_seed_02
+      version: Mehrer et al. (2020) AlexNet, ImageNet-trained, OSF training_seed_02
+      architecture:
+        family: convolutional_neural_network
+        description: 'AlexNetV2 (TF-slim alexnet_v2 layout) in PyTorch, not torchvision
+          AlexNet: conv1 11x11 stride 4 (64), conv2 5x5 (192), conv3-conv5 3x3 (384,
+          384, 256), ReLU, three 3x3 stride-2 max-pools, no local response normalization;
+          fc6-fc8 are convolutions (5x5 to 4096, 1x1 to 4096, 1x1 to the class count)
+          with dropout 0.5.'
+      parameter_count: 50303912
+      parameter_count_exact: true
+      trainable_layers: '8'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: Supervised image classification on ImageNet (ILSVRC-2012, 1000
+          classes)
+      visual_degrees: null
+      visual_degrees_description: null
+    training:
+      process: 'Trained by Mehrer et al. (2020) in TensorFlow (TF-slim alexnet_v2)
+        on ImageNet (ILSVRC-2012, 1000 classes); OSF checkpoint AlexNet/training_seed_02/model.ckpt_epoch89,
+        which also holds momentum-optimizer slots. The networks in the paper differ
+        in random seed. Converted to PyTorch by transposing each kernel from HWIO
+        to OIHW (8 layers, 16 tensors, exact key match). Measured after conversion:
+        ImageNet top-1 54.6%, top-5 76.1% on a 1,980-image ILSVRC-2012 validation
+        sample with the plugin preprocessing. The untrained alexnet_training_seed_*
+        plugins (issue #2459) remain as separate baselines.'
+      objective: image classification (1000 classes)
+      loss: null
+      learning_rate: null
+      batch_size: null
+      preprocessing: 'Mehrer et al.: central square crop, bilinear resize to 224x224,
+        pixels scaled to [-1, 1]. Brain-Score wrapper: resize to 224x224, normalize
+        with mean 0.5 and std 0.5 (the same [-1, 1] range).'
+    data:
+      summary: null
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        description: null
+        role: training
+    io:
+      modality: image
+      interface: image, classification_logits
+      input_format: image
+      output_format: classification_logits (1000 ImageNet classes)
+      tokenizer: null
+    provenance:
+      weights_provider: Mehrer et al. (2020), OSF osf.io/3xupm; converted weights
+        on Brain-Score S3 (brainscore-storage)
+      checkpoint: brainscore-vision/models/mehrer2020_alexnet/training_seed_02.pth,
+        sha1 bc7a55bba943a37a782b881e3acd67b24864cdff, converted from OSF AlexNet/training_seed_02/model.ckpt_epoch89
+      source_url: https://osf.io/3xupm
+      curation_confidence: null
+    legal:
+      license: null
+    eval:
+      test_datasets: []
+      validation_datasets: []
+    use:
+      applications: []
+      biases: []
+      users: []
+      limitations:
+      - Converted from TensorFlow; activations match the TF-slim layout, not torchvision
+        AlexNet
+    people:
+      creators:
+      - Johannes Mehrer
+      - Courtney J. Spoerer
+      - Nikolaus Kriegeskorte
+      - Tim C. Kietzmann
+      organizations: []
+    lineage:
+      base_models:
+      - identifier: alexnet
+        name: AlexNet
+        relationship: variant_of
+  mehrer2020_alexnet_training_seed_03:
+    legacy:
+      architecture: DCNN
+      model_family: alexnet
+      total_parameter_count: 50303912
+      trainable_parameter_count: 50303912
+      total_layers: 23
+      trainable_layers: 8
+      model_size_mb: 201.22
+      training_dataset: ImageNet
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      paper:
+        kind: paper
+        url: https://doi.org/10.1038/s41467-020-19632-w
+        citation: Mehrer, Spoerer, Kriegeskorte, Kietzmann (2020). Individual differences
+          among deep neural network models. Nature Communications 11.
+      osf:
+        kind: other
+        url: https://osf.io/3xupm
+        citation: 'Mehrer et al. (2020) OSF project: AlexNet/training_seed_XX/model.ckpt_epoch89
+          checkpoints and the TF-slim alexnet_v2 model code'
+      plugin:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+        citation: Plugin code (model.py, __init__.py)
+      conversion:
+        kind: other
+        citation: Conversion and evaluation of the OSF checkpoints (2026-10-09); method
+          and results are in the vision PR that added this source
+      issue_2459:
+        kind: other
+        url: https://github.com/brain-score/vision/issues/2459
+        citation: 'Issue #2459: the previous training_seed checkpoints were an untrained
+          random initialization; the trained networks are on OSF'
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/display_name
+      status: verified
+      sources:
+      - plugin
+    - path: /model/version
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /model/architecture
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - plugin
+      - conversion
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - plugin
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - plugin
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/supervision
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /training/process
+      status: verified
+      sources:
+      - osf
+      - paper
+      - conversion
+      - issue_2459
+    - path: /training/objective
+      status: probable
+      sources:
+      - osf
+      - conversion
+    - path: /training/loss
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/preprocessing
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /data/summary
+      status: undocumented
+      sources:
+      - osf
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /io
+      status: verified
+      sources:
+      - plugin
+    - path: /provenance
+      status: verified
+      sources:
+      - osf
+      - conversion
+      - plugin
+    - path: /legal/license
+      status: undocumented
+      sources:
+      - osf
+    - path: /eval/test_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /eval/validation_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/applications
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/users
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/biases
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/limitations
+      status: verified
+      sources:
+      - conversion
+      - plugin
+    - path: /people/creators
+      status: verified
+      sources:
+      - paper
+    - path: /people/organizations
+      status: undocumented
+      sources:
+      - paper
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - osf
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - plugin
+    model:
+      display_name: mehrer2020_alexnet_training_seed_03
+      version: Mehrer et al. (2020) AlexNet, ImageNet-trained, OSF training_seed_03
+      architecture:
+        family: convolutional_neural_network
+        description: 'AlexNetV2 (TF-slim alexnet_v2 layout) in PyTorch, not torchvision
+          AlexNet: conv1 11x11 stride 4 (64), conv2 5x5 (192), conv3-conv5 3x3 (384,
+          384, 256), ReLU, three 3x3 stride-2 max-pools, no local response normalization;
+          fc6-fc8 are convolutions (5x5 to 4096, 1x1 to 4096, 1x1 to the class count)
+          with dropout 0.5.'
+      parameter_count: 50303912
+      parameter_count_exact: true
+      trainable_layers: '8'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: Supervised image classification on ImageNet (ILSVRC-2012, 1000
+          classes)
+      visual_degrees: null
+      visual_degrees_description: null
+    training:
+      process: 'Trained by Mehrer et al. (2020) in TensorFlow (TF-slim alexnet_v2)
+        on ImageNet (ILSVRC-2012, 1000 classes); OSF checkpoint AlexNet/training_seed_03/model.ckpt_epoch89,
+        which also holds momentum-optimizer slots. The networks in the paper differ
+        in random seed. Converted to PyTorch by transposing each kernel from HWIO
+        to OIHW (8 layers, 16 tensors, exact key match). Measured after conversion:
+        ImageNet top-1 54.4%, top-5 77.0% on a 1,980-image ILSVRC-2012 validation
+        sample with the plugin preprocessing. The untrained alexnet_training_seed_*
+        plugins (issue #2459) remain as separate baselines.'
+      objective: image classification (1000 classes)
+      loss: null
+      learning_rate: null
+      batch_size: null
+      preprocessing: 'Mehrer et al.: central square crop, bilinear resize to 224x224,
+        pixels scaled to [-1, 1]. Brain-Score wrapper: resize to 224x224, normalize
+        with mean 0.5 and std 0.5 (the same [-1, 1] range).'
+    data:
+      summary: null
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        description: null
+        role: training
+    io:
+      modality: image
+      interface: image, classification_logits
+      input_format: image
+      output_format: classification_logits (1000 ImageNet classes)
+      tokenizer: null
+    provenance:
+      weights_provider: Mehrer et al. (2020), OSF osf.io/3xupm; converted weights
+        on Brain-Score S3 (brainscore-storage)
+      checkpoint: brainscore-vision/models/mehrer2020_alexnet/training_seed_03.pth,
+        sha1 9686a3dad22f3f161b89bf8145c1f6e442eb7fde, converted from OSF AlexNet/training_seed_03/model.ckpt_epoch89
+      source_url: https://osf.io/3xupm
+      curation_confidence: null
+    legal:
+      license: null
+    eval:
+      test_datasets: []
+      validation_datasets: []
+    use:
+      applications: []
+      biases: []
+      users: []
+      limitations:
+      - Converted from TensorFlow; activations match the TF-slim layout, not torchvision
+        AlexNet
+    people:
+      creators:
+      - Johannes Mehrer
+      - Courtney J. Spoerer
+      - Nikolaus Kriegeskorte
+      - Tim C. Kietzmann
+      organizations: []
+    lineage:
+      base_models:
+      - identifier: alexnet
+        name: AlexNet
+        relationship: variant_of
+  mehrer2020_alexnet_training_seed_04:
+    legacy:
+      architecture: DCNN
+      model_family: alexnet
+      total_parameter_count: 50303912
+      trainable_parameter_count: 50303912
+      total_layers: 23
+      trainable_layers: 8
+      model_size_mb: 201.22
+      training_dataset: ImageNet
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      paper:
+        kind: paper
+        url: https://doi.org/10.1038/s41467-020-19632-w
+        citation: Mehrer, Spoerer, Kriegeskorte, Kietzmann (2020). Individual differences
+          among deep neural network models. Nature Communications 11.
+      osf:
+        kind: other
+        url: https://osf.io/3xupm
+        citation: 'Mehrer et al. (2020) OSF project: AlexNet/training_seed_XX/model.ckpt_epoch89
+          checkpoints and the TF-slim alexnet_v2 model code'
+      plugin:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+        citation: Plugin code (model.py, __init__.py)
+      conversion:
+        kind: other
+        citation: Conversion and evaluation of the OSF checkpoints (2026-10-09); method
+          and results are in the vision PR that added this source
+      issue_2459:
+        kind: other
+        url: https://github.com/brain-score/vision/issues/2459
+        citation: 'Issue #2459: the previous training_seed checkpoints were an untrained
+          random initialization; the trained networks are on OSF'
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/display_name
+      status: verified
+      sources:
+      - plugin
+    - path: /model/version
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /model/architecture
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - plugin
+      - conversion
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - plugin
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - plugin
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/supervision
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /training/process
+      status: verified
+      sources:
+      - osf
+      - paper
+      - conversion
+      - issue_2459
+    - path: /training/objective
+      status: probable
+      sources:
+      - osf
+      - conversion
+    - path: /training/loss
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/preprocessing
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /data/summary
+      status: undocumented
+      sources:
+      - osf
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /io
+      status: verified
+      sources:
+      - plugin
+    - path: /provenance
+      status: verified
+      sources:
+      - osf
+      - conversion
+      - plugin
+    - path: /legal/license
+      status: undocumented
+      sources:
+      - osf
+    - path: /eval/test_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /eval/validation_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/applications
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/users
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/biases
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/limitations
+      status: verified
+      sources:
+      - conversion
+      - plugin
+    - path: /people/creators
+      status: verified
+      sources:
+      - paper
+    - path: /people/organizations
+      status: undocumented
+      sources:
+      - paper
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - osf
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - plugin
+    model:
+      display_name: mehrer2020_alexnet_training_seed_04
+      version: Mehrer et al. (2020) AlexNet, ImageNet-trained, OSF training_seed_04
+      architecture:
+        family: convolutional_neural_network
+        description: 'AlexNetV2 (TF-slim alexnet_v2 layout) in PyTorch, not torchvision
+          AlexNet: conv1 11x11 stride 4 (64), conv2 5x5 (192), conv3-conv5 3x3 (384,
+          384, 256), ReLU, three 3x3 stride-2 max-pools, no local response normalization;
+          fc6-fc8 are convolutions (5x5 to 4096, 1x1 to 4096, 1x1 to the class count)
+          with dropout 0.5.'
+      parameter_count: 50303912
+      parameter_count_exact: true
+      trainable_layers: '8'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: Supervised image classification on ImageNet (ILSVRC-2012, 1000
+          classes)
+      visual_degrees: null
+      visual_degrees_description: null
+    training:
+      process: 'Trained by Mehrer et al. (2020) in TensorFlow (TF-slim alexnet_v2)
+        on ImageNet (ILSVRC-2012, 1000 classes); OSF checkpoint AlexNet/training_seed_04/model.ckpt_epoch89,
+        which also holds momentum-optimizer slots. The networks in the paper differ
+        in random seed. Converted to PyTorch by transposing each kernel from HWIO
+        to OIHW (8 layers, 16 tensors, exact key match). Measured after conversion:
+        ImageNet top-1 54.5%, top-5 76.8% on a 1,980-image ILSVRC-2012 validation
+        sample with the plugin preprocessing. The untrained alexnet_training_seed_*
+        plugins (issue #2459) remain as separate baselines.'
+      objective: image classification (1000 classes)
+      loss: null
+      learning_rate: null
+      batch_size: null
+      preprocessing: 'Mehrer et al.: central square crop, bilinear resize to 224x224,
+        pixels scaled to [-1, 1]. Brain-Score wrapper: resize to 224x224, normalize
+        with mean 0.5 and std 0.5 (the same [-1, 1] range).'
+    data:
+      summary: null
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        description: null
+        role: training
+    io:
+      modality: image
+      interface: image, classification_logits
+      input_format: image
+      output_format: classification_logits (1000 ImageNet classes)
+      tokenizer: null
+    provenance:
+      weights_provider: Mehrer et al. (2020), OSF osf.io/3xupm; converted weights
+        on Brain-Score S3 (brainscore-storage)
+      checkpoint: brainscore-vision/models/mehrer2020_alexnet/training_seed_04.pth,
+        sha1 b8aaec2784b0705ad1b01400025d1bdb45d2d689, converted from OSF AlexNet/training_seed_04/model.ckpt_epoch89
+      source_url: https://osf.io/3xupm
+      curation_confidence: null
+    legal:
+      license: null
+    eval:
+      test_datasets: []
+      validation_datasets: []
+    use:
+      applications: []
+      biases: []
+      users: []
+      limitations:
+      - Converted from TensorFlow; activations match the TF-slim layout, not torchvision
+        AlexNet
+    people:
+      creators:
+      - Johannes Mehrer
+      - Courtney J. Spoerer
+      - Nikolaus Kriegeskorte
+      - Tim C. Kietzmann
+      organizations: []
+    lineage:
+      base_models:
+      - identifier: alexnet
+        name: AlexNet
+        relationship: variant_of
+  mehrer2020_alexnet_training_seed_05:
+    legacy:
+      architecture: DCNN
+      model_family: alexnet
+      total_parameter_count: 50303912
+      trainable_parameter_count: 50303912
+      total_layers: 23
+      trainable_layers: 8
+      model_size_mb: 201.22
+      training_dataset: ImageNet
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      paper:
+        kind: paper
+        url: https://doi.org/10.1038/s41467-020-19632-w
+        citation: Mehrer, Spoerer, Kriegeskorte, Kietzmann (2020). Individual differences
+          among deep neural network models. Nature Communications 11.
+      osf:
+        kind: other
+        url: https://osf.io/3xupm
+        citation: 'Mehrer et al. (2020) OSF project: AlexNet/training_seed_XX/model.ckpt_epoch89
+          checkpoints and the TF-slim alexnet_v2 model code'
+      plugin:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+        citation: Plugin code (model.py, __init__.py)
+      conversion:
+        kind: other
+        citation: Conversion and evaluation of the OSF checkpoints (2026-10-09); method
+          and results are in the vision PR that added this source
+      issue_2459:
+        kind: other
+        url: https://github.com/brain-score/vision/issues/2459
+        citation: 'Issue #2459: the previous training_seed checkpoints were an untrained
+          random initialization; the trained networks are on OSF'
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/display_name
+      status: verified
+      sources:
+      - plugin
+    - path: /model/version
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /model/architecture
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - plugin
+      - conversion
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - plugin
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - plugin
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/supervision
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /training/process
+      status: verified
+      sources:
+      - osf
+      - paper
+      - conversion
+      - issue_2459
+    - path: /training/objective
+      status: probable
+      sources:
+      - osf
+      - conversion
+    - path: /training/loss
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/preprocessing
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /data/summary
+      status: undocumented
+      sources:
+      - osf
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /io
+      status: verified
+      sources:
+      - plugin
+    - path: /provenance
+      status: verified
+      sources:
+      - osf
+      - conversion
+      - plugin
+    - path: /legal/license
+      status: undocumented
+      sources:
+      - osf
+    - path: /eval/test_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /eval/validation_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/applications
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/users
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/biases
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/limitations
+      status: verified
+      sources:
+      - conversion
+      - plugin
+    - path: /people/creators
+      status: verified
+      sources:
+      - paper
+    - path: /people/organizations
+      status: undocumented
+      sources:
+      - paper
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - osf
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - plugin
+    model:
+      display_name: mehrer2020_alexnet_training_seed_05
+      version: Mehrer et al. (2020) AlexNet, ImageNet-trained, OSF training_seed_05
+      architecture:
+        family: convolutional_neural_network
+        description: 'AlexNetV2 (TF-slim alexnet_v2 layout) in PyTorch, not torchvision
+          AlexNet: conv1 11x11 stride 4 (64), conv2 5x5 (192), conv3-conv5 3x3 (384,
+          384, 256), ReLU, three 3x3 stride-2 max-pools, no local response normalization;
+          fc6-fc8 are convolutions (5x5 to 4096, 1x1 to 4096, 1x1 to the class count)
+          with dropout 0.5.'
+      parameter_count: 50303912
+      parameter_count_exact: true
+      trainable_layers: '8'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: Supervised image classification on ImageNet (ILSVRC-2012, 1000
+          classes)
+      visual_degrees: null
+      visual_degrees_description: null
+    training:
+      process: 'Trained by Mehrer et al. (2020) in TensorFlow (TF-slim alexnet_v2)
+        on ImageNet (ILSVRC-2012, 1000 classes); OSF checkpoint AlexNet/training_seed_05/model.ckpt_epoch89,
+        which also holds momentum-optimizer slots. The networks in the paper differ
+        in random seed. Converted to PyTorch by transposing each kernel from HWIO
+        to OIHW (8 layers, 16 tensors, exact key match). Measured after conversion:
+        ImageNet top-1 54.3%, top-5 77.1% on a 1,980-image ILSVRC-2012 validation
+        sample with the plugin preprocessing. The untrained alexnet_training_seed_*
+        plugins (issue #2459) remain as separate baselines.'
+      objective: image classification (1000 classes)
+      loss: null
+      learning_rate: null
+      batch_size: null
+      preprocessing: 'Mehrer et al.: central square crop, bilinear resize to 224x224,
+        pixels scaled to [-1, 1]. Brain-Score wrapper: resize to 224x224, normalize
+        with mean 0.5 and std 0.5 (the same [-1, 1] range).'
+    data:
+      summary: null
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        description: null
+        role: training
+    io:
+      modality: image
+      interface: image, classification_logits
+      input_format: image
+      output_format: classification_logits (1000 ImageNet classes)
+      tokenizer: null
+    provenance:
+      weights_provider: Mehrer et al. (2020), OSF osf.io/3xupm; converted weights
+        on Brain-Score S3 (brainscore-storage)
+      checkpoint: brainscore-vision/models/mehrer2020_alexnet/training_seed_05.pth,
+        sha1 801ea0c0c2833615de7466c3a4d891583dcd62d8, converted from OSF AlexNet/training_seed_05/model.ckpt_epoch89
+      source_url: https://osf.io/3xupm
+      curation_confidence: null
+    legal:
+      license: null
+    eval:
+      test_datasets: []
+      validation_datasets: []
+    use:
+      applications: []
+      biases: []
+      users: []
+      limitations:
+      - Converted from TensorFlow; activations match the TF-slim layout, not torchvision
+        AlexNet
+    people:
+      creators:
+      - Johannes Mehrer
+      - Courtney J. Spoerer
+      - Nikolaus Kriegeskorte
+      - Tim C. Kietzmann
+      organizations: []
+    lineage:
+      base_models:
+      - identifier: alexnet
+        name: AlexNet
+        relationship: variant_of
+  mehrer2020_alexnet_training_seed_06:
+    legacy:
+      architecture: DCNN
+      model_family: alexnet
+      total_parameter_count: 48521717
+      trainable_parameter_count: 48521717
+      total_layers: 23
+      trainable_layers: 8
+      model_size_mb: 194.09
+      training_dataset: ecoset
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      paper:
+        kind: paper
+        url: https://doi.org/10.1038/s41467-020-19632-w
+        citation: Mehrer, Spoerer, Kriegeskorte, Kietzmann (2020). Individual differences
+          among deep neural network models. Nature Communications 11.
+      osf:
+        kind: other
+        url: https://osf.io/3xupm
+        citation: 'Mehrer et al. (2020) OSF project: AlexNet/training_seed_XX/model.ckpt_epoch89
+          checkpoints and the TF-slim alexnet_v2 model code'
+      plugin:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+        citation: Plugin code (model.py, __init__.py)
+      conversion:
+        kind: other
+        citation: Conversion and evaluation of the OSF checkpoints (2026-10-09); method
+          and results are in the vision PR that added this source
+      issue_2459:
+        kind: other
+        url: https://github.com/brain-score/vision/issues/2459
+        citation: 'Issue #2459: the previous training_seed checkpoints were an untrained
+          random initialization; the trained networks are on OSF'
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/display_name
+      status: verified
+      sources:
+      - plugin
+    - path: /model/version
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /model/architecture
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - plugin
+      - conversion
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - plugin
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - plugin
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/supervision
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /training/process
+      status: verified
+      sources:
+      - osf
+      - paper
+      - conversion
+      - issue_2459
+    - path: /training/objective
+      status: probable
+      sources:
+      - osf
+      - conversion
+    - path: /training/loss
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/preprocessing
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /data/summary
+      status: undocumented
+      sources:
+      - osf
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /io
+      status: verified
+      sources:
+      - plugin
+    - path: /provenance
+      status: verified
+      sources:
+      - osf
+      - conversion
+      - plugin
+    - path: /legal/license
+      status: undocumented
+      sources:
+      - osf
+    - path: /eval/test_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /eval/validation_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/applications
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/users
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/biases
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/limitations
+      status: verified
+      sources:
+      - conversion
+      - plugin
+    - path: /people/creators
+      status: verified
+      sources:
+      - paper
+    - path: /people/organizations
+      status: undocumented
+      sources:
+      - paper
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - osf
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - plugin
+    model:
+      display_name: mehrer2020_alexnet_training_seed_06
+      version: Mehrer et al. (2020) AlexNet, ecoset-trained, OSF training_seed_06
+      architecture:
+        family: convolutional_neural_network
+        description: 'AlexNetV2 (TF-slim alexnet_v2 layout) in PyTorch, not torchvision
+          AlexNet: conv1 11x11 stride 4 (64), conv2 5x5 (192), conv3-conv5 3x3 (384,
+          384, 256), ReLU, three 3x3 stride-2 max-pools, no local response normalization;
+          fc6-fc8 are convolutions (5x5 to 4096, 1x1 to 4096, 1x1 to the class count)
+          with dropout 0.5.'
+      parameter_count: 48521717
+      parameter_count_exact: true
+      trainable_layers: '8'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: Supervised image classification on ecoset (565 classes)
+      visual_degrees: null
+      visual_degrees_description: null
+    training:
+      process: 'Trained by Mehrer et al. (2020) in TensorFlow (TF-slim alexnet_v2)
+        on ecoset (565 classes); OSF checkpoint AlexNet/training_seed_06/model.ckpt_epoch89,
+        which also holds momentum-optimizer slots. The networks in the paper differ
+        in random seed. Converted to PyTorch by transposing each kernel from HWIO
+        to OIHW (8 layers, 16 tensors, exact key match). Measured after conversion:
+        ecoset accuracy not measured (the ecoset test set was not available); on ImageNet
+        images its top-1 predictions agree 62-65% with the other ecoset seeds (chance
+        0.2%). The untrained alexnet_training_seed_* plugins (issue #2459) remain
+        as separate baselines.'
+      objective: image classification (565 classes)
+      loss: null
+      learning_rate: null
+      batch_size: null
+      preprocessing: 'Mehrer et al.: central square crop, bilinear resize to 224x224,
+        pixels scaled to [-1, 1]. Brain-Score wrapper: resize to 224x224, normalize
+        with mean 0.5 and std 0.5 (the same [-1, 1] range).'
+    data:
+      summary: null
+      training_datasets:
+      - identifier: other
+        name: ecoset
+        description: 565 basic-level categories
+        role: training
+    io:
+      modality: image
+      interface: image, classification_logits
+      input_format: image
+      output_format: classification_logits (565 ecoset classes)
+      tokenizer: null
+    provenance:
+      weights_provider: Mehrer et al. (2020), OSF osf.io/3xupm; converted weights
+        on Brain-Score S3 (brainscore-storage)
+      checkpoint: brainscore-vision/models/mehrer2020_alexnet/training_seed_06.pth,
+        sha1 247ff566c9a74f942866bbe05b667417fe4543ac, converted from OSF AlexNet/training_seed_06/model.ckpt_epoch89
+      source_url: https://osf.io/3xupm
+      curation_confidence: null
+    legal:
+      license: null
+    eval:
+      test_datasets: []
+      validation_datasets: []
+    use:
+      applications: []
+      biases: []
+      users: []
+      limitations:
+      - Converted from TensorFlow; activations match the TF-slim layout, not torchvision
+        AlexNet
+      - Outputs 565 ecoset classes, not the 1000 ImageNet classes
+    people:
+      creators:
+      - Johannes Mehrer
+      - Courtney J. Spoerer
+      - Nikolaus Kriegeskorte
+      - Tim C. Kietzmann
+      organizations: []
+    lineage:
+      base_models:
+      - identifier: alexnet
+        name: AlexNet
+        relationship: variant_of
+  mehrer2020_alexnet_training_seed_07:
+    legacy:
+      architecture: DCNN
+      model_family: alexnet
+      total_parameter_count: 48521717
+      trainable_parameter_count: 48521717
+      total_layers: 23
+      trainable_layers: 8
+      model_size_mb: 194.09
+      training_dataset: ecoset
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      paper:
+        kind: paper
+        url: https://doi.org/10.1038/s41467-020-19632-w
+        citation: Mehrer, Spoerer, Kriegeskorte, Kietzmann (2020). Individual differences
+          among deep neural network models. Nature Communications 11.
+      osf:
+        kind: other
+        url: https://osf.io/3xupm
+        citation: 'Mehrer et al. (2020) OSF project: AlexNet/training_seed_XX/model.ckpt_epoch89
+          checkpoints and the TF-slim alexnet_v2 model code'
+      plugin:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+        citation: Plugin code (model.py, __init__.py)
+      conversion:
+        kind: other
+        citation: Conversion and evaluation of the OSF checkpoints (2026-10-09); method
+          and results are in the vision PR that added this source
+      issue_2459:
+        kind: other
+        url: https://github.com/brain-score/vision/issues/2459
+        citation: 'Issue #2459: the previous training_seed checkpoints were an untrained
+          random initialization; the trained networks are on OSF'
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/display_name
+      status: verified
+      sources:
+      - plugin
+    - path: /model/version
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /model/architecture
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - plugin
+      - conversion
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - plugin
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - plugin
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/supervision
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /training/process
+      status: verified
+      sources:
+      - osf
+      - paper
+      - conversion
+      - issue_2459
+    - path: /training/objective
+      status: probable
+      sources:
+      - osf
+      - conversion
+    - path: /training/loss
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/preprocessing
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /data/summary
+      status: undocumented
+      sources:
+      - osf
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /io
+      status: verified
+      sources:
+      - plugin
+    - path: /provenance
+      status: verified
+      sources:
+      - osf
+      - conversion
+      - plugin
+    - path: /legal/license
+      status: undocumented
+      sources:
+      - osf
+    - path: /eval/test_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /eval/validation_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/applications
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/users
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/biases
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/limitations
+      status: verified
+      sources:
+      - conversion
+      - plugin
+    - path: /people/creators
+      status: verified
+      sources:
+      - paper
+    - path: /people/organizations
+      status: undocumented
+      sources:
+      - paper
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - osf
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - plugin
+    model:
+      display_name: mehrer2020_alexnet_training_seed_07
+      version: Mehrer et al. (2020) AlexNet, ecoset-trained, OSF training_seed_07
+      architecture:
+        family: convolutional_neural_network
+        description: 'AlexNetV2 (TF-slim alexnet_v2 layout) in PyTorch, not torchvision
+          AlexNet: conv1 11x11 stride 4 (64), conv2 5x5 (192), conv3-conv5 3x3 (384,
+          384, 256), ReLU, three 3x3 stride-2 max-pools, no local response normalization;
+          fc6-fc8 are convolutions (5x5 to 4096, 1x1 to 4096, 1x1 to the class count)
+          with dropout 0.5.'
+      parameter_count: 48521717
+      parameter_count_exact: true
+      trainable_layers: '8'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: Supervised image classification on ecoset (565 classes)
+      visual_degrees: null
+      visual_degrees_description: null
+    training:
+      process: 'Trained by Mehrer et al. (2020) in TensorFlow (TF-slim alexnet_v2)
+        on ecoset (565 classes); OSF checkpoint AlexNet/training_seed_07/model.ckpt_epoch89,
+        which also holds momentum-optimizer slots. The networks in the paper differ
+        in random seed. Converted to PyTorch by transposing each kernel from HWIO
+        to OIHW (8 layers, 16 tensors, exact key match). Measured after conversion:
+        ecoset accuracy not measured (the ecoset test set was not available); on ImageNet
+        images its top-1 predictions agree 62-65% with the other ecoset seeds (chance
+        0.2%). The untrained alexnet_training_seed_* plugins (issue #2459) remain
+        as separate baselines.'
+      objective: image classification (565 classes)
+      loss: null
+      learning_rate: null
+      batch_size: null
+      preprocessing: 'Mehrer et al.: central square crop, bilinear resize to 224x224,
+        pixels scaled to [-1, 1]. Brain-Score wrapper: resize to 224x224, normalize
+        with mean 0.5 and std 0.5 (the same [-1, 1] range).'
+    data:
+      summary: null
+      training_datasets:
+      - identifier: other
+        name: ecoset
+        description: 565 basic-level categories
+        role: training
+    io:
+      modality: image
+      interface: image, classification_logits
+      input_format: image
+      output_format: classification_logits (565 ecoset classes)
+      tokenizer: null
+    provenance:
+      weights_provider: Mehrer et al. (2020), OSF osf.io/3xupm; converted weights
+        on Brain-Score S3 (brainscore-storage)
+      checkpoint: brainscore-vision/models/mehrer2020_alexnet/training_seed_07.pth,
+        sha1 4d9a8333ce1d12f5076b8194079cd3ba101ce9c4, converted from OSF AlexNet/training_seed_07/model.ckpt_epoch89
+      source_url: https://osf.io/3xupm
+      curation_confidence: null
+    legal:
+      license: null
+    eval:
+      test_datasets: []
+      validation_datasets: []
+    use:
+      applications: []
+      biases: []
+      users: []
+      limitations:
+      - Converted from TensorFlow; activations match the TF-slim layout, not torchvision
+        AlexNet
+      - Outputs 565 ecoset classes, not the 1000 ImageNet classes
+    people:
+      creators:
+      - Johannes Mehrer
+      - Courtney J. Spoerer
+      - Nikolaus Kriegeskorte
+      - Tim C. Kietzmann
+      organizations: []
+    lineage:
+      base_models:
+      - identifier: alexnet
+        name: AlexNet
+        relationship: variant_of
+  mehrer2020_alexnet_training_seed_08:
+    legacy:
+      architecture: DCNN
+      model_family: alexnet
+      total_parameter_count: 48521717
+      trainable_parameter_count: 48521717
+      total_layers: 23
+      trainable_layers: 8
+      model_size_mb: 194.09
+      training_dataset: ecoset
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      paper:
+        kind: paper
+        url: https://doi.org/10.1038/s41467-020-19632-w
+        citation: Mehrer, Spoerer, Kriegeskorte, Kietzmann (2020). Individual differences
+          among deep neural network models. Nature Communications 11.
+      osf:
+        kind: other
+        url: https://osf.io/3xupm
+        citation: 'Mehrer et al. (2020) OSF project: AlexNet/training_seed_XX/model.ckpt_epoch89
+          checkpoints and the TF-slim alexnet_v2 model code'
+      plugin:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+        citation: Plugin code (model.py, __init__.py)
+      conversion:
+        kind: other
+        citation: Conversion and evaluation of the OSF checkpoints (2026-10-09); method
+          and results are in the vision PR that added this source
+      issue_2459:
+        kind: other
+        url: https://github.com/brain-score/vision/issues/2459
+        citation: 'Issue #2459: the previous training_seed checkpoints were an untrained
+          random initialization; the trained networks are on OSF'
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/display_name
+      status: verified
+      sources:
+      - plugin
+    - path: /model/version
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /model/architecture
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - plugin
+      - conversion
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - plugin
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - plugin
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/supervision
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /training/process
+      status: verified
+      sources:
+      - osf
+      - paper
+      - conversion
+      - issue_2459
+    - path: /training/objective
+      status: probable
+      sources:
+      - osf
+      - conversion
+    - path: /training/loss
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/preprocessing
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /data/summary
+      status: undocumented
+      sources:
+      - osf
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /io
+      status: verified
+      sources:
+      - plugin
+    - path: /provenance
+      status: verified
+      sources:
+      - osf
+      - conversion
+      - plugin
+    - path: /legal/license
+      status: undocumented
+      sources:
+      - osf
+    - path: /eval/test_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /eval/validation_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/applications
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/users
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/biases
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/limitations
+      status: verified
+      sources:
+      - conversion
+      - plugin
+    - path: /people/creators
+      status: verified
+      sources:
+      - paper
+    - path: /people/organizations
+      status: undocumented
+      sources:
+      - paper
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - osf
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - plugin
+    model:
+      display_name: mehrer2020_alexnet_training_seed_08
+      version: Mehrer et al. (2020) AlexNet, ecoset-trained, OSF training_seed_08
+      architecture:
+        family: convolutional_neural_network
+        description: 'AlexNetV2 (TF-slim alexnet_v2 layout) in PyTorch, not torchvision
+          AlexNet: conv1 11x11 stride 4 (64), conv2 5x5 (192), conv3-conv5 3x3 (384,
+          384, 256), ReLU, three 3x3 stride-2 max-pools, no local response normalization;
+          fc6-fc8 are convolutions (5x5 to 4096, 1x1 to 4096, 1x1 to the class count)
+          with dropout 0.5.'
+      parameter_count: 48521717
+      parameter_count_exact: true
+      trainable_layers: '8'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: Supervised image classification on ecoset (565 classes)
+      visual_degrees: null
+      visual_degrees_description: null
+    training:
+      process: 'Trained by Mehrer et al. (2020) in TensorFlow (TF-slim alexnet_v2)
+        on ecoset (565 classes); OSF checkpoint AlexNet/training_seed_08/model.ckpt_epoch89,
+        which also holds momentum-optimizer slots. The networks in the paper differ
+        in random seed. Converted to PyTorch by transposing each kernel from HWIO
+        to OIHW (8 layers, 16 tensors, exact key match). Measured after conversion:
+        ecoset accuracy not measured (the ecoset test set was not available); on ImageNet
+        images its top-1 predictions agree 62-65% with the other ecoset seeds (chance
+        0.2%). The untrained alexnet_training_seed_* plugins (issue #2459) remain
+        as separate baselines.'
+      objective: image classification (565 classes)
+      loss: null
+      learning_rate: null
+      batch_size: null
+      preprocessing: 'Mehrer et al.: central square crop, bilinear resize to 224x224,
+        pixels scaled to [-1, 1]. Brain-Score wrapper: resize to 224x224, normalize
+        with mean 0.5 and std 0.5 (the same [-1, 1] range).'
+    data:
+      summary: null
+      training_datasets:
+      - identifier: other
+        name: ecoset
+        description: 565 basic-level categories
+        role: training
+    io:
+      modality: image
+      interface: image, classification_logits
+      input_format: image
+      output_format: classification_logits (565 ecoset classes)
+      tokenizer: null
+    provenance:
+      weights_provider: Mehrer et al. (2020), OSF osf.io/3xupm; converted weights
+        on Brain-Score S3 (brainscore-storage)
+      checkpoint: brainscore-vision/models/mehrer2020_alexnet/training_seed_08.pth,
+        sha1 236e17195b67f179e8cc35bfdb1cf835ebd9425c, converted from OSF AlexNet/training_seed_08/model.ckpt_epoch89
+      source_url: https://osf.io/3xupm
+      curation_confidence: null
+    legal:
+      license: null
+    eval:
+      test_datasets: []
+      validation_datasets: []
+    use:
+      applications: []
+      biases: []
+      users: []
+      limitations:
+      - Converted from TensorFlow; activations match the TF-slim layout, not torchvision
+        AlexNet
+      - Outputs 565 ecoset classes, not the 1000 ImageNet classes
+    people:
+      creators:
+      - Johannes Mehrer
+      - Courtney J. Spoerer
+      - Nikolaus Kriegeskorte
+      - Tim C. Kietzmann
+      organizations: []
+    lineage:
+      base_models:
+      - identifier: alexnet
+        name: AlexNet
+        relationship: variant_of
+  mehrer2020_alexnet_training_seed_09:
+    legacy:
+      architecture: DCNN
+      model_family: alexnet
+      total_parameter_count: 48521717
+      trainable_parameter_count: 48521717
+      total_layers: 23
+      trainable_layers: 8
+      model_size_mb: 194.09
+      training_dataset: ecoset
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      paper:
+        kind: paper
+        url: https://doi.org/10.1038/s41467-020-19632-w
+        citation: Mehrer, Spoerer, Kriegeskorte, Kietzmann (2020). Individual differences
+          among deep neural network models. Nature Communications 11.
+      osf:
+        kind: other
+        url: https://osf.io/3xupm
+        citation: 'Mehrer et al. (2020) OSF project: AlexNet/training_seed_XX/model.ckpt_epoch89
+          checkpoints and the TF-slim alexnet_v2 model code'
+      plugin:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+        citation: Plugin code (model.py, __init__.py)
+      conversion:
+        kind: other
+        citation: Conversion and evaluation of the OSF checkpoints (2026-10-09); method
+          and results are in the vision PR that added this source
+      issue_2459:
+        kind: other
+        url: https://github.com/brain-score/vision/issues/2459
+        citation: 'Issue #2459: the previous training_seed checkpoints were an untrained
+          random initialization; the trained networks are on OSF'
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/display_name
+      status: verified
+      sources:
+      - plugin
+    - path: /model/version
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /model/architecture
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - plugin
+      - conversion
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - plugin
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - plugin
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/supervision
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /training/process
+      status: verified
+      sources:
+      - osf
+      - paper
+      - conversion
+      - issue_2459
+    - path: /training/objective
+      status: probable
+      sources:
+      - osf
+      - conversion
+    - path: /training/loss
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/preprocessing
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /data/summary
+      status: undocumented
+      sources:
+      - osf
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /io
+      status: verified
+      sources:
+      - plugin
+    - path: /provenance
+      status: verified
+      sources:
+      - osf
+      - conversion
+      - plugin
+    - path: /legal/license
+      status: undocumented
+      sources:
+      - osf
+    - path: /eval/test_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /eval/validation_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/applications
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/users
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/biases
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/limitations
+      status: verified
+      sources:
+      - conversion
+      - plugin
+    - path: /people/creators
+      status: verified
+      sources:
+      - paper
+    - path: /people/organizations
+      status: undocumented
+      sources:
+      - paper
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - osf
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - plugin
+    model:
+      display_name: mehrer2020_alexnet_training_seed_09
+      version: Mehrer et al. (2020) AlexNet, ecoset-trained, OSF training_seed_09
+      architecture:
+        family: convolutional_neural_network
+        description: 'AlexNetV2 (TF-slim alexnet_v2 layout) in PyTorch, not torchvision
+          AlexNet: conv1 11x11 stride 4 (64), conv2 5x5 (192), conv3-conv5 3x3 (384,
+          384, 256), ReLU, three 3x3 stride-2 max-pools, no local response normalization;
+          fc6-fc8 are convolutions (5x5 to 4096, 1x1 to 4096, 1x1 to the class count)
+          with dropout 0.5.'
+      parameter_count: 48521717
+      parameter_count_exact: true
+      trainable_layers: '8'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: Supervised image classification on ecoset (565 classes)
+      visual_degrees: null
+      visual_degrees_description: null
+    training:
+      process: 'Trained by Mehrer et al. (2020) in TensorFlow (TF-slim alexnet_v2)
+        on ecoset (565 classes); OSF checkpoint AlexNet/training_seed_09/model.ckpt_epoch89,
+        which also holds momentum-optimizer slots. The networks in the paper differ
+        in random seed. Converted to PyTorch by transposing each kernel from HWIO
+        to OIHW (8 layers, 16 tensors, exact key match). Measured after conversion:
+        ecoset accuracy not measured (the ecoset test set was not available); on ImageNet
+        images its top-1 predictions agree 62-65% with the other ecoset seeds (chance
+        0.2%). The untrained alexnet_training_seed_* plugins (issue #2459) remain
+        as separate baselines.'
+      objective: image classification (565 classes)
+      loss: null
+      learning_rate: null
+      batch_size: null
+      preprocessing: 'Mehrer et al.: central square crop, bilinear resize to 224x224,
+        pixels scaled to [-1, 1]. Brain-Score wrapper: resize to 224x224, normalize
+        with mean 0.5 and std 0.5 (the same [-1, 1] range).'
+    data:
+      summary: null
+      training_datasets:
+      - identifier: other
+        name: ecoset
+        description: 565 basic-level categories
+        role: training
+    io:
+      modality: image
+      interface: image, classification_logits
+      input_format: image
+      output_format: classification_logits (565 ecoset classes)
+      tokenizer: null
+    provenance:
+      weights_provider: Mehrer et al. (2020), OSF osf.io/3xupm; converted weights
+        on Brain-Score S3 (brainscore-storage)
+      checkpoint: brainscore-vision/models/mehrer2020_alexnet/training_seed_09.pth,
+        sha1 26162e8817e3a46bc1248281ab542e6f2caeb8ae, converted from OSF AlexNet/training_seed_09/model.ckpt_epoch89
+      source_url: https://osf.io/3xupm
+      curation_confidence: null
+    legal:
+      license: null
+    eval:
+      test_datasets: []
+      validation_datasets: []
+    use:
+      applications: []
+      biases: []
+      users: []
+      limitations:
+      - Converted from TensorFlow; activations match the TF-slim layout, not torchvision
+        AlexNet
+      - Outputs 565 ecoset classes, not the 1000 ImageNet classes
+    people:
+      creators:
+      - Johannes Mehrer
+      - Courtney J. Spoerer
+      - Nikolaus Kriegeskorte
+      - Tim C. Kietzmann
+      organizations: []
+    lineage:
+      base_models:
+      - identifier: alexnet
+        name: AlexNet
+        relationship: variant_of
+  mehrer2020_alexnet_training_seed_10:
+    legacy:
+      architecture: DCNN
+      model_family: alexnet
+      total_parameter_count: 48521717
+      trainable_parameter_count: 48521717
+      total_layers: 23
+      trainable_layers: 8
+      model_size_mb: 194.09
+      training_dataset: ecoset
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      paper:
+        kind: paper
+        url: https://doi.org/10.1038/s41467-020-19632-w
+        citation: Mehrer, Spoerer, Kriegeskorte, Kietzmann (2020). Individual differences
+          among deep neural network models. Nature Communications 11.
+      osf:
+        kind: other
+        url: https://osf.io/3xupm
+        citation: 'Mehrer et al. (2020) OSF project: AlexNet/training_seed_XX/model.ckpt_epoch89
+          checkpoints and the TF-slim alexnet_v2 model code'
+      plugin:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+        citation: Plugin code (model.py, __init__.py)
+      conversion:
+        kind: other
+        citation: Conversion and evaluation of the OSF checkpoints (2026-10-09); method
+          and results are in the vision PR that added this source
+      issue_2459:
+        kind: other
+        url: https://github.com/brain-score/vision/issues/2459
+        citation: 'Issue #2459: the previous training_seed checkpoints were an untrained
+          random initialization; the trained networks are on OSF'
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/display_name
+      status: verified
+      sources:
+      - plugin
+    - path: /model/version
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /model/architecture
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - plugin
+      - conversion
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - plugin
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - plugin
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/supervision
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /training/process
+      status: verified
+      sources:
+      - osf
+      - paper
+      - conversion
+      - issue_2459
+    - path: /training/objective
+      status: probable
+      sources:
+      - osf
+      - conversion
+    - path: /training/loss
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/preprocessing
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /data/summary
+      status: undocumented
+      sources:
+      - osf
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /io
+      status: verified
+      sources:
+      - plugin
+    - path: /provenance
+      status: verified
+      sources:
+      - osf
+      - conversion
+      - plugin
+    - path: /legal/license
+      status: undocumented
+      sources:
+      - osf
+    - path: /eval/test_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /eval/validation_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/applications
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/users
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/biases
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/limitations
+      status: verified
+      sources:
+      - conversion
+      - plugin
+    - path: /people/creators
+      status: verified
+      sources:
+      - paper
+    - path: /people/organizations
+      status: undocumented
+      sources:
+      - paper
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - osf
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - plugin
+    model:
+      display_name: mehrer2020_alexnet_training_seed_10
+      version: Mehrer et al. (2020) AlexNet, ecoset-trained, OSF training_seed_10
+      architecture:
+        family: convolutional_neural_network
+        description: 'AlexNetV2 (TF-slim alexnet_v2 layout) in PyTorch, not torchvision
+          AlexNet: conv1 11x11 stride 4 (64), conv2 5x5 (192), conv3-conv5 3x3 (384,
+          384, 256), ReLU, three 3x3 stride-2 max-pools, no local response normalization;
+          fc6-fc8 are convolutions (5x5 to 4096, 1x1 to 4096, 1x1 to the class count)
+          with dropout 0.5.'
+      parameter_count: 48521717
+      parameter_count_exact: true
+      trainable_layers: '8'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: Supervised image classification on ecoset (565 classes)
+      visual_degrees: null
+      visual_degrees_description: null
+    training:
+      process: 'Trained by Mehrer et al. (2020) in TensorFlow (TF-slim alexnet_v2)
+        on ecoset (565 classes); OSF checkpoint AlexNet/training_seed_10/model.ckpt_epoch89,
+        which also holds momentum-optimizer slots. The networks in the paper differ
+        in random seed. Converted to PyTorch by transposing each kernel from HWIO
+        to OIHW (8 layers, 16 tensors, exact key match). Measured after conversion:
+        ecoset accuracy not measured (the ecoset test set was not available); on ImageNet
+        images its top-1 predictions agree 62-65% with the other ecoset seeds (chance
+        0.2%). The untrained alexnet_training_seed_* plugins (issue #2459) remain
+        as separate baselines.'
+      objective: image classification (565 classes)
+      loss: null
+      learning_rate: null
+      batch_size: null
+      preprocessing: 'Mehrer et al.: central square crop, bilinear resize to 224x224,
+        pixels scaled to [-1, 1]. Brain-Score wrapper: resize to 224x224, normalize
+        with mean 0.5 and std 0.5 (the same [-1, 1] range).'
+    data:
+      summary: null
+      training_datasets:
+      - identifier: other
+        name: ecoset
+        description: 565 basic-level categories
+        role: training
+    io:
+      modality: image
+      interface: image, classification_logits
+      input_format: image
+      output_format: classification_logits (565 ecoset classes)
+      tokenizer: null
+    provenance:
+      weights_provider: Mehrer et al. (2020), OSF osf.io/3xupm; converted weights
+        on Brain-Score S3 (brainscore-storage)
+      checkpoint: brainscore-vision/models/mehrer2020_alexnet/training_seed_10.pth,
+        sha1 38db0aacb6d47297d50c34c25ef3b8b028e03f00, converted from OSF AlexNet/training_seed_10/model.ckpt_epoch89
+      source_url: https://osf.io/3xupm
+      curation_confidence: null
+    legal:
+      license: null
+    eval:
+      test_datasets: []
+      validation_datasets: []
+    use:
+      applications: []
+      biases: []
+      users: []
+      limitations:
+      - Converted from TensorFlow; activations match the TF-slim layout, not torchvision
+        AlexNet
+      - Outputs 565 ecoset classes, not the 1000 ImageNet classes
+    people:
+      creators:
+      - Johannes Mehrer
+      - Courtney J. Spoerer
+      - Nikolaus Kriegeskorte
+      - Tim C. Kietzmann
+      organizations: []
+    lineage:
+      base_models:
+      - identifier: alexnet
+        name: AlexNet
+        relationship: variant_of
+  mehrer2020_alexnet_training_seed_01_fov4:
+    legacy:
+      architecture: DCNN
+      model_family: alexnet
+      total_parameter_count: 50303912
+      trainable_parameter_count: 50303912
+      total_layers: 23
+      trainable_layers: 8
+      model_size_mb: 201.22
+      training_dataset: ImageNet
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      paper:
+        kind: paper
+        url: https://doi.org/10.1038/s41467-020-19632-w
+        citation: Mehrer, Spoerer, Kriegeskorte, Kietzmann (2020). Individual differences
+          among deep neural network models. Nature Communications 11.
+      osf:
+        kind: other
+        url: https://osf.io/3xupm
+        citation: 'Mehrer et al. (2020) OSF project: AlexNet/training_seed_XX/model.ckpt_epoch89
+          checkpoints and the TF-slim alexnet_v2 model code'
+      plugin:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+        citation: Plugin code (model.py, __init__.py)
+      conversion:
+        kind: other
+        citation: Conversion and evaluation of the OSF checkpoints (2026-10-09); method
+          and results are in the vision PR that added this source
+      issue_2459:
+        kind: other
+        url: https://github.com/brain-score/vision/issues/2459
+        citation: 'Issue #2459: the previous training_seed checkpoints were an untrained
+          random initialization; the trained networks are on OSF'
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/display_name
+      status: verified
+      sources:
+      - plugin
+    - path: /model/version
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /model/architecture
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - plugin
+      - conversion
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - plugin
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - plugin
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/supervision
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /training/process
+      status: verified
+      sources:
+      - osf
+      - paper
+      - conversion
+      - issue_2459
+    - path: /training/objective
+      status: probable
+      sources:
+      - osf
+      - conversion
+    - path: /training/loss
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/preprocessing
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /data/summary
+      status: undocumented
+      sources:
+      - osf
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /io
+      status: verified
+      sources:
+      - plugin
+    - path: /provenance
+      status: verified
+      sources:
+      - osf
+      - conversion
+      - plugin
+    - path: /legal/license
+      status: undocumented
+      sources:
+      - osf
+    - path: /eval/test_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /eval/validation_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/applications
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/users
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/biases
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/limitations
+      status: verified
+      sources:
+      - conversion
+      - plugin
+    - path: /people/creators
+      status: verified
+      sources:
+      - paper
+    - path: /people/organizations
+      status: undocumented
+      sources:
+      - paper
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - osf
+    - path: /model/visual_degrees
+      status: verified
+      sources:
+      - plugin
+    model:
+      display_name: mehrer2020_alexnet_training_seed_01_fov4
+      version: Mehrer et al. (2020) AlexNet, ImageNet-trained, OSF training_seed_01
+      architecture:
+        family: convolutional_neural_network
+        description: 'AlexNetV2 (TF-slim alexnet_v2 layout) in PyTorch, not torchvision
+          AlexNet: conv1 11x11 stride 4 (64), conv2 5x5 (192), conv3-conv5 3x3 (384,
+          384, 256), ReLU, three 3x3 stride-2 max-pools, no local response normalization;
+          fc6-fc8 are convolutions (5x5 to 4096, 1x1 to 4096, 1x1 to the class count)
+          with dropout 0.5.'
+      parameter_count: 50303912
+      parameter_count_exact: true
+      trainable_layers: '8'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      visual_degrees: 4.0
+      visual_degrees_description: Set to 4 in the plugin registration
+      supervision:
+        type: supervised
+        description: Supervised image classification on ImageNet (ILSVRC-2012, 1000
+          classes)
+    training:
+      process: 'Trained by Mehrer et al. (2020) in TensorFlow (TF-slim alexnet_v2)
+        on ImageNet (ILSVRC-2012, 1000 classes); OSF checkpoint AlexNet/training_seed_01/model.ckpt_epoch89,
+        which also holds momentum-optimizer slots. The networks in the paper differ
+        in random seed. Converted to PyTorch by transposing each kernel from HWIO
+        to OIHW (8 layers, 16 tensors, exact key match). Measured after conversion:
+        ImageNet top-1 55.0%, top-5 77.4% on a 1,980-image ILSVRC-2012 validation
+        sample with the plugin preprocessing. The untrained alexnet_training_seed_*
+        plugins (issue #2459) remain as separate baselines.'
+      objective: image classification (1000 classes)
+      loss: null
+      learning_rate: null
+      batch_size: null
+      preprocessing: 'Mehrer et al.: central square crop, bilinear resize to 224x224,
+        pixels scaled to [-1, 1]. Brain-Score wrapper: resize to 224x224, normalize
+        with mean 0.5 and std 0.5 (the same [-1, 1] range).'
+    data:
+      summary: null
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        description: null
+        role: training
+    io:
+      modality: image
+      interface: image, classification_logits
+      input_format: image
+      output_format: classification_logits (1000 ImageNet classes)
+      tokenizer: null
+    provenance:
+      weights_provider: Mehrer et al. (2020), OSF osf.io/3xupm; converted weights
+        on Brain-Score S3 (brainscore-storage)
+      checkpoint: brainscore-vision/models/mehrer2020_alexnet/training_seed_01.pth,
+        sha1 8d506ddba28237340b0d3c163a3de4cca7ca9747, converted from OSF AlexNet/training_seed_01/model.ckpt_epoch89
+      source_url: https://osf.io/3xupm
+      curation_confidence: null
+    legal:
+      license: null
+    eval:
+      test_datasets: []
+      validation_datasets: []
+    use:
+      applications: []
+      biases: []
+      users: []
+      limitations:
+      - Converted from TensorFlow; activations match the TF-slim layout, not torchvision
+        AlexNet
+    people:
+      creators:
+      - Johannes Mehrer
+      - Courtney J. Spoerer
+      - Nikolaus Kriegeskorte
+      - Tim C. Kietzmann
+      organizations: []
+    lineage:
+      base_models:
+      - identifier: alexnet
+        name: AlexNet
+        relationship: variant_of
+  mehrer2020_alexnet_training_seed_01_fov12:
+    legacy:
+      architecture: DCNN
+      model_family: alexnet
+      total_parameter_count: 50303912
+      trainable_parameter_count: 50303912
+      total_layers: 23
+      trainable_layers: 8
+      model_size_mb: 201.22
+      training_dataset: ImageNet
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      paper:
+        kind: paper
+        url: https://doi.org/10.1038/s41467-020-19632-w
+        citation: Mehrer, Spoerer, Kriegeskorte, Kietzmann (2020). Individual differences
+          among deep neural network models. Nature Communications 11.
+      osf:
+        kind: other
+        url: https://osf.io/3xupm
+        citation: 'Mehrer et al. (2020) OSF project: AlexNet/training_seed_XX/model.ckpt_epoch89
+          checkpoints and the TF-slim alexnet_v2 model code'
+      plugin:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+        citation: Plugin code (model.py, __init__.py)
+      conversion:
+        kind: other
+        citation: Conversion and evaluation of the OSF checkpoints (2026-10-09); method
+          and results are in the vision PR that added this source
+      issue_2459:
+        kind: other
+        url: https://github.com/brain-score/vision/issues/2459
+        citation: 'Issue #2459: the previous training_seed checkpoints were an untrained
+          random initialization; the trained networks are on OSF'
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/display_name
+      status: verified
+      sources:
+      - plugin
+    - path: /model/version
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /model/architecture
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - plugin
+      - conversion
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - plugin
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - plugin
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/supervision
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /training/process
+      status: verified
+      sources:
+      - osf
+      - paper
+      - conversion
+      - issue_2459
+    - path: /training/objective
+      status: probable
+      sources:
+      - osf
+      - conversion
+    - path: /training/loss
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/preprocessing
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /data/summary
+      status: undocumented
+      sources:
+      - osf
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /io
+      status: verified
+      sources:
+      - plugin
+    - path: /provenance
+      status: verified
+      sources:
+      - osf
+      - conversion
+      - plugin
+    - path: /legal/license
+      status: undocumented
+      sources:
+      - osf
+    - path: /eval/test_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /eval/validation_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/applications
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/users
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/biases
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/limitations
+      status: verified
+      sources:
+      - conversion
+      - plugin
+    - path: /people/creators
+      status: verified
+      sources:
+      - paper
+    - path: /people/organizations
+      status: undocumented
+      sources:
+      - paper
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - osf
+    - path: /model/visual_degrees
+      status: verified
+      sources:
+      - plugin
+    model:
+      display_name: mehrer2020_alexnet_training_seed_01_fov12
+      version: Mehrer et al. (2020) AlexNet, ImageNet-trained, OSF training_seed_01
+      architecture:
+        family: convolutional_neural_network
+        description: 'AlexNetV2 (TF-slim alexnet_v2 layout) in PyTorch, not torchvision
+          AlexNet: conv1 11x11 stride 4 (64), conv2 5x5 (192), conv3-conv5 3x3 (384,
+          384, 256), ReLU, three 3x3 stride-2 max-pools, no local response normalization;
+          fc6-fc8 are convolutions (5x5 to 4096, 1x1 to 4096, 1x1 to the class count)
+          with dropout 0.5.'
+      parameter_count: 50303912
+      parameter_count_exact: true
+      trainable_layers: '8'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      visual_degrees: 12.0
+      visual_degrees_description: Set to 12 in the plugin registration
+      supervision:
+        type: supervised
+        description: Supervised image classification on ImageNet (ILSVRC-2012, 1000
+          classes)
+    training:
+      process: 'Trained by Mehrer et al. (2020) in TensorFlow (TF-slim alexnet_v2)
+        on ImageNet (ILSVRC-2012, 1000 classes); OSF checkpoint AlexNet/training_seed_01/model.ckpt_epoch89,
+        which also holds momentum-optimizer slots. The networks in the paper differ
+        in random seed. Converted to PyTorch by transposing each kernel from HWIO
+        to OIHW (8 layers, 16 tensors, exact key match). Measured after conversion:
+        ImageNet top-1 55.0%, top-5 77.4% on a 1,980-image ILSVRC-2012 validation
+        sample with the plugin preprocessing. The untrained alexnet_training_seed_*
+        plugins (issue #2459) remain as separate baselines.'
+      objective: image classification (1000 classes)
+      loss: null
+      learning_rate: null
+      batch_size: null
+      preprocessing: 'Mehrer et al.: central square crop, bilinear resize to 224x224,
+        pixels scaled to [-1, 1]. Brain-Score wrapper: resize to 224x224, normalize
+        with mean 0.5 and std 0.5 (the same [-1, 1] range).'
+    data:
+      summary: null
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        description: null
+        role: training
+    io:
+      modality: image
+      interface: image, classification_logits
+      input_format: image
+      output_format: classification_logits (1000 ImageNet classes)
+      tokenizer: null
+    provenance:
+      weights_provider: Mehrer et al. (2020), OSF osf.io/3xupm; converted weights
+        on Brain-Score S3 (brainscore-storage)
+      checkpoint: brainscore-vision/models/mehrer2020_alexnet/training_seed_01.pth,
+        sha1 8d506ddba28237340b0d3c163a3de4cca7ca9747, converted from OSF AlexNet/training_seed_01/model.ckpt_epoch89
+      source_url: https://osf.io/3xupm
+      curation_confidence: null
+    legal:
+      license: null
+    eval:
+      test_datasets: []
+      validation_datasets: []
+    use:
+      applications: []
+      biases: []
+      users: []
+      limitations:
+      - Converted from TensorFlow; activations match the TF-slim layout, not torchvision
+        AlexNet
+    people:
+      creators:
+      - Johannes Mehrer
+      - Courtney J. Spoerer
+      - Nikolaus Kriegeskorte
+      - Tim C. Kietzmann
+      organizations: []
+    lineage:
+      base_models:
+      - identifier: alexnet
+        name: AlexNet
+        relationship: variant_of
+  mehrer2020_alexnet_training_seed_01_fov16:
+    legacy:
+      architecture: DCNN
+      model_family: alexnet
+      total_parameter_count: 50303912
+      trainable_parameter_count: 50303912
+      total_layers: 23
+      trainable_layers: 8
+      model_size_mb: 201.22
+      training_dataset: ImageNet
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+    sources:
+      paper:
+        kind: paper
+        url: https://doi.org/10.1038/s41467-020-19632-w
+        citation: Mehrer, Spoerer, Kriegeskorte, Kietzmann (2020). Individual differences
+          among deep neural network models. Nature Communications 11.
+      osf:
+        kind: other
+        url: https://osf.io/3xupm
+        citation: 'Mehrer et al. (2020) OSF project: AlexNet/training_seed_XX/model.ckpt_epoch89
+          checkpoints and the TF-slim alexnet_v2 model code'
+      plugin:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mehrer2020_alexnet_training_seed
+        citation: Plugin code (model.py, __init__.py)
+      conversion:
+        kind: other
+        citation: Conversion and evaluation of the OSF checkpoints (2026-10-09); method
+          and results are in the vision PR that added this source
+      issue_2459:
+        kind: other
+        url: https://github.com/brain-score/vision/issues/2459
+        citation: 'Issue #2459: the previous training_seed checkpoints were an untrained
+          random initialization; the trained networks are on OSF'
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /model/display_name
+      status: verified
+      sources:
+      - plugin
+    - path: /model/version
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /model/architecture
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - plugin
+      - conversion
+    - path: /model/trainable_layers
+      status: verified
+      sources:
+      - plugin
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - plugin
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /model/supervision
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /training/process
+      status: verified
+      sources:
+      - osf
+      - paper
+      - conversion
+      - issue_2459
+    - path: /training/objective
+      status: probable
+      sources:
+      - osf
+      - conversion
+    - path: /training/loss
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - osf
+    - path: /training/preprocessing
+      status: verified
+      sources:
+      - osf
+      - plugin
+    - path: /data/summary
+      status: undocumented
+      sources:
+      - osf
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - osf
+      - conversion
+    - path: /io
+      status: verified
+      sources:
+      - plugin
+    - path: /provenance
+      status: verified
+      sources:
+      - osf
+      - conversion
+      - plugin
+    - path: /legal/license
+      status: undocumented
+      sources:
+      - osf
+    - path: /eval/test_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /eval/validation_datasets
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/applications
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/users
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/biases
+      status: undocumented
+      sources:
+      - paper
+    - path: /use/limitations
+      status: verified
+      sources:
+      - conversion
+      - plugin
+    - path: /people/creators
+      status: verified
+      sources:
+      - paper
+    - path: /people/organizations
+      status: undocumented
+      sources:
+      - paper
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - osf
+    - path: /model/visual_degrees
+      status: verified
+      sources:
+      - plugin
+    model:
+      display_name: mehrer2020_alexnet_training_seed_01_fov16
+      version: Mehrer et al. (2020) AlexNet, ImageNet-trained, OSF training_seed_01
+      architecture:
+        family: convolutional_neural_network
+        description: 'AlexNetV2 (TF-slim alexnet_v2 layout) in PyTorch, not torchvision
+          AlexNet: conv1 11x11 stride 4 (64), conv2 5x5 (192), conv3-conv5 3x3 (384,
+          384, 256), ReLU, three 3x3 stride-2 max-pools, no local response normalization;
+          fc6-fc8 are convolutions (5x5 to 4096, 1x1 to 4096, 1x1 to the class count)
+          with dropout 0.5.'
+      parameter_count: 50303912
+      parameter_count_exact: true
+      trainable_layers: '8'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      visual_degrees: 16.0
+      visual_degrees_description: Set to 16 in the plugin registration
+      supervision:
+        type: supervised
+        description: Supervised image classification on ImageNet (ILSVRC-2012, 1000
+          classes)
+    training:
+      process: 'Trained by Mehrer et al. (2020) in TensorFlow (TF-slim alexnet_v2)
+        on ImageNet (ILSVRC-2012, 1000 classes); OSF checkpoint AlexNet/training_seed_01/model.ckpt_epoch89,
+        which also holds momentum-optimizer slots. The networks in the paper differ
+        in random seed. Converted to PyTorch by transposing each kernel from HWIO
+        to OIHW (8 layers, 16 tensors, exact key match). Measured after conversion:
+        ImageNet top-1 55.0%, top-5 77.4% on a 1,980-image ILSVRC-2012 validation
+        sample with the plugin preprocessing. The untrained alexnet_training_seed_*
+        plugins (issue #2459) remain as separate baselines.'
+      objective: image classification (1000 classes)
+      loss: null
+      learning_rate: null
+      batch_size: null
+      preprocessing: 'Mehrer et al.: central square crop, bilinear resize to 224x224,
+        pixels scaled to [-1, 1]. Brain-Score wrapper: resize to 224x224, normalize
+        with mean 0.5 and std 0.5 (the same [-1, 1] range).'
+    data:
+      summary: null
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        description: null
+        role: training
+    io:
+      modality: image
+      interface: image, classification_logits
+      input_format: image
+      output_format: classification_logits (1000 ImageNet classes)
+      tokenizer: null
+    provenance:
+      weights_provider: Mehrer et al. (2020), OSF osf.io/3xupm; converted weights
+        on Brain-Score S3 (brainscore-storage)
+      checkpoint: brainscore-vision/models/mehrer2020_alexnet/training_seed_01.pth,
+        sha1 8d506ddba28237340b0d3c163a3de4cca7ca9747, converted from OSF AlexNet/training_seed_01/model.ckpt_epoch89
+      source_url: https://osf.io/3xupm
+      curation_confidence: null
+    legal:
+      license: null
+    eval:
+      test_datasets: []
+      validation_datasets: []
+    use:
+      applications: []
+      biases: []
+      users: []
+      limitations:
+      - Converted from TensorFlow; activations match the TF-slim layout, not torchvision
+        AlexNet
+    people:
+      creators:
+      - Johannes Mehrer
+      - Courtney J. Spoerer
+      - Nikolaus Kriegeskorte
+      - Tim C. Kietzmann
+      organizations: []
+    lineage:
+      base_models:
+      - identifier: alexnet
+        name: AlexNet
+        relationship: variant_of

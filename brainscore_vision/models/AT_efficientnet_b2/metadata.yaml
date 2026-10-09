@@ -135,7 +135,7 @@ models:
       display_name: AT_efficientnet-b2
       version: null
       architecture:
-        family: null
+        family: convolutional_neural_network
         description: null
       parameter_count: null
       parameter_count_exact: null

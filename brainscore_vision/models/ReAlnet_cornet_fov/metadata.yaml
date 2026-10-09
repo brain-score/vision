@@ -271,7 +271,7 @@ models:
       parameter_count: 53416616
       trainable_layers: '18'
       architecture:
-        family: DCNN, RNN, SKIP_CONNECTIONS
+        family: recurrent_convolutional_neural_network
     provenance:
       source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet_fov
   ReAlnet01_cornet_fov16:
@@ -314,6 +314,6 @@ models:
       parameter_count: 53416616
       trainable_layers: '18'
       architecture:
-        family: DCNN, RNN, SKIP_CONNECTIONS
+        family: recurrent_convolutional_neural_network
     provenance:
       source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet_fov

@@ -279,7 +279,7 @@ models:
       parameter_count: 5226520
       trainable_layers: '42'
       architecture:
-        family: DCNN, Transformer
+        family: convolutional_neural_network
     provenance:
       source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
   convnext_large:fb_in22k_ft_in1k:
@@ -322,7 +322,7 @@ models:
       parameter_count: 197767336
       trainable_layers: '113'
       architecture:
-        family: DCNN, Transformer
+        family: convolutional_neural_network
     provenance:
       source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
   convnext_large_mlp:clip_laion2b_augreg_ft_in1k_384:
@@ -372,7 +372,7 @@ models:
       parameter_count: 200128168
       trainable_layers: '114'
       architecture:
-        family: DCNN, Transformer
+        family: convolutional_neural_network
       visual_degrees: 8.0
     provenance:
       source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
@@ -1123,7 +1123,7 @@ models:
       parameter_count: 86568424
       trainable_layers: '52'
       architecture:
-        family: DCNN, Transformer
+        family: vision_transformer
     provenance:
       source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
   vit_base_patch16_clip_224:openai_ft_in1k:
@@ -1658,7 +1658,7 @@ models:
       parameter_count: 632456680
       trainable_layers: '132'
       architecture:
-        family: DCNN, Transformer
+        family: vision_transformer
     provenance:
       source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
   vit_large_patch14_clip_224:laion2b_ft_in12k_in1k:
@@ -2911,7 +2911,7 @@ models:
       parameter_count: 304532456
       trainable_layers: '100'
       architecture:
-        family: DCNN, Transformer
+        family: vision_transformer
     provenance:
       source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
   vit_relpos_base_patch16_clsgap_224:sw_in1k:

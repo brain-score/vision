@@ -1,0 +1,36 @@
+name: Release
+# PyPI trusted publishing cannot run inside core's reusable workflow, so publish here.
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      level:
+        description: Release level to force (for the first release or a missed one)
+        type: choice
+        options: [patch, minor, major]
+permissions:
+  contents: read
+jobs:
+  release:
+    permissions:
+      contents: read
+      id-token: write
+    uses: brain-score/core/.github/workflows/release.yml@main
+    with:
+      release-paths: '^brainscore_vision/(?!(models|benchmarks|data|metrics)/)'
+      level: ${{ inputs.level }}
+    secrets: inherit
+  publish:
+    needs: release
+    if: needs.release.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@v1.14.2

@@ -1,0 +1,9 @@
+name: PR title
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened, labeled, unlabeled]
+permissions:
+  pull-requests: write
+jobs:
+  title:
+    uses: brain-score/core/.github/workflows/pr-title.yml@main

@@ -1,43 +1,39 @@
 Version Bumping
 ===============
 
-Brain-Score Vision now features an automated version bumping process that follows
-`Semantic Versioning <https://semver.org/>`_ (MAJOR.MINOR.PATCH) and is triggered via a GitHub Action.
-This ensures that any significant changes to the codebase lead to an appropriate version update.
+Brain-Score Vision releases automatically, following
+`Semantic Versioning <https://semver.org/>`_ (MAJOR.MINOR.PATCH). Every squash merge to ``master``
+is judged on its own by the
+`release workflow <https://github.com/brain-score/vision/blob/master/.github/workflows/release.yml>`_,
+which calls the shared release workflow in `brain-score/core <https://github.com/brain-score/core>`_.
 
 How It Works
 ------------
 
-1. **Pull Request Analysis:**
-   When a pull request (PR) is submitted, a GitHub Action (see the
-   `workflow file <https://github.com/brain-score/vision/blob/master/.github/workflows/bump_version.yml>`_)
-   analyzes the changes. If any files outside the plugin directories—namely, ``benchmarks``,
-   ``data``, ``metrics``, and ``models``—are modified, the version bump process is initiated. Changes confined to
-   plugin directories are considered non-breaking and therefore do not necessitate a version increment.
+1. **Path gate:**
+   A merge can release only if it changes a file under ``brainscore_vision/`` outside the plugin
+   directories (``benchmarks``, ``data``, ``metrics`` and ``models``), or changes the
+   ``[project] dependencies`` in ``pyproject.toml``. Plugin-only, test, docs and workflow changes
+   never release.
 
-2. **Determining the Bump Type:**
-   The type of version bump is determined by labels applied to the PR:
+2. **Release level from the PR title:**
+   PR titles must follow ``type(scope): subject``; a check on every PR enforces this and comments
+   with the allowed types.
 
-   - **MAJOR:** Apply the ``major update`` label to trigger an increase in the major version.
-   - **MINOR:** Apply the ``minor update`` label to trigger an increase in the minor version.
-   - **PATCH:** If neither label is applied, the version will automatically increment the patch number.
+   - **MINOR:** ``feat``.
+   - **PATCH:** ``fix`` or ``perf``.
+   - **MAJOR:** ``feat!:`` or a ``BREAKING CHANGE:`` footer, plus the ``major update`` label.
+     Without the label it releases as minor.
+   - Any other type (``refactor``, ``docs``, ``test``, ``ci``, ``chore``, ``build``, ``plugin``,
+     ``model``, ``benchmark``, ``data``, ``metric``) does not release.
 
-3. **Version Increment and PR Creation:**
-   The tool `bump-my-version <https://github.com/callowayproject/bump-my-version>`_ uses the latest
-   version tag to calculate the new version number. After bumping the version, a new PR is automatically
-   created containing the updated version. This PR is auto-approved, undergoes status checks, and is then
-   merged automatically.
-
-Version Releases
-----------------
-
-After the version is bumped, release notes are automatically generated. These notes include all commit
-details since the previous version bump and can be viewed in the
-`Releases section <https://github.com/brain-score/vision/releases>`_ of the repository.
+3. **Version, tag and release:**
+   `python-semantic-release <https://python-semantic-release.readthedocs.io/>`_ updates the version
+   in ``pyproject.toml``, commits ``chore(release): X.Y.Z`` to ``master``, tags ``vX.Y.Z`` and
+   creates a GitHub release with notes. There is no separate version-bump PR.
 
 PyPI Publishing
 ---------------
 
-A version bump also triggers a publishing job that builds the new package and uploads it to PyPI.
-You can always find the latest package available on PyPI at the
-`PyPI project page <https://pypi.org/project/brainscore-vision/>`_.
+The same workflow builds the package and publishes it to PyPI through trusted publishing. You can
+always find the latest package on the `PyPI project page <https://pypi.org/project/brainscore-vision/>`_.

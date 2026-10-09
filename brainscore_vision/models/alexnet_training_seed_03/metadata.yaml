@@ -144,7 +144,7 @@ models:
       architecture:
         family: convolutional_neural_network
         description: Convolutional Neural Network
-      parameter_count: 61100840
+      parameter_count: 50303912
       parameter_count_exact: true
       trainable_layers: '8'
       recurrent: false

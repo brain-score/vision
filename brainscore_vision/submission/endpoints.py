@@ -4,13 +4,16 @@ from brainscore_core import Score, Benchmark
 from brainscore_core.submission import RunScoringEndpoint, DomainPlugins
 from brainscore_core.submission.endpoints import make_argparser, resolve_models_benchmarks, get_user_id, \
     send_email_to_submitter as send_email_to_submitter_core
-from brainscore_vision import load_model, load_benchmark, score
+from brainscore_vision import load_model, load_model_bibtex, load_benchmark, score
 from brainscore_vision.submission import config
 
 
 class VisionPlugins(DomainPlugins):
     def load_model(self, model_identifier: str):
-        return load_model(model_identifier)
+        model = load_model(model_identifier)
+        if getattr(model, 'bibtex', None) is None:  # core links the model's database reference from this
+            model.bibtex = load_model_bibtex(model_identifier)
+        return model
 
     def load_benchmark(self, benchmark_identifier: str) -> Benchmark:
         return load_benchmark(benchmark_identifier)

@@ -155,11 +155,13 @@ jobs:
 
       - name: Update PLUGIN_INFO based on label
         if: steps.check_metadata_only.outputs.only_metadata == 'false'
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
           if [[ "$has_automerge_web" == "true" ]]; then
-            BS_UID="$(echo '${{ github.event.pull_request.title }}' | sed -E 's/.*\(user:([^)]+)\).*/\1/')"
-            BS_PUBLIC="$(echo '${{ github.event.pull_request.title }}' | sed -E 's/.*\(public:([^)]+)\).*/\1/')"
-            PLUGIN_INFO=$(echo ${{ steps.getpluginfo.outputs.PLUGIN_INFO }} | tr -d "'" | jq -c ". + {user_id: \"$BS_UID\", public: \"$BS_PUBLIC\"}")
+            BS_UID="$(sed -E 's/.*\(user:([^)]+)\).*/\1/' <<< "$PR_TITLE")"
+            BS_PUBLIC="$(sed -E 's/.*\(public:([^)]+)\).*/\1/' <<< "$PR_TITLE")"
+            PLUGIN_INFO=$(echo ${{ steps.getpluginfo.outputs.PLUGIN_INFO }} | tr -d "'" | jq -c --arg uid "$BS_UID" --arg public "$BS_PUBLIC" '. + {user_id: $uid, public: $public}')
             echo "PLUGIN_INFO=${PLUGIN_INFO}" >> $GITHUB_ENV
           else
             echo "PLUGIN_INFO=$(echo ${{ steps.getpluginfo.outputs.PLUGIN_INFO }} | tr -d "'")" >> $GITHUB_ENV

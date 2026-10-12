@@ -1,3 +1,4 @@
+import importlib
 import logging
 import os
 from typing import Dict, Any, Union, Callable
@@ -9,7 +10,7 @@ from brainscore_core.benchmarks import Benchmark
 from brainscore_core.metrics import Metric, Score
 from brainscore_core.benchmarks import score_benchmark
 from brainscore_core.plugin_management.conda_score import wrap_score
-from brainscore_core.plugin_management.import_plugin import import_plugin
+from brainscore_core.plugin_management.import_plugin import import_plugin, ImportPlugin
 from brainscore_vision.metrics import Ceiling
 from brainscore_vision.model_interface import BrainModel
 
@@ -68,6 +69,19 @@ def load_model(identifier: str) -> BrainModel:
     import_plugin('brainscore_vision', 'models', identifier)
 
     return model_registry[identifier]()
+
+
+def load_model_bibtex(identifier: str) -> Union[str, None]:
+    """ The bibtex from the model plugin's `model.get_bibtex`, or None if it has none. """
+    try:
+        plugin_dir = ImportPlugin('brainscore_vision', 'models', identifier).plugin_dirname
+        return importlib.import_module(f'brainscore_vision.models.{plugin_dir}.model').get_bibtex(identifier) or None
+    except (AttributeError, ModuleNotFoundError):  # plugin has no model.py or no get_bibtex
+        _logger.debug(f'No bibtex for model {identifier}')
+        return None
+    except Exception:
+        _logger.warning(f'Could not load bibtex for model {identifier}', exc_info=True)
+        return None
 
 
 def _run_score(model_identifier: str, benchmark_identifier: str) -> Score:

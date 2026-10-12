@@ -10,10 +10,10 @@ from brainscore_vision.submission import config
 
 class VisionPlugins(DomainPlugins):
     def load_model(self, model_identifier: str):
-        model = load_model(model_identifier)
-        if getattr(model, 'bibtex', None) is None:  # core links the model's database reference from this
-            model.bibtex = load_model_bibtex(model_identifier)
-        return model
+        return load_model(model_identifier)
+
+    def load_model_bibtex(self, model_identifier: str) -> Union[str, None]:
+        return load_model_bibtex(model_identifier)
 
     def load_benchmark(self, benchmark_identifier: str) -> Benchmark:
         return load_benchmark(benchmark_identifier)

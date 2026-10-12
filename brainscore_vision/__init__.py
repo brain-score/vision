@@ -76,8 +76,11 @@ def load_model_bibtex(identifier: str) -> Union[str, None]:
     try:
         plugin_dir = ImportPlugin('brainscore_vision', 'models', identifier).plugin_dirname
         return importlib.import_module(f'brainscore_vision.models.{plugin_dir}.model').get_bibtex(identifier) or None
+    except (AttributeError, ModuleNotFoundError):  # plugin has no model.py or no get_bibtex
+        _logger.debug(f'No bibtex for model {identifier}')
+        return None
     except Exception:
-        _logger.warning(f'No bibtex found for model {identifier}', exc_info=True)
+        _logger.warning(f'Could not load bibtex for model {identifier}', exc_info=True)
         return None
 
 

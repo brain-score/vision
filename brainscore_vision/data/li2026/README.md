@@ -194,13 +194,40 @@ section for the full plan):
    retained as a provenance coord. Window-matched reliable counts:
    IT ≈ 21.1k, V1 ≈ 2.3k, V2 ≈ 2.5k, V4 ≈ 3.4k (vs the paper's best-window
    IT 26.7k).
-3. **v3 — temporal** *(shipped as data only, `Li2026.temporal`)*. 10 ms PSTH
-   bins. Useful for recurrent / temporal models (CORnet-S, etc.). Ceiling is
-   per-bin and is most informative in the 0–200 ms range. No benchmark is
-   registered on it yet: `spantime_pls` stacks time into the sample dimension
-   (1000 × 30 = 30k rows per fit), and `TemporalIgnore` repeats a feedforward
-   model's single response across all 30 bins, so non-recurrent models would pay
-   ~38× the static cost to be scored on 30 copies of the same activations.
+3. **v3 — temporal** *(`Li2026.temporal`; benchmarks offline use only)*. 10 ms
+   PSTH bins. Useful for recurrent / temporal models (CORnet-S, etc.).
+   `Li2026.{V1,V2,V4,IT}-temporal-pls` (version 1) are registered but unparented
+   and kept out of scoring runs: `spantime_pls` stacks time into the sample
+   dimension (1000 × 30 = 30k rows per fit), and `TemporalIgnore` repeats a
+   feedforward model's single response across all 30 bins, so non-recurrent models
+   pay ~30× the static cost to be scored on 30 copies of the same activations.
+   Selection and ceiling use the best-window `reliability`, not a per-bin
+   reliability of the scored response; the per-bin ceiling is parked.
+
+## Building Li2026.temporal locally (no AWS credentials)
+
+The `Li2026/` S3 prefix is not public, so `load_dataset('Li2026.temporal')` fails
+without credentials (403). Build the files yourself and point the plugin at them:
+
+1. Download Triple-N from ScienceDB (doi:10.57760/sciencedb.33556): `GoodUnit/`,
+   `Processed/` and `exclude_area.xls` into one directory (`<raw>`).
+2. Download NSD's `nsd_expdesign.mat` and `nsd_stim_info_merged.csv` into `<nsd-meta>`
+   and `nsd_stimuli.hdf5` (39.6 GB). NSD's bucket is public:
+   `aws s3 cp --no-sign-request s3://natural-scenes-dataset/nsddata/experiments/nsd/nsd_expdesign.mat <nsd-meta>/`
+   (same for `nsd_stim_info_merged.csv`, and
+   `nsddata_stimuli/stimuli/nsd/nsd_stimuli.hdf5`).
+3. Run, from `data_packaging/`:
+
+   ```bash
+   python build_li2026_static.py --raw-root <raw> --nsd-meta <nsd-meta> --out-dir <build>
+   python export_li2026_stimuli.py --nsd-stimuli <path>/nsd_stimuli.hdf5 --out-dir <build>
+   python build_li2026_temporal.py --raw-root <raw> --stim-csv <build>/Li2026_stimulus_set.csv \
+       --out <build>/Li2026_temporal_assembly.nc
+   ```
+
+4. `export BRAINSCORE_LI2026_DIR=<build>`. `Li2026.temporal`, and the
+   `-temporal-pls` benchmarks on it, then load from `<build>` and never touch S3.
+   The static `Li2026` assembly still loads from S3.
 
 ## Benchmarks
 
@@ -255,6 +282,9 @@ hangs off nothing.
   Mean pairwise inter-animal RDM agreement in IT is 0.223 (range 0.101-0.449), so
   the reliably shared geometry across animals is modest; small differences between
   models on these leaves should not be over-read.
+* `Li2026.{V1,V2,V4,IT}-temporal-pls` — offline use only, unparented, version 1.
+  See v3 under "Sequencing" for the cost and ceiling caveats and the section above
+  for running without credentials.
 * `Li2026.{V1,V2,V4,IT}-pls` — unparented (runnable, not in the scored tree).
   Kept for comparability against MajajHong2015, which is PLS. PLS is not the
   headline here because its cross-covariance is (n_features × n_neuroids) and no

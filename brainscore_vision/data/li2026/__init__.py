@@ -1,8 +1,16 @@
+import os
+from pathlib import Path
+
+import pandas as pd
+
 from brainscore_vision import data_registry, stimulus_set_registry, load_stimulus_set
 from brainscore_core.supported_data_standards.brainio.s3 import (
     load_stimulus_set_from_s3, load_assembly_from_s3,
 )
-from brainscore_core.supported_data_standards.brainio.assemblies import NeuronRecordingAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import (
+    NeuronRecordingAssembly, StimulusMergeAssemblyLoader,
+)
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 
 BIBTEX = """@article{li2026triplen,
     title = {Triple-N dataset: large-scale fMRI-guided dense recordings of nonhuman
@@ -45,10 +53,43 @@ data_registry['Li2026'] = lambda: load_assembly_from_s3(
     stimulus_set_loader=lambda: load_stimulus_set('Li2026'))
 
 # Temporal variant: per-image PSTHs rebinned to 10ms bins (0-300ms), all 90 sessions.
-data_registry['Li2026.temporal'] = lambda: load_assembly_from_s3(
-    identifier="Li2026.temporal_Assembly",
-    version_id="JmOzjXLy0K192AvgcpUxkN_X3B7z4i74",
-    sha1="c27623909299dd4617672596c114fbe370ed271a",
-    bucket=_BUCKET,
-    cls=NeuronRecordingAssembly,
-    stimulus_set_loader=lambda: load_stimulus_set('Li2026'))
+# The Li2026 S3 prefix is not public, so a user without AWS credentials sets
+# BRAINSCORE_LI2026_DIR to the output directory of the data_packaging build scripts
+# (see README "Building Li2026.temporal locally").
+LOCAL_DIR_ENV = 'BRAINSCORE_LI2026_DIR'
+
+
+def load_local_temporal(build_dir: str) -> NeuronRecordingAssembly:
+    """Load ``Li2026.temporal`` from a local build directory, without S3.
+
+    :param build_dir: directory holding ``Li2026_stimulus_set.csv``, ``stimuli/<stimulus_id>.png``
+        and ``Li2026_temporal_assembly.nc``.
+    :return: the temporal assembly with the local stimulus set attached.
+    """
+    build_dir = Path(build_dir)
+    meta = pd.read_csv(build_dir / 'Li2026_stimulus_set.csv')
+    stimulus_set = StimulusSet(meta)
+    stimulus_set.stimulus_paths = {sid: str(build_dir / 'stimuli' / f'{sid}.png') for sid in meta['stimulus_id']}
+    stimulus_set.identifier = 'Li2026_Stimuli'
+    loader = StimulusMergeAssemblyLoader(cls=NeuronRecordingAssembly,
+                                         file_path=str(build_dir / 'Li2026_temporal_assembly.nc'),
+                                         stimulus_set_identifier=stimulus_set.identifier,
+                                         stimulus_set=stimulus_set)
+    assembly = loader.load()
+    assembly.attrs['identifier'] = 'Li2026.temporal_Assembly'
+    return assembly
+
+
+def _load_temporal():
+    if os.getenv(LOCAL_DIR_ENV):
+        return load_local_temporal(os.environ[LOCAL_DIR_ENV])
+    return load_assembly_from_s3(
+        identifier="Li2026.temporal_Assembly",
+        version_id="JmOzjXLy0K192AvgcpUxkN_X3B7z4i74",
+        sha1="c27623909299dd4617672596c114fbe370ed271a",
+        bucket=_BUCKET,
+        cls=NeuronRecordingAssembly,
+        stimulus_set_loader=lambda: load_stimulus_set('Li2026'))
+
+
+data_registry['Li2026.temporal'] = _load_temporal

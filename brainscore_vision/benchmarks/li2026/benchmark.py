@@ -171,3 +171,62 @@ def Li2026V4RDM(): return _Li2026RegionRDM('V4')
 def Li2026ITRDM(): return _Li2026RegionRDM('IT')
 
 
+
+
+def load_temporal_assembly(region: str):
+    assembly = load_dataset('Li2026.temporal')
+    stimulus_set = assembly.attrs['stimulus_set']
+    # IT-session units outside a named patch ('IT-other') are still IT, matching the
+    # static assembly convention (all IT-session units pooled as 'IT').
+    regions = np.where(assembly['region'].values == 'IT-other', 'IT', assembly['region'].values)
+    mask = (regions == region) & (assembly['reliability'].values > RELIABILITY_THRESHOLD)
+    assembly = assembly.isel(neuroid=np.where(mask)[0])
+    assembly.load()
+    # make the region coord uniform (fold IT-other into IT) while preserving the neuroid index
+    assembly = assembly.reset_index('neuroid')
+    assembly = assembly.assign_coords(region=('neuroid', [region] * assembly.sizes['neuroid']))
+    neuroid_coords = [c for c in assembly.coords if assembly[c].dims == ('neuroid',)]
+    assembly = assembly.set_index(neuroid=neuroid_coords)
+    assembly = assembly.transpose('presentation', 'neuroid', 'time_bin')
+    assembly.attrs['stimulus_set'] = stimulus_set
+    return assembly
+
+
+class _TemporalNeuralBenchmark(NeuralBenchmark):
+    """Reports the mean over time bins as the scalar score; per-bin scores stay in ``attrs['per_bin']``."""
+
+    def __call__(self, candidate) -> Score:
+        per_bin = super().__call__(candidate)
+        score = Score(float(np.mean(per_bin.values)))  # explained_variance drops the time_bin coord
+        score.attrs['per_bin'] = per_bin
+        score.attrs[Score.RAW_VALUES_KEY] = per_bin.attrs[Score.RAW_VALUES_KEY]
+        score.attrs['ceiling'] = per_bin.attrs['ceiling']
+        return score
+
+
+def _Li2026RegionTemporal(region: str) -> NeuralBenchmark:
+    """Time-resolved leaf ``Li2026.{region}-temporal-pls``, version 1. Offline use only.
+
+    Scores 30 bins of 10 ms (0-300 ms) with ``spantime_pls``: one PLS fit with time
+    stacked into the sample dimension, correlated per bin; the score is the mean over
+    bins. Unparented and not part of any scoring run or leaderboard tree; a
+    feedforward model's single response is repeated across all 30 bins, so it costs
+    about 30x the static benchmark.
+
+    Ceiling caveat: neuroids are selected and ceiled on ``reliability``, the paper's
+    per-unit best-window split-half reliability, not a per-bin reliability of the
+    response actually scored. The per-bin ceiling rework is parked.
+    """
+    assembly = load_temporal_assembly(region)
+    return _TemporalNeuralBenchmark(
+        identifier=f'Li2026.{region}-temporal-pls', version=1,
+        assembly=assembly, similarity_metric=load_metric('spantime_pls', crossvalidation_kwargs=_CV_KWARGS),
+        visual_degrees=VISUAL_DEGREES, number_of_trials=NUMBER_OF_TRIALS,
+        ceiling_func=lambda: _reliability_ceiling(assembly),
+        parent=None, bibtex=BIBTEX)
+
+
+def Li2026V1Temporal(): return _Li2026RegionTemporal('V1')
+def Li2026V2Temporal(): return _Li2026RegionTemporal('V2')
+def Li2026V4Temporal(): return _Li2026RegionTemporal('V4')
+def Li2026ITTemporal(): return _Li2026RegionTemporal('IT')

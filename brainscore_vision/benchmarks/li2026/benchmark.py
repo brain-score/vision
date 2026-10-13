@@ -205,11 +205,11 @@ class _TemporalNeuralBenchmark(NeuralBenchmark):
 
 
 def _Li2026RegionTemporal(region: str) -> NeuralBenchmark:
-    """Time-resolved leaf ``Li2026.{region}-temporal-pls``, version 1. Offline use only.
+    """Time-resolved ``Li2026.{region}-temporal-pls``, version 1. Offline use only.
 
     Scores 30 bins of 10 ms (0-300 ms) with ``spantime_pls``: one PLS fit with time
     stacked into the sample dimension, correlated per bin; the score is the mean over
-    bins. Unparented and not part of any scoring run or leaderboard tree; a
+    bins. Kept out of benchmark_registry so no scoring path can pick it up; a
     feedforward model's single response is repeated across all 30 bins, so it costs
     about 30x the static benchmark.
 

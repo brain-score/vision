@@ -196,8 +196,11 @@ section for the full plan):
    IT 26.7k).
 3. **v3 — temporal** *(`Li2026.temporal`; benchmarks offline use only)*. 10 ms
    PSTH bins. Useful for recurrent / temporal models (CORnet-S, etc.).
-   `Li2026.{V1,V2,V4,IT}-temporal-pls` (version 1) are registered but unparented
-   and kept out of scoring runs: `spantime_pls` stacks time into the sample
+   `Li2026.{V1,V2,V4,IT}-temporal-pls` (version 1) are offline use only and are
+   deliberately **not** in `benchmark_registry`: CI scores every registry line of a
+   changed plugin against all public models, and every scoring path resolves
+   benchmarks through the registry, so an unregistered benchmark cannot be scored
+   publicly. Why they stay off the leaderboard: `spantime_pls` stacks time into the sample
    dimension (1000 × 30 = 30k rows per fit), and `TemporalIgnore` repeats a
    feedforward model's single response across all 30 bins, so non-recurrent models
    pay ~30× the static cost to be scored on 30 copies of the same activations.
@@ -209,14 +212,18 @@ section for the full plan):
 The `Li2026/` S3 prefix is not public, so `load_dataset('Li2026.temporal')` fails
 without credentials (403). Build the files yourself and point the plugin at them:
 
-1. Download Triple-N from ScienceDB (doi:10.57760/sciencedb.33556): `GoodUnit/`,
-   `Processed/` and `exclude_area.xls` into one directory (`<raw>`).
+1. Download Triple-N from ScienceDB (doi:10.57760/sciencedb.33556; free account,
+   login needed for downloads): the `GoodUnit_*.mat` files (~42 GB), the
+   `Processed_ses*.mat` files and `exclude_area.xls`. Lay them out as
+   `<raw>/GoodUnit/`, `<raw>/Processed/` and `<raw>/exclude_area.xls`; symlinks are
+   fine, and the scripts only read from `<raw>`.
 2. Download NSD's `nsd_expdesign.mat` and `nsd_stim_info_merged.csv` into `<nsd-meta>`
    and `nsd_stimuli.hdf5` (39.6 GB). NSD's bucket is public:
    `aws s3 cp --no-sign-request s3://natural-scenes-dataset/nsddata/experiments/nsd/nsd_expdesign.mat <nsd-meta>/`
    (same for `nsd_stim_info_merged.csv`, and
    `nsddata_stimuli/stimuli/nsd/nsd_stimuli.hdf5`).
-3. Run, from `data_packaging/`:
+3. Install `xlrd>=2.0.1` (pandas needs it to read `exclude_area.xls`; it is not in
+   the Brain-Score requirements). Then run, from `data_packaging/`:
 
    ```bash
    python build_li2026_static.py --raw-root <raw> --nsd-meta <nsd-meta> --out-dir <build>
@@ -225,9 +232,25 @@ without credentials (403). Build the files yourself and point the plugin at them
        --out <build>/Li2026_temporal_assembly.nc
    ```
 
-4. `export BRAINSCORE_LI2026_DIR=<build>`. `Li2026.temporal`, and the
-   `-temporal-pls` benchmarks on it, then load from `<build>` and never touch S3.
-   The static `Li2026` assembly still loads from S3.
+   The temporal build reads all 90 sessions in about 3 minutes, peaks near 8.5 GB
+   of memory and writes a 5.7 GB uncompressed `.nc`. Its values are identical to
+   the published `Li2026.temporal` assembly.
+4. `export BRAINSCORE_LI2026_DIR=<build>`. `Li2026.temporal` then loads from
+   `<build>` and never touches S3; the static `Li2026` assembly still loads from S3.
+5. Score a model locally. The benchmarks are not registered, so build them directly:
+
+   ```python
+   from brainscore_vision import load_model
+   from brainscore_vision.benchmarks.li2026.benchmark import Li2026V1Temporal
+
+   benchmark = Li2026V1Temporal()
+   score = benchmark(load_model('alexnet'))   # mean over the 30 bins
+   per_bin = score.attrs['per_bin']           # ceiled score per 10 ms bin
+   ```
+
+   Set `RESULTCACHING_DISABLE=1` to avoid caching 30-bin activations. A feedforward
+   model's response is repeated over 30 bins and PLS casts it to float64, so a
+   large layer (alexnet V1 = `features.2`, 46,656 features) needs over 20 GB.
 
 ## Benchmarks
 
@@ -282,7 +305,7 @@ hangs off nothing.
   Mean pairwise inter-animal RDM agreement in IT is 0.223 (range 0.101-0.449), so
   the reliably shared geometry across animals is modest; small differences between
   models on these leaves should not be over-read.
-* `Li2026.{V1,V2,V4,IT}-temporal-pls` — offline use only, unparented, version 1.
+* `Li2026.{V1,V2,V4,IT}-temporal-pls` — offline use only, not registered, version 1.
   See v3 under "Sequencing" for the cost and ceiling caveats and the section above
   for running without credentials.
 * `Li2026.{V1,V2,V4,IT}-pls` — unparented (runnable, not in the scored tree).

@@ -1,4 +1,5 @@
 import os
+import tempfile
 
 import functools
 import logging
@@ -7,13 +8,135 @@ from multiprocessing.pool import ThreadPool
 from typing import List, Any, Callable
 
 import numpy as np
+from PIL import Image as PILImage
 
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from brainscore_core.supported_data_standards.brainio.assemblies import DataAssembly
+from brainscore_vision.model_helpers.activations.cache_key import (
+    model_cache_identifier, stimulus_set_cache_identifier)
+from brainscore_vision.model_helpers.activations.core import NO_RESOLUTION, RESOLUTION_FORMAT
 from brainscore_vision.model_helpers.utils import fullname
 from result_caching import store_xarray
 from .inferencer import Inferencer
-from ..inputs import Stimulus
+from ..inputs import Stimulus, Video
+
+
+# Preprocessing resolution, for the stored-activations cache key
+# ---------------------------------------------------------------
+# The same gap the image path closed (see `activations/core.py`): the stored
+# key names the model and the stimulus set, and neither says what the model is
+# actually fed. Two commitments that share an identifier but preprocess to
+# different resolutions are served each other's activations, no preprocessing
+# runs, and the benchmark returns a plausible score for a resolution the model
+# never saw.
+#
+# The image path's probe cannot be reused as it stands: a temporal
+# preprocessing is handed a single `Stimulus`, not a list of paths -- see
+# `core/executor.py`, where the executor maps it over stimuli one at a time.
+# The sentinel and the output format are imported from there rather than
+# restated, so the two halves of the key cannot drift apart.
+
+# Deliberately neither square nor a common model input size, for the same
+# reason as the image path's probe image: a preprocessing that hands its input
+# back unchanged must not be mistakable for one that resizes.
+_PROBE_FRAME_SHAPE = (137, 211, 3)  # height, width, RGB
+
+# Both of these reach the key: the frame count is part of the fingerprint
+# (`3x10x112x112` carries T=10 from here, not from the model), so changing
+# either invalidates every stored temporal cache entry.
+_PROBE_FPS = 10.
+# A full second, not the handful of frames the spatial part of the fingerprint
+# would need. `Video.set_fps` asserts that one frame period fits inside the
+# clip (`1000/fps <= duration`), so a short probe silently fails for every
+# preprocessing that resamples to a low frame rate -- at 300ms, anything below
+# 3.33 fps. One second admits any fps >= 1, which covers the realistic range.
+_PROBE_DURATION = 1000.  # ms; with _PROBE_FPS, ten frames
+
+_logger = logging.getLogger(__name__)
+_probe_frame_path = None
+
+
+def _probe_frame():
+    """Path to the synthetic probe frame, written once per process."""
+    global _probe_frame_path
+    if _probe_frame_path is None or not os.path.isfile(_probe_frame_path):
+        pixels = np.random.RandomState(0).randint(0, 256, _PROBE_FRAME_SHAPE, dtype=np.uint8)
+        directory = tempfile.mkdtemp(prefix='brainscore-temporal-resolution-probe-')
+        path = os.path.join(directory, 'probe.png')
+        PILImage.fromarray(pixels).save(path)
+        _probe_frame_path = path
+    return _probe_frame_path
+
+
+def _probe_stimulus(stimulus_type):
+    """A synthetic stimulus of `stimulus_type`, built without decoding a video.
+
+    A still frame is enough: `Video.from_img_path` returns a `VideoFromImage`,
+    which repeats that frame and so never reaches `decord`. Writing a real clip
+    would be the obvious alternative and was measured first -- but every codec
+    available here rounds the frame size to even numbers (137x211 is read back
+    as 136x210), and the exact spatial size is the one thing this probe exists
+    to report.
+    """
+    path = _probe_frame()
+    if isinstance(stimulus_type, type) and issubclass(stimulus_type, Video):
+        video = stimulus_type.from_img_path(path, duration=_PROBE_DURATION, fps=_PROBE_FPS)
+        # `Video.__getattribute__` resolves the `_original_*` stats lazily
+        # through `cv2.VideoCapture`, which cannot open a still image and logs
+        # two ffmpeg errors before falling back to it. Filling them in here
+        # keeps cv2 out of the probe entirely; `Video.copy` populates the same
+        # three attributes the same way.
+        video._original_fps = _PROBE_FPS
+        video._original_duration = _PROBE_DURATION
+        video._original_size = video.frame_size
+        return video
+    return stimulus_type.from_path(path)
+
+
+def probe_preprocessing_resolution(preprocess, stimulus_type, probe_stimuli=None):
+    """Measure what `preprocess` feeds the model, as a cache-key component.
+
+    Calls `preprocess` the way `BatchExecutor.execute` does -- with one
+    stimulus -- and reports the shape and dtype of what comes back, e.g.
+    ``'3x10x112x112-float32'`` for a (C, T, H, W) tensor. There is no batch
+    dimension to drop: unlike the image path, the temporal preprocessing is
+    called per stimulus.
+
+    :param preprocess: the inferencer's preprocessing callable.
+    :param stimulus_type: the inferencer's stimulus type, which decides what
+        kind of synthetic stimulus the probe is built from.
+    :param probe_stimuli: stimuli to probe with, for tests that need to pin the
+        input; defaults to a single synthetic stimulus.
+    :return: the key component, or `NO_RESOLUTION` if nothing could be measured.
+
+    Never raises. This runs while an extractor is being constructed, for every
+    temporal model in the registry; a preprocessing that cannot be probed must
+    cost a coarser cache key, never a model that cannot be instantiated.
+    """
+    try:
+        stimuli = list(probe_stimuli) if probe_stimuli is not None else [_probe_stimulus(stimulus_type)]
+        if len(stimuli) == 0:
+            return NO_RESOLUTION
+        preprocessed = preprocess(stimuli[0])
+        # A preprocessing that returns a container of per-item tensors carries
+        # the shape on its elements, as on the image path.
+        if isinstance(preprocessed, (list, tuple)):
+            if len(preprocessed) == 0:
+                return NO_RESOLUTION
+            preprocessed = preprocessed[0]
+        shape = getattr(preprocessed, 'shape', None)
+        dtype = getattr(preprocessed, 'dtype', None)
+        # An identity preprocessing hands the `Stimulus` straight back, which
+        # has neither, and there is no resolution to speak of.
+        if shape is None or dtype is None:
+            return NO_RESOLUTION
+        # `torch.float32` and numpy's `float32` must not key differently.
+        component = 'x'.join(str(int(d)) for d in tuple(shape)) + '-' + str(dtype).replace('torch.', '')
+        return component if RESOLUTION_FORMAT.match(component) else NO_RESOLUTION
+    except Exception as e:  # noqa: BLE001 - a failed probe must not fail a run
+        _logger.debug(f"Could not probe the preprocessing resolution ({type(e).__name__}: {e}), "
+                      f"caching under `{NO_RESOLUTION}`")
+        return NO_RESOLUTION
 
 
 # This effectively duplicates the existing non-temporal activations extractor with new functionality for temporal models,
@@ -38,6 +161,12 @@ class ActivationsExtractor:
         self._stimulus_set_hooks = {}
         self._batch_activations_hooks = {}
         self.set_visual_degrees(visual_degrees)
+        # Probed once here rather than per request: it costs milliseconds and
+        # cannot change for the life of the extractor. After
+        # `set_visual_degrees`, so the probe sees the configuration the
+        # stimuli will actually be preprocessed under.
+        self._resolution = probe_preprocessing_resolution(
+            self.inferencer.preprocessing, self.inferencer.stimulus_type)
 
     @property
     def identifier(self):
@@ -101,9 +230,32 @@ class ActivationsExtractor:
         ):
         if layers is None:
             layers = ['logits']
-        if self.identifier and stimuli_identifier:
+        # Identifiers alone do not distinguish plugin revisions, so a cache
+        # keyed on them would serve activations from code that no longer
+        # exists. Append a content revision to each. These values are used
+        # *only* to build the cache key -- _from_paths_stored ignores them
+        # otherwise -- so the returned assembly is unaffected. Either is None
+        # when a revision was required but unresolvable, which means this
+        # request must not be cached at all.
+        #
+        # The revision is looked up under `self._identifier` rather than
+        # `self.identifier`: the latter carries the inferencer configuration
+        # after an `@` and is registered nowhere, so resolving it finds no
+        # plugin and would refuse to cache every temporal model. The full
+        # identifier still goes into the key -- the inferencer configuration
+        # changes the activations.
+        cache_identifier = (model_cache_identifier(self.identifier,
+                                                   lookup_identifier=self._identifier)
+                            if self.identifier else None)
+        cache_stimuli_identifier = (stimulus_set_cache_identifier(stimuli_identifier)
+                                    if stimuli_identifier else None)
+        if cache_identifier and cache_stimuli_identifier:
             fnc = functools.partial(self._from_paths_stored,
-                                    identifier=self.identifier, stimuli_identifier=stimuli_identifier)
+                                    identifier=cache_identifier,
+                                    stimuli_identifier=cache_stimuli_identifier,
+                                    # getattr: extractors built with `__new__`
+                                    # never ran `__init__` and have no probe.
+                                    resolution=getattr(self, '_resolution', None) or NO_RESOLUTION)
         else:
             self._logger.debug(f"self.identifier `{self.identifier}` or stimuli_identifier {stimuli_identifier} "
                                f"are not set, will not store")
@@ -117,7 +269,14 @@ class ActivationsExtractor:
         return activations
 
     @store_xarray(identifier_ignore=['stimuli_paths', 'layers'], combine_fields={'layers': 'layer'})
-    def _from_paths_stored(self, identifier, layers, stimuli_identifier, stimuli_paths):
+    def _from_paths_stored(self, identifier, layers, stimuli_identifier, resolution, stimuli_paths):
+        """`resolution` is used *only* to build the cache key -- like `identifier`
+        and `stimuli_identifier`, it is not forwarded into `_from_paths`. It sits
+        behind `stimuli_identifier` for the same reason as on the image path:
+        `brainscore_vision.score_model` prints a cache-cleanup hint globbing
+        `identifier=...,stimuli_identifier=*.pkl`, which a component inserted
+        ahead of `stimuli_identifier` would silently stop matching.
+        """
         stimuli_paths.sort()
         return self._from_paths(layers=layers, stimuli_paths=stimuli_paths)
 

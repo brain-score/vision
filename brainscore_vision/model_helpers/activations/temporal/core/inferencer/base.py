@@ -116,6 +116,16 @@ class Inferencer:
         to_add = "".join(to_add)
         return f"{self.__class__.__name__}{to_add}"
     
+    @property
+    def preprocessing(self) -> Callable[[Stimulus], Any]:
+        """The callable each stimulus is passed through before inference.
+
+        Held by the executor, which is the only thing that calls it. Exposed
+        here so the extractor can fingerprint it for its cache key without
+        reaching through `_executor`.
+        """
+        return self._executor.preprocess
+
     def set_visual_degrees(self, visual_degrees: float):
         self.visual_degrees = visual_degrees
 

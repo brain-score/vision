@@ -1,0 +1,19 @@
+name: UMI v2
+on:
+  pull_request:
+    branches: [unified-model-interface-v2]
+  push:
+    branches: [unified-model-interface-v2]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  coordinated:
+    name: UMI v2
+    # Update the workflow and runner revision together.
+    uses: KartikP/brainscore-unified/.github/workflows/offline-tests.yml@d445bdb7a6a17aa14aa6dd6bb027b6148d2573f7
+    with:
+      candidate: vision
+      candidate_repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+      candidate_revision: ${{ github.event.pull_request.head.sha || github.sha }}
+      unified_revision: d445bdb7a6a17aa14aa6dd6bb027b6148d2573f7

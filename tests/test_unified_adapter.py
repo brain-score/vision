@@ -277,3 +277,64 @@ class TestVisionAutoWrapping:
 
         assert model is native
         assert not isinstance(model, VisionModelAdapter)
+
+
+@pytest.mark.parametrize('use_session', [False, True], ids=['process', 'session'])
+def test_real_wrapper_matches_legacy_recording(tmp_path, monkeypatch, use_session):
+    """Exercise Core and Vision together without downloaded weights or data."""
+    import torch
+    from PIL import Image
+
+    from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
+    from brainscore_vision.model_helpers.brain_transformation import ModelCommitment
+
+    monkeypatch.setenv('RESULTCACHING_DISABLE', '1')
+    monkeypatch.setattr(torch.cuda, 'is_available', lambda: False)
+    monkeypatch.setattr(torch.backends.mps, 'is_available', lambda: False)
+    paths = {}
+    for index, value in enumerate([1, 2]):
+        path = tmp_path / f'image-{index}.png'
+        Image.new('RGB', (2, 2), (value, value, value)).save(path)
+        paths[f's{index}'] = path
+    stimuli = StimulusSet({'stimulus_id': list(paths)})
+    stimuli.identifier = 'adapter-runtime-images'
+    stimuli.stimulus_paths = paths
+
+    def preprocess(image_paths):
+        images = []
+        for path in image_paths:
+            with Image.open(path) as image:
+                images.append(np.asarray(image, dtype=np.float32).transpose(2, 0, 1))
+        return np.stack(images)
+
+    network = torch.nn.Sequential(torch.nn.Conv2d(3, 1, kernel_size=2, bias=False))
+    with torch.no_grad():
+        network[0].weight.fill_(1)
+    wrapper = PytorchWrapper(
+        model=network,
+        preprocessing=preprocess,
+        identifier='adapter-runtime-model',
+        batch_size=1,
+    )
+    legacy = ModelCommitment(
+        identifier='adapter-runtime-model',
+        activations_model=wrapper,
+        layers=['0'],
+        region_layer_map={'IT': '0'},
+    )
+    legacy.start_recording('IT', time_bins=[(70, 170)])
+    expected = legacy.look_at(stimuli, number_of_trials=1)
+    np.testing.assert_array_equal(expected.values.reshape(-1), [12, 24])
+    legacy.reset()
+
+    adapter = VisionModelAdapter(legacy)
+    if use_session:
+        actual = neural_response(adapter, stimuli, record='IT')
+    else:
+        adapter.start_recording('IT', time_bins=[(70, 170)])
+        actual = adapter.process(stimuli)
+
+    xr.testing.assert_identical(actual, expected)
+    assert list(actual['stimulus_id'].values) == ['s0', 's1']
+    assert not network[0]._forward_hooks
+    adapter.reset()

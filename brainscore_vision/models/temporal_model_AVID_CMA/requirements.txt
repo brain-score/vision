@@ -1,3 +1,4 @@
 avid_cma @ git+https://github.com/YingtianDt/AVID-CMA.git
 torch
 torchvision
+pyav

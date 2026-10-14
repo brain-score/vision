@@ -338,3 +338,28 @@ def test_real_wrapper_matches_legacy_recording(tmp_path, monkeypatch, use_sessio
     assert list(actual['stimulus_id'].values) == ['s0', 's1']
     assert not network[0]._forward_hooks
     adapter.reset()
+
+
+@pytest.mark.parametrize('workflow_name', [
+    'map_new_plugins.yml',
+    'automerge_plugin-only_prs.yml',
+    'check_if_pr_is_automergeable.yml',
+])
+def test_v2_prs_require_manual_submission_actions(workflow_name):
+    from pathlib import Path
+    import yaml
+
+    workflows = Path(__file__).resolve().parents[1] / '.github/workflows'
+    workflow = yaml.load(
+        (workflows / workflow_name).read_text(),
+        Loader=yaml.BaseLoader,
+    )
+    assert workflow['on']['pull_request']['branches-ignore'] == [
+        'unified-model-interface-v2',
+    ]
+    assert 'branches' not in workflow['on']['pull_request']
+
+    # The normal v2 checks must still run for PRs and pushes.
+    checks = yaml.load((workflows / 'umi-v2.yml').read_text(), Loader=yaml.BaseLoader)
+    for event in ['pull_request', 'push']:
+        assert checks['on'][event]['branches'] == ['unified-model-interface-v2']

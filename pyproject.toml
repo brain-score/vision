@@ -38,6 +38,7 @@ dependencies = [
 [project.optional-dependencies]
 test = [
     "pytest",
+    "PyYAML>=6,<7",
     "pytest_check",
     "pytest-mock",
     "pytest-timeout",

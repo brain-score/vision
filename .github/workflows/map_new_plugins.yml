@@ -6,6 +6,8 @@ name: Perform layer mapping
 on:
   status:
   pull_request:
+    # UMI mapping requires a separate maintainer request.
+    branches-ignore: [unified-model-interface-v2]
     types: [labeled, synchronize]
 
 jobs:

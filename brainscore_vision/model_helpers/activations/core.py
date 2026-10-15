@@ -52,8 +52,10 @@ NO_RESOLUTION = 'unprobed'
 _PROBE_IMAGE_SHAPE = (137, 211, 3)  # height, width, RGB
 
 # The component goes into a filename and into a `,`-joined parameter list, so
-# anything that is not digits, `x`, `-` and the dtype name is refused.
-_RESOLUTION_FORMAT = re.compile(r'^\d+(x\d+)*-\w+$')
+# anything that is not digits, `x`, `-` and the dtype name is refused. Public
+# because the temporal extractor validates its own component against it: the
+# two halves of the key must not drift into different formats.
+RESOLUTION_FORMAT = re.compile(r'^\d+(x\d+)*-\w+$')
 
 _logger = logging.getLogger(__name__)
 _probe_image_path = None
@@ -111,7 +113,7 @@ def probe_preprocessing_resolution(preprocess, probe_paths=None):
         dimensions = tuple(shape)[1:] if leading_axis_is_batch else tuple(shape)
         # `torch.float32` and numpy's `float32` must not key differently.
         component = 'x'.join(str(int(d)) for d in dimensions) + '-' + str(dtype).replace('torch.', '')
-        return component if _RESOLUTION_FORMAT.match(component) else NO_RESOLUTION
+        return component if RESOLUTION_FORMAT.match(component) else NO_RESOLUTION
     except Exception as e:  # noqa: BLE001 - a failed probe must not fail a run
         _logger.debug(f"Could not probe the preprocessing resolution ({type(e).__name__}: {e}), "
                       f"caching under `{NO_RESOLUTION}`")

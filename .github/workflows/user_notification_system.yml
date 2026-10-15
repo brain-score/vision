@@ -84,20 +84,22 @@ jobs:
         id: get_pr_title
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_TITLE: ${{ inputs.pr_title }}
         run: |
-          if [ -z "${{ inputs.pr_title }}" ]; then
+          if [ -z "$INPUT_TITLE" ]; then
             echo "Fetching PR title because it wasn't provided"
             PR_TITLE=$(gh pr view ${{ inputs.pr_number }} --repo ${{ github.repository }} --json title -q .title)
             echo "PR_TITLE=$PR_TITLE" >> $GITHUB_ENV
           else
-            echo "PR_TITLE=${{ inputs.pr_title }}" >> $GITHUB_ENV
+            echo "PR_TITLE=$INPUT_TITLE" >> $GITHUB_ENV
           fi
 
       - name: Update email for automerge-web (find email from uid)
         if: inputs.is_automerge_web
         id: automerge_web
         run: |
-          BS_UID="$(echo $PR_TITLE | sed -E 's/.*\(user:([^)]+)\).*/\1/')"
+          BS_UID="$(sed -E 's/.*\(user:([^)]+)\).*/\1/' <<< "$PR_TITLE")"
+          [[ "$BS_UID" =~ ^[0-9]+$ ]] || { echo "No numeric user id in the PR title"; exit 1; }
           EMAIL=$(python -c "from brainscore_core.submission.database import email_from_uid; from brainscore_core.submission.endpoints import UserManager; user_manager=UserManager(db_secret='${{ secrets.BSC_DATABASESECRET }}'); print(email_from_uid($BS_UID))")
           echo "::add-mask::$EMAIL" # Mask the EMAIL
           echo "EMAIL=$EMAIL" >> $GITHUB_ENV

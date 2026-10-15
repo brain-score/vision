@@ -19,3 +19,8 @@ benchmark_registry['Li2026.V1-pls'] = Li2026V1PLS
 benchmark_registry['Li2026.V2-pls'] = Li2026V2PLS
 benchmark_registry['Li2026.V4-pls'] = Li2026V4PLS
 benchmark_registry['Li2026.IT-pls'] = Li2026ITPLS
+
+# Li2026.{region}-temporal-pls are deliberately NOT registered: CI scores every
+# registry line in a changed plugin against all public models, and load_benchmark
+# needs a registry id, so leaving them out keeps them off every scoring path. Run
+# locally via benchmark.Li2026{V1,V2,V4,IT}Temporal() (see data/li2026/README.md).

@@ -94,10 +94,23 @@ def revision_enabled() -> bool:
     return os.environ.get(_ENABLE_VAR, '0').strip().lower() in ('1', 'true', 'yes')
 
 
-def model_cache_identifier(identifier: str) -> str:
-    """Model identifier with its plugin revision appended, for cache keying."""
+def model_cache_identifier(identifier: str, lookup_identifier: Optional[str] = None) -> str:
+    """Model identifier with its plugin revision appended, for cache keying.
+
+    ``lookup_identifier`` names the registered plugin whose revision to resolve,
+    for callers whose cache identifier is not itself a registered name. The
+    temporal extractor keys on ``<plugin>@<inferencer configuration>``, which is
+    registered nowhere, so resolving the whole string finds no plugin and the
+    request is refused; the revision has to be looked up under the plugin part
+    alone while the full string stays in the key. Defaults to `identifier`,
+    which is what the image path passes.
+
+    This mirrors :func:`stimulus_set_cache_identifier`, which needs the same
+    split for screen-converted and synthesised stimulus sets.
+    """
     return _with_revision(identifier, plugin_type='models',
-                          env_var='BRAINSCORE_MODEL_PLUGIN_SHA')
+                          env_var='BRAINSCORE_MODEL_PLUGIN_SHA',
+                          lookup_identifier=lookup_identifier)
 
 
 def stimulus_set_cache_identifier(stimuli_identifier: str) -> str:

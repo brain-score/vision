@@ -6,11 +6,32 @@ from brainscore_vision import benchmark_registry, load_benchmark
 REGIONS = ['V1', 'V2', 'V4', 'IT']
 METRICS = ['ridgecv', 'pls']
 IDENTIFIERS = [f'Li2026.{r}-{m}' for r in REGIONS for m in METRICS]
+TEMPORAL_IDS = [f'Li2026.{r}-temporal-pls' for r in REGIONS]
 
 
 @pytest.mark.parametrize('identifier', IDENTIFIERS)
 def test_registered(identifier):
     assert identifier in benchmark_registry
+
+
+@pytest.mark.parametrize('identifier', TEMPORAL_IDS)
+def test_temporal_not_registered(identifier):
+    # unregistered so CI and prod scoring can never pick it up
+    assert identifier not in benchmark_registry
+
+
+@pytest.mark.parametrize('region,min_neuroids', [('V1', 2500), ('V2', 2500), ('V4', 3000), ('IT', 26000)])
+def test_temporal_benchmark(region, min_neuroids):
+    from brainscore_vision.benchmarks.li2026 import benchmark as li2026
+    benchmark = getattr(li2026, f'Li2026{region}Temporal')()
+    assembly = benchmark._assembly
+    assert benchmark.parent is None  # offline use only, out of the scored tree
+    assert set(np.unique(assembly['region'].values)) == {region}
+    assert assembly.sizes['presentation'] == 1000
+    assert assembly.sizes['time_bin'] == 30          # 0-300ms @ 10ms bins
+    assert assembly.sizes['neuroid'] >= min_neuroids
+    assert (assembly['reliability'].values > 0.4).all()
+    assert 0 < float(benchmark.ceiling) <= 1
 
 
 @pytest.mark.parametrize('region', REGIONS)

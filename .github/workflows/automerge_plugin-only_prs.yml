@@ -9,6 +9,8 @@ name: Automatically merge plugin-only PRs
 
 on:
   pull_request:
+    # Passing UMI checks do not authorize an automatic merge.
+    branches-ignore: [unified-model-interface-v2]
     types: [labeled]
 
 permissions: write-all

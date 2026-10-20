@@ -1,0 +1,206 @@
+schema_version: "2.0"
+domain: vision
+models:
+  dinov2_vitl14_reg_lc:
+    sources:
+      dinov2_paper:
+        kind: paper
+        url: https://arxiv.org/pdf/2304.07193
+        citation: "Oquab et al., DINOv2 (arXiv:2304.07193v2): Sec 4-5, 7.1, 8; Tables 4, 12, 13, 15, 16, 17; App A-B"
+      registers_paper:
+        kind: paper
+        url: https://arxiv.org/pdf/2309.16588
+        citation: "Darcet et al., Vision Transformers Need Registers (arXiv:2309.16588v2): Sec 2.2, 3.1-3.2, 3.3; App A, D"
+      dinov2_readme:
+        kind: other
+        url: https://raw.githubusercontent.com/facebookresearch/dinov2/main/README.md
+        citation: "facebookresearch/dinov2 README (main branch, unpinned): pretrained model and head tables, weight URLs, license"
+      dinov2_license:
+        kind: other
+        url: https://raw.githubusercontent.com/facebookresearch/dinov2/main/LICENSE
+        citation: "facebookresearch/dinov2 LICENSE (Apache License 2.0), code license"
+      dinov2_hubconf:
+        kind: other
+        url: https://raw.githubusercontent.com/facebookresearch/dinov2/main/hubconf.py
+        citation: "facebookresearch/dinov2 hubconf.py: torch.hub entry point dinov2_vitl14_reg_lc"
+      dinov2_hub_backbones:
+        kind: other
+        url: https://raw.githubusercontent.com/facebookresearch/dinov2/main/dinov2/hub/backbones.py
+        citation: "dinov2/hub/backbones.py: dinov2_vitl14_reg (ViT-L/14, 4 register tokens, default img_size 518)"
+      dinov2_hub_classifiers:
+        kind: other
+        url: https://raw.githubusercontent.com/facebookresearch/dinov2/main/dinov2/hub/classifiers.py
+        citation: "dinov2/hub/classifiers.py: dinov2_vitl14_reg_lc (4-layer linear head, ImageNet-1k, LVD-142M backbone)"
+    model:
+      architecture:
+        family: vision_transformer
+        description: "ViT-L/14 (24 blocks, 1024-dim, 16 heads, MLP FFN) with 4 register tokens; linear head on CLS tokens of the last 4 blocks plus mean-pooled final patch tokens (5120 inputs) to 1000 logits."
+      trainable_layers: "Linear head only on frozen backbone features (linear-probe protocol); backbone not fine-tuned."
+      recurrent: false
+      input_resolution:
+        height: 224
+        width: 224
+      supervision:
+        type: self_supervised
+        description: "Backbone self-supervised on LVD-142M without labels; 1000-way linear head trained with ImageNet-1k labels."
+
+    training:
+      process: "DINOv2-style self-supervised pretraining on LVD-142M (no labels), distilled from a frozen ViT-g/14 teacher, with 4 register tokens; short 518px high-resolution phase; ImageNet-1k linear head trained afterward. Recipe-level, not checkpoint logs."
+      objective: "Self-supervised DINO image-level and iBOT patch-level student-teacher objectives; linear head: ImageNet-1k classification."
+      loss: "DINO cross-entropy plus iBOT masked-patch loss, with KoLeo regularizer (weight 0.1); linear-head loss not stated."
+      learning_rate: "1e-3 (recipe for distilled ViT-L/14, AdamW; no LR scaling rule stated; not a checkpoint log)"
+      batch_size: "2048 (recipe, Table 16; per-device vs total split not stated)"
+      preprocessing: "Pretraining crops 224 (global) and 98 (local); 518px high-resolution adaptation for 10k iterations at the end. Evaluation input: see io/input_format."
+
+    data:
+      summary: "Backbone: LVD-142M, 142,109,386 curated web images, no labels. Linear head: ImageNet-1k train, 1,281,167 labeled images."
+      training_datasets:
+        - identifier: lvd-142m
+          name: LVD-142M
+          role: pretraining
+          description: "142,109,386 images; no labels; backbone pretraining."
+        - identifier: imagenet-1k
+          name: ImageNet-1k train
+          role: training
+          description: "1,281,167 images; labels for the 1000-way linear head."
+
+    eval:
+      test_datasets:
+        - identifier: imagenet-1k
+          name: ImageNet-1k
+          description: "Linear-head top-1 86.5% per DINOv2 README (split not stated)."
+
+    io:
+      modality: image
+      interface: "torch.hub nn.Module; forward(images) returns 1000 ImageNet-1k logits from the linear head."
+      input_format: "Image batch; Brain-Score evaluation at 224x224 (native pretraining size 518; resize transform not verified)."
+      output_format: "1000 ImageNet-1k logits per image."
+
+    provenance:
+      weights_provider: "Meta AI (FAIR) via facebookresearch/dinov2 torch.hub; weights hosted on dl.fbaipublicfiles.com."
+      checkpoint: "torch.hub dinov2_vitl14_reg_lc: backbone dinov2_vitl14_reg4_pretrain.pth + head dinov2_vitl14_reg4_linear4_head.pth (main branch, unpinned)."
+      source_url: "https://raw.githubusercontent.com/facebookresearch/dinov2/main/README.md"
+
+    legal:
+      license: "Apache-2.0 for code and model weights (DINOv2 README and LICENSE)."
+
+    people:
+      creators:
+        - "Timothée Darcet"
+        - "Maxime Oquab"
+        - "Julien Mairal"
+        - "Piotr Bojanowski"
+      organizations:
+        - "FAIR, Meta"
+        - "Univ. Grenoble Alpes, Inria, CNRS, Grenoble INP, LJK"
+
+    use:
+      applications:
+        - "Frozen-feature image classification (ImageNet-1k linear head)"
+        - "Dense feature analysis and unsupervised object discovery (LOST)"
+      limitations:
+        - "Register-token gains are reported for the paper's own ImageNet-22k ViT-L runs, not for this released checkpoint."
+        - "DINOv2 fairness analyses used ViT-g/14; none was run on this ViT-L/14 registers checkpoint."
+      biases:
+        - "Geographic (ViT-g/14, Dollar Street): accuracy lower for Africa than Europe; not measured for this checkpoint."
+        - "Label associations (ViT-g/14): 'Possibly-Human' predicted more often for men than women; not measured for this checkpoint."
+
+    lineage:
+      base_models:
+        - name: "DINOv2 ViT-L/14 (no registers)"
+          relationship: variant_of
+
+    assertions:
+      - path: /model/architecture/family
+        status: probable
+        sources: [dinov2_hub_backbones, dinov2_hub_classifiers]
+      - path: /model/architecture/description
+        status: probable
+        sources: [dinov2_hub_backbones, dinov2_hub_classifiers, dinov2_paper, registers_paper, dinov2_readme]
+      - path: /model/recurrent
+        status: probable
+        sources: [dinov2_paper]
+      - path: /model/input_resolution/height
+        status: uncertain
+        sources: [dinov2_paper]
+      - path: /model/input_resolution/width
+        status: uncertain
+        sources: [dinov2_paper]
+      - path: /model/supervision/type
+        status: probable
+        sources: [dinov2_paper, dinov2_hub_classifiers]
+      - path: /model/supervision/description
+        status: probable
+        sources: [dinov2_paper, dinov2_hub_classifiers]
+      - path: /model/trainable_layers
+        status: uncertain
+        sources: [dinov2_paper, dinov2_hub_classifiers]
+      - path: /training/process
+        status: uncertain
+        sources: [dinov2_paper, registers_paper, dinov2_readme]
+      - path: /training/objective
+        status: uncertain
+        sources: [dinov2_paper]
+      - path: /training/loss
+        status: uncertain
+        sources: [dinov2_paper]
+      - path: /training/learning_rate
+        status: uncertain
+        sources: [dinov2_paper]
+      - path: /training/batch_size
+        status: uncertain
+        sources: [dinov2_paper]
+      - path: /training/preprocessing
+        status: uncertain
+        sources: [dinov2_paper]
+      - path: /data/summary
+        status: probable
+        sources: [dinov2_paper, dinov2_hub_classifiers]
+      - path: /data/training_datasets
+        status: probable
+        sources: [dinov2_paper, dinov2_hub_classifiers]
+      - path: /eval/test_datasets
+        status: probable
+        sources: [dinov2_readme]
+      - path: /io/modality
+        status: probable
+        sources: [dinov2_hub_classifiers]
+      - path: /io/interface
+        status: probable
+        sources: [dinov2_hub_classifiers]
+      - path: /io/input_format
+        status: uncertain
+        sources: [dinov2_paper, dinov2_hub_backbones]
+      - path: /io/output_format
+        status: probable
+        sources: [dinov2_hub_classifiers]
+      - path: /provenance/weights_provider
+        status: probable
+        sources: [dinov2_readme, dinov2_hubconf]
+      - path: /provenance/checkpoint
+        status: probable
+        sources: [dinov2_hubconf, dinov2_hub_backbones, dinov2_readme]
+      - path: /provenance/source_url
+        status: probable
+        sources: [dinov2_readme]
+      - path: /legal/license
+        status: probable
+        sources: [dinov2_readme, dinov2_license]
+      - path: /people/creators
+        status: probable
+        sources: [registers_paper]
+      - path: /people/organizations
+        status: probable
+        sources: [registers_paper]
+      - path: /use/applications
+        status: probable
+        sources: [dinov2_paper, registers_paper]
+      - path: /use/limitations
+        status: probable
+        sources: [registers_paper, dinov2_paper]
+      - path: /use/biases
+        status: probable
+        sources: [dinov2_paper]
+      - path: /lineage/base_models
+        status: probable
+        sources: [registers_paper, dinov2_readme]

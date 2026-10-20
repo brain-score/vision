@@ -36,9 +36,10 @@ models:
         url: https://raw.githubusercontent.com/facebookresearch/dinov2/main/dinov2/hub/classifiers.py
         citation: 'dinov2/hub/classifiers.py: dinov2_vitl14_reg_lc (4-layer linear
           head, ImageNet-1k, LVD-142M backbone)'
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
+      instantiation:
+        kind: other
+        url: https://github.com/brain-score/vision/actions/runs/39461701158
+        citation: Parameter count computed by instantiating torch.hub dinov2_vitl14_reg_lc (unpinned main) in the handle_metadata workflow run on 2026-10-20
     model:
       architecture:
         family: vision_transformer
@@ -56,6 +57,7 @@ models:
         description: Backbone self-supervised on LVD-142M without labels; 1000-way
           linear head trained with ImageNet-1k labels.
       parameter_count: 309493736
+      parameter_count_exact: true
     training:
       process: DINOv2-style self-supervised pretraining on LVD-142M (no labels), distilled
         from a frozen ViT-g/14 teacher, with 4 register tokens; short 518px high-resolution
@@ -277,7 +279,7 @@ models:
     - path: /model/parameter_count
       status: probable
       sources:
-      - legacy
+      - instantiation
     legacy:
       architecture: DCNN, Transformer
       model_family: vit

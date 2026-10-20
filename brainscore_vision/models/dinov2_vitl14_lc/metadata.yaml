@@ -1,4 +1,4 @@
-schema_version: "2.0"
+schema_version: '2.0'
 domain: vision
 models:
   dinov2_vitl14_lc:
@@ -34,24 +34,24 @@ models:
       hf_api:
         kind: huggingface
         url: https://huggingface.co/api/models/facebook/dinov2-large
-        citation: Related backbone-only repo facebook/dinov2-large, safetensors parameter total
+        citation: Related backbone-only repo facebook/dinov2-large, safetensors parameter
+          total
       hf_card:
         kind: huggingface
         url: https://huggingface.co/facebook/dinov2-large/resolve/main/README.md
-        citation: Related backbone-only card facebook/dinov2-large (written by Hugging Face team)
+        citation: Related backbone-only card facebook/dinov2-large (written by Hugging
+          Face team)
     model:
       display_name: DINOv2 ViT-L/14 with ImageNet linear classifier
       architecture:
         family: vision_transformer
-        description: >-
-          DINOv2 ViT-L/14 backbone (distilled variant: 24 blocks, 1024 dim,
-          16 heads, MLP FFN) plus a linear 1000-class head on the class tokens
-          of the last 4 blocks and the mean-pooled last-block patch tokens.
+        description: 'DINOv2 ViT-L/14 backbone (distilled variant: 24 blocks, 1024
+          dim, 16 heads, MLP FFN) plus a linear 1000-class head on the class tokens
+          of the last 4 blocks and the mean-pooled last-block patch tokens.'
       parameter_count: 309489640
       parameter_count_exact: false
-      trainable_layers: >-
-        Backbone frozen during ImageNet head training; only the linear head
-        was trained with labels.
+      trainable_layers: Backbone frozen during ImageNet head training; only the linear
+        head was trained with labels.
       recurrent: false
       input_resolution:
         channels: 3
@@ -59,164 +59,291 @@ models:
         width: 224
       supervision:
         type: self_supervised
-        description: >-
-          Self-supervised backbone (distilled from DINOv2 ViT-g/14);
-          supervised linear head trained on ImageNet-1k labels.
+        description: Self-supervised backbone (distilled from DINOv2 ViT-g/14); supervised
+          linear head trained on ImageNet-1k labels.
     training:
-      process: >-
-        Backbone: self-supervised distillation from a frozen DINOv2 ViT-g/14
-        teacher on LVD-142M (paper recipe: 625k iterations, AdamW, short
-        518 px phase at end). Head: linear probe on frozen features, SGD,
-        12,500 iterations.
-      objective: >-
-        Backbone: match teacher image-level (DINO) and patch-level (iBOT)
-        prototype distributions. Head: 1000-way ImageNet-1k classification.
-      loss: >-
-        Backbone: DINO and iBOT cross-entropy terms with KoLeo regularizer
-        (weight 0.1, pretraining recipe). Head loss not stated.
-      learning_rate: >-
-        Backbone recipe: 1e-3 (distilled ViT-L/14), 100k-iteration warmup.
-        Head: grid search 1e-4 to 0.5; selected value not published.
-      batch_size: >-
-        Backbone recipe: 2048 (distilled ViT-L/14; per-GPU split not
-        stated). Head: not stated.
-      preprocessing: >-
-        Pretraining: multi-crop, 224 px global and 98 px local crops, then
-        518 px adaptation. Head training: random-resized-crop augmentation.
+      process: 'Backbone: self-supervised distillation from a frozen DINOv2 ViT-g/14
+        teacher on LVD-142M (paper recipe: 625k iterations, AdamW, short 518 px phase
+        at end). Head: linear probe on frozen features, SGD, 12,500 iterations.'
+      objective: 'Backbone: match teacher image-level (DINO) and patch-level (iBOT)
+        prototype distributions. Head: 1000-way ImageNet-1k classification.'
+      loss: 'Backbone: DINO and iBOT cross-entropy terms with KoLeo regularizer (weight
+        0.1, pretraining recipe). Head loss not stated.'
+      learning_rate: 'Backbone recipe: 1e-3 (distilled ViT-L/14), 100k-iteration warmup.
+        Head: grid search 1e-4 to 0.5; selected value not published.'
+      batch_size: 'Backbone recipe: 2048 (distilled ViT-L/14; per-GPU split not stated).
+        Head: not stated.'
+      preprocessing: 'Pretraining: multi-crop, 224 px global and 98 px local crops,
+        then 518 px adaptation. Head training: random-resized-crop augmentation.'
     data:
-      summary: >-
-        Backbone pretrained without labels on LVD-142M; linear head trained
+      summary: Backbone pretrained without labels on LVD-142M; linear head trained
         on ImageNet-1k labels.
       training_datasets:
-        - identifier: other
-          name: LVD-142M
-          role: pretraining
-          description: 142,109,386 curated, deduplicated unlabeled images; backbone distillation.
-        - identifier: imagenet-1k
-          name: ImageNet-1k (ILSVRC-2012)
-          role: training
-          description: Train split, 1.28M labeled images; linear head only, backbone frozen.
+      - identifier: other
+        name: LVD-142M
+        role: pretraining
+        description: 142,109,386 curated, deduplicated unlabeled images; backbone
+          distillation.
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+        description: Train split, 1.28M labeled images; linear head only, backbone
+          frozen.
     eval:
       validation_datasets:
-        - identifier: imagenet-1k
-          name: ImageNet-1k (ILSVRC-2012)
-          description: Val top-1 86.3% for ViT-L/14 linear probe; also used for probe selection.
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        description: Val top-1 86.3% for ViT-L/14 linear probe; also used for probe
+          selection.
       test_datasets:
-        - identifier: other
-          name: ImageNet-V2
-          description: Top-1 78.0% (ViT-L/14 linear probe).
-        - identifier: other
-          name: ImageNet-ReaL
-          description: Top-1 89.5% (ViT-L/14 linear probe).
-        - identifier: imagenet-a
-          name: ImageNet-A
-          description: Top-1 71.3% (ViT-L/14 linear probe, 224 px).
-        - identifier: other
-          name: ImageNet-R
-          description: Top-1 74.4% (ViT-L/14 linear probe, 224 px).
-        - identifier: imagenet-c
-          name: ImageNet-C
-          description: Error 31.5 (ViT-L/14 linear probe, 224 px; lower is better).
-        - identifier: other
-          name: ImageNet-Sketch
-          description: Top-1 59.3% (ViT-L/14 linear probe, 224 px).
+      - identifier: other
+        name: ImageNet-V2
+        description: Top-1 78.0% (ViT-L/14 linear probe).
+      - identifier: other
+        name: ImageNet-ReaL
+        description: Top-1 89.5% (ViT-L/14 linear probe).
+      - identifier: imagenet-a
+        name: ImageNet-A
+        description: Top-1 71.3% (ViT-L/14 linear probe, 224 px).
+      - identifier: other
+        name: ImageNet-R
+        description: Top-1 74.4% (ViT-L/14 linear probe, 224 px).
+      - identifier: imagenet-c
+        name: ImageNet-C
+        description: Error 31.5 (ViT-L/14 linear probe, 224 px; lower is better).
+      - identifier: other
+        name: ImageNet-Sketch
+        description: Top-1 59.3% (ViT-L/14 linear probe, 224 px).
     io:
       modality: image
-      interface: >-
-        torch.hub dinov2_vitl14_lc wrapped by Brain-Score PytorchWrapper;
-        activations from backbone.blocks 3, 7, 11, 15, 19, 23; behavioral
-        readout from linear_head.
-      input_format: >-
-        RGB images at 224x224 via Brain-Score load_preprocess_images (16x16
-        patches of 14 px); positional embeddings are defined at 518 px and
-        interpolated.
+      interface: torch.hub dinov2_vitl14_lc wrapped by Brain-Score PytorchWrapper;
+        activations from backbone.blocks 3, 7, 11, 15, 19, 23; behavioral readout
+        from linear_head.
+      input_format: RGB images at 224x224 via Brain-Score load_preprocess_images (16x16
+        patches of 14 px); positional embeddings are defined at 518 px and interpolated.
       output_format: 1000 ImageNet-1k class logits per image, shape (B, 1000).
     provenance:
       weights_provider: Meta AI Research (FAIR), via torch.hub facebookresearch/dinov2
-      checkpoint: >-
-        torch.hub facebookresearch/dinov2 dinov2_vitl14_lc (layers=4):
-        dinov2_vitl14_pretrain.pth + dinov2_vitl14_linear4_head.pth; hub ref
-        not pinned.
+      checkpoint: 'torch.hub facebookresearch/dinov2 dinov2_vitl14_lc (layers=4):
+        dinov2_vitl14_pretrain.pth + dinov2_vitl14_linear4_head.pth; hub ref not pinned.'
       source_url: https://github.com/facebookresearch/dinov2
     legal:
       license: Apache-2.0
     people:
       creators:
-        - Maxime Oquab
-        - Timothée Darcet
-        - Théo Moutakanni
-        - Huy V. Vo
-        - Marc Szafraniec
-        - Vasil Khalidov
-        - Pierre Fernandez
-        - Daniel Haziza
-        - Francisco Massa
-        - Alaaeldin El-Nouby
-        - Mahmoud Assran
-        - Nicolas Ballas
-        - Wojciech Galuba
-        - Russell Howes
-        - Po-Yao Huang
-        - Shang-Wen Li
-        - Ishan Misra
-        - Michael Rabbat
-        - Vasu Sharma
-        - Gabriel Synnaeve
-        - Hu Xu
-        - Hervé Jegou
-        - Julien Mairal
-        - Patrick Labatut
-        - Armand Joulin
-        - Piotr Bojanowski
+      - Maxime Oquab
+      - Timothée Darcet
+      - Théo Moutakanni
+      - Huy V. Vo
+      - Marc Szafraniec
+      - Vasil Khalidov
+      - Pierre Fernandez
+      - Daniel Haziza
+      - Francisco Massa
+      - Alaaeldin El-Nouby
+      - Mahmoud Assran
+      - Nicolas Ballas
+      - Wojciech Galuba
+      - Russell Howes
+      - Po-Yao Huang
+      - Shang-Wen Li
+      - Ishan Misra
+      - Michael Rabbat
+      - Vasu Sharma
+      - Gabriel Synnaeve
+      - Hu Xu
+      - Hervé Jegou
+      - Julien Mairal
+      - Patrick Labatut
+      - Armand Joulin
+      - Piotr Bojanowski
       organizations:
-        - Meta AI Research
-        - Inria
+      - Meta AI Research
+      - Inria
     use:
       applications:
-        - ImageNet-1k image classification
-        - General-purpose frozen visual features with linear heads
+      - ImageNet-1k image classification
+      - General-purpose frozen visual features with linear heads
       biases:
-        - >-
-          Family-level (ViT-g/14 only): lower Dollar Street accuracy for
-          Africa (-25.7% vs Europe) and low-income households (-31.7% vs
-          high); not evaluated for ViT-L/14.
+      - 'Family-level (ViT-g/14 only): lower Dollar Street accuracy for Africa (-25.7%
+        vs Europe) and low-income households (-31.7% vs high); not evaluated for ViT-L/14.'
     lineage:
       base_models:
-        - name: DINOv2 ViT-L/14 backbone (dinov2_vitl14, frozen)
-          relationship: derived_from
-        - name: DINOv2 ViT-g/14 (frozen distillation teacher)
-          relationship: derived_from
+      - name: DINOv2 ViT-L/14 backbone (dinov2_vitl14, frozen)
+        relationship: derived_from
+      - name: DINOv2 ViT-g/14 (frozen distillation teacher)
+        relationship: derived_from
     assertions:
-      - {path: /model/display_name, status: probable, sources: [plugin, hub_classifiers]}
-      - {path: /model/architecture/family, status: probable, sources: [paper, hub_backbones]}
-      - {path: /model/architecture/description, status: probable, sources: [paper, hub_classifiers, hub_backbones]}
-      - {path: /model/parameter_count, status: uncertain, sources: [hf_api, hub_classifiers]}
-      - {path: /model/parameter_count_exact, status: uncertain, sources: [hf_api, hub_classifiers]}
-      - {path: /model/trainable_layers, status: probable, sources: [paper, readme]}
-      - {path: /model/recurrent, status: probable, sources: [hub_classifiers, paper]}
-      - {path: /model/input_resolution, status: probable, sources: [plugin]}
-      - {path: /model/supervision/type, status: uncertain, sources: [paper, hub_classifiers]}
-      - {path: /model/supervision/description, status: probable, sources: [paper, hub_classifiers]}
-      - {path: /training/process, status: uncertain, sources: [paper]}
-      - {path: /training/objective, status: probable, sources: [paper]}
-      - {path: /training/loss, status: uncertain, sources: [paper]}
-      - {path: /training/learning_rate, status: uncertain, sources: [paper]}
-      - {path: /training/batch_size, status: uncertain, sources: [paper]}
-      - {path: /training/preprocessing, status: uncertain, sources: [paper]}
-      - {path: /data/summary, status: probable, sources: [paper, hub_classifiers]}
-      - {path: /data/training_datasets, status: probable, sources: [paper, hub_classifiers]}
-      - {path: /eval/validation_datasets, status: uncertain, sources: [paper, readme]}
-      - {path: /eval/test_datasets, status: uncertain, sources: [paper]}
-      - {path: /io/modality, status: probable, sources: [plugin]}
-      - {path: /io/interface, status: probable, sources: [plugin, hub_classifiers]}
-      - {path: /io/input_format, status: probable, sources: [plugin, hub_backbones]}
-      - {path: /io/output_format, status: probable, sources: [hub_classifiers, plugin]}
-      - {path: /provenance/weights_provider, status: probable, sources: [readme, hub_classifiers]}
-      - {path: /provenance/checkpoint, status: uncertain, sources: [plugin, hubconf, hub_classifiers, hub_backbones, readme]}
-      - {path: /provenance/source_url, status: probable, sources: [readme]}
-      - {path: /legal/license, status: probable, sources: [readme, license_file, paper]}
-      - {path: /people/creators, status: probable, sources: [paper]}
-      - {path: /people/organizations, status: probable, sources: [paper]}
-      - {path: /use/applications, status: probable, sources: [readme, paper]}
-      - {path: /use/biases, status: uncertain, sources: [paper]}
-      - {path: /lineage/base_models, status: probable, sources: [paper, hub_classifiers, readme, hf_card]}
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin
+      - hub_classifiers
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - paper
+      - hub_backbones
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - paper
+      - hub_classifiers
+      - hub_backbones
+    - path: /model/parameter_count
+      status: uncertain
+      sources:
+      - hf_api
+      - hub_classifiers
+    - path: /model/parameter_count_exact
+      status: uncertain
+      sources:
+      - hf_api
+      - hub_classifiers
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - paper
+      - readme
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - hub_classifiers
+      - paper
+    - path: /model/input_resolution
+      status: probable
+      sources:
+      - plugin
+    - path: /model/supervision/type
+      status: uncertain
+      sources:
+      - paper
+      - hub_classifiers
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - paper
+      - hub_classifiers
+    - path: /training/process
+      status: uncertain
+      sources:
+      - paper
+    - path: /training/objective
+      status: probable
+      sources:
+      - paper
+    - path: /training/loss
+      status: uncertain
+      sources:
+      - paper
+    - path: /training/learning_rate
+      status: uncertain
+      sources:
+      - paper
+    - path: /training/batch_size
+      status: uncertain
+      sources:
+      - paper
+    - path: /training/preprocessing
+      status: uncertain
+      sources:
+      - paper
+    - path: /data/summary
+      status: probable
+      sources:
+      - paper
+      - hub_classifiers
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - paper
+      - hub_classifiers
+    - path: /eval/validation_datasets
+      status: uncertain
+      sources:
+      - paper
+      - readme
+    - path: /eval/test_datasets
+      status: uncertain
+      sources:
+      - paper
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin
+    - path: /io/interface
+      status: probable
+      sources:
+      - plugin
+      - hub_classifiers
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin
+      - hub_backbones
+    - path: /io/output_format
+      status: probable
+      sources:
+      - hub_classifiers
+      - plugin
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - readme
+      - hub_classifiers
+    - path: /provenance/checkpoint
+      status: uncertain
+      sources:
+      - plugin
+      - hubconf
+      - hub_classifiers
+      - hub_backbones
+      - readme
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - readme
+    - path: /legal/license
+      status: probable
+      sources:
+      - readme
+      - license_file
+      - paper
+    - path: /people/creators
+      status: probable
+      sources:
+      - paper
+    - path: /people/organizations
+      status: probable
+      sources:
+      - paper
+    - path: /use/applications
+      status: probable
+      sources:
+      - readme
+      - paper
+    - path: /use/biases
+      status: uncertain
+      sources:
+      - paper
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - paper
+      - hub_classifiers
+      - readme
+      - hf_card
+    legacy:
+      architecture: DCNN, Transformer
+      model_family: vit
+      total_parameter_count: 309489640
+      trainable_parameter_count: 309489640
+      total_layers: 393
+      trainable_layers: 101
+      model_size_mb: 1237.96
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/dinov2_vitl14_lc
+      huggingface_link: null
+      extra_notes: null
+      runnable: true

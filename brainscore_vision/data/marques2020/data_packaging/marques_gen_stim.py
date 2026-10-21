@@ -11,7 +11,7 @@ SF_STIM_NAME = 'Marques2020_spatial_frequency'
 SIZE_STIM_NAME = 'Marques2020_size'
 TEXTURE_STIM_NAME = 'FreemanZiemba2013_properties'
 
-DATA_DIR = '/braintree/data2/active/users/tmarques/bs_stimuli'
+DATA_DIR = './datasets/marques2020/stimuli'
 DEGREES = 12
 SIZE_PX = 672
 TEXTURE_DEGREES = 8

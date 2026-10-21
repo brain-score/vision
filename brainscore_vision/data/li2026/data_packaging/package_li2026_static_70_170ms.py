@@ -35,7 +35,7 @@ def _upload_with_prefix(source_file_path, bucket_name, target_s3_key):
 
 _brainio_pkg.upload_to_s3 = _upload_with_prefix
 
-BUILD_DIR = Path("/Volumes/Hagibis/triple-n/build")
+BUILD_DIR = Path("./datasets/triple-n/build")
 BUCKET_NAME = "brainscore-storage/brainscore-vision/benchmarks/Li2026"
 OUTPUT_PATH = Path(__file__).parent / "uploaded_data_info"
 

@@ -47,10 +47,10 @@ UTYPE = {1: "SU", 2: "MUA", 3: "NonSom"}
 def parse_args() -> argparse.Namespace:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--raw-root", default="/Volumes/Hagibis/triple-n",
+    ap.add_argument("--raw-root", default="./datasets/triple-n",
                     help="directory containing GoodUnit/, Processed/ and exclude_area.xls")
-    ap.add_argument("--stim-csv", default="/Volumes/Hagibis/triple-n/build/Li2026_stimulus_set.csv")
-    ap.add_argument("--out", default="/Volumes/Hagibis/triple-n/build/Li2026_temporal_assembly.nc")
+    ap.add_argument("--stim-csv", default="./datasets/triple-n/build/Li2026_stimulus_set.csv")
+    ap.add_argument("--out", default="./datasets/triple-n/build/Li2026_temporal_assembly.nc")
     ap.add_argument("--bin", type=int, default=10, help="time-bin width (ms)")
     ap.add_argument("--tstart", type=int, default=0, help="window start post-onset (ms)")
     ap.add_argument("--tend", type=int, default=300, help="window end post-onset (ms)")

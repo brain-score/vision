@@ -30,7 +30,7 @@ DEFAULT_BUCKET_NAME = (
 )
 DEFAULT_OUTPUT_PATH = "./uploaded_data_info_surface/"
 
-NSD_BRAINSCORE_DIR = Path("/Volumes/Hagibis/nsd/brainscore_surface")
+NSD_BRAINSCORE_DIR = Path("./datasets/nsd/brainscore_surface")
 
 VARIANTS = {
     "_8subj": {"reps": {"train": 1, "test": 3}, "id_infix": ""},

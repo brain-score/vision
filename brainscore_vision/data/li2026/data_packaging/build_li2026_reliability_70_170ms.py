@@ -8,9 +8,9 @@ import glob, os, re, sys
 from collections import defaultdict
 import numpy as np, pandas as pd, scipy.io as sio, h5py
 
-GU_DIR = "/Volumes/Hagibis/triple-n/GoodUnit"
-PROC_DIR = "/Volumes/Hagibis/triple-n/Processed"
-OUT = "/Volumes/Hagibis/triple-n/build/Li2026_reliability_70_170ms.csv"
+GU_DIR = "./datasets/triple-n/GoodUnit"
+PROC_DIR = "./datasets/triple-n/Processed"
+OUT = "./datasets/triple-n/build/Li2026_reliability_70_170ms.csv"
 W0, W1, K, SEED = 70, 170, 20, 0
 
 

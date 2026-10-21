@@ -13,7 +13,7 @@ Experiment Information:
    ceilings
 '''
 
-assembly_path = '/Users/linussommer/Desktop/Brain-Score-Data/DataAssembly/'
+assembly_path = './datasets/hebart2023/DataAssembly/'
 df = pd.read_csv(assembly_path + 'validationset.csv')
 n = len(df)
 

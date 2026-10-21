@@ -1,6 +1,6 @@
 """Package the Li2026 v3 TEMPORAL assembly (built on EC2 from GoodUnit PSTHs) to S3.
 Reuses the already-uploaded Li2026_Stimuli stimulus set.
-Source: /Volumes/Hagibis/triple-n/build/Li2026_temporal_assembly.nc
+Source: ./datasets/triple-n/build/Li2026_temporal_assembly.nc
 """
 import json
 from pathlib import Path
@@ -18,7 +18,7 @@ def _upload_with_prefix(src, bucket, key):
     return _orig(src, bucket, key)
 _brainio_pkg.upload_to_s3 = _upload_with_prefix
 
-BUILD = Path("/Volumes/Hagibis/triple-n/build")
+BUILD = Path("./datasets/triple-n/build")
 BUCKET = "brainscore-storage/brainscore-vision/benchmarks/Li2026"
 OUT = Path(__file__).parent / "uploaded_data_info"
 STIM_ID = "Li2026_Stimuli"

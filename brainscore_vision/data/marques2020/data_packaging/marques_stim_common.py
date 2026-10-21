@@ -300,7 +300,7 @@ def gen_texture_stim(degrees, stim_pos, save_dir):
     if not (os.path.isdir(save_dir)):
         os.mkdir(save_dir)
 
-    original_dir = '/braintree/home/tmarques/.brainio/image_movshon_stimuli/movshon_stimuli'
+    original_dir = './datasets/marques2020/movshon_stimuli'
 
     gray_c = 128
 

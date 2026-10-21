@@ -118,7 +118,7 @@ def collect_synth(h5, data_dir):
 
 
 def main():
-    data_dir = Path("/Users/jjpr/dev/brainio_contrib/mkgu_packaging/dicarlo/BashivanKar2019")
+    data_dir = Path("./datasets/BashivanKar2019")
     assert os.path.isdir(data_dir)
     h5_path = data_dir / "from_pouya" / "npc_v4_data.h5"
     h5 = tables.open_file(h5_path)

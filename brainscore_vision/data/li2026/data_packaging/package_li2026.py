@@ -2,9 +2,9 @@
 set for Brain-Score S3 storage.
 
 Source artifacts (built + validated locally, see tasks/todo.md):
-  /Volumes/Hagibis/triple-n/build/Li2026_static_assembly.nc   presentation x neuroid x time_bin
-  /Volumes/Hagibis/triple-n/build/Li2026_stimulus_set.csv     Allen2022-aligned stimulus_id
-  /Volumes/Hagibis/triple-n/build/stimuli/<stimulus_id>.png   1000 full-res NSD images
+  ./datasets/triple-n/build/Li2026_static_assembly.nc   presentation x neuroid x time_bin
+  ./datasets/triple-n/build/Li2026_stimulus_set.csv     Allen2022-aligned stimulus_id
+  ./datasets/triple-n/build/stimuli/<stimulus_id>.png   1000 full-res NSD images
 """
 import json
 from pathlib import Path
@@ -35,7 +35,7 @@ def _upload_with_prefix(source_file_path, bucket_name, target_s3_key):
 
 _brainio_pkg.upload_to_s3 = _upload_with_prefix
 
-BUILD_DIR = Path("/Volumes/Hagibis/triple-n/build")
+BUILD_DIR = Path("./datasets/triple-n/build")
 BUCKET_NAME = "brainscore-storage/brainscore-vision/benchmarks/Li2026"
 OUTPUT_PATH = Path(__file__).parent / "uploaded_data_info"
 

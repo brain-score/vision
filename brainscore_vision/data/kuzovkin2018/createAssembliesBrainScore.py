@@ -15,7 +15,7 @@ from brainscore_core.supported_data_standards.brainio.assemblies import NeuronRe
 
 from brainscore_core.supported_data_standards.brainio.packaging import package_stimulus_set, package_data_assembly
 
-storage_location = ("C:/Users/hsuen/Desktop/bigData/brainscore_img_elec_time_70hz150/")
+storage_location = ("./datasets/kuzovkin2018/brainscore_img_elec_time_70hz150/")
 
 
 # This needs to return a stimulus set

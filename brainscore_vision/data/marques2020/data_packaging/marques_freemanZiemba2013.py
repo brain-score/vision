@@ -5,7 +5,7 @@ from brainscore_core.supported_data_standards.brainio.packaging import package_d
 import h5py
 from brainscore_core.supported_data_standards.brainio.assemblies import DataAssembly
 
-DATA_DIR = '/braintree/data2/active/users/tmarques/bs_datasets/FreemanZiemba2013_V1V2data.mat'
+DATA_DIR = './datasets/marques2020/FreemanZiemba2013_V1V2data.mat'
 ASSEMBLY_NAME = 'movshon.FreemanZiemba2013_V1_properties'
 TEXTURE_STIM_NAME = 'FreemanZiemba2013_properties'
 

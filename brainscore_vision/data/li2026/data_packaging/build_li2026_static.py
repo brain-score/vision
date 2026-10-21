@@ -44,11 +44,11 @@ TIME_BIN_START, TIME_BIN_END = 70, 220
 def parse_args() -> argparse.Namespace:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--raw-root", default="/Volumes/Hagibis/triple-n",
+    ap.add_argument("--raw-root", default="./datasets/triple-n",
                     help="directory containing Processed/ and exclude_area.xls")
-    ap.add_argument("--nsd-meta", default="/Volumes/Hagibis/nsd/metadata",
+    ap.add_argument("--nsd-meta", default="./datasets/nsd/metadata",
                     help="directory containing nsd_expdesign.mat and nsd_stim_info_merged.csv")
-    ap.add_argument("--out-dir", default="/Volumes/Hagibis/triple-n/build")
+    ap.add_argument("--out-dir", default="./datasets/triple-n/build")
     return ap.parse_args()
 
 

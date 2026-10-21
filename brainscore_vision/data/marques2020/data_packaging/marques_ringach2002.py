@@ -5,7 +5,7 @@ from brainscore_core.supported_data_standards.brainio.packaging import package_d
 import scipy.io as sio
 from brainscore_core.supported_data_standards.brainio.assemblies import DataAssembly
 
-DATA_DIR = '/braintree/data2/active/users/tmarques/bs_datasets/Ringach2002.mat'
+DATA_DIR = './datasets/marques2020/Ringach2002.mat'
 ASSEMBLY_NAME = 'shapley.Ringach2002'
 ORIENTATION_STIM_NAME = 'Marques2020_orientation'
 

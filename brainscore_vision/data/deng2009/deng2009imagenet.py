@@ -19,7 +19,7 @@ def collect_stimuli(data_dir):
 
 
 def main():
-    data_dir = Path('/braintree/home/msch/brain-score/brainscore/benchmarks')
+    data_dir = Path('./datasets/imagenet')
     assert os.path.isdir(data_dir)
 
     stimuli = collect_stimuli(data_dir)

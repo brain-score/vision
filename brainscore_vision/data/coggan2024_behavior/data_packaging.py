@@ -52,14 +52,14 @@ imagenet_metadata = dict(
 Stimuli used in human behavioral experiment. Each subject was shown a unique 
 set of 753 occluded images so the entire stimulus set is 22560 images.
 """
-trials = pd.read_parquet('/home/tonglab/david/projects/p022_occlusion/in_vivo'
+trials = pd.read_parquet('./datasets/coggan2024/in_vivo'
                          '/behavioral/exp1/analysis/trials.parquet')
 trials.object_class.replace('car', 'sportsCar', inplace=True)
 trials.prediction.replace('car', 'sportsCar', inplace=True)
 stimuli = []  # collect meta
 stimulus_paths = {}
 exp_dir = (
-    '/home/tonglab/david/projects/p022_occlusion/in_vivo/behavioral/exp1/data')
+    './datasets/coggan2024/in_vivo/behavioral/exp1/data')
 subjects = sorted(trials.subject.unique())
 for t, trial in trials.iterrows():
     subj = subjects.index(trial.subject)  # 0-indexed
@@ -108,10 +108,10 @@ transform = transforms.Compose([
     transforms.CenterCrop(224),
     transforms.Grayscale(num_output_channels=3),
     transforms.ToPILImage()])
-svc_dataset = pd.read_csv('/home/tonglab/david/projects/p022_occlusion/'
+svc_dataset = pd.read_csv('./datasets/coggan2024/'
     'in_silico/analysis/scripts/utils/SVC_images.csv')
 svc_dataset['class'].replace('car', 'sportsCar', inplace=True)
-image_dir = ('/home/tonglab/david/projects/p022_occlusion/in_silico/images'
+image_dir = ('./datasets/coggan2024/in_silico/images'
              '/behavior_svc')
 #os.makedirs(image_dir, exist_ok=True)
 #for image_path in svc_dataset.filepath.values:

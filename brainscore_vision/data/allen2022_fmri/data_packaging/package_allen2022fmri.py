@@ -33,7 +33,7 @@ _brainio_pkg.upload_to_s3 = _upload_with_prefix
 DEFAULT_BUCKET_NAME = "brainscore-storage/brainscore-vision/benchmarks/Allen2022/Allen2022_fmri"
 DEFAULT_OUTPUT_PATH = "./uploaded_data_info/"
 
-NSD_BRAINSCORE_DIR = Path("/Volumes/Hagibis/nsd/brainscore")
+NSD_BRAINSCORE_DIR = Path("./datasets/nsd/brainscore")
 
 VARIANTS = {
     "_8subj": {"reps": {"train": 1, "test": 3}, "id_infix": ""},

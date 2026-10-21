@@ -43,7 +43,7 @@ METADATA_COORDS = ["arealabel", "snr", "best_time_start", "best_time_end", "tn_i
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--build-dir", default="/Volumes/Hagibis/triple-n/build")
+    ap.add_argument("--build-dir", default="./datasets/triple-n/build")
     args = ap.parse_args()
     bd = Path(args.build_dir)
 

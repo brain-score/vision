@@ -120,7 +120,7 @@ filterwarnings = [
 ################################################################
 
 [tool.setuptools]
-packages = { find = { where = ["."] } }
+packages = { find = { where = ["."], include = ["brainscore_vision*"] } }
 
 
 [tool.setuptools.package-data]
@@ -129,3 +129,6 @@ packages = { find = { where = ["."] } }
 "brainscore_vision.data" = ["**"]
 "brainscore_vision.metrics" = ["**"]
 "brainscore_vision.models" = ["**"]
+
+[tool.setuptools.exclude-package-data]
+"*" = ["*.pyc", "**/__pycache__/*"]

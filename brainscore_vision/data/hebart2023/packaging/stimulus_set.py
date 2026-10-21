@@ -19,8 +19,8 @@ Fields:
 
 stimuli = []
 image_paths = {}
-path = '/Users/linussommer/Desktop/Brain-Score-Data/StimulusSet/'
-img_path = '/Users/linussommer/Desktop/Brain-Score-Data/StimulusSet/reference_images/'
+path = './datasets/hebart2023/StimulusSet/'
+img_path = './datasets/hebart2023/StimulusSet/reference_images/'
 
 df = pd.read_csv(path + 'metadata2.tsv', sep='\t')
 df.drop(columns=['Word'], inplace=True)

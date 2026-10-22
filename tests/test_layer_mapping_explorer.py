@@ -156,6 +156,16 @@ class TestSaveOutputs:
 
 # ---------- Integration test (needs model + benchmark data) ----------
 
+@pytest.fixture(scope='module')
+def alexnet_layer_scores():
+    # Fit and score once from cold inputs; the tests below inspect the same sweep.
+    return explore_layer_mapping(
+        model_identifier='alexnet',
+        layers=['features.2', 'features.5', 'features.12'],
+        regions=['V4', 'IT'],
+    )
+
+
 @pytest.mark.slow
 class TestExploreLayerMappingIntegration:
     """Integration tests using alexnet with public benchmarks.
@@ -163,12 +173,8 @@ class TestExploreLayerMappingIntegration:
     Run with: pytest -m slow
     """
 
-    def test_returns_correct_structure(self):
-        scores = explore_layer_mapping(
-            model_identifier='alexnet',
-            layers=['features.2', 'features.5', 'features.12'],
-            regions=['V4', 'IT'],
-        )
+    def test_returns_correct_structure(self, alexnet_layer_scores):
+        scores = alexnet_layer_scores
         assert isinstance(scores, dict)
         assert set(scores.keys()) == {'V4', 'IT'}
         for region, layer_scores in scores.items():
@@ -177,31 +183,18 @@ class TestExploreLayerMappingIntegration:
             for layer, score in layer_scores.items():
                 assert isinstance(score, float)
 
-    def test_scores_are_plausible(self):
-        scores = explore_layer_mapping(
-            model_identifier='alexnet',
-            layers=['features.2', 'features.12'],
-            regions=['IT'],
-        )
-        for layer, score in scores['IT'].items():
-            assert -1.0 <= score <= 1.0, f"Score {score} for {layer} out of range"
+    def test_scores_are_plausible(self, alexnet_layer_scores):
+        for region, scores in alexnet_layer_scores.items():
+            for layer, score in scores.items():
+                assert -1.0 <= score <= 1.0, f"Score {score} for {region}/{layer} out of range"
 
-    def test_suggest_mapping_from_real_scores(self):
-        scores = explore_layer_mapping(
-            model_identifier='alexnet',
-            layers=['features.2', 'features.12'],
-            regions=['IT'],
-        )
-        mapping = suggest_mapping(scores)
-        assert 'IT' in mapping
-        assert mapping['IT'] in ('features.2', 'features.12')
+    def test_suggest_mapping_from_real_scores(self, alexnet_layer_scores):
+        mapping = suggest_mapping(alexnet_layer_scores)
+        for region, scores in alexnet_layer_scores.items():
+            assert mapping[region] == max(scores, key=scores.get)
 
-    def test_full_pipeline_saves_files(self, tmp_path):
-        scores = explore_layer_mapping(
-            model_identifier='alexnet',
-            layers=['features.2', 'features.12'],
-            regions=['IT'],
-        )
+    def test_full_pipeline_saves_files(self, tmp_path, alexnet_layer_scores):
+        scores = alexnet_layer_scores
         mapping = suggest_mapping(scores)
         save_outputs(scores, mapping, str(tmp_path), 'alexnet')
         assert (tmp_path / 'region_layer_map.json').exists()

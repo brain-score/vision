@@ -99,7 +99,7 @@ def add_token_grids(model: nn.Module) -> None:
 
 
 def get_model(name):
-    assert name == "ijepa_vith14_1k"
+    assert name == "ijepa_vith14_linhead"
     image_size = 224
     model = load_model()  # head at backbone.fc, logits
     add_token_grids(model)

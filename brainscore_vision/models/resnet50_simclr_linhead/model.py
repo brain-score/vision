@@ -48,7 +48,9 @@ def get_model(name):
     assert name == "resnet50_simclr_linhead"
     image_size = 224
     model = load_model()  # head at backbone.fc, logits
-    preprocessing = functools.partial(load_preprocess_images, image_size=image_size)
+    preprocessing = functools.partial(
+        load_preprocess_images, image_size=image_size, normalize_mean=(0,0,0), normalize_std=(1,1,1)
+    )
     wrapper = PytorchWrapper(
         identifier="resnet50_simclr_linhead", model=model, preprocessing=preprocessing
     )

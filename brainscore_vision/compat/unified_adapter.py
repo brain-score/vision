@@ -10,10 +10,12 @@ code below it sees the same look_at() calls it always did.
 from typing import Any, Dict, Optional, Set
 
 from brainscore_core.model_interface import UnifiedModel, TaskContext
+from brainscore_core.session_view import DeclaredInputSession, declared_only
 from brainscore_core.streaming import StreamEvent
 from brainscore_core.streaming_helpers import (
     _drain_stream_events,
     _stimuli_from_stream_session,
+    measurement_settings,
 )
 
 
@@ -22,6 +24,11 @@ class VisionModelAdapter(UnifiedModel):
     def __init__(self, legacy_model):
         self._legacy = legacy_model
         self._task_context: Optional[TaskContext] = None
+        # Setup the legacy model currently has, so a repeated identical
+        # configuration (a facade session re-sends it per measurement) is
+        # applied once, as the legacy benchmark applied it.
+        self._configured_task = None
+        self._configured_recording = None
 
     @property
     def identifier(self) -> str:
@@ -60,8 +67,10 @@ class VisionModelAdapter(UnifiedModel):
 
         The session's task, recording target, time bins, trial count and
         variance request reach the legacy model through the same calls a
-        legacy benchmark makes, in the same order, exactly once.
+        legacy benchmark makes. Setup is applied when it changes, not on every
+        measurement. Only declared input streams reach the legacy model.
         """
+        session = DeclaredInputSession(session, self.in_channels)
         channels = tuple(session.requested_output_channels or ())
         if len(channels) != 1:
             raise ValueError('A legacy vision model answers one output channel '
@@ -71,7 +80,7 @@ class VisionModelAdapter(UnifiedModel):
             raise ValueError(f'Undeclared output channel {channel!r}; declared: '
                              f'{sorted(self.out_channels)}')
         context = session.task_context
-        settings = dict(getattr(context, 'metadata', None) or {})
+        settings = measurement_settings(session)
         if context is not None and context.task_type != 'passive':
             self.start_task(context)
         if channel.startswith('neural:'):
@@ -82,7 +91,7 @@ class VisionModelAdapter(UnifiedModel):
                               number_of_trials=settings.get('number_of_trials', 1),
                               require_variance=settings.get('require_variance', False))
         session.respond(StreamEvent(channel, output,
-                                    events[-1].t_ms if events else 0.0,
+                                    events[-1].t_ms if events else None,
                                     meta={'driver': 'legacy'}))
 
     # Backwards-compatible: existing benchmarks call look_at() directly
@@ -92,22 +101,34 @@ class VisionModelAdapter(UnifiedModel):
     def start_task(self, task_context_or_task, fitting_stimuli=None,
                    **kwargs) -> None:
         # Accept both calling conventions:
-        #   New: start_task(TaskContext(...))
-        #   Legacy: start_task(task, fitting_stimuli)
+        #   New: start_task(TaskContext(...)); fitting settings a legacy
+        #        benchmark passed travel in metadata['task_settings']
+        #   Legacy: start_task(task, fitting_stimuli, **settings)
         if isinstance(task_context_or_task, TaskContext):
-            self._task_context = task_context_or_task
-            self._legacy.start_task(task_context_or_task.task_type,
-                                    task_context_or_task.fitting_stimuli)
+            context = task_context_or_task
+            task = context.task_type
+            fitting = context.fitting_stimuli
+            settings = dict(context.metadata.get('task_settings', {}))
         else:
-            self._task_context = None
-            self._legacy.start_task(task_context_or_task, fitting_stimuli,
-                                    **kwargs)
+            context = None
+            task, fitting, settings = task_context_or_task, fitting_stimuli, dict(kwargs)
+        key = (task, id(fitting), repr(sorted(settings.items())))
+        self._task_context = context
+        if key == self._configured_task:
+            return
+        self._legacy.start_task(task, declared_only(fitting, self.in_channels), **settings)
+        self._configured_task = key
 
     def start_recording(self, recording_target: str,
                         time_bins=None, recording_type=None, **kwargs) -> None:
         # Legacy BrainModel.start_recording(recording_target, time_bins)
         # Default time_bins for vision is [(70, 170)]
-        self._legacy.start_recording(recording_target, time_bins or [(70, 170)])
+        bins = time_bins or [(70, 170)]
+        key = (repr(recording_target), repr(bins))
+        if key == self._configured_recording:
+            return
+        self._legacy.start_recording(recording_target, bins)
+        self._configured_recording = key
 
     def visual_degrees(self):
         return self._legacy.visual_degrees()
@@ -117,6 +138,8 @@ class VisionModelAdapter(UnifiedModel):
         if callable(reset):
             reset()
         self._task_context = None
+        self._configured_task = None
+        self._configured_recording = None
 
     @property
     def legacy_model(self):

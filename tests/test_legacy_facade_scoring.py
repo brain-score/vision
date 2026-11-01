@@ -157,7 +157,7 @@ def test_interact_only_subject_runs_a_legacy_benchmark(monkeypatch):
     assert score.attrs['output'].sizes['presentation'] == 2
     session, = subject.sessions
     assert session.time_bins == [(70, 170)]
-    assert session.task_context.metadata['number_of_trials'] == 4
+    assert session.settings['number_of_trials'] == 4
 
 
 class _NoFieldSubject(_NativeSubject):
@@ -177,3 +177,82 @@ def test_typed_benchmark_variant_is_not_wrapped():
     benchmark = mark_legacy_benchmark(SimpleNamespace(subject_api=UnifiedNeuralBenchmark.subject_api))
     model = object()
     assert subject_for_benchmark(model, benchmark) is model
+
+
+# --- setup once, measure many times ------------------------------------------
+
+class _MalaniaLikeBenchmark:
+    """Malania2007: fitting settings on start_task, variance on every look_at."""
+    identifier = 'legacy-malania'
+
+    def __init__(self):
+        self.fitting = _vision_stimulus_set()
+        self.conditions = [_vision_stimulus_set(), _vision_stimulus_set()]
+
+    def preallocate_memory(self, *a, **k):
+        pass
+
+    def __call__(self, candidate):
+        candidate.start_task('probabilities', fitting_stimuli=self.fitting,
+                             number_of_trials=2, require_variance=True)
+        outputs = [candidate.look_at(stimuli, number_of_trials=2, require_variance=True)
+                   for stimuli in self.conditions]
+        score = Score([1.0], coords={'aggregation': ['center']}, dims=['aggregation'])
+        score.attrs.update(outputs=outputs)
+        return score
+
+
+def test_fitting_settings_reach_the_legacy_model_once(monkeypatch):
+    legacy = _make_legacy_model(region_layer_map={'IT': 'layer4'})
+    legacy.look_at.return_value = BehavioralAssembly(np.array(['cat', 'dog']), dims=['presentation'])
+    benchmark = _MalaniaLikeBenchmark()
+    _score(monkeypatch, VisionModelAdapter(legacy), benchmark)
+    legacy.start_task.assert_called_once_with('probabilities', benchmark.fitting,
+                                              number_of_trials=2, require_variance=True)
+    assert legacy.look_at.call_count == 2
+    for call, stimuli in zip(legacy.look_at.call_args_list, benchmark.conditions):
+        assert call.args[0] is stimuli and call.args[1] == 2
+        assert call.kwargs == {'require_variance': True}
+
+
+class _TwoMeasurementNeuralBenchmark(_NeuralBenchmark):
+    def __call__(self, candidate):
+        candidate.start_recording('IT', time_bins=self.time_bins)
+        first = candidate.look_at(self.stimuli, number_of_trials=self.trials)
+        second = candidate.look_at(self.stimuli, number_of_trials=self.trials)
+        score = Score([1.0], coords={'aggregation': ['center']}, dims=['aggregation'])
+        score.attrs.update(output=first, second=second)
+        return score
+
+
+def test_recording_setup_is_applied_once_for_several_measurements(monkeypatch):
+    legacy = _make_legacy_model(region_layer_map={'IT': 'layer4'}, visual_degrees=12)
+    legacy.look_at.return_value = _vision_neural_assembly()
+    _score(monkeypatch, VisionModelAdapter(legacy), _TwoMeasurementNeuralBenchmark())
+    legacy.start_recording.assert_called_once_with('IT', [(70, 170)])
+    assert legacy.look_at.call_count == 2
+
+
+def test_reset_lets_setup_be_applied_again():
+    legacy = _make_legacy_model(region_layer_map={'IT': 'layer4'})
+    adapter = VisionModelAdapter(legacy)
+    adapter.start_recording('IT', time_bins=[(70, 170)])
+    adapter.start_recording('IT', time_bins=[(70, 170)])
+    assert legacy.start_recording.call_count == 1
+    adapter.start_recording('V4', time_bins=[(70, 170)])
+    assert legacy.start_recording.call_count == 2
+    adapter.reset()
+    adapter.start_recording('V4', time_bins=[(70, 170)])
+    assert legacy.start_recording.call_count == 3
+
+
+def test_fitting_table_reaches_the_legacy_model_with_declared_inputs_only():
+    legacy = _make_legacy_model(region_layer_map={'IT': 'layer4'})
+    adapter = VisionModelAdapter(legacy)
+    fitting = StimulusSet(pd.DataFrame({'stimulus_id': ['a', 'b'], 'image_path': ['a.png', 'b.png'],
+                                        'sentence': ['one', 'two'], 'image_label': ['x', 'y']}))
+    fitting.identifier = 'fit'
+    adapter.start_task('probabilities', fitting)
+    seen = legacy.start_task.call_args.args[1]
+    assert 'sentence' not in seen.columns and list(seen['image_label']) == ['x', 'y']
+    assert seen.identifier == 'fit' and 'sentence' in fitting.columns

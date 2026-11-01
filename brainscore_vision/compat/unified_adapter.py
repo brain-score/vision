@@ -10,7 +10,11 @@ code below it sees the same look_at() calls it always did.
 from typing import Any, Dict, Optional, Set
 
 from brainscore_core.model_interface import UnifiedModel, TaskContext
-from brainscore_core.streaming_helpers import _drive_neural_session_via_process
+from brainscore_core.streaming import StreamEvent
+from brainscore_core.streaming_helpers import (
+    _drain_stream_events,
+    _stimuli_from_stream_session,
+)
 
 
 class VisionModelAdapter(UnifiedModel):
@@ -41,15 +45,49 @@ class VisionModelAdapter(UnifiedModel):
         # benchmark that does not provide vision stimuli.
         return {'vision'}
 
-    def process(self, stimuli, number_of_trials=1) -> Any:
+    @property
+    def out_channels(self) -> Set[str]:
+        # A legacy BrainModel answers behavioral tasks as well as recording.
+        return super().out_channels | {'behavior'}
+
+    def process(self, stimuli, number_of_trials=1, require_variance=False) -> Any:
+        if require_variance:
+            return self._legacy.look_at(stimuli, number_of_trials, require_variance=True)
         return self._legacy.look_at(stimuli, number_of_trials)
 
     def interact(self, session) -> None:
-        _drive_neural_session_via_process(self, session)
+        """Run one session as the single legacy ``look_at`` it stands for.
+
+        The session's task, recording target, time bins, trial count and
+        variance request reach the legacy model through the same calls a
+        legacy benchmark makes, in the same order, exactly once.
+        """
+        channels = tuple(session.requested_output_channels or ())
+        if len(channels) != 1:
+            raise ValueError('A legacy vision model answers one output channel '
+                             f'per look_at; got {sorted(channels)}')
+        channel, = channels
+        if channel not in self.out_channels:
+            raise ValueError(f'Undeclared output channel {channel!r}; declared: '
+                             f'{sorted(self.out_channels)}')
+        context = session.task_context
+        settings = dict(getattr(context, 'metadata', None) or {})
+        if context is not None and context.task_type != 'passive':
+            self.start_task(context)
+        if channel.startswith('neural:'):
+            self.start_recording(channel.split(':', 1)[1], time_bins=session.time_bins)
+        events = _drain_stream_events(session)
+        stimuli = _stimuli_from_stream_session(session, events)
+        output = self.process(stimuli,
+                              number_of_trials=settings.get('number_of_trials', 1),
+                              require_variance=settings.get('require_variance', False))
+        session.respond(StreamEvent(channel, output,
+                                    events[-1].t_ms if events else 0.0,
+                                    meta={'driver': 'legacy'}))
 
     # Backwards-compatible: existing benchmarks call look_at() directly
-    def look_at(self, stimuli, number_of_trials=1):
-        return self._legacy.look_at(stimuli, number_of_trials)
+    def look_at(self, stimuli, number_of_trials=1, require_variance=False):
+        return self.process(stimuli, number_of_trials, require_variance)
 
     def start_task(self, task_context_or_task, fitting_stimuli=None,
                    **kwargs) -> None:

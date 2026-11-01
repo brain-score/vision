@@ -64,7 +64,8 @@ def load_benchmark(identifier: str) -> Benchmark:
 
     benchmark = benchmark_registry[identifier]()
     from brainscore_core.compatibility import ensure_legacy_benchmark_modalities
-    return ensure_legacy_benchmark_modalities(benchmark, {'vision'})
+    from brainscore_core.legacy_facade import mark_legacy_benchmark
+    return mark_legacy_benchmark(ensure_legacy_benchmark_modalities(benchmark, {'vision'}))
 
 
 def load_model(identifier: str) -> 'Subject':
@@ -106,13 +107,19 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
     if check_mem:
         check_memory(model, benchmark)
 
+    # A legacy benchmark calls look_at and friends; it receives the permanent
+    # facade, which runs those calls as sessions through the subject's interact.
+    from brainscore_core.legacy_facade import declared_visual_degrees, subject_for_benchmark
+    candidate = subject_for_benchmark(model, benchmark,
+                                      visual_degrees=declared_visual_degrees(model))
+
     import time as _time
     _t0 = _time.time()
     try:
         # score_benchmark runs the benchmark's own preallocate_memory hook first;
         # our check_memory above is the probe-based estimate and they compose.
         with weight_fingerprint_scope():
-            score: Score = score_benchmark(benchmark, model)
+            score: Score = score_benchmark(benchmark, candidate)
     except AssertionError as e:
         # Only append the cache-clearing hint when the AssertionError actually
         # looks like a stimulus-path mismatch from a stale activations cache.

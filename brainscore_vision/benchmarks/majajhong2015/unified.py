@@ -29,6 +29,8 @@ class UnifiedNeuralBenchmark(NeuralBenchmark):
     start_recording() exactly as before.
     """
 
+    subject_api = 'typed'
+
     def __call__(self, candidate) -> Score:
         candidate.start_recording(self.region, time_bins=self.timebins)
         stimulus_set = place_on_screen(

@@ -18,6 +18,8 @@ class VisionModelAdapter(UnifiedModel):
     def __init__(self, legacy_model):
         self._legacy = legacy_model
         self._task_context: Optional[TaskContext] = None
+        from brainscore_core.legacy_benchmark import register_visual_field
+        register_visual_field(self, lambda: legacy_model.visual_degrees())
 
     @property
     def identifier(self) -> str:
@@ -44,8 +46,31 @@ class VisionModelAdapter(UnifiedModel):
     def process(self, stimuli, number_of_trials=1) -> Any:
         return self._legacy.look_at(stimuli, number_of_trials)
 
+    @property
+    def out_channels(self) -> Set[str]:
+        return super().out_channels | {'behavior'}
+
     def interact(self, session) -> None:
-        _drive_neural_session_via_process(self, session)
+        from brainscore_core.streaming import StreamEvent
+        from brainscore_core.streaming_helpers import (
+            _drain_stream_events, _stimuli_from_stream_session,
+        )
+        channels = tuple(session.requested_output_channels or ())
+        if len(channels) != 1:
+            raise ValueError('Legacy vision sessions request one output at a time')
+        channel = channels[0]
+        if channel not in self.out_channels:
+            raise ValueError(f'Undeclared output channel: {channel}')
+        context = session.task_context
+        if context is not None:
+            self.start_task(context)
+        if channel.startswith('neural:'):
+            self.start_recording(channel.split(':', 1)[1], time_bins=session.time_bins)
+        events = _drain_stream_events(session)
+        stimuli = _stimuli_from_stream_session(session, events)
+        trials = context.metadata.get('number_of_trials', 1) if context else 1
+        output = self.process(stimuli, number_of_trials=trials)
+        session.respond(StreamEvent(channel, output, events[-1].t_ms if events else None))
 
     # Backwards-compatible: existing benchmarks call look_at() directly
     def look_at(self, stimuli, number_of_trials=1):

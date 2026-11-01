@@ -87,7 +87,14 @@ class PytorchWrapper:
         return output.cpu().data.numpy()
 
     def register_hook(self, layer, layer_name, target_dict):
+        from torch import nn
+
         def hook_function(_layer, _input, output, name=layer_name):
+            # `nn.Linear` maps the last axis, so a 1x1 convolution implemented as `nn.Linear` on a channels-last
+            # tensor (e.g. ConvNeXt's `pwconv1`) outputs (N, H, W, C). Move channels first so that `_package_layer`
+            # labels it like the equivalent `nn.Conv2d`. See https://github.com/brain-score/vision/issues/2190
+            if isinstance(_layer, nn.Linear) and output.dim() == 4:
+                output = output.permute(0, 3, 1, 2)
             target_dict[name] = PytorchWrapper._tensor_to_numpy(output)
 
         hook = layer.register_forward_hook(hook_function)

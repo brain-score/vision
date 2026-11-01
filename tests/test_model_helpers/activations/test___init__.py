@@ -341,6 +341,42 @@ def test_convolution_meta():
     assert len(set(activations['neuroid_id'].values)) == len(activations['neuroid'])
 
 
+def test_pointwise_linear_meta():
+    """A 1x1 convolution implemented as `nn.Linear` on a channels-last tensor (e.g. ConvNeXt's `pwconv1`) must be
+    packaged like the equivalent `nn.Conv2d`. See https://github.com/brain-score/vision/issues/2190"""
+    import torch
+    from torch import nn
+    from brainscore_vision.model_helpers.activations.pytorch import load_preprocess_images
+
+    class PointwiseModel(nn.Module):
+        def __init__(self):
+            super(PointwiseModel, self).__init__()
+            self.conv = torch.nn.Conv2d(in_channels=3, out_channels=2, kernel_size=8, stride=8)  # 224 -> 28
+            self.pointwise_conv = torch.nn.Conv2d(in_channels=2, out_channels=5, kernel_size=1)
+            self.pointwise_linear = torch.nn.Linear(in_features=2, out_features=5)
+            with torch.no_grad():  # same weights, so both layers compute the same function
+                self.pointwise_linear.weight.copy_(self.pointwise_conv.weight.view(5, 2))
+                self.pointwise_linear.bias.copy_(self.pointwise_conv.bias)
+
+        def forward(self, x):
+            x = self.conv(x)
+            conv_out = self.pointwise_conv(x)
+            linear_out = self.pointwise_linear(x.permute(0, 2, 3, 1))  # (N, C, H, W) -> (N, H, W, C)
+            return conv_out + linear_out.permute(0, 3, 1, 2)
+
+    preprocessing = functools.partial(load_preprocess_images, image_size=224)
+    model = PytorchWrapper(model=PointwiseModel(), preprocessing=preprocessing)
+    stimuli = [os.path.join(os.path.dirname(__file__), 'rgb.jpg')]
+    conv_activations = model(stimuli=stimuli, layers=['pointwise_conv'])
+    linear_activations = model(stimuli=stimuli, layers=['pointwise_linear'])
+    assert len(set(linear_activations['channel'].values)) == 5
+    assert len(set(linear_activations['channel_x'].values)) == 28
+    assert len(set(linear_activations['channel_y'].values)) == 28
+    for coord in ['channel', 'channel_x', 'channel_y']:
+        assert (linear_activations[coord].values == conv_activations[coord].values).all()
+    np.testing.assert_allclose(linear_activations.values, conv_activations.values, rtol=1e-5, atol=1e-5)
+
+
 def test_conv_and_fc():
     model = pytorch_custom()
     activations = model(stimuli=[os.path.join(os.path.dirname(__file__), 'rgb.jpg')], layers=['conv1', 'linear'])

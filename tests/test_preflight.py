@@ -50,7 +50,7 @@ class TestPreflightInRunScore:
         mock_load_model.return_value = model
         mock_load_benchmark.return_value = benchmark
 
-        with pytest.raises(CompatibilityError, match="does not support modalities required"):
+        with pytest.raises(CompatibilityError, match="takes in none of the inputs"):
             _run_score('test-model', 'test-bench', check_mem=False)
 
     @patch('brainscore_vision.load_benchmark')
@@ -101,6 +101,7 @@ class TestPreflightInRunScore:
         assert score.attrs['out_channels'] == ('neural:IT',)
         assert score.attrs['protocol'] == 'neural'
         assert score.attrs['subject_id'] == 'test-model'
+        assert score.attrs['compatibility']['match'] == 'full'
         assert score.attrs['harness_id'] == 'brainscore_vision'
 
     @patch('brainscore_core.compatibility.check_channel_compatibility')

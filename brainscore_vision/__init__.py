@@ -85,7 +85,6 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
     Score the model referenced by the `model_identifier` on the benchmark referenced by the `benchmark_identifier`.
     """
     from brainscore_core.compatibility import (
-        check_channel_compatibility,
         check_compatibility,
     )
     from brainscore_core.extraction_cache import weight_fingerprint_scope
@@ -103,8 +102,7 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
     requested_channels = requested_output_channels_for_score(benchmark)
 
     # Pre-flight checks
-    check_compatibility(model, benchmark)
-    check_channel_compatibility(model, benchmark)
+    compatibility = check_compatibility(model, benchmark)
     if check_mem:
         check_memory(model, benchmark)
 
@@ -145,8 +143,9 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
         protocol=infer_score_protocol(model, benchmark, requested_channels),
         harness_id='brainscore_vision',
     )
+    score.attrs['compatibility'] = compatibility.as_attrs()
     try:  # attempt to look up the layer commitment if model uses a standard layer model
-        score.attrs['comment'] = f"layers: {model.layer_model.region_layer_map}"
+        score.attrs['comment'] = f"layers: {model.legacy_model.layer_model.region_layer_map}"
     except Exception:
         pass
     return score

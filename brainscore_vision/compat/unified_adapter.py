@@ -80,7 +80,11 @@ class VisionModelAdapter(UnifiedModel):
             reset()
         self._task_context = None
 
-    def __getattr__(self, name):
-        # Delegate attribute access to the legacy model for backwards compatibility
-        # (e.g., layer_model, visual_degrees, etc.)
-        return getattr(self._legacy, name)
+    @property
+    def legacy_model(self):
+        """The wrapped legacy model, for tools that need its own attributes.
+
+        Unknown attributes are no longer forwarded implicitly: a benchmark
+        sees only what the adapter declares (Contract Rules v3, rule 2.1).
+        """
+        return self._legacy

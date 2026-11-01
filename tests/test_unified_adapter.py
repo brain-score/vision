@@ -363,3 +363,36 @@ def test_v2_prs_require_manual_submission_actions(workflow_name):
     checks = yaml.load((workflows / 'umi-v2.yml').read_text(), Loader=yaml.BaseLoader)
     for event in ['pull_request', 'push']:
         assert checks['on'][event]['branches'] == ['unified-model-interface-v2']
+
+
+@pytest.mark.parametrize('trials', [1, 7])
+def test_legacy_facade_preserves_vision_measurement(trials):
+    from brainscore_core.legacy_benchmark import LegacyBenchmarkFacade
+    legacy = _make_legacy_model(region_layer_map={'IT': 'layer4'}, visual_degrees=12)
+    expected = _vision_neural_assembly()
+    legacy.look_at.return_value = expected
+    adapter = VisionModelAdapter(legacy)
+    facade = LegacyBenchmarkFacade(adapter, visual_degrees=12)
+    stimuli = _vision_stimulus_set()
+    facade.start_recording('IT', time_bins=[(10, 30), (30, 50)])
+    actual = facade.look_at(stimuli, number_of_trials=trials)
+    xr.testing.assert_identical(actual, expected)
+    legacy.start_recording.assert_called_once_with('IT', [(10, 30), (30, 50)])
+    args = legacy.look_at.call_args.args
+    assert args[0] is stimuli and args[1] == trials
+    assert facade.visual_degrees() == legacy.visual_degrees()
+    assert facade.identifier == legacy.identifier
+
+
+def test_legacy_facade_preserves_vision_behavior():
+    from brainscore_core.legacy_benchmark import LegacyBenchmarkFacade
+    from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
+    legacy = _make_legacy_model()
+    expected = BehavioralAssembly(np.array(['cat', 'dog']), dims=['presentation'])
+    legacy.look_at.return_value = expected
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(legacy))
+    facade.start_task('label', fitting_stimuli='imagenet')
+    actual = facade.look_at(_vision_stimulus_set(), number_of_trials=3)
+    xr.testing.assert_identical(actual, expected)
+    legacy.start_task.assert_called_once_with('label', 'imagenet')
+    assert legacy.look_at.call_args.args[1] == 3

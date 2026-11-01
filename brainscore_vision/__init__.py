@@ -64,7 +64,8 @@ def load_benchmark(identifier: str) -> Benchmark:
 
     benchmark = benchmark_registry[identifier]()
     from brainscore_core.compatibility import ensure_legacy_benchmark_modalities
-    return ensure_legacy_benchmark_modalities(benchmark, {'vision'})
+    from brainscore_core.legacy_benchmark import mark_legacy_benchmark
+    return mark_legacy_benchmark(ensure_legacy_benchmark_modalities(benchmark, {'vision'}))
 
 
 def load_model(identifier: str) -> 'Subject':
@@ -103,18 +104,19 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
     requested_channels = requested_output_channels_for_score(benchmark)
 
     # Pre-flight checks
-    check_compatibility(model, benchmark)
-    check_channel_compatibility(model, benchmark)
+    match = check_compatibility(model, benchmark)
     if check_mem:
         check_memory(model, benchmark)
 
+    from brainscore_core.legacy_benchmark import subject_for_benchmark
+    candidate = subject_for_benchmark(model, benchmark)
     import time as _time
     _t0 = _time.time()
     try:
         # score_benchmark runs the benchmark's own preallocate_memory hook first;
         # our check_memory above is the probe-based estimate and they compose.
         with weight_fingerprint_scope():
-            score: Score = score_benchmark(benchmark, model)
+            score: Score = score_benchmark(benchmark, candidate)
     except AssertionError as e:
         # Only append the cache-clearing hint when the AssertionError actually
         # looks like a stimulus-path mismatch from a stale activations cache.
@@ -135,6 +137,7 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
                 f"  rm {cache_dir}/*.pkl"
             ) from e
         raise
+    match.stamp(score)
     score.attrs['runtime_sec'] = round(_time.time() - _t0, 2)
     score.attrs['model_identifier'] = model_identifier
     score.attrs['benchmark_identifier'] = benchmark_identifier

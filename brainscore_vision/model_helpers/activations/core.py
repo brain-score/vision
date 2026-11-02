@@ -288,7 +288,10 @@ class ActivationsExtractorHelper:
         # Preallocate arrays to collect activations efficiently
         # each layer is allocated on the first batch, when we know its feature dimension
         layer_activations = None
-        total_presentations = len(paths) * self._microsaccade_helper.number_of_trials
+        # The helper keeps the trial count of the last `require_variance` call, so check `require_variance` here,
+        # as `_package_layer` and `attach_stimulus_set_meta` do: without it, each stimulus runs once.
+        number_of_trials = self._microsaccade_helper.number_of_trials if require_variance else 1
+        total_presentations = len(paths) * number_of_trials
         
         for batch_start in tqdm(range(0, len(paths), batch_size), unit_scale=batch_size, desc="activations"):
             batch_end = min(batch_start + batch_size, len(paths))
@@ -296,7 +299,7 @@ class ActivationsExtractorHelper:
 
             batch_activations = OrderedDict()
             # compute activations on the entire batch one microsaccade shift at a time.
-            for shift_number in range(self._microsaccade_helper.number_of_trials):
+            for shift_number in range(number_of_trials):
                 activations = self._get_batch_activations(inputs=batch_inputs,
                                                           layer_names=layers,
                                                           batch_size=batch_size,
@@ -322,7 +325,7 @@ class ActivationsExtractorHelper:
 
             # Write batch results directly into preallocated arrays avoiding concatenation
             batch_presentations = batch_activations[layers[0]].shape[0]
-            presentation_start = batch_start * self._microsaccade_helper.number_of_trials
+            presentation_start = batch_start * number_of_trials
             presentation_end = presentation_start + batch_presentations
             
             for layer_name, layer_output in batch_activations.items():

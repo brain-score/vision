@@ -121,7 +121,7 @@ class TestVisionAdapterProcess:
         result = adapter.process(stimuli)
         assert result is sentinel
 
-    def test_neural_response_interact_matches_legacy_look_at_exactly(self):
+    def test_neural_response_participate_matches_legacy_look_at_exactly(self):
         stimuli = _vision_stimulus_set()
         expected = _vision_neural_assembly()
 
@@ -140,6 +140,37 @@ class TestVisionAdapterProcess:
         legacy_stream.start_recording.assert_called_once_with(
             'IT', [(70, 170)]
         )
+
+    def test_participate_is_one_look_at_with_the_session_table_and_settings(self):
+        from brainscore_core.streaming import BufferedSession
+        stimuli = _vision_stimulus_set()
+        legacy = _make_legacy_model(region_layer_map={'IT': 'layer4'})
+        session = BufferedSession(stimulus_set=stimuli,
+                                  requested_output_channels=('neural:IT',),
+                                  time_bins=[(50, 100)])
+        session.settings = {'number_of_trials': 3}
+        VisionModelAdapter(legacy).participate(session)
+        legacy.start_recording.assert_called_once_with('IT', [(50, 100)])
+        legacy.look_at.assert_called_once()
+        args, kwargs = legacy.look_at.call_args
+        assert args[0] is stimuli and args[1] == 3 and kwargs == {}
+        event, = session.emitted
+        assert event.payload == 'mock_assembly' and event.meta == {'driver': 'legacy'}
+
+    def test_participate_projects_undeclared_input_columns(self):
+        from brainscore_core.streaming import BufferedSession
+        stimuli = _vision_stimulus_set()
+        stimuli['sentence'] = ['a cat', 'a dog']
+        legacy = _make_legacy_model(region_layer_map={'IT': 'layer4'})
+        session = BufferedSession(stimulus_set=stimuli,
+                                  requested_output_channels=('neural:IT',))
+        session.settings = {'number_of_trials': 2, 'require_variance': True}
+        VisionModelAdapter(legacy).participate(session)
+        args, kwargs = legacy.look_at.call_args
+        assert legacy.look_at.call_count == 1
+        assert 'sentence' not in args[0].columns and 'sentence' in stimuli.columns
+        assert list(args[0]['stimulus_id']) == ['s0', 's1']
+        assert args[1] == 2 and kwargs == {'require_variance': True}
 
 class TestVisionAdapterLegacyMethods:
 
@@ -240,7 +271,7 @@ class TestVisionAutoWrapping:
         assert isinstance(model, VisionModelAdapter)
         assert model.identifier == 'test-legacy'
 
-    def test_load_model_wrapped_legacy_interact_scores(self):
+    def test_load_model_wrapped_legacy_participate_scores(self):
         import brainscore_vision
         expected = _vision_neural_assembly()
         legacy = _make_legacy_model(

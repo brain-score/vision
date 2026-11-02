@@ -11,8 +11,8 @@ Each test instantiates the wrapper with a tiny mock factory that returns
 synthetic per-subject scores, then exercises the exact code paths
 ``update_score`` calls:
 
-  - ``score.item()`` and ``score.raw.item()`` via ``_retrieve_score_center``
-  - ``score.attrs['error']`` via ``_retrieve_score_error``
+  - ``score.item()`` and ``score.raw.item()`` via ``retrieve_score_center``
+  - ``score.attrs['error']`` via ``retrieve_score_error``
   - wrapper attributes: ``identifier``, ``version``, ``parent``, ``bibtex``
 """
 
@@ -32,12 +32,11 @@ def _try_import_db_helpers():
     decline gracefully rather than ImportError-fail when run on an unusual env.
     """
     try:
-        from brainscore_core.submission.database import (
-            _retrieve_score_center, _retrieve_score_error
-        )
-        return _retrieve_score_center, _retrieve_score_error
+        from brainscore_core.submission import database
     except ImportError:  # pragma: no cover
         pytest.skip("brainscore_core.submission.database not importable")
+    # Outside the try: a core without these public names fails, never skips.
+    return database.retrieve_score_center, database.retrieve_score_error
 
 
 class _SyntheticChild:

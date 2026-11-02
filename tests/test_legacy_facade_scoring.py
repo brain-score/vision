@@ -125,7 +125,7 @@ def test_typed_model_scores_identically_to_process(monkeypatch):
 
 
 class _NativeSubject(Subject):
-    """Interact-only: no look_at, start_recording or process."""
+    """Participate-only: no look_at, start_recording or process."""
     identifier = 'native'
     in_channels = {'vision'}
     out_channels = {'neural:IT'}
@@ -138,7 +138,7 @@ class _NativeSubject(Subject):
     def visual_degrees(self):
         return self._degrees
 
-    def interact(self, session):
+    def participate(self, session):
         self.sessions.append(session)
         n = 0
         while session.next_input() is not None:
@@ -149,7 +149,7 @@ class _NativeSubject(Subject):
         session.respond(StreamEvent('neural:IT', output, None))
 
 
-def test_interact_only_subject_runs_a_legacy_benchmark(monkeypatch):
+def test_participate_only_subject_runs_a_legacy_benchmark(monkeypatch):
     subject = _NativeSubject(degrees=6)
     score = _score(monkeypatch, subject, _NeuralBenchmark(trials=4, time_bins=[(70, 170)]))
     assert score.attrs['candidate'] == 'LegacyBenchmarkFacade'

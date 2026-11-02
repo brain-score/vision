@@ -108,7 +108,7 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
         check_memory(model, benchmark)
 
     # A legacy benchmark calls look_at and friends; it receives the permanent
-    # facade, which runs those calls as sessions through the subject's interact.
+    # facade, which runs those calls as sessions through the subject's participate.
     from brainscore_core.legacy_facade import declared_visual_degrees, subject_for_benchmark
     candidate = subject_for_benchmark(model, benchmark,
                                       visual_degrees=declared_visual_degrees(model))

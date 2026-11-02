@@ -29,6 +29,10 @@ class UnifiedNeuralBenchmark(NeuralBenchmark):
     start_recording() exactly as before.
     """
 
+    # Calls the typed convention on the candidate itself; scoring must not
+    # wrap the candidate in the legacy-benchmark facade.
+    subject_api = 'typed'
+
     def __call__(self, candidate) -> Score:
         candidate.start_recording(self.region, time_bins=self.timebins)
         stimulus_set = place_on_screen(

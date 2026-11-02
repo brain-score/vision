@@ -116,7 +116,12 @@ class VisionModelAdapter(UnifiedModel):
         self._task_context = context
         if key == self._configured_task:
             return
-        self._legacy.start_task(task, declared_only(fitting, self.in_channels), **settings)
+        # Forward what the benchmark passed: a task without fitting data
+        # (Hebart2023 odd_one_out) reaches a start_task(self, task) unchanged.
+        if fitting is None:
+            self._legacy.start_task(task, **settings)
+        else:
+            self._legacy.start_task(task, declared_only(fitting, self.in_channels), **settings)
         self._configured_task = key
 
     def start_recording(self, recording_target: str,

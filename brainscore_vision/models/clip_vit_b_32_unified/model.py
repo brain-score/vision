@@ -83,11 +83,13 @@ def get_model(identifier: str) -> BrainScoreModel:
         identifier=identifier,
         model=clip_model,
         region_layer_map=REGION_LAYER_MAP,
-        preprocessors={
-            'vision': preprocessing,
+        # One feature extractor per input kind: images go through the vision
+        # tower's PytorchWrapper (which holds the image preprocessing above),
+        # sentences through the text tower's TextWrapper.
+        extractor={
+            'vision': activations_model,
             'text': text_wrapper,
         },
-        activations_model=activations_model,
         visual_degrees=8,
         # Behavioral readout uses the final vision encoder block (matches
         # the 'IT' layer convention). Behavioral benchmarks like Ferguson2024

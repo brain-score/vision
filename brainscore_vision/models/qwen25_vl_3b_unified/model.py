@@ -139,12 +139,16 @@ def get_model(identifier: str) -> BrainScoreModel:
         identifier=identifier,
         model=qwen_model,
         region_layer_map=REGION_LAYER_MAP,
-        preprocessors={
+        # One feature extractor per input kind: images go through the vision
+        # tower's VLMVisionWrapper, sentences through the language model's
+        # TextWrapper.
+        extractor={
             'vision': vision_wrapper,
             'text': text_wrapper,
         },
         visual_degrees=8,
-        generation_fn=generation_fn,
+        # Ask the model to answer in words and parse the answer into a label.
+        answer=generation_fn,
         # Also enable the readout path so Qwen can be compared on the same
         # behavioral benchmark both ways. Uses the same vision layer as 'IT'.
         behavioral_readout_layer='blocks.28',

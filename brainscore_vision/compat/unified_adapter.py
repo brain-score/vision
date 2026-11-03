@@ -13,9 +13,9 @@ from brainscore_core.model_interface import UnifiedModel, TaskContext
 from brainscore_core.session_view import DeclaredInputSession, declared_only
 from brainscore_core.streaming import StreamEvent
 from brainscore_core.streaming_helpers import (
-    _drain_stream_events,
-    _stimuli_from_stream_session,
+    drain_session_inputs,
     measurement_settings,
+    session_stimuli,
 )
 
 
@@ -62,7 +62,7 @@ class VisionModelAdapter(UnifiedModel):
             return self._legacy.look_at(stimuli, number_of_trials, require_variance=True)
         return self._legacy.look_at(stimuli, number_of_trials)
 
-    def interact(self, session) -> None:
+    def participate(self, session) -> None:
         """Run one session as the single legacy ``look_at`` it stands for.
 
         The session's task, recording target, time bins, trial count and
@@ -85,8 +85,8 @@ class VisionModelAdapter(UnifiedModel):
             self.start_task(context)
         if channel.startswith('neural:'):
             self.start_recording(channel.split(':', 1)[1], time_bins=session.time_bins)
-        events = _drain_stream_events(session)
-        stimuli = _stimuli_from_stream_session(session, events)
+        events = drain_session_inputs(session)
+        stimuli = session_stimuli(session, events)
         output = self.process(stimuli,
                               number_of_trials=settings.get('number_of_trials', 1),
                               require_variance=settings.get('require_variance', False))
@@ -116,7 +116,12 @@ class VisionModelAdapter(UnifiedModel):
         self._task_context = context
         if key == self._configured_task:
             return
-        self._legacy.start_task(task, declared_only(fitting, self.in_channels), **settings)
+        # Forward what the benchmark passed: a task without fitting data
+        # (Hebart2023 odd_one_out) reaches a start_task(self, task) unchanged.
+        if fitting is None:
+            self._legacy.start_task(task, **settings)
+        else:
+            self._legacy.start_task(task, declared_only(fitting, self.in_channels), **settings)
         self._configured_task = key
 
     def start_recording(self, recording_target: str,

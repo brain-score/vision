@@ -60,7 +60,7 @@ def _release(child) -> None:
 def _child_raw_scalar(child_score) -> float:
     """Extract a scalar ``raw`` correlation from a child Score.
 
-    brainscore_core's submission DB calls ``_retrieve_score_center(score.raw)``
+    brainscore_core's submission DB calls ``retrieve_score_center(score.raw)``
     which assumes ``raw`` is reducible to a Python scalar. Children typically
     expose their uncieled raw correlation under ``attrs['raw']`` as a 0-d or
     1-d array; this helper coerces it to a float.
@@ -286,7 +286,7 @@ class KFoldNeuralBenchmark(BenchmarkBase):
         )
         # Pre-set 'raw' as a scalar so attach_error won't overwrite it with the
         # disaggregated array; brainscore_core's DB recorder requires scalar.
-        # Score wrap so brainscore_core._retrieve_score_center can call .item()
+        # Score wrap so brainscore_core's retrieve_score_center can call .item()
         score.attrs["raw"] = Score(float(np.nanmean(fold_raws)))
         score.attrs["raw_folds"] = raw_folds
         score.attrs["sem_folds"] = (

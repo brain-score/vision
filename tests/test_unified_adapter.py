@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, PropertyMock, patch
 
 from brainscore_core.model_interface import TaskContext, UnifiedModel, BrainScoreModel
 from brainscore_core.streaming_helpers import neural_response
-from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly, NeuroidAssembly
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from brainscore_vision.compat.unified_adapter import VisionModelAdapter
 
@@ -121,7 +121,7 @@ class TestVisionAdapterProcess:
         result = adapter.process(stimuli)
         assert result is sentinel
 
-    def test_neural_response_interact_matches_legacy_look_at_exactly(self):
+    def test_neural_response_participate_matches_legacy_look_at_exactly(self):
         stimuli = _vision_stimulus_set()
         expected = _vision_neural_assembly()
 
@@ -140,6 +140,37 @@ class TestVisionAdapterProcess:
         legacy_stream.start_recording.assert_called_once_with(
             'IT', [(70, 170)]
         )
+
+    def test_participate_is_one_look_at_with_the_session_table_and_settings(self):
+        from brainscore_core.streaming import BufferedSession
+        stimuli = _vision_stimulus_set()
+        legacy = _make_legacy_model(region_layer_map={'IT': 'layer4'})
+        session = BufferedSession(stimulus_set=stimuli,
+                                  requested_output_channels=('neural:IT',),
+                                  time_bins=[(50, 100)])
+        session.settings = {'number_of_trials': 3}
+        VisionModelAdapter(legacy).participate(session)
+        legacy.start_recording.assert_called_once_with('IT', [(50, 100)])
+        legacy.look_at.assert_called_once()
+        args, kwargs = legacy.look_at.call_args
+        assert args[0] is stimuli and args[1] == 3 and kwargs == {}
+        event, = session.emitted
+        assert event.payload == 'mock_assembly' and event.meta == {'driver': 'legacy'}
+
+    def test_participate_projects_undeclared_input_columns(self):
+        from brainscore_core.streaming import BufferedSession
+        stimuli = _vision_stimulus_set()
+        stimuli['sentence'] = ['a cat', 'a dog']
+        legacy = _make_legacy_model(region_layer_map={'IT': 'layer4'})
+        session = BufferedSession(stimulus_set=stimuli,
+                                  requested_output_channels=('neural:IT',))
+        session.settings = {'number_of_trials': 2, 'require_variance': True}
+        VisionModelAdapter(legacy).participate(session)
+        args, kwargs = legacy.look_at.call_args
+        assert legacy.look_at.call_count == 1
+        assert 'sentence' not in args[0].columns and 'sentence' in stimuli.columns
+        assert list(args[0]['stimulus_id']) == ['s0', 's1']
+        assert args[1] == 2 and kwargs == {'require_variance': True}
 
 class TestVisionAdapterLegacyMethods:
 
@@ -173,14 +204,19 @@ class TestVisionAdapterStartTask:
 
         legacy.start_task.assert_called_once_with('probabilities', fitting)
 
-    def test_start_task_passes_none_fitting_stimuli(self):
+    def test_start_task_without_fitting_stimuli_passes_only_the_task(self):
+        """No fitting data means no fitting argument, as the legacy benchmark called it.
+
+        The real OddOneOut.start_task(self, task) rejects an extra positional None;
+        TestStrictLegacyStartTask proves this against that exact signature.
+        """
         legacy = _make_legacy_model()
         adapter = VisionModelAdapter(legacy)
         ctx = TaskContext(task_type='label')
 
         adapter.start_task(ctx)
 
-        legacy.start_task.assert_called_once_with('label', None)
+        legacy.start_task.assert_called_once_with('label')
 
     def test_start_task_legacy_two_arg_call(self):
         """Existing benchmarks call start_task(task, fitting_stimuli) directly."""
@@ -202,6 +238,104 @@ class TestVisionAdapterStartTask:
         legacy.start_task.assert_called_once_with(
             'probabilities', 'fitting_data', number_of_trials=1
         )
+
+
+class _StrictOddOneOut:
+    """The real OddOneOut signatures: no *args or fitting slot to absorb an invented None."""
+    identifier = 'strict-odd-one-out'
+
+    def __init__(self):
+        self.tasks, self.looks = [], []
+        self.output = BehavioralAssembly(np.array(['cat', 'dog']), dims=['presentation'])
+
+    def visual_degrees(self):
+        return 8
+
+    def start_task(self, task):
+        self.tasks.append(task)
+
+    def look_at(self, stimuli, number_of_trials=1):
+        self.looks.append((stimuli, number_of_trials))
+        return self.output
+
+
+class _StrictTaskWithSettings(_StrictOddOneOut):
+    """A fitting-free task that still takes start_task settings by keyword."""
+
+    def start_task(self, task, number_of_trials=1, require_variance=False):
+        self.tasks.append((task, number_of_trials, require_variance))
+
+
+class _StrictProbabilities(_StrictOddOneOut):
+    """ProbabilitiesMapping.start_task: fitting data is a required positional argument."""
+
+    def start_task(self, task, fitting_stimuli, number_of_trials=1, require_variance=False):
+        self.tasks.append((task, fitting_stimuli, number_of_trials, require_variance))
+
+
+class TestStrictLegacyStartTask:
+    """Hebart2023 calls start_task(BrainModel.Task.odd_one_out) with no fitting data."""
+
+    def test_direct_task_reaches_a_task_only_signature(self):
+        legacy = _StrictOddOneOut()
+        VisionModelAdapter(legacy).start_task('odd_one_out')
+        assert legacy.tasks == ['odd_one_out']
+
+    def test_task_context_reaches_a_task_only_signature(self):
+        legacy = _StrictOddOneOut()
+        VisionModelAdapter(legacy).start_task(TaskContext(task_type='odd_one_out'))
+        assert legacy.tasks == ['odd_one_out']
+
+    @pytest.mark.parametrize('form', ['direct', 'context'])
+    def test_settings_without_fitting_are_kept(self, form):
+        legacy = _StrictTaskWithSettings()
+        adapter = VisionModelAdapter(legacy)
+        settings = {'number_of_trials': 2, 'require_variance': True}
+        if form == 'direct':
+            adapter.start_task('odd_one_out', **settings)
+        else:
+            adapter.start_task(TaskContext(task_type='odd_one_out',
+                                           metadata={'task_settings': settings}))
+        assert legacy.tasks == [('odd_one_out', 2, True)]
+
+    def test_fitting_data_is_still_passed_positionally(self):
+        legacy = _StrictProbabilities()
+        fitting = _vision_stimulus_set()
+        VisionModelAdapter(legacy).start_task('probabilities', fitting,
+                                              number_of_trials=2, require_variance=True)
+        assert len(legacy.tasks) == 1
+        task, seen, trials, variance = legacy.tasks[0]
+        assert (task, trials, variance) == ('probabilities', 2, True) and seen is fitting
+
+    def test_facade_session_runs_the_task_once_for_repeated_measurements(self):
+        from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+        legacy = _StrictOddOneOut()
+        facade = LegacyBenchmarkFacade(VisionModelAdapter(legacy), visual_degrees=8)
+        first, second = _vision_stimulus_set(), _vision_stimulus_set()
+
+        facade.start_task('odd_one_out')
+        outputs = [facade.look_at(first), facade.look_at(second, number_of_trials=3)]
+
+        assert legacy.tasks == ['odd_one_out']
+        assert len(legacy.looks) == 2
+        assert all(seen is sent for (seen, _), sent in zip(legacy.looks, (first, second)))
+        assert [trials for _, trials in legacy.looks] == [1, 3]
+        assert all(output is legacy.output for output in outputs)
+
+    def test_a_failed_configuration_is_retried(self):
+        class _FailsOnce(_StrictOddOneOut):
+            def start_task(self, task):
+                super().start_task(task)
+                if len(self.tasks) == 1:
+                    raise RuntimeError('first configuration fails')
+
+        legacy = _FailsOnce()
+        adapter = VisionModelAdapter(legacy)
+        with pytest.raises(RuntimeError):
+            adapter.start_task('odd_one_out')
+        adapter.start_task('odd_one_out')
+        adapter.start_task('odd_one_out')
+        assert legacy.tasks == ['odd_one_out', 'odd_one_out']
 
 
 class TestVisionAdapterStartRecording:
@@ -240,7 +374,7 @@ class TestVisionAutoWrapping:
         assert isinstance(model, VisionModelAdapter)
         assert model.identifier == 'test-legacy'
 
-    def test_load_model_wrapped_legacy_interact_scores(self):
+    def test_load_model_wrapped_legacy_participate_scores(self):
         import brainscore_vision
         expected = _vision_neural_assembly()
         legacy = _make_legacy_model(

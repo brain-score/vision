@@ -228,6 +228,29 @@ def test_from_stimulus_set(model_ctr, layers, pca_components):
         assert len(activations['neuroid']) == pca_components * len(layers)
 
 
+@pytest.mark.parametrize("require_variance", [False, True])
+def test_no_stimuli(require_variance, monkeypatch):
+    """An empty stimulus list or StimulusSet should raise a clear error before activations are computed or loaded
+    from storage (https://github.com/brain-score/vision/issues/376)."""
+    activations_extractor = pytorch_custom()
+
+    def not_reached(*args, **kwargs):
+        raise AssertionError("activations were requested for no stimuli")
+    # stored activations are keyed on the stimuli identifier, not the paths, so the check has to come first
+    monkeypatch.setattr(activations_extractor._extractor, '_from_paths_stored', not_reached)
+    monkeypatch.setattr(activations_extractor._extractor, '_from_paths', not_reached)
+
+    with pytest.raises(ValueError, match="No stimuli"):
+        activations_extractor(stimuli=[], layers=['linear'], stimuli_identifier='empty',
+                              require_variance=require_variance)
+
+    stimulus_set = _build_stimulus_set(['rgb.jpg'])
+    empty_stimulus_set = stimulus_set[stimulus_set['stimulus_id'] == 'missing']
+    with pytest.raises(ValueError, match="No stimuli"):
+        activations_extractor(stimuli=empty_stimulus_set, layers=['linear'], stimuli_identifier='empty',
+                              require_variance=require_variance)
+
+
 @pytest.mark.memory_intense
 @pytest.mark.parametrize("number_of_trials", [3, 10])
 @pytest.mark.parametrize(["model_ctr", "layers"], models_layers)

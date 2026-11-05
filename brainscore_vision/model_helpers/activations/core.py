@@ -184,6 +184,8 @@ class ActivationsExtractorHelper:
     def from_paths(self, stimuli_paths, layers, stimuli_identifier=None, require_variance=None):
         if layers is None:
             layers = ['logits']
+        if len(stimuli_paths) == 0:
+            raise ValueError("No stimuli passed to retrieve activations from")
         # Identifiers alone do not distinguish plugin revisions, so a cache
         # keyed on them would serve activations from code that no longer
         # exists. Append a content revision to each. These values are used

@@ -12,7 +12,7 @@ SUBMODULE_SEPARATOR = '.'
 
 class PytorchWrapper:
     def __init__(self, model, preprocessing, identifier=None, forward_kwargs=None,
-                 input_key=None, backbone_id=None, *args, channel=None, **kwargs):
+                 input_key=None, backbone_id=None, *args, channel=None, device=None, **kwargs):
         """
         :param backbone_id: Optional cache-key identifier, passed through to the
             underlying :class:`ActivationsExtractorHelper`. When two PytorchWrapper
@@ -23,10 +23,14 @@ class PytorchWrapper:
         :param channel: optional input channel to disambiguate cache keys when
             wrappers share a ``backbone_id`` across channels. Leave unset to
             preserve existing single-channel cache reuse.
+        :param device: torch device to run on (e.g. ``'cpu'``). By default, CUDA,
+            then MPS, then CPU, whichever is available.
         """
         import torch
         logger = logging.getLogger(fullname(self))
-        if torch.cuda.is_available():
+        if device is not None:                 # e.g. 'cpu', so results repeat across machines
+            self._device = torch.device(device)
+        elif torch.cuda.is_available():
             self._device = torch.device("cuda")
         elif torch.backends.mps.is_available():
             self._device = torch.device("mps")

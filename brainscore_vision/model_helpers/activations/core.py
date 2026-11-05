@@ -131,7 +131,7 @@ class ActivationsExtractorHelper:
             stimuli_identifier = stimulus_set.identifier
         for hook in self._stimulus_set_hooks.copy().values():  # copy to avoid stale handles
             stimulus_set = hook(stimulus_set)
-        stimuli_paths = [str(stimulus_set.get_stimulus(stimulus_id)) for stimulus_id in stimulus_set['stimulus_id']]
+        stimuli_paths = stimulus_paths_of(stimulus_set)
         activations = self.from_paths(stimuli_paths=stimuli_paths, layers=layers, stimuli_identifier=stimuli_identifier,
                                       require_variance=require_variance, channel=channel)
         activations = attach_stimulus_set_meta(activations,
@@ -652,8 +652,19 @@ def lstrip_local(path):
     return path
 
 
+def stimulus_paths_of(stimulus_set):
+    """One image path per row: from ``stimulus_paths`` (packaged sets) or, for a
+    set built from a table, from its ``image_path`` column."""
+    if getattr(stimulus_set, 'stimulus_paths', None) is not None:
+        return [str(stimulus_set.get_stimulus(stimulus_id)) for stimulus_id in stimulus_set['stimulus_id']]
+    if 'image_path' in stimulus_set.columns:
+        return [str(path) for path in stimulus_set['image_path']]
+    raise ValueError(f"This stimulus set names no image files. Add an 'image_path' column "
+                     f"with one file path per row (columns present: {list(stimulus_set.columns)}).")
+
+
 def attach_stimulus_set_meta(assembly, stimulus_set, number_of_trials: int, require_variance: bool = False):
-    stimulus_paths = [str(stimulus_set.get_stimulus(stimulus_id)) for stimulus_id in stimulus_set['stimulus_id']]
+    stimulus_paths = stimulus_paths_of(stimulus_set)
     stimulus_paths = [lstrip_local(path) for path in stimulus_paths]
     assembly_paths = [lstrip_local(path) for path in assembly['stimulus_path'].values]
 

@@ -1,8 +1,11 @@
-"""PytorchWrapper declares the layer paths it can record."""
+"""A stimulus set built from a table of image paths, and the declared layer names."""
 import numpy as np
+import pandas as pd
+import pytest
 import torch
 from PIL import Image
 
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper
 
 
@@ -22,6 +25,26 @@ def _images(tmp_path, n=2):
         Image.fromarray(np.full((8, 8, 3), i * 40, dtype=np.uint8)).save(path)
         paths.append(str(path))
     return paths
+
+
+def test_image_path_column_alone_is_enough(tmp_path):
+    paths = _images(tmp_path)
+    table = StimulusSet(pd.DataFrame({'stimulus_id': ['a', 'b'], 'image_path': paths}))
+    table.identifier = None
+    packaged = StimulusSet(pd.DataFrame({'stimulus_id': ['a', 'b'], 'image_path': paths}))
+    packaged.identifier = None
+    packaged.stimulus_paths = dict(zip(['a', 'b'], paths))
+    wrapper = _wrapper()
+    from_table = wrapper(table, layers=['0'])
+    assert not hasattr(table, 'stimulus_paths')
+    np.testing.assert_array_equal(from_table.values, wrapper(packaged, layers=['0']).values)
+    assert list(from_table['stimulus_id'].values) == ['a', 'b']
+
+
+def test_set_without_files_names_the_column_to_add():
+    stimuli = StimulusSet(pd.DataFrame({'stimulus_id': ['a']}))
+    with pytest.raises(ValueError, match="'image_path' column"):
+        _wrapper()(stimuli, layers=['0'])
 
 
 def test_layer_names_are_the_wrapped_module_paths():

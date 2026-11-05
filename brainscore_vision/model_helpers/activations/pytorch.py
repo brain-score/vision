@@ -101,6 +101,10 @@ class PytorchWrapper:
                 hook.remove()
         return layer_results
 
+    def layer_names(self):
+        """Layer paths this extractor can record, relative to the module it wraps."""
+        return ['logits', *(name for name, _ in self._model.named_modules(remove_duplicate=False) if name)]
+
     def get_layer(self, layer_name):
         if layer_name == 'logits':
             return self._output_layer()

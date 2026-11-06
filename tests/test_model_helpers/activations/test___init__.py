@@ -181,6 +181,32 @@ def test_require_variance_presentation_length(model_ctr, layers, image_name, req
     else:
         assert len(activations['presentation']) == 1
 
+
+@pytest.mark.parametrize(["model_ctr", "layers"], models_layers)
+def test_number_of_trials_does_not_carry_over(model_ctr, layers):
+    """The trial count of a `require_variance=True` call must not leak into the next call on the same model
+    (https://github.com/brain-score/vision/issues/1167)."""
+    stimulus_paths = [os.path.join(os.path.dirname(__file__), 'grayscale2.jpg')]
+    activations_extractor = model_ctr()
+    activations_extractor._extractor.set_visual_degrees(8.)
+
+    with_variance = activations_extractor(stimuli=stimulus_paths, layers=layers, number_of_trials=3,
+                                          require_variance=True)
+    assert len(with_variance['presentation']) == 3
+    # without `require_variance`, each stimulus runs once, whichever entry point is used
+    without_variance = activations_extractor(stimuli=stimulus_paths, layers=layers, require_variance=False)
+    assert len(without_variance['presentation']) == 1
+    from_paths = activations_extractor.from_paths(stimuli_paths=stimulus_paths, layers=layers,
+                                                  require_variance=False)
+    assert len(from_paths['presentation']) == 1
+    from_set = activations_extractor.from_stimulus_set(_build_stimulus_set(['grayscale2.jpg']), layers=layers,
+                                                       stimuli_identifier=False, require_variance=False)
+    assert len(from_set['presentation']) == 1
+    with_variance = activations_extractor(stimuli=stimulus_paths, layers=layers, number_of_trials=2,
+                                          require_variance=True)
+    assert len(with_variance['presentation']) == 2
+
+
 @pytest.mark.memory_intense
 @pytest.mark.parametrize("image_name", ['rgb.jpg', 'grayscale.png', 'grayscale2.jpg', 'grayscale_alpha.png',
                                         'palletized.png'])

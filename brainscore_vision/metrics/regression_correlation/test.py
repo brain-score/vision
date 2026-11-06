@@ -39,6 +39,55 @@ class TestRegression:
         assert all(prediction['stimulus_id'] == assembly['stimulus_id'])
         assert all(prediction['neuroid_id'] == assembly['neuroid_id'])
 
+
+class TestPLSFewerFeaturesThanComponents:
+    """ PLS defaults to 25 components, which used to raise for sources with fewer than 25 features (#335) """
+
+    @staticmethod
+    def _assembly(values):
+        n_stimuli, n_neuroids = values.shape
+        return NeuroidAssembly(values, coords={'stimulus_id': ('presentation', np.arange(n_stimuli)),
+                                               'object_name': ('presentation', ['a', 'b', 'c'] * (n_stimuli // 3)),
+                                               'neuroid_id': ('neuroid', np.arange(n_neuroids)),
+                                               'region': ('neuroid', ['some_region'] * n_neuroids)},
+                               dims=['presentation', 'neuroid'])
+
+    @pytest.mark.parametrize('n_features', [1, 10, 24])
+    def test_matches_least_squares(self, n_features):
+        # with as many components as source features, PLS fits the least-squares model
+        rng = np.random.RandomState(0)
+        source = self._assembly(rng.standard_normal((60, n_features)))
+        target = self._assembly(source.values @ rng.standard_normal((n_features, 5)) + rng.standard_normal((60, 5)))
+        pls, least_squares = pls_regression(), linear_regression()
+        pls.fit(source=source, target=target)
+        least_squares.fit(source=source, target=target)
+        test_source = self._assembly(rng.standard_normal((30, n_features)))
+        assert pls.predict(test_source).values == approx(least_squares.predict(test_source).values, abs=1e-8)
+
+    def test_rank_deficient_matches_least_squares(self):
+        # a dead unit and a duplicated unit: components beyond the source rank would only fit round-off
+        rng = np.random.RandomState(0)
+        def with_degenerate_units(values):
+            return self._assembly(np.hstack([values, np.zeros((len(values), 1)), values[:, :1]]))
+        source = with_degenerate_units(rng.standard_normal((60, 8)))
+        target = self._assembly(source.values @ rng.standard_normal((10, 5)) + rng.standard_normal((60, 5)))
+        pls, least_squares = pls_regression(), linear_regression()
+        pls.fit(source=source, target=target)
+        least_squares.fit(source=source, target=target)
+        test_source = with_degenerate_units(rng.standard_normal((30, 8)))
+        assert pls.predict(test_source).values == approx(least_squares.predict(test_source).values, abs=1e-8)
+
+    @pytest.mark.parametrize('metric_name, n_source, n_target', [('pls', 10, 30), ('reverse_pls', 30, 10)])
+    def test_metric(self, metric_name, n_source, n_target):
+        rng = np.random.RandomState(0)
+        latent = rng.standard_normal((90, 5))
+        source = self._assembly(latent @ rng.standard_normal((5, n_source)) + .1 * rng.standard_normal((90, n_source)))
+        target = self._assembly(latent @ rng.standard_normal((5, n_target)) + .1 * rng.standard_normal((90, n_target)))
+        metric = load_metric(metric_name, crossvalidation_kwargs=dict(stratification_coord=None))
+        score = metric(source, target)
+        assert score > .9
+
+
 class TestTrainTestSplitCorrelation:
     @pytest.mark.parametrize('metric_name', ['pls_split', 'ridge_split', 'linear_predictivity_split', 'neuron_to_neuron_split', 'ridgecv_split'])
     def test_small(self, metric_name):

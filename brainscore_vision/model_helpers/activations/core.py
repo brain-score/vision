@@ -203,6 +203,10 @@ class ActivationsExtractorHelper:
                                     # getattr: extractors built with `__new__`
                                     # never ran `__init__` and have no probe.
                                     resolution=getattr(self, '_resolution', None) or NO_RESOLUTION,
+                                    # only microsaccades repeat a stimulus, so without `require_variance`
+                                    # the key keeps `number_of_trials=1`, as before.
+                                    number_of_trials=(self._microsaccade_helper.number_of_trials
+                                                      if require_variance else 1),
                                     require_variance=require_variance)
         else:
             self._logger.debug(f"self.identifier `{self.identifier}` or stimuli_identifier {stimuli_identifier} "

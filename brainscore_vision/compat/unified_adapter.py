@@ -128,8 +128,9 @@ class VisionModelAdapter(UnifiedModel):
                         time_bins=None, recording_type=None, **kwargs) -> None:
         # Legacy BrainModel.start_recording(recording_target, time_bins)
         # Default time_bins for vision is [(70, 170)]
-        bins = time_bins or [(70, 170)]
-        key = (repr(recording_target), repr(bins))
+        # Explicit check: an ndarray of bins (temporal benchmarks) has no truth value.
+        bins = [(70, 170)] if time_bins is None or len(time_bins) == 0 else time_bins
+        key = (repr(recording_target), _time_bins_key(bins))
         if key == self._configured_recording:
             return
         self._legacy.start_recording(recording_target, bins)
@@ -154,3 +155,28 @@ class VisionModelAdapter(UnifiedModel):
         sees only what the adapter declares (Contract Rules v3, rule 2.1).
         """
         return self._legacy
+
+
+def _time_bins_key(bins):
+    """An exact setup key for time bins.
+
+    Lists and tuples keep their ``repr`` key. An ndarray (temporal benchmarks)
+    gets a structural key that does not depend on NumPy display precision.
+    """
+    import numpy as np
+    if not isinstance(bins, np.ndarray):
+        return repr(bins)
+    return _exact(bins)
+
+
+def _exact(value):
+    import numpy as np
+    if isinstance(value, np.ndarray):
+        if value.dtype == object:
+            return ('ndarray', 'O', value.shape, tuple(_exact(item) for item in value.ravel()))
+        return ('ndarray', value.dtype.str, value.shape, value.tobytes())
+    if isinstance(value, (tuple, list)):
+        return (type(value).__name__, tuple(_exact(item) for item in value))
+    if isinstance(value, np.generic):
+        return ('scalar', value.dtype.str, value.tobytes())
+    return (type(value).__name__, value)

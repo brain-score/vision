@@ -83,6 +83,11 @@ class VisionModelAdapter(UnifiedModel):
         settings = measurement_settings(session)
         if context is not None and context.task_type != 'passive':
             self.start_task(context)
+        elif self._configured_task is not None and self._configured_task[0] != 'passive':
+            # An earlier session left the legacy model answering a task. A
+            # passive session leaves it the legacy way, as a legacy benchmark
+            # does with start_task('passive'). A fresh subject gets no call.
+            self.start_task('passive')
         if channel.startswith('neural:'):
             self.start_recording(channel.split(':', 1)[1], time_bins=session.time_bins)
         events = drain_session_inputs(session)

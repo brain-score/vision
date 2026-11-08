@@ -587,3 +587,90 @@ class TestTimeBinsFidelity:
         adapter.start_recording('IT', time_bins=first)
         adapter.start_recording('IT', time_bins=second)
         assert len(legacy.calls) == 2 and legacy.calls[-1][2] is second
+
+class _CommitmentLike:
+    """ModelCommitment.start_task / look_at: any task but 'passive' turns behavior on."""
+    identifier = 'commitment-like'
+
+    def __init__(self):
+        self.do_behavior = False
+        self.calls = []
+        self.layer_model = type('L', (), {'region_layer_map': {'IT': 'layer4'}})()
+
+    def visual_degrees(self):
+        return 8
+
+    def start_task(self, task, *args, **kwargs):
+        self.calls.append(('start_task', task))
+        self.do_behavior = task != 'passive'
+
+    def start_recording(self, target, time_bins):
+        self.calls.append(('start_recording', target))
+
+    def look_at(self, stimuli, number_of_trials=1, require_variance=False):
+        self.calls.append(('look_at',))
+        if self.do_behavior:
+            return BehavioralAssembly(np.array(['cat', 'dog']), dims=['presentation'],
+                                      coords={'stimulus_id': ('presentation', ['s0', 's1'])})
+        return _vision_neural_assembly()
+
+
+class TestBehaviorDoesNotLeakIntoNeuralSessions:
+
+    def _task(self):
+        stimuli = _vision_stimulus_set()
+        return TaskContext(task_type='probabilities', fitting_stimuli=stimuli,
+                           metadata={'stimulus_set': stimuli})
+
+    def test_behavior_then_neural_returns_neural(self):
+        from brainscore_core.streaming_helpers import behavioral_response
+        legacy = _CommitmentLike()
+        adapter = VisionModelAdapter(legacy)
+        assert isinstance(behavioral_response(adapter, self._task()), BehavioralAssembly)
+        neural = neural_response(adapter, _vision_stimulus_set(), record='IT')
+        assert isinstance(neural, NeuroidAssembly)
+        assert legacy.calls[-3:] == [('start_task', 'passive'), ('start_recording', 'IT'), ('look_at',)]
+
+    def test_neural_on_a_fresh_adapter_makes_the_same_legacy_calls(self):
+        legacy = _CommitmentLike()
+        neural_response(VisionModelAdapter(legacy), _vision_stimulus_set(), record='IT')
+        assert legacy.calls == [('start_recording', 'IT'), ('look_at',)]
+
+    def test_repeated_neural_sessions_send_passive_at_most_once(self):
+        from brainscore_core.streaming_helpers import behavioral_response
+        legacy = _CommitmentLike()
+        adapter = VisionModelAdapter(legacy)
+        behavioral_response(adapter, self._task())
+        for _ in range(2):
+            neural_response(adapter, _vision_stimulus_set(), record='IT')
+        assert legacy.calls.count(('start_task', 'passive')) == 1
+
+    def test_two_legacy_facades_in_sequence(self):
+        from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+        legacy = _CommitmentLike()
+        adapter = VisionModelAdapter(legacy)
+        stimuli = _vision_stimulus_set()
+        behavioral = LegacyBenchmarkFacade(adapter, visual_degrees=8)
+        behavioral.start_task('probabilities', stimuli)
+        assert isinstance(behavioral.look_at(stimuli), BehavioralAssembly)
+        neural = LegacyBenchmarkFacade(adapter, visual_degrees=8)
+        neural.start_recording('IT', time_bins=[(70, 170)])
+        assert isinstance(neural.look_at(stimuli), NeuroidAssembly)
+
+    def test_benchmark_that_returns_to_passive_matches_the_plain_legacy_model(self):
+        from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+        stimuli = _vision_stimulus_set()
+
+        def run(model):
+            model.start_task('probabilities', stimuli)
+            model.look_at(stimuli)
+            model.start_task('passive')
+            model.start_recording('IT', time_bins=[(70, 170)])
+            return model.look_at(stimuli)
+
+        plain = _CommitmentLike()
+        expected = run(plain)
+        legacy = _CommitmentLike()
+        actual = run(LegacyBenchmarkFacade(VisionModelAdapter(legacy), visual_degrees=8))
+        assert isinstance(expected, NeuroidAssembly) and isinstance(actual, NeuroidAssembly)
+        assert legacy.calls == plain.calls

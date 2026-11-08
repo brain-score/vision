@@ -7,7 +7,7 @@ the abstraction boundary: benchmarks above it call process(), legacy
 code below it sees the same look_at() calls it always did.
 """
 
-from typing import Any, Dict, Optional, Set
+from typing import Any, Dict, List, Optional, Set
 
 from brainscore_core.model_interface import UnifiedModel, TaskContext
 from brainscore_core.session_view import DeclaredInputSession, declared_only
@@ -35,11 +35,40 @@ class VisionModelAdapter(UnifiedModel):
         # Vision's identifier is a @property
         return self._legacy.identifier
 
+    def _legacy_layer_map(self):
+        if hasattr(self._legacy, 'layer_model') and hasattr(self._legacy.layer_model, 'region_layer_map'):
+            return self._legacy.layer_model.region_layer_map
+        return {}
+
     @property
     def region_layer_map(self) -> Dict[str, str]:
-        if hasattr(self._legacy, 'layer_model') and hasattr(self._legacy.layer_model, 'region_layer_map'):
-            return dict(self._legacy.layer_model.region_layer_map)
-        return {}
+        """The region -> layer commitments the legacy model has made so far."""
+        return dict(self._legacy_layer_map())
+
+    def _mappable_regions(self) -> List[str]:
+        """Every region the legacy model is wired to map, without a layer search.
+
+        The committed regions come first. A lazy map (a ``ModelCommitment``
+        with no ``region_layer_map/<id>.json`` and no ``region_layer_map=``)
+        also declares, in its public ``region_benchmarks``, the regions its
+        layer selection can search. The search itself runs where it always ran:
+        at the first legacy ``look_at`` of a region.
+        """
+        layer_map = self._legacy_layer_map()
+        regions = list(layer_map)  # dict iteration: committed regions only, no search
+        # Read as a public declaration; a plain committed dict has none.
+        searchable = getattr(layer_map, 'region_benchmarks', None) or {}
+        regions += [region for region in searchable if region not in regions]
+        return regions
+
+    @property
+    def probe_safe_regions(self) -> List[str]:
+        """Regions with a committed layer: recording them starts no layer search.
+
+        The memory pre-flight probes only these regions on a benchmark that
+        does not name the region it measures.
+        """
+        return list(self._legacy_layer_map())
 
     @property
     def supported_modalities(self) -> Set[str]:
@@ -55,7 +84,9 @@ class VisionModelAdapter(UnifiedModel):
     @property
     def out_channels(self) -> Set[str]:
         # A legacy BrainModel answers behavioral tasks as well as recording.
-        return super().out_channels | {'behavior'}
+        # Neural channels come from the regions the legacy model can map, so a
+        # lazy layer search declares the same channels before and after it runs.
+        return {f'neural:{region}' for region in self._mappable_regions()} | {'behavior'}
 
     def process(self, stimuli, number_of_trials=1, require_variance=False) -> Any:
         if require_variance:

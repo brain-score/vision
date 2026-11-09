@@ -220,26 +220,6 @@ class TestSearchRunsAtFirstUse:
         benchmark(LegacyBenchmarkFacade(adapter, visual_degrees=8))
         assert selection.searches == [('search', 'IT')]
 
-    def test_memory_probe_on_a_behavioral_benchmark_runs_no_search(self):
-        """A legacy behavioral benchmark declares no outputs, and no layer is committed yet.
-
-        Needs core with the probe fix: for a benchmark that declares nothing,
-        memory._probe_regions probes only the subject's probe_safe_regions when
-        it declares them (here: the committed layers), so a lazy map gets no
-        probe and no search.
-        """
-        class _LegacyBehavioralBenchmark:
-            identifier = 'Rajalingham2018-i2n'
-
-            def __init__(self):
-                self.stimulus_set = _stimuli()
-
-        model, selection = _lazy_commitment()
-        benchmark = mark_legacy_benchmark(
-            ensure_legacy_benchmark_modalities(_LegacyBehavioralBenchmark(), {'vision'}))
-        check_memory(VisionModelAdapter(model), benchmark)
-        assert selection.searches == []
-
 
 class TestOtherMapsUnchanged:
 

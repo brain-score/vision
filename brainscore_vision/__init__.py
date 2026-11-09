@@ -92,10 +92,16 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
     from brainscore_core.memory import check_memory
     from brainscore_core.score_metadata import (
         infer_score_protocol,
-        record_measures,
         requested_output_channels_for_score,
         stamp_score_metadata,
     )
+    try:
+        from brainscore_core.score_metadata import record_measures
+    except ImportError as error:
+        raise ImportError(
+            'brainscore_vision needs a brainscore_core with score_metadata.record_measures '
+            '(core ad7288a or later); update the core pin in requirements-v2.txt'
+        ) from error
 
     from brainscore_core.preflight import check_cache_directory
     check_cache_directory()

@@ -109,7 +109,7 @@ class TestPreflightInRunScore:
     def test_behavior_protocol_comes_from_recorded_measures(
             self, mock_load_model, mock_load_benchmark):
         from brainscore_vision import _run_score
-        from brainscore_core.streaming import StreamEvent
+        from brainscore_core.streaming import BufferedSession, StreamEvent
         from brainscore_core.supported_data_standards.brainio.assemblies import (
             BehavioralAssembly,
         )
@@ -125,10 +125,11 @@ class TestPreflightInRunScore:
         score.attrs = {}
 
         def run(candidate):
-            # A subject's behavioral response event, as a session receives it.
-            StreamEvent('behavior', BehavioralAssembly(
-                [[1.0, 0.0]], dims=['presentation', 'choice'],
-                attrs={'measure': {'kind': 'reported', 'source': 'reply'}}), None)
+            # A subject's behavioral response, accepted by a session.
+            BufferedSession(requested_output_channels=['behavior']).respond(
+                StreamEvent('behavior', BehavioralAssembly(
+                    [[1.0, 0.0]], dims=['presentation', 'choice'],
+                    attrs={'measure': {'kind': 'reported', 'source': 'reply'}}), None))
             return score
 
         benchmark.side_effect = run

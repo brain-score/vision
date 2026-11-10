@@ -104,6 +104,55 @@ class TestPreflightInRunScore:
         assert score.attrs['compatibility']['match'] == 'full'
         assert score.attrs['harness_id'] == 'brainscore_vision'
 
+    @patch('brainscore_vision.load_benchmark')
+    @patch('brainscore_vision.load_model')
+    def test_behavior_protocol_comes_from_recorded_measures(
+            self, mock_load_model, mock_load_benchmark):
+        from brainscore_vision import _run_score
+        from brainscore_core.streaming import BufferedSession, StreamEvent
+        from brainscore_core.supported_data_standards.brainio.assemblies import (
+            BehavioralAssembly,
+        )
+
+        model, benchmark = self._make_model_and_benchmark(
+            model_modalities={'vision'},
+            bench_required={'vision'},
+        )
+        model.out_channels = {'behavior'}
+        benchmark.parent = 'behavior'
+        benchmark.requested_output_channels = {'behavior'}
+        score = MagicMock()
+        score.attrs = {}
+
+        def run(candidate):
+            # A subject's behavioral response, accepted by a session.
+            BufferedSession(requested_output_channels=['behavior']).respond(
+                StreamEvent('behavior', BehavioralAssembly(
+                    [[1.0, 0.0]], dims=['presentation', 'choice'],
+                    attrs={'measure': {'kind': 'reported', 'source': 'reply'}}), None))
+            return score
+
+        benchmark.side_effect = run
+        mock_load_model.return_value = model
+        mock_load_benchmark.return_value = benchmark
+
+        _run_score('test-model', 'test-bench', check_mem=False)
+
+        assert score.attrs['protocol'] == 'behavior:generation'
+        assert score.attrs['measure'] == 'reported'
+
+    def test_an_older_core_fails_with_a_clear_message(self):
+        from brainscore_vision import _run_score
+        import brainscore_core.score_metadata as score_metadata
+
+        saved = score_metadata.record_measures
+        del score_metadata.record_measures
+        try:
+            with pytest.raises(ImportError, match='core ad7288a or later'):
+                _run_score('test-model', 'test-bench', check_mem=False)
+        finally:
+            score_metadata.record_measures = saved
+
     @patch('brainscore_core.compatibility.check_channel_compatibility')
     @patch('brainscore_vision.load_benchmark')
     @patch('brainscore_vision.load_model')

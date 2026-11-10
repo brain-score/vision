@@ -95,6 +95,13 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
         requested_output_channels_for_score,
         stamp_score_metadata,
     )
+    try:
+        from brainscore_core.score_metadata import record_measures
+    except ImportError as error:
+        raise ImportError(
+            'brainscore_vision needs a brainscore_core with score_metadata.record_measures '
+            '(core ad7288a or later); update the core pin in requirements-v2.txt'
+        ) from error
 
     from brainscore_core.preflight import check_cache_directory
     check_cache_directory()
@@ -118,7 +125,7 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
     try:
         # score_benchmark runs the benchmark's own preallocate_memory hook first;
         # our check_memory above is the probe-based estimate and they compose.
-        with weight_fingerprint_scope():
+        with weight_fingerprint_scope(), record_measures() as measures:
             score: Score = score_benchmark(benchmark, candidate)
     except AssertionError as e:
         # Only append the cache-clearing hint when the AssertionError actually
@@ -147,8 +154,10 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
         score,
         model,
         requested_channels=requested_channels,
-        protocol=infer_score_protocol(model, benchmark, requested_channels),
+        protocol=infer_score_protocol(model, benchmark, requested_channels,
+                                      measures=measures),
         harness_id='brainscore_vision',
+        measures=measures,
     )
     score.attrs['compatibility'] = compatibility.as_attrs()
     try:  # attempt to look up the layer commitment if model uses a standard layer model

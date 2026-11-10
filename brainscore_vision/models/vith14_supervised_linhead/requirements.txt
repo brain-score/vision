@@ -1,0 +1,5 @@
+timm>=1.0
+safetensors
+huggingface_hub
+torch
+torchvision

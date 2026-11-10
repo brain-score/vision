@@ -6,7 +6,8 @@ import pandas as pd
 import pytest
 from PIL import Image
 
-from brainscore_core.model_interface import BrainScoreModel, Subject
+from brainscore import BrainScoreModel
+from brainscore_core.model_interface import Subject
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 
 

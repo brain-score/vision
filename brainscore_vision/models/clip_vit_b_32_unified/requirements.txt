@@ -1,3 +1,3 @@
 # Unpublished UMI packages at the revisions qualified together; core and vision come from the environment.
 brainscore-language @ git+https://github.com/brain-score/language.git@ffa890ad733129c7928cc4326050f0440780b5e8
-brainscore @ git+https://github.com/KartikP/brainscore-unified.git@5dc12f6654f5701b5135c7b288a3327ee704384e
+brainscore @ git+https://github.com/KartikP/brainscore-unified.git@0e344cc4aae91a4b413d68cc74fa264b830b30f9

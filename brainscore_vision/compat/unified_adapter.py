@@ -10,7 +10,7 @@ code below it sees the same look_at() calls it always did.
 from typing import Any, Dict, List, Optional, Set
 
 from brainscore_core.model_interface import UnifiedModel, TaskContext
-from brainscore_core.session_view import DeclaredInputSession, declared_only
+from brainscore_core.session_view import declared_only
 from brainscore_core.streaming import StreamEvent
 from brainscore_core.streaming_helpers import (
     drain_session_inputs,
@@ -101,7 +101,7 @@ class VisionModelAdapter(UnifiedModel):
         legacy benchmark makes. Setup is applied when it changes, not on every
         measurement. Only declared input streams reach the legacy model.
         """
-        session = DeclaredInputSession(session, self.in_channels)
+        session = session.declare_inputs(self.in_channels)
         channels = tuple(session.requested_output_channels or ())
         if len(channels) != 1:
             raise ValueError('A legacy vision model answers one output channel '

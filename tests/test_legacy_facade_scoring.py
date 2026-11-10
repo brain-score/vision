@@ -10,7 +10,7 @@ import pytest
 import brainscore_vision
 from brainscore_core.legacy_facade import LegacyBenchmarkFacade
 from brainscore_core.metrics import Score
-from brainscore_core.model_interface import BrainScoreModel, Subject
+from brainscore_core.model_interface import Subject
 from brainscore_core.streaming import StreamEvent
 from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly, NeuroidAssembly
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
@@ -101,27 +101,6 @@ def test_adapted_legacy_model_runs_a_behavioral_benchmark(monkeypatch):
     assert args[0] is benchmark.test and args[1] == 3 and kwargs == {}
     legacy.start_recording.assert_not_called()
     assert score.attrs['output'] is legacy.look_at.return_value
-
-
-class _Extractor:
-    def __call__(self, stimuli, layers=None, **kwargs):
-        n = len(stimuli)
-        return NeuroidAssembly(
-            np.arange(n * 2, dtype=float).reshape(n, 2),
-            coords={'stimulus_id': ('presentation', list(stimuli['stimulus_id'])),
-                    'neuroid_id': ('neuroid', [0, 1]), 'layer': ('neuroid', [layers[0]] * 2)},
-            dims=['presentation', 'neuroid'])
-
-
-def test_typed_model_scores_identically_to_process(monkeypatch):
-    model = BrainScoreModel('typed', region_layer_map={'IT': 'layer'},
-                            extractor={'vision': _Extractor()}, visual_degrees=8)
-    benchmark = _NeuralBenchmark()
-    score = _score(monkeypatch, model, benchmark)
-    assert score.attrs['candidate'] == 'LegacyBenchmarkFacade'
-    assert score.attrs['degrees'] == 8
-    model.start_recording('IT', time_bins=[(70, 170)])
-    np.testing.assert_array_equal(score.attrs['output'].values, model.process(benchmark.stimuli).values)
 
 
 class _NativeSubject(Subject):

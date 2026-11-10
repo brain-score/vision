@@ -122,7 +122,7 @@ def save_outputs(
     """
     Save two files:
     1. region_layer_map.json — the recommended mapping (best layer per region).
-       This is what BrainScoreModel loads.
+       This is what brainscore.BrainScoreModel loads.
     2. {model_identifier}_layer_scores.csv — full score matrix with columns:
        layer, V1, V2, V4, IT (one row per layer). This is for the submitter
        to review all options before committing.

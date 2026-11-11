@@ -1,2 +1,2 @@
 # Unpublished v2 core, pinned for standalone CI and documentation builds.
-brainscore-core @ git+https://github.com/brain-score/core.git@93e62879311f282ecd3f75f0c0c1fcf41f4ed946
+brainscore-core @ git+https://github.com/brain-score/core.git@395fd1418dc2f8a91618024009eb827ec5c35eed

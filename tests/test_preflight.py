@@ -97,7 +97,7 @@ class TestPreflightInRunScore:
 
         assert result is score
         assert score.attrs['existing'] == 'preserved'
-        assert score.attrs['in_channels'] == ('vision',)
+        assert score.attrs['in_channels'] == ('vision:image',)
         assert score.attrs['out_channels'] == ('neural:IT',)
         assert score.attrs['protocol'] == 'neural'
         assert score.attrs['subject_id'] == 'test-model'

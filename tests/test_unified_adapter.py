@@ -18,7 +18,7 @@ def _make_legacy_model(identifier='mock-resnet', visual_degrees=8,
     # identifier is a @property in vision
     type(legacy).identifier = PropertyMock(return_value=identifier)
     legacy.visual_degrees.return_value = visual_degrees
-    legacy.look_at.return_value = 'mock_assembly'
+    legacy.look_at.return_value = _vision_neural_assembly()
     legacy.start_task.return_value = None
     legacy.start_recording.return_value = None
 
@@ -153,7 +153,7 @@ class TestVisionAdapterProcess:
         args, kwargs = legacy.look_at.call_args
         assert args[0] is stimuli and args[1] == 3 and kwargs == {}
         event, = session.emitted
-        assert event.payload == 'mock_assembly' and event.meta == {'driver': 'legacy'}
+        assert event.payload is legacy.look_at.return_value and event.meta == {'driver': 'legacy'}
 
     def test_participate_projects_undeclared_input_columns(self):
         from brainscore_core.streaming_helpers import table_session

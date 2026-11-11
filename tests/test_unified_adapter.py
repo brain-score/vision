@@ -18,7 +18,7 @@ def _make_legacy_model(identifier='mock-resnet', visual_degrees=8,
     # identifier is a @property in vision
     type(legacy).identifier = PropertyMock(return_value=identifier)
     legacy.visual_degrees.return_value = visual_degrees
-    legacy.look_at.return_value = 'mock_assembly'
+    legacy.look_at.return_value = _vision_neural_assembly()
     legacy.start_task.return_value = None
     legacy.start_recording.return_value = None
 
@@ -142,12 +142,10 @@ class TestVisionAdapterProcess:
         )
 
     def test_participate_is_one_look_at_with_the_session_table_and_settings(self):
-        from brainscore_core.streaming import BufferedSession
+        from brainscore_core.streaming_helpers import table_session
         stimuli = _vision_stimulus_set()
         legacy = _make_legacy_model(region_layer_map={'IT': 'layer4'})
-        session = BufferedSession(stimulus_set=stimuli,
-                                  requested_output_channels=('neural:IT',),
-                                  time_bins=[(50, 100)])
+        session = table_session(stimuli, ('neural:IT',), time_bins=[(50, 100)])
         session.settings = {'number_of_trials': 3}
         VisionModelAdapter(legacy).participate(session)
         legacy.start_recording.assert_called_once_with('IT', [(50, 100)])
@@ -155,15 +153,14 @@ class TestVisionAdapterProcess:
         args, kwargs = legacy.look_at.call_args
         assert args[0] is stimuli and args[1] == 3 and kwargs == {}
         event, = session.emitted
-        assert event.payload == 'mock_assembly' and event.meta == {'driver': 'legacy'}
+        assert event.payload is legacy.look_at.return_value and event.meta == {'driver': 'legacy'}
 
     def test_participate_projects_undeclared_input_columns(self):
-        from brainscore_core.streaming import BufferedSession
+        from brainscore_core.streaming_helpers import table_session
         stimuli = _vision_stimulus_set()
         stimuli['sentence'] = ['a cat', 'a dog']
         legacy = _make_legacy_model(region_layer_map={'IT': 'layer4'})
-        session = BufferedSession(stimulus_set=stimuli,
-                                  requested_output_channels=('neural:IT',))
+        session = table_session(stimuli, ('neural:IT',))
         session.settings = {'number_of_trials': 2, 'require_variance': True}
         VisionModelAdapter(legacy).participate(session)
         args, kwargs = legacy.look_at.call_args

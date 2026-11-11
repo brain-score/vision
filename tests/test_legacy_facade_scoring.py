@@ -120,8 +120,8 @@ class _NativeSubject(Subject):
     def participate(self, session):
         self.sessions.append(session)
         n = 0
-        while session.next_input() is not None:
-            n += 1
+        while (event := session.next_input()) is not None:
+            n += event.channel != 'control'
         output = NeuroidAssembly(np.ones((n, 2)), dims=['presentation', 'neuroid'],
                                  coords={'stimulus_id': ('presentation', list(range(n))),
                                          'neuroid_id': ('neuroid', [0, 1])})

@@ -109,7 +109,7 @@ class TestPreflightInRunScore:
     def test_behavior_protocol_comes_from_recorded_measures(
             self, mock_load_model, mock_load_benchmark):
         from brainscore_vision import _run_score
-        from brainscore_core.streaming import BufferedSession, StreamEvent
+        from brainscore_core.streaming import Session, StreamEvent
         from brainscore_core.supported_data_standards.brainio.assemblies import (
             BehavioralAssembly,
         )
@@ -126,7 +126,7 @@ class TestPreflightInRunScore:
 
         def run(candidate):
             # A subject's behavioral response, accepted by a session.
-            BufferedSession(requested_output_channels=['behavior']).respond(
+            Session((), ['behavior']).respond(
                 StreamEvent('behavior', BehavioralAssembly(
                     [[1.0, 0.0]], dims=['presentation', 'choice'],
                     attrs={'measure': {'kind': 'reported', 'source': 'reply'}}), None))

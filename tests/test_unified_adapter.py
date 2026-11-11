@@ -72,6 +72,11 @@ class TestVisionAdapterIdentity:
         adapter = VisionModelAdapter(_make_legacy_model())
         assert adapter.supported_modalities == {'vision'}
 
+    def test_declares_image_channel_only(self):
+        adapter = VisionModelAdapter(_make_legacy_model())
+        assert adapter.in_channels == {'vision:image'}
+        assert adapter.required_channels == {'vision:image'}
+
     def test_region_layer_map_from_layer_model(self):
         legacy = _make_legacy_model(region_layer_map={'V1': 'layer1', 'IT': 'layer4'})
         adapter = VisionModelAdapter(legacy)

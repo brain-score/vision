@@ -106,7 +106,7 @@ def test_adapted_legacy_model_runs_a_behavioral_benchmark(monkeypatch):
 class _NativeSubject(Subject):
     """Participate-only: no look_at, start_recording or process."""
     identifier = 'native'
-    in_channels = {'vision'}
+    in_channels = {'vision:image'}
     out_channels = {'neural:IT'}
     required_channels = set()
 

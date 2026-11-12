@@ -196,3 +196,17 @@ models:
       status: probable
       sources:
       - proposal_70d09327f83a075f_huggingface
+    legacy:
+      architecture: DCNN, Transformer
+      model_family: vit
+      total_parameter_count: 632043240
+      trainable_parameter_count: 632043240
+      total_layers: 457
+      trainable_layers: 195
+      model_size_mb: 2528.17
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ijepa_vith14_linhead
+      huggingface_link: null
+      extra_notes: null
+      runnable: true

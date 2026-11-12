@@ -102,7 +102,7 @@ class VisionModelAdapter(UnifiedModel):
         measurement. Only declared input streams reach the legacy model.
         """
         session = session.declare_inputs(self.in_channels)
-        channels = tuple(session.requested_output_channels or ())
+        channels = tuple(session.outputs or ())
         if len(channels) != 1:
             raise ValueError('A legacy vision model answers one output channel '
                              f'per look_at; got {sorted(channels)}')
@@ -110,7 +110,7 @@ class VisionModelAdapter(UnifiedModel):
         if channel not in self.out_channels:
             raise ValueError(f'Undeclared output channel {channel!r}; declared: '
                              f'{sorted(self.out_channels)}')
-        context = session.task_context
+        context = session.task
         settings = measurement_settings(session)
         if context is not None and context.task_type != 'passive':
             self.start_task(context)

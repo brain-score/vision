@@ -29,7 +29,8 @@ jobs:
       METADATA_ONLY: ${{ steps.check_metadata_only.outputs.only_metadata }}
       PLUGIN_DIRS: ${{ steps.derive_plugin_dirs.outputs.PLUGIN_DIRS }}
       PLUGIN_TYPE: ${{ steps.derive_plugin_dirs.outputs.PLUGIN_TYPE }}
-      RUN_METADATA: ${{  steps.check_metadata.outputs.RUN_METADATA  }}
+      RUN_METADATA: ${{ steps.check_metadata.outputs.RUN_METADATA }}
+      LEGACY_PLUGIN_DIRS: ${{ steps.check_metadata.outputs.LEGACY_PLUGIN_DIRS }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -70,8 +71,8 @@ jobs:
           MODIFIES_PLUGINS=$(echo ${{ steps.getpluginfo.outputs.PLUGIN_INFO }} | jq -r '.modifies_plugins')
           echo "modifies_plugins=${MODIFIES_PLUGINS}" >> $GITHUB_OUTPUT
           
-          # filter out metadata.yml
-          non_metadata=$(echo "${{ env.CHANGED_FILES }}" | tr ' ' '\n' | grep -Ev "metadata\.ya?ml" || true)
+          # Filter only complete metadata filenames.
+          non_metadata=$(echo "${{ env.CHANGED_FILES }}" | tr ' ' '\n' | grep -Ev "(^|/)metadata\.ya?ml$" || true)
 
           if [ -z "$non_metadata" ] && [ "$MODIFIES_PLUGINS" = "true" ]; then
             echo "only_metadata=true" >> $GITHUB_OUTPUT
@@ -98,43 +99,33 @@ jobs:
       - name: Check metadata status
         if: steps.check_metadata_only.outputs.modifies_plugins == 'true'
         id: check_metadata
+        env:
+          PLUGIN_DIRS: ${{ steps.derive_plugin_dirs.outputs.PLUGIN_DIRS }}
         run: |
-          # first check out the PR branch to access new directories
-          git fetch origin pull/${{ github.event.number }}/head:pr-branch
-          git checkout pr-branch
-          
-          # check if metadata.yml is in the PR changes
-          metadata_in_pr=false
-          if echo "${{ env.CHANGED_FILES }}" | grep -q "metadata.yml"; then
-            metadata_in_pr=true
-            echo "Metadata changes found in PR" 1>&2
-          fi
-          echo "METADATA_IN_PR=${metadata_in_pr}" >> $GITHUB_OUTPUT
-          
-          # get all plugin directories affected by this PR
-          IFS=',' read -ra DIRS <<< "${{ steps.derive_plugin_dirs.outputs.PLUGIN_DIRS }}"
-          
-          # check if metadata.yml exists in each plugin directory
-          metadata_missing=false
-          for dir in "${DIRS[@]}"; do
-            if [ -n "$dir" ] && [ ! -f "${dir}/metadata.yml" ]; then
-              metadata_missing=true
-              echo "Metadata is missing in directory: ${dir}" 1>&2
-              break
-            fi
-          done
-          
-          echo "METADATA_MISSING=${metadata_missing}" >> $GITHUB_OUTPUT
-          
-          # determine if should run metadata processing
-          if [ "$metadata_in_pr" = "true" ] || [ "$metadata_missing" = "true" ]; then
-            echo "RUN_METADATA=true" >> $GITHUB_OUTPUT
-          else
-            echo "RUN_METADATA=false" >> $GITHUB_OUTPUT
-          fi
-          
-          # switch back to the original branch
-          git checkout -
+          python - <<'PYTHON'
+          import os
+          from pathlib import Path
+
+          import yaml
+
+          changed_files = set(os.environ["CHANGED_FILES"].split())
+          legacy_dirs = []
+          for directory in filter(None, os.environ["PLUGIN_DIRS"].split(",")):
+              paths = [Path(directory) / name for name in ("metadata.yml", "metadata.yaml")]
+              existing = [path for path in paths if path.is_file()]
+              if len(existing) > 1:
+                  raise ValueError(f"Both metadata suffixes exist in {directory}")
+              document = yaml.safe_load(existing[0].read_text()) if existing else {}
+              # The merged-PR publisher owns v2 metadata; never enrich it here.
+              if isinstance(document, dict) and document.get("schema_version") == "2.0":
+                  continue
+              if not existing or any(str(path) in changed_files for path in paths):
+                  legacy_dirs.append(directory)
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              print(f"RUN_METADATA={str(bool(legacy_dirs)).lower()}", file=output)
+              print(f"LEGACY_PLUGIN_DIRS={','.join(legacy_dirs)}", file=output)
+          PYTHON
 
       - name: Check if scoring needed
         if: steps.check_metadata_only.outputs.only_metadata == 'false'
@@ -296,10 +287,12 @@ jobs:
   process_metadata:
     name: Process metadata changes
     needs: process_submission
-    if: needs.process_submission.outputs.METADATA_ONLY == 'true'
+    if: >-
+      needs.process_submission.outputs.METADATA_ONLY == 'true'
+      && needs.process_submission.outputs.RUN_METADATA == 'true'
     uses: ./.github/workflows/handle_metadata.yml
     with:
-      plugin-dir: ${{ needs.process_submission.outputs.PLUGIN_DIRS }}
+      plugin-dir: ${{ needs.process_submission.outputs.LEGACY_PLUGIN_DIRS }}
       plugin-type: ${{ needs.process_submission.outputs.PLUGIN_TYPE }}
       db-connection: true
     secrets: inherit

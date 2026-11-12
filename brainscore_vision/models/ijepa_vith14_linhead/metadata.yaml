@@ -1,0 +1,198 @@
+schema_version: '2.0'
+domain: vision
+models:
+  ijepa_vith14_linhead:
+    model:
+      display_name: ijepa_vith14_linhead
+      version: '1.0'
+      architecture:
+        family: vision_transformer
+        description: Vision Transformer (ViT-H/14) backbone, linear classification
+          head
+      parameter_count: 632000000
+      parameter_count_exact: false
+      trainable_layers: 31 Transformer blocks.
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: self_supervised
+        description: I-JEPA self-supervised training. Supervised linear head for classification.
+    training:
+      process: Pretrained with I-JEPA recipe on ImageNet-1k -> addition of linear
+        classification head
+      objective: I-JEPA/Classification
+      loss: L2 loss + Supervised CE loss
+      learning_rate: unknown + cosine LR schedule with 1 warmup epoch (min 1e-6, max
+        1e-3)
+      batch_size: unknown + 1024
+      preprocessing: 'Standard ImageNet preprocessing: 224x224, normalization'
+    data:
+      summary: 'Stage1 and Stage2: ImageNet-1k'
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k
+        description: null
+        role: training
+      - identifier: imagenet-1k
+        name: ImageNet-1k
+        description: null
+        role: training
+    io:
+      modality: image
+      interface: 'Input: RGB (B,3,224,224); Output: 1000-way logits'
+      input_format: RGB (B,3,224,224)
+      output_format: 1000-way logits
+    provenance:
+      weights_provider: Hugging Face Hub
+      checkpoint: facebook/ijepa_vith14_1k
+      source_url: https://huggingface.co/facebook/ijepa_vith14_1k
+    legal:
+      license: Creative Commons Attribution Non Commercial 4.0
+    people:
+      creators:
+      - AI at Meta
+      - Niels C. Thiemann
+      organizations:
+      - Meta
+      - Friedrich-Miescher Institute
+    lineage:
+      base_models:
+      - identifier: vit-h-14
+        name: ViT-H/14
+        relationship: variant_of
+    sources:
+      proposal_70d09327f83a075f_huggingface:
+        kind: huggingface
+        url: https://huggingface.co/niels-c/ijepa_vith14_linhead
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /model/version
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /training/process
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /training/objective
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /training/loss
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /training/learning_rate
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /training/batch_size
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /training/preprocessing
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /data/summary
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /io/modality
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /io/interface
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /io/input_format
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /io/output_format
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /legal/license
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /people/creators
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /people/organizations
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - proposal_70d09327f83a075f_huggingface

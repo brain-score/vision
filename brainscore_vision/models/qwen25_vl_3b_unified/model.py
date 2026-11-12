@@ -139,6 +139,12 @@ def get_model(identifier: str) -> BrainScoreModel:
         identifier=identifier,
         model=qwen_model,
         region_layer_map=REGION_LAYER_MAP,
+        # Each region names the tower it is recorded from: language_system the
+        # text tower, every other region the vision tower.
+        region_modality_map={
+            region: 'text' if region == 'language_system' else 'vision'
+            for region in REGION_LAYER_MAP
+        },
         # One feature extractor per input kind: images go through the vision
         # tower's VLMVisionWrapper, sentences through the language model's
         # TextWrapper.

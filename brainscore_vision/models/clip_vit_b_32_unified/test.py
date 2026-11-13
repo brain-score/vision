@@ -7,6 +7,7 @@ import pytest
 from PIL import Image
 
 from brainscore import BrainScoreModel
+from brainscore_core.legacy_facade import LegacyBenchmarkFacade
 from brainscore_core.model_interface import Subject
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 
@@ -83,8 +84,10 @@ class TestModelIdentity:
 
 class TestVisionPath:
     def test_look_at_returns_assembly(self, model, image_stimuli):
-        model.start_recording('IT', time_bins=[(70, 170)])
-        result = model.look_at(image_stimuli)
+        # A legacy vision benchmark reaches the model through the facade.
+        facade = LegacyBenchmarkFacade(model, visual_degrees=model.visual_degrees())
+        facade.start_recording('IT', time_bins=[(70, 170)])
+        result = facade.look_at(image_stimuli)
         assert result.dims == ('presentation', 'neuroid')
         assert result.shape[0] == 3
 
@@ -113,11 +116,12 @@ class TestVisionPath:
             stim_it.identifier = 'layer_test_it'
             stim_it.stimulus_paths = dict(paths)
 
-            model.start_recording('V1', time_bins=[(70, 170)])
-            v1 = model.look_at(stim_v1)
+            facade = LegacyBenchmarkFacade(model, visual_degrees=model.visual_degrees())
+            facade.start_recording('V1', time_bins=[(70, 170)])
+            v1 = facade.look_at(stim_v1)
 
-            model.start_recording('IT', time_bins=[(70, 170)])
-            it = model.look_at(stim_it)
+            facade.start_recording('IT', time_bins=[(70, 170)])
+            it = facade.look_at(stim_it)
 
             assert v1.shape[0] == it.shape[0] == 2
         finally:
@@ -144,8 +148,10 @@ class TestTextPath:
         assert result.shape[0] == 3
 
     def test_digest_text_compat(self, model, text_stimuli):
-        model.start_recording('language_system', time_bins=[(70, 170)])
-        result = model.digest_text(list(text_stimuli['sentence'].values))
+        # A legacy language benchmark reaches the model through the facade.
+        facade = LegacyBenchmarkFacade(model)
+        facade.start_neural_recording('language_system', 'fMRI')
+        result = facade.digest_text(list(text_stimuli['sentence'].values))
         assert 'neural' in result
         assert result['neural'].shape[0] == 3
 

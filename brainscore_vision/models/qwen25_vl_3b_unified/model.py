@@ -22,7 +22,7 @@ from typing import List
 import torch
 from PIL import Image
 
-from brainscore import BrainScoreModel
+from brainscore import BrainScoreModel, LayerSelector
 from brainscore_core.hf_compat import pin_image_processor
 
 
@@ -37,7 +37,7 @@ REGION_LAYER_MAP = {
 }
 
 
-def _make_generation_fn(qwen_model, qwen_processor, max_new_tokens: int = 8):
+def _make_answer(qwen_model, qwen_processor, max_new_tokens: int = 8):
     """Create a generation callable for instruction-following behavioral
     tasks. Used by BrainScoreModel when TaskContext carries an
     ``instruction`` (not just fitting_stimuli).
@@ -129,21 +129,21 @@ def get_model(identifier: str) -> BrainScoreModel:
     )
 
     # Qwen-VL is instruction-following, so expose its generate() as the
-    # behavioral-task generation path. Benchmarks that pass a TaskContext
+    # behavioral-task answer path. Benchmarks that pass a TaskContext
     # with an `instruction` and `label_set` (e.g., ROAR) will use this
     # path; others fall back to the logistic readout (not configured for
     # Qwen — it doesn't have a behavioral_readout_layer set here).
-    generation_fn = _make_generation_fn(qwen_model, qwen_processor)
+    answer = _make_answer(qwen_model, qwen_processor)
 
     return BrainScoreModel(
         identifier=identifier,
         model=qwen_model,
-        region_layer_map=REGION_LAYER_MAP,
         # Each region names the tower it is recorded from: language_system the
         # text tower, every other region the vision tower.
-        region_modality_map={
-            region: 'text' if region == 'language_system' else 'vision'
-            for region in REGION_LAYER_MAP
+        region_layer_map={
+            region: LayerSelector(name=layer,
+                                  modality='text' if region == 'language_system' else 'vision')
+            for region, layer in REGION_LAYER_MAP.items()
         },
         # One feature extractor per input kind: images go through the vision
         # tower's VLMVisionWrapper, sentences through the language model's
@@ -154,7 +154,7 @@ def get_model(identifier: str) -> BrainScoreModel:
         },
         visual_degrees=8,
         # Ask the model to answer in words and parse the answer into a label.
-        answer=generation_fn,
+        answer=answer,
         # Also enable the readout path so Qwen can be compared on the same
         # behavioral benchmark both ways. Uses the same vision layer as 'IT'.
         behavioral_readout_layer='blocks.28',

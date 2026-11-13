@@ -42,7 +42,7 @@ def _make_answer(qwen_model, qwen_processor, max_new_tokens: int = 8):
     tasks. Used by BrainScoreModel when TaskContext carries an
     ``instruction`` (not just fitting_stimuli).
 
-    Signature (matches BrainScoreModel._generate_predictions contract):
+    Signature (the ``answer`` part of BrainScoreModel):
         fn(stimulus_row, instruction, label_set) -> predicted_label
     """
     device = next(qwen_model.parameters()).device

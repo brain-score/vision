@@ -94,21 +94,25 @@ class VisionModelAdapter(UnifiedModel):
         return self._legacy.look_at(stimuli, number_of_trials)
 
     def participate(self, session) -> None:
-        """Run one session as the single legacy ``look_at`` it stands for.
+        """Run one session as the legacy ``look_at`` calls it stands for.
 
         The session's task, recording target, time bins, trial count and
         variance request reach the legacy model through the same calls a
         legacy benchmark makes. Setup is applied when it changes, not on every
         measurement. Only declared input streams reach the legacy model.
+        A session that requests several ``neural:<region>`` channels gets, for
+        each region in request order, the ``start_recording`` and ``look_at``
+        that a session for that region alone gets.
         """
         session = session.declare_inputs(self.in_channels)
         channels = tuple(session.outputs or ())
-        if len(channels) != 1:
-            raise ValueError('A legacy vision model answers one output channel '
-                             f'per look_at; got {sorted(channels)}')
-        channel, = channels
-        if channel not in self.out_channels:
-            raise ValueError(f'Undeclared output channel {channel!r}; declared: '
+        if not channels or (len(channels) > 1
+                            and not all(c.startswith('neural:') for c in channels)):
+            raise ValueError('A legacy vision model answers one output channel per '
+                             f'look_at, or several neural:<region> channels; got {sorted(channels)}')
+        undeclared = [channel for channel in channels if channel not in self.out_channels]
+        if undeclared:
+            raise ValueError(f'Undeclared output channel {undeclared[0]!r}; declared: '
                              f'{sorted(self.out_channels)}')
         task = session.task
         settings = measurement_settings(session)
@@ -119,16 +123,17 @@ class VisionModelAdapter(UnifiedModel):
             # passive session leaves it the legacy way, as a legacy benchmark
             # does with start_task('passive'). A fresh subject gets no call.
             self.start_task('passive')
-        if channel.startswith('neural:'):
-            self.start_recording(channel.split(':', 1)[1], time_bins=session.time_bins)
         events = drain_session_inputs(session)
         stimuli = session_stimuli(session, events)
-        output = self.process(stimuli,
-                              number_of_trials=settings.get('number_of_trials', 1),
-                              require_variance=settings.get('require_variance', False))
-        session.respond(StreamEvent(channel, output,
-                                    events[-1].t_ms if events else None,
-                                    meta={'driver': 'legacy'}))
+        for channel in channels:
+            if channel.startswith('neural:'):
+                self.start_recording(channel.split(':', 1)[1], time_bins=session.time_bins)
+            output = self.process(stimuli,
+                                  number_of_trials=settings.get('number_of_trials', 1),
+                                  require_variance=settings.get('require_variance', False))
+            session.respond(StreamEvent(channel, output,
+                                        events[-1].t_ms if events else None,
+                                        meta={'driver': 'legacy'}))
 
     # Backwards-compatible: existing benchmarks call look_at() directly
     def look_at(self, stimuli, number_of_trials=1, require_variance=False):

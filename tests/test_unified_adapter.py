@@ -160,6 +160,40 @@ class TestVisionAdapterProcess:
         event, = session.emitted
         assert event.payload is legacy.look_at.return_value and event.meta == {'driver': 'legacy'}
 
+    def test_several_regions_in_one_session_make_the_calls_of_one_session_per_region(self):
+        from unittest.mock import call
+        from brainscore_core.streaming_helpers import stimulus_session
+        stimuli = _vision_stimulus_set()
+        outputs = {'V4': _vision_neural_assembly(), 'IT': _vision_neural_assembly() + 1}
+
+        def run(channels_per_session):
+            legacy = _make_legacy_model(region_layer_map={'V4': 'layer3', 'IT': 'layer4'})
+            region = {}
+            legacy.start_recording.side_effect = lambda target, bins: region.update(now=target)
+            legacy.look_at.side_effect = lambda stimuli, trials: outputs[region['now']]
+            adapter, emitted = VisionModelAdapter(legacy), []
+            for channels in channels_per_session:
+                session = stimulus_session(stimuli, channels, time_bins=[(50, 100)])
+                adapter.participate(session)
+                emitted += session.emitted
+            return legacy.mock_calls, emitted
+
+        joint_calls, joint = run([('neural:V4', 'neural:IT')])
+        alone_calls, alone = run([('neural:V4',), ('neural:IT',)])
+        assert joint_calls == alone_calls
+        assert [c for c in joint_calls if c[0] in ('start_recording', 'look_at')][::2] == [
+            call.start_recording('V4', [(50, 100)]), call.start_recording('IT', [(50, 100)])]
+        assert [(e.channel, e.t_ms, e.meta) for e in joint] == [(e.channel, e.t_ms, e.meta) for e in alone]
+        assert all(a.payload is b.payload for a, b in zip(joint, alone))
+
+    def test_behavior_and_a_region_in_one_session_are_refused(self):
+        from brainscore_core.streaming_helpers import stimulus_session
+        legacy = _make_legacy_model(region_layer_map={'IT': 'layer4'})
+        session = stimulus_session(_vision_stimulus_set(), ('behavior', 'neural:IT'))
+        with pytest.raises(ValueError, match='one output channel per look_at'):
+            VisionModelAdapter(legacy).participate(session)
+        legacy.look_at.assert_not_called()
+
     def test_participate_projects_undeclared_input_columns(self):
         from brainscore_core.streaming_helpers import stimulus_session
         stimuli = _vision_stimulus_set()

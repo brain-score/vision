@@ -57,7 +57,10 @@ def _vision_neural_assembly():
 class TestVisionAdapterIsUnifiedModel:
 
     def test_isinstance(self):
+        # score() wraps a model that is not a Subject; the adapter must not be wrapped again.
+        from brainscore_core.model_interface import Subject
         adapter = VisionModelAdapter(_make_legacy_model())
+        assert isinstance(adapter, Subject)
         assert isinstance(adapter, UnifiedModel)
 
 
@@ -693,10 +696,15 @@ class TestBehaviorDoesNotLeakIntoNeuralSessions:
         stimuli = _vision_stimulus_set()
         behavioral = LegacyBenchmarkFacade(adapter, visual_degrees=8)
         behavioral.start_task('probabilities', stimuli)
-        assert isinstance(behavioral.look_at(stimuli), BehavioralAssembly)
+        choices = behavioral.look_at(stimuli)
+        assert isinstance(choices, BehavioralAssembly)
+        assert list(choices.values) == ['cat', 'dog']          # the legacy model's answer
         neural = LegacyBenchmarkFacade(adapter, visual_degrees=8)
         neural.start_recording('IT', time_bins=[(70, 170)])
-        assert isinstance(neural.look_at(stimuli), NeuroidAssembly)
+        activity = neural.look_at(stimuli)
+        assert isinstance(activity, NeuroidAssembly)
+        np.testing.assert_array_equal(activity.values, _vision_neural_assembly().values)
+        assert legacy.calls[-3:] == [('start_task', 'passive'), ('start_recording', 'IT'), ('look_at',)]
 
     def test_benchmark_that_returns_to_passive_matches_the_plain_legacy_model(self):
         from brainscore_core.legacy_facade import LegacyBenchmarkFacade

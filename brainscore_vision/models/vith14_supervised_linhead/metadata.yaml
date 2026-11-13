@@ -1,0 +1,173 @@
+schema_version: '2.0'
+domain: vision
+models:
+  vith14_supervised_linhead:
+    model:
+      display_name: vith14_supervised_linhead
+      architecture:
+        family: vision_transformer
+        description: Vision Transformer with linear classification head
+      parameter_count: 632000000
+      parameter_count_exact: false
+      trainable_layers: 32 transformer layers, hidden_dim 1280, 16 heads, MLP 5120
+        (standard ViT-H/14 config). Fully connected layer for classification head.
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: Supervised training with the DeiT III recipe. Supervised linear
+          head.
+    training:
+      process: Frozen pretrained model with supervised classification head.
+      objective: DeiT III + cross-entropy
+      loss: Binary cross-entropy (backbone) + cross-entropy (head)
+      learning_rate: unknown + cosine LR schedule with 1 warmup epoch (min 1e-6, max
+        1e-3)
+      batch_size: unknown + 1024
+    io:
+      modality: image
+      interface: 'Input: RGB (3,224,224); Output: 1000-way logits'
+      input_format: RGB (3,224,224)
+      output_format: '1000-way logits '
+    provenance:
+      weights_provider: timm
+      checkpoint: timm/deit3_huge_patch14_224.fb_in1k
+      source_url: https://huggingface.co/timm/deit3_huge_patch14_224.fb_in1k
+    legal:
+      license: 'Backbone: Apache 2.0. Submission code: MIT. Linear Head: MIT.'
+    people:
+      creators:
+      - AI at Meta
+      - timm team
+      - Niels C. Thiemann
+    data:
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k
+        description: null
+        role: training
+    lineage:
+      base_models:
+      - identifier: vit-h-14
+        name: ViT-H/14
+        relationship: variant_of
+    sources:
+      proposal_4385b95100635d95_huggingface:
+        kind: huggingface
+        url: https://huggingface.co/niels-c/vith14_supervised_linhead
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /training/process
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /training/objective
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /training/loss
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /training/learning_rate
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /training/batch_size
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /io/modality
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /io/interface
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /io/input_format
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /io/output_format
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /legal/license
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /people/creators
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - proposal_4385b95100635d95_huggingface

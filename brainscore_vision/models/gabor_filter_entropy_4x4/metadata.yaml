@@ -1,0 +1,62 @@
+schema_version: '2.0'
+domain: vision
+models:
+  gabor_filter_entropy_4x4:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/gabor_filter_entropy_4x4
+        citation: Brain-Score vision plugin code, brainscore_vision/models/gabor_filter_entropy_4x4
+    model:
+      display_name: gabor_filter_entropy_4x4
+      architecture:
+        family: other
+        description: 'Hand-crafted image descriptor: Gabor filter bank (frequency
+          bands 1-32, six orientations) with block-wise entropy features on a 4x4
+          grid'
+      recurrent: false
+      supervision:
+        type: none
+        description: 'No training: fixed filters'
+    training:
+      process: 'Not trained: hand-crafted features'
+    provenance:
+      weights_provider: 'None: no learned weights'
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/gabor_filter_entropy_4x4
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code

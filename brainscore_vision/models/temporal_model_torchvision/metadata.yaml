@@ -1,116 +1,133 @@
 schema_version: '2.0'
 domain: vision
 models:
-  mvit_v1_b:
-    legacy:
-      architecture: DCNN, Transformer
-      model_family: mvit, vit
-      total_parameter_count: 36610672
-      trainable_parameter_count: 36610672
-      total_layers: 381
-      trainable_layers: 106
-      model_size_mb: 146.44
-      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
-      runnable: true
+  r3d_18:
     sources:
       legacy:
         kind: unreviewed
         citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_torchvision
+      tran2018:
+        kind: paper
+        url: https://arxiv.org/abs/1711.11248
+        citation: Tran et al. (2018), A Closer Look at Spatiotemporal Convolutions
+          for Action Recognition, CVPR 2018
     model:
-      architecture:
-        family: vision_transformer
-      parameter_count: 36610672
-      trainable_layers: '106'
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
-  mvit_v2_s:
-    legacy:
-      architecture: DCNN, Transformer
-      model_family: mvit, vit
-      total_parameter_count: 34537744
-      trainable_parameter_count: 34537744
-      total_layers: 433
-      trainable_layers: 165
-      model_size_mb: 138.15
-      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
-      runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    model:
-      architecture:
-        family: vision_transformer
-      parameter_count: 34537744
-      trainable_layers: '165'
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
-  r2plus1d_18:
-    legacy:
-      architecture: DCNN
-      model_family: r2plus1d
-      total_parameter_count: 31505325
-      trainable_parameter_count: 31505325
-      total_layers: 159
-      trainable_layers: 38
-      model_size_mb: 126.02
-      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
-      runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 31505325
-      trainable_layers: '38'
+      display_name: R3D-18
       architecture:
         family: convolutional_neural_network
+        description: 3D ResNet-18 (fully 3D convolutions) (torchvision.models.video)
+      parameter_count: 33371472
+      parameter_count_exact: true
+      trainable_layers: '21'
+      recurrent: false
+      supervision:
+        type: supervised
+        description: Supervised Kinetics-400 action classification
+    training:
+      process: Supervised training on Kinetics-400 (torchvision KINETICS400_V1 weights)
+    data:
+      summary: Kinetics-400
+      training_datasets:
+      - identifier: other
+        name: Kinetics-400
+        role: training
+    io:
+      modality: video
+      input_format: RGB video clip sampled at 25 fps
+      output_format: 400-way Kinetics-400 logits
     provenance:
+      weights_provider: torchvision (PyTorch)
+      checkpoint: torchvision.models.video r3d_18 weights KINETICS400_V1
       source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
-  r3d_18:
+    legal:
+      license: BSD-3-Clause
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - tran2018
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - tran2018
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - tran2018
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - tran2018
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - tran2018
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - tran2018
+    - path: /training/process
+      status: probable
+      sources:
+      - tran2018
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - tran2018
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - tran2018
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - tran2018
+      - plugin_code
     legacy:
       architecture: DCNN
       model_family: r3d
@@ -121,12 +138,70 @@ models:
       model_size_mb: 133.49
       brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
       runnable: true
+  r2plus1d_18:
     sources:
       legacy:
         kind: unreviewed
         citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_torchvision
+      tran2018:
+        kind: paper
+        url: https://arxiv.org/abs/1711.11248
+        citation: Tran et al. (2018), A Closer Look at Spatiotemporal Convolutions
+          for Action Recognition, CVPR 2018
+    model:
+      display_name: R(2+1)D-18
+      architecture:
+        family: convolutional_neural_network
+        description: ResNet-18 with (2+1)D convolutions (spatial then temporal) (torchvision.models.video)
+      parameter_count: 31505325
+      parameter_count_exact: true
+      trainable_layers: '38'
+      recurrent: false
+      supervision:
+        type: supervised
+        description: Supervised Kinetics-400 action classification
+    training:
+      process: Supervised training on Kinetics-400 (torchvision KINETICS400_V1 weights)
+    data:
+      summary: Kinetics-400
+      training_datasets:
+      - identifier: other
+        name: Kinetics-400
+        role: training
+    io:
+      modality: video
+      input_format: RGB video clip sampled at 25 fps
+      output_format: 400-way Kinetics-400 logits
+    provenance:
+      weights_provider: torchvision (PyTorch)
+      checkpoint: torchvision.models.video r2plus1d_18 weights KINETICS400_V1
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
+    legal:
+      license: BSD-3-Clause
     assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - tran2018
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - tran2018
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - tran2018
+      - plugin_code
     - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count_exact
       status: probable
       sources:
       - legacy
@@ -134,22 +209,337 @@ models:
       status: probable
       sources:
       - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - tran2018
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - tran2018
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - tran2018
+    - path: /training/process
+      status: probable
+      sources:
+      - tran2018
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - tran2018
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
     - path: /provenance/source_url
       status: probable
       sources:
-      - legacy
-    - path: /model/architecture
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - tran2018
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - tran2018
+      - plugin_code
+    legacy:
+      architecture: DCNN
+      model_family: r2plus1d
+      total_parameter_count: 31505325
+      trainable_parameter_count: 31505325
+      total_layers: 159
+      trainable_layers: 38
+      model_size_mb: 126.02
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
+      runnable: true
+  mc3_18:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_torchvision
+      tran2018:
+        kind: paper
+        url: https://arxiv.org/abs/1711.11248
+        citation: Tran et al. (2018), A Closer Look at Spatiotemporal Convolutions
+          for Action Recognition, CVPR 2018
+    model:
+      display_name: MC3-18
+      architecture:
+        family: convolutional_neural_network
+        description: Mixed-convolution ResNet-18 (3D convolutions in early layers,
+          2D later) (torchvision.models.video)
+      parameter_count: 11695440
+      parameter_count_exact: true
+      trainable_layers: '21'
+      recurrent: false
+      supervision:
+        type: supervised
+        description: Supervised Kinetics-400 action classification
+    training:
+      process: Supervised training on Kinetics-400 (torchvision KINETICS400_V1 weights)
+    data:
+      summary: Kinetics-400
+      training_datasets:
+      - identifier: other
+        name: Kinetics-400
+        role: training
+    io:
+      modality: video
+      input_format: RGB video clip sampled at 25 fps
+      output_format: 400-way Kinetics-400 logits
+    provenance:
+      weights_provider: torchvision (PyTorch)
+      checkpoint: torchvision.models.video mc3_18 weights KINETICS400_V1
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
+    legal:
+      license: BSD-3-Clause
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - tran2018
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - tran2018
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - tran2018
+      - plugin_code
+    - path: /model/parameter_count
       status: probable
       sources:
       - legacy
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - tran2018
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - tran2018
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - tran2018
+    - path: /training/process
+      status: probable
+      sources:
+      - tran2018
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - tran2018
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - tran2018
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - tran2018
+      - plugin_code
+    legacy:
+      architecture: DCNN
+      total_parameter_count: 11695440
+      trainable_parameter_count: 11695440
+      total_layers: 92
+      trainable_layers: 21
+      model_size_mb: 46.78
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
+      runnable: true
+  s3d:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_torchvision
+      s3d:
+        kind: paper
+        url: https://arxiv.org/abs/1712.04851
+        citation: 'Xie, Sun, Huang, Tu & Murphy (2018), Rethinking Spatiotemporal
+          Feature Learning: Speed-Accuracy Trade-offs in Video Classification, ECCV
+          2018'
     model:
-      parameter_count: 33371472
-      trainable_layers: '21'
+      display_name: S3D
       architecture:
         family: convolutional_neural_network
+        description: Separable 3D Inception network (S3D) (torchvision.models.video)
+      parameter_count: 8320048
+      parameter_count_exact: true
+      trainable_layers: '78'
+      recurrent: false
+      supervision:
+        type: supervised
+        description: Supervised Kinetics-400 action classification
+    training:
+      process: Supervised training on Kinetics-400 (torchvision KINETICS400_V1 weights)
+    data:
+      summary: Kinetics-400
+      training_datasets:
+      - identifier: other
+        name: Kinetics-400
+        role: training
+    io:
+      modality: video
+      input_format: RGB video clip sampled at 15 fps
+      output_format: 400-way Kinetics-400 logits
     provenance:
+      weights_provider: torchvision (PyTorch)
+      checkpoint: torchvision.models.video s3d weights KINETICS400_V1
       source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
-  s3d:
+    legal:
+      license: BSD-3-Clause
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - s3d
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - s3d
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - s3d
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - s3d
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - s3d
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - s3d
+    - path: /training/process
+      status: probable
+      sources:
+      - s3d
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - s3d
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - s3d
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - s3d
+      - plugin_code
     legacy:
       architecture: DCNN
       model_family: s3d
@@ -160,12 +550,69 @@ models:
       model_size_mb: 33.28
       brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
       runnable: true
+  mvit_v1_b:
     sources:
       legacy:
         kind: unreviewed
         citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_torchvision
+      mvit1:
+        kind: paper
+        url: https://arxiv.org/abs/2104.11227
+        citation: Fan et al. (2021), Multiscale Vision Transformers, ICCV 2021
+    model:
+      display_name: MViT-v1-B
+      architecture:
+        family: vision_transformer
+        description: Multiscale Vision Transformer v1, base (torchvision.models.video)
+      parameter_count: 36610672
+      parameter_count_exact: true
+      trainable_layers: '106'
+      recurrent: false
+      supervision:
+        type: supervised
+        description: Supervised Kinetics-400 action classification
+    training:
+      process: Supervised training on Kinetics-400 (torchvision KINETICS400_V1 weights)
+    data:
+      summary: Kinetics-400
+      training_datasets:
+      - identifier: other
+        name: Kinetics-400
+        role: training
+    io:
+      modality: video
+      input_format: RGB video clip sampled at 7.5 fps
+      output_format: 400-way Kinetics-400 logits
+    provenance:
+      weights_provider: torchvision (PyTorch)
+      checkpoint: torchvision.models.video mvit_v1_b weights KINETICS400_V1
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
+    legal:
+      license: BSD-3-Clause
     assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - mvit1
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - mvit1
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - mvit1
+      - plugin_code
     - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count_exact
       status: probable
       sources:
       - legacy
@@ -173,37 +620,136 @@ models:
       status: probable
       sources:
       - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - mvit1
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - mvit1
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - mvit1
+    - path: /training/process
+      status: probable
+      sources:
+      - mvit1
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - mvit1
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
     - path: /provenance/source_url
       status: probable
       sources:
-      - legacy
-    - path: /model/architecture
+      - plugin_code
+    - path: /legal/license
       status: probable
       sources:
-      - legacy
-    model:
-      parameter_count: 8320048
-      trainable_layers: '78'
-      architecture:
-        family: convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
-  mc3_18:
+      - mvit1
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - mvit1
+      - plugin_code
     legacy:
-      architecture: DCNN
-      total_parameter_count: 11695440
-      trainable_parameter_count: 11695440
-      total_layers: 92
-      trainable_layers: 21
-      model_size_mb: 46.78
+      architecture: DCNN, Transformer
+      model_family: mvit, vit
+      total_parameter_count: 36610672
+      trainable_parameter_count: 36610672
+      total_layers: 381
+      trainable_layers: 106
+      model_size_mb: 146.44
       brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
       runnable: true
+  mvit_v2_s:
     sources:
       legacy:
         kind: unreviewed
         citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_torchvision
+      mvit2:
+        kind: paper
+        url: https://arxiv.org/abs/2112.01526
+        citation: 'Li et al. (2022), MViTv2: Improved Multiscale Vision Transformers
+          for Classification and Detection, CVPR 2022'
+    model:
+      display_name: MViT-v2-S
+      architecture:
+        family: vision_transformer
+        description: Multiscale Vision Transformer v2, small (torchvision.models.video)
+      parameter_count: 34537744
+      parameter_count_exact: true
+      trainable_layers: '165'
+      recurrent: false
+      supervision:
+        type: supervised
+        description: Supervised Kinetics-400 action classification
+    training:
+      process: Supervised training on Kinetics-400 (torchvision KINETICS400_V1 weights)
+    data:
+      summary: Kinetics-400
+      training_datasets:
+      - identifier: other
+        name: Kinetics-400
+        role: training
+    io:
+      modality: video
+      input_format: RGB video clip sampled at 7.5 fps
+      output_format: 400-way Kinetics-400 logits
+    provenance:
+      weights_provider: torchvision (PyTorch)
+      checkpoint: torchvision.models.video mvit_v2_s weights KINETICS400_V1
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
+    legal:
+      license: BSD-3-Clause
     assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - mvit2
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - mvit2
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - mvit2
+      - plugin_code
     - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count_exact
       status: probable
       sources:
       - legacy
@@ -211,18 +757,69 @@ models:
       status: probable
       sources:
       - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - mvit2
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - mvit2
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - mvit2
+    - path: /training/process
+      status: probable
+      sources:
+      - mvit2
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - mvit2
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
     - path: /provenance/source_url
       status: probable
       sources:
-      - legacy
-    - path: /model/architecture
+      - plugin_code
+    - path: /legal/license
       status: probable
       sources:
-      - legacy
-    model:
-      parameter_count: 11695440
-      trainable_layers: '21'
-      architecture:
-        family: convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
+      - mvit2
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - mvit2
+      - plugin_code
+    legacy:
+      architecture: DCNN, Transformer
+      model_family: mvit, vit
+      total_parameter_count: 34537744
+      trainable_parameter_count: 34537744
+      total_layers: 433
+      trainable_layers: 165
+      model_size_mb: 138.15
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_torchvision
+      runnable: true

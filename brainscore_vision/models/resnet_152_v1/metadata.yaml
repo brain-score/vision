@@ -2,6 +2,183 @@ schema_version: '2.0'
 domain: vision
 models:
   resnet_152_v1:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet_152_v1
+        citation: Brain-Score vision plugin code, brainscore_vision/models/resnet_152_v1
+      resnet:
+        kind: paper
+        url: https://arxiv.org/abs/1512.03385
+        citation: He, Zhang, Ren & Sun (2016), Deep Residual Learning for Image Recognition,
+          CVPR 2016
+      torchvision:
+        kind: other
+        url: https://pytorch.org/vision/stable/models.html
+        citation: torchvision model zoo documentation
+    model:
+      display_name: ResNet-152
+      version: IMAGENET1K_V1
+      architecture:
+        family: convolutional_neural_network
+        description: ResNet-152 (torchvision)
+      parameter_count: 60192808
+      parameter_count_exact: true
+      trainable_layers: '156'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: 1000-class ImageNet-1k classification
+    training:
+      process: Supervised ImageNet-1k training with the original torchvision reference
+        recipe (IMAGENET1K_V1)
+    data:
+      summary: ImageNet-1k (ILSVRC-2012)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way logits
+    provenance:
+      weights_provider: torchvision (PyTorch)
+      checkpoint: torchvision resnet152 weights IMAGENET1K_V1
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet_152_v1
+    legal:
+      license: BSD-3-Clause
+    people:
+      creators:
+      - Kaiming He
+      - Xiangyu Zhang
+      - Shaoqing Ren
+      - Jian Sun
+      organizations:
+      - Microsoft Research
+    use:
+      applications:
+      - Image classification
+      - Feature extraction / backbone for vision tasks
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - resnet
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - resnet
+      - torchvision
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - resnet
+      - torchvision
+    - path: /training/process
+      status: probable
+      sources:
+      - resnet
+      - torchvision
+    - path: /data/summary
+      status: probable
+      sources:
+      - resnet
+      - torchvision
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - torchvision
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - resnet
+      - torchvision
+    - path: /people/creators
+      status: probable
+      sources:
+      - resnet
+    - path: /people/organizations
+      status: probable
+      sources:
+      - resnet
+    - path: /use/applications
+      status: probable
+      sources:
+      - resnet
     legacy:
       architecture: DCNN
       model_family: resnet
@@ -12,31 +189,3 @@ models:
       model_size_mb: 240.77
       brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet_152_v1
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 60192808
-      trainable_layers: '156'
-      architecture:
-        family: convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet_152_v1

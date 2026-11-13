@@ -1,0 +1,138 @@
+schema_version: '2.0'
+domain: vision
+models:
+  omnivore_swinS:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/omnivore_swinS
+        citation: Brain-Score vision plugin code, brainscore_vision/models/omnivore_swinS
+      omnivore:
+        kind: paper
+        url: https://arxiv.org/abs/2201.08377
+        citation: 'Girdhar et al. (2022), Omnivore: A Single Model for Many Visual
+          Modalities, CVPR 2022'
+    model:
+      display_name: omnivore_swinS
+      architecture:
+        family: vision_transformer
+        description: 'Omnivore Swin-S: one Swin transformer trained jointly on images,
+          videos and single-view 3D'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: Joint supervised classification of images (ImageNet-1k), videos
+          (Kinetics-400) and RGB-D scenes (SUN RGB-D)
+    training:
+      process: Joint training on ImageNet-1k, Kinetics-400 and SUN RGB-D
+    data:
+      summary: ImageNet-1k (ILSVRC-2012) -> Kinetics-400 -> SUN RGB-D
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+      - identifier: other
+        name: Kinetics-400
+        role: training
+      - identifier: other
+        name: SUN RGB-D
+        role: training
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+    provenance:
+      weights_provider: Meta AI (torch.hub facebookresearch/omnivore)
+      checkpoint: torch.hub facebookresearch/omnivore:main omnivore_swinS
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/omnivore_swinS
+    people:
+      creators:
+      - Rohit Girdhar
+      - Mannat Singh
+      - Nikhila Ravi
+      - Laurens van der Maaten
+      - Armand Joulin
+      - Ishan Misra
+      organizations:
+      - Meta AI
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - omnivore
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - omnivore
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - omnivore
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - omnivore
+    - path: /training/process
+      status: probable
+      sources:
+      - omnivore
+    - path: /data/summary
+      status: probable
+      sources:
+      - omnivore
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - omnivore
+    - path: /people/creators
+      status: probable
+      sources:
+      - omnivore
+    - path: /people/organizations
+      status: probable
+      sources:
+      - omnivore

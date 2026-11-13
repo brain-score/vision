@@ -1,0 +1,671 @@
+schema_version: '2.0'
+domain: vision
+models:
+  ConvLSTM:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_openstl
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_openstl
+      convlstm:
+        kind: paper
+        url: https://arxiv.org/abs/1506.04214
+        citation: Shi et al. (2015), Convolutional LSTM Network, NeurIPS 2015
+      openstl:
+        kind: other
+        url: https://github.com/chengtan9907/OpenSTL
+        citation: OpenSTL benchmark and released KITTI-Caltech weights (Tan et al.
+          2023, NeurIPS Datasets and Benchmarks)
+    model:
+      display_name: ConvLSTM
+      architecture:
+        family: recurrent_convolutional_neural_network
+        description: 'ConvLSTM: stacked convolutional LSTM cells (OpenSTL implementation)'
+      recurrent: true
+      input_resolution:
+        channels: 3
+        height: 128
+        width: 160
+      supervision:
+        type: self_supervised
+        description: 'Video prediction: future frames are predicted from past frames
+          (no labels)'
+    training:
+      process: Trained for 100 epochs on KITTI to predict future frames (OpenSTL KITTI-Caltech
+        setting, 128x160)
+    data:
+      summary: KITTI
+      training_datasets:
+      - identifier: other
+        name: KITTI (raw driving videos)
+        role: training
+    io:
+      modality: video
+      input_format: RGB video clip sampled at 10 fps
+      output_format: Predicted future frames
+    provenance:
+      weights_provider: OpenSTL GitHub release
+      checkpoint: https://github.com/chengtan9907/OpenSTL/releases/download/kitti-weights/kitticaltech_convlstm_one_ep100.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_openstl
+    legal:
+      license: Apache-2.0
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - convlstm
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - convlstm
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - convlstm
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - convlstm
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - convlstm
+      - openstl
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - convlstm
+    - path: /training/process
+      status: probable
+      sources:
+      - openstl
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - openstl
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - openstl
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - openstl
+      - plugin_code
+  PredRNN:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_openstl
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_openstl
+      predrnn:
+        kind: paper
+        citation: 'Wang et al. (2017), PredRNN: Recurrent Neural Networks for Predictive
+          Learning using Spatiotemporal LSTMs, NeurIPS 2017'
+      openstl:
+        kind: other
+        url: https://github.com/chengtan9907/OpenSTL
+        citation: OpenSTL benchmark and released KITTI-Caltech weights (Tan et al.
+          2023, NeurIPS Datasets and Benchmarks)
+    model:
+      display_name: PredRNN
+      architecture:
+        family: recurrent_convolutional_neural_network
+        description: 'PredRNN: spatiotemporal LSTM cells with a zigzag memory flow
+          (OpenSTL implementation)'
+      recurrent: true
+      input_resolution:
+        channels: 3
+        height: 128
+        width: 160
+      supervision:
+        type: self_supervised
+        description: 'Video prediction: future frames are predicted from past frames
+          (no labels)'
+    training:
+      process: Trained for 100 epochs on KITTI to predict future frames (OpenSTL KITTI-Caltech
+        setting, 128x160)
+    data:
+      summary: KITTI
+      training_datasets:
+      - identifier: other
+        name: KITTI (raw driving videos)
+        role: training
+    io:
+      modality: video
+      input_format: RGB video clip sampled at 10 fps
+      output_format: Predicted future frames
+    provenance:
+      weights_provider: OpenSTL GitHub release
+      checkpoint: https://github.com/chengtan9907/OpenSTL/releases/download/kitti-weights/kitticaltech_predrnn_one_ep100.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_openstl
+    legal:
+      license: Apache-2.0
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - predrnn
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - predrnn
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - predrnn
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - predrnn
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - predrnn
+      - openstl
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - predrnn
+    - path: /training/process
+      status: probable
+      sources:
+      - openstl
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - openstl
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - openstl
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - openstl
+      - plugin_code
+  SimVP:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_openstl
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_openstl
+      simvp:
+        kind: paper
+        url: https://arxiv.org/abs/2211.12509
+        citation: 'Tan, Gao, Li & Li (2022), SimVP: Towards Simple yet Powerful Spatiotemporal
+          Predictive Learning'
+      openstl:
+        kind: other
+        url: https://github.com/chengtan9907/OpenSTL
+        citation: OpenSTL benchmark and released KITTI-Caltech weights (Tan et al.
+          2023, NeurIPS Datasets and Benchmarks)
+    model:
+      display_name: SimVP
+      architecture:
+        family: convolutional_neural_network
+        description: 'SimVP with gated spatiotemporal attention (gSTA) translator:
+          CNN encoder, translator and decoder (OpenSTL implementation)'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 128
+        width: 160
+      supervision:
+        type: self_supervised
+        description: 'Video prediction: future frames are predicted from past frames
+          (no labels)'
+    training:
+      process: Trained for 100 epochs on KITTI to predict future frames (OpenSTL KITTI-Caltech
+        setting, 128x160)
+    data:
+      summary: KITTI
+      training_datasets:
+      - identifier: other
+        name: KITTI (raw driving videos)
+        role: training
+    io:
+      modality: video
+      input_format: RGB video clip sampled at 10 fps
+      output_format: Predicted future frames
+    provenance:
+      weights_provider: OpenSTL GitHub release
+      checkpoint: https://github.com/chengtan9907/OpenSTL/releases/download/kitti-weights/kitticaltech_simvp_gsta_one_ep100.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_openstl
+    legal:
+      license: Apache-2.0
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - simvp
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - simvp
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - simvp
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - simvp
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - simvp
+      - openstl
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - simvp
+    - path: /training/process
+      status: probable
+      sources:
+      - openstl
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - openstl
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - openstl
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - openstl
+      - plugin_code
+  TAU:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_openstl
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_openstl
+      tau:
+        kind: paper
+        url: https://arxiv.org/abs/2206.12126
+        citation: 'Tan et al. (2023), Temporal Attention Unit: Towards Efficient Spatiotemporal
+          Predictive Learning, CVPR 2023'
+      openstl:
+        kind: other
+        url: https://github.com/chengtan9907/OpenSTL
+        citation: OpenSTL benchmark and released KITTI-Caltech weights (Tan et al.
+          2023, NeurIPS Datasets and Benchmarks)
+    model:
+      display_name: TAU
+      architecture:
+        family: convolutional_neural_network
+        description: 'TAU: temporal attention unit between a CNN encoder and decoder
+          (OpenSTL implementation)'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 128
+        width: 160
+      supervision:
+        type: self_supervised
+        description: 'Video prediction: future frames are predicted from past frames
+          (no labels)'
+    training:
+      process: Trained for 100 epochs on KITTI to predict future frames (OpenSTL KITTI-Caltech
+        setting, 128x160)
+    data:
+      summary: KITTI
+      training_datasets:
+      - identifier: other
+        name: KITTI (raw driving videos)
+        role: training
+    io:
+      modality: video
+      input_format: RGB video clip sampled at 10 fps
+      output_format: Predicted future frames
+    provenance:
+      weights_provider: OpenSTL GitHub release
+      checkpoint: https://github.com/chengtan9907/OpenSTL/releases/download/kitti-weights/kitticaltech_tau_one_ep100.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_openstl
+    legal:
+      license: Apache-2.0
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - tau
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - tau
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - tau
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - tau
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - tau
+      - openstl
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - tau
+    - path: /training/process
+      status: probable
+      sources:
+      - openstl
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - openstl
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - openstl
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - openstl
+      - plugin_code
+  MIM:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_openstl
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_openstl
+      mim:
+        kind: paper
+        url: https://arxiv.org/abs/1811.07490
+        citation: 'Wang et al. (2019), Memory In Memory: A Predictive Neural Network
+          for Learning Higher-Order Non-Stationarity from Spatiotemporal Dynamics,
+          CVPR 2019'
+      openstl:
+        kind: other
+        url: https://github.com/chengtan9907/OpenSTL
+        citation: OpenSTL benchmark and released KITTI-Caltech weights (Tan et al.
+          2023, NeurIPS Datasets and Benchmarks)
+    model:
+      display_name: MIM
+      architecture:
+        family: recurrent_convolutional_neural_network
+        description: 'MIM: Memory In Memory recurrent network for non-stationary dynamics
+          (OpenSTL implementation)'
+      recurrent: true
+      input_resolution:
+        channels: 3
+        height: 128
+        width: 160
+      supervision:
+        type: self_supervised
+        description: 'Video prediction: future frames are predicted from past frames
+          (no labels)'
+    training:
+      process: Trained for 100 epochs on KITTI to predict future frames (OpenSTL KITTI-Caltech
+        setting, 128x160)
+    data:
+      summary: KITTI
+      training_datasets:
+      - identifier: other
+        name: KITTI (raw driving videos)
+        role: training
+    io:
+      modality: video
+      input_format: RGB video clip sampled at 10 fps
+      output_format: Predicted future frames
+    provenance:
+      weights_provider: OpenSTL GitHub release
+      checkpoint: https://github.com/chengtan9907/OpenSTL/releases/download/kitti-weights/kitticaltech_mim_one_ep100.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_openstl
+    legal:
+      license: Apache-2.0
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - mim
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - mim
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - mim
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - mim
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - mim
+      - openstl
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - mim
+    - path: /training/process
+      status: probable
+      sources:
+      - openstl
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - openstl
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - openstl
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - openstl
+      - plugin_code

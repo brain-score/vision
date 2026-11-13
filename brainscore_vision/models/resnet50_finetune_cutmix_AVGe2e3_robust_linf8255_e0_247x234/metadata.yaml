@@ -1,0 +1,73 @@
+schema_version: '2.0'
+domain: vision
+models:
+  resnet50_finetune_cutmix_AVGe2e3_robust_linf8255_e0_247x234:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet50_finetune_cutmix_AVGe2e3_robust_linf8255_e0_247x234
+        citation: Brain-Score vision plugin code, brainscore_vision/models/resnet50_finetune_cutmix_AVGe2e3_robust_linf8255_e0_247x234
+    model:
+      display_name: resnet50_finetune_cutmix_AVGe2e3_robust_linf8255_e0_247x234
+      architecture:
+        family: convolutional_neural_network
+        description: ResNet-50 (timm) wrapped by the submitter
+      parameter_count: 25557032
+      parameter_count_exact: true
+      recurrent: false
+    training:
+      process: Fine-tuned from timm resnet50; identifier indicates CutMix, L-inf (8/255)
+        robust training and averaged weights of epochs 2-3
+    provenance:
+      weights_provider: Brain-Score submitter upload to Brain-Score S3
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/test_robust_sub/resnet50_robust_cutmixfrontpatchres_e2e3.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet50_finetune_cutmix_AVGe2e3_robust_linf8255_e0_247x234
+    lineage:
+      base_models:
+      - name: ResNet-50 (timm)
+        relationship: fine_tuned_from
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: uncertain
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - plugin_code

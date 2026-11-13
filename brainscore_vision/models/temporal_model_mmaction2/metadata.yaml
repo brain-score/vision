@@ -1,0 +1,1183 @@
+schema_version: '2.0'
+domain: vision
+models:
+  I3D:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_mmaction2
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_mmaction2
+      i3d:
+        kind: paper
+        url: https://arxiv.org/abs/1705.07750
+        citation: Carreira & Zisserman (2017), Quo Vadis, Action Recognition? A New
+          Model and the Kinetics Dataset, CVPR 2017
+      mmaction2:
+        kind: other
+        url: https://github.com/open-mmlab/mmaction2
+        citation: OpenMMLab MMAction2 model zoo (Apache-2.0)
+      mmaction2_table:
+        kind: other
+        citation: mmaction2.csv bundled with the plugin (MMAction2 model zoo figures)
+    model:
+      display_name: I3D
+      architecture:
+        family: convolutional_neural_network
+        description: 'I3D: ResNet-50 inflated to 3D (MMAction2)'
+      parameter_count: 28000000
+      parameter_count_exact: false
+      recurrent: false
+      supervision:
+        type: supervised
+        description: Supervised Kinetics-400 action classification after supervised
+          ImageNet pretraining
+    training:
+      process: MMAction2 recipe i3d_imagenet-pretrained-r50_8xb8-32x2x1-100e_kinetics400-rgb
+    data:
+      summary: ImageNet-1k (ILSVRC-2012) -> Kinetics-400
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: pretraining
+      - identifier: other
+        name: Kinetics-400
+        role: fine_tuning
+    io:
+      modality: video
+      input_format: RGB video clip sampled at 12.5 fps
+      output_format: 400-way Kinetics-400 logits
+    provenance:
+      weights_provider: OpenMMLab MMAction2 model zoo
+      checkpoint: https://download.openmmlab.com/mmaction/v1.0/recognition/i3d/i3d_imagenet-pretrained-r50_8xb8-32x2x1-100e_kinetics400-rgb/i3d_imagenet-pretrained-r50_8xb8-32x2x1-100e_kinetics400-rgb_20220812-e213c223.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_mmaction2
+    legal:
+      license: Apache-2.0
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - i3d
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - i3d
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - i3d
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - mmaction2_table
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - mmaction2_table
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - i3d
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - i3d
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - i3d
+    - path: /training/process
+      status: probable
+      sources:
+      - mmaction2
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - i3d
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - mmaction2
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - i3d
+      - plugin_code
+  I3D-nonlocal:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_mmaction2
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_mmaction2
+      nonlocal:
+        kind: paper
+        url: https://arxiv.org/abs/1711.07971
+        citation: Wang, Girshick, Gupta & He (2018), Non-local Neural Networks, CVPR
+          2018
+      mmaction2:
+        kind: other
+        url: https://github.com/open-mmlab/mmaction2
+        citation: OpenMMLab MMAction2 model zoo (Apache-2.0)
+    model:
+      display_name: I3D-nonlocal
+      architecture:
+        family: convolutional_neural_network
+        description: I3D ResNet-50 with non-local (dot-product) blocks (MMAction2)
+      recurrent: false
+      supervision:
+        type: supervised
+        description: Supervised Kinetics-400 action classification after supervised
+          ImageNet pretraining
+    training:
+      process: MMAction2 recipe i3d_imagenet-pretrained-r50-nl-dot-product_8xb8-32x2x1-100e_kinetics400-rgb
+    data:
+      summary: ImageNet-1k (ILSVRC-2012) -> Kinetics-400
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: pretraining
+      - identifier: other
+        name: Kinetics-400
+        role: fine_tuning
+    io:
+      modality: video
+      input_format: RGB video clip sampled at 12.5 fps
+      output_format: 400-way Kinetics-400 logits
+    provenance:
+      weights_provider: OpenMMLab MMAction2 model zoo
+      checkpoint: https://download.openmmlab.com/mmaction/v1.0/recognition/i3d/i3d_imagenet-pretrained-r50-nl-dot-product_8xb8-32x2x1-100e_kinetics400-rgb/i3d_imagenet-pretrained-r50-nl-dot-product_8xb8-32x2x1-100e_kinetics400-rgb_20220812-8e1f2148.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_mmaction2
+    legal:
+      license: Apache-2.0
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - nonlocal
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - nonlocal
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - nonlocal
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - nonlocal
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - nonlocal
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - nonlocal
+    - path: /training/process
+      status: probable
+      sources:
+      - mmaction2
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - nonlocal
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - mmaction2
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - nonlocal
+      - plugin_code
+  SlowFast:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_mmaction2
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_mmaction2
+      slowfast:
+        kind: paper
+        url: https://arxiv.org/abs/1812.03982
+        citation: Feichtenhofer, Fan, Malik & He (2019), SlowFast Networks for Video
+          Recognition, ICCV 2019
+      mmaction2:
+        kind: other
+        url: https://github.com/open-mmlab/mmaction2
+        citation: OpenMMLab MMAction2 model zoo (Apache-2.0)
+    model:
+      display_name: SlowFast
+      architecture:
+        family: convolutional_neural_network
+        description: 'SlowFast R50 (8x8): slow and fast pathways with lateral connections
+          (MMAction2)'
+      recurrent: false
+      supervision:
+        type: supervised
+        description: Supervised Kinetics-400 action classification
+    training:
+      process: MMAction2 recipe slowfast_r50_8xb8-8x8x1-256e_kinetics400-rgb
+    data:
+      summary: Kinetics-400
+      training_datasets:
+      - identifier: other
+        name: Kinetics-400
+        role: training
+    io:
+      modality: video
+      input_format: RGB video clip sampled at 12.5 fps
+      output_format: 400-way Kinetics-400 logits
+    provenance:
+      weights_provider: OpenMMLab MMAction2 model zoo
+      checkpoint: https://download.openmmlab.com/mmaction/v1.0/recognition/slowfast/slowfast_r50_8xb8-8x8x1-256e_kinetics400-rgb/slowfast_r50_8xb8-8x8x1-256e_kinetics400-rgb_20220818-1cb6dfc8.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_mmaction2
+    legal:
+      license: Apache-2.0
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - slowfast
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - slowfast
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - slowfast
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - slowfast
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - slowfast
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - slowfast
+    - path: /training/process
+      status: probable
+      sources:
+      - mmaction2
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - slowfast
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - mmaction2
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - slowfast
+      - plugin_code
+  X3D:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_mmaction2
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_mmaction2
+      x3d:
+        kind: paper
+        url: https://arxiv.org/abs/2004.04730
+        citation: 'Feichtenhofer (2020), X3D: Expanding Architectures for Efficient
+          Video Recognition, CVPR 2020'
+      mmaction2:
+        kind: other
+        url: https://github.com/open-mmlab/mmaction2
+        citation: OpenMMLab MMAction2 model zoo (Apache-2.0)
+    model:
+      display_name: X3D
+      architecture:
+        family: convolutional_neural_network
+        description: X3D-M (expanded efficient 3D CNN), converted from the Facebook
+          weights (MMAction2)
+      recurrent: false
+      supervision:
+        type: supervised
+        description: Supervised Kinetics-400 action classification
+    training:
+      process: MMAction2 recipe x3d_m_16x5x1_facebook-kinetics400-rgb
+    data:
+      summary: Kinetics-400
+      training_datasets:
+      - identifier: other
+        name: Kinetics-400
+        role: training
+    io:
+      modality: video
+      input_format: RGB video clip sampled at 30 fps
+      output_format: 400-way Kinetics-400 logits
+    provenance:
+      weights_provider: OpenMMLab MMAction2 model zoo
+      checkpoint: https://download.openmmlab.com/mmaction/v1.0/recognition/x3d/facebook/x3d_m_16x5x1_facebook-kinetics400-rgb_20201027-3f42382a.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_mmaction2
+    legal:
+      license: Apache-2.0
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - x3d
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - x3d
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - x3d
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - x3d
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - x3d
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - x3d
+    - path: /training/process
+      status: probable
+      sources:
+      - mmaction2
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - x3d
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - mmaction2
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - x3d
+      - plugin_code
+  TimeSformer:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_mmaction2
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_mmaction2
+      timesformer:
+        kind: paper
+        url: https://arxiv.org/abs/2102.05095
+        citation: Bertasius, Wang & Torresani (2021), Is Space-Time Attention All
+          You Need for Video Understanding?, ICML 2021
+      mmaction2:
+        kind: other
+        url: https://github.com/open-mmlab/mmaction2
+        citation: OpenMMLab MMAction2 model zoo (Apache-2.0)
+    model:
+      display_name: TimeSformer
+      architecture:
+        family: vision_transformer
+        description: TimeSformer with divided space-time attention (ViT-B/16) (MMAction2)
+      recurrent: false
+      supervision:
+        type: supervised
+        description: Supervised Kinetics-400 action classification after supervised
+          ImageNet pretraining
+    training:
+      process: MMAction2 recipe timesformer_divST_8xb8-8x32x1-15e_kinetics400-rgb
+    data:
+      summary: ImageNet-21k (also called ImageNet-22k) -> Kinetics-400
+      training_datasets:
+      - identifier: imagenet-21k
+        name: ImageNet-21k (also called ImageNet-22k)
+        role: pretraining
+      - identifier: other
+        name: Kinetics-400
+        role: fine_tuning
+    io:
+      modality: video
+      input_format: RGB video clip sampled at 8 fps
+      output_format: 400-way Kinetics-400 logits
+    provenance:
+      weights_provider: OpenMMLab MMAction2 model zoo
+      checkpoint: https://download.openmmlab.com/mmaction/v1.0/recognition/timesformer/timesformer_divST_8xb8-8x32x1-15e_kinetics400-rgb/timesformer_divST_8xb8-8x32x1-15e_kinetics400-rgb_20220815-a4d0d01f.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_mmaction2
+    legal:
+      license: Apache-2.0
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - timesformer
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - timesformer
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - timesformer
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - timesformer
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - timesformer
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - timesformer
+    - path: /training/process
+      status: probable
+      sources:
+      - mmaction2
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - timesformer
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - mmaction2
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - timesformer
+      - plugin_code
+  VideoSwin-B:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_mmaction2
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_mmaction2
+      videoswin:
+        kind: paper
+        url: https://arxiv.org/abs/2106.13230
+        citation: Liu et al. (2022), Video Swin Transformer, CVPR 2022
+      mmaction2:
+        kind: other
+        url: https://github.com/open-mmlab/mmaction2
+        citation: OpenMMLab MMAction2 model zoo (Apache-2.0)
+    model:
+      display_name: VideoSwin-B
+      architecture:
+        family: vision_transformer
+        description: Video Swin Transformer, base (patch 2x4x4, window 8x7x7) (MMAction2)
+      recurrent: false
+      supervision:
+        type: supervised
+        description: Supervised Kinetics-400 action classification after supervised
+          ImageNet pretraining
+    training:
+      process: MMAction2 recipe swin-base-p244-w877_in1k-pre_8xb8-amp-32x2x1-30e_kinetics400-rgb
+    data:
+      summary: ImageNet-1k (ILSVRC-2012) -> Kinetics-400
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: pretraining
+      - identifier: other
+        name: Kinetics-400
+        role: fine_tuning
+    io:
+      modality: video
+      input_format: RGB video clip sampled at 12.5 fps
+      output_format: 400-way Kinetics-400 logits
+    provenance:
+      weights_provider: OpenMMLab MMAction2 model zoo
+      checkpoint: https://download.openmmlab.com/mmaction/v1.0/recognition/swin/swin-base-p244-w877_in1k-pre_8xb8-amp-32x2x1-30e_kinetics400-rgb/swin-base-p244-w877_in1k-pre_8xb8-amp-32x2x1-30e_kinetics400-rgb_20220930-182ec6cc.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_mmaction2
+    legal:
+      license: Apache-2.0
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - videoswin
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - videoswin
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - videoswin
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - videoswin
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - videoswin
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - videoswin
+    - path: /training/process
+      status: probable
+      sources:
+      - mmaction2
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - videoswin
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - mmaction2
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - videoswin
+      - plugin_code
+  VideoSwin-L:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_mmaction2
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_mmaction2
+      videoswin:
+        kind: paper
+        url: https://arxiv.org/abs/2106.13230
+        citation: Liu et al. (2022), Video Swin Transformer, CVPR 2022
+      mmaction2:
+        kind: other
+        url: https://github.com/open-mmlab/mmaction2
+        citation: OpenMMLab MMAction2 model zoo (Apache-2.0)
+    model:
+      display_name: VideoSwin-L
+      architecture:
+        family: vision_transformer
+        description: Video Swin Transformer, large (patch 2x4x4, window 8x7x7) (MMAction2)
+      recurrent: false
+      supervision:
+        type: supervised
+        description: Supervised Kinetics-400 action classification after supervised
+          ImageNet pretraining
+    training:
+      process: MMAction2 recipe swin-large-p244-w877_in22k-pre_8xb8-amp-32x2x1-30e_kinetics400-rgb
+    data:
+      summary: ImageNet-21k (also called ImageNet-22k) -> Kinetics-400
+      training_datasets:
+      - identifier: imagenet-21k
+        name: ImageNet-21k (also called ImageNet-22k)
+        role: pretraining
+      - identifier: other
+        name: Kinetics-400
+        role: fine_tuning
+    io:
+      modality: video
+      input_format: RGB video clip sampled at 12.5 fps
+      output_format: 400-way Kinetics-400 logits
+    provenance:
+      weights_provider: OpenMMLab MMAction2 model zoo
+      checkpoint: https://download.openmmlab.com/mmaction/v1.0/recognition/swin/swin-large-p244-w877_in22k-pre_8xb8-amp-32x2x1-30e_kinetics400-rgb/swin-large-p244-w877_in22k-pre_8xb8-amp-32x2x1-30e_kinetics400-rgb_20220930-78ad8b11.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_mmaction2
+    legal:
+      license: Apache-2.0
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - videoswin
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - videoswin
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - videoswin
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - videoswin
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - videoswin
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - videoswin
+    - path: /training/process
+      status: probable
+      sources:
+      - mmaction2
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - videoswin
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - mmaction2
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - videoswin
+      - plugin_code
+  UniFormer-V1:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_mmaction2
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_mmaction2
+      uniformer:
+        kind: paper
+        url: https://arxiv.org/abs/2201.04676
+        citation: 'Li et al. (2022), UniFormer: Unified Transformer for Efficient
+          Spatiotemporal Representation Learning, ICLR 2022'
+      mmaction2:
+        kind: other
+        url: https://github.com/open-mmlab/mmaction2
+        citation: OpenMMLab MMAction2 model zoo (Apache-2.0)
+    model:
+      display_name: UniFormer-V1
+      architecture:
+        family: vision_transformer
+        description: 'UniFormer-B: convolution-attention hybrid video transformer
+          (MMAction2)'
+      recurrent: false
+      supervision:
+        type: supervised
+        description: Supervised Kinetics-400 action classification after supervised
+          ImageNet pretraining
+    training:
+      process: MMAction2 recipe uniformer-base_imagenet1k-pre_32x4x1_kinetics400-rgb
+    data:
+      summary: ImageNet-1k (ILSVRC-2012) -> Kinetics-400
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: pretraining
+      - identifier: other
+        name: Kinetics-400
+        role: fine_tuning
+    io:
+      modality: video
+      input_format: RGB video clip
+      output_format: 400-way Kinetics-400 logits
+    provenance:
+      weights_provider: OpenMMLab MMAction2 model zoo
+      checkpoint: https://download.openmmlab.com/mmaction/v1.0/recognition/uniformerv1/uniformer-base_imagenet1k-pre_32x4x1_kinetics400-rgb_20221219-b776322c.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_mmaction2
+    legal:
+      license: Apache-2.0
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - uniformer
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - uniformer
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - uniformer
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - uniformer
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - uniformer
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - uniformer
+    - path: /training/process
+      status: probable
+      sources:
+      - mmaction2
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - uniformer
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - mmaction2
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - uniformer
+      - plugin_code
+  UniFormer-V2-B:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_mmaction2
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_mmaction2
+      uniformerv2:
+        kind: paper
+        url: https://arxiv.org/abs/2211.09552
+        citation: 'Li et al. (2023), UniFormerV2: Unlocking the Potential of Image
+          ViTs for Video Understanding, ICCV 2023'
+      mmaction2:
+        kind: other
+        url: https://github.com/open-mmlab/mmaction2
+        citation: OpenMMLab MMAction2 model zoo (Apache-2.0)
+    model:
+      display_name: UniFormer-V2-B
+      architecture:
+        family: vision_transformer
+        description: UniFormerV2-B/16 built on a CLIP ViT-B/16 image encoder (MMAction2)
+      recurrent: false
+      supervision:
+        type: supervised
+        description: Supervised Kinetics-400 action classification
+    training:
+      process: MMAction2 recipe uniformerv2-base-p16-res224_clip-kinetics710-pre_8xb32-u8_kinetics400-rgb
+    data:
+      summary: WIT-400M (OpenAI WebImageText) -> Kinetics-710 -> Kinetics-400
+      training_datasets:
+      - identifier: wit-400m
+        name: WIT-400M (OpenAI WebImageText)
+        role: pretraining
+      - identifier: other
+        name: Kinetics-710
+        role: fine_tuning
+      - identifier: other
+        name: Kinetics-400
+        role: fine_tuning
+    io:
+      modality: video
+      input_format: RGB video clip
+      output_format: 400-way Kinetics-400 logits
+    provenance:
+      weights_provider: OpenMMLab MMAction2 model zoo
+      checkpoint: https://download.openmmlab.com/mmaction/v1.0/recognition/uniformerv2/uniformerv2-base-p16-res224_clip-kinetics710-pre_8xb32-u8_kinetics400-rgb/uniformerv2-base-p16-res224_clip-kinetics710-pre_8xb32-u8_kinetics400-rgb_20230313-75be0806.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_mmaction2
+    legal:
+      license: Apache-2.0
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - uniformerv2
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - uniformerv2
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - uniformerv2
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - uniformerv2
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - uniformerv2
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - uniformerv2
+    - path: /training/process
+      status: probable
+      sources:
+      - mmaction2
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - uniformerv2
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - mmaction2
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - uniformerv2
+      - plugin_code
+  UniFormer-V2-L:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_mmaction2
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_mmaction2
+      uniformerv2:
+        kind: paper
+        url: https://arxiv.org/abs/2211.09552
+        citation: 'Li et al. (2023), UniFormerV2: Unlocking the Potential of Image
+          ViTs for Video Understanding, ICCV 2023'
+      mmaction2:
+        kind: other
+        url: https://github.com/open-mmlab/mmaction2
+        citation: OpenMMLab MMAction2 model zoo (Apache-2.0)
+    model:
+      display_name: UniFormer-V2-L
+      architecture:
+        family: vision_transformer
+        description: UniFormerV2-L/14 built on a CLIP ViT-L/14 image encoder (MMAction2)
+      recurrent: false
+      supervision:
+        type: supervised
+        description: Supervised Kinetics-400 action classification
+    training:
+      process: MMAction2 recipe uniformerv2-large-p14-res224_clip-kinetics710-pre_u32_kinetics400-rgb
+    data:
+      summary: WIT-400M (OpenAI WebImageText) -> Kinetics-710 -> Kinetics-400
+      training_datasets:
+      - identifier: wit-400m
+        name: WIT-400M (OpenAI WebImageText)
+        role: pretraining
+      - identifier: other
+        name: Kinetics-710
+        role: fine_tuning
+      - identifier: other
+        name: Kinetics-400
+        role: fine_tuning
+    io:
+      modality: video
+      input_format: RGB video clip
+      output_format: 400-way Kinetics-400 logits
+    provenance:
+      weights_provider: OpenMMLab MMAction2 model zoo
+      checkpoint: https://download.openmmlab.com/mmaction/v1.0/recognition/uniformerv2/kinetics400/uniformerv2-large-p14-res224_clip-kinetics710-pre_u32_kinetics400-rgb_20221219-56a46f64.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_mmaction2
+    legal:
+      license: Apache-2.0
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - uniformerv2
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - uniformerv2
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - uniformerv2
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - uniformerv2
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - uniformerv2
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - uniformerv2
+    - path: /training/process
+      status: probable
+      sources:
+      - mmaction2
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - uniformerv2
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - mmaction2
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - uniformerv2
+      - plugin_code

@@ -1,29 +1,292 @@
+schema_version: '2.0'
+domain: vision
 models:
-    alexnet_w1_mlp4096_simclr_baseline_64715_probe0:
-        architecture: DCNN
-        model_family: alexnet
-        total_parameter_count: 96581568
-        trainable_parameter_count: 96581568
-        total_layers: 38
-        trainable_layers: 12
-        model_size_mb: 386.33
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_simclr_run1
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    alexnet_w1_mlp4096_simclr_ratio1augs_d3fbd_probe0:
-        architecture: DCNN
-        model_family: alexnet
-        total_parameter_count: 96581568
-        trainable_parameter_count: 96581568
-        total_layers: 38
-        trainable_layers: 12
-        model_size_mb: 386.33
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_simclr_run1
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  alexnet_w1_mlp4096_simclr_baseline_64715_probe0:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_simclr_run1
+        citation: Brain-Score vision plugin code, brainscore_vision/models/alexnet_simclr_run1
+      alvarez:
+        kind: other
+        url: https://visionlab-members.s3.wasabisys.com/alvarez/Projects/configural_shape_private/
+        citation: Alvarez lab (Harvard) checkpoint storage, project "configural_shape"
+    model:
+      display_name: alexnet_w1_mlp4096_simclr_baseline_64715_probe0
+      architecture:
+        family: convolutional_neural_network
+        description: AlexNet-style backbone (width 1) with a 4096-4096-4096 MLP projector
+          and linear probes; probe 0 provides the output
+      parameter_count: 96581568
+      parameter_count_exact: true
+      trainable_layers: '12'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: self_supervised
+        description: SimCLR self-supervised backbone with linear probes trained on
+          ImageNet-1k labels
+    training:
+      process: SimCLR training on ImageNet-1k (baseline run, checkpoint path baseline_models/in1k/alexnet_w1_mlp/simclr)
+    data:
+      summary: ImageNet-1k (per checkpoint path)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+    io:
+      modality: image
+    provenance:
+      weights_provider: Alvarez lab (visionlab-members Wasabi S3)
+      checkpoint: https://visionlab-members.s3.wasabisys.com/alvarez/Projects/configural_shape_private/baseline_models/in1k/alexnet_w1_mlp/simclr/20240513_182357/final_weights-647159ec62.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_simclr_run1
+    people:
+      organizations:
+      - Harvard University (Alvarez lab)
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+      - alvarez
+    - path: /data/summary
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - plugin_code
+    - path: /people/organizations
+      status: probable
+      sources:
+      - alvarez
+    legacy:
+      architecture: DCNN
+      model_family: alexnet
+      total_parameter_count: 96581568
+      trainable_parameter_count: 96581568
+      total_layers: 38
+      trainable_layers: 12
+      model_size_mb: 386.33
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_simclr_run1
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+  alexnet_w1_mlp4096_simclr_ratio1augs_d3fbd_probe0:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_simclr_run1
+        citation: Brain-Score vision plugin code, brainscore_vision/models/alexnet_simclr_run1
+      alvarez:
+        kind: other
+        url: https://visionlab-members.s3.wasabisys.com/alvarez/Projects/configural_shape_private/
+        citation: Alvarez lab (Harvard) checkpoint storage, project "configural_shape"
+    model:
+      display_name: alexnet_w1_mlp4096_simclr_ratio1augs_d3fbd_probe0
+      architecture:
+        family: convolutional_neural_network
+        description: AlexNet-style backbone (width 1) with a 4096-4096-4096 MLP projector
+          and linear probes; probe 0 provides the output
+      parameter_count: 96581568
+      parameter_count_exact: true
+      trainable_layers: '12'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: self_supervised
+        description: SimCLR self-supervised backbone with linear probes trained on
+          ImageNet-1k labels
+    training:
+      process: SimCLR training on ImageNet-1k (run with correlated crops, checkpoint
+        path simclr_correlated_crops/in1k/alexnet_w1_mlp/simclr)
+    data:
+      summary: ImageNet-1k (per checkpoint path)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+    io:
+      modality: image
+    provenance:
+      weights_provider: Alvarez lab (visionlab-members Wasabi S3)
+      checkpoint: https://visionlab-members.s3.wasabisys.com/alvarez/Projects/configural_shape_private/simclr_correlated_crops/in1k/alexnet_w1_mlp/simclr/20240513_211743/final_weights-d3fbd988f5.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_simclr_run1
+    people:
+      organizations:
+      - Harvard University (Alvarez lab)
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+      - alvarez
+    - path: /data/summary
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - plugin_code
+    - path: /people/organizations
+      status: probable
+      sources:
+      - alvarez
+    legacy:
+      architecture: DCNN
+      model_family: alexnet
+      total_parameter_count: 96581568
+      trainable_parameter_count: 96581568
+      total_layers: 38
+      trainable_layers: 12
+      model_size_mb: 386.33
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_simclr_run1
+      huggingface_link: null
+      extra_notes: null
+      runnable: true

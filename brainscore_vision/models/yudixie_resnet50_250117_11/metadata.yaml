@@ -2,6 +2,155 @@ schema_version: '2.0'
 domain: vision
 models:
   yudixie_resnet50_random_0_240908:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/yudixie_resnet50_250117_11
+        citation: Brain-Score vision plugin code, brainscore_vision/models/yudixie_resnet50_250117_11
+      xie2025:
+        kind: paper
+        url: https://arxiv.org/abs/2412.09115
+        citation: Xie, Huang, Alter, Schwartz, Tenenbaum & DiCarlo (2025), Vision
+          CNNs trained to estimate spatial latents learned similar ventral-stream-aligned
+          representations, ICLR 2025
+    model:
+      display_name: yudixie_resnet50_random_0_240908
+      architecture:
+        family: convolutional_neural_network
+        description: ResNet-50 (torchvision resnet50 definition) with a 674-way fc
+          layer
+      parameter_count: 24889058
+      parameter_count_exact: true
+      trainable_layers: '54'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: none
+        description: Untrained control (random initialization), per identifier
+    training:
+      process: 'Randomly initialized control network of the spatial-latent experiments
+        (identifier "random"); output head: 674 outputs = 9 spatial latents (distance,
+        x/y translation, sin/cos of three rotation angles) + 117 object categories
+        + 548 object identities'
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 674-dimensional output of the fc layer
+    provenance:
+      weights_provider: Yudi Xie (S3 bucket yudi-brainscore-models)
+      checkpoint: https://yudi-brainscore-models.s3.amazonaws.com/yudixie_resnet50_random_0_240908.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/yudixie_resnet50_250117_11
+    people:
+      creators:
+      - Yudi Xie
+      - Weichen Huang
+      - Esther Alter
+      - Jeremy Schwartz
+      - Joshua B. Tenenbaum
+      - James J. DiCarlo
+      organizations:
+      - Massachusetts Institute of Technology (DiCarlo lab)
+    lineage:
+      base_models:
+      - name: ResNet-50
+        relationship: variant_of
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: probable
+      sources:
+      - xie2025
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /people/creators
+      status: probable
+      sources:
+      - xie2025
+    - path: /people/organizations
+      status: probable
+      sources:
+      - xie2025
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - plugin_code
     legacy:
       architecture: DCNN
       model_family: resnet
@@ -12,31 +161,3 @@ models:
       model_size_mb: 99.56
       brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/yudixie_resnet50_250117_11
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 24889058
-      trainable_layers: '54'
-      architecture:
-        family: convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/yudixie_resnet50_250117_11

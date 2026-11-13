@@ -1,0 +1,84 @@
+schema_version: '2.0'
+domain: vision
+models:
+  aughost_fair_resnet18:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/aughost_fair_resnet18
+        citation: Brain-Score vision plugin code, brainscore_vision/models/aughost_fair_resnet18
+    model:
+      display_name: aughost_fair_resnet18
+      architecture:
+        family: convolutional_neural_network
+        description: 'ResNet-18 (per plugin title "AugGhost Fair ResNet18: Motion-Robust
+          Training with Spatial Resolution Preservation")'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 64
+        width: 64
+    training:
+      process: Motion-robust training with spatial-resolution preservation (per plugin
+        bibtex title); data not documented
+    io:
+      modality: image
+      input_format: RGB image resized to 64x64 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+    provenance:
+      weights_provider: Brain-Score S3 (brainscore-storage)
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/aughost_fair_resnet18/model_weights.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/aughost_fair_resnet18
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: uncertain
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code

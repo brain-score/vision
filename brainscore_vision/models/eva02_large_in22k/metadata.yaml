@@ -1,0 +1,182 @@
+schema_version: '2.0'
+domain: vision
+models:
+  eva02_large_in22k:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/eva02_large_in22k
+        citation: Brain-Score vision plugin code, brainscore_vision/models/eva02_large_in22k
+      eva02:
+        kind: paper
+        url: https://arxiv.org/abs/2303.11331
+        citation: 'Fang et al. (2024), EVA-02: A Visual Representation for Neon Genesis,
+          Image and Vision Computing'
+      timm_card:
+        kind: huggingface
+        url: https://huggingface.co/timm/eva02_large_patch14_448.mim_m38m_ft_in22k_in1k
+        citation: timm model card eva02_large_patch14_448.mim_m38m_ft_in22k_in1k
+    model:
+      display_name: eva02_large_in22k
+      version: timm eva02_large_patch14_448.mim_m38m_ft_in22k_in1k
+      architecture:
+        family: vision_transformer
+        description: eva02_large_patch14_448 (timm)
+      parameter_count: 305080232
+      parameter_count_exact: true
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 448
+        width: 448
+      supervision:
+        type: other
+        description: Masked image modeling pretraining (reconstructing EVA-CLIP features),
+          then supervised ImageNet-22k and ImageNet-1k fine-tuning
+    training:
+      process: EVA-02 masked image modeling pretraining on Merged-38M with EVA-CLIP
+        feature targets, then fine-tuning on ImageNet-22k and ImageNet-1k at 448 px
+    data:
+      summary: Merged-38M (EVA-02 pretraining image mix) -> ImageNet-21k (also called
+        ImageNet-22k) -> ImageNet-1k (ILSVRC-2012)
+      training_datasets:
+      - identifier: other
+        name: Merged-38M (EVA-02 pretraining image mix)
+        role: pretraining
+      - identifier: imagenet-21k
+        name: ImageNet-21k (also called ImageNet-22k)
+        role: fine_tuning
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: fine_tuning
+    io:
+      modality: image
+      input_format: RGB image resized to 448x448 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way ImageNet-1k logits
+    provenance:
+      weights_provider: 'timm / Hugging Face Hub: BAAI (EVA-02), distributed by timm'
+      checkpoint: timm/eva02_large_patch14_448.mim_m38m_ft_in22k_in1k
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/eva02_large_in22k
+    legal:
+      license: MIT
+    people:
+      creators:
+      - Yuxin Fang
+      - Quan Sun
+      - Xinggang Wang
+      - Tiejun Huang
+      - Xinlong Wang
+      - Yue Cao
+      organizations:
+      - Beijing Academy of Artificial Intelligence (BAAI)
+      - Huazhong University of Science and Technology
+    use:
+      applications:
+      - Image classification
+      - Backbone for downstream vision tasks
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - timm_card
+      - eva02
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - timm_card
+      - eva02
+    - path: /training/process
+      status: probable
+      sources:
+      - timm_card
+      - eva02
+    - path: /data/summary
+      status: probable
+      sources:
+      - timm_card
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - timm_card
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - timm_card
+      - eva02
+    - path: /people/creators
+      status: probable
+      sources:
+      - eva02
+    - path: /people/organizations
+      status: probable
+      sources:
+      - eva02
+    - path: /use/applications
+      status: probable
+      sources:
+      - timm_card

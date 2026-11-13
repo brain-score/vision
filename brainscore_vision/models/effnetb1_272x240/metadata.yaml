@@ -2,6 +2,81 @@ schema_version: '2.0'
 domain: vision
 models:
   effnetb1_272x240:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/effnetb1_272x240
+        citation: Brain-Score vision plugin code, brainscore_vision/models/effnetb1_272x240
+      effnet:
+        kind: paper
+        url: https://arxiv.org/abs/1905.11946
+        citation: Tan & Le (2019), EfficientNet, ICML 2019
+    model:
+      display_name: effnetb1_272x240
+      architecture:
+        family: convolutional_neural_network
+        description: EfficientNet-B1 (timm tf_efficientnet_b1_ns, Noisy Student weights)
+          wrapped by the submitter; identifier encodes the input size (W x H)
+      parameter_count: 7794184
+      trainable_layers: '116'
+      recurrent: false
+    training:
+      process: timm tf_efficientnet_b1_ns (Noisy Student) weights
+    provenance:
+      weights_provider: Brain-Score submitter (timm weights)
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/effnetb1_272x240
+    lineage:
+      base_models:
+      - name: EfficientNet-B1 Noisy Student
+        relationship: fine_tuned_from
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+      - effnet
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+      - effnet
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+      - effnet
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - plugin_code
+      - effnet
     legacy:
       architecture: DCNN
       model_family: efficientnet
@@ -12,31 +87,3 @@ models:
       model_size_mb: 31.18
       brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/effnetb1_272x240
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 7794184
-      trainable_layers: '116'
-      architecture:
-        family: convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/effnetb1_272x240

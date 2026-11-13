@@ -2,6 +2,130 @@ schema_version: '2.0'
 domain: vision
 models:
   artResNet18_1:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/artResNet18_1
+        citation: Brain-Score vision plugin code, brainscore_vision/models/artResNet18_1
+    model:
+      display_name: artResNet18_1
+      architecture:
+        family: convolutional_neural_network
+        description: ResNet-18 backbone of a Barlow Twins (solo-learn style) checkpoint,
+          loaded with strict=False
+      parameter_count: 11689512
+      trainable_layers: '21'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: self_supervised
+        description: Barlow Twins self-supervised learning
+    training:
+      process: Barlow Twins on a custom (art) dataset for 400 epochs (checkpoint barlow_twins-custom_dataset_3-...-ep-399)
+    data:
+      summary: Custom art image dataset
+      training_datasets:
+      - identifier: other
+        name: Custom art image dataset
+        role: pretraining
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+    provenance:
+      weights_provider: Claudia Noche (Dropbox)
+      checkpoint: https://www.dropbox.com/scl/fi/c6b940qscjb43xhgda9om/barlow_twins-custom_dataset_3-685qxt9j-ep-399.ckpt
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/artResNet18_1
+    people:
+      creators:
+      - Claudia Noche
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - plugin_code
+    - path: /people/creators
+      status: probable
+      sources:
+      - plugin_code
     legacy:
       architecture: DCNN
       model_family: resnet
@@ -12,31 +136,3 @@ models:
       model_size_mb: 46.76
       brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/artResNet18_1
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 11689512
-      trainable_layers: '21'
-      architecture:
-        family: convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/artResNet18_1

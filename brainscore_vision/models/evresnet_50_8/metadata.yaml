@@ -1,0 +1,135 @@
+schema_version: '2.0'
+domain: vision
+models:
+  evresnet_50_8:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/evresnet_50_8
+        citation: Brain-Score vision plugin code, brainscore_vision/models/evresnet_50_8
+      piper2024:
+        kind: paper
+        url: https://arxiv.org/abs/2409.16838
+        citation: Piper, Oliveira & Marques (2024), Explicitly Modeling Pre-Cortical
+          Vision with a Neuro-Inspired Front-End Improves CNN Robustness, arXiv:2409.16838
+    model:
+      display_name: evresnet_50_8
+      architecture:
+        family: hybrid_biological_convolutional
+        description: 'EVNet: neuro-inspired front-end RetinaBlock (P-cell color-opponent
+          channels: 3, M-cell channels: 1) + VOneBlock (fixed Gabor filter bank, gabor_seed=1083)
+          followed by a ResNet-50 back-end (EVNet code bundled with the plugin); 25,580,264
+          trainable back-end parameters, front-end filters fixed'
+      parameter_count: 29537310
+      parameter_count_exact: true
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: none
+        description: 'No trained weights: fixed (non-trainable) front-end filters
+          and a randomly initialized back-end'
+    training:
+      process: 'Not trained: the plugin builds the network and loads no checkpoint'
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224, scaled to [0, 1] without mean/std
+        normalization
+      output_format: 1000-way logits
+    provenance:
+      weights_provider: 'None: no trained weights are loaded'
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/evresnet_50_8
+    people:
+      creators:
+      - Lucas Piper
+      - Arlindo L. Oliveira
+      - Tiago Marques
+    use:
+      applications:
+      - Modeling early (subcortical and V1) visual processing
+      - Robustness to image perturbations
+      limitations:
+      - Scored without trained weights (random back-end initialization)
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /people/creators
+      status: probable
+      sources:
+      - piper2024
+    - path: /use/applications
+      status: probable
+      sources:
+      - piper2024
+    - path: /use/limitations
+      status: probable
+      sources:
+      - plugin_code

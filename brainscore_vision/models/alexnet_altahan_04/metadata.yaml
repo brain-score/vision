@@ -1,0 +1,152 @@
+schema_version: '2.0'
+domain: vision
+models:
+  alexnet_altahan_04:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_altahan_04
+        citation: Brain-Score vision plugin code, brainscore_vision/models/alexnet_altahan_04
+    model:
+      display_name: alexnet_altahan_04
+      architecture:
+        family: convolutional_neural_network
+        description: 'AlexNet (torchvision definition): AlexNet with local response
+          normalisation, fine-tuned on ImageNet with a SimCLR auxiliary, framed, edge-map
+          and wide-crop training views; V1 and V4 read through fixed average pools,
+          behaviour read from centred, L2-normalised logits, and label logits averaged
+          over an 8 degree and a 7 degree view.'
+      parameter_count: 61100840
+      parameter_count_exact: true
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: Supervised ImageNet-1k classification with a SimCLR auxiliary
+          loss
+    training:
+      process: 'torchvision AlexNet with the original AlexNet''s parameter-free local
+        response normalisation restored after the conv1 and conv2 ReLUs, fine-tuned
+        on ImageNet-1k (SGD, lr 1e-3, momentum 0.9, weight decay 5e-4, batch 256,
+        5.12M images; cross-entropy plus a SimCLR NT-Xent auxiliary loss on fc7 through
+        a projection head that is discarded after training). Training views: random-resized-crop
+        with area scale 0.35-1 and horizontal flip; for the cross-entropy input, 10%
+        of the images are replaced by their Sobel edge map, and 80% are then shrunk
+        by a factor U[0.35, 1] and pasted centred on a uniform grey canvas of random
+        level; the SimCLR views are unframed. The LRN layers have no weights, so the
+        network has AlexNet''s 61,100,840 parameters and the state dict is torchvision''s.
+        Read out with Brain-Score''s committed ''alexnet'' layer map except V1 and
+        V4, which are read through parameter-free average pools: `v1_avgpool` is a
+        3x3 stride-2 average pool of the conv1 ReLU+LRN output (in place of the first
+        max pool, 64x27x27), `v4_avgpool` a 3x3 stride-1 average pool (padding 1,
+        padding excluded from the mean) of the conv4 ReLU output (256x13x13). Behaviour
+        is read from the 1000 logits, centred and L2-normalised per image by the parameter-free
+        `logits_centred_l2` module. forward()''s label logits are the mean of the
+        logits on the 8 degree image and on its central 7/8 crop resized back (`CentralZoom`,
+        nothing learned); the neural and behavioural taps see only the unmodified
+        image. The taps and the zoom are registered before the base network''s modules,
+        so Brain-Score''s default `logits` layer is still classifier.6, the output
+        of forward().'
+    data:
+      summary: ImageNet-1k (ILSVRC-2012) -> ImageNet-1k (ILSVRC-2012)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: pretraining
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: fine_tuning
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way ImageNet-1k logits
+    provenance:
+      weights_provider: Brain-Score submitter upload (user_873)
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/user_873/alexnet_altahan_04.pt
+        (version 6_aPJFWA393YzSzRWjwHqN5ux8qvKS40)
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_altahan_04
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - plugin_code

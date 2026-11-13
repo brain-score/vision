@@ -1,0 +1,179 @@
+schema_version: '2.0'
+domain: vision
+models:
+  resnet50_simsiam_linhead:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet50_simsiam_linhead
+        citation: Brain-Score vision plugin code, brainscore_vision/models/resnet50_simsiam_linhead
+      card:
+        kind: huggingface
+        url: https://huggingface.co/niels-c/resnet50_simsiam_linhead
+        citation: Hugging Face model card niels-c/resnet50_simsiam_linhead
+      method_paper:
+        kind: paper
+        url: https://arxiv.org/abs/2011.10566
+        citation: Chen & He (2021), Exploring Simple Siamese Representation Learning,
+          CVPR 2021
+    model:
+      display_name: resnet50_simsiam_linhead
+      architecture:
+        family: convolutional_neural_network
+        description: ResNet-50 (torchvision definition) whose fc layer is a linear
+          head on the 2048-d pooled features
+      parameter_count: 25557032
+      parameter_count_exact: true
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: self_supervised
+        description: Self-supervised SimSiam backbone (frozen); linear head trained
+          with ImageNet-1k labels
+    training:
+      process: Backbone and linear classifier both taken from the facebookresearch/simsiam
+        release and converted to torchvision parameter names; nothing trained in this
+        project
+    data:
+      summary: ImageNet-1k (backbone pretraining and linear head)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: pretraining
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: fine_tuning
+        description: Linear head
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way ImageNet-1k logits from the linear head (backbone.fc)
+    provenance:
+      weights_provider: Hugging Face Hub (niels-c)
+      checkpoint: niels-c/resnet50_simsiam_linhead/resnet50_simsiam_linhead.safetensors
+        (revision 45b7f0fcac60d21f817e75af6057765b5281d70b)
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet50_simsiam_linhead
+    legal:
+      license: CC-BY-NC-4.0
+    people:
+      creators:
+      - Xinlei Chen
+      - Kaiming He
+      - Niels C. Thiemann (conversion and packaging)
+    use:
+      applications:
+      - Comparing self-supervised and supervised models on Brain-Score
+      - ImageNet-1k classification via a linear probe
+      users:
+      - Researchers comparing vision models with primate neural and behavioral data
+    lineage:
+      base_models:
+      - name: ResNet-50 SimSiam (facebookresearch/simsiam)
+        relationship: fine_tuned_from
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - card
+      - method_paper
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - card
+    - path: /training/process
+      status: probable
+      sources:
+      - card
+    - path: /data/summary
+      status: probable
+      sources:
+      - card
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - card
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - card
+    - path: /people/creators
+      status: probable
+      sources:
+      - card
+      - method_paper
+    - path: /use/applications
+      status: probable
+      sources:
+      - card
+    - path: /use/users
+      status: probable
+      sources:
+      - card
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - card

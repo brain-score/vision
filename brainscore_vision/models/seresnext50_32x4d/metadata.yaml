@@ -1,0 +1,167 @@
+schema_version: '2.0'
+domain: vision
+models:
+  seresnext50_32x4d:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/seresnext50_32x4d
+        citation: Brain-Score vision plugin code, brainscore_vision/models/seresnext50_32x4d
+      senet:
+        kind: paper
+        url: https://arxiv.org/abs/1709.01507
+        citation: Hu, Shen, Albanie, Sun & Wu (2018), Squeeze-and-Excitation Networks,
+          CVPR 2018
+      timm:
+        kind: huggingface
+        url: https://huggingface.co/timm
+        citation: timm (PyTorch Image Models) model cards on Hugging Face
+    model:
+      display_name: SE-ResNeXt-50 32x4d
+      version: seresnext50_32x4d.racm_in1k
+      architecture:
+        family: convolutional_neural_network
+        description: SE-ResNeXt-50 (32x4d) with squeeze-and-excitation (timm)
+      parameter_count: 27559896
+      parameter_count_exact: true
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: 1000-class ImageNet-1k classification
+    training:
+      process: Trained on ImageNet-1k in timm with RandAugment and Mixup/CutMix (racm_in1k)
+    data:
+      summary: ImageNet-1k (ILSVRC-2012)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way logits
+    provenance:
+      weights_provider: timm (Hugging Face Hub, timm organization)
+      checkpoint: timm/seresnext50_32x4d.racm_in1k
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/seresnext50_32x4d
+    legal:
+      license: Apache-2.0
+    people:
+      creators:
+      - Jie Hu
+      - Li Shen
+      - Samuel Albanie
+      - Gang Sun
+      - Enhua Wu
+    use:
+      applications:
+      - Image classification
+      - Feature extraction / backbone for vision tasks
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - senet
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - senet
+      - timm
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - senet
+      - timm
+    - path: /training/process
+      status: probable
+      sources:
+      - senet
+      - timm
+    - path: /data/summary
+      status: probable
+      sources:
+      - senet
+      - timm
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - timm
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - senet
+      - timm
+    - path: /people/creators
+      status: probable
+      sources:
+      - senet
+    - path: /use/applications
+      status: probable
+      sources:
+      - senet

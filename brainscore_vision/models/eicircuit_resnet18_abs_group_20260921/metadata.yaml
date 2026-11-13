@@ -1,0 +1,131 @@
+schema_version: '2.0'
+domain: vision
+models:
+  eicircuit_resnet18_abs_group_20260921:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/eicircuit_resnet18_abs_group_20260921
+        citation: Brain-Score vision plugin code, brainscore_vision/models/eicircuit_resnet18_abs_group_20260921
+    model:
+      display_name: eicircuit_resnet18_abs_group_20260921
+      version: Epoch 89 checkpoint
+      architecture:
+        family: convolutional_neural_network
+        description: ResNet-18 with subtractive E/I circuits, absolute nonnegative
+          synaptic weights, grouped inhibitory-to-excitatory connections, learned
+          gain/balance, and residual scaling 1/sqrt(8).
+      parameter_count: 14481280
+      parameter_count_exact: true
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: ImageNet-1k classification; no brain-data training
+    training:
+      process: Trained on the ImageNet-1k training split; epoch-89 checkpoint with
+        clean ImageNet validation top-1 66.430% (in-plugin MODEL_CARD.md)
+    data:
+      summary: ImageNet-1k
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+    io:
+      modality: image
+      input_format: RGB image, shorter edge resized to 256 px (bilinear), center-cropped
+        to 224x224, scaled to [0, 1] without mean/std normalization
+      output_format: 1000-way ImageNet-1k logits
+    provenance:
+      weights_provider: Brain-Score submitter upload (user_799)
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/user_799/eicircuit_resnet18_abs_group_20260921_weights.pt
+        (version 3.0t.JqCajHReKG9dO.joUrQrqAJ5Rmi)
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/eicircuit_resnet18_abs_group_20260921
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - plugin_code

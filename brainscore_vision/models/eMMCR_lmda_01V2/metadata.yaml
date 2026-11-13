@@ -1,15 +1,224 @@
+schema_version: '2.0'
+domain: vision
 models:
-    eMMCR_lmda_01V2:
-        architecture: DCNN
-        model_family: null
-        total_parameter_count: 25557032
-        trainable_parameter_count: 25557032
-        total_layers: 151
-        trainable_layers: 54
-        model_size_mb: 102.23
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/eMMCR_lmda_01V2
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  eMMCR_lmda_01V2:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/eMMCR_lmda_01V2
+        citation: Brain-Score vision plugin code, brainscore_vision/models/eMMCR_lmda_01V2
+      yerxa2024:
+        kind: paper
+        url: https://proceedings.neurips.cc/paper_files/paper/2024/hash/ae28c7bc9414ffd8ffd2b3d454e6ef3e-Abstract-Conference.html
+        citation: Yerxa, Feather, Simoncelli & Chung (2024), Contrastive-Equivariant
+          Self-Supervised Learning Improves Alignment with Primate Visual Area IT,
+          NeurIPS 2024
+      yerxa2023:
+        kind: paper
+        url: https://arxiv.org/abs/2303.03307
+        citation: Yerxa, Kuang, Simoncelli & Chung (2023), Learning Efficient Coding
+          of Natural Images with Maximum Manifold Capacity Representations, NeurIPS
+          2023
+    model:
+      display_name: eMMCR_lmda_01V2
+      architecture:
+        family: convolutional_neural_network
+        description: ResNet-50 (torchvision resnet50 definition) with a 1000-way linear
+          readout as fc
+      parameter_count: 25557032
+      parameter_count_exact: true
+      trainable_layers: '54'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: self_supervised
+        description: Self-supervised backbone; 1000-way linear classifier trained
+          on ImageNet labels on top
+    training:
+      process: 'Classifier checkpoint of the CE-SSL project ("mmcr/equi_matched_0.1"
+        in the checkpoint path): ResNet-50 backbone from self-supervised ImageNet-1k
+        training with a trained 1000-way linear classifier'
+      objective: (1 - lambda) * invariant SSL loss + lambda * contrastive-equivariant
+        loss on differences between pairs of images that share the same augmentation
+      learning_rate: LARS optimizer, batch size 2048, base learning rate 4.8 with
+        10-epoch linear warm-up and cosine decay, weight decay 1e-6, momentum 0.9
+      batch_size: '2048'
+      preprocessing: BYOL augmentations (random resized crop, colour jitter, Gaussian
+        blur, solarization, horizontal flip)
+    data:
+      summary: ImageNet-1k
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way logits from the linear readout (fc)
+    provenance:
+      weights_provider: Thomas Yerxa (Flatiron Institute web server, users.flatironinstitute.org/~tyerxa)
+      checkpoint: https://users.flatironinstitute.org/~tyerxa/equi_proj/training_checkpoints/classifiers/mmcr/equi_matched_0.1/classifier.pt
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/eMMCR_lmda_01V2
+    people:
+      creators:
+      - Thomas Yerxa
+      - Jenelle Feather
+      - Eero P. Simoncelli
+      - SueYeon Chung
+      organizations:
+      - New York University
+      - Flatiron Institute
+    use:
+      applications:
+      - Self-supervised representation learning
+      - Modeling primate ventral stream (IT) responses
+    lineage:
+      base_models:
+      - name: ResNet-50
+        relationship: variant_of
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - yerxa2024
+      - plugin_code
+      - yerxa2023
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - yerxa2024
+      - plugin_code
+      - yerxa2023
+    - path: /training/process
+      status: probable
+      sources:
+      - yerxa2024
+      - plugin_code
+      - yerxa2023
+    - path: /training/objective
+      status: probable
+      sources:
+      - yerxa2024
+    - path: /training/learning_rate
+      status: probable
+      sources:
+      - yerxa2024
+    - path: /training/batch_size
+      status: probable
+      sources:
+      - yerxa2024
+    - path: /training/preprocessing
+      status: probable
+      sources:
+      - yerxa2024
+    - path: /data/summary
+      status: probable
+      sources:
+      - yerxa2024
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - yerxa2024
+      - plugin_code
+    - path: /people/creators
+      status: probable
+      sources:
+      - yerxa2024
+    - path: /people/organizations
+      status: probable
+      sources:
+      - yerxa2024
+    - path: /use/applications
+      status: probable
+      sources:
+      - yerxa2024
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - plugin_code
+    legacy:
+      architecture: DCNN
+      model_family: null
+      total_parameter_count: 25557032
+      trainable_parameter_count: 25557032
+      total_layers: 151
+      trainable_layers: 54
+      model_size_mb: 102.23
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/eMMCR_lmda_01V2
+      huggingface_link: null
+      extra_notes: null
+      runnable: true

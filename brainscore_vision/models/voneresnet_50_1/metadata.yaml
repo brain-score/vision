@@ -1,15 +1,168 @@
+schema_version: '2.0'
+domain: vision
 models:
-    voneresnet_50_1:
-        architecture: DCNN
-        model_family: resnet, vone
-        total_parameter_count: 28532456
-        trainable_parameter_count: 25580264
-        total_layers: 158
-        trainable_layers: 54
-        model_size_mb: 114.13
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/voneresnet_50_1
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  voneresnet_50_1:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/voneresnet_50_1
+        citation: Brain-Score vision plugin code, brainscore_vision/models/voneresnet_50_1
+      piper2024:
+        kind: paper
+        url: https://arxiv.org/abs/2409.16838
+        citation: Piper, Oliveira & Marques (2024), Explicitly Modeling Pre-Cortical
+          Vision with a Neuro-Inspired Front-End Improves CNN Robustness, arXiv:2409.16838
+    model:
+      display_name: voneresnet_50_1
+      architecture:
+        family: hybrid_biological_convolutional
+        description: 'VOneNet-style: neuro-inspired front-end VOneBlock (fixed Gabor
+          filter bank, gabor_seed=1) followed by a ResNet-50 back-end (EVNet code
+          bundled with the plugin)'
+      parameter_count: 28532456
+      parameter_count_exact: true
+      trainable_layers: '54'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: ImageNet-1k classification with a fixed neuro-inspired front-end
+    training:
+      process: Back-end trained on ImageNet-1k with the front-end held fixed
+    data:
+      summary: ImageNet-1k
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224, scaled to [0, 1] without mean/std
+        normalization
+      output_format: 1000-way logits
+    provenance:
+      weights_provider: Lucas Piper (EVNets weights)
+      checkpoint: Google Drive file id 1HDGnB_pG29wzjoycT2z3BhDbSveHnW-l
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/voneresnet_50_1
+    people:
+      creators:
+      - Lucas Piper
+      - Arlindo L. Oliveira
+      - Tiago Marques
+    use:
+      applications:
+      - Modeling early (subcortical and V1) visual processing
+      - Robustness to image perturbations
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - legacy
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - legacy
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - piper2024
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - piper2024
+    - path: /training/process
+      status: probable
+      sources:
+      - piper2024
+    - path: /data/summary
+      status: probable
+      sources:
+      - piper2024
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - piper2024
+    - path: /people/creators
+      status: probable
+      sources:
+      - piper2024
+    - path: /use/applications
+      status: probable
+      sources:
+      - piper2024
+    legacy:
+      architecture: DCNN
+      model_family: resnet, vone
+      total_parameter_count: 28532456
+      trainable_parameter_count: 25580264
+      total_layers: 158
+      trainable_layers: 54
+      model_size_mb: 114.13
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/voneresnet_50_1
+      huggingface_link: null
+      extra_notes: null
+      runnable: true

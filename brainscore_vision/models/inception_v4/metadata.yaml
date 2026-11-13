@@ -2,6 +2,175 @@ schema_version: '2.0'
 domain: vision
 models:
   inception_v4:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/inception_v4
+        citation: Brain-Score vision plugin code, brainscore_vision/models/inception_v4
+      inception_v4:
+        kind: paper
+        url: https://arxiv.org/abs/1602.07261
+        citation: Szegedy, Ioffe, Vanhoucke & Alemi (2017), Inception-v4, Inception-ResNet
+          and the Impact of Residual Connections on Learning, AAAI 2017
+      timm:
+        kind: huggingface
+        url: https://huggingface.co/timm
+        citation: timm (PyTorch Image Models) model cards on Hugging Face
+    model:
+      display_name: Inception v4
+      version: inception_v4.tf_in1k
+      architecture:
+        family: convolutional_neural_network
+        description: Inception v4 (timm port of the TensorFlow weights)
+      parameter_count: 42679816
+      parameter_count_exact: true
+      trainable_layers: '150'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 299
+        width: 299
+      supervision:
+        type: supervised
+        description: 1000-class ImageNet-1k classification
+    data:
+      summary: ImageNet-1k (ILSVRC-2012)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+    io:
+      modality: image
+      input_format: RGB image resized to 299x299 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way logits
+    provenance:
+      weights_provider: timm (Hugging Face Hub, timm organization)
+      checkpoint: timm/inception_v4.tf_in1k
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/inception_v4
+    legal:
+      license: Apache-2.0
+    people:
+      creators:
+      - Christian Szegedy
+      - Sergey Ioffe
+      - Vincent Vanhoucke
+      - Alex Alemi
+      organizations:
+      - Google
+    use:
+      applications:
+      - Image classification
+      - Feature extraction / backbone for vision tasks
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - inception_v4
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - inception_v4
+      - timm
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - inception_v4
+      - timm
+    - path: /data/summary
+      status: probable
+      sources:
+      - inception_v4
+      - timm
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - timm
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - inception_v4
+      - timm
+    - path: /people/creators
+      status: probable
+      sources:
+      - inception_v4
+    - path: /people/organizations
+      status: probable
+      sources:
+      - inception_v4
+    - path: /use/applications
+      status: probable
+      sources:
+      - inception_v4
     legacy:
       architecture: DCNN
       model_family: inception
@@ -12,31 +181,3 @@ models:
       model_size_mb: 170.72
       brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/inception_v4
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 42679816
-      trainable_layers: '150'
-      architecture:
-        family: convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/inception_v4

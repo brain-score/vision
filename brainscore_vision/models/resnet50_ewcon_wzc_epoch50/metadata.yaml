@@ -1,0 +1,106 @@
+schema_version: '2.0'
+domain: vision
+models:
+  resnet50_ewcon_wzc_epoch50:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet50_ewcon_wzc_epoch50
+        citation: Brain-Score vision plugin code, brainscore_vision/models/resnet50_ewcon_wzc_epoch50
+    model:
+      display_name: resnet50_ewcon_wzc_epoch50
+      version: Checkpoint file ew_checkpoint_49.pth
+      architecture:
+        family: convolutional_neural_network
+        description: ResNet-50 (torchvision resnet50 definition, 1000-way fc head),
+          weights loaded with strict=True
+      parameter_count: 25557032
+      parameter_count_exact: true
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224, scaled to [0, 1]; no mean/std normalization
+      output_format: 1000-way logits from the fc layer
+    provenance:
+      weights_provider: Brain-Score submitter upload to the Brain-Score S3 bucket
+        (user_755)
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/user_755/ew_checkpoint_49.pth
+        (version WTpWEPvicpRzMVBGsPzn5ebna9R7PL3W)
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet50_ewcon_wzc_epoch50
+    lineage:
+      base_models:
+      - name: ResNet-50
+        relationship: variant_of
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - plugin_code

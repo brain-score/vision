@@ -1,57 +1,575 @@
+schema_version: '2.0'
+domain: vision
 models:
-    SeLaVi-AVE:
-        architecture: DCNN
-        model_family: null
-        total_parameter_count: 31300125
-        trainable_parameter_count: 31300125
-        total_layers: 160
-        trainable_layers: 37
-        model_size_mb: 125.2
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_SeLaVi
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    SeLaVi-Kinetics-Sound:
-        architecture: DCNN
-        model_family: null
-        total_parameter_count: 31300125
-        trainable_parameter_count: 31300125
-        total_layers: 160
-        trainable_layers: 37
-        model_size_mb: 125.2
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_SeLaVi
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    SeLaVi-Kinetics400:
-        architecture: DCNN
-        model_family: null
-        total_parameter_count: 31300125
-        trainable_parameter_count: 31300125
-        total_layers: 160
-        trainable_layers: 37
-        model_size_mb: 125.2
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_SeLaVi
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
-    SeLaVi-VGG-Sound:
-        architecture: DCNN
-        model_family: vgg
-        total_parameter_count: 31300125
-        trainable_parameter_count: 31300125
-        total_layers: 160
-        trainable_layers: 37
-        model_size_mb: 125.2
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_SeLaVi
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  SeLaVi-Kinetics400:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_SeLaVi
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_SeLaVi
+      selavi:
+        kind: paper
+        url: https://arxiv.org/abs/2006.13662
+        citation: Asano, Patrick, Rupprecht & Vedaldi (2020), Labelling unlabelled
+          videos from scratch with multi-modal self-supervision, NeurIPS 2020
+    model:
+      display_name: SeLaVi-Kinetics400
+      architecture:
+        family: convolutional_neural_network
+        description: R(2+1)D-18 video encoder of an audio-visual model (audio network
+          removed)
+      parameter_count: 31300125
+      parameter_count_exact: true
+      trainable_layers: '37'
+      recurrent: false
+      supervision:
+        type: self_supervised
+        description: Self-supervised self-labelling of videos via audio-visual clustering;
+          no labels
+    training:
+      process: SeLaVi trained self-supervised on Kinetics400 video with audio; only
+        the video network is used
+    data:
+      summary: Kinetics-400
+      training_datasets:
+      - identifier: other
+        name: Kinetics-400
+        role: pretraining
+    io:
+      modality: video
+      input_format: RGB video clip sampled at 30 fps
+    provenance:
+      weights_provider: Facebook AI (dl.fbaipublicfiles.com/selavi)
+      checkpoint: https://dl.fbaipublicfiles.com/selavi/selavi_kinetics.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_SeLaVi
+    people:
+      creators:
+      - Yuki M. Asano
+      - Mandela Patrick
+      - Christian Rupprecht
+      - Andrea Vedaldi
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - selavi
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - selavi
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - selavi
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - selavi
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - selavi
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - selavi
+    - path: /training/process
+      status: probable
+      sources:
+      - selavi
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - selavi
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - selavi
+      - plugin_code
+    - path: /people/creators
+      status: probable
+      sources:
+      - selavi
+    legacy:
+      architecture: DCNN
+      model_family: null
+      total_parameter_count: 31300125
+      trainable_parameter_count: 31300125
+      total_layers: 160
+      trainable_layers: 37
+      model_size_mb: 125.2
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_SeLaVi
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+  SeLaVi-Kinetics-Sound:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_SeLaVi
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_SeLaVi
+      selavi:
+        kind: paper
+        url: https://arxiv.org/abs/2006.13662
+        citation: Asano, Patrick, Rupprecht & Vedaldi (2020), Labelling unlabelled
+          videos from scratch with multi-modal self-supervision, NeurIPS 2020
+    model:
+      display_name: SeLaVi-Kinetics-Sound
+      architecture:
+        family: convolutional_neural_network
+        description: R(2+1)D-18 video encoder of an audio-visual model (audio network
+          removed)
+      parameter_count: 31300125
+      parameter_count_exact: true
+      trainable_layers: '37'
+      recurrent: false
+      supervision:
+        type: self_supervised
+        description: Self-supervised self-labelling of videos via audio-visual clustering;
+          no labels
+    training:
+      process: SeLaVi trained self-supervised on Kinetics-Sound video with audio;
+        only the video network is used
+    data:
+      summary: Kinetics-Sound
+      training_datasets:
+      - identifier: other
+        name: Kinetics-Sound
+        role: pretraining
+    io:
+      modality: video
+      input_format: RGB video clip sampled at 30 fps
+    provenance:
+      weights_provider: Facebook AI (dl.fbaipublicfiles.com/selavi)
+      checkpoint: https://dl.fbaipublicfiles.com/selavi/selavi_kinetics_sound.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_SeLaVi
+    people:
+      creators:
+      - Yuki M. Asano
+      - Mandela Patrick
+      - Christian Rupprecht
+      - Andrea Vedaldi
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - selavi
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - selavi
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - selavi
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - selavi
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - selavi
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - selavi
+    - path: /training/process
+      status: probable
+      sources:
+      - selavi
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - selavi
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - selavi
+      - plugin_code
+    - path: /people/creators
+      status: probable
+      sources:
+      - selavi
+    legacy:
+      architecture: DCNN
+      model_family: null
+      total_parameter_count: 31300125
+      trainable_parameter_count: 31300125
+      total_layers: 160
+      trainable_layers: 37
+      model_size_mb: 125.2
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_SeLaVi
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+  SeLaVi-VGG-Sound:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_SeLaVi
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_SeLaVi
+      selavi:
+        kind: paper
+        url: https://arxiv.org/abs/2006.13662
+        citation: Asano, Patrick, Rupprecht & Vedaldi (2020), Labelling unlabelled
+          videos from scratch with multi-modal self-supervision, NeurIPS 2020
+    model:
+      display_name: SeLaVi-VGG-Sound
+      architecture:
+        family: convolutional_neural_network
+        description: R(2+1)D-18 video encoder of an audio-visual model (audio network
+          removed)
+      parameter_count: 31300125
+      parameter_count_exact: true
+      trainable_layers: '37'
+      recurrent: false
+      supervision:
+        type: self_supervised
+        description: Self-supervised self-labelling of videos via audio-visual clustering;
+          no labels
+    training:
+      process: SeLaVi trained self-supervised on VGG-Sound video with audio; only
+        the video network is used
+    data:
+      summary: VGG-Sound
+      training_datasets:
+      - identifier: other
+        name: VGG-Sound
+        role: pretraining
+    io:
+      modality: video
+      input_format: RGB video clip sampled at 30 fps
+    provenance:
+      weights_provider: Facebook AI (dl.fbaipublicfiles.com/selavi)
+      checkpoint: https://dl.fbaipublicfiles.com/selavi/selavi_vgg_sound.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_SeLaVi
+    people:
+      creators:
+      - Yuki M. Asano
+      - Mandela Patrick
+      - Christian Rupprecht
+      - Andrea Vedaldi
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - selavi
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - selavi
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - selavi
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - selavi
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - selavi
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - selavi
+    - path: /training/process
+      status: probable
+      sources:
+      - selavi
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - selavi
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - selavi
+      - plugin_code
+    - path: /people/creators
+      status: probable
+      sources:
+      - selavi
+    legacy:
+      architecture: DCNN
+      model_family: vgg
+      total_parameter_count: 31300125
+      trainable_parameter_count: 31300125
+      total_layers: 160
+      trainable_layers: 37
+      model_size_mb: 125.2
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_SeLaVi
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
+  SeLaVi-AVE:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_SeLaVi
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_SeLaVi
+      selavi:
+        kind: paper
+        url: https://arxiv.org/abs/2006.13662
+        citation: Asano, Patrick, Rupprecht & Vedaldi (2020), Labelling unlabelled
+          videos from scratch with multi-modal self-supervision, NeurIPS 2020
+    model:
+      display_name: SeLaVi-AVE
+      architecture:
+        family: convolutional_neural_network
+        description: R(2+1)D-18 video encoder of an audio-visual model (audio network
+          removed)
+      parameter_count: 31300125
+      parameter_count_exact: true
+      trainable_layers: '37'
+      recurrent: false
+      supervision:
+        type: self_supervised
+        description: Self-supervised self-labelling of videos via audio-visual clustering;
+          no labels
+    training:
+      process: SeLaVi trained self-supervised on AVE video with audio; only the video
+        network is used
+    data:
+      summary: AVE (Audio-Visual Event)
+      training_datasets:
+      - identifier: other
+        name: AVE (Audio-Visual Event)
+        role: pretraining
+    io:
+      modality: video
+      input_format: RGB video clip sampled at 30 fps
+    provenance:
+      weights_provider: Facebook AI (dl.fbaipublicfiles.com/selavi)
+      checkpoint: https://dl.fbaipublicfiles.com/selavi/selavi_ave.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_SeLaVi
+    people:
+      creators:
+      - Yuki M. Asano
+      - Mandela Patrick
+      - Christian Rupprecht
+      - Andrea Vedaldi
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - selavi
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - selavi
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - selavi
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - selavi
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - selavi
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - selavi
+    - path: /training/process
+      status: probable
+      sources:
+      - selavi
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - selavi
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - selavi
+      - plugin_code
+    - path: /people/creators
+      status: probable
+      sources:
+      - selavi
+    legacy:
+      architecture: DCNN
+      model_family: null
+      total_parameter_count: 31300125
+      trainable_parameter_count: 31300125
+      total_layers: 160
+      trainable_layers: 37
+      model_size_mb: 125.2
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_SeLaVi
+      huggingface_link: null
+      extra_notes: null
+      runnable: true

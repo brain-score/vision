@@ -1,0 +1,175 @@
+schema_version: '2.0'
+domain: vision
+models:
+  dinov2_vitl14_reg_lc_featread:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/dinov2_vitl14_reg_lc_featread
+        citation: Brain-Score vision plugin code, brainscore_vision/models/dinov2_vitl14_reg_lc_featread
+      dinov2:
+        kind: paper
+        url: https://arxiv.org/abs/2304.07193
+        citation: 'Oquab et al. (2024), DINOv2: Learning Robust Visual Features without
+          Supervision, TMLR'
+      registers:
+        kind: paper
+        url: https://arxiv.org/abs/2309.16588
+        citation: Darcet, Oquab, Mairal & Bojanowski (2024), Vision Transformers Need
+          Registers, ICLR 2024
+      dinov2_repo:
+        kind: other
+        url: https://github.com/facebookresearch/dinov2
+        citation: facebookresearch/dinov2 repository
+    model:
+      display_name: dinov2_vitl14_reg_lc_featread
+      version: torch.hub facebookresearch/dinov2 dinov2_vitl14_reg_lc
+      architecture:
+        family: vision_transformer
+        description: 'DINOv2 ViT-L/14 with 4 register tokens backbone with the official
+          ImageNet-1k linear classifier on the class tokens of the last 4 blocks plus
+          the mean patch token. The plugin also exposes the 5120-d input of the linear
+          head as a feature layer. Parameter count: backbone + mask token + linear
+          head'
+      parameter_count: 309492712
+      parameter_count_exact: false
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: self_supervised
+        description: DINOv2 self-supervised backbone (no labels); linear classifier
+          trained on ImageNet-1k labels on frozen features
+    training:
+      process: Self-supervised DINOv2 pretraining on LVD-142M (ViT-g trained directly,
+        smaller models distilled from ViT-g), then a linear classifier on frozen features
+        trained on ImageNet-1k
+    data:
+      summary: LVD-142M (self-supervised pretraining); ImageNet-1k (linear classifier)
+      training_datasets:
+      - identifier: other
+        name: LVD-142M (curated DINOv2 image dataset)
+        role: pretraining
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: fine_tuning
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way ImageNet-1k logits
+    provenance:
+      weights_provider: Meta AI (torch.hub facebookresearch/dinov2)
+      checkpoint: torch.hub dinov2_vitl14_reg_lc
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/dinov2_vitl14_reg_lc_featread
+    legal:
+      license: Apache-2.0
+    people:
+      organizations:
+      - Meta AI Research
+    use:
+      applications:
+      - Image classification
+      - General-purpose visual features
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - dinov2
+      - registers
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - dinov2
+      - registers
+    - path: /training/process
+      status: probable
+      sources:
+      - dinov2
+      - registers
+    - path: /data/summary
+      status: probable
+      sources:
+      - dinov2
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - dinov2_repo
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - dinov2
+    - path: /people/organizations
+      status: probable
+      sources:
+      - dinov2
+    - path: /use/applications
+      status: probable
+      sources:
+      - dinov2

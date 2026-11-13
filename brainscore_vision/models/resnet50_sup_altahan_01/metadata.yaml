@@ -1,0 +1,142 @@
+schema_version: '2.0'
+domain: vision
+models:
+  resnet50_sup_altahan_01:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet50_sup_altahan_01
+        citation: Brain-Score vision plugin code, brainscore_vision/models/resnet50_sup_altahan_01
+    model:
+      display_name: resnet50_sup_altahan_01
+      architecture:
+        family: convolutional_neural_network
+        description: 'ResNet-50 (torchvision): ResNet-50 with local response normalisation
+          in the stem and after layer1, fine-tuned on ImageNet with a SimCLR auxiliary
+          and framed, edge-map and wide-crop training views; V1, V2 and V4 read from
+          an anti-aliased pass, IT averaged over small image shifts, behaviour from
+          centred, L2-normalised logits.'
+      parameter_count: 25557032
+      parameter_count_exact: true
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: Supervised ImageNet-1k fine-tuning with a SimCLR auxiliary loss
+    training:
+      process: 'torchvision ResNet-50, initialised from its IMAGENET1K_V1 weights,
+        with a parameter-free local response normalisation (size 5, alpha 1e-4, beta
+        0.75, k 2) after the stem ReLU (before the max pool) and after layer1. Fine-tuned
+        on ImageNet-1k with batch norm frozen (running statistics kept, scale and
+        shift trained): SGD, lr 1e-3, momentum 0.9, weight decay 5e-4, batch 256,
+        5.12M images; cross-entropy plus a SimCLR NT-Xent auxiliary loss (weight 0.5,
+        temperature 0.2) on the 2048-d pooled features through a projection head that
+        is discarded after training. Training views: random-resized-crop with area
+        scale 0.35-1 and horizontal flip; for the cross-entropy input, 10% of the
+        images are replaced by their Sobel edge map, and 80% are then shrunk by a
+        factor U[0.35, 1] and pasted centred on a uniform grey canvas of random level;
+        the SimCLR views are unframed. The LRN layers have no weights, so the network
+        has ResNet-50''s 25,557,032 parameters and the state dict is torchvision''s.'
+    data:
+      summary: ImageNet-1k (ILSVRC-2012) -> ImageNet-1k (ILSVRC-2012)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: pretraining
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: fine_tuning
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way ImageNet-1k logits
+    provenance:
+      weights_provider: Brain-Score submitter upload (user_873)
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/user_873/resnet50_sup_altahan_01.pt
+        (version qIsuqCIIQ8dsE9KGZ1YGYxkfXKlED6Kb)
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet50_sup_altahan_01
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - plugin_code

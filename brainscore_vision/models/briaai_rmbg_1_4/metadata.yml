@@ -2,6 +2,131 @@ schema_version: '2.0'
 domain: vision
 models:
   briaai_rmbg_1_4:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/briaai_rmbg_1_4
+        citation: Brain-Score vision plugin code, brainscore_vision/models/briaai_rmbg_1_4
+      card:
+        kind: huggingface
+        url: https://huggingface.co/briaai/RMBG-1.4
+        citation: briaai/RMBG-1.4 model card
+    model:
+      display_name: briaai_rmbg_1_4
+      architecture:
+        family: convolutional_neural_network
+        description: BRIA RMBG-1.4 background-removal network (IS-Net based image
+          segmentation, Hugging Face trust_remote_code)
+      parameter_count: 44046790
+      trainable_layers: '119'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: Supervised foreground/background segmentation
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: Foreground segmentation map
+    provenance:
+      weights_provider: BRIA AI (Hugging Face Hub)
+      checkpoint: briaai/rmbg-1.4
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/briaai_rmbg_1_4
+    legal:
+      license: 'other: BRIA RMBG-1.4 license (non-commercial use)'
+    use:
+      applications:
+      - Background removal (image segmentation)
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+      - card
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+      - card
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+      - card
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+      - card
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - plugin_code
+      - card
+    - path: /use/applications
+      status: probable
+      sources:
+      - plugin_code
+      - card
     legacy:
       architecture: DCNN
       total_parameter_count: 44046790
@@ -11,31 +136,3 @@ models:
       model_size_mb: 176.19
       brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/briaai_rmbg_1_4
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 44046790
-      trainable_layers: '119'
-      architecture:
-        family: convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/briaai_rmbg_1_4

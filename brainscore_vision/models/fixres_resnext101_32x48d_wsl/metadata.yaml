@@ -2,6 +2,181 @@ schema_version: '2.0'
 domain: vision
 models:
   fixres_resnext101_32x48d_wsl:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/fixres_resnext101_32x48d_wsl
+        citation: Brain-Score vision plugin code, brainscore_vision/models/fixres_resnext101_32x48d_wsl
+      fixres:
+        kind: paper
+        url: https://arxiv.org/abs/1906.06423
+        citation: Touvron, Vedaldi, Douze & Jegou (2019), Fixing the train-test resolution
+          discrepancy, NeurIPS 2019
+    model:
+      display_name: FixRes ResNeXt-101 32x48d (WSL)
+      architecture:
+        family: convolutional_neural_network
+        description: ResNeXt-101 32x48d
+      parameter_count: 828411176
+      parameter_count_exact: true
+      trainable_layers: '105'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 320
+        width: 320
+      supervision:
+        type: weakly_supervised
+        description: Weakly supervised Instagram hashtag pretraining, then supervised
+          ImageNet-1k fine-tuning
+    training:
+      process: Weakly supervised pretraining on ~940M Instagram images (WSL), ImageNet-1k
+        fine-tuning, then FixRes fine-tuning of the classifier and batch norm for
+        testing at 320 px
+    data:
+      summary: Instagram 940M hashtag images, ImageNet-1k (ILSVRC-2012)
+      training_datasets:
+      - identifier: instagram-940m
+        name: Instagram 940M hashtag images
+        role: pretraining
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: fine_tuning
+    io:
+      modality: image
+      input_format: RGB image transformed with the FixRes test transforms at 320x320
+      output_format: 1000-way logits
+    provenance:
+      weights_provider: Facebook AI Research (FixRes release)
+      checkpoint: https://dl.fbaipublicfiles.com/FixRes_data/FixRes_Pretrained_Models/ResNeXt_101_32x48d.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/fixres_resnext101_32x48d_wsl
+    legal:
+      license: CC-BY-NC-4.0
+    people:
+      creators:
+      - Hugo Touvron
+      - Andrea Vedaldi
+      - Matthijs Douze
+      - Hervé Jégou
+      organizations:
+      - Facebook AI Research
+    use:
+      applications:
+      - Image classification
+      - Feature extraction / backbone for vision tasks
+    lineage:
+      base_models:
+      - name: ResNeXt-101 32x48d WSL
+        relationship: fine_tuned_from
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - fixres
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - fixres
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - fixres
+    - path: /training/process
+      status: probable
+      sources:
+      - fixres
+    - path: /data/summary
+      status: probable
+      sources:
+      - fixres
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - fixres
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - fixres
+    - path: /people/creators
+      status: probable
+      sources:
+      - fixres
+    - path: /people/organizations
+      status: probable
+      sources:
+      - fixres
+    - path: /use/applications
+      status: probable
+      sources:
+      - fixres
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - fixres
     legacy:
       architecture: DCNN
       model_family: resnext
@@ -12,31 +187,3 @@ models:
       model_size_mb: 3313.64
       brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/fixres_resnext101_32x48d_wsl
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 828411176
-      trainable_layers: '105'
-      architecture:
-        family: convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/fixres_resnext101_32x48d_wsl

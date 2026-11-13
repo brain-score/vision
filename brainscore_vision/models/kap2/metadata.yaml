@@ -1,0 +1,98 @@
+schema_version: '2.0'
+domain: vision
+models:
+  kap2:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/kap2
+        citation: Brain-Score vision plugin code, brainscore_vision/models/kap2
+    model:
+      display_name: kap2
+      architecture:
+        family: convolutional_neural_network
+        description: ResNet-18 variant with KAP pooling (Gaussian, continuous, progressive)
+          and topographic/locally connected options (code bundled with the plugin)
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+    training:
+      process: Run "gaussian_023_continuos_prog" (epoch 5) per get_model arguments;
+        the bundled load_model.py downloads the same fixed checkpoint for every kap
+        variant
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way logits
+    provenance:
+      weights_provider: Brain-Score S3 (brainscore-storage)
+      checkpoint: https://brainscore-storage.s3.us-east-2.amazonaws.com/brainscore-vision/models/cln_resnet18contopo_gaussian_1_0.0gaussian_0.23_continuous_prog_t/resnet18contopo_100.pt
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/kap2
+    lineage:
+      base_models:
+      - name: ResNet-18
+        relationship: derived_from
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - plugin_code

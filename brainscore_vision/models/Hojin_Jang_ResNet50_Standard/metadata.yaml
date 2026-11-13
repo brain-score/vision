@@ -1,0 +1,183 @@
+schema_version: '2.0'
+domain: vision
+models:
+  Hojin_Jang_ResNet50_Standard:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/Hojin_Jang_ResNet50_Standard
+        citation: Brain-Score vision plugin code, brainscore_vision/models/Hojin_Jang_ResNet50_Standard
+      jang2024:
+        kind: paper
+        url: https://doi.org/10.1038/s41467-024-45679-0
+        citation: Jang & Tong (2024), Improved modeling of human vision by incorporating
+          robustness to blur in convolutional neural networks, Nature Communications
+          15:1989
+    model:
+      display_name: Hojin_Jang_ResNet50_Standard
+      version: Checkpoint file ResNet50_Standard.pth
+      architecture:
+        family: convolutional_neural_network
+        description: ResNet-50 (torchvision resnet50 definition, 1000-way fc head),
+          weights loaded with strict=True
+      parameter_count: 25557032
+      parameter_count_exact: true
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: 1000-class ImageNet object classification
+    training:
+      process: 'Trained from random initialization for 70 epochs on ImageNet-1k with
+        standard training: clear images only (Jang & Tong 2024). The checkpoint name
+        matches the paper condition; the upload itself is not documented.'
+      objective: 1000-class ImageNet object classification
+      learning_rate: 0.001 (fixed), SGD with momentum 0.9 and weight decay 1e-4
+      preprocessing: Training images grayscaled, resized to 224x224, randomly rotated
+        by +-10 degrees, horizontally flipped with probability 0.5, normalized with
+        ImageNet mean/std; blur applied per training condition
+    data:
+      summary: ImageNet-1k training set
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224, scaled to [0, 1]; no mean/std normalization
+      output_format: 1000-way logits from the fc layer
+    provenance:
+      weights_provider: Brain-Score submitter upload to the Brain-Score S3 bucket
+        (user_672)
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/user_672/ResNet50_Standard.pth
+        (version KUGkZvmKdDTJfo6t7ysfGCkZp5wRZgPk)
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/Hojin_Jang_ResNet50_Standard
+    people:
+      creators:
+      - Hojin Jang
+      - Frank Tong
+      organizations:
+      - Vanderbilt University
+    use:
+      applications:
+      - Modeling human object recognition and its robustness to blur
+    lineage:
+      base_models:
+      - name: ResNet-50
+        relationship: variant_of
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - jang2024
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - jang2024
+    - path: /training/process
+      status: probable
+      sources:
+      - jang2024
+    - path: /training/objective
+      status: probable
+      sources:
+      - jang2024
+    - path: /training/learning_rate
+      status: probable
+      sources:
+      - jang2024
+    - path: /training/preprocessing
+      status: probable
+      sources:
+      - jang2024
+    - path: /data/summary
+      status: probable
+      sources:
+      - jang2024
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - jang2024
+    - path: /people/creators
+      status: probable
+      sources:
+      - jang2024
+    - path: /people/organizations
+      status: probable
+      sources:
+      - jang2024
+    - path: /use/applications
+      status: probable
+      sources:
+      - jang2024
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - plugin_code

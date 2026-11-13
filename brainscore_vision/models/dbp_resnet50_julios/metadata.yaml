@@ -1,15 +1,116 @@
+schema_version: '2.0'
+domain: vision
 models:
-    dbp_resnet50_julios:
-        architecture: DCNN
-        model_family: resnet
-        total_parameter_count: 25503912
-        trainable_parameter_count: 25503912
-        total_layers: 151
-        trainable_layers: 54
-        model_size_mb: 102.02
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/dbp_resnet50_julios
-        huggingface_link: null
-        extra_notes: null
-        runnable: false
+  dbp_resnet50_julios:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/dbp_resnet50_julios
+        citation: Brain-Score vision plugin code, brainscore_vision/models/dbp_resnet50_julios
+    model:
+      display_name: dbp_resnet50_julios
+      architecture:
+        family: convolutional_neural_network
+        description: ResNet-50 stored as a whole pickled PyTorch module (architecture
+          not visible in the plugin code)
+      parameter_count: 25503912
+      trainable_layers: '54'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+    training:
+      process: Checkpoint dbp_export.pt; the prefix "dbp" suggests a differently trained
+        (dbp) ResNet-50, which is not documented
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: Network output
+    provenance:
+      weights_provider: Brain-Score S3 (brainscore-vision bucket)
+      checkpoint: brainscore-vision bucket, models/dbp_resnet50_julios/dbp_export.pt
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/dbp_resnet50_julios
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: uncertain
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    legacy:
+      architecture: DCNN
+      model_family: resnet
+      total_parameter_count: 25503912
+      trainable_parameter_count: 25503912
+      total_layers: 151
+      trainable_layers: 54
+      model_size_mb: 102.02
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/dbp_resnet50_julios
+      huggingface_link: null
+      extra_notes: null
+      runnable: false

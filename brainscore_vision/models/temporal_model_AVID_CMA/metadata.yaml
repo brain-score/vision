@@ -1,57 +1,569 @@
+schema_version: '2.0'
+domain: vision
 models:
-    AVID-Audioset:
-        architecture: DCNN
-        model_family: null
-        total_parameter_count: 15379136
-        trainable_parameter_count: 15379136
-        total_layers: 94
-        trainable_layers: 36
-        model_size_mb: 61.52
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_AVID_CMA
-        huggingface_link: null
-        extra_notes: null
-        runnable: false
-    AVID-CMA-Audioset:
-        architecture: DCNN
-        model_family: null
-        total_parameter_count: 15379136
-        trainable_parameter_count: 15379136
-        total_layers: 94
-        trainable_layers: 36
-        model_size_mb: 61.52
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_AVID_CMA
-        huggingface_link: null
-        extra_notes: null
-        runnable: false
-    AVID-CMA-Kinetics400:
-        architecture: DCNN
-        model_family: null
-        total_parameter_count: 15379136
-        trainable_parameter_count: 15379136
-        total_layers: 94
-        trainable_layers: 36
-        model_size_mb: 61.52
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_AVID_CMA
-        huggingface_link: null
-        extra_notes: null
-        runnable: false
-    AVID-Kinetics400:
-        architecture: DCNN
-        model_family: null
-        total_parameter_count: 15379136
-        trainable_parameter_count: 15379136
-        total_layers: 94
-        trainable_layers: 36
-        model_size_mb: 61.52
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_AVID_CMA
-        huggingface_link: null
-        extra_notes: null
-        runnable: false
+  AVID-CMA-Kinetics400:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_AVID_CMA
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_AVID_CMA
+      avid:
+        kind: paper
+        url: https://arxiv.org/abs/2004.12943
+        citation: Morgado, Vasconcelos & Misra (2021), Audio-Visual Instance Discrimination
+          with Cross-Modal Agreement, CVPR 2021
+    model:
+      display_name: AVID-CMA-Kinetics400
+      architecture:
+        family: convolutional_neural_network
+        description: R(2+1)D video encoder of an audio-visual model (audio network
+          removed)
+      parameter_count: 15379136
+      parameter_count_exact: true
+      trainable_layers: '36'
+      recurrent: false
+      supervision:
+        type: self_supervised
+        description: Self-supervised audio-visual instance discrimination with cross-modal
+          agreement; no labels
+    training:
+      process: AVID-CMA trained self-supervised on Kinetics400 video with audio; only
+        the video network is used
+    data:
+      summary: Kinetics-400
+      training_datasets:
+      - identifier: other
+        name: Kinetics-400
+        role: pretraining
+    io:
+      modality: video
+      input_format: RGB video clip
+    provenance:
+      weights_provider: Original authors (copied to Brain-Score S3)
+      checkpoint: s3://brainscore-vision/temporal_model_AVID-CMA/AVID-CMA_Kinetics_InstX-N1024-PosW-N64-Top32_checkpoint.pth.tar
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_AVID_CMA
+    people:
+      creators:
+      - Pedro Morgado
+      - Nuno Vasconcelos
+      - Ishan Misra
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - avid
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - avid
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - avid
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - avid
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - avid
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - avid
+    - path: /training/process
+      status: probable
+      sources:
+      - avid
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - avid
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - avid
+      - plugin_code
+    - path: /people/creators
+      status: probable
+      sources:
+      - avid
+    legacy:
+      architecture: DCNN
+      model_family: null
+      total_parameter_count: 15379136
+      trainable_parameter_count: 15379136
+      total_layers: 94
+      trainable_layers: 36
+      model_size_mb: 61.52
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_AVID_CMA
+      huggingface_link: null
+      extra_notes: null
+      runnable: false
+  AVID-CMA-Audioset:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_AVID_CMA
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_AVID_CMA
+      avid:
+        kind: paper
+        url: https://arxiv.org/abs/2004.12943
+        citation: Morgado, Vasconcelos & Misra (2021), Audio-Visual Instance Discrimination
+          with Cross-Modal Agreement, CVPR 2021
+    model:
+      display_name: AVID-CMA-Audioset
+      architecture:
+        family: convolutional_neural_network
+        description: R(2+1)D video encoder of an audio-visual model (audio network
+          removed)
+      parameter_count: 15379136
+      parameter_count_exact: true
+      trainable_layers: '36'
+      recurrent: false
+      supervision:
+        type: self_supervised
+        description: Self-supervised audio-visual instance discrimination with cross-modal
+          agreement; no labels
+    training:
+      process: AVID-CMA trained self-supervised on Audioset video with audio; only
+        the video network is used
+    data:
+      summary: AudioSet
+      training_datasets:
+      - identifier: other
+        name: AudioSet
+        role: pretraining
+    io:
+      modality: video
+      input_format: RGB video clip
+    provenance:
+      weights_provider: Original authors (copied to Brain-Score S3)
+      checkpoint: s3://brainscore-vision/temporal_model_AVID_CMA/AVID-CMA_Audioset_InstX-N1024-PosW-N64-Top32_checkpoint.pth.tar
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_AVID_CMA
+    people:
+      creators:
+      - Pedro Morgado
+      - Nuno Vasconcelos
+      - Ishan Misra
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - avid
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - avid
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - avid
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - avid
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - avid
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - avid
+    - path: /training/process
+      status: probable
+      sources:
+      - avid
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - avid
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - avid
+      - plugin_code
+    - path: /people/creators
+      status: probable
+      sources:
+      - avid
+    legacy:
+      architecture: DCNN
+      model_family: null
+      total_parameter_count: 15379136
+      trainable_parameter_count: 15379136
+      total_layers: 94
+      trainable_layers: 36
+      model_size_mb: 61.52
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_AVID_CMA
+      huggingface_link: null
+      extra_notes: null
+      runnable: false
+  AVID-Kinetics400:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_AVID_CMA
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_AVID_CMA
+      avid:
+        kind: paper
+        url: https://arxiv.org/abs/2004.12943
+        citation: Morgado, Vasconcelos & Misra (2021), Audio-Visual Instance Discrimination
+          with Cross-Modal Agreement, CVPR 2021
+    model:
+      display_name: AVID-Kinetics400
+      architecture:
+        family: convolutional_neural_network
+        description: R(2+1)D video encoder of an audio-visual model (audio network
+          removed)
+      parameter_count: 15379136
+      parameter_count_exact: true
+      trainable_layers: '36'
+      recurrent: false
+      supervision:
+        type: self_supervised
+        description: Self-supervised audio-visual instance discrimination; no labels
+    training:
+      process: AVID trained self-supervised on Kinetics400 video with audio; only
+        the video network is used
+    data:
+      summary: Kinetics-400
+      training_datasets:
+      - identifier: other
+        name: Kinetics-400
+        role: pretraining
+    io:
+      modality: video
+      input_format: RGB video clip
+    provenance:
+      weights_provider: Original authors (copied to Brain-Score S3)
+      checkpoint: s3://brainscore-vision/temporal_model_AVID_CMA/AVID_Kinetics_Cross-N1024_checkpoint.pth.tar
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_AVID_CMA
+    people:
+      creators:
+      - Pedro Morgado
+      - Nuno Vasconcelos
+      - Ishan Misra
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - avid
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - avid
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - avid
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - avid
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - avid
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - avid
+    - path: /training/process
+      status: probable
+      sources:
+      - avid
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - avid
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - avid
+      - plugin_code
+    - path: /people/creators
+      status: probable
+      sources:
+      - avid
+    legacy:
+      architecture: DCNN
+      model_family: null
+      total_parameter_count: 15379136
+      trainable_parameter_count: 15379136
+      total_layers: 94
+      trainable_layers: 36
+      model_size_mb: 61.52
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_AVID_CMA
+      huggingface_link: null
+      extra_notes: null
+      runnable: false
+  AVID-Audioset:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_AVID_CMA
+        citation: Brain-Score vision plugin code, brainscore_vision/models/temporal_model_AVID_CMA
+      avid:
+        kind: paper
+        url: https://arxiv.org/abs/2004.12943
+        citation: Morgado, Vasconcelos & Misra (2021), Audio-Visual Instance Discrimination
+          with Cross-Modal Agreement, CVPR 2021
+    model:
+      display_name: AVID-Audioset
+      architecture:
+        family: convolutional_neural_network
+        description: R(2+1)D video encoder of an audio-visual model (audio network
+          removed)
+      parameter_count: 15379136
+      parameter_count_exact: true
+      trainable_layers: '36'
+      recurrent: false
+      supervision:
+        type: self_supervised
+        description: Self-supervised audio-visual instance discrimination; no labels
+    training:
+      process: AVID trained self-supervised on Audioset video with audio; only the
+        video network is used
+    data:
+      summary: AudioSet
+      training_datasets:
+      - identifier: other
+        name: AudioSet
+        role: pretraining
+    io:
+      modality: video
+      input_format: RGB video clip
+    provenance:
+      weights_provider: Original authors (copied to Brain-Score S3)
+      checkpoint: s3://brainscore-vision/temporal_model_AVID_CMA/AVID_Audioset_Cross-N1024_checkpoint.pth.tar
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_AVID_CMA
+    people:
+      creators:
+      - Pedro Morgado
+      - Nuno Vasconcelos
+      - Ishan Misra
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - avid
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - avid
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - avid
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - avid
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - avid
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - avid
+    - path: /training/process
+      status: probable
+      sources:
+      - avid
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - avid
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - avid
+      - plugin_code
+    - path: /people/creators
+      status: probable
+      sources:
+      - avid
+    legacy:
+      architecture: DCNN
+      model_family: null
+      total_parameter_count: 15379136
+      trainable_parameter_count: 15379136
+      total_layers: 94
+      trainable_layers: 36
+      model_size_mb: 61.52
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/temporal_model_AVID_CMA
+      huggingface_link: null
+      extra_notes: null
+      runnable: false

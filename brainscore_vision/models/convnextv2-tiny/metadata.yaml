@@ -1,0 +1,167 @@
+schema_version: '2.0'
+domain: vision
+models:
+  convnextv2-tiny:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/convnextv2-tiny
+        citation: Brain-Score vision plugin code, brainscore_vision/models/convnextv2-tiny
+      convnextv2:
+        kind: paper
+        url: https://arxiv.org/abs/2301.00808
+        citation: 'Woo et al. (2023), ConvNeXt V2: Co-designing and Scaling ConvNets
+          with Masked Autoencoders, CVPR 2023'
+      card:
+        kind: huggingface
+        url: https://huggingface.co/facebook/convnextv2-tiny-22k-224
+        citation: facebook/convnextv2-tiny-22k-224 model card
+    model:
+      display_name: ConvNeXt V2 Tiny (22k, 224)
+      architecture:
+        family: convolutional_neural_network
+        description: ConvNeXt V2-Tiny with global response normalization (Hugging
+          Face transformers)
+      parameter_count: 28635496
+      parameter_count_exact: true
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: other
+        description: Fully convolutional masked autoencoder (FCMAE) self-supervised
+          pretraining, then supervised ImageNet-22k and ImageNet-1k fine-tuning
+    training:
+      process: FCMAE pretraining, intermediate fine-tuning on ImageNet-22k, then fine-tuning
+        on ImageNet-1k at 224 px
+    data:
+      summary: ImageNet-22k -> ImageNet-1k
+      training_datasets:
+      - identifier: imagenet-21k
+        name: ImageNet-21k (also called ImageNet-22k)
+        role: pretraining
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: fine_tuning
+    io:
+      modality: image
+      input_format: RGB image processed with the facebook/convnextv2-tiny-22k-224
+        AutoImageProcessor at 224x224
+      output_format: 1000-way ImageNet-1k logits
+    provenance:
+      weights_provider: Meta AI (Hugging Face Hub, facebook organization)
+      checkpoint: facebook/convnextv2-tiny-22k-224
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/convnextv2-tiny
+    legal:
+      license: Apache-2.0
+    people:
+      creators:
+      - Sanghyun Woo
+      - Shoubhik Debnath
+      - Ronghang Hu
+      - Xinlei Chen
+      - Zhuang Liu
+      - In So Kweon
+      - Saining Xie
+      organizations:
+      - KAIST
+      - Meta AI (FAIR)
+      - New York University
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - card
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - card
+      - convnextv2
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - card
+      - convnextv2
+    - path: /training/process
+      status: probable
+      sources:
+      - convnextv2
+      - card
+    - path: /data/summary
+      status: probable
+      sources:
+      - convnextv2
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - card
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - convnextv2
+    - path: /people/creators
+      status: probable
+      sources:
+      - convnextv2
+    - path: /people/organizations
+      status: probable
+      sources:
+      - convnextv2

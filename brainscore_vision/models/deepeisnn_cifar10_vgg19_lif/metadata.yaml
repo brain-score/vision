@@ -1,0 +1,155 @@
+schema_version: '2.0'
+domain: vision
+models:
+  deepeisnn_cifar10_vgg19_lif:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/deepeisnn_cifar10_vgg19_lif
+        citation: Brain-Score vision plugin code, brainscore_vision/models/deepeisnn_cifar10_vgg19_lif
+      liu2026:
+        kind: paper
+        url: https://arxiv.org/abs/2509.23253
+        citation: Liu, Ding & Yu (2026), Training Deep Normalization-Free Spiking
+          Neural Networks with Lateral Inhibition, ICLR 2026
+      eis_card:
+        kind: huggingface
+        url: https://huggingface.co/vwOvOwv/DeepEISNN
+        citation: vwOvOwv/DeepEISNN checkpoints and model card (MIT)
+    model:
+      display_name: deepeisnn_cifar10_vgg19_lif
+      version: DeepEISNN checkpoint CIFAR10-VGG19 (spiking (LIF) layers offered to
+        Brain-Score)
+      architecture:
+        family: convolutional_neural_network
+        description: 'Spiking VGG19 without explicit normalization: each layer has
+          separate excitatory and inhibitory populations of LIF neurons (lateral inhibition);
+          run for T = 4 time steps'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 32
+        width: 32
+      supervision:
+        type: supervised
+        description: CIFAR10 classification
+    training:
+      process: Trained on CIFAR10 with surrogate-gradient learning of the E/I spiking
+        network (top-1 91.36% per the model card)
+    data:
+      summary: CIFAR-10
+      training_datasets:
+      - identifier: other
+        name: CIFAR-10
+        role: training
+    io:
+      modality: image
+      output_format: 10-way logits
+    provenance:
+      weights_provider: Hugging Face Hub (vwOvOwv/DeepEISNN)
+      checkpoint: vwOvOwv/DeepEISNN/CIFAR10-VGG19/model.safetensors
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/deepeisnn_cifar10_vgg19_lif
+    legal:
+      license: MIT
+    people:
+      creators:
+      - Peiyu Liu
+      - Jianhao Ding
+      - Zhaofei Yu
+      organizations:
+      - Peking University
+    use:
+      applications:
+      - Biologically plausible, energy-efficient spiking vision models
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - liu2026
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - liu2026
+      - eis_card
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - liu2026
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - liu2026
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - eis_card
+    - path: /training/process
+      status: probable
+      sources:
+      - liu2026
+      - eis_card
+    - path: /data/summary
+      status: probable
+      sources:
+      - eis_card
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - eis_card
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - eis_card
+    - path: /people/creators
+      status: probable
+      sources:
+      - liu2026
+    - path: /people/organizations
+      status: probable
+      sources:
+      - liu2026
+    - path: /use/applications
+      status: probable
+      sources:
+      - eis_card

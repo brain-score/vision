@@ -1,0 +1,129 @@
+schema_version: '2.0'
+domain: vision
+models:
+  jem_imagenet_p0p0_s1:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/jem_imagenet_p0p0_s1
+        citation: Brain-Score vision plugin code, brainscore_vision/models/jem_imagenet_p0p0_s1
+      jem:
+        kind: paper
+        url: https://arxiv.org/abs/1912.03263
+        citation: Grathwohl et al. (2020), Your Classifier is Secretly an Energy Based
+          Model and You Should Treat it Like One, ICLR 2020
+    model:
+      display_name: jem_imagenet_p0p0_s1
+      architecture:
+        family: convolutional_neural_network
+        description: 'Latent JEM: Wide-ResNet-22-8 energy-based classifier on the
+          latent of a frozen Stable Diffusion VAE encoder (feed-forward at inference,
+          no MCMC)'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: Joint energy-based model training (classification plus generative
+          energy term)
+    training:
+      process: Latent JEM trained on ImageNet with penalty p = 0.0, seed 1 (per plugin
+        bibtex)
+    data:
+      summary: ImageNet-1k (ILSVRC-2012)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way ImageNet-1k logits
+    provenance:
+      weights_provider: Brain-Score submitter upload (user_843)
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/user_843/jem_imagenet_p0p0_s1.pt
+        (version Fuhy3_P_kZCAMrVmw9o5Rv9dIwve31jd)
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/jem_imagenet_p0p0_s1
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+      - jem
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+      - jem
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+      - jem
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+      - jem
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+      - jem
+    - path: /data/summary
+      status: probable
+      sources:
+      - plugin_code
+      - jem
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - plugin_code
+      - jem

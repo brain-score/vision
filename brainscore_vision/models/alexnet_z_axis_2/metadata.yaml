@@ -1,0 +1,158 @@
+schema_version: '2.0'
+domain: vision
+models:
+  alexnet_z_axis_iteration=2:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_z_axis_2
+        citation: Brain-Score vision plugin code, brainscore_vision/models/alexnet_z_axis_2
+      kapoor2025:
+        kind: other
+        url: https://iclr.cc/media/iclr-2025/Slides/36853_r86bRFq.pdf
+        citation: 'Kapoor & Egger (2025), ICLR 2025 workshop slides: controlled synthetic
+          training data (Blender renders of ~37K object meshes, one appearance or
+          rotation factor varied per dataset), alignment evaluated with Brain-Score,
+          RSA and CKA'
+    model:
+      display_name: alexnet_z_axis_iteration=2
+      version: Dataset condition "z_axis", iteration 2
+      architecture:
+        family: convolutional_neural_network
+        description: AlexNet (torchvision alexnet definition via torch.hub, 1000-way
+          classifier)
+      parameter_count: 61100840
+      parameter_count_exact: true
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+    training:
+      process: Trained (PyTorch Lightning checkpoint) on a synthetic Blender-rendered
+        object dataset, condition "z_axis" (viewpoints sampled by rotation around
+        the z-axis only), iteration 2
+    data:
+      summary: Synthetic Blender renders of object meshes, condition "z_axis"
+      training_datasets:
+      - identifier: other
+        name: Kapoor & Egger synthetic rendered objects (z_axis)
+        role: training
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way logits from the final classifier layer
+    provenance:
+      weights_provider: Shreya Kapoor / Bernhard Egger (eggerbernhard.ch web server)
+      checkpoint: https://eggerbernhard.ch/shreya/latest_alexnet/z_axis_2.ckpt
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_z_axis_2
+    people:
+      creators:
+      - Shreya Kapoor
+      - Bernhard Egger
+      organizations:
+      - Friedrich-Alexander-Universität Erlangen-Nürnberg
+    use:
+      applications:
+      - Studying how rendering factors of synthetic training data affect brain alignment
+    lineage:
+      base_models:
+      - name: AlexNet
+        relationship: variant_of
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: probable
+      sources:
+      - kapoor2025
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - kapoor2025
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - kapoor2025
+    - path: /people/creators
+      status: probable
+      sources:
+      - kapoor2025
+      - plugin_code
+    - path: /people/organizations
+      status: probable
+      sources:
+      - kapoor2025
+    - path: /use/applications
+      status: probable
+      sources:
+      - kapoor2025
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - plugin_code

@@ -2,6 +2,183 @@ schema_version: '2.0'
 domain: vision
 models:
   pnasnet_large:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/pnasnet_large
+        citation: Brain-Score vision plugin code, brainscore_vision/models/pnasnet_large
+      pnasnet:
+        kind: paper
+        url: https://arxiv.org/abs/1712.00559
+        citation: Liu et al. (2018), Progressive Neural Architecture Search, ECCV
+          2018
+      timm:
+        kind: huggingface
+        url: https://huggingface.co/timm
+        citation: timm (PyTorch Image Models) model cards on Hugging Face
+    model:
+      display_name: PNASNet-5 Large
+      version: pnasnet5large.tf_in1k
+      architecture:
+        family: convolutional_neural_network
+        description: PNASNet-5 Large (timm port of the TensorFlow weights)
+      parameter_count: 86057668
+      parameter_count_exact: true
+      trainable_layers: '374'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 331
+        width: 331
+      supervision:
+        type: supervised
+        description: 1000-class ImageNet-1k classification
+    data:
+      summary: ImageNet-1k (ILSVRC-2012)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+    io:
+      modality: image
+      input_format: RGB image resized to 331x331 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way logits
+    provenance:
+      weights_provider: timm (Hugging Face Hub, timm organization)
+      checkpoint: timm/pnasnet5large.tf_in1k
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/pnasnet_large
+    legal:
+      license: Apache-2.0
+    people:
+      creators:
+      - Chenxi Liu
+      - Barret Zoph
+      - Maxim Neumann
+      - Jonathon Shlens
+      - Wei Hua
+      - Li-Jia Li
+      - Li Fei-Fei
+      - Alan Yuille
+      - Jonathan Huang
+      - Kevin Murphy
+      organizations:
+      - Johns Hopkins University
+      - Google
+      - Stanford University
+    use:
+      applications:
+      - Image classification
+      - Feature extraction / backbone for vision tasks
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - pnasnet
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - pnasnet
+      - timm
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - pnasnet
+      - timm
+    - path: /data/summary
+      status: probable
+      sources:
+      - pnasnet
+      - timm
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - timm
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - pnasnet
+      - timm
+    - path: /people/creators
+      status: probable
+      sources:
+      - pnasnet
+    - path: /people/organizations
+      status: probable
+      sources:
+      - pnasnet
+    - path: /use/applications
+      status: probable
+      sources:
+      - pnasnet
     legacy:
       architecture: DCNN
       model_family: nasnet, pnasnet
@@ -12,31 +189,3 @@ models:
       model_size_mb: 344.23
       brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/pnasnet_large
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 86057668
-      trainable_layers: '374'
-      architecture:
-        family: convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/pnasnet_large

@@ -1,15 +1,128 @@
+schema_version: '2.0'
+domain: vision
 models:
-    resnet18_random:
-        architecture: DCNN
-        model_family: resnet
-        total_parameter_count: 11689512
-        trainable_parameter_count: 11689512
-        total_layers: 68
-        trainable_layers: 21
-        model_size_mb: 46.76
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet18_random
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  resnet18_random:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet18_random
+        citation: Brain-Score vision plugin code, brainscore_vision/models/resnet18_random
+    model:
+      display_name: resnet18_random
+      architecture:
+        family: convolutional_neural_network
+        description: ResNet-18 (torchvision definition) with random initialization
+      parameter_count: 11689512
+      trainable_layers: '21'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: none
+        description: Untrained (random weights)
+    training:
+      process: 'Not trained: random initialization'
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way logits
+    provenance:
+      weights_provider: 'None: random initialization'
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet18_random
+    lineage:
+      base_models:
+      - name: ResNet-18
+        relationship: variant_of
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - plugin_code
+    legacy:
+      architecture: DCNN
+      model_family: resnet
+      total_parameter_count: 11689512
+      trainable_parameter_count: 11689512
+      total_layers: 68
+      trainable_layers: 21
+      model_size_mb: 46.76
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet18_random
+      huggingface_link: null
+      extra_notes: null
+      runnable: true

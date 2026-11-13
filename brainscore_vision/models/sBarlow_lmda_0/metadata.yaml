@@ -1,15 +1,164 @@
+schema_version: '2.0'
+domain: vision
 models:
-    sBarlow_lmda_0:
-        architecture: DCNN
-        model_family: null
-        total_parameter_count: 25557032
-        trainable_parameter_count: 25557032
-        total_layers: 151
-        trainable_layers: 54
-        model_size_mb: 102.23
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/sBarlow_lmda_0
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  sBarlow_lmda_0:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/sBarlow_lmda_0
+        citation: Brain-Score vision plugin code, brainscore_vision/models/sBarlow_lmda_0
+    model:
+      display_name: sBarlow_lmda_0
+      architecture:
+        family: convolutional_neural_network
+        description: ResNet-50 (torchvision resnet50 definition) with a 1000-way linear
+          readout as fc
+      parameter_count: 25557032
+      parameter_count_exact: true
+      trainable_layers: '54'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: self_supervised
+        description: Self-supervised backbone; 1000-way linear classifier trained
+          online with cross-entropy on detached backbone features; mapped to the torchvision
+          fc layer
+    training:
+      process: ResNet-50 trained self-supervised with Barlow Twins on ImageNet-1k
+        in the "spatial_mmcr" project (checkpoint variant "default"); the method behind
+        the lambda weight is not documented
+    data:
+      summary: ImageNet-1k (from the checkpoint path)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way logits from the linear readout (fc)
+    provenance:
+      weights_provider: Thomas Yerxa (Flatiron Institute web server, users.flatironinstitute.org/~tyerxa)
+      checkpoint: https://users.flatironinstitute.org/~tyerxa/spatial_mmcr/spatial_mmcr/models/imagenet_1k/Barlow/default/latest-rank0
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/sBarlow_lmda_0
+    people:
+      creators:
+      - Thomas Yerxa
+    lineage:
+      base_models:
+      - name: ResNet-50
+        relationship: variant_of
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: uncertain
+      sources:
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - plugin_code
+    - path: /people/creators
+      status: probable
+      sources:
+      - plugin_code
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - plugin_code
+    legacy:
+      architecture: DCNN
+      model_family: null
+      total_parameter_count: 25557032
+      trainable_parameter_count: 25557032
+      total_layers: 151
+      trainable_layers: 54
+      model_size_mb: 102.23
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/sBarlow_lmda_0
+      huggingface_link: null
+      extra_notes: null
+      runnable: true

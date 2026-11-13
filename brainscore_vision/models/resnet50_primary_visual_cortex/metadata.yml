@@ -2,6 +2,109 @@ schema_version: '2.0'
 domain: vision
 models:
   resnet50_primary_visual_cortex:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet50_primary_visual_cortex
+        citation: Brain-Score vision plugin code, brainscore_vision/models/resnet50_primary_visual_cortex
+      pog:
+        kind: paper
+        url: https://proceedings.neurips.cc/paper_files/paper/2023/file/2d1ef4aba0503226330661d74fdb236e-Paper-Conference.pdf
+        citation: Pogoncheff, Granley & Beyeler (2023), Explaining V1 Properties with
+          a Biologically Constrained Deep Learning Architecture, NeurIPS 2023
+    model:
+      display_name: resnet50_primary_visual_cortex
+      architecture:
+        family: convolutional_neural_network
+        description: ResNet-50 with a biologically constrained V1 front end (difference-of-Gaussian
+          layers, local bottlenecks) after Pogoncheff, Granley & Beyeler (2023)
+      parameter_count: 35156346
+      trainable_layers: '60'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 64
+        width: 64
+    io:
+      modality: image
+      input_format: RGB image resized to 64x64 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+    provenance:
+      weights_provider: Brain-Score S3 (brainscore-storage)
+      checkpoint: https://brainscore-storage.s3.us-east-2.amazonaws.com/brainscore-vision/models/resnet50_primary_visual_cortex/resnet50_primary_visual_cortex.pt
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet50_primary_visual_cortex
+    people:
+      creators:
+      - Galen Pogoncheff
+      - Jacob Granley
+      - Michael Beyeler
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+      - pog
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+      - pog
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /people/creators
+      status: probable
+      sources:
+      - plugin_code
+      - pog
     legacy:
       architecture: DCNN
       model_family: resnet
@@ -12,31 +115,3 @@ models:
       model_size_mb: 140.63
       brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet50_primary_visual_cortex
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 35156346
-      trainable_layers: '60'
-      architecture:
-        family: convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet50_primary_visual_cortex

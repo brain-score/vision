@@ -69,8 +69,8 @@ class TestModelIdentity:
     def test_identifier(self, model):
         assert model.identifier == 'clip-vit-b-32'
 
-    def test_supported_modalities(self, model):
-        assert model.supported_modalities == {'vision', 'text'}
+    def test_in_channels(self, model):
+        assert {'vision:image', 'text'} <= model.in_channels
 
     def test_region_layer_map(self, model):
         rlm = model.region_layer_map

@@ -71,10 +71,6 @@ class TestVisionAdapterIdentity:
         adapter = VisionModelAdapter(legacy)
         assert adapter.identifier == 'cornet-s'
 
-    def test_supported_modalities(self):
-        adapter = VisionModelAdapter(_make_legacy_model())
-        assert adapter.supported_modalities == {'vision'}
-
     def test_declares_image_channel_only(self):
         adapter = VisionModelAdapter(_make_legacy_model())
         assert adapter.in_channels == {'vision:image'}

@@ -68,15 +68,15 @@ class VisionModelAdapter(UnifiedModel):
         return list(self._legacy_layer_map())
 
     @property
-    def supported_modalities(self) -> Set[str]:
-        return {'vision'}
+    def in_channels(self) -> Set[str]:
+        return {'vision:image'}
 
     @property
-    def required_modalities(self) -> Set[str]:
-        # Legacy vision models are unimodal — they can only process images.
-        # Hard-require vision so pre-flight rejects pairings against a
-        # benchmark that does not provide vision stimuli.
-        return {'vision'}
+    def required_channels(self) -> Set[str]:
+        # Legacy vision models are unimodal: they can only process images.
+        # Requiring images makes pre-flight reject a benchmark that does not
+        # provide them.
+        return {'vision:image'}
 
     @property
     def out_channels(self) -> Set[str]:

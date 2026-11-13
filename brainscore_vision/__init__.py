@@ -69,7 +69,7 @@ def load_benchmark(identifier: str) -> Benchmark:
 
 
 def load_model(identifier: str) -> 'Subject':
-    from brainscore_core.model_interface import Subject
+    from brainscore_core.contract import Subject
     from brainscore_vision.compat.unified_adapter import VisionModelAdapter
 
     import_plugin('brainscore_vision', 'models', identifier)

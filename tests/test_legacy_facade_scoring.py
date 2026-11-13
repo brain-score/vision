@@ -10,7 +10,7 @@ import pytest
 import brainscore_vision
 from brainscore_core.legacy_facade import LegacyBenchmarkFacade
 from brainscore_core.metrics import Score
-from brainscore_core.model_interface import Subject
+from brainscore_core.contract import Subject
 from brainscore_core.streaming import StreamEvent
 from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly, NeuroidAssembly
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet

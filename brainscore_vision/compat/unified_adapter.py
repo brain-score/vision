@@ -1,18 +1,16 @@
-"""
-Adapter wrapping legacy vision BrainModel to conform to the Subject interface
-(formerly UnifiedModel).
+"""The adapter that makes a legacy vision ``BrainModel`` a subject.
 
-process() delegates to the legacy model's look_at(). The adapter is
-the abstraction boundary: benchmarks above it call process(), legacy
-code below it sees the same look_at() calls it always did.
+A session reaches the legacy model as the ``start_task``, ``start_recording``
+and ``look_at`` calls a legacy benchmark makes. A legacy benchmark that is
+given the adapter directly calls ``look_at`` on it and gets the same calls.
 """
 
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Set
 
-from brainscore_core.model_interface import UnifiedModel, TaskContext
-from brainscore_core.session_view import declared_only
+from brainscore_core.contract import UnifiedModel, TaskContext
 from brainscore_core.streaming import StreamEvent
 from brainscore_core.streaming_helpers import (
+    declared_only,
     drain_session_inputs,
     measurement_settings,
     session_stimuli,
@@ -23,7 +21,6 @@ class VisionModelAdapter(UnifiedModel):
 
     def __init__(self, legacy_model):
         self._legacy = legacy_model
-        self._task: Optional[TaskContext] = None
         # Setup the legacy model currently has, so a repeated identical
         # configuration (a facade session re-sends it per measurement) is
         # applied once, as the legacy benchmark applied it.
@@ -146,15 +143,12 @@ class VisionModelAdapter(UnifiedModel):
         #        benchmark passed travel in metadata['task_settings']
         #   Legacy: start_task(task, fitting_stimuli, **settings)
         if isinstance(task_or_type, TaskContext):
-            task = task_or_type
-            task_type = task.task_type
-            fitting = task.fitting_stimuli
-            settings = dict(task.metadata.get('task_settings', {}))
+            task_type = task_or_type.task_type
+            fitting = task_or_type.fitting_stimuli
+            settings = dict(task_or_type.metadata.get('task_settings', {}))
         else:
-            task = None
             task_type, fitting, settings = task_or_type, fitting_stimuli, dict(kwargs)
         key = (task_type, id(fitting), repr(sorted(settings.items())))
-        self._task = task
         if key == self._configured_task:
             return
         # Forward what the benchmark passed: a task without fitting data
@@ -184,7 +178,6 @@ class VisionModelAdapter(UnifiedModel):
         reset = getattr(self._legacy, 'reset', None)
         if callable(reset):
             reset()
-        self._task = None
         self._configured_task = None
         self._configured_recording = None
 

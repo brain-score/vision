@@ -23,7 +23,7 @@ class VisionModelAdapter(UnifiedModel):
 
     def __init__(self, legacy_model):
         self._legacy = legacy_model
-        self._task_context: Optional[TaskContext] = None
+        self._task: Optional[TaskContext] = None
         # Setup the legacy model currently has, so a repeated identical
         # configuration (a facade session re-sends it per measurement) is
         # applied once, as the legacy benchmark applied it.
@@ -110,10 +110,10 @@ class VisionModelAdapter(UnifiedModel):
         if channel not in self.out_channels:
             raise ValueError(f'Undeclared output channel {channel!r}; declared: '
                              f'{sorted(self.out_channels)}')
-        context = session.task
+        task = session.task
         settings = measurement_settings(session)
-        if context is not None and context.task_type != 'passive':
-            self.start_task(context)
+        if task is not None and task.task_type != 'passive':
+            self.start_task(task)
         elif self._configured_task is not None and self._configured_task[0] != 'passive':
             # An earlier session left the legacy model answering a task. A
             # passive session leaves it the legacy way, as a legacy benchmark
@@ -134,30 +134,30 @@ class VisionModelAdapter(UnifiedModel):
     def look_at(self, stimuli, number_of_trials=1, require_variance=False):
         return self.process(stimuli, number_of_trials, require_variance)
 
-    def start_task(self, task_context_or_task, fitting_stimuli=None,
+    def start_task(self, task_or_type, fitting_stimuli=None,
                    **kwargs) -> None:
         # Accept both calling conventions:
         #   New: start_task(TaskContext(...)); fitting settings a legacy
         #        benchmark passed travel in metadata['task_settings']
         #   Legacy: start_task(task, fitting_stimuli, **settings)
-        if isinstance(task_context_or_task, TaskContext):
-            context = task_context_or_task
-            task = context.task_type
-            fitting = context.fitting_stimuli
-            settings = dict(context.metadata.get('task_settings', {}))
+        if isinstance(task_or_type, TaskContext):
+            task = task_or_type
+            task_type = task.task_type
+            fitting = task.fitting_stimuli
+            settings = dict(task.metadata.get('task_settings', {}))
         else:
-            context = None
-            task, fitting, settings = task_context_or_task, fitting_stimuli, dict(kwargs)
-        key = (task, id(fitting), repr(sorted(settings.items())))
-        self._task_context = context
+            task = None
+            task_type, fitting, settings = task_or_type, fitting_stimuli, dict(kwargs)
+        key = (task_type, id(fitting), repr(sorted(settings.items())))
+        self._task = task
         if key == self._configured_task:
             return
         # Forward what the benchmark passed: a task without fitting data
         # (Hebart2023 odd_one_out) reaches a start_task(self, task) unchanged.
         if fitting is None:
-            self._legacy.start_task(task, **settings)
+            self._legacy.start_task(task_type, **settings)
         else:
-            self._legacy.start_task(task, declared_only(fitting, self.in_channels), **settings)
+            self._legacy.start_task(task_type, declared_only(fitting, self.in_channels), **settings)
         self._configured_task = key
 
     def start_recording(self, recording_target: str,
@@ -179,7 +179,7 @@ class VisionModelAdapter(UnifiedModel):
         reset = getattr(self._legacy, 'reset', None)
         if callable(reset):
             reset()
-        self._task_context = None
+        self._task = None
         self._configured_task = None
         self._configured_recording = None
 
